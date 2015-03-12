@@ -155,6 +155,14 @@ public:
 	{
 		return d2;
 	}
+	static constexpr vm_distance_squared maximum_value()
+	{
+		return vm_distance_squared{0x7fffffffffffffff};
+	}
+	static constexpr vm_distance_squared minimum_value()
+	{
+		return vm_distance_squared{0};
+	}
 };
 
 class vm_magnitude_squared : public vm_distance_squared

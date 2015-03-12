@@ -402,7 +402,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 //returns dist if intersects, and fills in intp
 //else returns 0
 __attribute_warn_unused_result
-static vm_distance check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
+static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
 	vms_vector dn;
 
@@ -414,20 +414,23 @@ static vm_distance check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p
 	const auto mag_d = vm_vec_copy_normalize(dn,d);
 
 	if (mag_d == 0) {
-		const auto int_dist = vm_vec_mag(w);
+		const auto int_dist = vm_vec_mag2(w);
 		intp = p0;
-		if (int_dist < sphere_rad)
+		if (int_dist.d2 < sphere_rad)
 			return int_dist;
-		return vm_distance::minimum_value();
+		const fix64 sphere_rad64 = sphere_rad;
+		if (int_dist < vm_distance_squared{sphere_rad64 * sphere_rad64})
+			return int_dist;
+		return vm_distance_squared::minimum_value();
 	}
 
 	const fix w_dist = vm_vec_dot(dn,w);
 
 	if (w_dist < 0)		//moving away from object
-		return vm_distance::minimum_value();
+		return vm_distance_squared::minimum_value();
 
 	if (w_dist > mag_d+sphere_rad)
-		return vm_distance::minimum_value();		//cannot hit
+		return vm_distance_squared::minimum_value();		//cannot hit
 
 	const auto closest_point = vm_vec_scale_add(p0,dn,w_dist);
 
@@ -449,17 +452,17 @@ static vm_distance check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p
 			if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
 			{
 				intp = p0; //don't move at all
-				return vm_distance{1}; // note that we do not calculate a valid collision point. This is up to collision handling.
+				return vm_distance_squared{1}; // note that we do not calculate a valid collision point. This is up to collision handling.
 			} else {
-				return vm_distance::minimum_value();
+				return vm_distance_squared::minimum_value();
 			}
 		}
 
 		vm_vec_scale_add(intp,p0,dn,int_dist);         //calc intersection point
-		return vm_distance{int_dist};
+		return vm_distance_squared{int_dist * int_dist};
 	}
 	else
-		return vm_distance::minimum_value();
+		return vm_distance_squared::minimum_value();
 }
 
 /*
@@ -576,7 +579,7 @@ static vm_distance check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 __attribute_warn_unused_result
-static vm_distance check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
+static vm_distance_squared check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
 {
 	fix size = obj->size;
 
@@ -795,7 +798,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 	int centermask;			//where the center point is
 	segmasks masks;
 	vms_vector closest_hit_point = ZERO_VECTOR; 	//where we hit
-	vm_distance closest_d = closest_d.maximum_value();					//distance to hit point
+	auto closest_d = vm_distance_squared::maximum_value();					//distance to hit point
 	int hit_type=HIT_NONE;							//what sort of hit
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
@@ -957,7 +960,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 								if (sub_hit_type != HIT_NONE) {
 
-									const auto d = vm_vec_dist(sub_hit_point,p0);
+									const auto d = vm_vec_dist2(sub_hit_point,p0);
 
 									if (d < closest_d) {
 
@@ -991,7 +994,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 																
 								//is this the closest hit?
 	
-								const auto d = vm_vec_dist(hit_point,p0);
+								const auto d = vm_vec_dist2(hit_point,p0);
 	
 								if (d < closest_d) {
 									closest_d = d;
