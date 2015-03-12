@@ -444,7 +444,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
 		{
 			//past one or the other end of vector, which means we're inside? WRONG! Either you're inside OR you didn't quite make it!
-			if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
+			if (vm_vec_dist2(p0, sphere_pos) < sphere_rad_squared)
 			{
 				intp = p0; //don't move at all
 				return vm_distance_squared{1}; // note that we do not calculate a valid collision point. This is up to collision handling.
