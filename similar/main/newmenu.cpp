@@ -84,7 +84,7 @@ struct newmenu : embed_window_pointer_t
 	short			swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
 	const char			*title;
 	const char			*subtitle;
-	int				nitems;
+	unsigned		nitems;
 	int				citem;
 	newmenu_item	*items;
 	int				(*subfunction)(newmenu *menu,const d_event &event, void *userdata);
@@ -653,15 +653,15 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						if (i != menu->citem) {
 							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
 						}
-
 						menu->citem = i;
-
-						switch( menu->items[menu->citem].type )	{
+						auto &citem = menu->items[menu->citem];
+						switch (citem.type)
+						{
 							case NM_TYPE_CHECK:
-								if ( menu->items[menu->citem].value )
-									menu->items[menu->citem].value = 0;
+								if (citem.value)
+									citem.value = 0;
 								else
-									menu->items[menu->citem].value = 1;
+									citem.value = 1;
 
 								if (menu->is_scroll_box)
 									menu->last_scroll_check=-1;
@@ -669,12 +669,13 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 								break;
 							case NM_TYPE_RADIO:
 								for (i=0; i<menu->nitems; i++ )	{
-									if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
+									if (i != menu->citem && menu->items[i].type == NM_TYPE_RADIO && menu->items[i].group == citem.group && menu->items[i].value)
+									{
 										menu->items[i].value = 0;
 										changed = 1;
 									}
 								}
-								menu->items[menu->citem].value = 1;
+								citem.value = 1;
 								break;
 							case NM_TYPE_TEXT:
 								menu->citem=old_choice;
@@ -731,14 +732,14 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						if (i != menu->citem) {
 							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
 						}
-
 						menu->citem = i;
-
-						if ( menu->items[menu->citem].type == NM_TYPE_SLIDER ) {
+						auto &citem = menu->items[menu->citem];
+						if (citem.type == NM_TYPE_SLIDER)
+						{
 							char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
 							int slider_width, height, aw, sleft_width, sright_width, smiddle_width;
 
-							strcpy(slider_text, menu->items[menu->citem].saved_text);
+							strcpy(slider_text, citem.saved_text);
 							p = strchr(slider_text, '\t');
 							if (p) {
 								*p = '\0';
@@ -750,22 +751,26 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 								gr_get_string_size(SLIDER_RIGHT, &sright_width, &height, &aw);
 								gr_get_string_size(SLIDER_MIDDLE, &smiddle_width, &height, &aw);
 
-								x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->citem].x + menu->items[menu->citem].w - slider_width;
+								x1 = grd_curcanv->cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
-								if ( (mx > x1) && (mx < (x1 + sleft_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].min_value) ) {
-									menu->items[menu->citem].value = menu->items[menu->citem].min_value;
+								if (mx > x1 && mx < (x1 + sleft_width) && citem.value != citem.min_value)
+								{
+									citem.value = citem.min_value;
 									changed = 1;
-								} else if ( (mx < x2) && (mx > (x2 - sright_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].max_value) ) {
-									menu->items[menu->citem].value = menu->items[menu->citem].max_value;
+								}
+								else if (mx < x2 && mx > (x2 - sright_width) && citem.value != citem.max_value)
+								{
+									citem.value = citem.max_value;
 									changed = 1;
 								} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
 									int num_values, value_width, new_value;
 
-									num_values = menu->items[menu->citem].max_value - menu->items[menu->citem].min_value + 1;
+									num_values = citem.max_value - citem.min_value + 1;
 									value_width = (slider_width - sleft_width - sright_width) / num_values;
 									new_value = (mx - x1 - sleft_width) / value_width;
-									if ( menu->items[menu->citem].value != new_value ) {
-										menu->items[menu->citem].value = new_value;
+									if (citem.value != new_value)
+									{
+										citem.value = new_value;
 										changed = 1;
 									}
 								}
@@ -774,8 +779,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						}
 						if (menu->citem == old_choice)
 							break;
-						if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
-							menu->items[menu->citem].value = -1;
+						if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+							citem.value = -1;
 						if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
 							menu->items[old_choice].group=0;
 							strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
@@ -826,14 +831,19 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				}
 			}
 
-			if ((event.type == EVENT_MOUSE_BUTTON_UP) && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))
+			if (event.type == EVENT_MOUSE_BUTTON_UP && menu->citem > -1)
 			{
-				menu->items[menu->citem].group = 1;
-				if (!d_stricmp(menu->items[menu->citem].saved_text, TXT_EMPTY))	{
-					menu->items[menu->citem].text[0] = 0;
-					menu->items[menu->citem].value = -1;
-				} else {
-					strip_end_whitespace(menu->items[menu->citem].text);
+				auto &citem = menu->items[menu->citem];
+				if (citem.type == NM_TYPE_INPUT_MENU && citem.group == 0)
+				{
+					citem.group = 1;
+					if (!d_stricmp(citem.saved_text, TXT_EMPTY))
+					{
+						citem.text[0] = 0;
+						citem.value = -1;
+					} else {
+						strip_end_whitespace(citem.text);
+					}
 				}
 			}
 
@@ -849,10 +859,14 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 		case MBTN_RIGHT:
 			if (menu->mouse_state)
 			{
-				if ( (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==1))	{
-					menu->items[menu->citem].group=0;
-					strcpy(menu->items[menu->citem].text, menu->items[menu->citem].saved_text );
-					menu->items[menu->citem].value = -1;
+				if (!(menu->citem > -1))
+					return window_event_result::close;
+				auto &citem = menu->items[menu->citem];
+				if (citem.type == NM_TYPE_INPUT_MENU && citem.group == 1)
+				{
+					citem.group = 0;
+					strcpy(citem.text, citem.saved_text);
+					citem.value = -1;
 				} else {
 					return window_event_result::close;
 				}
@@ -873,7 +887,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 static window_event_result newmenu_key_command(window *, const d_event &event, newmenu *menu)
 {
-	newmenu_item *item = &menu->items[menu->citem];
 	int k = event_key_get(event);
 	int old_choice, i;
 	int changed = 0;
@@ -898,6 +911,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 	}
 
 	old_choice = menu->citem;
+	auto &citem = menu->items[menu->citem];
 
 	switch( k )	{
 		case KEY_HOME:
@@ -917,8 +931,8 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			else
 				newmenu_scroll(menu, -1);
 
-			if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
-				menu->items[menu->citem].value = -1;
+			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+				citem.value = -1;
 			if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
 				menu->items[old_choice].group=0;
 				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
@@ -934,8 +948,8 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			else
 				newmenu_scroll(menu, 1);
 
-			if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
-				menu->items[menu->citem].value = -1;
+			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
+				citem.value = -1;
 			if ( (old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
 				menu->items[old_choice].group=0;
 				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
@@ -944,17 +958,17 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			break;
 		case KEY_SPACEBAR:
 			if ( menu->citem > -1 )	{
-
-				switch( item->type )	{
+				switch (citem.type)
+				{
 					case NM_TYPE_MENU:
 					case NM_TYPE_INPUT:
 					case NM_TYPE_INPUT_MENU:
 						break;
 					case NM_TYPE_CHECK:
-						if ( item->value )
-							item->value = 0;
+						if (citem.value)
+							citem.value = 0;
 						else
-							item->value = 1;
+							citem.value = 1;
 						if (menu->is_scroll_box)
 						{
 							if (menu->citem==(menu->max_on_menu+menu->scroll_offset-1) || menu->citem==menu->scroll_offset)
@@ -967,12 +981,12 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 						break;
 					case NM_TYPE_RADIO:
 						for (i=0; i<menu->nitems; i++ )	{
-							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==item->group) && (menu->items[i].value) )	{
+							if ((i != menu->citem) && (menu->items[i].type == NM_TYPE_RADIO) && (menu->items[i].group == citem.group) && (menu->items[i].value) )	{
 								menu->items[i].value = 0;
 								changed = 1;
 							}
 						}
-						item->value = 1;
+						citem.value = 1;
 						changed = 1;
 						break;
 				}
@@ -981,19 +995,19 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==0))	{
-				item->group = 1;
-				if (!d_stricmp(item->saved_text, TXT_EMPTY))
+			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.group == 0)	{
+				citem.group = 1;
+				if (!d_stricmp(citem.saved_text, TXT_EMPTY))
 				{
-					item->text[0] = 0;
-					item->value = -1;
+					citem.text[0] = 0;
+					citem.value = -1;
 				} else {
-					strip_end_whitespace(item->text);
+					strip_end_whitespace(citem.text);
 				}
 			} else
 			{
-				if (item->type==NM_TYPE_INPUT_MENU)
-					item->group = 0;	// go out of editing mode
+				if (citem.type == NM_TYPE_INPUT_MENU)
+					citem.group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
 				const d_select_event selected{menu->citem};
@@ -1007,10 +1021,11 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			break;
 
 		case KEY_ESC:
-			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==1))	{
-				item->group=0;
-				strcpy(item->text, item->saved_text );
-				item->value = -1;
+			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.group == 1)
+			{
+				citem.group = 0;
+				strcpy(citem.text, citem.saved_text);
+				citem.value = -1;
 			} else {
 				return window_event_result::close;
 			}
@@ -1022,35 +1037,35 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 	if ( menu->citem > -1 )	{
 		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
-		if ( ((item->type==NM_TYPE_INPUT)||((item->type==NM_TYPE_INPUT_MENU)&&(item->group==1)) )&& (old_choice==menu->citem) )	{
+		if ( ((citem.type == NM_TYPE_INPUT)||((citem.type == NM_TYPE_INPUT_MENU)&&(citem.group == 1)) )&& (old_choice == menu->citem) )	{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
-				if (item->value==-1) item->value = strlen(item->text);
-				if (item->value > 0)
-					item->value--;
-				item->text[item->value] = 0;
+				if (citem.value == -1) citem.value = strlen(citem.text);
+				if (citem.value > 0)
+					citem.value--;
+				citem.text[citem.value] = 0;
 
-				if (item->type==NM_TYPE_INPUT)
+				if (citem.type == NM_TYPE_INPUT)
 					changed = 1;
 				rval = window_event_result::handled;
 			} else {
 				auto ascii = key_ascii();
-				if ((ascii < 255 ) && (item->value < item->text_len ))
+				if ((ascii < 255 ) && (citem.value < citem.text_len ))
 				{
-					if (item->value==-1) {
-						item->value = 0;
+					if (citem.value == -1) {
+						citem.value = 0;
 					}
 					if (char_allowed(ascii) || (ascii == ' ' && char_allowed(ascii = '_')))
 					{
-						item->text[item->value++] = ascii;
-						item->text[item->value] = 0;
+						citem.text[citem.value++] = ascii;
+						citem.text[citem.value] = 0;
 
-						if (item->type==NM_TYPE_INPUT)
+						if (citem.type == NM_TYPE_INPUT)
 							changed = 1;
 					}
 				}
 			}
 		}
-		else if ((item->type!=NM_TYPE_INPUT) && (item->type!=NM_TYPE_INPUT_MENU) )
+		else if ((citem.type != NM_TYPE_INPUT) && (citem.type != NM_TYPE_INPUT_MENU) )
 		{
 			auto ascii = key_ascii();
 			if (ascii < 255 ) {
@@ -1084,35 +1099,35 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			}
 		}
 
-		if ( (item->type==NM_TYPE_NUMBER) || (item->type==NM_TYPE_SLIDER))
+		if ( (citem.type == NM_TYPE_NUMBER) || (citem.type == NM_TYPE_SLIDER))
 		{
 			switch( k ) {
 				case KEY_LEFT:
 				case KEY_PAD4:
-					item->value -= 1;
+					citem.value -= 1;
 					changed = 1;
 					rval = window_event_result::handled;
 					break;
 				case KEY_RIGHT:
 				case KEY_PAD6:
-					item->value++;
+					citem.value++;
 					changed = 1;
 					rval = window_event_result::handled;
 					break;
 				case KEY_SPACEBAR:
-					item->value += 10;
+					citem.value += 10;
 					changed = 1;
 					rval = window_event_result::handled;
 					break;
 				case KEY_BACKSP:
-					item->value -= 10;
+					citem.value -= 10;
 					changed = 1;
 					rval = window_event_result::handled;
 					break;
 			}
 
-			if (item->value < item->min_value) item->value=item->min_value;
-			if (item->value > item->max_value) item->value=item->max_value;
+			if (citem.value < citem.min_value) citem.value = citem.min_value;
+			if (citem.value > citem.max_value) citem.value = citem.max_value;
 		}
 
 	}
