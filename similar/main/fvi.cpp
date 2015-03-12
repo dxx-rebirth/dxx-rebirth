@@ -180,7 +180,6 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 	else {
 		vms_vector edgevec;            //this time, real 3d vectors
 		vms_vector closest_point;
-		fix d;
 		int itype;
 		int edgenum;
 
@@ -198,7 +197,11 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 		
 		//find point dist from planes of ends of edge
 
-		d = vm_vec_dot(edgevec,checkvec);
+		const auto d = vm_vec_dot(edgevec,checkvec);
+		if (d < 0)
+			return IT_NONE;
+		else if (d > edgelen)
+			return IT_NONE;
 
 		if (d+rad < 0) return IT_NONE;                  //too far behind start point
 
@@ -206,10 +209,6 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 
 		//find closest point on edge to check point
 
-		if (d < 0)
-			return IT_NONE;
-		else if (d > edgelen)
-			return IT_NONE;
 		else {
 			itype = IT_EDGE;
 
