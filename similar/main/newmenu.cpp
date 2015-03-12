@@ -396,11 +396,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			break;
 		case NM_TYPE_NUMBER:
 		{
-			char text[10];
+			char text[sizeof("-2147483647")];
 			if (item->value < item->min_value) item->value=item->min_value;
 			if (item->value > item->max_value) item->value=item->max_value;
 			nm_string( item->w, item->x, item->y-(((int)LINE_SPACING)*scroll_offset), item->text, tabs_flag );
-			sprintf( text, "%d", item->value );
+			snprintf(text, sizeof(text), "%d", item->value );
 			nm_rstring( item->right_offset,item->x, item->y-(((int)LINE_SPACING)*scroll_offset), text );
 		}
 			break;
@@ -410,23 +410,22 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 const char *Newmenu_allowed_chars=NULL;
 
 //returns true if char is allowed
-static int char_allowed(char c)
+static bool char_disallowed(char c)
 {
 	const char *p = Newmenu_allowed_chars;
-
 	if (!p)
-		return 1;
-
-	while (*p) {
-		Assert(p[1]);
-
-		if (c>=p[0] && c<=p[1])
-			return 1;
-
-		p += 2;
+		return false;
+	for (uint8_t a, b; (a = p[0]) && (b = p[1]); p += 2)
+	{
+		if (likely(c >= a && c <= b))
+			return false;
 	}
+	return true;
+}
 
-	return 0;
+static bool char_allowed(char c)
+{
+	return !char_disallowed(c);
 }
 
 static void strip_end_whitespace( char * text )
