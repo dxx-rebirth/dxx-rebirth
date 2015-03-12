@@ -430,14 +430,14 @@ static bool char_allowed(char c)
 
 static void strip_end_whitespace( char * text )
 {
-	int i,l;
-	l = strlen( text );
-	for (i=l-1; i>=0; i-- )	{
-		if ( isspace(text[i]) )
-			text[i] = 0;
-		else
-			return;
+	char *ns = text;
+	for (char c; (c = *text);)
+	{
+		++ text;
+		if (!isspace(static_cast<unsigned>(c)))
+			ns = text;
 	}
+	*ns = 0;
 }
 
 int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
