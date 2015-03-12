@@ -1022,8 +1022,6 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 	}
 
 	if ( menu->citem > -1 )	{
-		int ascii;
-
 		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
 		if ( ((item->type==NM_TYPE_INPUT)||((item->type==NM_TYPE_INPUT_MENU)&&(item->group==1)) )&& (old_choice==menu->citem) )	{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
@@ -1036,23 +1034,14 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 					changed = 1;
 				rval = window_event_result::handled;
 			} else {
-				ascii = key_ascii();
+				auto ascii = key_ascii();
 				if ((ascii < 255 ) && (item->value < item->text_len ))
 				{
-					int allowed;
-
 					if (item->value==-1) {
 						item->value = 0;
 					}
-
-					allowed = char_allowed(ascii);
-
-					if (!allowed && ascii==' ' && char_allowed('_')) {
-						ascii = '_';
-						allowed=1;
-					}
-
-					if (allowed) {
+					if (char_allowed(ascii) || (ascii == ' ' && char_allowed(ascii = '_')))
+					{
 						item->text[item->value++] = ascii;
 						item->text[item->value] = 0;
 
@@ -1064,7 +1053,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 		}
 		else if ((item->type!=NM_TYPE_INPUT) && (item->type!=NM_TYPE_INPUT_MENU) )
 		{
-			ascii = key_ascii();
+			auto ascii = key_ascii();
 			if (ascii < 255 ) {
 				int choice1 = menu->citem;
 				ascii = toupper(ascii);
