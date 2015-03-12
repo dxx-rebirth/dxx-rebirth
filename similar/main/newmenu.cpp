@@ -440,7 +440,7 @@ static void strip_end_whitespace( char * text )
 	*ns = 0;
 }
 
-int newmenu_do2( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
+int newmenu_do2( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
 {
 	newmenu *menu;
 	window *wind;
@@ -506,7 +506,7 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder( const char * title, const char * subtitle, int nitems, newmenu_item * item)
+void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item)
 {
 	newmenu *menu;
 	window *wind;
@@ -1540,7 +1540,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	return window_event_result::ignored;
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
+newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu = new newmenu{};
@@ -1637,7 +1637,7 @@ struct listbox : embed_window_pointer_t
 	int allow_abort_flag;
 	unsigned marquee_maxchars;
 	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
-	int nitems;
+	unsigned nitems;
 	int citem, first_item;
 	int marquee_charpos, marquee_scrollback;
 	int box_w, height, box_x, box_y, title_height;
@@ -2041,7 +2041,7 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 		case EVENT_WINDOW_DRAW:
 			return listbox_draw(wind, lb);
 		case EVENT_WINDOW_CLOSE:
-			delete lb;
+			std::default_delete<listbox>()(lb);
 			break;
 		default:
 			break;
@@ -2049,9 +2049,9 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 	return window_event_result::ignored;
 }
 
-listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
+listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
 {
-	listbox *lb = new listbox{};
+	std::unique_ptr<listbox> lb{new listbox{}};
 	window *wind;
 	newmenu_free_background();
 
@@ -2065,13 +2065,12 @@ listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], 
 
 	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
 	
-	listbox_create_structure(lb);
+	listbox_create_structure(lb.get());
 
-	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb);
+	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb.get());
 	if (!wind)
 	{
-		delete lb;
-		return NULL;
+		lb.reset();
 	}
-	return lb;
+	return lb.release();
 }

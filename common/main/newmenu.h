@@ -23,13 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _NEWMENU_H
-#define _NEWMENU_H
+#pragma once
 
 #include "event.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <algorithm>
 #include "varutil.h"
 #include "dxxsconf.h"
@@ -78,7 +77,7 @@ class unused_newmenu_userdata_t;
 static const newmenu_subfunction_t<const unused_newmenu_userdata_t>::type unused_newmenu_subfunction = nullptr;
 static const unused_newmenu_userdata_t *const unused_newmenu_userdata = nullptr;
 
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
@@ -90,19 +89,19 @@ int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_ite
 // either/both of these if you don't want them.
 // Same as above, only you can pass through what background bitmap to use.
 template <typename T>
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
 {
 	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata), citem, filename );
 }
 
 template <typename T>
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
 {
 	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename );
 }
 
 template <typename T>
-static inline int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
+static inline int newmenu_do( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
@@ -115,45 +114,45 @@ static inline int newmenu_do(const char *title, const char *subtitle, array<newm
 
 // Same as above, only you can pass through what item is initially selected.
 template <typename T>
-static inline int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )
+static inline int newmenu_do1( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
-static inline newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+static inline newmenu *newmenu_do3( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
 {
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
 // Same as above, but returns menu instead of citem
 template <typename T>
-static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+static newmenu *newmenu_do3(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata), citem, filename);
 }
 
 template <typename T>
-static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
+static newmenu *newmenu_do3(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
-static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
+static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
 {
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 // Tiny menu with GAME_FONT
 template <typename T>
-static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
+static newmenu *newmenu_dotiny(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
 {
 	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata));
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item);
+void newmenu_doreorder(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item *item);
 
 // Sample Code:
 /*
@@ -243,16 +242,16 @@ class unused_listbox_userdata_t;
 static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
 static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
 
-listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
+listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
 }
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
 {
 	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata.get()));
 	userdata.release();
@@ -260,7 +259,7 @@ listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], in
 }
 
 template <typename T>
-listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
 }
@@ -437,6 +436,3 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 #define DXX_READ_INPUT(S,OPT)	/* handled specially */
 
 #endif
-
-#endif /* _NEWMENU_H */
-
