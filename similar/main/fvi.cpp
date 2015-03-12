@@ -433,16 +433,12 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 
 	const auto closest_point = vm_vec_scale_add(p0,dn,w_dist);
 
-	const auto dist = vm_vec_dist(closest_point,sphere_pos);
-
-	if (dist < sphere_rad) {
-		fix dist2,rad2,shorten;
-
-		dist2 = fixmul(dist,dist);
-		rad2 = fixmul(sphere_rad,sphere_rad);
-
-		shorten = fix_sqrt(rad2 - dist2);
-
+	const auto dist2 = vm_vec_dist2(closest_point,sphere_pos);
+	const fix64 sphere_rad64 = sphere_rad;
+	const vm_distance_squared sphere_rad_squared{sphere_rad64 * sphere_rad64};
+	if (dist2 < sphere_rad_squared)
+	{
+		const auto shorten = fix_sqrt(static_cast<fix64>(sphere_rad_squared) - static_cast<fix64>(dist2));
 		const auto int_dist = w_dist-shorten;
 
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
