@@ -545,6 +545,49 @@ window *newmenu_get_window(newmenu *menu)
 	return menu->wind;
 }
 
+namespace {
+
+struct step_down
+{
+	template <typename T>
+		T operator()(T &t, int i) const
+		{
+			return i > 0 ? ++t : --t;
+		}
+};
+
+struct step_up
+{
+	template <typename T>
+		T operator()(T &t, int i) const
+		{
+			return i > 0 ? --t : ++t;
+		}
+};
+
+}
+
+template <typename S, typename O>
+static void update_menu_position(newmenu &menu, const int stop, int_fast32_t amount, S step, O overflow)
+{
+	auto icitem = menu.citem;
+	auto pcitem = &menu.items[icitem];
+	do // count until we reached a non NM_TYPE_TEXT item and reached our amount
+	{
+		if (icitem == stop)
+			break;
+		step(icitem, 1);
+		step(pcitem, 1);
+		if (menu.is_scroll_box) // update scroll_offset as we go
+		{
+			menu.last_scroll_check = -1;
+			if (overflow(icitem))
+				step(menu.scroll_offset, 1);
+		}
+	} while (-- amount > 0 || pcitem->type == NM_TYPE_TEXT);
+	menu.citem = icitem;
+}
+
 static void newmenu_scroll(newmenu *menu, int amount)
 {
 	int i = 0, first = 0, last = 0;
@@ -593,38 +636,19 @@ static void newmenu_scroll(newmenu *menu, int amount)
 		return;
 	}
 
-	i = 0;
 	if (amount > 0) // down the list
 	{
-		do // count down until we reached a non NM_TYPE_TEXT item and reached our amount
-		{
-			if (menu->citem == last) // stop if we reached the last item
-				return;
-			i++;
-			menu->citem++;
-			if (menu->is_scroll_box) // update scroll_offset as we go down the menu
-			{
-				menu->last_scroll_check=-1;
-				if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
-					menu->scroll_offset++;
-			}
-		} while (menu->items[menu->citem].type == NM_TYPE_TEXT || i < amount);
+		const auto overflow = [menu](int icitem) {
+			return icitem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < menu->nitems - menu->max_on_menu;
+		};
+		update_menu_position(*menu, last, amount, step_down(), overflow);
 	}
 	else if (amount < 0) // up the list
 	{
-		do // count up until we reached a non NM_TYPE_TEXT item and reached our amount
-		{
-			if (menu->citem == first)  // stop if we reached the first item
-				return;
-			i--;
-			menu->citem--;
-			if (menu->is_scroll_box) // update scroll_offset as we go up the menu
-			{
-				menu->last_scroll_check=-1;
-				if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
-					menu->scroll_offset--;
-			}
-		} while (menu->items[menu->citem].type == NM_TYPE_TEXT || i > amount);
+		const auto overflow = [menu](int icitem) {
+			return icitem - 4 < menu->scroll_offset && menu->scroll_offset > 0;
+		};
+		update_menu_position(*menu, first, std::abs(amount), step_up(), overflow);
 	}
 }
 
