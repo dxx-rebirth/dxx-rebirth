@@ -244,8 +244,6 @@ static void apply_force_damage(const vobjptridx_t obj,fix force,const vobjptridx
 //	-----------------------------------------------------------------------------
 static void bump_this_object(const vobjptridx_t objp, const vobjptridx_t other_objp, const vms_vector &force, int damage_flag)
 {
-	fix force_mag;
-
 	if (! (objp->mtype.phys_info.flags & PF_PERSISTENT))
 	{
 		if (objp->type == OBJ_PLAYER) {
@@ -256,7 +254,7 @@ static void bump_this_object(const vobjptridx_t objp, const vobjptridx_t other_o
 			phys_apply_force(objp,force2);
 			if (damage_flag && ((other_objp->type != OBJ_ROBOT) || !robot_is_companion(&Robot_info[get_robot_id(other_objp)])))
 			{
-				force_mag = vm_vec_mag_quick(force2);
+				auto force_mag = vm_vec_mag_quick(force2);
 				apply_force_damage(objp, force_mag, other_objp);
 			}
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
@@ -269,7 +267,7 @@ static void bump_this_object(const vobjptridx_t objp, const vobjptridx_t other_o
 				phys_apply_force(objp, force);
 				phys_apply_rot(objp, force2);
 				if (damage_flag) {
-					force_mag = vm_vec_mag_quick(force);
+					auto force_mag = vm_vec_mag_quick(force);
 					apply_force_damage(objp, force_mag, other_objp);
 				}
 			}
@@ -1242,7 +1240,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
 			const auto obj2weapon = vm_vec_sub(collision_point, controlcen->pos);
-			fix mag = vm_vec_mag(obj2weapon);
+			const auto mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
 				vm_vec_scale_add(collision_point, controlcen->pos, obj2weapon, fixdiv(controlcen->size, mag)); 
@@ -1654,7 +1652,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	if ( wi->damage_radius )
 	{
 		const auto obj2weapon = vm_vec_sub(collision_point, robot->pos);
-		fix mag = vm_vec_mag(obj2weapon);
+		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, robot->pos, obj2weapon, fixdiv(robot->size, mag)); 
@@ -2126,7 +2124,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
 		const auto obj2weapon = vm_vec_sub(collision_point, playerobj->pos);
-		fix mag = vm_vec_mag(obj2weapon);
+		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
@@ -2274,9 +2272,7 @@ static void collide_player_and_clutter(const vobjptridx_t  playerobj, const vobj
 int maybe_detonate_weapon(const vobjptridx_t weapon1, const vobjptr_t weapon2, const vms_vector &collision_point)
 {
 	if ( Weapon_info[get_weapon_id(weapon1)].damage_radius ) {
-		fix	dist;
-
-		dist = vm_vec_dist_quick(weapon1->pos, weapon2->pos);
+		auto dist = vm_vec_dist_quick(weapon1->pos, weapon2->pos);
 		if (dist < F1_0*5) {
 			maybe_kill_weapon(weapon1,weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {
@@ -2289,7 +2285,7 @@ int maybe_detonate_weapon(const vobjptridx_t weapon1, const vobjptr_t weapon2, c
 			}
 			return 1;
 		} else {
-			weapon1->lifeleft = min(dist/64, F1_0);
+			weapon1->lifeleft = min(static_cast<fix>(dist) / 64, F1_0);
 			return 1;
 		}
 	} else

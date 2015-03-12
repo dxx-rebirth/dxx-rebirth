@@ -1762,7 +1762,7 @@ static void object_move_one(const vobjptridx_t obj)
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
 							if (!lavafall_hiss_playing[obj->id]) {
-								digi_link_sound_to_object3( sound, obj, 1, F1_0, i2f(256), -1, -1);
+								digi_link_sound_to_object3( sound, obj, 1, F1_0, vm_distance{i2f(256)}, -1, -1);
 								lavafall_hiss_playing[obj->id] = 1;
 							}
 						}

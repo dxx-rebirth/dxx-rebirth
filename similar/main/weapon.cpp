@@ -1073,9 +1073,9 @@ void process_super_mines_frame(void)
 			if (jo->type != OBJ_PLAYER && jo->type != OBJ_ROBOT)
 				continue;
 			const auto dist_squared = vm_vec_dist2(bombpos, jo->pos);
-			const fix64 distance_threshold = F1_0 * 20;
-			const fix64 distance_threshold_squared = distance_threshold * distance_threshold;
-			if (likely(dist_squared >= distance_threshold_squared))
+			const vm_distance distance_threshold{F1_0 * 20};
+			const auto distance_threshold_squared = distance_threshold * distance_threshold;
+			if (likely(distance_threshold_squared < dist_squared))
 				/* Cheap check, some false negatives */
 				continue;
 			const fix64 j_size = jo->size;

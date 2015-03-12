@@ -96,7 +96,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 	obj->ctype.expl_info.delete_time = -1;
 
 	if (maxdamage > 0) {
-		fix dist, force;
+		fix force;
 		vms_vector pos_hit, vforce;
 		fix damage;
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
@@ -128,7 +128,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 				 ))
 #endif
 			{
-				dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
+				const auto dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
 					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {
@@ -758,7 +758,6 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 {
 	objptridx_t	objnum = object_none;
 	vms_vector	new_velocity, new_pos;
-	fix		old_mag;
    int             count;
 
 	switch (type) {
@@ -766,7 +765,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				new_velocity = init_vel;
-				old_mag = vm_vec_mag_quick(init_vel);
+				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
@@ -846,7 +845,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				auto new_velocity = vm_vec_normalized_quick(init_vel);
-				old_mag = vm_vec_mag_quick(init_vel);
+				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 //				if (Game_mode & GM_MULTI)

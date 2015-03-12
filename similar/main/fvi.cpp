@@ -180,7 +180,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 	else {
 		vms_vector edgevec;            //this time, real 3d vectors
 		vms_vector closest_point;
-		fix edgelen,d,dist;
+		fix d;
 		int itype;
 		int edgenum;
 
@@ -194,7 +194,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 		//check if we are touching an edge or point
 
 		const auto checkvec = vm_vec_sub(checkp,v0);
-		edgelen = vm_vec_normalized_dir(edgevec,v1,v0);
+		const auto edgelen = vm_vec_normalized_dir(edgevec,v1,v0);
 		
 		//find point dist from planes of ends of edge
 
@@ -219,7 +219,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const side *s,int facenum
 			vm_vec_scale_add(closest_point,v0,edgevec,d);
 		}
 
-		dist = vm_vec_dist(checkp,closest_point);
+		const auto dist = vm_vec_dist(checkp,closest_point);
 
 		if (dist <= rad)
 			return (itype==IT_POINT)?IT_NONE:itype;
@@ -315,8 +315,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 __attribute_warn_unused_result
 static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_vector &p1,const vcsegptridx_t seg,int side,int facenum,int nv,fix rad)
 {
-	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
-	fix edge_len=0,move_len=0;
+	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0;
 	int edgenum;
 	uint edgemask;
 	const struct side *s=&seg->sides[side];
@@ -347,8 +346,8 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//first, find point of closest approach of vec & edge
 
-	edge_len = vm_vec_normalize(edge_vec);
-	move_len = vm_vec_normalize(move_vec);
+	const auto edge_len = vm_vec_normalize(edge_vec);
+	const auto move_len = vm_vec_normalize(move_vec);
 
 	check_line_to_line(&edge_t,&move_t,edge_v0,edge_vec,p0,move_vec);
 
@@ -376,7 +375,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//find dist between closest points
 
-	closest_dist = vm_vec_dist(closest_point_edge,closest_point_move);
+	const auto closest_dist = vm_vec_dist(closest_point_edge,closest_point_move);
 
 	//could we hit with this dist?
 
@@ -403,35 +402,36 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 //returns dist if intersects, and fills in intp
 //else returns 0
 __attribute_warn_unused_result
-static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
+static vm_distance check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,const vms_vector &sphere_pos,fix sphere_rad)
 {
 	vms_vector dn;
-	fix mag_d,dist,w_dist,int_dist;
 
 	//this routine could be optimized if it's taking too much time!
 
 	const auto d = vm_vec_sub(p1,p0);
 	const auto w = vm_vec_sub(sphere_pos,p0);
 
-	mag_d = vm_vec_copy_normalize(dn,d);
+	const auto mag_d = vm_vec_copy_normalize(dn,d);
 
 	if (mag_d == 0) {
-		int_dist = vm_vec_mag(w);
+		const auto int_dist = vm_vec_mag(w);
 		intp = p0;
-		return (int_dist<sphere_rad)?int_dist:0;
+		if (int_dist < sphere_rad)
+			return int_dist;
+		return vm_distance::minimum_value();
 	}
 
-	w_dist = vm_vec_dot(dn,w);
+	const fix w_dist = vm_vec_dot(dn,w);
 
 	if (w_dist < 0)		//moving away from object
-		 return 0;
+		return vm_distance::minimum_value();
 
 	if (w_dist > mag_d+sphere_rad)
-		return 0;		//cannot hit
+		return vm_distance::minimum_value();		//cannot hit
 
 	const auto closest_point = vm_vec_scale_add(p0,dn,w_dist);
 
-	dist = vm_vec_dist(closest_point,sphere_pos);
+	const auto dist = vm_vec_dist(closest_point,sphere_pos);
 
 	if (dist < sphere_rad) {
 		fix dist2,rad2,shorten;
@@ -441,7 +441,7 @@ static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const 
 
 		shorten = fix_sqrt(rad2 - dist2);
 
-		int_dist = w_dist-shorten;
+		const auto int_dist = w_dist-shorten;
 
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
 		{
@@ -449,18 +449,17 @@ static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const 
 			if(vm_vec_dist(p0, sphere_pos) < sphere_rad)
 			{
 				intp = p0; //don't move at all
-				return 1; // note that we do not calculate a valid collision point. This is up to collision handling.
+				return vm_distance{1}; // note that we do not calculate a valid collision point. This is up to collision handling.
 			} else {
-				return 0;
+				return vm_distance::minimum_value();
 			}
 		}
 
 		vm_vec_scale_add(intp,p0,dn,int_dist);         //calc intersection point
-
-		return int_dist;
+		return vm_distance{int_dist};
 	}
 	else
-		return 0;
+		return vm_distance::minimum_value();
 }
 
 /*
@@ -577,7 +576,7 @@ static int check_vector_to_sphere_1(vms_vector &intp,const vms_vector &p0,const 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 __attribute_warn_unused_result
-static fix check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
+static vm_distance check_vector_to_object(vms_vector &intp,const vms_vector &p0,const vms_vector &p1,fix rad,const vcobjptr_t obj,const vcobjptr_t otherobj)
 {
 	fix size = obj->size;
 
@@ -795,8 +794,8 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
 	int centermask;			//where the center point is
 	segmasks masks;
-	vms_vector hit_point,closest_hit_point = ZERO_VECTOR; 	//where we hit
-	fix d,closest_d=0x7fffffff;					//distance to hit point
+	vms_vector closest_hit_point = ZERO_VECTOR; 	//where we hit
+	vm_distance closest_d = closest_d.maximum_value();					//distance to hit point
 	int hit_type=HIT_NONE;							//what sort of hit
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
@@ -850,7 +849,8 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 						((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
 					fudged_rad = rad/2;	//(rad*3)/4;
 
-				d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
+				vms_vector hit_point;
+				const auto d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
 
 				if (d)          //we have intersection
 					if (d < closest_d) {
@@ -902,6 +902,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 					//did we go through this wall/door?
 
+					vms_vector hit_point;
 					if (startmask & bit)		//start was also though.  Do extra check
 						face_hit_type = special_check_line_to_face(hit_point,
 										p0,p1,seg,side,
@@ -956,7 +957,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 								if (sub_hit_type != HIT_NONE) {
 
-									d = vm_vec_dist(sub_hit_point,p0);
+									const auto d = vm_vec_dist(sub_hit_point,p0);
 
 									if (d < closest_d) {
 
@@ -990,7 +991,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 																
 								//is this the closest hit?
 	
-								d = vm_vec_dist(hit_point,p0);
+								const auto d = vm_vec_dist(hit_point,p0);
 	
 								if (d < closest_d) {
 									closest_d = d;

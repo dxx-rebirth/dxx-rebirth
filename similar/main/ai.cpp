@@ -558,11 +558,10 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp,
 	dot = vm_vec_dot(goal_vector, objp->orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
-		fix	mag;
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
 		vm_vec_scale(new_fvec, new_scale);
 		vm_vec_add2(new_fvec, objp->orient.fvec);
-		mag = vm_vec_normalize_quick(new_fvec);
+		auto mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
 			new_fvec = goal_vector;		//	if degenerate vector, go right to goal
 		}
@@ -1251,7 +1250,7 @@ player_led: ;
 static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal, int dot_based)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	fix				speed, dot, max_speed;
+	fix				dot, max_speed;
 	robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
@@ -1279,7 +1278,7 @@ static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal
 		pptr->velocity.z += fixmul(vec_goal.z, FrameTime*64) * (Difficulty_level+5)/4;
 	}
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 	max_speed = robptr->max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
@@ -1312,7 +1311,6 @@ void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
 static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	fix				speed;
 	int				dir;
 	vms_vector		evade_vector;
 
@@ -1377,7 +1375,7 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 	pptr->velocity.y += evade_vector.y;
 	pptr->velocity.z += evade_vector.z;
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 	if (speed > robptr->max_speed[Difficulty_level]) {
 		pptr->velocity.x = (pptr->velocity.x*3)/4;
 		pptr->velocity.y = (pptr->velocity.y*3)/4;
@@ -1388,7 +1386,6 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 // --------------------------------------------------------------------------------------------------------------------
 static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
-	fix				speed;
 	physics_info	*pptr = &objp->mtype.phys_info;
 	int				objref;
 
@@ -1418,7 +1415,7 @@ static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec
 	}
 
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 
 	const robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 	if (speed > robptr->max_speed[Difficulty_level]) {
@@ -1446,13 +1443,13 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		const vobjptridx_t dobjp = vobjptridx(objp->ctype.ai_info.danger_laser_num);
 
 		if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == objp->ctype.ai_info.danger_laser_signature)) {
-			fix			dot, dist_to_laser, field_of_view;
+			fix			dot, field_of_view;
 			vms_vector	laser_fvec;
 
 			field_of_view = robptr->field_of_view[Difficulty_level];
 
 			auto vec_to_laser = vm_vec_sub(dobjp->pos, objp->pos);
-			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
+			auto dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
 			dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
@@ -1656,7 +1653,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 {
 	if (!*flag) {
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-			fix			delta_time, dist;
+			fix			delta_time;
 			int			cloak_index = (objp) % MAX_AI_CLOAK_INFO;
 
 			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
@@ -1666,7 +1663,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
-			dist = vm_vec_normalized_dir_quick(vec_to_player, Ai_cloak_info[cloak_index].last_position, pos);
+			auto dist = vm_vec_normalized_dir_quick(vec_to_player, Ai_cloak_info[cloak_index].last_position, pos);
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
@@ -2199,10 +2196,10 @@ static void teleport_boss(const vobjptridx_t objp)
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 #elif defined(DXX_BUILD_DESCENT_II)
 	ailp->next_fire2 = 0;
-	digi_link_sound_to_object2( Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2(Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 #endif
 
 }
@@ -2237,7 +2234,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
-			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
                         create_small_fireball_on_object(objp, (F1_0 + d_rand()) * 8, 0);
         } else if (d_rand() < FrameTime*8)
@@ -2248,7 +2245,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 	}
 }
 
@@ -2346,7 +2343,7 @@ static int do_robot_dying_frame(const vobjptridx_t objp, fix64 start_time, fix r
 	if (start_time + roll_duration - sound_duration < GameTime64) {
 		if (!*dying_sound_playing) {
 			*dying_sound_playing = 1;
-			digi_link_sound_to_object2( death_sound, objp, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(death_sound, objp, 0, sound_scale, vm_distance{sound_scale*256});	//	F1_0*512 means play twice as loud
 		} else if (d_rand() < FrameTime*16)
 			create_small_fireball_on_object(objp, (F1_0 + d_rand()) * (16 * expl_scale/F1_0)/8, 0);
 	} else if (d_rand() < FrameTime*8)
@@ -2370,7 +2367,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 	}
 }
 
@@ -2386,7 +2383,7 @@ static int do_any_robot_dying_frame(const vobjptridx_t objp)
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
-			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 			if ((Current_level_num < 0) && (Robot_info[get_robot_id(objp)].thief))
 				recreate_thief(objp);
 		}
@@ -2903,7 +2900,6 @@ void do_ai_frame(const vobjptridx_t obj)
 	const objnum_t &objnum = obj;
 	ai_static	*aip = &obj->ctype.ai_info;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
-	fix			dist_to_player;
 	vms_vector	vec_to_player;
 	fix			dot;
 	int			player_visibility=-1;
@@ -3030,7 +3026,7 @@ _exit_cheat:
 		}
 	}
 #endif
-	dist_to_player = vm_vec_dist_quick(Believed_player_pos, obj->pos);
+	auto dist_to_player = vm_vec_dist_quick(Believed_player_pos, obj->pos);
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
@@ -3269,7 +3265,7 @@ _exit_cheat:
 			compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
 			{	int pv = player_visibility;
-				fix	dtp = dist_to_player/4;
+				auto dtp = dist_to_player/4;
 
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {

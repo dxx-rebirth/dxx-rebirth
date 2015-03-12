@@ -222,7 +222,7 @@ vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag(src);
-	if (m > 0) {
+	if (m) {
 		vm_vec_divide(dest, src, m);
 	}
 	return m;
@@ -245,7 +245,7 @@ vm_magnitude vm_vec_normalize(vms_vector &v)
 vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag_quick(src);
-	if (m > 0) {
+	if (m) {
 		vm_vec_divide(dest, src, m);
 	}
 	return m;
@@ -450,7 +450,7 @@ void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 void vm_vector_2_matrix(vms_matrix &m,const vms_vector &fvec,const vms_vector *uvec,const vms_vector *rvec)
 {
 	vms_vector &xvec=m.rvec,&yvec=m.uvec,&zvec=m.fvec;
-	if (vm_vec_copy_normalize(zvec,fvec) == 0) {
+	if (!vm_vec_copy_normalize(zvec,fvec)) {
 		Int3();		//forward vec should not be zero-length
 		return;
 	}
@@ -477,13 +477,13 @@ bad_vector2:
 		}
 		else {						//use right vec
 
-			if (vm_vec_copy_normalize(xvec,*rvec) == 0)
+			if (!vm_vec_copy_normalize(xvec,*rvec))
 				goto bad_vector2;
 
 			vm_vec_cross(yvec,zvec,xvec);
 
 			//normalize new perpendicular vector
-			if (vm_vec_normalize(yvec) == 0)
+			if (!vm_vec_normalize(yvec))
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
@@ -493,13 +493,13 @@ bad_vector2:
 	}
 	else {		//use up vec
 
-		if (vm_vec_copy_normalize(yvec,*uvec) == 0)
+		if (!vm_vec_copy_normalize(yvec,*uvec))
 			goto bad_vector2;
 
 		vm_vec_cross(xvec,yvec,zvec);
 		
 		//normalize new perpendicular vector
-		if (vm_vec_normalize(xvec) == 0)
+		if (!vm_vec_normalize(xvec))
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
@@ -594,7 +594,7 @@ static vms_angvec &vm_extract_angles_vector_normalized(vms_angvec &a,const vms_v
 void vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 {
 	vms_vector t;
-	if (vm_vec_copy_normalize(t,v) != 0)
+	if (vm_vec_copy_normalize(t,v))
 		vm_extract_angles_vector_normalized(a,t);
 	else
 		a = {};

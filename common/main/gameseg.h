@@ -146,7 +146,7 @@ segptridx_t find_point_seg(const vms_vector &p,segptridx_t segnum);
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
 struct WALL_IS_DOORWAY_mask_t;
-fix find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
+vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(vms_matrix *m,vcsegptr_t seg);

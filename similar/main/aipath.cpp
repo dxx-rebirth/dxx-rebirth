@@ -921,13 +921,11 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 	ai_static		*aip = &objp->ctype.ai_info;
 
 	vms_vector	goal_point, new_goal_point;
-	fix			dist_to_goal;
 #if defined(DXX_BUILD_DESCENT_II)
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 #endif
 	int			forced_break, original_dir, original_index;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	fix			threshold_distance;
 
 
 	if ((aip->hide_index == -1) || (aip->path_length == 0))
@@ -1004,7 +1002,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 #endif
 
 	goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
-	dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+	auto dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == AIM_RUN_FROM_OBJECT) {
@@ -1070,7 +1068,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 	forced_break = 0;		//	Gets set for short paths.
 	original_dir = aip->PATH_DIR;
 	original_index = aip->cur_path_index;
-	threshold_distance = fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
+	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
 
 #if defined(DXX_BUILD_DESCENT_II)
 	new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
@@ -1584,10 +1582,8 @@ static void player_path_set_orient_and_vel(const vobjptr_t objp, const vms_vecto
 void player_follow_path(const vobjptr_t objp)
 {
 	vms_vector	goal_point;
-	fix			dist_to_goal;
 	int			count, forced_break, original_index;
 	int			goal_seg;
-	fix			threshold_distance;
 
 	if (!Player_following_path_flag)
 		return;
@@ -1602,7 +1598,7 @@ void player_follow_path(const vobjptr_t objp)
 	goal_seg = Point_segs[Player_hide_index + Player_cur_path_index].segnum;
 	Assert((goal_seg >= 0) && (goal_seg <= Highest_segment_index));
 	(void)goal_seg;
-	dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+	auto dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
 
 	if (Player_cur_path_index < 0)
 		Player_cur_path_index = 0;
@@ -1617,7 +1613,7 @@ void player_follow_path(const vobjptr_t objp)
 	forced_break = 0;		//	Gets set for short paths.
 	//original_dir = 1;
 	original_index = Player_cur_path_index;
-	threshold_distance = fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
+	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
 
 	while ((dist_to_goal < threshold_distance) && !forced_break) {
 

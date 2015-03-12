@@ -308,7 +308,6 @@ void do_controlcen_frame(const vobjptridx_t obj)
 
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
 		if (!(d_tick_count % 8)) {		//	Do every so often...
-			fix			dist_to_player;
 			int			i;
 			segment		*segp = &Segments[obj->segnum];
 
@@ -332,7 +331,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 				return;
 
 			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
-			dist_to_player = vm_vec_normalize_quick(vec_to_player);
+			auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
 				Control_center_next_fire_time = 0;
@@ -374,11 +373,10 @@ void do_controlcen_frame(const vobjptridx_t obj)
 			best_gun_num = calc_best_gun(reactor->n_guns, obj, ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
-			fix			dist_to_player;
 			fix			delta_fire_time;
 
 			auto vec_to_goal = vm_vec_sub((Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
-			dist_to_player = vm_vec_normalize_quick(vec_to_goal);
+			auto dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 
 			if (dist_to_player > F1_0*300)
 			{

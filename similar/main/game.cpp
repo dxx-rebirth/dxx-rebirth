@@ -557,7 +557,7 @@ static void do_afterburner_stuff(void)
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
 		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
@@ -565,7 +565,7 @@ static void do_afterburner_stuff(void)
 			}
 		} else {
 			digi_kill_sound_linked_to_object(plobj);
-			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, i2f(256));
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, vm_distance{i2f(256)});
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -1600,14 +1600,13 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 {
 	fix	powerup_size;
 	fix	player_size;
-	fix	dist;
 
 	Assert(powerup->type == OBJ_POWERUP);
 
 	powerup_size = powerup->size;
 	player_size = player->size;
 
-	dist = vm_vec_dist_quick(powerup->pos, player->pos);
+	const auto dist = vm_vec_dist_quick(powerup->pos, player->pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
 		const auto collision_point = vm_vec_avg(powerup->pos, player->pos);

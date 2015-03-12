@@ -42,15 +42,70 @@ class vm_distance
 {
 public:
 	fix d;
+	/* Default constructor only required because Fcd_cache,SoundObjects
+	 * have global scope instances of vm_distance.  They should be
+	 * converted to construct as needed, then the default constructor
+	 * should be removed.
+	 */
+	constexpr vm_distance() : d(0) {}
 	constexpr explicit vm_distance(const fix &f) :
 		d(f)
 	{
 	}
 	template <typename T>
+		vm_distance &operator+=(const T &rhs)
+		{
+			return *this = (*this + rhs);
+		}
+	template <typename T>
+		vm_distance &operator*=(const T &rhs)
+		{
+			return *this = (*this * rhs);
+		}
+	template <typename T>
+		vm_distance &operator/=(const T &rhs)
+		{
+			return *this = (*this / rhs);
+		}
+	constexpr vm_distance operator+(const vm_distance &rhs) const
+	{
+		return vm_distance{d + rhs.d};
+	}
+	constexpr vm_distance operator*(const int &f) const
+	{
+		return vm_distance{d * f};
+	}
+	constexpr vm_distance operator/(const int &f) const
+	{
+		return vm_distance{d / f};
+	}
+	constexpr bool operator<(const fix &f) const
+	{
+		return d < f;
+	}
+	constexpr bool operator<(const vm_distance &rhs) const
+	{
+		return d < rhs.d;
+	}
+	template <typename T>
+		constexpr bool operator>(const T &t) const
+		{
+			return t < *this;
+		}
+	constexpr explicit operator bool() const { return d; }
+	template <typename T>
 		operator T() const = delete;
 	constexpr operator fix() const
 	{
 		return d;
+	}
+	static constexpr vm_distance maximum_value()
+	{
+		return vm_distance{0x7fffffff};
+	}
+	static constexpr vm_distance minimum_value()
+	{
+		return vm_distance{0};
 	}
 };
 
@@ -71,8 +126,31 @@ public:
 		d2(f2)
 	{
 	}
+	constexpr bool operator<(const vm_distance_squared &rhs) const
+	{
+		return d2 < rhs.d2;
+	}
+	constexpr bool operator>(const vm_distance_squared &rhs) const
+	{
+		return d2 > rhs.d2;
+	}
+	constexpr bool operator>=(const vm_distance_squared &rhs) const
+	{
+		return !(*this < rhs);
+	}
 	template <typename T>
-		operator T() const = delete;
+		vm_distance_squared &operator-=(const T &rhs)
+		{
+			return *this = (*this - rhs);
+		}
+	constexpr vm_distance_squared operator-(const fix &) const = delete;
+	constexpr vm_distance_squared operator-(const fix64 &f2) const
+	{
+		return vm_distance_squared{d2 - f2};
+	}
+	explicit operator bool() const { return d2; }
+	template <typename T>
+		constexpr operator T() const = delete;
 	constexpr operator fix64() const
 	{
 		return d2;
@@ -87,6 +165,11 @@ public:
 	{
 	}
 };
+
+static constexpr vm_distance_squared operator*(const vm_distance &a, const vm_distance &b)
+{
+	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(a)) * static_cast<fix64>(static_cast<fix>(b))};
+}
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(vms_vector, v, (v.x, v.y, v.z));	\
