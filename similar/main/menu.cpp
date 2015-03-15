@@ -1717,8 +1717,8 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 		}
 		case EVENT_NEWMENU_SELECTED:
 		{
-			auto &citem = static_cast<const d_select_event &>(event).citem;
 #ifdef USE_SDLMIXER
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 #ifdef _WIN32
 #define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
 #else
