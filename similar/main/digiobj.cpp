@@ -530,6 +530,8 @@ void digi_sync_sounds()
 	}
 
 	SoundQ_process();
+	if (!Viewer)
+		return;
 	const vcobjptr_t viewer{Viewer};
 	range_for (auto &s, SoundObjects)
 	{
