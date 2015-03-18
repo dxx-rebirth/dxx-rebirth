@@ -103,7 +103,7 @@ EGLConfig eglConfig;
 EGLSurface eglSurface=EGL_NO_SURFACE;
 EGLContext eglContext=EGL_NO_CONTEXT;
 
-bool TestEGLError(char* pszLocation)
+static bool TestEGLError(const char* pszLocation)
 {
 	/*
 	 * eglGetError returns the last error that has happened using egl,
