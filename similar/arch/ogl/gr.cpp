@@ -245,7 +245,8 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 							ELEMENT_CHANGE_DEST_RECT | ELEMENT_CHANGE_SRC_RECT,
 							0 /*layer*/, 0 /*opacity*/,
 							&dst_rect, &src_rect,
-							0 /*mask*/, VC_IMAGE_ROT0 /*transform*/);
+							0 /*mask*/,
+							static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 	} else {
 		// create a new element
 		con_printf(CON_DEBUG, "RPi: creating display manager element");
@@ -253,7 +254,7 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 								0 /*layer*/, &dst_rect, 0 /*src*/,
 								&src_rect, DISPMANX_PROTECTION_NONE,
 								&alpha_descriptor, NULL /*clamp*/,
-								VC_IMAGE_ROT0 /*transform*/);
+								static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 		if (dispman_element == DISPMANX_NO_HANDLE) {
 			con_printf(CON_URGENT,"RPi: failed to creat display manager elemenr");
 		}
