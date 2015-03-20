@@ -1539,10 +1539,10 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.raspberrypi == 1):
 			message(self, "Raspberry Pi: using VideoCore libs in \"%s\"" % self.user_settings.rpi_vc_path)
 			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
-			# use CXXFLAGS -isystem instead of CPPPATH because these those header files
+			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
-			env.Append(CXXFLAGS = [
+			env.Append(CPPFLAGS = [
 				'-isystem='+self.user_settings.rpi_vc_path+'/include',
 				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
 				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
