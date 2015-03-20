@@ -89,9 +89,10 @@ defined(__LITTLE_ENDIAN__)	// from physfs_internal.h
 #endif
 
 #ifdef __GNUC__
-# define __pack__ __attribute__((packed))
 #ifdef WIN32
-# pragma pack(1)
+# define __pack__ __attribute__((gcc_struct, packed))
+#else
+# define __pack__ __attribute__((packed))
 #endif
 #elif defined(_MSC_VER)
 # pragma pack(push, packing)
