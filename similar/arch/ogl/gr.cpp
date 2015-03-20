@@ -14,7 +14,7 @@
 
 #ifdef RPI
 // extra libraries for the Raspberry Pi
-#include  "bcm_host.h"
+#include  <bcm_host.h>
 #endif
 
 #include <stdlib.h>

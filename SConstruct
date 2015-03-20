@@ -1539,10 +1539,13 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.raspberrypi == 1):
 			print "using Raspberry Pi vendor libs in %s" % self.user_settings.rpi_vc_path
 			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
-			env.Append(CPPPATH = [
-				self.user_settings.rpi_vc_path+'/include',
-				self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
-				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
+			# use CXXFLAGS -isystem instead of CPPPATH because these those header files
+			# are not very clean and would trigger some warnings we usually consider as
+			# errors. Using them as system headers will make gcc ignoring any warnings.
+			env.Append(CXXFLAGS = [
+				'-isystem='+self.user_settings.rpi_vc_path+'/include',
+				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
+				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
 			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
 			env.Append(LIBS = ['bcm_host'])
 
