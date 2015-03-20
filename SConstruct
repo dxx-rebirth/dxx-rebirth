@@ -1537,7 +1537,7 @@ class DXXCommon(LazyObjectConstructor):
 
 		# Raspberry Pi?
 		if (self.user_settings.raspberrypi == 1):
-			print "using Raspberry Pi vendor libs in %s" % self.user_settings.rpi_vc_path
+			message(self, "Raspberry Pi: using VideoCore libs in \"%s\"" % self.user_settings.rpi_vc_path)
 			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
 			# use CXXFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
