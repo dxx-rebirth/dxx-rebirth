@@ -82,7 +82,7 @@ extern const rgb_array_t player_rgb_normal;
 class rgb_array_wrapper
 {
 public:
-	constexpr const rgb &operator[](std::size_t i) const
+	const rgb &operator[](std::size_t i) const
 	{
 		return player_rgb_normal[i];
 	}
