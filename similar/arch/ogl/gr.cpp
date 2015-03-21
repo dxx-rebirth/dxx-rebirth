@@ -14,7 +14,7 @@
 
 #ifdef RPI
 // extra libraries for the Raspberry Pi
-#include  "bcm_host.h"
+#include  <bcm_host.h>
 #endif
 
 #include <stdlib.h>
@@ -103,7 +103,7 @@ EGLConfig eglConfig;
 EGLSurface eglSurface=EGL_NO_SURFACE;
 EGLContext eglContext=EGL_NO_CONTEXT;
 
-bool TestEGLError(char* pszLocation)
+static bool TestEGLError(const char* pszLocation)
 {
 	/*
 	 * eglGetError returns the last error that has happened using egl,
@@ -144,7 +144,7 @@ void ogl_swap_buffers_internal(void)
 #define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
 #define ELEMENT_CHANGE_TRANSFORM      (1<<5)
 
-void rpi_destroy_element(void)
+static void rpi_destroy_element()
 {
 	if (dispman_element != DISPMANX_NO_HANDLE) {
 		DISPMANX_UPDATE_HANDLE_T dispman_update;
@@ -158,7 +158,7 @@ void rpi_destroy_element(void)
 	}
 }
 
-int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
+static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 {
 	// this code is based on the work of Ben O'Steen
 	// http://benosteen.wordpress.com/2012/04/27/using-opengl-es-2-0-on-the-raspberry-pi-without-x-windows/
@@ -245,7 +245,8 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 							ELEMENT_CHANGE_DEST_RECT | ELEMENT_CHANGE_SRC_RECT,
 							0 /*layer*/, 0 /*opacity*/,
 							&dst_rect, &src_rect,
-							0 /*mask*/, VC_IMAGE_ROT0 /*transform*/);
+							0 /*mask*/,
+							static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 	} else {
 		// create a new element
 		con_printf(CON_DEBUG, "RPi: creating display manager element");
@@ -253,7 +254,7 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 								0 /*layer*/, &dst_rect, 0 /*src*/,
 								&src_rect, DISPMANX_PROTECTION_NONE,
 								&alpha_descriptor, NULL /*clamp*/,
-								VC_IMAGE_ROT0 /*transform*/);
+								static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 		if (dispman_element == DISPMANX_NO_HANDLE) {
 			con_printf(CON_URGENT,"RPi: failed to creat display manager elemenr");
 		}
@@ -269,7 +270,7 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 #endif // RPI
 
 #ifdef OGLES
-void ogles_destroy(void)
+static void ogles_destroy()
 {
 	if( eglDisplay != EGL_NO_DISPLAY ) {
 		eglMakeCurrent(eglDisplay, NULL, NULL, EGL_NO_CONTEXT);

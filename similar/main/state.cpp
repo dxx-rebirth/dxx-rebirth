@@ -583,10 +583,10 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 {
 	array<grs_bitmap_ptr, NUM_SAVES> &sc_bmp = userdata->sc_bmp;
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
+	int citem;
 	if (event.type == EVENT_NEWMENU_SELECTED)
-		userdata->citem = citem;
-	if ( (citem > 0) && (event.type == EVENT_NEWMENU_DRAW) )
+		userdata->citem = static_cast<const d_select_event &>(event).citem;
+	if (event.type == EVENT_NEWMENU_DRAW && (citem = newmenu_get_citem(menu)) > 0)
 	{
 		if ( sc_bmp[citem-1] )	{
 			grs_canvas *save_canv = grd_curcanv;
@@ -1037,9 +1037,16 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
-	i = MAX_EXPLODING_WALLS;
+	i = expl_wall_list.size();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	PHYSFS_write(fp, expl_wall_list, sizeof(*expl_wall_list), i);
+	range_for (auto &e, expl_wall_list)
+	{
+		disk_expl_wall d;
+		d.segnum = e.segnum;
+		d.sidenum = e.sidenum;
+		d.time = e.time;
+		PHYSFS_write(fp, &d, sizeof(d), 1);
+	}
 #endif
 
 //Save door info
@@ -1511,8 +1518,8 @@ int state_restore_all_sub(const char *filename, int secret_restore)
 
 	//Restore exploding wall info
 	if (version >= 10) {
-		i = PHYSFSX_readSXE32(fp, swap);
-		expl_wall_read_n_swap(expl_wall_list, i, swap, fp);
+		unsigned i = PHYSFSX_readSXE32(fp, swap);
+		expl_wall_read_n_swap(fp, swap, partial_range(expl_wall_list, i));
 	}
 #endif
 

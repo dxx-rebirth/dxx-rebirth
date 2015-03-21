@@ -737,7 +737,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 int	Connected_segment_distance;
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
 	(void)(seg0||seg1||depth||dist);
 }
@@ -748,7 +748,7 @@ static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 struct fcd_data {
 	segnum_t	seg0, seg1;
 	int csd;
-	fix	dist;
+	vm_distance dist;
 };
 
 int	Fcd_index = 0;
@@ -765,7 +765,7 @@ void flush_fcd_cache(void)
 }
 
 //	----------------------------------------------------------------------------------------------------------
-static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
 		Fcd_cache[Fcd_index].seg0 = seg0;
@@ -794,7 +794,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
+vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
@@ -803,7 +803,6 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 	int		cur_depth;
 	int		num_points;
 	point_seg	point_segs[MAX_LOC_POINT_SEGS];
-	fix		dist;
 
 	//	If > this, will overrun point_segs buffer
 #ifdef WINDOWS
@@ -873,8 +872,8 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
 							Connected_segment_distance = 1000;
-							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-							return -1;
+							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+							return vm_distance::maximum_value();
 						}
 					} else if (this_seg == seg1) {
 						goto fcd_done1;
@@ -886,8 +885,8 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 
 		if (qhead >= qtail) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-			return -1;
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+			return vm_distance::maximum_value();
 		}
 
 		cur_seg = seg_queue[qhead].end;
@@ -901,8 +900,8 @@ fcd_done1: ;
 	while (seg_queue[--qtail].end != seg1)
 		if (qtail < 0) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-			return -1;
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+			return vm_distance::maximum_value();
 		}
 
 	while (qtail >= 0) {
@@ -928,17 +927,13 @@ fcd_done1: ;
 	if (num_points == 1) {
 		Connected_segment_distance = num_points;
 		return vm_vec_dist_quick(p0, p1);
-	} else {
-		dist = vm_vec_dist_quick(p1, point_segs[1].point);
+	}
+	auto dist = vm_vec_dist_quick(p1, point_segs[1].point);
 		dist += vm_vec_dist_quick(p0, point_segs[num_points-2].point);
 
 		for (int i=1; i<num_points-2; i++) {
-			fix	ndist;
-			ndist = vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
-			dist += ndist;
+			dist += vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
 		}
-
-	}
 
 	Connected_segment_distance = num_points;
 	add_to_fcd_cache(seg0, seg1, num_points, dist);

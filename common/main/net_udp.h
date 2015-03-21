@@ -70,17 +70,12 @@ const uint16_t TRACKER_PORT_DEFAULT = 42420;
 #define UPID_VERSION_DENY_SIZE			  9
 #define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
 #define UPID_GAME_INFO_REQ_SIZE			 13
-#define UPID_GAME_INFO_LITE_REQ_SIZE		 11
+#define UPID_GAME_INFO_LITE_REQ_SIZE		 13
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
-#if defined(DXX_BUILD_DESCENT_I)
-#define UPID_GAME_INFO_SIZE			(359 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
-#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
-#elif defined(DXX_BUILD_DESCENT_II)
-#define UPID_GAME_INFO_SIZE			(359 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1) + ((MAX_PLAYERS+4)*(CALLSIGN_LEN+1)))
-#define UPID_GAME_INFO_LITE_SIZE		 (31 + (NETGAME_NAME_LEN+1) + (MISSION_NAME_LEN+1))
-#endif
+#define UPID_GAME_INFO_SIZE_MAX			 (sizeof(netgame_info))
+#define UPID_GAME_INFO_LITE_SIZE_MAX		 (sizeof(UDP_netgame_info_lite))
 #define UPID_DUMP				  6 // Packet containing why player cannot join this game.
 #define UPID_DUMP_SIZE				  2
 #define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
@@ -137,22 +132,22 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 {
 	ubyte				type;
 	ubyte				Player_num;
+	uint16_t			mbuf_size;
 	uint32_t			pkt_num;
-	ushort				mbuf_size;
-	ubyte				mbuf[UPID_MDATA_BUF_SIZE];
+	array<uint8_t, UPID_MDATA_BUF_SIZE> mbuf;
 };
 
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
-	sbyte 				used;
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
 	fix64				pkt_timestamp[MAX_PLAYERS];		// Packet timestamp
 	uint32_t			pkt_num[MAX_PLAYERS];			// Packet number
+	sbyte				used;
 	ubyte				Player_num;				// sender of this packet
+	uint16_t			data_size;
 	ubyte				player_ack[MAX_PLAYERS]; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
-	ubyte				data[UPID_MDATA_BUF_SIZE];		// extra data of a packet - contains all multibuf data we don't want to loose
-	ushort				data_size;
+	array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
 };
 
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player

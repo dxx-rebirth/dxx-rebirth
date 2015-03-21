@@ -58,6 +58,24 @@ struct d_create_event : d_event
 	const void *createdata;
 };
 
+struct d_change_event : d_event
+{
+	int citem;
+	d_change_event(const int c) :
+		d_event{EVENT_NEWMENU_CHANGED}, citem(c)
+	{
+	}
+};
+
+struct d_select_event : d_event
+{
+	int citem;
+	d_select_event(const int c) :
+		d_event{EVENT_NEWMENU_SELECTED}, citem(c)
+	{
+	}
+};
+
 int event_init();
 
 // Sends input events to event handlers

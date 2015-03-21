@@ -10,10 +10,7 @@
  * 
  */
 
-#ifndef _GLOBVARS_H
-#define _GLOBVARS_H
-
-#define MAX_POINTS_IN_POLY 100
+#pragma once
 
 #include "maths.h"
 
@@ -37,6 +34,3 @@ extern vms_matrix View_matrix,Unscaled_matrix;
 
 //vertex buffers for polygon drawing and clipping
 //list of 2d coords
-extern fix Vertex_list[];
-
-#endif

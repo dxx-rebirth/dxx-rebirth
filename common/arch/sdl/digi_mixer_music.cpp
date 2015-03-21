@@ -31,7 +31,10 @@ class current_music_t
 {
 	struct RWops_delete
 	{
-		void operator()(SDL_RWops *o) { SDL_FreeRW(o); }
+		void operator()(SDL_RWops *o)
+		{
+			SDL_RWclose(o);
+		}
 	};
 	struct Music_delete
 	{

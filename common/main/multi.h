@@ -289,7 +289,6 @@ void multi_send_endlevel_packet();
 void multi_leave_game(void);
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
 void multi_do_death(int objnum);
-void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
@@ -583,6 +582,24 @@ namespace multi
 		{
 		}
 	};
+}
+
+/* Stub for mods that remap player colors */
+static inline unsigned get_player_color(unsigned pnum)
+{
+	return pnum;
+}
+
+static inline unsigned get_team_color(unsigned tnum)
+{
+	return tnum;
+}
+
+static inline unsigned get_player_or_team_color(unsigned pnum)
+{
+	return Game_mode & GM_TEAM
+		? get_team_color(get_team(pnum))
+		: get_player_color(pnum);
 }
 
 #endif

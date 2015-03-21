@@ -82,7 +82,7 @@ extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
 #endif
-extern ubyte bogus_data[64 * 64];
+extern array<uint8_t, 64 * 64> bogus_data;
 
 int properties_init();
 void piggy_close();
@@ -95,8 +95,6 @@ void piggy_read_bitmap_data(grs_bitmap * bmp);
 void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
-
-char* piggy_game_bitmap_name(grs_bitmap *bmp);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_BITMAP_FILES	1800

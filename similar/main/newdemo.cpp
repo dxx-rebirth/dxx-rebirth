@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <ctime>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -2101,7 +2101,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object( signature );
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, max_distance, loop_start, loop_end );
+					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, vm_distance{max_distance}, loop_start, loop_end );
 				}
 			}
 			break;
@@ -3676,13 +3676,87 @@ static void newdemo_write_end()
 	nd_write_byte(ND_EVENT_EOF);
 }
 
+static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
+{
+	filename[0] = 0;
+	auto p = GameArg.SysRecordDemoNameTemplate;
+	if (!p || !*p)
+		return false;
+	if (!strcmp(p, "."))
+		p = "%Y%m%d.%H%M%S-$p-$m";
+	std::size_t i = 0;
+	time_t t = 0;
+	tm *ptm = nullptr;
+	for (;; ++p)
+	{
+		if (*p == '%')
+		{
+			if (!p[1])
+				/* Trailing bare % is ill-formed.  Ignore entire
+				 * template.
+				 */
+				return false;
+			/* Time conversions */
+			if (unlikely(!t))
+				t = time(nullptr);
+			if (unlikely(t == -1 || !(ptm = gmtime(&t))))
+				continue;
+			char sbuf[4];
+			sbuf[0] = '%';
+			sbuf[1] = *++p;
+#ifndef _WIN32
+			/* Not supported on Windows */
+			if (sbuf[1] == 'O' || sbuf[1] == 'E')
+			{
+				sbuf[2] = *++p;
+				sbuf[3] = 0;
+			}
+			else
+#endif
+			{
+				sbuf[2] = 0;
+			}
+			filename[i] = 0;
+			auto a = strftime(&filename[i], sizeof(filename) - i, sbuf, ptm);
+			if (a >= sizeof(filename) - i)
+				return false;
+			i += a;
+			continue;
+		}
+		if (*p == '$')
+		{
+			/* Variable conversions */
+			const char *insert;
+			switch(*++p)
+			{
+				case 'm':	/* mission */
+					insert = Current_mission_filename;
+					break;
+				case 'p':	/* pilot */
+					insert = Players[Player_num].callsign;
+					break;
+				default:
+					return false;
+			}
+			i += filename.copy_if(i, insert);
+			continue;
+		}
+		filename[i++] = *p;
+		if (!*p)
+			break;
+		if (i >= sizeof(filename) - 1)
+			return false;
+	}
+	return filename[0];
+}
+
 static const char demoname_allowed_chars[] = "azAZ09__--";
 #define DEMO_FORMAT_STRING(S)	DEMO_DIR S "." DEMO_EXT
 void newdemo_stop_recording()
 {
 	int exit;
-	static char filename[PATH_MAX] = "", *s;
 	static sbyte tmpcnt = 0;
+	ntstring<PATH_MAX - 1> filename;
 
 	exit = 0;
 
@@ -3695,30 +3769,14 @@ void newdemo_stop_recording()
 	outfile.reset();
 	Newdemo_state = ND_STATE_NORMAL;
 	gr_palette_load( gr_palette );
-
-	if (filename[0] != '\0') {
-		int num, i = strlen(filename) - 1;
-		char newfile[PATH_MAX];
-
-		while (isdigit(filename[i])) {
-			i--;
-			if (i == -1)
-				break;
-		}
-		i++;
-		num = atoi(&(filename[i]));
-		num++;
-		filename[i] = '\0';
-		sprintf (newfile, "%s%d", filename, num);
-		strncpy(filename, newfile, PATH_MAX);
-		filename[PATH_MAX - 1] = '\0';
-	}
-
 try_again:
 	;
 
 	Newmenu_allowed_chars = demoname_allowed_chars;
-	if (!nd_record_v_no_space) {
+	if (guess_demo_name(filename))
+	{
+	}
+	else if (!nd_record_v_no_space) {
 		array<newmenu_item, 1> m{
 			nm_item_input(filename),
 		};
@@ -3736,7 +3794,7 @@ try_again:
 		char save_file[PATH_MAX];
 
 		if (filename[0] != '\0') {
-			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename);
+			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename.data());
 		} else
 			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("tmp%d"), tmpcnt++);
 		remove(save_file);
@@ -3752,14 +3810,19 @@ try_again:
 		goto try_again;
 
 	//check to make sure name is ok
-	for (s=filename;*s;s++)
-		if (!isalnum(*s) && *s!='_') {
+	range_for (const unsigned c, filename)
+	{
+		if (!c)
+			break;
+		if (!isalnum(c) && c != '_' && c != '-' && c != '.')
+		{
 			nm_messagebox(NULL, 1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
 			goto try_again;
 		}
+	}
 
 	char fullname[PATH_MAX];
-	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), filename);
+	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), filename.data());
 	PHYSFS_delete(fullname);
 	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }

@@ -1511,7 +1511,7 @@ class DXXCommon(LazyObjectConstructor):
 			env.Prepend(CXXFLAGS = ['-g'])
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-			env.Prepend(CXXFLAGS = ['-O2'])
+		env.Prepend(CXXFLAGS = ['-O2'])
 		if self.user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
 			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
@@ -1537,12 +1537,15 @@ class DXXCommon(LazyObjectConstructor):
 
 		# Raspberry Pi?
 		if (self.user_settings.raspberrypi == 1):
-			print "using Raspberry Pi vendor libs in %s" % self.user_settings.rpi_vc_path
+			message(self, "Raspberry Pi: using VideoCore libs in \"%s\"" % self.user_settings.rpi_vc_path)
 			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
-			env.Append(CPPPATH = [
-				self.user_settings.rpi_vc_path+'/include',
-				self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
-				self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
+			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
+			# are not very clean and would trigger some warnings we usually consider as
+			# errors. Using them as system headers will make gcc ignoring any warnings.
+			env.Append(CPPFLAGS = [
+				'-isystem='+self.user_settings.rpi_vc_path+'/include',
+				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
+				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
 			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
 			env.Append(LIBS = ['bcm_host'])
 
@@ -2137,17 +2140,17 @@ class D2XProgram(DXXProgram):
 	def objects_editor(self):
 		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
 
-variables = Variables(['site-local.py'], ARGUMENTS)
+variables = Variables([v for (k,v) in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
 filtered_help = FilterHelpText()
 variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 def _filter_duplicate_prefix_elements(e,s):
 	r = e not in s
 	s.add(e)
 	return r
-def register_program(program):
+def register_program(program,other_program):
 	s = program.shortname
 	import itertools
-	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [1]
+	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [other_program.shortname not in ARGUMENTS]
 	# Fallback case: build the regular configuration.
 	if len(l) == 1:
 		try:
@@ -2169,8 +2172,8 @@ def register_program(program):
 			prefix = ['%s%s%s' % (s, '_' if p else '', p) for p in prefix] + list(prefix)
 			r.append(program(prefix, variables))
 	return r
-d1x = register_program(D1XProgram)
-d2x = register_program(D2XProgram)
+d1x = register_program(D1XProgram, D2XProgram)
+d2x = register_program(D2XProgram, D1XProgram)
 
 # show some help when running scons -h
 h = 'DXX-Rebirth, SConstruct file help:' + """
@@ -2197,6 +2200,7 @@ unknown = variables.UnknownVariables()
 unknown.pop('d1x', None)
 unknown.pop('d2x', None)
 unknown.pop('dxx', None)
+unknown.pop('site', None)
 ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
 if unknown:
 	try:

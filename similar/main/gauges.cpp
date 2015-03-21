@@ -1929,18 +1929,9 @@ static void draw_player_ship(int cloak_state,int x, int y)
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
-	grs_bitmap *bm = NULL;
-
-	if (Game_mode & GM_TEAM)
-	{
-		PAGE_IN_GAUGE( GAUGE_SHIPS+get_team(Player_num) );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+get_team(Player_num)) ];
-	}
-	else
-	{
-		PAGE_IN_GAUGE( GAUGE_SHIPS+Player_num );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+Player_num) ];
-	}
+	const auto color = get_player_or_team_color(Player_num);
+	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
+	grs_bitmap *const bm = &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 
 	if (cloak_state)
 	{
@@ -2480,7 +2471,7 @@ static void draw_invulnerable_ship()
 		draw_shield_bar(f2ir(Players[Player_num].shields));
 }
 
-const rgb player_rgb[MAX_PLAYERS] = {
+const rgb_array_t player_rgb_normal{{
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -2489,7 +2480,7 @@ const rgb player_rgb[MAX_PLAYERS] = {
 							{24,17,6},
 							{14,21,12},
 							{29,29,0},
-						};
+}};
 
 struct xy {
 	sbyte x, y;
@@ -2730,25 +2721,22 @@ static void hud_show_kill_list()
 		else
 			player_num = player_list[i];
 
+		color_t fontcolor;
 		if (Show_kill_list == 1 || Show_kill_list==2)
 		{
-			int color;
-
 			if (Players[player_num].connected != CONNECT_PLAYING)
-				gr_set_fontcolor(BM_XRGB(12, 12, 12), -1);
-			else if (Game_mode & GM_TEAM) {
-				color = get_team(player_num);
-				gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
-			}
+				fontcolor = BM_XRGB(12, 12, 12);
 			else {
-				color = player_num;
-				gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+				auto &color = player_rgb[get_player_or_team_color(player_num)];
+				fontcolor = BM_XRGB(color.r, color.g, color.b);
 			}
 		}
 		else
 		{
-			gr_set_fontcolor(BM_XRGB(player_rgb[player_num].r,player_rgb[player_num].g,player_rgb[player_num].b),-1 );
+			auto &color = player_rgb_normal[player_num];
+			fontcolor = BM_XRGB(color.r, color.g, color.b);
 		}
+		gr_set_fontcolor(fontcolor, -1);
 
 		if (Show_kill_list == 3)
 			name = Netgame.team_name[i];
@@ -2849,13 +2837,12 @@ void show_HUD_names()
 				{
 					fix x,y,dx,dy;
 					char s[CALLSIGN_LEN+10];
-					int w, h, aw, x1, y1, color_num;
+					int w, h, aw, x1, y1;
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
 					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
-					color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
 					/* Set the text to show */
 					const char *name = NULL;
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
@@ -2874,7 +2861,8 @@ void show_HUD_names()
 					if (written)
 					{
 						gr_get_string_size(s, &w, &h, &aw);
-						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
+						const auto color = get_player_or_team_color(pnum);
+						gr_set_fontcolor(BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
 						x1 = f2i(x)-w/2;
 						y1 = f2i(y-dy)+FSPACY(1);
 						gr_string (x1, y1, s);

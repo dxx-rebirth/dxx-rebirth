@@ -972,45 +972,42 @@ static void bm_read_vclip(int skip)
 }
 
 // ------------------------------------------------------------------------------
-static void get4fix(fix *fixp)
+static void get4fix(array<fix, NDL> &fixp)
 {
 	char	*curtext;
-	int	i;
-
-	for (i=0; i<NDL; i++) {
+	range_for (auto &i, fixp)
+	{
 		curtext = strtok(NULL, space_tab);
-		fixp[i] = fl2f(atof(curtext));
+		i = fl2f(atof(curtext));
 	}
 }
 
 // ------------------------------------------------------------------------------
-static void get4byte(sbyte *bytep)
+static void get4byte(array<int8_t, NDL> &bytep)
 {
 	char	*curtext;
-	int	i;
-
-	for (i=0; i<NDL; i++) {
+	range_for (auto &i, bytep)
+	{
 		curtext = strtok(NULL, space_tab);
-		bytep[i] = atoi(curtext);
+		i = atoi(curtext);
 	}
 }
 
 // ------------------------------------------------------------------------------
 //	Convert field of view from an angle in 0..360 to cosine.
-static void adjust_field_of_view(fix *fovp)
+static void adjust_field_of_view(array<fix, NDL> &fovp)
 {
-	int		i;
 	fixang	tt;
 	float		ff;
-
-	for (i=0; i<NDL; i++) {
-		ff = - f2fl(fovp[i]);
+	range_for (auto &i, fovp)
+	{
+		ff = - f2fl(i);
 		if (ff > 179) {
 			ff = 179;
 		}
 		ff = ff/360;
 		tt = fl2f(ff);
-		fix_sincos(tt, NULL, &fovp[i]);
+		fix_sincos(tt, nullptr, &i);
 	}
 }
 
@@ -1087,9 +1084,7 @@ void bm_read_robot_ai(int skip)
 	get4byte(robptr->evade_speed);
 
 	robptr->always_0xabcd	= 0xabcd;
-
 	adjust_field_of_view(robptr->field_of_view);
-
 }
 
 //	----------------------------------------------------------------------------------------------

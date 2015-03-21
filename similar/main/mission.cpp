@@ -733,7 +733,7 @@ static int load_mission(const mle *mission)
 	if (EMULATING_D1)
 #endif
 	{
-		if (!PHYSFSX_contfile_init("descent.hog", 1))
+		if (!PHYSFSX_contfile_init("descent.hog", 0))
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n");
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -742,6 +742,10 @@ static int load_mission(const mle *mission)
 		if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 			return load_mission_d1();
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	else
+		PHYSFSX_contfile_close("descent.hog");
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (PLAYING_BUILTIN_MISSION) {
@@ -956,11 +960,11 @@ struct mission_menu
 static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
 {
 	const char **list = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem >= 0)
 			{
 				// Chose a mission
@@ -973,6 +977,7 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				}
 			}
 			return !(*mm->when_selected)();
+		}
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
 			std::default_delete<mission_menu>()(mm);

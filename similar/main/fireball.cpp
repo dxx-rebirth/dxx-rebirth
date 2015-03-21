@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 #include "segiter.h"
 
 using std::min;
@@ -95,7 +96,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 	obj->ctype.expl_info.delete_time = -1;
 
 	if (maxdamage > 0) {
-		fix dist, force;
+		fix force;
 		vms_vector pos_hit, vforce;
 		fix damage;
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
@@ -127,7 +128,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 				 ))
 #endif
 			{
-				dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
+				const auto dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
 					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {
@@ -604,7 +605,7 @@ void maybe_drop_net_powerup(int powerup_type)
 				return;
 		}
 
-		if (Control_center_destroyed || Endlevel_sequence)
+		if (Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
 			return;
 
 		auto segnum = choose_drop_segment();
@@ -757,7 +758,6 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 {
 	objptridx_t	objnum = object_none;
 	vms_vector	new_velocity, new_pos;
-	fix		old_mag;
    int             count;
 
 	switch (type) {
@@ -765,7 +765,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				new_velocity = init_vel;
-				old_mag = vm_vec_mag_quick(init_vel);
+				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
@@ -845,7 +845,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				auto new_velocity = vm_vec_normalized_quick(init_vel);
-				old_mag = vm_vec_mag_quick(init_vel);
+				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
 //				if (Game_mode & GM_MULTI)
@@ -1227,32 +1227,33 @@ void do_explosion_sequence(const vobjptr_t obj)
 #define EXPL_WALL_FIREBALL_SIZE 		(0x48000*6/10)	//smallest size
 #endif
 
-expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
+array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
 void init_exploding_walls()
 {
-	int i;
-
-	for (i=0;i<MAX_EXPLODING_WALLS;i++)
-		expl_wall_list[i].segnum = segment_none;
+	range_for (auto &i, expl_wall_list)
+		i.segnum = segment_none;
 }
 
 //explode the given wall
 void explode_wall(const vsegptridx_t segnum,int sidenum)
 {
-	int i;
 	//find a free slot
-
-	for (i=0;i<MAX_EXPLODING_WALLS && expl_wall_list[i].segnum != segment_none;i++);
-
-	if (i==MAX_EXPLODING_WALLS) {		//didn't find slot.
+	const auto e = end(expl_wall_list);
+	const auto predicate = [](expl_wall &e) {
+		return e.segnum == segment_none;
+	};
+	const auto i = std::find_if(begin(expl_wall_list), e, predicate);
+	if (i == e)
+	{		//didn't find slot.
 		Int3();
 		return;
 	}
 
-	expl_wall_list[i].segnum	= segnum;
-	expl_wall_list[i].sidenum	= sidenum;
-	expl_wall_list[i].time		= 0;
+	auto &w = *i;
+	w.segnum	= segnum;
+	w.sidenum	= sidenum;
+	w.time		= 0;
 
 	//play one long sound for whole door wall explosion
 	const auto pos = compute_center_point_on_side(segnum,sidenum);
@@ -1264,24 +1265,23 @@ void explode_wall(const vsegptridx_t segnum,int sidenum)
 //note: this wall code assumes the wall is not triangulated
 void do_exploding_wall_frame()
 {
-	int i;
-
-	for (i=0;i<MAX_EXPLODING_WALLS;i++) {
-		auto segnum = expl_wall_list[i].segnum;
+	range_for (auto &i, expl_wall_list)
+	{
+		auto segnum = i.segnum;
 
 		if (segnum != segment_none) {
-			int sidenum = expl_wall_list[i].sidenum;
+			int sidenum = i.sidenum;
 			fix oldfrac,newfrac;
 			int old_count,new_count,e;		//n,
 
-			oldfrac = fixdiv(expl_wall_list[i].time,EXPL_WALL_TIME);
+			oldfrac = fixdiv(i.time,EXPL_WALL_TIME);
 
-			expl_wall_list[i].time += FrameTime;
-			if (expl_wall_list[i].time > EXPL_WALL_TIME)
-				expl_wall_list[i].time = EXPL_WALL_TIME;
+			i.time += FrameTime;
+			if (i.time > EXPL_WALL_TIME)
+				i.time = EXPL_WALL_TIME;
 
 			const auto seg = vsegptridx(segnum);
-			if (expl_wall_list[i].time>(EXPL_WALL_TIME*3)/4) {
+			if (i.time>(EXPL_WALL_TIME*3)/4) {
 				int a,n;
 				a = Walls[seg->sides[sidenum].wall_num].clip_num;
 				n = WallAnims[a].num_frames;
@@ -1296,7 +1296,7 @@ void do_exploding_wall_frame()
 
 			}
 
-			newfrac = fixdiv(expl_wall_list[i].time,EXPL_WALL_TIME);
+			newfrac = fixdiv(i.time,EXPL_WALL_TIME);
 
 			old_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(oldfrac,oldfrac));
 			new_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(newfrac,newfrac));
@@ -1328,9 +1328,9 @@ void do_exploding_wall_frame()
 					vm_vec_scale_add2(pos,Segments[segnum].sides[sidenum].normals[0],size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
 
 				if (e & 3)		//3 of 4 are normal
-					object_create_explosion(expl_wall_list[i].segnum,pos,size,VCLIP_SMALL_EXPLOSION);
+					object_create_explosion(i.segnum,pos,size,VCLIP_SMALL_EXPLOSION);
 				else
-					object_create_badass_explosion( object_none, expl_wall_list[i].segnum, pos,
+					object_create_badass_explosion( object_none, i.segnum, pos,
 					size,
 					VCLIP_SMALL_EXPLOSION,
 					i2f(4),		// damage strength
@@ -1338,13 +1338,9 @@ void do_exploding_wall_frame()
 					i2f(50),		//	damage force
 					object_none		//	parent id
 					);
-
-
 			}
-
-			if (expl_wall_list[i].time >= EXPL_WALL_TIME)
-				expl_wall_list[i].segnum = segment_none;	//flag this slot as free
-
+			if (i.time >= EXPL_WALL_TIME)
+				i.segnum = segment_none;	//flag this slot as free
 		}
 	}
 
@@ -1375,27 +1371,24 @@ void drop_afterburner_blobs(const vobjptr_t obj, int count, fix size_scale, fix 
 	}
 }
 
-static void expl_wall_swap(expl_wall *ew, int swap)
-{
-	if (!swap)
-		return;
-	
-	ew->segnum = SWAPINT(ew->segnum);
-	ew->sidenum = SWAPINT(ew->sidenum);
-	ew->time = SWAPINT(ew->time);
-}
-
 /*
  * reads n expl_wall structs from a PHYSFS_file and swaps if specified
  */
-void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, PHYSFS_file *fp)
+void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall *> r)
 {
-	int i;
-	
-	PHYSFS_read(fp, ew, sizeof(expl_wall), n);
-	
-	if (swap)
-		for (i = 0; i < n; i++)
-			expl_wall_swap(&ew[i], swap);
+	range_for (auto &e, r)
+	{
+		disk_expl_wall d;
+		PHYSFS_read(fp, &d, sizeof(d), 1);
+		if (swap)
+		{
+			d.segnum = SWAPINT(d.segnum);
+			d.sidenum = SWAPINT(d.sidenum);
+			d.time = SWAPINT(d.time);
+		}
+		e.segnum = d.segnum;
+		e.sidenum = d.sidenum;
+		e.time = d.time;
+	}
 }
 #endif

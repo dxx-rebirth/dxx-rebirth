@@ -146,8 +146,8 @@ int piggy_page_flushed = 0;
 
 static RAIIPHYSFS_File Piggy_fp;
 
-ubyte bogus_data[64*64];
 ubyte bogus_bitmap_initialized=0;
+array<uint8_t, 64 * 64> bogus_data;
 digi_sound bogus_sound;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -263,19 +263,6 @@ void swap_0_255(grs_bitmap *bmp)
 	auto d = bmp->get_bitmap_data();
 	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
-
-#if defined(DXX_BUILD_DESCENT_II)
-char* piggy_game_bitmap_name(grs_bitmap *bmp)
-{
-	if (bmp >= GameBitmaps && bmp < &GameBitmaps[MAX_BITMAP_FILES])
-	{
-		int i = bmp-GameBitmaps; // i = (bmp - GameBitmaps) / sizeof(grs_bitmap);
-		Assert (bmp == &GameBitmaps[i] && i >= 0 && i < MAX_BITMAP_FILES);
-		return AllBitmaps[i].name;
-	}
-	return NULL;
-}
-#endif
 
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
@@ -455,21 +442,21 @@ int properties_init()
 		ubyte c;
 		bogus_bitmap_initialized = 1;
 		c = gr_find_closest_color( 0, 0, 63 );
-		for (i=0; i<4096; i++ ) bogus_data[i] = c;
+		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
 		for (i=0; i<64; i++ )	{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		gr_init_bitmap(bogus_bitmap, 0, 0, 0, 64, 64, 64, bogus_data);
+		gr_init_bitmap(bogus_bitmap, 0, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap( &bogus_bitmap, "bogus", 1 );
 #ifdef ALLEGRO
 		bogus_sound.len = 64*64;
 #else
         bogus_sound.length = 64*64;
 #endif
-		bogus_sound.data = bogus_data;
+		bogus_sound.data = bogus_data.data();
 //added on 11/13/99 by Victor Rachels to ready for changing freq
                 bogus_sound.freq = 11025;
                 bogus_sound.bits = 8;
@@ -1137,17 +1124,17 @@ int properties_init(void)
 
 		bogus_bitmap_initialized = 1;
 		c = gr_find_closest_color( 0, 0, 63 );
-		for (i=0; i<4096; i++ ) bogus_data[i] = c;
+		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
 		for (i=0; i<64; i++ )   {
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		gr_init_bitmap(GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data);
+		gr_init_bitmap(GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(&GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
-		bogus_sound.data = bogus_data;
+		bogus_sound.data = bogus_data.data();
 		GameBitmapOffset[0] = 0;
 	}
 

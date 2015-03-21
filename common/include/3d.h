@@ -35,9 +35,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct grs_bitmap;
 
+#ifdef EDITOR
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
-
-extern short highest_texture_num;
+#endif
 
 //Structure for storing u,v,light values.  This structure doesn't have a
 //prefix because it was defined somewhere else before it was moved here
@@ -308,9 +308,15 @@ public:
 		}
 };
 #else
+constexpr std::size_t MAX_POINTS_IN_POLY = 100;
+
 typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
-typedef void (*flat_drawer_type)(uint_fast32_t nv,const int *vertlist);
+typedef void (*flat_drawer_type)(uint_fast32_t nv,const array<fix, MAX_POINTS_IN_POLY*2> &vertlist);
 typedef int (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
+
+//	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
+//	(ie, avoids cracking) edge/delta computation.
+void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert);
 #endif
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include "dxxsconf.h"
 #include <utility>
 
@@ -36,6 +37,147 @@ struct vms_vector
 {
 	fix x, y, z;
 };
+
+class vm_distance
+{
+public:
+	fix d;
+	/* Default constructor only required because Fcd_cache,SoundObjects
+	 * have global scope instances of vm_distance.  They should be
+	 * converted to construct as needed, then the default constructor
+	 * should be removed.
+	 */
+	constexpr vm_distance() : d(0) {}
+	constexpr explicit vm_distance(const fix &f) :
+		d(f)
+	{
+	}
+	template <typename T>
+		vm_distance &operator+=(const T &rhs)
+		{
+			return *this = (*this + rhs);
+		}
+	template <typename T>
+		vm_distance &operator*=(const T &rhs)
+		{
+			return *this = (*this * rhs);
+		}
+	template <typename T>
+		vm_distance &operator/=(const T &rhs)
+		{
+			return *this = (*this / rhs);
+		}
+	constexpr vm_distance operator+(const vm_distance &rhs) const
+	{
+		return vm_distance{d + rhs.d};
+	}
+	constexpr vm_distance operator*(const int &f) const
+	{
+		return vm_distance{d * f};
+	}
+	constexpr vm_distance operator/(const int &f) const
+	{
+		return vm_distance{d / f};
+	}
+	constexpr bool operator<(const fix &f) const
+	{
+		return d < f;
+	}
+	constexpr bool operator<(const vm_distance &rhs) const
+	{
+		return d < rhs.d;
+	}
+	template <typename T>
+		constexpr bool operator>(const T &t) const
+		{
+			return t < *this;
+		}
+	constexpr explicit operator bool() const { return d; }
+	template <typename T>
+		operator T() const = delete;
+	constexpr operator fix() const
+	{
+		return d;
+	}
+	static constexpr vm_distance maximum_value()
+	{
+		return vm_distance{0x7fffffff};
+	}
+	static constexpr vm_distance minimum_value()
+	{
+		return vm_distance{0};
+	}
+};
+
+class vm_magnitude : public vm_distance
+{
+public:
+	constexpr explicit vm_magnitude(const uint32_t &f) :
+		vm_distance(f)
+	{
+	}
+};
+
+class vm_distance_squared
+{
+public:
+	fix64 d2;
+	constexpr explicit vm_distance_squared(const fix64 &f2) :
+		d2(f2)
+	{
+	}
+	constexpr bool operator<(const vm_distance_squared &rhs) const
+	{
+		return d2 < rhs.d2;
+	}
+	constexpr bool operator>(const vm_distance_squared &rhs) const
+	{
+		return d2 > rhs.d2;
+	}
+	constexpr bool operator>=(const vm_distance_squared &rhs) const
+	{
+		return !(*this < rhs);
+	}
+	template <typename T>
+		vm_distance_squared &operator-=(const T &rhs)
+		{
+			return *this = (*this - rhs);
+		}
+	constexpr vm_distance_squared operator-(const fix &) const = delete;
+	constexpr vm_distance_squared operator-(const fix64 &f2) const
+	{
+		return vm_distance_squared{d2 - f2};
+	}
+	explicit operator bool() const { return d2; }
+	template <typename T>
+		constexpr operator T() const = delete;
+	constexpr operator fix64() const
+	{
+		return d2;
+	}
+	static constexpr vm_distance_squared maximum_value()
+	{
+		return vm_distance_squared{0x7fffffffffffffff};
+	}
+	static constexpr vm_distance_squared minimum_value()
+	{
+		return vm_distance_squared{0};
+	}
+};
+
+class vm_magnitude_squared : public vm_distance_squared
+{
+public:
+	constexpr explicit vm_magnitude_squared(const uint64_t &f2) :
+		vm_distance_squared(f2)
+	{
+	}
+};
+
+static constexpr vm_distance_squared operator*(const vm_distance &a, const vm_distance &b)
+{
+	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(a)) * static_cast<fix64>(static_cast<fix>(b))};
+}
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(vms_vector, v, (v.x, v.y, v.z));	\
@@ -178,29 +320,35 @@ void vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 //dest *= n/d
 void vm_vec_scale2 (vms_vector &dest, fix n, fix d);
 
-fix64 vm_vec_mag2 (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude_squared vm_vec_mag2(const vms_vector &v);
 //returns magnitude of a vector
-fix vm_vec_mag (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude vm_vec_mag(const vms_vector &v);
 
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
-fix64 vm_vec_dist2 (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_distance vm_vec_dist(const vms_vector &v0, const vms_vector &v1);
+__attribute_warn_unused_result
+vm_distance_squared vm_vec_dist2(const vms_vector &v0, const vms_vector &v1);
 
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick (const vms_vector &v) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_magnitude vm_vec_mag_quick(const vms_vector &v);
 
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick (const vms_vector &v0, const vms_vector &v1) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+vm_distance vm_vec_dist_quick(const vms_vector &v0, const vms_vector &v1);
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize (vms_vector &dest, const vms_vector &src);
+vm_magnitude vm_vec_copy_normalize(vms_vector &dest, const vms_vector &src);
 
-fix vm_vec_normalize (vms_vector &v);
+vm_magnitude vm_vec_normalize(vms_vector &v);
 static inline vms_vector vm_vec_normalized(vms_vector v) __attribute_warn_unused_result;
 static inline vms_vector vm_vec_normalized(vms_vector v)
 {
@@ -208,9 +356,9 @@ static inline vms_vector vm_vec_normalized(vms_vector v)
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick (vms_vector &dest, const vms_vector &src);
+vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest, const vms_vector &src);
 
-fix vm_vec_normalize_quick (vms_vector &v);
+vm_magnitude vm_vec_normalize_quick(vms_vector &v);
 static inline vms_vector vm_vec_normalized_quick(vms_vector v) __attribute_warn_unused_result;
 static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 {
@@ -221,9 +369,9 @@ static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
+vm_magnitude vm_vec_normalized_dir (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
-fix vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
+vm_magnitude vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &end, const vms_vector &start);
 
 
 ////returns dot product of two vectors

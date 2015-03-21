@@ -57,9 +57,9 @@ extern void digi_play_sample_once( int sndnum, fix max_volume );
 int digi_link_sound_to_object( int soundnum, vcobjptridx_t objnum, int forever, fix max_volume );
 int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume );
 // Same as above, but you pass the max distance sound can be heard.  The old way uses f1_0*256 for max_distance.
-int digi_link_sound_to_object2( int soundnum, vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance );
+int digi_link_sound_to_object2(int soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance);
 
-int digi_link_sound_to_object3( int org_soundnum, vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+int digi_link_sound_to_object3(int org_soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance, int loop_start, int loop_end);
 
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 

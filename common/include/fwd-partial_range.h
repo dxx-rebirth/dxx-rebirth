@@ -9,7 +9,7 @@
 #include "compiler-begin.h"
 
 template <typename I>
-struct partial_range_t;
+class partial_range_t;
 
 template <typename I, typename UO, typename UL>
 __attribute_warn_unused_result

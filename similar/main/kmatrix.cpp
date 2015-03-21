@@ -135,21 +135,19 @@ static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
 
 static void kmatrix_draw_names(playernum_array_t &sorted)
 {
-	int x, color;
+	int x;
 
 	for (int j=0; j<N_players; j++)
 	{
-		if (Game_mode & GM_TEAM)
-			color = get_team(sorted[j]);
-		else
-			color = sorted[j];
-
 		x = FSPACX (70 + CENTERING_OFFSET(N_players) + j*25);
 
 		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
+		{
+			const auto color = get_player_or_team_color(sorted[j]);
 			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		}
 
 		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0u] );
 	}
@@ -188,7 +186,6 @@ struct kmatrix_screen : ignore_window_pointer_t
 
 static void kmatrix_redraw(kmatrix_screen *km)
 {
-	int color;
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
@@ -218,15 +215,13 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 		for (int i=0; i<N_players; i++ )
 		{
-			if (Game_mode & GM_TEAM)
-				color = get_team(sorted[i]);
-			else
-				color = sorted[i];
-
 			if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
 				gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 			else
+			{
+				const auto color = get_player_or_team_color(sorted[i]);
 				gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+			}
 
 			kmatrix_draw_item( i, sorted );
 		}
@@ -237,7 +232,6 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 static void kmatrix_redraw_coop()
 {
-	int color;
 	playernum_array_t sorted;
 
 	multi_sort_kill_list();
@@ -249,12 +243,13 @@ static void kmatrix_redraw_coop()
 
 	for (playernum_t i = 0; i < N_players; ++i)
 	{
-		color = sorted[i];
-
 		if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
-			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		{
+			auto &color = player_rgb_normal[get_player_color(sorted[i])];
+			gr_set_fontcolor(BM_XRGB(color.r, color.g, color.b),-1 );
+		}
 
 		kmatrix_draw_coop_item( i, sorted );
 	}

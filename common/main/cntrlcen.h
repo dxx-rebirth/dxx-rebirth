@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "segnum.h"
 
+#include "fwd-partial_range.h"
+
 #define MAX_CONTROLCEN_LINKS    10
 
 struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
@@ -66,17 +68,17 @@ int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> 
 #define MAX_REACTORS 7
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
 
-extern int Num_reactors;
+extern unsigned Num_reactors;
 extern int Base_control_center_explosion_time;      // how long to blow up on insane
 extern int Reactor_strength;
 
 /*
  * reads n reactor structs from a PHYSFS_file
  */
-extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp);
+void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r);
 #endif
 
-extern reactor Reactors[MAX_REACTORS];
+extern array<reactor, MAX_REACTORS> Reactors;
 
 static inline int get_num_reactor_models()
 {

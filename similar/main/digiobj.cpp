@@ -62,7 +62,7 @@ struct sound_object
 	ubyte			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
 	ubyte			pad;				//	Keep alignment
 	fix			max_volume;		// Max volume that this sound is playing at
-	fix			max_distance;	// The max distance that this sound can be heard at...
+	vm_distance max_distance;	// The max distance that this sound can be heard at...
 	int			volume;			// Volume that this sound is playing at
 	int			pan;				// Pan value that this sound is playing at
 	int			channel;			// What channel this is playing on, -1 if not playing
@@ -129,27 +129,24 @@ static int digi_unxlat_sound(int soundno)
 	throw std::invalid_argument("sound not loaded");
 }
 
-static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, segnum_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, fix max_distance)
+static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, segnum_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, vm_distance max_distance)
 {
 
 	vms_vector	vector_to_sound;
 	fix angle_from_ear;
-	fix distance;
-	fix path_distance;
-
 	*volume = 0;
 	*pan = 0;
 
 	max_distance = (max_distance*5)/4;		// Make all sounds travel 1.25 times as far.
 
 	//	Warning: Made the vm_vec_normalized_dir be vm_vec_normalized_dir_quick and got illegal values to acos in the fang computation.
-	distance = vm_vec_normalized_dir_quick( vector_to_sound, sound_pos, listener_pos );
+	auto distance = vm_vec_normalized_dir_quick( vector_to_sound, sound_pos, listener_pos );
 
 	if (distance < max_distance )	{
 		int num_search_segs = f2i(max_distance/20);
 		if ( num_search_segs < 1 ) num_search_segs = 1;
 
-		path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG|WID_FLY_FLAG );
+		auto path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG|WID_FLY_FLAG );
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
 			if (*volume > 0 )	{
@@ -324,7 +321,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static int digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, fix max_distance, int soundnum, short segnum)
+static int digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const segnum_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -361,7 +358,7 @@ static int digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_
 #define SOUND_3D_THRESHHOLD  (GameArg.SndDigiSampleRate * 3 / 2)	//1.5 seconds
 #endif
 
-int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance, int loop_start, int loop_end )
 {
 	const vcobjptr_t viewer{Viewer};
 	int volume,pan;
@@ -400,17 +397,17 @@ int digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, in
 	return digi_link_sound_common(viewer, so, objnum->pos, forever, max_volume, max_distance, soundnum, objnum->segnum);
 }
 
-int digi_link_sound_to_object2( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance )
+int digi_link_sound_to_object2(int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance)
 {
 	return digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
 }
 
 int digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int forever, fix max_volume )
 {
-	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0  );
+	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, vm_distance{256*F1_0});
 }
 
-static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, fix max_distance )
+static int digi_link_sound_to_pos2(int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const vcobjptr_t viewer{Viewer};
 	int volume, pan;
@@ -451,7 +448,7 @@ static int digi_link_sound_to_pos2( int org_soundnum, segnum_t segnum, short sid
 
 int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
 {
-	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, F1_0 * 256 );
+	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
 static void digi_kill_sound(sound_object &s)
@@ -533,6 +530,8 @@ void digi_sync_sounds()
 	}
 
 	SoundQ_process();
+	if (!Viewer)
+		return;
 	const vcobjptr_t viewer{Viewer};
 	range_for (auto &s, SoundObjects)
 	{

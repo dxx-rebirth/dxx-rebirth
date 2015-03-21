@@ -40,10 +40,10 @@ struct glow_values_t;
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,glow_values_t *glow_values, polygon_model_points &Interp_point_list);
+void g3_draw_polygon_model(const uint8_t *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,const glow_values_t *glow_values, polygon_model_points &Interp_point_list);
 
 //init code for bitmap models
-void g3_init_polygon_model(void *model_ptr);
+int16_t g3_init_polygon_model(void *model_ptr);
 
 //un-initialize, i.e., convert color entries back to RGB15
 static inline void g3_uninit_polygon_model(void *model_ptr)
@@ -52,14 +52,14 @@ static inline void g3_uninit_polygon_model(void *model_ptr)
 }
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(ubyte *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,vms_vector *new_points, polygon_model_points &Interp_point_list);
+void g3_draw_morphing_model(const uint8_t *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,const vms_vector *new_points, polygon_model_points &Interp_point_list);
 
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
 void g3_remap_interp_colors(void);
 
 // check a polymodel for it's color and return it
-int g3_poly_get_color(ubyte *model_ptr);
+int g3_poly_get_color(const uint8_t *model_ptr);
 
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data
@@ -79,7 +79,7 @@ void vms_vector_swap(vms_vector &v);
  */
 struct chunk
 {
-	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
+	const uint8_t *old_base; // where the offset sets off from (relative to beginning of model_data)
 	ubyte *new_base; // where the base is in the aligned structure
 	short offset; // how much to add to base to get the address of the offset
 	short correction; // how much the value of the offset must be shifted for alignment
@@ -89,7 +89,7 @@ struct chunk
  * finds what chunks the data points to, adds them to the chunk_list, 
  * and returns the length of the current chunk
  */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
+int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no);
 #endif //def WORDS_NEED_ALIGNMENT
 
 #endif

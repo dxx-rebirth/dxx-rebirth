@@ -89,12 +89,6 @@ extern unsigned Current_seg_depth;
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render
 //	the texture map defined by Texmap_ptrs[7].
 
-#ifndef OGL
-//	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
-//	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(uint_fast32_t nverts, const int *vert );
-#endif
-
 extern int Transparency_on;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;

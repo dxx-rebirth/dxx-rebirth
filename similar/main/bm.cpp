@@ -372,7 +372,7 @@ void bm_read_all(PHYSFS_file * fp)
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 
 	Num_reactors = PHYSFSX_readInt(fp);
-	reactor_read_n(Reactors, Num_reactors, fp);
+	reactor_read_n(fp, partial_range(Reactors, Num_reactors));
 
 	Marker_model_num = PHYSFSX_readInt(fp);
 

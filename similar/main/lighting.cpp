@@ -284,7 +284,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
 				auto sthrust = vm_vec_copy_scale(obj->mtype.phys_info.velocity,k);
-				light_intensity = max(vm_vec_mag_quick(sthrust)/4, F1_0*2) + F1_0/2;
+				light_intensity = max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F1_0*2) + F1_0/2;
 			}
 			break;
 		case OBJ_FIREBALL:

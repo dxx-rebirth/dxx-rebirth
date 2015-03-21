@@ -1184,7 +1184,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		vms_vector nextcenter;
-		fix step_size,seg_time;
+		fix seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
 		int up_side=0;
 
@@ -1249,7 +1249,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 		}
 
 		vm_vec_sub(flydata->step,dest_point,obj->pos);
-		step_size = vm_vec_normalize_quick(flydata->step);
+		auto step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
 		const auto curcenter = compute_segment_center(pseg);

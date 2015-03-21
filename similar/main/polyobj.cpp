@@ -177,13 +177,13 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 #ifdef WORDS_NEED_ALIGNMENT
-static uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
+static const uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
 {
-	return o.old_base + INTEL_SHORT(*((short *)(o.old_base + o.offset)));
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.old_base;
 }
 static uint8_t *new_dest(const chunk &o) // return where chunk is (in aligned struct)
 {
-	return o.new_base + INTEL_SHORT(*((short *)(o.old_base + o.offset))) + o.correction;
+	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.new_base + o.correction;
 }
 /*
  * find chunk with smallest address
@@ -203,7 +203,6 @@ static void align_polygon_model_data(polymodel *pm)
 {
 	int chunk_len;
 	int total_correction = 0;
-	ubyte *cur_old, *cur_new;
 	chunk cur_ch;
 	chunk ch_list[MAX_CHUNKS];
 	int no_chunks = 0;
@@ -213,8 +212,8 @@ static void align_polygon_model_data(polymodel *pm)
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
-	cur_old = pm->model_data.get();
-	cur_new = tmp;
+	const uint8_t *cur_old = pm->model_data.get();
+	auto cur_new = tmp.get();
 	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
 	memcpy(cur_new, cur_old, chunk_len);
 	while (no_chunks > 0) {
@@ -234,7 +233,7 @@ static void align_polygon_model_data(polymodel *pm)
 			for (int i = 0; i < no_chunks; i++)
 				ch_list[i].correction += to_shift;
 			total_correction += to_shift;
-			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
+			Assert(reinterpret_cast<uintptr_t>(new_dest(cur_ch)) % 4L == 0);
 			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
 		}
 		//write (corrected) chunk for current chunk:
@@ -250,12 +249,12 @@ static void align_polygon_model_data(polymodel *pm)
 		for (int i = 0; i < MAX_SUBMODELS; i++)
 			if (&pm->model_data[pm->submodel_ptrs[i]] >= cur_old
 			    && &pm->model_data[pm->submodel_ptrs[i]] < cur_old + chunk_len)
-				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data.get());
+				pm->submodel_ptrs[i] += (cur_new - tmp.get()) - (cur_old - pm->model_data.get());
  	}
 	pm->model_data_size += total_correction;
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	Assert(pm->model_data != NULL);
-	memcpy(pm->model_data.get(), tmp, pm->model_data_size);
+	memcpy(pm->model_data.get(), tmp.get(), pm->model_data_size);
 }
 #endif //def WORDS_NEED_ALIGNMENT
 
@@ -654,20 +653,22 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 
 	Assert(strlen(filename) <= 12);
-	strcpy(Pof_names[N_polygon_models],filename);
+	const auto n_models = N_polygon_models;
+	strcpy(Pof_names[n_models], filename);
 
-	read_model_file(&Polygon_models[N_polygon_models],filename,r);
+	auto &model = Polygon_models[n_models];
+	read_model_file(&model, filename, r);
 
-	polyobj_find_min_max(&Polygon_models[N_polygon_models]);
+	polyobj_find_min_max(&model);
 
-	g3_init_polygon_model(Polygon_models[N_polygon_models].model_data.get());
+	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get());
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
 
-	Polygon_models[N_polygon_models].n_textures = n_textures;
-	Polygon_models[N_polygon_models].first_texture = first_texture;
-	Polygon_models[N_polygon_models].simpler_model = 0;
+	model.n_textures = n_textures;
+	model.first_texture = first_texture;
+	model.simpler_model = 0;
 
 //	Assert(polygon_models[N_polygon_models]!=NULL);
 

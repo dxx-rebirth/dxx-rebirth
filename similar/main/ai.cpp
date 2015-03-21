@@ -24,8 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <cstdlib>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
 #include "inferno.h"
@@ -160,8 +160,7 @@ fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
 fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix64           Boss_dying_start_time;
-#if defined(DXX_BUILD_DESCENT_I)
-int				Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
+sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 int				Boss_been_hit=0;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -195,10 +194,8 @@ int				Boss_been_hit=0;
 static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 fix64           Boss_hit_time;
-int           Boss_dying;
-sbyte           Boss_dying_sound_playing;
 
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -407,9 +404,8 @@ int ai_behavior_to_mode(int behavior)
 //	Call every time the player starts a new ship.
 void ai_init_boss_for_ship(void)
 {
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_been_hit = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
 }
@@ -518,8 +514,8 @@ void init_ai_objects(void)
 	init_boss_segments(Boss_gate_segs, 0, 0);
 
 	init_boss_segments(Boss_teleport_segs, 1, 0);
-#if defined(DXX_BUILD_DESCENT_I)
 	Boss_been_hit = 0;
+#if defined(DXX_BUILD_DESCENT_I)
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
@@ -562,11 +558,10 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp,
 	dot = vm_vec_dot(goal_vector, objp->orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
-		fix	mag;
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
 		vm_vec_scale(new_fvec, new_scale);
 		vm_vec_add2(new_fvec, objp->orient.fvec);
-		mag = vm_vec_normalize_quick(new_fvec);
+		auto mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
 			new_fvec = goal_vector;		//	if degenerate vector, go right to goal
 		}
@@ -1126,10 +1121,11 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 		//	Note: If the robot fires in the direction of its forward vector, this is bad because the weapon does not
 		//	come out from the center of the robot; it comes out from the side.  So it is common for the weapon to miss
 		//	its target.  Ideally, we want to point the guns at the player.  For now, just fire right at the player.
-		if ((abs(player_direction_vector.x < 0x10000)) && (abs(player_direction_vector.y < 0x10000)) && (abs(player_direction_vector.z < 0x10000))) {
-
+		if (std::abs(player_direction_vector.x) < 0x10000 &&
+			std::abs(player_direction_vector.y) < 0x10000 &&
+			std::abs(player_direction_vector.z) < 0x10000)
+		{
 			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
-
 		// Player is moving.  Determine where the player will be at the end of the next frame if he doesn't change his
 		//	behavior.  Fire at exactly that point.  This isn't exactly what you want because it will probably take the laser
 		//	a different amount of time to get there, since it will probably be a different distance from the player.
@@ -1243,11 +1239,9 @@ player_led: ;
 
 	set_next_fire_time(obj, ailp, robptr, gun_num);
 
-#if defined(DXX_BUILD_DESCENT_I)
 	//	If the boss fired, allow him to teleport very soon (right after firing, cool!), pending other factors.
-	if (robptr->boss_flag)
+	if (robptr->boss_flag == BOSS_D1 || robptr->boss_flag == BOSS_SUPER)
 		Last_teleport_time -= Boss_teleport_interval/2;
-#endif
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1256,7 +1250,7 @@ player_led: ;
 static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal, int dot_based)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	fix				speed, dot, max_speed;
+	fix				dot, max_speed;
 	robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
@@ -1284,7 +1278,7 @@ static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal
 		pptr->velocity.z += fixmul(vec_goal.z, FrameTime*64) * (Difficulty_level+5)/4;
 	}
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 	max_speed = robptr->max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
@@ -1317,7 +1311,6 @@ void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
 static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	fix				speed;
 	int				dir;
 	vms_vector		evade_vector;
 
@@ -1382,7 +1375,7 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 	pptr->velocity.y += evade_vector.y;
 	pptr->velocity.z += evade_vector.z;
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 	if (speed > robptr->max_speed[Difficulty_level]) {
 		pptr->velocity.x = (pptr->velocity.x*3)/4;
 		pptr->velocity.y = (pptr->velocity.y*3)/4;
@@ -1393,7 +1386,6 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 // --------------------------------------------------------------------------------------------------------------------
 static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
-	fix				speed;
 	physics_info	*pptr = &objp->mtype.phys_info;
 	int				objref;
 
@@ -1423,7 +1415,7 @@ static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec
 	}
 
 
-	speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(pptr->velocity);
 
 	const robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 	if (speed > robptr->max_speed[Difficulty_level]) {
@@ -1451,13 +1443,13 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		const vobjptridx_t dobjp = vobjptridx(objp->ctype.ai_info.danger_laser_num);
 
 		if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == objp->ctype.ai_info.danger_laser_signature)) {
-			fix			dot, dist_to_laser, field_of_view;
+			fix			dot, field_of_view;
 			vms_vector	laser_fvec;
 
 			field_of_view = robptr->field_of_view[Difficulty_level];
 
 			auto vec_to_laser = vm_vec_sub(dobjp->pos, objp->pos);
-			dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
+			auto dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
 			dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
@@ -1661,7 +1653,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 {
 	if (!*flag) {
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-			fix			delta_time, dist;
+			fix			delta_time;
 			int			cloak_index = (objp) % MAX_AI_CLOAK_INFO;
 
 			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
@@ -1671,7 +1663,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
 			}
 
-			dist = vm_vec_normalized_dir_quick(vec_to_player, Ai_cloak_info[cloak_index].last_position, pos);
+			auto dist = vm_vec_normalized_dir_quick(vec_to_player, Ai_cloak_info[cloak_index].last_position, pos);
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
@@ -2014,13 +2006,11 @@ objptridx_t gate_in_robot(int type, segnum_t segnum)
 	return create_gated_robot(segnum, type, NULL);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
 static objptridx_t gate_in_robot(int type)
 {
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
 	return gate_in_robot(type, segnum);
 }
-#endif
 
 // --------------------------------------------------------------------------------------------------------------------
 static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
@@ -2206,10 +2196,10 @@ static void teleport_boss(const vobjptridx_t objp)
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 #elif defined(DXX_BUILD_DESCENT_II)
 	ailp->next_fire2 = 0;
-	digi_link_sound_to_object2( Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+	digi_link_sound_to_object2(Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 #endif
 
 }
@@ -2244,7 +2234,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
-			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(SOUND_BOSS_SHARE_DIE, objp, 0, F1_0*4, vm_distance{F1_0*1024});	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
                         create_small_fireball_on_object(objp, (F1_0 + d_rand()) * 8, 0);
         } else if (d_rand() < FrameTime*8)
@@ -2255,7 +2245,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 	}
 }
 
@@ -2353,7 +2343,7 @@ static int do_robot_dying_frame(const vobjptridx_t objp, fix64 start_time, fix r
 	if (start_time + roll_duration - sound_duration < GameTime64) {
 		if (!*dying_sound_playing) {
 			*dying_sound_playing = 1;
-			digi_link_sound_to_object2( death_sound, objp, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
+			digi_link_sound_to_object2(death_sound, objp, 0, sound_scale, vm_distance{sound_scale*256});	//	F1_0*512 means play twice as loud
 		} else if (d_rand() < FrameTime*16)
 			create_small_fireball_on_object(objp, (F1_0 + d_rand()) * (16 * expl_scale/F1_0)/8, 0);
 	} else if (d_rand() < FrameTime*8)
@@ -2377,7 +2367,7 @@ static void do_boss_dying_frame(const vobjptridx_t objp)
 		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 	}
 }
 
@@ -2393,7 +2383,7 @@ static int do_any_robot_dying_frame(const vobjptridx_t objp)
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
-			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, F1_0*512);
+			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
 			if ((Current_level_num < 0) && (Robot_info[get_robot_id(objp)].thief))
 				recreate_thief(objp);
 		}
@@ -2435,7 +2425,6 @@ fix	Prev_boss_shields = -1;
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-#if defined(DXX_BUILD_DESCENT_I)
 static void do_boss_stuff(const vobjptridx_t objp)
 {
 #ifndef NDEBUG
@@ -2522,7 +2511,7 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 	}
 }
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
 {
 	int	boss_id, boss_index;
@@ -2911,7 +2900,6 @@ void do_ai_frame(const vobjptridx_t obj)
 	const objnum_t &objnum = obj;
 	ai_static	*aip = &obj->ctype.ai_info;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
-	fix			dist_to_player;
 	vms_vector	vec_to_player;
 	fix			dot;
 	int			player_visibility=-1;
@@ -3038,7 +3026,7 @@ _exit_cheat:
 		}
 	}
 #endif
-	dist_to_player = vm_vec_dist_quick(Believed_player_pos, obj->pos);
+	auto dist_to_player = vm_vec_dist_quick(Believed_player_pos, obj->pos);
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
@@ -3259,8 +3247,7 @@ _exit_cheat:
 	case 0:
 		break;
 
-	case 1:
-#if defined(DXX_BUILD_DESCENT_I)
+	case BOSS_D1:
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
 			if (aip->CURRENT_STATE == AIS_FLIN)
@@ -3270,10 +3257,7 @@ _exit_cheat:
 			do_boss_stuff(obj);
 			dist_to_player *= 4;
 			break;
-#endif
-	case 2:
-		// FIXME!!!!
-#if defined(DXX_BUILD_DESCENT_I)
+	case BOSS_SUPER:
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
 			if (aip->CURRENT_STATE == AIS_FLIN)
@@ -3281,7 +3265,7 @@ _exit_cheat:
 			compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
 			{	int pv = player_visibility;
-				fix	dtp = dist_to_player/4;
+				auto dtp = dist_to_player/4;
 
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
@@ -3291,7 +3275,6 @@ _exit_cheat:
 
 			do_super_boss_stuff(obj, dtp, pv);
 			}
-#endif
 		break;
 
 	default:
@@ -4462,11 +4445,13 @@ int ai_save_state(PHYSFS_file *fp)
 			tmptime32 = -1;
 	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
+	int boss_dying = Boss_dying;
+	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
 	int boss_dying_sound_playing = Boss_dying_sound_playing;
 	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &Boss_hit_this_frame, sizeof(int), 1);
+	int boss_hit_this_frame = Boss_hit_this_frame;
+	PHYSFS_write(fp, &boss_hit_this_frame, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Boss_hit_time - GameTime64 < F1_0*(-18000))
@@ -4621,7 +4606,6 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_hit_time = (fix64)tmptime32;
-	// -- MK, 10/21/95, unused! -- PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
 	if (version >= 8) {
 		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);

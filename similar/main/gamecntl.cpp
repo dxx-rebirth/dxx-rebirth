@@ -128,7 +128,6 @@ using std::min;
 //	Function prototypes --------------------------------------------------------
 #ifndef RELEASE
 static void do_cheat_menu();
-static void advance_sound();
 static void play_test_sound();
 #endif
 
@@ -1288,7 +1287,6 @@ static window_event_result HandleTestKey(int key)
 
 #ifndef NDEBUG
 		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
-		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
 
 		case KEY_DEBUGGED + KEY_C:
@@ -1768,30 +1766,13 @@ static void do_cheat_menu()
 
 #ifndef NDEBUG
 //	Sounds for testing
-
-int test_sound_num = 0;
-int sound_nums[] = {10,11,20,21,30,31,32,33,40,41,50,51,60,61,62,70,80,81,82,83,90,91};
-
-#define N_TEST_SOUNDS (sizeof(sound_nums) / sizeof(*sound_nums))
-
-
-static void advance_sound()
-{
-	if (++test_sound_num == N_TEST_SOUNDS)
-		test_sound_num=0;
-
-}
-
-
-int     Test_sound = 251;
+__attribute_used
+static int Test_sound;
 
 static void play_test_sound()
 {
-
-	// -- digi_play_sample(sound_nums[test_sound_num], F1_0);
 	digi_play_sample(Test_sound, F1_0);
 }
-
 #endif  //ifndef NDEBUG
 
 window_event_result ReadControls(const d_event &event)

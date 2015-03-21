@@ -167,16 +167,22 @@ static inline void check_range_bounds(const char (&file)[NF], unsigned line, con
 }
 
 /* C arrays lack a size method, but have a constant size */
-template <typename T, std::size_t NF, std::size_t NE, std::size_t d>
-static inline void check_partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T (&t)[d], const std::size_t o, const std::size_t l)
+template <typename T, std::size_t d>
+static constexpr tt::integral_constant<std::size_t, d> get_range_size(T (&t)[d])
 {
-	check_range_bounds(file, line, estr, t, o, l, d);
+	return {};
+}
+
+template <typename T>
+static inline std::size_t get_range_size(T &t)
+{
+	return t.size();
 }
 
 template <typename T, std::size_t NF, std::size_t NE>
 static inline void check_partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const std::size_t o, const std::size_t l)
 {
-	check_range_bounds(file, line, estr, t, o, l, t.size());
+	check_range_bounds<T, NF, NE>(file, line, estr, t, o, l, get_range_size(t));
 }
 
 }

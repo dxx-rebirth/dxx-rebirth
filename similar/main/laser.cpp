@@ -310,15 +310,15 @@ const unsigned MIN_OMEGA_BLOBS = 3;				//	No matter how close the obstruction, a
 const fix MIN_OMEGA_DIST = F1_0*3;		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
 const fix DESIRED_OMEGA_DIST = F1_0*5;		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
 const unsigned MAX_OMEGA_BLOBS = 16;				//	No matter how far away the obstruction, this is the maximum number of blobs.
-const fix MAX_OMEGA_DIST = MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST;		//	Maximum extent of lightning blobs.
-const fix64 MAX_OMEGA_DIST_SQUARED = static_cast<fix64>(MAX_OMEGA_DIST) * static_cast<fix64>(MAX_OMEGA_DIST);
+constexpr vm_distance MAX_OMEGA_DIST{MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST};		//	Maximum extent of lightning blobs.
+constexpr vm_distance_squared MAX_OMEGA_DIST_SQUARED{MAX_OMEGA_DIST * MAX_OMEGA_DIST};
 
 //	Additionally, several constants which apply to homing objects in general control the behavior of the Omega Cannon.
 //	They are defined in laser.h.  They are copied here for reference.  These values are valid on 1/10/96:
 //	If you want the Omega Cannon view cone to be different than the Homing Missile viewcone, contact MK to make the change.
 //	(Unless you are a programmer, in which case, do it yourself!)
 #define	OMEGA_MIN_TRACKABLE_DOT			(15*F1_0/16)		//	Larger values mean narrower cone.  F1_0 means damn near impossible.  0 means 180 degree field of view.
-static const fix64 OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must be at least this close to be tracked.
+constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must be at least this close to be tracked.
 
 //	Note, you don't need to change these constants.  You can control damage and energy consumption by changing the
 //	usual bitmaps.tbl parameters.
@@ -1075,7 +1075,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 	}
 
 	const fix64 HOMING_MAX_TRACKABLE_DIST = F1_0*250;
-	fix64 max_trackable_dist = HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST;
+	vm_distance_squared max_trackable_dist{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST};
 	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 #if defined(DXX_BUILD_DESCENT_II)
