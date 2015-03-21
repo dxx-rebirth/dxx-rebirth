@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
+		14AC23E81ABE1AF60067931F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		14F8A91B1A2D6320003AA93A /* 2dsline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2dsline.cpp; sourceTree = "<group>"; };
 		14F8A91C1A2D6320003AA93A /* bitblt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitblt.cpp; sourceTree = "<group>"; };
 		14F8A91D1A2D6320003AA93A /* bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap.cpp; sourceTree = "<group>"; };
@@ -482,6 +483,7 @@
 		141FE1011A2D62B100A4FB18 /* .. */ = {
 			isa = PBXGroup;
 			children = (
+				14AC23E81ABE1AF60067931F /* .travis.yml */,
 				14F8AA1E1A2D6320003AA93A /* common */,
 				14F8AA2B1A2D6320003AA93A /* contrib */,
 				14F8AA2C1A2D6320003AA93A /* COPYING.txt */,
