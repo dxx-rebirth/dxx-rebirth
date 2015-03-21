@@ -32,7 +32,7 @@ static const unsigned OP_SUBCALL = 6;   //call a subobject
 static const unsigned OP_DEFP_START = 7;   //defpoints with start
 static const unsigned OP_GLOW = 8;   //glow value for next poly
 
-static uint16_t init_model_sub(uint8_t *p, uint16_t);
+static int16_t init_model_sub(uint8_t *p, int16_t);
 
 #ifdef EDITOR
 int g3d_interp_outline;
@@ -462,8 +462,8 @@ class init_model_sub_state :
 	public interpreter_base
 {
 public:
-	uint16_t highest_texture_num;
-	init_model_sub_state(uint16_t h) :
+	int16_t highest_texture_num;
+	init_model_sub_state(int16_t h) :
 		highest_texture_num(h)
 	{
 	}
@@ -764,7 +764,7 @@ void g3_draw_morphing_model(const uint8_t *p,grs_bitmap **model_bitmaps,const su
 	iterate_polymodel(p, state);
 }
 
-static uint16_t init_model_sub(uint8_t *p, uint16_t highest_texture_num)
+static int16_t init_model_sub(uint8_t *p, int16_t highest_texture_num)
 {
 	init_model_sub_state state(highest_texture_num);
 	Assert(++nest_count < 1000);
@@ -773,11 +773,11 @@ static uint16_t init_model_sub(uint8_t *p, uint16_t highest_texture_num)
 }
 
 //init code for bitmap models
-uint16_t g3_init_polygon_model(void *model_ptr)
+int16_t g3_init_polygon_model(void *model_ptr)
 {
 	#ifndef NDEBUG
 	nest_count = 0;
 	#endif
 
-	return init_model_sub(reinterpret_cast<uint8_t *>(model_ptr), 0);
+	return init_model_sub(reinterpret_cast<uint8_t *>(model_ptr), -1);
 }

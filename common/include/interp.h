@@ -43,7 +43,7 @@ struct glow_values_t;
 void g3_draw_polygon_model(const uint8_t *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,const glow_values_t *glow_values, polygon_model_points &Interp_point_list);
 
 //init code for bitmap models
-uint16_t g3_init_polygon_model(void *model_ptr);
+int16_t g3_init_polygon_model(void *model_ptr);
 
 //un-initialize, i.e., convert color entries back to RGB15
 static inline void g3_uninit_polygon_model(void *model_ptr)

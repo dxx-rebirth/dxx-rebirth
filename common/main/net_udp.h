@@ -70,7 +70,7 @@ const uint16_t TRACKER_PORT_DEFAULT = 42420;
 #define UPID_VERSION_DENY_SIZE			  9
 #define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
 #define UPID_GAME_INFO_REQ_SIZE			 13
-#define UPID_GAME_INFO_LITE_REQ_SIZE		 11
+#define UPID_GAME_INFO_LITE_REQ_SIZE		 13
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.

@@ -144,7 +144,7 @@ void ogl_swap_buffers_internal(void)
 #define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
 #define ELEMENT_CHANGE_TRANSFORM      (1<<5)
 
-static void rpi_destroy_element(void)
+static void rpi_destroy_element()
 {
 	if (dispman_element != DISPMANX_NO_HANDLE) {
 		DISPMANX_UPDATE_HANDLE_T dispman_update;
@@ -270,7 +270,7 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 #endif // RPI
 
 #ifdef OGLES
-static void ogles_destroy(void)
+static void ogles_destroy()
 {
 	if( eglDisplay != EGL_NO_DISPLAY ) {
 		eglMakeCurrent(eglDisplay, NULL, NULL, EGL_NO_CONTEXT);
