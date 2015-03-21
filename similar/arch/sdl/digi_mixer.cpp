@@ -168,6 +168,10 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 	int channel;
 
 	if (!digi_initialised) return -1;
+
+	if (soundnum < 0)
+		return -1;
+
 	Assert(GameSounds[soundnum].data != (void *)-1);
 
 	mixdigi_convert_sound(soundnum);
