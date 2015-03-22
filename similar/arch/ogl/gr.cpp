@@ -719,11 +719,6 @@ void gr_set_attributes(void)
 
 int gr_init(int mode)
 {
-#ifdef RPI
-	char sdl_driver[32];
-	char *sdl_driver_ret;
-#endif
-
 	int retcode;
 
 	// Only do this function once!
@@ -736,8 +731,9 @@ int gr_init(int mode)
 	bcm_host_init();
 
 	// Check if we are running with SDL directfb driver ...
-	sdl_driver_ret=SDL_VideoDriverName(sdl_driver,32);
-	if (sdl_driver_ret) {
+	char sdl_driver[32];
+	if (auto sdl_driver_ret = SDL_VideoDriverName(sdl_driver, sizeof(sdl_driver)))
+	{
 		if (strcmp(sdl_driver_ret,"x11")) {
 			con_printf(CON_URGENT,"RPi: activating hack for console driver");
 			sdl_no_modeswitch=1;
