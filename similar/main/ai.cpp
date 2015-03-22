@@ -3919,7 +3919,8 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If new state = fire, then set all gun states to fire.
-	if ((aip->GOAL_STATE == AIS_FIRE) ) {
+	if (aip->GOAL_STATE == AIS_FIRE)
+	{
 		uint_fast32_t num_guns = robptr->n_guns;
 		for (uint_fast32_t i=0; i<num_guns; i++)
 			ailp->goal_state[i] = AIS_FIRE;
