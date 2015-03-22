@@ -105,7 +105,13 @@ void jukebox_unload()
 	JukeboxSongs.unload();
 }
 
-const array<file_extension_t, 6> jukebox_exts{SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3};
+const array<file_extension_t, 5> jukebox_exts{{
+	SONG_EXT_HMP,
+	SONG_EXT_MID,
+	SONG_EXT_OGG,
+	SONG_EXT_FLAC,
+	SONG_EXT_MP3
+}};
 
 static int read_m3u(void)
 {

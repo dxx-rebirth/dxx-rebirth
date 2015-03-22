@@ -525,20 +525,20 @@ static int HandleDemoKey(int key)
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
 			char filename[FILENAME_LEN], num[16];
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text("output file name"),
 				nm_item_input(filename),
-			};
+			}};
 			filename[0] = '\0';
 			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
-			m = {
+			m = {{
 				nm_item_text("strip how many bytes"),
 				nm_item_input(num),
-			};
+			}};
 			c = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (c == -2)
 				break;
@@ -1333,9 +1333,9 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_B: {
 			d_fname text{};
 			int item;
-			array<newmenu_item, 1> m{
+			array<newmenu_item, 1> m{{
 				nm_item_input(text),
-			};
+			}};
 			item = newmenu_do( NULL, "Briefing to play?", m, unused_newmenu_subfunction, unused_newmenu_userdata);
 			if (item != -1) {
 				do_briefing_screens(text,1);
@@ -1595,9 +1595,9 @@ static window_event_result FinalCheats()
 		char text[10]="";
 		int new_level_num;
 		int item;
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(text),
-		};
+		}};
 		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, m, unused_newmenu_subfunction, unused_newmenu_userdata);
 		if (item != -1) {
 			new_level_num = atoi(m[0].text);

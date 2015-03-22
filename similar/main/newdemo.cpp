@@ -174,7 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const array<file_extension_t, 1> demo_file_extensions{DEMO_EXT};
+const array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;
@@ -3778,15 +3778,15 @@ try_again:
 	{
 	}
 	else if (!nd_record_v_no_space) {
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	} else if (nd_record_v_no_space == 2) {
-		array<newmenu_item, 2> m{
+		array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
 	Newmenu_allowed_chars = NULL;

@@ -60,32 +60,23 @@ const array<char, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-#ifdef PASSWORD
-#define encrypt(a,b,c,d)	a ^ TOLOWER((((int) PASSWORD)>>24)&255), \
-									b ^ TOLOWER((((int) PASSWORD)>>16)&255), \
-									c ^ TOLOWER((((int) PASSWORD)>>8)&255), \
-									d ^ TOLOWER((((int) PASSWORD))&255)
-#else
-#define encrypt(a,b,c,d) a,b,c,d
-#endif
-
 const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
-			{ encrypt(7,6,2,3) },			// left
-			{ encrypt(0,4,7,3) },			// top
-			{ encrypt(0,1,5,4) },			// right
-			{ encrypt(2,6,5,1) },			// bottom
-			{ encrypt(4,5,6,7) },			// back
-			{ encrypt(3,2,1,0) },			// front
+	{{7,6,2,3}},			// left
+	{{0,4,7,3}},			// top
+	{{0,1,5,4}},			// right
+	{{2,6,5,1}},			// bottom
+	{{4,5,6,7}},			// back
+	{{3,2,1,0}},			// front
 }};
 
 //	Note, this MUST be the same as Side_to_verts, it is an int for speed reasons.
 const array<array<int, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
-			{ encrypt(7,6,2,3) },			// left
-			{ encrypt(0,4,7,3) },			// top
-			{ encrypt(0,1,5,4) },			// right
-			{ encrypt(2,6,5,1) },			// bottom
-			{ encrypt(4,5,6,7) },			// back
-			{ encrypt(3,2,1,0) },			// front
+	{{7,6,2,3}},			// left
+	{{0,4,7,3}},			// top
+	{{0,1,5,4}},			// right
+	{{2,6,5,1}},			// bottom
+	{{4,5,6,7}},			// back
+	{{3,2,1,0}},			// front
 }};
 
 // Texture map stuff

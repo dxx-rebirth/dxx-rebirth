@@ -958,9 +958,9 @@ static void do_screen_message(const char *msg)
 		return;
 
 	gr_palette_load(gr_palette);
-	array<newmenu_item, 1> nm_message_items{
+	array<newmenu_item, 1> nm_message_items{{
 		nm_item_menu(TXT_OK),
-	};
+	}};
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 	gr_free_bitmap_data(background);
 }
@@ -1200,9 +1200,9 @@ void PlayerFinishedLevel(int secret_flag)
 	int 	was_multi = 0;
 
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_text(" "),			//TXT_SECRET_EXIT;
-		};
+		}};
 		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
 

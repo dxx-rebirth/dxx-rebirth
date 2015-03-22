@@ -204,9 +204,9 @@ static int MakeNewPlayerFile(int allow_abort)
 
 try_again:
 	{
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(text.buffer()),
-		};
+		}};
 	Newmenu_allowed_chars = playername_allowed_chars;
 		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
@@ -340,7 +340,7 @@ int RegisterPlayer()
 {
 	const char **m;
 	char **f;
-	static const array<file_extension_t, 1> types{"plr"};
+	static const array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -776,13 +776,13 @@ int select_demo(void)
 static int do_difficulty_menu()
 {
 	int s;
-	array<newmenu_item, NDL> m{
+	array<newmenu_item, NDL> m{{
 		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(3)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
-	};
+	}};
 
 	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
@@ -818,10 +818,10 @@ int do_new_game_menu()
 		while (!valid)
 		{
 			array<char, 10> num_text{"1"};
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text(info_text),
 				nm_item_input(num_text),
-			};
+			}};
 			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
@@ -1726,7 +1726,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static const array<file_extension_t, 1> ext_list{"m3u"};		// select a directory or M3U playlist
+				static const array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
 									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection

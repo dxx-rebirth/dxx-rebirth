@@ -1409,13 +1409,11 @@ int load_level(const char * filename_passed)
 #ifdef EDITOR
 int get_level_name()
 {
-	array<newmenu_item, 2> m{
+	array<newmenu_item, 2> m{{
 		nm_item_text("Please enter a name for this mine:"),
 		nm_item_input(Current_level_name.next()),
-	};
-
+	}};
 	return newmenu_do( NULL, "Enter mine name", m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
-
 }
 #endif
 

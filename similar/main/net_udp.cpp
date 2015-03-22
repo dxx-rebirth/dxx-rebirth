@@ -4029,10 +4029,10 @@ static int net_udp_wait_for_sync(void)
 	
 	Network_status = NETSTAT_WAITING;
 
-	array<newmenu_item, 2> m{
+	array<newmenu_item, 2> m{{
 		nm_item_text(text),
 		nm_item_text(TXT_NET_LEAVE),
-	};
+	}};
 	auto i = net_udp_send_request();
 
 	if (i >= MAX_PLAYERS)
@@ -4087,9 +4087,9 @@ static int net_udp_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice;
-	array<newmenu_item, 1> m{
+	array<newmenu_item, 1> m{{
 		nm_item_text(TXT_NET_LEAVE),
-	};
+	}};
 	Network_status = NETSTAT_WAITING;
 	net_udp_flush();
 
@@ -5561,10 +5561,10 @@ int net_udp_show_game_info()
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
-	array<newmenu_item, 2> nm_message_items{
+	array<newmenu_item, 2> nm_message_items{{
 		nm_item_menu("JOIN GAME"),
 		nm_item_menu("GAME INFO"),
-	};
+	}};
 	c = newmenu_do("WELCOME", rinfo, nm_message_items, show_game_info_handler, netgame);
 	if (c==0)
 		return 1;
