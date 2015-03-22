@@ -241,6 +241,8 @@ vms_vector      Believed_player_pos;
 #define	AIE_MAX	4
 
 #ifndef NDEBUG
+#if PARALLAX
+#if defined(DXX_BUILD_DESCENT_I)
 // Index into this array with ailp->mode
 static const char mode_text[][16] = {
 	"STILL",
@@ -248,25 +250,9 @@ static const char mode_text[][16] = {
 	"FOL_PATH",
 	"CHASE_OBJ",
 	"RUN_FROM",
-#if defined(DXX_BUILD_DESCENT_I)
 	"HIDE",
-#elif defined(DXX_BUILD_DESCENT_II)
-	"BEHIND",
-#endif
 	"FOL_PATH2",
 	"OPEN_DOOR",
-#if defined(DXX_BUILD_DESCENT_II)
-	"GOTO_PLR",
-	"GOTO_OBJ",
-	"SN_ATT",
-	"SN_FIRE",
-	"SN_RETR",
-	"SN_RTBK",
-	"SN_WAIT",
-	"TH_ATTACK",
-	"TH_RETREAT",
-	"TH_WAIT",
-#endif
 };
 
 //	Index into this array with aip->behavior
@@ -278,6 +264,8 @@ static const char behavior_text[6][9] = {
 	"FOLPATH ",
 	"STATION "
 };
+#endif
+#endif
 
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
 static const char state_text[8][5] = {
