@@ -39,8 +39,7 @@ static int file_sort_func(char **e0, char **e1)
 	return d_stricmp(*e0, *e1);
 }
 
-
-char **file_getdirlist(int *NumDirs, const char *dir)
+static char **file_getdirlist(int *NumDirs, const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
 	auto dlen = path.copy_if(dir);
@@ -79,7 +78,7 @@ char **file_getdirlist(int *NumDirs, const char *dir)
 	return list;
 }
 
-char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
+static char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 {
 	char **list = PHYSFS_enumerateFiles(dir);
 	char **i, **j = list, *ext;
