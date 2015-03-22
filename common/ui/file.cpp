@@ -42,28 +42,19 @@ static int file_sort_func(char **e0, char **e1)
 
 char **file_getdirlist(int *NumDirs, const char *dir)
 {
-	char	path[PATH_MAX];
+	ntstring<PATH_MAX - 1> path;
+	auto dlen = path.copy_if(dir);
+	if (!dlen || !path.copy_if(dlen, "/"))
+		return nullptr;
+	++ dlen;
 	char	**list = PHYSFS_enumerateFiles(dir);
 	char	**i, **j = list;
-	char	*test_filename;
-	unsigned		test_max;
-
 	if (!list)
 		return NULL;
-
-	strcpy(path, dir);
-	if (*path)
-		strncat(path, "/", PATH_MAX - strlen(dir));
-
-	test_filename = path + strlen(path);
-	test_max = PATH_MAX - (test_filename - path);
-
 	for (i = list; *i; i++)
 	{
-		if (strlen(*i) >= test_max)
+		if (!path.copy_if(dlen, *i))
 			continue;
-
-		strcpy(test_filename, *i);
 		if (PHYSFS_isDirectory(path))
 			*j++ = *i;
 		else
