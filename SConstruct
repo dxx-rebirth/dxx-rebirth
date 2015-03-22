@@ -1618,7 +1618,8 @@ class DXXArchive(DXXCommon):
 ])
 	# for ogl
 	objects_arch_ogl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'arch/ogl/ogl_extensions.cpp'
+'arch/ogl/ogl_extensions.cpp',
+'arch/ogl/ogl_sync.cpp'
 ]
 ])
 	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
