@@ -1199,7 +1199,7 @@ void ogl_start_frame(void){
 }
 
 void ogl_end_frame(void){
-	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
+	OGL_VIEWPORT(0, 0, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 #ifdef OGLES
@@ -1251,7 +1251,8 @@ void ogl_close_pixel_buffers(void)
 
 static void ogl_filltexbuf(const uint8_t *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
-	if ((width > max(static_cast<unsigned>(grd_curscreen->sc_w), 1024u)) || (height > max(static_cast<unsigned>(grd_curscreen->sc_h), 256u)))
+	if ((width > max(static_cast<unsigned>(grd_curscreen->get_screen_width()), 1024u)) ||
+		(height > max(static_cast<unsigned>(grd_curscreen->get_screen_height()), 256u)))
 		Error("Texture is too big: %ix%i", width, height);
 
 	for (unsigned y=0;y<theight;y++)

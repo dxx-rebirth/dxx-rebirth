@@ -49,8 +49,8 @@ extern int HiresGFXAvailable;
 
 #define GWIDTH  grd_curcanv->cv_bitmap.bm_w
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
-#define SWIDTH  (grd_curscreen->sc_w)
-#define SHEIGHT (grd_curscreen->sc_h)
+#define SWIDTH  (grd_curscreen->get_screen_width())
+#define SHEIGHT (grd_curscreen->get_screen_height())
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
@@ -162,14 +162,6 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	ubyte       cv_blend_func;  // blending function to use
 };
 
-struct grs_screen : prohibit_void_ptr<grs_screen>
-{    // This is a video screen
-	grs_canvas  sc_canvas;  // Represents the entire screen
-	u_int32_t     sc_mode;        // Video mode number
-	unsigned short   sc_w, sc_h;     // Actual Width and Height
-	fix     sc_aspect;      //aspect ratio (w/h) for this screen
-};
-
 
 //=========================================================================
 // System functions:
@@ -178,6 +170,28 @@ struct grs_screen : prohibit_void_ptr<grs_screen>
 // canvas.  Saves the current VGA state and screen mode.
 
 #ifdef __cplusplus
+
+class grs_screen : prohibit_void_ptr<grs_screen>
+{    // This is a video screen
+	unsigned short   sc_w, sc_h;     // Actual Width and Height
+public:
+	grs_canvas  sc_canvas;  // Represents the entire screen
+	u_int32_t     sc_mode;        // Video mode number
+	fix     sc_aspect;      //aspect ratio (w/h) for this screen
+	uint_fast32_t get_screen_width() const
+	{
+		return sc_w;
+	}
+	uint_fast32_t get_screen_height() const
+	{
+		return sc_h;
+	}
+	void set_screen_width_height(uint16_t w, uint16_t h)
+	{
+		sc_w = w;
+		sc_h = h;
+	}
+};
 
 int gr_init(int mode);
 

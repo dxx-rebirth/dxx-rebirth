@@ -224,8 +224,8 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	int sw, sh, req_w, req_h;
 
 	auto dlg = make_unique<UI_DIALOG>();
-	sw = grd_curscreen->sc_w;
-	sh = grd_curscreen->sc_h;
+	sw = grd_curscreen->get_screen_width();
+	sh = grd_curscreen->get_screen_height();
 
 	//mouse_set_limits(0, 0, sw - 1, sh - 1);
 

@@ -510,7 +510,7 @@ static void ogl_init_state(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
 
-	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
+	ogl_init_pixel_buffers(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 }
 
 static void ogl_get_verinfo(void)
@@ -642,9 +642,8 @@ int gr_set_mode(u_int32_t mode)
 		return 0;
 	*grd_curscreen = {};
 	grd_curscreen->sc_mode = mode;
-	grd_curscreen->sc_w = w;
-	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->set_screen_width_height(w, h);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * GameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, gr_new_bm_data, BM_OGL, w, h);
 	gr_set_current_canvas(NULL);
 
@@ -1092,7 +1091,7 @@ void save_screen_shot(int automap_flag)
 	glReadBuffer(GL_FRONT);
 #endif
 
-	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h);
+	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 
 	start_time();
 }

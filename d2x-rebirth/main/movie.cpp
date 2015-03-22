@@ -289,7 +289,7 @@ static window_event_result show_pause_message(window *wind,const d_event &event,
 
 			gr_get_string_size(msg,&w,&h,&aw);
 
-			y = (grd_curscreen->sc_h-h)/2;
+			y = (grd_curscreen->get_screen_height() - h) / 2;
 
 			gr_set_fontcolor( 255, -1 );
 
