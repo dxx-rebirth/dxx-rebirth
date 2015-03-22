@@ -516,14 +516,6 @@ static void ogl_init_state(void)
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 }
 
-// Set the buffer to draw to. 0 is front, 1 is back
-void gr_set_draw_buffer(int buf)
-{
-#ifndef OGLES
-	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
-#endif
-}
-
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 static void ogl_get_verinfo(void)

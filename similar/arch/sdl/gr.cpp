@@ -44,13 +44,6 @@ void gr_flip()
 	SDL_Flip(screen);
 }
 
-// Set the buffer to draw to. 0 is front, 1 is back
-// With SDL, can't use it without resetting the video mode
-void gr_set_draw_buffer(int buf)
-{
-	buf = buf;
-}
-
 // returns possible (fullscreen) resolutions if any.
 int gr_list_modes( array<uint32_t, 50> &gsmodes )
 {

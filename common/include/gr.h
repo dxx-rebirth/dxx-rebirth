@@ -471,7 +471,6 @@ color_t gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
 
 extern void gr_flip(void);
-extern void gr_set_draw_buffer(int buf);
 
 /*
  * must return 0 if windowed, 1 if fullscreen
