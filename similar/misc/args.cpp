@@ -43,27 +43,39 @@ typedef std::vector<std::string> Arglist;
 class argument_exception
 {
 public:
-	const char *arg;
-	argument_exception(const char *a) : arg(a) {}
+	const std::string arg;
+	argument_exception(std::string &&a) :
+		arg(std::move(a))
+	{
+	}
 };
 
 class missing_parameter : public argument_exception
 {
 public:
-	missing_parameter(const char *a) : argument_exception(a) {}
+	missing_parameter(std::string &&a) :
+		argument_exception(std::move(a))
+	{
+	}
 };
 
 class unhandled_argument : public argument_exception
 {
 public:
-	unhandled_argument(const char *a) : argument_exception(a) {}
+	unhandled_argument(std::string &&a) :
+		argument_exception(std::move(a))
+	{
+	}
 };
 
 class conversion_failure : public argument_exception
 {
 public:
-	const char *value;
-	conversion_failure(const char *a, const char *v) : argument_exception(a), value(v) {}
+	const std::string value;
+	conversion_failure(std::string &&a, std::string &&v) :
+		argument_exception(std::move(a)), value(std::move(v))
+	{
+	}
 };
 
 struct Arg GameArg;
@@ -90,7 +102,7 @@ static std::string &&arg_string(Arglist::iterator &pp, Arglist::const_iterator e
 {
 	auto arg = pp;
 	if (++pp == end)
-		throw missing_parameter(arg->c_str());
+		throw missing_parameter(std::move(*arg));
 	return std::move(*pp);
 }
 
@@ -101,7 +113,7 @@ static long arg_integer(Arglist::iterator &pp, Arglist::const_iterator end)
 	char *p;
 	auto i = strtol(value.c_str(), &p, 10);
 	if (*p)
-		throw conversion_failure(arg->c_str(), value.c_str());
+		throw conversion_failure(std::move(*arg), std::move(value));
 	return i;
 }
 
@@ -314,7 +326,7 @@ static void ReadCmdArgs(Arglist &Args)
 			GameArg.DbgSdlASyncBlit = 1;
 #endif
 		else
-			throw unhandled_argument(p);
+			throw unhandled_argument(std::move(*pp));
 	}
 
 	if (GameArg.SysMaxFPS < MINIMUM_FPS)
@@ -340,11 +352,11 @@ bool InitArgs( int argc,char **argv )
 		ReadCmdArgs(Args);
 		return true;
 	} catch(const missing_parameter& e) {
-		Warning("Missing parameter for argument \"%s\"", e.arg);
+		Warning("Missing parameter for argument \"%s\"", e.arg.c_str());
 	} catch(const unhandled_argument& e) {
-		Warning("Unhandled argument \"%s\"", e.arg);
+		Warning("Unhandled argument \"%s\"", e.arg.c_str());
 	} catch(const conversion_failure& e) {
-		Warning("Failed to convert parameter \"%s\" for argument \"%s\"", e.value, e.arg);
+		Warning("Failed to convert argument \"%s\" parameter \"%s\"", e.arg.c_str(), e.value.c_str());
 	}
 	return false;
 }
