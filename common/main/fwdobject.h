@@ -128,7 +128,6 @@ struct polyobj_info_rw;
 struct obj_position;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names;
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_CONTROLCEN_GUNS = 4;
 #elif defined(DXX_BUILD_DESCENT_II)

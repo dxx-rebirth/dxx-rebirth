@@ -128,29 +128,6 @@ int print_object_info = 0;
 
 //--unused-- int Player_controller_type = 0;
 
-#if defined(EDITOR) || !defined(NDEBUG)
-const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names{{
-	"WALL    ",
-	"FIREBALL",
-	"ROBOT   ",
-	"HOSTAGE ",
-	"PLAYER  ",
-	"WEAPON  ",
-	"CAMERA  ",
-	"POWERUP ",
-	"DEBRIS  ",
-	"CNTRLCEN",
-	"FLARE   ",
-	"CLUTTER ",
-	"GHOST   ",
-	"LIGHT   ",
-	"COOP    ",
-#if defined(DXX_BUILD_DESCENT_II)
-	"MARKER  ",
-#endif
-}};
-#endif
-
 #ifndef RELEASE
 //set viewer object to next object in array
 void object_goto_next_viewer()
