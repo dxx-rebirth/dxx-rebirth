@@ -73,46 +73,11 @@
 #endif
 #endif
 
+#include "ogl_extensions.h"
+
 #include "compiler-make_unique.h"
 
 using std::max;
-
-/* ************************************************************************ */
-/* TODO MH: this is just borrowed from glext.h for the syncgl hack,
- *          I was too lazu to implement a sane GL extension handling just 
- *          for this experimental hack
- */
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-#ifndef APIENTRYP
-#define APIENTRYP APIENTRY *
-#endif
-#ifndef GLAPI
-#define GLAPI extern
-#endif
-
-typedef struct __GLsync *GLsync;
-typedef int64_t GLint64;
-typedef uint64_t GLuint64;
-
-typedef GLsync (APIENTRYP PFNGLFENCESYNCPROC) (GLenum condition, GLbitfield flags);
-typedef GLboolean (APIENTRYP PFNGLISSYNCPROC) (GLsync sync);
-typedef void (APIENTRYP PFNGLDELETESYNCPROC) (GLsync sync);
-typedef GLenum (APIENTRYP PFNGLCLIENTWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
-typedef void (APIENTRYP PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuint64 timeout);
-
-#define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
-#define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
-#define GL_TIMEOUT_EXPIRED                0x911B
-
-/* Extension pointers from GL_ARB_sync */
-
-static PFNGLFENCESYNCPROC glFenceSyncFunc = NULL;
-static PFNGLDELETESYNCPROC glDeleteSyncFunc = NULL;
-static PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
-
-/* ************************************************************************ */
 
 #ifdef OGLES
 int sdl_video_flags = 0;
@@ -728,9 +693,9 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
+	ogl_extensions_init();
 
 	bool need_ARB_sync;
-	bool have_ARB_sync = false;
 
 	switch (GameArg.OglSyncMethod) {
 		case SYNC_GL_FENCE:
@@ -741,20 +706,9 @@ int gr_set_mode(u_int32_t mode)
 		default:
 			need_ARB_sync = false;
 	}
-	if (need_ARB_sync) {
-		/* syncgl: try to get GL_ARB_sync, check availability, and print some info */
-		glFenceSyncFunc = (PFNGLFENCESYNCPROC)SDL_GL_GetProcAddress("glFenceSync");
-		glDeleteSyncFunc = (PFNGLDELETESYNCPROC)SDL_GL_GetProcAddress("glDeleteSync");
-		glClientWaitSyncFunc = (PFNGLCLIENTWAITSYNCPROC)SDL_GL_GetProcAddress("glClientWaitSync");
-
-		if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
-			con_printf(CON_VERBOSE, "GL_ARB_sync available");
-			have_ARB_sync=true;
-		}
-	}
 
 	if (GameArg.OglSyncMethod == SYNC_GL_AUTO) {
-		if (!have_ARB_sync) {
+		if (!ogl_have_ARB_sync) {
 			con_printf(CON_NORMAL, "GL_ARB_sync not available, disabling sync");
 			GameArg.OglSyncMethod = SYNC_GL_NONE;
 			need_ARB_sync = false;
@@ -763,7 +717,7 @@ int gr_set_mode(u_int32_t mode)
 		}
 	}
 
-	if (need_ARB_sync && !have_ARB_sync) {
+	if (need_ARB_sync && !ogl_have_ARB_sync) {
 		con_printf(CON_URGENT, "GL_ARB_sync not available, using fallback");
 		GameArg.OglSyncMethod=SYNC_GL_FINISH_BEFORE_SWAP;
 	}

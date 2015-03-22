@@ -1616,6 +1616,11 @@ class DXXArchive(DXXCommon):
 'texmap/tmapflat.cpp'
 ]
 ])
+	# for ogl
+	objects_arch_ogl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+'arch/ogl/ogl_extensions.cpp'
+]
+])
 	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer_music.cpp',
 ]
@@ -1996,6 +2001,7 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			env.Append(LIBS = self.platform_settings.ogllibs)
+			objects.extend(static_archive_construction.objects_arch_ogl)
 			objects.extend(self.objects_similar_arch_ogl)
 		else:
 			message(self, "building with Software Renderer")
