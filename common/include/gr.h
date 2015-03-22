@@ -481,7 +481,7 @@ int gr_check_fullscreen(void);
  * returns state after toggling (ie, same as if you had called
  * check_fullscreen immediatly after)
  */
-int gr_toggle_fullscreen(void);
+void gr_toggle_fullscreen();
 void ogl_do_palfx(void);
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers(void);

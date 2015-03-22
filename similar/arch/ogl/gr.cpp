@@ -76,8 +76,10 @@
 
 using std::max;
 
+static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
+
 #ifdef OGLES
-int sdl_video_flags = 0;
+static int sdl_video_flags;
 
 #ifdef RPI
 static EGL_DISPMANX_WINDOW_T nativewindow;
@@ -86,22 +88,22 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display=DISPMANX_NO_HANDLE;
 #endif
 
 #else
-int sdl_video_flags = SDL_OPENGL;
+static int sdl_video_flags = SDL_OPENGL;
 #endif
-int gr_installed = 0;
-int gl_initialized=0;
+static int gr_installed;
+static int gl_initialized;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 #ifdef RPI
-int sdl_no_modeswitch=0;
+static int sdl_no_modeswitch;
 #else
 enum { sdl_no_modeswitch = 0 };
 #endif
 
 #ifdef OGLES
-EGLDisplay eglDisplay=EGL_NO_DISPLAY;
-EGLConfig eglConfig;
-EGLSurface eglSurface=EGL_NO_SURFACE;
-EGLContext eglContext=EGL_NO_CONTEXT;
+static EGLDisplay eglDisplay=EGL_NO_DISPLAY;
+static EGLConfig eglConfig;
+static EGLSurface eglSurface=EGL_NO_SURFACE;
+static EGLContext eglContext=EGL_NO_CONTEXT;
 
 static bool TestEGLError(const char* pszLocation)
 {
@@ -296,7 +298,7 @@ static void ogles_destroy()
 }
 #endif
 
-int ogl_init_window(int x, int y)
+static int ogl_init_window(int x, int y)
 {
 	int use_x,use_y,use_bpp;
 	Uint32 use_flags;
@@ -445,13 +447,9 @@ int gr_check_fullscreen(void)
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
-int gr_toggle_fullscreen(void)
+void gr_toggle_fullscreen()
 {
-	if (sdl_video_flags & SDL_FULLSCREEN)
-		sdl_video_flags &= ~SDL_FULLSCREEN;
-	else
-		sdl_video_flags |= SDL_FULLSCREEN;
-
+	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
 	if (gl_initialized)
 	{
 		if (sdl_no_modeswitch == 0) {
@@ -490,8 +488,7 @@ int gr_toggle_fullscreen(void)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
-	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
+	GameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 }
 
 static void ogl_init_state(void)
@@ -940,8 +937,8 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-GLfloat last_r=0, last_g=0, last_b=0;
-int do_pal_step=0;
+static GLfloat last_r, last_g, last_b;
+static int do_pal_step;
 
 void ogl_do_palfx(void)
 {
@@ -970,9 +967,8 @@ void ogl_do_palfx(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-int ogl_brightness_ok = 0;
-int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
-static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
+static int ogl_brightness_ok;
+static int old_b_r, old_b_g, old_b_b;
 
 void gr_palette_step_up(int r, int g, int b)
 {
