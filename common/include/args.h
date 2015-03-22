@@ -31,6 +31,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 bool InitArgs(int argc, char **argv);
 extern void args_exit();
 
+#ifdef OGL
+// GL Sync methods
+typedef enum {
+	SYNC_GL_NONE=0,
+	SYNC_GL_FENCE,
+	SYNC_GL_FENCE_SLEEP,
+	SYNC_GL_FINISH_AFTER_SWAP,
+	SYNC_GL_FINISH_BEFORE_SWAP,
+	SYNC_GL_AUTO
+} SyncGLMethod;
+
+#define OGL_SYNC_METHOD_DEFAULT		SYNC_GL_AUTO
+#define OGL_SYNC_WAIT_DEFAULT		2		/* milliseconds */
+
+#endif
+
 // Struct that keeps all variables used by FindArg
 // Prefixes are:
 //   Sys - System Options
@@ -85,6 +101,8 @@ struct Arg
 	int GfxSkipHiresFNT;
 #ifdef OGL
 	int OglFixedFont;
+	SyncGLMethod OglSyncMethod;
+	int OglSyncWait;
 #endif
 	const char *MplUdpHostAddr;
 	uint16_t MplUdpHostPort;

@@ -103,6 +103,11 @@ static long arg_integer(Arglist::const_iterator &pp, Arglist::const_iterator end
 	return i;
 }
 
+template<typename E> E arg_enum(Arglist::const_iterator &pp, Arglist::const_iterator end)
+{
+	return static_cast<E>(arg_integer(pp, end));
+}
+
 static void arg_port_number(Arglist::const_iterator &pp, Arglist::const_iterator end, uint16_t &out, bool allow_privileged)
 {
 	auto port = arg_integer(pp, end);
@@ -126,6 +131,8 @@ static void ReadCmdArgs(void)
 	GameArg.DbgVerbose = CON_NORMAL;
 	GameArg.DbgBpp 			= 32;
 #ifdef OGL
+	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
+	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
 	GameArg.DbgGlIntensity4Ok 	= 1;
 	GameArg.DbgGlLuminance4Alpha4Ok = 1;
 	GameArg.DbgGlRGBA2Ok 		= 1;
@@ -214,6 +221,10 @@ static void ReadCmdArgs(void)
 
 		else if (!d_stricmp(p, "-gl_fixedfont"))
 			GameArg.OglFixedFont 		= 1;
+		else if (!d_stricmp(p, "-gl_syncmethod"))
+			GameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
+		else if (!d_stricmp(p, "-gl_syncwait"))
+			GameArg.OglSyncWait = arg_integer(pp, end);
 #endif
 
 	// Multiplayer Options
