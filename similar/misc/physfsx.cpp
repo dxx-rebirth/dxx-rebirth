@@ -193,10 +193,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 	}
 	
 	//tell PHYSFS where hogdir is
-	if (GameArg.SysHogDir)
+	if (!GameArg.SysHogDir.empty())
 	{
-		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir);
-		PHYSFS_addToSearchPath(GameArg.SysHogDir,1);
+		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir.c_str());
+		PHYSFS_addToSearchPath(GameArg.SysHogDir.c_str(),1);
 	}
 #if defined(__unix__)
 	else if (!GameArg.SysNoHogDir)

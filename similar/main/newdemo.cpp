@@ -3679,9 +3679,10 @@ static void newdemo_write_end()
 static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 {
 	filename[0] = 0;
-	auto p = GameArg.SysRecordDemoNameTemplate;
-	if (!p || !*p)
+	const auto &n = GameArg.SysRecordDemoNameTemplate;
+	if (n.empty())
 		return false;
+	auto p = n.c_str();
 	if (!strcmp(p, "."))
 		p = "%Y%m%d.%H%M%S-$p-$m";
 	std::size_t i = 0;
