@@ -1295,9 +1295,6 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	Assert(event.type == EVENT_KEY_COMMAND);
 	keycode = event_key_get_raw(event);
 
-	if (!(key_properties[keycode].key_text))
-		return;
-
 	for (unsigned n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
 		if ( system_keys[n] == keycode )
 			return;
