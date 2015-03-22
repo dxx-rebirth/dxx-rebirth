@@ -176,7 +176,6 @@ class grs_screen : prohibit_void_ptr<grs_screen>
 	unsigned short   sc_w, sc_h;     // Actual Width and Height
 public:
 	grs_canvas  sc_canvas;  // Represents the entire screen
-	u_int32_t     sc_mode;        // Video mode number
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 	uint_fast32_t get_screen_width() const
 	{
@@ -185,6 +184,10 @@ public:
 	uint_fast32_t get_screen_height() const
 	{
 		return sc_h;
+	}
+	uint_fast32_t get_screen_width_height() const
+	{
+		return SM(get_screen_width(), get_screen_height());
 	}
 	void set_screen_width_height(uint16_t w, uint16_t h)
 	{

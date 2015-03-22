@@ -272,7 +272,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
+	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->get_screen_width_height() != Game_screen_mode)) && !(sm==SCREEN_MENU) )
 	{
 		gr_set_current_canvas(NULL);
 		return 1;
@@ -287,19 +287,19 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
+			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
+			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
-			if (grd_curscreen->sc_mode != SM(800,600))	{
+			if (grd_curscreen->get_screen_width_height() != SM(800,600))	{
 				int gr_error;
 				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
 					Warning("Cannot init editor screen (error=%d)",gr_error);
@@ -310,7 +310,7 @@ int set_screen_mode(int sm)
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
 		case SCREEN_MOVIE:
-			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
+			if (grd_curscreen->get_screen_width_height() != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );
 			}
