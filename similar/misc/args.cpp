@@ -40,6 +40,22 @@
 
 typedef std::vector<std::string> Arglist;
 
+class ini_entry
+{
+	std::string m_filename;
+public:
+	ini_entry(std::string &&f) :
+		m_filename(std::move(f))
+	{
+	}
+	const std::string &filename() const
+	{
+		return m_filename;
+	}
+};
+
+typedef std::vector<ini_entry> Inilist;
+
 class argument_exception
 {
 public:
@@ -78,11 +94,17 @@ public:
 	}
 };
 
+class nesting_depth_exceeded
+{
+};
+
 struct Arg GameArg;
 
-static void AppendIniArgs(Arglist &Args)
+static void ReadCmdArgs(Inilist &ini, Arglist &Args);
+
+static void AppendIniArgs(const char *filename, Arglist &Args)
 {
-	if (auto f = PHYSFSX_openReadBuffered(INI_FILENAME))
+	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<1024> line;
 		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
@@ -124,7 +146,7 @@ static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, 
 		out = port;
 }
 
-static void ReadCmdArgs(Arglist &Args)
+static void InitGameArg()
 {
 	GameArg.SysMaxFPS = MAXIMUM_FPS;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -146,6 +168,17 @@ static void ReadCmdArgs(Arglist &Args)
 	GameArg.DbgGlReadPixelsOk 	= 1;
 	GameArg.DbgGlGetTexLevelParamOk = 1;
 #endif
+}
+
+static void ReadIniArgs(Inilist &ini)
+{
+	Arglist Args;
+	AppendIniArgs(ini.back().filename().c_str(), Args);
+	ReadCmdArgs(ini, Args);
+}
+
+static void ReadCmdArgs(Inilist &ini, Arglist &Args)
+{
 	for (Arglist::iterator pp = Args.begin(), end = Args.end(); pp != end; ++pp)
 	{
 		const char *p = pp->c_str();
@@ -249,7 +282,7 @@ static void ReadCmdArgs(Arglist &Args)
 			/* Always recognized.  No-op if tracker support compiled
 			 * out. */
 #ifdef USE_TRACKER
-			GameArg.MplTrackerAddr = nullptr;
+			GameArg.MplTrackerAddr.clear();
 #endif
 		}
 #ifdef USE_TRACKER
@@ -325,10 +358,21 @@ static void ReadCmdArgs(Arglist &Args)
 		else if (!d_stricmp(p, "-asyncblit"))
 			GameArg.DbgSdlASyncBlit = 1;
 #endif
+		else if (!d_stricmp(p, "-ini"))
+		{
+			ini.emplace_back(arg_string(pp, end));
+			if (ini.size() > 10)
+				throw nesting_depth_exceeded();
+			ReadIniArgs(ini);
+			ini.pop_back();
+		}
 		else
 			throw unhandled_argument(std::move(*pp));
 	}
+}
 
+static void PostProcessGameArg()
+{
 	if (GameArg.SysMaxFPS < MINIMUM_FPS)
 		GameArg.SysMaxFPS = MINIMUM_FPS;
 	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
@@ -340,23 +384,51 @@ static void ReadCmdArgs(Arglist &Args)
 	SDL_putenv(sdl_disable_lock_keys);
 }
 
+static std::string ConstructIniStackExplanation(const Inilist &ini)
+{
+	Inilist::const_reverse_iterator i = ini.rbegin(), e = ini.rend();
+	if (i == e)
+		return " while processing <command line>";
+	std::string result;
+	result.reserve(ini.size() * 128);
+	result += " while processing \"";
+	for (;;)
+	{
+		result += i->filename();
+		if (++ i == e)
+			return result += "\"";
+		result += "\"\n    included from \"";
+	}
+}
+
 bool InitArgs( int argc,char **argv )
 {
-	Arglist Args;
-	Args.reserve(argc);
-	range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
-		Args.push_back(i);
+	InitGameArg();
 
-	AppendIniArgs(Args);
+	Inilist ini;
 	try {
-		ReadCmdArgs(Args);
+		{
+			Arglist Args;
+			Args.reserve(argc);
+			range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
+				Args.push_back(i);
+			ReadCmdArgs(ini, Args);
+		}
+		{
+			assert(ini.empty());
+			ini.emplace_back(INI_FILENAME);
+			ReadIniArgs(ini);
+		}
+		PostProcessGameArg();
 		return true;
 	} catch(const missing_parameter& e) {
-		Warning("Missing parameter for argument \"%s\"", e.arg.c_str());
+		Warning("Missing parameter for argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const unhandled_argument& e) {
-		Warning("Unhandled argument \"%s\"", e.arg.c_str());
+		Warning("Unhandled argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const conversion_failure& e) {
-		Warning("Failed to convert argument \"%s\" parameter \"%s\"", e.arg.c_str(), e.value.c_str());
+		Warning("Failed to convert argument \"%s\" parameter \"%s\"%s", e.arg.c_str(), e.value.c_str(), ConstructIniStackExplanation(ini).c_str());
+	} catch(const nesting_depth_exceeded &) {
+		Warning("Nesting depth exceeded%s", ConstructIniStackExplanation(ini).c_str());
 	}
 	return false;
 }
