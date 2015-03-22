@@ -516,15 +516,12 @@ static void ogl_init_state(void)
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 }
 
-const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
-
 static void ogl_get_verinfo(void)
 {
 #ifndef OGLES
-	gl_vendor = (const char *) glGetString (GL_VENDOR);
-	gl_renderer = (const char *) glGetString (GL_RENDERER);
-	gl_version = (const char *) glGetString (GL_VERSION);
-	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
+	const auto gl_vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s",gl_vendor,gl_renderer,gl_version);
 
@@ -557,6 +554,7 @@ static void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
+	const auto gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
 	{
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
