@@ -325,7 +325,7 @@ void player_rw_swap(player_rw *p, int swap);
 #endif
 
 extern struct object *Guided_missile[MAX_PLAYERS];
-extern int Guided_missile_sig[MAX_PLAYERS];
+extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*
  * reads a player_ship structure from a PHYSFS_file

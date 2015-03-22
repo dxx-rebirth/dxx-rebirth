@@ -265,7 +265,7 @@ void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes
 void clear_transient_objects(int clear_all);
 
 // Returns a new, unique signature for a new object
-int obj_get_signature();
+object_signature_t obj_get_signature();
 
 // returns the number of a free object, updating Highest_object_index.
 // Generally, obj_create() should be called to get an object, since it

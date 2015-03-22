@@ -800,7 +800,7 @@ void init_player_object()
 	set_player_id(ConsoleObject, 0);					//no sub-types for player
 
 #if defined(DXX_BUILD_DESCENT_II)
-	ConsoleObject->signature = 0;			//player has zero, others start at 1
+	ConsoleObject->signature = object_signature_t{0};			//player has zero, others start at 1
 #endif
 	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
 
@@ -897,7 +897,7 @@ void obj_unlink(const vobjptridx_t obj)
 }
 
 // Returns a new, unique signature for a new object
-int obj_get_signature()
+object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
@@ -907,12 +907,12 @@ int obj_get_signature()
 			lsig = 0;
 		++ lsig;
 		const auto predicate = [lsig](const vcobjptridx_t &o) {
-			return o->type != OBJ_NONE && o->signature == lsig;
+			return o->type != OBJ_NONE && o->signature.get() == lsig;
 		};
 		if (std::find_if(range.begin(), range.end(), predicate) != range.end())
 			continue;
 		sig = static_cast<int16_t>(lsig);
-		return static_cast<int32_t>(lsig);
+		return object_signature_t{static_cast<uint16_t>(lsig)};
 	}
 }
 
@@ -1233,8 +1233,6 @@ void obj_delete(const vobjptridx_t obj)
 	Assert(Objects[0].next != 0);
 	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 	obj->type = OBJ_NONE;		//unused!
-	obj->signature = -1;
-
 	obj_free(obj);
 }
 
@@ -1675,7 +1673,7 @@ static void object_move_one(const vobjptridx_t obj)
 
 		default:
 
-			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature, obj->type, obj->id);
+			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature.get(), obj->type, obj->id);
 
 			break;
 

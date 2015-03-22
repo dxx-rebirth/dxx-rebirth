@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_II)
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
+array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
 
@@ -330,11 +330,10 @@ constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object mu
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
 static int omega_cleanup(const vobjptridx_t weapon)
 {
-	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
-
 	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
 		return 0;
-
+	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
+	const auto parent_num = weapon->ctype.laser_info.parent_num;
 	if (Objects[parent_num].signature == parent_sig)
 		if (vm_vec_dist2(weapon->pos, Objects[parent_num].pos) > MAX_OMEGA_DIST_SQUARED)
 		{
@@ -348,13 +347,12 @@ static int omega_cleanup(const vobjptridx_t weapon)
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
 int ok_to_do_omega_damage(const vcobjptr_t weapon)
 {
-	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
-
 	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
 		return 1;
-
+	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
+	const auto parent_num = weapon->ctype.laser_info.parent_num;
 	if (Objects[parent_num].signature == parent_sig)
 		if (vm_vec_dist2(Objects[parent_num].pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
 			return 0;
@@ -1456,7 +1454,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 #endif
 
 	//delete weapons that are not moving
-	if (	!((d_tick_count ^ obj->signature) & 3) &&
+	if (	!((d_tick_count ^ obj->signature.get()) & 3) &&
 			(get_weapon_id(obj) != FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {

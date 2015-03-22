@@ -1168,7 +1168,7 @@ void close_game()
 
 #if defined(DXX_BUILD_DESCENT_II)
 object *Missile_viewer=NULL;
-int Missile_viewer_sig=-1;
+object_signature_t Missile_viewer_sig;
 
 int Marker_viewer_num[2]={-1,-1};
 int Coop_view_player[2]={-1,-1};

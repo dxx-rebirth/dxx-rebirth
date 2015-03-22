@@ -191,7 +191,7 @@ struct laser_info : prohibit_void_ptr<laser_info>
 	};
 	short   parent_type;        // The type of the parent of this object
 	objnum_t   parent_num;         // The object's parent's number
-	int     parent_signature;   // The object's parent's signature...
+	object_signature_t     parent_signature;   // The object's parent's signature...
 	fix64   creation_time;      // Absolute time of creation.
 	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
@@ -300,7 +300,7 @@ struct polyobj_info_rw
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object {
-	int     signature;      // Every object ever has a unique signature...
+	object_signature_t signature;
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection

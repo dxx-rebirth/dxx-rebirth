@@ -468,7 +468,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 
 			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
-			obj->ctype.laser_info.parent_signature	= PHYSFSX_readInt(f);
+			obj->ctype.laser_info.parent_signature	= object_signature_t{static_cast<uint16_t>(PHYSFSX_readInt(f))};
 #if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.laser_info.last_afterburner_time = 0;
 #endif
@@ -710,7 +710,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 
 			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_type);
 			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_num);
-			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature);
+			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature.get());
 
 			break;
 

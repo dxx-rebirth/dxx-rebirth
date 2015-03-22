@@ -61,8 +61,9 @@ extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
 
 #if defined(DXX_BUILD_DESCENT_II)
+class object_signature_t;
 extern struct object *Missile_viewer;
-extern int Missile_viewer_sig;
+extern object_signature_t Missile_viewer_sig;
 
 #define CV_NONE     0
 #define CV_ESCORT   1
