@@ -1017,9 +1017,15 @@ void change_res()
 			cmode = SM(w, h);
 		}
 		auto casp = cmode;
-		if (strchr(casptext, 'x')) // we even have a custom aspect set up
+		w = strtoul(casptext, &x, 10);
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
 		{
-			casp = SM(atoi(casptext), atoi(strchr(casptext, 'x')+1));
+			nm_messagebox(TXT_WARNING, 1, "OK", "Aspect resolution is bad.\nIgnoring ...");
+		}
+		else
+		{
+			// we even have a custom aspect set up
+			casp = SM(w, h);
 		}
 		GameCfg.AspectY = SM_W(casp)/gcd(SM_W(casp),SM_H(casp));
 		GameCfg.AspectX = SM_H(casp)/gcd(SM_W(casp),SM_H(casp));
