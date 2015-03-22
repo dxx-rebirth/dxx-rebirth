@@ -179,10 +179,18 @@ class ConfigureTests:
 		if r and forced != self.sconf_assume_success:
 			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
-			for d in successflags.pop('CPPDEFINES', []):
+			CPPDEFINES = []
+			for v in successflags.pop('CPPDEFINES', []):
+				d = v
 				if isinstance(d, str):
 					d = (d,None)
+				if d[0] in ('_REENTRANT',):
+					# Blacklist defines that must not be moved to the
+					# configuration header.
+					CPPDEFINES.append(v)
+					continue
 				context.sconf.Define(d[0], d[1])
+			successflags['CPPDEFINES'] = CPPDEFINES
 			for (k,v) in successflags.items():
 				self._extend_successflags(k, v)
 		else:
