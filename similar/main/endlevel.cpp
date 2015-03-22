@@ -142,11 +142,6 @@ static const char movie_table[] =	{	'a','b','c',
 							'm','o','m','o',
 							'p','q','p','q'
 					};
-
-#define N_MOVIES (sizeof(movie_table) / sizeof(*movie_table))
-
-static const char movie_table_secret[] = {'a','d','g','j','m','p'};
-#define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
 static int endlevel_movie_played = MOVIE_NOT_PLAYED;
 #endif
 
