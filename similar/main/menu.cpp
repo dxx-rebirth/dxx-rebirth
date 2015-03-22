@@ -998,19 +998,25 @@ void change_res()
 
 	if (i == opt_cval) // set custom resolution and aspect
 	{
-		u_int32_t cmode = Game_screen_mode, casp = Game_screen_mode;
-
-		if (!strchr(crestext, 'x'))
-			return;
-
-		cmode = SM(atoi(crestext), atoi(strchr(crestext, 'x')+1));
-		if (SM_W(cmode) < 320 || SM_H(cmode) < 200) // oh oh - the resolution is too small. Revert!
+		char *x;
+		unsigned long w = strtoul(crestext, &x, 10), h;
+		uint32_t cmode;
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
 		{
-			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			cmode = new_mode;
+			nm_messagebox(TXT_WARNING, 1, "OK", "Entered resolution is bad.\nReverting ...");
+			cmode = 0;
 		}
-
-		casp = cmode;
+		else if (w < 320 || h < 200)
+		{
+			// oh oh - the resolution is too small. Revert!
+			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
+			cmode = 0;
+		}
+		else
+		{
+			cmode = SM(w, h);
+		}
+		auto casp = cmode;
 		if (strchr(casptext, 'x')) // we even have a custom aspect set up
 		{
 			casp = SM(atoi(casptext), atoi(strchr(casptext, 'x')+1));
