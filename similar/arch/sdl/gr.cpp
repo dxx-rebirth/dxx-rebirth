@@ -79,16 +79,6 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 	}
 }
 
-int gr_check_mode(u_int32_t mode)
-{
-	unsigned int w, h;
-
-	w=SM_W(mode);
-	h=SM_H(mode);
-
-	return SDL_VideoModeOK(w,h,GameArg.DbgBpp,sdl_video_flags);
-}
-
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;

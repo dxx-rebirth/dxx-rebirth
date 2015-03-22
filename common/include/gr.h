@@ -182,7 +182,6 @@ struct grs_screen : prohibit_void_ptr<grs_screen>
 int gr_init(int mode);
 
 int gr_list_modes( array<uint32_t, 50> &gsmodes );
-int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
