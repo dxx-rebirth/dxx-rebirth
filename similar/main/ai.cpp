@@ -266,20 +266,6 @@ static const char behavior_text[6][9] = {
 };
 #endif
 #endif
-
-// Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-static const char state_text[8][5] = {
-	"NONE",
-	"REST",
-	"SRCH",
-	"LOCK",
-	"FLIN",
-	"FIRE",
-	"RECO",
-	"ERR_",
-};
-
-
 #endif
 
 // Current state indicates where the robot current is, or has just done.
