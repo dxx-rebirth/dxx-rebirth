@@ -114,7 +114,7 @@ int ReadConfigFile()
 #endif
 	GameCfg.GammaLevel = 0;
 	GameCfg.LastPlayer.fill(0);
-	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
+	GameCfg.LastMission = "";
 	GameCfg.ResolutionX = 640;
 	GameCfg.ResolutionY = 480;
 	GameCfg.AspectX = 3;
@@ -247,7 +247,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic4Str, GameCfg.CMMiscMusic[SONG_CREDITS].data());
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(Players[Player_num].callsign));
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(GameCfg.LastMission));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);

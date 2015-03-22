@@ -47,7 +47,7 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 	int GammaLevel;
 	callsign_t LastPlayer;
-	char LastMission[MISSION_NAME_LEN+1];
+	ntstring<MISSION_NAME_LEN> LastMission;
 	int ResolutionX;
 	int ResolutionY;
 	int AspectX;
