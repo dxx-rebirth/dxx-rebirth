@@ -1204,7 +1204,6 @@ class DXXCommon(LazyObjectConstructor):
 	class _PlatformSettings:
 		tools = None
 		ogllibs = ''
-		osasmdef = None
 		platform_objects = []
 		__pkg_config_path = None
 		__pkg_config_cache = {}
@@ -1277,7 +1276,6 @@ class DXXCommon(LazyObjectConstructor):
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
-		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
@@ -1292,7 +1290,6 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
-		osasmdef = 'elf'
 		__opengl_libs = ['GL', 'GLU']
 		__pkg_config_sdl = {}
 		def __init__(self,program,user_settings):
