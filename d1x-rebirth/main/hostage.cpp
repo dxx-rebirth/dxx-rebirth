@@ -110,10 +110,5 @@ void hostage_compress_all()	{
 			}
 		}
 	}
-
-	for (int i=0; i<MAX_HOSTAGES; i++ ) {
-		if ( hostage_is_valid(i) )	
-			;
-	}
 }
 
