@@ -1311,10 +1311,6 @@ void bm_read_player_ship(char *&arg, int skip)
 
 		arg = strtok( NULL, space_tab );
 	}
-
-	Assert(model_name != NULL);
-
-
 	if (First_multi_bitmap_num!=-1 && last_multi_bitmap_num==-1)
 		last_multi_bitmap_num=N_ObjBitmapPtrs;
 
