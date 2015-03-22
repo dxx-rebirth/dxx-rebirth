@@ -1477,8 +1477,8 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	flags = buf[4];
 	if (buf[0] == MULTI_FIRE_TRACK)
 	{
-		Network_laser_track = GET_INTEL_SHORT(buf + 6);
-		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[8]);
+		Network_laser_track = GET_INTEL_SHORT(buf + 18);
+		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[20]);
 	}
 
 	shot_orientation.x = (fix) GET_INTEL_INT(buf + 6); 
@@ -1509,7 +1509,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		auto objnum = Laser_player_fire( obj, weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
-			remote_objnum = GET_INTEL_SHORT(buf + 6);
+			remote_objnum = GET_INTEL_SHORT(buf + 18);
 			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 		}
 	}
