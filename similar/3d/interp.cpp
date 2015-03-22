@@ -11,6 +11,7 @@
  *
  */
 
+#include <stdexcept>
 #include <stdlib.h>
 #include "dxxsconf.h"
 #include "dxxerror.h"

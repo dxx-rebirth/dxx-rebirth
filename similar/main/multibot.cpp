@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdexcept>
 
 #include "vecmat.h"
 #include "object.h"
