@@ -278,7 +278,7 @@ void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
 void multi_add_lifetime_kills(void);
 void multi_send_bounty( void );
 
-void multi_endlevel_score(void);
+int multi_endlevel_score(void);
 void multi_consistency_error(int reset);
 void multi_prep_level(void);
 int multi_level_sync(void);

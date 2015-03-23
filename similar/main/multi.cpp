@@ -364,11 +364,11 @@ int multi_objnum_is_past(objnum_t objnum)
 //
 
 // Show a score list to end of net players
-void multi_endlevel_score(void)
+int multi_endlevel_score(void)
 {
-	int old_connect=0, game_wind_visible = 0;
+	int old_connect=0, game_wind_visible = 0, rval = 0;
 
-	// If there still is a Game_wind and it's suspended (usually both shoudl be the case), bring it up again so host can still take actions of the game
+	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
 	if (Game_wind)
 	{
 		if (!window_is_visible(Game_wind))
@@ -387,7 +387,7 @@ void multi_endlevel_score(void)
 	}
 
 	// Do the actual screen we wish to show
-	kmatrix_view(Game_mode & GM_NETWORK);
+	rval = kmatrix_view(Game_mode & GM_NETWORK);
 
 	// Restore connect state
 
@@ -417,6 +417,8 @@ void multi_endlevel_score(void)
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
 		window_set_visible(Game_wind, 0);
+
+        return rval;
 }
 
 int get_team(const playernum_t pnum)

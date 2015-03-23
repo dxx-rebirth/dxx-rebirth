@@ -1286,7 +1286,15 @@ static void AdvanceLevel(int secret_flag)
 #endif
 	if (Current_level_num != Last_level) {
 		if (Game_mode & GM_MULTI)
-			multi_endlevel_score();
+                {
+			int result = multi_endlevel_score();
+                        if (!result)
+                        {
+				if (Game_wind)
+					window_close(Game_wind);		// Exit out of game loop
+                                return;
+                        }
+                }
 		else
 			// NOTE LINK TO ABOVE!!!
 			DoEndLevelScoreGlitz(0);		//give bonuses
