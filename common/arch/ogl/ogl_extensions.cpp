@@ -79,9 +79,9 @@ bool ogl_extensions_init()
 
 	/* GL_ARB_sync */
 	if (is_supported(extension_str, version, "GL_ARB_sync", 3, 2)) {
-		glFenceSyncFunc = (PFNGLFENCESYNCPROC)SDL_GL_GetProcAddress("glFenceSync");
-		glDeleteSyncFunc = (PFNGLDELETESYNCPROC)SDL_GL_GetProcAddress("glDeleteSync");
-		glClientWaitSyncFunc = (PFNGLCLIENTWAITSYNCPROC)SDL_GL_GetProcAddress("glClientWaitSync");
+		glFenceSyncFunc = reinterpret_cast<PFNGLFENCESYNCPROC>(SDL_GL_GetProcAddress("glFenceSync"));
+		glDeleteSyncFunc = reinterpret_cast<PFNGLDELETESYNCPROC>(SDL_GL_GetProcAddress("glDeleteSync"));
+		glClientWaitSyncFunc = reinterpret_cast<PFNGLCLIENTWAITSYNCPROC>(SDL_GL_GetProcAddress("glClientWaitSync"));
 
 	}
 	if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
