@@ -169,7 +169,7 @@ static void print_commandline_help()
 	printf( "                                    3: immedaitely sync after buffer swap\n");
 	printf( "                                    4: immediately sync after buffer swap\n");
 	printf( "                                    5: auto. use mode 2 if available, 0 otherwise\n");
-	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)", OGL_SYNC_WAIT_DEFAULT);
+	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
 #endif // OGL
 
 #if defined(USE_UDP)
