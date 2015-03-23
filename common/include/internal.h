@@ -21,8 +21,6 @@ void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
 extern int linedotscale;
-extern int ogl_brightness_ok;
-extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 extern int ogl_fullscreen;
 extern int r_upixelc;
 

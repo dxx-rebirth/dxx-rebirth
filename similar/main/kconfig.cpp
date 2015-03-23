@@ -88,7 +88,11 @@ joyaxis_text_t joyaxis_text;
 static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
 static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
-static const ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
+const array<uint8_t, 19> system_keys{{
+	KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN,
+	// KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
+	KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK
+}};
 
 control_info Controls;
 
@@ -1295,12 +1299,12 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	Assert(event.type == EVENT_KEY_COMMAND);
 	keycode = event_key_get_raw(event);
 
-	if (!(key_properties[keycode].key_text))
+	auto e = end(system_keys);
+	if (unlikely(GameArg.CtlNoStickyKeys))
+		e = std::prev(e, 3);
+	const auto predicate = [keycode](uint8_t k) { return keycode == k; };
+	if (std::any_of(begin(system_keys), e, predicate))
 		return;
-
-	for (unsigned n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
-		if ( system_keys[n] == keycode )
-			return;
 
 	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
 }

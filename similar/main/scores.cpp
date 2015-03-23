@@ -239,10 +239,10 @@ void scores_maybe_add_player(int abort_flag)
 	} else {
 		if ( position==0 )	{
 			array<char, COOL_MESSAGE_LEN+10> text1{};
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
-			};
+			}};
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)

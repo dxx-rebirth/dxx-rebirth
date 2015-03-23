@@ -637,9 +637,9 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 /* Tracker initialization */
 static int udp_tracker_init()
 {
-	const char *tracker_addr = GameArg.MplTrackerAddr;
-	if (!tracker_addr)
+	if (GameArg.MplTrackerAddr.empty())
 		return 0;
+	const char *tracker_addr = GameArg.MplTrackerAddr.c_str();
 	int tracker_port = d_rand() % 0xffff;
 
 	while (tracker_port <= 1024)
@@ -940,7 +940,7 @@ void net_udp_manual_join_game()
 	
 	net_udp_init();
 
-	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
+	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr.c_str());
 	snprintf(dj->hostportbuf, sizeof(dj->hostportbuf), "%hu", GameArg.MplUdpHostPort ? GameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
 
 	reset_UDP_MyPort();
@@ -3191,15 +3191,15 @@ static void net_udp_more_game_options ()
 	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
 #ifdef USE_TRACKER
 	char tracker[52];
-	auto tracker_addr = GameArg.MplTrackerAddr;
-	if (tracker_addr)
-		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr, GameArg.MplTrackerPort);
+	const auto &tracker_addr = GameArg.MplTrackerAddr;
+	if (!tracker_addr.empty())
+		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
 	DXX_UDP_MENU_OPTIONS(ADD);
 
 #ifdef USE_TRACKER
-	if (!tracker_addr)
+	if (tracker_addr.empty())
 		nm_set_item_text(m[opt_tracker], "Tracker use disabled by -no-tracker");
 #endif
 
@@ -3561,7 +3561,7 @@ int net_udp_setup_game()
 	/* Force off _after_ writing profile, so that command line does not
 	 * change ngp file.
 	 */
-	if (!GameArg.MplTrackerAddr)
+	if (GameArg.MplTrackerAddr.empty())
 		Netgame.Tracker = 0;
 #endif
 
@@ -4029,10 +4029,10 @@ static int net_udp_wait_for_sync(void)
 	
 	Network_status = NETSTAT_WAITING;
 
-	array<newmenu_item, 2> m{
+	array<newmenu_item, 2> m{{
 		nm_item_text(text),
 		nm_item_text(TXT_NET_LEAVE),
-	};
+	}};
 	auto i = net_udp_send_request();
 
 	if (i >= MAX_PLAYERS)
@@ -4087,9 +4087,9 @@ static int net_udp_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice;
-	array<newmenu_item, 1> m{
+	array<newmenu_item, 1> m{{
 		nm_item_text(TXT_NET_LEAVE),
-	};
+	}};
 	Network_status = NETSTAT_WAITING;
 	net_udp_flush();
 
@@ -4441,7 +4441,7 @@ void net_udp_do_frame(int force, int listen)
 			iAttempts = 0;
 			
 			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr, GameArg.MplTrackerPort, UDP_MyPort );
+			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr.c_str(), GameArg.MplTrackerPort, UDP_MyPort );
 		}
 	}
 #endif
@@ -5561,10 +5561,10 @@ int net_udp_show_game_info()
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
 	snprintf(rinfo, lengthof(rinfo), GAME_INFO_FORMAT_TEXT(EXPAND_FORMAT) GAME_INFO_FORMAT_TEXT(EXPAND_ARGUMENT));
 
-	array<newmenu_item, 2> nm_message_items{
+	array<newmenu_item, 2> nm_message_items{{
 		nm_item_menu("JOIN GAME"),
 		nm_item_menu("GAME INFO"),
-	};
+	}};
 	c = newmenu_do("WELCOME", rinfo, nm_message_items, show_game_info_handler, netgame);
 	if (c==0)
 		return 1;

@@ -297,7 +297,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 		 (w->state == WALL_DOOR_WAITING))		//open, waiting to close
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((w->state == WALL_DOOR_OPEN))			//open, & staying open
+	if (w->state == WALL_DOOR_OPEN)			//open, & staying open
 		return;
 #endif
 

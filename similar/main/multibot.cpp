@@ -673,7 +673,7 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	short remote_botnum;
 
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
-	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
+	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
@@ -707,7 +707,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	;										loc += 1;
 
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		return;
@@ -767,7 +767,7 @@ multi_do_robot_fire(const ubyte *buf)
 
 	loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	auto botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
+	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 	gun_num = (sbyte)buf[loc];                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
 	fire.x = (fix)INTEL_INT((int)fire.x);

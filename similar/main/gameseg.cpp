@@ -976,11 +976,12 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
 	*sp++ = convert_to_byte(objp->orient.uvec.z);
 	*sp++ = convert_to_byte(objp->orient.fvec.z);
 
-	spp->xo = (objp->pos.x - Vertices[Segments[objp->segnum].verts[0]].x) >> RELPOS_PRECISION;
-	spp->yo = (objp->pos.y - Vertices[Segments[objp->segnum].verts[0]].y) >> RELPOS_PRECISION;
-	spp->zo = (objp->pos.z - Vertices[Segments[objp->segnum].verts[0]].z) >> RELPOS_PRECISION;
-
 	spp->segment = objp->segnum;
+	const auto segp = vsegptr(objp->segnum);
+	const auto &vert = Vertices[segp->verts[0]];
+	spp->xo = (objp->pos.x - vert.x) >> RELPOS_PRECISION;
+	spp->yo = (objp->pos.y - vert.y) >> RELPOS_PRECISION;
+	spp->zo = (objp->pos.z - vert.z) >> RELPOS_PRECISION;
 
  	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
 	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;

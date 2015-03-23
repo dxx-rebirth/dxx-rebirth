@@ -217,14 +217,13 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	short   cur_path_index;         // Current index in path.
 	segnum_t   follow_path_start_seg;  // Start segment for robot which follows path.
 	segnum_t   follow_path_end_seg;    // End segment for robot which follows path.
-	int     danger_laser_signature;
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
 #endif
 	objnum_t   danger_laser_num;
+	object_signature_t     danger_laser_signature;
 #if defined(DXX_BUILD_DESCENT_II)
-	int     danger_laser_signature;
 	fix64   dying_start_time;       // Time at which this robot started dying.
 #endif
 	ai_local ail;

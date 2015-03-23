@@ -328,8 +328,8 @@ using std::min;
 #define BASE_WIDTH (HIRESMODE? 640 : 320)
 #define BASE_HEIGHT	(HIRESMODE? 480 : 200)
 #ifdef OGL
-#define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->sc_w)/BASE_WIDTH) + 0.5)
-#define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->sc_h)/BASE_HEIGHT) + 0.5)
+#define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH) + 0.5)
+#define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT) + 0.5)
 #define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
 #define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(100) > HUD_SCALE_X(100) ? HUD_SCALE_X(y) : HUD_SCALE_Y(y))
 #else
@@ -2000,13 +2000,13 @@ static void draw_numerical_display(int shield, int energy)
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
-	gr_printf(	(grd_curscreen->sc_w/1.951)-(sw/2),
-			(grd_curscreen->sc_h/1.365),"%d",shield);
+	gr_printf((grd_curscreen->get_screen_width() / 1.951) - (sw / 2),
+			(grd_curscreen->get_screen_height() / 1.365), "%d", shield);
 
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
-	gr_printf(	(grd_curscreen->sc_w/1.951)-(ew/2),
-			(grd_curscreen->sc_h/1.5),"%d",energy);
+	gr_printf((grd_curscreen->get_screen_width() / 1.951) - (ew / 2),
+			(grd_curscreen->get_screen_height() / 1.5), "%d", energy);
 
 	gr_set_current_canvas( NULL );
 }
@@ -2371,7 +2371,7 @@ static void sb_draw_energy_bar(int energy)
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
 #endif
-	gr_printf((grd_curscreen->sc_w/3)-(ew/2),HUD_SCALE_Y(y),"%d",energy);
+	gr_printf((grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(y), "%d", energy);
 
 	gr_set_current_canvas(NULL);
 }
@@ -2411,7 +2411,7 @@ static void sb_draw_shield_num(int shield)
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
-	gr_printf((grd_curscreen->sc_w/2.266)-(sw/2),HUD_SCALE_Y(SB_SHIELD_NUM_Y),"%d",shield);
+	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
 static void sb_draw_shield_bar(int shield)
@@ -3177,8 +3177,8 @@ void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag
 
 		dx = (win==0)?-(w+(w/10)):(w/10);
 
-		window_x = grd_curscreen->sc_w/2+dx;
-		window_y = grd_curscreen->sc_h-h-(SHEIGHT/15);
+		window_x = grd_curscreen->get_screen_width() / 2 + dx;
+		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
 
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}

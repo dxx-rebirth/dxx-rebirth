@@ -174,7 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const array<file_extension_t, 1> demo_file_extensions{DEMO_EXT};
+const array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;
@@ -301,13 +301,13 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 	return _newdemo_read(buffer, elsize, nelem);
 }
 
-objnum_t newdemo_find_object( int signature )
+cobjptridx_t newdemo_find_object(object_signature_t signature)
 {
 	range_for (const auto i, highest_valid(Objects))
 	{
-		object * objp = &Objects[i];
+		const auto objp = vcobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
-			return i;
+			return objp;
 	}
 	return object_none;
 }
@@ -550,7 +550,8 @@ static void nd_read_object(const vobjptridx_t obj)
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
 	nd_read_short(&shortsig);
-	obj->signature = shortsig;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	// It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
 	nd_read_shortpos(obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -786,7 +787,7 @@ static void nd_write_object(const vcobjptr_t obj)
 
 	nd_write_byte(obj->id);
 	nd_write_byte(obj->flags);
-	shortsig = obj->signature;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	shortsig = obj->signature.get();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
@@ -1121,7 +1122,7 @@ void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_vo
 	stop_time();
 	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
 	nd_write_int( soundno );
-	nd_write_int( Objects[objnum].signature );
+	nd_write_int(Objects[objnum].signature.get());
 	nd_write_int( max_volume );
 	nd_write_int( max_distance );
 	nd_write_int( loop_start );
@@ -1133,7 +1134,7 @@ void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
-	nd_write_int(objp->signature );
+	nd_write_int(objp->signature.get());
 	start_time();
 }
 
@@ -2099,9 +2100,9 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( loop_end );
 					break;
 				}
-				auto objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, vm_distance{max_distance}, loop_start, loop_end );
+					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, vm_distance{max_distance}, loop_start, loop_end );
 				}
 			}
 			break;
@@ -2115,9 +2116,9 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( signature );
 					break;
 				}
-				auto objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_kill_sound_linked_to_object(vcobjptridx(objnum));
+					digi_kill_sound_linked_to_object(objnum);
 				}
 			}
 			break;
@@ -3679,9 +3680,10 @@ static void newdemo_write_end()
 static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 {
 	filename[0] = 0;
-	auto p = GameArg.SysRecordDemoNameTemplate;
-	if (!p || !*p)
+	const auto &n = GameArg.SysRecordDemoNameTemplate;
+	if (n.empty())
 		return false;
+	auto p = n.c_str();
 	if (!strcmp(p, "."))
 		p = "%Y%m%d.%H%M%S-$p-$m";
 	std::size_t i = 0;
@@ -3777,15 +3779,15 @@ try_again:
 	{
 	}
 	else if (!nd_record_v_no_space) {
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	} else if (nd_record_v_no_space == 2) {
-		array<newmenu_item, 2> m{
+		array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
 	Newmenu_allowed_chars = NULL;

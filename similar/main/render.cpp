@@ -1095,12 +1095,16 @@ static bool compare_func(const render_compare_context_t &c, const render_state_t
 		//the afterburner blobs, though.
 
 		if (obj_a->type == OBJ_WEAPON || (obj_a->type == OBJ_FIREBALL && obj_a->id != VCLIP_AFTERBURNER_BLOB))
+		{
 			if (!(obj_b->type == OBJ_WEAPON || obj_b->type == OBJ_FIREBALL))
 				return true;	//a is weapon, b is not, so say a is closer
-			else;				//both are weapons 
+			//both are weapons 
+		}
 		else
+		{
 			if (obj_b->type == OBJ_WEAPON || (obj_b->type == OBJ_FIREBALL && obj_b->id != VCLIP_AFTERBURNER_BLOB))
 				return false;	//b is weapon, a is not, so say a is farther
+		}
 
 		//no special case, fall through to normal return
 	}

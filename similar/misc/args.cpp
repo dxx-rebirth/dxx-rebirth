@@ -28,6 +28,9 @@
 #include "net_udp.h"
 #endif
 
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #define MAX_ARGS 1000
 #if defined(DXX_BUILD_DESCENT_I)
 #define INI_FILENAME "d1x.ini"
@@ -36,39 +39,72 @@
 #endif
 
 typedef std::vector<std::string> Arglist;
-static Arglist Args;
+
+class ini_entry
+{
+	std::string m_filename;
+public:
+	ini_entry(std::string &&f) :
+		m_filename(std::move(f))
+	{
+	}
+	const std::string &filename() const
+	{
+		return m_filename;
+	}
+};
+
+typedef std::vector<ini_entry> Inilist;
 
 class argument_exception
 {
 public:
-	const char *arg;
-	argument_exception(const char *a) : arg(a) {}
+	const std::string arg;
+	argument_exception(std::string &&a) :
+		arg(std::move(a))
+	{
+	}
 };
 
 class missing_parameter : public argument_exception
 {
 public:
-	missing_parameter(const char *a) : argument_exception(a) {}
+	missing_parameter(std::string &&a) :
+		argument_exception(std::move(a))
+	{
+	}
 };
 
 class unhandled_argument : public argument_exception
 {
 public:
-	unhandled_argument(const char *a) : argument_exception(a) {}
+	unhandled_argument(std::string &&a) :
+		argument_exception(std::move(a))
+	{
+	}
 };
 
 class conversion_failure : public argument_exception
 {
 public:
-	const char *value;
-	conversion_failure(const char *a, const char *v) : argument_exception(a), value(v) {}
+	const std::string value;
+	conversion_failure(std::string &&a, std::string &&v) :
+		argument_exception(std::move(a)), value(std::move(v))
+	{
+	}
+};
+
+class nesting_depth_exceeded
+{
 };
 
 struct Arg GameArg;
 
-static void AppendIniArgs(void)
+static void ReadCmdArgs(Inilist &ini, Arglist &Args);
+
+static void AppendIniArgs(const char *filename, Arglist &Args)
 {
-	if (auto f = PHYSFSX_openReadBuffered(INI_FILENAME))
+	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<1024> line;
 		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
@@ -84,38 +120,38 @@ static void AppendIniArgs(void)
 	}
 }
 
-static const char *arg_string(Arglist::const_iterator &pp, Arglist::const_iterator end)
+static std::string &&arg_string(Arglist::iterator &pp, Arglist::const_iterator end)
 {
-	Arglist::const_iterator arg = pp;
+	auto arg = pp;
 	if (++pp == end)
-		throw missing_parameter(arg->c_str());
-	return pp->c_str();
+		throw missing_parameter(std::move(*arg));
+	return std::move(*pp);
 }
 
-static long arg_integer(Arglist::const_iterator &pp, Arglist::const_iterator end)
+static long arg_integer(Arglist::iterator &pp, Arglist::const_iterator end)
 {
-	Arglist::const_iterator arg = pp;
-	const char *value = arg_string(pp, end);
+	auto arg = pp;
+	auto &&value = arg_string(pp, end);
 	char *p;
-	long i = strtol(value, &p, 10);
+	auto i = strtol(value.c_str(), &p, 10);
 	if (*p)
-		throw conversion_failure(arg->c_str(), value);
+		throw conversion_failure(std::move(*arg), std::move(value));
 	return i;
 }
 
-template<typename E> E arg_enum(Arglist::const_iterator &pp, Arglist::const_iterator end)
+template<typename E> E arg_enum(Arglist::iterator &pp, Arglist::const_iterator end)
 {
 	return static_cast<E>(arg_integer(pp, end));
 }
 
-static void arg_port_number(Arglist::const_iterator &pp, Arglist::const_iterator end, uint16_t &out, bool allow_privileged)
+static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, uint16_t &out, bool allow_privileged)
 {
 	auto port = arg_integer(pp, end);
 	if (static_cast<uint16_t>(port) == port && (allow_privileged || port >= 1024))
 		out = port;
 }
 
-static void ReadCmdArgs(void)
+static void InitGameArg()
 {
 	GameArg.SysMaxFPS = MAXIMUM_FPS;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -139,7 +175,18 @@ static void ReadCmdArgs(void)
 	GameArg.DbgGlReadPixelsOk 	= 1;
 	GameArg.DbgGlGetTexLevelParamOk = 1;
 #endif
-	for (Arglist::const_iterator pp = Args.begin(), end = Args.end(); pp != end; ++pp)
+}
+
+static void ReadIniArgs(Inilist &ini)
+{
+	Arglist Args;
+	AppendIniArgs(ini.back().filename().c_str(), Args);
+	ReadCmdArgs(ini, Args);
+}
+
+static void ReadCmdArgs(Inilist &ini, Arglist &Args)
+{
+	for (Arglist::iterator pp = Args.begin(), end = Args.end(); pp != end; ++pp)
 	{
 		const char *p = pp->c_str();
 	// System Options
@@ -246,15 +293,13 @@ static void ReadCmdArgs(void)
 			/* Always recognized.  No-op if tracker support compiled
 			 * out. */
 #ifdef USE_TRACKER
-			GameArg.MplTrackerAddr = nullptr;
+			GameArg.MplTrackerAddr.clear();
 #endif
 		}
 #ifdef USE_TRACKER
 		else if (!d_stricmp(p, "-tracker_hostaddr"))
 		{
 			GameArg.MplTrackerAddr = arg_string(pp, end);
-			if (!*GameArg.MplTrackerAddr)
-				GameArg.MplTrackerAddr = nullptr;
 		}
 		else if (!d_stricmp(p, "-tracker_hostport"))
 			arg_port_number(pp, end, GameArg.MplTrackerPort, true);
@@ -324,10 +369,21 @@ static void ReadCmdArgs(void)
 		else if (!d_stricmp(p, "-asyncblit"))
 			GameArg.DbgSdlASyncBlit = 1;
 #endif
+		else if (!d_stricmp(p, "-ini"))
+		{
+			ini.emplace_back(arg_string(pp, end));
+			if (ini.size() > 10)
+				throw nesting_depth_exceeded();
+			ReadIniArgs(ini);
+			ini.pop_back();
+		}
 		else
-			throw unhandled_argument(p);
+			throw unhandled_argument(std::move(*pp));
 	}
+}
 
+static void PostProcessGameArg()
+{
 	if (GameArg.SysMaxFPS < MINIMUM_FPS)
 		GameArg.SysMaxFPS = MINIMUM_FPS;
 	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
@@ -339,26 +395,51 @@ static void ReadCmdArgs(void)
 	SDL_putenv(sdl_disable_lock_keys);
 }
 
-void args_exit(void)
+static std::string ConstructIniStackExplanation(const Inilist &ini)
 {
-	Args.clear();
+	Inilist::const_reverse_iterator i = ini.rbegin(), e = ini.rend();
+	if (i == e)
+		return " while processing <command line>";
+	std::string result;
+	result.reserve(ini.size() * 128);
+	result += " while processing \"";
+	for (;;)
+	{
+		result += i->filename();
+		if (++ i == e)
+			return result += "\"";
+		result += "\"\n    included from \"";
+	}
 }
 
 bool InitArgs( int argc,char **argv )
 {
-	for (int i=1; i < argc; i++ )
-		Args.push_back(argv[i]);
+	InitGameArg();
 
-	AppendIniArgs();
+	Inilist ini;
 	try {
-		ReadCmdArgs();
+		{
+			Arglist Args;
+			Args.reserve(argc);
+			range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
+				Args.push_back(i);
+			ReadCmdArgs(ini, Args);
+		}
+		{
+			assert(ini.empty());
+			ini.emplace_back(INI_FILENAME);
+			ReadIniArgs(ini);
+		}
+		PostProcessGameArg();
 		return true;
 	} catch(const missing_parameter& e) {
-		Warning("Missing parameter for argument \"%s\"", e.arg);
+		Warning("Missing parameter for argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const unhandled_argument& e) {
-		Warning("Unhandled argument \"%s\"", e.arg);
+		Warning("Unhandled argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const conversion_failure& e) {
-		Warning("Failed to convert parameter \"%s\" for argument \"%s\"", e.value, e.arg);
+		Warning("Failed to convert argument \"%s\" parameter \"%s\"%s", e.arg.c_str(), e.value.c_str(), ConstructIniStackExplanation(ini).c_str());
+	} catch(const nesting_depth_exceeded &) {
+		Warning("Nesting depth exceeded%s", ConstructIniStackExplanation(ini).c_str());
 	}
 	return false;
 }

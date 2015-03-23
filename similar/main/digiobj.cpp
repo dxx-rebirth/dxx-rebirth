@@ -78,7 +78,7 @@ struct sound_object
 		} pos;
 		struct {
 			objnum_t			objnum;				// Used if SOF_LINK_TO_OBJ field is used
-			short			objsignature;
+			object_signature_t			objsignature;
 		} obj;
 	} link_type;
 };
@@ -559,14 +559,12 @@ void digi_sync_sounds()
                                 &s.volume, &s.pan, s.max_distance );
 
 			} else if ( s.flags & SOF_LINK_TO_OBJ )	{
-				object * objp;
-
-
+				const object * objp;
 				if ( Newdemo_state == ND_STATE_PLAYBACK )	{
-					int objnum;
-					objnum = newdemo_find_object( s.link_type.obj.objsignature );
-					if ( objnum > -1 )	{
-						objp = &Objects[objnum];
+					auto objnum = newdemo_find_object(s.link_type.obj.objsignature);
+					if (objnum != object_none)
+					{
+						objp = objnum;
 					} else {
 						objp = &Objects[0];
 					}

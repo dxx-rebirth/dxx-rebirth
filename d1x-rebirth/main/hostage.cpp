@@ -39,7 +39,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 
-hostage_data 		Hostages[MAX_HOSTAGES];						// Data for each hostage in mine
+#include "compiler-range_for.h"
+
+array<hostage_data, MAX_HOSTAGES> 		Hostages;						// Data for each hostage in mine
 
 //------------------- Useful macros and variables ---------------
 
@@ -84,9 +86,9 @@ void hostage_init_info(const vobjptridx_t objnum)
 void hostage_init_all()
 {
 	// Initialize all their values...
-	for (int i=0; i<MAX_HOSTAGES; i++ ) {
-		Hostages[i].objnum = object_none;
-		Hostages[i].objsig = -1;
+	range_for (auto &i, Hostages)
+	{
+		i.objnum = object_none;
 		//Hostages[i].type = 0;
 		//Hostages[i].sound_num = -1;
 	}
@@ -107,11 +109,6 @@ void hostage_compress_all()	{
 				i = 0;		// start over
 			}
 		}
-	}
-
-	for (int i=0; i<MAX_HOSTAGES; i++ ) {
-		if ( hostage_is_valid(i) )	
-			;
 	}
 }
 

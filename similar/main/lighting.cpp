@@ -604,7 +604,7 @@ g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 }
 
 g3s_lrgb object_light[MAX_OBJECTS];
-int object_sig[MAX_OBJECTS];
+static array<object_signature_t, MAX_OBJECTS> object_sig;
 object *old_viewer;
 int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up

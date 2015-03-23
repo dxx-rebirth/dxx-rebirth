@@ -28,9 +28,9 @@
 
 #include "compiler-make_unique.h"
 
-int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
+static int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
-int gr_installed = 0;
+static int gr_installed;
 
 void gr_flip()
 {
@@ -42,13 +42,6 @@ void gr_flip()
 
 	SDL_BlitSurface(canvas, &src, screen, &dest);
 	SDL_Flip(screen);
-}
-
-// Set the buffer to draw to. 0 is front, 1 is back
-// With SDL, can't use it without resetting the video mode
-void gr_set_draw_buffer(int buf)
-{
-	buf = buf;
 }
 
 // returns possible (fullscreen) resolutions if any.
@@ -86,16 +79,6 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 	}
 }
 
-int gr_check_mode(u_int32_t mode)
-{
-	unsigned int w, h;
-
-	w=SM_W(mode);
-	h=SM_H(mode);
-
-	return SDL_VideoModeOK(w,h,GameArg.DbgBpp,sdl_video_flags);
-}
-
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
@@ -110,6 +93,7 @@ int gr_set_mode(u_int32_t mode)
 	SDL_WM_SetCaption(DESCENT_VERSION, DXX_SDL_WINDOW_CAPTION);
 	SDL_WM_SetIcon( SDL_LoadBMP( DXX_SDL_WINDOW_ICON_BITMAP ), NULL );
 
+	const auto sdl_video_flags = ::sdl_video_flags;
 	if(SDL_VideoModeOK(w,h,GameArg.DbgBpp,sdl_video_flags))
 	{
 		screen=SDL_SetVideoMode(w, h, GameArg.DbgBpp, sdl_video_flags);
@@ -137,10 +121,8 @@ int gr_set_mode(u_int32_t mode)
 	}
 
 	*grd_curscreen = {};
-	grd_curscreen->sc_mode = mode;
-	grd_curscreen->sc_w = w;
-	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->set_screen_width_height(w, h);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * GameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, reinterpret_cast<unsigned char *>(canvas->pixels), BM_LINEAR, w, h);
 	window_update_canvases();
 	gr_set_current_canvas(NULL);
@@ -159,14 +141,14 @@ int gr_check_fullscreen(void)
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
-int gr_toggle_fullscreen(void)
+void gr_toggle_fullscreen()
 {
+	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
+	const int WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
-	sdl_video_flags^=SDL_FULLSCREEN;
 	SDL_WM_ToggleFullScreen(screen);
-	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
-	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
+	GameCfg.WindowMode = WindowMode;
 }
 
 void gr_set_attributes(void)

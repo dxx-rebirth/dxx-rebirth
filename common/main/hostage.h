@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _HOSTAGE_H
-#define _HOSTAGE_H
+#pragma once
 
 #ifdef __cplusplus
 
@@ -40,10 +38,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct hostage_data
 {
 	objnum_t		objnum;
-	int		objsig;
+	object_signature_t objsig;
 };
 
-extern hostage_data Hostages[MAX_HOSTAGES];
+extern array<hostage_data, MAX_HOSTAGES> Hostages;
 
 //returns true if something drew
 int do_hostage_effects();
@@ -70,5 +68,3 @@ void draw_hostage(vobjptridx_t obj);
 void hostage_rescue();
 
 #endif
-
-#endif /* _HOSTAGE_H */

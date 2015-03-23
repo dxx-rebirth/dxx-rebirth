@@ -1128,7 +1128,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 					ailp->mode = AIM_STILL;
 				}
 				return;
-			} else if ((ailp->mode == AIM_FOLLOW_PATH)
+			} else if (ailp->mode == AIM_FOLLOW_PATH
 #if defined(DXX_BUILD_DESCENT_I)
 					   && (aip->behavior != AIB_FOLLOW_PATH)
 #endif
@@ -1251,9 +1251,9 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
 	max_speed = robptr->max_speed[Difficulty_level];
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	if ((ailp->mode == AIM_RUN_FROM_OBJECT)
+	if (ailp->mode == AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| (objp->ctype.ai_info.behavior == AIB_SNIPE)
+		|| objp->ctype.ai_info.behavior == AIB_SNIPE
 #endif
 		)
 		max_speed = max_speed*3/2;
@@ -1294,9 +1294,9 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 
-	if ((ailp->mode == AIM_RUN_FROM_OBJECT)
+	if (ailp->mode == AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| (robot_is_companion(robptr) == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)
+		|| robot_is_companion(robptr) == 1 || objp->ctype.ai_info.behavior == AIB_SNIPE
 #endif
 		) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1442,9 +1442,9 @@ void attempt_to_resume_path(const vobjptridx_t objp)
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
 
-	if ((aip->behavior == AIB_STATION)
+	if (aip->behavior == AIB_STATION
 #if defined(DXX_BUILD_DESCENT_II)
-		&& (Robot_info[get_robot_id(objp)].companion != 1)
+		&& Robot_info[get_robot_id(objp)].companion != 1
 #endif
 		)
 		if (d_rand() > 8192) {

@@ -46,7 +46,7 @@ struct morph_data
 	ubyte morph_save_control_type;
 	ubyte morph_save_movement_type;
 	physics_info morph_save_phys_info;
-	int Morph_sig;
+	object_signature_t Morph_sig;
 };
 
 #define MAX_MORPH_OBJECTS 5

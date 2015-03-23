@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-void kmatrix_view(int network);
+int kmatrix_view(int network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
 
 #endif
 

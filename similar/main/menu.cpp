@@ -204,9 +204,9 @@ static int MakeNewPlayerFile(int allow_abort)
 
 try_again:
 	{
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(text.buffer()),
-		};
+		}};
 	Newmenu_allowed_chars = playername_allowed_chars;
 		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
@@ -340,7 +340,7 @@ int RegisterPlayer()
 {
 	const char **m;
 	char **f;
-	static const array<file_extension_t, 1> types{"plr"};
+	static const array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -776,13 +776,13 @@ int select_demo(void)
 static int do_difficulty_menu()
 {
 	int s;
-	array<newmenu_item, NDL> m{
+	array<newmenu_item, NDL> m{{
 		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(3)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
-	};
+	}};
 
 	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
@@ -818,10 +818,10 @@ int do_new_game_menu()
 		while (!valid)
 		{
 			array<char, 10> num_text{"1"};
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text(info_text),
 				nm_item_input(num_text),
-			};
+			}};
 			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
@@ -998,22 +998,34 @@ void change_res()
 
 	if (i == opt_cval) // set custom resolution and aspect
 	{
-		u_int32_t cmode = Game_screen_mode, casp = Game_screen_mode;
-
-		if (!strchr(crestext, 'x'))
-			return;
-
-		cmode = SM(atoi(crestext), atoi(strchr(crestext, 'x')+1));
-		if (SM_W(cmode) < 320 || SM_H(cmode) < 200) // oh oh - the resolution is too small. Revert!
+		char *x;
+		unsigned long w = strtoul(crestext, &x, 10), h;
+		uint32_t cmode;
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
 		{
-			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			cmode = new_mode;
+			nm_messagebox(TXT_WARNING, 1, "OK", "Entered resolution is bad.\nReverting ...");
+			cmode = 0;
 		}
-
-		casp = cmode;
-		if (strchr(casptext, 'x')) // we even have a custom aspect set up
+		else if (w < 320 || h < 200)
 		{
-			casp = SM(atoi(casptext), atoi(strchr(casptext, 'x')+1));
+			// oh oh - the resolution is too small. Revert!
+			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
+			cmode = 0;
+		}
+		else
+		{
+			cmode = SM(w, h);
+		}
+		auto casp = cmode;
+		w = strtoul(casptext, &x, 10);
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
+		{
+			nm_messagebox(TXT_WARNING, 1, "OK", "Aspect resolution is bad.\nIgnoring ...");
+		}
+		else
+		{
+			// we even have a custom aspect set up
+			casp = SM(w, h);
 		}
 		GameCfg.AspectY = SM_W(casp)/gcd(SM_W(casp),SM_H(casp));
 		GameCfg.AspectX = SM_H(casp)/gcd(SM_W(casp),SM_H(casp));
@@ -1726,7 +1738,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static const array<file_extension_t, 1> ext_list{"m3u"};		// select a directory or M3U playlist
+				static const array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
 									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection

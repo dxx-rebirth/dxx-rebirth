@@ -72,6 +72,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
+const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
+	"WALL    ",
+	"FIREBALL",
+	"ROBOT   ",
+	"HOSTAGE ",
+	"PLAYER  ",
+	"WEAPON  ",
+	"CAMERA  ",
+	"POWERUP ",
+	"DEBRIS  ",
+	"CNTRLCEN",
+	"FLARE   ",
+	"CLUTTER ",
+	"GHOST   ",
+	"LIGHT   ",
+	"COOP    ",
+#if defined(DXX_BUILD_DESCENT_II)
+	"MARKER  ",
+#endif
+}};
+
 // ----------------------------------------------------------------------------
 static const char	*object_types(int objnum)
 {

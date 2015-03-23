@@ -78,8 +78,9 @@ struct WALL_IS_DOORWAY_result_t
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
 {
-	short   objnum, wallnum;
-	int     signature;
+	objnum_t objnum;
+	short   wallnum;
+	object_signature_t signature;
 };
 
 //Start old wall structures

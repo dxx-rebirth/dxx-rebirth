@@ -39,29 +39,16 @@ static int16_t init_model_sub(uint8_t *p, int16_t);
 int g3d_interp_outline;
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(WORDS_BIGENDIAN)
 static inline int16_t *wp(uint8_t *p)
 {
 	return reinterpret_cast<int16_t *>(p);
 }
+#endif
 
 static inline const int16_t *wp(const uint8_t *p)
 {
 	return reinterpret_cast<const int16_t *>(p);
-}
-
-static inline fix *fp(uint8_t *p)
-{
-	return reinterpret_cast<fix *>(p);
-}
-
-static inline const fix *fp(const uint8_t *p)
-{
-	return reinterpret_cast<const fix *>(p);
-}
-
-static inline vms_vector *vp(uint8_t *p)
-{
-	return reinterpret_cast<vms_vector *>(p);
 }
 
 static inline const vms_vector *vp(const uint8_t *p)
@@ -563,6 +550,16 @@ static P iterate_polymodel(P p, State &state)
 }
 
 #ifdef WORDS_BIGENDIAN
+static inline fix *fp(uint8_t *p)
+{
+	return reinterpret_cast<fix *>(p);
+}
+
+static inline vms_vector *vp(uint8_t *p)
+{
+	return reinterpret_cast<vms_vector *>(p);
+}
+
 static void short_swap(short *s)
 {
 	*s = SWAPSHORT(*s);

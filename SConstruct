@@ -179,10 +179,18 @@ class ConfigureTests:
 		if r and forced != self.sconf_assume_success:
 			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
-			for d in successflags.pop('CPPDEFINES', []):
+			CPPDEFINES = []
+			for v in successflags.pop('CPPDEFINES', []):
+				d = v
 				if isinstance(d, str):
 					d = (d,None)
+				if d[0] in ('_REENTRANT',):
+					# Blacklist defines that must not be moved to the
+					# configuration header.
+					CPPDEFINES.append(v)
+					continue
 				context.sconf.Define(d[0], d[1])
+			successflags['CPPDEFINES'] = CPPDEFINES
 			for (k,v) in successflags.items():
 				self._extend_successflags(k, v)
 		else:
@@ -1204,7 +1212,6 @@ class DXXCommon(LazyObjectConstructor):
 	class _PlatformSettings:
 		tools = None
 		ogllibs = ''
-		osasmdef = None
 		platform_objects = []
 		__pkg_config_path = None
 		__pkg_config_cache = {}
@@ -1277,7 +1284,6 @@ class DXXCommon(LazyObjectConstructor):
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		tools = ['mingw']
-		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
@@ -1292,7 +1298,6 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
-		osasmdef = 'elf'
 		__opengl_libs = ['GL', 'GLU']
 		__pkg_config_sdl = {}
 		def __init__(self,program,user_settings):
@@ -1441,7 +1446,7 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Append(CCFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', '-funsigned-char', Werror + 'format-security'])
+		self.env.Append(CCFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', '-funsigned-char', Werror + 'format-security'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):

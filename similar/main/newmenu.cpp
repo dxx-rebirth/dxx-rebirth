@@ -513,17 +513,7 @@ static int newmenu_save_selection_handler(newmenu *menu, const d_event &event, c
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item)
 {
-	newmenu *menu;
-	window *wind;
-	menu = newmenu_do3( title, subtitle, nitems, item, newmenu_save_selection_handler, unused_newmenu_userdata, 0, NULL );
-	if (!menu)
-		return;
-	wind = menu->wind;	// avoid dereferencing a freed 'menu'
-
-	// newmenu_do2 and simpler get their own event loop
-	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (window_exists(wind))
-		event_process();
+	newmenu_do2(title, subtitle, nitems, item, newmenu_save_selection_handler, unused_newmenu_userdata, 0, nullptr);
 }
 
 #ifdef NEWMENU_MOUSE

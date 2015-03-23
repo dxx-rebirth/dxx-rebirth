@@ -50,17 +50,6 @@ static inline typename tt::enable_if<tt::is_unsigned<T>::value, bool>::type conv
 }
 
 template <std::size_t N>
-static inline void convert_string(char (&out)[N], const char *value, const char *eol)
-{
-	assert(*eol == 0);
-	const std::size_t i = std::distance(value, ++ eol);
-	if (i > N)
-		/* Only if not truncated */
-		return;
-	std::copy(value, eol, out);
-}
-
-template <std::size_t N>
 static inline void convert_string(ntstring<N> &out, const char *const value, const char *eol)
 {
 	assert(*eol == 0);

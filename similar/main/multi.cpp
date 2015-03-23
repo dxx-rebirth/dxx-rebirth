@@ -83,6 +83,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "highest_valid.h"
 
+constexpr tt::integral_constant<int8_t, -1> owner_none{};
+
 static void multi_reset_object_texture(const vobjptr_t objp);
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
@@ -257,9 +259,9 @@ void ClipRank (ubyte *rank)
 //  Functions that replace what used to be macros
 //
 
-objnum_t objnum_remote_to_local(int remote_objnum, int owner)
+objnum_t objnum_remote_to_local(uint16_t remote_objnum, int8_t owner)
 {
-	if (owner == -1)
+	if (owner == owner_none)
 		return(remote_objnum);
 	// Map a remote object number from owner to a local object number
 	if ((owner >= N_players) || (owner < -1)) {
@@ -267,7 +269,7 @@ objnum_t objnum_remote_to_local(int remote_objnum, int owner)
 		return(remote_objnum);
 	}
 
-	if ((remote_objnum < 0) || (remote_objnum >= MAX_OBJECTS))
+	if (remote_objnum >= MAX_OBJECTS)
 		return(object_none);
 
 	auto result = remote_to_local[owner][remote_objnum];
@@ -278,10 +280,10 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 {
 	// Map a local object number to a remote + owner
 	if ((local_objnum < 0) || (local_objnum > Highest_object_index)) {
-		return {-1, -1};
+		return {owner_none, -1};
 	}
 	auto owner = object_owner[local_objnum];
-	if (owner == -1)
+	if (owner == owner_none)
 		return {owner, local_objnum};
 	if (owner >= N_players || owner < -1)
 		throw std::runtime_error("illegal object owner");
@@ -291,7 +293,7 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	return {owner, result};
 }
 
-short objnum_local_to_remote(objnum_t local_objnum, sbyte *owner)
+uint16_t objnum_local_to_remote(objnum_t local_objnum, int8_t *owner)
 {
 	auto r = objnum_local_to_remote(local_objnum);
 	*owner = r.owner;
@@ -362,11 +364,11 @@ int multi_objnum_is_past(objnum_t objnum)
 //
 
 // Show a score list to end of net players
-void multi_endlevel_score(void)
+int multi_endlevel_score(void)
 {
-	int old_connect=0, game_wind_visible = 0;
+	int old_connect=0, game_wind_visible = 0, rval = 0;
 
-	// If there still is a Game_wind and it's suspended (usually both shoudl be the case), bring it up again so host can still take actions of the game
+	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
 	if (Game_wind)
 	{
 		if (!window_is_visible(Game_wind))
@@ -385,7 +387,7 @@ void multi_endlevel_score(void)
 	}
 
 	// Do the actual screen we wish to show
-	kmatrix_view(Game_mode & GM_NETWORK);
+	rval = kmatrix_view(Game_mode & GM_NETWORK);
 
 	// Restore connect state
 
@@ -415,6 +417,8 @@ void multi_endlevel_score(void)
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
 		window_set_visible(Game_wind, 0);
+
+        return rval;
 }
 
 int get_team(const playernum_t pnum)
@@ -1477,8 +1481,8 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	flags = buf[4];
 	if (buf[0] == MULTI_FIRE_TRACK)
 	{
-		Network_laser_track = GET_INTEL_SHORT(buf + 6);
-		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[8]);
+		Network_laser_track = GET_INTEL_SHORT(buf + 18);
+		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[20]);
 	}
 
 	shot_orientation.x = (fix) GET_INTEL_INT(buf + 6); 
@@ -1509,7 +1513,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		auto objnum = Laser_player_fire( obj, weapon_id, weapon_gun, 1, shot_orientation );
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
-			remote_objnum = GET_INTEL_SHORT(buf + 6);
+			remote_objnum = GET_INTEL_SHORT(buf + 18);
 			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 		}
 	}
@@ -1733,7 +1737,7 @@ static void multi_do_kill(const playernum_t pnum, const ubyte *buf)
 	count += 1;
 	killer = GET_INTEL_SHORT(buf + count);
 	if (killer > 0)
-		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
+		killer = objnum_remote_to_local(killer, buf[count+2]);
 	if (!multi_i_am_master())
 	{
 		Netgame.team_vector = buf[5];
@@ -1805,10 +1809,10 @@ void
 static multi_do_remobj(const ubyte *buf)
 {
 	short objnum; // which object to remove
-	sbyte obj_owner; // which remote list is it entered in
 
 	objnum = GET_INTEL_SHORT(buf + 1);
-	obj_owner = buf[3];
+	// which remote list is it entered in
+	auto obj_owner = buf[3];
 
 	Assert(objnum >= 0);
 
@@ -5153,7 +5157,7 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 // turn object to object_rw for sending
 void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 {
-	obj_rw->signature     = obj->signature;
+	obj_rw->signature     = obj->signature.get();
 	obj_rw->type          = obj->type;
 	obj_rw->id            = obj->id;
 	obj_rw->next          = obj->next;
@@ -5220,7 +5224,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 		case CT_WEAPON:
 			obj_rw->ctype.laser_info.parent_type      = obj->ctype.laser_info.parent_type;
 			obj_rw->ctype.laser_info.parent_num       = obj->ctype.laser_info.parent_num;
-			obj_rw->ctype.laser_info.parent_signature = obj->ctype.laser_info.parent_signature;
+			obj_rw->ctype.laser_info.parent_signature = obj->ctype.laser_info.parent_signature.get();
 			if (obj->ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
 			else
@@ -5250,7 +5254,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
 			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
-			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
+			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature.get();
 #if defined(DXX_BUILD_DESCENT_I)
 			obj_rw->ctype.ai_info.follow_path_start_seg  = obj->ctype.ai_info.follow_path_start_seg;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = obj->ctype.ai_info.follow_path_end_seg;
@@ -5320,7 +5324,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 // turn object_rw to object after receiving
 void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
-	obj->signature     = obj_rw->signature;
+	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj->type          = obj_rw->type;
 	obj->id            = obj_rw->id;
 	obj->next          = obj_rw->next;
@@ -5387,7 +5391,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 		case CT_WEAPON:
 			obj->ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
 			obj->ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
-			obj->ctype.laser_info.parent_signature = obj_rw->ctype.laser_info.parent_signature;
+			obj->ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
 			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
 			obj->ctype.laser_info.last_hitobj      = obj_rw->ctype.laser_info.last_hitobj;
 			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
@@ -5418,7 +5422,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
 			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
-			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
+			obj->ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->ctype.ai_info.follow_path_start_seg  = obj_rw->ctype.ai_info.follow_path_start_seg;
 			obj->ctype.ai_info.follow_path_end_seg    = obj_rw->ctype.ai_info.follow_path_end_seg;
