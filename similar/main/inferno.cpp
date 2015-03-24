@@ -162,6 +162,14 @@ static void print_commandline_help()
 #endif
 #ifdef    OGL
 	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
+	printf( "  -gl_syncmethod <n>            OpenGL sync method (default: %i)\n", OGL_SYNC_METHOD_DEFAULT);
+	printf( "                                    0: disabled\n");
+	printf( "                                    1: fence syncs, limit GPU latency to at most one frame\n");
+	printf( "                                    2: like 1, but sleep during sync to reduce CPU load\n");
+	printf( "                                    3: immedaitely sync after buffer swap\n");
+	printf( "                                    4: immediately sync after buffer swap\n");
+	printf( "                                    5: auto. use mode 2 if available, 0 otherwise\n");
+	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
 #endif // OGL
 
 #if defined(USE_UDP)

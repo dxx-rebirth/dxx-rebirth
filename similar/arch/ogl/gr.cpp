@@ -57,7 +57,6 @@
 #include "config.h"
 #include "playsave.h"
 #include "vers_id.h"
-#include "game.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -70,6 +69,11 @@
 #else
 #include <GL/glu.h>
 #endif
+#endif
+
+#ifndef OGLES
+#include "ogl_extensions.h"
+#include "ogl_sync.h"
 #endif
 
 #include "compiler-make_unique.h"
@@ -88,6 +92,7 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display=DISPMANX_NO_HANDLE;
 #endif
 
 #else
+static ogl_sync sync_helper;
 static int sdl_video_flags = SDL_OPENGL;
 #endif
 static int gr_installed;
@@ -128,7 +133,9 @@ void ogl_swap_buffers_internal(void)
 #ifdef OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
+	sync_helper.before_swap();
 	SDL_GL_SwapBuffers();
+	sync_helper.after_swap();
 #endif
 }
 
@@ -648,6 +655,12 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
+
+#ifndef OGLES
+	ogl_extensions_init();
+	sync_helper.init(GameArg.OglSyncMethod, GameArg.OglSyncWait);
+#endif
+
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
@@ -781,6 +794,9 @@ void gr_close()
 	if (gl_initialized)
 	{
 		ogl_smash_texture_list_internal();
+#ifndef OGLES
+		sync_helper.deinit();
+#endif
 	}
 
 	if (grd_curscreen)
