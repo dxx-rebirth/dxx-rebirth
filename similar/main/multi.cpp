@@ -364,9 +364,9 @@ int multi_objnum_is_past(objnum_t objnum)
 //
 
 // Show a score list to end of net players
-int multi_endlevel_score(void)
+kmatrix_result multi_endlevel_score()
 {
-	int old_connect=0, game_wind_visible = 0, rval = 0;
+	int old_connect=0, game_wind_visible = 0;
 
 	// If there still is a Game_wind and it's suspended (usually both should be the case), bring it up again so host can still take actions of the game
 	if (Game_wind)
@@ -387,7 +387,7 @@ int multi_endlevel_score(void)
 	}
 
 	// Do the actual screen we wish to show
-	rval = kmatrix_view(Game_mode & GM_NETWORK);
+	const auto rval = kmatrix_view(Game_mode & GM_NETWORK);
 
 	// Restore connect state
 

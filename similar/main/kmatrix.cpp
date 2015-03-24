@@ -366,14 +366,14 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 	return window_event_result::ignored;
 }
 
-int kmatrix_view(int network)
+kmatrix_result kmatrix_view(int network)
 {
 	window *wind;
 	kmatrix_screen km;
 	gr_init_bitmap_data(km.background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 	{
-		return 0;
+		return kmatrix_result::abort;
 	}
 	gr_palette_load(gr_palette);
 	
@@ -392,11 +392,11 @@ int kmatrix_view(int network)
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)
 	{
-		return 0;
+		return kmatrix_result::abort;
 	}
 	
 	while (window_exists(wind))
 		event_process();
 	gr_free_bitmap_data(km.background);
-        return (km.aborted?0:1);
+	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);
 }

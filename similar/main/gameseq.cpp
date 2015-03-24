@@ -79,6 +79,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "newmenu.h"
 #include "endlevel.h"
+#include "kmatrix.h"
 #  include "multi.h"
 #include "playsave.h"
 #include "ctype.h"
@@ -1287,8 +1288,8 @@ static void AdvanceLevel(int secret_flag)
 	if (Current_level_num != Last_level) {
 		if (Game_mode & GM_MULTI)
                 {
-			int result = multi_endlevel_score();
-                        if (!result)
+					const auto result = multi_endlevel_score();
+					if (result == kmatrix_result::abort)
                         {
 				if (Game_wind)
 					window_close(Game_wind);		// Exit out of game loop
