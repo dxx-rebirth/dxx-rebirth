@@ -1706,7 +1706,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill(const playernum_t pnum, const ubyte *buf)
+static void multi_do_kill(playernum_t, const ubyte *buf)
 {
 	int count = 1;
 	int type = (int)(buf[0]);
@@ -1716,6 +1716,7 @@ static void multi_do_kill(const playernum_t pnum, const ubyte *buf)
 	if (!multi_i_am_master() && type != MULTI_KILL_HOST)
 		return;
 
+	const playernum_t pnum = buf[1];
 	if (pnum >= N_players)
 	{
 		Int3(); // Invalid player number killed
@@ -2860,10 +2861,6 @@ void multi_send_kill(const vobjptridx_t objnum)
 	{
 		multibuf[count] = Netgame.team_vector;	count += 1;
 		multibuf[count] = Bounty_target;	count += 1;
-	}
-
-	if (multi_i_am_master())
-	{
 		multi_compute_kill(killer_objnum, objnum);
 		multi_send_data<MULTI_KILL_HOST>(multibuf, count, 2);
 	}
