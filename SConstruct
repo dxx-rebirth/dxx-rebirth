@@ -1283,6 +1283,7 @@ class DXXCommon(LazyObjectConstructor):
 			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL'))
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
+		ogllibs = ('opengl32',)
 		tools = ['mingw']
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
