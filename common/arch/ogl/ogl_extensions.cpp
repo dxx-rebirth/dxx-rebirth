@@ -69,12 +69,12 @@ static support_mode is_supported(const char *extensions, const array<long, 2> &v
 	return NO_SUPPORT;
 }
 
-bool ogl_extensions_init()
+void ogl_extensions_init()
 {
 	const char *version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 	if (!version_str) {
 		con_printf(CON_URGENT, "no valid OpenGL context when querying GL extensions!");
-		return false;
+		return;
 	}
 	const auto version = parse_version_str(version_str);
 	const char *extension_str = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
@@ -87,13 +87,9 @@ bool ogl_extensions_init()
 
 	}
 	if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
-		con_printf(CON_VERBOSE, "GL_ARB_sync available");
 		ogl_have_ARB_sync=true;
+		con_printf(CON_VERBOSE, "GL_ARB_sync available");
 	} else {
 		con_printf(CON_VERBOSE, "GL_ARB_sync not available");
 	}
-
-	return true;
 }
-
-

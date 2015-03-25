@@ -53,5 +53,5 @@ extern PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc;
 /* Global initialization:
  * will need an OpenGL context and intialize all function pointers.
  */
-extern bool ogl_extensions_init();
+void ogl_extensions_init();
 
