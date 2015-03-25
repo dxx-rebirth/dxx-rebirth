@@ -16,23 +16,27 @@
 #include "ogl_extensions.h"
 #include "console.h"
 
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
 /* GL_ARB_sync */
 bool ogl_have_ARB_sync = false;
 PFNGLFENCESYNCPROC glFenceSyncFunc = NULL;
 PFNGLDELETESYNCPROC glDeleteSyncFunc = NULL;
 PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
 
-static void parse_version_str(const char *v, long *version)
+static array<long, 2> parse_version_str(const char *v)
 {
+	array<long, 2> version;
 	version[0]=1;
 	version[1]=0;
-
 	if (v) {
 		char *ptr;
 		version[0]=strtol(v,&ptr,10);
 		if (ptr[0]) 
 			version[1]=strtol(ptr+1,NULL,10);
 	}
+	return version;
 }
 
 static bool is_ext_supported(const char *extensions, const char *name)
@@ -55,7 +59,7 @@ enum support_mode {
 	SUPPORT_EXT=2
 };
 
-static support_mode is_supported(const char *extensions, const long version[2], const char *name, long major, long minor)
+static support_mode is_supported(const char *extensions, const array<long, 2> &version, const char *name, long major, long minor)
 {
 	if ( (version[0] > major) || (version[0] == major && version[1] >= minor))
 		return SUPPORT_CORE;
@@ -68,13 +72,11 @@ static support_mode is_supported(const char *extensions, const long version[2], 
 bool ogl_extensions_init()
 {
 	const char *version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
-	long version[2];
-
 	if (!version_str) {
 		con_printf(CON_URGENT, "no valid OpenGL context when querying GL extensions!");
 		return false;
 	}
-	parse_version_str(version_str, version);
+	const auto version = parse_version_str(version_str);
 	const char *extension_str = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
 	/* GL_ARB_sync */
