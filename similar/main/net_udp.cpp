@@ -269,11 +269,12 @@ static bool convert_text_portstring(const char *portstring, uint16_t &outport, b
 
 namespace {
 
+#ifdef IPv6
 /* Returns true if kernel allows specifying sizeof(sockaddr_in6) for
  * size of a sockaddr_in.  Saves a compare+jump in application code to
  * pass sizeof(sockaddr_in6) and let kernel sort it out.
  */
-static inline constexpr bool kernel_accepts_extra_sockaddr_bytes()
+static constexpr bool kernel_accepts_extra_sockaddr_bytes()
 {
 #if defined(__linux__)
 	/* Known to work */
@@ -283,6 +284,7 @@ static inline constexpr bool kernel_accepts_extra_sockaddr_bytes()
 	return false;
 #endif
 }
+#endif
 
 	/* Forward to static function to eliminate this pointer */
 template <typename F>
