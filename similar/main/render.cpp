@@ -792,11 +792,11 @@ static void render_segment(segnum_t segnum)
 // -- 
 // -- }
 
-static const fix CROSS_WIDTH = i2f(8);
-static const fix CROSS_HEIGHT = i2f(8);
-
 #ifdef EDITOR
 #ifndef NDEBUG
+
+const fix CROSS_WIDTH = i2f(8);
+const fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
 static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)

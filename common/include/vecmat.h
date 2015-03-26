@@ -38,6 +38,8 @@ struct vms_vector
 	fix x, y, z;
 };
 
+class vm_distance_squared;
+
 class vm_distance
 {
 public:
@@ -107,6 +109,7 @@ public:
 	{
 		return vm_distance{0};
 	}
+	constexpr vm_distance_squared operator*(const vm_distance &) const;
 };
 
 class vm_magnitude : public vm_distance
@@ -174,9 +177,9 @@ public:
 	}
 };
 
-static constexpr vm_distance_squared operator*(const vm_distance &a, const vm_distance &b)
+constexpr vm_distance_squared vm_distance::operator*(const vm_distance &rhs) const
 {
-	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(a)) * static_cast<fix64>(static_cast<fix>(b))};
+	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(*this)) * static_cast<fix64>(static_cast<fix>(rhs))};
 }
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
