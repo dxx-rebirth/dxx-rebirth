@@ -285,6 +285,18 @@ int A<int>::a(){return 1;}
 			return
 		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Wredundant-decls', testflags=f)
 	@_custom_test
+	def check_compiler_template_parentheses_warning(self,context):
+		# Test for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=51064
+		text = '''
+template <unsigned S1, unsigned S2 = ((S1 + 4 - 1) & ~(4 - 1))>
+struct T {};
+'''
+		main = 'T<3> t;(void)t;'
+		if self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler accepts parenthesized template computations', testflags={'CXXFLAGS' : ['-Wparentheses']}) or \
+			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-parentheses', successflags={'CXXFLAGS' : ['-Wno-parentheses']}):
+			return
+		raise SCons.Errors.StopError("C++ compiler errors on template computed expressions, even with -Wno-parentheses.")
+	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
 		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'missing-field-initializers']}
 		text = 'struct A{int a;};'
@@ -293,7 +305,7 @@ int A<int>::a(){return 1;}
 			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags={'CXXFLAGS' : ['-Wno-missing-field-initializers']}) or \
 			not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
-		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers")
+		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
@@ -1447,7 +1459,8 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Append(CCFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', '-funsigned-char', Werror + 'format-security'])
+		self.env.Prepend(CXXFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', Werror + 'format-security'])
+		self.env.Append(CXXFLAGS = ['-funsigned-char'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
