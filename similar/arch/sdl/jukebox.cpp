@@ -281,7 +281,7 @@ int jukebox_play()
 	snprintf(full_filename.get(), size_full_filename, "%s%s", LevelMusicPath, music_filename);
 
 	int played = songs_play_file(full_filename.get(), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? 1 : 0), (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL ? nullptr : jukebox_hook_next));
-	full_filename = NULL;
+	full_filename.reset();
 	if (!played)
 	{
 		return 0;	// whoops, got an error
