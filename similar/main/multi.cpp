@@ -3226,8 +3226,9 @@ void multi_prep_level(void)
 
 	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
-	unsigned inv_remaining = (Netgame.AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
-	unsigned cloak_remaining = (Netgame.AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
+	const auto AllowedItems = Netgame.AllowedItems;
+	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
+	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
@@ -3249,114 +3250,28 @@ void multi_prep_level(void)
 
 		if (o->type == OBJ_POWERUP)
 		{
-			if (get_powerup_id(o) == POW_EXTRA_LIFE)
+			switch (const auto id = get_powerup_id(o))
 			{
-				if (!inv_remaining)
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-				}
-				else
-				{
+				case POW_EXTRA_LIFE:
 					set_powerup_id(o, POW_INVULNERABILITY);
-				}
-
+					/* fall through */
+				case POW_INVULNERABILITY:
+					if (inv_remaining)
+						-- inv_remaining;
+					else
+						set_powerup_id(o, POW_SHIELD_BOOST);
+					continue;
+				case POW_CLOAK:
+					if (cloak_remaining)
+						-- cloak_remaining;
+					else
+						set_powerup_id(o, POW_SHIELD_BOOST);
+					continue;
+				default:
+					if (!multi_powerup_is_allowed(id, AllowedItems))
+						bash_to_shield(o);
+					continue;
 			}
-
-			if (!(Game_mode & GM_MULTI_COOP))
-				if ((get_powerup_id(o) >= POW_KEY_BLUE) && (get_powerup_id(o) <= POW_KEY_GOLD))
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-				}
-
-			if (get_powerup_id(o) == POW_INVULNERABILITY) {
-				if (!inv_remaining)
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-				} else
-					-- inv_remaining;
-			}
-
-			if (get_powerup_id(o) == POW_CLOAK) {
-				if (!cloak_remaining)
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-				} else
-					-- cloak_remaining;
-			}
-
-			if (get_powerup_id(o) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
-				bash_to_shield(o);
-#if defined(DXX_BUILD_DESCENT_I)
-			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
-#endif
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-				bash_to_shield(o);
-#if defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(o) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-				bash_to_shield(o);
-			// Special: Make all proximity bombs into shields if in
-			// hoard mode because we use the proximity slot in the
-			// player struct to signify how many orbs the player has.
-			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && game_mode_hoard())
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_FLAG_BLUE && !game_mode_capture_flag())
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_FLAG_RED && !game_mode_capture_flag())
-				bash_to_shield(o);
-#endif
-			if (get_powerup_id(o) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
-				bash_to_shield(o);
 		}
 	}
 
@@ -4253,79 +4168,92 @@ int multi_powerup_is_4pack (int id)
 	return std::find(begin(PowerupAdjustMapping), e, id) != e;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-int multi_powerup_is_allowed(int id)
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
 {
-	if (id == POW_INVULNERABILITY && !(Netgame.AllowedItems & NETFLAG_DOINVUL))
-		return (0);
-	if (id == POW_CLOAK && !(Netgame.AllowedItems & NETFLAG_DOCLOAK))
-		return (0);
-	if (id == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-		return (0);
-	if (id == POW_FUSION_WEAPON &&  !(Netgame.AllowedItems & NETFLAG_DOFUSION))
-		return (0);
-	if (id == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-		return (0);
-	if (id == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-		return (0);
-	if (id == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
-		return (0);
-	if (id == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
-		return (0);
-	if (id == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-		return (0);
-	if (id == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
-		return (0);
-	if (id == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
-		return (0);
-	if (id == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-		return (0);
-	if (id == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-		return (0);
-	if (id == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
-		return (0);
-	if (id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
-		return (0);
-	if (id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-		return (0);
-	if (id == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
-		return (0);
-	if (id == POW_SMISSILE1_1 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-		return (0);
-	if (id == POW_SMISSILE1_4 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-		return (0);
-	if (id == POW_GUIDED_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-		return (0);
-	if (id == POW_GUIDED_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-		return (0);
-	if (id == POW_EARTHSHAKER_MISSILE &&  !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
-		return (0);
-	if (id == POW_MERCURY_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-		return (0);
-	if (id == POW_MERCURY_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-		return (0);
-	if (id == POW_CONVERTER &&  !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
-		return (0);
-	if (id == POW_AMMO_RACK &&  !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
-		return (0);
-	if (id == POW_HEADLIGHT &&  !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
-		return (0);
-	if (id == POW_LASER &&  !(Netgame.AllowedItems & NETFLAG_DOLASER))
-		return (0);
-	if (id == POW_HOMING_AMMO_1 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-		return (0);
-	if (id == POW_HOMING_AMMO_4 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-		return (0);
-	if (id == POW_QUAD_FIRE &&  !(Netgame.AllowedItems & NETFLAG_DOQUAD))
-		return (0);
-	if (id == POW_FLAG_BLUE && !game_mode_capture_flag())
-		return (0);
-	if (id == POW_FLAG_RED && !game_mode_capture_flag())
-		return (0);
-
-	return (1);
+	switch (id)
+	{
+		case POW_KEY_BLUE:
+		case POW_KEY_GOLD:
+		case POW_KEY_RED:
+			return Game_mode & GM_MULTI_COOP;
+		case POW_INVULNERABILITY:
+			return AllowedItems & NETFLAG_DOINVUL;
+		case POW_CLOAK:
+			return AllowedItems & NETFLAG_DOCLOAK;
+		case POW_LASER:
+			return AllowedItems & NETFLAG_DOLASER;
+		case POW_QUAD_FIRE:
+			return AllowedItems & NETFLAG_DOQUAD;
+		case POW_VULCAN_WEAPON:
+			return AllowedItems & NETFLAG_DOVULCAN;
+		case POW_SPREADFIRE_WEAPON:
+			return AllowedItems & NETFLAG_DOSPREAD;
+		case POW_PLASMA_WEAPON:
+			return AllowedItems & NETFLAG_DOPLASMA;
+		case POW_FUSION_WEAPON:
+			return AllowedItems & NETFLAG_DOFUSION;
+		case POW_HOMING_AMMO_1:
+		case POW_HOMING_AMMO_4:
+			return AllowedItems & NETFLAG_DOHOMING;
+		case POW_PROXIMITY_WEAPON:
+			// Special: Make all proximity bombs into shields if in
+			// hoard mode because we use the proximity slot in the
+			// player struct to signify how many orbs the player has.
+			if (game_mode_hoard())
+				return 0;
+			return AllowedItems & NETFLAG_DOPROXIM;
+		case POW_SMARTBOMB_WEAPON:
+			return AllowedItems & NETFLAG_DOSMART;
+		case POW_MEGA_WEAPON:
+			return AllowedItems & NETFLAG_DOMEGA;
+		case POW_VULCAN_AMMO:
+#if defined(DXX_BUILD_DESCENT_I)
+			return AllowedItems & NETFLAG_DOVULCAN;
+#elif defined(DXX_BUILD_DESCENT_II)
+			return AllowedItems & (NETFLAG_DOVULCAN | NETFLAG_DOGAUSS);
+#endif
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SUPER_LASER:
+			return AllowedItems & NETFLAG_DOSUPERLASER;
+		case POW_GAUSS_WEAPON:
+			return AllowedItems & NETFLAG_DOGAUSS;
+		case POW_HELIX_WEAPON:
+			return AllowedItems & NETFLAG_DOHELIX;
+		case POW_PHOENIX_WEAPON:
+			return AllowedItems & NETFLAG_DOPHOENIX;
+		case POW_OMEGA_WEAPON:
+			return AllowedItems & NETFLAG_DOOMEGA;
+		case POW_SMISSILE1_1:
+		case POW_SMISSILE1_4:
+			return AllowedItems & NETFLAG_DOFLASH;
+		case POW_GUIDED_MISSILE_1:
+		case POW_GUIDED_MISSILE_4:
+			return AllowedItems & NETFLAG_DOGUIDED;
+		case POW_SMART_MINE:
+			return AllowedItems & NETFLAG_DOSMARTMINE;
+		case POW_MERCURY_MISSILE_1:
+		case POW_MERCURY_MISSILE_4:
+			return AllowedItems & NETFLAG_DOMERCURY;
+		case POW_EARTHSHAKER_MISSILE:
+			return AllowedItems & NETFLAG_DOSHAKER;
+		case POW_AFTERBURNER:
+			return AllowedItems & NETFLAG_DOAFTERBURNER;
+		case POW_CONVERTER:
+			return AllowedItems & NETFLAG_DOCONVERTER;
+		case POW_AMMO_RACK:
+			return AllowedItems & NETFLAG_DOAMMORACK;
+		case POW_HEADLIGHT:
+			return AllowedItems & NETFLAG_DOHEADLIGHT;
+		case POW_FLAG_BLUE:
+		case POW_FLAG_RED:
+			return game_mode_capture_flag();
+#endif
+		default:
+			return 1;
+	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void multi_send_finish_game ()
 {
 	multibuf[1]=Player_num;

@@ -72,11 +72,6 @@ static void multi_delete_controlled_robot(const vobjptridx_t objnum);
 #define MIN_CONTROL_TIME	F1_0*2
 #define ROBOT_TIMEOUT		F1_0*3
 
-static inline int multi_powerup_is_allowed(int id)
-{
-	(void)id;
-	return 1;
-}
 #define MAX_TO_DELETE	67
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MIN_CONTROL_TIME	F1_0*1
@@ -1131,7 +1126,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 		if (del_obj->contains_type == OBJ_POWERUP) {
 			maybe_replace_powerup_with_energy(del_obj);
-			if (!multi_powerup_is_allowed(del_obj->contains_id))
+			if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
 				del_obj->contains_id=POW_SHIELD_BOOST;
 
 			// No key drops in non-coop games!
@@ -1157,7 +1152,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 			if (del_obj->contains_type == OBJ_POWERUP)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
-				if (!multi_powerup_is_allowed(del_obj->contains_id))
+				if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
 					del_obj->contains_id=POW_SHIELD_BOOST;
 			 }
 		

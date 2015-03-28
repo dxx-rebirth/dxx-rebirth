@@ -442,6 +442,7 @@ extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 #if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
@@ -454,7 +455,6 @@ void multi_send_seismic(fix);
 void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);
 void DropFlag();
-int multi_powerup_is_allowed (int);
 void multi_send_finish_game ();
 void init_hoard_data();
 void multi_apply_goal_textures();
