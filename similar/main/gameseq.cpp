@@ -369,6 +369,8 @@ void init_player_stats_level(int secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	auto &plr = Players[Player_num];
 	if (pnum == Player_num)
 	{
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -390,7 +392,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			i = 0;
 		range_for (auto &i, Secondary_last_was_super)
 			i = 0;
-		Afterburner_charge = 0;
+		Afterburner_charge = GrantedItems & NETGRANT_AFTERBURNER ? F1_0 : 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
 		Missile_viewer = nullptr; //reset missile camera if out there
@@ -400,10 +402,10 @@ void init_player_stats_new_ship(ubyte pnum)
 
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
-	Players[pnum].laser_level = 0;
+	Players[pnum].laser_level = map_granted_flags_to_laser_level(GrantedItems);
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].vulcan_ammo = 0;
+	Players[pnum].vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	range_for (auto &i, partial_range(Players[pnum].secondary_ammo, 1u, MAX_SECONDARY_WEAPONS))
 		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
@@ -413,6 +415,8 @@ void init_player_stats_new_ship(ubyte pnum)
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
+	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
+	plr.primary_weapon_flags |= map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH

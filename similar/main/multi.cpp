@@ -3161,6 +3161,71 @@ void multi_consistency_error(int reset)
 	multi_reset_stuff();
 }
 
+static constexpr unsigned grant_shift_helper(unsigned r, int s)
+{
+	return s > 0 ? r >> s : r << -s;
+}
+
+uint_fast32_t map_granted_flags_to_player_flags(const uint16_t grant)
+{
+	return ((grant & NETGRANT_QUAD) ? PLAYER_FLAGS_QUAD_LASERS : 0)
+#if defined(DXX_BUILD_DESCENT_II)
+		| ((grant & NETGRANT_AFTERBURNER) ? PLAYER_FLAGS_AFTERBURNER : 0)
+		| ((grant & NETGRANT_AMMORACK) ? PLAYER_FLAGS_AMMO_RACK : 0)
+		| ((grant & NETGRANT_CONVERTER) ? PLAYER_FLAGS_CONVERTER : 0)
+		| ((grant & NETGRANT_HEADLIGHT) ? PLAYER_FLAGS_HEADLIGHT : 0)
+#endif
+		;
+}
+
+uint_fast32_t map_granted_flags_to_primary_weapon_flags(const uint16_t grant)
+{
+	return ((grant & NETGRANT_VULCAN) ? HAS_PRIMARY_FLAG(VULCAN_INDEX) : 0)
+		| ((grant & NETGRANT_SPREAD) ? HAS_PRIMARY_FLAG(SPREADFIRE_INDEX) : 0)
+		| ((grant & NETGRANT_PLASMA) ? HAS_PRIMARY_FLAG(PLASMA_INDEX) : 0)
+		| ((grant & NETGRANT_FUSION) ? HAS_PRIMARY_FLAG(FUSION_INDEX) : 0)
+#if defined(DXX_BUILD_DESCENT_II)
+		| ((grant & NETGRANT_GAUSS) ? HAS_PRIMARY_FLAG(GAUSS_INDEX) : 0)
+		| ((grant & NETGRANT_HELIX) ? HAS_PRIMARY_FLAG(HELIX_INDEX) : 0)
+		| ((grant & NETGRANT_PHOENIX) ? HAS_PRIMARY_FLAG(PHOENIX_INDEX) : 0)
+		| ((grant & NETGRANT_OMEGA) ? HAS_PRIMARY_FLAG(OMEGA_INDEX) : 0)
+#endif
+		;
+}
+
+uint16_t map_granted_flags_to_vulcan_ammo(uint16_t grant)
+{
+	const auto amount = VULCAN_WEAPON_AMMO_AMOUNT;
+	return
+#if defined(DXX_BUILD_DESCENT_II)
+		(grant & NETGRANT_GAUSS ? amount : 0) +
+#endif
+		(grant & NETGRANT_VULCAN ? amount : 0);
+}
+
+static constexpr unsigned map_granted_flags_to_netflag(const uint16_t grant)
+{
+	return (grant_shift_helper(grant, BIT_NETGRANT_QUAD - BIT_NETFLAG_DOQUAD) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
+#if defined(DXX_BUILD_DESCENT_II)
+		| (grant_shift_helper(grant, BIT_NETGRANT_GAUSS - BIT_NETFLAG_DOGAUSS) & (NETFLAG_DOGAUSS | NETFLAG_DOHELIX | NETFLAG_DOPHOENIX | NETFLAG_DOOMEGA))
+		| (grant_shift_helper(grant, BIT_NETGRANT_AFTERBURNER - BIT_NETFLAG_DOAFTERBURNER) & (NETFLAG_DOAFTERBURNER | NETFLAG_DOAMMORACK | NETFLAG_DOCONVERTER | NETFLAG_DOHEADLIGHT))
+#endif
+		;
+}
+
+assert_equal(0, 0, "zero");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_QUAD), NETFLAG_DOQUAD, "QUAD");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_QUAD | NETGRANT_PLASMA), NETFLAG_DOQUAD | NETFLAG_DOPLASMA, "QUAD | PLASMA");
+#if defined(DXX_BUILD_DESCENT_II)
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS), NETFLAG_DOGAUSS, "GAUSS");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_PLASMA), NETFLAG_DOGAUSS | NETFLAG_DOPLASMA, "GAUSS | PLASMA");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_AFTERBURNER), NETFLAG_DOGAUSS | NETFLAG_DOAFTERBURNER, "GAUSS | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_PLASMA | NETGRANT_AFTERBURNER), NETFLAG_DOGAUSS | NETFLAG_DOPLASMA | NETFLAG_DOAFTERBURNER, "GAUSS | PLASMA | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_PLASMA | NETGRANT_AFTERBURNER), NETFLAG_DOPLASMA | NETFLAG_DOAFTERBURNER, "PLASMA | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_AFTERBURNER), NETFLAG_DOAFTERBURNER, "AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_HEADLIGHT), NETFLAG_DOHEADLIGHT, "HEADLIGHT");
+#endif
+
 void multi_prep_level(void)
 {
 	// Do any special stuff to the level required for games
@@ -3227,6 +3292,7 @@ void multi_prep_level(void)
 	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
 	const auto AllowedItems = Netgame.AllowedItems;
+	const auto SpawnGrantedItems = map_granted_flags_to_netflag(Netgame.SpawnGrantedItems);
 	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
 	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
 	range_for (const auto i, highest_valid(Objects))
@@ -3268,7 +3334,7 @@ void multi_prep_level(void)
 						set_powerup_id(o, POW_SHIELD_BOOST);
 					continue;
 				default:
-					if (!multi_powerup_is_allowed(id, AllowedItems))
+					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
 						bash_to_shield(o);
 					continue;
 			}
@@ -4170,6 +4236,12 @@ int multi_powerup_is_4pack (int id)
 
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
 {
+	return multi_powerup_is_allowed(id, AllowedItems, map_granted_flags_to_netflag(Netgame.SpawnGrantedItems));
+}
+
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAllowedItems, const unsigned SpawnGrantedItems)
+{
+	const auto AllowedItems = BaseAllowedItems & ~SpawnGrantedItems;
 	switch (id)
 	{
 		case POW_KEY_BLUE:
@@ -4181,6 +4253,8 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned Allowed
 		case POW_CLOAK:
 			return AllowedItems & NETFLAG_DOCLOAK;
 		case POW_LASER:
+			if (map_granted_flags_to_laser_level(SpawnGrantedItems) >= MAX_LASER_LEVEL)
+				return 0;
 			return AllowedItems & NETFLAG_DOLASER;
 		case POW_QUAD_FIRE:
 			return AllowedItems & NETFLAG_DOQUAD;
@@ -4208,12 +4282,14 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned Allowed
 			return AllowedItems & NETFLAG_DOMEGA;
 		case POW_VULCAN_AMMO:
 #if defined(DXX_BUILD_DESCENT_I)
-			return AllowedItems & NETFLAG_DOVULCAN;
+			return BaseAllowedItems & NETFLAG_DOVULCAN;
 #elif defined(DXX_BUILD_DESCENT_II)
-			return AllowedItems & (NETFLAG_DOVULCAN | NETFLAG_DOGAUSS);
+			return BaseAllowedItems & (NETFLAG_DOVULCAN | NETFLAG_DOGAUSS);
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_SUPER_LASER:
+			if (map_granted_flags_to_laser_level(SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
+				return 0;
 			return AllowedItems & NETFLAG_DOSUPERLASER;
 		case POW_GAUSS_WEAPON:
 			return AllowedItems & NETFLAG_DOGAUSS;

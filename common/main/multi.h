@@ -87,7 +87,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 16
+#define MULTI_PROTO_VERSION 17
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -147,13 +147,18 @@ extern int multi_protocol; // set and determinate used protocol
 #define DUMP_PKTTIMEOUT 8
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#define NETFLAG_LABEL_QUAD	 "Quad Lasers"
+#define NETFLAG_LABEL_VULCAN	 "Vulcan cannon"
+#define NETFLAG_LABEL_SPREAD	 "Spreadfire cannon"
+#define NETFLAG_LABEL_PLASMA	 "Plasma cannon"
+#define NETFLAG_LABEL_FUSION	 "Fusion cannon"
 #define for_each_netflag_value(VALUE)	\
 	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
-	VALUE(NETFLAG_DOQUAD, "Quad Lasers")	\
-	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
-	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
-	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
-	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
+	VALUE(NETFLAG_DOQUAD, NETFLAG_LABEL_QUAD)	\
+	VALUE(NETFLAG_DOVULCAN, NETFLAG_LABEL_VULCAN)	\
+	VALUE(NETFLAG_DOSPREAD, NETFLAG_LABEL_SPREAD)	\
+	VALUE(NETFLAG_DOPLASMA, NETFLAG_LABEL_PLASMA)	\
+	VALUE(NETFLAG_DOFUSION, NETFLAG_LABEL_FUSION)	\
 	VALUE(NETFLAG_DOHOMING, "Homing Missiles")	\
 	VALUE(NETFLAG_DOPROXIM, "Proximity Bombs")	\
 	VALUE(NETFLAG_DOSMART, "Smart Missiles")	\
@@ -162,31 +167,60 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
 	D2X_MP_NETFLAGS(VALUE)	\
 
+#define for_each_netgrant_value(VALUE)	\
+	VALUE(NETGRANT_QUAD, NETFLAG_LABEL_QUAD)	\
+	VALUE(NETGRANT_VULCAN, NETFLAG_LABEL_VULCAN)	\
+	VALUE(NETGRANT_SPREAD, NETFLAG_LABEL_SPREAD)	\
+	VALUE(NETGRANT_PLASMA, NETFLAG_LABEL_PLASMA)	\
+	VALUE(NETGRANT_FUSION, NETFLAG_LABEL_FUSION)	\
+	D2X_MP_NETGRANT(VALUE)
+
 #define MULTI_GAME_TYPE_COUNT	8
 #if defined(DXX_BUILD_DESCENT_I)
 #define MULTI_GAME_NAME_LENGTH	13
 #define MULTI_ALLOW_POWERUP_TEXT_LENGTH	18
 #define MULTI_ALLOW_POWERUP_MAX 12
 #define D2X_MP_NETFLAGS(VALUE)
+#define DXX_GRANT_LASER_LEVEL_BITS	2
+#define D2X_MP_NETGRANT(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MULTI_GAME_NAME_LENGTH	17
 #define MULTI_ALLOW_POWERUP_TEXT_LENGTH	21
 #define MULTI_ALLOW_POWERUP_MAX 26
+#define NETFLAG_LABEL_GAUSS	"Gauss cannon"
+#define NETFLAG_LABEL_HELIX	"Helix cannon"
+#define NETFLAG_LABEL_PHOENIX	"Phoenix cannon"
+#define NETFLAG_LABEL_OMEGA	"Omega cannon"
+#define NETFLAG_LABEL_AFTERBURNER	"Afterburners"
+#define NETFLAG_LABEL_AMMORACK	"Ammo rack"
+#define NETFLAG_LABEL_CONVERTER	"Energy Converter"
+#define NETFLAG_LABEL_HEADLIGHT	"Headlight"
 #define D2X_MP_NETFLAGS(VALUE)	\
 	VALUE(NETFLAG_DOSUPERLASER, "Super lasers")	\
-	VALUE(NETFLAG_DOGAUSS, "Gauss cannon")	\
-	VALUE(NETFLAG_DOHELIX, "Helix cannon")	\
-	VALUE(NETFLAG_DOPHOENIX, "Phoenix cannon")	\
-	VALUE(NETFLAG_DOOMEGA, "Omega cannon")	\
+	VALUE(NETFLAG_DOGAUSS, NETFLAG_LABEL_GAUSS)	\
+	VALUE(NETFLAG_DOHELIX, NETFLAG_LABEL_HELIX)	\
+	VALUE(NETFLAG_DOPHOENIX, NETFLAG_LABEL_PHOENIX)	\
+	VALUE(NETFLAG_DOOMEGA, NETFLAG_LABEL_OMEGA)	\
 	VALUE(NETFLAG_DOFLASH, "Flash Missiles")	\
 	VALUE(NETFLAG_DOGUIDED, "Guided Missiles")	\
 	VALUE(NETFLAG_DOSMARTMINE, "Smart Mines")	\
 	VALUE(NETFLAG_DOMERCURY, "Mercury Missiles")	\
-	VALUE(NETFLAG_DOSHAKER, "EarthShaker Missiles")	\
-	VALUE(NETFLAG_DOAFTERBURNER, "Afterburners")	\
-	VALUE(NETFLAG_DOAMMORACK, "Ammo rack")	\
-	VALUE(NETFLAG_DOCONVERTER, "Energy Converter")	\
-	VALUE(NETFLAG_DOHEADLIGHT, "Headlight")	\
+	VALUE(NETFLAG_DOSHAKER, "Earthshaker Missiles")	\
+	VALUE(NETFLAG_DOAFTERBURNER, NETFLAG_LABEL_AFTERBURNER)	\
+	VALUE(NETFLAG_DOAMMORACK, NETFLAG_LABEL_AMMORACK)	\
+	VALUE(NETFLAG_DOCONVERTER, NETFLAG_LABEL_CONVERTER)	\
+	VALUE(NETFLAG_DOHEADLIGHT, NETFLAG_LABEL_HEADLIGHT)	\
+
+#define DXX_GRANT_LASER_LEVEL_BITS	3
+#define D2X_MP_NETGRANT(VALUE)	\
+	VALUE(NETGRANT_GAUSS, NETFLAG_LABEL_GAUSS)	\
+	VALUE(NETGRANT_HELIX, NETFLAG_LABEL_HELIX)	\
+	VALUE(NETGRANT_PHOENIX, NETFLAG_LABEL_PHOENIX)	\
+	VALUE(NETGRANT_OMEGA, NETFLAG_LABEL_OMEGA)	\
+	VALUE(NETGRANT_AFTERBURNER, NETFLAG_LABEL_AFTERBURNER)	\
+	VALUE(NETGRANT_AMMORACK, NETFLAG_LABEL_AMMORACK)	\
+	VALUE(NETGRANT_CONVERTER, NETFLAG_LABEL_CONVERTER)	\
+	VALUE(NETGRANT_HEADLIGHT, NETFLAG_LABEL_HEADLIGHT)
 
 #endif
 
@@ -197,6 +231,23 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
+enum {
+	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
+	for_each_netgrant_value(define_netflag_bit_enum)
+};
+enum { for_each_netgrant_value(define_netflag_bit_mask) };
+#undef define_netflag_bit_enum
+#undef define_netflag_bit_mask
+#undef define_netflag_powerup_mask
+
+static inline unsigned map_granted_flags_to_laser_level(const uint16_t &grant)
+{
+	/* Laser level in lowest bits */
+	return grant & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1);
+}
+uint_fast32_t map_granted_flags_to_player_flags(uint16_t grant);
+uint_fast32_t map_granted_flags_to_primary_weapon_flags(uint16_t grant);
+uint16_t map_granted_flags_to_vulcan_ammo(uint16_t grant);
 
 extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
@@ -443,6 +494,7 @@ extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 #if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
@@ -531,6 +583,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	bit_game_flags game_flag;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
+	uint16_t SpawnGrantedItems;
 #if defined(DXX_BUILD_DESCENT_II)
 	/*
 	 * Only used in Descent II, but defined in both for historical

@@ -63,6 +63,7 @@
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
+#include "compiler-static_assert.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
@@ -2458,6 +2459,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
+		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems);			len += 2;
 #if defined(DXX_BUILD_DESCENT_II)
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
@@ -2680,7 +2682,11 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.SpawnGrantedItems = GET_INTEL_SHORT(&(data[len]));		len += 2;
 #if defined(DXX_BUILD_DESCENT_II)
+		if (unlikely(map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) > MAX_SUPER_LASER_LEVEL))
+			/* Bogus input - reject whole entry */
+			Netgame.SpawnGrantedItems = 0;
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
 #endif
@@ -3152,6 +3158,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
+	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
@@ -3181,6 +3188,62 @@ static void net_udp_set_power (void)
 			Netgame.AllowedItems |= (1 << i);
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_GRANT_POWERUP_MENU(VERB)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_GRANT_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Gauss cannon", opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
+	DXX_##VERB##_CHECK("Helix cannon", opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
+	DXX_##VERB##_CHECK("Phoenix cannon", opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
+	DXX_##VERB##_CHECK("Omega cannon", opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
+	DXX_##VERB##_CHECK("Afterburners", opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
+	DXX_##VERB##_CHECK("Ammo rack", opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
+	DXX_##VERB##_CHECK("Energy Converter", opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
+	DXX_##VERB##_CHECK("Headlight", opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
+
+#endif
+
+#define DXX_GRANT_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("Laser level", opt_laser_level, menu_number_bias_wrapper(laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_##VERB##_CHECK("Quad Lasers", opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
+	DXX_##VERB##_CHECK("Vulcan cannon", opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
+	DXX_##VERB##_CHECK("Spreadfire cannon", opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
+	DXX_##VERB##_CHECK("Plasma cannon", opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
+	DXX_##VERB##_CHECK("Fusion cannon", opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
+	D2X_GRANT_POWERUP_MENU(VERB)
+
+namespace {
+
+class grant_powerup_menu_items
+{
+public:
+	enum
+	{
+		DXX_GRANT_POWERUP_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
+	grant_powerup_menu_items(const unsigned laser_level, const uint_fast16_t flags)
+	{
+		DXX_GRANT_POWERUP_MENU(ADD);
+	}
+	void read(uint16_t &grant) const
+	{
+		unsigned laser_level, flags = 0;
+		DXX_GRANT_POWERUP_MENU(READ);
+		grant = laser_level | flags;
+	}
+};
+
+}
+
+static void net_udp_set_grant_power()
+{
+	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
+	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
+	newmenu_do(nullptr, "Powerups granted at player spawn", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	menu.read(Netgame.SpawnGrantedItems);
+}
+
 static void net_udp_more_game_options ()
 {
 	int i;
@@ -3207,13 +3270,21 @@ static void net_udp_more_game_options ()
 		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
-menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata, 0 );
-
-	if (i==opt_setpower)
+	for (;;)
 	{
-		net_udp_set_power ();
-		goto menu;
+		i = newmenu_do(nullptr, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata);
+		switch (i)
+		{
+			case opt_setpower:
+				net_udp_set_power();
+				continue;
+			case opt_setgrant:
+				net_udp_set_grant_power();
+				continue;
+			default:
+				break;
+		}
+		break;
 	}
 
 	DXX_UDP_MENU_OPTIONS(READ);
@@ -3470,8 +3541,7 @@ int net_udp_setup_game()
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
-	Netgame.AllowedItems = 0;
-	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
+	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
 

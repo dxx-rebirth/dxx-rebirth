@@ -1856,6 +1856,43 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			Net_create_loc = 0;
 			d_srand(5483L);
 		}
+		auto &plr = Players[pnum];
+		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
+		{
+			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems))
+			{
+				if (plr.laser_level <= granted_laser_level)
+					/* All levels were from grant */
+					plr.laser_level = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+				else if (granted_laser_level > MAX_LASER_LEVEL)
+				{
+					/* Grant gives super laser 5.
+					 * Player has super laser 6.
+					 */
+					-- plr.laser_level;
+				}
+				else if (plr.laser_level > MAX_LASER_LEVEL)
+				{
+					/* Grant gives only regular lasers.
+					 * Player has super lasers, will drop only
+					 * super lasers.
+					 */
+				}
+#endif
+				else
+					plr.laser_level -= granted_laser_level;
+			}
+			if (uint16_t subtract_vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems))
+			{
+				if (plr.vulcan_ammo < subtract_vulcan_ammo)
+					plr.vulcan_ammo = 0;
+				else
+					plr.vulcan_ammo -= subtract_vulcan_ammo;
+			}
+			plr.flags &= ~map_granted_flags_to_player_flags(GrantedItems);
+			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
+		}
 
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If the player had smart mines, maybe arm one of them.
