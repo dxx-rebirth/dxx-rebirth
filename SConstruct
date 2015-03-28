@@ -800,7 +800,7 @@ help:assume compiler supports variadic template-based constructor forwarding
 		macro_value = self._quote_macro_value('''
     template <typename... Args>
         D(Args&&... args) :
-            B,##__VA_ARGS__{std::forward<Args>(args)...} {}
+            B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 ''')
 		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
 			return macro_value
