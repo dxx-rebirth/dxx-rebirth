@@ -3152,11 +3152,14 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
-	DXX_##VERB##_TEXT(packdesc, opt_label_pps)	\
+	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
 	DXX_##VERB##_INPUT(portstring, opt_port)	\
 	DXX_UDP_MENU_TRACKER_OPTION(VERB)
+
+#define DXX_STRINGIZE_PPS2(X)	#X
+#define DXX_STRINGIZE_PPS(X)	DXX_STRINGIZE_PPS2(X)
 
 enum {
 	DXX_UDP_MENU_OPTIONS(ENUM)
@@ -3181,11 +3184,10 @@ static void net_udp_set_power (void)
 static void net_udp_more_game_options ()
 {
 	int i;
-	char PlayText[80],KillText[80],srinvul[50],packdesc[30],packstring[5];
+	char PlayText[80],KillText[80],srinvul[50],packstring[3];
 	char portstring[6];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
-	snprintf(packdesc,sizeof(packdesc),"Packets per second (%i - %i)",MIN_PPS,MAX_PPS);
 	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
 	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
