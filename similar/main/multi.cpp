@@ -3173,7 +3173,6 @@ void multi_prep_level(void)
 	// at the time this is called.
 
 	int i;
-	int     cloak_count, inv_count;
 
 	Assert(Game_mode & GM_MULTI);
 
@@ -3225,8 +3224,10 @@ void multi_prep_level(void)
 		multi_send_powcap_update();
 	}
 
-	inv_count = 0;
-	cloak_count = 0;
+	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
+	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
+	unsigned inv_remaining = (Netgame.AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
+	unsigned cloak_remaining = (Netgame.AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
@@ -3250,7 +3251,7 @@ void multi_prep_level(void)
 		{
 			if (get_powerup_id(o) == POW_EXTRA_LIFE)
 			{
-				if (!(Netgame.AllowedItems & NETFLAG_DOINVUL))
+				if (!inv_remaining)
 				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
 					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
@@ -3274,21 +3275,23 @@ void multi_prep_level(void)
 				}
 
 			if (get_powerup_id(o) == POW_INVULNERABILITY) {
-				if (inv_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
+				if (!inv_remaining)
+				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
 					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
 					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
-					inv_count++;
+					-- inv_remaining;
 			}
 
 			if (get_powerup_id(o) == POW_CLOAK) {
-				if (cloak_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
+				if (!cloak_remaining)
+				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
 					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
 					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
-					cloak_count++;
+					-- cloak_remaining;
 			}
 
 			if (get_powerup_id(o) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
