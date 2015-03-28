@@ -545,8 +545,6 @@ multi_sort_kill_list(void)
 	std::sort(range.begin(), range.end(), predicate);
 }
 
-char Multi_killed_yourself=0;
-
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
 {
 	if (Game_mode & GM_TEAM)
