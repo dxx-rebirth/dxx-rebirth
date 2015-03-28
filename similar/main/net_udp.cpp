@@ -3195,16 +3195,16 @@ static void net_udp_more_game_options ()
 	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
 #ifdef USE_TRACKER
 	char tracker[52];
-	const auto &tracker_addr = GameArg.MplTrackerAddr;
-	if (!tracker_addr.empty())
-		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
 	DXX_UDP_MENU_OPTIONS(ADD);
 
 #ifdef USE_TRACKER
+	const auto &tracker_addr = GameArg.MplTrackerAddr;
 	if (tracker_addr.empty())
 		nm_set_item_text(m[opt_tracker], "Tracker use disabled by -no-tracker");
+	else
+		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
 menu:
