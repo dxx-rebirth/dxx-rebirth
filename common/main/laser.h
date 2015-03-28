@@ -150,6 +150,12 @@ enum laser_level_t
 #endif
 };
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_MAXIMUM_LASER_LEVEL	LASER_LEVEL_4
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_MAXIMUM_LASER_LEVEL	MAX_SUPER_LASER_LEVEL
+#endif
+
 #define MAX_LASER_BITMAPS   6
 
 // For muzzle firing casting light.
