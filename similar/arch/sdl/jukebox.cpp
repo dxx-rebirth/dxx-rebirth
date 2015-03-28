@@ -299,23 +299,3 @@ int jukebox_play()
 
 	return 1;
 }
-
-char *jukebox_current() {
-	return JukeboxSongs.list[GameCfg.CMLevelMusicTrack[0]];
-}
-
-int jukebox_is_loaded() { return (JukeboxSongs.list != NULL); }
-int jukebox_is_playing() { return GameCfg.CMLevelMusicTrack[0] + 1; }
-int jukebox_numtracks() { return GameCfg.CMLevelMusicTrack[1]; }
-
-void jukebox_list() {
-	int i;
-	if (!JukeboxSongs.list) return;
-	if (!JukeboxSongs.list[0]) {
-		con_printf(CON_DEBUG,"* No songs have been found");
-	}
-	else {
-		for (i = 0; i < GameCfg.CMLevelMusicTrack[1]; i++)
-			con_printf(CON_DEBUG,"* %s", JukeboxSongs.list[i]);
-	}
-}
