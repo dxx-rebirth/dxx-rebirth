@@ -4253,7 +4253,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 		case POW_CLOAK:
 			return AllowedItems & NETFLAG_DOCLOAK;
 		case POW_LASER:
-			if (map_granted_flags_to_laser_level(SpawnGrantedItems) >= MAX_LASER_LEVEL)
+			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_LASER_LEVEL)
 				return 0;
 			return AllowedItems & NETFLAG_DOLASER;
 		case POW_QUAD_FIRE:
@@ -4288,7 +4288,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_SUPER_LASER:
-			if (map_granted_flags_to_laser_level(SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
+			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
 				return 0;
 			return AllowedItems & NETFLAG_DOSUPERLASER;
 		case POW_GAUSS_WEAPON:

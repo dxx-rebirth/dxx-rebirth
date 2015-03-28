@@ -1162,39 +1162,77 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 
 void DropCurrentWeapon ()
 {
-	int ammo=0,seed;
-
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
+	auto &plr = Players[Player_num];
+	uint8_t drop_type;
+	const auto Primary_weapon = ::Primary_weapon;
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
 	if (Primary_weapon==0)
 	{
-		HUD_init_message_literal(HM_DEFAULT, "You cannot drop your base weapon!");
+		if ((plr.flags & PLAYER_FLAGS_QUAD_LASERS) && !(GrantedItems & NETGRANT_QUAD))
+		{
+			/* Sorry, no message.  Need to fall through in case player
+			 * wanted to drop a laser powerup.
+			 */
+			drop_type = POW_QUAD_FIRE;
+			weapon_name = TXT_QUAD_LASERS;
+		}
+		else if (plr.laser_level == LASER_LEVEL_1)
+		{
+			HUD_init_message_literal(HM_DEFAULT, "You cannot drop your base weapon!");
+			return;
+		}
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (plr.laser_level > MAX_LASER_LEVEL)
+		{
+			/* Disallow dropping any super lasers until someone requests
+			 * it.
+			 */
+			HUD_init_message_literal(HM_DEFAULT, "You cannot drop super lasers!");
+			return;
+		}
+#endif
+		else if (plr.laser_level <= map_granted_flags_to_laser_level(GrantedItems))
+		{
+			HUD_init_message_literal(HM_DEFAULT, "You cannot drop granted lasers!");
+			return;
+		}
+		else
+			drop_type = POW_LASER;
+	}
+	else
+	{
+		if (HAS_PRIMARY_FLAG(Primary_weapon) & map_granted_flags_to_primary_weapon_flags(GrantedItems))
+		{
+			HUD_init_message(HM_DEFAULT, "You cannot drop granted %s!", weapon_name);
+			return;
+		}
+		drop_type = Primary_weapon_to_powerup[Primary_weapon];
+	}
+
+	const auto seed = d_rand();
+	const auto objnum = spit_powerup(ConsoleObject, drop_type, seed);
+	if (objnum == object_none)
+	{
+		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
 		return;
 	}
 
-	HUD_init_message(HM_DEFAULT, "%s dropped!",PRIMARY_WEAPON_NAMES(Primary_weapon));
+	HUD_init_message(HM_DEFAULT, "%s dropped!", weapon_name);
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
-
-	seed = d_rand();
-
-	auto objnum = spit_powerup(ConsoleObject,Primary_weapon_to_powerup[Primary_weapon],seed);
-
-	if (objnum == object_none)
-		return;
 
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
 
 		//if it's one of these, drop some ammo with the weapon
-
-		ammo = Players[Player_num].vulcan_ammo;
-
-		if ((Players[Player_num].primary_weapon_flags & HAS_VULCAN_FLAG) && (Players[Player_num].primary_weapon_flags & HAS_GAUSS_FLAG))
+		auto ammo = plr.vulcan_ammo;
+		if ((plr.primary_weapon_flags & HAS_VULCAN_FLAG) && (plr.primary_weapon_flags & HAS_GAUSS_FLAG))
 			ammo /= 2;		//if both vulcan & gauss, drop half
 
-		Players[Player_num].vulcan_ammo -= ammo;
+		plr.vulcan_ammo -= ammo;
 
-		if (objnum!=object_none)
 			objnum->ctype.powerup_info.count = ammo;
 	}
 
@@ -1202,14 +1240,21 @@ void DropCurrentWeapon ()
 
 		//dropped weapon has current energy
 
-		if (objnum!=object_none)
 			objnum->ctype.powerup_info.count = Omega_charge;
 	}
 
-	if ((Game_mode & GM_MULTI) && objnum!=object_none)
+	if (Game_mode & GM_MULTI)
 		multi_send_drop_weapon(objnum,seed);
 
-	Players[Player_num].primary_weapon_flags &= (~HAS_PRIMARY_FLAG(Primary_weapon));
+	if (Primary_weapon == LASER_INDEX)
+	{
+		if (drop_type == POW_QUAD_FIRE)
+			plr.flags &= ~PLAYER_FLAGS_QUAD_LASERS;
+		else
+			-- plr.laser_level;
+	}
+	else
+		plr.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);
 	auto_select_weapon (0);
 }
 
@@ -1238,7 +1283,7 @@ void DropSecondaryWeapon ()
 		case POW_SMISSILE1_1:
 		case POW_GUIDED_MISSILE_1:
 		case POW_MERCURY_MISSILE_1:
-			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
+			if (Players[Player_num].secondary_ammo[Secondary_weapon] % 4)
 			{
 				sub_ammo = 1;
 			}
