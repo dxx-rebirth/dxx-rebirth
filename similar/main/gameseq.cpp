@@ -1605,9 +1605,6 @@ void (bash_to_shield)(const vobjptr_t i)
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
 	set_powerup_id(i, POW_SHIELD_BOOST);
-	i->size = Powerup_info[get_powerup_id(i)].size;
-	i->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(i)].vclip_num;
-	i->rtype.vclip_info.frametime = Vclip[i->rtype.vclip_info.vclip_num].frame_time;
 }
 
 

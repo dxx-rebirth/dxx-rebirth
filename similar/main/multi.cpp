@@ -3254,14 +3254,10 @@ void multi_prep_level(void)
 				if (!inv_remaining)
 				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 				else
 				{
 					set_powerup_id(o, POW_INVULNERABILITY);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
 			}
@@ -3270,16 +3266,12 @@ void multi_prep_level(void)
 				if ((get_powerup_id(o) >= POW_KEY_BLUE) && (get_powerup_id(o) <= POW_KEY_GOLD))
 				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				}
 
 			if (get_powerup_id(o) == POW_INVULNERABILITY) {
 				if (!inv_remaining)
 				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					-- inv_remaining;
 			}
@@ -3288,8 +3280,6 @@ void multi_prep_level(void)
 				if (!cloak_remaining)
 				{
 					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
 				} else
 					-- cloak_remaining;
 			}

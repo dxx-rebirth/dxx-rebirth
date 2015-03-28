@@ -257,7 +257,7 @@ static void verify_object(const vobjptr_t obj)
 
 	if ( obj->type == OBJ_POWERUP ) {
 		if ( get_powerup_id(obj) >= N_powerup_types )	{
-			set_powerup_id(obj, 0);
+			set_powerup_id(obj, POW_SHIELD_BOOST);
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 		obj->control_type = CT_POWERUP;

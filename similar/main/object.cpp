@@ -1923,6 +1923,14 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
+void set_powerup_id(const vobjptr_t o, uint8_t id)
+{
+	o->id = id;
+	o->size = Powerup_info[id].size;
+	const auto vclip_num = Powerup_info[id].vclip_num;
+	o->rtype.vclip_info.vclip_num = vclip_num;
+	o->rtype.vclip_info.frametime = Vclip[vclip_num].frame_time;
+}
 
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()

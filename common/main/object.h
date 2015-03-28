@@ -472,10 +472,7 @@ static inline void set_player_id(const vobjptr_t o, ubyte id)
 	o->id = id;
 }
 
-static inline void set_powerup_id(const vobjptr_t o, ubyte id)
-{
-	o->id = id;
-}
+void set_powerup_id(vobjptr_t o, uint8_t id);
 
 static inline void set_robot_id(const vobjptr_t o, ubyte id)
 {
