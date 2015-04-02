@@ -107,7 +107,7 @@ void copy_side_except_vertex_ids(side *destside, side *sourceside)
 
 //	[side] [index] [cur:next]
 //	To remap the vertices on a side after a forward rotation
-sbyte xlate_previous[6][4][2] = {
+const array<array<array<uint8_t, 2>, 4>, 6> xlate_previous{
 { {7, 3}, {3, 2}, {2, 6}, {6, 7} },		// remapping left to left
 { {5, 4}, {4, 0}, {7, 3}, {6, 7} },		// remapping back to top
 { {5, 4}, {1, 5}, {0, 1}, {4, 0} },		// remapping right to right
@@ -137,7 +137,7 @@ void remap_vertices_previous(segment *segp, int sidenum)
 	}
 }
 
-sbyte xlate_previous_right[6][4][2] = {
+const array<array<array<uint8_t, 2>, 4>, 6> xlate_previous_right{
 { {5, 6}, {6, 7}, {2, 3}, {1, 2} },		// bottom to left
 { {6, 7}, {7, 4}, {3, 0}, {2, 3} },		// left to top
 { {7, 4}, {4, 5}, {0, 1}, {3, 0} },		// top to right
