@@ -2868,6 +2868,54 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 }
 #endif
 
+#ifdef NDEBUG
+static bool is_break_object(vcobjptridx_t)
+{
+	return false;
+}
+#else
+static bool is_break_object(const vcobjptridx_t robot)
+{
+	return Break_on_object == robot;
+}
+#endif
+
+static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info *robptr, const vm_distance &dist_to_player)
+{
+	if (unlikely(is_break_object(robot)))
+		// don't time slice if we're interested in this object.
+		return false;
+	const auto &aip = robot->ctype.ai_info;
+	const auto &ailp = aip.ail;
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)robptr;
+	if (ailp.player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1) { // If robot got hit, he gets to attack player always!
+		{
+			if ((dist_to_player > F1_0*250) && (ailp.time_since_processed <= F1_0*2))
+				return true;
+			else if (!((aip.behavior == AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum))) {
+				if ((dist_to_player > F1_0*150) && (ailp.time_since_processed <= F1_0))
+					return true;
+				else if ((dist_to_player > F1_0*100) && (ailp.time_since_processed <= F1_0/2))
+					return true;
+			}
+		}
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (!((aip.behavior == AIB_SNIPE) && (ailp.mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robot_is_thief(robptr) && (ailp.player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
+		{
+			if ((aip.behavior == AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum)) {
+				if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
+					return true;
+			} else if ((!ailp.previous_visibility) && ((dist_to_player >> 7) > ailp.time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
+				return true;
+			}
+		}
+	}
+#endif
+	return false;
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 void do_ai_frame(const vobjptridx_t obj)
 {
@@ -3281,37 +3329,8 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Time-slice, don't process all the time, purely an efficiency hack.
 	// Guys whose behavior is station and are not at their hide segment get processed anyway.
-#if defined(DXX_BUILD_DESCENT_I)
-	if (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1) { // If robot got hit, he gets to attack player always!
-#ifndef NDEBUG
-		if (Break_on_object != objnum)
-#endif
-		{    // don't time slice if we're interested in this object.
-			if ((dist_to_player > F1_0*250) && (ailp->time_since_processed <= F1_0*2))
-				return;
-			else if (!((aip->behavior == AIB_STATION) && (ailp->mode == AIM_FOLLOW_PATH) && (aip->hide_segment != obj->segnum))) {
-				if ((dist_to_player > F1_0*150) && (ailp->time_since_processed <= F1_0))
-					return;
-				else if ((dist_to_player > F1_0*100) && (ailp->time_since_processed <= F1_0/2))
-					return;
-			}
-		}
-	}
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robot_is_thief(robptr) && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
-#ifndef NDEBUG
-		if (Break_on_object != objnum)
-#endif
-		{    // don't time slice if we're interested in this object.
-			if ((aip->behavior == AIB_STATION) && (ailp->mode == AIM_FOLLOW_PATH) && (aip->hide_segment != obj->segnum)) {
-				if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
-					return;
-			} else if ((!ailp->previous_visibility) && ((dist_to_player >> 7) > ailp->time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
-				return;
-			}
-		}
-	}
-#endif
+	if (skip_ai_for_time_splice(obj, robptr, dist_to_player))
+		return;
 
 	// Reset time since processed, but skew objects so not everything
 	// processed synchronously, else we get fast frames with the
