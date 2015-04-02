@@ -1836,8 +1836,6 @@ static void net_udp_stop_resync(UDP_sequence_packet *their)
 	}
 }
 
-ubyte object_buffer[UPID_MAX_SIZE];
-
 void net_udp_send_objects(void)
 {
 	sbyte owner, player_num = UDP_sync_player.player.connected;
@@ -1864,7 +1862,8 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	memset(object_buffer, 0, UPID_MAX_SIZE);
+	array<uint8_t, UPID_MAX_SIZE> object_buffer;
+	object_buffer.fill(0);
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
 
@@ -1872,7 +1871,7 @@ void net_udp_send_objects(void)
 	{
 		obj_count = 0;
 		Network_send_object_mode = 0;
-		PUT_INTEL_INT(object_buffer+loc, -1);                       loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], -1);                       loc += 4;
 		object_buffer[loc] = player_num;                            loc += 1;
 		/* Placeholder for remote_objnum, not used here */          loc += 4;
 		Network_send_objnum = 0;
@@ -1904,9 +1903,9 @@ void net_udp_send_objects(void)
 		remote_objnum = objnum_local_to_remote(i, &owner);
 		Assert(owner == object_owner[i]);
 
-		PUT_INTEL_INT(object_buffer+loc, i);                        loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], i);                        loc += 4;
 		object_buffer[loc] = owner;                                 loc += 1;
-		PUT_INTEL_INT(object_buffer+loc, remote_objnum);            loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
 #ifdef WORDS_BIGENDIAN
@@ -1918,11 +1917,11 @@ void net_udp_send_objects(void)
 	if (obj_count_frame) // Send any objects we've buffered
 	{
 		Network_send_objnum = i;
-		PUT_INTEL_INT(object_buffer+1, obj_count_frame);
+		PUT_INTEL_INT(&object_buffer[1], obj_count_frame);
 
 		Assert(loc <= UPID_MAX_SIZE);
 
-		dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], object_buffer, loc, 0);
+		dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], loc, 0);
 	}
 
 	if (i > Highest_object_index)
@@ -1938,11 +1937,11 @@ void net_udp_send_objects(void)
 
 			// Send count so other side can make sure he got them all
 			object_buffer[0] = UPID_OBJECT_DATA;
-			PUT_INTEL_INT(object_buffer+1, 1);
-			PUT_INTEL_INT(object_buffer+5, -2);
+			PUT_INTEL_INT(&object_buffer[1], 1);
+			PUT_INTEL_INT(&object_buffer[5], -2);
 			object_buffer[9] = player_num;
-			PUT_INTEL_INT(object_buffer+10, obj_count);
-			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], object_buffer, 14, 0);
+			PUT_INTEL_INT(&object_buffer[10], obj_count);
+			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], 14, 0);
 
 			// Send sync packet which tells the player who he is and to start!
 			net_udp_send_rejoin_sync(player_num);
