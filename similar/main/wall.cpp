@@ -636,7 +636,7 @@ static int check_poke(objnum_t objnum,segnum_t segnum,int side)
 
 	//note: don't let objects with zero size block door
 
-	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size, __FILE__, __LINE__).sidemask & (1 << side))
+	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side))
 		return 1;		//pokes through side!
 	else
 		return 0;		//does not!

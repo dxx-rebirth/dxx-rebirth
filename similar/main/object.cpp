@@ -1066,7 +1066,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
-	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(pos, segnum, 0).centermask != 0)
 	{
 		auto p = find_point_seg(pos,segnum);
 		if (p == segment_none) {
@@ -1726,7 +1726,7 @@ static void object_move_one(const vobjptridx_t obj)
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
 
-			sidemask = get_seg_masks(obj->pos, obj->segnum, obj->size, __FILE__, __LINE__).sidemask;
+			sidemask = get_seg_masks(obj->pos, obj->segnum, obj->size).sidemask;
 			if (sidemask) {
 				int sidenum,bit,wall_num;
 	

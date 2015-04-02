@@ -272,7 +272,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -653,7 +653,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 		range_for (const auto newseg, highest_valid(Segments))
 		{
 			const auto segp = vsegptridx(newseg);
-			if (get_seg_masks(p, segp, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
 		}
 

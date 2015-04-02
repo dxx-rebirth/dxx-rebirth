@@ -356,7 +356,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-	if(!get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	if(!get_seg_masks(obj->pos, obj->segnum, 0).centermask == 0)
 	{
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
@@ -494,7 +494,7 @@ void do_physics_sim(const vobjptridx_t obj)
 			obj_relink(obj, iseg );
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
+		if (get_seg_masks(obj->pos, obj->segnum, 0).centermask !=0 )
 		{
 			segnum_t n;
 
@@ -769,7 +769,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(obj->pos, obj->segnum, 0).centermask != 0)
 	{
 		if (find_object_seg(obj)==segment_none) {
 			segnum_t n;
