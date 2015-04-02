@@ -375,7 +375,7 @@ window_event_result ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox,c
 	return rval;
 }
 
-void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
+void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list)
 {
 	int stop, start;
 	UI_GADGET_SCROLLBAR * scrollbar;

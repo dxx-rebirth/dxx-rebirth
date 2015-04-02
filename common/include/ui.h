@@ -64,6 +64,8 @@ struct UI_EVENT
 struct UI_GADGET
 {
 	short           kind;       \
+	short           x1,y1,x2,y2;
+	int             hotkey;
 	struct UI_GADGET  * prev;     \
 	struct UI_GADGET  * next;     \
 	struct UI_GADGET  * when_tab;  \
@@ -76,8 +78,6 @@ struct UI_GADGET
 	int             status;     \
 	int             oldstatus;  \
 	grs_subcanvas_ptr canvas;     \
-	int             hotkey;     \
-	short           x1,y1,x2,y2;
 };
 
 struct UI_GADGET_USERBOX : UI_GADGET
@@ -91,9 +91,9 @@ struct UI_GADGET_USERBOX : UI_GADGET
 	short           b1_drag_x1, b1_drag_y1;
 	short           b1_drag_x2, b1_drag_y2;
 	short           b1_done_dragging;
-	int             keypress;
 	short           mouse_onme;
 	short           mouse_x, mouse_y;
+	int             keypress;
 	grs_bitmap *    bitmap;
 };
 
@@ -105,10 +105,10 @@ struct UI_GADGET_BUTTON : UI_GADGET
 	short           position;
 	short           oldposition;
 	short           pressed;
+	uint8_t dim_if_no_function;
+	int				 hotkey1;
 	int          	 (*user_function)(void);
 	int          	 (*user_function1)(void);
-	int				 hotkey1;
-	int				 dim_if_no_function;
 };
 
 struct UI_GADGET_INPUTBOX : UI_GADGET
@@ -184,7 +184,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
 	static const uint8_t s_kind = 2;
-	char            **list;
+	const char            *const *list;
 	short           width, height;
 	int             num_items;
 	int             num_items_displayed;
@@ -329,8 +329,7 @@ extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
 extern void ui_gadget_calc_keys( UI_DIALOG * dlg);
 
-extern void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short numitems, char **list);
-
+void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list);
 
 extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
 std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text);
