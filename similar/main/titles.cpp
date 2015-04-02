@@ -358,8 +358,9 @@ struct briefing_screen {
 #if defined(DXX_BUILD_DESCENT_II)
 #define MAX_BRIEFING_SCREENS 60
 
-static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens =
- {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
+static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens{{
+	{"brief03.pcx",0,3,8,8,257,177}
+}}; // default=0!!!
 #endif
 
 static const briefing_screen D1_Briefing_screens_full[] = {

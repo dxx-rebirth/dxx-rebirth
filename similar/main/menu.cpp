@@ -1445,9 +1445,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				char text[4] = "c";
 				int rval = 0;
 
-				array<newmenu_item, 1> m{
+				array<newmenu_item, 1> m{{
 					nm_item_input(text),
-				};
+				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
