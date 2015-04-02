@@ -83,6 +83,8 @@ struct sound_object
 	} link_type;
 };
 
+constexpr tt::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
+
 #define MAX_SOUND_OBJECTS 150
 typedef array<sound_object, MAX_SOUND_OBJECTS> sound_objects_t;
 static sound_objects_t SoundObjects;

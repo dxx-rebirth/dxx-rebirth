@@ -468,7 +468,7 @@ struct briefing : ignore_window_pointer_t
 	char	background_name[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
-	int		hum_channel, printing_channel;
+	RAIIdigi_sound		hum_channel, printing_channel;
 	MVESTREAM_ptr_t pMovie;
 #endif
 	std::unique_ptr<char[]>	text;
@@ -509,7 +509,6 @@ static void briefing_init(briefing *br, short level_num)
 	gr_init_bitmap_data(br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 #if defined(DXX_BUILD_DESCENT_II)
-	br->hum_channel = br->printing_channel = -1;
 	br->robot_playing = 0;
 #endif
 	br->robot_num = 0;
@@ -689,7 +688,7 @@ static void put_char_delay(briefing *br, char ch)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!EMULATING_D1 && !br->chattering) {
-		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, sound_object_none);
+		br->printing_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, sound_object_none));
 		br->chattering=1;
 	}
 #endif
@@ -846,9 +845,7 @@ static int briefing_process_char(briefing *br)
 		} else if (ch == 'S') {
 #if defined(DXX_BUILD_DESCENT_II)
 			br->chattering = 0;
-			if (br->printing_channel >- 1)
-				digi_stop_sound(br->printing_channel);
-			br->printing_channel =- 1;
+			br->printing_channel.reset();
 #endif
 
 			br->new_screen = 1;
@@ -862,9 +859,7 @@ static int briefing_process_char(briefing *br)
 			}
 
 			br->chattering = 0;
-			if (br->printing_channel >- 1)
-				digi_stop_sound(br->printing_channel);
-			br->printing_channel =- 1;
+			br->printing_channel.reset();
 #endif
 
 			br->new_page = 1;
@@ -1315,8 +1310,7 @@ static void free_briefing_screen(briefing *br)
 #endif
 	br->robot_canv.reset();
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br->printing_channel>-1)
-		digi_stop_sound( br->printing_channel );
+	br->printing_channel.reset();
 #endif
 	if (EMULATING_D1)
 		br->screen.reset();
@@ -1388,7 +1382,7 @@ static int new_briefing_screen(briefing *br, int first)
 		return 0;	// finished
 
 	br->message = get_briefing_message(br, EMULATING_D1 ? Briefing_screens[br->cur_screen].message_num : br->cur_screen);
-	br->printing_channel = -1;
+	br->printing_channel.reset();
 	br->dumb_adjust = 0;
 	br->line_adjustment = 1;
 	br->chattering = 0;
@@ -1411,8 +1405,8 @@ static int new_briefing_screen(briefing *br, int first)
 	br->prev_ch = -1;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((songs_is_playing() == -1) && (br->hum_channel == -1))
-		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, sound_object_none);
+	if (songs_is_playing() == -1 && !br->hum_channel)
+		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, sound_object_none));
 #endif
 
 	return 1;
@@ -1528,11 +1522,7 @@ static window_event_result briefing_handler(window *wind,const d_event &event, b
 		case EVENT_WINDOW_CLOSE:
 			free_briefing_screen(br);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (br->hum_channel>-1)
-			{
-				digi_stop_sound( br->hum_channel );
-				br->hum_channel = -1;
-			}
+			br->hum_channel.reset();
 #endif
 			break;
 
