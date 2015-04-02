@@ -282,8 +282,6 @@ extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 //flags whether the last time we use this weapon, it was the 'super' version
 extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
-
-extern const array<uint8_t, MAX_WEAPON_TYPES>    Weapon_is_energy;
 #endif
 
 #define HAS_WEAPON_FLAG 1

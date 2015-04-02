@@ -117,17 +117,6 @@ static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8
 //flags whether the last time we use this weapon, it was the 'super' version
 array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
-
-const array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
-	1, 1, 1, 1, 1,
-	1, 1, 1, 0, 1,
-	1, 0, 1, 1, 1,
-	0, 1, 0, 0, 1,
-	1, 0, 0, 1, 1,
-	1, 1, 1, 0, 1,
-	1, 1, 0, 1, 1,
-	1
-}};
 #endif
 
 // ; (0) Laser Level 1

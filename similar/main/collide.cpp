@@ -87,6 +87,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
+	1, 1, 1, 1, 1,
+	1, 1, 1, 0, 1,
+	1, 0, 1, 1, 1,
+	0, 1, 0, 0, 1,
+	1, 0, 0, 1, 1,
+	1, 1, 1, 0, 1,
+	1, 1, 0, 1, 1,
+	1
+}};
+#endif
+
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
 #define WALL_LOUDNESS_SCALE (20)
