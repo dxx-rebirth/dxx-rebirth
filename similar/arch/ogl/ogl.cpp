@@ -497,7 +497,7 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
-bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
+void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
 	int c;
 	GLfloat color_r, color_g, color_b;
@@ -523,8 +523,6 @@ bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 	glDrawArrays(GL_LINES, 0, 2);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-
-	return 1;
 }
 
 static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)

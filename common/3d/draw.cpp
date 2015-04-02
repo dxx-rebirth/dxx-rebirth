@@ -35,19 +35,13 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer)
 }
 #ifndef OGL
 //deal with a clipped line
-static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,temporary_points_t &tp)
+static void must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,temporary_points_t &tp)
 {
-	bool ret;
-
 	if ((p0->p3_flags&PF_TEMP_POINT) || (p1->p3_flags&PF_TEMP_POINT))
-
-		ret = 0;		//line has already been clipped, so give up
-
+		;		//line has already been clipped, so give up
 	else {
-
 		clip_line(p0,p1,codes_or,tp);
-
-		ret = g3_draw_line(*p0,*p1,tp);
+		g3_draw_line(*p0,*p1,tp);
 	}
 
 	//free temp points
@@ -57,23 +51,21 @@ static bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,temporary_
 
 	if (p1->p3_flags & PF_TEMP_POINT)
 		tp.free_temp_point(p1);
-
-	return ret;
 }
 
 //draws a line. takes two points.  returns true if drew
-bool g3_draw_line(g3s_point &p0,g3s_point &p1)
+void g3_draw_line(g3s_point &p0,g3s_point &p1)
 {
 	temporary_points_t tp;
-	return g3_draw_line(p0, p1, tp);
+	g3_draw_line(p0, p1, tp);
 }
 
-bool g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
+void g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
 {
 	ubyte codes_or;
 
 	if (p0.p3_codes & p1.p3_codes)
-		return 0;
+		return;
 
 	codes_or = p0.p3_codes | p1.p3_codes;
 
@@ -91,8 +83,7 @@ bool g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
 
 	if (p1.p3_flags&PF_OVERFLOW)
 		return must_clip_line(&p0,&p1,codes_or,tp);
-
-	return (*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
+	(*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
 }
 #endif
 
