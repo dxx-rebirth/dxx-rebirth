@@ -149,7 +149,7 @@ static window_event_result title_handler(window *wind,const d_event &event, titl
 	return window_event_result::ignored;
 }
 
-static int show_title_screen(const char * filename, int allow_keys, int from_hog_only )
+static void show_title_screen(const char * filename, int allow_keys, int from_hog_only )
 {
 	window *wind;
 	int pcx_error;
@@ -180,13 +180,11 @@ static int show_title_screen(const char * filename, int allow_keys, int from_hog
 	if (!wind)
 	{
 		gr_free_bitmap_data(ts->title_bm);
-		return 0;
+		return;
 	}
 
 	while (window_exists(wind))
 		event_process();
-
-	return 0;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
