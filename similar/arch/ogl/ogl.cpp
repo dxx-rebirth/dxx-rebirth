@@ -586,12 +586,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
 		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0
 	};
-	GLfloat cross_lca[8 * 4] = {
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0
-	};
 	const array<float, 4> ret_rgba{{
 		static_cast<float>(PAL2Tr(color)),
 		static_cast<float>(PAL2Tg(color)),
@@ -618,17 +612,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		dark_lca[i+2] = ret_dark_rgba[2];
 		bright_lca[i+3] = ret_rgba[3];
 		dark_lca[i+3] = ret_dark_rgba[3];
-	}
-	for (i = 0; i < 8*4; i += 8)
-	{
-		cross_lca[i] = ret_dark_rgba[0];
-		cross_lca[i+1] = ret_dark_rgba[1];
-		cross_lca[i+2] = ret_dark_rgba[2];
-		cross_lca[i+3] = ret_dark_rgba[3];
-		cross_lca[i+4] = ret_rgba[0];
-		cross_lca[i+5] = ret_rgba[1];
-		cross_lca[i+6] = ret_rgba[2];
-		cross_lca[i+7] = ret_rgba[3];
 	}
 
 	primary_lca[0][0] = primary_lca[0][4] = primary_lca[1][8] = primary_lca[1][12] = ret_rgba[0];
@@ -662,7 +645,21 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	
 	//cross
 	if(cross)
-		glColorPointer(4, GL_FLOAT, 0, cross_lca);
+	{
+		array<GLfloat, 8 * 4> cross_lca;
+		for (uint_fast32_t i = 0; i != cross_lca.size(); i += 8)
+		{
+			cross_lca[i] = ret_dark_rgba[0];
+			cross_lca[i+1] = ret_dark_rgba[1];
+			cross_lca[i+2] = ret_dark_rgba[2];
+			cross_lca[i+3] = ret_dark_rgba[3];
+			cross_lca[i+4] = ret_rgba[0];
+			cross_lca[i+5] = ret_rgba[1];
+			cross_lca[i+6] = ret_rgba[2];
+			cross_lca[i+7] = ret_rgba[3];
+		}
+		glColorPointer(4, GL_FLOAT, 0, cross_lca.data());
+	}
 	else
 		glColorPointer(4, GL_FLOAT, 0, dark_lca);
 	glVertexPointer(2, GL_FLOAT, 0, cross_lva);
