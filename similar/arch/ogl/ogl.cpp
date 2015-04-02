@@ -564,7 +564,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, flo
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
 {
 	int size=270+(size_offs*20), i;
-	float scale = ((float)SWIDTH/SHEIGHT), ret_rgba[4], ret_dark_rgba[4];
+	float scale = ((float)SWIDTH/SHEIGHT);
 	GLfloat cross_lva[8 * 2] = {
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	};
@@ -592,19 +592,21 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
 		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0
 	};
+	const array<float, 4> ret_rgba{{
+		static_cast<float>(PAL2Tr(color)),
+		static_cast<float>(PAL2Tg(color)),
+		static_cast<float>(PAL2Tb(color)),
+		static_cast<float>(1.0 - ((float)alpha / ((float)GR_FADE_LEVELS)))
+	}}, ret_dark_rgba{{
+		ret_rgba[0] / 2,
+		ret_rgba[1] / 2,
+		ret_rgba[2] / 2,
+		ret_rgba[3] / 2
+	}};
 	GLfloat primary_lca[2][4 * 4] = {
 		{0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6},
 		{0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0}
 	};
-	
-	ret_rgba[0] = PAL2Tr(color);
-	ret_dark_rgba[0] = ret_rgba[0]/2;
-	ret_rgba[1] = PAL2Tg(color);
-	ret_dark_rgba[1] = ret_rgba[1]/2;
-	ret_rgba[2] = PAL2Tb(color);
-	ret_dark_rgba[2] = ret_rgba[2]/2;
-	ret_rgba[3] = 1.0 - ((float)alpha / ((float)GR_FADE_LEVELS));
-	ret_dark_rgba[3] = ret_rgba[3]/2;
 
 	for (i = 0; i < 16*4; i += 4)
 	{
