@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _UI_H
-#define _UI_H
+#pragma once
 
 #include "dxxsconf.h"
 #include "event.h"
@@ -37,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "window.h"
 #include "compiler-array.h"
+#include "compiler-type_traits.h"
 #include "ntstring.h"
 
 struct grs_bitmap;
@@ -63,7 +63,7 @@ struct UI_EVENT
 
 struct UI_GADGET
 {
-	short           kind;       \
+	uint8_t           kind;
 	short           x1,y1,x2,y2;
 	int             hotkey;
 	struct UI_GADGET  * prev;     \
@@ -82,7 +82,7 @@ struct UI_GADGET
 
 struct UI_GADGET_USERBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 7;
+	static constexpr tt::integral_constant<uint8_t, 7> s_kind{};
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -99,7 +99,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 
 struct UI_GADGET_BUTTON : UI_GADGET
 {
-	static const uint8_t s_kind = 1;
+	static constexpr tt::integral_constant<uint8_t, 1> s_kind{};
 	std::string  text;
 	short           width, height;
 	short           position;
@@ -113,7 +113,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 6;
+	static constexpr tt::integral_constant<uint8_t, 6> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           length;
@@ -126,7 +126,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 
 struct UI_GADGET_RADIO : UI_GADGET
 {
-	static const uint8_t s_kind = 4;
+	static constexpr tt::integral_constant<uint8_t, 4> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -138,7 +138,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 
 struct UI_GADGET_ICON : UI_GADGET
 {
-	static const uint8_t s_kind = 9;
+	static constexpr tt::integral_constant<uint8_t, 9> s_kind{};
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -151,7 +151,7 @@ struct UI_GADGET_ICON : UI_GADGET
 
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 5;
+	static constexpr tt::integral_constant<uint8_t, 5> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -163,7 +163,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 
 struct UI_GADGET_SCROLLBAR : UI_GADGET
 {
-	static const uint8_t s_kind = 3;
+	static constexpr tt::integral_constant<uint8_t, 3> s_kind{};
 	short           horz;
 	short           width, height;
 	int             start;
@@ -183,7 +183,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 2;
+	static constexpr tt::integral_constant<uint8_t, 2> s_kind{};
 	const char            *const *list;
 	short           width, height;
 	int             num_items;
@@ -407,6 +407,3 @@ void ui_barbox_close();
 extern int ui_button_any_drawn;
 
 #endif
-
-#endif
-
