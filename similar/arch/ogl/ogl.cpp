@@ -995,7 +995,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
+void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, grs_bitmap &bm)
 {
 	int i;
 
@@ -1009,8 +1009,8 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm.gltexture,GL_CLAMP_TO_EDGE);
 
-	width = fixmul(width,Matrix_scale.x);
-	height = fixmul(height,Matrix_scale.y);
+	const auto width = fixmul(iwidth, Matrix_scale.x);
+	const auto height = fixmul(iheight, Matrix_scale.y);
 	constexpr unsigned point_count = 4;
 	struct fvertex_t
 	{
@@ -1027,9 +1027,14 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 	array<fvertex_t, point_count> vertex_array;
 	array<fcolor_t, point_count> color_array;
 	array<ftexcoord_t, point_count> texcoord_array;
+	const auto &v1 = vm_vec_sub(pos,View_position);
+	const auto &rpv = vm_vec_rotate(v1,View_matrix);
+	const auto bmglu = bm.gltexture->u;
+	const auto bmglv = bm.gltexture->v;
+	const auto alpha = grd_curcanv->cv_fade_level >= GR_FADE_OFF ? 1.0 : (1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+	const auto vert_z = -f2glf(rpv.z);
 	for (i=0;i<4;i++){
-		const auto v1 = vm_vec_sub(pos,View_position);
-		auto pv = vm_vec_rotate(v1,View_matrix);
+		auto pv = rpv;
 		switch (i){
 			case 0:
 				texcoord_array[i].u = 0.0;
@@ -1038,20 +1043,20 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 				pv.y+=height;
 				break;
 			case 1:
-				texcoord_array[i].u = bm.gltexture->u;
+				texcoord_array[i].u = bmglu;
 				texcoord_array[i].v = 0.0;
 				pv.x+=width;
 				pv.y+=height;
 				break;
 			case 2:
-				texcoord_array[i].u = bm.gltexture->u;
-				texcoord_array[i].v = bm.gltexture->v;
+				texcoord_array[i].u = bmglu;
+				texcoord_array[i].v = bmglv;
 				pv.x+=width;
 				pv.y+=-height;
 				break;
 			case 3:
 				texcoord_array[i].u = 0.0;
-				texcoord_array[i].v = bm.gltexture->v;
+				texcoord_array[i].v = bmglv;
 				pv.x+=-width;
 				pv.y+=-height;
 				break;
@@ -1060,10 +1065,10 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 		color_array[i].r = 1.0;
 		color_array[i].g = 1.0;
 		color_array[i].b = 1.0;
-		color_array[i].a = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
+		color_array[i].a = alpha;
 		vertex_array[i].x = f2glf(pv.x);
 		vertex_array[i].y = f2glf(pv.y);
-		vertex_array[i].z = -f2glf(pv.z);
+		vertex_array[i].z = vert_z;
 	}
 	glVertexPointer(3, GL_FLOAT, 0, vertex_array.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
