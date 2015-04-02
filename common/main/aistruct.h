@@ -26,8 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _AISTRUCT_H
-#define _AISTRUCT_H
+#pragma once
 
 #include <physfs.h>
 #include "polyobj.h"
@@ -60,19 +59,22 @@ enum class player_awareness_type_t : int8_t
 #define AI_DIR_FORWARD  1
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
+enum ai_behavior : uint8_t
+{
 // Behaviors
-#define AIB_STILL                       0x80
-#define AIB_NORMAL                      0x81
-#define AIB_RUN_FROM                    0x83
-#define AIB_STATION                     0x85
+	AIB_STILL = 0x80,
+	AIB_NORMAL = 0x81,
+	AIB_RUN_FROM = 0x83,
+	AIB_STATION = 0x85,
 #if defined(DXX_BUILD_DESCENT_I)
-#define	AIB_HIDE							0x82
-#define	AIB_FOLLOW_PATH				0x84
+	AIB_HIDE = 0x82,
+	AIB_FOLLOW_PATH = 0x84,
 #elif defined(DXX_BUILD_DESCENT_II)
-#define AIB_BEHIND                      0x82
-#define AIB_SNIPE                       0x84
-#define AIB_FOLLOW                      0x86
+	AIB_BEHIND = 0x82,
+	AIB_SNIPE = 0x84,
+	AIB_FOLLOW = 0x86,
 #endif
+};
 
 #define MIN_BEHAVIOR    0x80
 #if defined(DXX_BUILD_DESCENT_I)
@@ -328,5 +330,3 @@ static const unsigned MAX_POINT_SEGS = 2500;
 extern void ai_do_cloak_stuff(void);
 
 #endif
-
-#endif /* _AISTRUCT_H */

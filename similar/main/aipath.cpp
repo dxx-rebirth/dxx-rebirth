@@ -288,7 +288,7 @@ int create_path_points(const vobjptridx_t objp, segnum_t start_seg, segnum_t end
 	validate_all_paths();
 #endif
 
-if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM)) {
+if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)) {
 	random_flag = 1;
 	avoid_seg = ConsoleObject->segnum;
 	// Int3();
@@ -958,7 +958,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 #if defined(DXX_BUILD_DESCENT_I)
 		if (ailp->mode == AIM_RUN_FROM_OBJECT)
 #elif defined(DXX_BUILD_DESCENT_II)
-		if ((aip->behavior == AIB_SNIPE) || (ailp->mode == AIM_RUN_FROM_OBJECT))
+		if ((aip->behavior == ai_behavior::AIB_SNIPE) || (ailp->mode == AIM_RUN_FROM_OBJECT))
 #endif
 		{
 			if (ConsoleObject->segnum == objp->segnum) {
@@ -969,7 +969,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 				//--Int3_if((aip->path_length != 0));
 			}
 #if defined(DXX_BUILD_DESCENT_II)
-			if (aip->behavior == AIB_SNIPE) {
+			if (aip->behavior == ai_behavior::AIB_SNIPE) {
 				if (robot_is_thief(robptr))
 					ailp->mode = AIM_THIEF_ATTACK;	//	It gets bashed in create_n_segment_path
 				else
@@ -997,7 +997,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 #if defined(DXX_BUILD_DESCENT_I)
 	Assert((aip->PATH_DIR == -1) || (aip->PATH_DIR == 1));
 
-	if ((aip->SUBMODE == AISM_HIDING) && (aip->behavior == AIB_HIDE))
+	if ((aip->SUBMODE == AISM_HIDING) && (aip->behavior == ai_behavior::AIB_HIDE))
 		return;
 #endif
 
@@ -1113,12 +1113,12 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 				return;		// Stay here until bonked or hit by player.
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (aip->behavior == AIB_FOLLOW) {
+			if (aip->behavior == ai_behavior::AIB_FOLLOW) {
 				create_n_segment_path(objp, 10, ConsoleObject->segnum);
 				//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 			}
 #endif
-			else if (aip->behavior == AIB_STATION) {
+			else if (aip->behavior == ai_behavior::AIB_STATION) {
 				create_path_to_station(objp, 15);
 				if ((aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum)
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1130,7 +1130,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 				return;
 			} else if (ailp->mode == AIM_FOLLOW_PATH
 #if defined(DXX_BUILD_DESCENT_I)
-					   && (aip->behavior != AIB_FOLLOW_PATH)
+					   && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH)
 #endif
 					   ) {
 				create_path_to_player(objp, 10, 1);
@@ -1148,7 +1148,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 					create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 					ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
 					if (aip->path_length < 1) {
-						aip->behavior = AIB_NORMAL;
+						aip->behavior = ai_behavior::AIB_NORMAL;
 						ailp->mode = AIM_STILL;
 						return;
 					}
@@ -1253,7 +1253,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode == AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| objp->ctype.ai_info.behavior == AIB_SNIPE
+		|| objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		)
 		max_speed = max_speed*3/2;
@@ -1285,7 +1285,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If in snipe mode, can move fast even if not facing that direction.
-	if (objp->ctype.ai_info.behavior == AIB_SNIPE)
+	if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 		if (dot < F1_0/2)
 			dot = (dot + F1_0)/2;
 #endif
@@ -1296,7 +1296,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 
 	if (ailp->mode == AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
-		|| robot_is_companion(robptr) == 1 || objp->ctype.ai_info.behavior == AIB_SNIPE
+		|| robot_is_companion(robptr) == 1 || objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1442,7 +1442,7 @@ void attempt_to_resume_path(const vobjptridx_t objp)
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
 
-	if (aip->behavior == AIB_STATION
+	if (aip->behavior == ai_behavior::AIB_STATION
 #if defined(DXX_BUILD_DESCENT_II)
 		&& Robot_info[get_robot_id(objp)].companion != 1
 #endif

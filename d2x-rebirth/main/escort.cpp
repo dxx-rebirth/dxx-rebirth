@@ -1157,7 +1157,7 @@ void recreate_thief(const vobjptr_t objp)
 	auto new_obj = create_morph_robot( &Segments[segnum], center_point, objp->id);
 	if (new_obj == object_none)
 		return;
-	init_ai_object(new_obj, AIB_SNIPE, segment_none);
+	init_ai_object(new_obj, ai_behavior::AIB_SNIPE, segment_none);
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
 }
 

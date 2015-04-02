@@ -1145,7 +1145,7 @@ void bm_read_robot(int skip)
 	short 		weapon_type = 0, weapon_type2 = -1;
 	int			g,s;
 	char			name[ROBOT_NAME_LENGTH];
-	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0, behavior=AIB_NORMAL;
+	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0, behavior=ai_behavior::AIB_NORMAL;
 	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
 	fix			glow=0, aim=F1_0;
 	int			deathroll_sound = SOUND_BOSS_SHARE_DIE;	//default
@@ -1260,19 +1260,19 @@ void bm_read_robot(int skip)
 					flags |= RIF_BIG_RADIUS;
 			} else if (!d_stricmp( arg, "behavior" )) {
 				if (!d_stricmp(equal_ptr, "STILL"))
-					behavior = AIB_STILL;
+					behavior = ai_behavior::AIB_STILL;
 				else if (!d_stricmp(equal_ptr, "NORMAL"))
-					behavior = AIB_NORMAL;
+					behavior = ai_behavior::AIB_NORMAL;
 				else if (!d_stricmp(equal_ptr, "BEHIND"))
-					behavior = AIB_BEHIND;
+					behavior = ai_behavior::AIB_BEHIND;
 				else if (!d_stricmp(equal_ptr, "RUN_FROM"))
-					behavior = AIB_RUN_FROM;
+					behavior = ai_behavior::AIB_RUN_FROM;
 				else if (!d_stricmp(equal_ptr, "SNIPE"))
-					behavior = AIB_SNIPE;
+					behavior = ai_behavior::AIB_SNIPE;
 				else if (!d_stricmp(equal_ptr, "STATION"))
-					behavior = AIB_STATION;
+					behavior = ai_behavior::AIB_STATION;
 				else if (!d_stricmp(equal_ptr, "FOLLOW"))
-					behavior = AIB_FOLLOW;
+					behavior = ai_behavior::AIB_FOLLOW;
 				else
 					Int3();	//	Error.  Illegal behavior type for current robot.
 			} else if (!d_stricmp( arg, "name" )) {

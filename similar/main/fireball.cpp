@@ -897,7 +897,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 
 				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
-				obj->ctype.ai_info.behavior = AIB_NORMAL;
+				obj->ctype.ai_info.behavior = ai_behavior::AIB_NORMAL;
 				ai_local		*ailp = &obj->ctype.ai_info.ail;
 				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 				ailp->player_awareness_time = F1_0*3;

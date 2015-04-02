@@ -114,23 +114,26 @@ static movement_type_name &get_movement_type(int num)
 
 static ai_type_name &get_ai_behavior(int num)
 {
-#define	AIB_STILL						0x80
-#define	AIB_NORMAL						0x81
-#define	AIB_HIDE							0x82
-#define	AIB_RUN_FROM					0x83
-#define	AIB_FOLLOW_PATH				0x84
-
 	switch (num) {
-		case AIB_STILL:
+		case ai_behavior::AIB_STILL:
 			return "STILL       ";
-		case AIB_NORMAL:
+		case ai_behavior::AIB_NORMAL:
 			return "NORMAL      ";
-		case AIB_HIDE:
+#if defined(DXX_BUILD_DESCENT_I)
+		case ai_behavior::AIB_HIDE:
 			return "HIDE        ";
-		case AIB_RUN_FROM:
-			return "RUN_FROM    ";
-		case AIB_FOLLOW_PATH:
+		case ai_behavior::AIB_FOLLOW_PATH:
 			return "FOLLOW_PATH ";
+#elif defined(DXX_BUILD_DESCENT_II)
+		case ai_behavior::AIB_BEHIND:
+			return "BEHIND      ";
+		case ai_behavior::AIB_SNIPE:
+			return "SNIPE       ";
+		case ai_behavior::AIB_FOLLOW:
+			return "FOLLOW      ";
+#endif
+		case ai_behavior::AIB_RUN_FROM:
+			return "RUN_FROM    ";
 		default:
 			return " (unknown)  ";
 	}

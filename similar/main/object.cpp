@@ -484,7 +484,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			//	Snipers get bright when they fire.
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
 			if (ailp->next_fire < F1_0/8) {
-				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
+				if (obj->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 				{
 					light.r = 2*light.r + F1_0;
 					light.g = 2*light.g + F1_0;

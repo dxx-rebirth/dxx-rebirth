@@ -111,10 +111,10 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM))
+	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM))
 #elif defined(DXX_BUILD_DESCENT_II)
 	const robot_info *robptr = &Robot_info[robot_id];
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE))
+	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE))
 #endif
 	{
 		auto	wall_num = hitseg->sides[hitwall].wall_num;

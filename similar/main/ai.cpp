@@ -356,17 +356,17 @@ static int ready_to_fire_any_weapon(const robot_info *robptr, const ai_local *ai
 int ai_behavior_to_mode(int behavior)
 {
 	switch (behavior) {
-		case AIB_STILL:			return AIM_STILL;
-		case AIB_NORMAL:			return AIM_CHASE_OBJECT;
-		case AIB_RUN_FROM:		return AIM_RUN_FROM_OBJECT;
-		case AIB_STATION:			return AIM_STILL;
+		case ai_behavior::AIB_STILL:			return AIM_STILL;
+		case ai_behavior::AIB_NORMAL:			return AIM_CHASE_OBJECT;
+		case ai_behavior::AIB_RUN_FROM:		return AIM_RUN_FROM_OBJECT;
+		case ai_behavior::AIB_STATION:			return AIM_STILL;
 #if defined(DXX_BUILD_DESCENT_I)
-		case AIB_HIDE:				return AIM_HIDE;
-		case AIB_FOLLOW_PATH:	return AIM_FOLLOW_PATH;
+		case ai_behavior::AIB_HIDE:				return AIM_HIDE;
+		case ai_behavior::AIB_FOLLOW_PATH:	return AIM_FOLLOW_PATH;
 #elif defined(DXX_BUILD_DESCENT_II)
-		case AIB_BEHIND:			return AIM_BEHIND;
-		case AIB_SNIPE:			return AIM_STILL;	//	Changed, 09/13/95, MK, snipers are still until they see you or are hit.
-		case AIB_FOLLOW:			return AIM_FOLLOW_PATH;
+		case ai_behavior::AIB_BEHIND:			return AIM_BEHIND;
+		case ai_behavior::AIB_SNIPE:			return AIM_STILL;	//	Changed, 09/13/95, MK, snipers are still until they see you or are hit.
+		case ai_behavior::AIB_FOLLOW:			return AIM_FOLLOW_PATH;
 #endif
 		default:	Int3();	//	Contact Mike: Error, illegal behavior type
 	}
@@ -394,7 +394,7 @@ void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
 	*ailp = {};
 
 	if (behavior == 0) {
-		behavior = AIB_NORMAL;
+		behavior = ai_behavior::AIB_NORMAL;
 		aip->behavior = behavior;
 	}
 
@@ -407,7 +407,7 @@ void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
 		aip->behavior = behavior;
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
 	} else if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		aip->behavior = AIB_NORMAL;
+		aip->behavior = ai_behavior::AIB_NORMAL;
 	}
 
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
@@ -418,12 +418,12 @@ void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
 	}
 
 	if (robot_is_thief(robptr)) {
-		aip->behavior = AIB_SNIPE;
+		aip->behavior = ai_behavior::AIB_SNIPE;
 		ailp->mode = AIM_THIEF_WAIT;
 	}
 
 	if (robptr->attack_type) {
-		aip->behavior = AIB_NORMAL;
+		aip->behavior = ai_behavior::AIB_NORMAL;
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
 	}
 #endif
@@ -440,9 +440,9 @@ void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
 	ailp->time_player_sound_attacked = GameTime64;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((behavior == AIB_HIDE) || (behavior == AIB_FOLLOW_PATH) || (behavior == AIB_STATION) || (behavior == AIB_RUN_FROM))
+	if ((behavior == ai_behavior::AIB_HIDE) || (behavior == ai_behavior::AIB_FOLLOW_PATH) || (behavior == ai_behavior::AIB_STATION) || (behavior == ai_behavior::AIB_RUN_FROM))
 #elif defined(DXX_BUILD_DESCENT_II)
-	if ((behavior == AIB_SNIPE) || (behavior == AIB_STATION) || (behavior == AIB_RUN_FROM) || (behavior == AIB_FOLLOW))
+	if ((behavior == ai_behavior::AIB_SNIPE) || (behavior == ai_behavior::AIB_STATION) || (behavior == ai_behavior::AIB_RUN_FROM) || (behavior == ai_behavior::AIB_FOLLOW))
 #endif
 	{
 		aip->hide_segment = hide_segment;
@@ -870,7 +870,7 @@ static void set_next_fire_time(const vobjptr_t objp, ai_local *ailp, robot_info 
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
 	if ((gun_num != 0) || (robptr->weapon_type2 == weapon_none))
-		if ((objp->ctype.ai_info.behavior != AIB_SNIPE) || (d_rand() > 16384))
+		if ((objp->ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
 			ailp->rapidfire_count++;
 
 	//	Old way, 10/15/95: Continuous rapidfire if rapidfire_count set.
@@ -1571,14 +1571,14 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 		if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || type == player_awareness_type_t::PA_PLAYER_COLLISION)
 			switch (objp->ctype.ai_info.behavior) {
 #if defined(DXX_BUILD_DESCENT_I)
-				case AIB_HIDE:
+				case ai_behavior::AIB_HIDE:
 					objp->ctype.ai_info.SUBMODE = AISM_GOHIDE;
 					break;
-				case AIB_STILL:
+				case ai_behavior::AIB_STILL:
 					objp->ctype.ai_info.ail.mode = AIM_CHASE_OBJECT;
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
-				case AIB_STILL:
+				case ai_behavior::AIB_STILL:
 				{
 					int	r;
 
@@ -1590,7 +1590,7 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (r < 4096) {
 						create_path_to_player(objp, 10, 1);
-						objp->ctype.ai_info.behavior = AIB_STATION;
+						objp->ctype.ai_info.behavior = ai_behavior::AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						ailp->mode = AIM_CHASE_OBJECT;
 					} else if (r < 4096+8192) {
@@ -1745,7 +1745,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
+	if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM))
 	{
 
 		if (wall_num != wall_none)
@@ -1834,7 +1834,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 					return 1;
 			}
 		}
-	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == AIB_SNIPE)) {
+	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)) {
 		if (wall_num != wall_none)
 		{
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
@@ -1948,9 +1948,9 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	objp->matcen_creator = BOSS_GATE_MATCEN_NUM;	//	flag this robot as having been created by the boss.
 
 #if defined(DXX_BUILD_DESCENT_I)
-	default_behavior = AIB_NORMAL;
+	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!
-		default_behavior = AIB_RUN_FROM;
+		default_behavior = ai_behavior::AIB_RUN_FROM;
 #elif defined(DXX_BUILD_DESCENT_II)
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 	default_behavior = Robot_info[get_robot_id(objp)].behavior;
@@ -2591,7 +2591,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 					}
 
 					//	Wants to fire, so should go into chase mode, probably.
-					if ( (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && (aip->behavior != AIB_FOLLOW_PATH) && ((ailp->mode == AIM_FOLLOW_PATH) || (ailp->mode == AIM_STILL)))
+					if ( (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && ((ailp->mode == AIM_FOLLOW_PATH) || (ailp->mode == AIM_STILL)))
 						ailp->mode = AIM_CHASE_OBJECT;
 				}
 
@@ -2689,10 +2689,10 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 					}
 
 					//	Wants to fire, so should go into chase mode, probably.
-					if ( (aip->behavior != AIB_RUN_FROM)
-						 && (aip->behavior != AIB_STILL)
-						 && (aip->behavior != AIB_SNIPE)
-						 && (aip->behavior != AIB_FOLLOW)
+					if ( (aip->behavior != ai_behavior::AIB_RUN_FROM)
+						 && (aip->behavior != ai_behavior::AIB_STILL)
+						 && (aip->behavior != ai_behavior::AIB_SNIPE)
+						 && (aip->behavior != ai_behavior::AIB_FOLLOW)
 						 && (!robptr->attack_type)
 						 && ((ailp->mode == AIM_FOLLOW_PATH) || (ailp->mode == AIM_STILL)))
 						ailp->mode = AIM_CHASE_OBJECT;
@@ -2778,7 +2778,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 					}
 
 					//	Wants to fire, so should go into chase mode, probably.
-					if ( (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && ((ailp->mode == AIM_FOLLOW_PATH) || (ailp->mode == AIM_STILL)))
+					if ( (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_FOLLOW) && ((ailp->mode == AIM_FOLLOW_PATH) || (ailp->mode == AIM_STILL)))
 						ailp->mode = AIM_CHASE_OBJECT;
 				}
 				aip->GOAL_STATE = AIS_RECO;
@@ -2835,8 +2835,8 @@ static void make_nearby_robot_snipe(void)
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
 			if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) != ROBOT_BRAIN)) {
-				if ((objp->ctype.ai_info.behavior != AIB_SNIPE) && (objp->ctype.ai_info.behavior != AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robot_is_companion(robptr)) {
-					objp->ctype.ai_info.behavior = AIB_SNIPE;
+				if ((objp->ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) && (objp->ctype.ai_info.behavior != ai_behavior::AIB_RUN_FROM) && !Robot_info[get_robot_id(objp)].boss_flag && !robot_is_companion(robptr)) {
+					objp->ctype.ai_info.behavior = ai_behavior::AIB_SNIPE;
 					objp->ctype.ai_info.ail.mode = AIM_SNIPE_ATTACK;
 					return;
 				}
@@ -2894,7 +2894,7 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 		{
 			if ((dist_to_player > F1_0*250) && (ailp.time_since_processed <= F1_0*2))
 				return true;
-			else if (!((aip.behavior == AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum))) {
+			else if (!((aip.behavior == ai_behavior::AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum))) {
 				if ((dist_to_player > F1_0*150) && (ailp.time_since_processed <= F1_0))
 					return true;
 				else if ((dist_to_player > F1_0*100) && (ailp.time_since_processed <= F1_0/2))
@@ -2903,10 +2903,10 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (!((aip.behavior == AIB_SNIPE) && (ailp.mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robot_is_thief(robptr) && static_cast<uint8_t>(ailp.player_awareness_type) < static_cast<uint8_t>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1)
+	if (!((aip.behavior == ai_behavior::AIB_SNIPE) && (ailp.mode != AIM_SNIPE_WAIT)) && !robot_is_companion(robptr) && !robot_is_thief(robptr) && static_cast<uint8_t>(ailp.player_awareness_type) < static_cast<uint8_t>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1)
 	{ // If robot got hit, he gets to attack player always!
 		{
-			if ((aip.behavior == AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum)) {
+			if ((aip.behavior == ai_behavior::AIB_STATION) && (ailp.mode == AIM_FOLLOW_PATH) && (aip.hide_segment != robot->segnum)) {
 				if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
 					return true;
 			} else if ((!ailp.previous_visibility) && ((dist_to_player >> 7) > ailp.time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
@@ -2967,7 +2967,7 @@ void do_ai_frame(const vobjptridx_t obj)
 	}
 
 #ifndef NDEBUG
-	if ((aip->behavior == AIB_RUN_FROM) && (ailp->mode != AIM_RUN_FROM_OBJECT))
+	if ((aip->behavior == ai_behavior::AIB_RUN_FROM) && (ailp->mode != AIM_RUN_FROM_OBJECT))
 		Int3(); // This is peculiar.  Behavior is run from, but mode is not.  Contact Mike.
 
 	if (!Do_ai_flag)
@@ -2980,7 +2980,7 @@ void do_ai_frame(const vobjptridx_t obj)
 
 	//Assert((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR));
 	if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		aip->behavior = AIB_NORMAL;
+		aip->behavior = ai_behavior::AIB_NORMAL;
 	}
 
 	Assert(obj->segnum != segment_none);
@@ -3077,9 +3077,9 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI))
+	if ((aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI))
 #elif defined(DXX_BUILD_DESCENT_II)
-	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
+	if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 #endif
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
@@ -3115,11 +3115,11 @@ _exit_cheat:
 					break;
 				case AIM_STILL:
 #if defined(DXX_BUILD_DESCENT_I)
-					if (!((aip->behavior == AIB_STILL) || (aip->behavior == AIB_STATION)))	//	Behavior is still, so don't follow path.
+					if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION)))	//	Behavior is still, so don't follow path.
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (robptr->attack_type)
 						move_towards_segment_center(obj);
-					else if (!((aip->behavior == AIB_STILL) || (aip->behavior == AIB_STATION) || (aip->behavior == AIB_FOLLOW)))    // Behavior is still, so don't follow path.
+					else if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION) || (aip->behavior == ai_behavior::AIB_FOLLOW)))    // Behavior is still, so don't follow path.
 #endif
 						attempt_to_resume_path(obj);
 					break;
@@ -3203,14 +3203,14 @@ _exit_cheat:
 
 	if (Player_is_dead && ailp->player_awareness_type == player_awareness_type_t::PA_NONE)
 		if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/8)) {
-			if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_RUN_FROM)) {
+			if ((aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))
 					return;
 				ai_multi_send_robot_position(obj, -1);
 
 				if (!((ailp->mode == AIM_FOLLOW_PATH) && (aip->cur_path_index < aip->path_length-1)))
 #if defined(DXX_BUILD_DESCENT_II)
-					if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM))
+					if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
 #endif
 					{
 						if (dist_to_player < F1_0*30)
@@ -3225,7 +3225,7 @@ _exit_cheat:
 	if (ailp->player_awareness_type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
 #if defined(DXX_BUILD_DESCENT_I)
 	{
-		if ((aip->behavior != AIB_STILL) && (aip->behavior != AIB_FOLLOW_PATH) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
+		if ((aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
 			ailp->mode = AIM_CHASE_OBJECT;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3391,9 +3391,9 @@ _exit_cheat:
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (aip->behavior == AIB_SNIPE) {
+	if (aip->behavior == ai_behavior::AIB_SNIPE) {
 		if ((Game_mode & GM_MULTI) && !robot_is_thief(robptr)) {
-			aip->behavior = AIB_NORMAL;
+			aip->behavior = ai_behavior::AIB_NORMAL;
 			ailp->mode = AIM_CHASE_OBJECT;
 			return;
 		}
@@ -3491,7 +3491,7 @@ _exit_cheat:
 				// If pretty far from the player, player cannot be seen
 				// (obstructed) and in chase mode, switch to follow path mode.
 				// This has one desirable benefit of avoiding physics retries.
-				if (aip->behavior == AIB_STATION) {
+				if (aip->behavior == ai_behavior::AIB_STATION) {
 					ailp->goal_segment = aip->hide_segment;
 					create_path_to_station(obj, 15);
 				} // -- this looks like a dumb thing to do...robots following paths far away from you! else create_n_segment_path(obj, 5, -1);
@@ -3630,7 +3630,7 @@ _exit_cheat:
 		case AIM_FOLLOW_PATH: {
 			int anger_level = 65;
 
-			if (aip->behavior == AIB_STATION)
+			if (aip->behavior == ai_behavior::AIB_STATION)
 				if (Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment) {
 					anger_level = 64;
 				}
@@ -3653,28 +3653,28 @@ _exit_cheat:
 				aip->GOAL_STATE = AIS_LOCK;
 
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((aip->behavior != AIB_FOLLOW_PATH) && (aip->behavior != AIB_RUN_FROM))
+			if ((aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
 				do_firing_stuff(obj, player_visibility, vec_to_player);
 
-			if ((player_visibility == 2) && (aip->behavior != AIB_FOLLOW_PATH) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
+			if ((player_visibility == 2) && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
 			{
 				if (robptr->attack_type == 0)
 					ailp->mode = AIM_CHASE_OBJECT;
 			}
 			else if ((player_visibility == 0)
-				&& (aip->behavior == AIB_NORMAL)
+				&& (aip->behavior == ai_behavior::AIB_NORMAL)
 				&& (ailp->mode == AIM_FOLLOW_PATH)
-				&& (aip->behavior != AIB_RUN_FROM))
+				&& (aip->behavior != ai_behavior::AIB_RUN_FROM))
 			{
 				ailp->mode = AIM_STILL;
 				aip->hide_index = -1;
 				aip->path_length = 0;
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (aip->behavior != AIB_RUN_FROM)
+			if (aip->behavior != ai_behavior::AIB_RUN_FROM)
 				do_firing_stuff(obj, player_visibility, vec_to_player);
 
-			if ((player_visibility == 2) && (aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_FOLLOW) && (aip->behavior != AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
+			if ((player_visibility == 2) && (aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_FOLLOW) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 			{
 				if (robptr->attack_type == 0)
 					ailp->mode = AIM_CHASE_OBJECT;
@@ -3683,7 +3683,7 @@ _exit_cheat:
 			else if ((dist_to_player > F1_0*(20*(2*Difficulty_level + robptr->pursuit)))
 				&& (GameTime64 - ailp->time_player_seen > (F1_0/2*(Difficulty_level+robptr->pursuit)))
 				&& (player_visibility == 0)
-				&& (aip->behavior == AIB_NORMAL)
+				&& (aip->behavior == ai_behavior::AIB_NORMAL)
 				&& (ailp->mode == AIM_FOLLOW_PATH))
 			{
 				ailp->mode = AIM_STILL;
@@ -3779,7 +3779,7 @@ _exit_cheat:
 #endif
 				{
 					if (robptr->attack_type == 1) {
-						aip->behavior = AIB_NORMAL;
+						aip->behavior = ai_behavior::AIB_NORMAL;
 						if (!ai_multiplayer_awareness(obj, 80)) {
 							if (maybe_ai_do_actual_firing_stuff(obj, aip))
 								ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -3812,7 +3812,7 @@ _exit_cheat:
 					// seen (obstructed) and in chase mode, switch to
 					// follow path mode.
 					// This has one desirable benefit of avoiding physics retries.
-					if (aip->behavior == AIB_STATION) {
+					if (aip->behavior == ai_behavior::AIB_STATION) {
 						ailp->goal_segment = aip->hide_segment;
 						create_path_to_station(obj, 15);
 					}
@@ -3876,7 +3876,7 @@ _exit_cheat:
 		if (ailp->player_awareness_type == player_awareness_type_t::PA_NONE)
 			ailp->player_awareness_type = player_awareness_type_t::PA_PLAYER_COLLISION;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if ((player_visibility == 2) && (aip->behavior != AIB_FOLLOW) && (!robot_is_thief(robptr))) {
+	if ((player_visibility == 2) && (aip->behavior != ai_behavior::AIB_FOLLOW) && (!robot_is_thief(robptr))) {
 		if ((ailp->player_awareness_type == player_awareness_type_t::PA_NONE) && (aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE))
 			aip->SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 		else if (ailp->player_awareness_type == player_awareness_type_t::PA_NONE)

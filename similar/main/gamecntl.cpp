@@ -1137,7 +1137,7 @@ static void kill_all_snipers(void)
 	//	Kill all snipers.
 	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Objects[i].ctype.ai_info.behavior == AIB_SNIPE) {
+			if (Objects[i].ctype.ai_info.behavior == ai_behavior::AIB_SNIPE) {
 				dead_count++;
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
