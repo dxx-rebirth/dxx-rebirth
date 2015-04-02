@@ -196,24 +196,21 @@ int intro_played = 0;
 void show_titles(void)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	char    publisher[PATH_MAX];
-
 	songs_play_song( SONG_TITLE, 1 );
 
 	if (GameArg.SysNoTitles)
 		return;
 
-	strcpy(publisher, "macplay.pcx");	// Mac Shareware
+	const char *publisher =  "macplay.pcx";	// Mac Shareware
 	if (!PHYSFSX_exists(publisher,1))
-		strcpy(publisher, "mplaycd.pcx");	// Mac Registered
+		publisher = "mplaycd.pcx";	// Mac Registered
 	if (!PHYSFSX_exists(publisher,1))
-		strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
+		publisher = "iplogo1.pcx";	// PC. Only down here because it's lowres ;-)
 
 	show_title_screen( publisher, 1, 1 );
 	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
 	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx",1))?"descenth.pcx":"descent.pcx"), 1, 1 );
 #elif defined(DXX_BUILD_DESCENT_II)
-	char filename[PATH_MAX];
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
 
@@ -225,6 +222,7 @@ void show_titles(void)
 		played = PlayMovie(NULL, "pre_i.mve",0);
 
 		if (!played) {
+			char filename[12];
 			strcpy(filename,HIRESMODE?"pre_i1b.pcx":"pre_i1.pcx");
 
 			while (PHYSFSX_exists(filename,0))
@@ -251,19 +249,20 @@ void show_titles(void)
 			song_playing = 1;
 			con_printf( CON_DEBUG, "\nShowing logo screens..." );
 
-			strcpy(filename, HIRESMODE?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
+			const char *filename;
+			filename = HIRESMODE?"iplogo1b.pcx":"iplogo1.pcx"; // OEM
 			if (! PHYSFSX_exists(filename,1))
-				strcpy(filename, "iplogo1.pcx"); // SHAREWARE
+				filename = "iplogo1.pcx"; // SHAREWARE
 			if (! PHYSFSX_exists(filename,1))
-				strcpy(filename, "mplogo.pcx"); // MAC SHAREWARE
+				filename = "mplogo.pcx"; // MAC SHAREWARE
 			if (PHYSFSX_exists(filename,1))
 				show_title_screen(filename, 1, 1);
 
-			strcpy(filename, HIRESMODE?"logob.pcx":"logo.pcx"); // OEM
+			filename = HIRESMODE?"logob.pcx":"logo.pcx"; // OEM
 			if (! PHYSFSX_exists(filename,1))
-				strcpy(filename, "logo.pcx"); // SHAREWARE
+				filename = "logo.pcx"; // SHAREWARE
 			if (! PHYSFSX_exists(filename,1))
-				strcpy(filename, "plogo.pcx"); // MAC SHAREWARE
+				filename = "plogo.pcx"; // MAC SHAREWARE
 			if (PHYSFSX_exists(filename,1))
 				show_title_screen(filename, 1, 1);
 		}
@@ -281,8 +280,8 @@ void show_titles(void)
 
 		if (!played)
 		{
+			char filename[12];
 			strcpy(filename,HIRESMODE?"oem1b.pcx":"oem1.pcx");
-
 			while (PHYSFSX_exists(filename,0))
 			{
 				show_title_screen( filename, 1, 0 );
@@ -297,7 +296,7 @@ void show_titles(void)
 		songs_play_song( SONG_TITLE, 1);
 	}
 	con_printf( CON_DEBUG, "\nShowing logo screen..." );
-	strcpy(filename, HIRESMODE?"descentb.pcx":"descent.pcx");
+	const char *filename = HIRESMODE?"descentb.pcx":"descent.pcx";
 	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);
 #endif
@@ -306,30 +305,25 @@ void show_titles(void)
 void show_order_form()
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	char    exit_screen[PATH_MAX];
-
 	if (GameArg.SysNoTitles)
 		return;
 
-	strcpy(exit_screen, "warning.pcx");	// D1 Registered
+	const char *exit_screen = "warning.pcx";	// D1 Registered
 	if (! PHYSFSX_exists(exit_screen,1))
-		strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
+		exit_screen = "apple.pcx";	// D1 Mac OEM Demo
 	if (! PHYSFSX_exists(exit_screen,1))
-		strcpy(exit_screen, "order01.pcx"); // D1 Demo
+		exit_screen = "order01.pcx"; // D1 Demo
 	show_title_screen(exit_screen, 1, 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifndef EDITOR
-	char    exit_screen[PATH_MAX];
-
 	key_flush();
-
-	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
+	const char *exit_screen = HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"; // OEM
 	if (! PHYSFSX_exists(exit_screen,1))
-		strcpy(exit_screen, HIRESMODE?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
+		exit_screen = HIRESMODE?"orderd2b.pcx":"orderd2.pcx"; // SHAREWARE, prefer mac if hires
 	if (! PHYSFSX_exists(exit_screen,1))
-		strcpy(exit_screen, HIRESMODE?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
+		exit_screen = HIRESMODE?"orderd2.pcx":"orderd2b.pcx"; // SHAREWARE, have to rescale
 	if (! PHYSFSX_exists(exit_screen,1))
-		strcpy(exit_screen, HIRESMODE?"warningb.pcx":"warning.pcx"); // D1
+		exit_screen = HIRESMODE?"warningb.pcx":"warning.pcx"; // D1
 	if (! PHYSFSX_exists(exit_screen,1))
 		return; // D2 registered
 
