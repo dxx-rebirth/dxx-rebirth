@@ -104,9 +104,8 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist)
 
 #ifndef OGL
 //deal with face that must be clipped
-static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
+static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
-        bool ret=0;
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 
@@ -119,7 +118,6 @@ static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 				g3_project_point(*p);
 	
 			if (p->p3_flags&PF_OVERFLOW) {
-				ret = 1;
 				goto free_points;
 			}
 
@@ -128,16 +126,9 @@ static bool must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 		}
 		(*flat_drawer_ptr)(nv,Vertex_list);
 	}
-	else 
-		ret=1;
-
 	//free temp points
 free_points:
 	;
-
-//	Assert(free_point_num==0);
-
-	return ret;
 }
 
 //draw a flat-shaded face.
