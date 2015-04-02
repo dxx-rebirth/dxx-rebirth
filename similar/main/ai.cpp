@@ -1571,10 +1571,10 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 		if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || type == player_awareness_type_t::PA_PLAYER_COLLISION)
 			switch (objp->ctype.ai_info.behavior) {
 #if defined(DXX_BUILD_DESCENT_I)
-				case AIM_HIDE:
+				case AIB_HIDE:
 					objp->ctype.ai_info.SUBMODE = AISM_GOHIDE;
 					break;
-				case AIM_STILL:
+				case AIB_STILL:
 					objp->ctype.ai_info.ail.mode = AIM_CHASE_OBJECT;
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
