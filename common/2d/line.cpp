@@ -51,7 +51,9 @@ static void plot(int x,int y,int flag)
 
 static int gr_hline(int x1, int x2, int y)
 {
-	if (x1 > x2) EXCHG(x1,x2);
+	using std::swap;
+	if (x1 > x2)
+		swap(x1,x2);
 	for (int i=x1; i<=x2; i++ )
 		gr_upixel( i, y );
 	return 0;
@@ -59,7 +61,8 @@ static int gr_hline(int x1, int x2, int y)
 
 static int gr_vline(int y1, int y2, int x)
 {
-	if (y1 > y2) EXCHG(y1,y2);
+	using std::swap;
+	if (y1 > y2) swap(y1,y2);
 	for (int i=y1; i<=y2; i++ )
 		gr_upixel( x, i );
 	return 0;
@@ -100,9 +103,10 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		step = -1;
 
 	if (dy > dx) {          /* chooses axis of greatest movement (make * dx) */
-		EXCHG(a1, b1);
-		EXCHG(a2, b2);
-		EXCHG(dx, dy);
+		using std::swap;
+		swap(a1, b1);
+		swap(a2, b2);
+		swap(dx, dy);
 		reverse = 1;
 	} else
 		reverse = 0;
