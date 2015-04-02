@@ -263,7 +263,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 
 
 //unclipped version just calls clipping version for now
-int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
+void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
@@ -272,13 +272,13 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 #ifdef OGL
 	case BM_OGL:
 		ogl_ulinec(a1,b1,a2,b2,COLOR);
-		return 0;
+		return;
 #endif
 	case BM_LINEAR:
 		gr_universal_uline( a1,b1,a2,b2);
-		return 0;
+		return;
 	}
-	return 2;
+	return;
 }
 
 // Returns 0 if drawn with no clipping, 1 if drawn but clipped, and
