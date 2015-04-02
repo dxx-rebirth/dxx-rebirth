@@ -176,15 +176,14 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	player_awareness_type_t      player_awareness_type;           // type of awareness of player
 	uint8_t retry_count;                     // number of retries in physics last time this object got moved.
 	uint8_t consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	uint8_t previous_visibility;             // Visibility of player last time we checked.
 	uint8_t rapidfire_count;                 // number of shots fired rapidly
 #if defined(DXX_BUILD_DESCENT_I)
 	sbyte      mode;                            // current mode within behavior
-	sbyte      previous_visibility;             // Visibility of player last time we checked.
 	segnum_t      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
 #elif defined(DXX_BUILD_DESCENT_II)
 	int        mode;                          // current mode within behavior
-	int        previous_visibility;           // Visibility of player last time we checked.
 	segnum_t        goal_segment;                  // goal segment for current path
 #endif
 	fix        next_action_time;              // time in seconds until something happens, mode dependent
