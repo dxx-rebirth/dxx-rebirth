@@ -1448,7 +1448,7 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
-	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;
+	int speed_factor = cheats.turbo?2:1;
 	static fix64 mouse_delta_time = 0;
 
 #ifndef NDEBUG
@@ -1474,7 +1474,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
-				for (i = 0, j = 0; i < 28; i += 3, j++)
+				for (uint_fast32_t i = 0, j = 0; i < 28; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_key_get_raw(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1493,7 +1493,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
-				for (i = 1, j = 0; i < 29; i += 3, j++)
+				for (uint_fast32_t i = 1, j = 0; i < 29; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_joystick_get_button(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1512,7 +1512,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
-				for (i = 2, j = 0; i < 30; i += 3, j++)
+				for (uint_fast32_t i = 2, j = 0; i < 30; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_mouse_get_button(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1558,7 +1558,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			{
 				int ax[3];
 				event_mouse_get_delta( event, &ax[0], &ax[1], &ax[2] );
-				for (i = 0; i <= 2; i++)
+				for (uint_fast32_t i = 0; i <= 2; i++)
 				{
 					int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
 					Controls.raw_mouse_axis[i] += ax[i];
