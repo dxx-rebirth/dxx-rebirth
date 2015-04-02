@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "object.h"
 #include "physics.h"
+#include "robot.h"
 #include "key.h"
 #include "game.h"
 #include "collide.h"

@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "polyobj.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -236,6 +237,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
  */
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
+void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 
 #endif
 

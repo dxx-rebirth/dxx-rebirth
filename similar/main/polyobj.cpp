@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "inferno.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "vecmat.h"
 #include "interp.h"
 #include "dxxerror.h"

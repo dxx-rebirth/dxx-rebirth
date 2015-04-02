@@ -48,7 +48,7 @@ static int ObjectPage = 0;
 
 #include "vecmat.h"
 #include "3d.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "texmap.h"
 
 #include "hostage.h"

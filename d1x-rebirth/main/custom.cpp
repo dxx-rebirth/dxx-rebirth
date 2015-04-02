@@ -14,7 +14,7 @@
 #include "pstypes.h"
 #include "piggy.h"
 #include "textures.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "weapon.h"
 #include "digi.h"
 #include "hash.h"

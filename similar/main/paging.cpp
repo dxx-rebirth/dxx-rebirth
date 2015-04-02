@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "paging.h"
 #include "laser.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "vclip.h"
 #include "effects.h"
 #include "fireball.h"

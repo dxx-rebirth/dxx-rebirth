@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "sounds.h"
 #include "player.h"
 #include "gauges.h"

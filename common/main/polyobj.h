@@ -28,15 +28,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "3d.h"
 
-#include "robot.h"
-
 struct bitmap_index;
 
 #ifdef __cplusplus
 #include <cstddef>
+#include <memory>
+#include <physfs.h>
 #include "pack.h"
 
 struct glow_values_t;
+struct robot_info;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -142,13 +143,12 @@ extern array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
-extern void polymodel_read(polymodel *pm, PHYSFS_file *fp);
-void polymodel_write(PHYSFS_file *fp, const polymodel &pm);
+extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
+void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
-void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
+void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp);
 
 #endif

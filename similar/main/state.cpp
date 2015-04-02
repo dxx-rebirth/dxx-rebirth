@@ -51,6 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "render.h"
 #include "gameseq.h"
+#include "robot.h"
 #include "gauges.h"
 #include "newdemo.h"
 #include "automap.h"

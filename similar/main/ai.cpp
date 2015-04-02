@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "physfsx.h"
 #include "physfs-serial.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "bm.h"
 #include "weapon.h"
 #include "physics.h"

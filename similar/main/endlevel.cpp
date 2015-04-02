@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "gauges.h"
 #include "terrain.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "physfsx.h"
 #include "bm.h"
 #include "gameseg.h"

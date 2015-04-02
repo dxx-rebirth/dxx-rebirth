@@ -52,7 +52,7 @@
 #include "powerup.h"
 #include "laser.h"
 #include "player.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "gamefont.h"
 #include "byteutil.h"
 #include "internal.h"

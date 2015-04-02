@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 #include	"object.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "game.h"
 #include "powerup.h"
 #include "ai.h"

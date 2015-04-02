@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "fireball.h"
 #include "laser.h"
 #include "dxxerror.h"

@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "gameseq.h"
 #include "dxxerror.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "textures.h"
 #include "screens.h"
 #include "multi.h"

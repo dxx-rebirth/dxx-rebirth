@@ -63,6 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"
+#include "robot.h"
 #include "lighting.h"
 #include "newdemo.h"
 #include "weapon.h"
