@@ -112,7 +112,7 @@ void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
 extern void init_ai_objects(void);
-void do_ai_robot_hit(vobjptridx_t robot, int type);
+void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void make_random_vector(vms_vector &vec);

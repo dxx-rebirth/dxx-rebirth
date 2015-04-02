@@ -1581,7 +1581,7 @@ void FireLaser()
 					const auto cobjp = vobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(ConsoleObject, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);

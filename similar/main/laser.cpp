@@ -1220,7 +1220,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	vms_vector	*pnt;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	create_awareness_event(obj, PA_WEAPON_WALL_COLLISION);
+	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);
 #endif
 
 	// Find the initial position of the laser

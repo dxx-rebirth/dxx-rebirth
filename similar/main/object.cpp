@@ -2111,9 +2111,9 @@ void wake_up_rendered_objects(const vobjptridx_t viewer, window_rendered_data &w
 			if (objp->type == OBJ_ROBOT) {
 				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
-					if (ailp->player_awareness_type == 0) {
+					if (ailp->player_awareness_type == player_awareness_type_t::PA_NONE) {
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;
-						ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
+						ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 						ailp->player_awareness_time = F1_0*3;
 						ailp->previous_visibility = 2;
 					}

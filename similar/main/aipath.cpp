@@ -680,7 +680,7 @@ void create_path_to_player(const vobjptridx_t objp, int max_length, int safety_f
 		aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
 #endif
 		ailp->mode = AIM_FOLLOW_PATH;
-		ailp->player_awareness_type = 0;		//	If robot too aware of player, will set mode to chase
+		ailp->player_awareness_type = player_awareness_type_t::PA_NONE;		//	If robot too aware of player, will set mode to chase
 	}
 
 	maybe_ai_path_garbage_collect();
@@ -719,7 +719,7 @@ void create_path_to_segment(const vobjptridx_t objp, segnum_t goalseg, int max_l
 
 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
 		// -- UNUSED! aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
-		ailp->player_awareness_type = 0;		//	If robot too aware of player, will set mode to chase
+		ailp->player_awareness_type = player_awareness_type_t::PA_NONE;		//	If robot too aware of player, will set mode to chase
 	}
 
 	maybe_ai_path_garbage_collect();
@@ -772,7 +772,7 @@ void create_path_to_station(const vobjptridx_t objp, int max_length)
 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
 		// aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
 		ailp->mode = AIM_FOLLOW_PATH;
-		ailp->player_awareness_type = 0;
+		ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 	}
 
 
@@ -1006,7 +1006,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == AIM_RUN_FROM_OBJECT) {
-		if ((player_visibility == 0) && (ailp->player_awareness_type == 0)) {
+		if ((player_visibility == 0) && (ailp->player_awareness_type == player_awareness_type_t::PA_NONE)) {
 			fix	vel_scale;
 
 			vel_scale = F1_0 - FrameTime/2;
@@ -1042,7 +1042,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 				}
 			}
 			if (player_visibility) {
-				ailp->player_awareness_type = 1;
+				ailp->player_awareness_type = player_awareness_type_t::PA_NEARBY_ROBOT_FIRED;
 				ailp->player_awareness_time = F1_0;
 			}
 		}

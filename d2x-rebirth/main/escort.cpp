@@ -1186,8 +1186,8 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 	switch (ailp->mode) {
 		case AIM_THIEF_WAIT:
-			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
-				ailp->player_awareness_type = 0;
+			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
+				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
@@ -1216,12 +1216,12 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 			if (ailp->next_action_time < 0) {
 				ailp->mode = AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
-			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
+			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
-				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
+				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
-						ailp->player_awareness_type = 0;
+						ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 						create_n_segment_path(objp, 10, ConsoleObject->segnum);
 
 						//	If path is real short, try again, allowing to go through player's segment
@@ -1247,8 +1247,8 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 		//	Note: When thief successfully steals something, his action time is forced negative and his mode is changed
 		//			to retreat to get him out of attack mode.
 		case AIM_THIEF_ATTACK:
-			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
-				ailp->player_awareness_type = 0;
+			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
+				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				if (d_rand() > 8192) {
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
 					ai_local		*ailp = &objp->ctype.ai_info.ail;

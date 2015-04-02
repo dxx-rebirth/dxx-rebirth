@@ -899,7 +899,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 
 				obj->ctype.ai_info.behavior = AIB_NORMAL;
 				ai_local		*ailp = &obj->ctype.ai_info.ail;
-				ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
+				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 				ailp->player_awareness_time = F1_0*3;
 				obj->ctype.ai_info.CURRENT_STATE = AIS_LOCK;
 				obj->ctype.ai_info.GOAL_STATE = AIS_LOCK;
