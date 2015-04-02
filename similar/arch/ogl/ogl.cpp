@@ -731,7 +731,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-int g3_draw_sphere(g3s_point &pnt,fix rad)
+void g3_draw_sphere(g3s_point &pnt,fix rad)
 {
 	int c=grd_curcanv->cv_color, i;
 	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
@@ -765,7 +765,6 @@ int g3_draw_sphere(g3s_point &pnt,fix rad)
 	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va.get());
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
-	return 0;
 }
 
 int gr_ucircle(fix xc1, fix yc1, fix r1)

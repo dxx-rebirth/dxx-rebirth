@@ -269,7 +269,7 @@ free_points:
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-int g3_draw_sphere(g3s_point &pnt,fix rad)
+void g3_draw_sphere(g3s_point &pnt,fix rad)
 {
 	if (! (pnt.p3_codes & CC_BEHIND)) {
 
@@ -282,16 +282,18 @@ int g3_draw_sphere(g3s_point &pnt,fix rad)
 			r2 = fixmul(rad,Matrix_scale.x);
 #ifndef __powerc
 			if (checkmuldiv(&t,r2,Canv_w2,pnt.p3_z))
-				return gr_disk(pnt.p3_sx,pnt.p3_sy,t);
+			{
+				gr_disk(pnt.p3_sx,pnt.p3_sy,t);
+				return;
+			}
 #else
 			if (pnt.p3_z == 0)
-				return 0;
-			return gr_disk(pnt.p3_sx, pnt.p3_sy, fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_z))));
+				return;
+			gr_disk(pnt.p3_sx, pnt.p3_sy, fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_z))));
+			return;
 #endif
 		}
 	}
-
-	return 0;
 }
 #endif
 
