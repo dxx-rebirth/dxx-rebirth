@@ -109,41 +109,22 @@ void autosave_mine(const char *name) {
 
 }
 
+tm Editor_time_of_day;
 
-static void print_clock( int seconds, char message[10] ) {
+static void print_clock()
+{
 	int w,h,aw;
-	char	*p;
-
-	//	Make colon flash
-	if (seconds & 1)
-		if ((p = strchr(message, ':')) != NULL)
-			*p = ' ';
-
 	gr_set_current_canvas( NULL );
 	gr_set_fontcolor( CBLACK, CGREY );
-	gr_get_string_size( message, &w, &h, &aw );
+	array<char, 20> message;
+	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
+		message[0] = 0;
+	gr_get_string_size(message.data(), &w, &h, &aw);
 	gr_setcolor( CGREY );
 	gr_rect( 700, 0, 799, h+1 );
-	gr_string( 700, 0, message );
+	gr_string(700, 0, message.data());
 	gr_set_fontcolor( CBLACK, CWHITE );
 }
-
-static char the_time[14];	// changed from 10, I don't think that was long enough
-
-static void clock_message( int seconds, const char *format, ... ) __attribute_format_printf(2, 3);
-static void clock_message( int seconds, const char *format, ... )
-{
-	va_list ap;
-
-	va_start(ap, format);
-  	vsnprintf(the_time, sizeof(the_time), format, ap);
-	va_end(ap);
-
-  	print_clock(seconds, the_time);
-}
-
-
-struct tm Editor_time_of_day;
 
 void set_editor_time_of_day()
 {
@@ -155,24 +136,13 @@ void set_editor_time_of_day()
 
 void TimedAutosave(const char *name) 
 {
-	int 		 month,day,hour,minute,second;
-
-	month = (Editor_time_of_day.tm_mon) + 1;
-	day =	Editor_time_of_day.tm_mday;
-	minute = Editor_time_of_day.tm_min;
-	hour = Editor_time_of_day.tm_hour;
-	second = Editor_time_of_day.tm_sec;
-
-	if (hour > 12) hour-=12;
-
-	//if (second!=save_second)
 	{
-		save_second = second;
-		clock_message(second, "%d/%d %d:%02d", month, day, hour, minute);
+		print_clock();
 	}
 	
 
 #ifndef DEMO
+	const auto &minute = Editor_time_of_day.tm_min;
 	if (minute%AUTOSAVE_PERIOD != 0)
 		Timer_save_flag = 1;
 
