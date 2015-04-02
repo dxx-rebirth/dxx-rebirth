@@ -992,7 +992,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
+void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 {
 	int i;
 	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
@@ -1055,8 +1055,6 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	return 0;
 }
 
 /*
