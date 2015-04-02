@@ -63,6 +63,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
+#include "compiler-exchange.h"
+
 using std::min;
 
 //bitmap numbers for gauges
@@ -1634,16 +1636,14 @@ static void sb_show_lives()
 		char killed_str[20];
 		int w, h, aw;
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
-		int x;
 
 		sprintf(killed_str, "%5d", Players[Player_num].net_killed_total);
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0,0,0));
-		gr_rect(last_x[HIRESMODE], HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
+		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
+		gr_rect(exchange(last_x[HIRESMODE], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1);
-		x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
 		gr_string(x, HUD_SCALE_Y(y), killed_str);
-		last_x[HIRESMODE] = x;
 		return;
 	}
 
