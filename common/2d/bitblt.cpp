@@ -399,7 +399,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4+(i*data_offset)];
 	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = 0; i != h; ++i)
@@ -422,7 +422,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4+(i*data_offset)];
 	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = 0; i != h; ++i)
@@ -446,7 +446,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		data_offset = 2;
 	auto sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4 + (i * data_offset)];
 
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{

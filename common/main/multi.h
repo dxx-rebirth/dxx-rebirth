@@ -87,7 +87,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION 17
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(18)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -499,7 +499,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned Allowed
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
 void multi_send_door_open_specific(playernum_t pnum,segnum_t segnum, int side,ubyte flag);
-void multi_send_wall_status_specific (playernum_t pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
+void multi_send_wall_status_specific(playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state);
 void multi_send_light_specific (playernum_t pnum,segnum_t segnum,ubyte val);
 void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive();

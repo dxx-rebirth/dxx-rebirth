@@ -627,7 +627,7 @@ static ushort netmisc_calc_checksum()
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
-		range_for (uint16_t j, Segments[i].verts)
+		range_for (const uint16_t j, Segments[i].verts)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
@@ -641,8 +641,6 @@ static ushort netmisc_calc_checksum()
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
 		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-		s = INTEL_SHORT(0); // no matter if we need alignment on our platform, if we have editor we MUST consider this integer to get the same checksum as non-editor games calculate
-		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 #endif
 	}
 	sum2 %= 255;

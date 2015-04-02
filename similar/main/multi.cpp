@@ -3525,7 +3525,7 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 	count++;
 	multibuf[count++]=(char)get_powerup_id(objp);
 	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
-	PUT_INTEL_SHORT(multibuf+count, ammo_count); count += 2;
+	PUT_INTEL_SHORT(multibuf+count, static_cast<uint16_t>(ammo_count)); count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);
 	count += 4;
 
@@ -3655,7 +3655,7 @@ static void multi_do_stolen_items (const ubyte *buf)
 	}
 }
 
-void multi_send_wall_status_specific (const playernum_t pnum,int wallnum,ubyte type,ubyte flags,ubyte state)
+void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state)
 {
 	// Send wall states a specific rejoining player
 
