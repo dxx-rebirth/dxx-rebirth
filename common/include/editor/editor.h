@@ -471,7 +471,7 @@ extern void set_editor_time_of_day();
 // Undo function
 extern int undo(void);
 extern char mine_filename[PATH_MAX];
-extern char undo_status[10][100];
+extern array<const char *, 10> undo_status;
 
 //	group.c
 int RotateSegmentNew(vms_angvec *pbh);

@@ -51,7 +51,7 @@ int		Timer_save_flag=0;
 int		Autosave_flag;
 int		save_second=-1;
 
-char		undo_status[10][100];
+array<const char *, 10> undo_status;
 
 void init_autosave(void) {
 //    int i;
@@ -60,9 +60,6 @@ void init_autosave(void) {
     Autosave_numfiles = 0;
 	 Autosave_flag = 0;
     undo_count = 0;
-    //MALLOC( undo_status, char *, 10 );
-    //for (i=0; i<10; i++)
-    //    MALLOC( undo_status[i], char, 100 );
     autosave_mine(mine_filename);
 }
 
@@ -82,9 +79,6 @@ void close_autosave(void) {
 
         remove( delname );
     }
-    //for (i = 0; i < 10; i++) d_free( undo_status[i] );
-    //d_free( undo_status );
-
 }
 
 void autosave_mine(const char *name) {

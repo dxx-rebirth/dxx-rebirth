@@ -50,7 +50,7 @@ int GenerateCurve()
       curve = generate_curve(r1scale, r4scale);
 		mine_changed = 1;
         if (curve == 1) {
-            strcpy(undo_status[Autosave_count], "Curve Generation UNDONE.\n");
+			undo_status[Autosave_count] = "Curve Generation UNDONE.";
         }
         if (curve == 0) diagnostic_message("Cannot generate curve -- check Current segment.");
     }

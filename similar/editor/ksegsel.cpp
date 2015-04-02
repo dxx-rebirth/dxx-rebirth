@@ -146,7 +146,7 @@ int SelectPrevSide()
 int CopySegToMarked()
 {
    autosave_mine(mine_filename);
-   strcpy(undo_status[Autosave_count], "Mark Segment UNDONE.");
+	undo_status[Autosave_count] = "Mark Segment UNDONE.";
 	Markedsegp = Cursegp;
 	Markedside = Curside;
 	Update_flags |= UF_ED_STATE_CHANGED;

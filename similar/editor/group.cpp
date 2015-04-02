@@ -1764,7 +1764,7 @@ int DeleteGroup( void )
 	if (num_groups==0)
 		current_group = -1;
 
-	strcpy(undo_status[Autosave_count], "Delete Group UNDONE.");
+	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)
        set_view_target_from_segment(Cursegp);
 
@@ -1787,7 +1787,7 @@ int MarkGroupSegment( void )
 		Groupside[current_group] = Curside;
 		editor_status("Group Segment Marked.");
 		Update_flags |= UF_ED_STATE_CHANGED;
-	   strcpy(undo_status[Autosave_count], "Mark Group Segment UNDONE.");
+		undo_status[Autosave_count] = "Mark Group Segment UNDONE.";
 		mine_changed = 1;
 		return 1;
 		}
