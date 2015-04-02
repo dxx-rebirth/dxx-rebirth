@@ -565,9 +565,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 {
 	int size=270+(size_offs*20), i;
 	float scale = ((float)SWIDTH/SHEIGHT);
-	GLfloat cross_lva[8 * 2] = {
-		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
-	};
 	GLfloat dark_lca[16 * 4] = {
 		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
 		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
@@ -643,7 +640,10 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	}
 	else
 		glColorPointer(4, GL_FLOAT, 0, dark_lca);
-	glVertexPointer(2, GL_FLOAT, 0, cross_lva);
+	static const array<GLfloat, 8 * 2> cross_lva{{
+		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, cross_lva.data());
 	glDrawArrays(GL_LINES, 0, 8);
 	
 	array<GLfloat, 4 * 4> primary_lca0;
