@@ -142,7 +142,7 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
+void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 {
 	g3s_codes cc;
 
@@ -158,10 +158,13 @@ bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 	}
 
 	if (cc.uand)
-		return 1;	//all points off screen
+		return;	//all points off screen
 
 	if (cc.uor)
-		return must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+	{
+		must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+		return;
+	}
 
 	//now make list of 2d coords (& check for overflow)
 	array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
@@ -172,13 +175,16 @@ bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 			g3_project_point(*p);
 
 		if (p->p3_flags&PF_OVERFLOW)
-			return must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+		{
+			must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+			return;
+		}
 
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
 	(*flat_drawer_ptr)(nv,Vertex_list);
-	return 0;	//say it drew
+	//say it drew
 }
 
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);

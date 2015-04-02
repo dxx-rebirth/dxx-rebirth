@@ -187,17 +187,17 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
+void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
 template <std::size_t N>
-static inline bool g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
 {
-	return _g3_draw_poly(nv, &pointlist[0]);
+	_g3_draw_poly(nv, &pointlist[0]);
 }
 
 template <std::size_t N>
-static inline bool g3_draw_poly(const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(const array<cg3s_point *, N> &pointlist)
 {
-	return g3_draw_poly(N, pointlist);
+	g3_draw_poly(N, pointlist);
 }
 
 static const std::size_t MAX_POINTS_PER_POLY = 25;

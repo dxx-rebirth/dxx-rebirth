@@ -813,7 +813,7 @@ int gr_disk(fix x,fix y,fix r)
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
+void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
@@ -853,7 +853,6 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-	return 0;
 }
 
 /*
