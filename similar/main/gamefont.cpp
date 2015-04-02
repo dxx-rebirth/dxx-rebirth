@@ -54,7 +54,7 @@ static const char Gamefont_filenames_h[][16] = {
 
 array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
-int Gamefont_installed=0;
+static int Gamefont_installed;
 float FNTScaleX = 1, FNTScaleY = 1;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
@@ -65,7 +65,6 @@ struct a_gamefont_conf
 	int y;
 	union{
 		char name[64];//hrm.
-		grs_font *ptr;
 	} f;
 };
 

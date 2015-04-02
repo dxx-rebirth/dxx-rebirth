@@ -60,8 +60,7 @@ static inline void hostage_init_info(const objnum_t &) {}
 #endif
 #endif
 
-extern int N_hostage_types;
-
+extern unsigned N_hostage_types;
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
 void draw_hostage(vobjptridx_t obj);

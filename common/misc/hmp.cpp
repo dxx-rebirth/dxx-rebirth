@@ -24,6 +24,8 @@
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
+#include "compiler-range_for.h"
+#include "partial_range.h"
 
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
@@ -34,9 +36,9 @@
 #endif
 
 #ifdef _WIN32
-int midi_volume;
-int channel_volume[16];
-void hmp_stop(hmp_file *hmp);
+static int midi_volume;
+static int channel_volume[16];
+static void hmp_stop(hmp_file *hmp);
 #endif
 
 // READ/OPEN/CLOSE HMP
@@ -181,12 +183,14 @@ static int get_event(hmp_file *hmp, event *ev) {
 	static const int cmdlen[7]={3,3,3,3,2,2,3};
 	unsigned long got;
 	unsigned long mindelta, delta;
-	int i, ev_num;
+	int ev_num;
 	hmp_track *trk, *fndtrk;
 
 	mindelta = INT_MAX;
 	fndtrk = NULL;
-	for (trk = hmp->trks, i = hmp->num_trks; (i--) > 0; trk++) {
+	range_for (auto &rtrk, partial_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
+	{
+		const auto trk = &rtrk;
 		if (!trk->left || (hmp->loop_start && hmp->looping && !trk->loop_set))
 			continue;
 		if (!(got = get_var_num_hmi(trk->cur, trk->left, &delta)))

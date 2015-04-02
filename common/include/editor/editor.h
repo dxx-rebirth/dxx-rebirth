@@ -404,10 +404,6 @@ extern segnum_t get_free_segment_number(void);
 #define diagnostic_message editor_status
 #define diagnostic_message_fmt editor_status_fmt
 
-//      Status Icon.
-extern void print_status_icon( char icon[1], int position );
-extern void clear_status_icon( char icon[1], int position );
-
 //      Editor status message.
 extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
 #define editor_status_fmt(F,...)	dxx_call_printf_checked(editor_status_fmt,editor_status,(),(F),##__VA_ARGS__)

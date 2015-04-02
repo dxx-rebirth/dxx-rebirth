@@ -74,14 +74,15 @@ extern sbyte Boss_hit_this_frame;
 
 #define NUM_D2_BOSSES 8
 
-extern const ubyte Boss_teleports[NUM_D2_BOSSES];     // Set byte if this boss can teleport
-extern const ubyte Boss_spew_more[NUM_D2_BOSSES];     // Set byte if this boss can teleport
+typedef ubyte boss_flags_t[NUM_D2_BOSSES];
+extern const boss_flags_t Boss_teleports;     // Set byte if this boss can teleport
+extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 //extern ubyte Boss_cloaks[NUM_D2_BOSSES];        // Set byte if this boss can cloak
-extern const ubyte Boss_spews_bots_energy[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by energy weapon.
-extern const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by matter weapon.
-extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
-extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
-extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+extern const boss_flags_t Boss_spews_bots_energy;     // Set byte if boss spews bots when hit by energy weapon.
+extern const boss_flags_t Boss_spews_bots_matter;     // Set byte if boss spews bots when hit by matter weapon.
+extern const boss_flags_t Boss_invulnerable_energy;   // Set byte if boss is invulnerable to energy weapons.
+extern const boss_flags_t Boss_invulnerable_matter;   // Set byte if boss is invulnerable to matter weapons.
+extern const boss_flags_t Boss_invulnerable_spot;     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 extern segnum_t Believed_player_seg;
 extern objnum_t Ai_last_missile_camera;
 #endif

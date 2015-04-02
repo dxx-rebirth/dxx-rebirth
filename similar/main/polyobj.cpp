@@ -370,8 +370,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 					Assert(n_frames == N_ANIM_STATES);
 
 					for (int m=0;m<pm->n_models;m++)
-						for (int f=0;f<n_frames;f++)
-							pof_read_angs(&anim_angs[f][m], 1, model_buf);
+						range_for (auto &f, partial_range(anim_angs, n_frames))
+							pof_read_angs(&f[m], 1, model_buf);
 
 
 					robot_set_angles(r,pm,anim_angs);

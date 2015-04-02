@@ -68,6 +68,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
 
 #elif defined(DXX_BUILD_DESCENT_II)
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
@@ -87,7 +90,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 unsigned Num_aliases;
 array<alias, MAX_ALIASES> alias_list;
 
-int Must_write_hamfile = 0;
 int Piggy_hamfile_version = 0;
 #endif
 
@@ -99,8 +101,15 @@ struct SoundFile
 	char    name[15];
 };
 
+#if defined(DXX_BUILD_DESCENT_II)
+namespace {
+#endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
+int GameBitmapOffset[MAX_BITMAP_FILES];
+#if defined(DXX_BUILD_DESCENT_II)
+}
+#endif
 
 int Num_bitmap_files = 0;
 int Num_sound_files = 0;
@@ -109,8 +118,6 @@ digi_sound GameSounds[MAX_SOUND_FILES];
 int SoundOffset[MAX_SOUND_FILES];
 grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
-int Num_bitmap_files_new = 0;
-int Num_sound_files_new = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 static
@@ -120,13 +127,9 @@ static SoundFile AllSounds[ MAX_SOUND_FILES ];
 
 #define DBM_FLAG_ABM    64 // animated bitmap
 
-int Piggy_bitmap_cache_size = 0;
-int Piggy_bitmap_cache_next = 0;
+static int Piggy_bitmap_cache_size;
+static int Piggy_bitmap_cache_next;
 ubyte * Piggy_bitmap_cache_data = NULL;
-#if defined(DXX_BUILD_DESCENT_II)
-static
-#endif
-int GameBitmapOffset[MAX_BITMAP_FILES];
 #if defined(DXX_BUILD_DESCENT_II)
 static
 #endif
@@ -280,7 +283,6 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 #endif
 		if (GameArg.DbgNoCompressPigBitmap)
 			gr_bitmap_rle_compress(*bmp);
-		Num_bitmap_files_new++;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (SoundOffset[Num_sound_files] == 0)
@@ -333,10 +335,6 @@ int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 #endif
 
 	i = Num_sound_files;
-   
-	if (!in_file)
-		Num_sound_files_new++;
-
 	Num_sound_files++;
 	return i;
 }
@@ -974,7 +972,6 @@ int read_hamfile()
 	}
 
 	if (!ham_fp) {
-		Must_write_hamfile = 1;
 		return 0;
 	}
 

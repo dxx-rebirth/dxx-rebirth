@@ -1437,8 +1437,7 @@ void wall_frame_process()
 #endif
 }
 
-int	Num_stuck_objects=0;
-
+static unsigned Num_stuck_objects;
 stuckobj	Stuck_objects[MAX_STUCK_OBJECTS];
 
 //	An object got stuck in a door (like a flare).

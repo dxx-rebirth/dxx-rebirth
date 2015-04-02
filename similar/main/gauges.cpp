@@ -2380,7 +2380,7 @@ static void sb_draw_energy_bar(int energy)
 static void sb_draw_afterburner()
 {
 	int erase_height, w, h, aw, i;
-	char ab_str[3] = "AB";
+	auto &ab_str = "AB";
 
 	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
 	hud_bitblt(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);

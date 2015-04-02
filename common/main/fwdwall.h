@@ -170,8 +170,6 @@ extern unsigned Num_open_doors;              // Number of open doors
 
 extern unsigned Num_wall_anims;
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
-
-extern int walls_bm_num[MAX_WALL_ANIMS];
 #endif
 
 #ifdef EDITOR

@@ -547,8 +547,8 @@ static void load_hxm(const d_fname &hxmname)
 static void custom_remove()
 {
 	int i;
-	grs_bitmap *bmo = BitmapOriginal;
-	grs_bitmap *bmp = GameBitmaps;
+	auto bmo = begin(BitmapOriginal);
+	auto bmp = begin(GameBitmaps);
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->bm_flags & 0x80)

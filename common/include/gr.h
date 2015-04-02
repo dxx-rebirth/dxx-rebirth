@@ -452,7 +452,6 @@ extern palette_array_t gr_palette;
 typedef array<color_t, 256> gft_array0;
 typedef array<gft_array0, GR_FADE_LEVELS> gft_array1;
 extern gft_array1 gr_fade_table;
-extern ubyte gr_inverse_table[32*32*32];
 
 extern ushort gr_palette_selector;
 extern ushort gr_inverse_table_selector;

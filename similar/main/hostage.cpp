@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //------------- Globaly used hostage variables --------------------------------
 
-int N_hostage_types = 0;		  			// Number of hostage types
+unsigned N_hostage_types;		  			// Number of hostage types
 int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
 
 

@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_VECS 5000
 
-struct morph_data
+struct morph_data : prohibit_void_ptr<morph_data>
 {
 	object *obj;                                // object which is morphing
 	vms_vector morph_vecs[MAX_VECS];
