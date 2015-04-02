@@ -568,12 +568,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	GLfloat cross_lva[8 * 2] = {
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	};
-	GLfloat primary_lva[4][4 * 2] = {
-		{ -5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7 },
-		{ -10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5 },
-		{ 5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7 },
-		{ 10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5 }
-	};
 	GLfloat dark_lca[16 * 4] = {
 		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
 		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
@@ -668,7 +662,19 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		primary_lca0[11] = primary_lca0[15] = ret_dark_rgba[3];
 		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
 	}
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[0]);
+	static const array<GLfloat, 4 * 2> primary_lva0{{
+		-5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva1{{
+		-10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva2{{
+		5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva3{{
+		10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva0.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	array<GLfloat, 4 * 4> primary_lca1;
@@ -686,20 +692,20 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		primary_lca1[3] = primary_lca1[7] = ret_dark_rgba[3];
 		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
 	}
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[1]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva1.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	//right primary bar
 	if(primary == 0)
 		glColorPointer(4, GL_FLOAT, 0, dark_lca);
 	else
 		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[2]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva2.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if(primary != 2)
 		glColorPointer(4, GL_FLOAT, 0, dark_lca);
 	else
 		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[3]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva3.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
 	if (secondary<=2){
