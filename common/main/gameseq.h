@@ -60,9 +60,6 @@ void StartNewGame(int start_level);
 // starts the next level
 void StartNewLevel(int level_num);
 
-// Actually does the work to start new level
-void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag);
-
 void InitPlayerObject();            //make sure player's object set up
 void init_player_stats_game(ubyte pnum);      //clear all stats
 
@@ -99,7 +96,6 @@ extern void draw_high_scores(int place);
 extern int add_player_to_high_scores(player *pp);
 extern void input_name (int place);
 extern int reset_high_scores();
-extern void init_player_stats_level(int secret_flag);
 
 void open_message_window(void);
 void close_message_window(void);

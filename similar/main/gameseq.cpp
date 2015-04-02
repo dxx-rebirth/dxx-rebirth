@@ -303,10 +303,14 @@ extern	ubyte	Last_afterburner_state;
 #endif
 
 // Setup player for new level (After completion of previous level)
-void init_player_stats_level(int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void init_player_stats_level()
+#elif defined(DXX_BUILD_DESCENT_II)
+void init_player_stats_level(const int secret_flag)
+#endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<int, 0> secret_flag{};
 #endif
 	// int	i;
 
@@ -1476,13 +1480,17 @@ void DoPlayerDead()
 
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
-void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void StartNewLevelSub(const int level_num, const int page_in_textures)
+#elif defined(DXX_BUILD_DESCENT_II)
+void StartNewLevelSub(const int level_num, const int page_in_textures, const int secret_flag)
+#endif
 {
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<int, 0> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
         BigWindowSwitch=0;
 #endif
