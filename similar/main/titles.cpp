@@ -189,6 +189,16 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 
 #if defined(DXX_BUILD_DESCENT_II)
 int intro_played = 0;
+
+static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
+{
+	const char *filename = oem;
+	if ((PHYSFSX_exists(filename, 1)) ||
+		(filename = share, PHYSFSX_exists(filename, 1)) ||
+		(filename = macshare, PHYSFSX_exists(filename, 1))
+		)
+		show_title_screen(filename, 1, 1);
+}
 #endif
 
 void show_titles(void)
@@ -201,9 +211,11 @@ void show_titles(void)
 
 	const char *publisher =  "macplay.pcx";	// Mac Shareware
 	if (!PHYSFSX_exists(publisher,1))
+	{
 		publisher = "mplaycd.pcx";	// Mac Registered
 	if (!PHYSFSX_exists(publisher,1))
 		publisher = "iplogo1.pcx";	// PC. Only down here because it's lowres ;-)
+	}
 
 	show_title_screen( publisher, 1, 1 );
 	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
@@ -247,22 +259,17 @@ void show_titles(void)
 			song_playing = 1;
 			con_printf( CON_DEBUG, "\nShowing logo screens..." );
 
-			const char *filename;
-			filename = HIRESMODE?"iplogo1b.pcx":"iplogo1.pcx"; // OEM
-			if (! PHYSFSX_exists(filename,1))
-				filename = "iplogo1.pcx"; // SHAREWARE
-			if (! PHYSFSX_exists(filename,1))
-				filename = "mplogo.pcx"; // MAC SHAREWARE
-			if (PHYSFSX_exists(filename,1))
-				show_title_screen(filename, 1, 1);
-
-			filename = HIRESMODE?"logob.pcx":"logo.pcx"; // OEM
-			if (! PHYSFSX_exists(filename,1))
-				filename = "logo.pcx"; // SHAREWARE
-			if (! PHYSFSX_exists(filename,1))
-				filename = "plogo.pcx"; // MAC SHAREWARE
-			if (PHYSFSX_exists(filename,1))
-				show_title_screen(filename, 1, 1);
+			const auto hiresmode = HIRESMODE;
+			show_first_found_title_screen(
+				hiresmode ? "iplogo1b.pcx" : "iplogo1.pcx", // OEM
+				"iplogo1.pcx", // SHAREWARE
+				"mplogo.pcx" // MAC SHAREWARE
+				);
+			show_first_found_title_screen(
+				hiresmode ? "logob.pcx" : "logo.pcx", // OEM
+				"logo.pcx", // SHAREWARE
+				"plogo.pcx" // MAC SHAREWARE
+				);
 		}
 	}
 
@@ -307,26 +314,30 @@ void show_order_form()
 		return;
 
 	const char *exit_screen = "warning.pcx";	// D1 Registered
-	if (! PHYSFSX_exists(exit_screen,1))
-		exit_screen = "apple.pcx";	// D1 Mac OEM Demo
-	if (! PHYSFSX_exists(exit_screen,1))
-		exit_screen = "order01.pcx"; // D1 Demo
-	show_title_screen(exit_screen, 1, 1);
+	if ((PHYSFSX_exists(exit_screen, 1)) ||
+		// D1 Mac OEM Demo
+		(exit_screen = "apple.pcx", PHYSFSX_exists(exit_screen,1)) ||
+		// D1 Demo
+		(exit_screen = "order01.pcx", PHYSFSX_exists(exit_screen,1))
+		)
+		show_title_screen(exit_screen, 1, 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifndef EDITOR
 	key_flush();
-	const char *exit_screen = HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"; // OEM
-	if (! PHYSFSX_exists(exit_screen,1))
-		exit_screen = HIRESMODE?"orderd2b.pcx":"orderd2.pcx"; // SHAREWARE, prefer mac if hires
-	if (! PHYSFSX_exists(exit_screen,1))
-		exit_screen = HIRESMODE?"orderd2.pcx":"orderd2b.pcx"; // SHAREWARE, have to rescale
-	if (! PHYSFSX_exists(exit_screen,1))
-		exit_screen = HIRESMODE?"warningb.pcx":"warning.pcx"; // D1
-	if (! PHYSFSX_exists(exit_screen,1))
-		return; // D2 registered
-
-	show_title_screen(exit_screen,1,0);
-
+	const auto hiresmode = HIRESMODE;
+	/*
+	 * If D2 registered, all checks fail and nothing is shown.
+	 */
+	const char *exit_screen = hiresmode ? "ordrd2ob.pcx" : "ordrd2o.pcx"; // OEM
+	if ((PHYSFSX_exists(exit_screen, 1)) ||
+		// SHAREWARE, prefer mac if hires
+		(exit_screen = hiresmode ? "orderd2b.pcx" : "orderd2.pcx", PHYSFSX_exists(exit_screen, 1)) ||
+		// SHAREWARE, have to rescale
+		(exit_screen = hiresmode ? "orderd2.pcx" : "orderd2b.pcx", PHYSFSX_exists(exit_screen, 1)) ||
+		// D1
+		(exit_screen = hiresmode ? "warningb.pcx" : "warning.pcx", PHYSFSX_exists(exit_screen, 1))
+		)
+		show_title_screen(exit_screen,1,0);
 #endif
 #endif
 }
