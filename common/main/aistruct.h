@@ -174,8 +174,8 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 	player_awareness_type_t      player_awareness_type;           // type of awareness of player
+	uint8_t retry_count;                     // number of retries in physics last time this object got moved.
 #if defined(DXX_BUILD_DESCENT_I)
-	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
 	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
 	sbyte      mode;                            // current mode within behavior
 	sbyte      previous_visibility;             // Visibility of player last time we checked.
@@ -183,7 +183,6 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	segnum_t      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
 #elif defined(DXX_BUILD_DESCENT_II)
-	int        retry_count;                   // number of retries in physics last time this object got moved.
 	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
 	int        mode;                          // current mode within behavior
 	int        previous_visibility;           // Visibility of player last time we checked.
