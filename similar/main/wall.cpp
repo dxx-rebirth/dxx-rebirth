@@ -58,18 +58,6 @@ unsigned Num_cloaking_walls;
 
 #endif
 
-#ifdef EDITOR
-const char	Wall_names[7][10] = {
-	"NORMAL   ",
-	"BLASTABLE",
-	"DOOR     ",
-	"ILLUSION ",
-	"OPEN     ",
-	"CLOSED   ",
-	"EXTERNAL "
-};
-#endif
-
 static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const side &side)
 {
 	if (uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)

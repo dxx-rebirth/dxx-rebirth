@@ -154,7 +154,6 @@ struct wclip;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 const std::size_t MAX_CLIP_FRAMES_D1 = 20;
-extern const char Wall_names[7][10];
 
 #if defined(DXX_BUILD_DESCENT_II)
 const std::size_t MAX_CLOAKING_WALLS = 10;
