@@ -364,11 +364,12 @@ static void draw_ammo_info(int x,int y,int ammo_count);
 
 static int score_display;
 static fix score_time;
-static int old_weapon[2]		= {-1,-1};
+static array<int, 2> old_weapon{{-1, -1}};
 static int old_laser_level		= -1;
 static int invulnerable_frame = 0;
-int weapon_box_states[2] = {WS_SET, WS_SET};
-fix weapon_box_fade_values[2];
+static array<int, 2> weapon_box_states;
+static_assert(WS_SET == 0, "weapon_box_states must start at zero");
+static array<fix, 2> weapon_box_fade_values;
 int	Color_0_31_0 = -1;
 
 struct gauge_box
@@ -1632,7 +1633,7 @@ static void sb_show_lives()
 	{
 		char killed_str[20];
 		int w, h, aw;
-		static int last_x[4] = {SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H,SB_SCORE_RIGHT_H};
+		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 		int x;
 
 		sprintf(killed_str, "%5d", Players[Player_num].net_killed_total);
@@ -2256,7 +2257,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-fix static_time[2];
+static array<fix, 2> static_time;
 
 static void draw_static(int win)
 {
@@ -2487,9 +2488,24 @@ struct xy {
 };
 
 //offsets for reticle parts: high-big  high-sml  low-big  low-sml
-static const xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };
-static const xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
-static const xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
+const array<xy, 4> cross_offsets{{
+	{-8,-5},
+	{-4,-2},
+	{-4,-2},
+	{-2,-1}
+}},
+	primary_offsets{{
+	{-30,14},
+	{-16,6},
+	{-15,6},
+	{-8, 2}
+}},
+	secondary_offsets{{
+	{-24,2},
+	{-12,0},
+	{-12,1},
+	{-6,-2}
+}};
 
 //draw the reticle
 void show_reticle(int reticle_type, int secondary_display)

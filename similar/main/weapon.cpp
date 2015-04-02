@@ -62,38 +62,44 @@ static int SOrderList (int num);
 
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
-const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID};
-const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID};
+const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID}};
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID}};
 
 //for each Secondary weapon, which gun it fires out of
-const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS] = {4,4,7,7,7};
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
 #elif defined(DXX_BUILD_DESCENT_II)
-const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {LASER_ID, VULCAN_ID, SPREADFIRE_ID, PLASMA_ID, FUSION_ID, SUPER_LASER_ID, GAUSS_ID, HELIX_ID, PHOENIX_ID, OMEGA_ID};
-const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID, FLASH_ID, GUIDEDMISS_ID, SUPERPROX_ID, MERCURY_ID, EARTHSHAKER_ID};
+const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
+	LASER_ID, VULCAN_ID, SPREADFIRE_ID, PLASMA_ID, FUSION_ID,
+	SUPER_LASER_ID, GAUSS_ID, HELIX_ID, PHOENIX_ID, OMEGA_ID
+}};
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{
+	CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID,
+	FLASH_ID, GUIDEDMISS_ID, SUPERPROX_ID, MERCURY_ID, EARTHSHAKER_ID
+}};
 
 //for each Secondary weapon, which gun it fires out of
-const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS] = {4,4,7,7,7,4,4,7,4,7};
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7,4,4,7,4,7}};
 #endif
 
-const ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5,
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_ammo_max{{20, 10, 10, 5, 5,
 #if defined(DXX_BUILD_DESCENT_II)
 	20, 20, 15, 10, 10
 #endif
-};
+}};
 
 //for each primary weapon, what kind of powerup gives weapon
-const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS] = {POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON,
+const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup{{POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
 	POW_LASER,POW_GAUSS_WEAPON,POW_HELIX_WEAPON,POW_PHOENIX_WEAPON,POW_OMEGA_WEAPON
 #endif
-};
+}};
 
 //for each Secondary weapon, what kind of powerup gives weapon
-const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS] = {POW_MISSILE_1,POW_HOMING_AMMO_1,POW_PROXIMITY_WEAPON,POW_SMARTBOMB_WEAPON,POW_MEGA_WEAPON,
+const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{POW_MISSILE_1,POW_HOMING_AMMO_1,POW_PROXIMITY_WEAPON,POW_SMARTBOMB_WEAPON,POW_MEGA_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
 	POW_SMISSILE1_1,POW_GUIDED_MISSILE_1,POW_SMART_MINE,POW_MERCURY_MISSILE_1,POW_EARTHSHAKER_MISSILE
 #endif
-};
+}};
 
 weapon_info_array Weapon_info;
 unsigned N_weapon_types;
@@ -109,10 +115,10 @@ static const array<ubyte, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{9,8,7,6
 static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,4,3,1,5,0,255,7,6,2}};
 
 //flags whether the last time we use this weapon, it was the 'super' version
-ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
-ubyte Secondary_last_was_super[MAX_SECONDARY_WEAPONS];
+array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
+array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 
-const sbyte   Weapon_is_energy[MAX_WEAPON_TYPES] = {
+const array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 	1, 1, 1, 1, 1,
 	1, 1, 1, 0, 1,
 	1, 0, 1, 1, 1,
@@ -121,7 +127,7 @@ const sbyte   Weapon_is_energy[MAX_WEAPON_TYPES] = {
 	1, 1, 1, 0, 1,
 	1, 1, 0, 1, 1,
 	1
-};
+}};
 #endif
 
 // ; (0) Laser Level 1

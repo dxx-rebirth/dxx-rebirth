@@ -1170,8 +1170,8 @@ void close_game()
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-int Marker_viewer_num[2]={-1,-1};
-int Coop_view_player[2]={-1,-1};
+array<int, 2> Marker_viewer_num{{-1,-1}};
+array<int, 2> Coop_view_player{{-1,-1}};
 
 //returns ptr to escort robot, or NULL
 objptridx_t find_escort()

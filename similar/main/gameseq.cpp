@@ -146,7 +146,7 @@ array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // M
 #if defined(DXX_BUILD_DESCENT_II)
 int	First_secret_visit = 1;
 #endif
-obj_position	Player_init[MAX_PLAYERS];
+array<obj_position, MAX_PLAYERS> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;

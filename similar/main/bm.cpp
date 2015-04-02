@@ -91,8 +91,7 @@ static void bm_free_extra_objbitmaps();
 #endif
 
 //for each model, a model number for dying & dead variants, or -1 if none
-int Dying_modelnums[MAX_POLYGON_MODELS];
-int Dead_modelnums[MAX_POLYGON_MODELS];
+array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
@@ -111,7 +110,7 @@ array<tmap_info, MAX_TEXTURES> TmapInfo;
 int             First_multi_bitmap_num=-1;
 
 array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
+array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
 /*
  * reads n bitmap_index structs from a PHYSFS_file

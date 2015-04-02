@@ -158,7 +158,7 @@ static void set_object_turnroll(const vobjptr_t obj)
 
 //list of segments went through
 unsigned n_phys_segs;
-int phys_seglist[MAX_FVI_SEGS];
+array<int, MAX_FVI_SEGS> phys_seglist;
 
 
 #define MAX_IGNORE_OBJS 100

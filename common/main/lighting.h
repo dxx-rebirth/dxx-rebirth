@@ -37,7 +37,7 @@ struct g3s_lrgb;
 
 #define MIN_LIGHT_DIST  (F1_0*4)
 
-extern g3s_lrgb Dynamic_light[MAX_VERTICES];
+extern array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 extern object *old_viewer;
 
 // compute the average dynamic light in a segment.  Takes the segment number

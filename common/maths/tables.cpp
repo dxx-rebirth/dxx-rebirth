@@ -13,7 +13,7 @@
 
 #include "maths.h"
 
-const ubyte guess_table[256] = {
+const array<ubyte, 256> guess_table{{
 	1,
 	1,1,1,
 	2,2,2,2,2,
@@ -30,9 +30,9 @@ const ubyte guess_table[256] = {
 	13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
 	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
 	15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15
-};
+}};
 
-const short sincos_table[321] = {
+const array<short, 321> sincos_table{{
 	0,
 	402,
 	804,
@@ -355,9 +355,9 @@ const short sincos_table[321] = {
 	16364,
 	16379,
 	16384
-};
+}};
 
-const ushort asin_table[258] = {
+const array<ushort, 258> asin_table{{
 	0,
 	41,
 	81,
@@ -616,9 +616,9 @@ const ushort asin_table[258] = {
 	15462,
 	16384,
 	16384   // extra for when exactly 1
-};
+}};
 
-const ushort acos_table[258] = {
+const array<ushort, 258> acos_table{{
 	16384,
 	16343,
 	16303,
@@ -877,4 +877,4 @@ const ushort acos_table[258] = {
 	922,
 	0,
 	0   // extra for when exactly 1
-};
+}};

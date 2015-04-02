@@ -205,13 +205,13 @@ vms_vector	Last_fired_upon_player_pos;
 
 // -- ubyte Boss_cloaks[NUM_D2_BOSSES]              = {1,1,1,1,1,1};      // Set byte if this boss can cloak
 
-const ubyte Boss_teleports[NUM_D2_BOSSES]           = {1,1,1,1,1,1, 1,1}; // Set byte if this boss can teleport
-const ubyte Boss_spew_more[NUM_D2_BOSSES]           = {0,1,0,0,0,0, 0,0}; // If set, 50% of time, spew two bots.
-const ubyte Boss_spews_bots_energy[NUM_D2_BOSSES]   = {1,1,0,1,0,1, 1,1}; // Set byte if boss spews bots when hit by energy weapon.
-const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES]   = {0,0,1,1,1,1, 0,1}; // Set byte if boss spews bots when hit by matter weapon.
-const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES] = {0,0,1,1,0,0, 0,0}; // Set byte if boss is invulnerable to energy weapons.
-const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES] = {0,0,0,0,1,1, 1,0}; // Set byte if boss is invulnerable to matter weapons.
-const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+const boss_flags_t Boss_teleports{{1,1,1,1,1,1, 1,1}}; // Set byte if this boss can teleport
+const boss_flags_t Boss_spew_more{{0,1,0,0,0,0, 0,0}}; // If set, 50% of time, spew two bots.
+const boss_flags_t Boss_spews_bots_energy{{1,1,0,1,0,1, 1,1}}; // Set byte if boss spews bots when hit by energy weapon.
+const boss_flags_t Boss_spews_bots_matter{{0,0,1,1,1,1, 0,1}}; // Set byte if boss spews bots when hit by matter weapon.
+const boss_flags_t Boss_invulnerable_energy{{0,0,1,1,0,0, 0,0}}; // Set byte if boss is invulnerable to energy weapons.
+const boss_flags_t Boss_invulnerable_matter{{0,0,0,0,1,1, 1,0}}; // Set byte if boss is invulnerable to matter weapons.
+const boss_flags_t Boss_invulnerable_spot{{0,0,0,0,0,1, 0,1}}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 segnum_t             Believed_player_seg;
 #endif

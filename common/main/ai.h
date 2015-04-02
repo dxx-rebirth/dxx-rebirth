@@ -74,7 +74,7 @@ extern sbyte Boss_hit_this_frame;
 
 #define NUM_D2_BOSSES 8
 
-typedef ubyte boss_flags_t[NUM_D2_BOSSES];
+typedef array<ubyte, NUM_D2_BOSSES> boss_flags_t;
 extern const boss_flags_t Boss_teleports;     // Set byte if this boss can teleport
 extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 //extern ubyte Boss_cloaks[NUM_D2_BOSSES];        // Set byte if this boss can cloak

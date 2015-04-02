@@ -73,7 +73,8 @@ struct control_info {
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
-	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
+	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
+	array<fix, 3> mouse_axis, raw_mouse_axis;
 };
 
 #define CONTROL_USING_JOYSTICK	1

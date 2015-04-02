@@ -259,7 +259,7 @@ struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
 	sbyte   sidenum;
-	ubyte   vert_light[4];
+	array<ubyte, 4>   vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)

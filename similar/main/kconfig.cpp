@@ -80,9 +80,14 @@ using std::plus;
 using std::minus;
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+const array<sbyte, 64> fades{{
+	1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,
+	16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,
+	31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,
+	16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1
+}};
 
-static const char invert_text[2][2] = { "N", "Y" };
+const array<char[2], 2> invert_text{{"N", "Y"}};
 joybutton_text_t joybutton_text;
 joyaxis_text_t joyaxis_text;
 static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
@@ -138,8 +143,8 @@ struct kc_menu : embed_window_pointer_t
 	const char	*title;
 	unsigned	nitems;
 	unsigned	citem;
-	int	old_jaxis[JOY_MAX_AXES];
-	int	old_maxis[3];
+	array<int, JOY_MAX_AXES>	old_jaxis;
+	array<int, 3>	old_maxis;
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
@@ -1423,13 +1428,11 @@ static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix&
 }
 
 template <std::size_t N>
-static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, unsigned invert, const int& sensitivity)
+static void adjust_axis_field(fix& time, const array<fix, N> &axes, unsigned value, unsigned invert, const int& sensitivity)
 {
 	if (value == 255)
 		return;
-	if (value >= lengthof(axes))
-		throw std::out_of_range("value exceeds axes count");
-	fix amount = (axes[value]*sensitivity)/8;
+	fix amount = (axes.at(value) * sensitivity) / 8;
 	if ( !invert ) // If not inverted...
 		time -= amount;
 	else

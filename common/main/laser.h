@@ -225,7 +225,7 @@ struct muzzle_info
 	vms_vector  pos;
 };
 
-extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
+extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw

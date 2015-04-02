@@ -45,7 +45,7 @@ const unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
 // 0 means not a real level loaded
 extern int Current_level_num, Next_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
-extern obj_position Player_init[MAX_PLAYERS];
+extern array<obj_position, MAX_PLAYERS> Player_init;
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;

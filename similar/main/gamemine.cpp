@@ -381,7 +381,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 #endif
 
 #ifdef EDITOR
-short tmap_xlate_table[MAX_TEXTURES];
+array<short, MAX_TEXTURES> tmap_xlate_table;
 struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
 struct mfi mine_fileinfo;
 struct mh mine_header;

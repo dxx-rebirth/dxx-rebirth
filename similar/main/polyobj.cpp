@@ -172,7 +172,7 @@ static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
+static array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.

@@ -130,7 +130,7 @@ char Multi_is_guided=0;
 int Bounty_target = 0;
 
 
-msgsend_state_t multi_sending_message[MAX_PLAYERS];
+array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
 int multi_message_index = 0;
 
@@ -138,7 +138,7 @@ ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer
 
 static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
 static array<short, MAX_OBJECTS> local_to_remote;
-sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
+array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
 unsigned   Net_create_loc;       // pointer into previous array
 array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
@@ -211,8 +211,8 @@ static const int message_length[] = {
 
 array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
 
-const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
-                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
+const array<char[16], 10> RankStrings{{"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "}};
 
 const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH] =
 {
@@ -339,7 +339,7 @@ void reset_network_objects()
 	local_to_remote.fill(-1);
 	range_for (auto &i, remote_to_local)
 		i.fill(object_none);
-	memset(object_owner, -1, MAX_OBJECTS);
+	object_owner.fill(-1);
 }
 
 int multi_objnum_is_past(objnum_t objnum)

@@ -71,7 +71,7 @@ struct hmp_file
 	~hmp_file();
 	PHYSFS_sint64 filesize;
 	int num_trks;
-	hmp_track trks[HMP_TRACKS];
+	array<hmp_track, HMP_TRACKS> trks;
 	unsigned int cur_time;
 	unsigned int loop_start;
 	unsigned int loop_end;

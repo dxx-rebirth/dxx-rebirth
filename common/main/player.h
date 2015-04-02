@@ -188,7 +188,7 @@ struct player : public prohibit_void_ptr<player>
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
 	ushort  vulcan_ammo;
-	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
+	array<ushort, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
@@ -301,7 +301,7 @@ struct player_ship
 	fix     max_thrust,reverse_thrust,brakes;       //low_thrust
 	fix     wiggle;
 	fix     max_rotthrust;
-	vms_vector gun_points[N_PLAYER_GUNS];
+	array<vms_vector, N_PLAYER_GUNS> gun_points;
 }
 #if defined(DXX_BUILD_DESCENT_I)
 __pack__
@@ -324,7 +324,7 @@ extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;
 void player_rw_swap(player_rw *p, int swap);
 #endif
 
-extern struct object *Guided_missile[MAX_PLAYERS];
+extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*

@@ -200,16 +200,16 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
 	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
 	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
-	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
-	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
-	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
-	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
+	array<vms_angvec, MAX_SUBMODELS> goal_angles;    // angles for each subobject
+	array<vms_angvec, MAX_SUBMODELS> delta_angles;   // angles for each subobject
+	array<sbyte, MAX_SUBMODELS>      goal_state;     // Goal state for this sub-object
+	array<sbyte, MAX_SUBMODELS>      achieved_state; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ubyte   behavior;               //
-	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	array<sbyte, MAX_AI_FLAGS>   flags;    // various flags, meaning defined by constants
 	segnum_t   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.

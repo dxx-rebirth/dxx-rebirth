@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // these global vars are set after a call to do_physics_sim().  Ugly, I know.
 // list of segments went through
 extern unsigned n_phys_segs;
-extern int phys_seglist[MAX_FVI_SEGS];
+extern array<int, MAX_FVI_SEGS> phys_seglist;
 
 // Simulate a physics object for this frame
 void do_physics_sim(vobjptridx_t obj);

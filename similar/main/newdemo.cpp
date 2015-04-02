@@ -222,9 +222,9 @@ static fix64 nd_record_v_recordframe_last_time = 0;
 static sbyte nd_record_v_no_space;
 #if defined(DXX_BUILD_DESCENT_II)
 static int nd_record_v_juststarted = 0;
-static sbyte nd_record_v_objs[MAX_OBJECTS];
-static sbyte nd_record_v_viewobjs[MAX_OBJECTS];
-static sbyte nd_record_v_rendering[32];
+static array<sbyte, MAX_OBJECTS> nd_record_v_objs,
+	nd_record_v_viewobjs;
+static array<sbyte, 32> nd_record_v_rendering;
 static fix nd_record_v_player_afterburner = -1;
 #endif
 static int nd_record_v_player_energy = -1;

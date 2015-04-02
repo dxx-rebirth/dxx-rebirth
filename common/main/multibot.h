@@ -41,9 +41,8 @@ static const std::size_t MAX_ROBOTS_CONTROLLED = 3;
 static const std::size_t MAX_ROBOTS_CONTROLLED = 5;
 #endif
 
-extern objnum_t robot_controlled[MAX_ROBOTS_CONTROLLED];
-extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
-extern int robot_fired[MAX_ROBOTS_CONTROLLED];
+extern array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
 #endif
 
 int multi_can_move_robot(vobjptridx_t objnum, int agitation);

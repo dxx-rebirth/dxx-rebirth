@@ -49,8 +49,7 @@ struct glow_values_t;
 extern char Pof_names[MAX_POLYGON_MODELS][13];
 
 //for each model, a model number for dying & dead variants, or -1 if none
-extern int Dying_modelnums[MAX_POLYGON_MODELS];
-extern int Dead_modelnums[MAX_POLYGON_MODELS];
+extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 #endif
 #define MAX_SUBMODELS 10
 
@@ -150,6 +149,6 @@ void polymodel_write(PHYSFS_file *fp, const polymodel &pm);
  * routine which allocates, reads, and inits a polymodel's model_data
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
-void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
+void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 
 #endif

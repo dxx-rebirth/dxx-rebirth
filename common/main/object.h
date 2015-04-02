@@ -76,9 +76,9 @@ enum object_type_t : int
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct reactor_static {
 	/* Location of the gun on the reactor object */
-	vms_vector	gun_pos[MAX_CONTROLCEN_GUNS];
+	array<vms_vector, MAX_CONTROLCEN_GUNS>	gun_pos,
 	/* Orientation of the gun on the reactor object */
-	vms_vector	gun_dir[MAX_CONTROLCEN_GUNS];
+		gun_dir;
 };
 #endif
 

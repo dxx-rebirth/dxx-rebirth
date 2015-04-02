@@ -178,14 +178,13 @@ const unsigned MAX_PRIMARY_WEAPONS = 10;
 const unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
-extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
-extern const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info,
 //for each primary weapon, what kind of powerup gives weapon
-extern const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS];
-
+	Primary_weapon_to_powerup;
+extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info,
 //for each Secondary weapon, what kind of powerup gives weapon
-extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
-extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
+	Secondary_weapon_to_powerup;
+extern const array<ubyte, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
@@ -276,19 +275,15 @@ extern void select_weapon(int weapon_num, int secondary_flag, int print_message,
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of
-extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
+extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 //flags whether the last time we use this weapon, it was the 'super' version
-extern ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
-extern ubyte Secondary_last_was_super[MAX_SECONDARY_WEAPONS];
+extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
+extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 
-extern const char *const Primary_weapon_names_short[];
-extern const char *const Secondary_weapon_names_short[];
-extern const char *const Primary_weapon_names[];
-extern const char *const Secondary_weapon_names[];
-extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
+extern const array<uint8_t, MAX_WEAPON_TYPES>    Weapon_is_energy;
 #endif
 
 #define HAS_WEAPON_FLAG 1

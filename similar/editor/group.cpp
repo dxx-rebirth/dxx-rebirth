@@ -88,10 +88,10 @@ struct group_editor {
 	int     Groupside;
 } group_editor;
 
-group		GroupList[MAX_GROUPS+1];
-segment  *Groupsegp[MAX_GROUPS+1];
-int		Groupside[MAX_GROUPS+1];
-int		Group_orientation[MAX_GROUPS+1];
+array<group, MAX_GROUPS+1> GroupList;
+array<segment *, MAX_GROUPS+1> Groupsegp;
+array<int, MAX_GROUPS+1> Groupside;
+array<int, MAX_GROUPS+1> Group_orientation;
 int		current_group=-1;
 unsigned num_groups;
 

@@ -106,7 +106,7 @@ namespace {
 #endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
-int GameBitmapOffset[MAX_BITMAP_FILES];
+array<int, MAX_BITMAP_FILES> GameBitmapOffset;
 #if defined(DXX_BUILD_DESCENT_II)
 }
 #endif
@@ -114,27 +114,24 @@ int GameBitmapOffset[MAX_BITMAP_FILES];
 int Num_bitmap_files = 0;
 int Num_sound_files = 0;
 
-digi_sound GameSounds[MAX_SOUND_FILES];
-int SoundOffset[MAX_SOUND_FILES];
-grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
+array<digi_sound, MAX_SOUND_FILES> GameSounds;
+static array<int, MAX_SOUND_FILES> SoundOffset;
+array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 static
 #endif
-BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
-static SoundFile AllSounds[ MAX_SOUND_FILES ];
+array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+static array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 #define DBM_FLAG_ABM    64 // animated bitmap
 
 static int Piggy_bitmap_cache_size;
 static int Piggy_bitmap_cache_next;
 ubyte * Piggy_bitmap_cache_data = NULL;
-#if defined(DXX_BUILD_DESCENT_II)
-static
-#endif
-ubyte GameBitmapFlags[MAX_BITMAP_FILES];
-ushort GameBitmapXlat[MAX_BITMAP_FILES];
+static array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
+static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PIGGY_BUFFER_SIZE (2048*1024)
@@ -157,7 +154,7 @@ digi_sound bogus_sound;
 grs_bitmap bogus_bitmap;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
-static int SoundCompressed[ MAX_SOUND_FILES ];
+static array<int, MAX_SOUND_FILES> SoundCompressed;
 #elif defined(DXX_BUILD_DESCENT_II)
 char Current_pigfile[FILENAME_LEN] = "";
 int Pigfile_initialized=0;

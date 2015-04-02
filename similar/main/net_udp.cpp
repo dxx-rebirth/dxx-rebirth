@@ -3855,7 +3855,7 @@ static net_udp_select_teams(void)
 		team_vector |= (1 << i);
 	}
 
-	callsign_t team_names[2];
+	array<callsign_t, 2> team_names;
 	team_names[0].copy(TXT_BLUE, ~0ul);
 	team_names[1].copy(TXT_RED, ~0ul);
 

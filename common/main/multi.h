@@ -396,11 +396,11 @@ extern ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 extern int Network_message_reciever;
 
 // Which player 'owns' each local object for network purposes
-extern sbyte object_owner[MAX_OBJECTS];
+extern array<sbyte, MAX_OBJECTS> object_owner;
 
 extern int multi_quit_game;
 
-extern msgsend_state_t multi_sending_message[MAX_PLAYERS];
+extern array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
 window_event_result multi_message_input_sub(int key);
 extern void multi_send_message_start();
@@ -412,7 +412,7 @@ extern int Bounty_target;
 
 extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
-extern const char RankStrings[10][14];
+extern const array<char[16], 10> RankStrings;
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
@@ -560,7 +560,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 		struct
 		{
 			struct _sockaddr		addr; // IP address of this netgame's host
-			short				program_iver[4]; // IVER of program for version checking
+			array<short, 4>			program_iver; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 			uint8_t				your_index; // Tell player his designated (re)join position in players[]
 			fix				GameID;

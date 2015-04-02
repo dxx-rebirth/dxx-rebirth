@@ -80,13 +80,13 @@ static void multi_delete_controlled_robot(const vobjptridx_t objnum);
 
 #define MIN_TO_ADD	60
 
-objnum_t robot_controlled[MAX_ROBOTS_CONTROLLED];
-int robot_agitation[MAX_ROBOTS_CONTROLLED];
-fix64 robot_controlled_time[MAX_ROBOTS_CONTROLLED];
-fix64 robot_last_send_time[MAX_ROBOTS_CONTROLLED];
-fix64 robot_last_message_time[MAX_ROBOTS_CONTROLLED];
-int robot_send_pending[MAX_ROBOTS_CONTROLLED];
-int robot_fired[MAX_ROBOTS_CONTROLLED];
+array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
+	robot_send_pending,
+	robot_fired;
+array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
+	robot_last_send_time,
+	robot_last_message_time;
 ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)

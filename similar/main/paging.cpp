@@ -150,9 +150,7 @@ static void paging_touch_weapon( int weapon_type )
 	}
 }
 
-
-
-static const sbyte super_boss_gate_type_list[13] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22 };
+const array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
 
 static void paging_touch_robot( int robot_index )
 {

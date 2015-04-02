@@ -66,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NEWHOMER
 
 #if defined(DXX_BUILD_DESCENT_II)
-object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+array<object *, MAX_PLAYERS> Guided_missile;
 array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
@@ -943,7 +943,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 
 int		Muzzle_queue_index = 0;
 
-muzzle_info		Muzzle_data[MUZZLE_QUEUE_MAX];
+array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Determine if two objects are on a line of sight.  If so, return true, else return false.
