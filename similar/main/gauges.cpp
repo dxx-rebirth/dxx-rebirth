@@ -3151,7 +3151,7 @@ static array<int, 2> overlap_dirty;
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
 //rear view.  If label is non-NULL, print the label at the top of the
 //window.
-void do_cockpit_window_view(int win,int rear_view_flag,int user,const char *label)
+void do_cockpit_window_view(int win,int user)
 {
 	Assert(user == WBU_WEAPON || user == WBU_STATIC);
 	if (user == WBU_STATIC && weapon_box_user[win] != WBU_STATIC)

@@ -536,7 +536,7 @@ static void show_extra_views()
 				do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
 		}
 		else
-			do_cockpit_window_view(0,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(0,WBU_WEAPON);
 	
 		if (DemoDoRight)
 		{
@@ -550,7 +550,7 @@ static void show_extra_views()
 			}
 		}
 		else
-			do_cockpit_window_view(1,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(1,WBU_WEAPON);
 		
 		DemoDoLeft=DemoDoRight=0;
 		DemoDoingLeft=DemoDoingRight=0;
@@ -576,7 +576,7 @@ static void show_extra_views()
 
 		if (Guided_missile[Player_num]) {		//used to be active
 			if (!PlayerCfg.GuidedInBigWindow)
-				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,WBU_STATIC);
 			Guided_missile[Player_num] = NULL;
 		}
 		if (choose_missile_viewer())
@@ -589,7 +589,7 @@ static void show_extra_views()
 			else {
 				clear_missile_viewer();
 				RenderingType=255;
-				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,WBU_STATIC);
 			}
 	}
 
@@ -610,7 +610,7 @@ static void show_one_extra_view(const int w)
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
 				RenderingType=255;
-				do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+				do_cockpit_window_view(w,WBU_WEAPON);
 				break;
 			case CV_REAR:
 				if (Rear_view) {		//if big window is rear view, show front here
@@ -625,7 +625,7 @@ static void show_one_extra_view(const int w)
 			case CV_ESCORT: {
 				auto buddy = find_escort();
 				if (buddy == object_none) {
-					do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
@@ -642,7 +642,7 @@ static void show_one_extra_view(const int w)
 				if (player!=-1 && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 					do_cockpit_window_view(w,&Objects[Players[Coop_view_player[w]].objnum],0,WBU_COOP,Players[Coop_view_player[w]].callsign);
 				else {
-					do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				break;

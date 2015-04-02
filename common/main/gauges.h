@@ -106,7 +106,7 @@ constexpr rgb_array_wrapper player_rgb{};
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
 void do_cockpit_window_view(int win, vobjptridx_t viewer, int rear_view_flag, int user, const char *label);
-void do_cockpit_window_view(int win, int rear_view_flag, int user, const char *label);
+void do_cockpit_window_view(int win, int user);
 #endif
 
 #define GAUGE_HUD_NUMMODES 4
