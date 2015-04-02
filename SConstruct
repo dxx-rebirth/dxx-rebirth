@@ -65,6 +65,77 @@ class ConfigureTests:
 		def restore(self,env):
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
+	class pkgconfig:
+		__pkg_config_path_cache = {}
+		__pkg_config_data_cache = {}
+		@staticmethod
+		def _get_pkg_config_name(user_settings):
+			p = user_settings.PKG_CONFIG
+			if p is not None:
+				return p
+			p = user_settings.CHOST
+			if p:
+				return p + '-pkg-config'
+			return 'pkg-config'
+		@staticmethod
+		def _get_pkg_config_exec_path(context,message,pkgconfig):
+			if not pkgconfig:
+				message("pkg-config is disabled by user settings")
+				return pkgconfig
+			if os.sep in pkgconfig:
+				message("using pkg-config at user specified path %s" % pkgconfig)
+				return pkgconfig
+			# No path specified, search in $PATH
+			for p in os.environ.get('PATH', '').split(os.pathsep):
+				fp = os.path.join(p, pkgconfig)
+				try:
+					os.close(os.open(fp, os.O_RDONLY))
+				except OSError as e:
+					# Ignore on permission errors.  If pkg-config is
+					# runnable but not readable, the user must
+					# specify its path.
+					if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+						continue
+					raise
+				message("using pkg-config at discovered path %s" % fp)
+				return fp
+			message("no usable pkg-config %r found in $PATH" % pkgconfig)
+		@classmethod
+		def _get_pkg_config_path(cls,context,message,user_settings,display_name):
+			pkgconfig = cls._get_pkg_config_name(user_settings)
+			cache = cls.__pkg_config_path_cache
+			try:
+				return cache[pkgconfig]
+			except KeyError:
+				pass
+			cache[pkgconfig] = path = cls._get_pkg_config_exec_path(context, message, pkgconfig)
+			return path
+		@classmethod
+		def _find_pkg_config(cls,context,message,user_settings,pkgconfig_name,display_name):
+			message("checking %s pkg-config %s" % (display_name, pkgconfig_name))
+			pkgconfig = cls._get_pkg_config_path(context, message, user_settings, display_name)
+			if not pkgconfig:
+				message("skipping %s pkg-config" % display_name)
+				return {}
+			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
+			cache = cls.__pkg_config_data_cache
+			try:
+				flags = cache[cmd]
+				message("reusing %s settings from `%s`" % (display_name, cmd))
+				return flags
+			except KeyError as e:
+				message("reading %s settings from `%s`" % (display_name, cmd))
+				try:
+					flags = context.env.ParseFlags('!' + cmd)
+				except OSError as o:
+					message("%s pkg-config failed; user must add required flags via environment for `%s`" % (display_name, cmd))
+					flags = {}
+				cache[cmd] = flags
+				return flags
+		@classmethod
+		def merge(cls,context,message,user_settings,pkgconfig_name,display_name):
+			flags = cls._find_pkg_config(context, message, user_settings, pkgconfig_name, display_name)
+			return {k:v for k,v in flags.items() if v and (k[0] == 'C' or k[0] == 'L')}
 	# Force test to report failure
 	sconf_force_failure = 'force-failure'
 	# Force test to report success, and modify flags like it
@@ -80,14 +151,17 @@ class ConfigureTests:
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
-	def __init__(self,msgprefix,user_settings):
+	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
+		self.platform_settings = platform_settings
 		self.successful_flags = {}
 		self.__cxx_conformance = None
 		self.__automatic_compiler_tests = {
 			'.cpp': self.check_cxx_works,
 		}
+	def message(self,msg):
+		print "%s: %s" % (self.msgprefix, msg)
 	@classmethod
 	def describe(cls,name):
 		f = getattr(cls, name)
@@ -131,7 +205,7 @@ class ConfigureTests:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
 		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
-		context.env.Append(**successflags)
+		context.env.MergeFlags(successflags)
 		frame = None
 		forced = None
 		try:
@@ -202,9 +276,9 @@ class ConfigureTests:
 		# give the user more help.
 		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
 			return
-		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1]):
+		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1], testflags=successflags):
 			raise SCons.Errors.StopError("Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1]):
+		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1], testflags=successflags):
 			raise SCons.Errors.StopError("Header %s is parseable, but cannot compile the test program." % (header[-1]))
 		raise SCons.Errors.StopError("Header %s is missing or unusable." % (header[-1]))
 	@_custom_test
@@ -223,10 +297,11 @@ class ConfigureTests:
 	PHYSFS_close(f);
 ''',
 			lib='physfs',
-			successflags={'LIBS' : ('physfs',)}
+			successflags={'LIBS' : ['physfs']}
 		)
 	@_custom_test
 	def check_libSDL(self,context):
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl', 'SDL')
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_CDROM | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -234,7 +309,7 @@ class ConfigureTests:
 	SDL_FreeRW(ops);
 	SDL_Quit();
 ''',
-			lib='SDL'
+			lib='SDL', successflags=successflags
 		)
 	@_custom_test
 	def check_SDL_mixer(self,context):
@@ -245,7 +320,7 @@ class ConfigureTests:
 		if not self.user_settings.sdlmixer:
 			return
 		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
-		successflags = {}
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'SDL_mixer', 'SDL_mixer')
 		if self.user_settings.host_platform == 'darwin':
 			successflags['FRAMEWORKS'] = ['SDL_mixer']
 			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL_mixer.framework/Headers'), '/Library/Frameworks/SDL_mixer.framework/Headers']
@@ -1225,74 +1300,12 @@ class DXXCommon(LazyObjectConstructor):
 		tools = None
 		ogllibs = ''
 		platform_objects = []
-		__pkg_config_path = None
-		__pkg_config_cache = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
 		@property
 		def env(self):
 			return self.__program.env
-		@staticmethod
-		def get_pkg_config_name(user_settings):
-			if user_settings.PKG_CONFIG:
-				return user_settings.PKG_CONFIG
-			else:
-				if user_settings.CHOST:
-					return '%s-pkg-config' % user_settings.CHOST
-				else:
-					return 'pkg-config'
-		@classmethod
-		def get_pkg_config_path(cls,program):
-			if cls.__pkg_config_path:
-				return cls.__pkg_config_path[0]
-			pkgconfig = cls.get_pkg_config_name(program.user_settings)
-			if pkgconfig[0] != '/':
-				# Only valid on non-Windows
-				for p in os.environ.get('PATH', '').split(':'):
-					try:
-						fp = os.path.join(p, pkgconfig)
-						os.close(os.open(fp, os.O_RDONLY))
-						pkgconfig = fp
-						break
-					except OSError as e:
-						if e.errno == errno.ENOENT or e.errno == errno.EACCES:
-							continue
-						raise
-			if pkgconfig[0] != '/':
-				message(program, "no usable pkg-config \"%s\" found in $PATH" % pkgconfig)
-				pkgconfig = None
-			else:
-				message(program, "using pkg-config at %s" % pkgconfig)
-			cls.__pkg_config_path = (pkgconfig,)
-			return pkgconfig
-		@classmethod
-		def _find_pkg_config(cls,program,env,pkg,name):
-			pkgconfig = cls.get_pkg_config_path(program)
-			if not pkgconfig:
-				message(program, "skipping %s pkg-config settings" % name)
-				return {}
-			cmd = '%s --cflags --libs %s' % (pkgconfig,pkg)
-			cache = cls.__pkg_config_cache
-			try:
-				return cache[cmd]
-			except KeyError as e:
-				if (program.user_settings.verbosebuild != 0):
-					message(program, "reading %s settings from `%s`" % (name, cmd))
-				try:
-					flags = env.ParseFlags('!' + cmd)
-				except OSError as o:
-					message(program, "pkg-config failed; user must add required flags via environment for `%s`" % cmd)
-					flags = {}
-				cache[cmd] = flags
-				return flags
-		@staticmethod
-		def _merge_pkg_config(env,flags):
-			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
-		def merge_SDL_mixer_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
-		def merge_sdl_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL'))
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		ogllibs = ('opengl32',)
@@ -1505,12 +1518,6 @@ class DXXCommon(LazyObjectConstructor):
 		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
-		# On Linux hosts, always run this.  It should work even when
-		# cross-compiling a Rebirth to run elsewhere.
-		if sys.platform == 'linux2' or sys.platform == 'darwin':
-			self.platform_settings.merge_sdl_config(self, self.env)
-			if self.user_settings.sdlmixer:
-				self.platform_settings.merge_SDL_mixer_config(self, self.env)
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
@@ -1682,7 +1689,7 @@ class DXXArchive(DXXCommon):
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = fs.Dir(self.user_settings.builddir or '.')
-		tests = ConfigureTests(self.program_message_prefix, self.user_settings)
+		tests = ConfigureTests(self.program_message_prefix, self.user_settings, self.platform_settings)
 		log_file=fs.File('sconf.log', builddir)
 		conf = self.env.Configure(custom_tests = {
 				k:getattr(tests, k) for k in tests.custom_tests
@@ -1935,7 +1942,7 @@ class DXXProgram(DXXCommon):
 	def prepare_environment(self):
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
-		self.env.Append(**archive.configure_added_environment_flags)
+		self.env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_pch_node(self.srcdir, archive.configure_pch_flags)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
 		# For PRIi64
