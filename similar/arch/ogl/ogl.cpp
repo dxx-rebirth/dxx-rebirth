@@ -563,20 +563,8 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, flo
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
 {
-	int size=270+(size_offs*20), i;
+	int size=270+(size_offs*20);
 	float scale = ((float)SWIDTH/SHEIGHT);
-	GLfloat dark_lca[16 * 4] = {
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6
-	};
-	GLfloat bright_lca[16 * 4] = {
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0
-	};
 	const array<float, 4> ret_rgba{{
 		static_cast<float>(PAL2Tr(color)),
 		static_cast<float>(PAL2Tg(color)),
@@ -589,7 +577,8 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		ret_rgba[3] / 2
 	}};
 
-	for (i = 0; i < 16*4; i += 4)
+	array<GLfloat, 16 * 4> dark_lca, bright_lca;
+	for (uint_fast32_t i = 0; i != dark_lca.size(); i += 4)
 	{
 		bright_lca[i] = ret_rgba[0];
 		dark_lca[i] = ret_dark_rgba[0];
@@ -639,7 +628,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		glColorPointer(4, GL_FLOAT, 0, cross_lca.data());
 	}
 	else
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	static const array<GLfloat, 8 * 2> cross_lva{{
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	}};
@@ -649,7 +638,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	array<GLfloat, 4 * 4> primary_lca0;
 	//left primary bar
 	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
 	{
 		primary_lca0[0] = primary_lca0[4] = ret_rgba[0];
@@ -679,7 +668,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 
 	array<GLfloat, 4 * 4> primary_lca1;
 	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
 	{
 		primary_lca1[8] = primary_lca1[12] = ret_rgba[0];
@@ -696,13 +685,13 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	//right primary bar
 	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
 		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva2.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
 		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva3.data());
@@ -711,17 +700,17 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	if (secondary<=2){
 		//left secondary
 		if (secondary != 1)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[0])
 			secondary_lva[0] = circle_array_init_2(16, 2.0, -10.0, 2.0, -2.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0].get());
 		//right secondary
 		if (secondary != 2)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[1])
 			secondary_lva[1] = circle_array_init_2(16, 2.0, 10.0, 2.0, -2.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1].get());
@@ -729,9 +718,9 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	else {
 		//bottom/middle secondary
 		if (secondary != 4)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[2])
 			secondary_lva[2] = circle_array_init_2(16, 2.0, 0.0, 2.0, -8.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2].get());
