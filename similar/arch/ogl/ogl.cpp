@@ -576,7 +576,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		ret_rgba[2] / 2,
 		ret_rgba[3] / 2
 	}};
-
 	array<GLfloat, 16 * 4> dark_lca, bright_lca;
 	for (uint_fast32_t i = 0; i != dark_lca.size(); i += 4)
 	{
@@ -999,7 +998,6 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 {
 	int i;
-	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
 
 	r_bitmapc++;
 	
@@ -1013,48 +1011,63 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
+	constexpr unsigned point_count = 4;
+	struct fvertex_t
+	{
+		GLfloat x, y, z;
+	};
+	struct fcolor_t
+	{
+		GLfloat r, g, b, a;
+	};
+	struct ftexcoord_t
+	{
+		GLfloat u, v;
+	};
+	array<fvertex_t, point_count> vertex_array;
+	array<fcolor_t, point_count> color_array;
+	array<ftexcoord_t, point_count> texcoord_array;
 	for (i=0;i<4;i++){
 		const auto v1 = vm_vec_sub(pos,View_position);
 		auto pv = vm_vec_rotate(v1,View_matrix);
 		switch (i){
 			case 0:
-				texcoord_array[i*2] = 0.0;
-				texcoord_array[i*2+1] = 0.0;
+				texcoord_array[i].u = 0.0;
+				texcoord_array[i].v = 0.0;
 				pv.x+=-width;
 				pv.y+=height;
 				break;
 			case 1:
-				texcoord_array[i*2] = bm.gltexture->u;
-				texcoord_array[i*2+1] = 0.0;
+				texcoord_array[i].u = bm.gltexture->u;
+				texcoord_array[i].v = 0.0;
 				pv.x+=width;
 				pv.y+=height;
 				break;
 			case 2:
-				texcoord_array[i*2] = bm.gltexture->u;
-				texcoord_array[i*2+1] = bm.gltexture->v;
+				texcoord_array[i].u = bm.gltexture->u;
+				texcoord_array[i].v = bm.gltexture->v;
 				pv.x+=width;
 				pv.y+=-height;
 				break;
 			case 3:
-				texcoord_array[i*2] = 0.0;
-				texcoord_array[i*2+1] = bm.gltexture->v;
+				texcoord_array[i].u = 0.0;
+				texcoord_array[i].v = bm.gltexture->v;
 				pv.x+=-width;
 				pv.y+=-height;
 				break;
 		}
 
-		color_array[i*4]    = 1.0;
-		color_array[i*4+1]  = 1.0;
-		color_array[i*4+2]  = 1.0;
-		color_array[i*4+3]  = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
-		
-		vertex_array[i*3]   = f2glf(pv.x);
-		vertex_array[i*3+1] = f2glf(pv.y);
-		vertex_array[i*3+2] = -f2glf(pv.z);
+		color_array[i].r = 1.0;
+		color_array[i].g = 1.0;
+		color_array[i].b = 1.0;
+		color_array[i].a = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
+		vertex_array[i].x = f2glf(pv.x);
+		vertex_array[i].y = f2glf(pv.y);
+		vertex_array[i].z = -f2glf(pv.z);
 	}
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.data());
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
