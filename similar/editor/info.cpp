@@ -47,54 +47,72 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int init_info;
 
-static char * get_object_type(int num, char *name)
+typedef const char object_type_name[13];
+typedef const char control_type_name[15];
+typedef const char movement_type_name[15];
+typedef const char ai_type_name[13];
+
+static object_type_name &get_object_type(int num)
 {
 	switch (num) {
-		case OBJ_NONE:			strcpy(name, "OBJ_NONE    ");	break;
-		case OBJ_WALL: 		strcpy(name, "OBJ_WALL    ");	break;
-		case OBJ_FIREBALL: 	strcpy(name, "OBJ_FIREBALL");	break;
-		case OBJ_ROBOT: 		strcpy(name, "OBJ_ROBOT   ");	break;
-		case OBJ_HOSTAGE: 	strcpy(name, "OBJ_HOSTAGE ");	break;
-		case OBJ_PLAYER: 		strcpy(name, "OBJ_PLAYER  ");	break;
-		case OBJ_WEAPON: 		strcpy(name, "OBJ_WEAPON  ");	break;
-		case OBJ_CAMERA: 		strcpy(name, "OBJ_CAMERA  ");	break;
-		case OBJ_POWERUP: 	strcpy(name, "OBJ_POWERUP ");	break;
-		default:					strcpy(name, " (unknown)  ");	break;
+		case OBJ_NONE:
+			return "OBJ_NONE    ";
+		case OBJ_WALL:
+			return "OBJ_WALL    ";
+		case OBJ_FIREBALL:
+			return "OBJ_FIREBALL";
+		case OBJ_ROBOT:
+			return "OBJ_ROBOT   ";
+		case OBJ_HOSTAGE:
+			return "OBJ_HOSTAGE ";
+		case OBJ_PLAYER:
+			return "OBJ_PLAYER  ";
+		case OBJ_WEAPON:
+			return "OBJ_WEAPON  ";
+		case OBJ_CAMERA:
+			return "OBJ_CAMERA  ";
+		case OBJ_POWERUP:
+			return "OBJ_POWERUP ";
+		default:
+			return " (unknown)  ";
 	}
-
-	return name;
 }
 
-static char * get_control_type(int num, char *name)
+static control_type_name &get_control_type(int num)
 {
 	switch (num) {
-		case CT_NONE:					strcpy(name, "CT_NONE       ");	break;
-		case CT_AI:						strcpy(name, "CT_AI         ");	break;
-		case CT_EXPLOSION:			strcpy(name, "CT_EXPLOSION  ");	break;
-		//case CT_MULTIPLAYER:			strcpy(name, "CT_MULTIPLAYER");	break;
-		case CT_FLYING:				strcpy(name, "CT_FLYING     ");	break;
-		case CT_SLEW:					strcpy(name, "CT_SLEW       ");	break;
-		case CT_FLYTHROUGH:			strcpy(name, "CT_FLYTHROUGH ");	break;
-		//case CT_DEMO:					strcpy(name, "CT_DEMO       ");	break;
-		//case CT_ROBOT_FLYTHROUGH:	strcpy(name, "CT_FLYTHROUGH ");	break;
-		case CT_WEAPON:				strcpy(name, "CT_WEAPON     ");	break;
-		default:							strcpy(name, " (unknown)    ");	break;
+		case CT_NONE:
+			return "CT_NONE       ";
+		case CT_AI:
+			return "CT_AI         ";
+		case CT_EXPLOSION:
+			return "CT_EXPLOSION  ";
+		case CT_FLYING:
+			return "CT_FLYING     ";
+		case CT_SLEW:
+			return "CT_SLEW       ";
+		case CT_FLYTHROUGH:
+			return "CT_FLYTHROUGH ";
+		case CT_WEAPON:
+			return "CT_WEAPON     ";
+		default:
+			return " (unknown)    ";
 	}
-	return name;
 }
 
-static char * get_movement_type(int num, char *name)
+static movement_type_name &get_movement_type(int num)
 {
 	switch (num) {
-		case MT_NONE:			strcpy(name, "MT_NONE       ");	break;
-		case MT_PHYSICS:		strcpy(name, "MT_PHYSICS    ");	break;
-		//case MT_MULTIPLAYER:	strcpy(name, "MT_MULTIPLAYER");	break;
-		default:					strcpy(name, " (unknown)    ");	break;
+		case MT_NONE:
+			return "MT_NONE       ";
+		case MT_PHYSICS:
+			return "MT_PHYSICS    ";
+		default:
+			return " (unknown)    ";
 	}
-	return name;
 }
 
-static char * get_ai_behavior(int num, char *name)
+static ai_type_name &get_ai_behavior(int num)
 {
 #define	AIB_STILL						0x80
 #define	AIB_NORMAL						0x81
@@ -103,14 +121,19 @@ static char * get_ai_behavior(int num, char *name)
 #define	AIB_FOLLOW_PATH				0x84
 
 	switch (num) {
-		case AIB_STILL:				strcpy(name, "STILL       ");	break;
-		case AIB_NORMAL:				strcpy(name, "NORMAL      ");	break;
-		case AIB_HIDE:					strcpy(name, "HIDE        ");	break;
-		case AIB_RUN_FROM:			strcpy(name, "RUN_FROM    ");	break;
-		case AIB_FOLLOW_PATH:		strcpy(name, "FOLLOW_PATH ");	break;
-		default:							strcpy(name, " (unknown)  ");	break;
+		case AIB_STILL:
+			return "STILL       ";
+		case AIB_NORMAL:
+			return "NORMAL      ";
+		case AIB_HIDE:
+			return "HIDE        ";
+		case AIB_RUN_FROM:
+			return "RUN_FROM    ";
+		case AIB_FOLLOW_PATH:
+			return "FOLLOW_PATH ";
+		default:
+			return " (unknown)  ";
 	}
-	return name;
 }
 
 //	---------------------------------------------------------------------------------------------------
@@ -121,9 +144,6 @@ static void info_display_object_placement(int show_all)
 	static	int	old_movement_type;
 	static	int	old_control_type;
 	static	int	old_mode;
-
-	char		name[30];
-
 	if (init_info | show_all) {
 		old_Cur_object_index = -2;
 		old_type = -2;
@@ -139,10 +159,10 @@ static void info_display_object_placement(int show_all)
 			( Objects[Cur_object_index].ctype.ai_info.behavior != old_mode) ) {
 
 		gr_uprintf( 0, 0, "Object id: %4d\n", Cur_object_index);
-		gr_uprintf( 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type , name));
-		gr_uprintf( 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type, name));
-		gr_uprintf( 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type, name));
-		gr_uprintf( 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior, name));
+		gr_uprintf( 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
+		gr_uprintf( 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
+		gr_uprintf( 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
+		gr_uprintf( 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
 
 		old_Cur_object_index = Cur_object_index;
 		old_type = Objects[Cur_object_index].type;
