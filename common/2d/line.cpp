@@ -284,20 +284,15 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 // Returns 0 if drawn with no clipping, 1 if drawn but clipped, and
 // 2 if not drawn at all.
 
-int gr_line(fix a1, fix b1, fix a2, fix b2)
+void gr_line(fix a1, fix b1, fix a2, fix b2)
 {
 	int x1, y1, x2, y2;
-	int clipped=0;
-
 	x1 = i2f(MINX);
 	y1 = i2f(MINY);
 	x2 = i2f(MAXX);
 	y2 = i2f(MAXY);
 
-	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FIXSCALE );
+	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return,, FIXSCALE );
 
 	gr_uline( a1, b1, a2, b2 );
-
-	return clipped;
-
 }
