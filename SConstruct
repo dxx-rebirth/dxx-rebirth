@@ -343,23 +343,6 @@ help:assume C++ compiler works
 			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
-	def check_compiler_redundant_decl_warning(self,context):
-		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'redundant-decls']}
-		# Test for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15867
-		text = '''
-template <typename>
-struct A {
-	int a(){return 0;}
-};
-template <>
-int A<int>::a(){return 1;}
-'''
-		if self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f):
-			return
-		if self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Wredundant-decls', testflags=f, expect_failure=True):
-			return
-		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Wredundant-decls', testflags=f)
-	@_custom_test
 	def check_compiler_template_parentheses_warning(self,context):
 		# Test for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=51064
 		text = '''
@@ -373,7 +356,7 @@ struct T {};
 		raise SCons.Errors.StopError("C++ compiler errors on template computed expressions, even with -Wno-parentheses.")
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
-		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'missing-field-initializers']}
+		f = {'CXXFLAGS' : ['-Wmissing-field-initializers']}
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
 		if not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler warns for {} initialization', testflags=f, expect_failure=True) or \
@@ -1419,7 +1402,7 @@ class DXXCommon(LazyObjectConstructor):
 	def _quote_cppdefine(self,s):
 		r = ''
 		prior = False
-		for c in str(s):
+		for c in repr(s):
 			# No xdigit support in str
 			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
 				r += c
@@ -1472,7 +1455,7 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Prepend(CXXFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'missing-braces', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', Werror + 'format-security'])
+		self.env.Prepend(CXXFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'missing-braces', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', Werror + 'format-security', Werror + 'redundant-decls'])
 		self.env.Append(CXXFLAGS = ['-funsigned-char'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
@@ -1988,7 +1971,7 @@ class DXXProgram(DXXCommon):
 		c = cls._computed_extra_version
 		if c is None:
 			git = (os.environ.get('GIT', 'git')).split()
-			v = s = None
+			v = s = ds = None
 			if git:
 				v = cls._compute_extra_version(git)
 				if v:
@@ -1996,7 +1979,11 @@ class DXXProgram(DXXCommon):
 					(go, ge) = g.communicate(None)
 					if not g.wait():
 						s = go
-			cls._computed_extra_version = c = (v or '', s)
+					g = subprocess.Popen(git + ['diff', '--stat', 'HEAD'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					(go, ge) = g.communicate(None)
+					if not g.wait():
+						ds = go
+			cls._computed_extra_version = c = (v or '', s, ds)
 		return c
 
 	@classmethod
@@ -2054,7 +2041,7 @@ class DXXProgram(DXXCommon):
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if self.VERSION_MICRO:
 				extra_version += '.%u' % self.VERSION_MICRO
-		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', ''))
+		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', '', ''))
 		if git_describe_version[0] and not (extra_version and (extra_version == git_describe_version[0] or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version[0]))):
 			# Suppress duplicate output
 			if extra_version:
@@ -2064,6 +2051,8 @@ class DXXProgram(DXXCommon):
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version)))
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
+		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
+		versid_build_environ.append('git_diffstat')
 		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
