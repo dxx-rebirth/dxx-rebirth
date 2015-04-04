@@ -49,7 +49,7 @@ class ConfigureTests:
 		def restore(self,env):
 			env.Replace(**self.flags)
 			if self.CCACHE_PREFIX:
-				env['ENV']['CCACHE_PREFIX'] = CCACHE_PREFIX
+				env['ENV']['CCACHE_PREFIX'] = self.CCACHE_PREFIX
 		def __getitem__(self,key):
 			return self.flags.__getitem__(key)
 	class ForceVerboseLog:
