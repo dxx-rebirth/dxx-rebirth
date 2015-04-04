@@ -852,10 +852,10 @@ void ogl_upixelc(int x, int y, int c)
 
 unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
-	GLint gl_draw_buffer;
 	ubyte buf[4];
 
 #ifndef OGLES
+	GLint gl_draw_buffer;
 	glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 	glReadBuffer(gl_draw_buffer);
 #endif
