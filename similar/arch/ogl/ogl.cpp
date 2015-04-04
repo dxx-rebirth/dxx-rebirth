@@ -288,6 +288,8 @@ static void ogl_texture_stats(void)
 	res = SWIDTH * SHEIGHT;
 #ifndef OGLES
 	glGetIntegerv(GL_INDEX_BITS, &idx);
+#else
+	idx=16;
 #endif
 	glGetIntegerv(GL_RED_BITS, &r);
 	glGetIntegerv(GL_GREEN_BITS, &g);
@@ -295,6 +297,8 @@ static void ogl_texture_stats(void)
 	glGetIntegerv(GL_ALPHA_BITS, &a);
 #ifndef OGLES
 	glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
+#else
+	dbl=1;
 #endif
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
