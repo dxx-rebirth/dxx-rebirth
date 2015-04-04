@@ -890,9 +890,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 {
 	int i;
 	char mission_filename[9];
-#ifdef OGL
-	GLint gl_draw_buffer;
-#endif
 	fix tmptime32 = 0;
 
 	#ifndef NDEBUG
@@ -939,6 +936,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		RAIIdmem<uint8_t[]> buf;
 		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
 #ifndef OGLES
+		GLint gl_draw_buffer;
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
 #endif
