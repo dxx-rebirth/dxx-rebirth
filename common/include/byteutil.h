@@ -61,14 +61,18 @@ static inline int32_t SWAPINT(const int32_t &i)
 #define SWAPINT64(x) ((((x) & 0xff00000000000000LL)/(2^56)) | (((x) & 0x00ff000000000000LL)/(2^40)) | (((x) & 0x0000ff0000000000LL)/(2^24)) | (((x) & 0x000000ff00000000LL)/(2^8)) | (((x) & 0x00000000ff000000LL)*(2^8)) | (((x) & 0x0000000000ff0000LL)*(2^24)) | (((x) & 0x000000000000ff00LL)*(2^40)) | (((x) & 0x00000000000000ffLL)*(2^56)))
 #endif
 
-#ifndef WORDS_NEED_ALIGNMENT
+#ifndef WORDS_BIGENDIAN
 /* Always resolve F(a), so ambiguous calls are flagged even on little
  * endian.
  */
 #define byteutil_choose_endian(F,a)	(static_cast<void>(static_cast<decltype(F(a))>(0)), a)
+#else // ! WORDS_BIGENDIAN
+#define byteutil_choose_endian(F,a)	(F(a))
+#endif // ! WORDS_BIGENDIAN
+
+#ifndef WORDS_NEED_ALIGNMENT
 #define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))
 #else // ! WORDS_NEED_ALIGNMENT
-#define byteutil_choose_endian(F,a)	(F(a))
 #define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), reinterpret_cast<const uint8_t *>(s), sizeof(d))
 #endif // ! WORDS_NEED_ALIGNMENT
 
