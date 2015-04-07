@@ -1349,7 +1349,7 @@ void graphics_config()
 	DXX_GRAPHICS_MENU(ADD);
 
 #ifdef OGL
-	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
+	m[opt_filter_none+GameCfg.TexFilt].value=1;
 #endif
 
 	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, unused_newmenu_userdata, 1);
@@ -1359,7 +1359,7 @@ void graphics_config()
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
 	for (uint_fast32_t i = 0; i != 4; ++i)
-		if (m[i+opt_gr_texfilt].value)
+		if (m[i+opt_filter_none].value)
 		{
 			GameCfg.TexFilt = i;
 			break;
