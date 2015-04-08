@@ -1448,7 +1448,7 @@ void dead_player_frame(void)
 static void start_player_death_sequence(const vobjptr_t player)
 {
 	Assert(player == ConsoleObject);
-	if ((Player_is_dead != 0) || (Dead_player_camera != NULL))
+	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)))
 		return;
 
 	//Assert(Player_is_dead == 0);
