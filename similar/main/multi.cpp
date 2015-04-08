@@ -1696,9 +1696,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	Players[pnum].flags &= ~PLAYER_FLAGS_FLAG;
 #endif
 	Players[pnum].cloak_time = 0;
-
-	multi_make_ghost_player(get_player_id(objp));
-	create_player_appearance_effect(objp);
 }
 
 /*
