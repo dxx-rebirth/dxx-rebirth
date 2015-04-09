@@ -270,20 +270,24 @@ class ConfigureTests:
 		else:
 			env_flags.restore(context.env)
 		return r
-	def _check_system_library(self,context,header,main,lib,successflags={}):
+	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
 		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
 			return
 		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1], testflags=successflags):
-			raise SCons.Errors.StopError("Header %s is usable, but library %s is not usable." % (header[-1], lib))
+			return (0, "Header %s is usable, but library %s is not usable." % (header[-1], lib))
 		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1], testflags=successflags):
-			raise SCons.Errors.StopError("Header %s is parseable, but cannot compile the test program." % (header[-1]))
-		raise SCons.Errors.StopError("Header %s is missing or unusable." % (header[-1]))
+			return (1, "Header %s is parseable, but cannot compile the test program." % (header[-1]))
+		return (2, "Header %s is missing or unusable." % (header[-1]))
+	def _check_system_library(self,*args,**kwargs):
+		e = self._soft_check_system_library(*args, **kwargs)
+		if e:
+			raise SCons.Errors.StopError(e[1])
 	@_custom_test
 	def check_libphysfs(self,context):
-		self._check_system_library(context,header=['physfs.h'],main='''
+		main = '''
 	PHYSFS_File *f;
 	char b[1] = {0};
 	PHYSFS_init("");
@@ -295,10 +299,18 @@ class ConfigureTests:
 	PHYSFS_sint64 r = PHYSFS_read(f, b, 1, 1);
 	(void)r;
 	PHYSFS_close(f);
-''',
-			lib='physfs',
-			successflags={'LIBS' : ['physfs']}
-		)
+'''
+		l = ['physfs']
+		successflags = {'LIBS' : l}
+		e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+		if not e:
+			return
+		if e[0] == 0:
+			self.message("physfs header usable; adding zlib and retesting library")
+			l.append('z')
+			e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+		if e:
+			raise SCons.Errors.StopError(e[1])
 	@_custom_test
 	def check_libSDL(self,context):
 		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl', 'SDL')
