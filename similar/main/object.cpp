@@ -1711,9 +1711,10 @@ static void object_move_one(const vobjptridx_t obj)
 			int	old_level = Current_level_num;
 #endif
 			for (int i=0;i<n_phys_segs-1;i++) {
-				auto connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
+				const auto seg0 = vsegptridx(phys_seglist[i]);
+				const auto connect_side = find_connect_side(vcsegptridx(phys_seglist[i+1]), seg0);
 				if (connect_side != -1)
-					check_trigger(&Segments[phys_seglist[i]], connect_side, obj,0);
+					check_trigger(seg0, connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
