@@ -1710,7 +1710,8 @@ static void object_move_one(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			for (int i=0;i<n_phys_segs-1;i++) {
+			for (uint_fast32_t i = 0; i + 1 < n_phys_segs; ++i)
+			{
 				const auto seg0 = vsegptridx(phys_seglist[i]);
 				const auto connect_side = find_connect_side(vcsegptridx(phys_seglist[i+1]), seg0);
 				if (connect_side != -1)
