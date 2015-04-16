@@ -1411,10 +1411,10 @@ class DXXCommon(LazyObjectConstructor):
 		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
 		self.env.Command(source, None, self.write_pch_inclusion_file)
 
-	def _quote_cppdefine(self,s):
+	def _quote_cppdefine(self,s,f=repr):
 		r = ''
 		prior = False
-		for c in repr(s):
+		for c in f(s):
 			# No xdigit support in str
 			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
 				r += c
@@ -2060,7 +2060,7 @@ class DXXProgram(DXXCommon):
 				extra_version += ' '
 			extra_version += git_describe_version[0]
 		if extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version)))
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version, f=str)))
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
