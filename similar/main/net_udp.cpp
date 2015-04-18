@@ -4626,7 +4626,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
         // Make sure this is the packet we are expecting!
         if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
         {
-                range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_mdata_queue_highest))
+                range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, (uint32_t)UDP_MDATA_STOR_QUEUE_SIZE))
                 {
                         if (pkt_num == i) // We got this packet already - need to REsend ACK
                         {
