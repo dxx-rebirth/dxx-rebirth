@@ -4615,26 +4615,33 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 	// Check if this comes from a valid IP
 	if (sender_addr != Netgame.players[sender_pnum].protocol.udp.addr)
 		return 0;
-	// Make sure this is the packet we are expecting!
-	if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
-	{
-		con_printf(CON_VERBOSE, "P#%u: Rejecting MData pkt %i - expected %i - pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
-		return 0;
-	}
-	
-	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i - pnum %i",Player_num, pkt_num, sender_pnum);
-	memset(&buf,0,sizeof(buf));
-	buf[len] = UPID_MDATA_ACK;													len++;
-	buf[len] = Player_num;														len++;
-	buf[len] = pkt_sender_pnum;													len++;
-	PUT_INTEL_INT(buf + len, pkt_num);												len += 4;
+
+        // Prepare the ACK (but do not send, yet)
+        memset(&buf,0,sizeof(buf));
+        buf[len] = UPID_MDATA_ACK;											len++;
+        buf[len] = Player_num;												len++;
+        buf[len] = pkt_sender_pnum;											len++;
+        PUT_INTEL_INT(buf + len, pkt_num);										len += 4;
+
+        // Make sure this is the packet we are expecting!
+        if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
+        {
+                range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_mdata_queue_highest))
+                {
+                        if (pkt_num == i) // We got this packet already - need to REsend ACK
+                        {
+                                con_printf(CON_VERBOSE, "P#%u: Resending MData ACK for pkt %i we already got by pnum %i",Player_num, pkt_num, sender_pnum);
+                                dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
+                                return 0;
+                        }
+                }
+                con_printf(CON_VERBOSE, "P#%u: Rejecting MData pkt %i - expected %i by pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
+                return 0; // Not the right packet and we haven't gotten it, yet either. So bail out and wait for the right one.
+        }
+
+	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i by pnum %i",Player_num, pkt_num, sender_pnum);
 	dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
-	
-	range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_mdata_queue_highest))
-	{
-		if (pkt_num == i)
-			return 0; // we got this packet already
-	}
+
 	UDP_mdata_trace[sender_pnum].cur_slot++;
 	if (UDP_mdata_trace[sender_pnum].cur_slot >= UDP_MDATA_STOR_QUEUE_SIZE)
 		UDP_mdata_trace[sender_pnum].cur_slot = 0;
