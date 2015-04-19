@@ -257,7 +257,87 @@ extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
 
-extern array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
+class powerup_cap_state
+{
+	typedef uint8_t powerup_count_type;
+	typedef array<powerup_count_type, MAX_POWERUP_TYPES> array_type;
+	array_type m_powerups, m_max;
+	static powerup_type_t map_powerup_type_to_index(powerup_type_t);
+	static powerup_type_t map_powerup_4pack(powerup_type_t);
+	void cap_laser_powerup_level(uint8_t &player_level, powerup_type_t idx, uint_fast32_t level_bias) const;
+	enum which
+	{
+		current,
+		max,
+		both,
+	};
+	enum mapped
+	{
+		no,
+		yes,
+	};
+	enum direction
+	{
+		plus,
+		minus,
+	};
+	template <direction d>
+	static void modify_count(powerup_count_type &c, powerup_count_type amount);
+	template <which w, direction d>
+	void modify_counts(powerup_type_t id, powerup_count_type amount);
+	template <which w, direction d, mapped m>
+	void modify_counts(powerup_type_t id);
+public:
+	static bool powerup_is_4pack(powerup_type_t);
+	powerup_count_type get_current(const powerup_type_t type) const
+	{
+		return m_powerups[type];
+	}
+	powerup_count_type get_max(const powerup_type_t type) const
+	{
+		return m_max[type];
+	}
+	void set_max(const powerup_type_t type, const powerup_count_type value)
+	{
+		m_max[type] = value;
+	}
+	void cap_laser_level(uint8_t &player_level) const;
+	void cap_secondary_ammo(powerup_type_t type, uint16_t &player_ammo) const;
+	void cap_flag(uint32_t &player_flags, uint32_t powerup_flag, powerup_type_t idx) const;
+	bool can_add_mapped_powerup(const powerup_type_t type) const
+	{
+		return get_current(type) < get_max(type);
+	}
+	bool can_add_powerup(const powerup_type_t type) const
+	{
+		return can_add_mapped_powerup(map_powerup_type_to_index(type));
+	}
+	void recount();
+	void inc_flag_current(const uint32_t player_flags, const uint32_t powerup_flag, const powerup_type_t id)
+	{
+		if (player_flags & powerup_flag)
+			inc_powerup_current(id);
+	}
+	void inc_flag_max(const uint32_t player_flags, const uint32_t powerup_flag, const powerup_type_t id)
+	{
+		if (player_flags & powerup_flag)
+			inc_powerup_max(id);
+	}
+	void add_mapped_powerup_current(powerup_type_t id, uint_fast32_t amount);
+	void inc_powerup_current(powerup_type_t id);
+	void dec_powerup_current(powerup_type_t id);
+	void add_mapped_powerup_both(powerup_type_t id, uint_fast32_t amount);
+	void add_mapped_powerup_max(powerup_type_t id, uint_fast32_t amount);
+	void inc_mapped_powerup_current(powerup_type_t id);
+	void inc_mapped_powerup_max(powerup_type_t id);
+	void inc_mapped_powerup_both(powerup_type_t id);
+	void inc_powerup_both(powerup_type_t id);
+	void inc_powerup_max(powerup_type_t id);
+	void reset_powerup_both(powerup_type_t type);
+	void clear();
+};
+
+extern powerup_cap_state PowerupCaps;
 #endif
 
 enum msgsend_state_t {
@@ -309,7 +389,7 @@ void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
 void multi_send_cloak(void);
 void multi_send_decloak(void);
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
+void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
@@ -405,7 +485,6 @@ extern int multi_defining_message;
 window_event_result multi_message_input_sub(int key);
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state_t state);
-extern int multi_powerup_is_4pack(int);
 
 extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;

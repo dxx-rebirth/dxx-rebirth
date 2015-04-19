@@ -602,7 +602,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if (Game_mode & GM_NETWORK)
 		{
-			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
+			if (!PowerupCaps.can_add_powerup(powerup_type))
 				return;
 		}
 

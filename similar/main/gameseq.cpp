@@ -1614,7 +1614,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 void (bash_to_shield)(const vobjptr_t i)
 {
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
-	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
+	PowerupCaps.reset_powerup_both(type);
 	set_powerup_id(i, POW_SHIELD_BOOST);
 }
 

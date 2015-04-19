@@ -480,6 +480,45 @@ void ogl_cache_level_textures(void)
 					case POW_MEGA_WEAPON:
 						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[MEGA_INDEX]);
 						break;
+					case POW_EXTRA_LIFE:
+					case POW_ENERGY:
+					case POW_SHIELD_BOOST:
+					case POW_LASER:
+					case POW_KEY_BLUE:
+					case POW_KEY_RED:
+					case POW_KEY_GOLD:
+					case POW_MISSILE_1:
+					case POW_MISSILE_4:
+					case POW_QUAD_FIRE:
+					case POW_VULCAN_AMMO:
+					case POW_CLOAK:
+					case POW_TURBO:
+					case POW_INVULNERABILITY:
+					case POW_MEGAWOW:
+#if defined(DXX_BUILD_DESCENT_II)
+					case POW_FULL_MAP:
+					case POW_HEADLIGHT:
+					case POW_HOARD_ORB:
+					case POW_GAUSS_WEAPON:
+					case POW_HELIX_WEAPON:
+					case POW_PHOENIX_WEAPON:
+					case POW_OMEGA_WEAPON:
+					case POW_SUPER_LASER:
+					case POW_CONVERTER:
+					case POW_AMMO_RACK:
+					case POW_AFTERBURNER:
+					case POW_SMISSILE1_1:
+					case POW_SMISSILE1_4:
+					case POW_GUIDED_MISSILE_1:
+					case POW_GUIDED_MISSILE_4:
+					case POW_SMART_MINE:
+					case POW_MERCURY_MISSILE_1:
+					case POW_MERCURY_MISSILE_4:
+					case POW_EARTHSHAKER_MISSILE:
+					case POW_FLAG_BLUE:
+					case POW_FLAG_RED:
+#endif
+						break;
 				}
 			}
 			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)

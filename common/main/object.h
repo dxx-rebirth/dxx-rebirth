@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "compiler-type_traits.h"
 #include "fwdobject.h"
+#include "powerup.h"
 
 // Object types
 enum object_type_t : int
@@ -434,9 +435,9 @@ static inline ubyte get_player_id(const vcobjptr_t o)
 	return o->id;
 }
 
-static inline ubyte get_powerup_id(const vcobjptr_t o)
+static inline powerup_type_t get_powerup_id(const vcobjptr_t o)
 {
-	return o->id;
+	return static_cast<powerup_type_t>(o->id);
 }
 
 static inline ubyte get_reactor_id(const vcobjptr_t o)
@@ -464,7 +465,7 @@ static inline void set_player_id(const vobjptr_t o, ubyte id)
 	o->id = id;
 }
 
-void set_powerup_id(vobjptr_t o, uint8_t id);
+void set_powerup_id(vobjptr_t o, powerup_type_t id);
 
 static inline void set_robot_id(const vobjptr_t o, ubyte id)
 {

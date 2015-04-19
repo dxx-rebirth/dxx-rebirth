@@ -268,18 +268,8 @@ static void verify_object(const vobjptr_t obj)
 
 		if (Game_mode & GM_NETWORK)
 		{
-			if (multi_powerup_is_4pack(get_powerup_id(obj)))
-			{
-				PowerupsInMine[obj->id-1]+=4;
-				MaxPowerupsAllowed[obj->id-1]+=4;
-			}
-			else
-			{
-				PowerupsInMine[get_powerup_id(obj)]++;
-				MaxPowerupsAllowed[get_powerup_id(obj)]++;
-			}
+			PowerupCaps.inc_powerup_both(get_powerup_id(obj));
 		}
-
 	}
 
 	if ( obj->type == OBJ_WEAPON )	{
@@ -1187,8 +1177,7 @@ int load_level(const char * filename_passed)
 
    if (Game_mode & GM_NETWORK)
 	 {
-		 MaxPowerupsAllowed = {};
-		 PowerupsInMine = {};
+		 PowerupCaps.clear();
 	 }
 
 
