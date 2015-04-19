@@ -23,13 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAMEMINE_H
-#define _GAMEMINE_H
+#pragma once
 
 #include <physfs.h>
 #include "maths.h"
-#include "vecmat.h"
 
 #define TMAP_NUM_MASK 0x3FFF
 
@@ -152,5 +149,3 @@ extern int d1_tmap_num_unique(short d1_tmap_num); //is d1_tmap_num's texture onl
 #endif
 
 #endif
-
-#endif /* _GAMEMINE_H */
