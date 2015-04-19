@@ -23,11 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _CNTRLCEN_H
-#define _CNTRLCEN_H
+#pragma once
 
-#include "vecmat.h"
-#include "switch.h"
+#include <physfs.h>
 
 #ifdef __cplusplus
 #include "fwdobject.h"
@@ -48,6 +46,7 @@ struct control_center_triggers : public prohibit_void_ptr<control_center_trigger
 extern control_center_triggers ControlCenterTriggers;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "vecmat.h"
 struct reactor {
 #if defined(DXX_BUILD_DESCENT_II)
 	int model_num;
@@ -148,5 +147,3 @@ static inline void control_center_triggers_read(control_center_triggers *cct, PH
 void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp);
 
 #endif
-
-#endif /* _CNTRLCEN_H */
