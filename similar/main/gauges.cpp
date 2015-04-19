@@ -1167,37 +1167,43 @@ static void draw_primary_ammo_info(int ammo_count)
 		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count);
 }
 
-static void hud_set_fontcolor_red()
+__attribute_warn_unused_result
+static color_t hud_get_rgb_red()
 {
-	gr_set_fontcolor(BM_XRGB(20,0,0),-1);
+	return BM_XRGB(20,0,0);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void hud_set_fontcolor_yellow()
+__attribute_warn_unused_result
+static color_t hud_get_rgb_yellow()
 {
-	gr_set_fontcolor(BM_XRGB(15,15,0),-1);
+	return BM_XRGB(15,15,0);
 }
 #endif
 
-static void hud_set_fontcolor_green()
+__attribute_warn_unused_result
+static color_t hud_get_rgb_green()
 {
-	gr_set_fontcolor(BM_XRGB(0,15,0),-1);
+	return BM_XRGB(0,15,0);
 }
 
-static void hud_set_fontcolor_dimgreen()
+__attribute_warn_unused_result
+static color_t hud_get_rgb_dimgreen()
 {
-	gr_set_fontcolor(BM_XRGB(0,6,0),-1);
+	return BM_XRGB(0,6,0);
 }
 
-static void hud_set_fontcolor_gray()
+__attribute_warn_unused_result
+static color_t hud_get_rgb_gray()
 {
-	gr_set_fontcolor(BM_XRGB(3,3,3),-1);
+	return BM_XRGB(3,3,3);
 }
 
-static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
+__attribute_warn_unused_result
+static color_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 {
 	if (Primary_weapon==consider_weapon)
-		hud_set_fontcolor_red();
+		return hud_get_rgb_red();
 	else{
 		if (player_has_primary_weapon(consider_weapon).has_weapon())
 		{
@@ -1207,25 +1213,31 @@ static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 			if (Primary_last_was_super[base_weapon])
 			{
 				if (is_super)
-					hud_set_fontcolor_green();
+					return hud_get_rgb_green();
 				else
-					hud_set_fontcolor_yellow();
+					return hud_get_rgb_yellow();
 			}
 			else if (is_super)
-				hud_set_fontcolor_yellow();
+				return hud_get_rgb_yellow();
 			else
 #endif
-				hud_set_fontcolor_green();
+				return hud_get_rgb_green();
 		}
 		else
-			hud_set_fontcolor_gray();
+			return hud_get_rgb_gray();
 	}
 }
 
-static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
+static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
+{
+	gr_set_fontcolor(hud_get_primary_weapon_fontcolor(consider_weapon), -1);
+}
+
+__attribute_warn_unused_result
+static color_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 {
 	if (Secondary_weapon==consider_weapon)
-		hud_set_fontcolor_red();
+		return hud_get_rgb_red();
 	else{
 		if (Players[Player_num].secondary_ammo[consider_weapon]>0)
 		{
@@ -1235,19 +1247,40 @@ static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
 			if (Secondary_last_was_super[base_weapon])
 			{
 				if (is_super)
-					hud_set_fontcolor_green();
+					return hud_get_rgb_green();
 				else
-					hud_set_fontcolor_yellow();
+					return hud_get_rgb_yellow();
 			}
 			else if (is_super)
-				hud_set_fontcolor_yellow();
+				return hud_get_rgb_yellow();
 			else
 #endif
-				hud_set_fontcolor_green();
+				return hud_get_rgb_green();
 		}
 		else
-			hud_set_fontcolor_dimgreen();
+			return hud_get_rgb_dimgreen();
 	}
+}
+
+static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
+{
+	gr_set_fontcolor(hud_get_secondary_weapon_fontcolor(consider_weapon), -1);
+}
+
+__attribute_warn_unused_result
+static color_t hud_get_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_ammo)
+{
+	if (weapon_index_uses_vulcan_ammo(Primary_weapon))
+		return hud_get_rgb_red();
+	else if (has_weapon_uses_vulcan_ammo)
+		return hud_get_rgb_green();
+	else
+		return hud_get_rgb_gray();
+}
+
+static void hud_set_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_ammo)
+{
+	gr_set_fontcolor(hud_get_vulcan_ammo_fontcolor(has_weapon_uses_vulcan_ammo), -1);
 }
 
 static void hud_printf_vulcan_ammo(const int x, const int y)
@@ -1265,12 +1298,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
-	if (weapon_index_uses_vulcan_ammo(Primary_weapon))
-		hud_set_fontcolor_red();
-	else if (has_weapon_uses_vulcan_ammo)
-		hud_set_fontcolor_green();
-	else
-		hud_set_fontcolor_gray();
+	hud_set_vulcan_ammo_fontcolor(has_weapon_uses_vulcan_ammo);
 	char c;
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((primary_weapon_flags & gauss_mask) && (Primary_last_was_super[VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
