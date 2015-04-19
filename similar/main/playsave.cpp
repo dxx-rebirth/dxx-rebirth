@@ -70,6 +70,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GameFlagsStr "game_flags"
 #define AllowedItemsStr "AllowedItems"
 #define SpawnGrantedItemsStr "SpawnGrantedItems"
+#define DuplicatePrimariesStr "DuplicatePrimaries"
+#define DuplicateSecondariesStr "DuplicateSecondaries"
+#define DuplicateAccessoriesStr "DuplicateAccessories"
 #define AllowMarkerViewStr "Allow_marker_view"
 #define AlwaysLightingStr "AlwaysLighting"
 #define ShowEnemyNamesStr "ShowEnemyNames"
@@ -1311,6 +1314,16 @@ static int get_lifetime_checksum (int a,int b)
 }
 #endif
 
+template <uint_fast32_t shift, uint_fast32_t width>
+static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, const char *value)
+{
+	/* Initialize 'i' to avoid bogus -Wmaybe-uninitialized at -Og on
+	 * gcc-4.9 */
+	unsigned i = 0;
+	if (convert_integer(i, value) && !(i & ~((1 << width) - 1)))
+		d.set_sub_field<shift, width>(i);
+}
+
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
@@ -1355,7 +1368,13 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->AllowedItems, value);
 		else if (cmp(lb, eq, SpawnGrantedItemsStr))
 			convert_integer(ng->SpawnGrantedItems.mask, value);
+		else if (cmp(lb, eq, DuplicatePrimariesStr))
+			convert_duplicate_powerup_integer<packed_netduplicate_items::primary_shift, packed_netduplicate_items::primary_width>(ng->DuplicatePowerups, value);
+		else if (cmp(lb, eq, DuplicateSecondariesStr))
+			convert_duplicate_powerup_integer<packed_netduplicate_items::secondary_shift, packed_netduplicate_items::secondary_width>(ng->DuplicatePowerups, value);
 #if defined(DXX_BUILD_DESCENT_II)
+		else if (cmp(lb, eq, DuplicateAccessoriesStr))
+			convert_duplicate_powerup_integer<packed_netduplicate_items::accessory_shift, packed_netduplicate_items::accessory_width>(ng->DuplicatePowerups, value);
 		else if (cmp(lb, eq, AllowMarkerViewStr))
 			convert_integer(ng->Allow_marker_view, value);
 		else if (cmp(lb, eq, AlwaysLightingStr))
@@ -1400,7 +1419,10 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
 	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", ng->SpawnGrantedItems.mask);
+	PHYSFSX_printf(file, DuplicatePrimariesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_primary_count()));
+	PHYSFSX_printf(file, DuplicateSecondariesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_secondary_count()));
 #if defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_printf(file, DuplicateAccessoriesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_accessory_count()));
 	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 #endif

@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <bitset>
 #include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
@@ -3191,6 +3192,91 @@ assert_equal(map_granted_flags_to_netflag(NETGRANT_AFTERBURNER), NETFLAG_DOAFTER
 assert_equal(map_granted_flags_to_netflag(NETGRANT_HEADLIGHT), NETFLAG_DOHEADLIGHT, "HEADLIGHT");
 #endif
 
+namespace {
+
+class update_item_state
+{
+	std::bitset<MAX_OBJECTS> m_modified;
+public:
+	bool must_skip(const vcobjptridx_t i) const
+	{
+		return m_modified.test(i);
+	}
+	void process_powerup(vcobjptridx_t, powerup_type_t);
+};
+
+void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_type_t id)
+{
+	uint_fast32_t count;
+	switch (id)
+	{
+		case POW_LASER:
+		case POW_QUAD_FIRE:
+		case POW_VULCAN_WEAPON:
+		case POW_VULCAN_AMMO:
+		case POW_SPREADFIRE_WEAPON:
+		case POW_PLASMA_WEAPON:
+		case POW_FUSION_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SUPER_LASER:
+		case POW_GAUSS_WEAPON:
+		case POW_HELIX_WEAPON:
+		case POW_PHOENIX_WEAPON:
+		case POW_OMEGA_WEAPON:
+#endif
+			count = Netgame.DuplicatePowerups.get_primary_count();
+			break;
+		case POW_MISSILE_1:
+		case POW_MISSILE_4:
+		case POW_HOMING_AMMO_1:
+		case POW_HOMING_AMMO_4:
+		case POW_PROXIMITY_WEAPON:
+		case POW_SMARTBOMB_WEAPON:
+		case POW_MEGA_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SMISSILE1_1:
+		case POW_SMISSILE1_4:
+		case POW_GUIDED_MISSILE_1:
+		case POW_GUIDED_MISSILE_4:
+		case POW_SMART_MINE:
+		case POW_MERCURY_MISSILE_1:
+		case POW_MERCURY_MISSILE_4:
+		case POW_EARTHSHAKER_MISSILE:
+#endif
+			count = Netgame.DuplicatePowerups.get_secondary_count();
+			break;
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_FULL_MAP:
+		case POW_CONVERTER:
+		case POW_AMMO_RACK:
+		case POW_AFTERBURNER:
+		case POW_HEADLIGHT:
+			count = Netgame.DuplicatePowerups.get_accessory_count();
+			break;
+#endif
+		default:
+			return;
+	}
+	if (!count)
+		return;
+	const auto &vc = Vclip[o->rtype.vclip_info.vclip_num];
+	for (uint_fast32_t i = count++; i; --i)
+	{
+		const auto &seg = vsegptr(o->segnum);
+		const auto no = obj_create(OBJ_POWERUP, id, o->segnum, vm_vec_avg(o->pos, Vertices[seg->verts[i % seg->verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+		if (no == object_none)
+			return;
+		m_modified.set(no);
+		PowerupCaps.inc_powerup_both(id);
+		no->mtype.phys_info = o->mtype.phys_info;
+		no->rtype.vclip_info = o->rtype.vclip_info;
+		no->rtype.vclip_info.framenum = (o->rtype.vclip_info.framenum + (i * vc.num_frames) / count) % vc.num_frames;
+		no->ctype.powerup_info = o->ctype.powerup_info;
+	}
+}
+
+}
+
 void multi_prep_level(void)
 {
 	// Do any special stuff to the level required for games
@@ -3260,6 +3346,7 @@ void multi_prep_level(void)
 	const auto SpawnGrantedItems = map_granted_flags_to_netflag(Netgame.SpawnGrantedItems);
 	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
 	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
+	update_item_state duplicates;
 	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
@@ -3279,7 +3366,7 @@ void multi_prep_level(void)
 			continue;
 		}
 
-		if (o->type == OBJ_POWERUP)
+		if (o->type == OBJ_POWERUP && !duplicates.must_skip(o))
 		{
 			switch (const auto id = get_powerup_id(o))
 			{
@@ -3301,6 +3388,8 @@ void multi_prep_level(void)
 				default:
 					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
 						bash_to_shield(o);
+					else
+						duplicates.process_powerup(o, id);
 					continue;
 			}
 		}

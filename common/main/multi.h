@@ -87,7 +87,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(19)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(20)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -260,6 +260,66 @@ struct packed_spawn_granted_items
 #if defined(DXX_BUILD_DESCENT_II)
 	bool has_afterburner() const { return mask & NETGRANT_AFTERBURNER; }
 #endif
+};
+
+class packed_netduplicate_items
+{
+public:
+	enum
+	{
+		primary_shift = 0,
+		primary_width = 3,
+		secondary_shift = primary_shift + primary_width,
+		secondary_width = 3,
+#if defined(DXX_BUILD_DESCENT_II)
+		accessory_shift = secondary_shift + secondary_width,
+		accessory_width = 3,
+#endif
+	};
+private:
+#if defined(DXX_BUILD_DESCENT_I)
+	typedef uint8_t count_type;
+#elif defined(DXX_BUILD_DESCENT_II)
+	typedef uint16_t count_type;
+#endif
+	count_type count;
+	template <uint_fast32_t shift, uint_fast32_t width>
+	uint_fast32_t get_sub_field() const
+	{
+		static_assert(shift + width <= sizeof(count) << 3, "shift+width too big");
+		constexpr auto low_mask = (1 << width) - 1;
+		return (count >> shift) & low_mask;
+	}
+public:
+	template <uint_fast32_t shift, uint_fast32_t width>
+	void set_sub_field(uint_fast32_t value)
+	{
+		constexpr auto low_mask = (1 << width) - 1;
+		constexpr auto shifted_mask = low_mask << shift;
+		count = (count & ~shifted_mask) | (value << shift);
+	}
+#define DEFINE_ACCESSOR(N)	\
+	uint_fast32_t get_##N##_count() const	\
+	{	\
+		return get_sub_field<N##_shift, N##_width>();	\
+	}	\
+	void set_##N##_count(uint_fast32_t value)	\
+	{	\
+		set_sub_field<N##_shift, N##_width>(value);	\
+	}
+	DEFINE_ACCESSOR(primary);
+	DEFINE_ACCESSOR(secondary);
+#if defined(DXX_BUILD_DESCENT_II)
+	DEFINE_ACCESSOR(accessory);
+#endif
+	count_type get_packed_field() const
+	{
+		return count;
+	}
+	void set_packed_field(count_type c)
+	{
+		count = c;
+	}
 };
 
 static inline unsigned map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
@@ -685,6 +745,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
 	packed_spawn_granted_items SpawnGrantedItems;
+	packed_netduplicate_items DuplicatePowerups;
 #if defined(DXX_BUILD_DESCENT_II)
 	/*
 	 * Only used in Descent II, but defined in both for historical

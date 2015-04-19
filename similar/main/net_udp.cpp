@@ -2461,8 +2461,10 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
 #if defined(DXX_BUILD_DESCENT_I)
 		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
+		buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.DuplicatePowerups.get_packed_field());			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
 #endif
@@ -2686,8 +2688,10 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
 #if defined(DXX_BUILD_DESCENT_I)
 		Netgame.SpawnGrantedItems = data[len];		len += 1;
+		Netgame.DuplicatePowerups.set_packed_field(data[len]);			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		Netgame.SpawnGrantedItems = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.DuplicatePowerups.set_packed_field(GET_INTEL_SHORT(&data[len])); len += 2;
 		if (unlikely(map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) > MAX_SUPER_LASER_LEVEL))
 			/* Bogus input - reject whole entry */
 			Netgame.SpawnGrantedItems = 0;
@@ -3163,6 +3167,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
 	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
+	DXX_##VERB##_MENU("Duplicate powerups at level start", opt_set_powerup_duplicates)	\
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
@@ -3194,27 +3199,36 @@ static void net_udp_set_power (void)
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_GRANT_POWERUP_MENU(VERB)
+#define D2X_DUPLICATE_POWERUP_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_GRANT_POWERUP_MENU(VERB)	\
-	DXX_##VERB##_CHECK("Gauss cannon", opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
-	DXX_##VERB##_CHECK("Helix cannon", opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
-	DXX_##VERB##_CHECK("Phoenix cannon", opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
-	DXX_##VERB##_CHECK("Omega cannon", opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
-	DXX_##VERB##_CHECK("Afterburners", opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
-	DXX_##VERB##_CHECK("Ammo rack", opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
-	DXX_##VERB##_CHECK("Energy Converter", opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
-	DXX_##VERB##_CHECK("Headlight", opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_GAUSS, opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_HELIX, opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_PHOENIX, opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_OMEGA, opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_AFTERBURNER, opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_AMMORACK, opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_CONVERTER, opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_HEADLIGHT, opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
+
+#define D2X_DUPLICATE_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("duplicate accessories", opt_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
 
 #endif
 
 #define DXX_GRANT_POWERUP_MENU(VERB)	\
 	DXX_##VERB##_NUMBER("Laser level", opt_laser_level, menu_number_bias_wrapper(laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
-	DXX_##VERB##_CHECK("Quad Lasers", opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
-	DXX_##VERB##_CHECK("Vulcan cannon", opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
-	DXX_##VERB##_CHECK("Spreadfire cannon", opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
-	DXX_##VERB##_CHECK("Plasma cannon", opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
-	DXX_##VERB##_CHECK("Fusion cannon", opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_QUAD, opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_VULCAN, opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_SPREAD, opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_PLASMA, opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
 	D2X_GRANT_POWERUP_MENU(VERB)
+
+#define DXX_DUPLICATE_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("duplicate primaries", opt_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
+	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
+	D2X_DUPLICATE_POWERUP_MENU(VERB)
 
 namespace {
 
@@ -3239,6 +3253,38 @@ public:
 	}
 };
 
+class duplicate_powerup_menu_items
+{
+public:
+	enum
+	{
+		DXX_DUPLICATE_POWERUP_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_DUPLICATE_POWERUP_MENU(COUNT)> m;
+	duplicate_powerup_menu_items(const packed_netduplicate_items items)
+	{
+		const auto primary = items.get_primary_count();
+		const auto secondary = items.get_secondary_count();
+#if defined(DXX_BUILD_DESCENT_II)
+		const auto accessory = items.get_accessory_count();
+#endif
+		DXX_DUPLICATE_POWERUP_MENU(ADD);
+	}
+	void read(packed_netduplicate_items &items) const
+	{
+		unsigned primary, secondary;
+#if defined(DXX_BUILD_DESCENT_II)
+		unsigned accessory;
+#endif
+		DXX_DUPLICATE_POWERUP_MENU(READ);
+		items.set_primary_count(primary);
+		items.set_secondary_count(secondary);
+#if defined(DXX_BUILD_DESCENT_II)
+		items.set_accessory_count(accessory);
+#endif
+	}
+};
+
 }
 
 static void net_udp_set_grant_power()
@@ -3247,6 +3293,13 @@ static void net_udp_set_grant_power()
 	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
 	newmenu_do(nullptr, "Powerups granted at player spawn", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	menu.read(Netgame.SpawnGrantedItems);
+}
+
+static void net_udp_set_duplicate_powerups()
+{
+	duplicate_powerup_menu_items menu{Netgame.DuplicatePowerups};
+	newmenu_do(nullptr, "Duplicate powerups at level start", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	menu.read(Netgame.DuplicatePowerups);
 }
 
 static void net_udp_more_game_options ()
@@ -3285,6 +3338,9 @@ static void net_udp_more_game_options ()
 				continue;
 			case opt_setgrant:
 				net_udp_set_grant_power();
+				continue;
+			case opt_set_powerup_duplicates:
+				net_udp_set_duplicate_powerups();
 				continue;
 			default:
 				break;
