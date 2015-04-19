@@ -1197,7 +1197,7 @@ static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 	if (Primary_weapon==consider_weapon)
 		hud_set_fontcolor_red();
 	else{
-		if (player_has_weapon(consider_weapon,0) & HAS_WEAPON_FLAG)
+		if (player_has_primary_weapon(consider_weapon).has_weapon())
 		{
 			const int is_super = (consider_weapon >= 5);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2511,7 +2511,7 @@ const array<xy, 4> cross_offsets{{
 void show_reticle(int reticle_type, int secondary_display)
 {
 	int x,y,size;
-	int laser_ready,missile_ready,laser_ammo,missile_ammo;
+	int laser_ready,missile_ready;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
 	int use_hires_reticle,ofs,gauge_index;
 
@@ -2527,11 +2527,8 @@ void show_reticle(int reticle_type, int secondary_display)
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
 
-	laser_ammo = player_has_weapon(Primary_weapon,0);
-	missile_ammo = player_has_weapon(Secondary_weapon,1);
-
-	primary_bm_num = (laser_ready && laser_ammo==HAS_ALL);
-	secondary_bm_num = (missile_ready && missile_ammo==HAS_ALL);
+	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
+	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
 
 	if (primary_bm_num && Primary_weapon==LASER_INDEX && (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;

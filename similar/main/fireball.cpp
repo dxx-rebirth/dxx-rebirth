@@ -699,7 +699,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (Players[Player_num].vulcan_ammo >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
-		if ((player_has_weapon(weapon_index, 0) & HAS_WEAPON_FLAG) || weapon_nearby(del_obj, del_obj->contains_id)) {
+		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id)) {
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj->contains_count = 1;

@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _WEAPON_H
-#define _WEAPON_H
+#pragma once
 
 #include "game.h"
 #include "piggy.h"
@@ -35,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "pack.h"
 #include "fwdvalptridx.h"
+
+#include "compiler-type_traits.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
@@ -284,10 +285,38 @@ extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 
-#define HAS_WEAPON_FLAG 1
-#define HAS_ENERGY_FLAG 2
-#define HAS_AMMO_FLAG       4
-#define  HAS_ALL (HAS_WEAPON_FLAG|HAS_ENERGY_FLAG|HAS_AMMO_FLAG)
+class has_weapon_result
+{
+	uint8_t m_result;
+public:
+	static constexpr tt::integral_constant<uint8_t, 1> has_weapon_flag{};
+	static constexpr tt::integral_constant<uint8_t, 2> has_energy_flag{};
+	static constexpr tt::integral_constant<uint8_t, 4> has_ammo_flag{};
+	has_weapon_result() = default;
+	constexpr has_weapon_result(uint8_t r) : m_result(r)
+	{
+	}
+	uint8_t has_weapon() const
+	{
+		return m_result & has_weapon_flag;
+	}
+	uint8_t has_energy() const
+	{
+		return m_result & has_energy_flag;
+	}
+	uint8_t has_ammo() const
+	{
+		return m_result & has_ammo_flag;
+	}
+	uint8_t flags() const
+	{
+		return m_result;
+	}
+	bool has_all() const
+	{
+		return m_result == (has_weapon_flag | has_energy_flag | has_ammo_flag);
+	}
+};
 
 //-----------------------------------------------------------------------------
 // Return:
@@ -295,8 +324,12 @@ extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 //      HAS_WEAPON_FLAG
 //      HAS_ENERGY_FLAG
 //      HAS_AMMO_FLAG
-//      HAS_SUPER_FLAG
-extern int player_has_weapon(int weapon_num, int secondary_flag);
+has_weapon_result player_has_primary_weapon(int weapon_num);
+has_weapon_result player_has_secondary_weapon(int weapon_num);
+static inline has_weapon_result player_has_weapon(int weapon_num, int secondary_flag)
+{
+	return secondary_flag ? player_has_secondary_weapon(weapon_num) : player_has_primary_weapon(weapon_num);
+}
 
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
@@ -363,8 +396,6 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 {
 	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
 }
-#endif
-
 #endif
 
 #endif
