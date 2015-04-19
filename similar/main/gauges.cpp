@@ -1313,23 +1313,26 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 }
 
 static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
-	int i,w,h,aw,x=orig_x,y=orig_y;
+	int w,h,aw,x=orig_x,y=orig_y;
 
 	if (vertical){
 		y=y+(LINE_SPACING*4);
 	}
 
 	if (type==0){
-		for (i=4;i>=0;i--){
+		for (uint_fast32_t ui = 5; ui --;)
+		{
+			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
 			hud_set_primary_weapon_fontcolor(i);
-			switch(i){
-				case 0:
+			switch(i)
+			{
+				case primary_weapon_index_t::LASER_INDEX:
 					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', Players[Player_num].laser_level+1);
 					txtweapon = weapon_str;
 					break;
-				case 1:
+				case primary_weapon_index_t::VULCAN_INDEX:
 #if defined(DXX_BUILD_DESCENT_I)
 				if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 				{
@@ -1340,13 +1343,13 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 #endif
 					txtweapon = "V";
 					break;
-				case 2:
+				case primary_weapon_index_t::SPREADFIRE_INDEX:
 					txtweapon = "S";
 					break;
-				case 3:
+				case primary_weapon_index_t::PLASMA_INDEX:
 					txtweapon = "P";
 					break;
-				case 4:
+				case primary_weapon_index_t::FUSION_INDEX:
 					txtweapon = "F";
 					break;
 				default:
@@ -1358,13 +1361,15 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 			}else
 				x-=w+FSPACX(3);
 			gr_string(x, y, txtweapon);
-			if (i == 1 && !vertical)
+			if (i == primary_weapon_index_t::VULCAN_INDEX && !vertical)
 			{
 				hud_printf_vulcan_ammo(x, y - (LINE_SPACING * 1));
 			}
 		}
 	} else {
-		for (i=4;i>=0;i--){
+		for (uint_fast32_t ui = 5; ui --;)
+		{
+			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
 			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
@@ -1391,24 +1396,27 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 	}
 
 	if (type==0) {
-		for (i=9;i>=5;i--){
+		for (uint_fast32_t ui = 10; ui -- != 5;)
+		{
+			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
 			hud_set_primary_weapon_fontcolor(i);
-			switch(i){
-				case 5:
+			switch(i)
+			{
+				case primary_weapon_index_t::SUPER_LASER_INDEX:
 					txtweapon = " ";
 					break;
-				case 6:
+				case primary_weapon_index_t::GAUSS_INDEX:
 					txtweapon = "G";
 					break;
-				case 7:
+				case primary_weapon_index_t::HELIX_INDEX:
 					txtweapon = "H";
 					break;
-				case 8:
+				case primary_weapon_index_t::PHOENIX_INDEX:
 					txtweapon = "P";
 					break;
-				case 9:
+				case primary_weapon_index_t::OMEGA_INDEX:
 					if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 					{
 						snprintf(weapon_str, sizeof(weapon_str), "O%03i", Omega_charge * 100/MAX_OMEGA_CHARGE);
@@ -1425,7 +1433,7 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 				y-=h+FSPACY(2);
 			}else
 				x-=w+FSPACX(3);
-			if (i == 5)
+			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 			{
 				if (vertical)
 					hud_printf_vulcan_ammo(x, y);
@@ -1434,7 +1442,9 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 			gr_string(x, y, txtweapon);
 		}
 	} else {
-		for (i=9;i>=5;i--){
+		for (uint_fast32_t ui = 10; ui -- != 5;)
+		{
+			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
 			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
