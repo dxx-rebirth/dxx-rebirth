@@ -869,24 +869,24 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, nullptr, 0); // 0 means not between levels.
+				state_save_all(secret_save::none, blind_save::no); // 0 means not between levels.
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, nullptr, 1);
+				state_save_all(secret_save::none, blind_save::yes);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_O:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, nullptr, 0);
+				state_restore_all(1, secret_restore::none, nullptr, blind_save::no);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_O:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, nullptr, 1);
+				state_restore_all(1, secret_restore::none, nullptr, blind_save::yes);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)

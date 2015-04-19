@@ -4594,7 +4594,7 @@ void multi_initiate_save_game()
 
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', 24);
-	slot = state_get_save_file(filename, desc, 0 );
+	slot = state_get_save_file(filename, desc, blind_save::no);
 	if (!slot)
 		return;
 	slot--;
@@ -4669,7 +4669,7 @@ void multi_initiate_restore_game()
 		}
 	}
 	}
-	slot = state_get_restore_file(filename, 0);
+	slot = state_get_restore_file(filename, blind_save::no);
 	if (!slot)
 		return;
 	state_game_id = state_get_game_id(filename);
@@ -4720,7 +4720,7 @@ void multi_restore_game(ubyte slot, uint id)
 		return;
 	}
   
-	state_restore_all_sub( filename, 0 );
+	state_restore_all_sub(filename, secret_restore::none);
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 

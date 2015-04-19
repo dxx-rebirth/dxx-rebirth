@@ -306,11 +306,11 @@ extern	ubyte	Last_afterburner_state;
 #if defined(DXX_BUILD_DESCENT_I)
 void init_player_stats_level()
 #elif defined(DXX_BUILD_DESCENT_II)
-void init_player_stats_level(const int secret_flag)
+void init_player_stats_level(const secret_restore secret_flag)
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> secret_flag{};
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
 	// int	i;
 
@@ -333,7 +333,7 @@ void init_player_stats_level(const int secret_flag)
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
-	if (!secret_flag) {
+	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
 		Players[Player_num].flags &= (~KEY_BLUE);
@@ -432,7 +432,7 @@ void init_player_stats_new_ship(ubyte pnum)
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
-	init_player_stats_level(0);
+	init_player_stats_level(secret_restore::none);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
 	set_player_id(ConsoleObject, Player_num);
@@ -1052,7 +1052,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
-			state_restore_all(1, 1, SECRETC_FILENAME, 0);
+			state_restore_all(1, secret_restore::survived, SECRETC_FILENAME, blind_save::no);
 			Primary_weapon = pw_save;
 			Secondary_weapon = sw_save;
 			reset_special_effects();
@@ -1076,7 +1076,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	First_secret_visit = 0;
 }
 
-int	Entered_from_level;
+static int Entered_from_level;
 
 // ---------------------------------------------------------------------------------------------------------------
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
@@ -1089,7 +1089,7 @@ void ExitSecretLevel(void)
 		window_set_visible(Game_wind, 0);
 
 	if (!Control_center_destroyed) {
-		state_save_all(2, SECRETC_FILENAME, 0);
+		state_save_all(secret_save::c, blind_save::no);
 	}
 
 	if (PHYSFSX_exists(SECRETB_FILENAME,0))
@@ -1099,7 +1099,7 @@ void ExitSecretLevel(void)
 		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME, 0);
+		state_restore_all(1, secret_restore::survived, SECRETB_FILENAME, blind_save::no);
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
 	} else {
@@ -1158,7 +1158,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(1, nullptr, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(secret_save::b, blind_save::no);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)
@@ -1424,7 +1424,7 @@ void DoPlayerDead()
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
-				state_restore_all(1, 2, SECRETB_FILENAME, 0);			//	2 means you died
+				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
@@ -1451,8 +1451,8 @@ void DoPlayerDead()
 		{
 			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)
-				state_save_all(2, SECRETC_FILENAME, 0);
-			state_restore_all(1, 2, SECRETB_FILENAME, 0);
+				state_save_all(secret_save::c, blind_save::no);
+			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
@@ -1483,14 +1483,14 @@ void DoPlayerDead()
 #if defined(DXX_BUILD_DESCENT_I)
 void StartNewLevelSub(const int level_num, const int page_in_textures)
 #elif defined(DXX_BUILD_DESCENT_II)
-void StartNewLevelSub(const int level_num, const int page_in_textures, const int secret_flag)
+void StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> secret_flag{};
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
         BigWindowSwitch=0;
 #endif
@@ -1730,7 +1730,7 @@ void StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	StartNewLevelSub(level_num, 1, 0 );
+	StartNewLevelSub(level_num, 1, secret_restore::none);
 
 }
 

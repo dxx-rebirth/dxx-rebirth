@@ -642,7 +642,7 @@ int state_quick_item = -1;
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, int blind_save)
+static int state_get_savegame_filename(char * fname, char * dsc, const char * caption, blind_save blind)
 {
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
@@ -710,10 +710,10 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 
 	sc_last_item = -1;
 
-	if (blind_save && state_quick_item < 0)
-		blind_save = 0;		// haven't picked a slot yet
+	if (blind != blind_save::no && state_quick_item < 0)
+		blind = blind_save::no;		// haven't picked a slot yet
 
-	if (blind_save)
+	if (blind != blind_save::no)
 		choice = state_default_item + 1;
 	else
 	{
@@ -731,12 +731,12 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	return 0;
 }
 
-int state_get_save_file(char * fname, char * dsc, int blind_save)
+int state_get_save_file(char * fname, char * dsc, blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
-int state_get_restore_file(char * fname, int blind_save)
+int state_get_restore_file(char * fname, blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
@@ -788,18 +788,18 @@ static int copy_file(const char *old_file, const char *new_file)
 
 //	-----------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-int state_save_all(const int blind_save)
+int state_save_all(const blind_save blind_save)
 #elif defined(DXX_BUILD_DESCENT_II)
-int state_save_all(const int secret, const char *, const int blind_save)
+int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> secret{};
+	static constexpr tt::integral_constant<secret_save, secret_save::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Current_level_num < 0 && secret == 0)
+	if (Current_level_num < 0 && secret == secret_save::none)
 	{
 		HUD_init_message_literal(HM_DEFAULT,  "Can't save in secret level!" );
 		return 0;
@@ -819,7 +819,7 @@ int state_save_all(const int secret, const char *, const int blind_save)
 #if defined(DXX_BUILD_DESCENT_II)
 	//	If this is a secret save and the control center has been destroyed, don't allow
 	//	return to the base level.
-	if (secret != 0 && Control_center_destroyed) {
+	if (secret != secret_save::none && Control_center_destroyed) {
 		PHYSFS_delete(SECRETB_FILENAME);
 		return 0;
 	}
@@ -830,9 +830,9 @@ int state_save_all(const int secret, const char *, const int blind_save)
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', DESC_LENGTH+1);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (secret == 1) {
+	if (secret == secret_save::b) {
 		sprintf(filename, SECRETB_FILENAME);
-	} else if (secret == 2) {
+	} else if (secret == secret_save::c) {
 		sprintf(filename, SECRETC_FILENAME);
 	} else
 #endif
@@ -848,7 +848,7 @@ int state_save_all(const int secret, const char *, const int blind_save)
 	//	Do special secret level stuff.
 	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
 	//	If it doesn't exist, then delete Nsecret.sgc
-	if (secret == 0 && !(Game_mode & GM_MULTI_COOP)) {
+	if (secret == secret_save::none && !(Game_mode & GM_MULTI_COOP)) {
 		int	rval;
 		char	temp_fname[PATH_MAX], fc;
 
@@ -879,7 +879,7 @@ int state_save_all(const int secret, const char *, const int blind_save)
 
 	rval = state_save_all_sub(filename, desc);
 
-	if (rval && secret == 0)
+	if (rval && secret == secret_save::none)
 		HUD_init_message_literal(HM_DEFAULT, "Game saved");
 
 	return rval;
@@ -1201,18 +1201,18 @@ void set_pos_from_return_segment(void)
 
 //	-----------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-int state_restore_all(const int in_game, std::nullptr_t, const int blind)
+int state_restore_all(const int in_game, std::nullptr_t, const blind_save blind)
 #elif defined(DXX_BUILD_DESCENT_II)
-int state_restore_all(const int in_game, const int secret, const char *const filename_override, const int blind)
+int state_restore_all(const int in_game, const secret_restore secret, const char *const filename_override, const blind_save blind)
 #endif
 {
 	char filename[PATH_MAX];
 	int	filenum = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> secret{};
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (in_game && Current_level_num < 0 && secret == 0)
+	if (in_game && Current_level_num < 0 && secret == secret_restore::none)
 	{
 		HUD_init_message_literal(HM_DEFAULT,  "Can't restore in secret level!" );
 		return 0;
@@ -1250,7 +1250,7 @@ int state_restore_all(const int in_game, const int secret, const char *const fil
 	//	Do special secret level stuff.
 	//	If Nsecret.sgc (where N = filenum) exists, then copy it to secret.sgc.
 	//	If it doesn't exist, then delete secret.sgc
-	if (secret == 0)
+	if (secret == secret_restore::none)
 	{
 		int	rval;
 		char	temp_fname[PATH_MAX], fc;
@@ -1273,7 +1273,7 @@ int state_restore_all(const int in_game, const int secret, const char *const fil
 		}
 	}
 #endif
-	if (secret == 0 && in_game && blind == 0)
+	if (secret == secret_restore::none && in_game && blind == blind_save::no)
 	{
 		int choice;
 		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
@@ -1289,7 +1289,7 @@ int state_restore_all(const int in_game, const int secret, const char *const fil
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename)
 #elif defined(DXX_BUILD_DESCENT_II)
-int state_restore_all_sub(const char *filename, const int secret)
+int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 {
 	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
@@ -1303,7 +1303,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 
 #if defined(DXX_BUILD_DESCENT_I)
-	static constexpr tt::integral_constant<int, 0> secret{};
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	fix64	old_gametime = GameTime64;
 #endif
@@ -1384,7 +1384,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 		change_playernum_to(0);
 		N_players = 1;
 		org_callsign = Players[0].callsign;
-		if (secret == 0)
+		if (secret == secret_restore::none)
 		{
 			InitPlayerObject();				//make sure player's object set up
 			init_player_stats_game(0);		//clear all stats
@@ -1393,7 +1393,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 	else // in coop we want to stay the player we are already.
 	{
 		org_callsign = Players[Player_num].callsign;
-		if (secret == 0)
+		if (secret == secret_restore::none)
 			init_player_stats_game(Player_num);
 	}
 
@@ -1406,10 +1406,10 @@ int state_restore_all_sub(const char *filename, const int secret)
 		StartNewLevelSub(current_level, 1, secret);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (secret != 0) {
+		if (secret != secret_restore::none) {
 			player	dummy_player;
 			state_read_player(fp, dummy_player, swap);
-			if (secret == 1) {		//	This means he didn't die, so he keeps what he got in the secret level.
+			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				Players[Player_num].level = dummy_player.level;
 				Players[Player_num].last_score = dummy_player.last_score;
 				Players[Player_num].time_level = dummy_player.time_level;
@@ -1501,10 +1501,10 @@ int state_restore_all_sub(const char *filename, const int secret)
 
 	//	1 = Didn't die on secret level.
 	//	2 = Died on secret level.
-	if (secret != 0 && (Current_level_num >= 0)) {
+	if (secret != secret_restore::none && (Current_level_num >= 0)) {
 		set_pos_from_return_segment();
 #if defined(DXX_BUILD_DESCENT_II)
-		if (secret == 2)
+		if (secret == secret_restore::died)
 			init_player_stats_new_ship(Player_num);
 #endif
 	}
@@ -1654,7 +1654,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 	}
 
 	if (version>=11) {
-		if (secret != 1)
+		if (secret != secret_restore::survived)
 			Afterburner_charge = PHYSFSX_readSXE32(fp, swap);
 		else {
 			PHYSFSX_readSXE32(fp, swap);
@@ -1699,7 +1699,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 			Segments[i].light_subtracted = 0;
 	}
 
-	if (secret == 0)
+	if (secret == secret_restore::none)
 	{
 		if (version >= 20) {
 			First_secret_visit = PHYSFSX_readSXE32(fp, swap);
@@ -1710,7 +1710,7 @@ int state_restore_all_sub(const char *filename, const int secret)
 
 	if (version >= 22)
 	{
-		if (secret != 1)
+		if (secret != secret_restore::survived)
 			Omega_charge = PHYSFSX_readSXE32(fp, swap);
 		else
 			PHYSFSX_readSXE32(fp, swap);
