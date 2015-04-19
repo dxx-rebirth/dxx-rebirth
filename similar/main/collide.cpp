@@ -1812,10 +1812,7 @@ static void collide_player_and_player(const vobjptridx_t player1, const vobjptri
 static objnum_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
-	int powerup_num;
-
-	powerup_num = Primary_weapon_to_powerup[weapon_index];
-
+	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
 	if (Players[get_player_id(playerobj)].primary_weapon_flags & weapon_flag)
 		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	else
@@ -1825,10 +1822,7 @@ static objnum_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int wea
 static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
 {
 	int weapon_flag = HAS_SECONDARY_FLAG(weapon_index);
-	int powerup_num;
-
-	powerup_num = Secondary_weapon_to_powerup[weapon_index];
-
+	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 	if (Players[get_player_id(playerobj)].secondary_weapon_flags & weapon_flag) {
 		int	max_count;
 
@@ -1840,10 +1834,9 @@ static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapo
 
 static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
 {
-	int num_missiles,powerup_id;
-
+	int num_missiles;
 	num_missiles = Players[get_player_id(playerobj)].secondary_ammo[missile_index];
-	powerup_id = Secondary_weapon_to_powerup[missile_index];
+	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
 
 	if (num_missiles > 10)
 		num_missiles = 10;

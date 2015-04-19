@@ -37,6 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-type_traits.h"
 
+enum powerup_type_t : uint8_t;
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
 {
@@ -179,12 +181,12 @@ const unsigned MAX_PRIMARY_WEAPONS = 10;
 const unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
-extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info,
+extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
-	Primary_weapon_to_powerup;
-extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info,
+extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
+extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
-	Secondary_weapon_to_powerup;
+extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
 extern const array<ubyte, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_file

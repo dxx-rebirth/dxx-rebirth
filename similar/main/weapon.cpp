@@ -90,14 +90,14 @@ const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_ammo_max{{20, 10, 10, 5, 5,
 }};
 
 //for each primary weapon, what kind of powerup gives weapon
-const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup{{POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON,
+const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup{{POW_LASER,POW_VULCAN_WEAPON,POW_SPREADFIRE_WEAPON,POW_PLASMA_WEAPON,POW_FUSION_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
 	POW_LASER,POW_GAUSS_WEAPON,POW_HELIX_WEAPON,POW_PHOENIX_WEAPON,POW_OMEGA_WEAPON
 #endif
 }};
 
 //for each Secondary weapon, what kind of powerup gives weapon
-const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{POW_MISSILE_1,POW_HOMING_AMMO_1,POW_PROXIMITY_WEAPON,POW_SMARTBOMB_WEAPON,POW_MEGA_WEAPON,
+const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{POW_MISSILE_1,POW_HOMING_AMMO_1,POW_PROXIMITY_WEAPON,POW_SMARTBOMB_WEAPON,POW_MEGA_WEAPON,
 #if defined(DXX_BUILD_DESCENT_II)
 	POW_SMISSILE1_1,POW_GUIDED_MISSILE_1,POW_SMART_MINE,POW_MERCURY_MISSILE_1,POW_EARTHSHAKER_MISSILE
 #endif
@@ -1126,7 +1126,7 @@ void DropCurrentWeapon ()
 		return;
 
 	auto &plr = Players[Player_num];
-	uint8_t drop_type;
+	powerup_type_t drop_type;
 	const auto Primary_weapon = ::Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
@@ -1221,7 +1221,6 @@ void DropCurrentWeapon ()
 void DropSecondaryWeapon ()
 {
 	int seed;
-	ubyte weapon_drop_id=-1;
 	ushort sub_ammo=0;
 
 	if (num_objects >= MAX_USED_OBJECTS)
@@ -1233,10 +1232,10 @@ void DropSecondaryWeapon ()
 		return;
 	}
 
-	weapon_drop_id = Secondary_weapon_to_powerup[Secondary_weapon];
+	auto weapon_drop_id = Secondary_weapon_to_powerup[Secondary_weapon];
 
 	// see if we drop single or 4-pack
-	switch (Secondary_weapon_to_powerup[Secondary_weapon])
+	switch (weapon_drop_id)
 	{
 		case POW_MISSILE_1:
 		case POW_HOMING_AMMO_1:
@@ -1250,7 +1249,8 @@ void DropSecondaryWeapon ()
 			else
 			{
 				sub_ammo = 4;
-				weapon_drop_id++; //4-pack always is next index
+				//4-pack always is next index
+				weapon_drop_id = static_cast<powerup_type_t>(1 + static_cast<uint_fast32_t>(weapon_drop_id));
 			}
 			break;
 		case POW_PROXIMITY_WEAPON:
@@ -1269,6 +1269,42 @@ void DropSecondaryWeapon ()
 		case POW_MEGA_WEAPON:
 		case POW_EARTHSHAKER_MISSILE:
 			sub_ammo = 1;
+			break;
+		case POW_EXTRA_LIFE:
+		case POW_ENERGY:
+		case POW_SHIELD_BOOST:
+		case POW_LASER:
+		case POW_KEY_BLUE:
+		case POW_KEY_RED:
+		case POW_KEY_GOLD:
+		case POW_MISSILE_4:
+		case POW_QUAD_FIRE:
+		case POW_VULCAN_WEAPON:
+		case POW_SPREADFIRE_WEAPON:
+		case POW_PLASMA_WEAPON:
+		case POW_FUSION_WEAPON:
+		case POW_HOMING_AMMO_4:
+		case POW_VULCAN_AMMO:
+		case POW_CLOAK:
+		case POW_TURBO:
+		case POW_INVULNERABILITY:
+		case POW_MEGAWOW:
+		case POW_GAUSS_WEAPON:
+		case POW_HELIX_WEAPON:
+		case POW_PHOENIX_WEAPON:
+		case POW_OMEGA_WEAPON:
+		case POW_SUPER_LASER:
+		case POW_FULL_MAP:
+		case POW_CONVERTER:
+		case POW_AMMO_RACK:
+		case POW_AFTERBURNER:
+		case POW_HEADLIGHT:
+		case POW_SMISSILE1_4:
+		case POW_GUIDED_MISSILE_4:
+		case POW_MERCURY_MISSILE_4:
+		case POW_FLAG_BLUE:
+		case POW_FLAG_RED:
+		case POW_HOARD_ORB:
 			break;
 	}
 

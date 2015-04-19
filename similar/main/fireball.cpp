@@ -597,7 +597,7 @@ static segnum_t choose_drop_segment()
 
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
-void maybe_drop_net_powerup(int powerup_type)
+void maybe_drop_net_powerup(powerup_type_t powerup_type)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if (Game_mode & GM_NETWORK)

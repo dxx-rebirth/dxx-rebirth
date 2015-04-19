@@ -2556,7 +2556,6 @@ void multi_powcap_count_powerups_in_mine(void)
 // We want to drop something. Kill every Powerup which exceeds the level limit
 void multi_powcap_cap_objects()
 {
-	char type;
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
@@ -2572,7 +2571,7 @@ void multi_powcap_cap_objects()
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
+		const auto type = Primary_weapon_to_powerup[index];
 		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
 			if(Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 			{
@@ -2596,7 +2595,7 @@ void multi_powcap_cap_objects()
 		if (game_mode_hoard() && index==PROXIMITY_INDEX)
 			continue;
 
-		type=Secondary_weapon_to_powerup[index];
+		const auto type = Secondary_weapon_to_powerup[index];
 
 		if ((Players[Player_num].secondary_ammo[index]+PowerupsInMine[(int)type])>MaxPowerupsAllowed[(int)type])
 		{
@@ -2668,8 +2667,6 @@ void multi_powcap_cap_objects()
 // Adds players inventory to multi cap
 static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 {
-	char type;
-
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
@@ -2677,14 +2674,14 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
+		const auto type = Primary_weapon_to_powerup[index];
 		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 		    MaxPowerupsAllowed[(int)type]++;
 	}
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
-		type=Secondary_weapon_to_powerup[index];
+		const auto type = Secondary_weapon_to_powerup[index];
 		MaxPowerupsAllowed[(int)type]+=Players[pnum].secondary_ammo[index];
 	}
 
@@ -2717,8 +2714,6 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 
 void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 {
-	char type;
-
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
@@ -2726,14 +2721,14 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
+		const auto type = Primary_weapon_to_powerup[index];
 		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 		    PowerupsInMine[(int)type]++;
 	}
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
-		type=Secondary_weapon_to_powerup[index];
+		const auto type = Secondary_weapon_to_powerup[index];
 
 		if (game_mode_hoard() && index==2)
 			continue;

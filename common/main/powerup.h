@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwdvalptridx.h"
 
-enum powerup_type_t
+enum powerup_type_t : uint8_t
 {
 	POW_EXTRA_LIFE = 0,
 	POW_ENERGY = 1,
