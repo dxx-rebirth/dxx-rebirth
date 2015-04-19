@@ -1259,11 +1259,11 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	if (PlayerCfg.CockpitMode[1]!=CM_FULL_SCREEN)
 		return;
 	const unsigned primary_weapon_flags = Players[Player_num].primary_weapon_flags;
-	const unsigned vulcan_mask = 1 << VULCAN_INDEX;
+	const auto vulcan_mask = HAS_VULCAN_FLAG;
 #if defined(DXX_BUILD_DESCENT_I)
-	const unsigned gauss_mask = 0;
+	const auto gauss_mask = vulcan_mask;
 #elif defined(DXX_BUILD_DESCENT_II)
-	const unsigned gauss_mask = 1 << GAUSS_INDEX;
+	const auto gauss_mask = HAS_GAUSS_FLAG;
 #endif
 	const int fmt_vulcan_ammo = f2i((unsigned int)Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE);
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));

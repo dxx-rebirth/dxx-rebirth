@@ -3177,15 +3177,15 @@ uint_fast32_t map_granted_flags_to_player_flags(const uint16_t grant)
 
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(const uint16_t grant)
 {
-	return ((grant & NETGRANT_VULCAN) ? HAS_PRIMARY_FLAG(VULCAN_INDEX) : 0)
-		| ((grant & NETGRANT_SPREAD) ? HAS_PRIMARY_FLAG(SPREADFIRE_INDEX) : 0)
-		| ((grant & NETGRANT_PLASMA) ? HAS_PRIMARY_FLAG(PLASMA_INDEX) : 0)
-		| ((grant & NETGRANT_FUSION) ? HAS_PRIMARY_FLAG(FUSION_INDEX) : 0)
+	return ((grant & NETGRANT_VULCAN) ? HAS_VULCAN_FLAG : 0)
+		| ((grant & NETGRANT_SPREAD) ? HAS_SPREADFIRE_FLAG : 0)
+		| ((grant & NETGRANT_PLASMA) ? HAS_PLASMA_FLAG : 0)
+		| ((grant & NETGRANT_FUSION) ? HAS_FUSION_FLAG : 0)
 #if defined(DXX_BUILD_DESCENT_II)
-		| ((grant & NETGRANT_GAUSS) ? HAS_PRIMARY_FLAG(GAUSS_INDEX) : 0)
-		| ((grant & NETGRANT_HELIX) ? HAS_PRIMARY_FLAG(HELIX_INDEX) : 0)
-		| ((grant & NETGRANT_PHOENIX) ? HAS_PRIMARY_FLAG(PHOENIX_INDEX) : 0)
-		| ((grant & NETGRANT_OMEGA) ? HAS_PRIMARY_FLAG(OMEGA_INDEX) : 0)
+		| ((grant & NETGRANT_GAUSS) ? HAS_GAUSS_FLAG : 0)
+		| ((grant & NETGRANT_HELIX) ? HAS_HELIX_FLAG : 0)
+		| ((grant & NETGRANT_PHOENIX) ? HAS_PHOENIX_FLAG : 0)
+		| ((grant & NETGRANT_OMEGA) ? HAS_OMEGA_FLAG : 0)
 #endif
 		;
 }
