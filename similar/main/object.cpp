@@ -1707,21 +1707,26 @@ static void object_move_one(const vobjptridx_t obj)
 	// also check in player under a lavafall
 	if (obj->type == OBJ_PLAYER && obj->movement_type==MT_PHYSICS)	{
 
-		if (previous_segment != obj->segnum) {
+		if (previous_segment != obj->segnum && n_phys_segs > 1)
+		{
+			auto seg0 = vsegptridx(phys_seglist[0]);
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			for (uint_fast32_t i = 0; i + 1 < n_phys_segs; ++i)
+			range_for (const auto i, partial_range(phys_seglist, 1u, n_phys_segs))
 			{
-				const auto seg0 = vsegptridx(phys_seglist[i]);
-				const auto connect_side = find_connect_side(vcsegptridx(phys_seglist[i+1]), seg0);
+				const auto seg1 = vsegptridx(i);
+				const auto connect_side = find_connect_side(seg1, seg0);
 				if (connect_side != -1)
+				{
 					check_trigger(seg0, connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
 					return;
 #endif
+				}
+				seg0 = seg1;
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
