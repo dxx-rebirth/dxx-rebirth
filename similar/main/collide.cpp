@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "endlevel.h"
 #include "multibot.h"
+#include "playsave.h"
 #include "piggy.h"
 #include "text.h"
 #include "automap.h"

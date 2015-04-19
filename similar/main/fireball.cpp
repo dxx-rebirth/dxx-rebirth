@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "timer.h"
 #include "fuelcen.h"
+#include "playsave.h"
 #include "cntrlcen.h"
 #include "gameseg.h"
 #include "automap.h"

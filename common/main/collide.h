@@ -23,13 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _COLLIDE_H
-#define _COLLIDE_H
-
-#include "playsave.h"
+#pragma once
 
 #ifdef __cplusplus
+#include "fwdvalptridx.h"
+
+struct vms_vector;
 
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point);
 void collide_object_with_wall(vobjptridx_t A, fix hitspeed, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
@@ -70,5 +69,3 @@ extern int	Final_boss_is_dead;
 #endif
 
 #endif
-
-#endif /* _COLLIDE_H */
