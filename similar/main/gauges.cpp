@@ -1172,10 +1172,12 @@ static void hud_set_fontcolor_red()
 	gr_set_fontcolor(BM_XRGB(20,0,0),-1);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static void hud_set_fontcolor_yellow()
 {
 	gr_set_fontcolor(BM_XRGB(15,15,0),-1);
 }
+#endif
 
 static void hud_set_fontcolor_green()
 {
@@ -1199,8 +1201,8 @@ static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 	else{
 		if (player_has_primary_weapon(consider_weapon).has_weapon())
 		{
-			const int is_super = (consider_weapon >= 5);
 #if defined(DXX_BUILD_DESCENT_II)
+			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
 			if (Primary_last_was_super[base_weapon])
 			{
@@ -1209,14 +1211,11 @@ static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 				else
 					hud_set_fontcolor_yellow();
 			}
+			else if (is_super)
+				hud_set_fontcolor_yellow();
 			else
 #endif
-			{
-				if (is_super)
-					hud_set_fontcolor_yellow();
-				else
-					hud_set_fontcolor_green();
-			}
+				hud_set_fontcolor_green();
 		}
 		else
 			hud_set_fontcolor_gray();
@@ -1230,8 +1229,8 @@ static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
 	else{
 		if (Players[Player_num].secondary_ammo[consider_weapon]>0)
 		{
-			const int is_super = (consider_weapon >= 5);
 #if defined(DXX_BUILD_DESCENT_II)
+			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
 			if (Secondary_last_was_super[base_weapon])
 			{
@@ -1240,14 +1239,11 @@ static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
 				else
 					hud_set_fontcolor_yellow();
 			}
+			else if (is_super)
+				hud_set_fontcolor_yellow();
 			else
 #endif
-			{
-				if (is_super)
-					hud_set_fontcolor_yellow();
-				else
-					hud_set_fontcolor_green();
-			}
+				hud_set_fontcolor_green();
 		}
 		else
 			hud_set_fontcolor_dimgreen();
