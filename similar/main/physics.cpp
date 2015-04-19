@@ -461,7 +461,7 @@ void do_physics_sim(const vobjptridx_t obj)
 #endif
 
 		if (obj->type == OBJ_PLAYER) {
-			if (n_phys_segs && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
+			if (n_phys_segs && !hit_info.seglist.empty() && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
 				n_phys_segs--;
 
 			range_for (const auto &hs, hit_info.seglist)
