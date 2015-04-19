@@ -173,39 +173,6 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 	if (Players[Player_num].energy < 0)
 		Players[Player_num].energy = 0;
 
-#if defined(DXX_BUILD_DESCENT_I)
-		if(weapon_num >= MAX_PRIMARY_WEAPONS)
-		{
-			switch(weapon_num-MAX_PRIMARY_WEAPONS)
-			{
-				case 0 : if((Players[Player_num].laser_level != 0)||(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 1 : if((Players[Player_num].laser_level != 1)||(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 2 : if((Players[Player_num].laser_level != 2)||(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 3 : if((Players[Player_num].laser_level != 3)||(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 4 : if((Players[Player_num].laser_level != 0)||!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 5 : if((Players[Player_num].laser_level != 1)||!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 6 : if((Players[Player_num].laser_level != 2)||!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-				case 7 : if((Players[Player_num].laser_level != 3)||!(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
-					return 0;
-					break;
-			}
-			weapon_num = 0;
-		}
-#endif
 		weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
 		if (Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
