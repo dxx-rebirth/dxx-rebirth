@@ -210,9 +210,7 @@ static int pick_up_energy(void)
 static int pick_up_vulcan_ammo(void)
 {
 	int	used=0;
-
-	int	pwsave = Primary_weapon;		// Ugh, save selected primary weapon around the picking up of the ammo.  I apologize for this code.  Matthew A. Toschlog
-	if (pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, VULCAN_AMMO_AMOUNT)) {
+	if (pick_up_vulcan_ammo(VULCAN_AMMO_AMOUNT, false)) {
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
@@ -220,8 +218,6 @@ static int pick_up_vulcan_ammo(void)
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %d %s!",TXT_ALREADY_HAVE,f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) max),TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
-	Primary_weapon = pwsave;
-
 	return used;
 }
 
@@ -369,7 +365,7 @@ int do_powerup(const vobjptridx_t obj)
 			if ((used = pick_up_primary(VULCAN_INDEX)) != 0) {
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
 				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
-				pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, vulcan_ammo_to_add_with_cannon);
+				pick_up_vulcan_ammo(vulcan_ammo_to_add_with_cannon);
 			}
 
 //added/edited 8/3/98 by Victor Rachels to fix vulcan multi bug
@@ -406,7 +402,7 @@ int do_powerup(const vobjptridx_t obj)
 
 			if (ammo > 0) {
 				int ammo_used;
-				ammo_used = pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, ammo);
+				ammo_used = pick_up_vulcan_ammo(ammo);
 				obj->ctype.powerup_info.count -= ammo_used;
 				if (!used && ammo_used) {
 					powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);

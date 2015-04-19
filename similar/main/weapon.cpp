@@ -782,36 +782,40 @@ void check_to_use_primary(int weapon_index)
 
 //called when ammo (for the vulcan cannon) is picked up
 //	Returns the amount picked up
-int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
+int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 {
-	int cutpoint,supposed_weapon=Primary_weapon;
-	int old_ammo=class_flag;		//kill warning
+	auto &plr = Players[Player_num];
+	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
-	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
-
-	const auto max = PLAYER_MAX_AMMO(Players[Player_num], VULCAN_AMMO_MAX);
-
-	if (Players[Player_num].vulcan_ammo == max)
+	if (plr.vulcan_ammo >= max)
 		return 0;
 
-	old_ammo = Players[Player_num].vulcan_ammo;
+	const auto old_ammo = plr.vulcan_ammo;
 
-	Players[Player_num].vulcan_ammo += ammo_count;
+	plr.vulcan_ammo += ammo_count;
 
-	if (Players[Player_num].vulcan_ammo > max) {
-		ammo_count += (max - Players[Player_num].vulcan_ammo);
-		Players[Player_num].vulcan_ammo = max;
+	if (plr.vulcan_ammo > max) {
+		ammo_count += (max - plr.vulcan_ammo);
+		plr.vulcan_ammo = max;
 	}
-	cutpoint=POrderList (255);
-
+	if (!change_weapon ||
+		!(plr.primary_weapon_flags & HAS_VULCAN_FLAG) ||
+		old_ammo ||
+		(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
+		return ammo_count;
+	const auto cutpoint = POrderList(255);
+	const auto primary_weapon = Primary_weapon;
+	const auto supposed_weapon =
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)
-		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
+		primary_weapon == primary_weapon_index_t::LASER_INDEX && plr.laser_level >= LASER_LEVEL_5
+		? SUPER_LASER_INDEX  // allotment for stupid way of doing super laser
+		:
 #endif
-
-
-	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&HAS_PRIMARY_FLAG(weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
-		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
+		primary_weapon;
+	const auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
+	const auto powi = POrderList(weapon_index);
+	if (powi < cutpoint &&
+		powi < POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
 	return ammo_count;	//return amount used

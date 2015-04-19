@@ -340,7 +340,7 @@ int pick_up_secondary(int weapon_index,int count);
 int pick_up_primary(int weapon_index);
 
 //called when ammo (for the vulcan cannon) is picked up
-int pick_up_ammo(int class_flag,int weapon_index,int ammo_count);
+int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 
 #if defined(DXX_BUILD_DESCENT_II)
 int attempt_to_steal_item(vobjptridx_t objp, int player_num);
