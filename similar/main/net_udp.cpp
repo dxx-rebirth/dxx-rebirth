@@ -89,9 +89,9 @@ static void net_udp_send_rejoin_sync(int player_num);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_ping_frame(fix64 time);
-static void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
-static void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
-static void net_udp_read_endlevel_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
+static void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
 static void net_udp_process_mdata (uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
@@ -2896,20 +2896,20 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 		case UPID_PING:
 			if (multi_i_am_master() || length != UPID_PING_SIZE)
 				break;
-			net_udp_process_ping(data, length, sender_addr);
+			net_udp_process_ping(data, sender_addr);
 			break;
 		case UPID_PONG:
 			if (!multi_i_am_master() || length != UPID_PONG_SIZE)
 				break;
-			net_udp_process_pong(data, length, sender_addr);
+			net_udp_process_pong(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_H:
 			if ((!multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
-				net_udp_read_endlevel_packet( data, length, sender_addr );
+				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_C:
 			if ((multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
-				net_udp_read_endlevel_packet( data, length, sender_addr );
+				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_PDATA:
 			net_udp_process_pdata( data, length, sender_addr );
@@ -2938,7 +2938,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 }
 
 // Packet for end of level syncing
-void net_udp_read_endlevel_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	int len = 0;
 	ubyte tmpvar = 0;
@@ -5183,7 +5183,7 @@ void net_udp_ping_frame(fix64 time)
 }
 
 // Got a PING from host. Apply the pings to our players and respond to host.
-void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	fix64 host_ping_time = 0;
 	array<uint8_t, UPID_PONG_SIZE> buf;
@@ -5207,7 +5207,7 @@ void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _so
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
-void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	const uint_fast32_t playernum = data[1];
 	if (playernum >= MAX_PLAYERS || playernum < 1)
