@@ -147,15 +147,8 @@ static void info_display_object_placement(int show_all)
 	static	int	old_movement_type;
 	static	int	old_control_type;
 	static	int	old_mode;
-	if (init_info | show_all) {
-		old_Cur_object_index = -2;
-		old_type = -2;
-		old_movement_type = -2;
-		old_control_type = -2;
-		old_mode = -2;
-	}
-
-	if ( ( Cur_object_index != old_Cur_object_index) || 
+	if (init_info || show_all ||
+		( Cur_object_index != old_Cur_object_index) || 
 			( Objects[Cur_object_index].type != old_type) || 
 			( Objects[Cur_object_index].movement_type != old_movement_type) || 
 			( Objects[Cur_object_index].control_type != old_control_type) || 
