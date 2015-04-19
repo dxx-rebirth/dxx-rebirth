@@ -1191,7 +1191,9 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		Int3();
 		return;
 	}
-
+	if (robot_controlled[slot] == object_none)
+		return;
+	const auto rcrobot = vobjptridx(robot_controlled[slot]);
 	remote_objnum = objnum_local_to_remote(robot, &dummy);
 	if (remote_objnum < 0)
 		return;
@@ -1199,8 +1201,8 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 	if ( (robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (d_rand() > 0x4400))
 	{
 		if (robot_send_pending[slot])
-			multi_send_robot_position(robot_controlled[slot], -1);
-		multi_send_release_robot(robot_controlled[slot]);
+			multi_send_robot_position(rcrobot, -1);
+		multi_send_release_robot(rcrobot);
 		robot->ctype.ai_info.REMOTE_SLOT_NUM = 5;  // Hands-off period
 	}
 }
