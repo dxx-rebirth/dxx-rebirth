@@ -23,14 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include <physfs.h>
 #include "vecmat.h"
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "weapon.h"
-#endif
 
 #ifdef __cplusplus
 #include <algorithm>
@@ -91,8 +89,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TEAM_BLUE   0
 #define TEAM_RED    1
 #endif
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 
 struct callsign_t
 {
@@ -288,7 +284,6 @@ static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
-#endif
 
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
@@ -319,10 +314,8 @@ extern playernum_t Player_num;  // The player number who is on the console.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	4
 #endif
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
-#endif
 
 extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
