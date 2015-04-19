@@ -2147,7 +2147,6 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
 	int side;
 	vms_vector hitpnt;
-	object dummy;
 
 	if (pnum >= N_players || pnum == Player_num)
 		return;
@@ -2163,10 +2162,11 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	//create a dummy object which will be the weapon that hits
 	//the monitor. the blowup code wants to know who the parent of the
 	//laser is, so create a laser whose parent is the player
-	dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
-	dummy.ctype.laser_info.parent_num = pnum;
+	laser_info laser;
+	laser.parent_type = OBJ_PLAYER;
+	laser.parent_num = pnum;
 
-	check_effect_blowup(&(Segments[segnum]), side, hitpnt, &dummy, 0, 1);
+	check_effect_blowup(vsegptridx(segnum), side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)

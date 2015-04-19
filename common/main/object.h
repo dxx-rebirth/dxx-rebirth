@@ -127,7 +127,14 @@ struct physics_info_rw
 
 // stuctures for different kinds of simulation
 
-struct laser_info : prohibit_void_ptr<laser_info>
+struct laser_parent
+{
+	short   parent_type;        // The type of the parent of this object
+	objnum_t   parent_num;         // The object's parent's number
+	object_signature_t     parent_signature;   // The object's parent's signature...
+};
+
+struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
 	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
 	{
@@ -187,9 +194,6 @@ struct laser_info : prohibit_void_ptr<laser_info>
 			return T1(&mask[index], 1 << bitshift);
 		}
 	};
-	short   parent_type;        // The type of the parent of this object
-	objnum_t   parent_num;         // The object's parent's number
-	object_signature_t     parent_signature;   // The object's parent's signature...
 	fix64   creation_time;      // Absolute time of creation.
 	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.

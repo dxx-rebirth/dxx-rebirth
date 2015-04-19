@@ -523,12 +523,12 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 	}
 }
 
-static int effect_parent_is_guidebot(const vcobjptr_t effect)
+static int effect_parent_is_guidebot(const laser_parent &laser)
 {
-	if (effect->ctype.laser_info.parent_type != OBJ_ROBOT)
+	if (laser.parent_type != OBJ_ROBOT)
 		return 0;
-	const object *robot = &Objects[effect->ctype.laser_info.parent_num];
-	if (robot->signature != effect->ctype.laser_info.parent_signature)
+	const object *robot = &Objects[laser.parent_num];
+	if (robot->signature != laser.parent_signature)
 		/* parent replaced, no idea what it once was */
 		return 0;
 	const ubyte robot_id = get_robot_id(robot);
@@ -539,28 +539,22 @@ static int effect_parent_is_guidebot(const vcobjptr_t effect)
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-#if defined(DXX_BUILD_DESCENT_I)
-#define blower
-#define remote
-#endif
-int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _check_effect_blowup_objptr blower, int force_blowup_flag, int remote)
-#undef remote
-#undef blower
+int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	int tm,db;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	force_blowup_flag = 0;
+	static constexpr tt::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	int trigger_check = 0, is_trigger = 0;
 	auto wall_num = seg->sides[side].wall_num;
 	db=0;
 
 	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
-	trigger_check = (!(effect_parent_is_guidebot(blower) || blower->ctype.laser_info.parent_type == OBJ_PLAYER));
+	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(blower));
 	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
 	if (Game_mode & GM_MULTI)
-		trigger_check = (!(blower->ctype.laser_info.parent_type == OBJ_PLAYER && (blower->ctype.laser_info.parent_num == Players[Player_num].objnum || remote)));
+		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == Players[Player_num].objnum || remote)));
 	if ( wall_num != wall_none )
 		if (Walls[wall_num].trigger != trigger_none)
 			is_trigger = 1;
@@ -760,13 +754,13 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		return;
 	}
 
-	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon, 0, 0);
+	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
-	robot_escort = effect_parent_is_guidebot(weapon);
+	robot_escort = effect_parent_is_guidebot(weapon->ctype.laser_info);
 	if (robot_escort) {
 
 		if (Game_mode & GM_MULTI)
