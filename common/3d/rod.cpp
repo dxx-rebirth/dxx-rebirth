@@ -23,7 +23,7 @@
 struct rod_4point
 {
 	array<cg3s_point *, 4> point_list;
-	g3s_point points[4];
+	array<g3s_point, 4> points;
 };
 
 //compute the corners of a rod.  fills in vertbuf.
@@ -68,7 +68,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 	rod_point_group.point_list[1] = &rod_point_group.points[1];
 	rod_point_group.point_list[2] = &rod_point_group.points[2];
 	rod_point_group.point_list[3] = &rod_point_group.points[3];
-	g3s_point (&rod_points)[4] = rod_point_group.points;
+	auto &rod_points = rod_point_group.points;
 	vm_vec_add(rod_points[0].p3_vec,top_point.p3_vec,tempv);
 	vm_vec_sub(rod_points[1].p3_vec,top_point.p3_vec,tempv);
 

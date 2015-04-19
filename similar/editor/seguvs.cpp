@@ -273,7 +273,7 @@ static void validate_uv_coordinates(const vsegptr_t segp)
 
 //	---------------------------------------------------------------------------------------------
 //	For all faces in side, copy uv coordinates from uvs array to face.
-static void copy_uvs_from_side_to_faces(const vsegptr_t segp, int sidenum, uvl uvls[])
+static void copy_uvs_from_side_to_faces(const vsegptr_t segp, int sidenum, array<uvl, 4> &uvls)
 {
 	int	v;
 	side	*sidep = &segp->sides[sidenum];
@@ -320,7 +320,8 @@ fix	Stretch_scale_y = F1_0;
 static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
 	int			vlo,vhi,v0,v1,v2,v3;
-	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
+	array<uvl, 4> uvls;
+	uvl ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
 	Assert( (va<4) && (vb<4) );
 	Assert((abs(va - vb) == 1) || (abs(va - vb) == 3));		// make sure the verticies specify an edge

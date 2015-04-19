@@ -42,7 +42,7 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	bool OrigTrackOrder;
 	int MusicType;
 	int CMLevelMusicPlayOrder;
-	int CMLevelMusicTrack[2];
+	array<int, 2> CMLevelMusicTrack;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 	int GammaLevel;

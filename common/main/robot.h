@@ -140,7 +140,6 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
 	ubyte   flags;          // misc properties
-	ubyte   pad[3];         // alignment
 
 	ubyte   deathroll_sound;    // if has deathroll, what sound?
 	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point

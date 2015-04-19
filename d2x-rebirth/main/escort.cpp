@@ -74,7 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 static void say_escort_goal(int goal_num);
-static void show_escort_menu(char *msg);
+static void show_escort_menu(const array<char, 300> &);
 
 
 static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
@@ -1552,7 +1552,7 @@ void drop_stolen_items(const vcobjptr_t objp)
 // --------------------------------------------------------------------------------------------------------------
 struct escort_menu : ignore_window_pointer_t
 {
-	char	msg[300];
+	array<char, 300> msg;
 };
 
 static window_event_result escort_menu_keycommand(window *wind,const d_event &event, escort_menu *)
@@ -1714,7 +1714,7 @@ void do_escort_menu(void)
 	else
 		tstr =  "Enable";
 
-	sprintf(menu->msg,	"Select Guide-Bot Command:\n\n\n"
+	snprintf(menu->msg.data(), menu->msg.size(), "Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
 						"2.  Find Energy Center" CC_LSPACING_S "3\n\n"
@@ -1732,8 +1732,9 @@ void do_escort_menu(void)
 
 //	-------------------------------------------------------------------------------
 //	Show the Buddy menu!
-void show_escort_menu(char *msg)
+void show_escort_menu(const array<char, 300> &amsg)
 {	
+	const auto msg = amsg.data();
 	int	w,h,aw;
 	int	x,y;
 

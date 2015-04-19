@@ -596,7 +596,8 @@ void plyr_save_stats()
 {
 	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
 	char filename[PATH_MAX];
-	unsigned char buf[16],buf2[16],a;
+	array<uint8_t, 16> buf, buf2;
+	uint8_t a;
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
 	auto f = PHYSFSX_openWriteBuffered(filename);
@@ -634,7 +635,7 @@ void plyr_save_stats()
 	else
 		i+='A';
 
-	PHYSFSX_printf(f,"%c%s %c%s ",i,buf,i,buf2);
+	PHYSFSX_printf(f,"%c%s %c%s ",i,buf.data(),i,buf2.data());
 
 	if (deaths < 0)
 	{
@@ -662,7 +663,7 @@ void plyr_save_stats()
 	else
 		i+='A';
 
-	PHYSFSX_printf(f,"%c%s %c%s\n",i,buf,i,buf2);
+	PHYSFSX_printf(f, "%c%s %c%s\n", i, buf.data(), i, buf2.data());
 }
 #endif
 

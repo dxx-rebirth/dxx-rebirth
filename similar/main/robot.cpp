@@ -283,7 +283,8 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	ri.death_roll = PHYSFSX_readByte(fp);
 
 	ri.flags = PHYSFSX_readByte(fp);
-	PHYSFS_read(fp, ri.pad, 3, 1);
+	array<char, 3> pad;
+	PHYSFS_read(fp, pad, pad.size(), 1);
 
 	ri.deathroll_sound = PHYSFSX_readByte(fp);
 	ri.glow = PHYSFSX_readByte(fp);

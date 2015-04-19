@@ -58,7 +58,7 @@ extern int event_key_get_raw(const d_event &event);	// same as above but without
 extern unsigned char key_ascii();
 
 // Set to 1 if the key is currently down, else 0
-extern volatile unsigned char keyd_pressed[256];
+extern array<uint8_t, 256> keyd_pressed;
 extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 

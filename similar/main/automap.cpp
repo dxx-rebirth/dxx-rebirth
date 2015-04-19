@@ -98,8 +98,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct Edge_info
 {
 	array<int, 2>   verts;     // 8  bytes
-	ubyte sides[4];     // 4  bytes
-	segnum_t   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
+	array<uint8_t, 4> sides;     // 4  bytes
+	array<segnum_t, 4> segnum;    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...

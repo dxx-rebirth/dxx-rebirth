@@ -180,7 +180,7 @@ static int get_var_num(unsigned char *data, int datalen,
 }
 
 static int get_event(hmp_file *hmp, event *ev) {
-	static const int cmdlen[7]={3,3,3,3,2,2,3};
+	static const array<int, 7> cmdlen{{3,3,3,3,2,2,3}};
 	unsigned long got;
 	unsigned long mindelta, delta;
 	int ev_num;

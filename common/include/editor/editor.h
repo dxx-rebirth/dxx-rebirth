@@ -292,7 +292,7 @@ struct vms_equation
 {
     union {
             struct {fix x3, x2, x1, x0, y3, y2, y1, y0, z3, z2, z1, z0;} n;
-            fix xyz[3][4];
+		array<array<fix, 4>, 3> xyz;
     };
 };
 

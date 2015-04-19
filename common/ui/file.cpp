@@ -118,7 +118,7 @@ struct browser
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	int			num_files, num_dirs;
-	char		spaces[35];
+	array<char, 35> spaces;
 };
 
 static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
@@ -133,7 +133,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		ui_dprintf_at( dlg, 20, 86,"&Files" );
 		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 		
-		ui_dputs_at( dlg, 20, 60, b->spaces );
+		ui_dputs_at(dlg, 20, 60, b->spaces.data());
 		ui_dputs_at( dlg, 20, 60, b->view_dir );
 		
 		return 1;

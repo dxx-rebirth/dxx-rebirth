@@ -62,7 +62,7 @@ static UI_EVENT *   EventBuffer = NULL;
 static int          Record = 0;
 static int          RecordFlags = 0;
 
-static unsigned char SavedState[256];
+static array<uint8_t, 256> SavedState;
 
 static int PlaybackSpeed = 1;
 

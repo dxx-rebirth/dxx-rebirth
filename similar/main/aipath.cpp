@@ -153,7 +153,7 @@ static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
 static void move_towards_outside(point_seg *psegs, int *num_points, const vobjptridx_t objp, int rand_flag)
 {
 	int	i;
-	point_seg	new_psegs[200];
+	array<point_seg, 200> new_psegs;
 
 	Assert(*num_points < 200);
 
@@ -1475,7 +1475,7 @@ int	Test_size = 1000;
 static void test_create_path_many(void) __attribute_used;
 static void test_create_path_many(void)
 {
-	point_seg	point_segs[200];
+	array<point_seg, 200> point_segs;
 	short			num_points;
 
 	int			i;
@@ -1483,7 +1483,7 @@ static void test_create_path_many(void)
 	for (i=0; i<Test_size; i++) {
 		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
 		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-		create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
+		create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 	}
 
 }
@@ -1491,10 +1491,10 @@ static void test_create_path_many(void)
 static void test_create_path(void) __attribute_used;
 static void test_create_path(void)
 {
-	point_seg	point_segs[200];
+	array<point_seg, 200> point_segs;
 	short			num_points;
 
-	create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, segment_none);
+	create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 
 }
 

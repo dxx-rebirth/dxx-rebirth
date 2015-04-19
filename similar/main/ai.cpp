@@ -256,7 +256,7 @@ static const char mode_text[][16] = {
 };
 
 //	Index into this array with aip->behavior
-static const char behavior_text[6][9] = {
+const array<char[9], 6> behavior_text{
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
