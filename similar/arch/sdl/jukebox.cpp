@@ -21,6 +21,7 @@
 #include "config.h"
 #include "strutil.h"
 #include "u_mem.h"
+#include "physfs_list.h"
 
 #include "compiler-make_unique.h"
 #include "partial_range.h"
@@ -48,9 +49,9 @@ public:
 	}
 };
 
-class list_pointers : public std::unique_ptr<char *[], list_deleter>
+class list_pointers : public PHYSFS_list_template<list_deleter>
 {
-	typedef std::unique_ptr<char *[], list_deleter> base_ptr;
+	typedef PHYSFS_list_template<list_deleter> base_ptr;
 public:
 	using base_ptr::reset;
 	void reset(char **list, std::unique_ptr<char[]> &&buf)
