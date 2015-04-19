@@ -28,18 +28,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#if defined(DXX_BUILD_DESCENT_II)
-#include "fvi.h"
-#include "compiler-array.h"
-#endif
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
 #include "pstypes.h"
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "countarray.h"
-#include "vecmat.h"
 #include "aistruct.h"
+#endif
 
 struct point_seg;
 struct vobjptr_t;

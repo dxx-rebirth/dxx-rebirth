@@ -68,6 +68,7 @@ const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{CONCU
 //for each Secondary weapon, which gun it fires out of
 const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
 #elif defined(DXX_BUILD_DESCENT_II)
+#include "fvi.h"
 const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
 	LASER_ID, VULCAN_ID, SPREADFIRE_ID, PLASMA_ID, FUSION_ID,
 	SUPER_LASER_ID, GAUSS_ID, HELIX_ID, PHOENIX_ID, OMEGA_ID
