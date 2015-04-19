@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-#include "inferno.h"
 
 struct bitmap_index;
 
@@ -51,6 +50,7 @@ struct grs_bitmap;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "inferno.h"
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
