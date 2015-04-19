@@ -433,7 +433,6 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 {
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
-	int	oweapon = weapon_num;
         //end this section addition - Victor Rachels
 	int	weapon_status = player_has_weapon(weapon_num, secondary_flag);
 	const char	*weapon_name;
@@ -449,10 +448,6 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 		}
 
 	if (!secondary_flag) {
-
-		if (weapon_num >= MAX_PRIMARY_WEAPONS)
-			weapon_num = 0;
-
 		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 		if ((weapon_status & HAS_WEAPON_FLAG) == 0) {
 			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, weapon_name);
@@ -473,8 +468,6 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 			return;
 		}
 	}
-
-	weapon_num=oweapon;
 #elif defined(DXX_BUILD_DESCENT_II)
 	int	weapon_num_save=weapon_num;
 	int	weapon_status,current,has_flag;
