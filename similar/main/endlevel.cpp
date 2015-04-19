@@ -74,6 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "render.h"
 #include "titles.h"
+#include "hudmsg.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif

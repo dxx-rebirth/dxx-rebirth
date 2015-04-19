@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "sounds.h"
 #include "kconfig.h"
+#include "hudmsg.h"
 #include "newdemo.h"
 #include "text.h"
 #include "kmatrix.h"

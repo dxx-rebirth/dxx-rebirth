@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "multi.h"
+#include "hudmsg.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "powerup.h"

@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "polyobj.h"
 #include "fireball.h"
+#include "hudmsg.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "ai.h"

@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "maths.h"
-#include "hudmsg.h"
 #include "player.h"
 
 struct bitmap_index;

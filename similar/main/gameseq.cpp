@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "gamefont.h"
 #include "newmenu.h"
+#include "hudmsg.h"
 #include "endlevel.h"
 #include "kmatrix.h"
 #  include "multi.h"

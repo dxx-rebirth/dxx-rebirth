@@ -48,6 +48,7 @@
 #include "bm.h"
 #include "effects.h"
 #include "physics.h"
+#include "hudmsg.h"
 #include "switch.h"
 #include "automap.h"
 #include "byteutil.h"

@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "newdemo.h"
 #include "gameseq.h"
+#include "hudmsg.h"
 #include "gamesave.h"
 #include "gamemine.h"
 #include "switch.h"

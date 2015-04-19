@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"	//	for powerup outline drawing
 #include "editor/editor.h"
 #endif
+#include "hudmsg.h"
 #include "playsave.h"
 
 unsigned N_powerup_types;

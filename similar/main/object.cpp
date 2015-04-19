@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fuelcen.h"
 #include "endlevel.h"
+#include "hudmsg.h"
 #include "sounds.h"
 #include "collide.h"
 #include "lighting.h"

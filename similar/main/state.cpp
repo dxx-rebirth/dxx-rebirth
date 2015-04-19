@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "controls.h"
 #include "laser.h"
+#include "hudmsg.h"
 #include "state.h"
 #include "multi.h"
 #include "gr.h"

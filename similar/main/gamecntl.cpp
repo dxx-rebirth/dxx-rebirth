@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "endlevel.h"
 #include "config.h"
+#include "hudmsg.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "titles.h"

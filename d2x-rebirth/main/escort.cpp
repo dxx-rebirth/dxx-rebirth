@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "game.h"
 #include "powerup.h"
+#include "hudmsg.h"
 #include "cntrlcen.h"
 #include "gauges.h"
 #include "key.h"

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "object.h"
+#include "hudmsg.h"
 #include "game.h"
 #include "player.h"
 #include "gauges.h"

@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "screens.h"
 #include "textures.h"
+#include "hudmsg.h"
 #include "mouse.h"
 #include "timer.h"
 #include "segpoint.h"
