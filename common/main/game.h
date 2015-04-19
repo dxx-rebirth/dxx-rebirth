@@ -23,12 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _GAME_H
-#define _GAME_H
+#pragma once
 
 #include <physfs.h>
-#include "pstypes.h"
 #include "window.h"
+#include "maths.h"
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -353,5 +352,3 @@ void dump_used_textures_all();
 #endif
 
 #endif
-
-#endif /* _GAME_H */
