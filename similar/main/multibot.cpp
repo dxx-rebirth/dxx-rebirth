@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "compiler-range_for.h"
+#include "compiler-type_traits.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
@@ -1175,7 +1176,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 //	player or player weapon whacks a robot, so it happens rarely.
 void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 {
-	int slot, remote_objnum;
+	int remote_objnum;
 	sbyte dummy;
 
 	if (!(Game_mode & GM_MULTI_ROBOTS))
@@ -1185,8 +1186,15 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		return;
 #endif
 
-	slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
+	const auto slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
 
+	/* Why 5?  Ask Parallax. */
+	static constexpr tt::integral_constant<int8_t, 5> hands_off_period{};
+	if (slot == hands_off_period)
+	{
+		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", static_cast<vobjptridx_t::integral_type>(robot), player_num);
+		return;
+	}
 	if ((slot < 0) || (slot >= MAX_ROBOTS_CONTROLLED)) {
 		Int3();
 		return;
@@ -1203,6 +1211,6 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		if (robot_send_pending[slot])
 			multi_send_robot_position(rcrobot, -1);
 		multi_send_release_robot(rcrobot);
-		robot->ctype.ai_info.REMOTE_SLOT_NUM = 5;  // Hands-off period
+		robot->ctype.ai_info.REMOTE_SLOT_NUM = hands_off_period;  // Hands-off period
 	}
 }
