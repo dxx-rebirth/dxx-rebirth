@@ -69,9 +69,6 @@ enum powerup_type_t
 	POW_CLOAK = 23,
 	POW_TURBO = 24,
 	POW_INVULNERABILITY = 25,
-#if defined(DXX_BUILD_DESCENT_I)
-	POW_HEADLIGHT = 26,
-#endif
 	POW_MEGAWOW = 27,
 #if defined(DXX_BUILD_DESCENT_II)
 	POW_GAUSS_WEAPON = 28,
