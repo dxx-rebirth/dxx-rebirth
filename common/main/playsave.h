@@ -25,9 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "kconfig.h"
-#include "mission.h"
-#include "weapon.h"
 #if defined(DXX_BUILD_DESCENT_I)
 #include "pstypes.h"
 #include "player.h"
@@ -65,7 +62,9 @@ struct hli
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "kconfig.h"
 #include "multi.h"
+#include "weapon.h"
 
 struct player_config
 {
