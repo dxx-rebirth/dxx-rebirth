@@ -23,12 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAMESEQ_H
-#define _GAMESEQ_H
+#pragma once
 
 #include "player.h"
-#include "mission.h"
 
 #ifdef __cplusplus
 #include "fwdobject.h"
@@ -124,5 +121,3 @@ void copy_defaults_to_robot(vobjptr_t objp);
 void init_player_stats_new_ship(ubyte pnum);
 
 #endif
-
-#endif /* _GAMESEQ_H */
