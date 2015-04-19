@@ -613,16 +613,9 @@ void auto_select_weapon(int weapon_type)
 //	Returns true if powerup picked up, else returns false.
 int pick_up_secondary(int weapon_index,int count)
 {
-	int max;
 	int	num_picked_up;
 	int cutpoint;
-
-	max = Secondary_ammo_max[weapon_index];
-
-#if defined(DXX_BUILD_DESCENT_II)
-	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		max *= 2;
-#endif
+	const auto max = PLAYER_MAX_AMMO(Players[Player_num], Secondary_ammo_max[weapon_index]);
 
 	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
@@ -791,16 +784,12 @@ void check_to_use_primary(int weapon_index)
 //	Returns the amount picked up
 int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 {
-	int max,cutpoint,supposed_weapon=Primary_weapon;
+	int cutpoint,supposed_weapon=Primary_weapon;
 	int old_ammo=class_flag;		//kill warning
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
 
-	max = VULCAN_AMMO_MAX;
-#if defined(DXX_BUILD_DESCENT_II)
-	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		max *= 2;
-#endif
+	const auto max = PLAYER_MAX_AMMO(Players[Player_num], VULCAN_AMMO_MAX);
 
 	if (Players[Player_num].vulcan_ammo == max)
 		return 0;

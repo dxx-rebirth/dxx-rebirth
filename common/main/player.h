@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_FLAGS_AMMO_RACK      128     // Player has ammo rack
 #define PLAYER_FLAGS_CONVERTER      256     // Player has energy->shield converter
+#define PLAYER_MAX_AMMO(PLR,BASE)	((PLR.flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
 #endif
 #define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
@@ -82,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
+#define PLAYER_MAX_AMMO(PLR,BASE)	(static_cast<void>(PLR), BASE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
 

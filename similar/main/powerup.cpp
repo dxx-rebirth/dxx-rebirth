@@ -209,18 +209,14 @@ static int pick_up_energy(void)
 
 static int pick_up_vulcan_ammo(void)
 {
-	int	used=0,max;
+	int	used=0;
 
 	int	pwsave = Primary_weapon;		// Ugh, save selected primary weapon around the picking up of the ammo.  I apologize for this code.  Matthew A. Toschlog
 	if (pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, VULCAN_AMMO_AMOUNT)) {
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
-		max = VULCAN_AMMO_MAX;
-#if defined(DXX_BUILD_DESCENT_II)
-		if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-			max *= 2;
-#endif
+		const auto max = PLAYER_MAX_AMMO(Players[Player_num], VULCAN_AMMO_MAX);
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %d %s!",TXT_ALREADY_HAVE,f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) max),TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
