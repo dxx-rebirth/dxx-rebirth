@@ -284,9 +284,9 @@ struct player_rw
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__;
 #if defined(DXX_BUILD_DESCENT_I)
-typedef char player_rw_padding_check[sizeof(player_rw) == 116 ? 1 : -1];
+static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef char player_rw_padding_check[sizeof(player_rw) == 142 ? 1 : -1];
+static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
 #endif
 
