@@ -23,11 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _CONTROLS_H
-#define _CONTROLS_H
-
-#include "maths.h"
+#pragma once
 
 #ifdef __cplusplus
 #include "fwdvalptridx.h"
@@ -35,9 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void read_flying_controls(vobjptr_t obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
+#include "maths.h"
 extern fix Afterburner_charge;
-#endif
-
 #endif
 
 #endif
