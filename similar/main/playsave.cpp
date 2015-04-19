@@ -1354,7 +1354,7 @@ void read_netgame_profile(netgame_info *ng)
 		else if (cmp(lb, eq, AllowedItemsStr))
 			convert_integer(ng->AllowedItems, value);
 		else if (cmp(lb, eq, SpawnGrantedItemsStr))
-			convert_integer(ng->SpawnGrantedItems, value);
+			convert_integer(ng->SpawnGrantedItems.mask, value);
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (cmp(lb, eq, AllowMarkerViewStr))
 			convert_integer(ng->Allow_marker_view, value);
@@ -1399,7 +1399,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
 	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
 	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
-	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", ng->SpawnGrantedItems);
+	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", ng->SpawnGrantedItems.mask);
 #if defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);

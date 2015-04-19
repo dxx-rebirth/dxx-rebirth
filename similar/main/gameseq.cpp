@@ -397,7 +397,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			i = 0;
 		range_for (auto &i, Secondary_last_was_super)
 			i = 0;
-		Afterburner_charge = GrantedItems & NETGRANT_AFTERBURNER ? F1_0 : 0;
+		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
 		Missile_viewer = nullptr; //reset missile camera if out there

@@ -3123,13 +3123,14 @@ void multi_consistency_error(int reset)
 	multi_reset_stuff();
 }
 
-static constexpr unsigned grant_shift_helper(unsigned r, int s)
+static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p, int s)
 {
-	return s > 0 ? r >> s : r << -s;
+	return s > 0 ? p.mask >> s : p.mask << -s;
 }
 
-uint_fast32_t map_granted_flags_to_player_flags(const uint16_t grant)
+uint_fast32_t map_granted_flags_to_player_flags(const packed_spawn_granted_items p)
 {
+	auto &grant = p.mask;
 	return ((grant & NETGRANT_QUAD) ? PLAYER_FLAGS_QUAD_LASERS : 0)
 #if defined(DXX_BUILD_DESCENT_II)
 		| ((grant & NETGRANT_AFTERBURNER) ? PLAYER_FLAGS_AFTERBURNER : 0)
@@ -3140,8 +3141,9 @@ uint_fast32_t map_granted_flags_to_player_flags(const uint16_t grant)
 		;
 }
 
-uint_fast32_t map_granted_flags_to_primary_weapon_flags(const uint16_t grant)
+uint_fast32_t map_granted_flags_to_primary_weapon_flags(const packed_spawn_granted_items p)
 {
+	auto &grant = p.mask;
 	return ((grant & NETGRANT_VULCAN) ? HAS_VULCAN_FLAG : 0)
 		| ((grant & NETGRANT_SPREAD) ? HAS_SPREADFIRE_FLAG : 0)
 		| ((grant & NETGRANT_PLASMA) ? HAS_PLASMA_FLAG : 0)
@@ -3155,8 +3157,9 @@ uint_fast32_t map_granted_flags_to_primary_weapon_flags(const uint16_t grant)
 		;
 }
 
-uint16_t map_granted_flags_to_vulcan_ammo(uint16_t grant)
+uint16_t map_granted_flags_to_vulcan_ammo(const packed_spawn_granted_items p)
 {
+	auto &grant = p.mask;
 	const auto amount = VULCAN_WEAPON_AMMO_AMOUNT;
 	return
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3165,7 +3168,7 @@ uint16_t map_granted_flags_to_vulcan_ammo(uint16_t grant)
 		(grant & NETGRANT_VULCAN ? amount : 0);
 }
 
-static constexpr unsigned map_granted_flags_to_netflag(const uint16_t grant)
+static constexpr unsigned map_granted_flags_to_netflag(const packed_spawn_granted_items grant)
 {
 	return (grant_shift_helper(grant, BIT_NETGRANT_QUAD - BIT_NETFLAG_DOQUAD) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
 #if defined(DXX_BUILD_DESCENT_II)

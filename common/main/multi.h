@@ -87,7 +87,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(18)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(19)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -209,7 +209,7 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(NETFLAG_DOAFTERBURNER, NETFLAG_LABEL_AFTERBURNER)	\
 	VALUE(NETFLAG_DOAMMORACK, NETFLAG_LABEL_AMMORACK)	\
 	VALUE(NETFLAG_DOCONVERTER, NETFLAG_LABEL_CONVERTER)	\
-	VALUE(NETFLAG_DOHEADLIGHT, NETFLAG_LABEL_HEADLIGHT)	\
+	VALUE(NETFLAG_DOHEADLIGHT, NETFLAG_LABEL_HEADLIGHT)
 
 #define DXX_GRANT_LASER_LEVEL_BITS	3
 #define D2X_MP_NETGRANT(VALUE)	\
@@ -234,20 +234,42 @@ enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask)
 enum {
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
+	BIT_NETGRANT_MAXIMUM
 };
 enum { for_each_netgrant_value(define_netflag_bit_mask) };
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
 #undef define_netflag_powerup_mask
 
-static inline unsigned map_granted_flags_to_laser_level(const uint16_t &grant)
+struct packed_spawn_granted_items
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	typedef uint8_t mask_type;
+#elif defined(DXX_BUILD_DESCENT_II)
+	typedef uint16_t mask_type;
+#endif
+	mask_type mask;
+	static_assert(BIT_NETGRANT_MAXIMUM <= sizeof(mask) << 3, "mask too small");
+	packed_spawn_granted_items() = default;
+	constexpr packed_spawn_granted_items(mask_type m) :
+		mask(m)
+	{
+	}
+	explicit operator bool() const { return mask; }
+	bool has_quad_laser() const { return mask & NETGRANT_QUAD; }
+#if defined(DXX_BUILD_DESCENT_II)
+	bool has_afterburner() const { return mask & NETGRANT_AFTERBURNER; }
+#endif
+};
+
+static inline unsigned map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
 {
 	/* Laser level in lowest bits */
-	return grant & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1);
+	return grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1);
 }
-uint_fast32_t map_granted_flags_to_player_flags(uint16_t grant);
-uint_fast32_t map_granted_flags_to_primary_weapon_flags(uint16_t grant);
-uint16_t map_granted_flags_to_vulcan_ammo(uint16_t grant);
+uint_fast32_t map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
+uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
+uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 
 extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
@@ -662,7 +684,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	bit_game_flags game_flag;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
-	uint16_t SpawnGrantedItems;
+	packed_spawn_granted_items SpawnGrantedItems;
 #if defined(DXX_BUILD_DESCENT_II)
 	/*
 	 * Only used in Descent II, but defined in both for historical

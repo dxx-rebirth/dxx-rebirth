@@ -2459,8 +2459,10 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
-		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems);			len += 2;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
 #endif
@@ -2682,8 +2684,10 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+#if defined(DXX_BUILD_DESCENT_I)
+		Netgame.SpawnGrantedItems = data[len];		len += 1;
+#elif defined(DXX_BUILD_DESCENT_II)
 		Netgame.SpawnGrantedItems = GET_INTEL_SHORT(&(data[len]));		len += 2;
-#if defined(DXX_BUILD_DESCENT_II)
 		if (unlikely(map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) > MAX_SUPER_LASER_LEVEL))
 			/* Bogus input - reject whole entry */
 			Netgame.SpawnGrantedItems = 0;
@@ -3222,15 +3226,16 @@ public:
 		DXX_GRANT_POWERUP_MENU(ENUM)
 	};
 	array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
-	grant_powerup_menu_items(const unsigned laser_level, const uint_fast16_t flags)
+	grant_powerup_menu_items(const unsigned laser_level, const packed_spawn_granted_items p)
 	{
+		auto &flags = p.mask;
 		DXX_GRANT_POWERUP_MENU(ADD);
 	}
-	void read(uint16_t &grant) const
+	void read(packed_spawn_granted_items &p) const
 	{
 		unsigned laser_level, flags = 0;
 		DXX_GRANT_POWERUP_MENU(READ);
-		grant = laser_level | flags;
+		p.mask = laser_level | flags;
 	}
 };
 

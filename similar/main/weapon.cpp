@@ -1132,7 +1132,7 @@ void DropCurrentWeapon ()
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
 	if (Primary_weapon==0)
 	{
-		if ((plr.flags & PLAYER_FLAGS_QUAD_LASERS) && !(GrantedItems & NETGRANT_QUAD))
+		if ((plr.flags & PLAYER_FLAGS_QUAD_LASERS) && !GrantedItems.has_quad_laser())
 		{
 			/* Sorry, no message.  Need to fall through in case player
 			 * wanted to drop a laser powerup.
