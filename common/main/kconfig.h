@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <vector>
 #include "compiler-array.h"
+#include "compiler-type_traits.h"
 
 struct d_event;
 
@@ -102,14 +103,12 @@ extern fix Cruise_speed;
 
 
 template <std::size_t N>
-struct joystick_text_length
+struct joystick_text_length : tt::integral_constant<std::size_t, (N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1>
 {
-	enum { value = ((N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1) };
 };
 template <>
-struct joystick_text_length<0>
+struct joystick_text_length<0> : tt::integral_constant<std::size_t, 1>
 {
-	enum { value = 1 };
 };
 
 template <std::size_t N>
