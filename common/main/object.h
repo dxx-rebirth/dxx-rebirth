@@ -25,11 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+
 #include "pstypes.h"
 #include "vecmat.h"
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "aistruct.h"
-#endif
 #include "polyobj.h"
 #include "laser.h"
 
@@ -73,14 +73,12 @@ enum object_type_t : int
  * STRUCTURES
  */
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct reactor_static {
 	/* Location of the gun on the reactor object */
 	array<vms_vector, MAX_CONTROLCEN_GUNS>	gun_pos,
 	/* Orientation of the gun on the reactor object */
 		gun_dir;
 };
-#endif
 
 // A compressed form for sending crucial data
 struct shortpos
@@ -298,7 +296,6 @@ struct polyobj_info_rw
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object {
 	object_signature_t signature;
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
@@ -391,7 +388,6 @@ struct object_rw
 		vclip_info_rw      vclip_info;     // vclip
 	} __pack__ rtype;
 } __pack__;
-#endif
 
 struct obj_position
 {
@@ -400,7 +396,6 @@ struct obj_position
 	segnum_t       segnum;     // segment number containing object
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object_array_t : array<object, MAX_OBJECTS>
 {
 	int highest;
