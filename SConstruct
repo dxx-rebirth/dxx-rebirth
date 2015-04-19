@@ -1939,7 +1939,7 @@ class DXXProgram(DXXCommon):
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
 		# For PRIi64
 		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
-		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
+		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main']])
 
 	def banner(self):
 		VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
