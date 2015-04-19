@@ -48,6 +48,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "render.h"
 #include "digi.h"
+#include "key.h"
+#include "mouse.h"
 #include "newmenu.h"
 #include "endlevel.h"
 #include "multi.h"

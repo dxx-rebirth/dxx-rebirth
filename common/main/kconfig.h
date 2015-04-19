@@ -23,13 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#pragma once
 
-#ifndef _KCONFIG_H
-#define _KCONFIG_H
-
-#include "key.h"
 #include "joy.h"
-#include "mouse.h"
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
@@ -141,5 +137,3 @@ class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_l
 extern joybutton_text_t joybutton_text;
 extern joyaxis_text_t joyaxis_text;
 #endif
-
-#endif /* _KCONFIG_H */
