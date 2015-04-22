@@ -54,7 +54,7 @@ void collide_player_and_powerup(vobjptr_t player, vobjptridx_t powerup, const vm
 #define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt,remote)
 #endif
 int check_effect_blowup(vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
-void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, objnum_t who);
+void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, vcobjptr_t who);
 void bump_one_object(vobjptr_t obj0, const vms_vector &hit_dir, fix damage);
 void drop_player_eggs(vobjptridx_t playerobj);
 

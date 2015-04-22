@@ -1071,23 +1071,19 @@ void net_destroy_controlcen(const objptridx_t controlcen)
 }
 
 //	-----------------------------------------------------------------------------
-void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnum_t who)
+void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, const vcobjptr_t who)
 {
 	int	whotype;
 
 	//	Only allow a player to damage the control center.
-
-	if ((who < 0) || (who > Highest_object_index))
-		return;
-
-	whotype = Objects[who].type;
+	whotype = who->type;
 	if (whotype != OBJ_PLAYER) {
 		return;
 	}
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
 	{
-		if (get_player_id(&Objects[who]) == Player_num) {
+		if (get_player_id(who) == Player_num) {
 			int secs = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) % 60;
 			int mins = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) / 60;
 			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
@@ -1095,7 +1091,7 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnu
 		return;
 	}
 
-	if (get_player_id(&Objects[who]) == Player_num) {
+	if (get_player_id(who) == Player_num) {
 		Control_center_been_hit = 1;
 		ai_do_cloak_stuff();
 	}
@@ -1107,9 +1103,9 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnu
 		do_controlcen_destroyed_stuff(controlcen);
 
 		if (Game_mode & GM_MULTI) {
-			if (who == Players[Player_num].objnum)
+			if (get_player_id(who) == Player_num)
 				add_points_to_score(CONTROL_CEN_SCORE);
-			multi_send_destroy_controlcen(controlcen, get_player_id(&Objects[who]) );
+			multi_send_destroy_controlcen(controlcen, get_player_id(who) );
 		}
 
 		if (!(Game_mode & GM_MULTI))
@@ -1269,7 +1265,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 
 		damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
-		apply_damage_to_controlcen(controlcen, damage, weapon->ctype.laser_info.parent_num);
+		apply_damage_to_controlcen(controlcen, damage, vcobjptr(weapon->ctype.laser_info.parent_num));
 
 		maybe_kill_weapon(weapon,controlcen);
 	} else {	//	If robot weapon hits control center, blow it up, make it go away, but do no damage to control center.
