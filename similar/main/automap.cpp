@@ -1259,19 +1259,17 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						auto connected_side = find_connect_side(seg, &Segments[connected_seg]);
-						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
-						if ((keytype != KEY_BLUE) && (keytype != KEY_GOLD) && (keytype != KEY_RED))
-							color = am->wall_door_color;
-						else {
-							switch (Walls[Segments[connected_seg].sides[connected_side].wall_num].keys) {
+						const auto &vcseg = vcsegptr(connected_seg);
+						const auto &connected_side = find_connect_side(seg, vcseg);
+						switch (Walls[vcseg->sides[connected_side].wall_num].keys)
+						{
 								case KEY_BLUE:	color = am->wall_door_blue;	no_fade = 1; break;
 								case KEY_GOLD:	color = am->wall_door_gold;	no_fade = 1; break;
 								case KEY_RED:	color = am->wall_door_red;	no_fade = 1; break;
-								default:	Error("Inconsistent data.  Supposed to be a colored wall, but not blue, gold or red.\n");
-							}
+							default:
+								color = am->wall_door_color;
+								break;
 						}
-
 					}
 				} else {
 					color = am->wall_normal_color;
