@@ -377,6 +377,12 @@ struct T {};
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
 	@_custom_test
+	def check_compiler_visibility_hidden(self,context):
+		'''
+help:assume compiler accepts -fvisibility=hidden
+'''
+		self.Compile(context, text='', main='', msg='whether compiler accepts -fvisibility=hidden', successflags={'CXXFLAGS' : ['-fvisibility=hidden']})
+	@_custom_test
 	def check_attribute_error(self,context):
 		"""
 help:assume compiler supports __attribute__((error))
