@@ -726,8 +726,8 @@ help:assume Boost.Foreach works
 struct A {};
 constexpr A a(){return {};}
 '''
-		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_CONSTEXPR']}):
-			context.sconf.Define('constexpr', self.comment_not_supported)
+		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr'):
+			raise SCons.Errors.StopError("C++ compiler does not support constexpr.")
 	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
