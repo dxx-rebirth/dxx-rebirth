@@ -90,6 +90,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
+namespace {
+
 struct flythrough_data
 {
 	object		*obj;
@@ -105,7 +107,9 @@ struct flythrough_data
 
 #define MAX_FLY_OBJECTS 2
 
-flythrough_data fly_objects[MAX_FLY_OBJECTS];
+}
+
+static array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 
 //endlevel sequence states
 
@@ -122,9 +126,10 @@ flythrough_data fly_objects[MAX_FLY_OBJECTS];
 
 int Endlevel_sequence = 0;
 
-segnum_t transition_segnum,exit_segnum;
+static segnum_t transition_segnum;
+segnum_t exit_segnum;
 
-object *endlevel_camera;
+static object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
@@ -165,12 +170,12 @@ grs_bitmap **station_bitmap_list[1];
 static unsigned station_modelnum;
 #endif
 
-vms_vector mine_exit_point;
-vms_vector mine_ground_exit_point;
-vms_vector mine_side_exit_point;
-vms_matrix mine_exit_orient;
+static vms_vector mine_exit_point;
+static vms_vector mine_ground_exit_point;
+static vms_vector mine_side_exit_point;
+static vms_matrix mine_exit_orient;
 
-int outside_mine;
+static int outside_mine;
 
 static grs_main_bitmap terrain_bm_instance, satellite_bm_instance;
 
@@ -269,13 +274,13 @@ void init_endlevel()
 }
 
 static object *external_explosion;
-int ext_expl_playing,mine_destroyed;
+static int ext_expl_playing,mine_destroyed;
 
 static vms_angvec exit_angles={-0xa00,0,0};
 
 vms_matrix surface_orient;
 
-static int endlevel_data_loaded=0;
+static int endlevel_data_loaded;
 
 void start_endlevel_sequence()
 {
@@ -924,7 +929,7 @@ void draw_exit_model()
 	draw_polygon_model(model_pos, &mine_exit_orient, nullptr, (mine_destroyed)?destroyed_exit_modelnum:exit_modelnum, 0, lrgb, nullptr, nullptr);
 }
 
-int exit_point_bmx,exit_point_bmy;
+static int exit_point_bmx,exit_point_bmy;
 
 static fix satellite_size = i2f(400);
 
@@ -1006,7 +1011,7 @@ static void render_external_scene(fix eye_offset)
 
 #define MAX_STARS 500
 
-vms_vector stars[MAX_STARS];
+static array<vms_vector, MAX_STARS> stars;
 
 static void generate_starfield()
 {
