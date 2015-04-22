@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <utility>
 #include <string.h>
 
 #include "inferno.h"
@@ -33,28 +33,41 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "kdefs.h"
 
+__attribute_warn_unused_result
+static vsegptridx_t get_any_attached_segment(const vsegptridx_t curseg_num, const uint_fast32_t skipside)
+{
+	for (uint_fast32_t s = 0; s != MAX_SIDES_PER_SEGMENT; ++s)
+	{
+		if (unlikely(s == skipside))
+			continue;
+		const auto child = curseg_num->children[s];
+		if (IS_CHILD(child))
+			return vsegptridx(child);
+	}
+	return curseg_num;
+}
+
+__attribute_warn_unused_result
+static vsegptridx_t get_previous_segment(const vsegptridx_t curseg_num, const uint_fast32_t curside)
+{
+	const auto side_child = curseg_num->children[Side_opposite[curside]];
+	if (IS_CHILD(side_child))
+		return vsegptridx(side_child);
+	// no segment on opposite face, connect to anything
+	return get_any_attached_segment(curseg_num, curside);
+}
+
 // ---------------------------------------------------------------------------------------
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
-void get_previous_segment(int curseg_num, int curside,int *newseg_num, int *newside)
+__attribute_warn_unused_result
+static std::pair<vsegptridx_t, uint_fast32_t> get_previous_segment_side(const vsegptridx_t curseg_num, const uint_fast32_t curside)
 {
-	*newseg_num = curseg_num;
-
-        if (IS_CHILD(Segments[curseg_num].children[(int)Side_opposite[curside]]))
-                *newseg_num = Segments[curseg_num].children[(int)Side_opposite[curside]];
-	else        // no segment on opposite face, connect to anything
-		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-			if ((s != curside) && IS_CHILD(Segments[curseg_num].children[s]))
-				*newseg_num = Segments[curseg_num].children[s];
-
+	const auto &newseg_num = get_previous_segment(curseg_num, curside);
 	// Now make Curside point at the segment we just left (unless we couldn't leave it).
-	if (*newseg_num != curseg_num)
-		*newside = find_connect_side(&Segments[curseg_num],&Segments[*newseg_num]);
-	else
-		*newside = curside;
+	return {newseg_num, newseg_num == curseg_num ? curside : find_connect_side(curseg_num, newseg_num)};
 }
-
 
 // --------------------------------------------------------------------------------------
 // Select next segment.
@@ -105,12 +118,9 @@ int SelectCurrentSegForward()
 // -------------------------------------------------------------------------------------
 int SelectCurrentSegBackward()
 {
-	int	newseg_num,newside;
-
-	get_previous_segment(Cursegp-Segments,Curside,&newseg_num,&newside);
-
-	Cursegp = &Segments[newseg_num];
-	Curside = newside;
+	const auto &p = get_previous_segment_side(Cursegp,Curside);
+	Cursegp = p.first;
+	Curside = p.second;
 
 	if (Lock_view_to_cursegp)
 		set_view_target_from_segment(Cursegp);

@@ -361,7 +361,6 @@ int med_find_closest_threshold_segment_side(vcsegptridx_t sp, int side, segptrid
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
-extern void get_previous_segment(int curseg_num, int curside,int *newseg_num, int *newside);
 
 // Select next segment.
 //	If there is a connection on the current side, then choose that segment.
