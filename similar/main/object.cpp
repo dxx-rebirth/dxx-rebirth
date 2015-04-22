@@ -671,7 +671,6 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 //	Render an object.  Calls one of several routines based on type
 void render_object(const vobjptridx_t obj)
 {
-	int mld_save;
 
 	if ( obj == Viewer )
 		return;
@@ -682,8 +681,9 @@ void render_object(const vobjptridx_t obj)
 		return;
 	}
 
-	mld_save = Max_linear_depth;
-	Max_linear_depth = Max_linear_depth_objects;
+#ifndef OGL
+	const auto mld_save = exchange(Max_linear_depth, Max_linear_depth_objects);
+#endif
 
 	switch (obj->render_type)
 	{
@@ -799,9 +799,9 @@ void render_object(const vobjptridx_t obj)
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);
-
+#ifndef OGL
 	Max_linear_depth = mld_save;
-
+#endif
 }
 
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
