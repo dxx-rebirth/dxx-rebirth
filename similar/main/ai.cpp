@@ -474,10 +474,11 @@ void init_ai_objects(void)
 {
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (auto &obj, Objects)
+	range_for (const auto i, highest_valid(Objects))
 	{
-		if (obj.type == OBJ_ROBOT && obj.control_type == CT_AI)
-			init_ai_object(&obj, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
+		const auto &o = vobjptr(static_cast<objnum_t>(i));
+		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
+			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
 	}
 
 	Boss_dying_sound_playing = 0;
