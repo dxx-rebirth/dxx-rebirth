@@ -1180,7 +1180,7 @@ objptridx_t find_escort()
 	{
 		auto o = vobjptridx(i);
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
-			return o;
+			return objptridx_t(o);
 	}
 	return object_none;
 }
