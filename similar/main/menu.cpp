@@ -1382,6 +1382,8 @@ void graphics_config()
 }
 
 #if PHYSFS_VER_MAJOR >= 2
+namespace {
+
 struct browser
 {
 	const char	*title;			// The title - needed for making another listbox when changing directory
@@ -1394,6 +1396,8 @@ struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 };
+
+}
 
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
