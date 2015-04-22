@@ -400,7 +400,7 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player(const vobjptr_t obj)
+static void draw_player(const vcobjptr_t obj)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj->pos);
@@ -538,7 +538,7 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto color = get_player_or_team_color(Player_num);
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-	draw_player(&Objects[Players[Player_num].objnum]);
+	draw_player(vcobjptr(Players[Player_num].objnum));
 
 	DrawMarkers(am);
 	
@@ -549,7 +549,7 @@ static void draw_automap(automap *am)
 				if ( Objects[Players[i].objnum].type == OBJ_PLAYER )	{
 					const auto color = get_player_or_team_color(i);
 					gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-					draw_player(&Objects[Players[i].objnum]);
+					draw_player(vcobjptr(Players[i].objnum));
 				}
 			}
 		}
