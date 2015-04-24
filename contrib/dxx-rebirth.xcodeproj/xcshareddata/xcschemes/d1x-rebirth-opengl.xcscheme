@@ -53,12 +53,16 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-debug"
+            argument = "-window"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-window"
-            isEnabled = "YES">
+            argument = "-debug"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-notitles"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
