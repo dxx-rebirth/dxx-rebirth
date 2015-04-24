@@ -952,7 +952,6 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
-	int			fate;
 
 	fq.p0						= &obj1->pos;
 	fq.startseg				= obj1->segnum;
@@ -962,16 +961,18 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= trans_type;
 
-	fate = find_vector_intersection(fq, hit_data);
-
-	if (fate == HIT_WALL)
-		return 0;
-	else if (fate == HIT_NONE)
-		return 1;
-	else
-		Int3();		//	Contact Mike: Oops, what happened?  What is fate?
+	switch(const auto fate = find_vector_intersection(fq, hit_data))
+	{
+		case HIT_NONE:
+			return 1;
+		case HIT_WALL:
+			return 0;
+		default:
+			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2->pos.x, obj2->pos.y, obj2->pos.z);
+		// Int3();		//	Contact Mike: Oops, what happened?  What is fate?
 						// 2 = hit object (impossible), 3 = bad starting point (bad)
-
+			break;
+	}
 	return 0;
 }
 
