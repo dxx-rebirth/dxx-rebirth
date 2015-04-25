@@ -429,7 +429,7 @@ static void cmd_echo(int argc, char **argv)
 			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
 		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
 	}
-	con_printf(CON_NORMAL, "%s", buf);
+	con_puts(CON_NORMAL, buf);
 }
 
 /* execute script */
@@ -507,7 +507,7 @@ static void cmd_help(int argc, char **argv)
 		return;
 	}
 
-	con_printf(CON_NORMAL, "%s", cmd->help_text);
+	con_puts(CON_NORMAL, cmd->help_text);
 }
 
 
