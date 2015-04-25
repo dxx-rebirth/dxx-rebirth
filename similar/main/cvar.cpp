@@ -137,7 +137,7 @@ void cvar_registervariable (cvar_t *cvar)
 	if (cvar_find(cvar->name))
 	{
 		Int3();
-		con_printf(CON_URGENT, "cvar %s already exists!\n", cvar->name);
+		con_printf(CON_URGENT, "cvar %s already exists!", cvar->name);
 		return;
 	}
 
@@ -195,7 +195,7 @@ void cvar_set(const char *cvar_name, char *value)
 
 	if (cvar->flags & CVAR_CHEAT && !cheats.enabled)
 	{
-		con_printf(CON_NORMAL, "cvar %s is cheat protected.\n", cvar_name);
+		con_printf(CON_NORMAL, "cvar %s is cheat protected.", cvar_name);
 		return;
 	}
 
