@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "inferno.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "vecmat.h"
 #include "interp.h"
 #include "dxxerror.h"
@@ -172,7 +172,7 @@ static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
+static array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
@@ -238,8 +238,7 @@ static void align_polygon_model_data(polymodel *pm)
 		}
 		//write (corrected) chunk for current chunk:
 		*((short *)(cur_ch.new_base + cur_ch.offset))
-		  = INTEL_SHORT(cur_ch.correction
-				+ INTEL_SHORT(*((short *)(cur_ch.old_base + cur_ch.offset))));
+		  = INTEL_SHORT(static_cast<short>(cur_ch.correction + GET_INTEL_SHORT(cur_ch.old_base + cur_ch.offset)));
 		//write (correctly aligned) chunk:
 		cur_old = old_dest(cur_ch);
 		cur_new = new_dest(cur_ch);
@@ -370,8 +369,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 					Assert(n_frames == N_ANIM_STATES);
 
 					for (int m=0;m<pm->n_models;m++)
-						for (int f=0;f<n_frames;f++)
-							pof_read_angs(&anim_angs[f][m], 1, model_buf);
+						range_for (auto &f, partial_range(anim_angs, n_frames))
+							pof_read_angs(&f[m], 1, model_buf);
 
 
 					robot_set_angles(r,pm,anim_angs);

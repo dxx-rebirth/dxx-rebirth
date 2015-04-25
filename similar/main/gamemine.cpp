@@ -381,7 +381,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 #endif
 
 #ifdef EDITOR
-short tmap_xlate_table[MAX_TEXTURES];
+array<short, MAX_TEXTURES> tmap_xlate_table;
 struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
 struct mfi mine_fileinfo;
 struct mh mine_header;
@@ -620,7 +620,9 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 		Highest_segment_index = mine_fileinfo.segment_howmany-1;
 
-		for (int i=0; i< mine_fileinfo.segment_howmany; i++ ) {
+		for (segnum_t ii = 0; ii < mine_fileinfo.segment_howmany; ++ii)
+		{
+			const auto &i = vsegptridx(ii);
 
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
@@ -628,8 +630,8 @@ int load_mine_data(PHYSFS_file *LoadFile)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (mine_top_fileinfo.fileinfo_version >= 20)
 			{
-				if (PHYSFS_read( LoadFile, &Segments[i], mine_fileinfo.segment_sizeof, 1 )!=1)
-					Error("Unable to read segment %i\n", i);
+				if (PHYSFS_read(LoadFile, &*i, mine_fileinfo.segment_sizeof, 1) != 1)
+					Error("Unable to read segment %i\n", ii);
 			}
 			else
 #endif
@@ -643,60 +645,60 @@ int load_mine_data(PHYSFS_file *LoadFile)
 					Error( "Error reading segments in gamemine.c" );
 
 #if defined(DXX_BUILD_DESCENT_I)
-				Segments[i] = v16_seg;
+				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
 				#ifdef EDITOR
-				Segments[i].segnum = v16_seg.segnum;
+				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
 				#endif
 
 				for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-					Segments[i].sides[j] = v16_seg.sides[j];
+					i->sides[j] = v16_seg.sides[j];
 
 				for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-					Segments[i].children[j] = v16_seg.children[j];
+					i->children[j] = v16_seg.children[j];
 
 				for (int j=0; j<MAX_VERTICES_PER_SEGMENT; j++)
-					Segments[i].verts[j] = v16_seg.verts[j];
+					i->verts[j] = v16_seg.verts[j];
 
-				Segments[i].special = v16_seg.special;
-				Segments[i].value = v16_seg.value;
-				Segments[i].s2_flags = 0;
-				Segments[i].matcen_num = v16_seg.matcen_num;
-				Segments[i].static_light = v16_seg.static_light;
+				i->special = v16_seg.special;
+				i->value = v16_seg.value;
+				i->s2_flags = 0;
+				i->matcen_num = v16_seg.matcen_num;
+				i->static_light = v16_seg.static_light;
 #endif
-				fuelcen_activate( &Segments[i], Segments[i].special );
+				fuelcen_activate(i, i->special);
 			}
 			else 
 				Error("Invalid mine version");
 
-			Segments[i].objects = object_none;
+			i->objects = object_none;
 			#ifdef EDITOR
-			Segments[i].group = -1;
+			i->group = -1;
 			#endif
 
 			if (translate == 1)
 				for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 					unsigned short orient;
-					tmap_xlate = Segments[i].sides[j].tmap_num;
-					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
-					auto render = (WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG);
+					tmap_xlate = i->sides[j].tmap_num;
+					i->sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
+					const auto render = (WALL_IS_DOORWAY(i,j) & WID_RENDER_FLAG);
 					if (render)
-						if (Segments[i].sides[j].tmap_num < 0)	{
+						if (i->sides[j].tmap_num < 0)	{
 							Int3();
-							Segments[i].sides[j].tmap_num = NumTextures-1;
+							i->sides[j].tmap_num = NumTextures-1;
 						}
-					tmap_xlate = Segments[i].sides[j].tmap_num2 & TMAP_NUM_MASK;
-					orient = Segments[i].sides[j].tmap_num2 & (~TMAP_NUM_MASK);
+					tmap_xlate = i->sides[j].tmap_num2 & TMAP_NUM_MASK;
+					orient = i->sides[j].tmap_num2 & (~TMAP_NUM_MASK);
 					if (tmap_xlate != 0) {
 						int xlated_tmap = tmap_xlate_table[tmap_xlate];
 
 						if (render)
 							if (xlated_tmap <= 0)	{
 								Int3();
-								Segments[i].sides[j].tmap_num2 = NumTextures-1;
+								i->sides[j].tmap_num2 = NumTextures-1;
 							}
-						Segments[i].sides[j].tmap_num2 = xlated_tmap | orient;
+						i->sides[j].tmap_num2 = xlated_tmap | orient;
 					}
 				}
 		}

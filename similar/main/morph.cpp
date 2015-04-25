@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::max;
 
-morph_data morph_objects[MAX_MORPH_OBJECTS];
+array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
 //returns ptr to data for this object, or NULL if none
 morph_data *find_morph_data(const vobjptr_t obj)

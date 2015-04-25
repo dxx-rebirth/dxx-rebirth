@@ -42,8 +42,7 @@ static int active_pad;
 
 static int desc_x, desc_y;
 
-static int HotKey[17];
-static int HotKey1[17];
+static array<int, 17> HotKey, HotKey1;
 
 int ui_pad_get_current()
 {

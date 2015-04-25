@@ -84,8 +84,8 @@ using std::max;
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
 int Render_depth = 20; //how many segments deep to render
-#endif
 unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
+#endif
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
@@ -1154,7 +1154,7 @@ static void build_object_lists(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					m = get_seg_masks(obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
+					m = get_seg_masks(obj->pos, new_segnum, obj->size);
 	
 					if (m.sidemask) {
 						int sn,sf;
@@ -1597,8 +1597,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			{
 				//int n_expl_objs=0,expl_objs[5],i;
-				int save_linear_depth = Max_linear_depth;
-				Max_linear_depth = Max_linear_depth_objects;
+				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window);	// note link to above else
@@ -1737,14 +1736,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			// render objects
 			{
-				int save_linear_depth = Max_linear_depth;
-
-				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window);	// note link to above else
 				}
-				Max_linear_depth = save_linear_depth;
 			}
 		}
 	}

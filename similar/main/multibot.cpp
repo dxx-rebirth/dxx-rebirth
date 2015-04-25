@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "compiler-range_for.h"
+#include "compiler-type_traits.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
@@ -72,11 +73,6 @@ static void multi_delete_controlled_robot(const vobjptridx_t objnum);
 #define MIN_CONTROL_TIME	F1_0*2
 #define ROBOT_TIMEOUT		F1_0*3
 
-static inline int multi_powerup_is_allowed(int id)
-{
-	(void)id;
-	return 1;
-}
 #define MAX_TO_DELETE	67
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MIN_CONTROL_TIME	F1_0*1
@@ -85,13 +81,13 @@ static inline int multi_powerup_is_allowed(int id)
 
 #define MIN_TO_ADD	60
 
-objnum_t robot_controlled[MAX_ROBOTS_CONTROLLED];
-int robot_agitation[MAX_ROBOTS_CONTROLLED];
-fix64 robot_controlled_time[MAX_ROBOTS_CONTROLLED];
-fix64 robot_last_send_time[MAX_ROBOTS_CONTROLLED];
-fix64 robot_last_message_time[MAX_ROBOTS_CONTROLLED];
-int robot_send_pending[MAX_ROBOTS_CONTROLLED];
-int robot_fired[MAX_ROBOTS_CONTROLLED];
+array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
+	robot_send_pending,
+	robot_fired;
+array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
+	robot_last_send_time,
+	robot_last_message_time;
 ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)
@@ -1131,7 +1127,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 		if (del_obj->contains_type == OBJ_POWERUP) {
 			maybe_replace_powerup_with_energy(del_obj);
-			if (!multi_powerup_is_allowed(del_obj->contains_id))
+			if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
 				del_obj->contains_id=POW_SHIELD_BOOST;
 
 			// No key drops in non-coop games!
@@ -1157,7 +1153,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 			if (del_obj->contains_type == OBJ_POWERUP)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
-				if (!multi_powerup_is_allowed(del_obj->contains_id))
+				if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
 					del_obj->contains_id=POW_SHIELD_BOOST;
 			 }
 		
@@ -1180,7 +1176,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 //	player or player weapon whacks a robot, so it happens rarely.
 void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 {
-	int slot, remote_objnum;
+	int remote_objnum;
 	sbyte dummy;
 
 	if (!(Game_mode & GM_MULTI_ROBOTS))
@@ -1190,13 +1186,22 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		return;
 #endif
 
-	slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
+	const auto slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
 
+	/* Why 5?  Ask Parallax. */
+	static constexpr tt::integral_constant<int8_t, 5> hands_off_period{};
+	if (slot == hands_off_period)
+	{
+		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", static_cast<vobjptridx_t::integral_type>(robot), player_num);
+		return;
+	}
 	if ((slot < 0) || (slot >= MAX_ROBOTS_CONTROLLED)) {
 		Int3();
 		return;
 	}
-
+	if (robot_controlled[slot] == object_none)
+		return;
+	const auto rcrobot = vobjptridx(robot_controlled[slot]);
 	remote_objnum = objnum_local_to_remote(robot, &dummy);
 	if (remote_objnum < 0)
 		return;
@@ -1204,8 +1209,8 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 	if ( (robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (d_rand() > 0x4400))
 	{
 		if (robot_send_pending[slot])
-			multi_send_robot_position(robot_controlled[slot], -1);
-		multi_send_release_robot(robot_controlled[slot]);
-		robot->ctype.ai_info.REMOTE_SLOT_NUM = 5;  // Hands-off period
+			multi_send_robot_position(rcrobot, -1);
+		multi_send_release_robot(rcrobot);
+		robot->ctype.ai_info.REMOTE_SLOT_NUM = hands_off_period;  // Hands-off period
 	}
 }

@@ -154,7 +154,6 @@ struct wclip;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 const std::size_t MAX_CLIP_FRAMES_D1 = 20;
-extern const char Wall_names[7][10];
 
 #if defined(DXX_BUILD_DESCENT_II)
 const std::size_t MAX_CLOAKING_WALLS = 10;
@@ -170,8 +169,6 @@ extern unsigned Num_open_doors;              // Number of open doors
 
 extern unsigned Num_wall_anims;
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
-
-extern int walls_bm_num[MAX_WALL_ANIMS];
 #endif
 
 #ifdef EDITOR
@@ -229,7 +226,7 @@ void reset_walls();
 // Called once per frame..
 void wall_frame_process();
 
-extern stuckobj Stuck_objects[MAX_STUCK_OBJECTS];
+extern array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
 
 //  An object got stuck in a door (like a flare).
 //  Add global entry.

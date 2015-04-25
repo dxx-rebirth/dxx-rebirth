@@ -10,6 +10,7 @@
  *
  */
 
+#include <algorithm>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -27,6 +28,8 @@
 #include "palette.h"
 
 #include "compiler-make_unique.h"
+
+using std::min;
 
 static int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
@@ -219,7 +222,7 @@ void gr_palette_step_up( int r, int g, int b )
 	palette_array_t &p = gr_palette;
 	int temp;
 	SDL_Palette *palette;
-	SDL_Color colors[256];
+	array<SDL_Color, 256> colors;
 
 	if ( (r==last_r) && (g==last_g) && (b==last_b) )
 		return;
@@ -260,18 +263,14 @@ void gr_palette_step_up( int r, int g, int b )
 
 		colors[i].b = temp * 4;
 	}
-
-	SDL_SetColors(canvas, colors, 0, 256);
+	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 }
-
-#undef min
-static inline int min(int x, int y) { return x < y ? x : y; }
 
 void gr_palette_load( palette_array_t &pal )
 {
 	SDL_Palette *palette;
-	SDL_Color colors[256];
-	ubyte gamma[64];
+	array<SDL_Color, 256> colors;
+	array<uint8_t, 64> gamma;
 
 	if (pal != gr_current_pal)
 		SDL_FillRect(canvas, NULL, SDL_MapRGB(canvas->format, 0, 0, 0));
@@ -300,7 +299,7 @@ void gr_palette_load( palette_array_t &pal )
 		i++;
 	}
 
-	SDL_SetColors(canvas, colors, 0, 256);
+	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 	init_computed_colors();
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();

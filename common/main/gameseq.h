@@ -23,12 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAMESEQ_H
-#define _GAMESEQ_H
+#pragma once
 
 #include "player.h"
-#include "mission.h"
 
 #ifdef __cplusplus
 #include "fwdobject.h"
@@ -45,7 +42,7 @@ const unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
 // 0 means not a real level loaded
 extern int Current_level_num, Next_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
-extern obj_position Player_init[MAX_PLAYERS];
+extern array<obj_position, MAX_PLAYERS> Player_init;
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;
@@ -59,9 +56,6 @@ void StartNewGame(int start_level);
 
 // starts the next level
 void StartNewLevel(int level_num);
-
-// Actually does the work to start new level
-void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag);
 
 void InitPlayerObject();            //make sure player's object set up
 void init_player_stats_game(ubyte pnum);      //clear all stats
@@ -99,7 +93,6 @@ extern void draw_high_scores(int place);
 extern int add_player_to_high_scores(player *pp);
 extern void input_name (int place);
 extern int reset_high_scores();
-extern void init_player_stats_level(int secret_flag);
 
 void open_message_window(void);
 void close_message_window(void);
@@ -128,5 +121,3 @@ void copy_defaults_to_robot(vobjptr_t objp);
 void init_player_stats_new_ship(ubyte pnum);
 
 #endif
-
-#endif /* _GAMESEQ_H */

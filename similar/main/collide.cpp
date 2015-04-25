@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "polyobj.h"
 #include "fireball.h"
+#include "hudmsg.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "ai.h"
@@ -68,6 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "endlevel.h"
 #include "multibot.h"
+#include "playsave.h"
 #include "piggy.h"
 #include "text.h"
 #include "automap.h"
@@ -86,6 +88,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 
 using std::min;
+
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
+	1, 1, 1, 1, 1,
+	1, 1, 1, 0, 1,
+	1, 0, 1, 1, 1,
+	0, 1, 0, 0, 1,
+	1, 0, 0, 1, 1,
+	1, 1, 1, 0, 1,
+	1, 1, 0, 1, 1,
+	1
+}};
+#endif
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -111,10 +126,10 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM))
+	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM))
 #elif defined(DXX_BUILD_DESCENT_II)
 	const robot_info *robptr = &Robot_info[robot_id];
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == AIB_SNIPE))
+	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE))
 #endif
 	{
 		auto	wall_num = hitseg->sides[hitwall].wall_num;
@@ -369,7 +384,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 		int	volume;
 		volume = (hitspeed-(WALL_DAMAGE_SCALE*WALL_DAMAGE_THRESHOLD)) / WALL_LOUDNESS_SCALE ;
 
-		create_awareness_event(playerobj, PA_WEAPON_WALL_COLLISION);
+		create_awareness_event(playerobj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);
 
 		if ( volume > F1_0 )
 			volume = F1_0;
@@ -508,12 +523,12 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 	}
 }
 
-static int effect_parent_is_guidebot(const vcobjptr_t effect)
+static int effect_parent_is_guidebot(const laser_parent &laser)
 {
-	if (effect->ctype.laser_info.parent_type != OBJ_ROBOT)
+	if (laser.parent_type != OBJ_ROBOT)
 		return 0;
-	const object *robot = &Objects[effect->ctype.laser_info.parent_num];
-	if (robot->signature != effect->ctype.laser_info.parent_signature)
+	const object *robot = &Objects[laser.parent_num];
+	if (robot->signature != laser.parent_signature)
 		/* parent replaced, no idea what it once was */
 		return 0;
 	const ubyte robot_id = get_robot_id(robot);
@@ -524,28 +539,22 @@ static int effect_parent_is_guidebot(const vcobjptr_t effect)
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-#if defined(DXX_BUILD_DESCENT_I)
-#define blower
-#define remote
-#endif
-int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, _check_effect_blowup_objptr blower, int force_blowup_flag, int remote)
-#undef remote
-#undef blower
+int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote)
 {
 	int tm,db;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	force_blowup_flag = 0;
+	static constexpr tt::integral_constant<int, 0> force_blowup_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	int trigger_check = 0, is_trigger = 0;
 	auto wall_num = seg->sides[side].wall_num;
 	db=0;
 
 	// If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
-	trigger_check = (!(effect_parent_is_guidebot(blower) || blower->ctype.laser_info.parent_type == OBJ_PLAYER));
+	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(blower));
 	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
 	if (Game_mode & GM_MULTI)
-		trigger_check = (!(blower->ctype.laser_info.parent_type == OBJ_PLAYER && (blower->ctype.laser_info.parent_num == Players[Player_num].objnum || remote)));
+		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == Players[Player_num].objnum || remote)));
 	if ( wall_num != wall_none )
 		if (Walls[wall_num].trigger != trigger_none)
 			is_trigger = 1;
@@ -745,13 +754,13 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		return;
 	}
 
-	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon, 0, 0);
+	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
 	int	robot_escort;
 #if defined(DXX_BUILD_DESCENT_II)
-	robot_escort = effect_parent_is_guidebot(weapon);
+	robot_escort = effect_parent_is_guidebot(weapon->ctype.laser_info);
 	if (robot_escort) {
 
 		if (Game_mode & GM_MULTI)
@@ -893,7 +902,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 	if (( weapon->ctype.laser_info.parent_type== OBJ_PLAYER ) || robot_escort) {
 
 		if (!(weapon->flags & OF_SILENT) && (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum))
-			create_awareness_event(weapon, PA_WEAPON_WALL_COLLISION);			// object "weapon" can attract attention to player
+			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);			// object "weapon" can attract attention to player
 
 //		if (weapon->id != FLARE_ID) {
 //	We now allow flares to open doors.
@@ -1013,9 +1022,9 @@ static void collide_robot_and_player(const vobjptridx_t robot, const vobjptridx_
 		}
 #endif
 
-		create_awareness_event(playerobj, PA_PLAYER_COLLISION);			// object robot can attract attention to player
+		create_awareness_event(playerobj, player_awareness_type_t::PA_PLAYER_COLLISION);			// object robot can attract attention to player
 		do_ai_robot_hit_attack(robot, playerobj, collision_point);
-		do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
+		do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 	}
 	else
 	{
@@ -1062,23 +1071,19 @@ void net_destroy_controlcen(const objptridx_t controlcen)
 }
 
 //	-----------------------------------------------------------------------------
-void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnum_t who)
+void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, const vcobjptr_t who)
 {
 	int	whotype;
 
 	//	Only allow a player to damage the control center.
-
-	if ((who < 0) || (who > Highest_object_index))
-		return;
-
-	whotype = Objects[who].type;
+	whotype = who->type;
 	if (whotype != OBJ_PLAYER) {
 		return;
 	}
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
 	{
-		if (get_player_id(&Objects[who]) == Player_num) {
+		if (get_player_id(who) == Player_num) {
 			int secs = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) % 60;
 			int mins = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) / 60;
 			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
@@ -1086,7 +1091,7 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnu
 		return;
 	}
 
-	if (get_player_id(&Objects[who]) == Player_num) {
+	if (get_player_id(who) == Player_num) {
 		Control_center_been_hit = 1;
 		ai_do_cloak_stuff();
 	}
@@ -1098,9 +1103,9 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, objnu
 		do_controlcen_destroyed_stuff(controlcen);
 
 		if (Game_mode & GM_MULTI) {
-			if (who == Players[Player_num].objnum)
+			if (get_player_id(who) == Player_num)
 				add_points_to_score(CONTROL_CEN_SCORE);
-			multi_send_destroy_controlcen(controlcen, get_player_id(&Objects[who]) );
+			multi_send_destroy_controlcen(controlcen, get_player_id(who) );
 		}
 
 		if (!(Game_mode & GM_MULTI))
@@ -1260,7 +1265,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 
 		damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
-		apply_damage_to_controlcen(controlcen, damage, weapon->ctype.laser_info.parent_num);
+		apply_damage_to_controlcen(controlcen, damage, vcobjptr(weapon->ctype.laser_info.parent_num));
 
 		maybe_kill_weapon(weapon,controlcen);
 	} else {	//	If robot weapon hits control center, blow it up, make it go away, but do no damage to control center.
@@ -1686,8 +1691,8 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 #endif
 	{
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
-			create_awareness_event(weapon, PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
-			do_ai_robot_hit(robot, PA_WEAPON_ROBOT_COLLISION);
+			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
+			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
 	       	else
 			multi_robot_request_change(robot, get_robot_id(&Objects[weapon->ctype.laser_info.parent_num]));
@@ -1803,10 +1808,7 @@ static void collide_player_and_player(const vobjptridx_t player1, const vobjptri
 static objnum_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
-	int powerup_num;
-
-	powerup_num = Primary_weapon_to_powerup[weapon_index];
-
+	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
 	if (Players[get_player_id(playerobj)].primary_weapon_flags & weapon_flag)
 		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	else
@@ -1816,10 +1818,7 @@ static objnum_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int wea
 static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
 {
 	int weapon_flag = HAS_SECONDARY_FLAG(weapon_index);
-	int powerup_num;
-
-	powerup_num = Secondary_weapon_to_powerup[weapon_index];
-
+	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 	if (Players[get_player_id(playerobj)].secondary_weapon_flags & weapon_flag) {
 		int	max_count;
 
@@ -1831,10 +1830,9 @@ static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapo
 
 static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
 {
-	int num_missiles,powerup_id;
-
+	int num_missiles;
 	num_missiles = Players[get_player_id(playerobj)].secondary_ammo[missile_index];
-	powerup_id = Secondary_weapon_to_powerup[missile_index];
+	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
 
 	if (num_missiles > 10)
 		num_missiles = 10;
@@ -1855,6 +1853,43 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		{
 			Net_create_loc = 0;
 			d_srand(5483L);
+		}
+		auto &plr = Players[pnum];
+		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
+		{
+			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems))
+			{
+				if (plr.laser_level <= granted_laser_level)
+					/* All levels were from grant */
+					plr.laser_level = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+				else if (granted_laser_level > MAX_LASER_LEVEL)
+				{
+					/* Grant gives super laser 5.
+					 * Player has super laser 6.
+					 */
+					-- plr.laser_level;
+				}
+				else if (plr.laser_level > MAX_LASER_LEVEL)
+				{
+					/* Grant gives only regular lasers.
+					 * Player has super lasers, will drop only
+					 * super lasers.
+					 */
+				}
+#endif
+				else
+					plr.laser_level -= granted_laser_level;
+			}
+			if (uint16_t subtract_vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems))
+			{
+				if (plr.vulcan_ammo < subtract_vulcan_ammo)
+					plr.vulcan_ammo = 0;
+				else
+					plr.vulcan_ammo -= subtract_vulcan_ammo;
+			}
+			plr.flags &= ~map_granted_flags_to_player_flags(GrantedItems);
+			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)

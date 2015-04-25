@@ -23,18 +23,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#pragma once
 
-#ifndef _KCONFIG_H
-#define _KCONFIG_H
-
-#include "key.h"
 #include "joy.h"
-#include "mouse.h"
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
 #include <vector>
 #include "compiler-array.h"
+#include "compiler-type_traits.h"
 
 struct d_event;
 
@@ -73,7 +70,8 @@ struct control_info {
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
-	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
+	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
+	array<fix, 3> mouse_axis, raw_mouse_axis;
 };
 
 #define CONTROL_USING_JOYSTICK	1
@@ -105,14 +103,12 @@ extern fix Cruise_speed;
 
 
 template <std::size_t N>
-struct joystick_text_length
+struct joystick_text_length : tt::integral_constant<std::size_t, (N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1>
 {
-	enum { value = ((N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1) };
 };
 template <>
-struct joystick_text_length<0>
+struct joystick_text_length<0> : tt::integral_constant<std::size_t, 1>
 {
-	enum { value = 1 };
 };
 
 template <std::size_t N>
@@ -140,5 +136,3 @@ class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_l
 extern joybutton_text_t joybutton_text;
 extern joyaxis_text_t joyaxis_text;
 #endif
-
-#endif /* _KCONFIG_H */

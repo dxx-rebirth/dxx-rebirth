@@ -187,17 +187,17 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-bool _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
+void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
 template <std::size_t N>
-static inline bool g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
 {
-	return _g3_draw_poly(nv, &pointlist[0]);
+	_g3_draw_poly(nv, &pointlist[0]);
 }
 
 template <std::size_t N>
-static inline bool g3_draw_poly(const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(const array<cg3s_point *, N> &pointlist)
 {
-	return g3_draw_poly(N, pointlist);
+	g3_draw_poly(N, pointlist);
 }
 
 static const std::size_t MAX_POINTS_PER_POLY = 25;
@@ -225,7 +225,7 @@ static inline void g3_draw_tmap(const array<cg3s_point *, N> &pointlist, const a
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-int g3_draw_sphere(g3s_point &pnt,fix rad);
+void g3_draw_sphere(g3s_point &pnt,fix rad);
 
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);
@@ -266,8 +266,8 @@ static inline void g3_check_and_draw_tmap(const array<cg3s_point *, N> &pointlis
 
 //draws a line. takes two points.
 struct temporary_points_t;
-bool g3_draw_line(cg3s_point &p0,cg3s_point &p1);
-bool g3_draw_line(cg3s_point &p0,cg3s_point &p1,temporary_points_t &);
+void g3_draw_line(cg3s_point &p0,cg3s_point &p1);
+void g3_draw_line(cg3s_point &p0,cg3s_point &p1,temporary_points_t &);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
@@ -275,7 +275,7 @@ void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_widt
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
+void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
@@ -312,7 +312,7 @@ constexpr std::size_t MAX_POINTS_IN_POLY = 100;
 
 typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
 typedef void (*flat_drawer_type)(uint_fast32_t nv,const array<fix, MAX_POINTS_IN_POLY*2> &vertlist);
-typedef int (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
+typedef void (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.

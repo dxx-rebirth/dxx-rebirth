@@ -14,7 +14,7 @@
 #include "pstypes.h"
 #include "piggy.h"
 #include "textures.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "weapon.h"
 #include "digi.h"
 #include "hash.h"
@@ -74,8 +74,8 @@ struct custom_info
 	int width, height;
 };
 
-static grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
-static struct snd_info SoundOriginal[MAX_SOUND_FILES];
+static array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
+static array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
 static int load_pig1(PHYSFS_file *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
@@ -547,8 +547,8 @@ static void load_hxm(const d_fname &hxmname)
 static void custom_remove()
 {
 	int i;
-	grs_bitmap *bmo = BitmapOriginal;
-	grs_bitmap *bmp = GameBitmaps;
+	auto bmo = begin(BitmapOriginal);
+	auto bmp = begin(GameBitmaps);
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
 		if (bmo->bm_flags & 0x80)

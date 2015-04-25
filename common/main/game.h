@@ -23,12 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _GAME_H
-#define _GAME_H
+#pragma once
 
 #include <physfs.h>
-#include "pstypes.h"
 #include "window.h"
+#include "maths.h"
 
 #ifdef __cplusplus
 #include <cstdint>
@@ -71,8 +70,8 @@ extern object_signature_t Missile_viewer_sig;
 #define CV_COOP     3
 #define CV_MARKER   4
 
-extern int Coop_view_player[2];     // left & right
-extern int Marker_viewer_num[2];    // left & right
+extern array<int, 2> Coop_view_player;     // left & right
+extern array<int, 2> Marker_viewer_num;    // left & right
 #endif
 
 // constants for ft_preference
@@ -353,5 +352,3 @@ void dump_used_textures_all();
 #endif
 
 #endif
-
-#endif /* _GAME_H */

@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "gamefont.h"
 #include "newmenu.h"
+#include "hudmsg.h"
 #include "endlevel.h"
 #include "kmatrix.h"
 #  include "multi.h"
@@ -146,7 +147,7 @@ array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // M
 #if defined(DXX_BUILD_DESCENT_II)
 int	First_secret_visit = 1;
 #endif
-obj_position	Player_init[MAX_PLAYERS];
+array<obj_position, MAX_PLAYERS> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
@@ -303,10 +304,14 @@ extern	ubyte	Last_afterburner_state;
 #endif
 
 // Setup player for new level (After completion of previous level)
-void init_player_stats_level(int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void init_player_stats_level()
+#elif defined(DXX_BUILD_DESCENT_II)
+void init_player_stats_level(const secret_restore secret_flag)
+#endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
 	// int	i;
 
@@ -329,7 +334,7 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
-	if (!secret_flag) {
+	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
 		Players[Player_num].flags &= (~KEY_BLUE);
@@ -369,6 +374,8 @@ void init_player_stats_level(int secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	auto &plr = Players[Player_num];
 	if (pnum == Player_num)
 	{
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -390,7 +397,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			i = 0;
 		range_for (auto &i, Secondary_last_was_super)
 			i = 0;
-		Afterburner_charge = 0;
+		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
 		Missile_viewer = nullptr; //reset missile camera if out there
@@ -400,10 +407,10 @@ void init_player_stats_new_ship(ubyte pnum)
 
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
-	Players[pnum].laser_level = 0;
+	Players[pnum].laser_level = map_granted_flags_to_laser_level(GrantedItems);
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].vulcan_ammo = 0;
+	Players[pnum].vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	range_for (auto &i, partial_range(Players[pnum].secondary_ammo, 1u, MAX_SECONDARY_WEAPONS))
 		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
@@ -413,6 +420,8 @@ void init_player_stats_new_ship(ubyte pnum)
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
+	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
+	plr.primary_weapon_flags |= map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
@@ -424,7 +433,7 @@ void init_player_stats_new_ship(ubyte pnum)
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
-	init_player_stats_level(0);
+	init_player_stats_level(secret_restore::none);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
 	set_player_id(ConsoleObject, Player_num);
@@ -623,7 +632,7 @@ static ushort netmisc_calc_checksum()
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
-		range_for (uint16_t j, Segments[i].verts)
+		range_for (const uint16_t j, Segments[i].verts)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
@@ -637,8 +646,6 @@ static ushort netmisc_calc_checksum()
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
 		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-		s = INTEL_SHORT(0); // no matter if we need alignment on our platform, if we have editor we MUST consider this integer to get the same checksum as non-editor games calculate
-		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 #endif
 	}
 	sum2 %= 255;
@@ -1046,7 +1053,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
-			state_restore_all(1, 1, SECRETC_FILENAME, 0);
+			state_restore_all(1, secret_restore::survived, SECRETC_FILENAME, blind_save::no);
 			Primary_weapon = pw_save;
 			Secondary_weapon = sw_save;
 			reset_special_effects();
@@ -1070,7 +1077,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	First_secret_visit = 0;
 }
 
-int	Entered_from_level;
+static int Entered_from_level;
 
 // ---------------------------------------------------------------------------------------------------------------
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
@@ -1083,7 +1090,7 @@ void ExitSecretLevel(void)
 		window_set_visible(Game_wind, 0);
 
 	if (!Control_center_destroyed) {
-		state_save_all(2, SECRETC_FILENAME, 0);
+		state_save_all(secret_save::c, blind_save::no);
 	}
 
 	if (PHYSFSX_exists(SECRETB_FILENAME,0))
@@ -1093,7 +1100,7 @@ void ExitSecretLevel(void)
 		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME, 0);
+		state_restore_all(1, secret_restore::survived, SECRETB_FILENAME, blind_save::no);
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
 	} else {
@@ -1152,7 +1159,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(1, nullptr, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(secret_save::b, blind_save::no);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)
@@ -1418,7 +1425,7 @@ void DoPlayerDead()
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
-				state_restore_all(1, 2, SECRETB_FILENAME, 0);			//	2 means you died
+				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
@@ -1445,8 +1452,8 @@ void DoPlayerDead()
 		{
 			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)
-				state_save_all(2, SECRETC_FILENAME, 0);
-			state_restore_all(1, 2, SECRETB_FILENAME, 0);
+				state_save_all(secret_save::c, blind_save::no);
+			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
@@ -1474,13 +1481,17 @@ void DoPlayerDead()
 
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
-void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void StartNewLevelSub(const int level_num, const int page_in_textures)
+#elif defined(DXX_BUILD_DESCENT_II)
+void StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
+#endif
 {
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
         BigWindowSwitch=0;
 #endif
@@ -1603,11 +1614,8 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 void (bash_to_shield)(const vobjptr_t i)
 {
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
-	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
+	PowerupCaps.reset_powerup_both(type);
 	set_powerup_id(i, POW_SHIELD_BOOST);
-	i->size = Powerup_info[get_powerup_id(i)].size;
-	i->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(i)].vclip_num;
-	i->rtype.vclip_info.frametime = Vclip[i->rtype.vclip_info.vclip_num].frame_time;
 }
 
 
@@ -1723,7 +1731,7 @@ void StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	StartNewLevelSub(level_num, 1, 0 );
+	StartNewLevelSub(level_num, 1, secret_restore::none);
 
 }
 

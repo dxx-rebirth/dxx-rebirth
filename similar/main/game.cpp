@@ -1170,8 +1170,8 @@ void close_game()
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-int Marker_viewer_num[2]={-1,-1};
-int Coop_view_player[2]={-1,-1};
+array<int, 2> Marker_viewer_num{{-1,-1}};
+array<int, 2> Coop_view_player{{-1,-1}};
 
 //returns ptr to escort robot, or NULL
 objptridx_t find_escort()
@@ -1180,7 +1180,7 @@ objptridx_t find_escort()
 	{
 		auto o = vobjptridx(i);
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
-			return o;
+			return objptridx_t(o);
 	}
 	return object_none;
 }
@@ -1214,13 +1214,18 @@ static void do_ambient_sounds()
 
 void game_leave_menus(void)
 {
-	window *wind;
-
 	if (!Game_wind)
 		return;
-
-	while ((wind = window_get_front()) && (wind != Game_wind)) // go through all windows and actually close them if they want to
-		window_close(wind);
+	for (;;) // go through all windows and actually close them if they want to
+	{
+		const auto wind = window_get_front();
+		if (!wind)
+			break;
+		if (wind == Game_wind)
+			break;
+		if (!window_close(wind))
+			break;
+	}
 }
 
 void GameProcessFrame(void)
@@ -1581,7 +1586,7 @@ void FireLaser()
 					const auto cobjp = vobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(ConsoleObject, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);

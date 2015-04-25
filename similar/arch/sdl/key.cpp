@@ -34,13 +34,13 @@ static unsigned char Installed = 0;
 int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
-volatile unsigned char	keyd_pressed[256];
+array<uint8_t, 256> keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
 struct keyboard
 {
-	ubyte state[256];
+	array<uint8_t, 256> state;
 };
 
 static keyboard key_data;

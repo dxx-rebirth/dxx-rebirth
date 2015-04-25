@@ -13,8 +13,11 @@
 #include "objnum.h"
 #include "segnum.h"
 #include "fwdvalptridx.h"
+#include "maths.h"
 
 struct bitmap_index;
+struct vms_vector;
+struct vms_matrix;
 
 const unsigned MAX_OBJECTS = 350;
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;

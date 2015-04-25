@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "object.h"
 #include "physics.h"
+#include "robot.h"
 #include "key.h"
 #include "game.h"
 #include "collide.h"
@@ -157,7 +158,8 @@ static void set_object_turnroll(const vobjptr_t obj)
 }
 
 //list of segments went through
-int phys_seglist[MAX_FVI_SEGS],n_phys_segs;
+unsigned n_phys_segs;
+array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 
 
 #define MAX_IGNORE_OBJS 100
@@ -355,7 +357,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-	if(!get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	if(!get_seg_masks(obj->pos, obj->segnum, 0).centermask == 0)
 	{
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
@@ -459,7 +461,7 @@ void do_physics_sim(const vobjptridx_t obj)
 #endif
 
 		if (obj->type == OBJ_PLAYER) {
-			if (n_phys_segs && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
+			if (n_phys_segs && !hit_info.seglist.empty() && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
 				n_phys_segs--;
 
 			range_for (const auto &hs, hit_info.seglist)
@@ -493,7 +495,7 @@ void do_physics_sim(const vobjptridx_t obj)
 			obj_relink(obj, iseg );
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
+		if (get_seg_masks(obj->pos, obj->segnum, 0).centermask !=0 )
 		{
 			segnum_t n;
 
@@ -768,7 +770,7 @@ void do_physics_sim(const vobjptridx_t obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(obj->pos, obj->segnum, 0).centermask != 0)
 	{
 		if (find_object_seg(obj)==segment_none) {
 			segnum_t n;

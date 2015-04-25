@@ -50,13 +50,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "fireball.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"
+#include "physfs_list.h"
 
 #include "powerup.h"
 #include "fuelcen.h"
@@ -67,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "newdemo.h"
 #include "gameseq.h"
+#include "hudmsg.h"
 #include "gamesave.h"
 #include "gamemine.h"
 #include "switch.h"
@@ -222,9 +224,9 @@ static fix64 nd_record_v_recordframe_last_time = 0;
 static sbyte nd_record_v_no_space;
 #if defined(DXX_BUILD_DESCENT_II)
 static int nd_record_v_juststarted = 0;
-static sbyte nd_record_v_objs[MAX_OBJECTS];
-static sbyte nd_record_v_viewobjs[MAX_OBJECTS];
-static sbyte nd_record_v_rendering[32];
+static array<sbyte, MAX_OBJECTS> nd_record_v_objs,
+	nd_record_v_viewobjs;
+static array<sbyte, 32> nd_record_v_rendering;
 static fix nd_record_v_player_afterburner = -1;
 #endif
 static int nd_record_v_player_energy = -1;
@@ -2500,15 +2502,6 @@ static int newdemo_read_frame_information(int rewrite)
 			segnum_t segnum;
 			sbyte side;
 			vms_vector pnt;
-#if defined(DXX_BUILD_DESCENT_II)
-			object dummy;
-
-			//create a dummy object which will be the weapon that hits
-			//the monitor. the blowup code wants to know who the parent of the
-			//laser is, so create a laser whose parent is the player
-			dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
-			dummy.ctype.laser_info.parent_num = Player_num;
-#endif
 
 			nd_read_short(&segnum);
 			nd_read_byte(&side);
@@ -2521,11 +2514,19 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
+			{
 #if defined(DXX_BUILD_DESCENT_I)
 				check_effect_blowup(&(Segments[segnum]), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
-				check_effect_blowup(&(Segments[segnum]), side, pnt, &dummy, 0, 0);
+			//create a dummy object which will be the weapon that hits
+			//the monitor. the blowup code wants to know who the parent of the
+			//laser is, so create a laser whose parent is the player
+				laser_parent dummy;
+				dummy.parent_type = OBJ_PLAYER;
+				dummy.parent_num = Player_num;
+				check_effect_blowup(vsegptridx(segnum), side, pnt, dummy, 0, 0);
 #endif
+			}
 			break;
 		}
 
@@ -4080,7 +4081,7 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+		do_cockpit_window_view(w,WBU_WEAPON);
 		return;
 	}
 

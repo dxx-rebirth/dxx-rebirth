@@ -37,6 +37,7 @@ struct cobjptridx_t;
 struct vobjptr_t;
 struct vcobjptr_t;
 struct vobjptridx_t;
+enum powerup_type_t : uint8_t;
 
 // explosion types
 #define ET_SPARKS       0   //little sparks, like when laser hits wall
@@ -84,7 +85,7 @@ void draw_fireball(vobjptridx_t obj);
 void explode_wall(vsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame(void);
 void init_exploding_walls(void);
-extern void maybe_drop_net_powerup(int powerup_type);
+void maybe_drop_net_powerup(powerup_type_t powerup_type);
 void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
 
 int get_explosion_vclip(vcobjptr_t obj, int stage);

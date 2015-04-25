@@ -58,18 +58,6 @@ unsigned Num_cloaking_walls;
 
 #endif
 
-#ifdef EDITOR
-const char	Wall_names[7][10] = {
-	"NORMAL   ",
-	"BLASTABLE",
-	"DOOR     ",
-	"ILLUSION ",
-	"OPEN     ",
-	"CLOSED   ",
-	"EXTERNAL "
-};
-#endif
-
 static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const side &side)
 {
 	if (uint_fast32_t masked_tmap_num2 = side.tmap_num2 & 0x3FFF)
@@ -648,7 +636,7 @@ static int check_poke(objnum_t objnum,segnum_t segnum,int side)
 
 	//note: don't let objects with zero size block door
 
-	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size, __FILE__, __LINE__).sidemask & (1 << side))
+	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side))
 		return 1;		//pokes through side!
 	else
 		return 0;		//does not!
@@ -1437,9 +1425,8 @@ void wall_frame_process()
 #endif
 }
 
-int	Num_stuck_objects=0;
-
-stuckobj	Stuck_objects[MAX_STUCK_OBJECTS];
+static unsigned Num_stuck_objects;
+array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
@@ -1604,7 +1591,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))
-						check_effect_blowup(segp, sidenum, pnt, &Objects[objp->ctype.laser_info.parent_num], 1, 0);
+						check_effect_blowup(segp, sidenum, pnt, Objects[objp->ctype.laser_info.parent_num].ctype.laser_info, 1, 0);
 				}
 			}
 		}

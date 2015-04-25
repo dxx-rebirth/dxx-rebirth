@@ -62,7 +62,7 @@ static UI_EVENT *   EventBuffer = NULL;
 static int          Record = 0;
 static int          RecordFlags = 0;
 
-static unsigned char SavedState[256];
+static array<uint8_t, 256> SavedState;
 
 static int PlaybackSpeed = 1;
 
@@ -218,8 +218,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 	}
 }
 
-template <>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata)
+UI_DIALOG *untyped_ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata)
 {
 	int sw, sh, req_w, req_h;
 

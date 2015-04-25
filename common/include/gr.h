@@ -323,8 +323,8 @@ unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y );
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y );
 
 // Draws a line into the current canvas in the current color and drawmode.
-int gr_line(fix x0,fix y0,fix x1,fix y1);
-int gr_uline(fix x0,fix y0,fix x1,fix y1);
+void gr_line(fix x0,fix y0,fix x1,fix y1);
+void gr_uline(fix x0,fix y0,fix x1,fix y1);
 
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(unsigned x,unsigned y,grs_bitmap &bm);
@@ -452,7 +452,6 @@ extern palette_array_t gr_palette;
 typedef array<color_t, 256> gft_array0;
 typedef array<gft_array0, GR_FADE_LEVELS> gft_array1;
 extern gft_array1 gr_fade_table;
-extern ubyte gr_inverse_table[32*32*32];
 
 extern ushort gr_palette_selector;
 extern ushort gr_inverse_table_selector;

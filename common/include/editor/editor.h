@@ -292,7 +292,7 @@ struct vms_equation
 {
     union {
             struct {fix x3, x2, x1, x0, y3, y2, y1, y0, z3, z2, z1, z0;} n;
-            fix xyz[3][4];
+		array<array<fix, 4>, 3> xyz;
     };
 };
 
@@ -361,7 +361,6 @@ int med_find_closest_threshold_segment_side(vcsegptridx_t sp, int side, segptrid
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
-extern void get_previous_segment(int curseg_num, int curside,int *newseg_num, int *newside);
 
 // Select next segment.
 //	If there is a connection on the current side, then choose that segment.
@@ -403,10 +402,6 @@ extern segnum_t get_free_segment_number(void);
 //      Diagnostic message.
 #define diagnostic_message editor_status
 #define diagnostic_message_fmt editor_status_fmt
-
-//      Status Icon.
-extern void print_status_icon( char icon[1], int position );
-extern void clear_status_icon( char icon[1], int position );
 
 //      Editor status message.
 extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
@@ -475,7 +470,7 @@ extern void set_editor_time_of_day();
 // Undo function
 extern int undo(void);
 extern char mine_filename[PATH_MAX];
-extern char undo_status[10][100];
+extern array<const char *, 10> undo_status;
 
 //	group.c
 int RotateSegmentNew(vms_angvec *pbh);

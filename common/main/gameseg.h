@@ -127,10 +127,10 @@ int get_num_faces(const side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
-segmasks get_seg_masks(const vms_vector &checkp, vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum);
+segmasks get_seg_masks(const vms_vector &checkp, vcsegptridx_t segnum, fix rad);
 
 //this macro returns true if the segnum for an object is correct
-#define check_obj_seg(obj) (get_seg_masks((obj)->pos, (obj)->segnum, 0, __FILE__, __LINE__).centermask == 0)
+#define check_obj_seg(obj) (get_seg_masks((obj)->pos, (obj)->segnum, 0).centermask == 0)
 
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment

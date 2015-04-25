@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-#include "inferno.h"
 
 struct bitmap_index;
 
@@ -51,6 +50,7 @@ struct grs_bitmap;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "inferno.h"
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -85,7 +85,9 @@ extern struct player_ship only_player_ship;
 static struct player_ship *const Player_ship=&only_player_ship;
 extern unsigned Num_cockpits;
 extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
-extern short tmap_xlate_table[MAX_TEXTURES];
+#ifdef EDITOR
+extern array<short, MAX_TEXTURES> tmap_xlate_table;
+#endif
 
 extern unsigned Num_tmaps;
 extern array<tmap_info, MAX_TEXTURES> TmapInfo;
@@ -130,7 +132,7 @@ extern int extra_bitmap_num;
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
 extern array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
-extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
+extern array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
 #endif

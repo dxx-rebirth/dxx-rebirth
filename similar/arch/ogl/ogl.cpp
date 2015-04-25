@@ -52,7 +52,7 @@
 #include "powerup.h"
 #include "laser.h"
 #include "player.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "gamefont.h"
 #include "byteutil.h"
 #include "internal.h"
@@ -288,6 +288,8 @@ static void ogl_texture_stats(void)
 	res = SWIDTH * SHEIGHT;
 #ifndef OGLES
 	glGetIntegerv(GL_INDEX_BITS, &idx);
+#else
+	idx=16;
 #endif
 	glGetIntegerv(GL_RED_BITS, &r);
 	glGetIntegerv(GL_GREEN_BITS, &g);
@@ -295,6 +297,8 @@ static void ogl_texture_stats(void)
 	glGetIntegerv(GL_ALPHA_BITS, &a);
 #ifndef OGLES
 	glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
+#else
+	dbl=1;
 #endif
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
@@ -476,6 +480,45 @@ void ogl_cache_level_textures(void)
 					case POW_MEGA_WEAPON:
 						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[MEGA_INDEX]);
 						break;
+					case POW_EXTRA_LIFE:
+					case POW_ENERGY:
+					case POW_SHIELD_BOOST:
+					case POW_LASER:
+					case POW_KEY_BLUE:
+					case POW_KEY_RED:
+					case POW_KEY_GOLD:
+					case POW_MISSILE_1:
+					case POW_MISSILE_4:
+					case POW_QUAD_FIRE:
+					case POW_VULCAN_AMMO:
+					case POW_CLOAK:
+					case POW_TURBO:
+					case POW_INVULNERABILITY:
+					case POW_MEGAWOW:
+#if defined(DXX_BUILD_DESCENT_II)
+					case POW_FULL_MAP:
+					case POW_HEADLIGHT:
+					case POW_HOARD_ORB:
+					case POW_GAUSS_WEAPON:
+					case POW_HELIX_WEAPON:
+					case POW_PHOENIX_WEAPON:
+					case POW_OMEGA_WEAPON:
+					case POW_SUPER_LASER:
+					case POW_CONVERTER:
+					case POW_AMMO_RACK:
+					case POW_AFTERBURNER:
+					case POW_SMISSILE1_1:
+					case POW_SMISSILE1_4:
+					case POW_GUIDED_MISSILE_1:
+					case POW_GUIDED_MISSILE_4:
+					case POW_SMART_MINE:
+					case POW_MERCURY_MISSILE_1:
+					case POW_MERCURY_MISSILE_4:
+					case POW_EARTHSHAKER_MISSILE:
+					case POW_FLAG_BLUE:
+					case POW_FLAG_RED:
+#endif
+						break;
 				}
 			}
 			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)
@@ -497,7 +540,7 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
-bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
+void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
 	int c;
 	GLfloat color_r, color_g, color_b;
@@ -523,8 +566,6 @@ bool g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 	glDrawArrays(GL_LINES, 0, 2);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-
-	return 1;
 }
 
 static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
@@ -565,50 +606,21 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, flo
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
 {
-	int size=270+(size_offs*20), i;
-	float scale = ((float)SWIDTH/SHEIGHT), ret_rgba[4], ret_dark_rgba[4];
-	GLfloat cross_lva[8 * 2] = {
-		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
-	};
-	GLfloat primary_lva[4][4 * 2] = {
-		{ -5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7 },
-		{ -10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5 },
-		{ 5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7 },
-		{ 10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5 }
-	};
-	GLfloat dark_lca[16 * 4] = {
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
-		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6
-	};
-	GLfloat bright_lca[16 * 4] = {
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
-		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0
-	};
-	GLfloat cross_lca[8 * 4] = {
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
-		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0
-	};
-	GLfloat primary_lca[2][4 * 4] = {
-		{0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6},
-		{0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0}
-	};
-	
-	ret_rgba[0] = PAL2Tr(color);
-	ret_dark_rgba[0] = ret_rgba[0]/2;
-	ret_rgba[1] = PAL2Tg(color);
-	ret_dark_rgba[1] = ret_rgba[1]/2;
-	ret_rgba[2] = PAL2Tb(color);
-	ret_dark_rgba[2] = ret_rgba[2]/2;
-	ret_rgba[3] = 1.0 - ((float)alpha / ((float)GR_FADE_LEVELS));
-	ret_dark_rgba[3] = ret_rgba[3]/2;
-
-	for (i = 0; i < 16*4; i += 4)
+	int size=270+(size_offs*20);
+	float scale = ((float)SWIDTH/SHEIGHT);
+	const array<float, 4> ret_rgba{{
+		static_cast<float>(PAL2Tr(color)),
+		static_cast<float>(PAL2Tg(color)),
+		static_cast<float>(PAL2Tb(color)),
+		static_cast<float>(1.0 - ((float)alpha / ((float)GR_FADE_LEVELS)))
+	}}, ret_dark_rgba{{
+		ret_rgba[0] / 2,
+		ret_rgba[1] / 2,
+		ret_rgba[2] / 2,
+		ret_rgba[3] / 2
+	}};
+	array<GLfloat, 16 * 4> dark_lca, bright_lca;
+	for (uint_fast32_t i = 0; i != dark_lca.size(); i += 4)
 	{
 		bright_lca[i] = ret_rgba[0];
 		dark_lca[i] = ret_dark_rgba[0];
@@ -619,26 +631,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		bright_lca[i+3] = ret_rgba[3];
 		dark_lca[i+3] = ret_dark_rgba[3];
 	}
-	for (i = 0; i < 8*4; i += 8)
-	{
-		cross_lca[i] = ret_dark_rgba[0];
-		cross_lca[i+1] = ret_dark_rgba[1];
-		cross_lca[i+2] = ret_dark_rgba[2];
-		cross_lca[i+3] = ret_dark_rgba[3];
-		cross_lca[i+4] = ret_rgba[0];
-		cross_lca[i+5] = ret_rgba[1];
-		cross_lca[i+6] = ret_rgba[2];
-		cross_lca[i+7] = ret_rgba[3];
-	}
-
-	primary_lca[0][0] = primary_lca[0][4] = primary_lca[1][8] = primary_lca[1][12] = ret_rgba[0];
-	primary_lca[0][1] = primary_lca[0][5] = primary_lca[1][9] = primary_lca[1][13] = ret_rgba[1];
-	primary_lca[0][2] = primary_lca[0][6] = primary_lca[1][10] = primary_lca[1][14] = ret_rgba[2];
-	primary_lca[0][3] = primary_lca[0][7] = primary_lca[1][11] = primary_lca[1][15] = ret_rgba[3];
-	primary_lca[1][0] = primary_lca[1][4] = primary_lca[0][8] = primary_lca[0][12] = ret_dark_rgba[0];
-	primary_lca[1][1] = primary_lca[1][5] = primary_lca[0][9] = primary_lca[0][13] = ret_dark_rgba[1];
-	primary_lca[1][2] = primary_lca[1][6] = primary_lca[0][10] = primary_lca[0][14] = ret_dark_rgba[2];
-	primary_lca[1][3] = primary_lca[1][7] = primary_lca[0][11] = primary_lca[0][15] = ret_dark_rgba[3];
 
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
@@ -662,53 +654,105 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	
 	//cross
 	if(cross)
-		glColorPointer(4, GL_FLOAT, 0, cross_lca);
+	{
+		array<GLfloat, 8 * 4> cross_lca;
+		for (uint_fast32_t i = 0; i != cross_lca.size(); i += 8)
+		{
+			cross_lca[i] = ret_dark_rgba[0];
+			cross_lca[i+1] = ret_dark_rgba[1];
+			cross_lca[i+2] = ret_dark_rgba[2];
+			cross_lca[i+3] = ret_dark_rgba[3];
+			cross_lca[i+4] = ret_rgba[0];
+			cross_lca[i+5] = ret_rgba[1];
+			cross_lca[i+6] = ret_rgba[2];
+			cross_lca[i+7] = ret_rgba[3];
+		}
+		glColorPointer(4, GL_FLOAT, 0, cross_lca.data());
+	}
 	else
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
-	glVertexPointer(2, GL_FLOAT, 0, cross_lva);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
+	static const array<GLfloat, 8 * 2> cross_lva{{
+		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, cross_lva.data());
 	glDrawArrays(GL_LINES, 0, 8);
 	
+	array<GLfloat, 4 * 4> primary_lca0;
 	//left primary bar
 	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca[0]);
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[0]);
+	{
+		primary_lca0[0] = primary_lca0[4] = ret_rgba[0];
+		primary_lca0[1] = primary_lca0[5] = ret_rgba[1];
+		primary_lca0[2] = primary_lca0[6] = ret_rgba[2];
+		primary_lca0[3] = primary_lca0[7] = ret_rgba[3];
+		primary_lca0[8] = primary_lca0[12] = ret_dark_rgba[0];
+		primary_lca0[9] = primary_lca0[13] = ret_dark_rgba[1];
+		primary_lca0[10] = primary_lca0[14] = ret_dark_rgba[2];
+		primary_lca0[11] = primary_lca0[15] = ret_dark_rgba[3];
+		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
+	}
+	static const array<GLfloat, 4 * 2> primary_lva0{{
+		-5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva1{{
+		-10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva2{{
+		5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7
+	}};
+	static const array<GLfloat, 4 * 2> primary_lva3{{
+		10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva0.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	array<GLfloat, 4 * 4> primary_lca1;
 	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca[1]);
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[1]);
+	{
+		primary_lca1[8] = primary_lca1[12] = ret_rgba[0];
+		primary_lca1[9] = primary_lca1[13] = ret_rgba[1];
+		primary_lca1[10] = primary_lca1[14] = ret_rgba[2];
+		primary_lca1[11] = primary_lca1[15] = ret_rgba[3];
+		primary_lca1[0] = primary_lca1[4] = ret_dark_rgba[0];
+		primary_lca1[1] = primary_lca1[5] = ret_dark_rgba[1];
+		primary_lca1[2] = primary_lca1[6] = ret_dark_rgba[2];
+		primary_lca1[3] = primary_lca1[7] = ret_dark_rgba[3];
+		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
+	}
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva1.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	//right primary bar
 	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca[0]);
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[2]);
+		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva2.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca[1]);
-	glVertexPointer(2, GL_FLOAT, 0, primary_lva[3]);
+		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva3.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
 	if (secondary<=2){
 		//left secondary
 		if (secondary != 1)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[0])
 			secondary_lva[0] = circle_array_init_2(16, 2.0, -10.0, 2.0, -2.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0].get());
 		//right secondary
 		if (secondary != 2)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[1])
 			secondary_lva[1] = circle_array_init_2(16, 2.0, 10.0, 2.0, -2.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1].get());
@@ -716,9 +760,9 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	else {
 		//bottom/middle secondary
 		if (secondary != 4)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
 		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
 		if(!secondary_lva[2])
 			secondary_lva[2] = circle_array_init_2(16, 2.0, 0.0, 2.0, -8.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2].get());
@@ -733,7 +777,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-int g3_draw_sphere(g3s_point &pnt,fix rad)
+void g3_draw_sphere(g3s_point &pnt,fix rad)
 {
 	int c=grd_curcanv->cv_color, i;
 	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
@@ -767,7 +811,6 @@ int g3_draw_sphere(g3s_point &pnt,fix rad)
 	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va.get());
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
-	return 0;
 }
 
 int gr_ucircle(fix xc1, fix yc1, fix r1)
@@ -815,7 +858,7 @@ int gr_disk(fix x,fix y,fix r)
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
+void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
@@ -855,7 +898,6 @@ bool _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-	return 0;
 }
 
 /*
@@ -996,10 +1038,9 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
+void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, grs_bitmap &bm)
 {
 	int i;
-	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
 
 	r_bitmapc++;
 	
@@ -1011,56 +1052,74 @@ bool g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm.gltexture,GL_CLAMP_TO_EDGE);
 
-	width = fixmul(width,Matrix_scale.x);
-	height = fixmul(height,Matrix_scale.y);
+	const auto width = fixmul(iwidth, Matrix_scale.x);
+	const auto height = fixmul(iheight, Matrix_scale.y);
+	constexpr unsigned point_count = 4;
+	struct fvertex_t
+	{
+		GLfloat x, y, z;
+	};
+	struct fcolor_t
+	{
+		GLfloat r, g, b, a;
+	};
+	struct ftexcoord_t
+	{
+		GLfloat u, v;
+	};
+	array<fvertex_t, point_count> vertex_array;
+	array<fcolor_t, point_count> color_array;
+	array<ftexcoord_t, point_count> texcoord_array;
+	const auto &v1 = vm_vec_sub(pos,View_position);
+	const auto &rpv = vm_vec_rotate(v1,View_matrix);
+	const auto bmglu = bm.gltexture->u;
+	const auto bmglv = bm.gltexture->v;
+	const auto alpha = grd_curcanv->cv_fade_level >= GR_FADE_OFF ? 1.0 : (1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+	const auto vert_z = -f2glf(rpv.z);
 	for (i=0;i<4;i++){
-		const auto v1 = vm_vec_sub(pos,View_position);
-		auto pv = vm_vec_rotate(v1,View_matrix);
+		auto pv = rpv;
 		switch (i){
 			case 0:
-				texcoord_array[i*2] = 0.0;
-				texcoord_array[i*2+1] = 0.0;
+				texcoord_array[i].u = 0.0;
+				texcoord_array[i].v = 0.0;
 				pv.x+=-width;
 				pv.y+=height;
 				break;
 			case 1:
-				texcoord_array[i*2] = bm.gltexture->u;
-				texcoord_array[i*2+1] = 0.0;
+				texcoord_array[i].u = bmglu;
+				texcoord_array[i].v = 0.0;
 				pv.x+=width;
 				pv.y+=height;
 				break;
 			case 2:
-				texcoord_array[i*2] = bm.gltexture->u;
-				texcoord_array[i*2+1] = bm.gltexture->v;
+				texcoord_array[i].u = bmglu;
+				texcoord_array[i].v = bmglv;
 				pv.x+=width;
 				pv.y+=-height;
 				break;
 			case 3:
-				texcoord_array[i*2] = 0.0;
-				texcoord_array[i*2+1] = bm.gltexture->v;
+				texcoord_array[i].u = 0.0;
+				texcoord_array[i].v = bmglv;
 				pv.x+=-width;
 				pv.y+=-height;
 				break;
 		}
 
-		color_array[i*4]    = 1.0;
-		color_array[i*4+1]  = 1.0;
-		color_array[i*4+2]  = 1.0;
-		color_array[i*4+3]  = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
-		
-		vertex_array[i*3]   = f2glf(pv.x);
-		vertex_array[i*3+1] = f2glf(pv.y);
-		vertex_array[i*3+2] = -f2glf(pv.z);
+		color_array[i].r = 1.0;
+		color_array[i].g = 1.0;
+		color_array[i].b = 1.0;
+		color_array[i].a = alpha;
+		vertex_array[i].x = f2glf(pv.x);
+		vertex_array[i].y = f2glf(pv.y);
+		vertex_array[i].z = vert_z;
 	}
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.data());
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	return 0;
 }
 
 /*

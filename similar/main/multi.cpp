@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <bitset>
 #include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "sounds.h"
 #include "kconfig.h"
+#include "hudmsg.h"
 #include "newdemo.h"
 #include "text.h"
 #include "kmatrix.h"
@@ -130,7 +132,7 @@ char Multi_is_guided=0;
 int Bounty_target = 0;
 
 
-msgsend_state_t multi_sending_message[MAX_PLAYERS];
+array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
 int multi_message_index = 0;
 
@@ -138,7 +140,7 @@ ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer
 
 static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
 static array<short, MAX_OBJECTS> local_to_remote;
-sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
+array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
 unsigned   Net_create_loc;       // pointer into previous array
 array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
@@ -209,16 +211,76 @@ static const int message_length[] = {
 	for_each_multiplayer_command(define_message_length)
 };
 
-array<uint8_t, MAX_POWERUP_TYPES> PowerupsInMine, MaxPowerupsAllowed;
+powerup_cap_state PowerupCaps;
 
-const char RankStrings[10][14]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
-                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
+const array<char[16], 10> RankStrings{{"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "}};
 
 const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH] =
 {
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
 };
+
+void powerup_cap_state::cap_laser_powerup_level(uint8_t &player_level, const powerup_type_t type, const uint_fast32_t level_bias) const
+{
+	const uint_fast32_t current_in_mine = get_current(type);
+	const uint_fast32_t maximum_allowed = get_max(type);
+	const uint_fast32_t player_would_drop = player_level - level_bias;
+	if (player_would_drop + current_in_mine <= maximum_allowed)
+		return;
+	const uint8_t capped = (current_in_mine < maximum_allowed) ? static_cast<uint8_t>(maximum_allowed - current_in_mine + level_bias) : 0;
+	player_level = capped;
+	con_printf(CON_VERBOSE, "Capping laser due to powerup cap: current=%u max=%u was=%u now=%hu", get_current(type), get_max(type), static_cast<unsigned>(player_would_drop), capped);
+}
+
+void powerup_cap_state::cap_laser_level(uint8_t &player_level) const
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	if (player_level > MAX_LASER_LEVEL)
+	{
+		cap_laser_powerup_level(player_level, POW_SUPER_LASER, MAX_LASER_LEVEL);
+		return;
+	}
+#endif
+	cap_laser_powerup_level(player_level, POW_LASER, 0);
+}
+
+void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint16_t &player_ammo) const
+{
+	const auto idx = map_powerup_type_to_index(type);
+	const uint_fast32_t current_on_player = player_ammo;
+	const uint_fast32_t current_in_mine = get_current(idx);
+	const uint_fast32_t maximum_allowed = get_max(idx);
+	if (current_on_player + current_in_mine <= maximum_allowed)
+		return;
+	const auto capped = (current_in_mine < maximum_allowed) ? static_cast<uint16_t>(maximum_allowed - current_in_mine) : 0;
+	player_ammo = capped;
+	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
+}
+
+void powerup_cap_state::cap_flag(uint32_t &player_flags, const uint32_t powerup_flag, const powerup_type_t idx) const
+{
+	if (player_flags & powerup_flag)
+		if (!can_add_mapped_powerup(idx))
+		{
+			player_flags &= ~powerup_flag;
+			con_printf(CON_VERBOSE, "Capping accessory %u due to powerup cap: current=%u max=%u", idx, get_current(idx), get_max(idx));
+		}
+}
+
+void powerup_cap_state::reset_powerup_both(powerup_type_t type)
+{
+	const auto idx = map_powerup_type_to_index(type);
+	m_powerups[idx] = 0;
+	m_max[idx] = 0;
+}
+
+void powerup_cap_state::clear()
+{
+	m_powerups = {};
+	m_max = {};
+}
 
 int GetMyNetRanking()
 {
@@ -339,7 +401,7 @@ void reset_network_objects()
 	local_to_remote.fill(-1);
 	range_for (auto &i, remote_to_local)
 		i.fill(object_none);
-	memset(object_owner, -1, MAX_OBJECTS);
+	object_owner.fill(-1);
 }
 
 int multi_objnum_is_past(objnum_t objnum)
@@ -411,8 +473,7 @@ kmatrix_result multi_endlevel_score()
 	range_for (auto &i, Players)
 		i.KillGoalCount=0;
 
-	MaxPowerupsAllowed = {};
-	PowerupsInMine = {};
+	PowerupCaps.clear();
 
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
@@ -457,8 +518,7 @@ multi_new_game(void)
 		robot_fired[i] = 0;
 	}
 
-	MaxPowerupsAllowed = {};
-	PowerupsInMine = {};
+	PowerupCaps.clear();
 
 	team_kills[0] = team_kills[1] = 0;
 	imulti_new_game=1;
@@ -544,8 +604,6 @@ multi_sort_kill_list(void)
 	const auto &range = partial_range(sorted_kills, N_players);
 	std::sort(range.begin(), range.end(), predicate);
 }
-
-char Multi_killed_yourself=0;
 
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
 {
@@ -1698,9 +1756,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	Players[pnum].flags &= ~PLAYER_FLAGS_FLAG;
 #endif
 	Players[pnum].cloak_time = 0;
-
-	multi_make_ghost_player(get_player_id(objp));
-	create_player_appearance_effect(objp);
 }
 
 /*
@@ -1827,6 +1882,7 @@ static multi_do_remobj(const ubyte *buf)
 		return;
 	}
 
+	const auto &obj = vobjptr(local_objnum);
 	if ((Objects[local_objnum].type != OBJ_POWERUP) && (Objects[local_objnum].type != OBJ_HOSTAGE))
 	{
 		return;
@@ -1839,18 +1895,7 @@ static multi_do_remobj(const ubyte *buf)
 	if (Objects[local_objnum].type==OBJ_POWERUP)
 		if (Game_mode & GM_NETWORK)
 		{
-			if (multi_powerup_is_4pack (get_powerup_id(&Objects[local_objnum])))
-			{
-				if (PowerupsInMine[Objects[local_objnum].id-1] < 4)
-					PowerupsInMine[Objects[local_objnum].id-1]=0;
-				else
-					PowerupsInMine[Objects[local_objnum].id-1]-=4;
-			}
-			else
-			{
-				if (PowerupsInMine[get_powerup_id(&Objects[local_objnum])]>0)
-					PowerupsInMine[get_powerup_id(&Objects[local_objnum])]--;
-			}
+			PowerupCaps.dec_powerup_current(get_powerup_id(obj));
 		}
 
 	Objects[local_objnum].flags |= OF_SHOULD_BE_DEAD; // quick and painless
@@ -2093,10 +2138,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 
 	if (Game_mode & GM_NETWORK)
 	{
-		if (multi_powerup_is_4pack((int)powerup_type))
-			PowerupsInMine[(int)(powerup_type-1)]+=4;
-		else
-			PowerupsInMine[(int)powerup_type]++;
+		PowerupCaps.inc_powerup_current(get_powerup_id(my_objnum));
 	}
 }
 
@@ -2151,7 +2193,6 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
 	int side;
 	vms_vector hitpnt;
-	object dummy;
 
 	if (pnum >= N_players || pnum == Player_num)
 		return;
@@ -2167,10 +2208,11 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	//create a dummy object which will be the weapon that hits
 	//the monitor. the blowup code wants to know who the parent of the
 	//laser is, so create a laser whose parent is the player
-	dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
-	dummy.ctype.laser_info.parent_num = pnum;
+	laser_info laser;
+	laser.parent_type = OBJ_PLAYER;
+	laser.parent_num = pnum;
 
-	check_effect_blowup(&(Segments[segnum]), side, hitpnt, &dummy, 0, 1);
+	check_effect_blowup(vsegptridx(segnum), side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
@@ -2544,15 +2586,18 @@ void multi_send_player_deres(deres_type_t type)
 // Count the initial amount of Powerups in the level
 void multi_powcap_count_powerups_in_mine(void)
 {
-	PowerupsInMine = {};
+	PowerupCaps.recount();
+}
+
+void powerup_cap_state::recount()
+{
+	m_powerups = {};
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type==OBJ_POWERUP)
+		const auto &obj = vobjptr(static_cast<objnum_t>(i));
+		if (obj->type == OBJ_POWERUP)
 		{
-			if (multi_powerup_is_4pack(get_powerup_id(&Objects[i])))
-				PowerupsInMine[Objects[i].id-1]+=4;
-			else
-				PowerupsInMine[get_powerup_id(&Objects[i])]++;
+			inc_powerup_current(get_powerup_id(obj));
 		}
 	}
 }
@@ -2560,12 +2605,12 @@ void multi_powcap_count_powerups_in_mine(void)
 // We want to drop something. Kill every Powerup which exceeds the level limit
 void multi_powcap_cap_objects()
 {
-	char type;
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
+	auto &plr = Players[Player_num];
 	if (!game_mode_hoard())
 	  	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
 	Proximity_dropped=0;
@@ -2576,12 +2621,11 @@ void multi_powcap_cap_objects()
 
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
-		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
+		const auto type = Primary_weapon_to_powerup[index];
 			if(Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
+				if (!PowerupCaps.can_add_powerup(type))
 			{
-				con_printf(CON_VERBOSE,"PIM=%d MPA=%d",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
-				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)",type);
+				con_printf(CON_VERBOSE, "Removing primary %u due to powerup cap: current=%u max=%u", index, PowerupCaps.get_current(type), PowerupCaps.get_max(type));
 				Players[Player_num].primary_weapon_flags&=(~HAS_PRIMARY_FLAG(index));
 			}
 	}
@@ -2600,70 +2644,28 @@ void multi_powcap_cap_objects()
 		if (game_mode_hoard() && index==PROXIMITY_INDEX)
 			continue;
 
-		type=Secondary_weapon_to_powerup[index];
+		const auto type = Secondary_weapon_to_powerup[index];
 
-		if ((Players[Player_num].secondary_ammo[index]+PowerupsInMine[(int)type])>MaxPowerupsAllowed[(int)type])
-		{
-			if (MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]<0)
-				Players[Player_num].secondary_ammo[index]=0;
-			else
-				Players[Player_num].secondary_ammo[index]=(MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]);
-			con_printf(CON_VERBOSE,"Hey! I killed secondary type %d because PIM=%d MPA=%d",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
-		}
+		PowerupCaps.cap_secondary_ammo(type, plr.secondary_ammo[index]);
 	}
 
 	if (!game_mode_hoard())
 		Players[Player_num].secondary_ammo[2]*=4;
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[Player_num].secondary_ammo[7]*=4;
-
-	if (Players[Player_num].laser_level > MAX_LASER_LEVEL)
-		if (PowerupsInMine[POW_SUPER_LASER]+1 > MaxPowerupsAllowed[POW_SUPER_LASER])
-			Players[Player_num].laser_level=0;
 #endif
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
-		if (PowerupsInMine[POW_QUAD_FIRE]+1 > MaxPowerupsAllowed[POW_QUAD_FIRE])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_QUAD_LASERS);
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-		if (PowerupsInMine[POW_CLOAK]+1 > MaxPowerupsAllowed[POW_CLOAK])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_CLOAKED);
-
+	PowerupCaps.cap_laser_level(plr.laser_level);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL)
-		if (PowerupsInMine[POW_FULL_MAP]+1 > MaxPowerupsAllowed[POW_FULL_MAP])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_MAP_ALL);
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
-		if (PowerupsInMine[POW_AFTERBURNER]+1 > MaxPowerupsAllowed[POW_AFTERBURNER])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_AFTERBURNER);
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		if (PowerupsInMine[POW_AMMO_RACK]+1 > MaxPowerupsAllowed[POW_AMMO_RACK])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_AMMO_RACK);
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER)
-		if (PowerupsInMine[POW_CONVERTER]+1 > MaxPowerupsAllowed[POW_CONVERTER])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_CONVERTER);
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT)
-		if (PowerupsInMine[POW_HEADLIGHT]+1 > MaxPowerupsAllowed[POW_HEADLIGHT])
-			Players[Player_num].flags&=(~PLAYER_FLAGS_HEADLIGHT);
-
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
 	if (game_mode_capture_flag())
 	{
-		if (Players[Player_num].flags & PLAYER_FLAGS_FLAG)
-		{
-			char flagtype;
-			if (get_team(Player_num)==TEAM_RED)
-				flagtype=POW_FLAG_BLUE;
-			else
-				flagtype=POW_FLAG_RED;
-
-			if (PowerupsInMine[(int)flagtype]+1 > MaxPowerupsAllowed[(int)flagtype])
-				Players[Player_num].flags&=(~PLAYER_FLAGS_FLAG);
-		}
+		PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_FLAG, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
 	}
 #endif
 
@@ -2672,112 +2674,85 @@ void multi_powcap_cap_objects()
 // Adds players inventory to multi cap
 static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 {
-	char type;
-
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
+	auto &plr = Players[pnum];
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
+		const auto type = Primary_weapon_to_powerup[index];
 		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
-		    MaxPowerupsAllowed[(int)type]++;
+			PowerupCaps.inc_mapped_powerup_max(type);
 	}
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
-		type=Secondary_weapon_to_powerup[index];
-		MaxPowerupsAllowed[(int)type]+=Players[pnum].secondary_ammo[index];
+		const auto type = Secondary_weapon_to_powerup[index];
+		PowerupCaps.add_mapped_powerup_max(type, Players[pnum].secondary_ammo[index]);
 	}
 
-	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
-		MaxPowerupsAllowed[POW_QUAD_FIRE]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
-		MaxPowerupsAllowed[POW_CLOAK]++;
-
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
-		MaxPowerupsAllowed[POW_SUPER_LASER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
-		MaxPowerupsAllowed[POW_FULL_MAP]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER)
-		MaxPowerupsAllowed[POW_AFTERBURNER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
-		MaxPowerupsAllowed[POW_AMMO_RACK]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_CONVERTER)
-		MaxPowerupsAllowed[POW_CONVERTER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_HEADLIGHT)
-		MaxPowerupsAllowed[POW_HEADLIGHT]++;
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
+	if (plr.laser_level > MAX_LASER_LEVEL)
+		PowerupCaps.add_mapped_powerup_max(POW_SUPER_LASER, plr.laser_level - MAX_LASER_LEVEL);
+	else
 #endif
+		PowerupCaps.add_mapped_powerup_max(POW_LASER, plr.laser_level);
 }
 
 void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 {
-	char type;
-
 	int index;
 
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
+	const auto &plr = Players[pnum];
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
-		type=Primary_weapon_to_powerup[index];
+		const auto type = Primary_weapon_to_powerup[index];
 		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
-		    PowerupsInMine[(int)type]++;
+			PowerupCaps.inc_mapped_powerup_current(type);
 	}
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
-		type=Secondary_weapon_to_powerup[index];
+		const auto type = Secondary_weapon_to_powerup[index];
 
 		if (game_mode_hoard() && index==2)
 			continue;
 
-#if defined(DXX_BUILD_DESCENT_I)
-		if (index==2) // PROX? Those bastards...
-#elif defined(DXX_BUILD_DESCENT_II)
-		if (index==2 || index==7) // PROX or SMARTMINES? Those bastards...
+		const auto is_always_4pack = (index == secondary_weapon_index_t::PROXIMITY_INDEX // PROX? Those bastards...
+#if defined(DXX_BUILD_DESCENT_II)
+			|| index == secondary_weapon_index_t::SMART_MINE_INDEX // PROX or SMARTMINES? Those bastards...
 #endif
-			PowerupsInMine[(int)type]+=(Players[pnum].secondary_ammo[index]/4);
-		else
-			PowerupsInMine[(int)type]+=Players[pnum].secondary_ammo[index];
-
+		);
+		const auto secondary_ammo = plr.secondary_ammo[index];
+		PowerupCaps.add_mapped_powerup_current(type, is_always_4pack ? secondary_ammo / 4 : secondary_ammo);
 	}
 
-	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
-		PowerupsInMine[POW_QUAD_FIRE]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
-		PowerupsInMine[POW_CLOAK]++;
-
+	const auto player_flags = plr.flags;
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Players[pnum].laser_level > MAX_LASER_LEVEL)
-		PowerupsInMine[POW_SUPER_LASER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
-		PowerupsInMine[POW_FULL_MAP]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER)
-		PowerupsInMine[POW_AFTERBURNER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
-		PowerupsInMine[POW_AMMO_RACK]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_CONVERTER)
-		PowerupsInMine[POW_CONVERTER]++;
-
-	if (Players[pnum].flags & PLAYER_FLAGS_HEADLIGHT)
-		PowerupsInMine[POW_HEADLIGHT]++;
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
+	if (plr.laser_level > MAX_LASER_LEVEL)
+		PowerupCaps.add_mapped_powerup_current(POW_SUPER_LASER, plr.laser_level - MAX_LASER_LEVEL);
+	else
 #endif
+		PowerupCaps.add_mapped_powerup_current(POW_LASER, plr.laser_level);
 }
 
 void
@@ -2882,18 +2857,7 @@ void multi_send_remobj(const vobjptridx_t objnum)
 
 	if (objnum->type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
 	{
-		if (multi_powerup_is_4pack (get_powerup_id(objnum)))
-		{
-			if (PowerupsInMine[objnum->id-1] < 4)
-				PowerupsInMine[objnum->id-1]=0;
-			else
-				PowerupsInMine[objnum->id-1]-=4;
-		}
-		else
-		{
-			if (PowerupsInMine[get_powerup_id(objnum)]>0)
-				PowerupsInMine[get_powerup_id(objnum)]--;
-		}
+		PowerupCaps.dec_powerup_current(get_powerup_id(objnum));
 	}
 
 	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
@@ -3014,7 +2978,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
 }
 
-void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos)
+void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos)
 {
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
@@ -3029,10 +2993,7 @@ void multi_send_create_powerup(int powerup_type, segnum_t segnum, objnum_t objnu
 
 	if (Game_mode & GM_NETWORK)
 	{
-		if (multi_powerup_is_4pack(powerup_type))
-			PowerupsInMine[powerup_type-1]+=4;
-		else
-			PowerupsInMine[powerup_type]++;
+		PowerupCaps.inc_powerup_current(powerup_type);
 	}
 
 	count += 1;
@@ -3163,6 +3124,159 @@ void multi_consistency_error(int reset)
 	multi_reset_stuff();
 }
 
+static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p, int s)
+{
+	return s > 0 ? p.mask >> s : p.mask << -s;
+}
+
+uint_fast32_t map_granted_flags_to_player_flags(const packed_spawn_granted_items p)
+{
+	auto &grant = p.mask;
+	return ((grant & NETGRANT_QUAD) ? PLAYER_FLAGS_QUAD_LASERS : 0)
+#if defined(DXX_BUILD_DESCENT_II)
+		| ((grant & NETGRANT_AFTERBURNER) ? PLAYER_FLAGS_AFTERBURNER : 0)
+		| ((grant & NETGRANT_AMMORACK) ? PLAYER_FLAGS_AMMO_RACK : 0)
+		| ((grant & NETGRANT_CONVERTER) ? PLAYER_FLAGS_CONVERTER : 0)
+		| ((grant & NETGRANT_HEADLIGHT) ? PLAYER_FLAGS_HEADLIGHT : 0)
+#endif
+		;
+}
+
+uint_fast32_t map_granted_flags_to_primary_weapon_flags(const packed_spawn_granted_items p)
+{
+	auto &grant = p.mask;
+	return ((grant & NETGRANT_VULCAN) ? HAS_VULCAN_FLAG : 0)
+		| ((grant & NETGRANT_SPREAD) ? HAS_SPREADFIRE_FLAG : 0)
+		| ((grant & NETGRANT_PLASMA) ? HAS_PLASMA_FLAG : 0)
+		| ((grant & NETGRANT_FUSION) ? HAS_FUSION_FLAG : 0)
+#if defined(DXX_BUILD_DESCENT_II)
+		| ((grant & NETGRANT_GAUSS) ? HAS_GAUSS_FLAG : 0)
+		| ((grant & NETGRANT_HELIX) ? HAS_HELIX_FLAG : 0)
+		| ((grant & NETGRANT_PHOENIX) ? HAS_PHOENIX_FLAG : 0)
+		| ((grant & NETGRANT_OMEGA) ? HAS_OMEGA_FLAG : 0)
+#endif
+		;
+}
+
+uint16_t map_granted_flags_to_vulcan_ammo(const packed_spawn_granted_items p)
+{
+	auto &grant = p.mask;
+	const auto amount = VULCAN_WEAPON_AMMO_AMOUNT;
+	return
+#if defined(DXX_BUILD_DESCENT_II)
+		(grant & NETGRANT_GAUSS ? amount : 0) +
+#endif
+		(grant & NETGRANT_VULCAN ? amount : 0);
+}
+
+static constexpr unsigned map_granted_flags_to_netflag(const packed_spawn_granted_items grant)
+{
+	return (grant_shift_helper(grant, BIT_NETGRANT_QUAD - BIT_NETFLAG_DOQUAD) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
+#if defined(DXX_BUILD_DESCENT_II)
+		| (grant_shift_helper(grant, BIT_NETGRANT_GAUSS - BIT_NETFLAG_DOGAUSS) & (NETFLAG_DOGAUSS | NETFLAG_DOHELIX | NETFLAG_DOPHOENIX | NETFLAG_DOOMEGA))
+		| (grant_shift_helper(grant, BIT_NETGRANT_AFTERBURNER - BIT_NETFLAG_DOAFTERBURNER) & (NETFLAG_DOAFTERBURNER | NETFLAG_DOAMMORACK | NETFLAG_DOCONVERTER | NETFLAG_DOHEADLIGHT))
+#endif
+		;
+}
+
+assert_equal(0, 0, "zero");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_QUAD), NETFLAG_DOQUAD, "QUAD");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_QUAD | NETGRANT_PLASMA), NETFLAG_DOQUAD | NETFLAG_DOPLASMA, "QUAD | PLASMA");
+#if defined(DXX_BUILD_DESCENT_II)
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS), NETFLAG_DOGAUSS, "GAUSS");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_PLASMA), NETFLAG_DOGAUSS | NETFLAG_DOPLASMA, "GAUSS | PLASMA");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_AFTERBURNER), NETFLAG_DOGAUSS | NETFLAG_DOAFTERBURNER, "GAUSS | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_GAUSS | NETGRANT_PLASMA | NETGRANT_AFTERBURNER), NETFLAG_DOGAUSS | NETFLAG_DOPLASMA | NETFLAG_DOAFTERBURNER, "GAUSS | PLASMA | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_PLASMA | NETGRANT_AFTERBURNER), NETFLAG_DOPLASMA | NETFLAG_DOAFTERBURNER, "PLASMA | AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_AFTERBURNER), NETFLAG_DOAFTERBURNER, "AFTERBURNER");
+assert_equal(map_granted_flags_to_netflag(NETGRANT_HEADLIGHT), NETFLAG_DOHEADLIGHT, "HEADLIGHT");
+#endif
+
+namespace {
+
+class update_item_state
+{
+	std::bitset<MAX_OBJECTS> m_modified;
+public:
+	bool must_skip(const vcobjptridx_t i) const
+	{
+		return m_modified.test(i);
+	}
+	void process_powerup(vcobjptridx_t, powerup_type_t);
+};
+
+void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_type_t id)
+{
+	uint_fast32_t count;
+	switch (id)
+	{
+		case POW_LASER:
+		case POW_QUAD_FIRE:
+		case POW_VULCAN_WEAPON:
+		case POW_VULCAN_AMMO:
+		case POW_SPREADFIRE_WEAPON:
+		case POW_PLASMA_WEAPON:
+		case POW_FUSION_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SUPER_LASER:
+		case POW_GAUSS_WEAPON:
+		case POW_HELIX_WEAPON:
+		case POW_PHOENIX_WEAPON:
+		case POW_OMEGA_WEAPON:
+#endif
+			count = Netgame.DuplicatePowerups.get_primary_count();
+			break;
+		case POW_MISSILE_1:
+		case POW_MISSILE_4:
+		case POW_HOMING_AMMO_1:
+		case POW_HOMING_AMMO_4:
+		case POW_PROXIMITY_WEAPON:
+		case POW_SMARTBOMB_WEAPON:
+		case POW_MEGA_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SMISSILE1_1:
+		case POW_SMISSILE1_4:
+		case POW_GUIDED_MISSILE_1:
+		case POW_GUIDED_MISSILE_4:
+		case POW_SMART_MINE:
+		case POW_MERCURY_MISSILE_1:
+		case POW_MERCURY_MISSILE_4:
+		case POW_EARTHSHAKER_MISSILE:
+#endif
+			count = Netgame.DuplicatePowerups.get_secondary_count();
+			break;
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_FULL_MAP:
+		case POW_CONVERTER:
+		case POW_AMMO_RACK:
+		case POW_AFTERBURNER:
+		case POW_HEADLIGHT:
+			count = Netgame.DuplicatePowerups.get_accessory_count();
+			break;
+#endif
+		default:
+			return;
+	}
+	if (!count)
+		return;
+	const auto &vc = Vclip[o->rtype.vclip_info.vclip_num];
+	for (uint_fast32_t i = count++; i; --i)
+	{
+		const auto &seg = vsegptr(o->segnum);
+		const auto no = obj_create(OBJ_POWERUP, id, o->segnum, vm_vec_avg(o->pos, Vertices[seg->verts[i % seg->verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+		if (no == object_none)
+			return;
+		m_modified.set(no);
+		PowerupCaps.inc_powerup_both(id);
+		no->mtype.phys_info = o->mtype.phys_info;
+		no->rtype.vclip_info = o->rtype.vclip_info;
+		no->rtype.vclip_info.framenum = (o->rtype.vclip_info.framenum + (i * vc.num_frames) / count) % vc.num_frames;
+		no->ctype.powerup_info = o->ctype.powerup_info;
+	}
+}
+
+}
+
 void multi_prep_level(void)
 {
 	// Do any special stuff to the level required for games
@@ -3175,7 +3289,6 @@ void multi_prep_level(void)
 	// at the time this is called.
 
 	int i;
-	int     cloak_count, inv_count;
 
 	Assert(Game_mode & GM_MULTI);
 
@@ -3227,8 +3340,13 @@ void multi_prep_level(void)
 		multi_send_powcap_update();
 	}
 
-	inv_count = 0;
-	cloak_count = 0;
+	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
+	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
+	const auto AllowedItems = Netgame.AllowedItems;
+	const auto SpawnGrantedItems = map_granted_flags_to_netflag(Netgame.SpawnGrantedItems);
+	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
+	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
+	update_item_state duplicates;
 	range_for (const auto i, highest_valid(Objects))
 	{
 		const auto o = vobjptridx(i);
@@ -3248,124 +3366,32 @@ void multi_prep_level(void)
 			continue;
 		}
 
-		if (o->type == OBJ_POWERUP)
+		if (o->type == OBJ_POWERUP && !duplicates.must_skip(o))
 		{
-			if (get_powerup_id(o) == POW_EXTRA_LIFE)
+			switch (const auto id = get_powerup_id(o))
 			{
-				if (!(Netgame.AllowedItems & NETFLAG_DOINVUL))
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
-				}
-				else
-				{
+				case POW_EXTRA_LIFE:
 					set_powerup_id(o, POW_INVULNERABILITY);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
-				}
-
+					/* fall through */
+				case POW_INVULNERABILITY:
+					if (inv_remaining)
+						-- inv_remaining;
+					else
+						set_powerup_id(o, POW_SHIELD_BOOST);
+					continue;
+				case POW_CLOAK:
+					if (cloak_remaining)
+						-- cloak_remaining;
+					else
+						set_powerup_id(o, POW_SHIELD_BOOST);
+					continue;
+				default:
+					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
+						bash_to_shield(o);
+					else
+						duplicates.process_powerup(o, id);
+					continue;
 			}
-
-			if (!(Game_mode & GM_MULTI_COOP))
-				if ((get_powerup_id(o) >= POW_KEY_BLUE) && (get_powerup_id(o) <= POW_KEY_GOLD))
-				{
-					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
-				}
-
-			if (get_powerup_id(o) == POW_INVULNERABILITY) {
-				if (inv_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
-					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
-				} else
-					inv_count++;
-			}
-
-			if (get_powerup_id(o) == POW_CLOAK) {
-				if (cloak_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
-					set_powerup_id(o, POW_SHIELD_BOOST);
-					o->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(o)].vclip_num;
-					o->rtype.vclip_info.frametime = Vclip[o->rtype.vclip_info.vclip_num].frame_time;
-				} else
-					cloak_count++;
-			}
-
-			if (get_powerup_id(o) == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
-				bash_to_shield(o);
-#if defined(DXX_BUILD_DESCENT_I)
-			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(o)==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
-#endif
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-				bash_to_shield(o);
-#if defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(o) == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-				bash_to_shield(o);
-			// Special: Make all proximity bombs into shields if in
-			// hoard mode because we use the proximity slot in the
-			// player struct to signify how many orbs the player has.
-			if (get_powerup_id(o) == POW_PROXIMITY_WEAPON && game_mode_hoard())
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMISSILE1_1 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_SMISSILE1_4 && !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GUIDED_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_GUIDED_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_EARTHSHAKER_MISSILE && !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MERCURY_MISSILE_1 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_MERCURY_MISSILE_4 && !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_CONVERTER && !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_AMMO_RACK && !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HEADLIGHT && !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_FLAG_BLUE && !game_mode_capture_flag())
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_FLAG_RED && !game_mode_capture_flag())
-				bash_to_shield(o);
-#endif
-			if (get_powerup_id(o) == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-				bash_to_shield(o);
-			if (get_powerup_id(o) == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
-				bash_to_shield(o);
 		}
 	}
 
@@ -3553,7 +3579,7 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 	count++;
 	multibuf[count++]=(char)get_powerup_id(objp);
 	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
-	PUT_INTEL_SHORT(multibuf+count, ammo_count); count += 2;
+	PUT_INTEL_SHORT(multibuf+count, static_cast<uint16_t>(ammo_count)); count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);
 	count += 4;
 
@@ -3561,10 +3587,7 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 
 	if (Game_mode & GM_NETWORK)
 	{
-		if (multi_powerup_is_4pack(get_powerup_id(objp)))
-			PowerupsInMine[objp->id-1]+=4;
-		else
-			PowerupsInMine[get_powerup_id(objp)]++;
+		PowerupCaps.inc_powerup_current(get_powerup_id(objp));
 	}
 	multi_send_data<MULTI_DROP_WEAPON>(multibuf, count, 2);
 }
@@ -3572,9 +3595,7 @@ void multi_send_drop_weapon(objnum_t objnum, int seed)
 static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 {
 	int ammo,remote_objnum,seed;
-	int powerup_id;
-
-	powerup_id=(int)(buf[1]);
+	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
@@ -3588,12 +3609,8 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 
 	if (Game_mode & GM_NETWORK)
 	{
-		if (multi_powerup_is_4pack(powerup_id))
-			PowerupsInMine[powerup_id-1]+=4;
-		else
-			PowerupsInMine[powerup_id]++;
+		PowerupCaps.inc_powerup_current(powerup_id);
 	}
-
 }
 
 void multi_send_guided_info (const vobjptr_t miss,char done)
@@ -3683,7 +3700,7 @@ static void multi_do_stolen_items (const ubyte *buf)
 	}
 }
 
-void multi_send_wall_status_specific (const playernum_t pnum,int wallnum,ubyte type,ubyte flags,ubyte state)
+void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state)
 {
 	// Send wall states a specific rejoining player
 
@@ -3883,7 +3900,7 @@ void multi_send_powcap_update ()
 		return;
 
 	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
-		multibuf[i+1]=MaxPowerupsAllowed[i];
+		multibuf[i+1] = PowerupCaps.get_max(static_cast<powerup_type_t>(i));
 
 	multi_send_data<MULTI_POWCAP_UPDATE>(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
@@ -3894,8 +3911,11 @@ static void multi_do_powcap_update (const ubyte *buf)
 		return;
 
 	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
-		if (buf[i+1]>MaxPowerupsAllowed[i])
-			MaxPowerupsAllowed[i]=buf[i+1];
+	{
+		const auto p = static_cast<powerup_type_t>(i);
+		if (PowerupCaps.get_max(p) < buf[i+1])
+			PowerupCaps.set_max(p, buf[i+1]);
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4222,7 +4242,7 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 
 	if (!game_mode_hoard())
 		if (Game_mode & GM_NETWORK)
-			PowerupsInMine[get_powerup_id(objp)]++;
+			PowerupCaps.inc_mapped_powerup_current(get_powerup_id(objp));
 
 	multi_send_data<MULTI_DROP_FLAG>(multibuf, 8, 2);
 }
@@ -4230,9 +4250,7 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 {
 	int remote_objnum,seed;
-	int powerup_id;
-
-	powerup_id=buf[1];
+	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	seed = GET_INTEL_INT(buf + 6);
 
@@ -4244,11 +4262,92 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	if (!game_mode_hoard())
 	{
 		if (Game_mode & GM_NETWORK)
-			PowerupsInMine[powerup_id]++;
+			PowerupCaps.inc_mapped_powerup_current(powerup_id);
 		Players[pnum].flags &= ~(PLAYER_FLAGS_FLAG);
 	}
 }
 #endif
+
+template <powerup_cap_state::direction d>
+void powerup_cap_state::modify_count(powerup_count_type &c, const powerup_count_type amount)
+{
+	if (d == direction::plus)
+	{
+		const unsigned n = c + amount;
+		const auto cn = static_cast<powerup_count_type>(n);
+		c = likely(cn == n) ? cn : ~0;
+	}
+	else
+		c = likely(c >= amount) ? c - amount : 0;
+}
+
+template <powerup_cap_state::which w, powerup_cap_state::direction d>
+void powerup_cap_state::modify_counts(const powerup_type_t id, const powerup_count_type amount)
+{
+	if (w != which::max)
+		modify_count<d>(m_powerups[id], amount);
+	if (w != which::current)
+		modify_count<d>(m_max[id], amount);
+}
+
+template <powerup_cap_state::which w, powerup_cap_state::direction d, powerup_cap_state::mapped m>
+void powerup_cap_state::modify_counts(const powerup_type_t id)
+{
+	if (m == mapped::yes || !powerup_is_4pack(id))
+		modify_counts<w, d>(id, 1);
+	else
+		modify_counts<w, d>(map_powerup_4pack(id), 4);
+}
+
+void powerup_cap_state::add_mapped_powerup_current(const powerup_type_t id, const uint_fast32_t amount)
+{
+	modify_counts<which::current, direction::plus>(id, amount);
+}
+
+void powerup_cap_state::inc_powerup_current(const powerup_type_t id)
+{
+	modify_counts<which::current, direction::plus, mapped::no>(id);
+}
+
+void powerup_cap_state::dec_powerup_current(const powerup_type_t id)
+{
+	modify_counts<which::current, direction::minus, mapped::no>(id);
+}
+
+void powerup_cap_state::add_mapped_powerup_both(const powerup_type_t id, uint_fast32_t amount)
+{
+	modify_counts<which::both, direction::plus>(id, amount);
+}
+
+void powerup_cap_state::add_mapped_powerup_max(const powerup_type_t id, uint_fast32_t amount)
+{
+	modify_counts<which::max, direction::plus>(id, amount);
+}
+
+void powerup_cap_state::inc_mapped_powerup_current(const powerup_type_t id)
+{
+	modify_counts<which::current, direction::plus, mapped::yes>(id);
+}
+
+void powerup_cap_state::inc_mapped_powerup_max(const powerup_type_t id)
+{
+	modify_counts<which::max, direction::plus, mapped::yes>(id);
+}
+
+void powerup_cap_state::inc_mapped_powerup_both(const powerup_type_t id)
+{
+	modify_counts<which::both, direction::plus, mapped::yes>(id);
+}
+
+void powerup_cap_state::inc_powerup_both(const powerup_type_t id)
+{
+	modify_counts<which::both, direction::plus, mapped::no>(id);
+}
+
+void powerup_cap_state::inc_powerup_max(const powerup_type_t id)
+{
+	modify_counts<which::max, direction::plus, mapped::no>(id);
+}
 
 static const int PowerupAdjustMapping[]={11,19
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4256,85 +4355,121 @@ static const int PowerupAdjustMapping[]={11,19
 #endif
 };
 
-int multi_powerup_is_4pack (int id)
+bool powerup_cap_state::powerup_is_4pack(const powerup_type_t id)
 {
 	const auto e = end(PowerupAdjustMapping);
 	return std::find(begin(PowerupAdjustMapping), e, id) != e;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-int multi_powerup_is_allowed(int id)
+powerup_type_t powerup_cap_state::map_powerup_4pack(const powerup_type_t id)
 {
-	if (id == POW_INVULNERABILITY && !(Netgame.AllowedItems & NETFLAG_DOINVUL))
-		return (0);
-	if (id == POW_CLOAK && !(Netgame.AllowedItems & NETFLAG_DOCLOAK))
-		return (0);
-	if (id == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
-		return (0);
-	if (id == POW_FUSION_WEAPON &&  !(Netgame.AllowedItems & NETFLAG_DOFUSION))
-		return (0);
-	if (id == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
-		return (0);
-	if (id == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
-		return (0);
-	if (id == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
-		return (0);
-	if (id == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
-		return (0);
-	if (id == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
-		return (0);
-	if (id == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
-		return (0);
-	if (id == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
-		return (0);
-	if (id == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
-		return (0);
-	if (id == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
-		return (0);
-	if (id == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
-		return (0);
-	if (id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
-		return (0);
-	if (id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
-		return (0);
-	if (id == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
-		return (0);
-	if (id == POW_SMISSILE1_1 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-		return (0);
-	if (id == POW_SMISSILE1_4 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
-		return (0);
-	if (id == POW_GUIDED_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-		return (0);
-	if (id == POW_GUIDED_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
-		return (0);
-	if (id == POW_EARTHSHAKER_MISSILE &&  !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
-		return (0);
-	if (id == POW_MERCURY_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-		return (0);
-	if (id == POW_MERCURY_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
-		return (0);
-	if (id == POW_CONVERTER &&  !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
-		return (0);
-	if (id == POW_AMMO_RACK &&  !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
-		return (0);
-	if (id == POW_HEADLIGHT &&  !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
-		return (0);
-	if (id == POW_LASER &&  !(Netgame.AllowedItems & NETFLAG_DOLASER))
-		return (0);
-	if (id == POW_HOMING_AMMO_1 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-		return (0);
-	if (id == POW_HOMING_AMMO_4 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
-		return (0);
-	if (id == POW_QUAD_FIRE &&  !(Netgame.AllowedItems & NETFLAG_DOQUAD))
-		return (0);
-	if (id == POW_FLAG_BLUE && !game_mode_capture_flag())
-		return (0);
-	if (id == POW_FLAG_RED && !game_mode_capture_flag())
-		return (0);
-
-	return (1);
+	assert(powerup_is_4pack(id));
+	return static_cast<powerup_type_t>(id - 1);
 }
 
+powerup_type_t powerup_cap_state::map_powerup_type_to_index(const powerup_type_t id)
+{
+	if (powerup_is_4pack(id))
+		return map_powerup_4pack(id);
+	return id;
+}
+
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
+{
+	return multi_powerup_is_allowed(id, AllowedItems, map_granted_flags_to_netflag(Netgame.SpawnGrantedItems));
+}
+
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAllowedItems, const unsigned SpawnGrantedItems)
+{
+	const auto AllowedItems = BaseAllowedItems & ~SpawnGrantedItems;
+	switch (id)
+	{
+		case POW_KEY_BLUE:
+		case POW_KEY_GOLD:
+		case POW_KEY_RED:
+			return Game_mode & GM_MULTI_COOP;
+		case POW_INVULNERABILITY:
+			return AllowedItems & NETFLAG_DOINVUL;
+		case POW_CLOAK:
+			return AllowedItems & NETFLAG_DOCLOAK;
+		case POW_LASER:
+			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_LASER_LEVEL)
+				return 0;
+			return AllowedItems & NETFLAG_DOLASER;
+		case POW_QUAD_FIRE:
+			return AllowedItems & NETFLAG_DOQUAD;
+		case POW_VULCAN_WEAPON:
+			return AllowedItems & NETFLAG_DOVULCAN;
+		case POW_SPREADFIRE_WEAPON:
+			return AllowedItems & NETFLAG_DOSPREAD;
+		case POW_PLASMA_WEAPON:
+			return AllowedItems & NETFLAG_DOPLASMA;
+		case POW_FUSION_WEAPON:
+			return AllowedItems & NETFLAG_DOFUSION;
+		case POW_HOMING_AMMO_1:
+		case POW_HOMING_AMMO_4:
+			return AllowedItems & NETFLAG_DOHOMING;
+		case POW_PROXIMITY_WEAPON:
+			// Special: Make all proximity bombs into shields if in
+			// hoard mode because we use the proximity slot in the
+			// player struct to signify how many orbs the player has.
+			if (game_mode_hoard())
+				return 0;
+			return AllowedItems & NETFLAG_DOPROXIM;
+		case POW_SMARTBOMB_WEAPON:
+			return AllowedItems & NETFLAG_DOSMART;
+		case POW_MEGA_WEAPON:
+			return AllowedItems & NETFLAG_DOMEGA;
+		case POW_VULCAN_AMMO:
+#if defined(DXX_BUILD_DESCENT_I)
+			return BaseAllowedItems & NETFLAG_DOVULCAN;
+#elif defined(DXX_BUILD_DESCENT_II)
+			return BaseAllowedItems & (NETFLAG_DOVULCAN | NETFLAG_DOGAUSS);
+#endif
+#if defined(DXX_BUILD_DESCENT_II)
+		case POW_SUPER_LASER:
+			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
+				return 0;
+			return AllowedItems & NETFLAG_DOSUPERLASER;
+		case POW_GAUSS_WEAPON:
+			return AllowedItems & NETFLAG_DOGAUSS;
+		case POW_HELIX_WEAPON:
+			return AllowedItems & NETFLAG_DOHELIX;
+		case POW_PHOENIX_WEAPON:
+			return AllowedItems & NETFLAG_DOPHOENIX;
+		case POW_OMEGA_WEAPON:
+			return AllowedItems & NETFLAG_DOOMEGA;
+		case POW_SMISSILE1_1:
+		case POW_SMISSILE1_4:
+			return AllowedItems & NETFLAG_DOFLASH;
+		case POW_GUIDED_MISSILE_1:
+		case POW_GUIDED_MISSILE_4:
+			return AllowedItems & NETFLAG_DOGUIDED;
+		case POW_SMART_MINE:
+			return AllowedItems & NETFLAG_DOSMARTMINE;
+		case POW_MERCURY_MISSILE_1:
+		case POW_MERCURY_MISSILE_4:
+			return AllowedItems & NETFLAG_DOMERCURY;
+		case POW_EARTHSHAKER_MISSILE:
+			return AllowedItems & NETFLAG_DOSHAKER;
+		case POW_AFTERBURNER:
+			return AllowedItems & NETFLAG_DOAFTERBURNER;
+		case POW_CONVERTER:
+			return AllowedItems & NETFLAG_DOCONVERTER;
+		case POW_AMMO_RACK:
+			return AllowedItems & NETFLAG_DOAMMORACK;
+		case POW_HEADLIGHT:
+			return AllowedItems & NETFLAG_DOHEADLIGHT;
+		case POW_FLAG_BLUE:
+		case POW_FLAG_RED:
+			return game_mode_capture_flag();
+#endif
+		default:
+			return 1;
+	}
+}
+
+#if defined(DXX_BUILD_DESCENT_II)
 void multi_send_finish_game ()
 {
 	multibuf[1]=Player_num;
@@ -4602,7 +4737,7 @@ void multi_initiate_save_game()
 
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', 24);
-	slot = state_get_save_file(filename, desc, 0 );
+	slot = state_get_save_file(filename, desc, blind_save::no);
 	if (!slot)
 		return;
 	slot--;
@@ -4677,7 +4812,7 @@ void multi_initiate_restore_game()
 		}
 	}
 	}
-	slot = state_get_restore_file(filename, 0);
+	slot = state_get_restore_file(filename, blind_save::no);
 	if (!slot)
 		return;
 	state_game_id = state_get_game_id(filename);
@@ -4728,7 +4863,7 @@ void multi_restore_game(ubyte slot, uint id)
 		return;
 	}
   
-	state_restore_all_sub( filename, 0 );
+	state_restore_all_sub(filename, secret_restore::none);
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 

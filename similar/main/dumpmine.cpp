@@ -69,6 +69,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 
 #ifdef EDITOR
+const array<char[10], 7> Wall_names{{
+	"NORMAL   ",
+	"BLASTABLE",
+	"DOOR     ",
+	"ILLUSION ",
+	"OPEN     ",
+	"CLOSED   ",
+	"EXTERNAL "
+}};
+
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
 

@@ -1284,7 +1284,7 @@ void free_text();
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
 //Array of pointers to text
-extern const char *Text_string[N_TEXT_STRINGS];
+extern array<const char *, N_TEXT_STRINGS> Text_string;
 #endif
 
 static inline const char *dxx_gettext(unsigned expr, const char *fmt) __attribute_format_arg(2);

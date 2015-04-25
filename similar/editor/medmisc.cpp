@@ -140,7 +140,7 @@ int medlisp_delete_segment(void)
         if (Lock_view_to_cursegp)
             set_view_target_from_segment(Cursegp);
 		  autosave_mine(mine_filename);
-		  strcpy(undo_status[Autosave_count], "Delete Segment UNDONE.");
+		undo_status[Autosave_count] = "Delete Segment UNDONE.";
         Update_flags |= UF_WORLD_CHANGED;
         mine_changed = 1;
         diagnostic_message("Segment deleted.");
@@ -371,7 +371,7 @@ int AttachSegment()
 		Curside = WBACK;
 		Update_flags |= UF_WORLD_CHANGED;
 	   autosave_mine(mine_filename);
-	   strcpy(undo_status[Autosave_count], "Attach Segment UNDONE.\n");
+		undo_status[Autosave_count] = "Attach Segment UNDONE.";
 		mine_changed = 1;
 		warn_if_concave_segment(Cursegp);
       }

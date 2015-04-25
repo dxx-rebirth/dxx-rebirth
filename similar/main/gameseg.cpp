@@ -272,7 +272,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -379,7 +379,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,fix *side_dists)
+static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -589,7 +589,7 @@ int	Doing_lighting_hack_flag=0;
 static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
-	fix side_dists[6];
+	array<fix, 6> side_dists;
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
 	if (recursion_count >= Num_segments) {
@@ -653,7 +653,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 		range_for (const auto newseg, highest_valid(Segments))
 		{
 			const auto segp = vsegptridx(newseg);
-			if (get_seg_masks(p, segp, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
 		}
 
@@ -1267,7 +1267,7 @@ static void add_side_as_quad(const vsegptr_t sp, int sidenum, const vms_vector &
 //	small differences between normals which should merely be opposites of each other.
 static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
 {
-	int	v[4],w[4];
+	array<int, 4> v, w;
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
 	for (int i=0; i<4; i++)
@@ -1298,7 +1298,6 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 		*negate_flag = 1;
 	else
 		*negate_flag = 0;
-
 }
 
 // -------------------------------------------------------------------------------

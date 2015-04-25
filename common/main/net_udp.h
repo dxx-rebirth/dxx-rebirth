@@ -106,7 +106,7 @@ const uint16_t TRACKER_PORT_DEFAULT = 42420;
 struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
-	short                           program_iver[3];
+	array<short, 3>                 program_iver;
 	fix                             GameID;
 	ntstring<NETGAME_NAME_LEN> game_name;
 	ntstring<MISSION_NAME_LEN> mission_title;
@@ -141,12 +141,12 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
-	fix64				pkt_timestamp[MAX_PLAYERS];		// Packet timestamp
-	uint32_t			pkt_num[MAX_PLAYERS];			// Packet number
+	array<fix64, MAX_PLAYERS>		pkt_timestamp;		// Packet timestamp
+	array<uint32_t, MAX_PLAYERS>	pkt_num;			// Packet number
 	sbyte				used;
 	ubyte				Player_num;				// sender of this packet
 	uint16_t			data_size;
-	ubyte				player_ack[MAX_PLAYERS]; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
+	array<uint8_t, MAX_PLAYERS>		player_ack; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
 	array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
 };
 

@@ -150,6 +150,12 @@ enum laser_level_t
 #endif
 };
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_MAXIMUM_LASER_LEVEL	LASER_LEVEL_4
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_MAXIMUM_LASER_LEVEL	MAX_SUPER_LASER_LEVEL
+#endif
+
 #define MAX_LASER_BITMAPS   6
 
 // For muzzle firing casting light.
@@ -219,7 +225,7 @@ struct muzzle_info
 	vms_vector  pos;
 };
 
-extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
+extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw

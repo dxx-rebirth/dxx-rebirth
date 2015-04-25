@@ -157,7 +157,7 @@ static void copyFrame(unsigned short *pDest, unsigned short *pSrc)
 
 static void patternRow4Pixels(unsigned short *pFrame,
                               unsigned char pat0, unsigned char pat1,
-                              unsigned short *p)
+                              const array<uint16_t, 4> &p)
 {
     unsigned short mask=0x0003;
     unsigned short shift=0;
@@ -173,7 +173,7 @@ static void patternRow4Pixels(unsigned short *pFrame,
 
 static void patternRow4Pixels2(unsigned short *pFrame,
                                unsigned char pat0,
-                               unsigned short *p)
+                               const array<uint16_t, 4> &p)
 {
     unsigned char mask=0x03;
     unsigned char shift=0;
@@ -208,7 +208,7 @@ static void patternRow4Pixels2(unsigned short *pFrame,
 }
 
 static void patternRow4Pixels2x1(unsigned short *pFrame, unsigned char pat,
-								 unsigned short *p)
+								 const array<uint16_t, 4> &p)
 {
     unsigned char mask=0x03;
     unsigned char shift=0;
@@ -227,7 +227,7 @@ static void patternRow4Pixels2x1(unsigned short *pFrame, unsigned char pat,
 
 static void patternQuadrant4Pixels(unsigned short *pFrame,
 								   unsigned char pat0, unsigned char pat1, unsigned char pat2,
-								   unsigned char pat3, unsigned short *p)
+								   unsigned char pat3, const array<uint16_t, 4> &p)
 {
     unsigned long mask = 0x00000003UL;
     int shift=0;
@@ -248,7 +248,7 @@ static void patternQuadrant4Pixels(unsigned short *pFrame,
 
 
 static void patternRow2Pixels(unsigned short *pFrame, unsigned char pat,
-							  unsigned short *p)
+							  const array<uint16_t, 4> &p)
 {
     unsigned char mask=0x01;
 
@@ -260,7 +260,7 @@ static void patternRow2Pixels(unsigned short *pFrame, unsigned char pat,
 }
 
 static void patternRow2Pixels2(unsigned short *pFrame, unsigned char pat,
-							   unsigned short *p)
+							   const array<uint16_t, 4> &p)
 {
     unsigned short pel;
     unsigned char mask=0x1;
@@ -293,7 +293,7 @@ static void patternRow2Pixels2(unsigned short *pFrame, unsigned char pat,
 }
 
 static void patternQuadrant2Pixels(unsigned short *pFrame, unsigned char pat0,
-								   unsigned char pat1, unsigned short *p)
+								   unsigned char pat1, const array<uint16_t, 4> &p)
 {
     unsigned short mask = 0x0001;
     int i;
@@ -312,8 +312,8 @@ static void patternQuadrant2Pixels(unsigned short *pFrame, unsigned char pat0,
 
 static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
 {
-    unsigned short p[4];
-    unsigned char pat[16];
+	array<uint16_t, 4> p;
+	array<uint8_t, 4> pat;
     int i, j, k;
     int x, y;
     unsigned short *pDstBak;

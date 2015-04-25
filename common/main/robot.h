@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "polyobj.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -139,7 +140,6 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
 	ubyte   flags;          // misc properties
-	ubyte   pad[3];         // alignment
 
 	ubyte   deathroll_sound;    // if has deathroll, what sound?
 	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point
@@ -236,6 +236,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
  */
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
+void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 
 #endif
 

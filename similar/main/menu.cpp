@@ -86,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#include "physfs_list.h"
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
@@ -586,7 +587,7 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
-			state_restore_all(0, 0, nullptr, 0);
+			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
@@ -1349,7 +1350,7 @@ void graphics_config()
 	DXX_GRAPHICS_MENU(ADD);
 
 #ifdef OGL
-	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
+	m[opt_filter_none+GameCfg.TexFilt].value=1;
 #endif
 
 	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, unused_newmenu_userdata, 1);
@@ -1359,7 +1360,7 @@ void graphics_config()
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
 	for (uint_fast32_t i = 0; i != 4; ++i)
-		if (m[i+opt_gr_texfilt].value)
+		if (m[i+opt_filter_none].value)
 		{
 			GameCfg.TexFilt = i;
 			break;
@@ -1381,6 +1382,8 @@ void graphics_config()
 }
 
 #if PHYSFS_VER_MAJOR >= 2
+namespace {
+
 struct browser
 {
 	const char	*title;			// The title - needed for making another listbox when changing directory
@@ -1393,6 +1396,8 @@ struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 };
+
+}
 
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
@@ -1445,9 +1450,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				char text[4] = "c";
 				int rval = 0;
 
-				array<newmenu_item, 1> m{
+				array<newmenu_item, 1> m{{
 					nm_item_input(text),
-				};
+				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);

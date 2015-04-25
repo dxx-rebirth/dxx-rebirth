@@ -23,14 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include <physfs.h>
 #include "vecmat.h"
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "weapon.h"
-#endif
 
 #ifdef __cplusplus
 #include <algorithm>
@@ -66,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_FLAGS_AMMO_RACK      128     // Player has ammo rack
 #define PLAYER_FLAGS_CONVERTER      256     // Player has energy->shield converter
+#define PLAYER_MAX_AMMO(PLR,BASE)	((PLR.flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
 #endif
 #define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
@@ -84,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
+#define PLAYER_MAX_AMMO(PLR,BASE)	(static_cast<void>(PLR), BASE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
 
@@ -91,8 +91,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TEAM_BLUE   0
 #define TEAM_RED    1
 #endif
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 
 struct callsign_t
 {
@@ -188,7 +186,7 @@ struct player : public prohibit_void_ptr<player>
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
 	ushort  vulcan_ammo;
-	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
+	array<ushort, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
@@ -284,10 +282,9 @@ struct player_rw
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__;
 #if defined(DXX_BUILD_DESCENT_I)
-typedef char player_rw_padding_check[sizeof(player_rw) == 116 ? 1 : -1];
+static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef char player_rw_padding_check[sizeof(player_rw) == 142 ? 1 : -1];
-#endif
+static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
 
 #define N_PLAYER_GUNS 8
@@ -301,7 +298,7 @@ struct player_ship
 	fix     max_thrust,reverse_thrust,brakes;       //low_thrust
 	fix     wiggle;
 	fix     max_rotthrust;
-	vms_vector gun_points[N_PLAYER_GUNS];
+	array<vms_vector, N_PLAYER_GUNS> gun_points;
 }
 #if defined(DXX_BUILD_DESCENT_I)
 __pack__
@@ -319,12 +316,10 @@ extern playernum_t Player_num;  // The player number who is on the console.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	4
 #endif
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
-#endif
 
-extern struct object *Guided_missile[MAX_PLAYERS];
+extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*

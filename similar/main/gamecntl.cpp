@@ -63,6 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"
+#include "robot.h"
 #include "lighting.h"
 #include "newdemo.h"
 #include "weapon.h"
@@ -77,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "endlevel.h"
 #include "config.h"
+#include "hudmsg.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "titles.h"
@@ -249,9 +251,8 @@ static void do_weapon_n_item_stuff()
 	}
 	if (Controls.state.select_weapon > 0)
 	{
-		Controls.state.select_weapon--;
-		do_weapon_select(Controls.state.select_weapon>4?Controls.state.select_weapon-5:Controls.state.select_weapon,Controls.state.select_weapon>4?1:0);
-		Controls.state.select_weapon = 0;
+		const auto select_weapon = exchange(Controls.state.select_weapon, 0) - 1;
+		do_weapon_select(select_weapon > 4 ? select_weapon - 5 : select_weapon, select_weapon > 4);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (auto &headlight = Controls.state.headlight)
@@ -868,24 +869,24 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, nullptr, 0); // 0 means not between levels.
+				state_save_all(secret_save::none, blind_save::no); // 0 means not between levels.
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all(0, nullptr, 1);
+				state_save_all(secret_save::none, blind_save::yes);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_O:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, nullptr, 0);
+				state_restore_all(1, secret_restore::none, nullptr, blind_save::no);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_O:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F3:
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, nullptr, 1);
+				state_restore_all(1, secret_restore::none, nullptr, blind_save::yes);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1136,7 +1137,7 @@ static void kill_all_snipers(void)
 	//	Kill all snipers.
 	range_for (const auto i, highest_valid(Objects))
 		if (Objects[i].type == OBJ_ROBOT)
-			if (Objects[i].ctype.ai_info.behavior == AIB_SNIPE) {
+			if (Objects[i].ctype.ai_info.behavior == ai_behavior::AIB_SNIPE) {
 				dead_count++;
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
@@ -1694,67 +1695,116 @@ static window_event_result FinalCheats()
 
 // Internal Cheat Menu
 #ifndef RELEASE
-static void do_cheat_menu()
+
+namespace {
+
+class menu_fix_wrapper
 {
-	int mmn;
-	newmenu_item mm[16];
-	char score_text[21];
+	fix &m_value;
+public:
+	constexpr menu_fix_wrapper(fix &t) :
+		m_value(t)
+	{
+	}
+	constexpr operator int() const
+	{
+		return f2i(m_value);
+	}
+	menu_fix_wrapper &operator=(int n)
+	{
+		m_value = i2f(n);
+		return *this;
+	}
+};
 
-	sprintf( score_text, "%d", Players[Player_num].score );
-
-	nm_set_item_checkbox(mm[0],TXT_INVULNERABILITY,Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE);
-	nm_set_item_checkbox(mm[1],TXT_CLOAKED,Players[Player_num].flags & PLAYER_FLAGS_CLOAKED);
-	nm_set_item_checkbox(mm[2],"All keys",0);
-	nm_set_item_number(mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
-	nm_set_item_number(mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
-	nm_set_item_text(mm[5], "Score:");
-	nm_set_item_input(mm[6], score_text);
-#if defined(DXX_BUILD_DESCENT_I)
-	nm_set_item_radio(mm[7], "Laser level 1", (Players[Player_num].laser_level==0), 0);
-	nm_set_item_radio(mm[8], "Laser level 2", (Players[Player_num].laser_level==1), 0);
-	nm_set_item_radio(mm[9], "Laser level 3", (Players[Player_num].laser_level==2), 0);
-	nm_set_item_radio(mm[10], "Laser level 4", (Players[Player_num].laser_level==3), 0);
-	nm_set_item_number(mm[11], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
-
-	mmn = newmenu_do("Wimp Menu",NULL,12, mm, unused_newmenu_subfunction, unused_newmenu_userdata);
-#elif defined(DXX_BUILD_DESCENT_II)
-	nm_set_item_number(mm[7], "Laser Level", Players[Player_num].laser_level+1, 0, MAX_SUPER_LASER_LEVEL+1);
-	nm_set_item_number(mm[8], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
-
-	mmn = newmenu_do("Wimp Menu",NULL,9, mm, unused_newmenu_subfunction, unused_newmenu_userdata);
-#endif
-
-	if (mmn > -1 )  {
-		if ( mm[0].value )  {
-			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-			Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
-		} else
-			Players[Player_num].flags &= ~PLAYER_FLAGS_INVULNERABLE;
-		if ( mm[1].value )
+class cheat_menu_bit_invulnerability : public menu_bit_wrapper_t<uint32_t, uint32_t>
+{
+	player &m_player;
+public:
+	cheat_menu_bit_invulnerability(player &plr) :
+		menu_bit_wrapper_t(plr.flags, PLAYER_FLAGS_INVULNERABLE),
+		m_player(plr)
+	{
+	}
+	cheat_menu_bit_invulnerability &operator=(uint32_t n)
+	{
+		this->menu_bit_wrapper_t::operator=(n);
+		if (n)
 		{
-			Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
+			m_player.invulnerable_time = GameTime64+i2f(1000);
+		}
+		return *this;
+	}
+};
+
+class cheat_menu_bit_cloak : public menu_bit_wrapper_t<uint32_t, uint32_t>
+{
+	player &m_player;
+public:
+	cheat_menu_bit_cloak(player &plr) :
+		menu_bit_wrapper_t(plr.flags, PLAYER_FLAGS_CLOAKED),
+		m_player(plr)
+	{
+	}
+	cheat_menu_bit_cloak &operator=(uint32_t n)
+	{
+		this->menu_bit_wrapper_t::operator=(n);
+		if (n)
+		{
 			if (Game_mode & GM_MULTI)
 				multi_send_cloak();
 			ai_do_cloak_stuff();
-			Players[Player_num].cloak_time = GameTime64;
+			m_player.cloak_time = GameTime64;
 		}
-		else
-			Players[Player_num].flags &= ~PLAYER_FLAGS_CLOAKED;
+		return *this;
+	}
+};
 
-		if (mm[2].value) Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
-		Players[Player_num].energy=i2f(mm[3].value);
-		Players[Player_num].shields=i2f(mm[4].value);
-		Players[Player_num].score = atoi(mm[6].text);
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
-		if (mm[7].value) Players[Player_num].laser_level=0;
-		if (mm[8].value) Players[Player_num].laser_level=1;
-		if (mm[9].value) Players[Player_num].laser_level=2;
-		if (mm[10].value) Players[Player_num].laser_level=3;
-		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[11].value;
+#define WIMP_MENU_DXX(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
-		Players[Player_num].laser_level = mm[7].value-1;
-		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[8].value;
+/* Adding an afterburner like this adds it at 0% charge.  This is OK for
+ * a cheat.  The player can change his energy up if he needs more.
+ */
+#define WIMP_MENU_DXX(VERB)	\
+	DXX_##VERB##_CHECK(TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_AFTERBURNER))	\
+
 #endif
+
+#define DXX_WIMP_MENU(VERB)	\
+	DXX_##VERB##_CHECK(TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plr))	\
+	DXX_##VERB##_CHECK(TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plr))	\
+	DXX_##VERB##_CHECK("BLUE KEY", opt_key_blue, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_BLUE_KEY))	\
+	DXX_##VERB##_CHECK("GOLD KEY", opt_key_gold, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_GOLD_KEY))	\
+	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_RED_KEY))	\
+	WIMP_MENU_DXX(VERB)	\
+	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plr.energy), 0, 200)	\
+	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plr.shields), 0, 200)	\
+	DXX_##VERB##_TEXT(TXT_SCORE, opt_txt_score)	\
+	DXX_##VERB##_INPUT(score_text, opt_score)	\
+	DXX_##VERB##_NUMBER("Laser Level", opt_laser_level, menu_number_bias_wrapper(plr.laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_##VERB##_NUMBER("Concussion", opt_concussion, plr.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+
+static void do_cheat_menu()
+{
+	enum {
+		DXX_WIMP_MENU(ENUM)
+	};
+	int mmn;
+	array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
+	char score_text[sizeof("2147483647")];
+	auto &plr = Players[Player_num];
+	snprintf(score_text, sizeof(score_text), "%d", plr.score);
+	DXX_WIMP_MENU(ADD);
+	mmn = newmenu_do("Wimp Menu",NULL,m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	if (mmn > -1 )  {
+		DXX_WIMP_MENU(READ);
+		char *p;
+		auto ul = strtoul(score_text, &p, 10);
+		if (!*p)
+			plr.score = static_cast<int>(ul);
 		init_gauges();
 	}
 }

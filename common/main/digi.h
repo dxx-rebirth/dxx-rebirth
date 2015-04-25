@@ -23,17 +23,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-
-#ifndef _DIGI_H
-#define _DIGI_H
+#pragma once
 
 #include "pstypes.h"
 #include "vecmat.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 #include "segnum.h"
 #include "fwdvalptridx.h"
+#include "compiler-exchange.h"
+#include "compiler-type_traits.h"
 
 struct sound_object;
 struct digi_sound
@@ -140,4 +140,31 @@ int verify_sound_channel_free( int channel );
 
 #endif
 
-#endif
+class RAIIdigi_sound
+{
+	static constexpr tt::integral_constant<int, -1> invalid_channel{};
+	int channel;
+	static void stop(int channel)
+	{
+		if (channel != invalid_channel)
+			digi_stop_sound(channel);
+	}
+public:
+	RAIIdigi_sound() :
+		channel(invalid_channel)
+	{
+	}
+	~RAIIdigi_sound()
+	{
+		stop(channel);
+	}
+	void reset(int c = invalid_channel)
+	{
+		stop(exchange(channel, c));
+	}
+	operator int() const = delete;
+	explicit operator bool() const
+	{
+		return channel != invalid_channel;
+	}
+};

@@ -25,6 +25,7 @@
 #include "console.h"
 #include "strutil.h"
 #include "ignorecase.h"
+#include "physfs_list.h"
 
 #include "poison.h"
 

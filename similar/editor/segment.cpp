@@ -107,7 +107,7 @@ void copy_side_except_vertex_ids(side *destside, side *sourceside)
 
 //	[side] [index] [cur:next]
 //	To remap the vertices on a side after a forward rotation
-sbyte xlate_previous[6][4][2] = {
+const array<array<array<uint8_t, 2>, 4>, 6> xlate_previous{
 { {7, 3}, {3, 2}, {2, 6}, {6, 7} },		// remapping left to left
 { {5, 4}, {4, 0}, {7, 3}, {6, 7} },		// remapping back to top
 { {5, 4}, {1, 5}, {0, 1}, {4, 0} },		// remapping right to right
@@ -137,7 +137,7 @@ void remap_vertices_previous(segment *segp, int sidenum)
 	}
 }
 
-sbyte xlate_previous_right[6][4][2] = {
+const array<array<array<uint8_t, 2>, 4>, 6> xlate_previous_right{
 { {5, 6}, {6, 7}, {2, 3}, {1, 2} },		// bottom to left
 { {6, 7}, {7, 4}, {3, 0}, {2, 3} },		// left to top
 { {7, 4}, {4, 5}, {0, 1}, {3, 0} },		// top to right
@@ -1226,8 +1226,7 @@ next_side: ;
 int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, int side2)
 {
 	int		bfi,v,s1;
-	int		lost_vertices[4];
-	array<int, 4> remap_vertices;
+	array<int, 4> lost_vertices, remap_vertices;
 	int		validation_list[MAX_VALIDATIONS];
 	uint_fast32_t nv;
 
@@ -1609,7 +1608,7 @@ void warn_if_concave_segment(const vsegptridx_t s)
 int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
 {
 	int			s;
-	int			abs_verts[4];
+	array<int, 4> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
 	for (unsigned v=0; v < 4; v++)

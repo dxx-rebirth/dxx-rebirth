@@ -12,6 +12,7 @@
 #include <ctype.h>
 
 #include "physfsx.h"
+#include "physfs_list.h"
 #include "ignorecase.h"
 
 /**

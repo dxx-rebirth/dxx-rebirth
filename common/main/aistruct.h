@@ -26,8 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _AISTRUCT_H
-#define _AISTRUCT_H
+#pragma once
 
 #include <physfs.h>
 #include "polyobj.h"
@@ -41,8 +40,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_SEGMENTS_PER_PATH       20
 
-enum player_awareness_type_t
+enum class player_awareness_type_t : int8_t
 {
+	PA_NONE,
 	PA_NEARBY_ROBOT_FIRED		= 1,  // Level of robot awareness after nearby robot fires a weapon
 	PA_WEAPON_WALL_COLLISION	= 2,  // Level of robot awareness after player weapon hits nearby wall
 //	PA_PLAYER_VISIBLE			= 2,  // Level of robot awareness if robot is looking towards player, and player not hidden
@@ -59,19 +59,22 @@ enum player_awareness_type_t
 #define AI_DIR_FORWARD  1
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
+enum ai_behavior : uint8_t
+{
 // Behaviors
-#define AIB_STILL                       0x80
-#define AIB_NORMAL                      0x81
-#define AIB_RUN_FROM                    0x83
-#define AIB_STATION                     0x85
+	AIB_STILL = 0x80,
+	AIB_NORMAL = 0x81,
+	AIB_RUN_FROM = 0x83,
+	AIB_STATION = 0x85,
 #if defined(DXX_BUILD_DESCENT_I)
-#define	AIB_HIDE							0x82
-#define	AIB_FOLLOW_PATH				0x84
+	AIB_HIDE = 0x82,
+	AIB_FOLLOW_PATH = 0x84,
 #elif defined(DXX_BUILD_DESCENT_II)
-#define AIB_BEHIND                      0x82
-#define AIB_SNIPE                       0x84
-#define AIB_FOLLOW                      0x86
+	AIB_BEHIND = 0x82,
+	AIB_SNIPE = 0x84,
+	AIB_FOLLOW = 0x86,
 #endif
+};
 
 #define MIN_BEHAVIOR    0x80
 #if defined(DXX_BUILD_DESCENT_I)
@@ -172,22 +175,17 @@ enum player_awareness_type_t
 struct ai_local : public prohibit_void_ptr<ai_local>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
+	player_awareness_type_t      player_awareness_type;           // type of awareness of player
+	uint8_t retry_count;                     // number of retries in physics last time this object got moved.
+	uint8_t consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	uint8_t previous_visibility;             // Visibility of player last time we checked.
+	uint8_t rapidfire_count;                 // number of shots fired rapidly
 #if defined(DXX_BUILD_DESCENT_I)
-	sbyte      player_awareness_type;           // type of awareness of player
-	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
-	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
 	sbyte      mode;                            // current mode within behavior
-	sbyte      previous_visibility;             // Visibility of player last time we checked.
-	sbyte      rapidfire_count;                 // number of shots fired rapidly
 	segnum_t      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
 #elif defined(DXX_BUILD_DESCENT_II)
-	int        player_awareness_type;         // type of awareness of player
-	int        retry_count;                   // number of retries in physics last time this object got moved.
-	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
 	int        mode;                          // current mode within behavior
-	int        previous_visibility;           // Visibility of player last time we checked.
-	int        rapidfire_count;               // number of shots fired rapidly
 	segnum_t        goal_segment;                  // goal segment for current path
 #endif
 	fix        next_action_time;              // time in seconds until something happens, mode dependent
@@ -200,16 +198,16 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
 	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
 	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
-	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
-	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
-	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
-	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
+	array<vms_angvec, MAX_SUBMODELS> goal_angles;    // angles for each subobject
+	array<vms_angvec, MAX_SUBMODELS> delta_angles;   // angles for each subobject
+	array<sbyte, MAX_SUBMODELS>      goal_state;     // Goal state for this sub-object
+	array<sbyte, MAX_SUBMODELS>      achieved_state; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ubyte   behavior;               //
-	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	array<sbyte, MAX_AI_FLAGS>   flags;    // various flags, meaning defined by constants
 	segnum_t   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
@@ -332,5 +330,3 @@ static const unsigned MAX_POINT_SEGS = 2500;
 extern void ai_do_cloak_stuff(void);
 
 #endif
-
-#endif /* _AISTRUCT_H */

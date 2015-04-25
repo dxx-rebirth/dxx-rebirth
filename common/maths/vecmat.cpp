@@ -377,8 +377,8 @@ fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vect
 {
 	vms_vector t0,t1;
 
-	vm_vec_copy_normalize(t0,v0);
-	vm_vec_copy_normalize(t1,v1);
+	if (!vm_vec_copy_normalize(t0,v0) || !vm_vec_copy_normalize(t1,v1))
+		return 0;
 
 	return vm_vec_delta_ang_norm(t0,t1,fvec);
 }

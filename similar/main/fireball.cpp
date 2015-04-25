@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "sounds.h"
 #include "player.h"
 #include "gauges.h"
@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "timer.h"
 #include "fuelcen.h"
+#include "playsave.h"
 #include "cntrlcen.h"
 #include "gameseg.h"
 #include "automap.h"
@@ -596,12 +597,12 @@ static segnum_t choose_drop_segment()
 
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
-void maybe_drop_net_powerup(int powerup_type)
+void maybe_drop_net_powerup(powerup_type_t powerup_type)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if (Game_mode & GM_NETWORK)
 		{
-			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
+			if (!PowerupCaps.can_add_powerup(powerup_type))
 				return;
 		}
 
@@ -699,7 +700,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (Players[Player_num].vulcan_ammo >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
-		if ((player_has_weapon(weapon_index, 0) & HAS_WEAPON_FLAG) || weapon_nearby(del_obj, del_obj->contains_id)) {
+		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id)) {
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj->contains_count = 1;
@@ -897,9 +898,9 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 
 				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
-				obj->ctype.ai_info.behavior = AIB_NORMAL;
+				obj->ctype.ai_info.behavior = ai_behavior::AIB_NORMAL;
 				ai_local		*ailp = &obj->ctype.ai_info.ail;
-				ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
+				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 				ailp->player_awareness_time = F1_0*3;
 				obj->ctype.ai_info.CURRENT_STATE = AIS_LOCK;
 				obj->ctype.ai_info.GOAL_STATE = AIS_LOCK;

@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "screens.h"
 #include "textures.h"
+#include "hudmsg.h"
 #include "mouse.h"
 #include "timer.h"
 #include "segpoint.h"
@@ -98,8 +99,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct Edge_info
 {
 	array<int, 2>   verts;     // 8  bytes
-	ubyte sides[4];     // 4  bytes
-	segnum_t   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
+	array<uint8_t, 4> sides;     // 4  bytes
+	array<segnum_t, 4> segnum;    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
@@ -399,7 +400,7 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player(const vobjptr_t obj)
+static void draw_player(const vcobjptr_t obj)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj->pos);
@@ -537,7 +538,7 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto color = get_player_or_team_color(Player_num);
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-	draw_player(&Objects[Players[Player_num].objnum]);
+	draw_player(vcobjptr(Players[Player_num].objnum));
 
 	DrawMarkers(am);
 	
@@ -548,7 +549,7 @@ static void draw_automap(automap *am)
 				if ( Objects[Players[i].objnum].type == OBJ_PLAYER )	{
 					const auto color = get_player_or_team_color(i);
 					gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-					draw_player(&Objects[Players[i].objnum]);
+					draw_player(vcobjptr(Players[i].objnum));
 				}
 			}
 		}
@@ -1258,19 +1259,17 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
-						auto connected_side = find_connect_side(seg, &Segments[connected_seg]);
-						int	keytype = Walls[Segments[connected_seg].sides[connected_side].wall_num].keys;
-						if ((keytype != KEY_BLUE) && (keytype != KEY_GOLD) && (keytype != KEY_RED))
-							color = am->wall_door_color;
-						else {
-							switch (Walls[Segments[connected_seg].sides[connected_side].wall_num].keys) {
+						const auto &vcseg = vcsegptr(connected_seg);
+						const auto &connected_side = find_connect_side(seg, vcseg);
+						switch (Walls[vcseg->sides[connected_side].wall_num].keys)
+						{
 								case KEY_BLUE:	color = am->wall_door_blue;	no_fade = 1; break;
 								case KEY_GOLD:	color = am->wall_door_gold;	no_fade = 1; break;
 								case KEY_RED:	color = am->wall_door_red;	no_fade = 1; break;
-								default:	Error("Inconsistent data.  Supposed to be a colored wall, but not blue, gold or red.\n");
-							}
+							default:
+								color = am->wall_door_color;
+								break;
 						}
-
 					}
 				} else {
 					color = am->wall_normal_color;

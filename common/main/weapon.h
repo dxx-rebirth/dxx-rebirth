@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _WEAPON_H
-#define _WEAPON_H
+#pragma once
 
 #include "game.h"
 #include "piggy.h"
@@ -35,6 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "pack.h"
 #include "fwdvalptridx.h"
+
+#include "compiler-type_traits.h"
+
+enum powerup_type_t : uint8_t;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
@@ -178,14 +181,13 @@ const unsigned MAX_PRIMARY_WEAPONS = 10;
 const unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
-extern const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
-extern const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
-extern const ubyte Primary_weapon_to_powerup[MAX_PRIMARY_WEAPONS];
-
+extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
+extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
-extern const ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
-extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
+extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
+extern const array<ubyte, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */
@@ -276,25 +278,47 @@ extern void select_weapon(int weapon_num, int secondary_flag, int print_message,
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of
-extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
+extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 //flags whether the last time we use this weapon, it was the 'super' version
-extern ubyte Primary_last_was_super[MAX_PRIMARY_WEAPONS];
-extern ubyte Secondary_last_was_super[MAX_SECONDARY_WEAPONS];
-
-extern const char *const Primary_weapon_names_short[];
-extern const char *const Secondary_weapon_names_short[];
-extern const char *const Primary_weapon_names[];
-extern const char *const Secondary_weapon_names[];
-extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
+extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
+extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 
-#define HAS_WEAPON_FLAG 1
-#define HAS_ENERGY_FLAG 2
-#define HAS_AMMO_FLAG       4
-#define  HAS_ALL (HAS_WEAPON_FLAG|HAS_ENERGY_FLAG|HAS_AMMO_FLAG)
+class has_weapon_result
+{
+	uint8_t m_result;
+public:
+	static constexpr tt::integral_constant<uint8_t, 1> has_weapon_flag{};
+	static constexpr tt::integral_constant<uint8_t, 2> has_energy_flag{};
+	static constexpr tt::integral_constant<uint8_t, 4> has_ammo_flag{};
+	has_weapon_result() = default;
+	constexpr has_weapon_result(uint8_t r) : m_result(r)
+	{
+	}
+	uint8_t has_weapon() const
+	{
+		return m_result & has_weapon_flag;
+	}
+	uint8_t has_energy() const
+	{
+		return m_result & has_energy_flag;
+	}
+	uint8_t has_ammo() const
+	{
+		return m_result & has_ammo_flag;
+	}
+	uint8_t flags() const
+	{
+		return m_result;
+	}
+	bool has_all() const
+	{
+		return m_result == (has_weapon_flag | has_energy_flag | has_ammo_flag);
+	}
+};
 
 //-----------------------------------------------------------------------------
 // Return:
@@ -302,8 +326,12 @@ extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
 //      HAS_WEAPON_FLAG
 //      HAS_ENERGY_FLAG
 //      HAS_AMMO_FLAG
-//      HAS_SUPER_FLAG
-extern int player_has_weapon(int weapon_num, int secondary_flag);
+has_weapon_result player_has_primary_weapon(int weapon_num);
+has_weapon_result player_has_secondary_weapon(int weapon_num);
+static inline has_weapon_result player_has_weapon(int weapon_num, int secondary_flag)
+{
+	return secondary_flag ? player_has_secondary_weapon(weapon_num) : player_has_primary_weapon(weapon_num);
+}
 
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
@@ -314,7 +342,7 @@ int pick_up_secondary(int weapon_index,int count);
 int pick_up_primary(int weapon_index);
 
 //called when ammo (for the vulcan cannon) is picked up
-int pick_up_ammo(int class_flag,int weapon_index,int ammo_count);
+int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 
 #if defined(DXX_BUILD_DESCENT_II)
 int attempt_to_steal_item(vobjptridx_t objp, int player_num);
@@ -370,8 +398,6 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 {
 	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
 }
-#endif
-
 #endif
 
 #endif

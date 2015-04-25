@@ -529,8 +529,8 @@ int SetPlayerFromCursegAndRotate()
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
 {
-	vms_vector corner_v[4];
-	g3s_point corner_p[4];
+	array<vms_vector, 4> corner_v;
+	array<g3s_point, 4> corner_p;
 	int i;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;

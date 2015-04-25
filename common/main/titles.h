@@ -23,12 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _TITLES_H
-#define _TITLES_H
-
-#include "pstypes.h"
+#pragma once
 
 #ifdef __cplusplus
+#include <cstdint>
 
 struct d_fname;
 
@@ -37,12 +35,10 @@ void do_briefing_screens(const d_fname &filename, int level_num);
 void do_end_briefing_screens(const d_fname &filename);
 extern char * get_briefing_screen( int level_num );
 #if defined(DXX_BUILD_DESCENT_II)
-extern void show_loading_screen(ubyte *title_pal);
+void show_loading_screen(uint8_t *title_pal);
 extern void show_endgame_briefing(void);
 extern int intro_played;
 #endif
 extern void show_order_form(void);
-
-#endif
 
 #endif

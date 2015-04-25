@@ -36,25 +36,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "config.h"
 
-static const char Gamefont_filenames_l[][16] = {
+const array<char[16], 5> Gamefont_filenames_l{{
 	"font1-1.fnt", // Font 0
 	"font2-1.fnt", // Font 1
 	"font2-2.fnt", // Font 2
 	"font2-3.fnt", // Font 3
 	"font3-1.fnt"  // Font 4
-};
+}};
 
-static const char Gamefont_filenames_h[][16] = {
+const array<char[16], 5> Gamefont_filenames_h{{
 	"font1-1h.fnt", // Font 0
 	"font2-1h.fnt", // Font 1
 	"font2-2h.fnt", // Font 2
 	"font2-3h.fnt", // Font 3
 	"font3-1h.fnt"  // Font 4
-};
+}};
 
 array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
-int Gamefont_installed=0;
+static int Gamefont_installed;
 float FNTScaleX = 1, FNTScaleY = 1;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
@@ -65,17 +65,16 @@ struct a_gamefont_conf
 	int y;
 	union{
 		char name[64];//hrm.
-		grs_font *ptr;
 	} f;
 };
 
 struct gamefont_conf
 {
-	a_gamefont_conf font[10];
 	int num,cur;
+	array<a_gamefont_conf, 10> font;
 };
 
-gamefont_conf font_conf[MAX_FONTS];
+static array<gamefont_conf, MAX_FONTS> font_conf;
 
 static void gamefont_unloadfont(int gf)
 {

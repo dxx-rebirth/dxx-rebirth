@@ -48,6 +48,7 @@
 #include "bm.h"
 #include "effects.h"
 #include "physics.h"
+#include "hudmsg.h"
 #include "switch.h"
 #include "automap.h"
 #include "byteutil.h"
@@ -63,6 +64,7 @@
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
+#include "compiler-static_assert.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
@@ -88,9 +90,9 @@ static void net_udp_send_rejoin_sync(int player_num);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_ping_frame(fix64 time);
-static void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
-static void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
-static void net_udp_read_endlevel_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
+static void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
 static void net_udp_process_mdata (uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
@@ -1835,8 +1837,6 @@ static void net_udp_stop_resync(UDP_sequence_packet *their)
 	}
 }
 
-ubyte object_buffer[UPID_MAX_SIZE];
-
 void net_udp_send_objects(void)
 {
 	sbyte owner, player_num = UDP_sync_player.player.connected;
@@ -1863,7 +1863,8 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	memset(object_buffer, 0, UPID_MAX_SIZE);
+	array<uint8_t, UPID_MAX_SIZE> object_buffer;
+	object_buffer.fill(0);
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
 
@@ -1871,7 +1872,7 @@ void net_udp_send_objects(void)
 	{
 		obj_count = 0;
 		Network_send_object_mode = 0;
-		PUT_INTEL_INT(object_buffer+loc, -1);                       loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], -1);                       loc += 4;
 		object_buffer[loc] = player_num;                            loc += 1;
 		/* Placeholder for remote_objnum, not used here */          loc += 4;
 		Network_send_objnum = 0;
@@ -1903,9 +1904,9 @@ void net_udp_send_objects(void)
 		remote_objnum = objnum_local_to_remote(i, &owner);
 		Assert(owner == object_owner[i]);
 
-		PUT_INTEL_INT(object_buffer+loc, i);                        loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], i);                        loc += 4;
 		object_buffer[loc] = owner;                                 loc += 1;
-		PUT_INTEL_INT(object_buffer+loc, remote_objnum);            loc += 4;
+		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
 #ifdef WORDS_BIGENDIAN
@@ -1917,11 +1918,11 @@ void net_udp_send_objects(void)
 	if (obj_count_frame) // Send any objects we've buffered
 	{
 		Network_send_objnum = i;
-		PUT_INTEL_INT(object_buffer+1, obj_count_frame);
+		PUT_INTEL_INT(&object_buffer[1], obj_count_frame);
 
 		Assert(loc <= UPID_MAX_SIZE);
 
-		dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], object_buffer, loc, 0);
+		dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], loc, 0);
 	}
 
 	if (i > Highest_object_index)
@@ -1937,11 +1938,11 @@ void net_udp_send_objects(void)
 
 			// Send count so other side can make sure he got them all
 			object_buffer[0] = UPID_OBJECT_DATA;
-			PUT_INTEL_INT(object_buffer+1, 1);
-			PUT_INTEL_INT(object_buffer+5, -2);
+			PUT_INTEL_INT(&object_buffer[1], 1);
+			PUT_INTEL_INT(&object_buffer[5], -2);
 			object_buffer[9] = player_num;
-			PUT_INTEL_INT(object_buffer+10, obj_count);
-			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], object_buffer, 14, 0);
+			PUT_INTEL_INT(&object_buffer[10], obj_count);
+			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], 14, 0);
 
 			// Send sync packet which tells the player who he is and to start!
 			net_udp_send_rejoin_sync(player_num);
@@ -2458,7 +2459,12 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
+		buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.DuplicatePowerups.get_packed_field());			len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
 #endif
@@ -2680,7 +2686,15 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+		Netgame.SpawnGrantedItems = data[len];		len += 1;
+		Netgame.DuplicatePowerups.set_packed_field(data[len]);			len += 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+		Netgame.SpawnGrantedItems = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.DuplicatePowerups.set_packed_field(GET_INTEL_SHORT(&data[len])); len += 2;
+		if (unlikely(map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) > MAX_SUPER_LASER_LEVEL))
+			/* Bogus input - reject whole entry */
+			Netgame.SpawnGrantedItems = 0;
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
 #endif
@@ -2891,20 +2905,20 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 		case UPID_PING:
 			if (multi_i_am_master() || length != UPID_PING_SIZE)
 				break;
-			net_udp_process_ping(data, length, sender_addr);
+			net_udp_process_ping(data, sender_addr);
 			break;
 		case UPID_PONG:
 			if (!multi_i_am_master() || length != UPID_PONG_SIZE)
 				break;
-			net_udp_process_pong(data, length, sender_addr);
+			net_udp_process_pong(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_H:
 			if ((!multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
-				net_udp_read_endlevel_packet( data, length, sender_addr );
+				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_C:
 			if ((multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
-				net_udp_read_endlevel_packet( data, length, sender_addr );
+				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_PDATA:
 			net_udp_process_pdata( data, length, sender_addr );
@@ -2933,7 +2947,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 }
 
 // Packet for end of level syncing
-void net_udp_read_endlevel_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	int len = 0;
 	ubyte tmpvar = 0;
@@ -3152,11 +3166,16 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
-	DXX_##VERB##_TEXT(packdesc, opt_label_pps)	\
+	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
+	DXX_##VERB##_MENU("Duplicate powerups at level start", opt_set_powerup_duplicates)	\
+	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
 	DXX_##VERB##_INPUT(portstring, opt_port)	\
 	DXX_UDP_MENU_TRACKER_OPTION(VERB)
+
+#define DXX_STRINGIZE_PPS2(X)	#X
+#define DXX_STRINGIZE_PPS(X)	DXX_STRINGIZE_PPS2(X)
 
 enum {
 	DXX_UDP_MENU_OPTIONS(ENUM)
@@ -3178,14 +3197,118 @@ static void net_udp_set_power (void)
 			Netgame.AllowedItems |= (1 << i);
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_GRANT_POWERUP_MENU(VERB)
+#define D2X_DUPLICATE_POWERUP_MENU(VERB)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_GRANT_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_GAUSS, opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_HELIX, opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_PHOENIX, opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_OMEGA, opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_AFTERBURNER, opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_AMMORACK, opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_CONVERTER, opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_HEADLIGHT, opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
+
+#define D2X_DUPLICATE_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("duplicate accessories", opt_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
+
+#endif
+
+#define DXX_GRANT_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("Laser level", opt_laser_level, menu_number_bias_wrapper(laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_QUAD, opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_VULCAN, opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_SPREAD, opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_PLASMA, opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
+	DXX_##VERB##_CHECK(NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
+	D2X_GRANT_POWERUP_MENU(VERB)
+
+#define DXX_DUPLICATE_POWERUP_MENU(VERB)	\
+	DXX_##VERB##_NUMBER("duplicate primaries", opt_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
+	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
+	D2X_DUPLICATE_POWERUP_MENU(VERB)
+
+namespace {
+
+class grant_powerup_menu_items
+{
+public:
+	enum
+	{
+		DXX_GRANT_POWERUP_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_GRANT_POWERUP_MENU(COUNT)> m;
+	grant_powerup_menu_items(const unsigned laser_level, const packed_spawn_granted_items p)
+	{
+		auto &flags = p.mask;
+		DXX_GRANT_POWERUP_MENU(ADD);
+	}
+	void read(packed_spawn_granted_items &p) const
+	{
+		unsigned laser_level, flags = 0;
+		DXX_GRANT_POWERUP_MENU(READ);
+		p.mask = laser_level | flags;
+	}
+};
+
+class duplicate_powerup_menu_items
+{
+public:
+	enum
+	{
+		DXX_DUPLICATE_POWERUP_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_DUPLICATE_POWERUP_MENU(COUNT)> m;
+	duplicate_powerup_menu_items(const packed_netduplicate_items items)
+	{
+		const auto primary = items.get_primary_count();
+		const auto secondary = items.get_secondary_count();
+#if defined(DXX_BUILD_DESCENT_II)
+		const auto accessory = items.get_accessory_count();
+#endif
+		DXX_DUPLICATE_POWERUP_MENU(ADD);
+	}
+	void read(packed_netduplicate_items &items) const
+	{
+		unsigned primary, secondary;
+#if defined(DXX_BUILD_DESCENT_II)
+		unsigned accessory;
+#endif
+		DXX_DUPLICATE_POWERUP_MENU(READ);
+		items.set_primary_count(primary);
+		items.set_secondary_count(secondary);
+#if defined(DXX_BUILD_DESCENT_II)
+		items.set_accessory_count(accessory);
+#endif
+	}
+};
+
+}
+
+static void net_udp_set_grant_power()
+{
+	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
+	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
+	newmenu_do(nullptr, "Powerups granted at player spawn", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	menu.read(Netgame.SpawnGrantedItems);
+}
+
+static void net_udp_set_duplicate_powerups()
+{
+	duplicate_powerup_menu_items menu{Netgame.DuplicatePowerups};
+	newmenu_do(nullptr, "Duplicate powerups at level start", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	menu.read(Netgame.DuplicatePowerups);
+}
+
 static void net_udp_more_game_options ()
 {
 	int i;
-	char PlayText[80],KillText[80],srinvul[50],packdesc[30],packstring[5];
+	char PlayText[80],KillText[80],srinvul[50],packstring[3];
 	char portstring[6];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
-	snprintf(packdesc,sizeof(packdesc),"Packets per second (%i - %i)",MIN_PPS,MAX_PPS);
 	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
 	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
@@ -3193,25 +3316,36 @@ static void net_udp_more_game_options ()
 	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
 #ifdef USE_TRACKER
 	char tracker[52];
-	const auto &tracker_addr = GameArg.MplTrackerAddr;
-	if (!tracker_addr.empty())
-		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
 	DXX_UDP_MENU_OPTIONS(ADD);
 
 #ifdef USE_TRACKER
+	const auto &tracker_addr = GameArg.MplTrackerAddr;
 	if (tracker_addr.empty())
 		nm_set_item_text(m[opt_tracker], "Tracker use disabled by -no-tracker");
+	else
+		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
 #endif
 
-menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata, 0 );
-
-	if (i==opt_setpower)
+	for (;;)
 	{
-		net_udp_set_power ();
-		goto menu;
+		i = newmenu_do(nullptr, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata);
+		switch (i)
+		{
+			case opt_setpower:
+				net_udp_set_power();
+				continue;
+			case opt_setgrant:
+				net_udp_set_grant_power();
+				continue;
+			case opt_set_powerup_duplicates:
+				net_udp_set_duplicate_powerups();
+				continue;
+			default:
+				break;
+		}
+		break;
 	}
 
 	DXX_UDP_MENU_OPTIONS(READ);
@@ -3468,8 +3602,7 @@ int net_udp_setup_game()
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
-	Netgame.AllowedItems = 0;
-	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
+	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
 
@@ -3783,7 +3916,7 @@ static net_udp_select_teams(void)
 		team_vector |= (1 << i);
 	}
 
-	callsign_t team_names[2];
+	array<callsign_t, 2> team_names;
 	team_names[0].copy(TXT_BLUE, ~0ul);
 	team_names[1].copy(TXT_RED, ~0ul);
 
@@ -4544,26 +4677,33 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 	// Check if this comes from a valid IP
 	if (sender_addr != Netgame.players[sender_pnum].protocol.udp.addr)
 		return 0;
-	// Make sure this is the packet we are expecting!
-	if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
-	{
-		con_printf(CON_VERBOSE, "P#%u: Rejecting MData pkt %i - expected %i - pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
-		return 0;
-	}
-	
-	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i - pnum %i",Player_num, pkt_num, sender_pnum);
-	memset(&buf,0,sizeof(buf));
-	buf[len] = UPID_MDATA_ACK;													len++;
-	buf[len] = Player_num;														len++;
-	buf[len] = pkt_sender_pnum;													len++;
-	PUT_INTEL_INT(buf + len, pkt_num);												len += 4;
+
+        // Prepare the ACK (but do not send, yet)
+        memset(&buf,0,sizeof(buf));
+        buf[len] = UPID_MDATA_ACK;											len++;
+        buf[len] = Player_num;												len++;
+        buf[len] = pkt_sender_pnum;											len++;
+        PUT_INTEL_INT(buf + len, pkt_num);										len += 4;
+
+        // Make sure this is the packet we are expecting!
+        if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
+        {
+                range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, (uint32_t)UDP_MDATA_STOR_QUEUE_SIZE))
+                {
+                        if (pkt_num == i) // We got this packet already - need to REsend ACK
+                        {
+                                con_printf(CON_VERBOSE, "P#%u: Resending MData ACK for pkt %i we already got by pnum %i",Player_num, pkt_num, sender_pnum);
+                                dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
+                                return 0;
+                        }
+                }
+                con_printf(CON_VERBOSE, "P#%u: Rejecting MData pkt %i - expected %i by pnum %i",Player_num, pkt_num, UDP_mdata_trace[sender_pnum].pkt_num_torecv, sender_pnum);
+                return 0; // Not the right packet and we haven't gotten it, yet either. So bail out and wait for the right one.
+        }
+
+	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i by pnum %i",Player_num, pkt_num, sender_pnum);
 	dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
-	
-	range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_mdata_queue_highest))
-	{
-		if (pkt_num == i)
-			return 0; // we got this packet already
-	}
+
 	UDP_mdata_trace[sender_pnum].cur_slot++;
 	if (UDP_mdata_trace[sender_pnum].cur_slot >= UDP_MDATA_STOR_QUEUE_SIZE)
 		UDP_mdata_trace[sender_pnum].cur_slot = 0;
@@ -5105,7 +5245,7 @@ void net_udp_ping_frame(fix64 time)
 }
 
 // Got a PING from host. Apply the pings to our players and respond to host.
-void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	fix64 host_ping_time = 0;
 	array<uint8_t, UPID_PONG_SIZE> buf;
@@ -5129,7 +5269,7 @@ void net_udp_process_ping(const uint8_t *data, uint_fast32_t data_len, const _so
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
-void net_udp_process_pong(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	const uint_fast32_t playernum = data[1];
 	if (playernum >= MAX_PLAYERS || playernum < 1)

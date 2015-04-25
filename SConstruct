@@ -32,6 +32,44 @@ def get_Werror_string(l):
 		return '-W'
 	return '-Werror='
 
+class StaticSubprocess:
+	class CachedCall:
+		def __init__(self,out,err,returncode):
+			self.out = out
+			self.err = err
+			self.returncode = returncode
+	__call_cache = {}
+	@classmethod
+	def pcall(cls,args,stdout,stderr=None):
+		a = repr(args)
+		try:
+			return cls.__call_cache[a]
+		except KeyError:
+			pass
+		p = subprocess.Popen(args, executable=args[0], stdout=stdout, stderr=stderr, close_fds=True)
+		(o, e) = p.communicate()
+		cls.__call_cache[a] = c = cls.CachedCall(o, e, p.wait())
+		return c
+
+class Git(StaticSubprocess):
+	__missing_git = StaticSubprocess.CachedCall(None, None, 1)
+	__path_git = None
+	@classmethod
+	def pcall(cls,args,stdout,stderr=None):
+		git = cls.__path_git
+		if git is None:
+			cls.__path_git = git = (os.environ.get('GIT', 'git').split(),)
+		git = git[0]
+		if not git:
+			return cls.__missing_git
+		return StaticSubprocess.pcall(git + args, stdout=stdout, stderr=stderr)
+	@classmethod
+	def spcall(cls,args,stdout,stderr=None):
+		g = cls.pcall(args, stdout, stderr)
+		if g.returncode:
+			return None
+		return g.out
+
 class ConfigureTests:
 	class Collector:
 		def __init__(self):
@@ -49,7 +87,7 @@ class ConfigureTests:
 		def restore(self,env):
 			env.Replace(**self.flags)
 			if self.CCACHE_PREFIX:
-				env['ENV']['CCACHE_PREFIX'] = CCACHE_PREFIX
+				env['ENV']['CCACHE_PREFIX'] = self.CCACHE_PREFIX
 		def __getitem__(self,key):
 			return self.flags.__getitem__(key)
 	class ForceVerboseLog:
@@ -65,6 +103,77 @@ class ConfigureTests:
 		def restore(self,env):
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
+	class pkgconfig:
+		__pkg_config_path_cache = {}
+		__pkg_config_data_cache = {}
+		@staticmethod
+		def _get_pkg_config_name(user_settings):
+			p = user_settings.PKG_CONFIG
+			if p is not None:
+				return p
+			p = user_settings.CHOST
+			if p:
+				return p + '-pkg-config'
+			return 'pkg-config'
+		@staticmethod
+		def _get_pkg_config_exec_path(context,message,pkgconfig):
+			if not pkgconfig:
+				message("pkg-config is disabled by user settings")
+				return pkgconfig
+			if os.sep in pkgconfig:
+				message("using pkg-config at user specified path %s" % pkgconfig)
+				return pkgconfig
+			# No path specified, search in $PATH
+			for p in os.environ.get('PATH', '').split(os.pathsep):
+				fp = os.path.join(p, pkgconfig)
+				try:
+					os.close(os.open(fp, os.O_RDONLY))
+				except OSError as e:
+					# Ignore on permission errors.  If pkg-config is
+					# runnable but not readable, the user must
+					# specify its path.
+					if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+						continue
+					raise
+				message("using pkg-config at discovered path %s" % fp)
+				return fp
+			message("no usable pkg-config %r found in $PATH" % pkgconfig)
+		@classmethod
+		def _get_pkg_config_path(cls,context,message,user_settings,display_name):
+			pkgconfig = cls._get_pkg_config_name(user_settings)
+			cache = cls.__pkg_config_path_cache
+			try:
+				return cache[pkgconfig]
+			except KeyError:
+				pass
+			cache[pkgconfig] = path = cls._get_pkg_config_exec_path(context, message, pkgconfig)
+			return path
+		@classmethod
+		def _find_pkg_config(cls,context,message,user_settings,pkgconfig_name,display_name):
+			message("checking %s pkg-config %s" % (display_name, pkgconfig_name))
+			pkgconfig = cls._get_pkg_config_path(context, message, user_settings, display_name)
+			if not pkgconfig:
+				message("skipping %s pkg-config" % display_name)
+				return {}
+			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
+			cache = cls.__pkg_config_data_cache
+			try:
+				flags = cache[cmd]
+				message("reusing %s settings from `%s`" % (display_name, cmd))
+				return flags
+			except KeyError as e:
+				message("reading %s settings from `%s`" % (display_name, cmd))
+				try:
+					flags = context.env.ParseFlags('!' + cmd)
+				except OSError as o:
+					message("%s pkg-config failed; user must add required flags via environment for `%s`" % (display_name, cmd))
+					flags = {}
+				cache[cmd] = flags
+				return flags
+		@classmethod
+		def merge(cls,context,message,user_settings,pkgconfig_name,display_name):
+			flags = cls._find_pkg_config(context, message, user_settings, pkgconfig_name, display_name)
+			return {k:v for k,v in flags.items() if v and (k[0] == 'C' or k[0] == 'L')}
 	# Force test to report failure
 	sconf_force_failure = 'force-failure'
 	# Force test to report success, and modify flags like it
@@ -80,14 +189,17 @@ class ConfigureTests:
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
-	def __init__(self,msgprefix,user_settings):
+	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
+		self.platform_settings = platform_settings
 		self.successful_flags = {}
 		self.__cxx_conformance = None
 		self.__automatic_compiler_tests = {
 			'.cpp': self.check_cxx_works,
 		}
+	def message(self,msg):
+		print "%s: %s" % (self.msgprefix, msg)
 	@classmethod
 	def describe(cls,name):
 		f = getattr(cls, name)
@@ -131,7 +243,7 @@ class ConfigureTests:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
 			return
 		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
-		context.env.Append(**successflags)
+		context.env.MergeFlags(successflags)
 		frame = None
 		forced = None
 		try:
@@ -196,20 +308,24 @@ class ConfigureTests:
 		else:
 			env_flags.restore(context.env)
 		return r
-	def _check_system_library(self,context,header,main,lib,successflags={}):
+	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
 		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
 			return
-		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1]):
-			raise SCons.Errors.StopError("Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1]):
-			raise SCons.Errors.StopError("Header %s is parseable, but cannot compile the test program." % (header[-1]))
-		raise SCons.Errors.StopError("Header %s is missing or unusable." % (header[-1]))
+		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1], testflags=successflags):
+			return (0, "Header %s is usable, but library %s is not usable." % (header[-1], lib))
+		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1], testflags=successflags):
+			return (1, "Header %s is parseable, but cannot compile the test program." % (header[-1]))
+		return (2, "Header %s is missing or unusable." % (header[-1]))
+	def _check_system_library(self,*args,**kwargs):
+		e = self._soft_check_system_library(*args, **kwargs)
+		if e:
+			raise SCons.Errors.StopError(e[1])
 	@_custom_test
 	def check_libphysfs(self,context):
-		self._check_system_library(context,header=['physfs.h'],main='''
+		main = '''
 	PHYSFS_File *f;
 	char b[1] = {0};
 	PHYSFS_init("");
@@ -221,12 +337,21 @@ class ConfigureTests:
 	PHYSFS_sint64 r = PHYSFS_read(f, b, 1, 1);
 	(void)r;
 	PHYSFS_close(f);
-''',
-			lib='physfs',
-			successflags={'LIBS' : ('physfs',)}
-		)
+'''
+		l = ['physfs']
+		successflags = {'LIBS' : l}
+		e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+		if not e:
+			return
+		if e[0] == 0:
+			self.message("physfs header usable; adding zlib and retesting library")
+			l.append('z')
+			e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+		if e:
+			raise SCons.Errors.StopError(e[1])
 	@_custom_test
 	def check_libSDL(self,context):
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl', 'SDL')
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_CDROM | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
@@ -234,7 +359,7 @@ class ConfigureTests:
 	SDL_FreeRW(ops);
 	SDL_Quit();
 ''',
-			lib='SDL'
+			lib='SDL', successflags=successflags
 		)
 	@_custom_test
 	def check_SDL_mixer(self,context):
@@ -245,7 +370,7 @@ class ConfigureTests:
 		if not self.user_settings.sdlmixer:
 			return
 		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
-		successflags = {}
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'SDL_mixer', 'SDL_mixer')
 		if self.user_settings.host_platform == 'darwin':
 			successflags['FRAMEWORKS'] = ['SDL_mixer']
 			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL_mixer.framework/Headers'), '/Library/Frameworks/SDL_mixer.framework/Headers']
@@ -268,32 +393,33 @@ help:assume C++ compiler works
 			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
-	def check_compiler_redundant_decl_warning(self,context):
-		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'redundant-decls']}
-		# Test for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15867
+	def check_compiler_template_parentheses_warning(self,context):
+		# Test for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=51064
 		text = '''
-template <typename>
-struct A {
-	int a(){return 0;}
-};
-template <>
-int A<int>::a(){return 1;}
+template <unsigned S1, unsigned S2 = ((S1 + 4 - 1) & ~(4 - 1))>
+struct T {};
 '''
-		if self.Compile(context, text=text, msg='whether C++ compiler treats specializations as distinct', successflags=f):
+		main = 'T<3> t;(void)t;'
+		if self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler accepts parenthesized template computations', testflags={'CXXFLAGS' : ['-Wparentheses']}) or \
+			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-parentheses', successflags={'CXXFLAGS' : ['-Wno-parentheses']}):
 			return
-		if self.Compile(context, text='int a();int a();', msg='whether C++ compiler implements -Wredundant-decls', testflags=f, expect_failure=True):
-			return
-		self.Compile(context, text='int a();', msg='whether C++ compiler accepts -Wredundant-decls', testflags=f)
+		raise SCons.Errors.StopError("C++ compiler errors on template computed expressions, even with -Wno-parentheses.")
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
-		f = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'missing-field-initializers']}
+		f = {'CXXFLAGS' : ['-Wmissing-field-initializers']}
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
 		if not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler warns for {} initialization', testflags=f, expect_failure=True) or \
 			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags={'CXXFLAGS' : ['-Wno-missing-field-initializers']}) or \
 			not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
-		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers")
+		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
+	@_custom_test
+	def check_compiler_visibility_hidden(self,context):
+		'''
+help:assume compiler accepts -fvisibility=hidden
+'''
+		self.Compile(context, text='', main='', msg='whether compiler accepts -fvisibility=hidden', successflags={'CXXFLAGS' : ['-fvisibility=hidden']})
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
@@ -644,8 +770,8 @@ help:assume Boost.Foreach works
 struct A {};
 constexpr A a(){return {};}
 '''
-		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_CONSTEXPR']}):
-			context.sconf.Define('constexpr', self.comment_not_supported)
+		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr'):
+			raise SCons.Errors.StopError("C++ compiler does not support constexpr.")
 	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
@@ -788,7 +914,7 @@ help:assume compiler supports variadic template-based constructor forwarding
 		macro_value = self._quote_macro_value('''
     template <typename... Args>
         D(Args&&... args) :
-            B,##__VA_ARGS__{std::forward<Args>(args)...} {}
+            B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 ''')
 		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
 			return macro_value
@@ -1213,74 +1339,12 @@ class DXXCommon(LazyObjectConstructor):
 		tools = None
 		ogllibs = ''
 		platform_objects = []
-		__pkg_config_path = None
-		__pkg_config_cache = {}
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
 		@property
 		def env(self):
 			return self.__program.env
-		@staticmethod
-		def get_pkg_config_name(user_settings):
-			if user_settings.PKG_CONFIG:
-				return user_settings.PKG_CONFIG
-			else:
-				if user_settings.CHOST:
-					return '%s-pkg-config' % user_settings.CHOST
-				else:
-					return 'pkg-config'
-		@classmethod
-		def get_pkg_config_path(cls,program):
-			if cls.__pkg_config_path:
-				return cls.__pkg_config_path[0]
-			pkgconfig = cls.get_pkg_config_name(program.user_settings)
-			if pkgconfig[0] != '/':
-				# Only valid on non-Windows
-				for p in os.environ.get('PATH', '').split(':'):
-					try:
-						fp = os.path.join(p, pkgconfig)
-						os.close(os.open(fp, os.O_RDONLY))
-						pkgconfig = fp
-						break
-					except OSError as e:
-						if e.errno == errno.ENOENT or e.errno == errno.EACCES:
-							continue
-						raise
-			if pkgconfig[0] != '/':
-				message(program, "no usable pkg-config \"%s\" found in $PATH" % pkgconfig)
-				pkgconfig = None
-			else:
-				message(program, "using pkg-config at %s" % pkgconfig)
-			cls.__pkg_config_path = (pkgconfig,)
-			return pkgconfig
-		@classmethod
-		def _find_pkg_config(cls,program,env,pkg,name):
-			pkgconfig = cls.get_pkg_config_path(program)
-			if not pkgconfig:
-				message(program, "skipping %s pkg-config settings" % name)
-				return {}
-			cmd = '%s --cflags --libs %s' % (pkgconfig,pkg)
-			cache = cls.__pkg_config_cache
-			try:
-				return cache[cmd]
-			except KeyError as e:
-				if (program.user_settings.verbosebuild != 0):
-					message(program, "reading %s settings from `%s`" % (name, cmd))
-				try:
-					flags = env.ParseFlags('!' + cmd)
-				except OSError as o:
-					message(program, "pkg-config failed; user must add required flags via environment for `%s`" % cmd)
-					flags = {}
-				cache[cmd] = flags
-				return flags
-		@staticmethod
-		def _merge_pkg_config(env,flags):
-			env.MergeFlags({k:flags[k] for k in flags.keys() if k[0] == 'C' or k[0] == 'L'})
-		def merge_SDL_mixer_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'SDL_mixer', 'SDL_mixer'))
-		def merge_sdl_config(self,program,env):
-			self._merge_pkg_config(env, self._find_pkg_config(program, env, 'sdl', 'SDL'))
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		ogllibs = ('opengl32',)
@@ -1343,8 +1407,7 @@ class DXXCommon(LazyObjectConstructor):
 		check_header_includes = os.path.join(builddir, 'check_header_includes.cpp')
 		if not self.__shared_header_file_list:
 			open(check_header_includes, 'wt')
-			git = subprocess.Popen(['git', 'ls-files', '-z', '--', '*.h'], executable='/usr/bin/git', stdout=subprocess.PIPE, close_fds=True)
-			headers = git.communicate(None)[0]
+			headers = Git.pcall(['ls-files', '-z', '--', '*.h'], stdout=subprocess.PIPE).out
 			excluded_directories = (
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
@@ -1391,10 +1454,10 @@ class DXXCommon(LazyObjectConstructor):
 		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
 		self.env.Command(source, None, self.write_pch_inclusion_file)
 
-	def _quote_cppdefine(self,s):
+	def _quote_cppdefine(self,s,f=repr):
 		r = ''
 		prior = False
-		for c in str(s):
+		for c in f(s):
 			# No xdigit support in str
 			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
 				r += c
@@ -1447,7 +1510,8 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Append(CCFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', '-funsigned-char', Werror + 'format-security'])
+		self.env.Prepend(CXXFLAGS = ['-Wall', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'type-limits', Werror + 'missing-braces', Werror + 'uninitialized', Werror + 'empty-body', Werror + 'ignored-qualifiers', Werror + 'unused', Werror + 'format-security', Werror + 'redundant-decls'])
+		self.env.Append(CXXFLAGS = ['-funsigned-char'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
 		if (self.user_settings.editor == 1):
@@ -1492,12 +1556,6 @@ class DXXCommon(LazyObjectConstructor):
 		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = platform.tools)
-		# On Linux hosts, always run this.  It should work even when
-		# cross-compiling a Rebirth to run elsewhere.
-		if sys.platform == 'linux2' or sys.platform == 'darwin':
-			self.platform_settings.merge_sdl_config(self, self.env)
-			if self.user_settings.sdlmixer:
-				self.platform_settings.merge_SDL_mixer_config(self, self.env)
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
@@ -1512,12 +1570,9 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(CPPDEFINES = ['OGL'])
 
 		# debug?
-		if (self.user_settings.debug == 1):
-			message(self, "including: DEBUG")
-			env.Prepend(CXXFLAGS = ['-g'])
-		else:
+		if not self.user_settings.debug:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-		env.Prepend(CXXFLAGS = ['-O2'])
+		env.Prepend(CXXFLAGS = ['-g', '-O2'])
 		if self.user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
 			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
@@ -1669,7 +1724,7 @@ class DXXArchive(DXXCommon):
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = fs.Dir(self.user_settings.builddir or '.')
-		tests = ConfigureTests(self.program_message_prefix, self.user_settings)
+		tests = ConfigureTests(self.program_message_prefix, self.user_settings, self.platform_settings)
 		log_file=fs.File('sconf.log', builddir)
 		conf = self.env.Configure(custom_tests = {
 				k:getattr(tests, k) for k in tests.custom_tests
@@ -1922,12 +1977,12 @@ class DXXProgram(DXXCommon):
 	def prepare_environment(self):
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
-		self.env.Append(**archive.configure_added_environment_flags)
+		self.env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_pch_node(self.srcdir, archive.configure_pch_flags)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
 		# For PRIi64
 		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
-		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
+		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main']])
 
 	def banner(self):
 		VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
@@ -1967,34 +2022,27 @@ class DXXProgram(DXXCommon):
 	def compute_extra_version(cls):
 		c = cls._computed_extra_version
 		if c is None:
-			git = (os.environ.get('GIT', 'git')).split()
-			v = s = None
-			if git:
-				v = cls._compute_extra_version(git)
-				if v:
-					g = subprocess.Popen(git + ['status', '--short', '--branch'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-					(go, ge) = g.communicate(None)
-					if not g.wait():
-						s = go
-			cls._computed_extra_version = c = (v or '', s)
+			s = ds = None
+			v = cls._compute_extra_version()
+			if v:
+				s = Git.spcall(['status', '--short', '--branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				ds = Git.spcall(['diff', '--stat', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			cls._computed_extra_version = c = (v or '', s, ds)
 		return c
 
 	@classmethod
-	def _compute_extra_version(cls, git):
+	def _compute_extra_version(cls):
 		try:
-			g = subprocess.Popen(git + ['describe', '--tags', '--abbrev=8'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			g = Git.pcall(['describe', '--tags', '--abbrev=8'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				return None
 			raise
-		(go, ge) = g.communicate(None)
-		if g.wait():
+		if g.returncode:
 			return None
-		g = subprocess.Popen(git + ['diff', '--quiet', '--cached'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		c = g.wait()
-		g = subprocess.Popen(git + ['diff', '--quiet'], executable=git[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		d = g.wait()
-		return go.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
+		c = Git.pcall(['diff', '--quiet', '--cached'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
+		d = Git.pcall(['diff', '--quiet'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
+		return g.out.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
 
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
@@ -2023,10 +2071,9 @@ class DXXProgram(DXXCommon):
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
 		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
-		v = subprocess.Popen(env['CXX'].split(' ') + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		(so,se) = v.communicate(None)
-		if not v.returncode and (so or se):
-			v = (so or se).split('\n')[0]
+		v = StaticSubprocess.pcall(env['CXX'].split(' ') + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		if not v.returncode and (v.out or v.err):
+			v = (v.out or v.err).split('\n')[0]
 			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
 			versid_build_environ.append('CXX_version')
 		extra_version = self.user_settings.extra_version
@@ -2034,16 +2081,18 @@ class DXXProgram(DXXCommon):
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if self.VERSION_MICRO:
 				extra_version += '.%u' % self.VERSION_MICRO
-		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', ''))
+		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', '', ''))
 		if git_describe_version[0] and not (extra_version and (extra_version == git_describe_version[0] or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version[0]))):
 			# Suppress duplicate output
 			if extra_version:
 				extra_version += ' '
 			extra_version += git_describe_version[0]
 		if extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version)))
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version, f=str)))
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
+		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
+		versid_build_environ.append('git_diffstat')
 		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__

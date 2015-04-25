@@ -66,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NEWHOMER
 
 #if defined(DXX_BUILD_DESCENT_II)
-object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+array<object *, MAX_PLAYERS> Guided_missile;
 array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
@@ -482,7 +482,7 @@ void omega_charge_frame(void)
 	if (Omega_charge == MAX_OMEGA_CHARGE)
 		return;
 
-	if (!(player_has_weapon(OMEGA_INDEX, 0) & HAS_WEAPON_FLAG))
+	if (!player_has_primary_weapon(primary_weapon_index_t::OMEGA_INDEX).has_weapon())
 		return;
 
 	if (Player_is_dead)
@@ -737,7 +737,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		if (weapon_type == FUSION_ID) {
 			int	fusion_scale;
 #if defined(DXX_BUILD_DESCENT_I)
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				fusion_scale = 2;
 			else
 #endif
@@ -752,7 +752,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 #if defined(DXX_BUILD_DESCENT_I)
 			//	Fusion damage was boosted by mk on 3/27 (for reg 1.1 release), but we only want it to apply to single player games.
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				obj->ctype.laser_info.multiplier /= 2;
 #endif
 		}
@@ -943,7 +943,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 
 int		Muzzle_queue_index = 0;
 
-muzzle_info		Muzzle_data[MUZZLE_QUEUE_MAX];
+array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Determine if two objects are on a line of sight.  If so, return true, else return false.
@@ -952,7 +952,6 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
-	int			fate;
 
 	fq.p0						= &obj1->pos;
 	fq.startseg				= obj1->segnum;
@@ -962,16 +961,18 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= trans_type;
 
-	fate = find_vector_intersection(fq, hit_data);
-
-	if (fate == HIT_WALL)
-		return 0;
-	else if (fate == HIT_NONE)
-		return 1;
-	else
-		Int3();		//	Contact Mike: Oops, what happened?  What is fate?
+	switch(const auto fate = find_vector_intersection(fq, hit_data))
+	{
+		case HIT_NONE:
+			return 1;
+		case HIT_WALL:
+			return 0;
+		default:
+			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2->pos.x, obj2->pos.y, obj2->pos.z);
+		// Int3();		//	Contact Mike: Oops, what happened?  What is fate?
 						// 2 = hit object (impossible), 3 = bad starting point (bad)
-
+			break;
+	}
 	return 0;
 }
 
@@ -1220,7 +1221,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	vms_vector	*pnt;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	create_awareness_event(obj, PA_WEAPON_WALL_COLLISION);
+	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);
 #endif
 
 	// Find the initial position of the laser

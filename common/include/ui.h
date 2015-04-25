@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _UI_H
-#define _UI_H
+#pragma once
 
 #include "dxxsconf.h"
 #include "event.h"
@@ -37,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "window.h"
 #include "compiler-array.h"
+#include "compiler-type_traits.h"
 #include "ntstring.h"
 
 struct grs_bitmap;
@@ -63,7 +63,9 @@ struct UI_EVENT
 
 struct UI_GADGET
 {
-	short           kind;       \
+	uint8_t           kind;
+	short           x1,y1,x2,y2;
+	int             hotkey;
 	struct UI_GADGET  * prev;     \
 	struct UI_GADGET  * next;     \
 	struct UI_GADGET  * when_tab;  \
@@ -76,13 +78,11 @@ struct UI_GADGET
 	int             status;     \
 	int             oldstatus;  \
 	grs_subcanvas_ptr canvas;     \
-	int             hotkey;     \
-	short           x1,y1,x2,y2;
 };
 
 struct UI_GADGET_USERBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 7;
+	static constexpr tt::integral_constant<uint8_t, 7> s_kind{};
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -91,29 +91,29 @@ struct UI_GADGET_USERBOX : UI_GADGET
 	short           b1_drag_x1, b1_drag_y1;
 	short           b1_drag_x2, b1_drag_y2;
 	short           b1_done_dragging;
-	int             keypress;
 	short           mouse_onme;
 	short           mouse_x, mouse_y;
+	int             keypress;
 	grs_bitmap *    bitmap;
 };
 
 struct UI_GADGET_BUTTON : UI_GADGET
 {
-	static const uint8_t s_kind = 1;
+	static constexpr tt::integral_constant<uint8_t, 1> s_kind{};
 	std::string  text;
 	short           width, height;
 	short           position;
 	short           oldposition;
 	short           pressed;
+	uint8_t dim_if_no_function;
+	int				 hotkey1;
 	int          	 (*user_function)(void);
 	int          	 (*user_function1)(void);
-	int				 hotkey1;
-	int				 dim_if_no_function;
 };
 
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 6;
+	static constexpr tt::integral_constant<uint8_t, 6> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           length;
@@ -126,7 +126,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 
 struct UI_GADGET_RADIO : UI_GADGET
 {
-	static const uint8_t s_kind = 4;
+	static constexpr tt::integral_constant<uint8_t, 4> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -138,7 +138,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 
 struct UI_GADGET_ICON : UI_GADGET
 {
-	static const uint8_t s_kind = 9;
+	static constexpr tt::integral_constant<uint8_t, 9> s_kind{};
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -151,7 +151,7 @@ struct UI_GADGET_ICON : UI_GADGET
 
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 5;
+	static constexpr tt::integral_constant<uint8_t, 5> s_kind{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -163,7 +163,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 
 struct UI_GADGET_SCROLLBAR : UI_GADGET
 {
-	static const uint8_t s_kind = 3;
+	static constexpr tt::integral_constant<uint8_t, 3> s_kind{};
 	short           horz;
 	short           width, height;
 	int             start;
@@ -183,8 +183,8 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
-	static const uint8_t s_kind = 2;
-	char            **list;
+	static constexpr tt::integral_constant<uint8_t, 2> s_kind{};
+	const char            *const *list;
 	short           width, height;
 	int             num_items;
 	int             num_items_displayed;
@@ -256,10 +256,12 @@ public:
 class unused_ui_userdata_t;
 static unused_ui_userdata_t *const unused_ui_userdata = nullptr;
 
+UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata);
+
 template <typename T1, typename T2 = const void>
 UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, T1 *userdata, T2 *createdata = nullptr)
 {
-	return ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>::type>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
+	return untyped_ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>::type>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
 }
 
 template <typename T1, typename T2 = const void>
@@ -269,9 +271,6 @@ UI_DIALOG *ui_create_dialog(short x, short y, short w, short h, enum dialog_flag
 	userdata.release();
 	return r;
 }
-
-template <>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata);
 
 extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
@@ -330,8 +329,7 @@ extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
 extern void ui_gadget_calc_keys( UI_DIALOG * dlg);
 
-extern void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short numitems, char **list);
-
+void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, uint_fast32_t numitems, const char *const *list);
 
 extern void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox );
 std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text);
@@ -409,6 +407,3 @@ void ui_barbox_close();
 extern int ui_button_any_drawn;
 
 #endif
-
-#endif
-
