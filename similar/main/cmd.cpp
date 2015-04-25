@@ -122,7 +122,7 @@ void cvar_cmd_set(int argc, char **argv);
 
 
 /* execute a parsed command */
-void cmd_execute(int argc, char **argv)
+static void cmd_execute(int argc, char **argv)
 {
 	cmd_t *cmd;
 	cmd_alias_t *alias;
@@ -155,7 +155,7 @@ void cmd_execute(int argc, char **argv)
 
 
 /* Parse an input string */
-void cmd_parse(char *input)
+static void cmd_parse(char *input)
 {
 	char buffer[CMD_MAX_LENGTH];
 	char *tokens[CMD_MAX_TOKENS];
@@ -346,7 +346,7 @@ const char *cmd_complete(char *input)
 
 
 /* alias */
-void cmd_alias(int argc, char **argv)
+static void cmd_alias(int argc, char **argv)
 {
 	cmd_alias_t *alias;
 	char buf[CMD_MAX_LENGTH] = "";
@@ -395,7 +395,7 @@ void cmd_alias(int argc, char **argv)
 
 
 /* unalias */
-void cmd_unalias(int argc, char **argv)
+static void cmd_unalias(int argc, char **argv)
 {
 	cmd_alias_t *alias;
 
@@ -419,7 +419,7 @@ void cmd_unalias(int argc, char **argv)
 
 
 /* echo to console */
-void cmd_echo(int argc, char **argv)
+static void cmd_echo(int argc, char **argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
 	int i;
@@ -433,7 +433,7 @@ void cmd_echo(int argc, char **argv)
 }
 
 /* execute script */
-void cmd_exec(int argc, char **argv) {
+static void cmd_exec(int argc, char **argv) {
 	cmd_queue_t *item, *head, *tail;
 	PHYSFSX_gets_line_t<CMD_MAX_LENGTH> line;
 
@@ -476,7 +476,7 @@ void cmd_exec(int argc, char **argv) {
 
 
 /* get help */
-void cmd_help(int argc, char **argv)
+static void cmd_help(int argc, char **argv)
 {
 	cmd_t *cmd;
 
@@ -512,7 +512,7 @@ void cmd_help(int argc, char **argv)
 
 
 /* execute script */
-void cmd_wait(int argc, char **argv)
+static void cmd_wait(int argc, char **argv)
 {
 	if (argc > 2) {
 		cmd_insertf("help %s", argv[0]);
@@ -526,7 +526,7 @@ void cmd_wait(int argc, char **argv)
 }
 
 
-void cmd_free(void)
+static void cmd_free(void)
 {
 	while (Num_cmds--)
 		d_free(cmd_list[Num_cmds]);

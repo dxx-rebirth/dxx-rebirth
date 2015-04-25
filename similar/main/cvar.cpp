@@ -42,6 +42,8 @@ static void cvar_free(void)
 }
 
 
+void cvar_cmd_set(int argc, char **argv); // hack; this should be static, but is used by cmd_execute
+
 void cvar_cmd_set(int argc, char **argv)
 {
 	char buf[CVAR_MAX_LENGTH];
