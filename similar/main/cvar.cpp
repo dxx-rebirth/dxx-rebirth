@@ -172,8 +172,12 @@ void cvar_set_cvarf(cvar_t *cvar, const char *fmt, ...)
 	n = vsnprintf(buf, sizeof(buf), fmt, arglist);
 	va_end (arglist);
 	
-	Assert(!(n < 0 || n > CVAR_MAX_LENGTH));
-	
+	if (n < 0 || n > CVAR_MAX_LENGTH) {
+		Int3();
+		con_printf(CON_CRITICAL, "error setting cvar %s", cvar->name);
+		return;
+	}
+
 	cvar_set_cvar(cvar, buf);
 }
 
