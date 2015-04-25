@@ -196,7 +196,7 @@ public:
 protected:
 	template <typename A>
 		valptr_t(A &a, I i) :
-			p(&a[check_index_range(a, i)])
+			p(i != ~static_cast<I>(0) ? &a[check_index_range(a, i)] : nullptr)
 		{
 		}
 	pointer_type p;
@@ -373,7 +373,7 @@ public:
 	{
 	}
 	valptridx_template_t(index_type s) :
-		vptr_type(get_array(), static_cast<std::size_t>(s) < get_array().size() ? &get_array()[s] : NULL),
+		vptr_type(get_array(), s),
 		vidx_type(get_array(), s)
 	{
 	}
@@ -400,6 +400,7 @@ template <typename P, typename I>
 class vvalptr_t : public valptr_t<P, I>
 {
 	typedef valptr_t<P, I> base_t;
+	using base_t::check_index_range;
 	using base_t::check_null_pointer;
 	typedef typename base_t::Prc Prc;
 protected:
@@ -440,7 +441,7 @@ public:
 	}
 	template <typename A>
 		vvalptr_t(A &a, I i) :
-			base_t(a, i)
+			base_t(a, check_index_range(a, i))
 	{
 	}
 	vvalptr_t(pointer_type p) :

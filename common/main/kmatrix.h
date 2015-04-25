@@ -23,16 +23,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _KMATRIX_H
-#define _KMATRIX_H
+#pragma once
 
 #include "maths.h"
 
 #ifdef __cplusplus
 
-void kmatrix_view(int network);
+enum class kmatrix_result
+{
+	abort,
+	proceed,
+};
+
+kmatrix_result kmatrix_view(int network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
+kmatrix_result multi_endlevel_score();
 
 #endif
-
-#endif /* _KMATRIX_H */

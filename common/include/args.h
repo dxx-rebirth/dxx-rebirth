@@ -29,7 +29,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 
 bool InitArgs(int argc, char **argv);
-extern void args_exit();
+
+#ifdef OGL
+// GL Sync methods
+typedef enum {
+	SYNC_GL_NONE=0,
+	SYNC_GL_FENCE,
+	SYNC_GL_FENCE_SLEEP,
+	SYNC_GL_FINISH_AFTER_SWAP,
+	SYNC_GL_FINISH_BEFORE_SWAP,
+	SYNC_GL_AUTO
+} SyncGLMethod;
+
+#define OGL_SYNC_METHOD_DEFAULT		SYNC_GL_AUTO
+#define OGL_SYNC_WAIT_DEFAULT		2		/* milliseconds */
+
+#endif
 
 // Struct that keeps all variables used by FindArg
 // Prefixes are:
@@ -42,6 +57,7 @@ extern void args_exit();
 //   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include <string>
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 
@@ -51,10 +67,12 @@ struct Arg
 	int SysNoNiceFPS;
 	int SysMaxFPS;
 	int SysNoHogDir;
-	const char *SysHogDir;
 	int SysUsePlayersDir;
 	int SysLowMem;
-	const char *SysPilot;
+	std::string SysHogDir;
+	std::string SysPilot;
+	std::string SysRecordDemoNameTemplate;
+	bool SysAutoRecordDemo;
 	int SysWindow;
 	int SysNoBorders;
 	int SysAutoDemo;
@@ -83,19 +101,21 @@ struct Arg
 	int GfxSkipHiresFNT;
 #ifdef OGL
 	int OglFixedFont;
+	SyncGLMethod OglSyncMethod;
+	int OglSyncWait;
 #endif
-	const char *MplUdpHostAddr;
+	std::string MplUdpHostAddr;
 	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER
 	uint16_t MplTrackerPort;
-	const char *MplTrackerAddr;
+	std::string MplTrackerAddr;
 #endif
 #ifdef DXX_BUILD_DESCENT_I
 	int EdiNoBm;
 #endif
 #ifdef DXX_BUILD_DESCENT_II
-	const char *EdiAutoLoad;
+	std::string EdiAutoLoad;
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build
 #endif
@@ -104,8 +124,8 @@ struct Arg
 	int DbgNoRun;
 	int DbgForbidConsoleGrab;
 	int DbgRenderStats;
-	const char *DbgAltTex;
-	const char *DbgTexMap;
+	std::string DbgAltTex;
+	std::string DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgNoDoubleBuffer;
 	int DbgNoCompressPigBitmap;

@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "game.h"
 #include "powerup.h"
+#include "hudmsg.h"
 #include "cntrlcen.h"
 #include "gauges.h"
 #include "key.h"
@@ -74,7 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 static void say_escort_goal(int goal_num);
-static void show_escort_menu(char *msg);
+static void show_escort_menu(const array<char, 300> &);
 
 
 static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
@@ -345,9 +346,9 @@ void change_guidebot_name()
 {
 	int item;
 	auto text = PlayerCfg.GuidebotName;
-	array<newmenu_item, 1> m{
+	array<newmenu_item, 1> m{{
 		nm_item_input(text),
-	};
+	}};
 	item = newmenu_do(NULL, "Enter Guide-bot name:", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 	if (item != -1) {
@@ -1157,7 +1158,7 @@ void recreate_thief(const vobjptr_t objp)
 	auto new_obj = create_morph_robot( &Segments[segnum], center_point, objp->id);
 	if (new_obj == object_none)
 		return;
-	init_ai_object(new_obj, AIB_SNIPE, segment_none);
+	init_ai_object(new_obj, ai_behavior::AIB_SNIPE, segment_none);
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
 }
 
@@ -1186,8 +1187,8 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 	switch (ailp->mode) {
 		case AIM_THIEF_WAIT:
-			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
-				ailp->player_awareness_type = 0;
+			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
+				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
@@ -1216,12 +1217,12 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 			if (ailp->next_action_time < 0) {
 				ailp->mode = AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
-			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
+			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
-				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= PA_PLAYER_COLLISION)) {
+				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
-						ailp->player_awareness_type = 0;
+						ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 						create_n_segment_path(objp, 10, ConsoleObject->segnum);
 
 						//	If path is real short, try again, allowing to go through player's segment
@@ -1247,8 +1248,8 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 		//	Note: When thief successfully steals something, his action time is forced negative and his mode is changed
 		//			to retreat to get him out of attack mode.
 		case AIM_THIEF_ATTACK:
-			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
-				ailp->player_awareness_type = 0;
+			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
+				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				if (d_rand() > 8192) {
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -1552,7 +1553,7 @@ void drop_stolen_items(const vcobjptr_t objp)
 // --------------------------------------------------------------------------------------------------------------
 struct escort_menu : ignore_window_pointer_t
 {
-	char	msg[300];
+	array<char, 300> msg;
 };
 
 static window_event_result escort_menu_keycommand(window *wind,const d_event &event, escort_menu *)
@@ -1612,6 +1613,7 @@ static window_event_result escort_menu_handler(window *wind,const d_event &event
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			d_free(menu);
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;
@@ -1713,7 +1715,7 @@ void do_escort_menu(void)
 	else
 		tstr =  "Enable";
 
-	sprintf(menu->msg,	"Select Guide-Bot Command:\n\n\n"
+	snprintf(menu->msg.data(), menu->msg.size(), "Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
 						"2.  Find Energy Center" CC_LSPACING_S "3\n\n"
@@ -1731,8 +1733,9 @@ void do_escort_menu(void)
 
 //	-------------------------------------------------------------------------------
 //	Show the Buddy menu!
-void show_escort_menu(char *msg)
+void show_escort_menu(const array<char, 300> &amsg)
 {	
+	const auto msg = amsg.data();
 	int	w,h,aw;
 	int	x,y;
 

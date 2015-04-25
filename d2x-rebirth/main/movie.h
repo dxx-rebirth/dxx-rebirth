@@ -37,8 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_ABORTED       2   // movie started by was aborted
 
 #ifdef OGL
-#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie&&grd_curscreen->sc_w<640?640:grd_curscreen->sc_w)
-#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie&&grd_curscreen->sc_h<480?480:grd_curscreen->sc_h)
+#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_width() < 640 ? 640: grd_curscreen->get_screen_width())
+#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_height() < 480 ? 480: grd_curscreen->get_screen_height())
 #else
 #define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie?640:320)
 #define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie?480:200)

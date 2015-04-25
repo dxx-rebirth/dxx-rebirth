@@ -66,7 +66,7 @@ using std::max;
 
 static int Do_dynamic_light=1;
 static int use_fcd_lighting;
-g3s_lrgb Dynamic_light[MAX_VERTICES];
+array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
@@ -240,10 +240,11 @@ static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices,
 }
 
 // Translation table to make flares flicker at different rates
-static const fix Obj_light_xlate[16] = { 0x1234, 0x3321, 0x2468, 0x1735,
+const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x0123, 0x19af, 0x3f03, 0x232a,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
-			    0x3123, 0x29af, 0x1f03, 0x032a };
+			    0x3123, 0x29af, 0x1f03, 0x032a
+}};
 #define MAX_HEADLIGHTS	8
 static unsigned Num_headlights;
 static array<object *, MAX_HEADLIGHTS> Headlights;
@@ -284,7 +285,7 @@ static g3s_lrgb compute_light_emission(int objnum)
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
 				auto sthrust = vm_vec_copy_scale(obj->mtype.phys_info.velocity,k);
-				light_intensity = max(vm_vec_mag_quick(sthrust)/4, F1_0*2) + F1_0/2;
+				light_intensity = max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F1_0*2) + F1_0/2;
 			}
 			break;
 		case OBJ_FIREBALL:
@@ -604,7 +605,7 @@ g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 }
 
 g3s_lrgb object_light[MAX_OBJECTS];
-int object_sig[MAX_OBJECTS];
+static array<object_signature_t, MAX_OBJECTS> object_sig;
 object *old_viewer;
 int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up

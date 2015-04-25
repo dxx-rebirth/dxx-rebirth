@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "interp.h"
 #include "fireball.h"
 #include "laser.h"
@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fuelcen.h"
 #include "endlevel.h"
+#include "hudmsg.h"
 #include "sounds.h"
 #include "collide.h"
 #include "lighting.h"
@@ -127,29 +128,6 @@ int print_object_info = 0;
 //object * Slew_object = NULL;	// Object containing slew object info.
 
 //--unused-- int Player_controller_type = 0;
-
-#if defined(EDITOR) || !defined(NDEBUG)
-const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names{{
-	"WALL    ",
-	"FIREBALL",
-	"ROBOT   ",
-	"HOSTAGE ",
-	"PLAYER  ",
-	"WEAPON  ",
-	"CAMERA  ",
-	"POWERUP ",
-	"DEBRIS  ",
-	"CNTRLCEN",
-	"FLARE   ",
-	"CLUTTER ",
-	"GHOST   ",
-	"LIGHT   ",
-	"COOP    ",
-#if defined(DXX_BUILD_DESCENT_II)
-	"MARKER  ",
-#endif
-}};
-#endif
 
 #ifndef RELEASE
 //set viewer object to next object in array
@@ -507,7 +485,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			//	Snipers get bright when they fire.
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
 			if (ailp->next_fire < F1_0/8) {
-				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
+				if (obj->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 				{
 					light.r = 2*light.r + F1_0;
 					light.g = 2*light.g + F1_0;
@@ -693,7 +671,6 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 //	Render an object.  Calls one of several routines based on type
 void render_object(const vobjptridx_t obj)
 {
-	int mld_save;
 
 	if ( obj == Viewer )
 		return;
@@ -704,8 +681,9 @@ void render_object(const vobjptridx_t obj)
 		return;
 	}
 
-	mld_save = Max_linear_depth;
-	Max_linear_depth = Max_linear_depth_objects;
+#ifndef OGL
+	const auto mld_save = exchange(Max_linear_depth, Max_linear_depth_objects);
+#endif
 
 	switch (obj->render_type)
 	{
@@ -759,6 +737,48 @@ void render_object(const vobjptridx_t obj)
 #endif
 						gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 						break;
+					case POW_LASER:
+					case POW_KEY_BLUE:
+					case POW_KEY_RED:
+					case POW_KEY_GOLD:
+					case POW_MISSILE_1:
+					case POW_MISSILE_4:
+					case POW_QUAD_FIRE:
+					case POW_VULCAN_WEAPON:
+					case POW_SPREADFIRE_WEAPON:
+					case POW_PLASMA_WEAPON:
+					case POW_FUSION_WEAPON:
+					case POW_PROXIMITY_WEAPON:
+					case POW_HOMING_AMMO_1:
+					case POW_HOMING_AMMO_4:
+					case POW_SMARTBOMB_WEAPON:
+					case POW_MEGA_WEAPON:
+					case POW_VULCAN_AMMO:
+					case POW_TURBO:
+					case POW_MEGAWOW:
+#if defined(DXX_BUILD_DESCENT_II)
+					case POW_FULL_MAP:
+					case POW_HEADLIGHT:
+					case POW_GAUSS_WEAPON:
+					case POW_HELIX_WEAPON:
+					case POW_PHOENIX_WEAPON:
+					case POW_OMEGA_WEAPON:
+					case POW_SUPER_LASER:
+					case POW_CONVERTER:
+					case POW_AMMO_RACK:
+					case POW_AFTERBURNER:
+					case POW_SMISSILE1_1:
+					case POW_SMISSILE1_4:
+					case POW_GUIDED_MISSILE_1:
+					case POW_GUIDED_MISSILE_4:
+					case POW_SMART_MINE:
+					case POW_MERCURY_MISSILE_1:
+					case POW_MERCURY_MISSILE_4:
+					case POW_EARTHSHAKER_MISSILE:
+					case POW_FLAG_BLUE:
+					case POW_FLAG_RED:
+#endif
+						break;
 				}
 
 			draw_powerup(obj);
@@ -779,9 +799,9 @@ void render_object(const vobjptridx_t obj)
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);
-
+#ifndef OGL
 	Max_linear_depth = mld_save;
-
+#endif
 }
 
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
@@ -823,7 +843,7 @@ void init_player_object()
 	set_player_id(ConsoleObject, 0);					//no sub-types for player
 
 #if defined(DXX_BUILD_DESCENT_II)
-	ConsoleObject->signature = 0;			//player has zero, others start at 1
+	ConsoleObject->signature = object_signature_t{0};			//player has zero, others start at 1
 #endif
 	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
 
@@ -920,7 +940,7 @@ void obj_unlink(const vobjptridx_t obj)
 }
 
 // Returns a new, unique signature for a new object
-int obj_get_signature()
+object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
@@ -930,12 +950,12 @@ int obj_get_signature()
 			lsig = 0;
 		++ lsig;
 		const auto predicate = [lsig](const vcobjptridx_t &o) {
-			return o->type != OBJ_NONE && o->signature == lsig;
+			return o->type != OBJ_NONE && o->signature.get() == lsig;
 		};
 		if (std::find_if(range.begin(), range.end(), predicate) != range.end())
 			continue;
 		sig = static_cast<int16_t>(lsig);
-		return static_cast<int32_t>(lsig);
+		return object_signature_t{static_cast<uint16_t>(lsig)};
 	}
 }
 
@@ -1089,7 +1109,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return object_none;
 
-	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(pos, segnum, 0).centermask != 0)
 	{
 		auto p = find_point_seg(pos,segnum);
 		if (p == segment_none) {
@@ -1256,8 +1276,6 @@ void obj_delete(const vobjptridx_t obj)
 	Assert(Objects[0].next != 0);
 	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 	obj->type = OBJ_NONE;		//unused!
-	obj->signature = -1;
-
 	obj_free(obj);
 }
 
@@ -1473,7 +1491,7 @@ void dead_player_frame(void)
 static void start_player_death_sequence(const vobjptr_t player)
 {
 	Assert(player == ConsoleObject);
-	if ((Player_is_dead != 0) || (Dead_player_camera != NULL))
+	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)))
 		return;
 
 	//Assert(Player_is_dead == 0);
@@ -1698,7 +1716,7 @@ static void object_move_one(const vobjptridx_t obj)
 
 		default:
 
-			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature, obj->type, obj->id);
+			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature.get(), obj->type, obj->id);
 
 			break;
 
@@ -1731,19 +1749,26 @@ static void object_move_one(const vobjptridx_t obj)
 	// also check in player under a lavafall
 	if (obj->type == OBJ_PLAYER && obj->movement_type==MT_PHYSICS)	{
 
-		if (previous_segment != obj->segnum) {
+		if (previous_segment != obj->segnum && n_phys_segs > 1)
+		{
+			auto seg0 = vsegptridx(phys_seglist[0]);
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			for (int i=0;i<n_phys_segs-1;i++) {
-				auto connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
+			range_for (const auto i, partial_range(phys_seglist, 1u, n_phys_segs))
+			{
+				const auto seg1 = vsegptridx(i);
+				const auto connect_side = find_connect_side(seg1, seg0);
 				if (connect_side != -1)
-					check_trigger(&Segments[phys_seglist[i]], connect_side, obj,0);
+				{
+					check_trigger(seg0, connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
 					return;
 #endif
+				}
+				seg0 = seg1;
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1751,7 +1776,7 @@ static void object_move_one(const vobjptridx_t obj)
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
 
-			sidemask = get_seg_masks(obj->pos, obj->segnum, obj->size, __FILE__, __LINE__).sidemask;
+			sidemask = get_seg_masks(obj->pos, obj->segnum, obj->size).sidemask;
 			if (sidemask) {
 				int sidenum,bit,wall_num;
 	
@@ -1762,7 +1787,7 @@ static void object_move_one(const vobjptridx_t obj)
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
 							if (!lavafall_hiss_playing[obj->id]) {
-								digi_link_sound_to_object3( sound, obj, 1, F1_0, i2f(256), -1, -1);
+								digi_link_sound_to_object3( sound, obj, 1, F1_0, vm_distance{i2f(256)}, -1, -1);
 								lavafall_hiss_playing[obj->id] = 1;
 							}
 						}
@@ -1948,6 +1973,14 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
+void set_powerup_id(const vobjptr_t o, powerup_type_t id)
+{
+	o->id = id;
+	o->size = Powerup_info[id].size;
+	const auto vclip_num = Powerup_info[id].vclip_num;
+	o->rtype.vclip_info.vclip_num = vclip_num;
+	o->rtype.vclip_info.frametime = Vclip[vclip_num].frame_time;
+}
 
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
@@ -2128,9 +2161,9 @@ void wake_up_rendered_objects(const vobjptridx_t viewer, window_rendered_data &w
 			if (objp->type == OBJ_ROBOT) {
 				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
-					if (ailp->player_awareness_type == 0) {
+					if (ailp->player_awareness_type == player_awareness_type_t::PA_NONE) {
 						objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_CAMERA_AWAKE;
-						ailp->player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
+						ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 						ailp->player_awareness_time = F1_0*3;
 						ailp->previous_visibility = 2;
 					}

@@ -21,19 +21,14 @@ void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
 extern int linedotscale;
-extern int ogl_brightness_ok;
-extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 extern int ogl_fullscreen;
 extern int r_upixelc;
 
 extern int GL_TEXTURE_2D_enabled;
-#define OGL_ENABLE2(a,f) {if (a ## _enabled!=1) {f;a ## _enabled=1;}}
-#define OGL_DISABLE2(a,f) {if (a ## _enabled!=0) {f;a ## _enabled=0;}}
 
-//#define OGL_ENABLE(a) OGL_ENABLE2(a,glEnable(a))
-//#define OGL_DISABLE(a) OGL_DISABLE2(a,glDisable(a))
-#define OGL_ENABLE(a) OGL_ENABLE2(GL_ ## a,glEnable(GL_ ## a))
-#define OGL_DISABLE(a) OGL_DISABLE2(GL_ ## a,glDisable(GL_ ## a))
+#define OGL_SET_FEATURE_STATE(G,V,F)	static_cast<void>(G != V && (G = V, F, 0))
+#define OGL_ENABLE(a)	OGL_SET_FEATURE_STATE(GL_##a##_enabled, 1, glEnable(GL_##a))
+#define OGL_DISABLE(a)	OGL_SET_FEATURE_STATE(GL_##a##_enabled, 0, glDisable(GL_##a))
 
 //#define OGL_TEXCLAMP() OGL_ENABLE2(GL_texclamp,glTexParameteri(GL_TEXTURE_2D,  GL_TEXTURE_WRAP_S, GL_CLAMP);glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,    GL_CLAMP);)
 //#define OGL_TEXREPEAT() OGL_DISABLE2(GL_texclamp,glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);)

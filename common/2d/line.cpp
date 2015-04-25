@@ -51,7 +51,9 @@ static void plot(int x,int y,int flag)
 
 static int gr_hline(int x1, int x2, int y)
 {
-	if (x1 > x2) EXCHG(x1,x2);
+	using std::swap;
+	if (x1 > x2)
+		swap(x1,x2);
 	for (int i=x1; i<=x2; i++ )
 		gr_upixel( i, y );
 	return 0;
@@ -59,7 +61,8 @@ static int gr_hline(int x1, int x2, int y)
 
 static int gr_vline(int y1, int y2, int x)
 {
-	if (y1 > y2) EXCHG(y1,y2);
+	using std::swap;
+	if (y1 > y2) swap(y1,y2);
 	for (int i=y1; i<=y2; i++ )
 		gr_upixel( x, i );
 	return 0;
@@ -100,9 +103,10 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 		step = -1;
 
 	if (dy > dx) {          /* chooses axis of greatest movement (make * dx) */
-		EXCHG(a1, b1);
-		EXCHG(a2, b2);
-		EXCHG(dx, dy);
+		using std::swap;
+		swap(a1, b1);
+		swap(a2, b2);
+		swap(dx, dy);
 		reverse = 1;
 	} else
 		reverse = 0;
@@ -263,7 +267,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2)
 
 
 //unclipped version just calls clipping version for now
-int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
+void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
@@ -272,32 +276,27 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 #ifdef OGL
 	case BM_OGL:
 		ogl_ulinec(a1,b1,a2,b2,COLOR);
-		return 0;
+		return;
 #endif
 	case BM_LINEAR:
 		gr_universal_uline( a1,b1,a2,b2);
-		return 0;
+		return;
 	}
-	return 2;
+	return;
 }
 
 // Returns 0 if drawn with no clipping, 1 if drawn but clipped, and
 // 2 if not drawn at all.
 
-int gr_line(fix a1, fix b1, fix a2, fix b2)
+void gr_line(fix a1, fix b1, fix a2, fix b2)
 {
 	int x1, y1, x2, y2;
-	int clipped=0;
-
 	x1 = i2f(MINX);
 	y1 = i2f(MINY);
 	x2 = i2f(MAXX);
 	y2 = i2f(MAXY);
 
-	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FIXSCALE );
+	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return,, FIXSCALE );
 
 	gr_uline( a1, b1, a2, b2 );
-
-	return clipped;
-
 }

@@ -42,7 +42,7 @@ struct RWops_delete
 {
 	void operator()(SDL_RWops *o) const
 	{
-		SDL_FreeRW(o);
+		SDL_RWclose(o);
 	}
 };
 

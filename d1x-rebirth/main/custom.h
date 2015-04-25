@@ -11,13 +11,14 @@
 #include "piggy.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
+#include "compiler-array.h"
 
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM            64
 
-extern int GameBitmapOffset[MAX_BITMAP_FILES];
-extern ubyte GameBitmapFlags[MAX_BITMAP_FILES];
+extern array<int, MAX_BITMAP_FILES> GameBitmapOffset;
 extern ubyte * Piggy_bitmap_cache_data;
 
 void load_custom_data(const d_fname &level_file);

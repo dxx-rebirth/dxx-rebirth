@@ -88,10 +88,10 @@ struct group_editor {
 	int     Groupside;
 } group_editor;
 
-group		GroupList[MAX_GROUPS+1];
-segment  *Groupsegp[MAX_GROUPS+1];
-int		Groupside[MAX_GROUPS+1];
-int		Group_orientation[MAX_GROUPS+1];
+array<group, MAX_GROUPS+1> GroupList;
+array<segment *, MAX_GROUPS+1> Groupsegp;
+array<int, MAX_GROUPS+1> Groupside;
+array<int, MAX_GROUPS+1> Group_orientation;
 int		current_group=-1;
 unsigned num_groups;
 
@@ -1764,7 +1764,7 @@ int DeleteGroup( void )
 	if (num_groups==0)
 		current_group = -1;
 
-	strcpy(undo_status[Autosave_count], "Delete Group UNDONE.");
+	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)
        set_view_target_from_segment(Cursegp);
 
@@ -1787,7 +1787,7 @@ int MarkGroupSegment( void )
 		Groupside[current_group] = Curside;
 		editor_status("Group Segment Marked.");
 		Update_flags |= UF_ED_STATE_CHANGED;
-	   strcpy(undo_status[Autosave_count], "Mark Group Segment UNDONE.");
+		undo_status[Autosave_count] = "Mark Group Segment UNDONE.";
 		mine_changed = 1;
 		return 1;
 		}

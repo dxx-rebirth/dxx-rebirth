@@ -92,8 +92,8 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	height = (button_height*NumButtons) + (MENU_VERT_SPACING*(NumButtons-1)) ;
 	height += (MENU_BORDER+3) * 2;
 
-	w = grd_curscreen->sc_w;
-	h = grd_curscreen->sc_h;
+	w = grd_curscreen->get_screen_width();
+	h = grd_curscreen->get_screen_height();
 
 	{
 		int mx, my, mz;

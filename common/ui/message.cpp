@@ -63,7 +63,7 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 		gr_set_current_canvas( &grd_curscreen->sc_canvas );
 		temp_font = grd_curscreen->sc_canvas.cv_font;
 		
-		if ( grd_curscreen->sc_w < 640 ) 	{
+		if (grd_curscreen->get_screen_width() < 640) {
 			grd_curscreen->sc_canvas.cv_font = ui_small_font.get();
 		}
 		
@@ -110,8 +110,8 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	button_width = button_height = 0;
 
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
-	w = grd_curscreen->sc_w;
-	h = grd_curscreen->sc_h;
+	w = grd_curscreen->get_screen_width();
+	h = grd_curscreen->get_screen_height();
 
 	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{

@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 #include	"object.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "game.h"
 #include "powerup.h"
 #include "ai.h"
@@ -84,7 +84,7 @@ static void call_init_ai_object(const vobjptr_t objp, int behavior)
 {
 	segnum_t	hide_segment;
 
-	if (behavior == AIB_STATION)
+	if (behavior == ai_behavior::AIB_STATION)
 		hide_segment = Cursegp-Segments;
 	else {
 		if (Markedsegp != NULL)
@@ -95,7 +95,7 @@ static void call_init_ai_object(const vobjptr_t objp, int behavior)
 
 	init_ai_object(objp, behavior, hide_segment);
 
-	if (behavior == AIB_STATION) {
+	if (behavior == ai_behavior::AIB_STATION) {
 #if defined(DXX_BUILD_DESCENT_I)
 		objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
 		objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
@@ -122,7 +122,7 @@ static int RobotNextType()
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
-			call_init_ai_object(obj, AIB_NORMAL);
+			call_init_ai_object(obj, ai_behavior::AIB_NORMAL);
 
 			Cur_object_id = get_robot_id(obj);
 		}
@@ -151,7 +151,7 @@ static int RobotPrevType()
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
-			call_init_ai_object(obj, AIB_NORMAL);
+			call_init_ai_object(obj, ai_behavior::AIB_NORMAL);
 
 			Cur_object_id = get_robot_id(obj);
 		}
@@ -570,8 +570,8 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		if ( Cur_object_index != object_none ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
-				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
-				behavior = AIB_NORMAL;
+				Objects[Cur_object_index].ctype.ai_info.behavior = ai_behavior::AIB_NORMAL;
+				behavior = ai_behavior::AIB_NORMAL;
 			}
 			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR].get(), 1);
 		}

@@ -255,11 +255,11 @@ void side::set_type(unsigned t)
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
-struct delta_light {
+struct delta_light : prohibit_void_ptr<delta_light>
+{
 	segnum_t   segnum;
 	sbyte   sidenum;
-	sbyte   dummy;
-	ubyte   vert_light[4];
+	array<ubyte, 4>   vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)

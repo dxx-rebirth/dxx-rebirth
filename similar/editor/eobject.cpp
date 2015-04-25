@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "kdefs.h"
 #include	"object.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "game.h"
 #include "ai.h"
 #include "bm.h"
@@ -175,9 +175,9 @@ int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short ob
 				hide_segment = segment_none;
 			//	robots which lunge forward to attack cannot have behavior type still.
 			if (Robot_info[get_robot_id(obj)].attack_type)
-				init_ai_object(obj, AIB_NORMAL, hide_segment);
+				init_ai_object(obj, ai_behavior::AIB_NORMAL, hide_segment);
 			else
-				init_ai_object(obj, AIB_STILL, hide_segment);
+				init_ai_object(obj, ai_behavior::AIB_STILL, hide_segment);
 			}
 			break;
 		}
@@ -453,7 +453,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 	range_for (const auto segnum, highest_valid(Segments))
 	{
 		const auto segp = vsegptridx(segnum);
-		segmasks result = get_seg_masks(obj->pos, segp, 0, __FILE__, __LINE__);
+		segmasks result = get_seg_masks(obj->pos, segp, 0);
 
 		if (result.centermask == 0) {
 			int	fate;
@@ -488,7 +488,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 //	Return 0 if object is in expected segment, else return 1
 static int verify_object_seg(const vobjptridx_t objp, const vms_vector &newpos)
 {
-	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size);
 	if (result.facemask == 0)
 		return 0;
 	else
@@ -752,7 +752,7 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 
 static void move_object_to_position(const vobjptridx_t objp, const vms_vector &newpos)
 {
-	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size);
 
 	if (result.facemask == 0) {
 		objp->pos = newpos;

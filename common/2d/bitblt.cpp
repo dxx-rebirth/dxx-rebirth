@@ -399,7 +399,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4+(i*data_offset)];
 	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = 0; i != h; ++i)
@@ -422,7 +422,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4+(i*data_offset)];
 	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = 0; i != h; ++i)
@@ -446,7 +446,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		data_offset = 2;
 	auto sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += (int)(INTEL_SHORT(src.bm_data[4+(i*data_offset)]));
+		sbits += src.bm_data[4 + (i * data_offset)];
 
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{
@@ -505,7 +505,7 @@ void show_fullscr(grs_bitmap &bm)
 	auto &scr = grd_curcanv->cv_bitmap;
 #ifdef OGL
 	if(bm.bm_type == BM_LINEAR && scr.bm_type == BM_OGL &&
-		bm.bm_w <= grd_curscreen->sc_w && bm.bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
+		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
 		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;

@@ -327,9 +327,9 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	obj->shields = Robot_info[get_robot_id(obj)].strength;
 	
 #if defined(DXX_BUILD_DESCENT_I)
-	default_behavior = AIB_NORMAL;
+	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!
-		default_behavior = AIB_RUN_FROM;
+		default_behavior = ai_behavior::AIB_RUN_FROM;
 #elif defined(DXX_BUILD_DESCENT_II)
 	default_behavior = Robot_info[get_robot_id(obj)].behavior;
 #endif
@@ -339,7 +339,7 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	create_n_segment_path(obj, 6, segment_none);		//	Create a 6 segment path from creation point.
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (default_behavior == AIB_RUN_FROM)
+	if (default_behavior == ai_behavior::AIB_RUN_FROM)
 		obj->ctype.ai_info.ail.mode = AIM_RUN_FROM_OBJECT;
 #elif defined(DXX_BUILD_DESCENT_II)
 	obj->ctype.ai_info.ail.mode = ai_behavior_to_mode(default_behavior);
@@ -353,7 +353,6 @@ int Num_extry_robots = 15;
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc( FuelCenter * robotcen )
 {
-	fix		dist_to_player;
 	int		matcen_num;
 	fix		top_time;
 
@@ -409,7 +408,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 		else
 		{
 			const auto center = compute_segment_center(segp);
-			dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
+			const auto dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
 				top_time = ROBOT_GEN_TIME + d_rand();

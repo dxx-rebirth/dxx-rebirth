@@ -39,31 +39,21 @@ static int file_sort_func(char **e0, char **e1)
 	return d_stricmp(*e0, *e1);
 }
 
-
-char **file_getdirlist(int *NumDirs, const char *dir)
+static char **file_getdirlist(int *NumDirs, const char *dir)
 {
-	char	path[PATH_MAX];
+	ntstring<PATH_MAX - 1> path;
+	auto dlen = path.copy_if(dir);
+	if (!dlen || !path.copy_if(dlen, "/"))
+		return nullptr;
+	++ dlen;
 	char	**list = PHYSFS_enumerateFiles(dir);
 	char	**i, **j = list;
-	char	*test_filename;
-	unsigned		test_max;
-
 	if (!list)
 		return NULL;
-
-	strcpy(path, dir);
-	if (*path)
-		strncat(path, "/", PATH_MAX - strlen(dir));
-
-	test_filename = path + strlen(path);
-	test_max = PATH_MAX - (test_filename - path);
-
 	for (i = list; *i; i++)
 	{
-		if (strlen(*i) >= test_max)
+		if (!path.copy_if(dlen, *i))
 			continue;
-
-		strcpy(test_filename, *i);
 		if (PHYSFS_isDirectory(path))
 			*j++ = *i;
 		else
@@ -88,7 +78,7 @@ char **file_getdirlist(int *NumDirs, const char *dir)
 	return list;
 }
 
-char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
+static char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 {
 	char **list = PHYSFS_enumerateFiles(dir);
 	char **i, **j = list, *ext;
@@ -116,9 +106,10 @@ char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 	return list;
 }
 
-struct browser
+namespace {
+
+struct ui_file_browser
 {
-	char		view_dir[PATH_MAX];
 	char		*filename;
 	const char		*filespec;
 	const char		*message;
@@ -128,10 +119,13 @@ struct browser
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	int			num_files, num_dirs;
-	char		spaces[35];
+	array<char, 35> spaces;
+	char		view_dir[PATH_MAX];
 };
 
-static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
+}
+
+static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_browser *const b)
 {
 	int rval = 0;
 
@@ -143,7 +137,7 @@ static int browser_handler(UI_DIALOG *dlg,const d_event &event, browser *b)
 		ui_dprintf_at( dlg, 20, 86,"&Files" );
 		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 		
-		ui_dputs_at( dlg, 20, 60, b->spaces );
+		ui_dputs_at(dlg, 20, 60, b->spaces.data());
 		ui_dputs_at( dlg, 20, 60, b->view_dir );
 		
 		return 1;
@@ -269,7 +263,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	UI_DIALOG	*dlg;
 	window		*wind;
 	int			rval = 0;
-	auto b = make_unique<browser>();
+	auto b = make_unique<ui_file_browser>();
 	if ((p = strrchr(filename, '/')))
 	{
 		*p++ = 0;

@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "polyobj.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -74,8 +75,8 @@ struct robot_info : prohibit_void_ptr<robot_info>
 #if defined(DXX_BUILD_DESCENT_I)
 	int			n_guns;								// how many different gun positions
 #endif
-	vms_vector  gun_points[MAX_GUNS];   // where each gun model is
-	ubyte   gun_submodels[MAX_GUNS];    // which submodel is each gun in?
+	array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
+	array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
 	short   exp2_vclip_num;
@@ -107,17 +108,17 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	fix     mass;           // how heavy is this thing?
 	fix     drag;           // how much drag does it have?
 
-	fix     field_of_view[NDL]; // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
-	fix     firing_wait[NDL];   //  time in seconds between shots
+	array<fix, NDL>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
+		firing_wait,   //  time in seconds between shots
 #if defined(DXX_BUILD_DESCENT_II)
-	fix     firing_wait2[NDL];  //  time in seconds between shots
+		firing_wait2,  //  time in seconds between shots
 #endif
-	fix     turn_time[NDL];     // time in seconds to rotate 360 degrees in a dimension
-	fix     max_speed[NDL];         //  maximum speed attainable by this robot
-	fix     circle_distance[NDL];   //  distance at which robot circles player
+		turn_time,     // time in seconds to rotate 360 degrees in a dimension
+		max_speed,         //  maximum speed attainable by this robot
+		circle_distance;   //  distance at which robot circles player
 
-	sbyte   rapidfire_count[NDL];   //  number of shots fired rapidly
-	sbyte   evade_speed[NDL];       //  rate at which robot can evade shots, 0=none, 4=very fast
+	array<int8_t, NDL>   rapidfire_count,   //  number of shots fired rapidly
+		evade_speed;       //  rate at which robot can evade shots, 0=none, 4=very fast
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
 
@@ -139,7 +140,6 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
 	ubyte   flags;          // misc properties
-	ubyte   pad[3];         // alignment
 
 	ubyte   deathroll_sound;    // if has deathroll, what sound?
 	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point
@@ -184,7 +184,7 @@ static inline int robot_is_thief(const robot_info *robptr)
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
 //the array of robots types
-extern robot_info Robot_info[MAX_ROBOT_TYPES];     // Robot info for AI system, loaded from bitmaps.tbl.
+extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
 #endif
 
 //how many kinds of robots
@@ -236,6 +236,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
  */
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
+void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 
 #endif
 

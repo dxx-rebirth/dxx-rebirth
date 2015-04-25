@@ -48,6 +48,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "render.h"
 #include "digi.h"
+#include "key.h"
+#include "mouse.h"
 #include "newmenu.h"
 #include "endlevel.h"
 #include "multi.h"
@@ -80,15 +82,24 @@ using std::plus;
 using std::minus;
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+const array<sbyte, 64> fades{{
+	1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,
+	16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,
+	31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,
+	16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1
+}};
 
-static const char invert_text[2][2] = { "N", "Y" };
+const array<char[2], 2> invert_text{{"N", "Y"}};
 joybutton_text_t joybutton_text;
 joyaxis_text_t joyaxis_text;
 static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
 static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
-static const ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
+const array<uint8_t, 19> system_keys{{
+	KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN,
+	// KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
+	KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK
+}};
 
 control_info Controls;
 
@@ -134,8 +145,8 @@ struct kc_menu : embed_window_pointer_t
 	const char	*title;
 	unsigned	nitems;
 	unsigned	citem;
-	int	old_jaxis[JOY_MAX_AXES];
-	int	old_maxis[3];
+	array<int, JOY_MAX_AXES>	old_jaxis;
+	array<int, 3>	old_maxis;
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
@@ -1295,12 +1306,12 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	Assert(event.type == EVENT_KEY_COMMAND);
 	keycode = event_key_get_raw(event);
 
-	if (!(key_properties[keycode].key_text))
+	auto e = end(system_keys);
+	if (unlikely(GameArg.CtlNoStickyKeys))
+		e = std::prev(e, 3);
+	const auto predicate = [keycode](uint8_t k) { return keycode == k; };
+	if (std::any_of(begin(system_keys), e, predicate))
 		return;
-
-	for (unsigned n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
-		if ( system_keys[n] == keycode )
-			return;
 
 	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
 }
@@ -1419,13 +1430,11 @@ static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix&
 }
 
 template <std::size_t N>
-static void adjust_axis_field(fix& time, const fix (&axes)[N], unsigned value, unsigned invert, const int& sensitivity)
+static void adjust_axis_field(fix& time, const array<fix, N> &axes, unsigned value, unsigned invert, const int& sensitivity)
 {
 	if (value == 255)
 		return;
-	if (value >= lengthof(axes))
-		throw std::out_of_range("value exceeds axes count");
-	fix amount = (axes[value]*sensitivity)/8;
+	fix amount = (axes.at(value) * sensitivity) / 8;
 	if ( !invert ) // If not inverted...
 		time -= amount;
 	else
@@ -1444,7 +1453,7 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
-	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;
+	int speed_factor = cheats.turbo?2:1;
 	static fix64 mouse_delta_time = 0;
 
 #ifndef NDEBUG
@@ -1470,7 +1479,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
-				for (i = 0, j = 0; i < 28; i += 3, j++)
+				for (uint_fast32_t i = 0, j = 0; i < 28; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_key_get_raw(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1489,7 +1498,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
-				for (i = 1, j = 0; i < 29; i += 3, j++)
+				for (uint_fast32_t i = 1, j = 0; i < 29; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_joystick_get_button(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1508,7 +1517,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
-				for (i = 2, j = 0; i < 30; i += 3, j++)
+				for (uint_fast32_t i = 2, j = 0; i < 30; i += 3, j++)
 					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_mouse_get_button(event))
 					{
 						Controls.state.select_weapon = j+1;
@@ -1554,7 +1563,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			{
 				int ax[3];
 				event_mouse_get_delta( event, &ax[0], &ax[1], &ax[2] );
-				for (i = 0; i <= 2; i++)
+				for (uint_fast32_t i = 0; i <= 2; i++)
 				{
 					int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
 					Controls.raw_mouse_axis[i] += ax[i];

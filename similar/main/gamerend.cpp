@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "multi.h"
+#include "hudmsg.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "powerup.h"
@@ -140,8 +141,8 @@ static void show_framerate()
 
 static void show_netplayerinfo()
 {
-	int x=0, y=0, color=0, eff=0;
-	static const char *const eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
+	int x=0, y=0, eff=0;
+	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
@@ -196,10 +197,7 @@ static void show_netplayerinfo()
 
 		y+=LINE_SPACING;
 
-		if (Game_mode & GM_TEAM)
-			color=get_team(i);
-		else
-			color=i;
+		const auto color = get_player_or_team_color(i);
 		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
@@ -539,7 +537,7 @@ static void show_extra_views()
 				do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
 		}
 		else
-			do_cockpit_window_view(0,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(0,WBU_WEAPON);
 	
 		if (DemoDoRight)
 		{
@@ -553,7 +551,7 @@ static void show_extra_views()
 			}
 		}
 		else
-			do_cockpit_window_view(1,0,WBU_WEAPON,NULL);
+			do_cockpit_window_view(1,WBU_WEAPON);
 		
 		DemoDoLeft=DemoDoRight=0;
 		DemoDoingLeft=DemoDoingRight=0;
@@ -579,7 +577,7 @@ static void show_extra_views()
 
 		if (Guided_missile[Player_num]) {		//used to be active
 			if (!PlayerCfg.GuidedInBigWindow)
-				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,WBU_STATIC);
 			Guided_missile[Player_num] = NULL;
 		}
 		if (choose_missile_viewer())
@@ -592,7 +590,7 @@ static void show_extra_views()
 			else {
 				clear_missile_viewer();
 				RenderingType=255;
-				do_cockpit_window_view(1,0,WBU_STATIC,NULL);
+				do_cockpit_window_view(1,WBU_STATIC);
 			}
 	}
 
@@ -613,7 +611,7 @@ static void show_one_extra_view(const int w)
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
 				RenderingType=255;
-				do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+				do_cockpit_window_view(w,WBU_WEAPON);
 				break;
 			case CV_REAR:
 				if (Rear_view) {		//if big window is rear view, show front here
@@ -628,7 +626,7 @@ static void show_one_extra_view(const int w)
 			case CV_ESCORT: {
 				auto buddy = find_escort();
 				if (buddy == object_none) {
-					do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
@@ -645,7 +643,7 @@ static void show_one_extra_view(const int w)
 				if (player!=-1 && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 					do_cockpit_window_view(w,&Objects[Players[Coop_view_player[w]].objnum],0,WBU_COOP,Players[Coop_view_player[w]].callsign);
 				else {
-					do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				break;

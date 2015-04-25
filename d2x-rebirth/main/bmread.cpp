@@ -972,45 +972,42 @@ static void bm_read_vclip(int skip)
 }
 
 // ------------------------------------------------------------------------------
-static void get4fix(fix *fixp)
+static void get4fix(array<fix, NDL> &fixp)
 {
 	char	*curtext;
-	int	i;
-
-	for (i=0; i<NDL; i++) {
+	range_for (auto &i, fixp)
+	{
 		curtext = strtok(NULL, space_tab);
-		fixp[i] = fl2f(atof(curtext));
+		i = fl2f(atof(curtext));
 	}
 }
 
 // ------------------------------------------------------------------------------
-static void get4byte(sbyte *bytep)
+static void get4byte(array<int8_t, NDL> &bytep)
 {
 	char	*curtext;
-	int	i;
-
-	for (i=0; i<NDL; i++) {
+	range_for (auto &i, bytep)
+	{
 		curtext = strtok(NULL, space_tab);
-		bytep[i] = atoi(curtext);
+		i = atoi(curtext);
 	}
 }
 
 // ------------------------------------------------------------------------------
 //	Convert field of view from an angle in 0..360 to cosine.
-static void adjust_field_of_view(fix *fovp)
+static void adjust_field_of_view(array<fix, NDL> &fovp)
 {
-	int		i;
 	fixang	tt;
 	float		ff;
-
-	for (i=0; i<NDL; i++) {
-		ff = - f2fl(fovp[i]);
+	range_for (auto &i, fovp)
+	{
+		ff = - f2fl(i);
 		if (ff > 179) {
 			ff = 179;
 		}
 		ff = ff/360;
 		tt = fl2f(ff);
-		fix_sincos(tt, NULL, &fovp[i]);
+		fix_sincos(tt, nullptr, &i);
 	}
 }
 
@@ -1087,9 +1084,7 @@ void bm_read_robot_ai(int skip)
 	get4byte(robptr->evade_speed);
 
 	robptr->always_0xabcd	= 0xabcd;
-
 	adjust_field_of_view(robptr->field_of_view);
-
 }
 
 //	----------------------------------------------------------------------------------------------
@@ -1150,7 +1145,7 @@ void bm_read_robot(int skip)
 	short 		weapon_type = 0, weapon_type2 = -1;
 	int			g,s;
 	char			name[ROBOT_NAME_LENGTH];
-	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0, behavior=AIB_NORMAL;
+	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0, behavior=ai_behavior::AIB_NORMAL;
 	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
 	fix			glow=0, aim=F1_0;
 	int			deathroll_sound = SOUND_BOSS_SHARE_DIE;	//default
@@ -1265,19 +1260,19 @@ void bm_read_robot(int skip)
 					flags |= RIF_BIG_RADIUS;
 			} else if (!d_stricmp( arg, "behavior" )) {
 				if (!d_stricmp(equal_ptr, "STILL"))
-					behavior = AIB_STILL;
+					behavior = ai_behavior::AIB_STILL;
 				else if (!d_stricmp(equal_ptr, "NORMAL"))
-					behavior = AIB_NORMAL;
+					behavior = ai_behavior::AIB_NORMAL;
 				else if (!d_stricmp(equal_ptr, "BEHIND"))
-					behavior = AIB_BEHIND;
+					behavior = ai_behavior::AIB_BEHIND;
 				else if (!d_stricmp(equal_ptr, "RUN_FROM"))
-					behavior = AIB_RUN_FROM;
+					behavior = ai_behavior::AIB_RUN_FROM;
 				else if (!d_stricmp(equal_ptr, "SNIPE"))
-					behavior = AIB_SNIPE;
+					behavior = ai_behavior::AIB_SNIPE;
 				else if (!d_stricmp(equal_ptr, "STATION"))
-					behavior = AIB_STATION;
+					behavior = ai_behavior::AIB_STATION;
 				else if (!d_stricmp(equal_ptr, "FOLLOW"))
-					behavior = AIB_FOLLOW;
+					behavior = ai_behavior::AIB_FOLLOW;
 				else
 					Int3();	//	Error.  Illegal behavior type for current robot.
 			} else if (!d_stricmp( arg, "name" )) {
@@ -1619,9 +1614,6 @@ void bm_read_player_ship(void)
 
 		arg = strtok( NULL, space_tab );
 	}
-
-	Assert(model_name != NULL);
-
 	if (First_multi_bitmap_num!=-1 && last_multi_bitmap_num==-1)
 		last_multi_bitmap_num=N_ObjBitmapPtrs;
 

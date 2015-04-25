@@ -37,7 +37,6 @@ double		fCanv_h2;
 //vertex buffers for polygon drawing and clipping
 
 //list of 2d coords
-fix Vertex_list[MAX_POINTS_IN_POLY*2];
 
 
 

@@ -135,21 +135,19 @@ static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
 
 static void kmatrix_draw_names(playernum_array_t &sorted)
 {
-	int x, color;
+	int x;
 
 	for (int j=0; j<N_players; j++)
 	{
-		if (Game_mode & GM_TEAM)
-			color = get_team(sorted[j]);
-		else
-			color = sorted[j];
-
 		x = FSPACX (70 + CENTERING_OFFSET(N_players) + j*25);
 
 		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
+		{
+			const auto color = get_player_or_team_color(sorted[j]);
 			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		}
 
 		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0u] );
 	}
@@ -184,11 +182,11 @@ struct kmatrix_screen : ignore_window_pointer_t
 	int network;
 	fix64 end_time;
 	int playing;
+        int aborted;
 };
 
 static void kmatrix_redraw(kmatrix_screen *km)
 {
-	int color;
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
@@ -218,15 +216,13 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 		for (int i=0; i<N_players; i++ )
 		{
-			if (Game_mode & GM_TEAM)
-				color = get_team(sorted[i]);
-			else
-				color = sorted[i];
-
 			if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
 				gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 			else
+			{
+				const auto color = get_player_or_team_color(sorted[i]);
 				gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+			}
 
 			kmatrix_draw_item( i, sorted );
 		}
@@ -237,7 +233,6 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 static void kmatrix_redraw_coop()
 {
-	int color;
 	playernum_array_t sorted;
 
 	multi_sort_kill_list();
@@ -249,12 +244,13 @@ static void kmatrix_redraw_coop()
 
 	for (playernum_t i = 0; i < N_players; ++i)
 	{
-		color = sorted[i];
-
 		if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
-			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		{
+			auto &color = player_rgb_normal[get_player_color(sorted[i])];
+			gr_set_fontcolor(BM_XRGB(color.r, color.g, color.b),-1 );
+		}
 
 		kmatrix_draw_coop_item( i, sorted );
 	}
@@ -274,10 +270,10 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 			{
 				case KEY_ESC:
 					{
-						array<newmenu_item, 2> nm_message_items{
+						array<newmenu_item, 2> nm_message_items{{
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
-						};
+						}};
 						choice = newmenu_do( NULL, TXT_ABORT_GAME, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
 					}
 					
@@ -289,8 +285,8 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						if (Game_wind)
-							window_close(Game_wind);
+                                                km->aborted = 1;
+
 						return window_event_result::close;
 					}
 					return window_event_result::handled;
@@ -342,8 +338,8 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 							multi_send_endlevel_packet();
 						
 						multi_leave_game();
-						if (Game_wind)
-							window_close(Game_wind);
+                                                km->aborted = 1;
+
 						return window_event_result::close;
 					}
 				}
@@ -370,20 +366,21 @@ static window_event_result kmatrix_handler(window *wind,const d_event &event, km
 	return window_event_result::ignored;
 }
 
-void kmatrix_view(int network)
+kmatrix_result kmatrix_view(int network)
 {
 	window *wind;
 	kmatrix_screen km;
 	gr_init_bitmap_data(km.background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 	{
-		return;
+		return kmatrix_result::abort;
 	}
 	gr_palette_load(gr_palette);
 	
 	km.network = network;
 	km.end_time = -1;
 	km.playing = 0;
+        km.aborted = 0;
 	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
@@ -395,10 +392,11 @@ void kmatrix_view(int network)
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)
 	{
-		return;
+		return kmatrix_result::abort;
 	}
 	
 	while (window_exists(wind))
 		event_process();
 	gr_free_bitmap_data(km.background);
+	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);
 }

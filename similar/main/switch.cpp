@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -47,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "multi.h"
 #include "palette.h"
+#include "hudmsg.h"
 #include "robot.h"
 #include "bm.h"
 #include "byteutil.h"

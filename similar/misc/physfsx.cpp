@@ -25,10 +25,11 @@
 #include "console.h"
 #include "strutil.h"
 #include "ignorecase.h"
+#include "physfs_list.h"
 
 #include "poison.h"
 
-const array<file_extension_t, 1> archive_exts{"dxa"};
+const array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
 {
@@ -193,10 +194,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 	}
 	
 	//tell PHYSFS where hogdir is
-	if (GameArg.SysHogDir)
+	if (!GameArg.SysHogDir.empty())
 	{
-		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir);
-		PHYSFS_addToSearchPath(GameArg.SysHogDir,1);
+		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir.c_str());
+		PHYSFS_addToSearchPath(GameArg.SysHogDir.c_str(),1);
 	}
 #if defined(__unix__)
 	else if (!GameArg.SysNoHogDir)

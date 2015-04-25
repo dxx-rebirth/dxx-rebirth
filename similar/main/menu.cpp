@@ -86,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#include "physfs_list.h"
 
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
@@ -204,9 +205,9 @@ static int MakeNewPlayerFile(int allow_abort)
 
 try_again:
 	{
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_input(text.buffer()),
-		};
+		}};
 	Newmenu_allowed_chars = playername_allowed_chars;
 		x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
@@ -297,13 +298,13 @@ static int player_menu_keycommand( listbox *lb,const d_event &event )
 static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 {
 	const char **items = listbox_get_items(lb);
-	int citem = listbox_get_citem(lb);
-
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return player_menu_keycommand(lb, event);
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
 				return 0;		// shouldn't happen
 			else if (citem == 0)
@@ -316,6 +317,7 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 				Players[Player_num].callsign.copy_lower(items[citem], strlen(items[citem]));
 			}
 			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			if (read_player_file() != EZERO)
@@ -339,7 +341,7 @@ int RegisterPlayer()
 {
 	const char **m;
 	char **f;
-	static const array<file_extension_t, 1> types{"plr"};
+	static const array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -491,8 +493,10 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			return do_option(menu_choice[newmenu_get_citem(menu)]);
-			break;
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			return do_option(menu_choice[citem]);
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
@@ -583,7 +587,7 @@ int do_option ( int select)
 			select_demo();
 			break;
 		case MENU_LOAD_GAME:
-			state_restore_all(0, 0, nullptr, 0);
+			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
@@ -725,16 +729,18 @@ static int demo_menu_keycommand( listbox *lb,const d_event &event )
 
 static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
-	int citem = listbox_get_citem(lb);
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
 			return demo_menu_keycommand(lb, event);
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
 				return 0;		// shouldn't happen
 			newdemo_start_playback(items[citem]);
 			return 1;		// stay in demo selector
+		}
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);
 			break;
@@ -771,13 +777,13 @@ int select_demo(void)
 static int do_difficulty_menu()
 {
 	int s;
-	array<newmenu_item, NDL> m{
+	array<newmenu_item, NDL> m{{
 		nm_item_menu(MENU_DIFFICULTY_TEXT(0)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(1)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(2)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(3)),
 		nm_item_menu(MENU_DIFFICULTY_TEXT(4)),
-	};
+	}};
 
 	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, m.size(), &m.front(), unused_newmenu_subfunction, unused_newmenu_userdata, Difficulty_level);
 
@@ -813,10 +819,10 @@ int do_new_game_menu()
 		while (!valid)
 		{
 			array<char, 10> num_text{"1"};
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text(info_text),
 				nm_item_input(num_text),
-			};
+			}};
 			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
@@ -849,7 +855,37 @@ static void change_res();
 static void graphics_config();
 static void do_misc_menu();
 
-static int options_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+#define DXX_OPTIONS_MENU(VERB)	\
+	DXX_##VERB##_MENU("Sound effects & music...", sfx)	\
+	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_##VERB##_MENU(TXT_CONTROLS_, controls)	\
+	DXX_##VERB##_TEXT("", blank2)	\
+	DXX_##VERB##_MENU("Screen resolution...", screen)	\
+	DXX_##VERB##_MENU("Graphics Options...", graphics)	\
+	DXX_##VERB##_TEXT("", blank3)	\
+	DXX_##VERB##_MENU("Primary autoselect ordering...", primary)	\
+	DXX_##VERB##_MENU("Secondary autoselect ordering...", secondary)	\
+	DXX_##VERB##_MENU("Misc Options...", misc)	\
+
+namespace {
+
+class options_menu_items
+{
+public:
+	enum
+	{
+		DXX_OPTIONS_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_OPTIONS_MENU(COUNT)> m;
+	options_menu_items()
+	{
+		DXX_OPTIONS_MENU(ADD);
+	}
+};
+
+}
+
+static int options_menuset(newmenu *menu,const d_event &event, options_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -857,23 +893,38 @@ static int options_menuset(newmenu *menu,const d_event &event, const unused_newm
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			switch(newmenu_get_citem(menu))
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			switch (citem)
 			{
-				case  0: do_sound_menu();		break;
-				case  2: input_config();		break;
-				case  4: change_res();			break;
-				case  5: graphics_config();		break;
-				case  7: ReorderPrimary();		break;
-				case  8: ReorderSecondary();		break;
-				case  9: do_misc_menu();		break;
+				case options_menu_items::sfx:
+					do_sound_menu();
+					break;
+				case options_menu_items::controls:
+					input_config();
+					break;
+				case options_menu_items::screen:
+					change_res();
+					break;
+				case options_menu_items::graphics:
+					graphics_config();
+					break;
+				case options_menu_items::primary:
+					ReorderPrimary();
+					break;
+				case options_menu_items::secondary:
+					ReorderSecondary();
+					break;
+				case options_menu_items::misc:
+					do_misc_menu();
+					break;
 			}
 			return 1;	// stay in menu until escape
-			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 		{
-			newmenu_item *items = newmenu_get_items(menu);
-			d_free(items);
+			std::default_delete<options_menu_items>()(items);
 			write_player_file();
 			break;
 		}
@@ -948,22 +999,34 @@ void change_res()
 
 	if (i == opt_cval) // set custom resolution and aspect
 	{
-		u_int32_t cmode = Game_screen_mode, casp = Game_screen_mode;
-
-		if (!strchr(crestext, 'x'))
-			return;
-
-		cmode = SM(atoi(crestext), atoi(strchr(crestext, 'x')+1));
-		if (SM_W(cmode) < 320 || SM_H(cmode) < 200) // oh oh - the resolution is too small. Revert!
+		char *x;
+		unsigned long w = strtoul(crestext, &x, 10), h;
+		uint32_t cmode;
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
 		{
-			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			cmode = new_mode;
+			nm_messagebox(TXT_WARNING, 1, "OK", "Entered resolution is bad.\nReverting ...");
+			cmode = 0;
 		}
-
-		casp = cmode;
-		if (strchr(casptext, 'x')) // we even have a custom aspect set up
+		else if (w < 320 || h < 200)
 		{
-			casp = SM(atoi(casptext), atoi(strchr(casptext, 'x')+1));
+			// oh oh - the resolution is too small. Revert!
+			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
+			cmode = 0;
+		}
+		else
+		{
+			cmode = SM(w, h);
+		}
+		auto casp = cmode;
+		w = strtoul(casptext, &x, 10);
+		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
+		{
+			nm_messagebox(TXT_WARNING, 1, "OK", "Aspect resolution is bad.\nIgnoring ...");
+		}
+		else
+		{
+			// we even have a custom aspect set up
+			casp = SM(w, h);
 		}
 		GameCfg.AspectY = SM_W(casp)/gcd(SM_W(casp),SM_H(casp));
 		GameCfg.AspectX = SM_H(casp)/gcd(SM_W(casp),SM_H(casp));
@@ -1055,11 +1118,11 @@ static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_co
 static int input_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_ic_usejoy)
 				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
 			if (citem == opt_ic_usemouse)
@@ -1073,8 +1136,10 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 			if (citem == opt_ic_mousefsgauge)
 				PlayerCfg.MouseFSIndicator = items[citem].value;
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
 				kconfig(0, "KEYBOARD");
 			if (citem == opt_ic_confjoy)
@@ -1092,7 +1157,7 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 			if (citem == opt_ic_help2)
 				show_newdemo_help();
 			return 1;		// stay in menu
-			break;
+		}
 
 		default:
 			break;
@@ -1202,37 +1267,75 @@ static void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
-#if defined(DXX_BUILD_DESCENT_II)
-int opt_gr_movietexfilt;
+#define DXX_GRAPHICS_MENU(VERB)	\
+	DXX_OGL0_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_SLIDER(TXT_BRIGHTNESS, opt_gr_brightness, gr_palette_get_gamma(), 0, 16)	\
+	DXX_##VERB##_MENU("Reticle Options...", opt_gr_reticlemenu)	\
+	DXX_OGL1_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
+
+#ifdef OGL
+enum {
+	optgrp_texfilt,
+};
+#define DXX_OGL0_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_TEXT("Texture Filtering:", opt_gr_texfilt)	\
+	DXX_##VERB##_RADIO("None (Classical)", opt_filter_none, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Bilinear", opt_filter_bilinear, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
+	DXX_##VERB##_RADIO("Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
+	D2X_OGL_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_TEXT("", blank1)	\
+
+#define DXX_OGL1_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
+	DXX_##VERB##_CHECK("Colored Dynamic Light", opt_gr_dynlightcolor, PlayerCfg.DynLightColor)	\
+	DXX_##VERB##_CHECK("VSync", opt_gr_vsync, GameCfg.VSync)	\
+	DXX_##VERB##_CHECK("4x multisampling", opt_gr_multisample, GameCfg.Multisample)	\
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_OGL_GRAPHICS_MENU(VERB)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_OGL_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Movie Filter", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
 #endif
+
+#else
+#define DXX_OGL0_GRAPHICS_MENU(VERB)
+#define DXX_OGL1_GRAPHICS_MENU(VERB)
+#endif
+
+enum {
+	DXX_GRAPHICS_MENU(ENUM)
+};
+
 static int graphics_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if ( citem == opt_gr_texfilt + 3
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 #ifdef OGL
-				&& ogl_maxanisotropy <= 1.0
-#endif
-				)
+			if (citem == opt_filter_anisotropic && ogl_maxanisotropy <= 1.0)
 			{
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
-				items[opt_gr_texfilt + 3].value = 0;
-				items[opt_gr_texfilt + 2].value = 1;
+				items[opt_filter_trilinear].value = 1;
+				items[opt_filter_anisotropic].value = 0;
 			}
+#endif
 			if ( citem == opt_gr_brightness)
 				gr_palette_set_gamma(items[citem].value);
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_gr_reticlemenu)
 				reticle_config();
 			return 1;		// stay in menu
-			break;
+		}
 
 		default:
 			break;
@@ -1243,60 +1346,25 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 
 void graphics_config()
 {
-#ifdef OGL
-#if defined(DXX_BUILD_DESCENT_I)
-	newmenu_item m[13];
-#elif defined(DXX_BUILD_DESCENT_II)
-	newmenu_item m[14];
-#endif
-	int i = 0;
-#else
-	newmenu_item m[3];
-#endif
-	int nitems = 0;
+	array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
+	DXX_GRAPHICS_MENU(ADD);
 
 #ifdef OGL
-	nm_set_item_text(m[nitems], "Texture Filtering:"); nitems++;
-	opt_gr_texfilt = nitems;
-	nm_set_item_radio(m[nitems++], "None (Classical)", 0, 0);
-	nm_set_item_radio(m[nitems++], "Bilinear", 0, 0);
-	nm_set_item_radio(m[nitems++], "Trilinear", 0, 0);
-	nm_set_item_radio(m[nitems++], "Anisotropic", 0, 0);
-#if defined(DXX_BUILD_DESCENT_II)
-	opt_gr_movietexfilt = nitems;
-	nm_set_item_checkbox(m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
-#endif
-	nm_set_item_text(m[nitems], ""); nitems++;
-#endif
-	opt_gr_brightness = nitems;
-	nm_set_item_slider(m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
-	opt_gr_reticlemenu = nitems;
-	nm_set_item_menu(m[nitems], "Reticle Options"); nitems++;
-#ifdef OGL
-	opt_gr_alphafx = nitems;
-	nm_set_item_checkbox(m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
-	opt_gr_dynlightcolor = nitems;
-	nm_set_item_checkbox(m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
-	opt_gr_vsync = nitems;
-	nm_set_item_checkbox(m[nitems],"VSync", GameCfg.VSync); nitems++;
-	opt_gr_multisample = nitems;
-	nm_set_item_checkbox(m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
-#endif
-	opt_gr_fpsindi = nitems;
-	nm_set_item_checkbox(m[nitems],"FPS Counter", GameCfg.FPSIndicator); nitems++;
-#ifdef OGL
-	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
+	m[opt_filter_none+GameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, unused_newmenu_userdata, 1 );
+	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, unused_newmenu_userdata, 1);
 
 #ifdef OGL
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
-	for (i = 0; i <= 3; i++)
-		if (m[i+opt_gr_texfilt].value)
+	for (uint_fast32_t i = 0; i != 4; ++i)
+		if (m[i+opt_filter_none].value)
+		{
 			GameCfg.TexFilt = i;
+			break;
+		}
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
 #endif
@@ -1314,6 +1382,8 @@ void graphics_config()
 }
 
 #if PHYSFS_VER_MAJOR >= 2
+namespace {
+
 struct browser
 {
 	const char	*title;			// The title - needed for making another listbox when changing directory
@@ -1326,6 +1396,8 @@ struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
 };
+
+}
 
 static void list_dir_el(void *vb, const char *, const char *fname)
 {
@@ -1366,9 +1438,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
 	char newpath[PATH_MAX];
 	const char **list = listbox_get_items(menu);
-	int citem = listbox_get_citem(menu);
 	const char *sep = PHYSFS_getDirSeparator();
-
 	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event.type)
 	{
@@ -1380,9 +1450,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				char text[4] = "c";
 				int rval = 0;
 
-				array<newmenu_item, 1> m{
+				array<newmenu_item, 1> m{{
 					nm_item_input(text),
-				};
+				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
@@ -1398,8 +1468,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 		}
 #endif
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			strcpy(newpath, b->view_path);
-
 			if (citem == 0)		// go to parent dir
 			{
 				char *p;
@@ -1449,16 +1520,13 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				strncat(newpath, list[citem], PATH_MAX - 1 - len_newpath);
 				newpath[PATH_MAX - 1] = '\0';
 			}
-			
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
 				return !select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
 			}
-			
 			return !(*b->when_selected)(b->userdata, list[citem]);
-			break;
-			
+		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
 				PHYSFS_removeFromSearchPath(b->view_path);
@@ -1596,14 +1664,13 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	newmenu_item *items = newmenu_get_items(menu);
-	int citem = newmenu_get_citem(menu);
-	//int nitems = newmenu_get_nitems(menu);
 	int replay = 0;
 	int rval = 0;
-
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+		{
+			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_sm_digivol)
 			{
 				GameCfg.DigiVolume = items[citem].value;
@@ -1664,9 +1731,11 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 			}
 #endif
 			break;
-
+		}
 		case EVENT_NEWMENU_SELECTED:
+		{
 #ifdef USE_SDLMIXER
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 #ifdef _WIN32
 #define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
 #else
@@ -1674,7 +1743,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static const array<file_extension_t, 1> ext_list{"m3u"};		// select a directory or M3U playlist
+				static const array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
 									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection
@@ -1693,7 +1762,7 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 #endif
 			rval = 1;	// stay in menu
 			break;
-
+		}
 		case EVENT_WINDOW_CLOSE:
 			d_free(items);
 			break;
@@ -1908,8 +1977,11 @@ static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *me
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
 			// stay in multiplayer menu, even after having played a game
-			return do_option(menu_choice[newmenu_get_citem(menu)]);
+			return do_option(menu_choice[citem]);
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
@@ -1956,26 +2028,10 @@ void do_multi_player_menu()
 
 void do_options_menu()
 {
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 10);
-	if (!m)
-		return;
-
-	nm_set_item_menu(m[ 0],"Sound effects & music...");
-	nm_set_item_text(m[ 1],"");
-	nm_set_item_menu(m[ 2],TXT_CONTROLS_);
-	nm_set_item_text(m[ 3],"");
-	nm_set_item_menu(m[ 4],"Screen resolution...");
-	nm_set_item_menu(m[ 5],"Graphics Options...");
-	nm_set_item_text(m[ 6],"");
-	nm_set_item_menu(m[ 7],"Primary autoselect ordering...");
-	nm_set_item_menu(m[ 8],"Secondary autoselect ordering...");
-	nm_set_item_menu(m[ 9],"Misc Options...");
-
+	auto items = new options_menu_items;
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, unused_newmenu_userdata, 0, NULL );
+	newmenu_do3(nullptr, TXT_OPTIONS, items->m.size(), items->m.data(), options_menuset, items, 0, nullptr);
 }
 
 #ifndef RELEASE
@@ -2146,7 +2202,29 @@ static void gamebitmaps_viewer()
 		event_process();
 }
 
-static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+#define DXX_SANDBOX_MENU(VERB)	\
+	DXX_##VERB##_MENU("Polygon_models viewer", polygon_models)	\
+	DXX_##VERB##_MENU("GameBitmaps viewer", bitmaps)	\
+
+namespace {
+
+class sandbox_menu_items
+{
+public:
+	enum
+	{
+		DXX_SANDBOX_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_SANDBOX_MENU(COUNT)> m;
+	sandbox_menu_items()
+	{
+		DXX_SANDBOX_MENU(ADD);
+	}
+};
+
+}
+
+static int sandbox_menuset(newmenu *menu,const d_event &event, sandbox_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -2154,18 +2232,23 @@ static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newm
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			switch(newmenu_get_citem(menu))
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+			switch (citem)
 			{
-				case  0: polygon_models_viewer(); break;
-				case  1: gamebitmaps_viewer(); break;
+				case sandbox_menu_items::polygon_models:
+					polygon_models_viewer();
+					break;
+				case sandbox_menu_items::bitmaps:
+					gamebitmaps_viewer();
+					break;
 			}
 			return 1; // stay in menu until escape
-			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 		{
-			newmenu_item *items = newmenu_get_items(menu);
-			d_free(items);
+			std::default_delete<sandbox_menu_items>()(items);
 			break;
 		}
 
@@ -2177,15 +2260,7 @@ static int sandbox_menuset(newmenu *menu,const d_event &event, const unused_newm
 
 void do_sandbox_menu()
 {
-	newmenu_item *m;
-
-	MALLOC(m, newmenu_item, 2);
-	if (!m)
-		return;
-
-	nm_set_item_menu(m[ 0],"Polygon_models viewer");
-	nm_set_item_menu(m[ 1],"GameBitmaps viewer");
-
-	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, unused_newmenu_userdata, 0, NULL );
+	auto items = new sandbox_menu_items;
+	newmenu_do3(nullptr, "Coder's sandbox", items->m.size(), items->m.data(), sandbox_menuset, items, 0, nullptr);
 }
 #endif

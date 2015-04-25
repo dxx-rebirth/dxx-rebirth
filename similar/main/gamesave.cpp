@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include "pstypes.h"
@@ -48,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "bm.h"
 #include "menu.h"
+#include "fireball.h"
 #include "switch.h"
 #include "fuelcen.h"
 #include "cntrlcen.h"
@@ -255,7 +257,7 @@ static void verify_object(const vobjptr_t obj)
 
 	if ( obj->type == OBJ_POWERUP ) {
 		if ( get_powerup_id(obj) >= N_powerup_types )	{
-			set_powerup_id(obj, 0);
+			set_powerup_id(obj, POW_SHIELD_BOOST);
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 		obj->control_type = CT_POWERUP;
@@ -266,18 +268,8 @@ static void verify_object(const vobjptr_t obj)
 
 		if (Game_mode & GM_NETWORK)
 		{
-			if (multi_powerup_is_4pack(get_powerup_id(obj)))
-			{
-				PowerupsInMine[obj->id-1]+=4;
-				MaxPowerupsAllowed[obj->id-1]+=4;
-			}
-			else
-			{
-				PowerupsInMine[get_powerup_id(obj)]++;
-				MaxPowerupsAllowed[get_powerup_id(obj)]++;
-			}
+			PowerupCaps.inc_powerup_both(get_powerup_id(obj));
 		}
-
 	}
 
 	if ( obj->type == OBJ_WEAPON )	{
@@ -466,7 +458,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 
 			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
-			obj->ctype.laser_info.parent_signature	= PHYSFSX_readInt(f);
+			obj->ctype.laser_info.parent_signature	= object_signature_t{static_cast<uint16_t>(PHYSFSX_readInt(f))};
 #if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.laser_info.last_afterburner_time = 0;
 #endif
@@ -708,7 +700,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 
 			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_type);
 			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_num);
-			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature);
+			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature.get());
 
 			break;
 
@@ -1185,8 +1177,7 @@ int load_level(const char * filename_passed)
 
    if (Game_mode & GM_NETWORK)
 	 {
-		 MaxPowerupsAllowed = {};
-		 PowerupsInMine = {};
+		 PowerupCaps.clear();
 	 }
 
 
@@ -1241,6 +1232,7 @@ int load_level(const char * filename_passed)
 
 	if (Gamesave_current_version < 5)
 		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
+	init_exploding_walls();
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		PHYSFSX_readInt(LoadFile);
@@ -1406,13 +1398,11 @@ int load_level(const char * filename_passed)
 #ifdef EDITOR
 int get_level_name()
 {
-	array<newmenu_item, 2> m{
+	array<newmenu_item, 2> m{{
 		nm_item_text("Please enter a name for this mine:"),
 		nm_item_input(Current_level_name.next()),
-	};
-
+	}};
 	return newmenu_do( NULL, "Enter mine name", m, unused_newmenu_subfunction, unused_newmenu_userdata ) >= 0;
-
 }
 #endif
 

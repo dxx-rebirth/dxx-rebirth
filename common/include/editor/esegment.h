@@ -5,6 +5,10 @@
  * terms and a link to the Git history.
  */
 #pragma once
+
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
 #include "segment.h"
 #include "editor/editor.h"
 
@@ -22,9 +26,9 @@ extern	int		Markedside;				// Marked side on Markedsegp.
 extern array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 
 // The extra group in the following arrays is used for group rotation.
-extern 	group		GroupList[MAX_GROUPS+1];
-extern 	segment  *Groupsegp[MAX_GROUPS+1];
-extern 	int		Groupside[MAX_GROUPS+1];
+extern array<group, MAX_GROUPS+1> GroupList;
+extern array<segment *, MAX_GROUPS+1> Groupsegp;
+extern array<int, MAX_GROUPS+1> Groupside;
 extern	int 		current_group;
 extern unsigned num_groups;
 extern	int		Current_group;

@@ -272,7 +272,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad, const char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -379,7 +379,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,fix *side_dists)
+static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,array<fix, 6> &side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -589,7 +589,7 @@ int	Doing_lighting_hack_flag=0;
 static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum, int recursion_count, visited_segment_bitarray_t &visited)
 {
 	int centermask;
-	fix side_dists[6];
+	array<fix, 6> side_dists;
 	fix biggest_val;
 	int sidenum, bit, biggest_side;
 	if (recursion_count >= Num_segments) {
@@ -653,7 +653,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 		range_for (const auto newseg, highest_valid(Segments))
 		{
 			const auto segp = vsegptridx(newseg);
-			if (get_seg_masks(p, segp, 0, __FILE__, __LINE__).centermask == 0)
+			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
 		}
 
@@ -737,7 +737,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 int	Connected_segment_distance;
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
 	(void)(seg0||seg1||depth||dist);
 }
@@ -748,7 +748,7 @@ static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 struct fcd_data {
 	segnum_t	seg0, seg1;
 	int csd;
-	fix	dist;
+	vm_distance dist;
 };
 
 int	Fcd_index = 0;
@@ -765,7 +765,7 @@ void flush_fcd_cache(void)
 }
 
 //	----------------------------------------------------------------------------------------------------------
-static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
 		Fcd_cache[Fcd_index].seg0 = seg0;
@@ -794,7 +794,7 @@ static void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
+vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
 {
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
@@ -803,7 +803,6 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 	int		cur_depth;
 	int		num_points;
 	point_seg	point_segs[MAX_LOC_POINT_SEGS];
-	fix		dist;
 
 	//	If > this, will overrun point_segs buffer
 #ifdef WINDOWS
@@ -873,8 +872,8 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
 							Connected_segment_distance = 1000;
-							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-							return -1;
+							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+							return vm_distance::maximum_value();
 						}
 					} else if (this_seg == seg1) {
 						goto fcd_done1;
@@ -886,8 +885,8 @@ fix find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, cons
 
 		if (qhead >= qtail) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-			return -1;
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+			return vm_distance::maximum_value();
 		}
 
 		cur_seg = seg_queue[qhead].end;
@@ -901,8 +900,8 @@ fcd_done1: ;
 	while (seg_queue[--qtail].end != seg1)
 		if (qtail < 0) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, F1_0*1000);
-			return -1;
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
+			return vm_distance::maximum_value();
 		}
 
 	while (qtail >= 0) {
@@ -928,17 +927,13 @@ fcd_done1: ;
 	if (num_points == 1) {
 		Connected_segment_distance = num_points;
 		return vm_vec_dist_quick(p0, p1);
-	} else {
-		dist = vm_vec_dist_quick(p1, point_segs[1].point);
+	}
+	auto dist = vm_vec_dist_quick(p1, point_segs[1].point);
 		dist += vm_vec_dist_quick(p0, point_segs[num_points-2].point);
 
 		for (int i=1; i<num_points-2; i++) {
-			fix	ndist;
-			ndist = vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
-			dist += ndist;
+			dist += vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
 		}
-
-	}
 
 	Connected_segment_distance = num_points;
 	add_to_fcd_cache(seg0, seg1, num_points, dist);
@@ -981,11 +976,12 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
 	*sp++ = convert_to_byte(objp->orient.uvec.z);
 	*sp++ = convert_to_byte(objp->orient.fvec.z);
 
-	spp->xo = (objp->pos.x - Vertices[Segments[objp->segnum].verts[0]].x) >> RELPOS_PRECISION;
-	spp->yo = (objp->pos.y - Vertices[Segments[objp->segnum].verts[0]].y) >> RELPOS_PRECISION;
-	spp->zo = (objp->pos.z - Vertices[Segments[objp->segnum].verts[0]].z) >> RELPOS_PRECISION;
-
 	spp->segment = objp->segnum;
+	const auto segp = vsegptr(objp->segnum);
+	const auto &vert = Vertices[segp->verts[0]];
+	spp->xo = (objp->pos.x - vert.x) >> RELPOS_PRECISION;
+	spp->yo = (objp->pos.y - vert.y) >> RELPOS_PRECISION;
+	spp->zo = (objp->pos.z - vert.z) >> RELPOS_PRECISION;
 
  	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
 	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
@@ -1271,7 +1267,7 @@ static void add_side_as_quad(const vsegptr_t sp, int sidenum, const vms_vector &
 //	small differences between normals which should merely be opposites of each other.
 static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
 {
-	int	v[4],w[4];
+	array<int, 4> v, w;
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
 	for (int i=0; i<4; i++)
@@ -1302,7 +1298,6 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 		*negate_flag = 1;
 	else
 		*negate_flag = 0;
-
 }
 
 // -------------------------------------------------------------------------------

@@ -23,17 +23,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-
-#ifndef _DIGI_H
-#define _DIGI_H
+#pragma once
 
 #include "pstypes.h"
 #include "vecmat.h"
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 #include "segnum.h"
 #include "fwdvalptridx.h"
+#include "compiler-exchange.h"
+#include "compiler-type_traits.h"
 
 struct sound_object;
 struct digi_sound
@@ -57,9 +57,9 @@ extern void digi_play_sample_once( int sndnum, fix max_volume );
 int digi_link_sound_to_object( int soundnum, vcobjptridx_t objnum, int forever, fix max_volume );
 int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume );
 // Same as above, but you pass the max distance sound can be heard.  The old way uses f1_0*256 for max_distance.
-int digi_link_sound_to_object2( int soundnum, vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance );
+int digi_link_sound_to_object2(int soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance);
 
-int digi_link_sound_to_object3( int org_soundnum, vcobjptridx_t objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+int digi_link_sound_to_object3(int org_soundnum, vcobjptridx_t objnum, int forever, fix max_volume, vm_distance max_distance, int loop_start, int loop_end);
 
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 
@@ -140,4 +140,31 @@ int verify_sound_channel_free( int channel );
 
 #endif
 
-#endif
+class RAIIdigi_sound
+{
+	static constexpr tt::integral_constant<int, -1> invalid_channel{};
+	int channel;
+	static void stop(int channel)
+	{
+		if (channel != invalid_channel)
+			digi_stop_sound(channel);
+	}
+public:
+	RAIIdigi_sound() :
+		channel(invalid_channel)
+	{
+	}
+	~RAIIdigi_sound()
+	{
+		stop(channel);
+	}
+	void reset(int c = invalid_channel)
+	{
+		stop(exchange(channel, c));
+	}
+	operator int() const = delete;
+	explicit operator bool() const
+	{
+		return channel != invalid_channel;
+	}
+};

@@ -49,8 +49,8 @@ extern int HiresGFXAvailable;
 
 #define GWIDTH  grd_curcanv->cv_bitmap.bm_w
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
-#define SWIDTH  (grd_curscreen->sc_w)
-#define SHEIGHT (grd_curscreen->sc_h)
+#define SWIDTH  (grd_curscreen->get_screen_width())
+#define SHEIGHT (grd_curscreen->get_screen_height())
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
@@ -162,14 +162,6 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	ubyte       cv_blend_func;  // blending function to use
 };
 
-struct grs_screen : prohibit_void_ptr<grs_screen>
-{    // This is a video screen
-	grs_canvas  sc_canvas;  // Represents the entire screen
-	u_int32_t     sc_mode;        // Video mode number
-	unsigned short   sc_w, sc_h;     // Actual Width and Height
-	fix     sc_aspect;      //aspect ratio (w/h) for this screen
-};
-
 
 //=========================================================================
 // System functions:
@@ -179,10 +171,34 @@ struct grs_screen : prohibit_void_ptr<grs_screen>
 
 #ifdef __cplusplus
 
+class grs_screen : prohibit_void_ptr<grs_screen>
+{    // This is a video screen
+	unsigned short   sc_w, sc_h;     // Actual Width and Height
+public:
+	grs_canvas  sc_canvas;  // Represents the entire screen
+	fix     sc_aspect;      //aspect ratio (w/h) for this screen
+	uint_fast32_t get_screen_width() const
+	{
+		return sc_w;
+	}
+	uint_fast32_t get_screen_height() const
+	{
+		return sc_h;
+	}
+	uint_fast32_t get_screen_width_height() const
+	{
+		return SM(get_screen_width(), get_screen_height());
+	}
+	void set_screen_width_height(uint16_t w, uint16_t h)
+	{
+		sc_w = w;
+		sc_h = h;
+	}
+};
+
 int gr_init(int mode);
 
 int gr_list_modes( array<uint32_t, 50> &gsmodes );
-int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
@@ -307,8 +323,8 @@ unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y );
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y );
 
 // Draws a line into the current canvas in the current color and drawmode.
-int gr_line(fix x0,fix y0,fix x1,fix y1);
-int gr_uline(fix x0,fix y0,fix x1,fix y1);
+void gr_line(fix x0,fix y0,fix x1,fix y1);
+void gr_uline(fix x0,fix y0,fix x1,fix y1);
 
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(unsigned x,unsigned y,grs_bitmap &bm);
@@ -436,7 +452,6 @@ extern palette_array_t gr_palette;
 typedef array<color_t, 256> gft_array0;
 typedef array<gft_array0, GR_FADE_LEVELS> gft_array1;
 extern gft_array1 gr_fade_table;
-extern ubyte gr_inverse_table[32*32*32];
 
 extern ushort gr_palette_selector;
 extern ushort gr_inverse_table_selector;
@@ -471,7 +486,6 @@ color_t gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
 
 extern void gr_flip(void);
-extern void gr_set_draw_buffer(int buf);
 
 /*
  * must return 0 if windowed, 1 if fullscreen
@@ -482,7 +496,7 @@ int gr_check_fullscreen(void);
  * returns state after toggling (ie, same as if you had called
  * check_fullscreen immediatly after)
  */
-int gr_toggle_fullscreen(void);
+void gr_toggle_fullscreen();
 void ogl_do_palfx(void);
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers(void);

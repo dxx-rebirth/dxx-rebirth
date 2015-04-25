@@ -84,8 +84,8 @@ using std::max;
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
 int Render_depth = 20; //how many segments deep to render
-#endif
 unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
+#endif
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
@@ -792,11 +792,11 @@ static void render_segment(segnum_t segnum)
 // -- 
 // -- }
 
-static const fix CROSS_WIDTH = i2f(8);
-static const fix CROSS_HEIGHT = i2f(8);
-
 #ifdef EDITOR
 #ifndef NDEBUG
+
+const fix CROSS_WIDTH = i2f(8);
+const fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
 static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
@@ -1095,12 +1095,16 @@ static bool compare_func(const render_compare_context_t &c, const render_state_t
 		//the afterburner blobs, though.
 
 		if (obj_a->type == OBJ_WEAPON || (obj_a->type == OBJ_FIREBALL && obj_a->id != VCLIP_AFTERBURNER_BLOB))
+		{
 			if (!(obj_b->type == OBJ_WEAPON || obj_b->type == OBJ_FIREBALL))
 				return true;	//a is weapon, b is not, so say a is closer
-			else;				//both are weapons 
+			//both are weapons 
+		}
 		else
+		{
 			if (obj_b->type == OBJ_WEAPON || (obj_b->type == OBJ_FIREBALL && obj_b->id != VCLIP_AFTERBURNER_BLOB))
 				return false;	//b is weapon, a is not, so say a is farther
+		}
 
 		//no special case, fall through to normal return
 	}
@@ -1150,7 +1154,7 @@ static void build_object_lists(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					m = get_seg_masks(obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
+					m = get_seg_masks(obj->pos, new_segnum, obj->size);
 	
 					if (m.sidemask) {
 						int sn,sf;
@@ -1593,8 +1597,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			{
 				//int n_expl_objs=0,expl_objs[5],i;
-				int save_linear_depth = Max_linear_depth;
-				Max_linear_depth = Max_linear_depth_objects;
+				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window);	// note link to above else
@@ -1733,14 +1736,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			// render objects
 			{
-				int save_linear_depth = Max_linear_depth;
-
-				Max_linear_depth = Max_linear_depth_objects;
 				range_for (auto &v, srsm.objects)
 				{
 					do_render_object(v.objnum, window);	// note link to above else
 				}
-				Max_linear_depth = save_linear_depth;
 			}
 		}
 	}

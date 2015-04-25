@@ -45,7 +45,6 @@ struct window_rendered_data
 
 extern int Render_depth; //how many segments deep to render
 static const unsigned Max_perspective_depth = 8; //	Deepest segment at which perspective extern interpolation will be used.
-extern unsigned Max_linear_depth; //	Deepest segment at which linear extern interpolation will be used.
 const unsigned Max_linear_depth_objects = 20;
 static const unsigned Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 static const unsigned Max_debris_objects = 15; // How many debris objects to create
@@ -54,6 +53,7 @@ static const unsigned Max_debris_objects = 15; // How many debris objects to cre
 #define DETRIANGULATION 0
 #else
 #define DETRIANGULATION 1
+extern unsigned Max_linear_depth; //	Deepest segment at which linear extern interpolation will be used.
 #endif
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear

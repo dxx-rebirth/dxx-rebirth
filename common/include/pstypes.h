@@ -52,27 +52,6 @@ typedef unsigned int uint;
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
 #endif
-#ifndef __cplusplus
-#ifndef min
-#define min(a,b) (((a)>(b))?(b):(a))
-#endif
-#ifndef max
-#define max(a,b) (((a)<(b))?(b):(a))
-#endif
-
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
-#ifndef bool
-//define a boolean
-typedef ubyte bool;
-#endif
-
-#ifndef NULL
-#define NULL 0
-#endif
-#endif
 
 // the following stuff has nothing to do with types but needed everywhere,
 // and since this file is included everywhere, it's here.
@@ -89,9 +68,10 @@ defined(__LITTLE_ENDIAN__)	// from physfs_internal.h
 #endif
 
 #ifdef __GNUC__
-# define __pack__ __attribute__((packed))
 #ifdef WIN32
-# pragma pack(1)
+# define __pack__ __attribute__((gcc_struct, packed))
+#else
+# define __pack__ __attribute__((packed))
 #endif
 #elif defined(_MSC_VER)
 # pragma pack(push, packing)

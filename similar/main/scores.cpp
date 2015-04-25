@@ -239,10 +239,10 @@ void scores_maybe_add_player(int abort_flag)
 	} else {
 		if ( position==0 )	{
 			array<char, COOL_MESSAGE_LEN+10> text1{};
-			array<newmenu_item, 2> m{
+			array<newmenu_item, 2> m{{
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
-			};
+			}};
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
 			if (strlen(scores.cool_saying)<1)
@@ -358,7 +358,9 @@ struct scores_menu : ignore_window_pointer_t
 static window_event_result scores_handler(window *wind,const d_event &event, scores_menu *menu)
 {
 	int k;
-	static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+	static const array<int8_t, 64> fades{{
+		1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1
+	}};
 	int w = FSPACX(290), h = FSPACY(170);
 
 	switch (event.type)

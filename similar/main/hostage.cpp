@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "object.h"
+#include "hudmsg.h"
 #include "game.h"
 #include "player.h"
 #include "gauges.h"
@@ -40,8 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //------------- Globaly used hostage variables --------------------------------
 
-int N_hostage_types = 0;		  			// Number of hostage types
-int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
+unsigned N_hostage_types;		  			// Number of hostage types
+array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;	// vclip num for each tpye of hostage
 
 
 //-------------- Renders a hostage --------------------------------------------

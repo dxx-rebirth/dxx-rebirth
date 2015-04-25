@@ -158,35 +158,35 @@ fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 }
 
 //returns magnitude of a vector
-fix64 vm_vec_mag2(const vms_vector &v)
+vm_magnitude_squared vm_vec_mag2(const vms_vector &v)
 {
 	const int64_t x = v.x;
 	const int64_t y = v.y;
 	const int64_t z = v.z;
-	return (x * x) + (y * y) + (z * z);
+	return vm_magnitude_squared{static_cast<uint64_t>((x * x) + (y * y) + (z * z))};
 }
 
-fix vm_vec_mag(const vms_vector &v)
+vm_magnitude vm_vec_mag(const vms_vector &v)
 {
 	quadint q;
-	q.q = vm_vec_mag2(v);
-	return quad_sqrt(q);
+	q.q = vm_vec_mag2(v).d2;
+	return vm_magnitude{quad_sqrt(q)};
 }
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
+vm_distance vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 {
 	return vm_vec_mag(vm_vec_sub(v0,v1));
 }
 
-fix64 vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
+vm_distance_squared vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
 {
 	return vm_vec_mag2(vm_vec_sub(v0,v1));
 }
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick(const vms_vector &v)
+vm_magnitude vm_vec_mag_quick(const vms_vector &v)
 {
 	fix a,b,c,bc;
 
@@ -207,24 +207,22 @@ fix vm_vec_mag_quick(const vms_vector &v)
 
 	bc = (b>>2) + (c>>3);
 
-	return a + bc + (bc>>1);
+	return vm_magnitude{static_cast<uint32_t>(a + bc + (bc>>1))};
 }
 
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
+vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 {
 	return vm_vec_mag_quick(vm_vec_sub(v0,v1));
 }
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
+vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
-	fix m;
-
-	m = vm_vec_mag(src);
-	if (m > 0) {
+	auto m = vm_vec_mag(src);
+	if (m) {
 		vm_vec_divide(dest, src, m);
 	}
 	return m;
@@ -238,24 +236,23 @@ void vm_vec_divide(vms_vector &dest,const vms_vector &src, fix m)
 }
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_normalize(vms_vector &v)
+vm_magnitude vm_vec_normalize(vms_vector &v)
 {
 	return vm_vec_copy_normalize(v,v);
 }
 
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
+vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
-	fix m;
-	m = vm_vec_mag_quick(src);
-	if (m > 0) {
+	auto m = vm_vec_mag_quick(src);
+	if (m) {
 		vm_vec_divide(dest, src, m);
 	}
 	return m;
 }
 
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_normalize_quick(vms_vector &v)
+vm_magnitude vm_vec_normalize_quick(vms_vector &v)
 {
 	return vm_vec_copy_normalize_quick(v,v);
 }
@@ -263,7 +260,7 @@ fix vm_vec_normalize_quick(vms_vector &v)
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns 1/mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir_quick(vms_vector &dest,const vms_vector &end,const vms_vector &start)
+vm_magnitude vm_vec_normalized_dir_quick(vms_vector &dest,const vms_vector &end,const vms_vector &start)
 {
 	return vm_vec_normalize_quick(vm_vec_sub(dest,end,start));
 }
@@ -271,7 +268,7 @@ fix vm_vec_normalized_dir_quick(vms_vector &dest,const vms_vector &end,const vms
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const vms_vector &start)
+vm_magnitude vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const vms_vector &start)
 {
 	return vm_vec_normalize(vm_vec_sub(dest,end,start));
 }
@@ -380,8 +377,8 @@ fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vect
 {
 	vms_vector t0,t1;
 
-	vm_vec_copy_normalize(t0,v0);
-	vm_vec_copy_normalize(t1,v1);
+	if (!vm_vec_copy_normalize(t0,v0) || !vm_vec_copy_normalize(t1,v1))
+		return 0;
 
 	return vm_vec_delta_ang_norm(t0,t1,fvec);
 }
@@ -453,7 +450,7 @@ void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 void vm_vector_2_matrix(vms_matrix &m,const vms_vector &fvec,const vms_vector *uvec,const vms_vector *rvec)
 {
 	vms_vector &xvec=m.rvec,&yvec=m.uvec,&zvec=m.fvec;
-	if (vm_vec_copy_normalize(zvec,fvec) == 0) {
+	if (!vm_vec_copy_normalize(zvec,fvec)) {
 		Int3();		//forward vec should not be zero-length
 		return;
 	}
@@ -480,13 +477,13 @@ bad_vector2:
 		}
 		else {						//use right vec
 
-			if (vm_vec_copy_normalize(xvec,*rvec) == 0)
+			if (!vm_vec_copy_normalize(xvec,*rvec))
 				goto bad_vector2;
 
 			vm_vec_cross(yvec,zvec,xvec);
 
 			//normalize new perpendicular vector
-			if (vm_vec_normalize(yvec) == 0)
+			if (!vm_vec_normalize(yvec))
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
@@ -496,13 +493,13 @@ bad_vector2:
 	}
 	else {		//use up vec
 
-		if (vm_vec_copy_normalize(yvec,*uvec) == 0)
+		if (!vm_vec_copy_normalize(yvec,*uvec))
 			goto bad_vector2;
 
 		vm_vec_cross(xvec,yvec,zvec);
 		
 		//normalize new perpendicular vector
-		if (vm_vec_normalize(xvec) == 0)
+		if (!vm_vec_normalize(xvec))
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
@@ -597,7 +594,7 @@ static vms_angvec &vm_extract_angles_vector_normalized(vms_angvec &a,const vms_v
 void vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
 {
 	vms_vector t;
-	if (vm_vec_copy_normalize(t,v) != 0)
+	if (vm_vec_copy_normalize(t,v))
 		vm_extract_angles_vector_normalized(a,t);
 	else
 		a = {};

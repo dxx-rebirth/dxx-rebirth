@@ -25,11 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+
 #include "pstypes.h"
 #include "vecmat.h"
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "aistruct.h"
-#endif
 #include "polyobj.h"
 #include "laser.h"
 
@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "compiler-type_traits.h"
 #include "fwdobject.h"
+#include "powerup.h"
 
 // Object types
 enum object_type_t : int
@@ -73,14 +74,12 @@ enum object_type_t : int
  * STRUCTURES
  */
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct reactor_static {
 	/* Location of the gun on the reactor object */
-	vms_vector	gun_pos[MAX_CONTROLCEN_GUNS];
+	array<vms_vector, MAX_CONTROLCEN_GUNS>	gun_pos,
 	/* Orientation of the gun on the reactor object */
-	vms_vector	gun_dir[MAX_CONTROLCEN_GUNS];
+		gun_dir;
 };
-#endif
 
 // A compressed form for sending crucial data
 struct shortpos
@@ -129,7 +128,14 @@ struct physics_info_rw
 
 // stuctures for different kinds of simulation
 
-struct laser_info : prohibit_void_ptr<laser_info>
+struct laser_parent
+{
+	short   parent_type;        // The type of the parent of this object
+	objnum_t   parent_num;         // The object's parent's number
+	object_signature_t     parent_signature;   // The object's parent's signature...
+};
+
+struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
 	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
 	{
@@ -189,9 +195,6 @@ struct laser_info : prohibit_void_ptr<laser_info>
 			return T1(&mask[index], 1 << bitshift);
 		}
 	};
-	short   parent_type;        // The type of the parent of this object
-	objnum_t   parent_num;         // The object's parent's number
-	int     parent_signature;   // The object's parent's signature...
 	fix64   creation_time;      // Absolute time of creation.
 	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
 	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
@@ -298,9 +301,8 @@ struct polyobj_info_rw
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object {
-	int     signature;      // Every object ever has a unique signature...
+	object_signature_t signature;
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
@@ -351,9 +353,6 @@ struct object_rw
 	int     signature;      // Every object ever has a unique signature...
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
-#ifdef WORDS_NEED_ALIGNMENT
-	short   pad;
-#endif
 	short   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	ubyte   control_type;   // how this object is controlled
 	ubyte   movement_type;  // how this object moves
@@ -393,12 +392,7 @@ struct object_rw
 		polyobj_info_rw    pobj_info;      // polygon model
 		vclip_info_rw      vclip_info;     // vclip
 	} __pack__ rtype;
-
-#ifdef WORDS_NEED_ALIGNMENT
-	short   pad2;
-#endif
 } __pack__;
-#endif
 
 struct obj_position
 {
@@ -407,7 +401,6 @@ struct obj_position
 	segnum_t       segnum;     // segment number containing object
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct object_array_t : array<object, MAX_OBJECTS>
 {
 	int highest;
@@ -442,9 +435,9 @@ static inline ubyte get_player_id(const vcobjptr_t o)
 	return o->id;
 }
 
-static inline ubyte get_powerup_id(const vcobjptr_t o)
+static inline powerup_type_t get_powerup_id(const vcobjptr_t o)
 {
-	return o->id;
+	return static_cast<powerup_type_t>(o->id);
 }
 
 static inline ubyte get_reactor_id(const vcobjptr_t o)
@@ -472,10 +465,7 @@ static inline void set_player_id(const vobjptr_t o, ubyte id)
 	o->id = id;
 }
 
-static inline void set_powerup_id(const vobjptr_t o, ubyte id)
-{
-	o->id = id;
-}
+void set_powerup_id(vobjptr_t o, powerup_type_t id);
 
 static inline void set_robot_id(const vobjptr_t o, ubyte id)
 {

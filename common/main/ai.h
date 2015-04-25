@@ -28,18 +28,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#if defined(DXX_BUILD_DESCENT_II)
-#include "fvi.h"
-#include "compiler-array.h"
-#endif
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #ifdef __cplusplus
 #include "pstypes.h"
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "countarray.h"
-#include "vecmat.h"
 #include "aistruct.h"
+#endif
 
 struct point_seg;
 struct vobjptr_t;
@@ -74,14 +71,15 @@ extern sbyte Boss_hit_this_frame;
 
 #define NUM_D2_BOSSES 8
 
-extern const ubyte Boss_teleports[NUM_D2_BOSSES];     // Set byte if this boss can teleport
-extern const ubyte Boss_spew_more[NUM_D2_BOSSES];     // Set byte if this boss can teleport
+typedef array<ubyte, NUM_D2_BOSSES> boss_flags_t;
+extern const boss_flags_t Boss_teleports;     // Set byte if this boss can teleport
+extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 //extern ubyte Boss_cloaks[NUM_D2_BOSSES];        // Set byte if this boss can cloak
-extern const ubyte Boss_spews_bots_energy[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by energy weapon.
-extern const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by matter weapon.
-extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
-extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
-extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+extern const boss_flags_t Boss_spews_bots_energy;     // Set byte if boss spews bots when hit by energy weapon.
+extern const boss_flags_t Boss_spews_bots_matter;     // Set byte if boss spews bots when hit by matter weapon.
+extern const boss_flags_t Boss_invulnerable_energy;   // Set byte if boss is invulnerable to energy weapons.
+extern const boss_flags_t Boss_invulnerable_matter;   // Set byte if boss is invulnerable to matter weapons.
+extern const boss_flags_t Boss_invulnerable_spot;     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 extern segnum_t Believed_player_seg;
 extern objnum_t Ai_last_missile_camera;
 #endif
@@ -111,7 +109,7 @@ void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
 extern void init_ai_objects(void);
-void do_ai_robot_hit(vobjptridx_t robot, int type);
+void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void make_random_vector(vms_vector &vec);

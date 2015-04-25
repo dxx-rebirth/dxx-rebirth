@@ -69,8 +69,39 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 
 #ifdef EDITOR
+const array<char[10], 7> Wall_names{{
+	"NORMAL   ",
+	"BLASTABLE",
+	"DOOR     ",
+	"ILLUSION ",
+	"OPEN     ",
+	"CLOSED   ",
+	"EXTERNAL "
+}};
+
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
 static void say_totals(PHYSFS_file *my_file, const char *level_name);
+
+const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
+	"WALL    ",
+	"FIREBALL",
+	"ROBOT   ",
+	"HOSTAGE ",
+	"PLAYER  ",
+	"WEAPON  ",
+	"CAMERA  ",
+	"POWERUP ",
+	"DEBRIS  ",
+	"CNTRLCEN",
+	"FLARE   ",
+	"CLUTTER ",
+	"GHOST   ",
+	"LIGHT   ",
+	"COOP    ",
+#if defined(DXX_BUILD_DESCENT_II)
+	"MARKER  ",
+#endif
+}};
 
 // ----------------------------------------------------------------------------
 static const char	*object_types(int objnum)
@@ -918,7 +949,7 @@ static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 #endif
 	for (i=0; i < bound; i++)
 		if (!tb[i]) {
-			if (GameBitmaps[Textures[i].index].bm_data == bogus_data)
+			if (GameBitmaps[Textures[i].index].bm_data == bogus_data.data())
 				PHYSFSX_printf(my_file, "U");
 			else
 				PHYSFSX_printf(my_file, " ");

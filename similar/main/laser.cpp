@@ -66,8 +66,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NEWHOMER
 
 #if defined(DXX_BUILD_DESCENT_II)
-object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
+array<object *, MAX_PLAYERS> Guided_missile;
+array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
 
@@ -310,15 +310,15 @@ const unsigned MIN_OMEGA_BLOBS = 3;				//	No matter how close the obstruction, a
 const fix MIN_OMEGA_DIST = F1_0*3;		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
 const fix DESIRED_OMEGA_DIST = F1_0*5;		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
 const unsigned MAX_OMEGA_BLOBS = 16;				//	No matter how far away the obstruction, this is the maximum number of blobs.
-const fix MAX_OMEGA_DIST = MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST;		//	Maximum extent of lightning blobs.
-const fix64 MAX_OMEGA_DIST_SQUARED = static_cast<fix64>(MAX_OMEGA_DIST) * static_cast<fix64>(MAX_OMEGA_DIST);
+constexpr vm_distance MAX_OMEGA_DIST{MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST};		//	Maximum extent of lightning blobs.
+constexpr vm_distance_squared MAX_OMEGA_DIST_SQUARED{MAX_OMEGA_DIST * MAX_OMEGA_DIST};
 
 //	Additionally, several constants which apply to homing objects in general control the behavior of the Omega Cannon.
 //	They are defined in laser.h.  They are copied here for reference.  These values are valid on 1/10/96:
 //	If you want the Omega Cannon view cone to be different than the Homing Missile viewcone, contact MK to make the change.
 //	(Unless you are a programmer, in which case, do it yourself!)
 #define	OMEGA_MIN_TRACKABLE_DOT			(15*F1_0/16)		//	Larger values mean narrower cone.  F1_0 means damn near impossible.  0 means 180 degree field of view.
-static const fix64 OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must be at least this close to be tracked.
+constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must be at least this close to be tracked.
 
 //	Note, you don't need to change these constants.  You can control damage and energy consumption by changing the
 //	usual bitmaps.tbl parameters.
@@ -330,11 +330,10 @@ static const fix64 OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object must 
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
 static int omega_cleanup(const vobjptridx_t weapon)
 {
-	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
-
 	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
 		return 0;
-
+	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
+	const auto parent_num = weapon->ctype.laser_info.parent_num;
 	if (Objects[parent_num].signature == parent_sig)
 		if (vm_vec_dist2(weapon->pos, Objects[parent_num].pos) > MAX_OMEGA_DIST_SQUARED)
 		{
@@ -348,13 +347,12 @@ static int omega_cleanup(const vobjptridx_t weapon)
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
 int ok_to_do_omega_damage(const vcobjptr_t weapon)
 {
-	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
-
 	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
 		return 1;
-
+	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
+	const auto parent_num = weapon->ctype.laser_info.parent_num;
 	if (Objects[parent_num].signature == parent_sig)
 		if (vm_vec_dist2(Objects[parent_num].pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
 			return 0;
@@ -484,7 +482,7 @@ void omega_charge_frame(void)
 	if (Omega_charge == MAX_OMEGA_CHARGE)
 		return;
 
-	if (!(player_has_weapon(OMEGA_INDEX, 0) & HAS_WEAPON_FLAG))
+	if (!player_has_primary_weapon(primary_weapon_index_t::OMEGA_INDEX).has_weapon())
 		return;
 
 	if (Player_is_dead)
@@ -739,7 +737,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		if (weapon_type == FUSION_ID) {
 			int	fusion_scale;
 #if defined(DXX_BUILD_DESCENT_I)
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				fusion_scale = 2;
 			else
 #endif
@@ -754,7 +752,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 #if defined(DXX_BUILD_DESCENT_I)
 			//	Fusion damage was boosted by mk on 3/27 (for reg 1.1 release), but we only want it to apply to single player games.
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				obj->ctype.laser_info.multiplier /= 2;
 #endif
 		}
@@ -945,7 +943,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 
 int		Muzzle_queue_index = 0;
 
-muzzle_info		Muzzle_data[MUZZLE_QUEUE_MAX];
+array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Determine if two objects are on a line of sight.  If so, return true, else return false.
@@ -954,7 +952,6 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
-	int			fate;
 
 	fq.p0						= &obj1->pos;
 	fq.startseg				= obj1->segnum;
@@ -964,16 +961,18 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= trans_type;
 
-	fate = find_vector_intersection(fq, hit_data);
-
-	if (fate == HIT_WALL)
-		return 0;
-	else if (fate == HIT_NONE)
-		return 1;
-	else
-		Int3();		//	Contact Mike: Oops, what happened?  What is fate?
+	switch(const auto fate = find_vector_intersection(fq, hit_data))
+	{
+		case HIT_NONE:
+			return 1;
+		case HIT_WALL:
+			return 0;
+		default:
+			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2->pos.x, obj2->pos.y, obj2->pos.z);
+		// Int3();		//	Contact Mike: Oops, what happened?  What is fate?
 						// 2 = hit object (impossible), 3 = bad starting point (bad)
-
+			break;
+	}
 	return 0;
 }
 
@@ -1075,7 +1074,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 	}
 
 	const fix64 HOMING_MAX_TRACKABLE_DIST = F1_0*250;
-	fix64 max_trackable_dist = HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST;
+	vm_distance_squared max_trackable_dist{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST};
 	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1222,7 +1221,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 	vms_vector	*pnt;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	create_awareness_event(obj, PA_WEAPON_WALL_COLLISION);
+	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);
 #endif
 
 	// Find the initial position of the laser
@@ -1456,7 +1455,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 #endif
 
 	//delete weapons that are not moving
-	if (	!((d_tick_count ^ obj->signature) & 3) &&
+	if (	!((d_tick_count ^ obj->signature.get()) & 3) &&
 			(get_weapon_id(obj) != FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {

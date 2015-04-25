@@ -23,18 +23,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _NEWMENU_H
-#define _NEWMENU_H
+#pragma once
 
 #include "event.h"
 
 #ifdef __cplusplus
+#include <cstdint>
 #include <algorithm>
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
-#include "compiler-array.h"
+#include "ntstring.h"
 
 struct newmenu;
 struct listbox;
@@ -62,7 +61,7 @@ struct newmenu_item
 	short   x, y;
 	short   w, h;
 	short   right_offset;
-	char    saved_text[NM_MAX_TEXT_LEN+1];
+	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
 template <typename T>
@@ -78,7 +77,7 @@ class unused_newmenu_userdata_t;
 static const newmenu_subfunction_t<const unused_newmenu_userdata_t>::type unused_newmenu_subfunction = nullptr;
 static const unused_newmenu_userdata_t *const unused_newmenu_userdata = nullptr;
 
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
@@ -90,19 +89,19 @@ int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_ite
 // either/both of these if you don't want them.
 // Same as above, only you can pass through what background bitmap to use.
 template <typename T>
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
 {
 	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata), citem, filename );
 }
 
 template <typename T>
-int newmenu_do2(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
+int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
 {
 	return newmenu_do2(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename );
 }
 
 template <typename T>
-static inline int newmenu_do( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
+static inline int newmenu_do( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
@@ -115,45 +114,45 @@ static inline int newmenu_do(const char *title, const char *subtitle, array<newm
 
 // Same as above, only you can pass through what item is initially selected.
 template <typename T>
-static inline int newmenu_do1( const char * title, const char * subtitle, int nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )
+static inline int newmenu_do1( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem )
 {
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
-newmenu *newmenu_do4( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
+newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
-static inline newmenu *newmenu_do3( const char * title, const char * subtitle, int nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
+static inline newmenu *newmenu_do3( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
 {
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
 // Same as above, but returns menu instead of citem
 template <typename T>
-static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
+static newmenu *newmenu_do3(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<T>::type subfunction, T *userdata, int citem, const char *filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata), citem, filename);
 }
 
 template <typename T>
-static newmenu *newmenu_do3(const char *title, const char *subtitle, int nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
+static newmenu *newmenu_do3(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, typename newmenu_subfunction_t<const T>::type subfunction, const T *userdata, int citem, const char *filename)
 {
 	return newmenu_do3(title, subtitle, nitems, item, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }
 
-static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
+static inline newmenu *newmenu_dotiny( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, int TabsFlag, newmenu_subfunction subfunction, void *userdata )
 {
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 // Tiny menu with GAME_FONT
 template <typename T>
-static newmenu *newmenu_dotiny(const char * title, const char * subtitle, int nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
+static newmenu *newmenu_dotiny(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, int TabsFlag, typename newmenu_subfunction_t<T>::type subfunction, T *userdata)
 {
 	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata));
 }
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
-void newmenu_doreorder(const char * title, const char * subtitle, int nitems, newmenu_item *item);
+void newmenu_doreorder(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item *item);
 
 // Sample Code:
 /*
@@ -243,16 +242,16 @@ class unused_listbox_userdata_t;
 static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
 static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
 
-listbox *newmenu_listbox1( const char * title, int nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
+listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
 }
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
 {
 	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata.get()));
 	userdata.release();
@@ -260,7 +259,7 @@ listbox *newmenu_listbox1(const char *title, int nitems, const char *items[], in
 }
 
 template <typename T>
-listbox *newmenu_listbox(const char *title, int nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
 {
 	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
 }
@@ -399,19 +398,27 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 
 #define DXX_NEWMENU_VARIABLE	m
 #define DXX_ENUM_CHECK(S,OPT,V)	OPT,
+#define DXX_ENUM_RADIO(S,OPT,C,G)	OPT,
+#define DXX_ENUM_NUMBER DXX_ENUM_SLIDER
 #define DXX_ENUM_SLIDER(S,OPT,V,MIN,MAX)	OPT,
 #define DXX_ENUM_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	OPT,
 #define DXX_ENUM_MENU(S,OPT)	OPT,
 #define DXX_ENUM_TEXT(S,OPT)	OPT,
-#define DXX_ENUM_INPUT(S,OPT,MAX_TEXT_LEN)	OPT,
+#define DXX_ENUM_INPUT(S,OPT)	OPT,
 #define DXX_COUNT_CHECK(S,OPT,V)	+1
+#define DXX_COUNT_RADIO(S,OPT,C,G)	+1
+#define DXX_COUNT_NUMBER DXX_COUNT_SLIDER
 #define DXX_COUNT_SLIDER(S,OPT,V,MIN,MAX)	+1
 #define DXX_COUNT_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	+1
 #define DXX_COUNT_MENU(S,OPT)	+1
 #define DXX_COUNT_TEXT(S,OPT)	+1
-#define DXX_COUNT_INPUT(S,OPT,MAX_TEXT_LEN)	+1
+#define DXX_COUNT_INPUT(S,OPT)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
+#define DXX_ADD_RADIO(S,OPT,C,G)	\
+	nm_set_item_radio(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (C), (G));
+#define DXX_ADD_NUMBER(S,OPT,V,MIN,MAX)	\
+	nm_set_item_number(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
@@ -420,19 +427,75 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
 	nm_set_item_text(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
-#define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
+#define DXX_ADD_INPUT(S,OPT)	\
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
-	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+#define DXX_READ_NUMBER(S,OPT,V,MIN,MAX)	\
+	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\
-	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
-	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value * (SCALE);
+	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value * (SCALE);
 #define DXX_READ_MENU(S,OPT)	/* handled specially */
 #define DXX_READ_TEXT(S,OPT)	/* handled specially */
-#define DXX_READ_INPUT(S,OPT,MAX_TEXT_LEN)	/* handled specially */
+#define DXX_READ_INPUT(S,OPT)	/* handled specially */
+
+template <typename T, typename B>
+class menu_bit_wrapper_t
+{
+	T &m_mask;
+	B m_bit;
+public:
+	constexpr menu_bit_wrapper_t(T &t, B bit) :
+		m_mask(t), m_bit(bit)
+	{
+	}
+	constexpr operator T() const
+	{
+		return m_mask & m_bit;
+	}
+	menu_bit_wrapper_t &operator=(bool n)
+	{
+		if (n)
+			m_mask |= m_bit;
+		else
+			m_mask &= ~m_bit;
+		return *this;
+	}
+};
+
+template <typename T, typename B>
+static constexpr menu_bit_wrapper_t<T, B> menu_bit_wrapper(T &t, B b)
+{
+	return {t, b};
+}
+
+template <typename T, typename B>
+class menu_number_bias_wrapper_t
+{
+	T &m_value;
+	B m_bias;
+public:
+	constexpr menu_number_bias_wrapper_t(T &t, B bias) :
+		m_value(t), m_bias(bias)
+	{
+	}
+	constexpr operator T() const
+	{
+		return m_value + m_bias;
+	}
+	menu_number_bias_wrapper_t &operator=(T n)
+	{
+		m_value = n - m_bias;
+		return *this;
+	}
+};
+
+template <typename T, typename B>
+static constexpr menu_number_bias_wrapper_t<T, B> menu_number_bias_wrapper(T &t, B b)
+{
+	return {t, b};
+}
 
 #endif
-
-#endif /* _NEWMENU_H */
-

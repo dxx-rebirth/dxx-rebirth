@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <ctime>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -50,13 +50,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
-#include "polyobj.h"
+#include "robot.h"
 #include "fireball.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"
+#include "physfs_list.h"
 
 #include "powerup.h"
 #include "fuelcen.h"
@@ -67,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "newdemo.h"
 #include "gameseq.h"
+#include "hudmsg.h"
 #include "gamesave.h"
 #include "gamemine.h"
 #include "switch.h"
@@ -174,7 +176,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_MAX_LEVELS				29
 
-const array<file_extension_t, 1> demo_file_extensions{DEMO_EXT};
+const array<file_extension_t, 1> demo_file_extensions{{DEMO_EXT}};
 
 // In- and Out-files
 static RAIIPHYSFS_File infile;
@@ -222,9 +224,9 @@ static fix64 nd_record_v_recordframe_last_time = 0;
 static sbyte nd_record_v_no_space;
 #if defined(DXX_BUILD_DESCENT_II)
 static int nd_record_v_juststarted = 0;
-static sbyte nd_record_v_objs[MAX_OBJECTS];
-static sbyte nd_record_v_viewobjs[MAX_OBJECTS];
-static sbyte nd_record_v_rendering[32];
+static array<sbyte, MAX_OBJECTS> nd_record_v_objs,
+	nd_record_v_viewobjs;
+static array<sbyte, 32> nd_record_v_rendering;
 static fix nd_record_v_player_afterburner = -1;
 #endif
 static int nd_record_v_player_energy = -1;
@@ -301,13 +303,13 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 	return _newdemo_read(buffer, elsize, nelem);
 }
 
-objnum_t newdemo_find_object( int signature )
+cobjptridx_t newdemo_find_object(object_signature_t signature)
 {
 	range_for (const auto i, highest_valid(Objects))
 	{
-		object * objp = &Objects[i];
+		const auto objp = vcobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
-			return i;
+			return objp;
 	}
 	return object_none;
 }
@@ -550,7 +552,8 @@ static void nd_read_object(const vobjptridx_t obj)
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
 	nd_read_short(&shortsig);
-	obj->signature = shortsig;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	// It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
 	nd_read_shortpos(obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -786,7 +789,7 @@ static void nd_write_object(const vcobjptr_t obj)
 
 	nd_write_byte(obj->id);
 	nd_write_byte(obj->flags);
-	shortsig = obj->signature;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	shortsig = obj->signature.get();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
@@ -1121,7 +1124,7 @@ void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_vo
 	stop_time();
 	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
 	nd_write_int( soundno );
-	nd_write_int( Objects[objnum].signature );
+	nd_write_int(Objects[objnum].signature.get());
 	nd_write_int( max_volume );
 	nd_write_int( max_distance );
 	nd_write_int( loop_start );
@@ -1133,7 +1136,7 @@ void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
-	nd_write_int(objp->signature );
+	nd_write_int(objp->signature.get());
 	start_time();
 }
 
@@ -2099,9 +2102,9 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( loop_end );
 					break;
 				}
-				auto objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3( soundno, vcobjptridx(objnum), 1, max_volume, max_distance, loop_start, loop_end );
+					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, vm_distance{max_distance}, loop_start, loop_end );
 				}
 			}
 			break;
@@ -2115,9 +2118,9 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_write_int( signature );
 					break;
 				}
-				auto objnum = newdemo_find_object( signature );
+				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_kill_sound_linked_to_object(vcobjptridx(objnum));
+					digi_kill_sound_linked_to_object(objnum);
 				}
 			}
 			break;
@@ -2499,15 +2502,6 @@ static int newdemo_read_frame_information(int rewrite)
 			segnum_t segnum;
 			sbyte side;
 			vms_vector pnt;
-#if defined(DXX_BUILD_DESCENT_II)
-			object dummy;
-
-			//create a dummy object which will be the weapon that hits
-			//the monitor. the blowup code wants to know who the parent of the
-			//laser is, so create a laser whose parent is the player
-			dummy.ctype.laser_info.parent_type = OBJ_PLAYER;
-			dummy.ctype.laser_info.parent_num = Player_num;
-#endif
 
 			nd_read_short(&segnum);
 			nd_read_byte(&side);
@@ -2520,11 +2514,19 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
+			{
 #if defined(DXX_BUILD_DESCENT_I)
 				check_effect_blowup(&(Segments[segnum]), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
-				check_effect_blowup(&(Segments[segnum]), side, pnt, &dummy, 0, 0);
+			//create a dummy object which will be the weapon that hits
+			//the monitor. the blowup code wants to know who the parent of the
+			//laser is, so create a laser whose parent is the player
+				laser_parent dummy;
+				dummy.parent_type = OBJ_PLAYER;
+				dummy.parent_num = Player_num;
+				check_effect_blowup(vsegptridx(segnum), side, pnt, dummy, 0, 0);
 #endif
+			}
 			break;
 		}
 
@@ -3676,13 +3678,88 @@ static void newdemo_write_end()
 	nd_write_byte(ND_EVENT_EOF);
 }
 
+static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
+{
+	filename[0] = 0;
+	const auto &n = GameArg.SysRecordDemoNameTemplate;
+	if (n.empty())
+		return false;
+	auto p = n.c_str();
+	if (!strcmp(p, "."))
+		p = "%Y%m%d.%H%M%S-$p-$m";
+	std::size_t i = 0;
+	time_t t = 0;
+	tm *ptm = nullptr;
+	for (;; ++p)
+	{
+		if (*p == '%')
+		{
+			if (!p[1])
+				/* Trailing bare % is ill-formed.  Ignore entire
+				 * template.
+				 */
+				return false;
+			/* Time conversions */
+			if (unlikely(!t))
+				t = time(nullptr);
+			if (unlikely(t == -1 || !(ptm = gmtime(&t))))
+				continue;
+			char sbuf[4];
+			sbuf[0] = '%';
+			sbuf[1] = *++p;
+#ifndef _WIN32
+			/* Not supported on Windows */
+			if (sbuf[1] == 'O' || sbuf[1] == 'E')
+			{
+				sbuf[2] = *++p;
+				sbuf[3] = 0;
+			}
+			else
+#endif
+			{
+				sbuf[2] = 0;
+			}
+			filename[i] = 0;
+			auto a = strftime(&filename[i], sizeof(filename) - i, sbuf, ptm);
+			if (a >= sizeof(filename) - i)
+				return false;
+			i += a;
+			continue;
+		}
+		if (*p == '$')
+		{
+			/* Variable conversions */
+			const char *insert;
+			switch(*++p)
+			{
+				case 'm':	/* mission */
+					insert = Current_mission_filename;
+					break;
+				case 'p':	/* pilot */
+					insert = Players[Player_num].callsign;
+					break;
+				default:
+					return false;
+			}
+			i += filename.copy_if(i, insert);
+			continue;
+		}
+		filename[i++] = *p;
+		if (!*p)
+			break;
+		if (i >= sizeof(filename) - 1)
+			return false;
+	}
+	return filename[0];
+}
+
 static const char demoname_allowed_chars[] = "azAZ09__--";
 #define DEMO_FORMAT_STRING(S)	DEMO_DIR S "." DEMO_EXT
 void newdemo_stop_recording()
 {
 	int exit;
-	static char filename[PATH_MAX] = "", *s;
 	static sbyte tmpcnt = 0;
+	ntstring<PATH_MAX - 1> filename;
 
 	exit = 0;
 
@@ -3695,39 +3772,23 @@ void newdemo_stop_recording()
 	outfile.reset();
 	Newdemo_state = ND_STATE_NORMAL;
 	gr_palette_load( gr_palette );
-
-	if (filename[0] != '\0') {
-		int num, i = strlen(filename) - 1;
-		char newfile[PATH_MAX];
-
-		while (isdigit(filename[i])) {
-			i--;
-			if (i == -1)
-				break;
-		}
-		i++;
-		num = atoi(&(filename[i]));
-		num++;
-		filename[i] = '\0';
-		sprintf (newfile, "%s%d", filename, num);
-		strncpy(filename, newfile, PATH_MAX);
-		filename[PATH_MAX - 1] = '\0';
-	}
-
 try_again:
 	;
 
 	Newmenu_allowed_chars = demoname_allowed_chars;
-	if (!nd_record_v_no_space) {
-		array<newmenu_item, 1> m{
+	if (guess_demo_name(filename))
+	{
+	}
+	else if (!nd_record_v_no_space) {
+		array<newmenu_item, 1> m{{
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	} else if (nd_record_v_no_space == 2) {
-		array<newmenu_item, 2> m{
+		array<newmenu_item, 2> m{{
 			nm_item_text(TXT_DEMO_SAVE_NOSPACE),
 			nm_item_input(filename),
-		};
+		}};
 		exit = newmenu_do( NULL, NULL, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 	}
 	Newmenu_allowed_chars = NULL;
@@ -3736,7 +3797,7 @@ try_again:
 		char save_file[PATH_MAX];
 
 		if (filename[0] != '\0') {
-			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename);
+			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename.data());
 		} else
 			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("tmp%d"), tmpcnt++);
 		remove(save_file);
@@ -3752,14 +3813,19 @@ try_again:
 		goto try_again;
 
 	//check to make sure name is ok
-	for (s=filename;*s;s++)
-		if (!isalnum(*s) && *s!='_') {
+	range_for (const unsigned c, filename)
+	{
+		if (!c)
+			break;
+		if (!isalnum(c) && c != '_' && c != '-' && c != '.')
+		{
 			nm_messagebox(NULL, 1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
 			goto try_again;
 		}
+	}
 
 	char fullname[PATH_MAX];
-	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), filename);
+	snprintf(fullname, sizeof(fullname), DEMO_FORMAT_STRING("%s"), filename.data());
 	PHYSFS_delete(fullname);
 	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }
@@ -4015,7 +4081,7 @@ static void nd_render_extras (ubyte which,const vcobjptr_t obj)
 	if (which==255)
 	{
 		Int3(); // how'd we get here?
-		do_cockpit_window_view(w,0,WBU_WEAPON,NULL);
+		do_cockpit_window_view(w,WBU_WEAPON);
 		return;
 	}
 

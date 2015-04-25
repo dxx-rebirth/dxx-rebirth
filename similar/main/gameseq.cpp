@@ -78,7 +78,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "gamefont.h"
 #include "newmenu.h"
+#include "hudmsg.h"
 #include "endlevel.h"
+#include "kmatrix.h"
 #  include "multi.h"
 #include "playsave.h"
 #include "ctype.h"
@@ -118,7 +120,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "custom.h"
 #define GLITZ_BACKGROUND	Menu_pcx_name
 
-static int AdvanceLevel(int secret_flag);
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
@@ -127,8 +128,8 @@ static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(int random_flag);
 static void DoEndGame(void);
 static void filter_objects_from_level();
-static void AdvanceLevel(int secret_flag);
 #endif
+static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(void);
 
@@ -146,7 +147,7 @@ array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // M
 #if defined(DXX_BUILD_DESCENT_II)
 int	First_secret_visit = 1;
 #endif
-obj_position	Player_init[MAX_PLAYERS];
+array<obj_position, MAX_PLAYERS> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
@@ -303,10 +304,14 @@ extern	ubyte	Last_afterburner_state;
 #endif
 
 // Setup player for new level (After completion of previous level)
-void init_player_stats_level(int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void init_player_stats_level()
+#elif defined(DXX_BUILD_DESCENT_II)
+void init_player_stats_level(const secret_restore secret_flag)
+#endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
 	// int	i;
 
@@ -329,7 +334,7 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
-	if (!secret_flag) {
+	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
 		Players[Player_num].flags &= (~KEY_BLUE);
@@ -369,6 +374,8 @@ void init_player_stats_level(int secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	auto &plr = Players[Player_num];
 	if (pnum == Player_num)
 	{
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -390,21 +397,20 @@ void init_player_stats_new_ship(ubyte pnum)
 			i = 0;
 		range_for (auto &i, Secondary_last_was_super)
 			i = 0;
-		Afterburner_charge = 0;
+		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
-		Missile_viewer=NULL; //reset missile camera if out there
-		Missile_viewer_sig=-1;
+		Missile_viewer = nullptr; //reset missile camera if out there
 		init_ai_for_ship();
 #endif
 	}
 
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
-	Players[pnum].laser_level = 0;
+	Players[pnum].laser_level = map_granted_flags_to_laser_level(GrantedItems);
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].vulcan_ammo = 0;
+	Players[pnum].vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	range_for (auto &i, partial_range(Players[pnum].secondary_ammo, 1u, MAX_SECONDARY_WEAPONS))
 		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
@@ -414,6 +420,8 @@ void init_player_stats_new_ship(ubyte pnum)
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
+	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
+	plr.primary_weapon_flags |= map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
@@ -425,7 +433,7 @@ void init_player_stats_new_ship(ubyte pnum)
 void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
-	init_player_stats_level(0);
+	init_player_stats_level(secret_restore::none);
 	Viewer = ConsoleObject;
 	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
 	set_player_id(ConsoleObject, Player_num);
@@ -624,7 +632,7 @@ static ushort netmisc_calc_checksum()
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
-		range_for (uint16_t j, Segments[i].verts)
+		range_for (const uint16_t j, Segments[i].verts)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
@@ -638,8 +646,6 @@ static ushort netmisc_calc_checksum()
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
 		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-		s = INTEL_SHORT(0); // no matter if we need alignment on our platform, if we have editor we MUST consider this integer to get the same checksum as non-editor games calculate
-		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 #endif
 	}
 	sum2 %= 255;
@@ -958,9 +964,9 @@ static void do_screen_message(const char *msg)
 		return;
 
 	gr_palette_load(gr_palette);
-	array<newmenu_item, 1> nm_message_items{
+	array<newmenu_item, 1> nm_message_items{{
 		nm_item_menu(TXT_OK),
-	};
+	}};
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
 	gr_free_bitmap_data(background);
 }
@@ -1047,7 +1053,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
-			state_restore_all(1, 1, SECRETC_FILENAME, 0);
+			state_restore_all(1, secret_restore::survived, SECRETC_FILENAME, blind_save::no);
 			Primary_weapon = pw_save;
 			Secondary_weapon = sw_save;
 			reset_special_effects();
@@ -1071,7 +1077,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	First_secret_visit = 0;
 }
 
-int	Entered_from_level;
+static int Entered_from_level;
 
 // ---------------------------------------------------------------------------------------------------------------
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
@@ -1084,7 +1090,7 @@ void ExitSecretLevel(void)
 		window_set_visible(Game_wind, 0);
 
 	if (!Control_center_destroyed) {
-		state_save_all(2, SECRETC_FILENAME, 0);
+		state_save_all(secret_save::c, blind_save::no);
 	}
 
 	if (PHYSFSX_exists(SECRETB_FILENAME,0))
@@ -1094,7 +1100,7 @@ void ExitSecretLevel(void)
 		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME, 0);
+		state_restore_all(1, secret_restore::survived, SECRETB_FILENAME, blind_save::no);
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
 	} else {
@@ -1153,7 +1159,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(1, nullptr, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(secret_save::b, blind_save::no);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)
@@ -1196,232 +1202,31 @@ void PlayerFinishedLevel(int secret_flag)
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
-	int	rval;
-	int 	was_multi = 0;
-
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
-		array<newmenu_item, 1> m{
+		array<newmenu_item, 1> m{{
 			nm_item_text(" "),			//TXT_SECRET_EXIT;
-		};
+		}};
 		newmenu_do2(NULL, TXT_SECRET_EXIT, m.size(), m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 0, Menu_pcx_name);
 	}
-
-// -- mk mk mk -- used to be here -- mk mk mk --
-
-	if (Game_mode & GM_NETWORK)
-         {
-		if (secret_flag)
-			Players[Player_num].connected = CONNECT_FOUND_SECRET; // Finished and went to secret level
-		else
-			Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
-         }
-	last_drawn_cockpit = -1;
-
-	if (Current_level_num == Last_level) {
-		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		{
-			was_multi = 1;
-			multi_endlevel_score();
-			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
-		}
-		else
-		{	// Note link to above else!
-			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
-			DoEndLevelScoreGlitz(0);		//give bonuses
-		}
-	} else {
-		if (Game_mode & GM_MULTI)
-			multi_endlevel_score();
-		else
-			DoEndLevelScoreGlitz(0);		//give bonuses
-		rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
-	}
-
-	if (!was_multi && rval) {
-		if (PLAYING_BUILTIN_MISSION)
-			scores_maybe_add_player(0);
-		if (Game_wind)
-			window_close(Game_wind);		// Exit out of game loop
-	}
-	else if (rval && Game_wind)
-		window_close(Game_wind);
 #elif defined(DXX_BUILD_DESCENT_II)
-
 	Assert(!secret_flag);
-
+#endif
 	if (Game_mode & GM_NETWORK)
 		Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
 
 	last_drawn_cockpit = -1;
 
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
-#endif
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
-	reset_time();
-}
-
-#if defined(DXX_BUILD_DESCENT_I)
-static int AdvanceLevel(int secret_flag)
-{
-	Control_center_destroyed = 0;
-
-	#ifdef EDITOR
-	if (Current_level_num == 0)
-	{
-		return 1;		//not a real level
-	}
-	#endif
-
-	key_flush();
-
-	if (Game_mode & GM_MULTI)
-	{
-		int result;
-		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
-		if (result) // failed to sync
-		{
-			return (Current_level_num == Last_level);
-		}
-	}
-
-	key_flush();
-
-	if (Current_level_num == Last_level) {		//player has finished the game!
-
-		if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
-			newdemo_stop_recording();
-
-		do_end_briefing_screens(Ending_text_filename);
-
-		return 1;
-
-	} else {
-
-		Next_level_num = Current_level_num+1;		//assume go to next normal level
-
-		if (secret_flag) {			//go to secret level instead
-			int i;
-
-			for (i=0;i<-Last_secret_level;i++)
-				if (Secret_level_table[i]==Current_level_num) {
-					Next_level_num = -(i+1);
-					break;
-				}
-			Assert(i<-Last_secret_level);		//couldn't find which secret level
-		}
-
-		if (Current_level_num < 0)	{			//on secret level, where to go?
-
-			Assert(!secret_flag);				//shouldn't be going to secret level
-			Assert(Current_level_num<=-1 && Current_level_num>=Last_secret_level);
-
-			Next_level_num = Secret_level_table[(-Current_level_num)-1]+1;
-		}
-
-		StartNewLevel(Next_level_num);
-
-	}
-
-	key_flush();
-
-	return 0;
-}
-
-//called when the player has died
-void DoPlayerDead()
-{
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
-
-	reset_palette_add();
-
-	gr_palette_load (gr_palette);
-
-	dead_player_end();		//terminate death sequence (if playing)
-
-	#ifdef EDITOR
-	if (Game_mode == GM_EDITOR) {			//test mine, not real level
-		object * player = &Objects[Players[Player_num].objnum];
-		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
-		load_level("gamesave.lvl");
-		init_player_stats_new_ship(Player_num);
-		player->flags &= ~OF_SHOULD_BE_DEAD;
-		StartLevel(0);
-		return;
-	}
-	#endif
-
-	if ( Game_mode&GM_MULTI )
-	{
-		multi_do_death(Players[Player_num].objnum);
-	}
-	else
-	{				//Note link to above else!
-		Players[Player_num].lives--;
-		if (Players[Player_num].lives == 0)
-		{
-			DoGameOver();
-			return;
-		}
-	}
-
-	if ( Control_center_destroyed ) {
-
-		//clear out stuff so no bonus
-		Players[Player_num].hostages_on_board = 0;
-		Players[Player_num].energy = 0;
-		Players[Player_num].shields = 0;
-		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
-
-		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-
-		int	rval;
-		if (Current_level_num == Last_level) {
-			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-			{
-				multi_endlevel_score();
-				rval = AdvanceLevel(0);			//if finished, go on to next level
-			}
-			else
-			{			// Note link to above else!
-				rval = AdvanceLevel(0);			//if finished, go on to next level
-				DoEndLevelScoreGlitz(0);
-			}
-			init_player_stats_new_ship(Player_num);
-			last_drawn_cockpit = -1;
-		} else {
-			if (Game_mode & GM_MULTI)
-				multi_endlevel_score();
-			else
-				DoEndLevelScoreGlitz(0);		// Note above link!
-
-			rval = AdvanceLevel(0);			//if finished, go on to next level
-			init_player_stats_new_ship(Player_num);
-			last_drawn_cockpit = -1;
-		}
-
-		if (rval) {
-			if (PLAYING_BUILTIN_MISSION)
-				scores_maybe_add_player(0);
-			if (Game_wind)
-				window_close(Game_wind);		// Exit out of game loop
-		}
-	} else {
-		init_player_stats_new_ship(Player_num);
-		StartLevel(1);
-	}
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 	reset_time();
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+
+#if defined(DXX_BUILD_DESCENT_II)
 #define MOVIE_REQUIRED 1
-
 #define ENDMOVIE "end"
+#endif
 
 //called when the player has finished the last level
 static void DoEndGame(void)
@@ -1437,16 +1242,18 @@ static void DoEndGame(void)
 
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
+#if defined(DXX_BUILD_DESCENT_II)
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 
 		played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE,MOVIE_REQUIRED);
 		if (!played)
+#endif
 		{
 			do_end_briefing_screens(Ending_text_filename);
 		}
-   }
-   else if (!(Game_mode & GM_MULTI))    //not multi
-   {
+        }
+        else if (!(Game_mode & GM_MULTI))    //not multi
+        {
 		char tname[FILENAME_LEN];
 
 		do_end_briefing_screens (Ending_text_filename);
@@ -1467,7 +1274,9 @@ static void DoEndGame(void)
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		gr_set_current_canvas( NULL );
 		gr_clear_canvas(BM_XRGB(0,0,0));
+#if defined(DXX_BUILD_DESCENT_II)
 		load_palette(D2_DEFAULT_PALETTE,0,1);
+#endif
 		scores_maybe_add_player(0);
 	}
 
@@ -1480,11 +1289,20 @@ static void DoEndGame(void)
 //	Return true if game over.
 static void AdvanceLevel(int secret_flag)
 {
+#if defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);
-
+#endif
 	if (Current_level_num != Last_level) {
 		if (Game_mode & GM_MULTI)
-			multi_endlevel_score();
+                {
+					const auto result = multi_endlevel_score();
+					if (result == kmatrix_result::abort)
+                        {
+				if (Game_wind)
+					window_close(Game_wind);		// Exit out of game loop
+                                return;
+                        }
+                }
 		else
 			// NOTE LINK TO ABOVE!!!
 			DoEndLevelScoreGlitz(0);		//give bonuses
@@ -1512,11 +1330,34 @@ static void AdvanceLevel(int secret_flag)
 		}
 	}
 
-	if (Current_level_num == Last_level) {		//player has finished the game!
+        if (Current_level_num == Last_level) {		//player has finished the game!
 
 		DoEndGame();
 
 	} else {
+#if defined(DXX_BUILD_DESCENT_I)
+		Next_level_num = Current_level_num+1;		//assume go to next normal level
+
+		if (secret_flag) {			//go to secret level instead
+			int i;
+
+			for (i=0;i<-Last_secret_level;i++)
+				if (Secret_level_table[i]==Current_level_num) {
+					Next_level_num = -(i+1);
+					break;
+				}
+			Assert(i<-Last_secret_level);		//couldn't find which secret level
+		}
+
+		if (Current_level_num < 0)	{			//on secret level, where to go?
+
+			Assert(!secret_flag);				//shouldn't be going to secret level
+			Assert(Current_level_num<=-1 && Current_level_num>=Last_secret_level);
+
+			Next_level_num = Secret_level_table[(-Current_level_num)-1]+1;
+		}
+#elif defined(DXX_BUILD_DESCENT_II)
+
 		//NMN 04/08/07 If we are in a secret level and playing a D1
 		// 	       level, then use Entered_from_level # instead
 		if (Current_level_num < 0 && EMULATING_D1)
@@ -1526,9 +1367,8 @@ static void AdvanceLevel(int secret_flag)
 		  Next_level_num = Current_level_num+1;		//assume go to next normal level
                 }
 		// END NMN
-
+#endif
 		StartNewLevel(Next_level_num);
-
 	}
 }
 
@@ -1580,12 +1420,12 @@ void DoPlayerDead()
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Current_level_num < 0) {
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
-				state_restore_all(1, 2, SECRETB_FILENAME, 0);			//	2 means you died
+				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
@@ -1597,21 +1437,23 @@ void DoPlayerDead()
 					init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 				}
 			}
-		} else {
+		} else 
+#endif
+                {
 
 			AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		}
-
+#if defined(DXX_BUILD_DESCENT_II)
 	} else if (Current_level_num < 0) {
 		if (PHYSFSX_exists(SECRETB_FILENAME,0))
 		{
 			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)
-				state_save_all(2, SECRETC_FILENAME, 0);
-			state_restore_all(1, 2, SECRETB_FILENAME, 0);
+				state_save_all(secret_save::c, blind_save::no);
+			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
@@ -1624,6 +1466,7 @@ void DoPlayerDead()
 				init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 			}
 		}
+#endif
 	} else {
 		init_player_stats_new_ship(Player_num);
 		StartLevel(1);
@@ -1635,19 +1478,22 @@ void DoPlayerDead()
 		window_set_visible(Game_wind, 1);
 	reset_time();
 }
-#endif
 
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
-void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
+#if defined(DXX_BUILD_DESCENT_I)
+void StartNewLevelSub(const int level_num, const int page_in_textures)
+#elif defined(DXX_BUILD_DESCENT_II)
+void StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
+#endif
 {
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = -1;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	secret_flag = 0;
+	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
-   BigWindowSwitch=0;
+        BigWindowSwitch=0;
 #endif
 
 
@@ -1768,10 +1614,8 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 void (bash_to_shield)(const vobjptr_t i)
 {
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
-	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
+	PowerupCaps.reset_powerup_both(type);
 	set_powerup_id(i, POW_SHIELD_BOOST);
-	i->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(i)].vclip_num;
-	i->rtype.vclip_info.frametime = Vclip[i->rtype.vclip_info.vclip_num].frame_time;
 }
 
 
@@ -1887,7 +1731,7 @@ void StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	StartNewLevelSub(level_num, 1, 0 );
+	StartNewLevelSub(level_num, 1, secret_restore::none);
 
 }
 

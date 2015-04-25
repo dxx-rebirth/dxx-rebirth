@@ -549,7 +549,7 @@ void rle_swap_0_255(grs_bitmap &bmp)
 			}
 		}
 		if (rle_big)                // set line size
-			*((unsigned short *)&temp[4 + 2 * i]) = INTEL_SHORT(ptr2 - start);
+			PUT_INTEL_SHORT(&temp[4 + 2 * i], static_cast<uint16_t>(ptr2 - start));
 		else
 			temp[4 + i] = ptr2 - start;
 		ptr += line_size;           // go to next line
@@ -596,7 +596,7 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 			}
 		}
 		if (rle_big)                // set line size
-			*((unsigned short *)&temp[4 + 2 * i]) = INTEL_SHORT(ptr2 - start);
+			PUT_INTEL_SHORT(&temp[4 + 2 * i], static_cast<uint16_t>(ptr2 - start));
 		else
 			temp[4 + i] = ptr2 - start;
 		ptr += line_size;           // go to next line

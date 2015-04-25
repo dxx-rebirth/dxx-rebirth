@@ -127,6 +127,8 @@ static void print_commandline_help()
 	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
 	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
+	printf( "  -auto-record-demo             Start recording on level entry\n");
+	printf( "  -record-demo-format           Set demo name automatically\n");
 	printf( "  -autodemo                     Start in demo mode\n");
 	printf( "  -window                       Run the game in a window\n");
 	printf( "  -noborders                    Do not show borders in window mode\n");
@@ -160,6 +162,14 @@ static void print_commandline_help()
 #endif
 #ifdef    OGL
 	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
+	printf( "  -gl_syncmethod <n>            OpenGL sync method (default: %i)\n", OGL_SYNC_METHOD_DEFAULT);
+	printf( "                                    0: disabled\n");
+	printf( "                                    1: fence syncs, limit GPU latency to at most one frame\n");
+	printf( "                                    2: like 1, but sleep during sync to reduce CPU load\n");
+	printf( "                                    3: immedaitely sync after buffer swap\n");
+	printf( "                                    4: immediately sync after buffer swap\n");
+	printf( "                                    5: auto. use mode 2 if available, 0 otherwise\n");
+	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
 #endif // OGL
 
 #if defined(USE_UDP)
@@ -428,7 +438,7 @@ int main(int argc, char *argv[])
 
 	arch_init();
 
-	select_tmap(GameArg.DbgTexMap);
+	select_tmap(GameArg.DbgTexMap.c_str());
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;
@@ -492,18 +502,18 @@ int main(int argc, char *argv[])
 	//	If built with editor, option to auto-load a level and quit game
 	//	to write certain data.
 	#ifdef	EDITOR
-	if (GameArg.EdiAutoLoad) {
+	if (!GameArg.EdiAutoLoad.empty()) {
 		Players[0].callsign = "dummy";
 	} else
 	#endif
 #endif
 	{
-		if(GameArg.SysPilot)
+		if (!GameArg.SysPilot.empty())
 		{
 			char filename[32] = "";
 			unsigned j;
 
-			snprintf(filename, sizeof(filename), "%s%.12s", PLAYER_DIRECTORY_STRING(""), GameArg.SysPilot);
+			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), GameArg.SysPilot.c_str());
 			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
@@ -528,9 +538,9 @@ int main(int argc, char *argv[])
 
 #if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
-	if (GameArg.EdiAutoLoad) {
+	if (!GameArg.EdiAutoLoad.empty()) {
 		/* Any number >= FILENAME_LEN works */
-		Level_names[0].copy_if(GameArg.EdiAutoLoad, Level_names[0].size());
+		Level_names[0].copy_if(GameArg.EdiAutoLoad.c_str(), GameArg.EdiAutoLoad.size());
 		LoadLevel(1, 1);
 	}
 	else
@@ -563,7 +573,6 @@ int main(int argc, char *argv[])
 	gamedata_close();
 	gamefont_close();
 	free_text();
-	args_exit();
 	newmenu_free_background();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();

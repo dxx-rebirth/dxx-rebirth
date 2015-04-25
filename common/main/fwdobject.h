@@ -13,8 +13,11 @@
 #include "objnum.h"
 #include "segnum.h"
 #include "fwdvalptridx.h"
+#include "maths.h"
 
 struct bitmap_index;
+struct vms_vector;
+struct vms_matrix;
 
 const unsigned MAX_OBJECTS = 350;
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
@@ -128,7 +131,6 @@ struct polyobj_info_rw;
 struct obj_position;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern const array<array<char, 9>, MAX_OBJECT_TYPES> Object_type_names;
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_CONTROLCEN_GUNS = 4;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -266,7 +268,7 @@ void extract_quaternionpos(vobjptridx_t objp, quaternionpos *qpp, int swap_bytes
 void clear_transient_objects(int clear_all);
 
 // Returns a new, unique signature for a new object
-int obj_get_signature();
+object_signature_t obj_get_signature();
 
 // returns the number of a free object, updating Highest_object_index.
 // Generally, obj_create() should be called to get an object, since it

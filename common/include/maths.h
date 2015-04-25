@@ -18,6 +18,7 @@
 #ifdef __cplusplus
 #include <cstddef>
 #include "dxxsconf.h"
+#include "compiler-array.h"
 
 void d_srand (unsigned int seed);
 __attribute_warn_unused_result
@@ -164,11 +165,10 @@ fixang fix_atan2 (fix cos, fix sin);
 __attribute_warn_unused_result
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 
-extern const ubyte guess_table[256];
-extern const short sincos_table[321];
-extern const ushort asin_table[258];
-extern const ushort acos_table[258];
-
+extern const array<ubyte, 256> guess_table;
+extern const array<short, 321> sincos_table;
+extern const array<ushort, 258> asin_table;
+extern const array<ushort, 258> acos_table;
 
 static inline void clamp_fix_lh(fix& f, const fix& low, const fix& high)
 {

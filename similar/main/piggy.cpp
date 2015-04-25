@@ -68,6 +68,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
 
 #elif defined(DXX_BUILD_DESCENT_II)
+#include "compiler-range_for.h"
+#include "partial_range.h"
+
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
@@ -87,7 +90,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 unsigned Num_aliases;
 array<alias, MAX_ALIASES> alias_list;
 
-int Must_write_hamfile = 0;
 int Piggy_hamfile_version = 0;
 #endif
 
@@ -99,39 +101,37 @@ struct SoundFile
 	char    name[15];
 };
 
+#if defined(DXX_BUILD_DESCENT_II)
+namespace {
+#endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
+array<int, MAX_BITMAP_FILES> GameBitmapOffset;
+#if defined(DXX_BUILD_DESCENT_II)
+}
+#endif
 
 int Num_bitmap_files = 0;
 int Num_sound_files = 0;
 
-digi_sound GameSounds[MAX_SOUND_FILES];
-int SoundOffset[MAX_SOUND_FILES];
-grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
+array<digi_sound, MAX_SOUND_FILES> GameSounds;
+static array<int, MAX_SOUND_FILES> SoundOffset;
+array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
 
-int Num_bitmap_files_new = 0;
-int Num_sound_files_new = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 static
 #endif
-BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
-static SoundFile AllSounds[ MAX_SOUND_FILES ];
+array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+static array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 #define DBM_FLAG_ABM    64 // animated bitmap
 
-int Piggy_bitmap_cache_size = 0;
-int Piggy_bitmap_cache_next = 0;
+static int Piggy_bitmap_cache_size;
+static int Piggy_bitmap_cache_next;
 ubyte * Piggy_bitmap_cache_data = NULL;
-#if defined(DXX_BUILD_DESCENT_II)
-static
-#endif
-int GameBitmapOffset[MAX_BITMAP_FILES];
-#if defined(DXX_BUILD_DESCENT_II)
-static
-#endif
-ubyte GameBitmapFlags[MAX_BITMAP_FILES];
-ushort GameBitmapXlat[MAX_BITMAP_FILES];
+static array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
+static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PIGGY_BUFFER_SIZE (2048*1024)
@@ -146,15 +146,15 @@ int piggy_page_flushed = 0;
 
 static RAIIPHYSFS_File Piggy_fp;
 
-ubyte bogus_data[64*64];
 ubyte bogus_bitmap_initialized=0;
+array<uint8_t, 64 * 64> bogus_data;
 digi_sound bogus_sound;
 
 #if defined(DXX_BUILD_DESCENT_I)
 grs_bitmap bogus_bitmap;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
-static int SoundCompressed[ MAX_SOUND_FILES ];
+static array<int, MAX_SOUND_FILES> SoundCompressed;
 #elif defined(DXX_BUILD_DESCENT_II)
 char Current_pigfile[FILENAME_LEN] = "";
 int Pigfile_initialized=0;
@@ -264,19 +264,6 @@ void swap_0_255(grs_bitmap *bmp)
 	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-char* piggy_game_bitmap_name(grs_bitmap *bmp)
-{
-	if (bmp >= GameBitmaps && bmp < &GameBitmaps[MAX_BITMAP_FILES])
-	{
-		int i = bmp-GameBitmaps; // i = (bmp - GameBitmaps) / sizeof(grs_bitmap);
-		Assert (bmp == &GameBitmaps[i] && i >= 0 && i < MAX_BITMAP_FILES);
-		return AllBitmaps[i].name;
-	}
-	return NULL;
-}
-#endif
-
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;
@@ -293,7 +280,6 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 #endif
 		if (GameArg.DbgNoCompressPigBitmap)
 			gr_bitmap_rle_compress(*bmp);
-		Num_bitmap_files_new++;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (SoundOffset[Num_sound_files] == 0)
@@ -346,10 +332,6 @@ int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 #endif
 
 	i = Num_sound_files;
-   
-	if (!in_file)
-		Num_sound_files_new++;
-
 	Num_sound_files++;
 	return i;
 }
@@ -455,21 +437,21 @@ int properties_init()
 		ubyte c;
 		bogus_bitmap_initialized = 1;
 		c = gr_find_closest_color( 0, 0, 63 );
-		for (i=0; i<4096; i++ ) bogus_data[i] = c;
+		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
 		for (i=0; i<64; i++ )	{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		gr_init_bitmap(bogus_bitmap, 0, 0, 0, 64, 64, 64, bogus_data);
+		gr_init_bitmap(bogus_bitmap, 0, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap( &bogus_bitmap, "bogus", 1 );
 #ifdef ALLEGRO
 		bogus_sound.len = 64*64;
 #else
         bogus_sound.length = 64*64;
 #endif
-		bogus_sound.data = bogus_data;
+		bogus_sound.data = bogus_data.data();
 //added on 11/13/99 by Victor Rachels to ready for changing freq
                 bogus_sound.freq = 11025;
                 bogus_sound.bits = 8;
@@ -987,7 +969,6 @@ int read_hamfile()
 	}
 
 	if (!ham_fp) {
-		Must_write_hamfile = 1;
 		return 0;
 	}
 
@@ -1137,17 +1118,17 @@ int properties_init(void)
 
 		bogus_bitmap_initialized = 1;
 		c = gr_find_closest_color( 0, 0, 63 );
-		for (i=0; i<4096; i++ ) bogus_data[i] = c;
+		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
 		for (i=0; i<64; i++ )   {
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		gr_init_bitmap(GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data);
+		gr_init_bitmap(GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(&GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
-		bogus_sound.data = bogus_data;
+		bogus_sound.data = bogus_data.data();
 		GameBitmapOffset[0] = 0;
 	}
 

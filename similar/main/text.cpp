@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
-const char *Text_string[N_TEXT_STRINGS];
+array<const char *, N_TEXT_STRINGS> Text_string;
 
 void free_text()
 {
@@ -214,8 +214,8 @@ void load_text()
 	};
 #endif
 
-	if (GameArg.DbgAltTex)
-		filename = GameArg.DbgAltTex;
+	if (!GameArg.DbgAltTex.empty())
+		filename = GameArg.DbgAltTex.c_str();
 
 	auto tfile = PHYSFSX_openReadBuffered(filename);
 	if (!tfile)

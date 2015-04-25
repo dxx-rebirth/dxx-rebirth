@@ -162,9 +162,6 @@ void init_game()
 	init_objects();
 
 	init_special_effects();
-
-	init_exploding_walls();
-
 	Clear_window = 2;		//	do portal only window clear.
 }
 
@@ -275,7 +272,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
+	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->get_screen_width_height() != Game_screen_mode)) && !(sm==SCREEN_MENU) )
 	{
 		gr_set_current_canvas(NULL);
 		return 1;
@@ -290,19 +287,19 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
+			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
+			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
-			if (grd_curscreen->sc_mode != SM(800,600))	{
+			if (grd_curscreen->get_screen_width_height() != SM(800,600))	{
 				int gr_error;
 				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
 					Warning("Cannot init editor screen (error=%d)",gr_error);
@@ -313,7 +310,7 @@ int set_screen_mode(int sm)
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
 		case SCREEN_MOVIE:
-			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
+			if (grd_curscreen->get_screen_width_height() != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );
 			}
@@ -560,7 +557,7 @@ static void do_afterburner_stuff(void)
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
 		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
-			digi_link_sound_to_object3( SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, i2f(256), AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END );
+			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
 				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
@@ -568,7 +565,7 @@ static void do_afterburner_stuff(void)
 			}
 		} else {
 			digi_kill_sound_linked_to_object(plobj);
-			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, i2f(256));
+			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, vm_distance{i2f(256)});
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -1049,7 +1046,8 @@ window *game_setup(void)
 #endif
 
 	fix_object_segs();
-
+	if (GameArg.SysAutoRecordDemo && Newdemo_state == ND_STATE_NORMAL)
+		newdemo_start_recording();
 	return game_wind;
 }
 
@@ -1170,10 +1168,10 @@ void close_game()
 
 #if defined(DXX_BUILD_DESCENT_II)
 object *Missile_viewer=NULL;
-int Missile_viewer_sig=-1;
+object_signature_t Missile_viewer_sig;
 
-int Marker_viewer_num[2]={-1,-1};
-int Coop_view_player[2]={-1,-1};
+array<int, 2> Marker_viewer_num{{-1,-1}};
+array<int, 2> Coop_view_player{{-1,-1}};
 
 //returns ptr to escort robot, or NULL
 objptridx_t find_escort()
@@ -1182,7 +1180,7 @@ objptridx_t find_escort()
 	{
 		auto o = vobjptridx(i);
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
-			return o;
+			return objptridx_t(o);
 	}
 	return object_none;
 }
@@ -1216,13 +1214,18 @@ static void do_ambient_sounds()
 
 void game_leave_menus(void)
 {
-	window *wind;
-
 	if (!Game_wind)
 		return;
-
-	while ((wind = window_get_front()) && (wind != Game_wind)) // go through all windows and actually close them if they want to
-		window_close(wind);
+	for (;;) // go through all windows and actually close them if they want to
+	{
+		const auto wind = window_get_front();
+		if (!wind)
+			break;
+		if (wind == Game_wind)
+			break;
+		if (!window_close(wind))
+			break;
+	}
 }
 
 void GameProcessFrame(void)
@@ -1583,7 +1586,7 @@ void FireLaser()
 					const auto cobjp = vobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(ConsoleObject, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
@@ -1602,14 +1605,13 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 {
 	fix	powerup_size;
 	fix	player_size;
-	fix	dist;
 
 	Assert(powerup->type == OBJ_POWERUP);
 
 	powerup_size = powerup->size;
 	player_size = player->size;
 
-	dist = vm_vec_dist_quick(powerup->pos, player->pos);
+	const auto dist = vm_vec_dist_quick(powerup->pos, player->pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
 		const auto collision_point = vm_vec_avg(powerup->pos, player->pos);

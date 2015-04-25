@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#pragma once
 
 #include "player.h"
 #include "mission.h"
@@ -39,29 +37,29 @@ struct Cfg : prohibit_void_ptr<Cfg>
 {
 	ubyte DigiVolume;
 	ubyte MusicVolume;
-	int ReverseStereo;
-	int OrigTrackOrder;
+	bool ReverseStereo;
+	bool Grabinput;
+	bool OrigTrackOrder;
 	int MusicType;
 	int CMLevelMusicPlayOrder;
-	int CMLevelMusicTrack[2];
+	array<int, 2> CMLevelMusicTrack;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 	int GammaLevel;
 	callsign_t LastPlayer;
-	char LastMission[MISSION_NAME_LEN+1];
+	ntstring<MISSION_NAME_LEN> LastMission;
 	int ResolutionX;
 	int ResolutionY;
 	int AspectX;
 	int AspectY;
-	int WindowMode;
 	int TexFilt;
-	int VSync;
-	int Multisample;
-	int FPSIndicator;
-	int Grabinput;
+	bool WindowMode;
+	bool VSync;
+	bool Multisample;
+	bool FPSIndicator;
 #ifdef DXX_BUILD_DESCENT_II
+	bool MovieSubtitles;
 	int MovieTexFilt;
-	int MovieSubtitles;
 #endif
 };
 
@@ -75,7 +73,5 @@ extern struct Cfg GameCfg;
 
 extern int ReadConfigFile(void);
 extern int WriteConfigFile(void);
-
-#endif
 
 #endif

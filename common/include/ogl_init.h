@@ -78,14 +78,10 @@ void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 
 void ogl_init_shared_palette(void);
 
-extern int gl_initialized;
-
 extern int active_texture_unit;
 extern GLfloat ogl_maxanisotropy;
 
 void ogl_setActiveTexture(int t);
-
-int ogl_init_window(int x, int y);//create a window/switch modes/etc
 
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)

@@ -150,14 +150,17 @@ extern Mission_ptr Current_mission; // current mission
 #define Secret_level_names		Current_mission->secret_level_names
 
 #if defined(DXX_BUILD_DESCENT_II)
-#define is_SHAREWARE (Current_mission->builtin_hogsize == SHAREWARE_MISSION_HOGSIZE)
-#define is_MAC_SHARE (Current_mission->builtin_hogsize == MAC_SHARE_MISSION_HOGSIZE)
-#define is_D2_OEM (Current_mission->builtin_hogsize == OEM_MISSION_HOGSIZE)
+/* Wrap in parentheses to avoid precedence problems.  Put constant on
+ * the left to silence clang's overzealous -Wparentheses-equality messages.
+ */
+#define is_SHAREWARE (SHAREWARE_MISSION_HOGSIZE == Current_mission->builtin_hogsize)
+#define is_MAC_SHARE (MAC_SHARE_MISSION_HOGSIZE == Current_mission->builtin_hogsize)
+#define is_D2_OEM (OEM_MISSION_HOGSIZE == Current_mission->builtin_hogsize)
 
-#define EMULATING_D1		(Current_mission->descent_version == 1)
+#define EMULATING_D1		(1 == Current_mission->descent_version)
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
-#define ANARCHY_ONLY_MISSION	(Current_mission->anarchy_only_flag == 1)
+#define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
 
 //values for d1 built-in mission
 #define BIMD1_LAST_LEVEL		27

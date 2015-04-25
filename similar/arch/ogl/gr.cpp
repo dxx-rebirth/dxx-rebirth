@@ -14,7 +14,7 @@
 
 #ifdef RPI
 // extra libraries for the Raspberry Pi
-#include  "bcm_host.h"
+#include  <bcm_host.h>
 #endif
 
 #include <stdlib.h>
@@ -57,7 +57,6 @@
 #include "config.h"
 #include "playsave.h"
 #include "vers_id.h"
-#include "game.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -72,12 +71,19 @@
 #endif
 #endif
 
+#ifndef OGLES
+#include "ogl_extensions.h"
+#include "ogl_sync.h"
+#endif
+
 #include "compiler-make_unique.h"
 
 using std::max;
 
+static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
+
 #ifdef OGLES
-int sdl_video_flags = 0;
+static int sdl_video_flags;
 
 #ifdef RPI
 static EGL_DISPMANX_WINDOW_T nativewindow;
@@ -86,24 +92,25 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display=DISPMANX_NO_HANDLE;
 #endif
 
 #else
-int sdl_video_flags = SDL_OPENGL;
+static ogl_sync sync_helper;
+static int sdl_video_flags = SDL_OPENGL;
 #endif
-int gr_installed = 0;
-int gl_initialized=0;
+static int gr_installed;
+static int gl_initialized;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 #ifdef RPI
-int sdl_no_modeswitch=0;
+static int sdl_no_modeswitch;
 #else
 enum { sdl_no_modeswitch = 0 };
 #endif
 
 #ifdef OGLES
-EGLDisplay eglDisplay=EGL_NO_DISPLAY;
-EGLConfig eglConfig;
-EGLSurface eglSurface=EGL_NO_SURFACE;
-EGLContext eglContext=EGL_NO_CONTEXT;
+static EGLDisplay eglDisplay=EGL_NO_DISPLAY;
+static EGLConfig eglConfig;
+static EGLSurface eglSurface=EGL_NO_SURFACE;
+static EGLContext eglContext=EGL_NO_CONTEXT;
 
-bool TestEGLError(char* pszLocation)
+static bool TestEGLError(const char* pszLocation)
 {
 	/*
 	 * eglGetError returns the last error that has happened using egl,
@@ -126,7 +133,9 @@ void ogl_swap_buffers_internal(void)
 #ifdef OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
+	sync_helper.before_swap();
 	SDL_GL_SwapBuffers();
+	sync_helper.after_swap();
 #endif
 }
 
@@ -144,7 +153,7 @@ void ogl_swap_buffers_internal(void)
 #define ELEMENT_CHANGE_MASK_RESOURCE  (1<<4)
 #define ELEMENT_CHANGE_TRANSFORM      (1<<5)
 
-void rpi_destroy_element(void)
+static void rpi_destroy_element()
 {
 	if (dispman_element != DISPMANX_NO_HANDLE) {
 		DISPMANX_UPDATE_HANDLE_T dispman_update;
@@ -158,7 +167,7 @@ void rpi_destroy_element(void)
 	}
 }
 
-int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
+static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 {
 	// this code is based on the work of Ben O'Steen
 	// http://benosteen.wordpress.com/2012/04/27/using-opengl-es-2-0-on-the-raspberry-pi-without-x-windows/
@@ -245,7 +254,8 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 							ELEMENT_CHANGE_DEST_RECT | ELEMENT_CHANGE_SRC_RECT,
 							0 /*layer*/, 0 /*opacity*/,
 							&dst_rect, &src_rect,
-							0 /*mask*/, VC_IMAGE_ROT0 /*transform*/);
+							0 /*mask*/,
+							static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 	} else {
 		// create a new element
 		con_printf(CON_DEBUG, "RPi: creating display manager element");
@@ -253,7 +263,7 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 								0 /*layer*/, &dst_rect, 0 /*src*/,
 								&src_rect, DISPMANX_PROTECTION_NONE,
 								&alpha_descriptor, NULL /*clamp*/,
-								VC_IMAGE_ROT0 /*transform*/);
+								static_cast<DISPMANX_TRANSFORM_T>(VC_IMAGE_ROT0) /*transform*/);
 		if (dispman_element == DISPMANX_NO_HANDLE) {
 			con_printf(CON_URGENT,"RPi: failed to creat display manager elemenr");
 		}
@@ -269,7 +279,7 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 #endif // RPI
 
 #ifdef OGLES
-void ogles_destroy(void)
+static void ogles_destroy()
 {
 	if( eglDisplay != EGL_NO_DISPLAY ) {
 		eglMakeCurrent(eglDisplay, NULL, NULL, EGL_NO_CONTEXT);
@@ -295,7 +305,7 @@ void ogles_destroy(void)
 }
 #endif
 
-int ogl_init_window(int x, int y)
+static int ogl_init_window(int x, int y)
 {
 	int use_x,use_y,use_bpp;
 	Uint32 use_flags;
@@ -444,13 +454,9 @@ int gr_check_fullscreen(void)
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
-int gr_toggle_fullscreen(void)
+void gr_toggle_fullscreen()
 {
-	if (sdl_video_flags & SDL_FULLSCREEN)
-		sdl_video_flags &= ~SDL_FULLSCREEN;
-	else
-		sdl_video_flags |= SDL_FULLSCREEN;
-
+	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
 	if (gl_initialized)
 	{
 		if (sdl_no_modeswitch == 0) {
@@ -489,8 +495,7 @@ int gr_toggle_fullscreen(void)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
-	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
+	GameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 }
 
 static void ogl_init_state(void)
@@ -512,26 +517,15 @@ static void ogl_init_state(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
 
-	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
+	ogl_init_pixel_buffers(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 }
-
-// Set the buffer to draw to. 0 is front, 1 is back
-void gr_set_draw_buffer(int buf)
-{
-#ifndef OGLES
-	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
-#endif
-}
-
-const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 static void ogl_get_verinfo(void)
 {
 #ifndef OGLES
-	gl_vendor = (const char *) glGetString (GL_VENDOR);
-	gl_renderer = (const char *) glGetString (GL_RENDERER);
-	gl_version = (const char *) glGetString (GL_VERSION);
-	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
+	const auto gl_vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s",gl_vendor,gl_renderer,gl_version);
 
@@ -564,6 +558,7 @@ static void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
+	const auto gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
 	{
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
@@ -616,13 +611,11 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 	}
 }
 
-int gr_check_mode(u_int32_t mode)
+static int gr_check_mode(uint32_t mode)
 {
 	unsigned int w, h;
-
 	w=SM_W(mode);
 	h=SM_H(mode);
-
 	if (sdl_no_modeswitch == 0) {
 		return SDL_VideoModeOK(w, h, GameArg.DbgBpp, sdl_video_flags);
 	} else {
@@ -655,15 +648,19 @@ int gr_set_mode(u_int32_t mode)
 	if (!gr_new_bm_data)
 		return 0;
 	*grd_curscreen = {};
-	grd_curscreen->sc_mode = mode;
-	grd_curscreen->sc_w = w;
-	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->set_screen_width_height(w, h);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * GameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, gr_new_bm_data, BM_OGL, w, h);
 	gr_set_current_canvas(NULL);
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
+
+#ifndef OGLES
+	ogl_extensions_init();
+	sync_helper.init(GameArg.OglSyncMethod, GameArg.OglSyncWait);
+#endif
+
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
@@ -731,11 +728,6 @@ void gr_set_attributes(void)
 
 int gr_init(int mode)
 {
-#ifdef RPI
-	char sdl_driver[32];
-	char *sdl_driver_ret;
-#endif
-
 	int retcode;
 
 	// Only do this function once!
@@ -748,8 +740,9 @@ int gr_init(int mode)
 	bcm_host_init();
 
 	// Check if we are running with SDL directfb driver ...
-	sdl_driver_ret=SDL_VideoDriverName(sdl_driver,32);
-	if (sdl_driver_ret) {
+	char sdl_driver[32];
+	if (auto sdl_driver_ret = SDL_VideoDriverName(sdl_driver, sizeof(sdl_driver)))
+	{
 		if (strcmp(sdl_driver_ret,"x11")) {
 			con_printf(CON_URGENT,"RPi: activating hack for console driver");
 			sdl_no_modeswitch=1;
@@ -801,6 +794,9 @@ void gr_close()
 	if (gl_initialized)
 	{
 		ogl_smash_texture_list_internal();
+#ifndef OGLES
+		sync_helper.deinit();
+#endif
 	}
 
 	if (grd_curscreen)
@@ -856,10 +852,10 @@ void ogl_upixelc(int x, int y, int c)
 
 unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
-	GLint gl_draw_buffer;
 	ubyte buf[4];
 
 #ifndef OGLES
+	GLint gl_draw_buffer;
 	glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 	glReadBuffer(gl_draw_buffer);
 #endif
@@ -949,8 +945,8 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-GLfloat last_r=0, last_g=0, last_b=0;
-int do_pal_step=0;
+static GLfloat last_r, last_g, last_b;
+static int do_pal_step;
 
 void ogl_do_palfx(void)
 {
@@ -979,9 +975,8 @@ void ogl_do_palfx(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-int ogl_brightness_ok = 0;
-int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
-static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
+static int ogl_brightness_ok;
+static int old_b_r, old_b_g, old_b_b;
 
 void gr_palette_step_up(int r, int g, int b)
 {
@@ -1111,7 +1106,7 @@ void save_screen_shot(int automap_flag)
 	glReadBuffer(GL_FRONT);
 #endif
 
-	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h);
+	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 
 	start_time();
 }
