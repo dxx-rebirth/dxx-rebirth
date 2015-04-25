@@ -2,7 +2,7 @@ language: cpp
 
 compiler:
 - gcc
-- clang
+#- clang
 
 before_install:
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
