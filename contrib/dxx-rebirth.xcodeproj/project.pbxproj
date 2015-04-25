@@ -220,6 +220,7 @@
 		1404A25C1A92CCDA00843F81 /* fwdsegment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fwdsegment.h; sourceTree = "<group>"; };
 		1404A25D1A92CCDA00843F81 /* fwdwall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fwdwall.h; sourceTree = "<group>"; };
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
+		148EC4151AEB445600D738A5 /* .travis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		14BD42AF1A9457F1004210A2 /* D1X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D1X-Rebirth.app"; sourceTree = "<group>"; };
 		14BD42B01A9457F1004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
 		14BD42B11A9457F1004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
@@ -704,6 +705,7 @@
 		141FE1011A2D62B100A4FB18 /* .. */ = {
 			isa = PBXGroup;
 			children = (
+				148EC4151AEB445600D738A5 /* .travis.yml */,
 				14BD42231A9457F1004210A2 /* build */,
 				14F8AA1E1A2D6320003AA93A /* common */,
 				14F8AB261A2D6320003AA93A /* similar */,
