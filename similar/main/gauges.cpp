@@ -2107,13 +2107,12 @@ static void draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, multires_gauge_graphic);
 }
 
-static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,int pic_y,const char *name,int text_x,int text_y)
+static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x, int pic_y, const char *name, int text_x, int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	grs_bitmap *bm;
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1));
 	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
@@ -2182,7 +2181,7 @@ static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 				&gauge_boxes[SB_PRIMARY_BOX],
 				SB_PRIMARY_W_PIC_X,SB_PRIMARY_W_PIC_Y,
 				PRIMARY_WEAPON_NAMES_SHORT(weapon_num),
-				SB_PRIMARY_W_TEXT_X,SB_PRIMARY_W_TEXT_Y);
+				SB_PRIMARY_W_TEXT_X,SB_PRIMARY_W_TEXT_Y, multires_gauge_graphic);
 			x=SB_PRIMARY_AMMO_X;
 			y=SB_PRIMARY_AMMO_Y;
 		}
@@ -2192,7 +2191,7 @@ static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 				&gauge_boxes[COCKPIT_PRIMARY_BOX],
 				PRIMARY_W_PIC_X,PRIMARY_W_PIC_Y,
 				PRIMARY_WEAPON_NAMES_SHORT(weapon_num),
-				PRIMARY_W_TEXT_X,PRIMARY_W_TEXT_Y);
+				PRIMARY_W_TEXT_X,PRIMARY_W_TEXT_Y, multires_gauge_graphic);
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
@@ -2214,7 +2213,7 @@ static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 				&gauge_boxes[SB_SECONDARY_BOX],
 				SB_SECONDARY_W_PIC_X,SB_SECONDARY_W_PIC_Y,
 				SECONDARY_WEAPON_NAMES_SHORT(weapon_num),
-				SB_SECONDARY_W_TEXT_X,SB_SECONDARY_W_TEXT_Y);
+				SB_SECONDARY_W_TEXT_X,SB_SECONDARY_W_TEXT_Y, multires_gauge_graphic);
 			x=SB_SECONDARY_AMMO_X;
 			y=SB_SECONDARY_AMMO_Y;
 		}
@@ -2224,7 +2223,7 @@ static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 				&gauge_boxes[COCKPIT_SECONDARY_BOX],
 				SECONDARY_W_PIC_X,SECONDARY_W_PIC_Y,
 				SECONDARY_WEAPON_NAMES_SHORT(weapon_num),
-				SECONDARY_W_TEXT_X,SECONDARY_W_TEXT_Y);
+				SECONDARY_W_TEXT_X,SECONDARY_W_TEXT_Y, multires_gauge_graphic);
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
