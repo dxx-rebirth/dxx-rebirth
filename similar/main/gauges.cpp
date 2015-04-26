@@ -1966,13 +1966,12 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void draw_afterburner_bar(int afterburner)
+static void draw_afterburner_bar(int afterburner, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int not_afterburner;
 	int i, j, y;
 	static const ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
 	static const ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	const ubyte *pabt = (multires_gauge_graphic.is_hires() ? afterburner_bar_table_hires : afterburner_bar_table);
 
 	// Draw afterburner bar
@@ -3163,7 +3162,7 @@ void render_gauges()
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
-		draw_afterburner_bar(Afterburner_charge);
+		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
 #endif
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
