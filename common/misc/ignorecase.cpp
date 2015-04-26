@@ -15,6 +15,8 @@
 #include "physfs_list.h"
 #include "ignorecase.h"
 
+#include "compiler-range_for.h"
+
 /**
  * Please see ignorecase.h for details.
  *
@@ -69,18 +71,15 @@ public:
 
 static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 {
-    char **i;
-
     if (PHYSFS_exists(buf))
         return(1);  /* quick rejection: exists in current case. */
 
 	search_result_t rc{ptr, buf};
-
-    for (i = rc.get(); *i != NULL; i++)
+	range_for (const auto i, rc)
     {
-		if (caseInsensitiveStringCompare(*i, sptr) == 0)
+		if (caseInsensitiveStringCompare(i, sptr) == 0)
         {
-			strcpy(sptr, *i); /* found a match. Overwrite with this case. */
+			strcpy(sptr, i); /* found a match. Overwrite with this case. */
             return(1);
         } /* if */
     } /* for */

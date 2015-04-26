@@ -185,7 +185,6 @@ void jukebox_load()
 		int new_path = 0;
 		const char *sep = PHYSFS_getDirSeparator();
 		size_t seplen = strlen(sep);
-		int i;
 
 		// stick a separator on the end if necessary.
 		if (musiclen >= seplen)
@@ -213,9 +212,7 @@ void jukebox_load()
 				PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath.data());
 			return;
 		}
-		
-		for (i = 0; JukeboxSongs.list[i]; i++) {}
-		JukeboxSongs.num_songs = i;
+		JukeboxSongs.num_songs = std::distance(JukeboxSongs.list.begin(), JukeboxSongs.list.end());
 
 		if (new_path)
 			PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath.data());

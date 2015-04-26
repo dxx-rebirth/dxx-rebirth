@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "physfs_list.h"
 
-#include "null_sentinel_iterator.h"
 #include "compiler-make_unique.h"
 
 static int file_sort_func(char **e0, char **e1)
@@ -57,8 +56,7 @@ static PHYSFS_list_t file_getdirlist(int *NumDirs, const char *dir)
 		free(i);
 		return true;
 	};
-	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
-	auto j = std::remove_if(null_sentinel_iterator(list.get()), null_sentinel_iterator(), predicate);
+	auto j = std::remove_if(list.begin(), list.end(), predicate);
 	*j = NULL;
 	*NumDirs = j.get() - list.get();
 	qsort(list.get(), *NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
@@ -93,8 +91,7 @@ static PHYSFS_list_t file_getfilelist(int *NumFiles, const char *filespec, const
 		free(i);
 		return true;
 	};
-	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
-	auto j = std::remove_if(null_sentinel_iterator(list.get()), null_sentinel_iterator(), predicate);
+	auto j = std::remove_if(list.begin(), list.end(), predicate);
 	*j = NULL;
 	*NumFiles = j.get() - list.get();
 	qsort(list.get(), *NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);

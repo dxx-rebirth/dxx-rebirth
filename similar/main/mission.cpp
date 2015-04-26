@@ -51,6 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
 #endif
+#include "null_sentinel_iterator.h"
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
@@ -513,19 +514,19 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 {
 	char *ext;
 	const PHYSFS_list_t find{PHYSFS_enumerateFiles(path)};
-	for (auto i = find.get(); *i != NULL; i++)
+	range_for (const auto i, find)
 	{
-		if (strlen(path) + strlen(*i) + 1 >= PATH_MAX)
+		if (strlen(path) + strlen(i) + 1 >= PATH_MAX)
 			continue;	// path is too long
 
-		strcat(rel_path, *i);
+		strcat(rel_path, i);
 		if (PHYSFS_isDirectory(path))
 		{
 			strcat(rel_path, "/");
 			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
 			*(strrchr(path, '/')) = 0;
 		}
-		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn") || !d_strnicmp(ext, ".mn2")))
+		else if ((ext = strrchr(i, '.')) && (!d_strnicmp(ext, ".msn") || !d_strnicmp(ext, ".mn2")))
 			if (read_mission_file(mission_list, rel_path, ML_MISSIONDIR))
 			{
 				if (anarchy_mode || !mission_list.back().anarchy_only_flag)

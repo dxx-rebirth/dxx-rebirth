@@ -13,6 +13,8 @@ typedef char file_extension_t[5];
 #ifdef __cplusplus
 #include <cstdint>
 #include <memory>
+#include "null_sentinel_iterator.h"
+
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
@@ -30,7 +32,16 @@ class PHYSFS_list_template : public std::unique_ptr<char *[], D>
 {
 	typedef std::unique_ptr<char *[], D> base_ptr;
 public:
+	typedef null_sentinel_iterator<char *> const_iterator;
 	DXX_INHERIT_CONSTRUCTORS(PHYSFS_list_template, base_ptr);
+	const_iterator begin() const
+	{
+		return this->get();
+	}
+	const_iterator end() const
+	{
+		return {};
+	}
 };
 
 typedef PHYSFS_list_template<PHYSFS_list_deleter> PHYSFS_list_t;
