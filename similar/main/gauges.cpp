@@ -2430,12 +2430,11 @@ static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_
 	draw_weapon_box1(multires_gauge_graphic);
 }
 
-static void sb_draw_energy_bar(int energy)
+static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int erase_height,i;
 	int ew, eh, eaw;
 
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
 
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
@@ -3179,7 +3178,7 @@ void render_gauges()
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
-		sb_draw_energy_bar(energy);
+		sb_draw_energy_bar(energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!PlayerCfg.HudMode)
 #elif defined(DXX_BUILD_DESCENT_II)
