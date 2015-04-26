@@ -2536,7 +2536,7 @@ static void sb_draw_keys()
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
-static void draw_invulnerable_ship()
+static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_current_canvas(NULL);
 
@@ -2554,7 +2554,6 @@ static void draw_invulnerable_ship()
 		}
 		time = ltime;
 		unsigned x, y;
-		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (cmmode == CM_STATUS_BAR)
 		{
 			x = SB_SHIELD_GAUGE_X;
@@ -3168,7 +3167,7 @@ void render_gauges()
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship();
+			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			draw_shield_bar(shields);
 		draw_numerical_display(shields, energy);
@@ -3201,7 +3200,7 @@ void render_gauges()
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship();
+			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields);
 		sb_draw_shield_num(shields);
