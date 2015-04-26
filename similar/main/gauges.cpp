@@ -2095,18 +2095,17 @@ static void draw_keys()
 		draw_key() : player_key_flags(Players[Player_num].flags)
 		{
 		}
-		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y) const
+		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
 		{
 			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
-			const local_multires_gauge_graphic multires_gauge_graphic = {};
 			hud_gauge_bitblt(gauge_key_x, gauge_key_y, gauge, multires_gauge_graphic);
 		}
 	};
 	const draw_key draw_one_key;
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y);
-	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y);
-	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
+	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
+	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, multires_gauge_graphic);
 }
 
 static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,int pic_y,const char *name,int text_x,int text_y)
