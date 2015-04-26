@@ -1204,7 +1204,7 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 	gr_string(x-w,y,txt);
 }
 
-static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic = {})
+static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		draw_ammo_info(SB_PRIMARY_AMMO_X,SB_PRIMARY_AMMO_Y,ammo_count);
@@ -2380,7 +2380,7 @@ static void draw_static(int win)
 }
 #endif
 
-static void draw_weapon_box0()
+static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[0] == WBU_WEAPON)
@@ -2407,7 +2407,7 @@ static void draw_weapon_box0()
 				return;
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_primary_ammo(nd_ammo);
-			draw_primary_ammo_info(ammo_count);
+			draw_primary_ammo_info(ammo_count, multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2437,9 +2437,9 @@ static void draw_weapon_box1()
 #endif
 }
 
-static void draw_weapon_boxes()
+static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	draw_weapon_box0();
+	draw_weapon_box0(multires_gauge_graphic);
 	draw_weapon_box1();
 }
 
@@ -3157,7 +3157,7 @@ void render_gauges()
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	draw_weapon_boxes();
+	draw_weapon_boxes(multires_gauge_graphic);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
