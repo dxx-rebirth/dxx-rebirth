@@ -2109,31 +2109,22 @@ static void draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 
 static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x, int pic_y, const char *name, int text_x, int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	grs_bitmap *bm;
-
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1));
-	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
-	bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot));
-
-	if (Piggy_hamfile_version >= 3 // !SHAREWARE
-		&& multires_gauge_graphic.is_hires())
-	{
-		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
-		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
-	}
-	else
-	{
-		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
-		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
-	}
 #endif
-
-	Assert(bm != NULL);
+	const auto &picture = 
+#if defined(DXX_BUILD_DESCENT_II)
+	// !SHAREWARE
+		(Piggy_hamfile_version >= 3 && multires_gauge_graphic.is_hires()) ?
+			Weapon_info[info_index].hires_picture :
+#endif
+			Weapon_info[info_index].picture;
+	PIGGY_PAGE_IN(picture);
+	auto bm = &GameBitmaps[picture.index];
 
 	hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
 
