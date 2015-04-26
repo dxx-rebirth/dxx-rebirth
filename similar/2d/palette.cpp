@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 
 #include "dxxsconf.h"
+#include "compiler-array.h"
 #include "compiler-range_for.h"
 
 #define SQUARE(x) ((x)*(x))
@@ -51,7 +52,7 @@ struct color_record {
 	color_t color_num;
 };
 
-color_record Computed_colors[MAX_COMPUTED_COLORS];
+static array<color_record, MAX_COMPUTED_COLORS> Computed_colors;
 
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;
@@ -210,15 +211,17 @@ color_t gr_find_closest_color( int r, int g, int b )
 
 	//	If we've already computed this color, return it!
 	for (unsigned i=0; i<Num_computed_colors; i++)
-		if (r == Computed_colors[i].r)
-			if (g == Computed_colors[i].g)
-				if (b == Computed_colors[i].b) {
-					const auto color_num = Computed_colors[i].color_num;
+	{
+		auto &c = Computed_colors[i];
+		if (r == c.r && g == c.g && b == c.b)
+		{
+			const auto color_num = c.color_num;
 					if (i > 4) {
-						std::swap(Computed_colors[i-1], Computed_colors[i]);
+						std::swap(Computed_colors[i-1], c);
 					}
 					return color_num;
 				}
+	}
 
 //	r &= 63;
 //	g &= 63;
