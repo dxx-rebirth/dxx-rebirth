@@ -368,7 +368,7 @@ static int score_display;
 static fix score_time;
 static array<int, 2> old_weapon{{-1, -1}};
 static int old_laser_level		= -1;
-static int invulnerable_frame = 0;
+static int invulnerable_frame;
 static array<int, 2> weapon_box_states;
 static_assert(WS_SET == 0, "weapon_box_states must start at zero");
 static array<fix, 2> weapon_box_fade_values;
@@ -2479,27 +2479,34 @@ static void sb_draw_keys()
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
 static void draw_invulnerable_ship()
 {
-	static fix time=0;
-
 	gr_set_current_canvas(NULL);
 
+	const auto cmmode = PlayerCfg.CockpitMode[1];
 	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
-
-		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)	{
-			hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_INVULNERABLE+invulnerable_frame);
-		} else {
-			hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_INVULNERABLE+invulnerable_frame);
-		}
-
-		time += FrameTime;
-
-		while (time > INV_FRAME_TIME) {
-			time -= INV_FRAME_TIME;
+		static fix time;
+		auto ltime = time + FrameTime;
+		const auto old_invulnerable_frame = invulnerable_frame;
+		while (ltime > INV_FRAME_TIME)
+		{
+			ltime -= INV_FRAME_TIME;
 			if (++invulnerable_frame == N_INVULNERABLE_FRAMES)
 				invulnerable_frame=0;
 		}
-	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
+		time = ltime;
+		unsigned x, y;
+		if (cmmode == CM_STATUS_BAR)
+		{
+			x = SB_SHIELD_GAUGE_X;
+			y = SB_SHIELD_GAUGE_Y;
+		}
+		else
+		{
+			x = SHIELD_GAUGE_X;
+			y = SHIELD_GAUGE_Y;
+		}
+		hud_gauge_bitblt(x, y, GAUGE_INVULNERABLE + old_invulnerable_frame);
+	} else if (cmmode == CM_STATUS_BAR)
 		sb_draw_shield_bar(f2ir(Players[Player_num].shields));
 	else
 		draw_shield_bar(f2ir(Players[Player_num].shields));
