@@ -1696,10 +1696,9 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 
 }
 
-static void sb_show_lives()
+static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x,y;
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 	x = SB_LIVES_X;
 	y = SB_LIVES_Y;
@@ -3218,7 +3217,7 @@ void render_gauges()
 		}
 		sb_draw_keys();
 
-		sb_show_lives();
+		sb_show_lives(multires_gauge_graphic);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
