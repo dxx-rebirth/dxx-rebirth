@@ -740,6 +740,12 @@ static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
 #endif
 }
 
+static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge)
+{
+	PAGE_IN_GAUGE(gauge);
+	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), &GameBitmaps[GET_GAUGE_INDEX(gauge)]);
+}
+
 static void hud_show_score()
 {
 	char	score_str[20];
@@ -938,8 +944,7 @@ static void show_homing_warning(void)
 {
 	if (Endlevel_sequence)
 	{
-		PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
-		hud_bitblt( HUD_SCALE_X(HOMING_WARNING_X), HUD_SCALE_Y(HOMING_WARNING_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ]);
+		hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF);
 		return;
 	}
 
@@ -949,19 +954,16 @@ static void show_homing_warning(void)
 	{
 		if (GameTime64 & 0x4000)
 		{
-			PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_ON );
-			hud_bitblt( HUD_SCALE_X(HOMING_WARNING_X), HUD_SCALE_Y(HOMING_WARNING_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_ON) ]);
+			hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_ON);
 		}
 		else
 		{
-			PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
-			hud_bitblt( HUD_SCALE_X(HOMING_WARNING_X), HUD_SCALE_Y(HOMING_WARNING_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ]);
+			hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF);
 		}
 	}
 	else
 	{
-		PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
-		hud_bitblt( HUD_SCALE_X(HOMING_WARNING_X), HUD_SCALE_Y(HOMING_WARNING_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ]);
+		hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF);
 	}
 }
 
@@ -1886,8 +1888,7 @@ static void draw_energy_bar(int energy)
 	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
-	PAGE_IN_GAUGE( GAUGE_ENERGY_LEFT );
-	hud_bitblt (HUD_SCALE_X(LEFT_ENERGY_GAUGE_X), HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_LEFT) ]);
+	hud_gauge_bitblt(LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT);
 
 	gr_setcolor(BM_XRGB(0,0,0));
 
@@ -1905,8 +1906,7 @@ static void draw_energy_bar(int energy)
 	gr_set_current_canvas( NULL );
 
 	// Draw right energy bar
-	PAGE_IN_GAUGE( GAUGE_ENERGY_RIGHT );
-	hud_bitblt (HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X), HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_RIGHT) ]);
+	hud_gauge_bitblt(RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, GAUGE_ENERGY_RIGHT);
 
 	if (energy < 100)
 		for (y=0; y < HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_H); y++) {
@@ -1932,8 +1932,7 @@ static void draw_afterburner_bar(int afterburner)
 	const ubyte *pabt = (HIRESMODE ? afterburner_bar_table_hires : afterburner_bar_table);
 
 	// Draw afterburner bar
-	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
-	hud_bitblt( HUD_SCALE_X(AFTERBURNER_GAUGE_X), HUD_SCALE_Y(AFTERBURNER_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ]);
+	hud_gauge_bitblt(AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, GAUGE_AFTERBURNER);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
 
@@ -1953,9 +1952,7 @@ static void draw_afterburner_bar(int afterburner)
 static void draw_shield_bar(int shield)
 {
 	int bm_num = shield>=100?9:(shield / 10);
-
-	PAGE_IN_GAUGE( GAUGE_SHIELDS+9-bm_num	);
-	hud_bitblt( HUD_SCALE_X(SHIELD_GAUGE_X), HUD_SCALE_Y(SHIELD_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ]);
+	hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num);
 }
 
 #define CLOAK_FADE_WAIT_TIME  0x400
@@ -2028,8 +2025,7 @@ static void draw_numerical_display(int shield, int energy)
 
 	gr_set_curfont( GAME_FONT );
 #ifndef OGL
-	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
-	hud_bitblt( HUD_SCALE_X(NUMERICAL_GAUGE_X), HUD_SCALE_Y(NUMERICAL_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ]);
+	hud_gauge_bitblt(NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL);
 #endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
@@ -2059,8 +2055,7 @@ static void draw_keys()
 		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y) const
 		{
 			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
-			PAGE_IN_GAUGE(gauge);
-			hud_bitblt(HUD_SCALE_X(gauge_key_x), HUD_SCALE_Y(gauge_key_y), &GameBitmaps[GET_GAUGE_INDEX(gauge)]);
+			hud_gauge_bitblt(gauge_key_x, gauge_key_y, gauge);
 		}
 	};
 	const draw_key draw_one_key;
@@ -2382,8 +2377,7 @@ static void sb_draw_energy_bar(int energy)
 	int erase_height,i;
 	int ew, eh, eaw;
 
-	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
-	hud_bitblt(HUD_SCALE_X(SB_ENERGY_GAUGE_X), HUD_SCALE_Y(SB_ENERGY_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
+	hud_gauge_bitblt(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY);
 
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
 	gr_setcolor( 0 );
@@ -2409,8 +2403,7 @@ static void sb_draw_afterburner()
 	int erase_height, w, h, aw, i;
 	auto &ab_str = "AB";
 
-	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
-	hud_bitblt(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);
+	hud_gauge_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER);
 
 	erase_height = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H-1));
 	gr_setcolor( 0 );
@@ -2446,8 +2439,7 @@ static void sb_draw_shield_bar(int shield)
 	int bm_num = shield>=100?9:(shield / 10);
 
 	gr_set_current_canvas(NULL);
-	PAGE_IN_GAUGE( GAUGE_SHIELDS+9-bm_num );
-	hud_bitblt( HUD_SCALE_X(SB_SHIELD_GAUGE_X), HUD_SCALE_Y(SB_SHIELD_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ]);
+	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num);
 }
 
 static void sb_draw_keys()
@@ -2478,11 +2470,9 @@ static void draw_invulnerable_ship()
 	{
 
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)	{
-			PAGE_IN_GAUGE( GAUGE_INVULNERABLE+invulnerable_frame );
-			hud_bitblt( HUD_SCALE_X(SB_SHIELD_GAUGE_X), HUD_SCALE_Y(SB_SHIELD_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame) ]);
+			hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_INVULNERABLE+invulnerable_frame);
 		} else {
-			PAGE_IN_GAUGE( GAUGE_INVULNERABLE+invulnerable_frame );
-			hud_bitblt( HUD_SCALE_X(SHIELD_GAUGE_X), HUD_SCALE_Y(SHIELD_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame)]);
+			hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_INVULNERABLE+invulnerable_frame);
 		}
 
 		time += FrameTime;
