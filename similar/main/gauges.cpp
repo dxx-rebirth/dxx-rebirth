@@ -2000,13 +2000,12 @@ static void draw_shield_bar(int shield, const local_multires_gauge_graphic multi
 
 #define CLOAK_FADE_WAIT_TIME  0x400
 
-static void draw_player_ship(int cloak_state,int x, int y)
+static void draw_player_ship(int cloak_state,int x, int y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	grs_bitmap *const bm = &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 
 	if (cloak_state)
@@ -3163,7 +3162,7 @@ void render_gauges()
 		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
 #endif
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
-		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
+		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
@@ -3196,7 +3195,7 @@ void render_gauges()
 #endif
 			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
-		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
@@ -3225,7 +3224,7 @@ void render_gauges()
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	else
-		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 #endif
 }
 
