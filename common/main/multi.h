@@ -322,10 +322,10 @@ public:
 	}
 };
 
-static inline unsigned map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
+static inline laser_level_t map_granted_flags_to_laser_level(const packed_spawn_granted_items &grant)
 {
 	/* Laser level in lowest bits */
-	return grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1);
+	return laser_level_t(grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1));
 }
 uint_fast32_t map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
@@ -346,7 +346,7 @@ class powerup_cap_state
 	array_type m_powerups, m_max;
 	static powerup_type_t map_powerup_type_to_index(powerup_type_t);
 	static powerup_type_t map_powerup_4pack(powerup_type_t);
-	void cap_laser_powerup_level(uint8_t &player_level, powerup_type_t idx, uint_fast32_t level_bias) const;
+	void cap_laser_powerup_level(stored_laser_level &player_level, powerup_type_t idx, uint_fast32_t level_bias) const;
 	enum which
 	{
 		current,
@@ -383,7 +383,7 @@ public:
 	{
 		m_max[type] = value;
 	}
-	void cap_laser_level(uint8_t &player_level) const;
+	void cap_laser_level(stored_laser_level &player_level) const;
 	void cap_secondary_ammo(powerup_type_t type, uint16_t &player_ammo) const;
 	void cap_flag(uint32_t &player_flags, uint32_t powerup_flag, powerup_type_t idx) const;
 	bool can_add_mapped_powerup(const powerup_type_t type) const

@@ -222,19 +222,19 @@ const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP
 	for_each_netflag_value(define_netflag_string)
 };
 
-void powerup_cap_state::cap_laser_powerup_level(uint8_t &player_level, const powerup_type_t type, const uint_fast32_t level_bias) const
+void powerup_cap_state::cap_laser_powerup_level(stored_laser_level &player_level, const powerup_type_t type, const uint_fast32_t level_bias) const
 {
 	const uint_fast32_t current_in_mine = get_current(type);
 	const uint_fast32_t maximum_allowed = get_max(type);
 	const uint_fast32_t player_would_drop = player_level - level_bias;
 	if (player_would_drop + current_in_mine <= maximum_allowed)
 		return;
-	const uint8_t capped = (current_in_mine < maximum_allowed) ? static_cast<uint8_t>(maximum_allowed - current_in_mine + level_bias) : 0;
+	const auto capped = (current_in_mine < maximum_allowed) ? stored_laser_level(maximum_allowed - current_in_mine + level_bias) : stored_laser_level(LASER_LEVEL_1);
 	player_level = capped;
-	con_printf(CON_VERBOSE, "Capping laser due to powerup cap: current=%u max=%u was=%u now=%hu", get_current(type), get_max(type), static_cast<unsigned>(player_would_drop), capped);
+	con_printf(CON_VERBOSE, "Capping laser due to powerup cap: current=%u max=%u was=%u capped=%u", get_current(type), get_max(type), static_cast<unsigned>(player_would_drop), static_cast<laser_level_t>(capped));
 }
 
-void powerup_cap_state::cap_laser_level(uint8_t &player_level) const
+void powerup_cap_state::cap_laser_level(stored_laser_level &player_level) const
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (player_level > MAX_LASER_LEVEL)
@@ -1687,7 +1687,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].secondary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
-	Players[pnum].laser_level = buf[count];                                                 count++;
+	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
 	Players[pnum].secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
 	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count];         count++;

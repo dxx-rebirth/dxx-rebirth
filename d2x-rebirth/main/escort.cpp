@@ -1389,7 +1389,7 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 					}
 					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
-					Players[player_num].laser_level--;
+					-- Players[player_num].laser_level;
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 					return 1;
 				}

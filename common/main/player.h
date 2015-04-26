@@ -175,7 +175,7 @@ struct player : public prohibit_void_ptr<player>
 	fix     shields;                // shields remaining (protection)
 	ubyte   lives;                  // Lives remaining, 0 = game over.
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
-	ubyte   laser_level;            // Current level of the laser.
+	stored_laser_level   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 #if defined(DXX_BUILD_DESCENT_I)

@@ -39,6 +39,64 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 enum powerup_type_t : uint8_t;
 
+enum laser_level_t : uint8_t
+{
+	LASER_LEVEL_1,
+	LASER_LEVEL_2,
+	LASER_LEVEL_3,
+	LASER_LEVEL_4,
+#if defined(DXX_BUILD_DESCENT_II)
+#define LASER_HELIX_FLAG0           4   // helix uses 3 bits for angle
+#define LASER_HELIX_FLAG1           8   // helix uses 3 bits for angle
+#define LASER_HELIX_FLAG2           16  // helix uses 3 bits for angle
+#define LASER_HELIX_SHIFT       2   // how far to shift count to put in flags
+#define LASER_HELIX_MASK        7   // must match number of bits in flags
+	LASER_LEVEL_5,
+	LASER_LEVEL_6,
+#define MAX_SUPER_LASER_LEVEL   LASER_LEVEL_6   // Note, laser levels are numbered from 0.
+#endif
+};
+
+class stored_laser_level
+{
+	laser_level_t m_level;
+public:
+	stored_laser_level() = default;
+	constexpr stored_laser_level(const laser_level_t l) :
+		m_level(l)
+	{
+	}
+	constexpr explicit stored_laser_level(uint8_t i) :
+		m_level(static_cast<laser_level_t>(i))
+	{
+	}
+	operator laser_level_t() const
+	{
+		return m_level;
+	}
+	/* Assume no overflow/underflow.
+	 * This was never checked when it was a simple ubyte.
+	 */
+	stored_laser_level &operator+=(uint8_t i)
+	{
+		m_level = static_cast<laser_level_t>(static_cast<uint8_t>(m_level) + i);
+		return *this;
+	}
+	stored_laser_level &operator-=(uint8_t i)
+	{
+		m_level = static_cast<laser_level_t>(static_cast<uint8_t>(m_level) - i);
+		return *this;
+	}
+	stored_laser_level &operator++()
+	{
+		return *this += 1;
+	}
+	stored_laser_level &operator--()
+	{
+		return *this -= 1;
+	}
+};
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
 {

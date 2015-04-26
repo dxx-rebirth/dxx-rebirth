@@ -1861,7 +1861,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			{
 				if (plr.laser_level <= granted_laser_level)
 					/* All levels were from grant */
-					plr.laser_level = 0;
+					plr.laser_level = LASER_LEVEL_1;
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (granted_laser_level > MAX_LASER_LEVEL)
 				{

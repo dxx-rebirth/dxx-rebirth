@@ -1607,7 +1607,7 @@ enum purpose_type
 
 static int newdemo_read_demo_start(enum purpose_type purpose)
 {
-	sbyte i=0, version=0, game_type=0, laser_level=0, c=0;
+	sbyte i=0, version=0, game_type=0, c=0;
 	ubyte energy=0, shield=0;
 	char current_mission[9];
 	fix nd_GameTime32 = 0;
@@ -1781,7 +1781,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(i);
 	}
 
-	nd_read_byte(&laser_level);
+	nd_read_byte(&i);
+	const stored_laser_level laser_level(i);
 	if ((purpose != PURPOSE_REWRITE) && (laser_level != Players[Player_num].laser_level)) {
 		Players[Player_num].laser_level = laser_level;
 		update_laser_weapon_info();
@@ -2925,10 +2926,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[Player_num].laser_level = old_level;
+				Players[Player_num].laser_level = stored_laser_level(old_level);
 				update_laser_weapon_info();
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[Player_num].laser_level = new_level;
+				Players[Player_num].laser_level = stored_laser_level(new_level);
 				update_laser_weapon_info();
 			}
 			break;
@@ -3160,7 +3161,7 @@ void newdemo_goto_beginning()
 void newdemo_goto_end(int to_rewrite)
 {
 	short frame_length=0, byte_count=0, bshort=0;
-	sbyte level=0, bbyte=0, laser_level=0, c=0, cloaked=0;
+	sbyte level=0, bbyte=0, c=0, cloaked=0;
 	ubyte energy=0, shield=0;
 	int loc=0, bint=0;
 
@@ -3249,7 +3250,9 @@ void newdemo_goto_end(int to_rewrite)
 	}
 	range_for (auto &i, Players[Player_num].secondary_ammo)
 		nd_read_short((short *)&(i));
-	nd_read_byte(&laser_level);
+	int8_t i;
+	nd_read_byte(&i);
+	const stored_laser_level laser_level(i);
 	if (laser_level != Players[Player_num].laser_level) {
 		Players[Player_num].laser_level = laser_level;
 		if (!to_rewrite)

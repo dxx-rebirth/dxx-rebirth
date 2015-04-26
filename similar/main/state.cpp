@@ -527,7 +527,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl)
 	pl->shields                   = pl_rw->shields;
 	pl->lives                     = pl_rw->lives;
 	pl->level                     = pl_rw->level;
-	pl->laser_level               = pl_rw->laser_level;
+	pl->laser_level               = stored_laser_level(pl_rw->laser_level);
 	pl->starting_level            = pl_rw->starting_level;
 	pl->killer_objnum             = pl_rw->killer_objnum;
 	pl->primary_weapon_flags      = pl_rw->primary_weapon_flags;

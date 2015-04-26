@@ -275,7 +275,7 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_rescued_total = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
-	Players[pnum].laser_level = 0;
+	Players[pnum].laser_level = LASER_LEVEL_1;
 	Players[pnum].flags = 0;
 
 	init_player_stats_new_ship(pnum);

@@ -293,7 +293,7 @@ int do_powerup(const vobjptridx_t obj)
 			} else {
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
-				Players[Player_num].laser_level++;
+				++ Players[Player_num].laser_level;
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, Players[Player_num].laser_level+1);
 				update_laser_weapon_info();
 				pick_up_primary (LASER_INDEX);
@@ -571,7 +571,7 @@ int do_powerup(const vobjptridx_t obj)
 
 				if (Players[Player_num].laser_level <= MAX_LASER_LEVEL)
 					Players[Player_num].laser_level = MAX_LASER_LEVEL;
-				Players[Player_num].laser_level++;
+				++ Players[Player_num].laser_level;
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(old_level, Players[Player_num].laser_level);
 				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d",Players[Player_num].laser_level+1);
