@@ -2325,12 +2325,11 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 #if defined(DXX_BUILD_DESCENT_II)
 static array<fix, 2> static_time;
 
-static void draw_static(int win)
+static void draw_static(int win, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	vclip *vc = &Vclip[VCLIP_MONITOR_STATIC];
 	grs_bitmap *bmp;
 	int framenum;
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 #ifndef OGL
 	int x,y;
@@ -2400,7 +2399,7 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (weapon_box_user[0] == WBU_STATIC)
-		draw_static(0);
+		draw_static(0, multires_gauge_graphic);
 #endif
 }
 
@@ -2421,7 +2420,7 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (weapon_box_user[1] == WBU_STATIC)
-		draw_static(1);
+		draw_static(1, multires_gauge_graphic);
 #endif
 }
 
