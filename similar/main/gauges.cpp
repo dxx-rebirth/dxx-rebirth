@@ -1892,9 +1892,8 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	cur_h = bm->bm_h;
 }
 
-static void draw_wbu_overlay()
+static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned cockpit_idx = PlayerCfg.CockpitMode[1];
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3184,7 +3183,7 @@ void render_gauges()
 		draw_keys();
 
 		show_homing_warning(multires_gauge_graphic);
-		draw_wbu_overlay();
+		draw_wbu_overlay(multires_gauge_graphic);
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 
@@ -3382,7 +3381,7 @@ void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag
 	old_weapon[win] = -1;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-		draw_wbu_overlay();
+		draw_wbu_overlay(multires_gauge_graphic);
 
 abort:;
 
