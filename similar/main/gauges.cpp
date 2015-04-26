@@ -2510,18 +2510,17 @@ static void sb_draw_keys()
 		draw_key() : player_key_flags(Players[Player_num].flags)
 		{
 		}
-		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y) const
+		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
 		{
 			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
-			const local_multires_gauge_graphic multires_gauge_graphic{};
 			hud_gauge_bitblt(SB_GAUGE_KEYS_X, gauge_key_y, gauge, multires_gauge_graphic);
 		}
 	};
 	const draw_key draw_one_key;
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y);
-	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y);
-	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
+	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
+	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y, multires_gauge_graphic);
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
