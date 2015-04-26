@@ -213,11 +213,11 @@ color_t gr_find_closest_color( int r, int g, int b )
 		if (r == Computed_colors[i].r)
 			if (g == Computed_colors[i].g)
 				if (b == Computed_colors[i].b) {
+					const auto color_num = Computed_colors[i].color_num;
 					if (i > 4) {
 						std::swap(Computed_colors[i-1], Computed_colors[i]);
-						return Computed_colors[i-1].color_num;
 					}
-					return Computed_colors[i].color_num;
+					return color_num;
 				}
 
 //	r &= 63;
