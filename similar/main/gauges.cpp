@@ -2456,12 +2456,11 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void sb_draw_afterburner()
+static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int erase_height, w, h, aw, i;
 	auto &ab_str = "AB";
 
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
 
 	erase_height = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H-1));
@@ -3184,7 +3183,7 @@ void render_gauges()
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
-		sb_draw_afterburner();
+		sb_draw_afterburner(multires_gauge_graphic);
 		if (!PlayerCfg.HudMode && weapon_box_user[1] == WBU_WEAPON)
 #endif
 			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
