@@ -2461,19 +2461,24 @@ static void sb_draw_shield_bar(int shield)
 
 static void sb_draw_keys()
 {
-	grs_bitmap * bm;
-	int flags = Players[Player_num].flags;
-
 	gr_set_current_canvas(NULL);
-	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF) ];
-	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF );
-	hud_bitblt( HUD_SCALE_X(SB_GAUGE_KEYS_X), HUD_SCALE_Y(SB_GAUGE_BLUE_KEY_Y), bm);
-	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF) ];
-	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF );
-	hud_bitblt( HUD_SCALE_X(SB_GAUGE_KEYS_X), HUD_SCALE_Y(SB_GAUGE_GOLD_KEY_Y), bm);
-	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF) ];
-	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF );
-	hud_bitblt( HUD_SCALE_X(SB_GAUGE_KEYS_X), HUD_SCALE_Y(SB_GAUGE_RED_KEY_Y), bm);
+	class draw_key
+	{
+		const unsigned player_key_flags;
+	public:
+		draw_key() : player_key_flags(Players[Player_num].flags)
+		{
+		}
+		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y) const
+		{
+			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
+			hud_gauge_bitblt(SB_GAUGE_KEYS_X, gauge_key_y, gauge);
+		}
+	};
+	const draw_key draw_one_key;
+	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y);
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
