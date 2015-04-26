@@ -120,7 +120,7 @@ static inline vms_vector make_random_vector()
 	return make_random_vector(v), v;
 }
 extern void init_robots_for_level(void);
-int ai_behavior_to_mode(ai_behavior behavior);
+ai_mode ai_behavior_to_mode(ai_behavior behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);

@@ -353,7 +353,7 @@ static int ready_to_fire_any_weapon(const robot_info *robptr, const ai_local *ai
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
-int ai_behavior_to_mode(ai_behavior behavior)
+ai_mode ai_behavior_to_mode(ai_behavior behavior)
 {
 	switch (behavior) {
 		case ai_behavior::AIB_STILL:
@@ -1774,7 +1774,6 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 
 	if (objp == nullptr || Robot_info[get_robot_id(objp)].companion == 1)
 	{
-		int	ailp_mode;
 
 		if (wallp->flags & WALL_BUDDY_PROOF) {
 			if ((wallp->type == WALL_DOOR) && (wallp->state == WALL_DOOR_CLOSED))
@@ -1800,6 +1799,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 		//	If Buddy is returning to player, don't let him think he can get through triggered doors.
 		//	It's only valid to think that if the player is going to get him through.  But if he's
 		//	going to the player, the player is probably on the opposite side.
+		ai_mode ailp_mode;
 		if (objp == nullptr)
 			ailp_mode = Objects[Buddy_objnum].ctype.ai_info.ail.mode;
 		else
@@ -3188,15 +3188,24 @@ _exit_cheat:
 					obj->mtype.phys_info.velocity.y = 0;
 					obj->mtype.phys_info.velocity.z = 0;
 					break;
+				case ai_mode::AIM_SNIPE_ATTACK:
+				case ai_mode::AIM_SNIPE_FIRE:
+				case ai_mode::AIM_SNIPE_RETREAT:
+				case ai_mode::AIM_SNIPE_RETREAT_BACKWARDS:
+				case ai_mode::AIM_SNIPE_WAIT:
+				case ai_mode::AIM_THIEF_ATTACK:
+				case ai_mode::AIM_THIEF_RETREAT:
+				case ai_mode::AIM_THIEF_WAIT:
+					break;
 #endif
 				case ai_mode::AIM_OPEN_DOOR:
 					create_n_segment_path_to_door(obj, 5, segment_none);
 					break;
-				#ifndef NDEBUG
 				case ai_mode::AIM_FOLLOW_PATH_2:
 					Int3(); // Should never happen!
 					break;
-				#endif
+				case ai_mode::AIM_WANDER:
+					break;
 			}
 			ailp->consecutive_retries = 0;
 		}
@@ -4361,7 +4370,7 @@ static void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
 	ail_rw->player_awareness_type      = static_cast<int8_t>(ail->player_awareness_type);
 	ail_rw->retry_count                = ail->retry_count;
 	ail_rw->consecutive_retries        = ail->consecutive_retries;
-	ail_rw->mode                       = ail->mode;
+	ail_rw->mode                       = static_cast<uint8_t>(ail->mode);
 	ail_rw->previous_visibility        = ail->previous_visibility;
 	ail_rw->rapidfire_count            = ail->rapidfire_count;
 	ail_rw->goal_segment               = ail->goal_segment;
@@ -4543,7 +4552,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readByte(fp));
 		ail->retry_count = PHYSFSX_readByte(fp);
 		ail->consecutive_retries = PHYSFSX_readByte(fp);
-		ail->mode = PHYSFSX_readByte(fp);
+		ail->mode = static_cast<ai_mode>(PHYSFSX_readByte(fp));
 		ail->previous_visibility = PHYSFSX_readByte(fp);
 		ail->rapidfire_count = PHYSFSX_readByte(fp);
 		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
@@ -4555,7 +4564,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readSXE32(fp, swap));
 		ail->retry_count = PHYSFSX_readSXE32(fp, swap);
 		ail->consecutive_retries = PHYSFSX_readSXE32(fp, swap);
-		ail->mode = PHYSFSX_readSXE32(fp, swap);
+		ail->mode = static_cast<ai_mode>(PHYSFSX_readSXE32(fp, swap));
 		ail->previous_visibility = PHYSFSX_readSXE32(fp, swap);
 		ail->rapidfire_count = PHYSFSX_readSXE32(fp, swap);
 		ail->goal_segment = PHYSFSX_readSXE32(fp, swap);
