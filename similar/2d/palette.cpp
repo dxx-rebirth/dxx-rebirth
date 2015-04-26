@@ -283,22 +283,6 @@ color_t gr_find_closest_color_current( int r, int g, int b )
 	return best_index;
 }
 
-void gr_make_cthru_table(ubyte * table, ubyte r, ubyte g, ubyte b )
-{
-	int i;
-	ubyte r1, g1, b1;
-
-	for (i=0; i < 256; i++ )	{
-		r1 = gr_palette[i].r + r;
-		if ( r1 > 63 ) r1 = 63;
-		g1 = gr_palette[i].g + g;
-		if ( g1 > 63 ) g1 = 63;
-		b1 = gr_palette[i].b + b;
-		if ( b1 > 63 ) b1 = 63;
-		table[i] = gr_find_closest_color( r1, g1, b1 );
-	}
-}
-
 #if defined(DXX_BUILD_DESCENT_II)
 void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b)
 {

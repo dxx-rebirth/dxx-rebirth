@@ -54,7 +54,6 @@ void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 void gr_palette_load( palette_array_t &pal );
-extern void gr_make_cthru_table(ubyte * table, ubyte r, ubyte g, ubyte b );
 #ifdef DXX_BUILD_DESCENT_II
 extern void gr_palette_clear();
 extern void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b);
