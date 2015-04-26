@@ -285,18 +285,14 @@ int PHYSFSX_fsize(const char *hogname)
 
 void PHYSFSX_listSearchPathContent()
 {
-	char **i, **list;
-
 	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
-	list = PHYSFS_getSearchPath();
-	for (i = list; *i != NULL; i++)
+	PHYSFS_list_t list{PHYSFS_getSearchPath()};
+	for (char **i = list.get(); *i != NULL; i++)
 		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", *i);
-	PHYSFS_freeList(list);
-
-	list = PHYSFS_enumerateFiles("");
-	for (i = list; *i != NULL; i++)
+	list.reset();
+	list.reset(PHYSFS_enumerateFiles(""));
+	for (char **i = list.get(); *i != NULL; i++)
 		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].", *i);
-	PHYSFS_freeList(list);
 }
 
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
@@ -378,18 +374,14 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 int PHYSFSX_isNewPath(const char *path)
 {
 	int is_new_path = 1;
-	char **i, **list;
-	
-	list = PHYSFS_getSearchPath();
-	for (i = list; *i != NULL; i++)
+	PHYSFS_list_t list{PHYSFS_getSearchPath()};
+	for (char **i = list.get(); *i != NULL; i++)
 	{
 		if (!strcmp(path, *i))
 		{
 			is_new_path = 0;
 		}
 	}
-	PHYSFS_freeList(list);
-	
 	return is_new_path;
 }
 

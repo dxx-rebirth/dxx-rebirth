@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "u_mem.h"
 #include "physfsx.h"
+#include "physfs_list.h"
 
 #include "null_sentinel_iterator.h"
 #include "compiler-make_unique.h"
@@ -40,14 +41,14 @@ static int file_sort_func(char **e0, char **e1)
 	return d_stricmp(*e0, *e1);
 }
 
-static char **file_getdirlist(int *NumDirs, const char *dir)
+static PHYSFS_list_t file_getdirlist(int *NumDirs, const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
 	auto dlen = path.copy_if(dir);
 	if (!dlen || !path.copy_if(dlen, "/"))
 		return nullptr;
 	++ dlen;
-	char	**list = PHYSFS_enumerateFiles(dir);
+	PHYSFS_list_t list{PHYSFS_enumerateFiles(dir)};
 	if (!list)
 		return NULL;
 	const auto predicate = [&](char *i) -> bool {
@@ -57,27 +58,28 @@ static char **file_getdirlist(int *NumDirs, const char *dir)
 		return true;
 	};
 	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
-	auto j = std::remove_if(null_sentinel_iterator(list), null_sentinel_iterator(), predicate);
+	auto j = std::remove_if(null_sentinel_iterator(list.get()), null_sentinel_iterator(), predicate);
 	*j = NULL;
-	*NumDirs = j.get() - list;
-	qsort(list, *NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+	*NumDirs = j.get() - list.get();
+	qsort(list.get(), *NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
 	if (*dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
 		(*NumDirs)++;
-		auto r = reinterpret_cast<char **>(realloc(list, sizeof(char *)*(*NumDirs + 1)));
+		auto r = reinterpret_cast<char **>(realloc(list.get(), sizeof(char *)*(*NumDirs + 1)));
 		if (!r)
 			return list;
-		list = r;
-		std::move_backward(list, list + *NumDirs, list + *NumDirs + 1);
+		list.release();
+		list.reset(r);
+		std::move_backward(r, r + *NumDirs, r + *NumDirs + 1);
 		list[0] = d_strdup("..");
 	}
 	return list;
 }
 
-static char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
+static PHYSFS_list_t file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 {
-	char **list = PHYSFS_enumerateFiles(dir);
+	PHYSFS_list_t list{PHYSFS_enumerateFiles(dir)};
 	if (!list)
 		return NULL;
 
@@ -92,10 +94,10 @@ static char **file_getfilelist(int *NumFiles, const char *filespec, const char *
 		return true;
 	};
 	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
-	auto j = std::remove_if(null_sentinel_iterator(list), null_sentinel_iterator(), predicate);
+	auto j = std::remove_if(null_sentinel_iterator(list.get()), null_sentinel_iterator(), predicate);
 	*j = NULL;
-	*NumFiles = j.get() - list;
-	qsort(list, *NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+	*NumFiles = j.get() - list.get();
+	qsort(list.get(), *NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
 	return list;
 }
 
@@ -106,8 +108,7 @@ struct ui_file_browser
 	char		*filename;
 	const char		*filespec;
 	const char		*message;
-	char		**filename_list;
-	char		**directory_list;
+	PHYSFS_list_t filename_list, directory_list;
 	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
@@ -138,8 +139,8 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 
 	if (GADGET_PRESSED(b->button2.get()))
 	{
-		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
-		PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
+		b->filename_list.reset();
+		b->directory_list.reset();
 		ui_close_dialog(dlg);
 		return 1;
 	}
@@ -213,30 +214,25 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 				b->filename[strlen(b->filename) - 1] = 0;
 			
 			strcpy(b->view_dir, b->filename);
-			
-			
-			PHYSFS_freeList(b->filename_list);
 			b->filename_list = file_getfilelist(&b->num_files, b->filespec, b->view_dir);
 			if (!b->filename_list)
 			{
-				PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
+				b->directory_list.reset();
 				ui_close_dialog(dlg);
 				return 1;
 			}
 			
 			ui_inputbox_set_text(b->user_file.get(), b->filespec);
-			
-			PHYSFS_freeList(b->directory_list);
 			b->directory_list = file_getdirlist(&b->num_dirs, b->view_dir);
 			if (!b->directory_list)
 			{
-				PHYSFS_freeList(b->filename_list); b->filename_list = NULL;
+				b->filename_list.reset();
 				ui_close_dialog(dlg);
 				return 1;
 			}
 			
-			ui_listbox_change(dlg, b->listbox1.get(), b->num_files, b->filename_list);
-			ui_listbox_change(dlg, b->listbox2.get(), b->num_dirs, b->directory_list);
+			ui_listbox_change(dlg, b->listbox1.get(), b->num_files, b->filename_list.get());
+			ui_listbox_change(dlg, b->listbox2.get(), b->num_dirs, b->directory_list.get());
 			
 			//i = TICKER;
 			//while ( TICKER < i+2 );
@@ -278,7 +274,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 	b->directory_list = file_getdirlist(&b->num_dirs, b->view_dir);
 	if (!b->directory_list)
 	{
-		PHYSFS_freeList(b->filename_list);
+		b->filename_list.reset();
 		return 0;
 	}
 
@@ -291,8 +287,8 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 
 	b->user_file  = ui_add_gadget_inputbox<40>(dlg, 60, 30, InputText);
 
-	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list);
-	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list);
+	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list.get());
+	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list.get());
 
 	b->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
 	b->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
@@ -320,31 +316,19 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 
 	//key_flush();
 
-	if (b->filename_list)
-		PHYSFS_freeList(b->filename_list);
-	if (b->directory_list)
-		PHYSFS_freeList(b->directory_list);
-	
-	rval = b->filename_list != NULL;
+	rval = static_cast<bool>(b->filename_list);
+	b->filename_list.reset();
+	b->directory_list.reset();
 	return rval;
 }
-
-
 
 int ui_get_file( char * filename, const char * Filespec  )
 {
 	int x, NumFiles;
-	char **list = file_getfilelist(&NumFiles, Filespec, "");
-
+	auto list = file_getfilelist(&NumFiles, Filespec, "");
 	if (!list) return 0;
-
-	x = MenuX(-1, -1, NumFiles, list);
-
+	x = MenuX(-1, -1, NumFiles, list.get());
 	if (x > 0)
 		strcpy(filename, list[x - 1]);
-
-	PHYSFS_freeList(list);
-
 	return (x > 0);
 }
-

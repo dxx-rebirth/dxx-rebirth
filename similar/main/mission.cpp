@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "ignorecase.h"
 #include "physfsx.h"
+#include "physfs_list.h"
 #include "bm.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
@@ -510,11 +511,9 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 
 static void add_missions_to_list(mission_list &mission_list, char *path, char *rel_path, int anarchy_mode)
 {
-	char **find, **i, *ext;
-
-	find = PHYSFS_enumerateFiles(path);
-
-	for (i = find; *i != NULL; i++)
+	char *ext;
+	const PHYSFS_list_t find{PHYSFS_enumerateFiles(path)};
+	for (auto i = find.get(); *i != NULL; i++)
 	{
 		if (strlen(path) + strlen(*i) + 1 >= PATH_MAX)
 			continue;	// path is too long
@@ -544,8 +543,6 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 
 		(strrchr(path, '/'))[1] = 0;	// chop off the entry
 	}
-
-	PHYSFS_freeList(find);
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
