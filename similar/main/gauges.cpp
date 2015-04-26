@@ -1668,14 +1668,13 @@ static void hud_show_shield(void)
 }
 
 //draw the icons for number of lives
-static void hud_show_lives()
+static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x;
 
 	if (HUD_toolong)
 		return;
 
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 		x = HUD_SCALE_X(7);
 	else
@@ -3121,7 +3120,7 @@ void draw_hud()
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives();
+			hud_show_lives(multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list();
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
