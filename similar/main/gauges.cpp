@@ -2158,9 +2158,8 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 }
 
 
-static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
+static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)laser_level;
 #endif
@@ -2272,15 +2271,16 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
+		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level);
+		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level, multires_gauge_graphic);
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
@@ -2294,7 +2294,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
+			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level, multires_gauge_graphic);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2303,7 +2303,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 	} else
 	{
-		draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level);
+		draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		old_laser_level = Players[Player_num].laser_level;
 	}
