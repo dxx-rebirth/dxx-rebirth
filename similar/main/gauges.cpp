@@ -1992,9 +1992,8 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 }
 #endif
 
-static void draw_shield_bar(int shield)
+static void draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int bm_num = shield>=100?9:(shield / 10);
 	hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
@@ -2568,7 +2567,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 	} else if (cmmode == CM_STATUS_BAR)
 		sb_draw_shield_bar(f2ir(Players[Player_num].shields));
 	else
-		draw_shield_bar(f2ir(Players[Player_num].shields));
+		draw_shield_bar(f2ir(Players[Player_num].shields), multires_gauge_graphic);
 }
 
 const rgb_array_t player_rgb_normal{{
@@ -3169,7 +3168,7 @@ void render_gauges()
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
-			draw_shield_bar(shields);
+			draw_shield_bar(shields, multires_gauge_graphic);
 		draw_numerical_display(shields, energy);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
