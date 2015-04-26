@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-#include "polyobj.h"
 
 #ifdef __cplusplus
 #include "pack.h"
@@ -59,7 +58,7 @@ enum class player_awareness_type_t : int8_t
 #define AI_DIR_FORWARD  1
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
-enum ai_behavior : uint8_t
+enum class ai_behavior : uint8_t
 {
 // Behaviors
 	AIB_STILL = 0x80,
@@ -75,6 +74,8 @@ enum ai_behavior : uint8_t
 	AIB_FOLLOW = 0x86,
 #endif
 };
+
+#include "polyobj.h"
 
 #define MIN_BEHAVIOR    0x80
 #if defined(DXX_BUILD_DESCENT_I)
@@ -206,7 +207,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
-	ubyte   behavior;               //
+	ai_behavior behavior;               //
 	array<sbyte, MAX_AI_FLAGS>   flags;    // various flags, meaning defined by constants
 	segnum_t   hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points

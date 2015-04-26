@@ -353,20 +353,29 @@ static int ready_to_fire_any_weapon(const robot_info *robptr, const ai_local *ai
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
-int ai_behavior_to_mode(int behavior)
+int ai_behavior_to_mode(ai_behavior behavior)
 {
 	switch (behavior) {
-		case ai_behavior::AIB_STILL:			return AIM_STILL;
-		case ai_behavior::AIB_NORMAL:			return AIM_CHASE_OBJECT;
-		case ai_behavior::AIB_RUN_FROM:		return AIM_RUN_FROM_OBJECT;
-		case ai_behavior::AIB_STATION:			return AIM_STILL;
+		case ai_behavior::AIB_STILL:
+			return AIM_STILL;
+		case ai_behavior::AIB_NORMAL:
+			return AIM_CHASE_OBJECT;
+		case ai_behavior::AIB_RUN_FROM:
+			return AIM_RUN_FROM_OBJECT;
+		case ai_behavior::AIB_STATION:
+			return AIM_STILL;
 #if defined(DXX_BUILD_DESCENT_I)
-		case ai_behavior::AIB_HIDE:				return AIM_HIDE;
-		case ai_behavior::AIB_FOLLOW_PATH:	return AIM_FOLLOW_PATH;
+		case ai_behavior::AIB_HIDE:
+			return AIM_HIDE;
+		case ai_behavior::AIB_FOLLOW_PATH:
+			return AIM_FOLLOW_PATH;
 #elif defined(DXX_BUILD_DESCENT_II)
-		case ai_behavior::AIB_BEHIND:			return AIM_BEHIND;
-		case ai_behavior::AIB_SNIPE:			return AIM_STILL;	//	Changed, 09/13/95, MK, snipers are still until they see you or are hit.
-		case ai_behavior::AIB_FOLLOW:			return AIM_FOLLOW_PATH;
+		case ai_behavior::AIB_BEHIND:
+			return AIM_BEHIND;
+		case ai_behavior::AIB_SNIPE:
+			return AIM_STILL;	//	Changed, 09/13/95, MK, snipers are still until they see you or are hit.
+		case ai_behavior::AIB_FOLLOW:
+			return AIM_FOLLOW_PATH;
 #endif
 		default:	Int3();	//	Contact Mike: Error, illegal behavior type
 	}
@@ -386,14 +395,14 @@ void ai_init_boss_for_ship(void)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
+void init_ai_object(const vobjptr_t objp, ai_behavior behavior, segnum_t hide_segment)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
 	*ailp = {};
 
-	if (behavior == 0) {
+	if (static_cast<unsigned>(behavior) == 0) {
 		behavior = ai_behavior::AIB_NORMAL;
 		aip->behavior = behavior;
 	}
@@ -403,11 +412,9 @@ void init_ai_object(const vobjptr_t objp, int behavior, segnum_t hide_segment)
 
 	ailp->previous_visibility = 0;
 
-	if (behavior != -1) {
+	{
 		aip->behavior = behavior;
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
-	} else if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		aip->behavior = ai_behavior::AIB_NORMAL;
 	}
 
 	robot_info	*robptr = &Robot_info[get_robot_id(objp)];
@@ -1578,6 +1585,7 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 				case ai_behavior::AIB_STILL:
 					objp->ctype.ai_info.ail.mode = AIM_CHASE_OBJECT;
 					break;
+				case ai_behavior::AIB_FOLLOW_PATH:
 #elif defined(DXX_BUILD_DESCENT_II)
 				case ai_behavior::AIB_STILL:
 				{
@@ -1600,7 +1608,14 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 					}
 					break;
 				}
+				case ai_behavior::AIB_BEHIND:
+				case ai_behavior::AIB_SNIPE:
+				case ai_behavior::AIB_FOLLOW:
 #endif
+				case ai_behavior::AIB_NORMAL:
+				case ai_behavior::AIB_RUN_FROM:
+				case ai_behavior::AIB_STATION:
+					break;
 			}
 	}
 
@@ -1894,7 +1909,6 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	const robot_info	*robptr = &Robot_info[object_id];
 	int		count=0;
 	fix		objsize = Polygon_models[robptr->model_num].rad;
-	int		default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
 	const int maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1948,6 +1962,7 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	objp->shields = robptr->strength;
 	objp->matcen_creator = BOSS_GATE_MATCEN_NUM;	//	flag this robot as having been created by the boss.
 
+	ai_behavior default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!
@@ -2980,8 +2995,24 @@ void do_ai_frame(const vobjptridx_t obj)
 #endif
 
 	//Assert((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR));
-	if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		aip->behavior = ai_behavior::AIB_NORMAL;
+	switch (aip->behavior)
+	{
+		case ai_behavior::AIB_STILL:
+		case ai_behavior::AIB_NORMAL:
+		case ai_behavior::AIB_RUN_FROM:
+		case ai_behavior::AIB_STATION:
+#if defined(DXX_BUILD_DESCENT_I)
+		case ai_behavior::AIB_HIDE:
+		case ai_behavior::AIB_FOLLOW_PATH:
+#elif defined(DXX_BUILD_DESCENT_II)
+		case ai_behavior::AIB_BEHIND:
+		case ai_behavior::AIB_SNIPE:
+		case ai_behavior::AIB_FOLLOW:
+#endif
+			break;
+		default:
+			aip->behavior = ai_behavior::AIB_NORMAL;
+			break;
 	}
 
 	Assert(obj->segnum != segment_none);

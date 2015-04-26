@@ -288,7 +288,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 
 	ri.deathroll_sound = PHYSFSX_readByte(fp);
 	ri.glow = PHYSFSX_readByte(fp);
-	ri.behavior = PHYSFSX_readByte(fp);
+	ri.behavior = static_cast<ai_behavior>(PHYSFSX_readByte(fp));
 	ri.aim = PHYSFSX_readByte(fp);
 #endif
 

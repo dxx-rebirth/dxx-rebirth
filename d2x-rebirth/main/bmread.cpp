@@ -1145,7 +1145,8 @@ void bm_read_robot(int skip)
 	short 		weapon_type = 0, weapon_type2 = -1;
 	int			g,s;
 	char			name[ROBOT_NAME_LENGTH];
-	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0, behavior=ai_behavior::AIB_NORMAL;
+	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
+	auto behavior = ai_behavior::AIB_NORMAL;
 	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
 	fix			glow=0, aim=F1_0;
 	int			deathroll_sound = SOUND_BOSS_SHARE_DIE;	//default

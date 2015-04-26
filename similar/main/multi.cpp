@@ -5378,7 +5378,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 		case CT_AI:
 		{
 			int i;
-			obj_rw->ctype.ai_info.behavior               = obj->ctype.ai_info.behavior; 
+			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj->ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj_rw->ctype.ai_info.flags[i]       = obj->ctype.ai_info.flags[i]; 
 			obj_rw->ctype.ai_info.hide_segment           = obj->ctype.ai_info.hide_segment;
@@ -5546,7 +5546,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 		case CT_AI:
 		{
 			int i;
-			obj->ctype.ai_info.behavior               = obj_rw->ctype.ai_info.behavior; 
+			obj->ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
 			for (i = 0; i < MAX_AI_FLAGS; i++)
 				obj->ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
 			obj->ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;

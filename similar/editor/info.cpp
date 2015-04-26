@@ -112,7 +112,7 @@ static movement_type_name &get_movement_type(int num)
 	}
 }
 
-static ai_type_name &get_ai_behavior(int num)
+static ai_type_name &get_ai_behavior(ai_behavior num)
 {
 	switch (num) {
 		case ai_behavior::AIB_STILL:
@@ -146,7 +146,7 @@ static void info_display_object_placement(int show_all)
 	static	int	old_type;
 	static	int	old_movement_type;
 	static	int	old_control_type;
-	static	int	old_mode;
+	static ai_behavior old_mode;
 	if (init_info || show_all ||
 		( Cur_object_index != old_Cur_object_index) || 
 			( Objects[Cur_object_index].type != old_type) || 

@@ -80,7 +80,7 @@ struct robot_dialog
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
-static void call_init_ai_object(const vobjptr_t objp, int behavior)
+static void call_init_ai_object(const vobjptr_t objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
 
@@ -568,12 +568,27 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		range_for (auto &i, r->initialMode)
 			ui_radio_set_value(i.get(), 0);
 		if ( Cur_object_index != object_none ) {
-			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
-			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
-				Objects[Cur_object_index].ctype.ai_info.behavior = ai_behavior::AIB_NORMAL;
-				behavior = ai_behavior::AIB_NORMAL;
+			auto &behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
+			switch (behavior)
+			{
+				case ai_behavior::AIB_STILL:
+				case ai_behavior::AIB_NORMAL:
+				case ai_behavior::AIB_RUN_FROM:
+				case ai_behavior::AIB_STATION:
+#if defined(DXX_BUILD_DESCENT_I)
+				case ai_behavior::AIB_HIDE:
+				case ai_behavior::AIB_FOLLOW_PATH:
+#elif defined(DXX_BUILD_DESCENT_II)
+				case ai_behavior::AIB_BEHIND:
+				case ai_behavior::AIB_SNIPE:
+				case ai_behavior::AIB_FOLLOW:
+#endif
+					break;
+				default:
+					behavior = ai_behavior::AIB_NORMAL;
+					break;
 			}
-			ui_radio_set_value(r->initialMode[behavior - MIN_BEHAVIOR].get(), 1);
+			ui_radio_set_value(r->initialMode[static_cast<std::size_t>(behavior) - MIN_BEHAVIOR].get(), 1);
 		}
 	}
 
@@ -583,11 +598,14 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	//------------------------------------------------------------
 	for (	int i=0; i < NUM_BOXES; i++ ) {
 		if (GADGET_PRESSED(r->initialMode[i].get()))
-			if (Objects[Cur_object_index].ctype.ai_info.behavior != MIN_BEHAVIOR+i) {
-				Objects[Cur_object_index].ctype.ai_info.behavior = MIN_BEHAVIOR+i;		// Set the ai_state to the cooresponding radio button
-				call_init_ai_object(&Objects[Cur_object_index], MIN_BEHAVIOR+i);
+		{
+			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
+			if (Objects[Cur_object_index].ctype.ai_info.behavior != b) {
+				Objects[Cur_object_index].ctype.ai_info.behavior = b;		// Set the ai_state to the cooresponding radio button
+				call_init_ai_object(&Objects[Cur_object_index], b);
 				rval = 1;
 			}
+		}
 	}
 
 	//------------------------------------------------------------

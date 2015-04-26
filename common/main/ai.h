@@ -102,7 +102,7 @@ extern vms_vector Believed_player_pos;
 void move_towards_segment_center(vobjptr_t objp);
 extern objptridx_t gate_in_robot(int type, segnum_t segnum);
 void do_ai_frame(vobjptridx_t objp);
-void init_ai_object(vobjptr_t objp, int initial_mode, segnum_t hide_segment);
+void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
 extern void do_ai_frame_all(void);
 extern void create_all_paths(void);
 void create_path_to_station(vobjptridx_t objp, int max_length);
@@ -120,7 +120,7 @@ static inline vms_vector make_random_vector()
 	return make_random_vector(v), v;
 }
 extern void init_robots_for_level(void);
-extern int ai_behavior_to_mode(int behavior);
+int ai_behavior_to_mode(ai_behavior behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);

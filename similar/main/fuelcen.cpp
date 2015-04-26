@@ -298,7 +298,6 @@ Restart: ;
 
 objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &object_pos, int object_id)
 {
-	int		default_behavior;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
@@ -325,7 +324,7 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
 	obj->shields = Robot_info[get_robot_id(obj)].strength;
-	
+	ai_behavior default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!

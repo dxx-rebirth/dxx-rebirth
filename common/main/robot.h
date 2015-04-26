@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "aistruct.h"
 #include "polyobj.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
@@ -143,7 +144,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	ubyte   deathroll_sound;    // if has deathroll, what sound?
 	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point
-	ubyte   behavior;           //  Default behavior.
+	ai_behavior behavior;           //  Default behavior.
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
 	//animation info

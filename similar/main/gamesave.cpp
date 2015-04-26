@@ -420,7 +420,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 	switch (obj->control_type) {
 
 		case CT_AI: {
-			obj->ctype.ai_info.behavior				= PHYSFSX_readByte(f);
+			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
 
 			range_for (auto &i, obj->ctype.ai_info.flags)
 				i = PHYSFSX_readByte(f);
@@ -662,7 +662,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 	switch (obj->control_type) {
 
 		case CT_AI: {
-			PHYSFSX_writeU8(f, obj->ctype.ai_info.behavior);
+			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj->ctype.ai_info.behavior));
 
 			range_for (auto &i, obj->ctype.ai_info.flags)
 				PHYSFSX_writeU8(f, i);
