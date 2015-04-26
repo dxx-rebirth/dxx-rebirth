@@ -967,7 +967,7 @@ void play_homing_warning(void)
 }
 
 //	-----------------------------------------------------------------------------
-static void show_homing_warning(const local_multires_gauge_graphic multires_gauge_graphic = {})
+static void show_homing_warning(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (Endlevel_sequence)
 	{
@@ -3176,7 +3176,7 @@ void render_gauges()
 		}
 		draw_keys();
 
-		show_homing_warning();
+		show_homing_warning(multires_gauge_graphic);
 		draw_wbu_overlay();
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
