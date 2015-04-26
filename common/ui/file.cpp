@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 
+#include "null_sentinel_iterator.h"
 #include "compiler-make_unique.h"
 
 static int file_sort_func(char **e0, char **e1)
@@ -47,23 +48,19 @@ static char **file_getdirlist(int *NumDirs, const char *dir)
 		return nullptr;
 	++ dlen;
 	char	**list = PHYSFS_enumerateFiles(dir);
-	char	**i, **j = list;
 	if (!list)
 		return NULL;
-	for (i = list; *i; i++)
-	{
-		if (!path.copy_if(dlen, *i))
-			continue;
-		if (PHYSFS_isDirectory(path))
-			*j++ = *i;
-		else
-			free(*i);
-	}
+	const auto predicate = [&](char *i) -> bool {
+		if (path.copy_if(dlen, i) && PHYSFS_isDirectory(path))
+			return false;
+		free(i);
+		return true;
+	};
+	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
+	auto j = std::remove_if(null_sentinel_iterator(list), null_sentinel_iterator(), predicate);
 	*j = NULL;
-
-	*NumDirs = j - list;
+	*NumDirs = j.get() - list;
 	qsort(list, *NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
-
 	if (*dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
@@ -75,35 +72,30 @@ static char **file_getdirlist(int *NumDirs, const char *dir)
 		std::move_backward(list, list + *NumDirs, list + *NumDirs + 1);
 		list[0] = d_strdup("..");
 	}
-
 	return list;
 }
 
 static char **file_getfilelist(int *NumFiles, const char *filespec, const char *dir)
 {
 	char **list = PHYSFS_enumerateFiles(dir);
-	char **i, **j = list, *ext;
-
 	if (!list)
 		return NULL;
 
 	if (*filespec == '*')
 		filespec++;
 
-	for (i = list; *i; i++)
-	{
-		ext = strrchr(*i, '.');
+	const auto predicate = [&](char *i) -> bool {
+		auto ext = strrchr(i, '.');
 		if (ext && (!d_stricmp(ext, filespec)))
-			*j++ = *i;
-		else
-			free(*i);
-	}
+			return false;
+		free(i);
+		return true;
+	};
+	typedef null_sentinel_iterator<char *> null_sentinel_iterator;
+	auto j = std::remove_if(null_sentinel_iterator(list), null_sentinel_iterator(), predicate);
 	*j = NULL;
-
-
-	*NumFiles = j - list;
+	*NumFiles = j.get() - list;
 	qsort(list, *NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
-
 	return list;
 }
 
