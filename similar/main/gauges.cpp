@@ -2380,7 +2380,7 @@ static void draw_static(int win)
 }
 #endif
 
-static void draw_weapon_boxes()
+static void draw_weapon_box0()
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[0] == WBU_WEAPON)
@@ -2389,38 +2389,46 @@ static void draw_weapon_boxes()
 		draw_weapon_box(0,Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
-			int is_vulcan_ammo_weapon = weapon_index_uses_vulcan_ammo(Primary_weapon);
-			if (is_vulcan_ammo_weapon)
+			unsigned nd_ammo;
+			unsigned ammo_count;
+			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Players[Player_num].vulcan_ammo);
-				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].vulcan_ammo));
+				nd_ammo = Players[Player_num].vulcan_ammo;
+				ammo_count = f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].vulcan_ammo);
 			}
-
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Primary_weapon == OMEGA_INDEX)
+			else if (Primary_weapon == OMEGA_INDEX)
 			{
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Omega_charge);
-				draw_primary_ammo_info(Omega_charge * 100/MAX_OMEGA_CHARGE);
+				nd_ammo = Omega_charge;
+				ammo_count = Omega_charge * 100/MAX_OMEGA_CHARGE;
 			}
 #endif
+			else
+				return;
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_primary_ammo(nd_ammo);
+			draw_primary_ammo_info(ammo_count);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (weapon_box_user[0] == WBU_STATIC)
 		draw_static(0);
+#endif
+}
 
+static void draw_weapon_box1()
+{
+#if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[1] == WBU_WEAPON)
 #endif
 	{
 		draw_weapon_box(1,Secondary_weapon);
-
 		if (weapon_box_states[1] == WS_SET)
 		{
+			const auto ammo = Players[Player_num].secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
-			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
+				newdemo_record_secondary_ammo(ammo);
+			draw_secondary_ammo_info(ammo);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2429,6 +2437,11 @@ static void draw_weapon_boxes()
 #endif
 }
 
+static void draw_weapon_boxes()
+{
+	draw_weapon_box0();
+	draw_weapon_box1();
+}
 
 static void sb_draw_energy_bar(int energy)
 {
