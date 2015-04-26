@@ -2492,12 +2492,11 @@ static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic mu
 	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
-static void sb_draw_shield_bar(int shield)
+static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int bm_num = shield>=100?9:(shield / 10);
 
 	gr_set_current_canvas(NULL);
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
@@ -2556,7 +2555,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 		}
 		hud_gauge_bitblt(x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
 	} else if (cmmode == CM_STATUS_BAR)
-		sb_draw_shield_bar(f2ir(Players[Player_num].shields));
+		sb_draw_shield_bar(f2ir(Players[Player_num].shields), multires_gauge_graphic);
 	else
 		draw_shield_bar(f2ir(Players[Player_num].shields), multires_gauge_graphic);
 }
@@ -3192,7 +3191,7 @@ void render_gauges()
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
-			sb_draw_shield_bar(shields);
+			sb_draw_shield_bar(shields, multires_gauge_graphic);
 		sb_draw_shield_num(shields, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
