@@ -863,7 +863,7 @@ static void hud_show_score_added()
 	}
 }
 
-static void sb_show_score(const local_multires_gauge_graphic multires_gauge_graphic = {})
+static void sb_show_score(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	char	score_str[20];
 	int x,y;
@@ -899,7 +899,7 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	gr_string(x,y,score_str);
 }
 
-static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic = {})
+static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int	color;
 	int w, h, aw;
@@ -3213,12 +3213,12 @@ void render_gauges()
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
-			sb_show_score();
+			sb_show_score(multires_gauge_graphic);
 		}
 		else
 		{
-			sb_show_score();
-			sb_show_score_added();
+			sb_show_score(multires_gauge_graphic);
+			sb_show_score_added(multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_I)
