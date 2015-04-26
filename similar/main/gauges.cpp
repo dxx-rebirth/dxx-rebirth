@@ -379,7 +379,7 @@ static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ cons
 static grs_bitmap deccpt;
 static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
-static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic = {})
+static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto &g =
 #if defined(DXX_BUILD_DESCENT_II)
@@ -765,7 +765,7 @@ static inline void hud_bitblt (unsigned x, unsigned y, grs_bitmap &bm, const loc
 
 static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	PAGE_IN_GAUGE(gauge);
+	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
 	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
 }
 
@@ -1011,7 +1011,7 @@ static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_grap
 		grs_bitmap *const bm;
 	public:
 		gauge_key(const unsigned key_icon, const local_multires_gauge_graphic multires_gauge_graphic) :
-			bm(&GameBitmaps[PAGE_IN_GAUGE(key_icon), GET_GAUGE_INDEX(key_icon)])
+			bm(&GameBitmaps[static_cast<void>(multires_gauge_graphic), PAGE_IN_GAUGE(key_icon, multires_gauge_graphic), GET_GAUGE_INDEX(key_icon)])
 		{
 		}
 		grs_bitmap *operator->() const
@@ -1089,7 +1089,7 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
-		PAGE_IN_GAUGE( icon );
+		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
 		hud_bitblt_free(x, y, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 	}
 }
@@ -1675,9 +1675,9 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, Players[Player_num].net_killed_total);
 	}
 	else if (Players[Player_num].lives > 1)  {
-		PAGE_IN_GAUGE( GAUGE_LIVES );
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
+		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		hud_bitblt_free(x, FSPACY(1), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(HUD_SCALE_X_AR(bm.bm_w)+x, FSPACY(1), " x %d", Players[Player_num].lives - 1);
@@ -1722,7 +1722,7 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 	if (Players[Player_num].lives-1 > 0) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
-		PAGE_IN_GAUGE( GAUGE_LIVES );
+		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		hud_bitblt_free(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", Players[Player_num].lives - 1);
 	}
@@ -2040,7 +2040,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
 	gr_set_current_canvas(NULL);
 	const auto color = get_player_or_team_color(Player_num);
-	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
+	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
 	gr_settransblend(cloak_fade_value, GR_BLEND_NORMAL);
@@ -2621,17 +2621,17 @@ void show_reticle(int reticle_type, int secondary_display)
 			const auto use_hires_reticle = multires_gauge_graphic.is_hires();
 			ofs = (use_hires_reticle?0:2);
 			gauge_index = RETICLE_CROSS + cross_bm_num;
-			PAGE_IN_GAUGE( gauge_index );
+			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
 			hud_bitblt_free(x + HUD_SCALE_X_AR(cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross.bm_w), HUD_SCALE_Y_AR(cross.bm_h), cross);
 
 			gauge_index = RETICLE_PRIMARY + primary_bm_num;
-			PAGE_IN_GAUGE( gauge_index );
+			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &primary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
 			hud_bitblt_free(x + HUD_SCALE_X_AR(primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary.bm_w), HUD_SCALE_Y_AR(primary.bm_h), primary);
 
 			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
-			PAGE_IN_GAUGE( gauge_index );
+			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &secondary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
 			hud_bitblt_free(x + HUD_SCALE_X_AR(secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary.bm_w), HUD_SCALE_Y_AR(secondary.bm_h), secondary);
 			break;
