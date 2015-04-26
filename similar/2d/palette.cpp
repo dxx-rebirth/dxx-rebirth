@@ -282,25 +282,3 @@ color_t gr_find_closest_color_current( int r, int g, int b )
 	}
 	return best_index;
 }
-
-#if defined(DXX_BUILD_DESCENT_II)
-void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b)
-{
-	int i, j;
-	float alpha;
-	ubyte r1, g1, b1;
-
-	for (j = 0; j < GR_FADE_LEVELS; j++)
-	{
-		alpha = 1.0 - (float)j / ((float)GR_FADE_LEVELS - 1);
-		for (i = 0; i < 255; i++)
-		{
-			r1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i].r + (alpha * (float)r));
-			g1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i].g + (alpha * (float)g));
-			b1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i].b + (alpha * (float)b));
-			blend_table[i + j * 256] = gr_find_closest_color(r1, g1, b1);
-		}
-		blend_table[i + j * 256] = 255; // leave white alone
-	}
-}
-#endif

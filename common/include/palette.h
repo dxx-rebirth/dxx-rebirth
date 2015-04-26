@@ -54,10 +54,6 @@ void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 void gr_palette_load( palette_array_t &pal );
-#ifdef DXX_BUILD_DESCENT_II
-extern void gr_palette_clear();
-extern void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b);
-#endif
 color_t gr_find_closest_color_current( int r, int g, int b );
 extern void gr_palette_read(palette_array_t &palette);
 extern void init_computed_colors(void);
