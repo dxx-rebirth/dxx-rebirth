@@ -348,18 +348,18 @@ array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
 static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ constants in gauges.h
 #endif
-grs_bitmap deccpt;
+static grs_bitmap deccpt;
 static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
 #define PAGE_IN_GAUGE(x) _page_in_gauge(x)
 static inline void _page_in_gauge(int x)
 {
+	const auto &g =
 #if defined(DXX_BUILD_DESCENT_II)
-    if (HIRESMODE)
-        PIGGY_PAGE_IN(Gauges_hires[x]);
-	else
+		HIRESMODE ? Gauges_hires :
 #endif
-		PIGGY_PAGE_IN(Gauges[x]);
+		Gauges;
+	PIGGY_PAGE_IN(g[x]);
 }
 
 static void draw_ammo_info(int x,int y,int ammo_count);
