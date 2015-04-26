@@ -67,6 +67,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
+namespace {
+
+class global_multires_gauge_graphic
+{
+public:
+	bool is_hires() const
+	{
+		return HIRESMODE;
+	}
+	unsigned get(unsigned h, unsigned l) const
+	{
+		return is_hires() ? h : l;
+	}
+	template <typename T>
+		const T &rget(const T &h, const T &l) const
+		{
+			return is_hires() ? h : l;
+		}
+};
+
+constexpr global_multires_gauge_graphic multires_gauge_graphic{};
+
+}
+
 //bitmap numbers for gauges
 #define GAUGE_SHIELDS			0		//0..9, in decreasing order (100%,90%...0%)
 #define GAUGE_INVULNERABLE		10		//10..19
@@ -108,7 +132,7 @@ using std::min;
 #define GAUGE_RED_KEY_X_H		87
 #define GAUGE_RED_KEY_Y_H		417
 #define LEFT_ENERGY_GAUGE_X_H 	137
-#define RIGHT_ENERGY_GAUGE_X 	(HIRESMODE?380:190)
+#define RIGHT_ENERGY_GAUGE_X 	((multires_gauge_graphic.get(380, 190)))
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GAUGE_AFTERBURNER		20
 #define SB_GAUGE_AFTERBURNER		71
@@ -122,32 +146,32 @@ using std::min;
 #define GAUGE_RED_KEY_X_H		539
 #define GAUGE_RED_KEY_Y_H		416
 #define LEFT_ENERGY_GAUGE_X_H 	138
-#define RIGHT_ENERGY_GAUGE_X 	(HIRESMODE?379:190)
+#define RIGHT_ENERGY_GAUGE_X 	((multires_gauge_graphic.get(379, 190)))
 #endif
 
 #define GAUGE_BLUE_KEY_Y_L		152
 #define GAUGE_BLUE_KEY_Y_H		374
-#define GAUGE_BLUE_KEY_X		(HIRESMODE?GAUGE_BLUE_KEY_X_H:GAUGE_BLUE_KEY_X_L)
-#define GAUGE_BLUE_KEY_Y		(HIRESMODE?GAUGE_BLUE_KEY_Y_H:GAUGE_BLUE_KEY_Y_L)
+#define GAUGE_BLUE_KEY_X		((multires_gauge_graphic.get(GAUGE_BLUE_KEY_X_H, GAUGE_BLUE_KEY_X_L)))
+#define GAUGE_BLUE_KEY_Y		((multires_gauge_graphic.get(GAUGE_BLUE_KEY_Y_H, GAUGE_BLUE_KEY_Y_L)))
 #define GAUGE_GOLD_KEY_Y_L		162
 #define GAUGE_GOLD_KEY_Y_H		395
-#define GAUGE_GOLD_KEY_X		(HIRESMODE?GAUGE_GOLD_KEY_X_H:GAUGE_GOLD_KEY_X_L)
-#define GAUGE_GOLD_KEY_Y		(HIRESMODE?GAUGE_GOLD_KEY_Y_H:GAUGE_GOLD_KEY_Y_L)
+#define GAUGE_GOLD_KEY_X		((multires_gauge_graphic.get(GAUGE_GOLD_KEY_X_H, GAUGE_GOLD_KEY_X_L)))
+#define GAUGE_GOLD_KEY_Y		((multires_gauge_graphic.get(GAUGE_GOLD_KEY_Y_H, GAUGE_GOLD_KEY_Y_L)))
 #define GAUGE_RED_KEY_Y_L		172
-#define GAUGE_RED_KEY_X			(HIRESMODE?GAUGE_RED_KEY_X_H:GAUGE_RED_KEY_X_L)
-#define GAUGE_RED_KEY_Y			(HIRESMODE?GAUGE_RED_KEY_Y_H:GAUGE_RED_KEY_Y_L)
+#define GAUGE_RED_KEY_X			((multires_gauge_graphic.get(GAUGE_RED_KEY_X_H, GAUGE_RED_KEY_X_L)))
+#define GAUGE_RED_KEY_Y			((multires_gauge_graphic.get(GAUGE_RED_KEY_Y_H, GAUGE_RED_KEY_Y_L)))
 #define SB_GAUGE_KEYS_X_L		11
 #define SB_GAUGE_KEYS_X_H		26
-#define SB_GAUGE_KEYS_X			(HIRESMODE?SB_GAUGE_KEYS_X_H:SB_GAUGE_KEYS_X_L)
+#define SB_GAUGE_KEYS_X			((multires_gauge_graphic.get(SB_GAUGE_KEYS_X_H, SB_GAUGE_KEYS_X_L)))
 #define SB_GAUGE_BLUE_KEY_Y_L		153
 #define SB_GAUGE_GOLD_KEY_Y_L		169
 #define SB_GAUGE_RED_KEY_Y_L		185
 #define SB_GAUGE_BLUE_KEY_Y_H		390
 #define SB_GAUGE_GOLD_KEY_Y_H		422
 #define SB_GAUGE_RED_KEY_Y_H		454
-#define SB_GAUGE_BLUE_KEY_Y		(HIRESMODE?SB_GAUGE_BLUE_KEY_Y_H:SB_GAUGE_BLUE_KEY_Y_L)
-#define SB_GAUGE_GOLD_KEY_Y		(HIRESMODE?SB_GAUGE_GOLD_KEY_Y_H:SB_GAUGE_GOLD_KEY_Y_L)
-#define SB_GAUGE_RED_KEY_Y		(HIRESMODE?SB_GAUGE_RED_KEY_Y_H:SB_GAUGE_RED_KEY_Y_L)
+#define SB_GAUGE_BLUE_KEY_Y		((multires_gauge_graphic.get(SB_GAUGE_BLUE_KEY_Y_H, SB_GAUGE_BLUE_KEY_Y_L)))
+#define SB_GAUGE_GOLD_KEY_Y		((multires_gauge_graphic.get(SB_GAUGE_GOLD_KEY_Y_H, SB_GAUGE_GOLD_KEY_Y_L)))
+#define SB_GAUGE_RED_KEY_Y		((multires_gauge_graphic.get(SB_GAUGE_RED_KEY_Y_H, SB_GAUGE_RED_KEY_Y_L)))
 #define LEFT_ENERGY_GAUGE_X_L 	70
 #define LEFT_ENERGY_GAUGE_Y_L 	131
 #define LEFT_ENERGY_GAUGE_W_L 	64
@@ -155,32 +179,32 @@ using std::min;
 #define LEFT_ENERGY_GAUGE_Y_H 	314
 #define LEFT_ENERGY_GAUGE_W_H 	133
 #define LEFT_ENERGY_GAUGE_H_H 	21
-#define LEFT_ENERGY_GAUGE_X 	(HIRESMODE?LEFT_ENERGY_GAUGE_X_H:LEFT_ENERGY_GAUGE_X_L)
-#define LEFT_ENERGY_GAUGE_Y 	(HIRESMODE?LEFT_ENERGY_GAUGE_Y_H:LEFT_ENERGY_GAUGE_Y_L)
-#define LEFT_ENERGY_GAUGE_W 	(HIRESMODE?LEFT_ENERGY_GAUGE_W_H:LEFT_ENERGY_GAUGE_W_L)
-#define LEFT_ENERGY_GAUGE_H 	(HIRESMODE?LEFT_ENERGY_GAUGE_H_H:LEFT_ENERGY_GAUGE_H_L)
-#define RIGHT_ENERGY_GAUGE_Y 	(HIRESMODE?314:131)
-#define RIGHT_ENERGY_GAUGE_W 	(HIRESMODE?133:64)
-#define RIGHT_ENERGY_GAUGE_H 	(HIRESMODE?21:8)
+#define LEFT_ENERGY_GAUGE_X 	((multires_gauge_graphic.get(LEFT_ENERGY_GAUGE_X_H, LEFT_ENERGY_GAUGE_X_L)))
+#define LEFT_ENERGY_GAUGE_Y 	((multires_gauge_graphic.get(LEFT_ENERGY_GAUGE_Y_H, LEFT_ENERGY_GAUGE_Y_L)))
+#define LEFT_ENERGY_GAUGE_W 	((multires_gauge_graphic.get(LEFT_ENERGY_GAUGE_W_H, LEFT_ENERGY_GAUGE_W_L)))
+#define LEFT_ENERGY_GAUGE_H 	((multires_gauge_graphic.get(LEFT_ENERGY_GAUGE_H_H, LEFT_ENERGY_GAUGE_H_L)))
+#define RIGHT_ENERGY_GAUGE_Y 	((multires_gauge_graphic.get(314, 131)))
+#define RIGHT_ENERGY_GAUGE_W 	((multires_gauge_graphic.get(133, 64)))
+#define RIGHT_ENERGY_GAUGE_H 	((multires_gauge_graphic.get(21, 8)))
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define SB_ENERGY_GAUGE_Y 		(HIRESMODE?390:155)
-#define SB_ENERGY_GAUGE_H 		(HIRESMODE?82:41)
-#define SB_ENERGY_NUM_Y 		(HIRESMODE?457:190)
-#define SHIELD_GAUGE_Y			(HIRESMODE?374:155)
-#define SB_SHIELD_NUM_Y 		(SB_SHIELD_GAUGE_Y-(HIRESMODE?16:7))			//156 -- MWA used to be hard coded to 156
-#define NUMERICAL_GAUGE_Y		(HIRESMODE?316:130)
-#define PRIMARY_W_PIC_X			(HIRESMODE?135:64)
-#define SECONDARY_W_PIC_X		(HIRESMODE?405:234)
-#define SECONDARY_W_PIC_Y		(HIRESMODE?370:154)
-#define SECONDARY_W_TEXT_X		HUD_SCALE_X(HIRESMODE?462:207)
-#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?400:157)
-#define SECONDARY_AMMO_X		HUD_SCALE_X(HIRESMODE?475:213)
-#define SECONDARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?425:171)
-#define SB_LIVES_X			(HIRESMODE?550:266)
-#define SB_LIVES_Y			(HIRESMODE?450:185)
+#define SB_ENERGY_GAUGE_Y 		((multires_gauge_graphic.get(390, 155)))
+#define SB_ENERGY_GAUGE_H 		((multires_gauge_graphic.get(82, 41)))
+#define SB_ENERGY_NUM_Y 		((multires_gauge_graphic.get(457, 190)))
+#define SHIELD_GAUGE_Y			((multires_gauge_graphic.get(374, 155)))
+#define SB_SHIELD_NUM_Y 		(SB_SHIELD_GAUGE_Y-((multires_gauge_graphic.get(16, 7))))			//156 -- MWA used to be hard coded to 156
+#define NUMERICAL_GAUGE_Y		((multires_gauge_graphic.get(316, 130)))
+#define PRIMARY_W_PIC_X			((multires_gauge_graphic.get(135, 64)))
+#define SECONDARY_W_PIC_X		((multires_gauge_graphic.get(405, 234)))
+#define SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(370, 154)))
+#define SECONDARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(462, 207)))
+#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(400, 157)))
+#define SECONDARY_AMMO_X		HUD_SCALE_X((multires_gauge_graphic.get(475, 213)))
+#define SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(425, 171)))
+#define SB_LIVES_X			((multires_gauge_graphic.get(550, 266)))
+#define SB_LIVES_Y			((multires_gauge_graphic.get(450, 185)))
 #define SB_SCORE_RIGHT_H		605
-#define BOMB_COUNT_X			(HIRESMODE?468:210)
+#define BOMB_COUNT_X			((multires_gauge_graphic.get(468, 210)))
 #define PRIMARY_W_BOX_RIGHT_H		241
 #define SECONDARY_W_BOX_RIGHT_L		264	//(SECONDARY_W_BOX_LEFT+54)
 #define SECONDARY_W_BOX_LEFT_H		403
@@ -191,7 +215,7 @@ using std::min;
 #define SB_SECONDARY_W_BOX_TOP_L	154
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54)
 #define SB_SECONDARY_W_BOX_BOT_L	(153+42)
-#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+(HIRESMODE?(14):11))	//(212+9)
+#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14,11))))	//(212+9)
 #define GET_GAUGE_INDEX(x)		(Gauges[x].index)
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -201,30 +225,30 @@ using std::min;
 #define AFTERBURNER_GAUGE_X_H	88
 #define AFTERBURNER_GAUGE_Y_H	378
 #define AFTERBURNER_GAUGE_H_H	65
-#define AFTERBURNER_GAUGE_X	(HIRESMODE?AFTERBURNER_GAUGE_X_H:AFTERBURNER_GAUGE_X_L)
-#define AFTERBURNER_GAUGE_Y	(HIRESMODE?AFTERBURNER_GAUGE_Y_H:AFTERBURNER_GAUGE_Y_L)
-#define AFTERBURNER_GAUGE_H	(HIRESMODE?AFTERBURNER_GAUGE_H_H:AFTERBURNER_GAUGE_H_L)
-#define SB_AFTERBURNER_GAUGE_X 		(HIRESMODE?196:98)
-#define SB_AFTERBURNER_GAUGE_Y 		(HIRESMODE?445:184)
-#define SB_AFTERBURNER_GAUGE_W 		(HIRESMODE?33:16)
-#define SB_AFTERBURNER_GAUGE_H 		(HIRESMODE?29:13)
-#define SB_ENERGY_GAUGE_Y 		(HIRESMODE?381:(155-2))
-#define SB_ENERGY_GAUGE_H 		(HIRESMODE?60:29)
-#define SB_ENERGY_NUM_Y 		(HIRESMODE?457:175)
-#define SHIELD_GAUGE_Y			(HIRESMODE?375:155)
-#define SB_SHIELD_NUM_Y 		(SB_SHIELD_GAUGE_Y-(HIRESMODE?16:8))			//156 -- MWA used to be hard coded to 156
-#define NUMERICAL_GAUGE_Y		(HIRESMODE?314:130)
-#define PRIMARY_W_PIC_X			(HIRESMODE?(135-10):64)
-#define SECONDARY_W_PIC_X		(HIRESMODE?466:234)
-#define SECONDARY_W_PIC_Y		(HIRESMODE?374:154)
-#define SECONDARY_W_TEXT_X		HUD_SCALE_X(HIRESMODE?413:207)
-#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?378:157)
-#define SECONDARY_AMMO_X		HUD_SCALE_X(HIRESMODE?428:213)
-#define SECONDARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?407:171)
-#define SB_LIVES_X			(HIRESMODE?(550-10-3):266)
-#define SB_LIVES_Y			(HIRESMODE?450-3:185)
+#define AFTERBURNER_GAUGE_X	((multires_gauge_graphic.get(AFTERBURNER_GAUGE_X_H, AFTERBURNER_GAUGE_X_L)))
+#define AFTERBURNER_GAUGE_Y	((multires_gauge_graphic.get(AFTERBURNER_GAUGE_Y_H, AFTERBURNER_GAUGE_Y_L)))
+#define AFTERBURNER_GAUGE_H	((multires_gauge_graphic.get(AFTERBURNER_GAUGE_H_H, AFTERBURNER_GAUGE_H_L)))
+#define SB_AFTERBURNER_GAUGE_X 		((multires_gauge_graphic.get(196, 98)))
+#define SB_AFTERBURNER_GAUGE_Y 		((multires_gauge_graphic.get(445, 184)))
+#define SB_AFTERBURNER_GAUGE_W 		((multires_gauge_graphic.get(33, 16)))
+#define SB_AFTERBURNER_GAUGE_H 		((multires_gauge_graphic.get(29, 13)))
+#define SB_ENERGY_GAUGE_Y 		((multires_gauge_graphic.get(381, 155-2)))
+#define SB_ENERGY_GAUGE_H 		((multires_gauge_graphic.get(60, 29)))
+#define SB_ENERGY_NUM_Y 		((multires_gauge_graphic.get(457, 175)))
+#define SHIELD_GAUGE_Y			((multires_gauge_graphic.get(375, 155)))
+#define SB_SHIELD_NUM_Y 		(SB_SHIELD_GAUGE_Y-((multires_gauge_graphic.get(16, 8))))			//156 -- MWA used to be hard coded to 156
+#define NUMERICAL_GAUGE_Y		((multires_gauge_graphic.get(314, 130)))
+#define PRIMARY_W_PIC_X			((multires_gauge_graphic.get(135-10, 64)))
+#define SECONDARY_W_PIC_X		((multires_gauge_graphic.get(466, 234)))
+#define SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(374, 154)))
+#define SECONDARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(413, 207)))
+#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(378, 157)))
+#define SECONDARY_AMMO_X		HUD_SCALE_X((multires_gauge_graphic.get(428, 213)))
+#define SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(407, 171)))
+#define SB_LIVES_X			((multires_gauge_graphic.get(550-10-3, 266)))
+#define SB_LIVES_Y			((multires_gauge_graphic.get(450-3, 185)))
 #define SB_SCORE_RIGHT_H		(605+8)
-#define BOMB_COUNT_X			(HIRESMODE?546:275)
+#define BOMB_COUNT_X			((multires_gauge_graphic.get(546, 275)))
 #define PRIMARY_W_BOX_RIGHT_H		242
 #define SECONDARY_W_BOX_RIGHT_L		263	//(SECONDARY_W_BOX_LEFT+54)
 #define SECONDARY_W_BOX_LEFT_H		404
@@ -235,41 +259,41 @@ using std::min;
 #define SB_SECONDARY_W_BOX_TOP_L	153
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54+1)
 #define SB_SECONDARY_W_BOX_BOT_L	(SB_SECONDARY_W_BOX_TOP_L+43)
-#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+(HIRESMODE?(14-4):11))	//(212+9)
-#define GET_GAUGE_INDEX(x)		((HIRESMODE)?Gauges_hires[x].index:Gauges[x].index)
+#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14-4, 11))))	//(212+9)
+#define GET_GAUGE_INDEX(x)		((multires_gauge_graphic.rget(Gauges_hires, Gauges)[x].index))
 
 #endif
 
 // MOVEME
-#define HOMING_WARNING_X		(HIRESMODE?13:7)
-#define HOMING_WARNING_Y		(HIRESMODE?416:171)
+#define HOMING_WARNING_X		((multires_gauge_graphic.get(13, 7)))
+#define HOMING_WARNING_Y		((multires_gauge_graphic.get(416, 171)))
 
-#define SB_ENERGY_GAUGE_X 		(HIRESMODE?196:98)
-#define SB_ENERGY_GAUGE_W 		(HIRESMODE?32:16)
-#define SHIP_GAUGE_X 			(SHIELD_GAUGE_X+(HIRESMODE?11:5))
-#define SHIP_GAUGE_Y			(SHIELD_GAUGE_Y+(HIRESMODE?10:5))
-#define SHIELD_GAUGE_X 			(HIRESMODE?292:146)
-#define SB_SHIELD_GAUGE_X 		(HIRESMODE?247:123)		//139
-#define SB_SHIELD_GAUGE_Y 		(HIRESMODE?395:163)
-#define SB_SHIP_GAUGE_X 		(SB_SHIELD_GAUGE_X+(HIRESMODE?11:5))
-#define SB_SHIP_GAUGE_Y 		(SB_SHIELD_GAUGE_Y+(HIRESMODE?10:5))
-#define SB_SHIELD_NUM_X 		(SB_SHIELD_GAUGE_X+(HIRESMODE?21:12))	//151
-#define NUMERICAL_GAUGE_X		(HIRESMODE?308:154)
-#define PRIMARY_W_PIC_Y			(HIRESMODE?370:154)
-#define PRIMARY_W_TEXT_X		HUD_SCALE_X(HIRESMODE?182:87)
-#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?400:157)
-#define PRIMARY_AMMO_X			HUD_SCALE_X(HIRESMODE?186:93)
-#define PRIMARY_AMMO_Y			HUD_SCALE_Y(HIRESMODE?420:171)
-#define SB_LIVES_LABEL_X		(HIRESMODE?475:237)
+#define SB_ENERGY_GAUGE_X 		((multires_gauge_graphic.get(196, 98)))
+#define SB_ENERGY_GAUGE_W 		((multires_gauge_graphic.get(32, 16)))
+#define SHIP_GAUGE_X 			(SHIELD_GAUGE_X+((multires_gauge_graphic.get(11, 5))))
+#define SHIP_GAUGE_Y			(SHIELD_GAUGE_Y+((multires_gauge_graphic.get(10, 5))))
+#define SHIELD_GAUGE_X 			((multires_gauge_graphic.get(292, 146)))
+#define SB_SHIELD_GAUGE_X 		((multires_gauge_graphic.get(247, 123)))		//139
+#define SB_SHIELD_GAUGE_Y 		((multires_gauge_graphic.get(395, 163)))
+#define SB_SHIP_GAUGE_X 		(SB_SHIELD_GAUGE_X+((multires_gauge_graphic.get(11, 5))))
+#define SB_SHIP_GAUGE_Y 		(SB_SHIELD_GAUGE_Y+((multires_gauge_graphic.get(10, 5))))
+#define SB_SHIELD_NUM_X 		(SB_SHIELD_GAUGE_X+((multires_gauge_graphic.get(21, 12))))	//151
+#define NUMERICAL_GAUGE_X		((multires_gauge_graphic.get(308, 154)))
+#define PRIMARY_W_PIC_Y			((multires_gauge_graphic.get(370, 154)))
+#define PRIMARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(182, 87)))
+#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(400, 157)))
+#define PRIMARY_AMMO_X			HUD_SCALE_X((multires_gauge_graphic.get(186, 93)))
+#define PRIMARY_AMMO_Y			HUD_SCALE_Y((multires_gauge_graphic.get(420, 171)))
+#define SB_LIVES_LABEL_X		((multires_gauge_graphic.get(475, 237)))
 #define SB_SCORE_RIGHT_L		301
-#define SB_SCORE_RIGHT			(HIRESMODE?SB_SCORE_RIGHT_H:SB_SCORE_RIGHT_L)
-#define SB_SCORE_Y			(HIRESMODE?398:158)
-#define SB_SCORE_LABEL_X		(HIRESMODE?475:237)
-#define SB_SCORE_ADDED_RIGHT		(HIRESMODE?SB_SCORE_RIGHT_H:SB_SCORE_RIGHT_L)
-#define SB_SCORE_ADDED_Y		(HIRESMODE?413:165)
-#define BOMB_COUNT_Y			(HIRESMODE?445:186)
-#define SB_BOMB_COUNT_X			(HIRESMODE?342:171)
-#define SB_BOMB_COUNT_Y			(HIRESMODE?458:191)
+#define SB_SCORE_RIGHT			((multires_gauge_graphic.get(SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_L)))
+#define SB_SCORE_Y			((multires_gauge_graphic.get(398, 158)))
+#define SB_SCORE_LABEL_X		((multires_gauge_graphic.get(475, 237)))
+#define SB_SCORE_ADDED_RIGHT		((multires_gauge_graphic.get(SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_L)))
+#define SB_SCORE_ADDED_Y		((multires_gauge_graphic.get(413, 165)))
+#define BOMB_COUNT_Y			((multires_gauge_graphic.get(445, 186)))
+#define SB_BOMB_COUNT_X			((multires_gauge_graphic.get(342, 171)))
+#define SB_BOMB_COUNT_Y			((multires_gauge_graphic.get(458, 191)))
 
 // defining box boundries for weapon pictures
 #define PRIMARY_W_BOX_LEFT_L		63
@@ -279,56 +303,56 @@ using std::min;
 #define PRIMARY_W_BOX_LEFT_H		121
 #define PRIMARY_W_BOX_TOP_H		364
 #define PRIMARY_W_BOX_BOT_H		(PRIMARY_W_BOX_TOP_H+106)		//470
-#define PRIMARY_W_BOX_LEFT		(HIRESMODE?PRIMARY_W_BOX_LEFT_H:PRIMARY_W_BOX_LEFT_L)
-#define PRIMARY_W_BOX_TOP		(HIRESMODE?PRIMARY_W_BOX_TOP_H:PRIMARY_W_BOX_TOP_L)
-#define PRIMARY_W_BOX_RIGHT		(HIRESMODE?PRIMARY_W_BOX_RIGHT_H:PRIMARY_W_BOX_RIGHT_L)
-#define PRIMARY_W_BOX_BOT		(HIRESMODE?PRIMARY_W_BOX_BOT_H:PRIMARY_W_BOX_BOT_L)
+#define PRIMARY_W_BOX_LEFT		((multires_gauge_graphic.get(PRIMARY_W_BOX_LEFT_H, PRIMARY_W_BOX_LEFT_L)))
+#define PRIMARY_W_BOX_TOP		((multires_gauge_graphic.get(PRIMARY_W_BOX_TOP_H, PRIMARY_W_BOX_TOP_L)))
+#define PRIMARY_W_BOX_RIGHT		((multires_gauge_graphic.get(PRIMARY_W_BOX_RIGHT_H, PRIMARY_W_BOX_RIGHT_L)))
+#define PRIMARY_W_BOX_BOT		((multires_gauge_graphic.get(PRIMARY_W_BOX_BOT_H, PRIMARY_W_BOX_BOT_L)))
 #define SECONDARY_W_BOX_LEFT_L		202	//207
 #define SECONDARY_W_BOX_TOP_L		151
 #define SECONDARY_W_BOX_BOT_L		(SECONDARY_W_BOX_TOP_L+42)
 #define SECONDARY_W_BOX_BOT_H		(SECONDARY_W_BOX_TOP_H+106)		//470
-#define SECONDARY_W_BOX_LEFT		(HIRESMODE?SECONDARY_W_BOX_LEFT_H:SECONDARY_W_BOX_LEFT_L)
-#define SECONDARY_W_BOX_TOP		(HIRESMODE?SECONDARY_W_BOX_TOP_H:SECONDARY_W_BOX_TOP_L)
-#define SECONDARY_W_BOX_RIGHT		(HIRESMODE?SECONDARY_W_BOX_RIGHT_H:SECONDARY_W_BOX_RIGHT_L)
-#define SECONDARY_W_BOX_BOT		(HIRESMODE?SECONDARY_W_BOX_BOT_H:SECONDARY_W_BOX_BOT_L)
+#define SECONDARY_W_BOX_LEFT		((multires_gauge_graphic.get(SECONDARY_W_BOX_LEFT_H, SECONDARY_W_BOX_LEFT_L)))
+#define SECONDARY_W_BOX_TOP		((multires_gauge_graphic.get(SECONDARY_W_BOX_TOP_H, SECONDARY_W_BOX_TOP_L)))
+#define SECONDARY_W_BOX_RIGHT		((multires_gauge_graphic.get(SECONDARY_W_BOX_RIGHT_H, SECONDARY_W_BOX_RIGHT_L)))
+#define SECONDARY_W_BOX_BOT		((multires_gauge_graphic.get(SECONDARY_W_BOX_BOT_H, SECONDARY_W_BOX_BOT_L)))
 #define SB_PRIMARY_W_BOX_LEFT_L		34		//50
 #define SB_PRIMARY_W_BOX_RIGHT_L	(SB_PRIMARY_W_BOX_LEFT_L+55)
 #define SB_PRIMARY_W_BOX_LEFT_H		68
 #define SB_PRIMARY_W_BOX_TOP_H		381
 #define SB_PRIMARY_W_BOX_RIGHT_H	179
 #define SB_PRIMARY_W_BOX_BOT_H		473
-#define SB_PRIMARY_W_BOX_LEFT		(HIRESMODE?SB_PRIMARY_W_BOX_LEFT_H:SB_PRIMARY_W_BOX_LEFT_L)
+#define SB_PRIMARY_W_BOX_LEFT		((multires_gauge_graphic.get(SB_PRIMARY_W_BOX_LEFT_H, SB_PRIMARY_W_BOX_LEFT_L)))
 #define SB_SECONDARY_W_BOX_LEFT_L	169
 #define SB_SECONDARY_W_BOX_LEFT_H	338
 #define SB_SECONDARY_W_BOX_TOP_H	381
 #define SB_SECONDARY_W_BOX_RIGHT_H	449
 #define SB_SECONDARY_W_BOX_BOT_H	473
-#define SB_SECONDARY_W_BOX_LEFT		(HIRESMODE?SB_SECONDARY_W_BOX_LEFT_H:SB_SECONDARY_W_BOX_LEFT_L)	//210
+#define SB_SECONDARY_W_BOX_LEFT		((multires_gauge_graphic.get(SB_SECONDARY_W_BOX_LEFT_H, SB_SECONDARY_W_BOX_LEFT_L)))	//210
 #define SB_PRIMARY_W_PIC_X		(SB_PRIMARY_W_BOX_LEFT+1)	//51
-#define SB_PRIMARY_W_PIC_Y		(HIRESMODE?382:154)
-#define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?50:24))	//(51+23)
-#define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?390:157)
-#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?58:30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
-#define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?410:171)
-#define SB_SECONDARY_W_PIC_X		(HIRESMODE?385:(SB_SECONDARY_W_BOX_LEFT+27))	//(212+27)
-#define SB_SECONDARY_W_PIC_Y		(HIRESMODE?382:154)
+#define SB_PRIMARY_W_PIC_Y		((multires_gauge_graphic.get(382, 154)))
+#define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(50, 24))))	//(51+23)
+#define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(390, 157)))
+#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(58, 30))))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
+#define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(410, 171)))
+#define SB_SECONDARY_W_PIC_X		((multires_gauge_graphic.get(385, (SB_SECONDARY_W_BOX_LEFT+27))))	//(212+27)
+#define SB_SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(382, 154)))
 #define SB_SECONDARY_W_TEXT_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+2)	//212
-#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?390:157)
-#define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?414:171)
+#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(390, 157)))
+#define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(414, 171)))
 
 #define WS_SET				0		//in correct state
 #define WS_FADING_OUT			1
 #define WS_FADING_IN			2
 #define FADE_SCALE			(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
 
-#define COCKPIT_PRIMARY_BOX		(!HIRESMODE?0:4)
-#define COCKPIT_SECONDARY_BOX		(!HIRESMODE?1:5)
-#define SB_PRIMARY_BOX			(!HIRESMODE?2:6)
-#define SB_SECONDARY_BOX		(!HIRESMODE?3:7)
+#define COCKPIT_PRIMARY_BOX		((multires_gauge_graphic.get(4, 0)))
+#define COCKPIT_SECONDARY_BOX		((multires_gauge_graphic.get(5, 1)))
+#define SB_PRIMARY_BOX			((multires_gauge_graphic.get(6, 2)))
+#define SB_SECONDARY_BOX		((multires_gauge_graphic.get(7, 3)))
 
 // scaling gauges
-#define BASE_WIDTH (HIRESMODE? 640 : 320)
-#define BASE_HEIGHT	(HIRESMODE? 480 : 200)
+#define BASE_WIDTH ((multires_gauge_graphic.get(640, 320)))
+#define BASE_HEIGHT	((multires_gauge_graphic.get(480, 200)))
 #ifdef OGL
 #define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH) + 0.5)
 #define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT) + 0.5)
@@ -1039,7 +1063,7 @@ static void hud_show_orbs (void)
 		else
 			Int3();		//what sort of cockpit?
 
-		bm = &Orb_icons[HIRESMODE];
+		bm = &Orb_icons[multires_gauge_graphic.is_hires()];
 
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
@@ -1694,7 +1718,7 @@ static void sb_show_lives()
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0,0,0));
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
-		gr_rect(exchange(last_x[HIRESMODE], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
+		gr_rect(exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1);
 		gr_string(x, HUD_SCALE_Y(y), killed_str);
 		return;
@@ -1834,11 +1858,11 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
-	const unsigned lower_y = (HIRESMODE?364:151);
-	const unsigned upper_y = (HIRESMODE?469:193) - lower_y;
+	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
+	const unsigned upper_y = ((multires_gauge_graphic.get(469, 193))) - lower_y;
 	unsigned i = bm->bm_w * lower_y;
-	const auto *wbl = (HIRESMODE?weapon_window_left_hires:weapon_window_left);
-	const auto *wbr = (HIRESMODE?weapon_window_right_hires:weapon_window_right);
+	const auto *wbl = (multires_gauge_graphic.is_hires() ? weapon_window_left_hires : weapon_window_left);
+	const auto *wbr = (multires_gauge_graphic.is_hires() ? weapon_window_right_hires : weapon_window_right);
 	for (unsigned y=0;y < upper_y;y++)
 	{
 		const auto &wbly = wbl[y];
@@ -1871,7 +1895,7 @@ static void draw_wbu_overlay()
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned cockpit_idx = PlayerCfg.CockpitMode[1];
 #elif defined(DXX_BUILD_DESCENT_II)
-	unsigned cockpit_idx = PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0);
+	unsigned cockpit_idx = PlayerCfg.CockpitMode[1]+(multires_gauge_graphic.is_hires() ? (Num_cockpits / 2) : 0);
 #endif
 	PIGGY_PAGE_IN(cockpit_bitmap[cockpit_idx]);
 	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[cockpit_idx].index];
@@ -1901,7 +1925,7 @@ void init_gauges()
 static void draw_energy_bar(int energy)
 {
 	int x1, x2, y;
-	int not_energy = (HIRESMODE?(HUD_SCALE_X(125 - (energy*125)/100)):(HUD_SCALE_X(63 - (energy*63)/100)));
+	int not_energy = HUD_SCALE_X(multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
 	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
@@ -1946,7 +1970,7 @@ static void draw_afterburner_bar(int afterburner)
 	int i, j, y;
 	static const ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
 	static const ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
-	const ubyte *pabt = (HIRESMODE ? afterburner_bar_table_hires : afterburner_bar_table);
+	const ubyte *pabt = (multires_gauge_graphic.is_hires() ? afterburner_bar_table_hires : afterburner_bar_table);
 
 	// Draw afterburner bar
 	hud_gauge_bitblt(AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, GAUGE_AFTERBURNER);
@@ -2095,7 +2119,7 @@ static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,i
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot));
 
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
-		&& HIRESMODE)
+		&& multires_gauge_graphic.is_hires())
 	{
 		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
 		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
@@ -2325,7 +2349,7 @@ static void draw_static(int win)
 		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
 			gr_bitmap(x,y,*bmp);
 #else
-	if (HIRESMODE)
+	if (multires_gauge_graphic.is_hires())
 	{
 		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),bmp);
 		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].bot-bmp->bm_h),bmp);
@@ -2558,7 +2582,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	int x,y,size;
 	int laser_ready,missile_ready;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
-	int use_hires_reticle,ofs,gauge_index;
+	int ofs,gauge_index;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != OBJ_PLAYER)
@@ -2598,7 +2622,7 @@ void show_reticle(int reticle_type, int secondary_display)
 		{
 			grs_bitmap *cross, *primary, *secondary;
 
-			use_hires_reticle = (HIRESMODE != 0);
+			const auto use_hires_reticle = multires_gauge_graphic.is_hires();
 			ofs = (use_hires_reticle?0:2);
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
@@ -3230,8 +3254,8 @@ void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
-		w = HUD_SCALE_X_AR(HIRESMODE?106:44);
-		h = HUD_SCALE_Y_AR(HIRESMODE?106:44);
+		w = HUD_SCALE_X_AR((multires_gauge_graphic.get(106, 44)));
+		h = HUD_SCALE_Y_AR((multires_gauge_graphic.get(106, 44)));
 
 		dx = (win==0)?-(w+(w/10)):(w/10);
 
