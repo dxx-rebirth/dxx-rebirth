@@ -339,7 +339,7 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (default_behavior == ai_behavior::AIB_RUN_FROM)
-		obj->ctype.ai_info.ail.mode = AIM_RUN_FROM_OBJECT;
+		obj->ctype.ai_info.ail.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 #elif defined(DXX_BUILD_DESCENT_II)
 	obj->ctype.ai_info.ail.mode = ai_behavior_to_mode(default_behavior);
 #endif

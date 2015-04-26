@@ -142,7 +142,7 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 #if defined(DXX_BUILD_DESCENT_II)
 			else if ((robot_is_companion(robptr) == 1) && (Walls[wall_num].type == WALL_DOOR)) {
 				ai_local		*ailp = &robot->ctype.ai_info.ail;
-				if ((ailp->mode == AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
+				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
 						if (Walls[wall_num].keys & Players[Player_num].flags)
 							wall_open_door(hitseg, hitwall);
@@ -1010,7 +1010,7 @@ static void collide_robot_and_player(const vobjptridx_t robot, const vobjptridx_
 		if (robot_is_thief(robptr)) {
 			static fix64 Last_thief_hit_time;
 			ai_local		*ailp = &robot->ctype.ai_info.ail;
-			if (ailp->mode == AIM_THIEF_ATTACK) {
+			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK) {
 				Last_thief_hit_time = GameTime64;
 				attempt_to_steal_item(robot, get_player_id(playerobj));
 				steal_attempt = 1;

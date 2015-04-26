@@ -84,31 +84,34 @@ enum class ai_behavior : uint8_t
 #define MAX_BEHAVIOR    0x86
 #endif
 
+enum ai_mode : uint8_t
+{
 //  Modes
-#define AIM_STILL                   0
-#define AIM_WANDER                  1
-#define AIM_FOLLOW_PATH             2
-#define AIM_CHASE_OBJECT            3
-#define AIM_RUN_FROM_OBJECT         4
-#define AIM_FOLLOW_PATH_2           6
-#define AIM_OPEN_DOOR               7
+	AIM_STILL = 0,
+	AIM_WANDER = 1,
+	AIM_FOLLOW_PATH = 2,
+	AIM_CHASE_OBJECT = 3,
+	AIM_RUN_FROM_OBJECT = 4,
+	AIM_FOLLOW_PATH_2 = 6,
+	AIM_OPEN_DOOR = 7,
 #if defined(DXX_BUILD_DESCENT_I)
-#define	AIM_HIDE							5
+	AIM_HIDE = 5,
 #elif defined(DXX_BUILD_DESCENT_II)
-#define AIM_BEHIND                  5
-#define AIM_GOTO_PLAYER             8   //  Only for escort behavior
-#define AIM_GOTO_OBJECT             9   //  Only for escort behavior
+	AIM_BEHIND = 5,
+	AIM_GOTO_PLAYER = 8,   //  Only for escort behavior
+	AIM_GOTO_OBJECT = 9,   //  Only for escort behavior
 
-#define AIM_SNIPE_ATTACK            10
-#define AIM_SNIPE_FIRE              11
-#define AIM_SNIPE_RETREAT           12
-#define AIM_SNIPE_RETREAT_BACKWARDS 13
-#define AIM_SNIPE_WAIT              14
+	AIM_SNIPE_ATTACK = 10,
+	AIM_SNIPE_FIRE = 11,
+	AIM_SNIPE_RETREAT = 12,
+	AIM_SNIPE_RETREAT_BACKWARDS = 13,
+	AIM_SNIPE_WAIT = 14,
 
-#define AIM_THIEF_ATTACK            15
-#define AIM_THIEF_RETREAT           16
-#define AIM_THIEF_WAIT              17
+	AIM_THIEF_ATTACK = 15,
+	AIM_THIEF_RETREAT = 16,
+	AIM_THIEF_WAIT = 17,
 #endif
+};
 
 #define AISM_GOHIDE                 0
 #define AISM_HIDING                 1

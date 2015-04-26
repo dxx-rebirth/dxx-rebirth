@@ -776,7 +776,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 			}
 		}
 
-		ailp->mode = AIM_GOTO_OBJECT;
+		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 
 		say_escort_goal(Escort_goal_object);
 	}
@@ -819,7 +819,7 @@ static int time_to_visit_player(const vobjptr_t objp, ai_local *ailp, ai_static 
 		if (GameTime64 - Buddy_last_player_path_created > F1_0)
 			return 1;
 
-	if (ailp->mode == AIM_GOTO_PLAYER)
+	if (ailp->mode == ai_mode::AIM_GOTO_PLAYER)
 		return 0;
 
 	if (objp->segnum == ConsoleObject->segnum)
@@ -970,10 +970,10 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 		if (dist_to_player > F1_0*100)
 			aip->SKIP_AI_COUNT = (F1_0/4)/FrameTime;
 
-	//	AIM_WANDER has been co-opted for buddy behavior (didn't want to modify aistruct.h)
+	//	ai_mode::AIM_WANDER has been co-opted for buddy behavior (didn't want to modify aistruct.h)
 	//	It means the object has been told to get lost and has come to the end of its path.
 	//	If the player is now visible, then create a path.
-	if (ailp->mode == AIM_WANDER)
+	if (ailp->mode == ai_mode::AIM_WANDER)
 		if (player_visibility) {
 			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1000,7 +1000,7 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 		int	max_len;
 
 		Buddy_last_player_path_created = GameTime64;
-		ailp->mode = AIM_GOTO_PLAYER;
+		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 		if (!player_visibility) {
 			if ((Last_come_back_message_time + F1_0 < GameTime64) || (Last_come_back_message_time > GameTime64)) {
 				buddy_message("Coming back to get you.");
@@ -1013,29 +1013,29 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 			max_len = 3;
 		create_path_to_player(objp, max_len, 1);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-		ailp->mode = AIM_GOTO_PLAYER;
+		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 	}	else if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
-	} else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
+	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
 		Escort_goal_object = escort_set_goal_object();
-		ailp->mode = AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
+		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp);
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		if (aip->path_length < 3) {
 			create_n_segment_path(objp, 5, Believed_player_seg);
 		}
-		ailp->mode = AIM_GOTO_OBJECT;
+		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 	} else if (Escort_goal_object == ESCORT_GOAL_UNSPECIFIED) {
-		if ((ailp->mode != AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
+		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
 			Escort_goal_object = escort_set_goal_object();
-			ailp->mode = AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
+			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 			if (aip->path_length < 3) {
 				create_n_segment_path(objp, 5, Believed_player_seg);
 			}
-			ailp->mode = AIM_GOTO_OBJECT;
+			ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 		}
 	}
 
@@ -1056,7 +1056,7 @@ void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 		return;
 
 	switch (ailp->mode) {
-		case AIM_SNIPE_WAIT:
+		case ai_mode::AIM_SNIPE_WAIT:
 			if ((dist_to_player > F1_0*50) && (ailp->next_action_time > 0))
 				return;
 
@@ -1065,48 +1065,48 @@ void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 			connected_distance = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
 				create_path_to_player(objp, 30, 1);
-				ailp->mode = AIM_SNIPE_ATTACK;
+				ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 				ailp->next_action_time = SNIPE_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
 			break;
 
-		case AIM_SNIPE_RETREAT:
-		case AIM_SNIPE_RETREAT_BACKWARDS:
+		case ai_mode::AIM_SNIPE_RETREAT:
+		case ai_mode::AIM_SNIPE_RETREAT_BACKWARDS:
 			if (ailp->next_action_time < 0) {
-				ailp->mode = AIM_SNIPE_WAIT;
+				ailp->mode = ai_mode::AIM_SNIPE_WAIT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else if ((player_visibility == 0) || (ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)) {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
-				ailp->mode = AIM_SNIPE_RETREAT_BACKWARDS;
+				ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
-				ailp->mode = AIM_SNIPE_FIRE;
+				ailp->mode = ai_mode::AIM_SNIPE_FIRE;
 				ailp->next_action_time = SNIPE_FIRE_TIME/2;
 			}
 			break;
 
-		case AIM_SNIPE_ATTACK:
+		case ai_mode::AIM_SNIPE_ATTACK:
 			if (ailp->next_action_time < 0) {
-				ailp->mode = AIM_SNIPE_RETREAT;
+				ailp->mode = ai_mode::AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
 				if (player_visibility) {
-					ailp->mode = AIM_SNIPE_FIRE;
+					ailp->mode = ai_mode::AIM_SNIPE_FIRE;
 					ailp->next_action_time = SNIPE_FIRE_TIME;
 				} else
-					ailp->mode = AIM_SNIPE_ATTACK;
+					ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 			}
 			break;
 
-		case AIM_SNIPE_FIRE:
+		case ai_mode::AIM_SNIPE_FIRE:
 			if (ailp->next_action_time < 0) {
 				ai_static	*aip = &objp->ctype.ai_info;
 				create_n_segment_path(objp, 10 + d_rand()/2048, ConsoleObject->segnum);
 				aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 				if (d_rand() < 8192)
-					ailp->mode = AIM_SNIPE_RETREAT_BACKWARDS;
+					ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
 				else
-					ailp->mode = AIM_SNIPE_RETREAT;
+					ailp->mode = ai_mode::AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_RETREAT_TIME;
 			} else {
 			}
@@ -1114,7 +1114,7 @@ void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 		default:
 			Int3();	//	Oops, illegal mode for snipe behavior.
-			ailp->mode = AIM_SNIPE_ATTACK;
+			ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 			ailp->next_action_time = F1_0;
 			break;
 	}
@@ -1183,19 +1183,19 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 		return;
 
 	if (Player_is_dead)
-		ailp->mode = AIM_THIEF_RETREAT;
+		ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 
 	switch (ailp->mode) {
-		case AIM_THIEF_WAIT:
+		case ai_mode::AIM_THIEF_WAIT:
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				create_path_to_player(objp, 30, 1);
-				ailp->mode = AIM_THIEF_ATTACK;
+				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
 			} else if (player_visibility) {
 				create_n_segment_path(objp, 15, ConsoleObject->segnum);
-				ailp->mode = AIM_THIEF_RETREAT;
+				ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				return;
 			}
 
@@ -1207,15 +1207,15 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 			connected_distance = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
 				create_path_to_player(objp, 30, 1);
-				ailp->mode = AIM_THIEF_ATTACK;
+				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
 
 			break;
 
-		case AIM_THIEF_RETREAT:
+		case ai_mode::AIM_THIEF_RETREAT:
 			if (ailp->next_action_time < 0) {
-				ailp->mode = AIM_THIEF_WAIT;
+				ailp->mode = ai_mode::AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
 			} else if ((dist_to_player < F1_0*100) || player_visibility || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 				ai_follow_path(objp, player_visibility, &vec_to_player);
@@ -1235,10 +1235,10 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 							}
 						}
 
-						ailp->mode = AIM_THIEF_RETREAT;
+						ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 					}
 				} else
-					ailp->mode = AIM_THIEF_RETREAT;
+					ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 
 			}
 
@@ -1247,20 +1247,20 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 		//	This means the thief goes from wherever he is to the player.
 		//	Note: When thief successfully steals something, his action time is forced negative and his mode is changed
 		//			to retreat to get him out of attack mode.
-		case AIM_THIEF_ATTACK:
+		case ai_mode::AIM_THIEF_ATTACK:
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				if (d_rand() > 8192) {
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
-					ailp->mode = AIM_THIEF_RETREAT;
+					ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				}
 			} else if (ailp->next_action_time < 0) {
 				//	This forces him to create a new path every second.
 				ailp->next_action_time = F1_0;
 				create_path_to_player(objp, 100, 0);
-				ailp->mode = AIM_THIEF_ATTACK;
+				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			} else {
 				if (player_visibility && (dist_to_player < F1_0*100)) {
 					//	If the player is close to looking at the thief, thief shall run away.
@@ -1271,7 +1271,7 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 							create_n_segment_path(objp, 10, ConsoleObject->segnum);
 							ai_local		*ailp = &objp->ctype.ai_info.ail;
 							ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
-							ailp->mode = AIM_THIEF_RETREAT;
+							ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 						}
 					} 
 					ai_turn_towards_vector(vec_to_player, objp, F1_0/4);
@@ -1281,14 +1281,14 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
 					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
 						ai_follow_path(objp, player_visibility, &vec_to_player);
-						ailp->mode = AIM_THIEF_ATTACK;
+						ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 					}
 				}
 			}
 			break;
 
 		default:
-			ailp->mode = AIM_THIEF_ATTACK;
+			ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			ailp->next_action_time = F1_0;
 			break;
 	}
@@ -1418,7 +1418,7 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 static int attempt_to_steal_item_3(const vobjptr_t objp, int player_num)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	if (ailp->mode != AIM_THIEF_ATTACK)
+	if (ailp->mode != ai_mode::AIM_THIEF_ATTACK)
 		return 0;
 
 	//	First, try to steal equipped items.
@@ -1507,7 +1507,7 @@ int attempt_to_steal_item(const vobjptridx_t objp, int player_num)
 	create_n_segment_path(objp, 10, ConsoleObject->segnum);
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
-	ailp->mode = AIM_THIEF_RETREAT;
+	ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 	if (rval) {
 		PALETTE_FLASH_ADD(30, 15, -20);
 		update_laser_weapon_info();
