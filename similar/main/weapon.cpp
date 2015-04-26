@@ -507,20 +507,16 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 //	----------------------------------------------------------------------------------------
 //	Automatically select next best weapon if unable to fire current weapon.
 // Weapon type: 0==primary, 1==secondary
-void auto_select_weapon(int weapon_type)
+void auto_select_primary_weapon()
 {
-	int cutpoint;
 	int looped=0;
 
-	if (weapon_type==0) {
+	{
 		if (!player_has_primary_weapon(Primary_weapon).has_all())
 		{
-			int	cur_weapon;
 			int	try_again = 1;
-
-			cur_weapon = POrderList(Primary_weapon);
-			cutpoint = POrderList (255);
-
+			auto cur_weapon = POrderList(Primary_weapon);
+			const auto cutpoint = POrderList (255);
 			while (try_again) {
 				cur_weapon++;
 
@@ -559,19 +555,17 @@ void auto_select_weapon(int weapon_type)
 				}
 			}
 		}
+	}
+}
 
-	} else {
-
-		Assert(weapon_type==1);
+void auto_select_secondary_weapon()
+{
+	int looped=0;
 		if (!player_has_secondary_weapon(Secondary_weapon).has_all())
 		{
-			int	cur_weapon;
 			int	try_again = 1;
-
-			cur_weapon = SOrderList(Secondary_weapon);
-			cutpoint = SOrderList (255);
-
-
+			auto cur_weapon = SOrderList(Secondary_weapon);
+			const auto cutpoint = SOrderList(255);
 			while (try_again) {
 				cur_weapon++;
 
@@ -601,10 +595,6 @@ void auto_select_weapon(int weapon_type)
 				}
 			}
 		}
-
-
-	}
-
 }
 
 //	---------------------------------------------------------------------
@@ -1215,7 +1205,7 @@ void DropCurrentWeapon ()
 	}
 	else
 		plr.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);
-	auto_select_weapon (0);
+	auto_select_primary_weapon();
 }
 
 void DropSecondaryWeapon ()
@@ -1327,7 +1317,7 @@ void DropSecondaryWeapon ()
 	if (Players[Player_num].secondary_ammo[Secondary_weapon]==0)
 	{
 		Players[Player_num].secondary_weapon_flags &= (~(1<<Secondary_weapon));
-		auto_select_weapon (1);
+		auto_select_secondary_weapon();
 	}
 }
 

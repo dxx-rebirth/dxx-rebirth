@@ -1402,7 +1402,7 @@ void Flare_create(const vobjptridx_t obj)
 		if (Players[Player_num].energy <= 0) {
 			Players[Player_num].energy = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-			auto_select_weapon(0);
+			auto_select_primary_weapon();
 #endif
 		}
 
@@ -1641,7 +1641,7 @@ int do_laser_firing_player(void)
 			energy_used *= 2;
 
 	if	(!(sufficient_energy(energy_used, plp->energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)))
-		auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
+		auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 #endif
 
 	while (Next_laser_fire_time <= GameTime64) {
@@ -1691,11 +1691,11 @@ int do_laser_firing_player(void)
 					plp->vulcan_ammo -= ammo_used;
 			}
 
-			auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
+			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 
 		} else {
 #if defined(DXX_BUILD_DESCENT_II)
-			auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
+			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 			Next_laser_fire_time = GameTime64;	//	Prevents shots-to-fire from building up.
 #endif
 			break;	//	Couldn't fire weapon, so abort.
@@ -2155,6 +2155,6 @@ void do_missile_firing(int drop_bomb)
 
 		// don't autoselect if dropping prox and prox not current weapon
 		if (!drop_bomb || Secondary_weapon == bomb)
-			auto_select_weapon(1);		//select next missile, if this one out of ammo
+			auto_select_secondary_weapon();		//select next missile, if this one out of ammo
 	}
 }

@@ -273,7 +273,8 @@ extern void do_weapon_select(int weapon_num, int secondary_flag);
 
 extern sbyte Primary_weapon, Secondary_weapon;
 
-extern void auto_select_weapon(int weapon_type);        //parm is primary or secondary
+void auto_select_primary_weapon();
+void auto_select_secondary_weapon();
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
