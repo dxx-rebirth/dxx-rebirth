@@ -1808,11 +1808,10 @@ static void object_move_one(const vobjptridx_t obj)
 		if (previous_segment != obj->segnum) {
 			auto connect_side = find_connect_side(&Segments[obj->segnum], &Segments[previous_segment]);
 			if (connect_side != -1) {
-				int trigger_num;
 				auto wall_num = Segments[previous_segment].sides[connect_side].wall_num;
 				if ( wall_num != wall_none ) {
-					trigger_num = Walls[wall_num].trigger;
-					if (trigger_num != -1)
+					auto trigger_num = Walls[wall_num].trigger;
+					if (trigger_num != trigger_none)
 						if (Triggers[trigger_num].type == TT_EXIT)
 							Guided_missile[Player_num]->lifeleft = 0;
 				}

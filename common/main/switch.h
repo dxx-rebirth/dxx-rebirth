@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _SWITCH_H
-#define _SWITCH_H
+#pragma once
 
 #include <physfs.h>
 
@@ -131,7 +130,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 	array<short, MAX_WALLS_PER_LINK>   side;
 };
 
-const int trigger_none = -1;
+const uint8_t trigger_none = -1;
 
 extern unsigned Num_triggers;
 extern array<trigger, MAX_TRIGGERS> Triggers;
@@ -192,8 +191,6 @@ void trigger_write(PHYSFS_file *fp, const trigger &t);
 void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_file *fp, const trigger &t);
 void v31_trigger_write(PHYSFS_file *fp, const trigger &t);
-#endif
-
 #endif
 
 #endif

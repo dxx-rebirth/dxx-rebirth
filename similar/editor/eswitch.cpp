@@ -356,7 +356,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 		default:
 			break;
 	}
-	short Markedwall, trigger_num;
+	short Markedwall;
 	int keypress = 0;
 	int rval = 0;
 
@@ -379,9 +379,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
 	Markedwall = Markedsegp->sides[Markedside].wall_num;
-	if (Markedwall != wall_none)
-		trigger_num = Walls[Markedwall].trigger;
-	else trigger_num = trigger_none;
+	auto trigger_num = (Markedwall != wall_none) ? Walls[Markedwall].trigger : trigger_none;
 
 	if (t->old_trigger_num != trigger_num)
 	{

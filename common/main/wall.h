@@ -85,12 +85,12 @@ struct stuckobj : public prohibit_void_ptr<stuckobj>
 
 //Start old wall structures
 
-struct v16_wall
+struct v16_wall : public prohibit_void_ptr<v16_wall>
 {
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
+	uint8_t   trigger;            // Which trigger is associated with the wall.
 	fix     hps;                // "Hit points" of the wall.
-	sbyte   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
 };
@@ -98,11 +98,11 @@ struct v16_wall
 struct v19_wall : public prohibit_void_ptr<v19_wall>
 {
 	segnum_t     segnum;
-	int	sidenum;     // Seg & side for this wall
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
+	int	sidenum;     // Seg & side for this wall
 	fix     hps;                // "Hit points" of the wall.
-	sbyte   trigger;            // Which trigger is associated with the wall.
+	uint8_t   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	sbyte   keys;
 	int linked_wall;            // number of linked wall
@@ -120,7 +120,7 @@ struct wall : public prohibit_void_ptr<wall>
 	int16_t linked_wall;        // number of linked wall
 	ubyte   flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
-	sbyte   trigger;            // Which trigger is associated with the wall.
+	uint8_t   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	ubyte   keys;               // which keys are required
 #if defined(DXX_BUILD_DESCENT_II)

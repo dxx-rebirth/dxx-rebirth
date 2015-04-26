@@ -93,11 +93,12 @@ void trigger_init()
 // Executes a link, attached to a trigger.
 // Toggles all walls linked to the switch.
 // Opens doors, Blasts blast walls, turns off illusions.
-static void do_link(sbyte trigger_num)
+static void do_link(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]);
   		}
@@ -106,11 +107,12 @@ static void do_link(sbyte trigger_num)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //close a door
-static void do_close_door(sbyte trigger_num)
+static void do_close_door(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++)
 			wall_close_door(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
   	}
@@ -118,15 +120,15 @@ static void do_close_door(sbyte trigger_num)
 
 //turns lighting on.  returns true if lights were actually turned on. (they
 //would not be if they had previously been shot out).
-static int do_light_on(sbyte trigger_num)
+static int do_light_on(uint8_t trigger_num)
 {
 	int i,ret=0;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			int sidenum;
 			auto segnum = Triggers[trigger_num].seg[i];
-			sidenum = Triggers[trigger_num].side[i];
+			auto sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
@@ -142,11 +144,12 @@ static int do_light_on(sbyte trigger_num)
 
 //turns lighting off.  returns true if lights were actually turned off. (they
 //would not be if they had previously been shot out).
-static int do_light_off(sbyte trigger_num)
+static int do_light_off(uint8_t trigger_num)
 {
 	int i,ret=0;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
 			auto segnum = Triggers[trigger_num].seg[i];
@@ -165,11 +168,12 @@ static int do_light_off(sbyte trigger_num)
 }
 
 // Unlocks all doors linked to the switch.
-static void do_unlock_doors(sbyte trigger_num)
+static void do_unlock_doors(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
 			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].keys = KEY_NONE;
@@ -178,11 +182,12 @@ static void do_unlock_doors(sbyte trigger_num)
 }
 
 // Locks all doors linked to the switch.
-static void do_lock_doors(sbyte trigger_num)
+static void do_lock_doors(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
   		}
@@ -190,20 +195,21 @@ static void do_lock_doors(sbyte trigger_num)
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
-static int do_change_walls(sbyte trigger_num)
+static int do_change_walls(uint8_t trigger_num)
 {
 	int i,ret=0;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			segptridx_t csegp = segment_none;
-			short side,cside;
+			short cside;
 			int new_wall_type;
 
 			auto segp = vsegptridx(Triggers[trigger_num].seg[i]);
-			side = Triggers[trigger_num].side[i];
+			auto side = Triggers[trigger_num].side[i];
 
-			if (segp->children[side] < 0)
+			if (!IS_CHILD(segp->children[side]))
 			{
 				cside = -1;
 			}
@@ -299,11 +305,12 @@ static int __print_trigger_message(int pnum,int trig,int shot)
  }
 #endif
 
-static void do_matcen(sbyte trigger_num)
+static void do_matcen(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			trigger_matcen(Triggers[trigger_num].seg[i] );
   		}
@@ -311,25 +318,27 @@ static void do_matcen(sbyte trigger_num)
 }
 
 
-static void do_il_on(sbyte trigger_num)
+static void do_il_on(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
   		}
   	}
 }
 
-static void do_il_off(sbyte trigger_num)
+static void do_il_off(uint8_t trigger_num)
 {
 	int i;
 
-	if (trigger_num != -1) {
+	if (trigger_num != trigger_none)
+	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			segment		*seg = &Segments[Triggers[trigger_num].seg[i]];
-			int			side = Triggers[trigger_num].side[i];
+			auto side = Triggers[trigger_num].side[i];
 
 			wall_illusion_off(seg, side);
 
@@ -580,8 +589,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 // Checks for a trigger whenever an object hits a trigger side.
 void check_trigger(const vsegptridx_t seg, short side, objnum_t objnum,int shot)
 {
-	int trigger_num;	//, ctrigger_num;
-
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
 
@@ -603,9 +610,8 @@ void check_trigger(const vsegptridx_t seg, short side, objnum_t objnum,int shot)
 		auto wall_num = seg->sides[side].wall_num;
 		if ( wall_num == wall_none ) return;
 
-		trigger_num = Walls[wall_num].trigger;
-
-		if (trigger_num == -1)
+		auto trigger_num = Walls[wall_num].trigger;
+		if (trigger_num == trigger_none)
 			return;
 
 		if (check_trigger_sub(trigger_num, Player_num,shot))

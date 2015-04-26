@@ -1236,8 +1236,8 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 		if (seg->sides[sn].wall_num != wall_none)	{
 		
 #if defined(DXX_BUILD_DESCENT_II)
-			int trigger_num = Walls[seg->sides[sn].wall_num].trigger;
-			if (trigger_num != -1 && Triggers[trigger_num].type==TT_SECRET_EXIT)
+			auto trigger_num = Walls[seg->sides[sn].wall_num].trigger;
+			if (trigger_num != trigger_none && Triggers[trigger_num].type == TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
 				 no_fade=1;
