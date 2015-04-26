@@ -1005,7 +1005,7 @@ static void hud_show_homing_warning(void)
 	}
 }
 
-static void hud_show_keys(void)
+static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const unsigned player_key_flags = Players[Player_num].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY);
 	if (!player_key_flags)
@@ -1027,7 +1027,6 @@ static void hud_show_keys(void)
 			return bm;
 		}
 	};
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	const gauge_key blue(KEY_ICON_BLUE, multires_gauge_graphic);
 	int y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 
@@ -3081,6 +3080,7 @@ void draw_hud()
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 			hud_show_homing_warning();
 
+		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			hud_show_energy();
 			hud_show_shield();
@@ -3089,7 +3089,7 @@ void draw_hud()
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
-			hud_show_keys();
+			hud_show_keys(multires_gauge_graphic);
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)
