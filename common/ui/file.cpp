@@ -68,10 +68,11 @@ static char **file_getdirlist(int *NumDirs, const char *dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
 		(*NumDirs)++;
-		list = (char **)realloc(list, sizeof(char *)*(*NumDirs + 1));
-		list[*NumDirs] = NULL;	// terminate
-		for (i = list + *NumDirs - 1; i != list; i--)
-			*i = i[-1];
+		auto r = reinterpret_cast<char **>(realloc(list, sizeof(char *)*(*NumDirs + 1)));
+		if (!r)
+			return list;
+		list = r;
+		std::move_backward(list, list + *NumDirs, list + *NumDirs + 1);
 		list[0] = d_strdup("..");
 	}
 
