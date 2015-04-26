@@ -1924,9 +1924,8 @@ void init_gauges()
 #endif
 }
 
-static void draw_energy_bar(int energy)
+static void draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int x1, x2, y;
 	int not_energy = HUD_SCALE_X(multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
 	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
@@ -3157,7 +3156,7 @@ void render_gauges()
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
-		draw_energy_bar(energy);
+		draw_energy_bar(energy, multires_gauge_graphic);
 		draw_numerical_display(shields, energy);
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!PlayerCfg.HudMode)
