@@ -282,7 +282,7 @@ void CyclePrimary ()
 		if (player_has_primary_weapon(desired_weapon).has_all())
 		{
 			const auto weapon_name = PRIMARY_WEAPON_NAMES(desired_weapon);
-			select_weapon(desired_weapon, 0, weapon_name, 1);
+			select_primary_weapon(weapon_name, desired_weapon, 1);
 			return;
 		}
 	}
@@ -316,7 +316,7 @@ void CycleSecondary ()
 		if (player_has_secondary_weapon(desired_weapon).has_all())
 		{
 			const auto weapon_name = SECONDARY_WEAPON_NAMES(desired_weapon);
-			select_weapon(desired_weapon, 1, weapon_name, 1);
+			select_secondary_weapon(weapon_name, desired_weapon, 1);
 			return;
 		}
 	}
@@ -325,12 +325,12 @@ void CycleSecondary ()
 
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
-void select_weapon(uint_fast32_t weapon_num, int secondary_flag, const char *const weapon_name, int wait_for_rearm)
+void select_primary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_weapon(secondary_flag, weapon_num);
+		newdemo_record_player_weapon(0, weapon_num);
 
-	if (!secondary_flag) {
+	{
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
@@ -356,9 +356,25 @@ void select_weapon(uint_fast32_t weapon_num, int secondary_flag, const char *con
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
+	}
+	if (weapon_name)
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		if (weapon_num == LASER_INDEX)
+			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, Players[Player_num].laser_level+1, TXT_SELECTED);
+		else
+#endif
+			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
+	}
 
-	} else {
+}
 
+void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
+{
+	if (Newdemo_state==ND_STATE_RECORDING )
+		newdemo_record_player_weapon(1, weapon_num);
+
+	{
 		if (Secondary_weapon != weapon_num) {
 			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
 			if (Game_mode & GM_MULTI)	{
@@ -382,17 +398,10 @@ void select_weapon(uint_fast32_t weapon_num, int secondary_flag, const char *con
 		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
 	}
-
 	if (weapon_name)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
-		if (weapon_num == LASER_INDEX && !secondary_flag)
-			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, Players[Player_num].laser_level+1, TXT_SELECTED);
-		else
-#endif
-			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
+		HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
 	}
-
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -495,7 +504,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 
 	//now actually select the weapon
 #endif
-	select_weapon(weapon_num, 0, weapon_name, 1);
+	select_primary_weapon(weapon_name, weapon_num, 1);
 }
 
 void do_secondary_weapon_select(uint_fast32_t weapon_num)
@@ -557,7 +566,7 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 
 	//now actually select the weapon
 #endif
-	select_weapon(weapon_num, 1, weapon_name, 1);
+	select_secondary_weapon(weapon_name, weapon_num, 1);
 }
 
 //	----------------------------------------------------------------------------------------
@@ -581,7 +590,7 @@ void auto_select_primary_weapon()
 					if (looped)
 					{
 						HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-						select_weapon(0, 0, 0, 1);
+						select_primary_weapon(nullptr, 0, 1);
 						try_again = 0;
 						continue;
 					}
@@ -600,7 +609,7 @@ void auto_select_primary_weapon()
 
 				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
 					HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-					select_weapon(0, 0, 0, 1);
+					select_primary_weapon(nullptr, 0, 1);
 					try_again = 0;			// Tried all weapons!
 
 				}
@@ -608,7 +617,7 @@ void auto_select_primary_weapon()
 				{
 					const auto weapon_num = PlayerCfg.PrimaryOrder[cur_weapon];
 					const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-					select_weapon(weapon_num, 0, weapon_name, 1);
+					select_primary_weapon(weapon_name, weapon_num, 1);
 					try_again = 0;
 				}
 			}
@@ -650,7 +659,7 @@ void auto_select_secondary_weapon()
 				{
 					const auto weapon_num = PlayerCfg.SecondaryOrder[cur_weapon];
 					const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-					select_weapon(weapon_num, 1, weapon_name, 1);
+					select_secondary_weapon(weapon_name, weapon_num, 1);
 					try_again = 0;
 				}
 			}
@@ -685,7 +694,7 @@ int pick_up_secondary(int weapon_index,int count)
 	{
 		cutpoint=SOrderList (255);
 		if (((Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index) < cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
-			select_weapon(weapon_index,1, 0, 1);
+			select_secondary_weapon(nullptr, weapon_index, 1);
 		else {
 #if defined(DXX_BUILD_DESCENT_II)
 			//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
@@ -799,7 +808,7 @@ int pick_up_primary(int weapon_index)
 #endif
 
 	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index) < cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
-		select_weapon(weapon_index,0,0,1);
+		select_primary_weapon(nullptr, weapon_index, 1);
 
 	PALETTE_FLASH_ADD(7,14,21);
 
@@ -819,7 +828,7 @@ void check_to_use_primary_super_laser()
 		if (pwi < POrderList(255) &&
 			pwi < POrderList(Primary_weapon))
 		{
-			select_weapon(LASER_INDEX,0,0,1);
+			select_primary_weapon(nullptr, LASER_INDEX, 1);
 		}
 	}
 	PALETTE_FLASH_ADD(7,14,21);
@@ -862,7 +871,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	const auto powi = POrderList(weapon_index);
 	if (powi < cutpoint &&
 		powi < POrderList(supposed_weapon))
-		select_weapon(weapon_index,0,0,1);
+		select_primary_weapon(nullptr, weapon_index, 1);
 
 	return ammo_count;	//return amount used
 }

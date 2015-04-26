@@ -1442,8 +1442,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	PHYSFS_read(fp, &Primary_weapon, sizeof(sbyte), 1);
 	PHYSFS_read(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
-	select_weapon(Primary_weapon, 0, 0, 0);
-	select_weapon(Secondary_weapon, 1, 0, 0);
+	select_primary_weapon(nullptr, Primary_weapon, 0);
+	select_secondary_weapon(nullptr, Secondary_weapon, 0);
 
 // Restore the difficulty level
 	Difficulty_level = PHYSFSX_readSXE32(fp, swap);
