@@ -69,12 +69,17 @@ using std::min;
 
 namespace {
 
-class global_multires_gauge_graphic
+class local_multires_gauge_graphic
 {
+	bool hiresmode;
 public:
+	local_multires_gauge_graphic() :
+		hiresmode(HIRESMODE)
+	{
+	}
 	bool is_hires() const
 	{
-		return HIRESMODE;
+		return hiresmode;
 	}
 	unsigned get(unsigned h, unsigned l) const
 	{
@@ -86,8 +91,6 @@ public:
 			return is_hires() ? h : l;
 		}
 };
-
-constexpr global_multires_gauge_graphic multires_gauge_graphic{};
 
 }
 
@@ -367,6 +370,7 @@ constexpr global_multires_gauge_graphic multires_gauge_graphic{};
 
 #if defined(DXX_BUILD_DESCENT_I)
 array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
+#define PAGE_IN_GAUGE(x,...)	PAGE_IN_GAUGE(x)
 #elif defined(DXX_BUILD_DESCENT_II)
 array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
@@ -375,12 +379,11 @@ static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ cons
 static grs_bitmap deccpt;
 static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
-#define PAGE_IN_GAUGE(x) _page_in_gauge(x)
-static inline void _page_in_gauge(int x)
+static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	const auto &g =
 #if defined(DXX_BUILD_DESCENT_II)
-		HIRESMODE ? Gauges_hires :
+		multires_gauge_graphic.is_hires() ? Gauges_hires :
 #endif
 		Gauges;
 	PIGGY_PAGE_IN(g[x]);
@@ -755,7 +758,7 @@ static inline void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
 #endif
 }
 
-static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
+static inline void hud_bitblt (int x, int y, grs_bitmap *bm, const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 #ifdef OGL
 	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),*bm,-1,F1_0);
@@ -764,7 +767,7 @@ static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
 #endif
 }
 
-static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge)
+static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	PAGE_IN_GAUGE(gauge);
 	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), &GameBitmaps[GET_GAUGE_INDEX(gauge)]);
@@ -860,7 +863,7 @@ static void hud_show_score_added()
 	}
 }
 
-static void sb_show_score()
+static void sb_show_score(const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	char	score_str[20];
 	int x,y;
@@ -896,7 +899,7 @@ static void sb_show_score()
 	gr_string(x,y,score_str);
 }
 
-static void sb_show_score_added()
+static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	int	color;
 	int w, h, aw;
@@ -964,7 +967,7 @@ void play_homing_warning(void)
 }
 
 //	-----------------------------------------------------------------------------
-static void show_homing_warning(void)
+static void show_homing_warning(const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	if (Endlevel_sequence)
 	{
@@ -1011,7 +1014,7 @@ static void hud_show_keys(void)
 	{
 		grs_bitmap *const bm;
 	public:
-		gauge_key(const unsigned key_icon) :
+		gauge_key(const unsigned key_icon, const local_multires_gauge_graphic multires_gauge_graphic) :
 			bm(&GameBitmaps[PAGE_IN_GAUGE(key_icon), GET_GAUGE_INDEX(key_icon)])
 		{
 		}
@@ -1024,7 +1027,8 @@ static void hud_show_keys(void)
 			return bm;
 		}
 	};
-	const gauge_key blue(KEY_ICON_BLUE);
+	const local_multires_gauge_graphic multires_gauge_graphic{};
+	const gauge_key blue(KEY_ICON_BLUE, multires_gauge_graphic);
 	int y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 
 	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
@@ -1032,13 +1036,13 @@ static void hud_show_keys(void)
 
 	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
-	const gauge_key yellow(KEY_ICON_YELLOW);
+	const gauge_key yellow(KEY_ICON_YELLOW, multires_gauge_graphic);
 	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
 		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+3),y,HUD_SCALE_X_AR(yellow->bm_w),HUD_SCALE_Y_AR(yellow->bm_h),yellow);
 
 	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
 	{
-		const gauge_key red(KEY_ICON_RED);
+		const gauge_key red(KEY_ICON_RED, multires_gauge_graphic);
 		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+yellow->bm_w+6),y,HUD_SCALE_X_AR(red->bm_w),HUD_SCALE_Y_AR(red->bm_h),red);
 	}
 }
@@ -1050,6 +1054,7 @@ static void hud_show_orbs (void)
 		int x=0,y=LINE_SPACING+FSPACY(1);
 		grs_bitmap *bm;
 
+		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -1078,6 +1083,7 @@ static void hud_show_flag(void)
 		int x=0,y=0,icon;
 		grs_bitmap *bm;
 
+		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 			x = (SWIDTH/10);
@@ -1202,7 +1208,7 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 	gr_string(x-w,y,txt);
 }
 
-static void draw_primary_ammo_info(int ammo_count)
+static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic = {})
 {
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		draw_ammo_info(SB_PRIMARY_AMMO_X,SB_PRIMARY_AMMO_Y,ammo_count);
@@ -1673,6 +1679,7 @@ static void hud_show_lives()
 	if (HUD_toolong)
 		return;
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 		x = HUD_SCALE_X(7);
 	else
@@ -1697,6 +1704,7 @@ static void hud_show_lives()
 static void sb_show_lives()
 {
 	int x,y;
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 	x = SB_LIVES_X;
 	y = SB_LIVES_Y;
@@ -1858,6 +1866,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
 	const unsigned upper_y = ((multires_gauge_graphic.get(469, 193))) - lower_y;
 	unsigned i = bm->bm_w * lower_y;
@@ -1892,6 +1901,7 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 
 static void draw_wbu_overlay()
 {
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned cockpit_idx = PlayerCfg.CockpitMode[1];
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1924,6 +1934,7 @@ void init_gauges()
 
 static void draw_energy_bar(int energy)
 {
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int x1, x2, y;
 	int not_energy = HUD_SCALE_X(multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
 	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
@@ -1970,6 +1981,7 @@ static void draw_afterburner_bar(int afterburner)
 	int i, j, y;
 	static const ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
 	static const ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	const ubyte *pabt = (multires_gauge_graphic.is_hires() ? afterburner_bar_table_hires : afterburner_bar_table);
 
 	// Draw afterburner bar
@@ -1992,6 +2004,7 @@ static void draw_afterburner_bar(int afterburner)
 
 static void draw_shield_bar(int shield)
 {
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int bm_num = shield>=100?9:(shield / 10);
 	hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num);
 }
@@ -2004,6 +2017,7 @@ static void draw_player_ship(int cloak_state,int x, int y)
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	grs_bitmap *const bm = &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 
 	if (cloak_state)
@@ -2100,6 +2114,7 @@ static void draw_keys()
 		}
 	};
 	const draw_key draw_one_key;
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y);
 	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y);
 	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y);
@@ -2111,6 +2126,7 @@ static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,i
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1));
 	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
@@ -2158,6 +2174,7 @@ static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,i
 
 static void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 {
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)laser_level;
 #endif
@@ -2246,6 +2263,7 @@ static void draw_ammo_info(int x,int y,int ammo_count)
 
 static void draw_secondary_ammo_info(int ammo_count)
 {
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		draw_ammo_info(SB_SECONDARY_AMMO_X,SB_SECONDARY_AMMO_Y,ammo_count);
 	else
@@ -2307,6 +2325,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
 	{
 		int fade_value = f2i(weapon_box_fade_values[weapon_type]);
+		const local_multires_gauge_graphic multires_gauge_graphic{};
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(fade_value, GR_BLEND_NORMAL);
@@ -2326,6 +2345,7 @@ static void draw_static(int win)
 	vclip *vc = &Vclip[VCLIP_MONITOR_STATIC];
 	grs_bitmap *bmp;
 	int framenum;
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 #ifndef OGL
 	int x,y;
@@ -2418,6 +2438,7 @@ static void sb_draw_energy_bar(int energy)
 	int erase_height,i;
 	int ew, eh, eaw;
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY);
 
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
@@ -2444,6 +2465,7 @@ static void sb_draw_afterburner()
 	int erase_height, w, h, aw, i;
 	auto &ab_str = "AB";
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER);
 
 	erase_height = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H-1));
@@ -2472,6 +2494,7 @@ static void sb_draw_shield_num(int shield)
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
@@ -2480,6 +2503,7 @@ static void sb_draw_shield_bar(int shield)
 	int bm_num = shield>=100?9:(shield / 10);
 
 	gr_set_current_canvas(NULL);
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num);
 }
 
@@ -2496,10 +2520,12 @@ static void sb_draw_keys()
 		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y) const
 		{
 			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
+			const local_multires_gauge_graphic multires_gauge_graphic{};
 			hud_gauge_bitblt(SB_GAUGE_KEYS_X, gauge_key_y, gauge);
 		}
 	};
 	const draw_key draw_one_key;
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y);
 	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y);
 	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y);
@@ -2524,6 +2550,7 @@ static void draw_invulnerable_ship()
 		}
 		time = ltime;
 		unsigned x, y;
+		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (cmmode == CM_STATUS_BAR)
 		{
 			x = SB_SHIELD_GAUGE_X;
@@ -2622,6 +2649,7 @@ void show_reticle(int reticle_type, int secondary_display)
 		{
 			grs_bitmap *cross, *primary, *secondary;
 
+			const local_multires_gauge_graphic multires_gauge_graphic{};
 			const auto use_hires_reticle = multires_gauge_graphic.is_hires();
 			ofs = (use_hires_reticle?0:2);
 			gauge_index = RETICLE_CROSS + cross_bm_num;
@@ -2728,6 +2756,7 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)));
 	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos));
 	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos));
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	gr_uline(i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
@@ -3116,8 +3145,8 @@ void render_gauges()
 		if (Players[Player_num].homing_object_dist >= 0)
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_weapon_boxes();
-
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
@@ -3252,6 +3281,7 @@ void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag
 	Viewer = viewer;
 	Rear_view = rear_view_flag;
 
+	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
 		w = HUD_SCALE_X_AR((multires_gauge_graphic.get(106, 44)));
