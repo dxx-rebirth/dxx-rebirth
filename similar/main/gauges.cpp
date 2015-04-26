@@ -1075,13 +1075,11 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 	}
 }
 
-static void hud_show_flag(void)
+static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_capture_flag() && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
 		grs_bitmap *bm;
-
-		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 			x = (SWIDTH/10);
@@ -3103,7 +3101,7 @@ void draw_hud()
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
-			hud_show_flag();
+			hud_show_flag(multires_gauge_graphic);
 			hud_show_orbs(multires_gauge_graphic);
 		}
 #endif
