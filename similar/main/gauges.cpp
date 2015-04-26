@@ -1820,7 +1820,7 @@ void add_bonus_points_to_score(int points)
 }
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
-static void cockpit_decode_alpha(grs_bitmap *bm)
+static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 
 	static unsigned char *cur=NULL;
@@ -1860,7 +1860,6 @@ static void cockpit_decode_alpha(grs_bitmap *bm)
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
 	const unsigned upper_y = ((multires_gauge_graphic.get(469, 193))) - lower_y;
 	unsigned i = bm->bm_w * lower_y;
@@ -1904,7 +1903,7 @@ static void draw_wbu_overlay()
 	PIGGY_PAGE_IN(cockpit_bitmap[cockpit_idx]);
 	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[cockpit_idx].index];
 
-	cockpit_decode_alpha(bm);
+	cockpit_decode_alpha(bm, multires_gauge_graphic);
 
 	if (WinBoxOverlay[0])
 		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0].get(), multires_gauge_graphic);
