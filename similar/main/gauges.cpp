@@ -2480,7 +2480,7 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 }
 #endif
 
-static void sb_draw_shield_num(int shield)
+static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	//draw numbers
 	int sw, sh, saw;
@@ -2489,7 +2489,6 @@ static void sb_draw_shield_num(int shield)
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
@@ -3194,7 +3193,7 @@ void render_gauges()
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields);
-		sb_draw_shield_num(shields);
+		sb_draw_shield_num(shields, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
