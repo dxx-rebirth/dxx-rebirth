@@ -810,22 +810,18 @@ int pick_up_primary(int weapon_index)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void check_to_use_primary(int weapon_index)
+void check_to_use_primary_super_laser()
 {
-	ushort old_flags = Players[Player_num].primary_weapon_flags;
-	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
-	int cutpoint;
-
-	cutpoint=POrderList (255);
-
-	if (!(old_flags & flag) && POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(Primary_weapon))
+	if (!(Players[Player_num].primary_weapon_flags & HAS_SUPER_LASER_FLAG))
 	{
-		if (weapon_index==SUPER_LASER_INDEX)
+		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;
+		const auto pwi = POrderList(weapon_index);
+		if (pwi < POrderList(255) &&
+			pwi < POrderList(Primary_weapon))
+		{
 			select_weapon(LASER_INDEX,0,0,1);
-		else
-			select_weapon(weapon_index,0,0,1);
+		}
 	}
-
 	PALETTE_FLASH_ADD(7,14,21);
 }
 #endif

@@ -229,6 +229,7 @@ enum primary_weapon_index_t
 	HELIX_INDEX = 7,
 	PHOENIX_INDEX = 8,
 	OMEGA_INDEX = 9,
+#define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(SUPER_LASER_INDEX)
 #define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(GAUSS_INDEX)
 #define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(HELIX_INDEX)
 #define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(PHOENIX_INDEX)
@@ -364,7 +365,7 @@ void CyclePrimary();
 void CycleSecondary();
 void ReorderPrimary();
 void ReorderSecondary();
-void check_to_use_primary(int);
+void check_to_use_primary_super_laser();
 void init_seismic_disturbances(void);
 void process_super_mines_frame(void);
 void DropCurrentWeapon();
