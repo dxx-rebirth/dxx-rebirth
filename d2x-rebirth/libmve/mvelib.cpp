@@ -37,9 +37,8 @@ static uint16_t _mve_get_ushort(const unsigned char *data);
  * private functions for mvefile
  */
 static int _mvefile_open(MVEFILE *movie, void *stream);
-static void _mvefile_reset(MVEFILE *movie);
 static int  _mvefile_read_header(const MVEFILE *movie);
-static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size);
+static void _mvefile_set_buffer_size(MVEFILE *movie, std::size_t buf_size);
 static int _mvefile_fetch_next_chunk(MVEFILE *movie);
 
 /*
@@ -83,15 +82,13 @@ std::unique_ptr<MVEFILE> mvefile_open(void *stream)
  */
 static void mvefile_reset(MVEFILE *file)
 {
-	_mvefile_reset(file);
-
     /* initialize the file */
     _mvefile_set_buffer_size(file, 1024);
 
     /* verify the file's header */
     if (! _mvefile_read_header(file))
     {
-		//return NULL;
+		*file = {};
     }
 
     /* now, prefetch the next chunk */
@@ -101,10 +98,10 @@ static void mvefile_reset(MVEFILE *file)
 static bool have_segment_header(const MVEFILE *movie)
 {
 	/* if nothing is cached, fail */
-	if (!movie->cur_chunk || movie->next_segment >= movie->cur_fill)
+	if (movie->next_segment >= movie->cur_chunk.size())
 		return false;
 	/* if we don't have enough data to get a segment, fail */
-	if (movie->cur_fill - movie->next_segment < 4)
+	if (movie->cur_chunk.size() - movie->next_segment < 4)
 		return false;
 	return true;
 }
@@ -261,8 +258,6 @@ int mve_play_next_chunk(MVESTREAM *movie)
  */
 MVEFILE::MVEFILE() :
 	stream(nullptr),
-	buf_size(0),
-	cur_fill(0),
 	next_segment(0)
 {
 }
@@ -284,19 +279,6 @@ static int _mvefile_open(MVEFILE *file, void *stream)
         return 0;
 
     return 1;
-}
-
-/*
- * allocate an MVEFILE
- */
-static void _mvefile_reset(MVEFILE *file)
-{
-#if 0
-    file->cur_chunk = NULL;
-    file->buf_size = 0;
-    file->cur_fill = 0;
-    file->next_segment = 0;
-#endif
 }
 
 /*
@@ -329,27 +311,17 @@ static int _mvefile_read_header(const MVEFILE *movie)
     return 1;
 }
 
-static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size)
+static void _mvefile_set_buffer_size(MVEFILE *movie, std::size_t buf_size)
 {
-    unsigned char *new_buffer;
-    int new_len;
-
     /* check if this would be a redundant operation */
-    if (buf_size  <=  movie->buf_size)
+	if (buf_size <= movie->cur_chunk.size())
         return;
 
     /* allocate new buffer */
-    new_len = 100 + buf_size;
-    new_buffer = (unsigned char *)mve_alloc(new_len);
-
     /* copy old data */
-    if (movie->cur_chunk  &&  movie->cur_fill)
-        memcpy(new_buffer, movie->cur_chunk.get(), movie->cur_fill);
-
     /* free old buffer */
     /* install new buffer */
-	movie->cur_chunk.reset(new_buffer);
-    movie->buf_size = new_len;
+	movie->cur_chunk.resize(100 + buf_size);
 }
 
 static int _mvefile_fetch_next_chunk(MVEFILE *movie)
@@ -374,7 +346,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     /* read the chunk */
     if (! mve_read(movie->stream, &movie->cur_chunk[0], length))
         return 0;
-    movie->cur_fill = length;
+    movie->cur_chunk.resize(length);
     movie->next_segment = 0;
 
     return 1;
