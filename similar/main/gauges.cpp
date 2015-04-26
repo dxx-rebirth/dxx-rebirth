@@ -2046,36 +2046,28 @@ static void draw_numerical_display(int shield, int energy)
 	gr_set_current_canvas( NULL );
 }
 
-
 static void draw_keys()
 {
 	gr_set_current_canvas( NULL );
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY )	{
-		PAGE_IN_GAUGE( GAUGE_BLUE_KEY );
-		hud_bitblt( HUD_SCALE_X(GAUGE_BLUE_KEY_X), HUD_SCALE_Y(GAUGE_BLUE_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_BLUE_KEY) ]);
-	} else {
-		PAGE_IN_GAUGE( GAUGE_BLUE_KEY_OFF );
-		hud_bitblt( HUD_SCALE_X(GAUGE_BLUE_KEY_X), HUD_SCALE_Y(GAUGE_BLUE_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_BLUE_KEY_OFF) ]);
-	}
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)	{
-		PAGE_IN_GAUGE( GAUGE_GOLD_KEY );
-		hud_bitblt( HUD_SCALE_X(GAUGE_GOLD_KEY_X), HUD_SCALE_Y(GAUGE_GOLD_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_GOLD_KEY) ]);
-	} else {
-		PAGE_IN_GAUGE( GAUGE_GOLD_KEY_OFF );
-		hud_bitblt( HUD_SCALE_X(GAUGE_GOLD_KEY_X), HUD_SCALE_Y(GAUGE_GOLD_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_GOLD_KEY_OFF) ]);
-	}
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)	{
-		PAGE_IN_GAUGE( GAUGE_RED_KEY );
-		hud_bitblt( HUD_SCALE_X(GAUGE_RED_KEY_X), HUD_SCALE_Y(GAUGE_RED_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_RED_KEY) ]);
-	} else {
-		PAGE_IN_GAUGE( GAUGE_RED_KEY_OFF );
-		hud_bitblt( HUD_SCALE_X(GAUGE_RED_KEY_X), HUD_SCALE_Y(GAUGE_RED_KEY_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_RED_KEY_OFF) ]);
-	}
+	class draw_key
+	{
+		const unsigned player_key_flags;
+	public:
+		draw_key() : player_key_flags(Players[Player_num].flags)
+		{
+		}
+		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y) const
+		{
+			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
+			PAGE_IN_GAUGE(gauge);
+			hud_bitblt(HUD_SCALE_X(gauge_key_x), HUD_SCALE_Y(gauge_key_y), &GameBitmaps[GET_GAUGE_INDEX(gauge)]);
+		}
+	};
+	const draw_key draw_one_key;
+	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y);
+	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y);
 }
-
 
 static void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,int pic_y,const char *name,int text_x,int text_y)
 {
