@@ -2500,7 +2500,7 @@ static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic mu
 	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
-static void sb_draw_keys()
+static void sb_draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_current_canvas(NULL);
 	class draw_key
@@ -2517,7 +2517,6 @@ static void sb_draw_keys()
 		}
 	};
 	const draw_key draw_one_key;
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
 	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
 	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y, multires_gauge_graphic);
@@ -3198,7 +3197,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(Players[Player_num].flags);
 		}
-		sb_draw_keys();
+		sb_draw_keys(multires_gauge_graphic);
 
 		sb_show_lives(multires_gauge_graphic);
 
