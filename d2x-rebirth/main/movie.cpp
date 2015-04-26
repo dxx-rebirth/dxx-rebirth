@@ -368,11 +368,9 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
-	window *wind;
 	movie m;
 	int track = 0;
 	int aborted = 0;
-	int reshow = 0;
 #ifdef OGL
 	palette_array_t pal_save;
 #endif
@@ -382,16 +380,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	m.frame_num = 0;
 	m.paused = 0;
 
-	reshow = hide_menus();
-
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
-	if (!wind)
-	{
-		if (reshow)
-			show_menus();
-		return MOVIE_NOT_PLAYED;
-	}
-
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
 	auto filehndl = PHYSFSRWOPS_openRead(filename);
@@ -399,7 +387,12 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	{
 		if (must_have)
 			con_printf(CON_URGENT, "Can't open movie <%s>: %s", filename, PHYSFS_getLastError());
-		window_close(wind);
+		return MOVIE_NOT_PLAYED;
+	}
+	const auto reshow = hide_menus();
+	const auto wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
+	if (!wind)
+	{
 		if (reshow)
 			show_menus();
 		return MOVIE_NOT_PLAYED;
