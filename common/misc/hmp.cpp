@@ -357,7 +357,7 @@ static void reset_tracks(struct hmp_file *hmp)
 	hmp->cur_time = 0;
 }
 
-static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD_PTR dw1, DWORD dw2)
+static void _stdcall midi_callback(HMIDISTRM, UINT uMsg, DWORD, DWORD_PTR dw1, DWORD)
 {
 	MIDIHDR *mhdr;
 	hmp_file *hmp;

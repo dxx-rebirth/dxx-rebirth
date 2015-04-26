@@ -1700,7 +1700,7 @@ static void update_scroll_position(listbox *lb)
 	if (lb->first_item < 0 ) lb->first_item = 0;
 }
 
-static window_event_result listbox_mouse(window *wind,const d_event &event, listbox *lb, int button)
+static window_event_result listbox_mouse(window *, const d_event &event, listbox *lb, int button)
 {
 	int i, mx, my, mz, x1, x2, y1, y2;
 
@@ -1784,7 +1784,7 @@ static window_event_result listbox_mouse(window *wind,const d_event &event, list
 	return window_event_result::ignored;
 }
 
-static window_event_result listbox_key_command(window *wind,const d_event &event, listbox *lb)
+static window_event_result listbox_key_command(window *, const d_event &event, listbox *lb)
 {
 	int key = event_key_get(event);
 	window_event_result rval = window_event_result::handled;

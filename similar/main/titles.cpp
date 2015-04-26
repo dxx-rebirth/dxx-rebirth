@@ -104,7 +104,7 @@ struct title_screen : ignore_window_pointer_t
 	int allow_keys;
 };
 
-static window_event_result title_handler(window *wind,const d_event &event, title_screen *ts)
+static window_event_result title_handler(window *, const d_event &event, title_screen *ts)
 {
 	switch (event.type)
 	{
@@ -1414,7 +1414,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 
 //-----------------------------------------------------------------------------
-static window_event_result briefing_handler(window *wind,const d_event &event, briefing *br)
+static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
 {
 	switch (event.type)
 	{

@@ -5652,7 +5652,7 @@ static void net_udp_show_game_rules(netgame_info *netgame)
 				  show_game_rules_handler, netgame);
 }
 
-static int show_game_info_handler(newmenu *menu,const d_event &event, netgame_info *netgame)
+static int show_game_info_handler(newmenu *, const d_event &event, netgame_info *netgame)
 {
 	switch (event.type)
 	{

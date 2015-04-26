@@ -780,7 +780,7 @@ void full_palette_save(void)
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
-static int free_help(newmenu *menu,const d_event &event, newmenu_item *items)
+static int free_help(newmenu *, const d_event &event, newmenu_item *items)
 {
 	if (event.type == EVENT_WINDOW_CLOSE)
 	{

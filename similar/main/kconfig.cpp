@@ -1011,7 +1011,7 @@ static void reset_mitem_values(kc_mitem (&m)[M], const array<ubyte, C> &c)
 		m[i].value = c[i];
 }
 
-static window_event_result kconfig_key_command(window *wind,const d_event &event, kc_menu *menu)
+static window_event_result kconfig_key_command(window *, const d_event &event, kc_menu *menu)
 {
 	int k;
 

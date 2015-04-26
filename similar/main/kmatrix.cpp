@@ -258,7 +258,7 @@ static void kmatrix_redraw_coop()
 	gr_palette_load(gr_palette);
 }
 
-static window_event_result kmatrix_handler(window *wind,const d_event &event, kmatrix_screen *km)
+static window_event_result kmatrix_handler(window *, const d_event &event, kmatrix_screen *km)
 {
 	int k = 0, choice = 0;
 	

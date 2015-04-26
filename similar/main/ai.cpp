@@ -1416,6 +1416,7 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 {
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 
+	(void)player_visibility;	// only used for Assert
 	Assert(player_visibility != -1);
 
 	//	See if should take avoidance.

@@ -80,7 +80,7 @@ struct credits : ignore_window_pointer_t
 	grs_bitmap backdrop;
 };
 
-static window_event_result credits_handler(window *wind,const d_event &event, credits *cr)
+static window_event_result credits_handler(window *, const d_event &event, credits *cr)
 {
 	int l, y;
 	switch (event.type)

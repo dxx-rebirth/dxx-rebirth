@@ -139,9 +139,9 @@ void RBAEjectDisk()
 	initialised = 0;
 }
 
+#ifdef __linux__
 void RBASetVolume(int volume)
 {
-#ifdef __linux__
 	int cdfile, level;
 	struct cdrom_volctrl volctrl;
 
@@ -164,8 +164,8 @@ void RBASetVolume(int volume)
 		con_printf(CON_CRITICAL, "RBAudio: CDROMVOLCTRL ioctl failed");
 		return;
 	}
-#endif
 }
+#endif
 
 void RBAPause()
 {

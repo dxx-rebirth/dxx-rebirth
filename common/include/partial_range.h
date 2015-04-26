@@ -168,13 +168,13 @@ static inline void check_range_bounds(const char (&file)[NF], unsigned line, con
 
 /* C arrays lack a size method, but have a constant size */
 template <typename T, std::size_t d>
-static constexpr tt::integral_constant<std::size_t, d> get_range_size(T (&t)[d])
+static constexpr tt::integral_constant<std::size_t, d> get_range_size(T (&)[d])
 {
 	return {};
 }
 
 template <typename T>
-static inline std::size_t get_range_size(T &t)
+static constexpr std::size_t get_range_size(T &t)
 {
 	return t.size();
 }

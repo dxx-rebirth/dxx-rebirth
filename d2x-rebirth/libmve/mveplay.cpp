@@ -129,7 +129,7 @@ struct timespec
 #endif
 
 #if defined(_WIN32) || defined(macintosh)
-int gettimeofday(struct timeval *tv, void *tz)
+int gettimeofday(struct timeval *tv, void *)
 {
 	static int counter = 0;
 #ifdef _WIN32
@@ -451,7 +451,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 
 					mve_audio_buflens[mve_audio_buftail] = nsamp;
 					mve_audio_buffers[mve_audio_buftail].reset((short *)mve_alloc(nsamp));
-					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail].get(), data, -1); /* XXX */
+					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail].get(), data); /* XXX */
 				} else {
 					nsamp -= 8;
 					data += 8;

@@ -262,7 +262,7 @@ struct movie : ignore_window_pointer_t
 	MVESTREAM_ptr_t pMovie;
 };
 
-static window_event_result show_pause_message(window *wind,const d_event &event, const unused_window_userdata_t *)
+static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	switch (event.type)
 	{
@@ -303,7 +303,7 @@ static window_event_result show_pause_message(window *wind,const d_event &event,
 	return window_event_result::ignored;
 }
 
-static window_event_result MovieHandler(window *wind,const d_event &event, movie *m)
+static window_event_result MovieHandler(window *, const d_event &event, movie *m)
 {
 	int key;
 
@@ -412,6 +412,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette);
 	gr_palette_load(gr_palette);
+	(void)hires_flag;
 #else
 	gr_set_mode(SM((hires_flag?640:320),(hires_flag?480:200)));
 #endif

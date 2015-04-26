@@ -48,7 +48,13 @@ extern void RBASetStereoAudio(RBACHANNELCTL *channels);
 extern void RBASetQuadAudio(RBACHANNELCTL *channels);
 extern void RBAGetAudioInfo(RBACHANNELCTL *channels);
 extern void RBASetChannelVolume(int channel, int volume);
+#ifdef __linux__
 extern void RBASetVolume(int volume);
+#else
+static inline void RBASetVolume(int)
+{
+}
+#endif
 extern int	RBAEnabled(void);
 extern void RBADisable(void);
 extern void RBAEnable(void);

@@ -157,6 +157,7 @@ public:
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
+		(void)nv;	// only used for Assert
 		Assert( nv < MAX_POINTS_PER_POLY );
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -461,6 +462,8 @@ public:
 		Assert(nv > 2);		//must have 3 or more points
 #if defined(DXX_BUILD_DESCENT_I)
 		*wp(p+28) = (short)gr_find_closest_color_15bpp(w(p+28));
+#elif defined(DXX_BUILD_DESCENT_II)
+		(void)p;
 #endif
 	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)

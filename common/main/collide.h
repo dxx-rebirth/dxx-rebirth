@@ -51,7 +51,7 @@ void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, con
 void net_destroy_controlcen(objptridx_t controlcen);
 void collide_player_and_powerup(vobjptr_t player, vobjptridx_t powerup, const vms_vector &collision_point);
 #if defined(DXX_BUILD_DESCENT_I)
-#define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt,remote)
+#define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt)
 #endif
 int check_effect_blowup(vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, vcobjptr_t who);

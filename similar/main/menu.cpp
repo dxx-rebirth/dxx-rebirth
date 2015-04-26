@@ -885,7 +885,7 @@ public:
 
 }
 
-static int options_menuset(newmenu *menu,const d_event &event, options_menu_items *items)
+static int options_menuset(newmenu *, const d_event &event, options_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -2035,7 +2035,7 @@ void do_options_menu()
 }
 
 #ifndef RELEASE
-static window_event_result polygon_models_viewer_handler(window *wind,const d_event &event, const unused_window_userdata_t *)
+static window_event_result polygon_models_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static unsigned view_idx;
 	int key = 0;
@@ -2125,7 +2125,7 @@ static void polygon_models_viewer()
 		event_process();
 }
 
-static window_event_result gamebitmaps_viewer_handler(window *wind,const d_event &event, const unused_window_userdata_t *)
+static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2224,7 +2224,7 @@ public:
 
 }
 
-static int sandbox_menuset(newmenu *menu,const d_event &event, sandbox_menu_items *items)
+static int sandbox_menuset(newmenu *, const d_event &event, sandbox_menu_items *items)
 {
 	switch (event.type)
 	{

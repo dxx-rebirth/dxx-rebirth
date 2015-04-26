@@ -8,6 +8,6 @@
 
 #ifdef __cplusplus
 
-void mveaudio_uncompress(short *buffer, const unsigned char *data, int length);
+void mveaudio_uncompress(short *buffer, const unsigned char *data);
 
 #endif
