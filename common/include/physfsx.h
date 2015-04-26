@@ -69,6 +69,7 @@
 	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C), 0))	\
 
 template <typename V>
+__attribute_always_inline()
 static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD integral value read");
@@ -77,6 +78,7 @@ static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::
 }
 
 template <typename V>
+__attribute_always_inline()
 static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD non-integral value read");
@@ -85,6 +87,7 @@ static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>:
 }
 
 template <typename V>
+__attribute_always_inline()
 static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	typedef typename tt::remove_extent<V>::type V0;
@@ -94,6 +97,7 @@ static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::typ
 }
 
 template <typename V, std::size_t N>
+__attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "C++ array of non-POD elements read");
@@ -102,18 +106,14 @@ static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, array<V, N> &v
 }
 
 template <typename V, typename D>
+__attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const std::unique_ptr<V, D> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	return PHYSFSX_check_read(file, v.get(), S, C);
 }
 
 template <typename V>
-static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	return PHYSFSX_check_read(file, v.get(), S, C);
-}
-
-template <typename V>
+__attribute_always_inline()
 static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_file *file, const V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD integral value written");
@@ -123,6 +123,7 @@ static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::
 }
 
 template <typename V>
+__attribute_always_inline()
 static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_file *file, const V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "non-POD non-integral value written");
@@ -131,6 +132,7 @@ static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>:
 }
 
 template <typename V, std::size_t N>
+__attribute_always_inline()
 static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_file *file, const V (&v)[N], PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	typedef typename tt::remove_extent<V>::type V0;
@@ -140,6 +142,7 @@ static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::typ
 }
 
 template <typename V, std::size_t N>
+__attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	static_assert(tt::is_pod<V>::value, "C++ array of non-POD elements written");
@@ -148,15 +151,10 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const array<V
 }
 
 template <typename T, typename D>
+__attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const std::unique_ptr<T, D> &p, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
 	return PHYSFSX_check_write(file, p.get(), S, C);
-}
-
-template <typename V>
-static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, const RAIIdmem<V> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	return PHYSFSX_check_write(file, v.get(), S, C);
 }
 
 template <typename V>
