@@ -1047,13 +1047,12 @@ static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_grap
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void hud_show_orbs (void)
+static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_hoard()) {
 		int x=0,y=LINE_SPACING+FSPACY(1);
 		grs_bitmap *bm;
 
-		const local_multires_gauge_graphic multires_gauge_graphic{};
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -3105,7 +3104,7 @@ void draw_hud()
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
 			hud_show_flag();
-			hud_show_orbs();
+			hud_show_orbs(multires_gauge_graphic);
 		}
 #endif
 		HUD_render_message_frame();
