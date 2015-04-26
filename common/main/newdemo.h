@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwdvalptridx.h"
 
-struct object_signature_t;
+class object_signature_t;
 
 #define ND_STATE_NORMAL			0
 #define ND_STATE_RECORDING		1
