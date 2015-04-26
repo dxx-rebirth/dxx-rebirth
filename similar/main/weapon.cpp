@@ -399,6 +399,42 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+{
+	// do special hud msg. for picking registered weapon in shareware version.
+	if (PCSharePig)
+		if (weapon_num >= NUM_SHAREWARE_WEAPONS) {
+			HUD_init_message(HM_DEFAULT, "%s %s!", weapon_name,TXT_NOT_IN_SHAREWARE);
+			return true;
+		}
+	return false;
+}
+
+static bool reject_unusable_primary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+{
+	const auto weapon_status = player_has_primary_weapon(weapon_num);
+	const char *prefix;
+	if (!weapon_status.has_weapon())
+		prefix = TXT_DONT_HAVE;
+	else if (!weapon_status.has_ammo())
+		prefix = TXT_DONT_HAVE_AMMO;
+	else
+		return false;
+	HUD_init_message(HM_DEFAULT, "%s %s!", prefix, weapon_name);
+	return true;
+}
+
+static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+{
+	const auto weapon_status = player_has_primary_weapon(weapon_num);
+	if (weapon_status.has_all())
+		return false;
+	HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
+	return true;
+}
+#endif
+
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
 void do_primary_weapon_select(uint_fast32_t weapon_num)
@@ -406,33 +442,11 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
-	const char	*weapon_name;
-
-
-	// do special hud msg. for picking registered weapon in shareware version.
-	if (PCSharePig)
-		if (weapon_num >= NUM_SHAREWARE_WEAPONS) {
-			weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-			HUD_init_message(HM_DEFAULT, "%s %s!", weapon_name,TXT_NOT_IN_SHAREWARE);
-			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-			return;
-		}
-
-	const auto weapon_status = player_has_primary_weapon(weapon_num);
+	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
+	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(weapon_num, weapon_name))
 	{
-		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-		if (!weapon_status.has_weapon())
-		{
-			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, weapon_name);
-			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-			return;
-		}
-		else if (!weapon_status.has_ammo())
-		{
-			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE_AMMO, weapon_name);
-			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-			return;
-		}
+		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	int	current,has_flag;
@@ -493,27 +507,12 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
-	const char	*weapon_name;
-
-
 	// do special hud msg. for picking registered weapon in shareware version.
-	if (PCSharePig)
-		if (weapon_num >= NUM_SHAREWARE_WEAPONS) {
-			weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-			HUD_init_message(HM_DEFAULT, "%s %s!", weapon_name,TXT_NOT_IN_SHAREWARE);
-			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-			return;
-		}
-
-	const auto weapon_status = player_has_secondary_weapon(weapon_num);
+	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
+	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(weapon_num, weapon_name))
 	{
-		weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-		if (!weapon_status.has_all())
-		{
-			HUD_init_message(HM_DEFAULT, "%s %s%s",TXT_HAVE_NO, weapon_name, TXT_SX);
-			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-			return;
-		}
+		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	int	current,has_flag;
