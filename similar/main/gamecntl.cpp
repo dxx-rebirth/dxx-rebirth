@@ -252,7 +252,11 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.select_weapon > 0)
 	{
 		const auto select_weapon = exchange(Controls.state.select_weapon, 0) - 1;
-		do_weapon_select(select_weapon > 4 ? select_weapon - 5 : select_weapon, select_weapon > 4);
+		const auto weapon_num = select_weapon > 4 ? select_weapon - 5 : select_weapon;
+		if (select_weapon > 4)
+			do_secondary_weapon_select(weapon_num);
+		else
+			do_primary_weapon_select(weapon_num);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (auto &headlight = Controls.state.headlight)
