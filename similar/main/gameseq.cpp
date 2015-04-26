@@ -384,7 +384,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			newdemo_record_player_weapon(0, 0);
 			newdemo_record_player_weapon(1, 0);
 		}
-		Primary_weapon = 0;
+		Primary_weapon = primary_weapon_index_t::LASER_INDEX;
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
 		Player_is_dead = 0;
@@ -1049,9 +1049,9 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	} else {
 		if (PHYSFSX_exists(SECRETC_FILENAME,0))
 		{
-			int	pw_save, sw_save;
+			int	sw_save;
 
-			pw_save = Primary_weapon;
+			const auto pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
 			state_restore_all(1, secret_restore::survived, SECRETC_FILENAME, blind_save::no);
 			Primary_weapon = pw_save;
@@ -1095,10 +1095,10 @@ void ExitSecretLevel(void)
 
 	if (PHYSFSX_exists(SECRETB_FILENAME,0))
 	{
-		int	pw_save, sw_save;
+		int	sw_save;
 
 		do_screen_message(TXT_SECRET_RETURN);
-		pw_save = Primary_weapon;
+		const auto pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
 		state_restore_all(1, secret_restore::survived, SECRETB_FILENAME, blind_save::no);
 		Primary_weapon = pw_save;

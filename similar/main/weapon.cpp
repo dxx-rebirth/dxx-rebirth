@@ -105,7 +105,8 @@ const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{
 
 weapon_info_array Weapon_info;
 unsigned N_weapon_types;
-sbyte   Primary_weapon, Secondary_weapon;
+primary_weapon_index_t Primary_weapon;
+sbyte Secondary_weapon;
 
 // autoselect ordering
 
@@ -351,7 +352,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );
 #endif
 		}
-		Primary_weapon = weapon_num;
+		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);

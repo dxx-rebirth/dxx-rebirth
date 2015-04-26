@@ -1874,7 +1874,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 #endif
 		default:
 			Int3();	//	Contact Yuan: Unknown Primary weapon type, setting to 0.
-			Primary_weapon = 0;
+			Primary_weapon = primary_weapon_index_t::LASER_INDEX;
 	}
 
 	// Set values to be recognized during comunication phase, if we are the

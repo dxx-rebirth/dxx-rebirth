@@ -1858,7 +1858,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			shield = (unsigned char)flags;
 			flags = (flags >> 8) & 0x00ffffff;
 			flags |= (Primary_weapon << 24);
-			Primary_weapon = Secondary_weapon;
+			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
 			Secondary_weapon = c;
 		} else
 			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);
@@ -2464,7 +2464,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 
 			if (weapon_type == 0)
-				Primary_weapon = (int)weapon_num;
+				Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 			else
 				Secondary_weapon = (int)weapon_num;
 
@@ -2487,12 +2487,12 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (weapon_type == 0)
-					Primary_weapon = (int)weapon_num;
+					Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 				else
 					Secondary_weapon = (int)weapon_num;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (weapon_type == 0)
-					Primary_weapon = (int)old_weapon;
+					Primary_weapon = static_cast<primary_weapon_index_t>(old_weapon);
 				else
 					Secondary_weapon = (int)old_weapon;
 			}

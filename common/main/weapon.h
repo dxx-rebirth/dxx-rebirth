@@ -274,7 +274,7 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #define CLASS_PRIMARY       0
 #define CLASS_SECONDARY     1
 
-enum primary_weapon_index_t
+enum primary_weapon_index_t : uint8_t
 {
 	LASER_INDEX = 0,
 	VULCAN_INDEX = 1,
@@ -331,7 +331,8 @@ extern unsigned N_weapon_types;
 void do_primary_weapon_select(uint_fast32_t weapon_num);
 void do_secondary_weapon_select(uint_fast32_t weapon_num);
 
-extern sbyte Primary_weapon, Secondary_weapon;
+extern primary_weapon_index_t Primary_weapon;
+extern sbyte Secondary_weapon;
 
 void auto_select_primary_weapon();
 void auto_select_secondary_weapon();
