@@ -2246,9 +2246,8 @@ static void draw_ammo_info(int x,int y,int ammo_count)
 	}
 }
 
-static void draw_secondary_ammo_info(int ammo_count)
+static void draw_secondary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		draw_ammo_info(SB_SECONDARY_AMMO_X,SB_SECONDARY_AMMO_Y,ammo_count);
 	else
@@ -2405,7 +2404,7 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 #endif
 }
 
-static void draw_weapon_box1()
+static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[1] == WBU_WEAPON)
@@ -2417,7 +2416,7 @@ static void draw_weapon_box1()
 			const auto ammo = Players[Player_num].secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_secondary_ammo(ammo);
-			draw_secondary_ammo_info(ammo);
+			draw_secondary_ammo_info(ammo, multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2429,7 +2428,7 @@ static void draw_weapon_box1()
 static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	draw_weapon_box0(multires_gauge_graphic);
-	draw_weapon_box1();
+	draw_weapon_box1(multires_gauge_graphic);
 }
 
 static void sb_draw_energy_bar(int energy)
