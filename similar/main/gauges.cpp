@@ -2085,7 +2085,7 @@ static void draw_numerical_display(int shield, int energy)
 	gr_set_current_canvas( NULL );
 }
 
-static void draw_keys()
+static void draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_current_canvas( NULL );
 	class draw_key
@@ -2102,7 +2102,6 @@ static void draw_keys()
 		}
 	};
 	const draw_key draw_one_key;
-	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
 	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
 	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, multires_gauge_graphic);
@@ -3174,7 +3173,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(Players[Player_num].flags);
 		}
-		draw_keys();
+		draw_keys(multires_gauge_graphic);
 
 		show_homing_warning(multires_gauge_graphic);
 		draw_wbu_overlay(multires_gauge_graphic);
