@@ -980,26 +980,43 @@ static void hud_show_homing_warning(void)
 
 static void hud_show_keys(void)
 {
-	grs_bitmap *blue,*yellow,*red;
+	const unsigned player_key_flags = Players[Player_num].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY);
+	if (!player_key_flags)
+		return;
+	class gauge_key
+	{
+		grs_bitmap *const bm;
+	public:
+		gauge_key(const unsigned key_icon) :
+			bm(&GameBitmaps[PAGE_IN_GAUGE(key_icon), GET_GAUGE_INDEX(key_icon)])
+		{
+		}
+		grs_bitmap *operator->() const
+		{
+			return bm;
+		}
+		operator grs_bitmap *() const
+		{
+			return bm;
+		}
+	};
+	const gauge_key blue(KEY_ICON_BLUE);
 	int y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 
-	PAGE_IN_GAUGE( KEY_ICON_BLUE );
-	PAGE_IN_GAUGE( KEY_ICON_YELLOW );
-	PAGE_IN_GAUGE( KEY_ICON_RED );
-
-	blue=&GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_BLUE) ];
-	yellow=&GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_YELLOW) ];
-	red=&GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ];
-
-	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
+	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
 		hud_bitblt_free(FSPACX(2),y,HUD_SCALE_X_AR(blue->bm_w),HUD_SCALE_Y_AR(blue->bm_h),blue);
 
-	if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
+	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
+		return;
+	const gauge_key yellow(KEY_ICON_YELLOW);
+	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
 		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+3),y,HUD_SCALE_X_AR(yellow->bm_w),HUD_SCALE_Y_AR(yellow->bm_h),yellow);
 
-	if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
+	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
+	{
+		const gauge_key red(KEY_ICON_RED);
 		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+yellow->bm_w+6),y,HUD_SCALE_X_AR(red->bm_w),HUD_SCALE_Y_AR(red->bm_h),red);
-
+	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
