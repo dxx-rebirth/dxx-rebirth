@@ -276,7 +276,7 @@ extern sbyte Primary_weapon, Secondary_weapon;
 
 void auto_select_primary_weapon();
 void auto_select_secondary_weapon();
-extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
+void select_weapon(uint_fast32_t weapon_num, int secondary_flag, const char *weapon_name, int wait_for_rearm);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of

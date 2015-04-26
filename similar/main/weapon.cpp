@@ -281,7 +281,8 @@ void CyclePrimary ()
 		// select the weapon if we have it
 		if (player_has_primary_weapon(desired_weapon).has_all())
 		{
-			select_weapon(desired_weapon, 0, 1, 1);
+			const auto weapon_name = PRIMARY_WEAPON_NAMES(desired_weapon);
+			select_weapon(desired_weapon, 0, weapon_name, 1);
 			return;
 		}
 	}
@@ -314,7 +315,8 @@ void CycleSecondary ()
 		// select the weapon if we have it
 		if (player_has_secondary_weapon(desired_weapon).has_all())
 		{
-			select_weapon(desired_weapon, 1, 1, 1);
+			const auto weapon_name = SECONDARY_WEAPON_NAMES(desired_weapon);
+			select_weapon(desired_weapon, 1, weapon_name, 1);
 			return;
 		}
 	}
@@ -323,10 +325,8 @@ void CycleSecondary ()
 
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
-void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm)
+void select_weapon(uint_fast32_t weapon_num, int secondary_flag, const char *const weapon_name, int wait_for_rearm)
 {
-	const char	*weapon_name;
-
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_weapon(secondary_flag, weapon_num);
 
@@ -352,8 +352,6 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 #endif
 		}
 		Primary_weapon = weapon_num;
-		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
@@ -379,15 +377,13 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 
 		}
 		Secondary_weapon = weapon_num;
-		weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
 	}
 
-	if (print_message)
+	if (weapon_name)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == LASER_INDEX && !secondary_flag)
@@ -439,10 +435,10 @@ static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_n
 //	Select a weapon, primary or secondary.
 void do_primary_weapon_select(uint_fast32_t weapon_num)
 {
+	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
-	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
@@ -491,7 +487,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 		{
 			if (weapon_num==SUPER_LASER_INDEX)
 				return; 		//no such thing as super laser, so no error
-			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, PRIMARY_WEAPON_NAMES(weapon_num));
+			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, weapon_name);
 		}
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 		return;
@@ -499,16 +495,16 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 
 	//now actually select the weapon
 #endif
-	select_weapon(weapon_num, 0, 1, 1);
+	select_weapon(weapon_num, 0, weapon_name, 1);
 }
 
 void do_secondary_weapon_select(uint_fast32_t weapon_num)
 {
+	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	// do special hud msg. for picking registered weapon in shareware version.
-	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
@@ -554,14 +550,14 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 
 	//if we don't have the weapon we're switching to, give error & bail
 	if ((weapon_status.flags() & has_flag) != has_flag) {
-			HUD_init_message(HM_DEFAULT, "%s %s%s",TXT_HAVE_NO, SECONDARY_WEAPON_NAMES(weapon_num), TXT_SX);
+		HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 		return;
 	}
 
 	//now actually select the weapon
 #endif
-	select_weapon(weapon_num, 1, 1, 1);
+	select_weapon(weapon_num, 1, weapon_name, 1);
 }
 
 //	----------------------------------------------------------------------------------------
@@ -610,7 +606,9 @@ void auto_select_primary_weapon()
 				}
 				else if (PlayerCfg.PrimaryOrder[cur_weapon]!=255 && player_has_primary_weapon(PlayerCfg.PrimaryOrder[cur_weapon]).has_all())
 				{
-					select_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0, 1, 1 );
+					const auto weapon_num = PlayerCfg.PrimaryOrder[cur_weapon];
+					const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
+					select_weapon(weapon_num, 0, weapon_name, 1);
 					try_again = 0;
 				}
 			}
@@ -650,7 +648,9 @@ void auto_select_secondary_weapon()
 				}
 				else if (player_has_secondary_weapon(PlayerCfg.SecondaryOrder[cur_weapon]).has_all())
 				{
-					select_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1, 1, 1 );
+					const auto weapon_num = PlayerCfg.SecondaryOrder[cur_weapon];
+					const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
+					select_weapon(weapon_num, 1, weapon_name, 1);
 					try_again = 0;
 				}
 			}
