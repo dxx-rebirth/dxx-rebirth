@@ -749,28 +749,24 @@ const span weapon_window_right_hires[] = {
 	{424,518},
 };
 
-static inline void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
+static inline void hud_bitblt_free (unsigned x, unsigned y, unsigned w, unsigned h, grs_bitmap &bm)
 {
 #ifdef OGL
-	ogl_ubitmapm_cs (x,y,w,h,*bm,-1,F1_0);
+	ogl_ubitmapm_cs (x, y, w, h, bm, -1, F1_0);
 #else
-	gr_ubitmapm(x, y, *bm);
+	gr_ubitmapm(x, y, bm);
 #endif
 }
 
-static inline void hud_bitblt (int x, int y, grs_bitmap *bm, const local_multires_gauge_graphic multires_gauge_graphic)
+static inline void hud_bitblt (unsigned x, unsigned y, grs_bitmap &bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-#ifdef OGL
-	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),*bm,-1,F1_0);
-#else
-	gr_ubitmapm(x, y, *bm);
-#endif
+	hud_bitblt_free(x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
 }
 
 static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	PAGE_IN_GAUGE(gauge);
-	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), &GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
+	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
 }
 
 static void hud_show_score()
@@ -1022,9 +1018,9 @@ static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_grap
 		{
 			return bm;
 		}
-		operator grs_bitmap *() const
+		operator grs_bitmap &() const
 		{
-			return bm;
+			return *bm;
 		}
 	};
 	const gauge_key blue(KEY_ICON_BLUE, multires_gauge_graphic);
@@ -1051,8 +1047,6 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 {
 	if (game_mode_hoard()) {
 		int x=0,y=LINE_SPACING+FSPACY(1);
-		grs_bitmap *bm;
-
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -1066,12 +1060,10 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 		else
 			Int3();		//what sort of cockpit?
 
-		bm = &Orb_icons[multires_gauge_graphic.is_hires()];
-
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-
-		hud_bitblt_free(x,y,HUD_SCALE_Y_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
-		gr_printf(x+HUD_SCALE_X_AR(bm->bm_w), y, " x %d", Players[Player_num].secondary_ammo[PROXIMITY_INDEX]);
+		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
+		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", Players[Player_num].secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
@@ -1079,7 +1071,6 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 {
 	if (game_mode_capture_flag() && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
-		grs_bitmap *bm;
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 			x = (SWIDTH/10);
@@ -1097,11 +1088,9 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 
 
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
-		bm = &GameBitmaps[ GET_GAUGE_INDEX(icon) ];
-
+		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE( icon );
-		hud_bitblt_free(x,y,HUD_SCALE_X_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
-
+		hud_bitblt_free(x, y, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 	}
 }
 #endif
@@ -1687,11 +1676,11 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 	}
 	else if (Players[Player_num].lives > 1)  {
 		PAGE_IN_GAUGE( GAUGE_LIVES );
-		grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
-		hud_bitblt_free(x,FSPACY(1),HUD_SCALE_X_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
-		gr_printf(HUD_SCALE_X_AR(bm->bm_w)+x, FSPACY(1), " x %d", Players[Player_num].lives-1);
+		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
+		hud_bitblt_free(x, FSPACY(1), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		gr_printf(HUD_SCALE_X_AR(bm.bm_w)+x, FSPACY(1), " x %d", Players[Player_num].lives - 1);
 	}
 
 }
@@ -1699,7 +1688,6 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x,y;
-	grs_bitmap * bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ];
 	x = SB_LIVES_X;
 	y = SB_LIVES_Y;
 
@@ -1728,14 +1716,15 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 
 	//erase old icons
 	gr_setcolor(BM_XRGB(0,0,0));
-	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y+bm->bm_h));
+	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
+	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h));
 
 	if (Players[Player_num].lives-1 > 0) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		PAGE_IN_GAUGE( GAUGE_LIVES );
-		hud_bitblt_free(HUD_SCALE_X(x),HUD_SCALE_Y(y),HUD_SCALE_X_AR(bm->bm_w),HUD_SCALE_Y_AR(bm->bm_h),bm);
-		gr_printf(HUD_SCALE_X(x)+HUD_SCALE_X_AR(bm->bm_w), HUD_SCALE_Y(y), " x %d", Players[Player_num].lives-1);
+		hud_bitblt_free(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		gr_printf(HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", Players[Player_num].lives - 1);
 	}
 }
 
@@ -1905,9 +1894,9 @@ static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_g
 	cockpit_decode_alpha(bm, multires_gauge_graphic);
 
 	if (WinBoxOverlay[0])
-		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0].get(), multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),*WinBoxOverlay[0].get(), multires_gauge_graphic);
 	if (WinBoxOverlay[1])
-		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1].get(), multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),*WinBoxOverlay[1].get(), multires_gauge_graphic);
 }
 
 void close_gauges()
@@ -2004,9 +1993,6 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
-	const auto color = get_player_or_team_color(Player_num);
-	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
-	grs_bitmap *const bm = &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 
 	if (cloak_state)
 	{
@@ -2053,9 +2039,12 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	}
 
 	gr_set_current_canvas(NULL);
+	const auto color = get_player_or_team_color(Player_num);
+	PAGE_IN_GAUGE(GAUGE_SHIPS+color);
+	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
 	gr_settransblend(cloak_fade_value, GR_BLEND_NORMAL);
-	gr_rect(HUD_SCALE_X(x-3), HUD_SCALE_Y(y-3), HUD_SCALE_X(x+bm->bm_w+3), HUD_SCALE_Y(y+bm->bm_h+3));
+	gr_rect(HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
 }
@@ -2124,7 +2113,7 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 #endif
 			Weapon_info[info_index].picture;
 	PIGGY_PAGE_IN(picture);
-	auto bm = &GameBitmaps[picture.index];
+	auto &bm = GameBitmaps[picture.index];
 
 	hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
 
@@ -2319,7 +2308,6 @@ static array<fix, 2> static_time;
 static void draw_static(int win, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	vclip *vc = &Vclip[VCLIP_MONITOR_STATIC];
-	grs_bitmap *bmp;
 	int framenum;
 	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 #ifndef OGL
@@ -2336,20 +2324,21 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 
 	PIGGY_PAGE_IN(vc->frames[framenum]);
 
-	bmp = &GameBitmaps[vc->frames[framenum].index];
 
 	gr_set_current_canvas(NULL);
+	auto &bmp = GameBitmaps[vc->frames[framenum].index];
+	auto &box = gauge_boxes[boxofs+win];
 #ifndef OGL
-	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
-		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
-			gr_bitmap(x,y,*bmp);
+	for (x = box.left; x < box.right; x += bmp.bm_w)
+		for (y = box.top; y < box.bot; y += bmp.bm_h)
+			gr_bitmap(x, y, bmp);
 #else
 	if (multires_gauge_graphic.is_hires())
 	{
-		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].bot-bmp->bm_h),bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].right-bmp->bm_w),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].right-bmp->bm_w),HUD_SCALE_Y(gauge_boxes[boxofs+win].bot-bmp->bm_h),bmp, multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(box.left), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(box.left), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
 	}
 
 #endif
@@ -2628,25 +2617,23 @@ void show_reticle(int reticle_type, int secondary_display)
 	{
 		case RET_TYPE_CLASSIC:
 		{
-			grs_bitmap *cross, *primary, *secondary;
-
 			const local_multires_gauge_graphic multires_gauge_graphic{};
 			const auto use_hires_reticle = multires_gauge_graphic.is_hires();
 			ofs = (use_hires_reticle?0:2);
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			cross = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x+HUD_SCALE_X_AR(cross_offsets[ofs].x),y+HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross->bm_w), HUD_SCALE_Y_AR(cross->bm_h), cross);
+			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x + HUD_SCALE_X_AR(cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross.bm_w), HUD_SCALE_Y_AR(cross.bm_h), cross);
 
 			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			primary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x+HUD_SCALE_X_AR(primary_offsets[ofs].x),y+HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary->bm_w), HUD_SCALE_Y_AR(primary->bm_h), primary);
+			auto &primary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x + HUD_SCALE_X_AR(primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary.bm_w), HUD_SCALE_Y_AR(primary.bm_h), primary);
 
 			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			secondary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x+HUD_SCALE_X_AR(secondary_offsets[ofs].x),y+HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary->bm_w), HUD_SCALE_Y_AR(secondary->bm_h), secondary);
+			auto &secondary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x + HUD_SCALE_X_AR(secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary.bm_w), HUD_SCALE_Y_AR(secondary.bm_h), secondary);
 			break;
 		}
 		case RET_TYPE_CLASSIC_REBOOT:
