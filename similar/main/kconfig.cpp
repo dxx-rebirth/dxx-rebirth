@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <cstddef>
 #include <stdexcept>
+#include <functional>
 
 #include "dxxerror.h"
 #include "pstypes.h"
