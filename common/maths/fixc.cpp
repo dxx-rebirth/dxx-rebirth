@@ -25,7 +25,8 @@ namespace {
 class fix_sincos_input
 {
 public:
-	const unsigned m_idx, m_mul;
+	const unsigned m_idx;
+	const signed m_mul;
 	fix_sincos_input(fix a) :
 		m_idx(static_cast<uint8_t>(a >> 8)),
 		m_mul(static_cast<uint8_t>(a))
