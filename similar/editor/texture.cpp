@@ -219,6 +219,7 @@ static uvl rotate_uv_point(const array<fix, 4> &rotmat, const uvl &uv, const uvl
 	return {
 		fixmul(centered_u, rotmat[0]) + fixmul(centered_v, rotmat[1]) + uvcenter.u,
 		fixmul(centered_u, rotmat[2]) + fixmul(centered_v, rotmat[3]) + uvcenter.v,
+		0
 	};
 }
 
