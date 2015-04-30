@@ -125,7 +125,7 @@ static const int _search_mode = 0;
 
 #ifdef NDEBUG		//if no debug code, set these vars to constants
 
-static const int Outline_mode = 0, Show_only_curside = 0;
+const int Show_only_curside = 0;
 
 #else
 
