@@ -187,10 +187,7 @@ message<array<uint8_t, amount>> udt_to_message(const pad_type<amount, value> &);
 template <typename T>
 struct missing_udt_specialization
 {
-#ifndef DXX_HAVE_CXX11_EXPLICIT_DELETE
-protected:
-#endif
-	missing_udt_specialization() DXX_CXX11_EXPLICIT_DELETE;
+	missing_udt_specialization() = delete;
 };
 
 template <typename T>

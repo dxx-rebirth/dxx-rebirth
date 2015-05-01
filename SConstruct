@@ -818,12 +818,8 @@ help:assume compiler supports explicitly deleted functions
 int a()=delete;
 '''
 		r = self.Cxx11Compile(context, text=f, msg='for explicitly deleted functions')
-		macro_name = 'DXX_CXX11_EXPLICIT_DELETE'
-		if r:
-			context.sconf.Define(macro_name, '=delete')
-			context.sconf.Define('DXX_HAVE_CXX11_EXPLICIT_DELETE')
-		else:
-			context.sconf.Define(macro_name, self.comment_not_supported)
+		if not r:
+			raise SCons.Errors.StopError("C++ compiler does not support explicitly deleted functions.")
 	@_implicit_test
 	def check_cxx11_free_begin(self,context,**kwargs):
 		return self.Cxx11Compile(context, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']}, **kwargs)

@@ -171,7 +171,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 				return *this;
 			}
 			template <typename T>
-				void operator=(T) DXX_CXX11_EXPLICIT_DELETE;
+				void operator=(T) = delete;
 		};
 		array<uint8_t, (MAX_OBJECTS + 7) / 8> mask;
 		proxy operator[](objnum_t i)
@@ -417,7 +417,7 @@ struct object_array_t : array<object, MAX_OBJECTS>
 			return array_t::operator[](n);
 		}
 	template <typename T>
-		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const DXX_CXX11_EXPLICIT_DELETE;
+		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
 	object_array_t();
 	object_array_t(const object_array_t &) = delete;
 	object_array_t &operator=(const object_array_t &) = delete;

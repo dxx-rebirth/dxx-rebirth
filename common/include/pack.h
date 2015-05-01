@@ -8,16 +8,16 @@ class exact_type
 {
 	T *p;
 public:
-	operator bool() DXX_CXX11_EXPLICIT_DELETE;
+	operator bool() = delete;
 	// Conversion to void* variants is prohibited
-	operator void *() const DXX_CXX11_EXPLICIT_DELETE;
-	operator volatile void *() const DXX_CXX11_EXPLICIT_DELETE;
-	operator const void *() const DXX_CXX11_EXPLICIT_DELETE;
-	operator const volatile void *() const DXX_CXX11_EXPLICIT_DELETE;
-	bool operator<(exact_type<T>) const DXX_CXX11_EXPLICIT_DELETE;
-	bool operator<=(exact_type<T>) const DXX_CXX11_EXPLICIT_DELETE;
-	bool operator>(exact_type<T>) const DXX_CXX11_EXPLICIT_DELETE;
-	bool operator>=(exact_type<T>) const DXX_CXX11_EXPLICIT_DELETE;
+	operator void *() const = delete;
+	operator volatile void *() const = delete;
+	operator const void *() const = delete;
+	operator const volatile void *() const = delete;
+	bool operator<(exact_type<T>) const = delete;
+	bool operator<=(exact_type<T>) const = delete;
+	bool operator>(exact_type<T>) const = delete;
+	bool operator>=(exact_type<T>) const = delete;
 	exact_type(T *t) : p(t) {}
 	// Conversion to the exact type is permitted
 	operator T *() const { return p; }

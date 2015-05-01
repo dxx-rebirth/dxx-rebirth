@@ -345,7 +345,7 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 		{
 			return !!(this->m_byte & this->mask());
 		}
-		operator int() const DXX_CXX11_EXPLICIT_DELETE;
+		operator int() const = delete;
 	};
 	struct bitproxy_t : public tmpl_bitproxy_t<array_t::reference>
 	{
@@ -361,7 +361,7 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 				this->m_byte &= ~this->mask();
 			return *this;
 		}
-		bitproxy_t& operator=(int) DXX_CXX11_EXPLICIT_DELETE;
+		bitproxy_t& operator=(int) = delete;
 	};
 	typedef tmpl_bitproxy_t<array_t::const_reference> const_bitproxy_t;
 public:
