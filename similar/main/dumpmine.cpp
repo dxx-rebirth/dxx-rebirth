@@ -711,7 +711,7 @@ static const char Adam_level_names[NUM_ADAM_LEVELS][13] = {
 	"D2LEVF-S.LVL",
 };
 
-int	Ignore_tmap_num2_error;
+static int Ignore_tmap_num2_error;
 #endif
 
 // ----------------------------------------------------------------------------
@@ -785,7 +785,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
          }
 #elif defined(DXX_BUILD_DESCENT_II)
 	(void)max_tmap;
-	Assert(shareware_flag != -17);
+	(void)shareware_flag;
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)
 		tmap_buf[i] = 0;
