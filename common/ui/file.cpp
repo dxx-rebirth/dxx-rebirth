@@ -49,7 +49,7 @@ static PHYSFS_list_t file_getdirlist(int *NumDirs, const char *dir)
 	++ dlen;
 	PHYSFS_list_t list{PHYSFS_enumerateFiles(dir)};
 	if (!list)
-		return NULL;
+		return nullptr;
 	const auto predicate = [&](char *i) -> bool {
 		if (path.copy_if(dlen, i) && PHYSFS_isDirectory(path))
 			return false;
@@ -79,7 +79,7 @@ static PHYSFS_list_t file_getfilelist(int *NumFiles, const char *filespec, const
 {
 	PHYSFS_list_t list{PHYSFS_enumerateFiles(dir)};
 	if (!list)
-		return NULL;
+		return nullptr;
 
 	if (*filespec == '*')
 		filespec++;
