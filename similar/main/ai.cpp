@@ -2874,12 +2874,16 @@ static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 		return 0;
 	size_t idx;
 	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
+	/* Hack: Point_segs[idx].segnum should never be none here, but
+	 * sometimes the guidebot has a none.  Guard against the bogus none
+	 * until someone can track down why the guidebot does this.
+	 */
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	if (aip.path_length < 3)
 		return 0;
 	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
+	if (idx < sizeof(Point_segs) / sizeof(Point_segs[0]) && Point_segs[idx].segnum != segment_none && openable_doors_in_segment(vsegptr(Point_segs[idx].segnum)) != -1)
 		return 1;
 	return 0;
 }
