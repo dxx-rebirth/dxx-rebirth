@@ -87,7 +87,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 }
 
 // ----------------------------------------------------------------------------------------------
-static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list, objnum_t objnum)
+static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, objnum_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -213,7 +213,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-static void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, segnum_t *vert_segnum_list)
+static void cast_muzzle_flash_light(int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
 {
 	fix64 current_time;
 	short time_since_flash;
@@ -479,9 +479,8 @@ static g3s_lrgb compute_light_emission(int objnum)
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
-	int	render_vertices[MAX_VERTICES];
-	segnum_t	vert_segnum_list[MAX_VERTICES];
-	sbyte   render_vertex_flags[MAX_VERTICES];
+	array<int, MAX_VERTICES> render_vertices;
+	array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
 
 	Num_headlights = 0;
@@ -494,7 +493,7 @@ void set_dynamic_light(render_state_t &rstate)
 		return;
 	light_time = light_time - (F1_0/60);
 
-	memset(render_vertex_flags, 0, Highest_vertex_index+1);
+	array<int8_t, MAX_VERTICES> render_vertex_flags{};
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	uint_fast32_t n_render_vertices = 0;
