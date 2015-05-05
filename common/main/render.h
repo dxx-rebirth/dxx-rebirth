@@ -124,12 +124,6 @@ void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &)
 void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
 #endif
 
-static inline void render_mine(segnum_t start_seg_num, fix eye_offset)
-{
-	window_rendered_data window;
-	render_mine(start_seg_num, eye_offset, window);
-}
-
 static inline void render_frame(fix eye_offset)
 {
 	window_rendered_data window;
