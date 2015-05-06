@@ -810,16 +810,43 @@ struct A{explicit operator bool();};
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
-	def check_cxx11_explicit_delete(self,context):
+	def _check_cxx11_explicit_delete(self,context):
+		# clang 3.4 warns when a named parameter to a deleted function
+		# is not used, even though there is no body in which it could be
+		# used, so every named parameter to a deleted function is always
+		# unused.
+		f = 'int a(int %s)=delete;'
+		if self.check_cxx11_explicit_delete_named(context, f):
+			# No bug: named parameters with explicitly deleted functions
+			# work correctly.
+			return
+		if self.check_cxx11_explicit_delete_named_unused(context, f):
+			# Clang bug hit.  Called function adds -Wno-unused-parameter
+			# to work around the bug, but affected users will not get
+			# warnings about parameters that are unused in regular
+			# functions.
+			return
+		if self.check_cxx11_explicit_delete_anonymous(context, f):
+			raise SCons.Errors.StopError("C++ compiler rejects explicitly deleted functions with named parameters, even with -Wno-unused-parameter.")
+		raise SCons.Errors.StopError("C++ compiler does not support explicitly deleted functions.")
+	@_implicit_test
+	def check_cxx11_explicit_delete_named(self,context,f):
 		"""
-help:assume compiler supports explicitly deleted functions
+help:assume compiler supports explicitly deleted functions with named parameters
 """
-		f = '''
-int a()=delete;
-'''
-		r = self.Cxx11Compile(context, text=f, msg='for explicitly deleted functions')
-		if not r:
-			raise SCons.Errors.StopError("C++ compiler does not support explicitly deleted functions.")
+		return self.Cxx11Compile(context, text=f % 'b', msg='for explicitly deleted functions with named parameters')
+	@_implicit_test
+	def check_cxx11_explicit_delete_named_unused(self,context,f):
+		"""
+help:assume compiler supports explicitly deleted functions with named parameters with -Wno-unused-parameter
+"""
+		return self.Cxx11Compile(context, text=f % 'b', msg='for explicitly deleted functions with named parameters and -Wno-unused-parameter', successflags={'CXXFLAGS' : ['-Wno-unused-parameter']})
+	@_implicit_test
+	def check_cxx11_explicit_delete_anonymous(self,context,f):
+		"""
+help:assume compiler supports explicitly deleted functions with anonymous parameters
+"""
+		return self.Cxx11Compile(context, text=f % '', msg='for explicitly deleted functions with anonymous parameters')
 	@_implicit_test
 	def check_cxx11_free_begin(self,context,**kwargs):
 		return self.Cxx11Compile(context, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']}, **kwargs)
