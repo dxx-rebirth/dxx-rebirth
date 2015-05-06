@@ -445,10 +445,10 @@ static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_n
 //	Select a weapon, primary or secondary.
 void do_primary_weapon_select(uint_fast32_t weapon_num)
 {
-	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
+	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
@@ -493,6 +493,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 	}
 
 	//if we don't have the weapon we're switching to, give error & bail
+	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 	if ((weapon_status.flags() & has_flag) != has_flag) {
 		{
 			if (weapon_num==SUPER_LASER_INDEX)
@@ -510,11 +511,11 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 
 void do_secondary_weapon_select(uint_fast32_t weapon_num)
 {
-	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	// do special hud msg. for picking registered weapon in shareware version.
+	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
@@ -559,6 +560,7 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	}
 
 	//if we don't have the weapon we're switching to, give error & bail
+	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 	if ((weapon_status.flags() & has_flag) != has_flag) {
 		HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
