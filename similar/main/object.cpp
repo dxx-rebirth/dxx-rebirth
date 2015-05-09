@@ -201,9 +201,6 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 	PIGGY_PAGE_IN(bitmapi);
 
 	auto &bitmap = GameBitmaps[bitmapi.index];
-#if defined(DXX_BUILD_DESCENT_II)
-	bitmap.bm_handle = bitmapi.index;
-#endif
 
 	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
 

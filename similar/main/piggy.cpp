@@ -881,7 +881,6 @@ void piggy_new_pigfile(char *pigname)
 				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
 				iff_error = iff_read_bitmap(bbmname,n,BM_LINEAR,&newpal);
 
-				n.bm_handle=0;
 				if (iff_error != IFF_NO_ERROR)          {
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
