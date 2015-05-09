@@ -882,7 +882,5 @@ void menubar_close()
 {
 	if (!Menu[0].wind)
 		return;
-
-	window_close(Menu[0].wind);
-	Menu[0].wind = NULL;
+	window_close(exchange(Menu[0].wind, nullptr));
 }
