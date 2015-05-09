@@ -4380,7 +4380,7 @@ static void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
 	ail_rw->rapidfire_count            = ail->rapidfire_count;
 	ail_rw->goal_segment               = ail->goal_segment;
 #if defined(DXX_BUILD_DESCENT_I)
-	ail_rw->last_see_time              = ail->last_see_time;
+	ail_rw->last_see_time              = 0;
 	ail_rw->last_attack_time           = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ail_rw->next_fire2                 = ail->next_fire2;
@@ -4561,7 +4561,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 		ail->previous_visibility = PHYSFSX_readByte(fp);
 		ail->rapidfire_count = PHYSFSX_readByte(fp);
 		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
-		ail->last_see_time = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_readSXE32(fp, swap);
 		PHYSFSX_readSXE32(fp, swap);
 		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
