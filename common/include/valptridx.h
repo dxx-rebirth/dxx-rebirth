@@ -8,19 +8,21 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <string>
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 #include "pack.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
-	((void)(dxx_builtin_constant_p((E)) && !(E) &&	\
-		(DXX_ALWAYS_ERROR_FUNCTION(F,S), 0)))
-#define DXX_VALPTRIDX_INLINE_STATIC_CHECK	inline
+#define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
+	(	\
+		static_cast<void>(dxx_builtin_constant_p(!(SUCCESS_CONDITION)) && !(SUCCESS_CONDITION) &&	\
+			(DXX_ALWAYS_ERROR_FUNCTION(FAILURE_FUNCTION, FAILURE_STRING), 0)	\
+		)	\
+	)
 #else
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
 	((void)0)
-#define DXX_VALPTRIDX_INLINE_STATIC_CHECK
 #endif
 
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
@@ -29,10 +31,11 @@
 #define DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
 #endif
 
-#define DXX_VALPTRIDX_CHECK(E,S,success,failure)	\
+#define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,EXCEPTION,FAILURE_STRING,...)	\
 	(	\
-		DXX_VALPTRIDX_STATIC_CHECK(E,dxx_trap_##failure,S),	\
-		(E) ? success : throw failure(S)	\
+		static_cast<void>(DXX_VALPTRIDX_STATIC_CHECK((SUCCESS_CONDITION), dxx_trap_##EXCEPTION, FAILURE_STRING),	\
+			likely((SUCCESS_CONDITION)) || (report_##EXCEPTION(__VA_ARGS__), 0)	\
+		)	\
 	)
 
 /* Never used with an actual void, but needed for proper two-stage
@@ -41,18 +44,59 @@
 template <typename T>
 typename tt::enable_if<tt::is_void<T>::value, void>::type get_global_array(T *);
 
-template <typename P, typename I>
-class valbaseptridxutil_t
+class valptridxutil_untyped_base
 {
 protected:
+#define REPORT_STANDARD_FORMAT	" base=%p size=%lu"
+#define REPORT_STANDARD_ARGUMENTS	array_base, array_size
+#define REPORT_STANDARD_SIZE	(sizeof(REPORT_FORMAT_STRING) + sizeof("0x0000000000000000") + sizeof("18446744073709551615"))
+#define REPORT_FORMAT_STRING	"pointer/index mismatch:" REPORT_STANDARD_FORMAT " index=%li expected=%p actual=%p"
+	static constexpr std::size_t index_mismatch_report_buffer_size = REPORT_STANDARD_SIZE + (sizeof("0x0000000000000000") * 2) + sizeof("18446744073709551615");
+	__attribute_cold
+	static void prepare_report_index_mismatch_exception(char (&buf)[index_mismatch_report_buffer_size], const void *const array_base, const unsigned long array_size, const long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
+	{
+		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, REPORT_STANDARD_ARGUMENTS, supplied_index, expected_pointer, actual_pointer);
+	}
+#undef REPORT_FORMAT_STRING
+#define REPORT_FORMAT_STRING	"invalid index used in array subscript:" REPORT_STANDARD_FORMAT " index=%li"
+	static constexpr std::size_t index_range_report_buffer_size = REPORT_STANDARD_SIZE + sizeof("18446744073709551615");
+	__attribute_cold
+	static void prepare_report_index_range_exception(char (&buf)[index_range_report_buffer_size], const void *const array_base, const unsigned long array_size, const long supplied_index)
+	{
+		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, REPORT_STANDARD_ARGUMENTS, supplied_index);
+	}
+#undef REPORT_FORMAT_STRING
+#define REPORT_FORMAT_STRING	"NULL pointer used:" REPORT_STANDARD_FORMAT
+	static constexpr std::size_t null_pointer_report_buffer_size = REPORT_STANDARD_SIZE;
+	__attribute_cold
+	static void prepare_report_null_pointer_exception(char (&buf)[null_pointer_report_buffer_size], const void *const array_base, const unsigned long array_size)
+	{
+		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, REPORT_STANDARD_ARGUMENTS);
+	}
+#undef REPORT_FORMAT_STRING
+#undef REPORT_STANDARD_SIZE
+#undef REPORT_STANDARD_ARGUMENTS
+#undef REPORT_STANDARD_FORMAT
+};
+
+template <typename P, typename I>
+class valbaseptridxutil_t : protected valptridxutil_untyped_base
+{
+protected:
+	using valptridxutil_untyped_base::prepare_report_index_mismatch_exception;
+	using valptridxutil_untyped_base::prepare_report_index_range_exception;
+	using valptridxutil_untyped_base::prepare_report_null_pointer_exception;
+	using valptridxutil_untyped_base::index_mismatch_report_buffer_size;
+	using valptridxutil_untyped_base::index_range_report_buffer_size;
+	using valptridxutil_untyped_base::null_pointer_report_buffer_size;
 	struct null_pointer_exception : std::logic_error {
-		null_pointer_exception(const char *s) : std::logic_error(s) {}
+		DXX_INHERIT_CONSTRUCTORS(null_pointer_exception, logic_error);
 	};
 	struct index_mismatch_exception : std::logic_error {
-		index_mismatch_exception(const char *s) : std::logic_error(s) {}
+		DXX_INHERIT_CONSTRUCTORS(index_mismatch_exception, logic_error);
 	};
 	struct index_range_exception : std::out_of_range {
-		index_range_exception(const char *s) : std::out_of_range(s) {}
+		DXX_INHERIT_CONSTRUCTORS(index_range_exception, out_of_range);
 	};
 	typedef P *pointer_type;
 	typedef I index_type;
@@ -63,25 +107,69 @@ protected:
 	{
 		return get_global_array(pointer_type());
 	}
-	static const P *check_null_pointer(const P *p) __attribute_warn_unused_result
-	{
-		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
-	}
-	static Prc *check_null_pointer(Prc *p) __attribute_warn_unused_result
-	{
-		return DXX_VALPTRIDX_CHECK(p, "NULL pointer used", p, null_pointer_exception);
-	}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_match(const A &a, pointer_type p, index_type s)
+		static cpointer_type check_null_pointer(const A &, std::nullptr_t) = delete;
+	template <typename T>
+		static inline __attribute_warn_unused_result T check_null_pointer(T p)
 		{
-			return DXX_VALPTRIDX_CHECK(&a[s] == p, "pointer/index mismatch", s, index_mismatch_exception);
+			return check_null_pointer(get_global_array(pointer_type()), p);
+		}
+	template <typename A, typename T>
+		static inline __attribute_warn_unused_result T check_null_pointer(const A &a, T p)
+		{
+			DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", &a[0], a.size());
+			return p;
 		}
 	template <typename A>
-		static DXX_VALPTRIDX_INLINE_STATIC_CHECK __attribute_warn_unused_result index_type check_index_range(const A &a, index_type s)
+		static inline __attribute_warn_unused_result index_type check_index_match(const A &a, pointer_type p, index_type s)
 		{
-			return DXX_VALPTRIDX_CHECK(static_cast<std::size_t>(s) < a.size(), "invalid index used in array subscript", s, index_range_exception);
+			const auto as = &a[s];
+			DXX_VALPTRIDX_CHECK(as == p, index_mismatch_exception, "pointer/index mismatch", &a[0], a.size(), s, as, p);
+			return s;
 		}
+	template <typename A>
+		static inline __attribute_warn_unused_result index_type check_index_range(const A &a, index_type s)
+		{
+			const std::size_t ss = s;
+			const std::size_t as = a.size();
+			DXX_VALPTRIDX_CHECK(ss < as, index_range_exception, "invalid index used in array subscript", &a[0], as, ss);
+			return s;
+		}
+	__attribute_cold
+	__attribute_noreturn
+	static void report_index_mismatch_exception(cpointer_type, std::size_t, index_type, cpointer_type, cpointer_type);
+	__attribute_cold
+	__attribute_noreturn
+	static void report_index_range_exception(cpointer_type, std::size_t, long);
+	__attribute_cold
+	__attribute_noreturn
+	static void report_null_pointer_exception(cpointer_type, std::size_t);
 };
+
+/* Out of line to avoid implicit inline on in-class definitions */
+template <typename P, typename I>
+void valbaseptridxutil_t<P, I>::report_index_mismatch_exception(const cpointer_type array_base, const std::size_t array_size, const index_type supplied_index, const cpointer_type expected_pointer, const cpointer_type actual_pointer)
+{
+	char buf[index_mismatch_report_buffer_size];
+	prepare_report_index_mismatch_exception(buf, array_base, array_size, supplied_index, expected_pointer, actual_pointer);
+	throw index_mismatch_exception(buf);
+}
+
+template <typename P, typename I>
+void valbaseptridxutil_t<P, I>::report_index_range_exception(const cpointer_type array_base, const std::size_t array_size, const long supplied_index)
+{
+	char buf[index_range_report_buffer_size];
+	prepare_report_index_range_exception(buf, array_base, array_size, supplied_index);
+	throw index_range_exception(buf);
+}
+
+template <typename P, typename I>
+void valbaseptridxutil_t<P, I>::report_null_pointer_exception(const cpointer_type array_base, const std::size_t array_size)
+{
+	char buf[null_pointer_report_buffer_size];
+	prepare_report_null_pointer_exception(buf, array_base, array_size);
+	throw null_pointer_exception(buf);
+}
 
 template <typename P, typename I>
 class vvalptr_t;

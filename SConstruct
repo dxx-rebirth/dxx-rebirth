@@ -592,6 +592,14 @@ int a(int*)__attribute_nonnull();
 int b(int*)__attribute_nonnull((1));
 """, msg='for function __attribute__((nonnull))')
 	@_custom_test
+	def check_attribute_noreturn(self,context):
+		"""
+help:assume compiler supports __attribute__((noreturn))
+"""
+		macro_name = '__attribute_noreturn'
+		macro_value = '__attribute__((noreturn))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + ' void a();', main='a();', msg='for function __attribute__((noreturn))')
+	@_custom_test
 	def check_attribute_used(self,context):
 		"""
 help:assume compiler supports __attribute__((used))
