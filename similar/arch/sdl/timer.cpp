@@ -41,9 +41,9 @@ fix64 timer_query(void)
 	return (F64_RunTime);
 }
 
-void timer_delay(fix seconds)
+void timer_delay_ms(unsigned milliseconds)
 {
-	SDL_Delay(f2i(fixmul(seconds, i2f(1000))));
+	SDL_Delay(milliseconds);
 }
 
 // Replacement for timer_delay which considers calc time the program needs between frames (not reentrant)
