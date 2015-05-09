@@ -188,7 +188,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int BitMask,bits, letter, underline;
+	int BitMask,bits, underline;
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
@@ -251,7 +251,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 				const auto &width = result.width;
 				const auto &spacing = result.spacing;
 
-				letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
+				const unsigned letter = static_cast<unsigned char>(*text_ptr) - grd_curcanv->cv_font->ft_minchar;
 
 				if (masked_draws_background)
 				{
@@ -289,7 +289,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 					BitMask = 0;
 
-					for (int i=0; i< width; i++ )
+					for (uint_fast32_t i = width; i--; ++VideoOffset, BitMask >>= 1)
 					{
 						if (BitMask==0) {
 							bits = *fp++;
@@ -297,19 +297,17 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 						}
 
 						if (bits & BitMask)
-							DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
+							DATA[VideoOffset] = static_cast<uint8_t>(grd_curcanv->cv_font_fg_color);
 						else
 						{
 							if (masked_draws_background)
 							{
-								DATA[VideoOffset++] = static_cast<unsigned char>(grd_curcanv->cv_font_bg_color);
+								DATA[VideoOffset] = static_cast<uint8_t>(grd_curcanv->cv_font_bg_color);
 							}
 							else
 							{
-								VideoOffset++;
 							}
 						}
-						BitMask >>= 1;
 					}
 				}
 				text_ptr++;
