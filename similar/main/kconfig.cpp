@@ -1354,18 +1354,19 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mit
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int dx, dy, dz;
-	ubyte code = 255;
 
 	Assert(event.type == EVENT_MOUSE_MOVED);
 	event_mouse_get_delta( event, &dx, &dy, &dz );
-	if ( abs(dx)>5 ) code = 0;
-	if ( abs(dy)>5 ) code = 1;
-	if ( abs(dz)>5 ) code = 2;
-
-	if (code!=255)
-	{
+	uint8_t code;
+	if (abs(dz) > 5)
+		code = 2;
+	else if (abs(dy) > 5)
+		code = 1;
+	else if (abs(dx) > 5)
+		code = 0;
+	else
+		return;
 		kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
-	}
 }
 
 static void kc_change_invert( kc_menu *menu, kc_mitem * item )
