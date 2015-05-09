@@ -211,7 +211,6 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	short   path_length;            // Length of hide path.
 #if defined(DXX_BUILD_DESCENT_I)
 	short   cur_path_index;         // Current index in path.
-	segnum_t   follow_path_start_seg;  // Start segment for robot which follows path.
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.

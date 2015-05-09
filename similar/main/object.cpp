@@ -2255,7 +2255,6 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->ctype.ai_info.cur_path_index         = SWAPSHORT(obj->ctype.ai_info.cur_path_index);
-			obj->ctype.ai_info.follow_path_start_seg  = SWAPSHORT(obj->ctype.ai_info.follow_path_start_seg);
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
 #endif
