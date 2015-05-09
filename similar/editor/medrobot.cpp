@@ -98,7 +98,6 @@ static void call_init_ai_object(const vobjptr_t objp, ai_behavior behavior)
 	if (behavior == ai_behavior::AIB_STATION) {
 #if defined(DXX_BUILD_DESCENT_I)
 		objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
-		objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
 #endif
 	}
 }

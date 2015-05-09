@@ -433,11 +433,10 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 			if (version <= 25) {
 #if defined(DXX_BUILD_DESCENT_I)
 				obj->ctype.ai_info.follow_path_start_seg = PHYSFSX_readShort(f);
-				obj->ctype.ai_info.follow_path_end_seg	 = PHYSFSX_readShort(f);
 #elif defined(DXX_BUILD_DESCENT_II)
 				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
-				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
 #endif
+				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
 			}
 
 			break;
@@ -674,7 +673,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 
 #if defined(DXX_BUILD_DESCENT_I)
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_start_seg);
-			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_end_seg);
+			PHYSFS_writeSLE16(f, segment_none);
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (version <= 25)
 			{
