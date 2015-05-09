@@ -24,7 +24,6 @@ ogl_sync::ogl_sync()
 {
 	method=SYNC_GL_NONE;
 	wait_timeout = 0;
-	fence = NULL;
 }
 
 ogl_sync::~ogl_sync()
@@ -33,19 +32,23 @@ ogl_sync::~ogl_sync()
 		con_printf(CON_URGENT, "fence sync object was never destroyed!");
 }
 
+void ogl_sync::sync_deleter::operator()(GLsync fence) const
+{
+	glDeleteSyncFunc(fence);
+}
+
 void ogl_sync::before_swap()
 {
 	if (fence) {
 		/// use a fence sync object to prevent the GPU from queuing up more than one frame
 		if (method == SYNC_GL_FENCE_SLEEP) {
-			while(glClientWaitSyncFunc(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
+			while(glClientWaitSyncFunc(fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
 				timer_delay_ms(wait_timeout);
 			}
 		} else {
-			glClientWaitSyncFunc(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
+			glClientWaitSyncFunc(fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
 		}
-		glDeleteSyncFunc(fence);
-		fence = NULL;
+		fence.reset();
 	} else if (method == SYNC_GL_FINISH_BEFORE_SWAP) {
 		glFinish();
 	}
@@ -53,7 +56,7 @@ void ogl_sync::before_swap()
 void ogl_sync::after_swap()
 {
 	if (method == SYNC_GL_FENCE || method == SYNC_GL_FENCE_SLEEP ) {
-		fence=glFenceSyncFunc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		fence.reset(glFenceSyncFunc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
 	} else if (method == SYNC_GL_FINISH_AFTER_SWAP) {
 		glFinish();
 	}
@@ -114,8 +117,5 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 
 void ogl_sync::deinit()
 {
-	if (fence) {
-		glDeleteSyncFunc(fence);
-		fence = NULL;
-	}
+	fence.reset();
 }
