@@ -22,14 +22,26 @@
 #include "dxxerror.h"
 #include "args.h"
 
-static struct mouseinfo {
-	ubyte  button_state[MOUSE_MAX_BUTTONS];
-	fix64  time_lastpressed[MOUSE_MAX_BUTTONS];
+namespace {
+
+struct flushable_mouseinfo
+{
+	array<uint8_t, MOUSE_MAX_BUTTONS> button_state;
 	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
-	int    x,y,z;
+	int z;
+};
+
+struct mouseinfo : flushable_mouseinfo
+{
+	int    x,y;
 	int    cursor_enabled;
 	fix64  cursor_time;
-} Mouse;
+	array<fix64, MOUSE_MAX_BUTTONS> time_lastpressed;
+};
+
+}
+
+static mouseinfo Mouse;
 
 struct d_event_mousebutton : d_event
 {
@@ -159,17 +171,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 void mouse_flush()	// clears all mice events...
 {
 //	event_poll();
-
-	for (int i=0; i<MOUSE_MAX_BUTTONS; i++)
-		Mouse.button_state[i]=0;
-	Mouse.delta_x = 0;
-	Mouse.delta_y = 0;
-	Mouse.delta_z = 0;
-	Mouse.old_delta_x = 0;
-	Mouse.old_delta_y = 0;
-	Mouse.x = 0;
-	Mouse.y = 0;
-	Mouse.z = 0;
+	static_cast<flushable_mouseinfo &>(Mouse) = {};
 	SDL_GetMouseState(&Mouse.x, &Mouse.y); // necessary because polling only gives us the delta.
 }
 
