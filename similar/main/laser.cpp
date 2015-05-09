@@ -71,6 +71,8 @@ array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
 
+static int Muzzle_queue_index;
+
 static objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
 static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx_t tracker);
 
@@ -961,10 +963,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 	}
 
 	return Laser_create_new( direction, hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
-
 }
-
-int		Muzzle_queue_index = 0;
 
 array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 

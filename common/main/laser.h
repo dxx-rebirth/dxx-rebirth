@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _LASER_H
-#define _LASER_H
+#pragma once
 
 #include "maths.h"
 #include "vecmat.h"
@@ -198,7 +197,6 @@ void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
 #endif
 int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
 
-extern int Muzzle_queue_index;
 extern int Missile_gun;
 extern int Proximity_dropped;
 
@@ -234,5 +232,3 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(enum weapon_typ
 }
 
 #endif
-
-#endif /* _LASER_H */
