@@ -3503,7 +3503,7 @@ int multi_delete_extra_objects()
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
 			if (objp->type == OBJ_ROBOT)
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
-					object_create_egg(objp);
+					object_create_robot_egg(objp);
 #endif
 			obj_delete(objp);
 		}

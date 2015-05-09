@@ -946,35 +946,47 @@ static bool skip_create_egg_powerup(powerup_type_t powerup)
 // ----------------------------------------------------------------------------
 // Returns created object number.
 // If object dropped by player, set flag.
-objptridx_t object_create_egg(const vobjptr_t objp)
+static objptridx_t object_create_player_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
+{
+	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum);
+#if defined(DXX_BUILD_DESCENT_II)
+	if (rval != object_none)
+		rval->flags |= OF_PLAYER_DROPPED;
+#endif
+	return rval;
+}
+
+objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (!(Game_mode & GM_MULTI) & (objp->type != OBJ_PLAYER))
+	if (!(Game_mode & GM_MULTI))
 	{
-		if (objp->contains_type == OBJ_POWERUP)
+		if (type == OBJ_POWERUP)
 		{
-			if (skip_create_egg_powerup(static_cast<powerup_type_t>(objp->contains_id)))
+			if (skip_create_egg_powerup(static_cast<powerup_type_t>(id)))
 				return object_none;
 		}
 	}
 #endif
-	const objptridx_t rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
+	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
-		if ((objp->type == OBJ_PLAYER) && (objp->id == Player_num))
-			rval->flags |= OF_PLAYER_DROPPED;
-
-		if (objp->type == OBJ_ROBOT && objp->contains_type==OBJ_POWERUP)
+		if (type == OBJ_POWERUP)
 		{
-			if (objp->contains_id==POW_VULCAN_WEAPON || objp->contains_id==POW_GAUSS_WEAPON)
+			if (id == POW_VULCAN_WEAPON || id == POW_GAUSS_WEAPON)
 				rval->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-			else if (objp->contains_id==POW_OMEGA_WEAPON)
+			else if (id == POW_OMEGA_WEAPON)
 				rval->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 		}
 	}
 #endif
 	return rval;
+}
+
+objptridx_t object_create_robot_egg(const vobjptr_t objp)
+{
+	return object_create_robot_egg(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
 }
 
 // -- extern int Items_destroyed;
@@ -985,10 +997,7 @@ objptridx_t object_create_egg(const vobjptr_t objp)
 objptridx_t call_object_create_egg(const vobjptr_t objp, int count, int type, int id)
 {
 	if (count > 0) {
-		objp->contains_count = count;
-		objp->contains_type = type;
-		objp->contains_id = id;
-		return object_create_egg(objp);
+		return object_create_player_egg(type, id, count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
 	}
 
 	return object_none;
@@ -1156,7 +1165,7 @@ void do_explosion_sequence(const vobjptr_t obj)
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 			if (del_obj->contains_type == OBJ_POWERUP)
 				maybe_replace_powerup_with_energy(del_obj);
-			object_create_egg(del_obj);
+			object_create_robot_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
 			robot_info	*robptr = &Robot_info[get_robot_id(del_obj)];
 			if (robptr->contains_count) {
@@ -1165,7 +1174,7 @@ void do_explosion_sequence(const vobjptr_t obj)
 					del_obj->contains_type = robptr->contains_type;
 					del_obj->contains_id = robptr->contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
-					object_create_egg(del_obj);
+					object_create_robot_egg(del_obj);
 				}
 			}
 #if defined(DXX_BUILD_DESCENT_II)
