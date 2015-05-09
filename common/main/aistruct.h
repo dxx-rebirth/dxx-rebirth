@@ -187,7 +187,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	ai_mode mode;                            // current mode within behavior
 #if defined(DXX_BUILD_DESCENT_I)
 	segnum_t      goal_segment;                    // goal segment for current path
-	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
+	fix        last_see_time; // For sound effects, time at which player last seen, attacked
 #elif defined(DXX_BUILD_DESCENT_II)
 	segnum_t        goal_segment;                  // goal segment for current path
 #endif
