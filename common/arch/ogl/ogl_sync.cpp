@@ -39,7 +39,7 @@ void ogl_sync::before_swap()
 		/// use a fence sync object to prevent the GPU from queuing up more than one frame
 		if (method == SYNC_GL_FENCE_SLEEP) {
 			while(glClientWaitSyncFunc(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
-				timer_delay(wait_timeout);
+				timer_delay_ms(wait_timeout);
 			}
 		} else {
 			glClientWaitSyncFunc(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 34000000ULL);
@@ -65,7 +65,7 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 	fence = NULL;
 	fix a = i2f(wait);
 	fix b = i2f(1000);
-	wait_timeout = fixdiv(a,b);
+	wait_timeout = f2i(fixdiv(a, b) * 1000);
 
 	bool need_ARB_sync;
 
