@@ -27,7 +27,7 @@ namespace {
 struct flushable_mouseinfo
 {
 	array<uint8_t, MOUSE_MAX_BUTTONS> button_state;
-	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
+	int    delta_x, delta_y, delta_z;
 	int z;
 };
 
@@ -160,9 +160,6 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	event.dy = mme->yrel;
 	event.dz = 0;		// handled in mouse_button_handler
 	
-	Mouse.old_delta_x = event.dx;
-	Mouse.old_delta_y = event.dy;
-	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
 	event_send(event);
@@ -197,9 +194,6 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	*dx = Mouse.delta_x;
 	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-
-	Mouse.old_delta_x = *dx;
-	Mouse.old_delta_y = *dy;
 
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
