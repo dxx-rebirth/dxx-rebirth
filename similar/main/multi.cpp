@@ -3629,22 +3629,13 @@ void multi_send_guided_info (const vobjptr_t miss,char done)
 static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 {
 	int count=3;
-	static int fun=200;
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
 	if (Guided_missile[(int)pnum]==NULL)
 	{
-		if (++fun>=50)
-		{
-			fun=0;
-		}
 		return;
-	}
-	else if (++fun>=50)
-	{
-		fun=0;
 	}
 
 	if (buf[2])
