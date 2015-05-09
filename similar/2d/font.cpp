@@ -189,6 +189,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 	const auto &cv_font = *grd_curcanv->cv_font;
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
+	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset1;
@@ -276,6 +277,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 					uint8_t BitMask = 0, bits;
 
+					const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
 					for (uint_fast32_t i = width; i--; ++VideoOffset, BitMask >>= 1)
 					{
 						if (BitMask==0) {
@@ -283,18 +285,13 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 							BitMask = 0x80;
 						}
 
-						if (bits & BitMask)
-							DATA[VideoOffset] = static_cast<uint8_t>(grd_curcanv->cv_font_fg_color);
-						else
+						const auto bit_enabled = (bits & BitMask);
+						if (!masked_draws_background)
 						{
-							if (masked_draws_background)
-							{
-								DATA[VideoOffset] = static_cast<uint8_t>(grd_curcanv->cv_font_bg_color);
-							}
-							else
-							{
-							}
+							if (!bit_enabled)
+								continue;
 						}
+						DATA[VideoOffset] = bit_enabled ? cv_font_fg_color : cv_font_bg_color;
 					}
 				}
 				VideoOffset += spacing-width;
