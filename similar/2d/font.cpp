@@ -1226,7 +1226,8 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
 
 				if (underline)	{
-					for (int i=0; i< width; i++ ) {
+					for (uint_fast32_t i = width; i--;)
+					{
 						gr_setcolor(grd_curcanv->cv_font_fg_color);
 						gr_pixel( x++, y );
 					}
@@ -1235,7 +1236,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 
 					BitMask = 0;
 
-					for (int i=0; i < width; ++i, ++x, BitMask >>= 1)
+					for (uint_fast32_t i = width; i--; ++x, BitMask >>= 1)
 					{
 						if (BitMask==0) {
 							bits = *fp++;
