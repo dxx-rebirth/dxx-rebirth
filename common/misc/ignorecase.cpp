@@ -55,9 +55,9 @@ static int caseInsensitiveStringCompare(const char *x, const char *y)
 
 namespace {
 
-class search_result_t : public PHYSFS_list_t
+class search_result_t : public PHYSFSX_uncounted_list
 {
-	typedef PHYSFS_list_t base_ptr;
+	typedef PHYSFSX_uncounted_list base_ptr;
 public:
 	search_result_t(char *ptr, const char *buf) :
 		base_ptr(PHYSFS_enumerateFiles(ptr ? (*ptr = 0, buf) : "/"))

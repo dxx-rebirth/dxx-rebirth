@@ -28,12 +28,12 @@ public:
 };
 
 template <typename D>
-class PHYSFS_list_template : public std::unique_ptr<char *[], D>
+class PHYSFSX_uncounted_list_template : public std::unique_ptr<char *[], D>
 {
 	typedef std::unique_ptr<char *[], D> base_ptr;
 public:
 	typedef null_sentinel_iterator<char *> const_iterator;
-	DXX_INHERIT_CONSTRUCTORS(PHYSFS_list_template, base_ptr);
+	DXX_INHERIT_CONSTRUCTORS(PHYSFSX_uncounted_list_template, base_ptr);
 	const_iterator begin() const
 	{
 		return this->get();
@@ -44,28 +44,60 @@ public:
 	}
 };
 
-typedef PHYSFS_list_template<PHYSFS_list_deleter> PHYSFS_list_t;
+template <typename D>
+class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<D>
+{
+	typedef PHYSFSX_uncounted_list_template<D> base_ptr;
+	typedef typename base_ptr::pointer pointer;
+	uint_fast32_t count;
+public:
+	PHYSFSX_counted_list_template() = default;
+	PHYSFSX_counted_list_template(char **p) :
+		base_ptr(p), count(0)
+	{
+	}
+	uint_fast32_t get_count() const
+	{
+		return count;
+	}
+	void set_count(uint_fast32_t c)
+	{
+		count = c;
+	}
+	void reset()
+	{
+		base_ptr::reset();
+	}
+	void reset(pointer p)
+	{
+		count = 0;
+		base_ptr::reset(p);
+	}
+};
+
+typedef PHYSFSX_uncounted_list_template<PHYSFS_list_deleter> PHYSFSX_uncounted_list;
+typedef PHYSFSX_counted_list_template<PHYSFS_list_deleter> PHYSFSX_counted_list;
 
 __attribute_nonnull()
 __attribute_warn_unused_result
-PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count);
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count);
 
 template <std::size_t count>
 __attribute_nonnull()
 __attribute_warn_unused_result
-static inline PHYSFS_list_t PHYSFSX_findFiles(const char *path, const array<file_extension_t, count> &exts)
+static inline PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const array<file_extension_t, count> &exts)
 {
 	return PHYSFSX_findFiles(path, exts.data(), count);
 }
 
 __attribute_nonnull()
 __attribute_warn_unused_result
-PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count);
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count);
 
 template <std::size_t count>
 __attribute_nonnull()
 __attribute_warn_unused_result
-static inline PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const array<file_extension_t, count> &exts)
+static inline PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const array<file_extension_t, count> &exts)
 {
 	return PHYSFSX_findabsoluteFiles(path, realpath, exts.data(), count);
 }

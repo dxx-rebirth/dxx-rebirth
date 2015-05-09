@@ -49,9 +49,9 @@ public:
 	}
 };
 
-class list_pointers : public PHYSFS_list_template<list_deleter>
+class list_pointers : public PHYSFSX_uncounted_list_template<list_deleter>
 {
-	typedef PHYSFS_list_template<list_deleter> base_ptr;
+	typedef PHYSFSX_uncounted_list_template<list_deleter> base_ptr;
 public:
 	using base_ptr::reset;
 	void reset(char **list, std::unique_ptr<char[]> &&buf)
@@ -63,7 +63,7 @@ public:
 		this->base_ptr::reset(list);
 		get_deleter().buf = std::move(buf);
 	}
-	void reset(PHYSFS_list_t list)
+	void reset(PHYSFSX_uncounted_list list)
 		noexcept(noexcept(std::declval<base_ptr>().reset(list.release())))
 	{
 		this->base_ptr::reset(list.release());

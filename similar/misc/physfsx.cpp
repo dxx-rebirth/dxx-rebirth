@@ -287,7 +287,7 @@ int PHYSFSX_fsize(const char *hogname)
 void PHYSFSX_listSearchPathContent()
 {
 	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
-	PHYSFS_list_t list{PHYSFS_getSearchPath()};
+	PHYSFSX_uncounted_list list{PHYSFS_getSearchPath()};
 	range_for (const auto i, list)
 		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", i);
 	list.reset();
@@ -375,7 +375,7 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 int PHYSFSX_isNewPath(const char *path)
 {
 	int is_new_path = 1;
-	PHYSFS_list_t list{PHYSFS_getSearchPath()};
+	PHYSFSX_uncounted_list list{PHYSFS_getSearchPath()};
 	range_for (const auto i, list)
 	{
 		if (!strcmp(path, i))
@@ -397,9 +397,9 @@ int PHYSFSX_rename(const char *oldpath, const char *newpath)
 }
 
 template <typename F>
-static inline PHYSFS_list_t PHYSFSX_findPredicateFiles(const char *path, F f)
+static inline PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path, F f)
 {
-	PHYSFS_list_t list{PHYSFS_enumerateFiles(path)};
+	PHYSFSX_uncounted_list list{PHYSFS_enumerateFiles(path)};
 	if (!list)
 		return nullptr;	// out of memory: not so good
 	char **j = list.get();
@@ -422,7 +422,7 @@ static inline PHYSFS_list_t PHYSFSX_findPredicateFiles(const char *path, F f)
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count)
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count)
 {
 	const auto predicate = [&](const char *i) {
 		return PHYSFSX_checkMatchingExtension(i, exts, count);
@@ -432,7 +432,7 @@ PHYSFS_list_t PHYSFSX_findFiles(const char *path, const file_extension_t *exts, 
 
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
-PHYSFS_list_t PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count)
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count)
 {
 	const auto predicate = [&](const char *i) {
 		return PHYSFSX_checkMatchingExtension(i, exts, count) && (!strcmp(PHYSFS_getRealDir(i), realpath));
