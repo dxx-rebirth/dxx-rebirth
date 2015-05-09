@@ -57,6 +57,8 @@ protected:
 	typedef P *pointer_type;
 	typedef I index_type;
 	typedef typename tt::remove_const<P>::type Prc;
+	typedef const P *cpointer_type;
+	typedef Prc *mpointer_type;
 	static constexpr decltype(get_global_array(pointer_type())) get_array()
 	{
 		return get_global_array(pointer_type());
@@ -114,6 +116,8 @@ public:
 	Prc *unchecked_mutable_pointer(Prc *) const { return p; }
 	Prc *unchecked_mutable_pointer() const { return unchecked_mutable_pointer(static_cast<P *>(nullptr)); }
 	typedef typename valutil::pointer_type pointer_type;
+	typedef typename valutil::cpointer_type cpointer_type;
+	typedef typename valutil::mpointer_type mpointer_type;
 	typedef P &reference;
 	valptr_t() = delete;
 	valptr_t(I) = delete;
@@ -160,12 +164,12 @@ public:
 	{
 	}
 	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return *this; }
-	operator const P *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_const_pointer()); }
-	operator Prc *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_mutable_pointer()); }
+	operator cpointer_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_const_pointer()); }
+	operator mpointer_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return check_null_pointer(unchecked_mutable_pointer()); }
 #ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 	pointer_type operator->() const && = delete;
-	operator const P *() const && = delete;
-	operator Prc *() const && = delete;
+	operator cpointer_type() const && = delete;
+	operator mpointer_type() const && = delete;
 #endif
 	reference operator*() const { return *check_null_pointer(p); }
 	/* Only vvalptr_t can implicitly convert to reference */
@@ -302,6 +306,8 @@ protected:
 	using vidx_type::get_array;
 public:
 	typedef typename vptr_type::pointer_type pointer_type;
+	typedef typename vptr_type::cpointer_type cpointer_type;
+	typedef typename vptr_type::mpointer_type mpointer_type;
 	typedef typename vptr_type::reference reference;
 	typedef typename vidx_type::index_type index_type;
 	typedef typename vidx_type::integral_type integral_type;
@@ -407,11 +413,13 @@ protected:
 	typedef vvalptr_t valptr_type;
 public:
 	typedef typename base_t::pointer_type pointer_type;
+	typedef typename base_t::cpointer_type cpointer_type;
+	typedef typename base_t::mpointer_type mpointer_type;
 	typedef typename base_t::reference reference;
 	using base_t::operator==;
 	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return *this; }
-	operator const P *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_const_pointer(); }
-	operator Prc *() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_mutable_pointer(); }
+	operator cpointer_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_const_pointer(); }
+	operator mpointer_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE { return base_t::unchecked_mutable_pointer(); }
 	reference operator*() const { return *this; }
 	operator reference() const { return *static_cast<pointer_type>(*this); }
 	vvalptr_t() = delete;
@@ -551,7 +559,11 @@ public:
 template <typename A, A &a, typename vptr, typename vptridx>
 struct vvalptr_functions
 {
-	vptr operator()(typename vptr::pointer_type p) const
+	vptr operator()(typename vptr::cpointer_type p) const
+	{
+		return {a, p};
+	}
+	vptr operator()(typename vptr::mpointer_type p) const
 	{
 		return {a, p};
 	}
@@ -581,7 +593,11 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 {
 	typedef valptridx_functions<A, a, vptridx> base_t;
 	using base_t::operator();
-	vptridx operator()(typename vptridx::pointer_type p) const
+	vptridx operator()(typename vptridx::cpointer_type p) const
+	{
+		return {a, p};
+	}
+	vptridx operator()(typename vptridx::mpointer_type p) const
 	{
 		return {a, p};
 	}
