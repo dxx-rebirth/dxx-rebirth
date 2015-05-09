@@ -77,7 +77,7 @@ array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
 unsigned Num_fuelcenters;
 
-segment * PlayerSegment= NULL;
+const segment *PlayerSegment;
 
 #ifdef EDITOR
 const char	Special_names[MAX_CENTER_TYPES][11] = {
@@ -553,7 +553,7 @@ void fuelcen_update_all()
 #endif
 
 //-------------------------------------------------------------
-fix fuelcen_give_fuel(const vsegptr_t segp, fix MaxAmountCanTake )
+fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
 {
 	static fix64 last_play_time = 0;
 	PlayerSegment = segp;
@@ -614,7 +614,7 @@ fix fuelcen_give_fuel(const vsegptr_t segp, fix MaxAmountCanTake )
 // DM/050904
 // Repair centers
 // use same values as fuel centers
-fix repaircen_give_shields(const vsegptr_t segp, fix MaxAmountCanTake )
+fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
 {
 	static fix last_play_time=0;
 
