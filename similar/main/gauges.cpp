@@ -2168,8 +2168,7 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 	}
 }
 
-
-static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_primary_weapon_info(int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)laser_level;
@@ -2177,7 +2176,7 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 	int x,y;
 	int info_index;
 
-	if (weapon_type == 0) {
+	{
 		info_index = Primary_weapon_to_weapon_info[weapon_num];
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2208,15 +2207,20 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 		if (PlayerCfg.HudMode!=0)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[weapon_type] == WBU_WEAPON)
+			if (weapon_box_user[0] == WBU_WEAPON)
 #endif
 				hud_show_primary_weapons_mode(1,x,y);
 		}
 	}
-	else
+}
+
+static void draw_secondary_weapon_info(int weapon_num, const local_multires_gauge_graphic multires_gauge_graphic)
+{
+	int x,y;
+	int info_index;
+
 	{
 		info_index = Secondary_weapon_to_weapon_info[weapon_num];
-
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
 			draw_weapon_info_sub(info_index,
@@ -2240,11 +2244,19 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 		if (PlayerCfg.HudMode!=0)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (weapon_box_user[weapon_type] == WBU_WEAPON)
+			if (weapon_box_user[1] == WBU_WEAPON)
 #endif
 				hud_show_secondary_weapons_mode(1,x,y);
 		}
 	}
+}
+
+static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+{
+	if (weapon_type == 0)
+		draw_primary_weapon_info(weapon_num, laser_level, multires_gauge_graphic);
+	else
+		draw_secondary_weapon_info(weapon_num, multires_gauge_graphic);
 }
 
 static void draw_ammo_info(int x,int y,int ammo_count)
