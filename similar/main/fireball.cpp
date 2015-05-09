@@ -214,7 +214,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								break;
 								}
 							case OBJ_CNTRLCEN:
-								if ( obj0p->shields >= 0 ) {
+								if (parent != object_none && obj0p->shields >= 0)
+								{
 									apply_damage_to_controlcen(obj0p, damage, parent );
 								}
 								break;
