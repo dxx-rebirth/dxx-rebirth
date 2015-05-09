@@ -153,7 +153,7 @@ void Laser_render(vobjptr_t obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(vobjptridx_t obj);
-int laser_are_related(int o1, int o2);
+bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
 extern int do_laser_firing_player(void);
 extern void do_missile_firing(int drop_bomb);

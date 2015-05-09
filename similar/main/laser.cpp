@@ -188,17 +188,14 @@ static bool ignore_guided_missile_weapon(const vcobjptr_t o)
 //	I want you to be able to blow up your own bombs.
 //	AND...Your proximity bombs can blow you up if they're 2.0 seconds or more old.
 //	Changed by MK on 06/06/95: Now must be 4.0 seconds old.  Much valid Net-complaining.
-int laser_are_related( int o1, int o2 )
+bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 {
-	if ( (o1<0) || (o2<0) )
-		return 0;
-
 	// See if o2 is the parent of o1
-	if ( Objects[o1].type == OBJ_WEAPON  )
-		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
+	if (o1->type == OBJ_WEAPON)
+		if (o1->ctype.laser_info.parent_num == o2 && o1->ctype.laser_info.parent_signature == o2->signature)
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-			if (ignore_proximity_weapon(&Objects[o1]) || ignore_guided_missile_weapon(&Objects[o1]) || ignore_phoenix_weapon(&Objects[o1]))
+			if (ignore_proximity_weapon(o1) || ignore_guided_missile_weapon(o1) || ignore_phoenix_weapon(o1))
 			{
 				return 0;
 			} else
@@ -206,13 +203,13 @@ int laser_are_related( int o1, int o2 )
 		}
 
 	// See if o1 is the parent of o2
-	if ( Objects[o2].type == OBJ_WEAPON  )
+	if (o2->type == OBJ_WEAPON)
 	{
-		if ( (Objects[o2].ctype.laser_info.parent_num==o1) && (Objects[o2].ctype.laser_info.parent_signature==Objects[o1].signature) )
+		if (o2->ctype.laser_info.parent_num == o1 && o2->ctype.laser_info.parent_signature == o1->signature)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
-			if (ignore_proximity_weapon(&Objects[o2]) || ignore_guided_missile_weapon(&Objects[o2]) || ignore_phoenix_weapon(&Objects[o2]))
+			if (ignore_proximity_weapon(o2) || ignore_guided_missile_weapon(o2) || ignore_phoenix_weapon(o2))
 			{
 				return 0;
 			} else
@@ -222,18 +219,18 @@ int laser_are_related( int o1, int o2 )
 	}
 
 	// They must both be weapons
-	if ( Objects[o1].type != OBJ_WEAPON || Objects[o2].type != OBJ_WEAPON )
+	if (o1->type != OBJ_WEAPON || o2->type != OBJ_WEAPON)
 		return 0;
 
 	//	Here is the 09/07/94 change -- Siblings must be identical, others can hurt each other
 	// See if they're siblings...
 	//	MK: 06/08/95, Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
-	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
+	if (o1->ctype.laser_info.parent_signature == o2->ctype.laser_info.parent_signature)
 	{
-		if (is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[o1])) || is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[o2]))) {
+		if (is_proximity_bomb_or_smart_mine(get_weapon_id(o1)) || is_proximity_bomb_or_smart_mine(get_weapon_id(o2))) {
 			//	If neither is older than 1/2 second, then can't blow up!
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!((GameTime64 > (Objects[o1].ctype.laser_info.creation_time + F1_0/2)) || (GameTime64 > (Objects[o2].ctype.laser_info.creation_time + F1_0/2))))
+			if (!(GameTime64 > o1->ctype.laser_info.creation_time + F1_0/2 || GameTime64 > o2->ctype.laser_info.creation_time + F1_0/2))
 				return 1;
 			else
 #endif
@@ -244,10 +241,10 @@ int laser_are_related( int o1, int o2 )
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Anything can cause a collision with a robot super prox mine.
-	if (!(Objects[o1].id == ROBOT_SUPERPROX_ID || Objects[o2].id == ROBOT_SUPERPROX_ID ||
-		 Objects[o1].id == PROXIMITY_ID || Objects[o2].id == PROXIMITY_ID ||
-		 Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID ||
-		 Objects[o1].id == PMINE_ID || Objects[o2].id == PMINE_ID))
+	if (!(o1->id == ROBOT_SUPERPROX_ID || o2->id == ROBOT_SUPERPROX_ID ||
+		 o1->id == PROXIMITY_ID || o2->id == PROXIMITY_ID ||
+		 o1->id == SUPERPROX_ID || o2->id == SUPERPROX_ID ||
+		 o1->id == PMINE_ID || o2->id == PMINE_ID))
 		return 1;
 #endif
 	return 0;
