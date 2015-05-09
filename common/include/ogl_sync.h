@@ -12,14 +12,21 @@
 
 #pragma once
 
+#include <memory>
 #include "args.h"
 #include "ogl_extensions.h"
 
 class ogl_sync {
+	class sync_deleter
+	{
+	public:
+		typedef GLsync pointer;
+		void operator()(pointer p) const;
+	};
 	private:
 		SyncGLMethod method;
 		fix wait_timeout;
-		GLsync fence;
+		std::unique_ptr<GLsync, sync_deleter> fence;
 	public:
 		ogl_sync();
 		~ogl_sync();

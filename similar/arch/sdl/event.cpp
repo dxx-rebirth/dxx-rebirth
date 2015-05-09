@@ -174,13 +174,24 @@ void event_process(void)
 	gr_flip();
 }
 
-void event_toggle_focus(int activate_focus)
+template <bool activate_focus>
+static void event_change_focus()
 {
 	if (activate_focus && GameCfg.Grabinput && !GameArg.DbgForbidConsoleGrab)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	else
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	mouse_toggle_cursor(!activate_focus);
+}
+
+void event_enable_focus()
+{
+	event_change_focus<true>();
+}
+
+void event_disable_focus()
+{
+	event_change_focus<false>();
 }
 
 static fix64 last_event = 0;

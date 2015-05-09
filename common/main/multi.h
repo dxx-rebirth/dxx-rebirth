@@ -462,7 +462,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_deres(deres_type_t type);
 void multi_send_message(void);
-void multi_send_position(int objnum);
+void multi_send_position(vobjptridx_t objnum);
 void multi_send_reappear();
 void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);

@@ -592,6 +592,14 @@ int a(int*)__attribute_nonnull();
 int b(int*)__attribute_nonnull((1));
 """, msg='for function __attribute__((nonnull))')
 	@_custom_test
+	def check_attribute_noreturn(self,context):
+		"""
+help:assume compiler supports __attribute__((noreturn))
+"""
+		macro_name = '__attribute_noreturn'
+		macro_value = '__attribute__((noreturn))'
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + ' void a();', main='a();', msg='for function __attribute__((noreturn))')
+	@_custom_test
 	def check_attribute_used(self,context):
 		"""
 help:assume compiler supports __attribute__((used))
@@ -923,10 +931,43 @@ using std::index_sequence;
 		"""
 help:assume compiler supports inheriting constructors
 """
+		blacklist_clang_libcxx = '''
+/* Test for bug where clang + libc++ + constructor inheritance causes a
+ * compilation failure when returning nullptr.
+ *
+ * Works: gcc
+ * Works: clang + gcc libstdc++
+ * Works: old clang + old libc++ (cutoff date unknown).
+ * Works: new clang + new libc++ + unique_ptr<T>
+ * Fails: new clang + new libc++ + unique_ptr<T[]> (v3.6.0 confirmed broken).
+
+memory:2676:32: error: no type named 'type' in 'std::__1::enable_if<false, std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::__nat>'; 'enable_if' cannot be used to disable this declaration
+            typename enable_if<__same_or_less_cv_qualified<_Pp, pointer>::value, __nat>::type = __nat()) _NOEXCEPT
+                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.sconf_temp/conftest_43.cpp:26:11: note: in instantiation of member function 'std::__1::unique_ptr<int [], std::__1::default_delete<int []> >::unique_ptr' requested here
+        using B::B;
+                 ^
+.sconf_temp/conftest_43.cpp:30:2: note: while substituting deduced template arguments into function template 'I' [with _Pp = I]
+        return nullptr;
+        ^
+ */
+#include <memory>
+class I : std::unique_ptr<int[]>
+{
+public:
+	typedef std::unique_ptr<int[]> B;
+	using B::B;
+};
+I a();
+I a()
+{
+	return nullptr;
+}
+'''
 		macro_value = self._quote_macro_value('''
 	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
 	using _dxx_constructor_base_type::_dxx_constructor_base_type;''')
-		if self.Cxx11Compile(context, text=text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors', **kwargs):
+		if self.Cxx11Compile(context, text=blacklist_clang_libcxx + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs):
 			return macro_value
 		return None
 	@_implicit_test
@@ -1207,6 +1248,7 @@ class DXXCommon(LazyObjectConstructor):
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
 					('pch', None, 'pre-compile headers used this many times'),
+					('lto', 0, 'enable gcc link time optimization'),
 				),
 			},
 			{
@@ -1215,7 +1257,6 @@ class DXXCommon(LazyObjectConstructor):
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
-					('lto', False, 'enable gcc link time optimization'),
 					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
@@ -1551,7 +1592,7 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
-			f = ['-flto', '-fno-fat-lto-objects']
+			f = ['-flto=%s' % self.user_settings.lto, '-fno-fat-lto-objects']
 			self.env.Append(CXXFLAGS = f)
 
 	def check_endian(self):

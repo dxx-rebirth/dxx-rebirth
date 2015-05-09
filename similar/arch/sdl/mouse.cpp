@@ -22,14 +22,26 @@
 #include "dxxerror.h"
 #include "args.h"
 
-static struct mouseinfo {
-	ubyte  button_state[MOUSE_MAX_BUTTONS];
-	fix64  time_lastpressed[MOUSE_MAX_BUTTONS];
-	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
-	int    x,y,z;
+namespace {
+
+struct flushable_mouseinfo
+{
+	array<uint8_t, MOUSE_MAX_BUTTONS> button_state;
+	int    delta_x, delta_y, delta_z;
+	int z;
+};
+
+struct mouseinfo : flushable_mouseinfo
+{
+	int    x,y;
 	int    cursor_enabled;
 	fix64  cursor_time;
-} Mouse;
+	array<fix64, MOUSE_MAX_BUTTONS> time_lastpressed;
+};
+
+}
+
+static mouseinfo Mouse;
 
 struct d_event_mousebutton : d_event
 {
@@ -148,9 +160,6 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	event.dy = mme->yrel;
 	event.dz = 0;		// handled in mouse_button_handler
 	
-	Mouse.old_delta_x = event.dx;
-	Mouse.old_delta_y = event.dy;
-	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
 	event_send(event);
@@ -159,17 +168,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 void mouse_flush()	// clears all mice events...
 {
 //	event_poll();
-
-	for (int i=0; i<MOUSE_MAX_BUTTONS; i++)
-		Mouse.button_state[i]=0;
-	Mouse.delta_x = 0;
-	Mouse.delta_y = 0;
-	Mouse.delta_z = 0;
-	Mouse.old_delta_x = 0;
-	Mouse.old_delta_y = 0;
-	Mouse.x = 0;
-	Mouse.y = 0;
-	Mouse.z = 0;
+	static_cast<flushable_mouseinfo &>(Mouse) = {};
 	SDL_GetMouseState(&Mouse.x, &Mouse.y); // necessary because polling only gives us the delta.
 }
 
@@ -185,25 +184,17 @@ void mouse_get_pos( int *x, int *y, int *z )
 window_event_result mouse_in_window(window *wind)
 {
 	auto &canv = window_get_canvas(*wind);
-	return	(Mouse.x >= canv.cv_bitmap.bm_x) &&
-			(Mouse.x <= canv.cv_bitmap.bm_x + canv.cv_bitmap.bm_w) && 
-			(Mouse.y >= canv.cv_bitmap.bm_y) && 
-			(Mouse.y <= canv.cv_bitmap.bm_y + canv.cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
+	return	(static_cast<unsigned>(Mouse.x) - canv.cv_bitmap.bm_x <= canv.cv_bitmap.bm_w) &&
+			(static_cast<unsigned>(Mouse.y) - canv.cv_bitmap.bm_y <= canv.cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
 }
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
-	SDL_GetRelativeMouseState( &Mouse.delta_x, &Mouse.delta_y );
-	*dx = Mouse.delta_x;
-	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-
-	Mouse.old_delta_x = *dx;
-	Mouse.old_delta_y = *dy;
-
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
+	SDL_GetRelativeMouseState(dx, dy);
 }
 
 void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
@@ -222,22 +213,6 @@ int event_mouse_get_button(const d_event &event)
 	return e.button;
 }
 
-int mouse_get_btns()
-{
-	uint flag=1;
-	int status = 0;
-
-//	event_poll();
-
-	for (int i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
-		if (Mouse.button_state[i])
-			status |= flag;
-		flag <<= 1;
-	}
-
-	return status;
-}
-
 void mouse_toggle_cursor(int activate)
 {
 	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
@@ -248,22 +223,34 @@ void mouse_toggle_cursor(int activate)
 // If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
 void mouse_cursor_autohide()
 {
-	int show = SDL_ShowCursor(SDL_QUERY);
 	static fix64 hidden_time = 0;
 
+	const auto is_showing = SDL_ShowCursor(SDL_QUERY);
+	int result;
 	if (Mouse.cursor_enabled)
 	{
-		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && hidden_time + (F1_0/2) < timer_query() && !show)
-			SDL_ShowCursor(SDL_ENABLE);
-		else if ( (Mouse.cursor_time + (F1_0*2)) < timer_query() && show)
+		const auto now = timer_query();
+		const auto cursor_time = Mouse.cursor_time;
+		const auto recent_cursor_time = cursor_time + (F1_0*2) >= now;
+		if (is_showing)
 		{
-			SDL_ShowCursor(SDL_DISABLE);
-			hidden_time = timer_query();
+			if (recent_cursor_time)
+				return;
+			hidden_time = now;
+			result = SDL_DISABLE;
+		}
+		else
+		{
+			if (!(recent_cursor_time && hidden_time + (F1_0/2) < now))
+				return;
+			result = SDL_ENABLE;
 		}
 	}
 	else
 	{
-		if (show)
-			SDL_ShowCursor(SDL_DISABLE);
+		if (!is_showing)
+			return;
+		result = SDL_DISABLE;
 	}
+	SDL_ShowCursor(result);
 }

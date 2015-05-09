@@ -10,8 +10,7 @@
  *
  */
 
-#ifndef MOUSE_H
-#define MOUSE_H
+#pragma once
 
 #include "pstypes.h"
 #include "maths.h"
@@ -54,12 +53,9 @@ extern void mouse_get_pos( int *x, int *y, int *z );
 window_event_result mouse_in_window(struct window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz);
-extern int mouse_get_btns();
 extern void mouse_toggle_cursor(int activate);
 void mouse_button_handler(struct SDL_MouseButtonEvent *mbe);
 void mouse_motion_handler(struct SDL_MouseMotionEvent *mme);
 void mouse_cursor_autohide();
-
-#endif
 
 #endif

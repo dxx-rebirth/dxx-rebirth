@@ -616,37 +616,24 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 		return static_cast<const char *>(Players[pnum].callsign);
 }
 
-static void multi_compute_kill(objnum_t killer, objnum_t killed)
+static void multi_compute_kill(const vobjptridx_t killer, const vobjptridx_t killed)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
 	playernum_t killed_pnum, killer_pnum;
-	int killed_type;
-	int killer_type;
 	int TheGoal;
 
 	// Both object numbers are localized already!
 
-	if ((killed < 0) || (killed > Highest_object_index) || (killer < 0) || (killer > Highest_object_index))
-	{
-		Int3(); // See Rob, illegal value passed to compute_kill;
-		return;
-	}
-
-	killed_type = Objects[killed].type;
-	killer_type = Objects[killer].type;
-#if defined(DXX_BUILD_DESCENT_II)
-	int killer_id = Objects[killer].id;
-#endif
-
+	const auto killed_type = killed->type;
 	if ((killed_type != OBJ_PLAYER) && (killed_type != OBJ_GHOST))
 	{
 		Int3(); // compute_kill passed non-player object!
 		return;
 	}
 
-	killed_pnum = get_player_id(&Objects[killed]);
+	killed_pnum = get_player_id(killed);
 
 	Assert (killed_pnum < N_players);
 
@@ -663,6 +650,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 		Players[killed_pnum].connected=CONNECT_DIED_IN_MINE;
 #endif
 
+	const auto killer_type = killer->type;
 	if (killer_type == OBJ_CNTRLCEN)
 	{
 		Players[killed_pnum].net_killed_total++;
@@ -684,6 +672,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
+		const auto killer_id = killer->id;
 		if (killer_id==PMINE_ID && killer_type!=OBJ_ROBOT)
 		{
 			if (killed_pnum == Player_num)
@@ -706,7 +695,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 		return;
 	}
 
-	killer_pnum = get_player_id(&Objects[killer]);
+	killer_pnum = get_player_id(killer);
 
 	char killer_buf[(CALLSIGN_LEN*2)+4];
 	const char *killer_name = prepare_kill_name(killer_pnum, killer_buf);
@@ -2780,8 +2769,7 @@ multi_send_reappear()
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
 }
 
-void
-multi_send_position(int objnum)
+void multi_send_position(const vobjptridx_t obj)
 {
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
@@ -2791,10 +2779,10 @@ multi_send_position(int objnum)
 	count++;
 	multibuf[count++] = (char)Player_num;
 #ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+count), &Objects[objnum],0);
+	create_shortpos((shortpos *)(multibuf+count), obj, 0);
 	count += sizeof(shortpos);
 #else
-	create_shortpos(&sp, Objects+objnum, 1);
+	create_shortpos(&sp, obj, 1);
 	memcpy(&(multibuf[count]), (ubyte *)(sp.bytemat), 9);
 	count += 9;
 	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
@@ -3515,7 +3503,7 @@ int multi_delete_extra_objects()
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
 			if (objp->type == OBJ_ROBOT)
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
-					object_create_egg(objp);
+					object_create_robot_egg(objp);
 #endif
 			obj_delete(objp);
 		}
@@ -3641,22 +3629,13 @@ void multi_send_guided_info (const vobjptr_t miss,char done)
 static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 {
 	int count=3;
-	static int fun=200;
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
 	if (Guided_missile[(int)pnum]==NULL)
 	{
-		if (++fun>=50)
-		{
-			fun=0;
-		}
 		return;
-	}
-	else if (++fun>=50)
-	{
-		fun=0;
 	}
 
 	if (buf[2])
@@ -5388,8 +5367,8 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
 			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature.get();
 #if defined(DXX_BUILD_DESCENT_I)
-			obj_rw->ctype.ai_info.follow_path_start_seg  = obj->ctype.ai_info.follow_path_start_seg;
-			obj_rw->ctype.ai_info.follow_path_end_seg    = obj->ctype.ai_info.follow_path_end_seg;
+			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
+			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			if (obj->ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
@@ -5556,8 +5535,6 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
 			obj->ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->ctype.ai_info.follow_path_start_seg  = obj_rw->ctype.ai_info.follow_path_start_seg;
-			obj->ctype.ai_info.follow_path_end_seg    = obj_rw->ctype.ai_info.follow_path_end_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj->ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;

@@ -88,38 +88,49 @@ namespace boost
 struct base_partial_range_error_t : std::out_of_range
 {
 	DXX_INHERIT_CONSTRUCTORS(base_partial_range_error_t, std::out_of_range);
+#define REPORT_FORMAT_STRING	 "%s:%u: %s %lu past %p end %lu \"%s\""
 	template <std::size_t N>
 		__attribute_cold
-		__attribute_warn_unused_result
-	static std::string prepare(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
+	static void prepare(char (&buf)[N], const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
 	{
-		char buf[(33 + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + N)];
-		snprintf(buf, sizeof(buf), "%s:%u: %s %lu past %p end %lu \"%s\"", file, line, desc, expr, t, d, estr);
-		return buf;
+		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, file, line, desc, expr, t, d, estr);
 	}
-	template <std::size_t NF, std::size_t NE, std::size_t ND>
-		__attribute_cold
-		__attribute_warn_unused_result
-	static inline std::string prepare(const char (&file)[NF], unsigned line, const char (&estr)[NE], const char (&desc)[ND], unsigned long expr, const void *t, unsigned long d)
+	static constexpr std::size_t required_buffer_size(std::size_t N)
 	{
-		/* Round reporting into large buckets.  Code size is more
-		 * important than stack space.
-		 */
-		return prepare<((NF + NE + ND) | 0xff) + 1>(file + 0, line, estr, desc, expr, t, d);
+		return sizeof(REPORT_FORMAT_STRING) + sizeof("65535") + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + N;
 	}
+#undef REPORT_FORMAT_STRING
 };
 
 template <typename T>
 struct partial_range_error_t : base_partial_range_error_t
 {
+	using base_partial_range_error_t::required_buffer_size;
 	DXX_INHERIT_CONSTRUCTORS(partial_range_error_t, base_partial_range_error_t);
+	template <std::size_t N>
+		__attribute_cold
+		__attribute_noreturn
+	static void report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const T &t, unsigned long d);
 	template <std::size_t NF, std::size_t NE, std::size_t ND>
 		__attribute_cold
+		__attribute_noreturn
 	static void report(const char (&file)[NF], unsigned line, const char (&estr)[NE], const char (&desc)[ND], unsigned long expr, const T &t, unsigned long d)
 	{
-		throw partial_range_error_t<T>(base_partial_range_error_t::prepare(file, line, estr, desc, expr, addressof(t), d));
+		/* Round reporting into large buckets.  Code size is more
+		 * important than stack space.
+		 */
+		report2<(required_buffer_size(NF + NE + ND) | 0xff) + 1>(file, line, estr, desc, expr, t, d);
 	}
 };
+
+template <typename T>
+template <std::size_t N>
+void partial_range_error_t<T>::report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const T &t, unsigned long d)
+{
+	char buf[N];
+	base_partial_range_error_t::prepare(buf, file, line, estr, desc, expr, addressof(t), d);
+	throw partial_range_error_t<T>(buf);
+}
 
 namespace partial_range_detail
 {

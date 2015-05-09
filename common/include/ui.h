@@ -230,6 +230,8 @@ extern grs_font_ptr ui_small_font;
 extern unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 extern UI_GADGET * selected_gadget;
 
+#define Hline(x1,x2,y)	Hline(x1,y,x2)
+#define Vline(y1,y2,x)	Vline(x,y1,y2)
 extern void Hline(short x1, short x2, short y );
 extern void Vline(short y1, short y2, short x );
 extern void ui_string_centered( short x, short y, const char * s );
@@ -352,7 +354,7 @@ extern void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox );
 
 int MenuX( int x, int y, int NumButtons, const char *const text[] );
 
-int ui_get_filename( char * filename, const char * Filespec, const char * message  );
+int ui_get_filename(char (&filename)[PATH_MAX], const char *filespec, const char *message);
 
 
 void * ui_malloc( int size );

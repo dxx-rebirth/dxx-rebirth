@@ -201,9 +201,6 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 	PIGGY_PAGE_IN(bitmapi);
 
 	auto &bitmap = GameBitmaps[bitmapi.index];
-#if defined(DXX_BUILD_DESCENT_II)
-	bitmap.bm_handle = bitmapi.index;
-#endif
 
 	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
 
@@ -2258,8 +2255,6 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->ctype.ai_info.cur_path_index         = SWAPSHORT(obj->ctype.ai_info.cur_path_index);
-			obj->ctype.ai_info.follow_path_start_seg  = SWAPSHORT(obj->ctype.ai_info.follow_path_start_seg);
-			obj->ctype.ai_info.follow_path_end_seg    = SWAPSHORT(obj->ctype.ai_info.follow_path_end_seg);
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
 #endif

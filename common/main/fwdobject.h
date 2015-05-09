@@ -242,7 +242,8 @@ segnum_t find_object_seg(vobjptr_t obj);
 void fix_object_segs();
 
 // Drops objects contained in objp.
-objptridx_t object_create_egg(vobjptr_t objp);
+objptridx_t object_create_robot_egg(vobjptr_t objp);
+objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum);
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.

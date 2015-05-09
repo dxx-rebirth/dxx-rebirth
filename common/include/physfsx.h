@@ -488,7 +488,8 @@ extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
-extern int PHYSFSX_exists(const char *filename, int ignorecase);
+#define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
+int PHYSFSX_exists_ignorecase(const char *filename);
 RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);
 RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();

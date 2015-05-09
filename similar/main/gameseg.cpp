@@ -1109,18 +1109,17 @@ void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, int start, int end)
+static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, const uint_fast32_t istart, const uint_fast32_t iend)
 {
-	vms_vector	vs,ve;
-
-	vm_vec_zero(vs);
-	vm_vec_zero(ve);
-
-	for (int i=0; i<4; i++) {
-		vm_vec_add2(vs,Vertices[sp->verts[Side_to_verts[start][i]]]);
-		vm_vec_add2(ve,Vertices[sp->verts[Side_to_verts[end][i]]]);
+	vp = {};
+	auto &start = Side_to_verts[istart];
+	auto &end = Side_to_verts[iend];
+	auto &verts = sp->verts;
+	for (uint_fast32_t i = 0; i != 4; ++i)
+	{
+		vm_vec_add2(vp, Vertices[verts[start[i]]]);
+		vm_vec_sub2(vp, Vertices[verts[end[i]]]);
 	}
-	vm_vec_sub(vp,ve,vs);
 	vm_vec_scale(vp,F1_0/4);
 }
 

@@ -185,12 +185,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	uint8_t previous_visibility;             // Visibility of player last time we checked.
 	uint8_t rapidfire_count;                 // number of shots fired rapidly
 	ai_mode mode;                            // current mode within behavior
-#if defined(DXX_BUILD_DESCENT_I)
 	segnum_t      goal_segment;                    // goal segment for current path
-	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-#elif defined(DXX_BUILD_DESCENT_II)
-	segnum_t        goal_segment;                  // goal segment for current path
-#endif
 	fix        next_action_time;              // time in seconds until something happens, mode dependent
 	fix        next_fire;                     // time in seconds until can fire again
 #if defined(DXX_BUILD_DESCENT_II)
@@ -216,8 +211,6 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	short   path_length;            // Length of hide path.
 #if defined(DXX_BUILD_DESCENT_I)
 	short   cur_path_index;         // Current index in path.
-	segnum_t   follow_path_start_seg;  // Start segment for robot which follows path.
-	segnum_t   follow_path_end_seg;    // End segment for robot which follows path.
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.

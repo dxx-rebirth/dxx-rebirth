@@ -73,23 +73,28 @@ static std::pair<vsegptridx_t, uint_fast32_t> get_previous_segment_side(const vs
 // Select next segment.
 //	If there is a connection on the current side, then choose that segment.
 // If there is no connecting segment on the current side, try any segment.
-void get_next_segment(int curseg_num, int curside, int *newseg_num, int *newside)
+__attribute_warn_unused_result
+static std::pair<vsegptridx_t, uint_fast32_t> get_next_segment_side(const vsegptridx_t curseg_num, uint_fast32_t curside)
 {
-	if (IS_CHILD(Segments[curseg_num].children[curside])) {
-
-		*newseg_num = Segments[curseg_num].children[Curside];
-
+	const auto side_child = curseg_num->children[curside];
+	if (IS_CHILD(side_child))
+	{
+		const auto newseg_num = vsegptridx(side_child);
 		// Find out what side we came in through and favor side opposite that
-		*newside = Side_opposite[find_connect_side(&Segments[curseg_num],&Segments[*newseg_num])];
-
+		const auto newside = Side_opposite[find_connect_side(curseg_num, newseg_num)];
 		// If there is nothing attached on the side opposite to what we came in (*newside), pick any other side
-		if (!IS_CHILD(Segments[*newseg_num].children[*newside]))
-			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-				if ((Segments[*newseg_num].children[s] != curseg_num) && IS_CHILD(Segments[*newseg_num].children[s]))
-					*newside = s;
-	} else {
-		*newseg_num = curseg_num;
-		*newside = curside;
+		if (!IS_CHILD(newseg_num->children[newside]))
+			for (uint_fast32_t s = 0; s != MAX_SIDES_PER_SEGMENT; ++s)
+			{
+				const auto cseg = newseg_num->children[s];
+				if (cseg != curseg_num && IS_CHILD(cseg))
+					return {newseg_num, s};
+			}
+		return {newseg_num, newside};
+	}
+	else
+	{
+		return {curseg_num, curside};
 	}
 
 }
@@ -97,12 +102,13 @@ void get_next_segment(int curseg_num, int curside, int *newseg_num, int *newside
 // ---------- select current segment ----------
 int SelectCurrentSegForward()
 {
-	int	newseg_num,newside;
+	const auto p = get_next_segment_side(Cursegp,Curside);
+	const auto &newseg_num = p.first;
 
-	get_next_segment(Cursegp-Segments,Curside,&newseg_num,&newside);
-
-	if (newseg_num != Cursegp-Segments) {
-		Cursegp = &Segments[newseg_num];
+	if (newseg_num != Cursegp)
+	{
+		Cursegp = newseg_num;
+		const auto &newside = p.second;
 		Curside = newside;
 		Update_flags |= UF_ED_STATE_CHANGED;
 		if (Lock_view_to_cursegp)

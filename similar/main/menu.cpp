@@ -1124,9 +1124,21 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_ic_usejoy)
-				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
+			{
+				constexpr auto flag = CONTROL_USING_JOYSTICK;
+				if (items[citem].value)
+					PlayerCfg.ControlType |= flag;
+				else
+					PlayerCfg.ControlType &= ~flag;
+			}
 			if (citem == opt_ic_usemouse)
-				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE);
+			{
+				constexpr auto flag = CONTROL_USING_MOUSE;
+				if (items[citem].value)
+					PlayerCfg.ControlType |= flag;
+				else
+					PlayerCfg.ControlType &= ~flag;
+			}
 			if (citem == opt_ic_mouseflightsim)
 				PlayerCfg.MouseFlightSim = 0;
 			if (citem == opt_ic_mouseflightsim+1)
@@ -1309,15 +1321,17 @@ enum {
 	DXX_GRAPHICS_MENU(ENUM)
 };
 
-static int graphics_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item *const items)
 {
-	newmenu_item *items = newmenu_get_items(menu);
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
+			if (citem == opt_gr_brightness)
+				gr_palette_set_gamma(items[citem].value);
 #ifdef OGL
+			else
 			if (citem == opt_filter_anisotropic && ogl_maxanisotropy <= 1.0)
 			{
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
@@ -1325,8 +1339,6 @@ static int graphics_config_menuset(newmenu *menu,const d_event &event, const unu
 				items[opt_filter_anisotropic].value = 0;
 			}
 #endif
-			if ( citem == opt_gr_brightness)
-				gr_palette_set_gamma(items[citem].value);
 			break;
 		}
 		case EVENT_NEWMENU_SELECTED:
@@ -1353,7 +1365,7 @@ void graphics_config()
 	m[opt_filter_none+GameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 1);
 
 #ifdef OGL
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)

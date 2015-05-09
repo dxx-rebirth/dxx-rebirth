@@ -73,7 +73,7 @@ objptridx_t create_morph_robot(vsegptridx_t segp, const vms_vector &object_pos, 
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
-fix fuelcen_give_fuel(vsegptr_t segp, fix MaxAmountCanTake );
+fix fuelcen_give_fuel(vcsegptr_t segp, fix MaxAmountCanTake);
 
 // Call once per frame.
 void fuelcen_update_all();
@@ -84,7 +84,7 @@ void fuelcen_update_all();
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NUM_FUELCENS	50
 #elif defined(DXX_BUILD_DESCENT_II)
-fix repaircen_give_shields(vsegptr_t segp, fix MaxAmountCanTake );
+fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
 #define MAX_NUM_FUELCENS    70
 #endif
 

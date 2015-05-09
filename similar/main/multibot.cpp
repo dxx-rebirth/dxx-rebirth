@@ -822,7 +822,7 @@ int multi_explode_robot_sub(const vobjptridx_t robot)
 	// Drop non-random KEY powerups locally only!
 	if ((robot->contains_count > 0) && (robot->contains_type == OBJ_POWERUP) && (Game_mode & GM_MULTI_COOP) && (robot->contains_id >= POW_KEY_BLUE) && (robot->contains_id <= POW_KEY_GOLD))
 	{
-		object_create_egg(robot);
+		object_create_robot_egg(robot);
 	}
 	else if (robot->ctype.ai_info.REMOTE_OWNER == Player_num) 
 	{
@@ -1064,21 +1064,18 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	// Code to drop remote-controlled robot powerups
 
 	int loc = 1;
-	object del_obj{};
-	del_obj.type = OBJ_ROBOT;
-
 	;					loc += 1;
-	del_obj.contains_count = buf[loc];			loc += 1;
-	del_obj.contains_type = buf[loc];			loc += 1;
-	del_obj.contains_id = buf[loc]; 			loc += 1;
-	del_obj.segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
-	memcpy(&del_obj.pos, buf+loc, sizeof(vms_vector));      loc += 12;
+	uint8_t contains_count = buf[loc];			loc += 1;
+	uint8_t contains_type = buf[loc];			loc += 1;
+	uint8_t contains_id = buf[loc]; 			loc += 1;
+	segnum_t segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
+	vms_vector pos;
+	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
 	
-	vm_vec_zero(del_obj.mtype.phys_info.velocity);
-
-	del_obj.pos.x = (fix)INTEL_INT((int)del_obj.pos.x);
-	del_obj.pos.y = (fix)INTEL_INT((int)del_obj.pos.y);
-	del_obj.pos.z = (fix)INTEL_INT((int)del_obj.pos.z);
+	vms_vector velocity{};
+	pos.x = (fix)INTEL_INT((int)pos.x);
+	pos.y = (fix)INTEL_INT((int)pos.y);
+	pos.z = (fix)INTEL_INT((int)pos.z);
 
 	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?
@@ -1086,7 +1083,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	auto egg_objnum = object_create_egg(&del_obj);
+	const auto egg_objnum = object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, segnum);
 
 	if (egg_objnum == object_none)
 		return; // Object buffer full
@@ -1138,7 +1135,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 		}
 		d_srand(1245L);
 		if (del_obj->contains_count > 0)
-			egg_objnum = object_create_egg(del_obj);
+			egg_objnum = object_create_robot_egg(del_obj);
 	}
 		
 	else if (del_obj->ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
@@ -1159,7 +1156,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 		
 			d_srand(1245L);
 			if (del_obj->contains_count > 0)
-				egg_objnum = object_create_egg(del_obj);
+				egg_objnum = object_create_robot_egg(del_obj);
 		}
 	}
 

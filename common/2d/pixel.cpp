@@ -30,8 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-
-void gr_upixel( int x, int y )
+void gr_upixel(unsigned x, unsigned y)
 {
 	switch (TYPE)
 	{
@@ -46,9 +45,10 @@ void gr_upixel( int x, int y )
 	}
 }
 
-void gr_pixel( int x, int y )
+void gr_pixel(unsigned x, unsigned y)
 {
-	if ((x<0) || (y<0) || (x>=GWIDTH) || (y>=GHEIGHT)) return;
+	if (unlikely(x >= GWIDTH || y >= GHEIGHT))
+		return;
 	gr_upixel (x, y);
 }
 
@@ -69,6 +69,7 @@ static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y
 
 void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
 {
-	if (x >= bm.bm_w || y >= bm.bm_h) return;
+	if (unlikely(x >= bm.bm_w || y >= bm.bm_h))
+		return;
 	gr_bm_upixel (bm, x, y, color);
 }

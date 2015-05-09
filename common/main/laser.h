@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _LASER_H
-#define _LASER_H
+#pragma once
 
 #include "maths.h"
 #include "vecmat.h"
@@ -153,7 +152,7 @@ void Laser_render(vobjptr_t obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(vobjptridx_t obj);
-int laser_are_related(int o1, int o2);
+bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
 extern int do_laser_firing_player(void);
 extern void do_missile_firing(int drop_bomb);
@@ -192,10 +191,12 @@ extern int Smartmines_dropped;
 int ok_to_do_omega_damage(vcobjptr_t weapon);
 #endif
 
-void create_smart_children(vobjptridx_t objp, int count);
+void create_weapon_smart_children(vobjptridx_t objp);
+#if defined(DXX_BUILD_DESCENT_II)
+void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
+#endif
 int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
 
-extern int Muzzle_queue_index;
 extern int Missile_gun;
 extern int Proximity_dropped;
 
@@ -231,5 +232,3 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(enum weapon_typ
 }
 
 #endif
-
-#endif /* _LASER_H */

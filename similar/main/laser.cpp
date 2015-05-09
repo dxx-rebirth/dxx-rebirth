@@ -71,6 +71,8 @@ array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 #endif
 objnum_t Network_laser_track = object_none;
 
+static int Muzzle_queue_index;
+
 static objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
 static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx_t tracker);
 
@@ -151,27 +153,51 @@ void Laser_render(const vobjptr_t obj)
 //
 //}
 
+static bool ignore_proximity_weapon(const vcobjptr_t o)
+{
+	if (!is_proximity_bomb_or_smart_mine(get_weapon_id(o)))
+		return false;
+#if defined(DXX_BUILD_DESCENT_I)
+	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+#elif defined(DXX_BUILD_DESCENT_II)
+	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*4;
+#endif
+}
+
+#if defined(DXX_BUILD_DESCENT_I)
+static bool ignore_phoenix_weapon(vcobjptr_t)
+{
+	return false;
+}
+
+static bool ignore_guided_missile_weapon(vcobjptr_t)
+{
+	return false;
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+static bool ignore_phoenix_weapon(const vcobjptr_t o)
+{
+	return get_weapon_id(o) == PHOENIX_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0/4;
+}
+
+static bool ignore_guided_missile_weapon(const vcobjptr_t o)
+{
+	return get_weapon_id(o) == GUIDEDMISS_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+}
+#endif
+
 //	Changed by MK on 09/07/94
 //	I want you to be able to blow up your own bombs.
 //	AND...Your proximity bombs can blow you up if they're 2.0 seconds or more old.
 //	Changed by MK on 06/06/95: Now must be 4.0 seconds old.  Much valid Net-complaining.
-int laser_are_related( int o1, int o2 )
+bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 {
-	if ( (o1<0) || (o2<0) )
-		return 0;
-
 	// See if o2 is the parent of o1
-	if ( Objects[o1].type == OBJ_WEAPON  )
-		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
+	if (o1->type == OBJ_WEAPON)
+		if (o1->ctype.laser_info.parent_num == o2 && o1->ctype.laser_info.parent_signature == o2->signature)
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-#if defined(DXX_BUILD_DESCENT_I)
-			if (!((get_weapon_id(&Objects[o1]) != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime64)))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if ((get_weapon_id(&Objects[o1]) == PHOENIX_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (get_weapon_id(&Objects[o1]) == GUIDEDMISS_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((get_weapon_id(&Objects[o1]) == PROXIMITY_ID) || (get_weapon_id(&Objects[o1]) == SUPERPROX_ID)) && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*4)))
-#endif
+			if (ignore_proximity_weapon(o1) || ignore_guided_missile_weapon(o1) || ignore_phoenix_weapon(o1))
 			{
 				return 0;
 			} else
@@ -179,15 +205,14 @@ int laser_are_related( int o1, int o2 )
 		}
 
 	// See if o1 is the parent of o2
-	if ( Objects[o2].type == OBJ_WEAPON  )
+	if (o2->type == OBJ_WEAPON)
 	{
-		if ( (Objects[o2].ctype.laser_info.parent_num==o1) && (Objects[o2].ctype.laser_info.parent_signature==Objects[o1].signature) )
+		if (o2->ctype.laser_info.parent_num == o1 && o2->ctype.laser_info.parent_signature == o1->signature)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o2].id == PHOENIX_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (Objects[o2].id == GUIDEDMISS_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((Objects[o2].id == PROXIMITY_ID) || (Objects[o2].id == SUPERPROX_ID)) && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*4))) {
+			if (ignore_proximity_weapon(o2) || ignore_guided_missile_weapon(o2) || ignore_phoenix_weapon(o2))
+			{
 				return 0;
 			} else
 #endif
@@ -196,18 +221,18 @@ int laser_are_related( int o1, int o2 )
 	}
 
 	// They must both be weapons
-	if ( Objects[o1].type != OBJ_WEAPON || Objects[o2].type != OBJ_WEAPON )
+	if (o1->type != OBJ_WEAPON || o2->type != OBJ_WEAPON)
 		return 0;
 
 	//	Here is the 09/07/94 change -- Siblings must be identical, others can hurt each other
 	// See if they're siblings...
 	//	MK: 06/08/95, Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
-	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
+	if (o1->ctype.laser_info.parent_signature == o2->ctype.laser_info.parent_signature)
 	{
-		if (is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[o1])) || is_proximity_bomb_or_smart_mine(get_weapon_id(&Objects[o2]))) {
+		if (is_proximity_bomb_or_smart_mine(get_weapon_id(o1)) || is_proximity_bomb_or_smart_mine(get_weapon_id(o2))) {
 			//	If neither is older than 1/2 second, then can't blow up!
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!((GameTime64 > (Objects[o1].ctype.laser_info.creation_time + F1_0/2)) || (GameTime64 > (Objects[o2].ctype.laser_info.creation_time + F1_0/2))))
+			if (!(GameTime64 > o1->ctype.laser_info.creation_time + F1_0/2 || GameTime64 > o2->ctype.laser_info.creation_time + F1_0/2))
 				return 1;
 			else
 #endif
@@ -218,10 +243,10 @@ int laser_are_related( int o1, int o2 )
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Anything can cause a collision with a robot super prox mine.
-	if (!(Objects[o1].id == ROBOT_SUPERPROX_ID || Objects[o2].id == ROBOT_SUPERPROX_ID ||
-		 Objects[o1].id == PROXIMITY_ID || Objects[o2].id == PROXIMITY_ID ||
-		 Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID ||
-		 Objects[o1].id == PMINE_ID || Objects[o2].id == PMINE_ID))
+	if (!(o1->id == ROBOT_SUPERPROX_ID || o2->id == ROBOT_SUPERPROX_ID ||
+		 o1->id == PROXIMITY_ID || o2->id == PROXIMITY_ID ||
+		 o1->id == SUPERPROX_ID || o2->id == SUPERPROX_ID ||
+		 o1->id == PMINE_ID || o2->id == PMINE_ID))
 		return 1;
 #endif
 	return 0;
@@ -938,10 +963,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 	}
 
 	return Laser_create_new( direction, hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
-
 }
-
-int		Muzzle_queue_index = 0;
 
 array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
@@ -1918,58 +1940,41 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 	return objnum;
 }
 
+namespace {
+
+struct miniparent
+{
+	short type;
+	objnum_t num;
+};
+
+}
+
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
-void create_smart_children(const vobjptridx_t objp, int num_smart_children)
+static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
-	int parent_type, parent_num;
 	int numobjs=0;
-	objnum_t objlist[MAX_OBJDISTS];
 	enum weapon_type_t blob_id;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	parent_type = objp->ctype.laser_info.parent_type;
-	parent_num = objp->ctype.laser_info.parent_num;
-	if (get_weapon_id(objp) == SMART_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (objp->type == OBJ_WEAPON) {
-		parent_type = objp->ctype.laser_info.parent_type;
-		parent_num = objp->ctype.laser_info.parent_num;
-	} else if (objp->type == OBJ_ROBOT) {
-		parent_type = OBJ_ROBOT;
-		parent_num = objp;
-	} else {
-		Int3();	//	Hey, what kind of object is this!?
-		parent_type = 0;
-		parent_num = 0;
-	}
-
-#ifndef NDEBUG
-	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
-		Assert(Weapon_info[objp->id].children != -1);
-#endif
-
-	if (objp->type == OBJ_WEAPON && objp->id == EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
-
-	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT))
-#endif
+	array<objnum_t, MAX_OBJDISTS> objlist;
 	{
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
 		range_for (const auto objnum, highest_valid(Objects))
 		{
-			object *curobjp = &Objects[objnum];
+			const auto &curobjp = vcobjptr(static_cast<objnum_t>(objnum));
 
-			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != parent_num)) {
+			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && objnum != parent.num)
+			{
 				fix dist;
 
 				if (curobjp->type == OBJ_PLAYER)
 				{
-					if ((parent_type == OBJ_PLAYER) && (Game_mode & GM_MULTI_COOP))
+					if (parent.type == OBJ_PLAYER && (Game_mode & GM_MULTI_COOP))
 						continue;
-					if ((Game_mode & GM_TEAM) && (get_team(get_player_id(curobjp)) == get_team(get_player_id(&Objects[parent_num]))))
+					if ((Game_mode & GM_TEAM) && get_team(get_player_id(curobjp)) == get_team(get_player_id(vcobjptr(parent.num))))
 						continue;
 					if (Players[get_player_id(curobjp)].flags & PLAYER_FLAGS_CLOAKED)
 						continue;
@@ -1977,12 +1982,12 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 
 				//	Robot blobs can't track robots.
 				if (curobjp->type == OBJ_ROBOT) {
-					if (parent_type == OBJ_ROBOT)
+					if (parent.type == OBJ_ROBOT)
 						continue;
 
 #if defined(DXX_BUILD_DESCENT_II)
 					//	Your shots won't track the buddy.
-					if (parent_type == OBJ_PLAYER)
+					if (parent.type == OBJ_PLAYER)
 						if (Robot_info[curobjp->id].companion)
 							continue;
 #endif
@@ -2008,7 +2013,8 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 
 		//	Get type of weapon for child from parent.
 #if defined(DXX_BUILD_DESCENT_I)
-		if (parent_type == OBJ_PLAYER) {
+		if (parent.type == OBJ_PLAYER)
+		{
 			blob_id = PLAYER_SMART_HOMING_ID;
 		} else {
 			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
@@ -2037,11 +2043,32 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 	}
 }
 
+void create_weapon_smart_children(const vobjptridx_t objp)
+{
+	const auto wid = get_weapon_id(objp);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (wid != SMART_ID)
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (Weapon_info[wid].children == -1)
+#endif
+		return;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (wid == EARTHSHAKER_ID)
+		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
+#endif
+	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
+}
+
 int Missile_gun = 0;
 int Proximity_dropped = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 int Smartmines_dropped=0;
+
+void create_robot_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children)
+{
+	create_smart_children(objp, num_smart_children, {OBJ_ROBOT, objp});
+}
 
 //give up control of the guided missile
 void release_guided_missile(int player_num)

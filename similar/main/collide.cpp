@@ -1648,7 +1648,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 				num_blobs++;
 
 			if (num_blobs)
-				create_smart_children(robot, num_blobs);
+				create_robot_smart_children(robot, num_blobs);
 		}
 
 	//	Note: If weapon hits an invulnerable boss, it will still do badass damage, including to the boss,

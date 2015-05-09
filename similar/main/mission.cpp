@@ -513,7 +513,7 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 static void add_missions_to_list(mission_list &mission_list, char *path, char *rel_path, int anarchy_mode)
 {
 	char *ext;
-	const PHYSFS_list_t find{PHYSFS_enumerateFiles(path)};
+	const PHYSFSX_uncounted_list find{PHYSFS_enumerateFiles(path)};
 	range_for (const auto i, find)
 	{
 		if (strlen(path) + strlen(i) + 1 >= PATH_MAX)

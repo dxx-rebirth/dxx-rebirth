@@ -80,10 +80,7 @@ struct grs_point
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
 #define BM_LINEAR   0
-#define BM_MODEX    1
-#define BM_SVGA     2
 #define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
-#define BM_SVGA15   4
 #ifdef OGL
 #define BM_OGL      5
 #endif /* def OGL */
@@ -109,6 +106,7 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 	                    // bit 1 on means it has supertransparency
 	                    // bit 2 on means it doesn't get passed through lighting.
 	short   bm_rowsize; // unsigned char offset to next row
+	array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
 	union {
 		const uint8_t *bm_data;     // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
@@ -118,13 +116,11 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 	};
 	const uint8_t *get_bitmap_data() const { return bm_data; }
 	uint8_t *get_bitmap_data() { return bm_mdata; }
-	unsigned short      bm_handle;  //for application.  initialized to 0
-	ubyte   avg_color;  //  Average color of all pixels in texture map.
-	array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
 	struct grs_bitmap  *bm_parent;
 #ifdef OGL
 	struct ogl_texture *gltexture;
 #endif /* def OGL */
+	ubyte   avg_color;  //  Average color of all pixels in texture map.
 };
 
 //font structure
@@ -155,11 +151,11 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	const grs_font *  cv_font;        // the currently selected font
 	uint8_t     cv_color;       // current color
+	uint8_t     cv_blend_func;  // blending function to use
 	short       cv_drawmode;    // fill,XOR,etc.
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 	int         cv_fade_level;  // transparency level
-	ubyte       cv_blend_func;  // blending function to use
 };
 
 
@@ -315,8 +311,8 @@ void gr_setcolor(color_t color);
 void gr_settransblend(int fade_level, ubyte blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
-void gr_pixel(int x,int y);
-void gr_upixel(int x,int y);
+void gr_pixel(unsigned x, unsigned y);
+void gr_upixel(unsigned x, unsigned y);
 
 // Gets a pixel;
 unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y );
