@@ -616,37 +616,24 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 		return static_cast<const char *>(Players[pnum].callsign);
 }
 
-static void multi_compute_kill(objnum_t killer, objnum_t killed)
+static void multi_compute_kill(const vobjptridx_t killer, const vobjptridx_t killed)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
 
 	playernum_t killed_pnum, killer_pnum;
-	int killed_type;
-	int killer_type;
 	int TheGoal;
 
 	// Both object numbers are localized already!
 
-	if ((killed < 0) || (killed > Highest_object_index) || (killer < 0) || (killer > Highest_object_index))
-	{
-		Int3(); // See Rob, illegal value passed to compute_kill;
-		return;
-	}
-
-	killed_type = Objects[killed].type;
-	killer_type = Objects[killer].type;
-#if defined(DXX_BUILD_DESCENT_II)
-	int killer_id = Objects[killer].id;
-#endif
-
+	const auto killed_type = killed->type;
 	if ((killed_type != OBJ_PLAYER) && (killed_type != OBJ_GHOST))
 	{
 		Int3(); // compute_kill passed non-player object!
 		return;
 	}
 
-	killed_pnum = get_player_id(&Objects[killed]);
+	killed_pnum = get_player_id(killed);
 
 	Assert (killed_pnum < N_players);
 
@@ -663,6 +650,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 		Players[killed_pnum].connected=CONNECT_DIED_IN_MINE;
 #endif
 
+	const auto killer_type = killer->type;
 	if (killer_type == OBJ_CNTRLCEN)
 	{
 		Players[killed_pnum].net_killed_total++;
@@ -684,6 +672,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
+		const auto killer_id = killer->id;
 		if (killer_id==PMINE_ID && killer_type!=OBJ_ROBOT)
 		{
 			if (killed_pnum == Player_num)
@@ -706,7 +695,7 @@ static void multi_compute_kill(objnum_t killer, objnum_t killed)
 		return;
 	}
 
-	killer_pnum = get_player_id(&Objects[killer]);
+	killer_pnum = get_player_id(killer);
 
 	char killer_buf[(CALLSIGN_LEN*2)+4];
 	const char *killer_name = prepare_kill_name(killer_pnum, killer_buf);
