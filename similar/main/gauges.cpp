@@ -361,11 +361,14 @@ public:
 #define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT) + 0.5)
 #define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
 #define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(100) > HUD_SCALE_X(100) ? HUD_SCALE_X(y) : HUD_SCALE_Y(y))
+#define draw_numerical_display(S,E,G)	draw_numerical_display(S,E)
 #else
-#define HUD_SCALE_X(x)		(x)
-#define HUD_SCALE_Y(y)		(y)
-#define HUD_SCALE_X_AR(x)	(x)
-#define HUD_SCALE_Y_AR(y)	(y)
+#define HUD_SCALE_X(x)		(static_cast<void>(multires_gauge_graphic), x)
+#define HUD_SCALE_Y(y)		(static_cast<void>(multires_gauge_graphic), y)
+#define HUD_SCALE_X_AR(x)	HUD_SCALE_X(x)
+#define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(y)
+#define hud_bitblt_free(X,Y,W,H,B)	hud_bitblt_free(X,Y,B)
+#define hud_bitblt(X,Y,B,G)	hud_bitblt(X,Y,B)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2051,7 +2054,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
 
-static void draw_numerical_display(int shield, int energy)
+static void draw_numerical_display(int shield, int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int sw,sh,saw,ew,eh,eaw;
 
@@ -3120,7 +3123,7 @@ void render_gauges()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
 		draw_energy_bar(energy, multires_gauge_graphic);
-		draw_numerical_display(shields, energy);
+		draw_numerical_display(shields, energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!PlayerCfg.HudMode)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3135,7 +3138,7 @@ void render_gauges()
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			draw_shield_bar(shields, multires_gauge_graphic);
-		draw_numerical_display(shields, energy);
+		draw_numerical_display(shields, energy, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
