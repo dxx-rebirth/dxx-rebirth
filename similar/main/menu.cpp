@@ -1124,9 +1124,21 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_ic_usejoy)
-				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
+			{
+				constexpr auto flag = CONTROL_USING_JOYSTICK;
+				if (items[citem].value)
+					PlayerCfg.ControlType |= flag;
+				else
+					PlayerCfg.ControlType &= ~flag;
+			}
 			if (citem == opt_ic_usemouse)
-				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE);
+			{
+				constexpr auto flag = CONTROL_USING_MOUSE;
+				if (items[citem].value)
+					PlayerCfg.ControlType |= flag;
+				else
+					PlayerCfg.ControlType &= ~flag;
+			}
 			if (citem == opt_ic_mouseflightsim)
 				PlayerCfg.MouseFlightSim = 0;
 			if (citem == opt_ic_mouseflightsim+1)
