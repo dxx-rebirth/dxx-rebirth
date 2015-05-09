@@ -1207,6 +1207,7 @@ class DXXCommon(LazyObjectConstructor):
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
 					('pch', None, 'pre-compile headers used this many times'),
+					('lto', 0, 'enable gcc link time optimization'),
 				),
 			},
 			{
@@ -1215,7 +1216,6 @@ class DXXCommon(LazyObjectConstructor):
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
-					('lto', False, 'enable gcc link time optimization'),
 					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
@@ -1551,7 +1551,7 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
-			f = ['-flto', '-fno-fat-lto-objects']
+			f = ['-flto=%s' % self.user_settings.lto, '-fno-fat-lto-objects']
 			self.env.Append(CXXFLAGS = f)
 
 	def check_endian(self):
