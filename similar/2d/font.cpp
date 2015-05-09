@@ -1162,12 +1162,12 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
-	int BitMask,bits, width, spacing, letter, underline;
+	int width, spacing, letter;
 	int x1 = x, last_x;
 
-        bits = 0;
-
 	next_row = s;
+
+	const auto &cv_font = *grd_curcanv->cv_font;
 
 	while (next_row != NULL )
 	{
@@ -1180,7 +1180,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 
 		last_x = x;
 
-		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++) {
+		for (int r=0; r < cv_font.ft_h; r++) {
 			text_ptr = text_ptr1;
 			x = last_x;
 
@@ -1202,17 +1202,12 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					continue;
 				}
 
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )
-				{
-					if ((r==grd_curcanv->cv_font->ft_baseline+2) || (r==grd_curcanv->cv_font->ft_baseline+3))
-						underline = 1;
-					text_ptr++;
-				}
-
+				const auto underline = unlikely(*text_ptr == CC_UNDERLINE)
+					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
+					: 0;
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
+				letter = (unsigned char)*text_ptr - cv_font.ft_minchar;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
@@ -1220,10 +1215,10 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					continue;
 				}
 
-				if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-					fp = grd_curcanv->cv_font->ft_chars[letter];
+				if (cv_font.ft_flags & FT_PROPORTIONAL)
+					fp = cv_font.ft_chars[letter];
 				else
-					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
+					fp = cv_font.ft_data + letter * BITS_TO_BYTES(width)*cv_font.ft_h;
 
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
@@ -1234,7 +1229,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 				} else {
 					fp += BITS_TO_BYTES(width)*r;
 
-					BitMask = 0;
+					uint8_t BitMask = 0, bits;
 
 					for (uint_fast32_t i = width; i--; ++x, BitMask >>= 1)
 					{
