@@ -213,35 +213,36 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 			unsigned VideoOffset = VideoOffset1;
 
-			while (*text_ptr)
+			for (; const uint8_t c0 = *text_ptr; ++text_ptr)
 			{
-				if (*text_ptr == '\n' )
+				if (c0 == '\n')
 				{
 					next_row = &text_ptr[1];
 					break;
 				}
 
-				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
-					text_ptr += 2;
+				if (c0 == CC_COLOR)
+				{
+					grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
 					continue;
 				}
 
-				if (*text_ptr == CC_LSPACING) {
-					skip_lines = *(text_ptr+1) - '0';
-					text_ptr += 2;
+				if (c0 == CC_LSPACING)
+				{
+					skip_lines = *++text_ptr - '0';
 					continue;
 				}
 
-				auto underline = unlikely(*text_ptr == CC_UNDERLINE)
+				auto underline = unlikely(c0 == CC_UNDERLINE)
 					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
 					: 0;
 
-				const auto &result = get_char_width<int>(text_ptr[0], text_ptr[1]);
+				const uint8_t c = *text_ptr;
+				const auto &result = get_char_width<int>(c, text_ptr[1]);
 				const auto &width = result.width;
 				const auto &spacing = result.spacing;
 
-				const unsigned letter = static_cast<unsigned char>(*text_ptr) - cv_font.ft_minchar;
+				const unsigned letter = c - cv_font.ft_minchar;
 
 				if (masked_draws_background)
 				{
@@ -253,7 +254,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 				}
 				else
 				{
-					if (!INFONT(letter) || static_cast<uint8_t>(*text_ptr) <= 0x06)	//not in font, draw as space
+					if (!INFONT(letter) || c <= 0x06)	//not in font, draw as space
 					{
 						CHECK_EMBEDDED_COLORS() else{
 							VideoOffset += spacing;
@@ -296,7 +297,6 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 						}
 					}
 				}
-				text_ptr++;
 				VideoOffset += spacing-width;
 			}
 			VideoOffset1 += ROWSIZE;
