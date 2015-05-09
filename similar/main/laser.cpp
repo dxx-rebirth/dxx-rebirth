@@ -1941,58 +1941,41 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 	return objnum;
 }
 
+namespace {
+
+struct miniparent
+{
+	short type;
+	objnum_t num;
+};
+
+}
+
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
-void create_smart_children(const vobjptridx_t objp, int num_smart_children)
+static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
-	int parent_type, parent_num;
 	int numobjs=0;
-	objnum_t objlist[MAX_OBJDISTS];
 	enum weapon_type_t blob_id;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	parent_type = objp->ctype.laser_info.parent_type;
-	parent_num = objp->ctype.laser_info.parent_num;
-	if (get_weapon_id(objp) == SMART_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
-	if (objp->type == OBJ_WEAPON) {
-		parent_type = objp->ctype.laser_info.parent_type;
-		parent_num = objp->ctype.laser_info.parent_num;
-	} else if (objp->type == OBJ_ROBOT) {
-		parent_type = OBJ_ROBOT;
-		parent_num = objp;
-	} else {
-		Int3();	//	Hey, what kind of object is this!?
-		parent_type = 0;
-		parent_num = 0;
-	}
-
-#ifndef NDEBUG
-	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
-		Assert(Weapon_info[objp->id].children != -1);
-#endif
-
-	if (objp->type == OBJ_WEAPON && objp->id == EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
-
-	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT))
-#endif
+	array<objnum_t, MAX_OBJDISTS> objlist;
 	{
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
 		range_for (const auto objnum, highest_valid(Objects))
 		{
-			object *curobjp = &Objects[objnum];
+			const auto &curobjp = vcobjptr(static_cast<objnum_t>(objnum));
 
-			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != parent_num)) {
+			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && objnum != parent.num)
+			{
 				fix dist;
 
 				if (curobjp->type == OBJ_PLAYER)
 				{
-					if ((parent_type == OBJ_PLAYER) && (Game_mode & GM_MULTI_COOP))
+					if (parent.type == OBJ_PLAYER && (Game_mode & GM_MULTI_COOP))
 						continue;
-					if ((Game_mode & GM_TEAM) && (get_team(get_player_id(curobjp)) == get_team(get_player_id(&Objects[parent_num]))))
+					if ((Game_mode & GM_TEAM) && get_team(get_player_id(curobjp)) == get_team(get_player_id(vcobjptr(parent.num))))
 						continue;
 					if (Players[get_player_id(curobjp)].flags & PLAYER_FLAGS_CLOAKED)
 						continue;
@@ -2000,12 +1983,12 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 
 				//	Robot blobs can't track robots.
 				if (curobjp->type == OBJ_ROBOT) {
-					if (parent_type == OBJ_ROBOT)
+					if (parent.type == OBJ_ROBOT)
 						continue;
 
 #if defined(DXX_BUILD_DESCENT_II)
 					//	Your shots won't track the buddy.
-					if (parent_type == OBJ_PLAYER)
+					if (parent.type == OBJ_PLAYER)
 						if (Robot_info[curobjp->id].companion)
 							continue;
 #endif
@@ -2031,7 +2014,8 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 
 		//	Get type of weapon for child from parent.
 #if defined(DXX_BUILD_DESCENT_I)
-		if (parent_type == OBJ_PLAYER) {
+		if (parent.type == OBJ_PLAYER)
+		{
 			blob_id = PLAYER_SMART_HOMING_ID;
 		} else {
 			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
@@ -2060,11 +2044,32 @@ void create_smart_children(const vobjptridx_t objp, int num_smart_children)
 	}
 }
 
+void create_weapon_smart_children(const vobjptridx_t objp)
+{
+	const auto wid = get_weapon_id(objp);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (wid != SMART_ID)
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (Weapon_info[wid].children == -1)
+#endif
+		return;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (wid == EARTHSHAKER_ID)
+		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
+#endif
+	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
+}
+
 int Missile_gun = 0;
 int Proximity_dropped = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 int Smartmines_dropped=0;
+
+void create_robot_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children)
+{
+	create_smart_children(objp, num_smart_children, {OBJ_ROBOT, objp});
+}
 
 //give up control of the guided missile
 void release_guided_missile(int player_num)

@@ -290,8 +290,7 @@ objptridx_t object_create_badass_explosion(const objptridx_t objp, const vsegptr
 	const objptridx_t rval = object_create_explosion_sub(objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent );
 
 	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
-		create_smart_children(objp, NUM_SMART_CHILDREN);
-
+		create_weapon_smart_children(objp);
 	return rval;
 }
 

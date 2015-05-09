@@ -192,7 +192,10 @@ extern int Smartmines_dropped;
 int ok_to_do_omega_damage(vcobjptr_t weapon);
 #endif
 
-void create_smart_children(vobjptridx_t objp, int count);
+void create_weapon_smart_children(vobjptridx_t objp);
+#if defined(DXX_BUILD_DESCENT_II)
+void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
+#endif
 int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
 
 extern int Muzzle_queue_index;
