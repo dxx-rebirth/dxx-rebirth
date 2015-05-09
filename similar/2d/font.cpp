@@ -89,54 +89,16 @@ static ubyte *find_kern_entry(const grs_font *font,ubyte first,ubyte second)
 }
 
 //takes the character AFTER being offset into font
-#define INFONT(_c) ((_c >= 0) && (_c <= grd_curcanv->cv_font->ft_maxchar-grd_curcanv->cv_font->ft_minchar))
-
-//takes the character BEFORE being offset into current font
-static void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
+static inline bool INFONT(const unsigned c)
 {
-	int letter;
-
-	letter = c-grd_curcanv->cv_font->ft_minchar;
-
-	if (!INFONT(letter)) {				//not in font, draw as space
-		*width=0;
-		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
-		else
-			*spacing = grd_curcanv->cv_font->ft_w;
-		return;
-	}
-
-	if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-		*width = FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]);
-	else
-		*width = grd_curcanv->cv_font->ft_w;
-
-	*spacing = *width;
-
-	if (grd_curcanv->cv_font->ft_flags & FT_KERNED)  {
-		ubyte *p;
-
-		if (!(c2==0 || c2=='\n')) {
-			int letter2 = c2-grd_curcanv->cv_font->ft_minchar;
-
-			if (INFONT(letter2)) {
-
-				p = find_kern_entry(grd_curcanv->cv_font,(ubyte)letter,letter2);
-
-				if (p)
-					*spacing = FONTSCALE_X(p[2]);
-			}
-		}
-	}
+	return c <= grd_curcanv->cv_font->ft_maxchar - grd_curcanv->cv_font->ft_minchar;
 }
 
-// Same as above but works with floats, which is better for string-size measurement while being bad for string composition of course
-static void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
+//takes the character BEFORE being offset into current font
+template <typename T>
+static void get_char_width(const uint8_t c, const uint8_t c2, T *width, T *spacing)
 {
-	int letter;
-
-	letter = c-grd_curcanv->cv_font->ft_minchar;
+	const unsigned letter = c - grd_curcanv->cv_font->ft_minchar;
 
 	if (!INFONT(letter)) {				//not in font, draw as space
 		*width=0;
@@ -158,7 +120,7 @@ static void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
 		ubyte *p;
 
 		if (!(c2==0 || c2=='\n')) {
-			int letter2 = c2-grd_curcanv->cv_font->ft_minchar;
+			const unsigned letter2 = c2-grd_curcanv->cv_font->ft_minchar;
 
 			if (INFONT(letter2)) {
 
@@ -181,7 +143,7 @@ static int get_centered_x(const char *s)
 				s++;
 			continue;//skip color codes.
 		}
-		get_char_width_f(s[0],s[1],&w2,&s2);
+		get_char_width(s[0],s[1],&w2,&s2);
 		w += s2;
 	}
 
@@ -915,7 +877,7 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 
 			if (*s == 0) break;
 
-			get_char_width_f(s[0],s[1],&width,&spacing);
+			get_char_width(s[0],s[1],&width,&spacing);
 
 			string_width_f += spacing;
 
