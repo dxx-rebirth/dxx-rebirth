@@ -186,25 +186,20 @@ const int gr_message_color_level=1;
 template <bool masked_draws_background>
 static int gr_internal_string0_template(int x, int y, const char *s)
 {
-	unsigned char * fp;
-	const char * text_ptr, * next_row, * text_ptr1;
-	int BitMask,bits, underline;
+	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto ft_flags = cv_font.ft_flags;
+	const auto proportional = ft_flags & FT_PROPORTIONAL;
 	int	skip_lines = 0;
 
-	unsigned int VideoOffset, VideoOffset1;
+	unsigned int VideoOffset1;
 
 	//to allow easy reseting to default string color with colored strings -MPM
 	const auto orig_color = grd_curcanv->cv_font_fg_color;
-
-        bits=0;
-
 	VideoOffset1 = y * ROWSIZE + x;
-
-	next_row = s;
-
+	auto next_row = s;
 	while (next_row != NULL )
 	{
-		text_ptr1 = next_row;
+		const auto text_ptr1 = next_row;
 		next_row = NULL;
 
 		if (x==0x8000) {			//centered
@@ -212,12 +207,11 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 			VideoOffset1 = y * ROWSIZE + xx;
 		}
 
-		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++)
+		for (int r=0; r < cv_font.ft_h; ++r)
 		{
+			auto text_ptr = text_ptr1;
 
-			text_ptr = text_ptr1;
-
-			VideoOffset = VideoOffset1;
+			unsigned VideoOffset = VideoOffset1;
 
 			while (*text_ptr)
 			{
@@ -239,19 +233,15 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 					continue;
 				}
 
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )
-				{
-					if ((r==grd_curcanv->cv_font->ft_baseline+2) || (r==grd_curcanv->cv_font->ft_baseline+3))
-						underline = 1;
-					text_ptr++;
-				}
+				auto underline = unlikely(*text_ptr == CC_UNDERLINE)
+					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
+					: 0;
 
 				const auto &result = get_char_width<int>(text_ptr[0], text_ptr[1]);
 				const auto &width = result.width;
 				const auto &spacing = result.spacing;
 
-				const unsigned letter = static_cast<unsigned char>(*text_ptr) - grd_curcanv->cv_font->ft_minchar;
+				const unsigned letter = static_cast<unsigned char>(*text_ptr) - cv_font.ft_minchar;
 
 				if (masked_draws_background)
 				{
@@ -273,11 +263,6 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 					}
 				}
 
-				if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-					fp = grd_curcanv->cv_font->ft_chars[letter];
-				else
-					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
-
 				if (underline)
 				{
 					std::fill_n(&DATA[VideoOffset], width, grd_curcanv->cv_font_fg_color);
@@ -285,9 +270,10 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 				}
 				else
 				{
+					auto fp = proportional ? cv_font.ft_chars[letter] : &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 					fp += BITS_TO_BYTES(width)*r;
 
-					BitMask = 0;
+					uint8_t BitMask = 0, bits;
 
 					for (uint_fast32_t i = width; i--; ++VideoOffset, BitMask >>= 1)
 					{
