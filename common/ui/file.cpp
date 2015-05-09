@@ -243,7 +243,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 	return rval;
 }
 
-int ui_get_filename( char * filename, const char * filespec, const char * message  )
+int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, const char *const message)
 {
 	char		InputText[PATH_MAX];
 	char		*p;
