@@ -190,14 +190,11 @@ window_event_result mouse_in_window(window *wind)
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
-	SDL_GetRelativeMouseState( &Mouse.delta_x, &Mouse.delta_y );
-	*dx = Mouse.delta_x;
-	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
+	SDL_GetRelativeMouseState(dx, dy);
 }
 
 void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
