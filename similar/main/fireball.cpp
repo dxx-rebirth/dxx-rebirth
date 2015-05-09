@@ -921,6 +921,28 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 	return objnum;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+static bool skip_create_egg_powerup(powerup_type_t powerup)
+{
+	fix player::*pcurrent;
+	if (powerup == POW_SHIELD_BOOST)
+		pcurrent = &player::shields;
+	else if (powerup == POW_ENERGY)
+		pcurrent = &player::energy;
+	else
+		return false;
+	fix current = Players[Player_num].*pcurrent;
+	int limit;
+	if (current >= i2f(150))
+		limit = 8192;
+	else if (current >= i2f(100))
+		limit = 16384;
+	else
+		return false;
+	return d_rand() > limit;
+}
+#endif
+
 // ----------------------------------------------------------------------------
 // Returns created object number.
 // If object dropped by player, set flag.
@@ -931,27 +953,8 @@ objptridx_t object_create_egg(const vobjptr_t objp)
 	{
 		if (objp->contains_type == OBJ_POWERUP)
 		{
-			if (objp->contains_id == POW_SHIELD_BOOST) {
-				if (Players[Player_num].shields >= i2f(100)) {
-					if (d_rand() > 16384) {
-						return object_none;
-					}
-				} else  if (Players[Player_num].shields >= i2f(150)) {
-					if (d_rand() > 8192) {
-						return object_none;
-					}
-				}
-			} else if (objp->contains_id == POW_ENERGY) {
-				if (Players[Player_num].energy >= i2f(100)) {
-					if (d_rand() > 16384) {
-						return object_none;
-					}
-				} else  if (Players[Player_num].energy >= i2f(150)) {
-					if (d_rand() > 8192) {
-						return object_none;
-					}
-				}
-			}
+			if (skip_create_egg_powerup(static_cast<powerup_type_t>(objp->contains_id)))
+				return object_none;
 		}
 	}
 #endif
