@@ -1169,6 +1169,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 	const auto &cv_font = *grd_curcanv->cv_font;
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
+	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
 
 	while (next_row != NULL )
 	{
@@ -1217,10 +1218,11 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					x += spacing;
 					continue;
 				}
+				const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
+				gr_setcolor(cv_font_fg_color);
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
-						gr_setcolor(grd_curcanv->cv_font_fg_color);
 						gr_pixel( x++, y );
 					}
 				} else {
@@ -1235,13 +1237,12 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 							bits = *fp++;
 							BitMask = 0x80;
 						}
-						if (bits & BitMask)
-							gr_setcolor(grd_curcanv->cv_font_fg_color);
+						const auto bit_enabled = (bits & BitMask);
+						if (masked_draws_background)
+							gr_setcolor(bit_enabled ? cv_font_fg_color : cv_font_bg_color);
 						else
 						{
-							if (masked_draws_background)
-								gr_setcolor(grd_curcanv->cv_font_bg_color);
-							else
+							if (!bit_enabled)
 								continue;
 						}
 						gr_pixel(x, y);
