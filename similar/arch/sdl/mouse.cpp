@@ -230,22 +230,34 @@ void mouse_toggle_cursor(int activate)
 // If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
 void mouse_cursor_autohide()
 {
-	int show = SDL_ShowCursor(SDL_QUERY);
 	static fix64 hidden_time = 0;
 
+	const auto is_showing = SDL_ShowCursor(SDL_QUERY);
+	int result;
 	if (Mouse.cursor_enabled)
 	{
-		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && hidden_time + (F1_0/2) < timer_query() && !show)
-			SDL_ShowCursor(SDL_ENABLE);
-		else if ( (Mouse.cursor_time + (F1_0*2)) < timer_query() && show)
+		const auto now = timer_query();
+		const auto cursor_time = Mouse.cursor_time;
+		const auto recent_cursor_time = cursor_time + (F1_0*2) >= now;
+		if (is_showing)
 		{
-			SDL_ShowCursor(SDL_DISABLE);
-			hidden_time = timer_query();
+			if (recent_cursor_time)
+				return;
+			hidden_time = now;
+			result = SDL_DISABLE;
+		}
+		else
+		{
+			if (!(recent_cursor_time && hidden_time + (F1_0/2) < now))
+				return;
+			result = SDL_ENABLE;
 		}
 	}
 	else
 	{
-		if (show)
-			SDL_ShowCursor(SDL_DISABLE);
+		if (!is_showing)
+			return;
+		result = SDL_DISABLE;
 	}
+	SDL_ShowCursor(result);
 }
