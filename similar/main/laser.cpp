@@ -151,6 +151,39 @@ void Laser_render(const vobjptr_t obj)
 //
 //}
 
+static bool ignore_proximity_weapon(const vcobjptr_t o)
+{
+	if (!is_proximity_bomb_or_smart_mine(get_weapon_id(o)))
+		return false;
+#if defined(DXX_BUILD_DESCENT_I)
+	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+#elif defined(DXX_BUILD_DESCENT_II)
+	return GameTime64 > o->ctype.laser_info.creation_time + F1_0*4;
+#endif
+}
+
+#if defined(DXX_BUILD_DESCENT_I)
+static bool ignore_phoenix_weapon(vcobjptr_t)
+{
+	return false;
+}
+
+static bool ignore_guided_missile_weapon(vcobjptr_t)
+{
+	return false;
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+static bool ignore_phoenix_weapon(const vcobjptr_t o)
+{
+	return get_weapon_id(o) == PHOENIX_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0/4;
+}
+
+static bool ignore_guided_missile_weapon(const vcobjptr_t o)
+{
+	return get_weapon_id(o) == GUIDEDMISS_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+}
+#endif
+
 //	Changed by MK on 09/07/94
 //	I want you to be able to blow up your own bombs.
 //	AND...Your proximity bombs can blow you up if they're 2.0 seconds or more old.
@@ -165,13 +198,7 @@ int laser_are_related( int o1, int o2 )
 		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-#if defined(DXX_BUILD_DESCENT_I)
-			if (!((get_weapon_id(&Objects[o1]) != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime64)))
-#elif defined(DXX_BUILD_DESCENT_II)
-			if ((get_weapon_id(&Objects[o1]) == PHOENIX_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (get_weapon_id(&Objects[o1]) == GUIDEDMISS_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((get_weapon_id(&Objects[o1]) == PROXIMITY_ID) || (get_weapon_id(&Objects[o1]) == SUPERPROX_ID)) && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*4)))
-#endif
+			if (ignore_proximity_weapon(&Objects[o1]) || ignore_guided_missile_weapon(&Objects[o1]) || ignore_phoenix_weapon(&Objects[o1]))
 			{
 				return 0;
 			} else
@@ -185,9 +212,8 @@ int laser_are_related( int o1, int o2 )
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o2].id == PHOENIX_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (Objects[o2].id == GUIDEDMISS_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((Objects[o2].id == PROXIMITY_ID) || (Objects[o2].id == SUPERPROX_ID)) && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*4))) {
+			if (ignore_proximity_weapon(&Objects[o2]) || ignore_guided_missile_weapon(&Objects[o2]) || ignore_phoenix_weapon(&Objects[o2]))
+			{
 				return 0;
 			} else
 #endif
