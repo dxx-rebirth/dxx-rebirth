@@ -192,7 +192,7 @@ static int get_centered_x(const char *s)
 //note we subtract one from color, since 255 is "transparent" so it'll never be used, and 0 would otherwise end the string.
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
-int gr_message_color_level=1;
+const int gr_message_color_level=1;
 #define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x02)) { \
 		text_ptr++; \
 		if (*text_ptr){ \
