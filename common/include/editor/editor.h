@@ -365,7 +365,6 @@ int med_find_closest_threshold_segment_side(vcsegptridx_t sp, int side, segptrid
 // Select next segment.
 //	If there is a connection on the current side, then choose that segment.
 // If there is no connecting segment on the current side, try any segment.
-extern void get_next_segment(int curseg_num, int curside, int *newseg_num, int *newside);
 
 //	Copy texture maps in newseg to nsp.
 void copy_uvs_seg_to_seg(vsegptr_t nsp,vsegptr_t newseg);
