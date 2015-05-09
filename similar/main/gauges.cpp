@@ -1349,14 +1349,15 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	gr_printf(x,y,"%c:%i", c, fmt_vulcan_ammo);
 }
 
-static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
+static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
+{
 	int w,h,aw,x=orig_x,y=orig_y;
 
 	if (vertical){
 		y=y+(LINE_SPACING*4);
 	}
 
-	if (type==0){
+	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
 			const auto i = static_cast<primary_weapon_index_t>(ui);
@@ -1403,22 +1404,7 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 				hud_printf_vulcan_ammo(x, y - (LINE_SPACING * 1));
 			}
 		}
-	} else {
-		for (uint_fast32_t ui = 5; ui --;)
-		{
-			const auto i = static_cast<secondary_weapon_index_t>(ui);
-			char weapon_str[10];
-			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
-			gr_get_string_size(weapon_str, &w, &h, &aw );
-			if (vertical){
-				y-=h+FSPACY(2);
-			}else
-				x-=w+FSPACX(3);
-			gr_string(x, y, weapon_str);
-		}
 	}
-
 #if defined(DXX_BUILD_DESCENT_II)
 	x = orig_x;
 	y = orig_y;
@@ -1432,7 +1418,7 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 		y=y+LINE_SPACING;
 	}
 
-	if (type==0) {
+	{
 		for (uint_fast32_t ui = 10; ui -- != 5;)
 		{
 			const auto i = static_cast<primary_weapon_index_t>(ui);
@@ -1478,7 +1464,49 @@ static void hud_show_weapons_mode(int type,int vertical,int orig_x,int orig_y){
 			}
 			gr_string(x, y, txtweapon);
 		}
-	} else {
+	}
+#endif
+	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+}
+
+static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
+{
+	int w,h,aw,x=orig_x,y=orig_y;
+
+	if (vertical){
+		y=y+(LINE_SPACING*4);
+	}
+
+	{
+		for (uint_fast32_t ui = 5; ui --;)
+		{
+			const auto i = static_cast<secondary_weapon_index_t>(ui);
+			char weapon_str[10];
+			hud_set_secondary_weapon_fontcolor(i);
+			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
+			gr_get_string_size(weapon_str, &w, &h, &aw );
+			if (vertical){
+				y-=h+FSPACY(2);
+			}else
+				x-=w+FSPACX(3);
+			gr_string(x, y, weapon_str);
+		}
+	}
+
+#if defined(DXX_BUILD_DESCENT_II)
+	x = orig_x;
+	y = orig_y;
+	if (vertical)
+	{
+		x=x+FSPACX(15);
+		y=y+(LINE_SPACING*4);
+	}
+	else
+	{
+		y=y+LINE_SPACING;
+	}
+
+	{
 		for (uint_fast32_t ui = 10; ui -- != 5;)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
@@ -1518,8 +1546,8 @@ static void hud_show_weapons(void)
 #elif defined(DXX_BUILD_DESCENT_II)
 		unsigned multiplier = 2;
 #endif
-		hud_show_weapons_mode(0,0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*2*multiplier));
-		hud_show_weapons_mode(1,0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*multiplier));
+		hud_show_primary_weapons_mode(0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*2*multiplier));
+		hud_show_secondary_weapons_mode(0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*multiplier));
 	}
 	else if (PlayerCfg.HudMode==2){
 		int x1,x2;
@@ -1529,8 +1557,8 @@ static void hud_show_weapons(void)
 		y=grd_curcanv->cv_bitmap.bm_h/1.75;
 		x1=grd_curcanv->cv_bitmap.bm_w/2.1-(FSPACX(40)+w);
 		x2=grd_curcanv->cv_bitmap.bm_w/1.9+(FSPACX(42)+x2);
-		hud_show_weapons_mode(0,1,x1,y);
-		hud_show_weapons_mode(1,1,x2,y);
+		hud_show_primary_weapons_mode(1,x1,y);
+		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 		gr_printf(x2, y-(LINE_SPACING*4),"%i", f2ir(Players[Player_num].shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
@@ -2182,7 +2210,7 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[weapon_type] == WBU_WEAPON)
 #endif
-				hud_show_weapons_mode(weapon_type,1,x,y);
+				hud_show_primary_weapons_mode(1,x,y);
 		}
 	}
 	else
@@ -2214,7 +2242,7 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[weapon_type] == WBU_WEAPON)
 #endif
-				hud_show_weapons_mode(weapon_type,1,x,y);
+				hud_show_secondary_weapons_mode(1,x,y);
 		}
 	}
 }
