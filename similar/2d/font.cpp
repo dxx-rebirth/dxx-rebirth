@@ -1157,7 +1157,8 @@ void gr_set_fontcolor( int fg_color, int bg_color )
 	grd_curcanv->cv_font_bg_color    = bg_color;
 }
 
-static int gr_internal_string_clipped(int x, int y, const char *s )
+template <bool masked_draws_background>
+static int gr_internal_string_clipped_template(int x, int y, const char *s)
 {
 	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
@@ -1234,7 +1235,8 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 
 					BitMask = 0;
 
-					for (int i=0; i< width; i++ ) {
+					for (int i=0; i < width; ++i, ++x, BitMask >>= 1)
+					{
 						if (BitMask==0) {
 							bits = *fp++;
 							BitMask = 0x80;
@@ -1242,12 +1244,15 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 						if (bits & BitMask)
 							gr_setcolor(grd_curcanv->cv_font_fg_color);
 						else
-							gr_setcolor(grd_curcanv->cv_font_bg_color);
-						gr_pixel( x++, y );
-						BitMask >>= 1;
+						{
+							if (masked_draws_background)
+								gr_setcolor(grd_curcanv->cv_font_bg_color);
+							else
+								continue;
+						}
+						gr_pixel(x, y);
 					}
 				}
-
 				x += spacing-width;		//for kerning
 
 				text_ptr++;
@@ -1260,103 +1265,10 @@ static int gr_internal_string_clipped(int x, int y, const char *s )
 
 static int gr_internal_string_clipped_m(int x, int y, const char *s )
 {
-	unsigned char * fp;
-	const char * text_ptr, * next_row, * text_ptr1;
-	int BitMask,bits, width, spacing, letter, underline;
-	int x1 = x, last_x;
+	return gr_internal_string_clipped_template<true>(x, y, s);
+}
 
-        bits = 0;
-
-	next_row = s;
-
-	while (next_row != NULL )
-	{
-		text_ptr1 = next_row;
-		next_row = NULL;
-
-		x = x1;
-		if (x==0x8000)			//centered
-			x = get_centered_x(text_ptr1);
-
-		last_x = x;
-
-		for (int r=0; r<grd_curcanv->cv_font->ft_h; r++) {
-			x = last_x;
-
-			text_ptr = text_ptr1;
-
-			while (*text_ptr)	{
-				if (*text_ptr == '\n' )	{
-					next_row = &text_ptr[1];
-					break;
-				}
-
-				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
-					text_ptr += 2;
-					continue;
-				}
-
-				if (*text_ptr == CC_LSPACING) {
-					Int3();	//	Warning: skip lines not supported for clipped strings.
-					text_ptr += 2;
-					continue;
-				}
-
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )
-				{
-					if ((r==grd_curcanv->cv_font->ft_baseline+2) || (r==grd_curcanv->cv_font->ft_baseline+3))
-						underline = 1;
-					text_ptr++;
-				}
-
-				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
-
-				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
-
-				if (!INFONT(letter)) {	//not in font, draw as space
-					x += spacing;
-					text_ptr++;
-					continue;
-				}
-
-				if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-					fp = grd_curcanv->cv_font->ft_chars[letter];
-				else
-					fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
-
-				if (underline)	{
-					for (int i=0; i< width; i++ ) {
-						gr_setcolor(grd_curcanv->cv_font_fg_color);
-						gr_pixel( x++, y );
-					}
-				} else {
-					fp += BITS_TO_BYTES(width)*r;
-
-					BitMask = 0;
-
-					for (int i=0; i< width; i++ ) {
-						if (BitMask==0) {
-							bits = *fp++;
-							BitMask = 0x80;
-						}
-						if (bits & BitMask)	{
-							gr_setcolor(grd_curcanv->cv_font_fg_color);
-							gr_pixel( x++, y );
-						} else {
-							x++;
-						}
-						BitMask >>= 1;
-					}
-				}
-
-				x += spacing-width;		//for kerning
-
-				text_ptr++;
-			}
-			y++;
-		}
-	}
-	return 0;
+static int gr_internal_string_clipped(int x, int y, const char *s )
+{
+	return gr_internal_string_clipped_template<false>(x, y, s);
 }
