@@ -75,17 +75,15 @@ static array<openfont, MAX_OPEN_FONTS> open_font;
 static int gr_internal_string_clipped(int x, int y, const char *s );
 static int gr_internal_string_clipped_m(int x, int y, const char *s );
 
-static ubyte *find_kern_entry(const grs_font *font,ubyte first,ubyte second)
+static const uint8_t *find_kern_entry(const grs_font &font, const uint8_t first, const uint8_t second)
 {
-	ubyte *p=font->ft_kerndata;
+	auto p = font.ft_kerndata;
 
 	while (*p!=255)
 		if (p[0]==first && p[1]==second)
 			return p;
 		else p+=3;
-
 	return NULL;
-
 }
 
 //takes the character AFTER being offset into font
@@ -117,15 +115,11 @@ static void get_char_width(const uint8_t c, const uint8_t c2, T *width, T *spaci
 	*spacing = *width;
 
 	if (grd_curcanv->cv_font->ft_flags & FT_KERNED)  {
-		ubyte *p;
-
 		if (!(c2==0 || c2=='\n')) {
 			const unsigned letter2 = c2-grd_curcanv->cv_font->ft_minchar;
 
 			if (INFONT(letter2)) {
-
-				p = find_kern_entry(grd_curcanv->cv_font,(ubyte)letter,letter2);
-
+				const auto p = find_kern_entry(*grd_curcanv->cv_font, letter, letter2);
 				if (p)
 					*spacing = FONTSCALE_X(p[2]);
 			}
