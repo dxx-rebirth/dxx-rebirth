@@ -411,11 +411,8 @@ static int get_font_total_width(const grs_font &font)
 	if (font.ft_flags & FT_PROPORTIONAL)
 	{
 		int w=0;
-		const auto b = &font.ft_widths[0];
-		const auto e = &font.ft_widths[font.ft_maxchar - font.ft_minchar + 1];
-		for (auto i = b; i != e; ++i)
+		range_for (const auto v, unchecked_partial_range(font.ft_widths, static_cast<unsigned>(font.ft_maxchar - font.ft_minchar) + 1))
 		{
-			auto v = *i;
 			if (v < 0)
 				throw std::underflow_error("negative width");
 			w += v;
