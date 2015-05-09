@@ -47,22 +47,27 @@ void timer_delay(fix seconds)
 }
 
 // Replacement for timer_delay which considers calc time the program needs between frames (not reentrant)
-void timer_delay2(int fps)
+void timer_delay_bound(const unsigned caller_bound)
 {
-	static u_int32_t FrameStart=0;
-	u_int32_t FrameLoop=0;
+	static uint32_t FrameStart;
 
-	while (FrameLoop < 1000u/(GameCfg.VSync?MAXIMUM_FPS:fps))
+	uint32_t start = FrameStart;
+	const auto multiplayer = Game_mode & GM_MULTI;
+	const auto vsync = GameCfg.VSync;
+	const auto bound = vsync ? 1000u / MAXIMUM_FPS : caller_bound;
+	for (;;)
 	{
-		u_int32_t tv_now = SDL_GetTicks();
-		if (Game_mode & GM_MULTI)
+		const uint32_t tv_now = SDL_GetTicks();
+		if (multiplayer)
 			multi_do_frame(); // during long wait, keep packets flowing
-		if (FrameStart > tv_now)
-			FrameStart = tv_now;
-		if (!GameCfg.VSync)
+		if (!vsync)
 			SDL_Delay(1);
-		FrameLoop=tv_now-FrameStart;
+		if (unlikely(start > tv_now))
+			start = tv_now;
+		if (unlikely(tv_now - start >= bound))
+		{
+			FrameStart = tv_now;
+			break;
+		}
 	}
-
-	FrameStart=SDL_GetTicks();
 }
