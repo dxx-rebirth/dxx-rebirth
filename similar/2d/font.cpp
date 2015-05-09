@@ -1160,7 +1160,6 @@ void gr_set_fontcolor( int fg_color, int bg_color )
 template <bool masked_draws_background>
 static int gr_internal_string_clipped_template(int x, int y, const char *s)
 {
-	unsigned char * fp;
 	const char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing, letter;
 	int x1 = x, last_x;
@@ -1168,6 +1167,8 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 	next_row = s;
 
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto ft_flags = cv_font.ft_flags;
+	const auto proportional = ft_flags & FT_PROPORTIONAL;
 
 	while (next_row != NULL )
 	{
@@ -1184,42 +1185,38 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 			text_ptr = text_ptr1;
 			x = last_x;
 
-			while (*text_ptr)	{
-				if (*text_ptr == '\n' )	{
+			for (; const uint8_t c0 = *text_ptr; ++text_ptr)
+			{
+				if (c0 == '\n')
+				{
 					next_row = &text_ptr[1];
 					break;
 				}
-
-				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
-					text_ptr += 2;
+				if (c0 == CC_COLOR)
+				{
+					grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
 					continue;
 				}
 
-				if (*text_ptr == CC_LSPACING) {
+				if (c0 == CC_LSPACING)
+				{
 					Int3();	//	Warning: skip lines not supported for clipped strings.
-					text_ptr += 2;
+					text_ptr += 1;
 					continue;
 				}
 
-				const auto underline = unlikely(*text_ptr == CC_UNDERLINE)
+				const auto underline = unlikely(c0 == CC_UNDERLINE)
 					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
 					: 0;
-				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
+				const uint8_t c = *text_ptr;
+				get_char_width(c, text_ptr[1], &width, &spacing);
 
-				letter = (unsigned char)*text_ptr - cv_font.ft_minchar;
+				letter = c - cv_font.ft_minchar;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
-					text_ptr++;
 					continue;
 				}
-
-				if (cv_font.ft_flags & FT_PROPORTIONAL)
-					fp = cv_font.ft_chars[letter];
-				else
-					fp = cv_font.ft_data + letter * BITS_TO_BYTES(width)*cv_font.ft_h;
-
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
@@ -1227,6 +1224,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 						gr_pixel( x++, y );
 					}
 				} else {
+					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
 					fp += BITS_TO_BYTES(width)*r;
 
 					uint8_t BitMask = 0, bits;
@@ -1250,8 +1248,6 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					}
 				}
 				x += spacing-width;		//for kerning
-
-				text_ptr++;
 			}
 			y++;
 		}
