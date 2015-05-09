@@ -96,30 +96,25 @@ static inline bool INFONT(const unsigned c)
 template <typename T>
 static void get_char_width(const uint8_t c, const uint8_t c2, T *width, T *spacing)
 {
-	const unsigned letter = c - grd_curcanv->cv_font->ft_minchar;
+	const auto &cv_font = *grd_curcanv->cv_font;
+	const unsigned letter = c - cv_font.ft_minchar;
+	const auto ft_flags = cv_font.ft_flags;
+	const auto proportional = ft_flags & FT_PROPORTIONAL;
 
 	if (!INFONT(letter)) {				//not in font, draw as space
 		*width=0;
-		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
-		else
-			*spacing = grd_curcanv->cv_font->ft_w;
+		*spacing = proportional ? FONTSCALE_X(cv_font.ft_w) / 2 : cv_font.ft_w;
 		return;
 	}
-
-	if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-		*width = FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]);
-	else
-		*width = grd_curcanv->cv_font->ft_w;
-
+	*width = proportional ? FONTSCALE_X(cv_font.ft_widths[letter]) : cv_font.ft_w;
 	*spacing = *width;
-
-	if (grd_curcanv->cv_font->ft_flags & FT_KERNED)  {
+	if (ft_flags & FT_KERNED) 
+	{
 		if (!(c2==0 || c2=='\n')) {
-			const unsigned letter2 = c2-grd_curcanv->cv_font->ft_minchar;
+			const unsigned letter2 = c2 - cv_font.ft_minchar;
 
 			if (INFONT(letter2)) {
-				const auto p = find_kern_entry(*grd_curcanv->cv_font, letter, letter2);
+				const auto p = find_kern_entry(cv_font, letter, letter2);
 				if (p)
 					*spacing = FONTSCALE_X(p[2]);
 			}
