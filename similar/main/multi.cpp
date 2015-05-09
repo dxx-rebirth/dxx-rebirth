@@ -2769,8 +2769,7 @@ multi_send_reappear()
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
 }
 
-void
-multi_send_position(int objnum)
+void multi_send_position(const vobjptridx_t obj)
 {
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
@@ -2780,10 +2779,10 @@ multi_send_position(int objnum)
 	count++;
 	multibuf[count++] = (char)Player_num;
 #ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+count), &Objects[objnum],0);
+	create_shortpos((shortpos *)(multibuf+count), obj, 0);
 	count += sizeof(shortpos);
 #else
-	create_shortpos(&sp, Objects+objnum, 1);
+	create_shortpos(&sp, obj, 1);
 	memcpy(&(multibuf[count]), (ubyte *)(sp.bytemat), 9);
 	count += 9;
 	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
