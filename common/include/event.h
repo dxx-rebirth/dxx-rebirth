@@ -92,7 +92,15 @@ void event_send(const d_event &event);
 // Sends input, idle and draw events to event handlers
 void event_process();
 
-void event_toggle_focus(int activate_focus);
+void event_enable_focus();
+void event_disable_focus();
+static inline void event_toggle_focus(int activate_focus)
+{
+	if (activate_focus)
+		event_enable_focus();
+	else
+		event_disable_focus();
+}
 
 // See how long we were idle for
 void event_reset_idle_seconds();
