@@ -472,7 +472,7 @@ void ogl_cache_level_textures(void)
 						break;
 					case POW_HOMING_AMMO_1:
 					case POW_HOMING_AMMO_4:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[HOMING_INDEX]);
+						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[HOMING_INDEX]);
 						break;
 					case POW_SMARTBOMB_WEAPON:
 						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[SMART_INDEX]);
