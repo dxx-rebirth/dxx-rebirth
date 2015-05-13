@@ -2862,7 +2862,7 @@ static void make_nearby_robot_snipe(void)
 	}
 }
 
-objnum_t Ai_last_missile_camera = object_none;
+object *Ai_last_missile_camera;
 
 static int openable_door_on_near_path(const object &obj, const ai_static &aip)
 {
@@ -3048,8 +3048,8 @@ void do_ai_frame(const vobjptridx_t obj)
 		Believed_player_pos = ConsoleObject->pos;
 #elif defined(DXX_BUILD_DESCENT_II)
 	// If only awake because of a camera, make that the believed player position.
-	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && (Ai_last_missile_camera != object_none))
-		Believed_player_pos = Objects[Ai_last_missile_camera].pos;
+	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && Ai_last_missile_camera)
+		Believed_player_pos = Ai_last_missile_camera->pos;
 	else {
 		if (cheats.robotskillrobots) {
 			vis_vec_pos = obj->pos;
@@ -4330,10 +4330,11 @@ void do_ai_frame_all(void)
 	set_player_awareness_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Ai_last_missile_camera != object_none) {
+	if (Ai_last_missile_camera)
+	{
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
-		if (((d_tick_count & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
-			Ai_last_missile_camera = object_none;
+		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
+			Ai_last_missile_camera = nullptr;
 			range_for (const auto i, highest_valid(Objects))
 				if (Objects[i].type == OBJ_ROBOT)
 					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
@@ -4363,7 +4364,7 @@ void init_robots_for_level(void)
 
 	Boss_dying_start_time = 0;
 	
-	Ai_last_missile_camera = object_none;
+	Ai_last_missile_camera = nullptr;
 #endif
 }
 

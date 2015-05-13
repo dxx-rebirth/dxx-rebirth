@@ -2138,7 +2138,7 @@ objnum_t drop_marker_object(const vms_vector &pos,segnum_t segnum,const vms_matr
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.
-void wake_up_rendered_objects(const vobjptridx_t viewer, window_rendered_data &window)
+void wake_up_rendered_objects(const vobjptr_t viewer, window_rendered_data &window)
 {
 	//	Make sure that we are processing current data.
 	if (timer_query() != window.time) {

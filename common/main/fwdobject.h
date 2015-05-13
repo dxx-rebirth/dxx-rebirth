@@ -294,7 +294,7 @@ void dead_player_frame();
 // returns object number
 objnum_t drop_marker_object(const vms_vector &pos, segnum_t segnum, const vms_matrix &orient, int marker_num);
 
-void wake_up_rendered_objects(vobjptridx_t gmissp, window_rendered_data &window);
+void wake_up_rendered_objects(vobjptr_t gmissp, window_rendered_data &window);
 
 void fuelcen_check_for_goal (vsegptr_t);
 #endif
