@@ -3272,7 +3272,7 @@ void do_cockpit_window_view(int win,int user)
 	}
 }
 
-void do_cockpit_window_view(int win,const vobjptridx_t viewer,int rear_view_flag,int user,const char *label)
+void do_cockpit_window_view(int win,const vobjptr_t viewer,int rear_view_flag,int user,const char *label)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
