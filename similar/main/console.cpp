@@ -278,11 +278,6 @@ void con_showup(void)
 	}
 }
 
-static void con_close(void)
-{
-	gamelog_fp.reset();
-}
-
 void con_init(void)
 {
 	con_buffer = {};
@@ -290,6 +285,4 @@ void con_init(void)
 		gamelog_fp.reset(PHYSFS_openWrite("gamelog.txt"));
 	else
 		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
-	atexit(con_close);
 }
-
