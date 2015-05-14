@@ -187,9 +187,9 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	SDL_GetRelativeMouseState(dx, dy);
 }
 
-void mouse_toggle_cursor(int activate)
+void mouse_toggle_cursor(int noactivate)
 {
-	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
+	Mouse.cursor_enabled = (!noactivate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
 	if (!Mouse.cursor_enabled)
 		SDL_ShowCursor(SDL_DISABLE);
 }

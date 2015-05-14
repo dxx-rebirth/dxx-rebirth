@@ -181,7 +181,7 @@ static void event_change_focus()
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	else
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	mouse_toggle_cursor(!activate_focus);
+	mouse_toggle_cursor(activate_focus);
 }
 
 void event_enable_focus()
