@@ -106,11 +106,6 @@ static void multi_send_gmode_update();
 static void multi_send_quit();
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 
-static inline void vm_angvec_zero(vms_angvec *v)
-{
-	(v)->p=(v)->b=(v)->h=0;
-}
-
 //
 // Global variables
 //
@@ -2282,12 +2277,7 @@ void multi_reset_player_object(const vobjptridx_t objp)
 	objp->render_type = RT_POLYOBJ;
 	objp->rtype.pobj_info.model_num = Player_ship->model_num;               //what model is this?
 	objp->rtype.pobj_info.subobj_flags = 0;         //zero the flags
-	range_for (auto &i, objp->rtype.pobj_info.anim_angles)
-		vm_angvec_zero(&i);
-
-	//reset textures for this, if not player 0
-
-	multi_reset_object_texture (objp);
+	objp->rtype.pobj_info.anim_angles = {};
 
 	// Clear misc
 
@@ -2295,7 +2285,8 @@ void multi_reset_player_object(const vobjptridx_t objp)
 
 	if (objp->type == OBJ_GHOST)
 		objp->render_type = RT_NONE;
-
+	//reset textures for this, if not player 0
+	multi_reset_object_texture (objp);
 }
 
 void multi_reset_object_texture (const vobjptr_t objp)
