@@ -726,7 +726,7 @@ void gr_set_attributes(void)
 	gr_remap_mono_fonts();
 }
 
-int gr_init(int mode)
+int gr_init()
 {
 	int retcode;
 
@@ -768,7 +768,7 @@ int gr_init(int mode)
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.
-	if ((retcode=gr_set_mode(mode)))
+	if ((retcode=gr_set_mode(0)))
 		return retcode;
 
 	grd_curscreen->sc_canvas.cv_color = 0;

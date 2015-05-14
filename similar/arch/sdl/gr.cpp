@@ -158,7 +158,7 @@ void gr_set_attributes(void)
 {
 }
 
-int gr_init(int mode)
+int gr_init()
 {
 	int retcode;
 
@@ -186,7 +186,7 @@ int gr_init(int mode)
 		sdl_video_flags|=SDL_ASYNCBLIT;
 
 	// Set the mode.
-	if ((retcode=gr_set_mode(mode)))
+	if ((retcode=gr_set_mode(0)))
 		return retcode;
 
 	grd_curscreen->sc_canvas.cv_color = 0;

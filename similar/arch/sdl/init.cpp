@@ -61,7 +61,7 @@ void arch_init(void)
 	if (!GameArg.CtlNoJoystick)
 		joy_init();
 
-	if ((t = gr_init(0)) != 0)
+	if ((t = gr_init()) != 0)
 		Error(TXT_CANT_INIT_GFX,t);
 
 	atexit(arch_close);

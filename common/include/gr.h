@@ -192,7 +192,7 @@ public:
 	}
 };
 
-int gr_init(int mode);
+int gr_init();
 
 int gr_list_modes( array<uint32_t, 50> &gsmodes );
 int gr_set_mode(u_int32_t mode);
