@@ -43,11 +43,6 @@ struct mouseinfo : flushable_mouseinfo
 
 static mouseinfo Mouse;
 
-struct d_event_mousebutton : d_event
-{
-	int button;
-};
-
 struct d_event_mouse_moved : d_event
 {
 	short		dx, dy, dz;
@@ -204,13 +199,6 @@ void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
 	*dx = e.dx;
 	*dy = e.dy;
 	*dz = e.dz;
-}
-
-int event_mouse_get_button(const d_event &event)
-{
-	auto &e = static_cast<const d_event_mousebutton &>(event);
-	Assert(e.type == EVENT_MOUSE_BUTTON_DOWN || e.type == EVENT_MOUSE_BUTTON_UP);
-	return e.button;
 }
 
 void mouse_toggle_cursor(int activate)

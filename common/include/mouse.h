@@ -16,6 +16,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include "window.h"
 
 struct d_event;
@@ -48,7 +49,6 @@ struct SDL_MouseMotionEvent;
 extern void mouse_flush();	// clears all mice events...
 extern void mouse_init(void);
 extern void mouse_close(void);
-extern int event_mouse_get_button(const d_event &event);
 extern void mouse_get_pos( int *x, int *y, int *z );
 window_event_result mouse_in_window(struct window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
@@ -57,5 +57,18 @@ extern void mouse_toggle_cursor(int activate);
 void mouse_button_handler(struct SDL_MouseButtonEvent *mbe);
 void mouse_motion_handler(struct SDL_MouseMotionEvent *mme);
 void mouse_cursor_autohide();
+
+class d_event_mousebutton : public d_event
+{
+public:
+	int button;
+};
+
+static inline int event_mouse_get_button(const d_event &event)
+{
+	auto &e = static_cast<const d_event_mousebutton &>(event);
+	assert(e.type == EVENT_MOUSE_BUTTON_DOWN || e.type == EVENT_MOUSE_BUTTON_UP);
+	return e.button;
+}
 
 #endif
