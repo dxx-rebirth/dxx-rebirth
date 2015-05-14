@@ -177,10 +177,7 @@ void event_process(void)
 template <bool activate_focus>
 static void event_change_focus()
 {
-	if (activate_focus && GameCfg.Grabinput && !GameArg.DbgForbidConsoleGrab)
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-	else
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	SDL_WM_GrabInput(activate_focus && GameCfg.Grabinput && likely(!GameArg.DbgForbidConsoleGrab) ? SDL_GRAB_ON : SDL_GRAB_OFF);
 	mouse_toggle_cursor(activate_focus);
 }
 
