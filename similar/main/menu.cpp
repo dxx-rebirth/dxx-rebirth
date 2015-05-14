@@ -1236,56 +1236,74 @@ void input_config()
 static void reticle_config()
 {
 #ifdef OGL
-	newmenu_item m[18];
+#define DXX_RETICLE_TYPE_OGL(VERB)	\
+	DXX_##VERB##_RADIO("Classic Reboot", opt_reticle_classic_reboot, 0, optgrp_reticle)
 #else
-	newmenu_item m[17];
+#define DXX_RETICLE_TYPE_OGL(VERB)
 #endif
-	int nitems = 0, i, opt_ret_type, opt_ret_rgba, opt_ret_size;
-	nm_set_item_text(m[nitems], "Reticle Type:"); nitems++;
-	opt_ret_type = nitems;
-	nm_set_item_radio(m[nitems], "Classic", 0, 0); nitems++;
-#ifdef OGL
-	nm_set_item_radio(m[nitems], "Classic Reboot", 0, 0); nitems++;
-#endif
-	nm_set_item_radio(m[nitems], "None", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "X", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "Dot", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "Circle", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "Cross V1", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "Cross V2", 0, 0); nitems++;
-	nm_set_item_radio(m[nitems], "Angle", 0, 0); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	nm_set_item_text(m[nitems], "Reticle Color:"); nitems++;
-	opt_ret_rgba = nitems;
-	nm_set_item_slider(m[nitems], "Red", (PlayerCfg.ReticleRGBA[0]/2), 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], "Green", (PlayerCfg.ReticleRGBA[1]/2), 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], "Blue", (PlayerCfg.ReticleRGBA[2]/2), 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], "Alpha", (PlayerCfg.ReticleRGBA[3]/2), 0, 16); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	opt_ret_size = nitems;
-	nm_set_item_slider(m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
+#define DXX_RETICLE_CONFIG_MENU(VERB)	\
+	DXX_##VERB##_TEXT("Reticle Type:", opt_label_reticle_type)	\
+	DXX_##VERB##_RADIO("Classic", opt_reticle_classic, 0, optgrp_reticle)	\
+	DXX_RETICLE_TYPE_OGL(VERB)	\
+	DXX_##VERB##_RADIO("None", opt_reticle_none, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("X", opt_reticle_x, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("Dot", opt_reticle_dot, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("Circle", opt_reticle_circle, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("Cross V1", opt_reticle_cross1, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("Cross V2", opt_reticle_cross2, 0, optgrp_reticle)	\
+	DXX_##VERB##_RADIO("Angle", opt_reticle_angle, 0, optgrp_reticle)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_reticle_type)	\
+	DXX_##VERB##_TEXT("Reticle Color:", opt_label_reticle_color)	\
+	DXX_##VERB##_SCALE_SLIDER("Red", opt_reticle_color_red, PlayerCfg.ReticleRGBA[0], 0, 16, 2)	\
+	DXX_##VERB##_SCALE_SLIDER("Green", opt_reticle_color_green, PlayerCfg.ReticleRGBA[1], 0, 16, 2)	\
+	DXX_##VERB##_SCALE_SLIDER("Blue", opt_reticle_color_blue, PlayerCfg.ReticleRGBA[2], 0, 16, 2)	\
+	DXX_##VERB##_SCALE_SLIDER("Alpha", opt_reticle_color_alpha, PlayerCfg.ReticleRGBA[3], 0, 16, 2)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_reticle_color)	\
+	DXX_##VERB##_SLIDER("Reticle Size:", opt_label_reticle_size, PlayerCfg.ReticleSize, 0, 4)	\
 
-	i = PlayerCfg.ReticleType;
+	class menu_items
+	{
+	public:
+		enum
+		{
+			optgrp_reticle,
+		};
+		enum
+		{
+			DXX_RETICLE_CONFIG_MENU(ENUM)
+		};
+		array<newmenu_item, DXX_RETICLE_CONFIG_MENU(COUNT)> m;
+		menu_items()
+		{
+			DXX_RETICLE_CONFIG_MENU(ADD);
+		}
+		void read()
+		{
+			DXX_RETICLE_CONFIG_MENU(READ);
+		}
+	};
+#undef DXX_RETICLE_CONFIG_MENU
+#undef DXX_RETICLE_TYPE_OGL
+	menu_items items;
+	auto i = PlayerCfg.ReticleType;
 #ifndef OGL
 	if (i > 1) i--;
 #endif
-	m[opt_ret_type+i].value=1;
+	items.m[items.opt_reticle_classic + i].value = 1;
 
-	newmenu_do1( NULL, "Reticle Options", nitems, m, unused_newmenu_subfunction, unused_newmenu_userdata, 1 );
+	newmenu_do1(nullptr, "Reticle Options", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
-#ifdef OGL
-	for (i = 0; i < 9; i++)
-		if (m[i+opt_ret_type].value)
-			PlayerCfg.ReticleType = i;
-#else
-	for (i = 0; i < 8; i++)
-		if (m[i+opt_ret_type].value)
-			PlayerCfg.ReticleType = i;
-	if (PlayerCfg.ReticleType > 1) PlayerCfg.ReticleType++;
+	for (uint_fast32_t i = items.opt_reticle_classic; i != items.opt_label_blank_reticle_type; ++i)
+		if (items.m[i].value)
+		{
+#ifndef OGL
+			if (i != items.opt_reticle_classic)
+				++i;
 #endif
-	for (i = 0; i < 4; i++)
-		PlayerCfg.ReticleRGBA[i] = (m[i+opt_ret_rgba].value*2);
-	PlayerCfg.ReticleSize = m[opt_ret_size].value;
+			PlayerCfg.ReticleType = i - items.opt_reticle_classic;
+			break;
+		}
+	items.read();
 }
 
 #define DXX_GRAPHICS_MENU(VERB)	\

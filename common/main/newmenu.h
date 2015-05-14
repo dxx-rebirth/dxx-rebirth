@@ -431,6 +431,7 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+#define DXX_READ_RADIO(S,OPT,C,G)	/* handled specially */
 #define DXX_READ_NUMBER(S,OPT,V,MIN,MAX)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\
