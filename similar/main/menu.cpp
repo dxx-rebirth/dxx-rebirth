@@ -1059,51 +1059,59 @@ void change_res()
 
 static void input_config_sensitivity()
 {
-	newmenu_item m[33];
-	int i = 0, nitems = 0, keysens = 0, joysens = 0, joydead = 0, mousesens = 0, mousefsdead;
+#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
 
-	nm_set_item_text(m[nitems++], "Keyboard Sensitivity:");
-	keysens = nitems;
-	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.KeyboardSens[0], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.KeyboardSens[1], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
-	nm_set_item_text(m[nitems++], "");
-	nm_set_item_text(m[nitems++], "Joystick Sensitivity:");
-	joysens = nitems;
-	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.JoystickSens[0], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickSens[1], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickSens[2], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickSens[3], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.JoystickSens[4], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.JoystickSens[5], 0, 16); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	nm_set_item_text(m[nitems], "Joystick Deadzone:"); nitems++;
-	joydead = nitems;
-	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.JoystickDead[0], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickDead[1], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickDead[2], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickDead[3], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.JoystickDead[4], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.JoystickDead[5], 0, 16); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	nm_set_item_text(m[nitems], "Mouse Sensitivity:"); nitems++;
-	mousesens = nitems;
-	nm_set_item_slider(m[nitems], TXT_TURN_LR, PlayerCfg.MouseSens[0], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_PITCH_UD, PlayerCfg.MouseSens[1], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_LR, PlayerCfg.MouseSens[2], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_SLIDE_UD, PlayerCfg.MouseSens[3], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_BANK_LR, PlayerCfg.MouseSens[4], 0, 16); nitems++;
-	nm_set_item_slider(m[nitems], TXT_THROTTLE, PlayerCfg.MouseSens[5], 0, 16); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	nm_set_item_text(m[nitems], "Mouse FlightSim Deadzone:"); nitems++;
-	mousefsdead = nitems;
-	nm_set_item_slider(m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
+#define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
 
-	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+#define DXX_INPUT_CONFIG_MENU(VERB)	\
+	DXX_##VERB##_TEXT("Keyboard Sensitivity:", opt_label_kb)	\
+	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_kb)	\
+	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
+	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_jd)	\
+	DXX_##VERB##_TEXT("Mouse Sensitivity:", opt_label_ms)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_ms)	\
+	DXX_##VERB##_TEXT("Mouse FlightSim Deadzone:", opt_label_mfsd)	\
+	DXX_##VERB##_SLIDER("X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
 
-	for (i = 0; i <= 5; i++)
+	class menu_items
+	{
+	public:
+		enum
+		{
+			DXX_INPUT_CONFIG_MENU(ENUM)
+		};
+		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		menu_items()
+		{
+			DXX_INPUT_CONFIG_MENU(ADD);
+		}
+	};
+#undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_THROTTLE_SENSITIVITY
+#undef DXX_INPUT_SENSITIVITY
+	menu_items items;
+	newmenu_do1(nullptr, "SENSITIVITY & DEADZONE", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+
+	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
+	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
+	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
+	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
+	const auto &m = items.m;
+
+	for (unsigned i = 0; i <= 5; i++)
 	{
 		if (i < 5)
 			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
@@ -1111,6 +1119,7 @@ static void input_config_sensitivity()
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
 	}
+	constexpr uint_fast32_t mousefsdead = items.opt_mfsd_deadzone;
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
