@@ -43,8 +43,8 @@ static void con_add_buffer_line(int priority, const char *buffer, size_t len)
 	c.priority=priority;
 
 	size_t copy = std::min(len, CON_LINE_LENGTH - 1);
-	memcpy(&c.line,buffer, copy);
 	c.line[copy] = 0;
+	memcpy(&c.line,buffer, copy);
 }
 
 void (con_printf)(int priority, const char *fmt, ...)
@@ -69,7 +69,7 @@ static void con_scrub_markup(char *buffer)
 		{
 			case CC_COLOR:
 			case CC_LSPACING:
-				if (!*p1++)
+				if (!*++p1)
 					break;
 			case CC_UNDERLINE:
 				p1++;
