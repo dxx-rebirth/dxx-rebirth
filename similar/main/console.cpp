@@ -124,6 +124,24 @@ void con_puts(int priority, const char *buffer, size_t len)
 	}
 }
 
+static color_t get_console_color_by_priority(int priority)
+{
+	switch (priority)
+	{
+		case CON_CRITICAL:
+			return BM_XRGB(28,0,0);
+		case CON_URGENT:
+			return BM_XRGB(54,54,0);
+		case CON_DEBUG:
+		case CON_VERBOSE:
+			return BM_XRGB(14,14,14);
+		case CON_HUD:
+			return BM_XRGB(0,28,0);
+		default:
+			return BM_XRGB(255,255,255);
+	}
+}
+
 static void con_draw(void)
 {
 	int i = 0, y = 0, done = 0;
@@ -143,25 +161,7 @@ static void con_draw(void)
 	{
 		int w,h,aw;
 
-		switch (con_buffer[CON_LINES_MAX-1-i].priority)
-		{
-			case CON_CRITICAL:
-				gr_set_fontcolor(BM_XRGB(28,0,0),-1);
-				break;
-			case CON_URGENT:
-				gr_set_fontcolor(BM_XRGB(54,54,0),-1);
-				break;
-			case CON_DEBUG:
-			case CON_VERBOSE:
-				gr_set_fontcolor(BM_XRGB(14,14,14),-1);
-				break;
-			case CON_HUD:
-				gr_set_fontcolor(BM_XRGB(0,28,0),-1);
-				break;
-			default:
-				gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-				break;
-		}
+		gr_set_fontcolor(get_console_color_by_priority(con_buffer[CON_LINES_MAX-1-i].priority), -1);
 		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
 		y-=h+FSPACY(1);
 		gr_string(FSPACX(1),y,con_buffer[CON_LINES_MAX-1-i].line);
