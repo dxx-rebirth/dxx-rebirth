@@ -407,7 +407,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	gr_palette_load(gr_palette);
 	(void)hires_flag;
 #else
-	gr_set_mode(SM((hires_flag?640:320),(hires_flag?480:200)));
+	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);

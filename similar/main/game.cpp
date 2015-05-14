@@ -173,8 +173,7 @@ void reset_palette_add()
 	PaletteBlueAdd		= 0;
 }
 
-
-u_int32_t Game_screen_mode = SM(640,480);
+screen_mode Game_screen_mode{640, 480};
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
@@ -189,11 +188,15 @@ void init_cockpit()
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 
 #ifndef OGL
+	if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+	{
 #if defined(DXX_BUILD_DESCENT_II)
-	int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
+		int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
 #endif
-	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		auto full_screen_mode = HiresGFXAvailable ? screen_mode{640, 480} : screen_mode{320, 200};
+		if (Game_screen_mode != full_screen_mode) {
+			PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		}
 	}
 #endif
 
@@ -228,14 +231,14 @@ void init_cockpit()
 			break;
 
 		case CM_LETTERBOX:	{
-			int x,y,w,h;
+			const unsigned gsm_height = SM_H(Game_screen_mode);
+			const unsigned w = SM_W(Game_screen_mode);
+			const unsigned h = (gsm_height * 3) / 4; // true letterbox size (16:9)
+			const unsigned x = 0;
+			const unsigned y = (gsm_height - h) / 2;
 
-			x = 0; w = SM_W(Game_screen_mode);
-			h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
-			y = (SM_H(Game_screen_mode)-h)/2;
-
-			gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
-			gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
+			gr_rect(x, 0, w, gsm_height - h);
+			gr_rect(x, gsm_height - h, w, gsm_height);
 
 			game_init_render_sub_buffers( x, y, w, h );
 			break;
@@ -272,7 +275,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->get_screen_width_height() != Game_screen_mode)) && !(sm==SCREEN_MENU) )
+	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->get_screen_mode() != Game_screen_mode)) && !(sm==SCREEN_MENU) )
 	{
 		gr_set_current_canvas(NULL);
 		return 1;
@@ -287,33 +290,42 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
-			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
+			if  (grd_curscreen->get_screen_mode() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
-			if  (grd_curscreen->get_screen_width_height() != Game_screen_mode)
+			if  (grd_curscreen->get_screen_mode() != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
-			if (grd_curscreen->get_screen_width_height() != SM(800,600))	{
+		{
+			const screen_mode editor_mode{800, 600};
+			if (grd_curscreen->get_screen_mode() != editor_mode)
+			{
 				int gr_error;
-				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
+				if ((gr_error = gr_set_mode(editor_mode)) != 0) { //force into game scrren
 					Warning("Cannot init editor screen (error=%d)",gr_error);
 					return 0;
 				}
 			}
+		}
 			break;
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
 		case SCREEN_MOVIE:
-			if (grd_curscreen->get_screen_width_height() != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
-				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
+		{
+			const screen_mode movie_mode{MOVIE_WIDTH, MOVIE_HEIGHT};
+			if (grd_curscreen->get_screen_mode() != movie_mode)
+			{
+				if (gr_set_mode(movie_mode))
+					Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );
 			}
+		}
 			break;
 #endif
 		default:

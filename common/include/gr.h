@@ -85,11 +85,6 @@ struct grs_point
 #define BM_OGL      5
 #endif /* def OGL */
 
-#define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
-#define SM_W(m) (m>>16)
-#define SM_H(m) (m&0xFFFF)
-#define SM_ORIGINAL		0
-
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
 #define BM_FLAG_NO_LIGHTING         4
@@ -166,36 +161,71 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 // canvas.  Saves the current VGA state and screen mode.
 
 #ifdef __cplusplus
+union screen_mode
+{
+private:
+	uint32_t wh;
+public:
+	struct {
+		uint16_t width, height;
+	};
+	bool operator==(const screen_mode &rhs)
+	{
+		return wh == rhs.wh;
+	}
+	bool operator!=(const screen_mode &rhs)
+	{
+		return !(*this == rhs);
+	}
+	screen_mode() = default;
+#ifdef DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR
+	constexpr
+#endif
+		screen_mode(uint16_t &&w, uint16_t &&h) :
+		width(w), height(h)
+	{
+	}
+};
+
+static inline uint16_t SM_W(const screen_mode &s)
+{
+	return s.width;
+}
+
+static inline uint16_t SM_H(const screen_mode &s)
+{
+	return s.height;
+}
+
+uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
+int gr_set_mode(screen_mode mode);
 
 class grs_screen : prohibit_void_ptr<grs_screen>
 {    // This is a video screen
-	unsigned short   sc_w, sc_h;     // Actual Width and Height
+	screen_mode sc_mode;
 public:
 	grs_canvas  sc_canvas;  // Represents the entire screen
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
-	uint_fast32_t get_screen_width() const
+	uint16_t get_screen_width() const
 	{
-		return sc_w;
+		return SM_W(sc_mode);
 	}
-	uint_fast32_t get_screen_height() const
+	uint16_t get_screen_height() const
 	{
-		return sc_h;
+		return SM_H(sc_mode);
 	}
-	uint_fast32_t get_screen_width_height() const
+	screen_mode get_screen_mode() const
 	{
-		return SM(get_screen_width(), get_screen_height());
+		return sc_mode;
 	}
 	void set_screen_width_height(uint16_t w, uint16_t h)
 	{
-		sc_w = w;
-		sc_h = h;
+		sc_mode.width = w;
+		sc_mode.height = h;
 	}
 };
 
 int gr_init();
-
-int gr_list_modes( array<uint32_t, 50> &gsmodes );
-int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
 //shut down the 2d.  Restore the screen mode.

@@ -460,14 +460,17 @@ void gr_toggle_fullscreen()
 	if (gl_initialized)
 	{
 		if (sdl_no_modeswitch == 0) {
-			if (!SDL_VideoModeOK(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
+			auto gsm = Game_screen_mode;
+			if (!SDL_VideoModeOK(gsm.width, gsm.height, GameArg.DbgBpp, sdl_video_flags))
 			{
-				con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480",SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-				Game_screen_mode=SM(640,480);
+				con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", gsm.width, gsm.height);
+				gsm.width = 640;
+				gsm.height = 480;
+				Game_screen_mode = gsm;
 			}
-			if (!SDL_SetVideoMode(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
+			if (!SDL_SetVideoMode(gsm.width, gsm.height, GameArg.DbgBpp, sdl_video_flags))
 			{
-				Error("Could not set %dx%dx%d opengl video mode: %s\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, SDL_GetError());
+				Error("Could not set %dx%dx%d opengl video mode: %s\n", gsm.width, gsm.height, GameArg.DbgBpp, SDL_GetError());
 			}
 		}
 #ifdef RPI
@@ -570,7 +573,7 @@ static void ogl_get_verinfo(void)
 }
 
 // returns possible (fullscreen) resolutions if any.
-int gr_list_modes( array<uint32_t, 50> &gsmodes )
+uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
 	SDL_Rect** modes;
 	int modesnum = 0;
@@ -602,46 +605,37 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 			if (modes[i]->w > 0xFFF0 || modes[i]->h > 0xFFF0 // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010) (changed to 0xFFF0 to fix warning)
 				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
 				continue;
-			gsmodes[modesnum] = SM(modes[i]->w,modes[i]->h);
+			gsmodes[modesnum].width = modes[i]->w;
+			gsmodes[modesnum].height = modes[i]->h;
 			modesnum++;
-			if (modesnum >= 50) // that really seems to be enough big boy.
+			if (modesnum >= gsmodes.size()) // that really seems to be enough big boy.
 				break;
 		}
 		return modesnum;
 	}
 }
 
-static int gr_check_mode(uint32_t mode)
+static int gr_check_mode(const screen_mode mode)
 {
-	unsigned int w, h;
-	w=SM_W(mode);
-	h=SM_H(mode);
 	if (sdl_no_modeswitch == 0) {
-		return SDL_VideoModeOK(w, h, GameArg.DbgBpp, sdl_video_flags);
+		return SDL_VideoModeOK(SM_W(mode), SM_H(mode), GameArg.DbgBpp, sdl_video_flags);
 	} else {
 		// just tell the caller that any mode is valid...
 		return 32;
 	}
 }
 
-int gr_set_mode(u_int32_t mode)
+int gr_set_mode(screen_mode mode)
 {
-	unsigned int w, h;
 	unsigned char *gr_bm_data;
-
-	if (mode<=0)
-		return 0;
-
-	w=SM_W(mode);
-	h=SM_H(mode);
-
 	if (!gr_check_mode(mode))
 	{
-		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480",w,h);
-		w=640;
-		h=480;
-		Game_screen_mode=mode=SM(w,h);
+		con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", mode.width, mode.height);
+		mode.width = 640;
+		mode.height = 480;
+		Game_screen_mode = mode;
 	}
+	const uint_fast32_t w = SM_W(mode), h = SM_H(mode);
 
 	gr_bm_data = grd_curscreen->sc_canvas.cv_bitmap.get_bitmap_data();//since we use realloc, we want to keep this pointer around.
 	unsigned char *gr_new_bm_data = (unsigned char *)d_realloc(gr_bm_data,w*h);

@@ -48,7 +48,7 @@ void gr_flip()
 }
 
 // returns possible (fullscreen) resolutions if any.
-int gr_list_modes( array<uint32_t, 50> &gsmodes )
+uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
 	SDL_Rect** modes;
 	int modesnum = 0;
@@ -73,42 +73,36 @@ int gr_list_modes( array<uint32_t, 50> &gsmodes )
 			if (modes[i]->w > 0xFFF0 || modes[i]->h > 0xFFF0 // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010) (kreatordxx - made 0xFFF0 to kill warning)
 				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
 				continue;
-			gsmodes[modesnum] = SM(modes[i]->w,modes[i]->h);
+			gsmodes[modesnum].width = modes[i]->w;
+			gsmodes[modesnum].height = modes[i]->h;
 			modesnum++;
-			if (modesnum >= 50) // that really seems to be enough big boy.
+			if (modesnum >= gsmodes.size()) // that really seems to be enough big boy.
 				break;
 		}
 		return modesnum;
 	}
 }
 
-int gr_set_mode(u_int32_t mode)
+int gr_set_mode(screen_mode mode)
 {
-	unsigned int w, h;
-
-	if (mode<=0)
-		return 0;
-
-	w=SM_W(mode);
-	h=SM_H(mode);
 	screen=NULL;
 
 	SDL_WM_SetCaption(DESCENT_VERSION, DXX_SDL_WINDOW_CAPTION);
 	SDL_WM_SetIcon( SDL_LoadBMP( DXX_SDL_WINDOW_ICON_BITMAP ), NULL );
 
 	const auto sdl_video_flags = ::sdl_video_flags;
-	if(SDL_VideoModeOK(w,h,GameArg.DbgBpp,sdl_video_flags))
+	if(SDL_VideoModeOK(SM_W(mode), SM_H(mode), GameArg.DbgBpp, sdl_video_flags))
 	{
-		screen=SDL_SetVideoMode(w, h, GameArg.DbgBpp, sdl_video_flags);
 	}
 	else
 	{
-		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480",w,h);
-		w=640;
-		h=480;
-		Game_screen_mode=mode=SM(w,h);
-		screen=SDL_SetVideoMode(w, h, GameArg.DbgBpp, sdl_video_flags);
+		con_printf(CON_URGENT,"Cannot set %hux%hu. Fallback to 640x480", SM_W(mode), SM_H(mode));
+		mode.width = 640;
+		mode.height = 480;
+		Game_screen_mode = mode;
 	}
+	const unsigned w = SM_W(mode), h = SM_H(mode);
+	screen = SDL_SetVideoMode(w, h, GameArg.DbgBpp, sdl_video_flags);
 
 	if (screen == NULL)
 	{

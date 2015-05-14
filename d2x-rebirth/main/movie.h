@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _MOVIE_H
-#define _MOVIE_H
+#pragma once
 
 #ifdef __cplusplus
 #include "d2x-rebirth/libmve/mvelib.h"
@@ -37,11 +36,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_ABORTED       2   // movie started by was aborted
 
 #ifdef OGL
-#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_width() < 640 ? 640: grd_curscreen->get_screen_width())
-#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_height() < 480 ? 480: grd_curscreen->get_screen_height())
+#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_width() < 640 ? static_cast<uint16_t>(640) : grd_curscreen->get_screen_width())
+#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_height() < 480 ? static_cast<uint16_t>(480) : grd_curscreen->get_screen_height())
 #else
-#define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie?640:320)
-#define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie?480:200)
+#define MOVIE_WIDTH  static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 640 : 320)
+#define MOVIE_HEIGHT static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 480 : 200)
 #endif
 
 extern int PlayMovie(const char *subtitles, const char *filename, int allow_abort);
@@ -59,5 +58,3 @@ void close_extra_robot_movie();
 extern int MovieHires;      // specifies whether movies use low or high res
 
 #endif
-
-#endif /* _MOVIE_H */

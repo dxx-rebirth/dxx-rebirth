@@ -108,7 +108,7 @@ extern int ft_preference;
 #define NDL 5       // Number of difficulty levels.
 
 extern int Game_mode;
-extern u_int32_t Game_screen_mode;
+extern screen_mode Game_screen_mode;
 
 extern int gauge_message_on;
 

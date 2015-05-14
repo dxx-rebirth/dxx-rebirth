@@ -217,7 +217,10 @@ int ReadConfigFile()
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
 	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
-		Game_screen_mode = SM(GameCfg.ResolutionX,GameCfg.ResolutionY);
+	{
+		Game_screen_mode.width = GameCfg.ResolutionX;
+		Game_screen_mode.height = GameCfg.ResolutionY;
+	}
 
 	return 0;
 }

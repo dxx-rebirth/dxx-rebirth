@@ -780,6 +780,26 @@ constexpr A a(){return {};}
 '''
 		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr'):
 			raise SCons.Errors.StopError("C++ compiler does not support constexpr.")
+	@_custom_test
+	def check_constexpr_union_constructor(self,context):
+		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
+		# <=gcc-4.7.x ICE on constexpr union constructors with anonymous
+		# substructure.
+		# Works fine without the substructure.
+		# Works fine in >=gcc-4.8 regardless of substructure.
+		f = '''
+union U {
+	struct {
+		int a;
+	};
+	constexpr U(int b) :
+		a(b)
+	{
+	}
+};
+U a{640};
+'''
+		self.Cxx11Compile(context, text=f, msg='whether compiler supports constexpr union constructors', successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']})
 	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:

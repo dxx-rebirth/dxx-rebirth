@@ -945,17 +945,15 @@ static int gcd(int a, int b)
 
 void change_res()
 {
-	array<uint32_t, 50> modes;
-	u_int32_t new_mode = 0;
-	int i = 0, mc = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
+	array<screen_mode, 50> modes;
+	int i = 0, mc = 0, citem = -1;
 
-	unsigned num_presets = gr_list_modes(modes);
+	const auto num_presets = gr_list_modes(modes);
 
-	{
 	newmenu_item m[50+8];
 	char restext[50][12], crestext[12], casptext[12];
 
-	range_for (const auto i, partial_range(modes, num_presets))
+	range_for (const auto &i, partial_range(modes, num_presets))
 	{
 		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(i), SM_H(i));
 
@@ -967,19 +965,19 @@ void change_res()
 
 	nm_set_item_text(m[mc], ""); mc++; // little space for overview
 	// the fields for custom resolution and aspect
-	opt_cval = mc;
+	const auto opt_cval = mc;
 	nm_set_item_radio(m[mc], "use custom values", (citem == -1), 0); mc++;
 	nm_set_item_text(m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	nm_set_item_input(m[mc], crestext);
-	modes[mc] = 0; mc++;
+	mc++;
 	nm_set_item_text(m[mc], "aspect:"); mc++;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
 	nm_set_item_input(m[mc], casptext);
-	modes[mc] = 0; mc++;
+	mc++;
 	nm_set_item_text(m[mc], ""); mc++; // little space for overview
 	// fullscreen
-	opt_fullscr = mc;
+	const auto opt_fullscr = mc;
 	nm_set_item_checkbox(m[mc], "Fullscreen", gr_check_fullscreen());
 	mc++;
 
@@ -997,25 +995,27 @@ void change_res()
 	if (m[opt_fullscr].value != gr_check_fullscreen())
 		gr_toggle_fullscreen();
 
+	screen_mode new_mode;
 	if (i == opt_cval) // set custom resolution and aspect
 	{
 		char *x;
 		unsigned long w = strtoul(crestext, &x, 10), h;
-		uint32_t cmode;
+		screen_mode cmode;
 		if (*x != 'x' || ((h = strtoul(x + 1, &x, 10)), *x))
 		{
 			nm_messagebox(TXT_WARNING, 1, "OK", "Entered resolution is bad.\nReverting ...");
-			cmode = 0;
+			cmode = {};
 		}
 		else if (w < 320 || h < 200)
 		{
 			// oh oh - the resolution is too small. Revert!
 			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			cmode = 0;
+			cmode = {};
 		}
 		else
 		{
-			cmode = SM(w, h);
+			cmode.width = w;
+			cmode.height = h;
 		}
 		auto casp = cmode;
 		w = strtoul(casptext, &x, 10);
@@ -1026,17 +1026,20 @@ void change_res()
 		else
 		{
 			// we even have a custom aspect set up
-			casp = SM(w, h);
+			casp.width = w;
+			casp.height = h;
 		}
-		GameCfg.AspectY = SM_W(casp)/gcd(SM_W(casp),SM_H(casp));
-		GameCfg.AspectX = SM_H(casp)/gcd(SM_W(casp),SM_H(casp));
+		const auto g = gcd(SM_W(casp), SM_H(casp));
+		GameCfg.AspectY = SM_W(casp) / g;
+		GameCfg.AspectX = SM_H(casp) / g;
 		new_mode = cmode;
 	}
 	else if (i >= 0 && i < num_presets) // set preset resolution
 	{
 		new_mode = modes[i];
-		GameCfg.AspectY = SM_W(new_mode)/gcd(SM_W(new_mode),SM_H(new_mode));
-		GameCfg.AspectX = SM_H(new_mode)/gcd(SM_W(new_mode),SM_H(new_mode));
+		const auto g = gcd(SM_W(new_mode), SM_H(new_mode));
+		GameCfg.AspectY = SM_W(new_mode) / g;
+		GameCfg.AspectX = SM_H(new_mode) / g;
 	}
 
 	// clean up and apply everything
@@ -1054,7 +1057,6 @@ void change_res()
 		}
 	}
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	}
 }
 
 static void input_config_sensitivity()
