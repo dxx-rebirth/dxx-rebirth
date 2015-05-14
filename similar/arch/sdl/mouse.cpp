@@ -26,7 +26,6 @@ namespace {
 
 struct flushable_mouseinfo
 {
-	array<uint8_t, MOUSE_MAX_BUTTONS> button_state;
 	int    delta_x, delta_y, delta_z;
 	int z;
 };
@@ -89,8 +88,6 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		d_event_mouse_moved event2{};
 		event2.type = EVENT_MOUSE_MOVED;
 
-		Mouse.button_state[button] = 1;
-
 		if (button == MBTN_Z_UP) {
 			Mouse.delta_z += Z_SENSITIVITY;
 			Mouse.z += Z_SENSITIVITY;
@@ -107,8 +104,6 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			//		   event2.dx, event2.dy, event2.dz);
 			event_send(event2);
 		}
-	} else {
-		Mouse.button_state[button] = 0;
 	}
 	
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
@@ -119,7 +114,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event_send(event);
 	
 	//Double-click support
-	if (Mouse.button_state[button])
+	if (mbe->state == SDL_PRESSED)
 	{
 		if (timer_query() <= Mouse.time_lastpressed[button] + F1_0/5)
 		{
