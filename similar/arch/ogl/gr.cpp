@@ -728,8 +728,6 @@ void gr_set_attributes(void)
 
 int gr_init()
 {
-	int retcode;
-
 	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
@@ -768,9 +766,6 @@ int gr_init()
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	// Set the mode.
-	if ((retcode=gr_set_mode(0)))
-		return retcode;
-
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_fade_level = GR_FADE_OFF;
 	grd_curscreen->sc_canvas.cv_blend_func = GR_BLEND_NORMAL;
