@@ -43,11 +43,6 @@ struct mouseinfo : flushable_mouseinfo
 
 static mouseinfo Mouse;
 
-struct d_event_mouse_moved : d_event
-{
-	short		dx, dy, dz;
-};
-
 void mouse_init(void)
 {
 	Mouse = {};
@@ -190,15 +185,6 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
 	SDL_GetRelativeMouseState(dx, dy);
-}
-
-void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
-{
-	auto &e = static_cast<const d_event_mouse_moved &>(event);
-	Assert(e.type == EVENT_MOUSE_MOVED);
-	*dx = e.dx;
-	*dy = e.dy;
-	*dz = e.dz;
 }
 
 void mouse_toggle_cursor(int activate)
