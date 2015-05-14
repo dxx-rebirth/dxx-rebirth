@@ -1123,15 +1123,60 @@ static void input_config_sensitivity()
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
-static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
-static int input_config_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+namespace {
+
+class input_config_menu_items
 {
-	newmenu_item *items = newmenu_get_items(menu);
+#define DXX_INPUT_CONFIG_MENU(VERB)	\
+	DXX_##VERB##_CHECK("Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK)	\
+	DXX_##VERB##_CHECK("Use mouse", opt_ic_usemouse, PlayerCfg.ControlType & CONTROL_USING_MOUSE)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_use)	\
+	DXX_##VERB##_MENU(TXT_CUST_KEYBOARD, opt_ic_confkey)	\
+	DXX_##VERB##_MENU("Customize Joystick", opt_ic_confjoy)	\
+	DXX_##VERB##_MENU("Customize Mouse", opt_ic_confmouse)	\
+	DXX_##VERB##_MENU("Customize Weapon Keys", opt_ic_confweap)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_customize)	\
+	DXX_##VERB##_TEXT("Mouse Control Type:", opt_label_mouse_control_type)	\
+	DXX_##VERB##_RADIO("Normal", opt_mouse_control_normal, PlayerCfg.MouseFlightSim == 0, optgrp_mouse_control_type)	\
+	DXX_##VERB##_RADIO("FlightSim", opt_mouse_control_flightsim, PlayerCfg.MouseFlightSim == 1, optgrp_mouse_control_type)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_mouse_control_type)	\
+	DXX_##VERB##_MENU("SENSITIVITY & DEADZONE", opt_ic_joymousesens)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_sensitivity_deadzone)	\
+	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, GameCfg.Grabinput)	\
+	DXX_##VERB##_CHECK("Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_focus)	\
+	DXX_##VERB##_MENU("GAME SYSTEM KEYS", opt_ic_help0)	\
+	DXX_##VERB##_MENU("NETGAME SYSTEM KEYS", opt_ic_help1)	\
+	DXX_##VERB##_MENU("DEMO SYSTEM KEYS", opt_ic_help2)	\
+
+public:
+	enum
+	{
+		optgrp_mouse_control_type,
+	};
+	enum
+	{
+		DXX_INPUT_CONFIG_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+	input_config_menu_items()
+	{
+		DXX_INPUT_CONFIG_MENU(ADD);
+	}
+	static int menuset(newmenu *, const d_event &event, input_config_menu_items *pitems);
+#undef DXX_INPUT_CONFIG_MENU
+};
+
+}
+
+int input_config_menu_items::menuset(newmenu *, const d_event &event, input_config_menu_items *pitems)
+{
+	const auto &items = pitems->m;
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 		{
-			auto &citem = static_cast<const d_change_event &>(event).citem;
+			const auto citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_ic_usejoy)
 			{
 				constexpr auto flag = CONTROL_USING_JOYSTICK;
@@ -1148,9 +1193,9 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 				else
 					PlayerCfg.ControlType &= ~flag;
 			}
-			if (citem == opt_ic_mouseflightsim)
+			if (citem == opt_mouse_control_normal)
 				PlayerCfg.MouseFlightSim = 0;
-			if (citem == opt_ic_mouseflightsim+1)
+			if (citem == opt_mouse_control_flightsim)
 				PlayerCfg.MouseFlightSim = 1;
 			if (citem == opt_ic_grabinput)
 				GameCfg.Grabinput = items[citem].value;
@@ -1160,7 +1205,7 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 		}
 		case EVENT_NEWMENU_SELECTED:
 		{
-			auto &citem = static_cast<const d_select_event &>(event).citem;
+			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
 				kconfig(0, "KEYBOARD");
 			if (citem == opt_ic_confjoy)
@@ -1189,48 +1234,8 @@ static int input_config_menuset(newmenu *menu,const d_event &event, const unused
 
 void input_config()
 {
-	newmenu_item m[20];
-	int nitems = 0;
-
-	opt_ic_usejoy = nitems;
-	nm_set_item_checkbox(m[nitems], "USE JOYSTICK", (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK));
-	nitems++;
-	opt_ic_usemouse = nitems;
-	nm_set_item_checkbox(m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE));
-	nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	opt_ic_confkey = nitems;
-	nm_set_item_menu(m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
-	opt_ic_confjoy = nitems;
-	nm_set_item_menu(m[nitems], "CUSTOMIZE JOYSTICK"); nitems++;
-	opt_ic_confmouse = nitems;
-	nm_set_item_menu(m[nitems], "CUSTOMIZE MOUSE"); nitems++;
-	opt_ic_confweap = nitems;
-	nm_set_item_menu(m[nitems], "CUSTOMIZE WEAPON KEYS"); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	nm_set_item_text(m[nitems], "MOUSE CONTROL TYPE:"); nitems++;
-	opt_ic_mouseflightsim = nitems;
-	nm_set_item_radio(m[nitems], "normal", !PlayerCfg.MouseFlightSim, 0); nitems++;
-	nm_set_item_radio(m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	opt_ic_joymousesens = nitems;
-	nm_set_item_menu(m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	opt_ic_grabinput = nitems;
-	nm_set_item_checkbox(m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput);
-	nitems++;
-	opt_ic_mousefsgauge = nitems;
-	nm_set_item_checkbox(m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator);
-	nitems++;
-	nm_set_item_text(m[nitems], ""); nitems++;
-	opt_ic_help0 = nitems;
-	nm_set_item_menu(m[nitems], "GAME SYSTEM KEYS"); nitems++;
-	opt_ic_help1 = nitems;
-	nm_set_item_menu(m[nitems], "NETGAME SYSTEM KEYS"); nitems++;
-	opt_ic_help2 = nitems;
-	nm_set_item_menu(m[nitems], "DEMO SYSTEM KEYS"); nitems++;
-
-	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, unused_newmenu_userdata, 3);
+	input_config_menu_items menu_items;
+	newmenu_do1(nullptr, TXT_CONTROLS, menu_items.m.size(), menu_items.m.data(), &input_config_menu_items::menuset, &menu_items, 3);
 }
 
 static void reticle_config()
