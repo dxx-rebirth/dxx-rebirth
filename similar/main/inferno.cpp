@@ -458,8 +458,6 @@ int main(int argc, char *argv[])
 	con_printf(CON_DEBUG, "Initializing font system..." );
 	gamefont_init();	// must load after palette data loaded.
 
-	set_default_handler(standard_handler);
-
 #if defined(DXX_BUILD_DESCENT_II)
 	con_printf( CON_DEBUG, "Initializing movie libraries..." );
 	init_movies();		//init movie libraries

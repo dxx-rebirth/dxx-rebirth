@@ -102,19 +102,9 @@ int event_init()
 	return 0;
 }
 
-int (*default_handler)(const d_event &event) = NULL;
-
-void set_default_handler(int (*handler)(const d_event &event))
-{
-	default_handler = handler;
-}
-
 int call_default_handler(const d_event &event)
 {
-	if (default_handler)
-		return (*default_handler)(event);
-	
-	return 0;
+	return standard_handler(event);
 }
 
 void event_send(const d_event &event)
