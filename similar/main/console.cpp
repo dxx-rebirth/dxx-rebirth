@@ -234,7 +234,8 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 				if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))
 				{
 					last_scroll_time = timer_query();
-					con_size++;
+					if (++ con_size >= CON_LINES_ONSCREEN)
+						con_state = CON_STATE_OPEN;
 				}
 			}
 			else if (con_state == CON_STATE_CLOSING)
@@ -242,13 +243,10 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 				if (con_size > 0 && timer_query() >= last_scroll_time+(F1_0/30))
 				{
 					last_scroll_time = timer_query();
-					con_size--;
+					if (! -- con_size)
+						con_state = CON_STATE_CLOSED;
 				}
 			}
-			if (con_size >= CON_LINES_ONSCREEN)
-				con_state = CON_STATE_OPEN;
-			else if (con_size <= 0)
-				con_state = CON_STATE_CLOSED;
 			con_draw();
 			if (con_state == CON_STATE_CLOSED && wind)
 			{
