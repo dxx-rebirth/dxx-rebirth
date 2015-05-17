@@ -232,7 +232,6 @@ static inline void game_init_render_buffers (int render_max_w, int render_max_h)
 }
 
 extern int netplayerinfo_on;
-extern int	Slide_segs_computed;
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int game_mode_capture_flag()
@@ -270,6 +269,7 @@ typedef array<flickering_light, MAX_FLICKERING_LIGHTS> Flickering_light_array_t;
 extern Flickering_light_array_t Flickering_lights;
 extern unsigned Num_flickering_lights;
 extern int BigWindowSwitch;
+void compute_slide_segs();
 
 // turn flickering off (because light has been turned off)
 void disable_flicker(segnum_t segnum, int sidenum);

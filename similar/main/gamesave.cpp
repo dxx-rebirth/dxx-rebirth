@@ -1166,10 +1166,6 @@ int load_level(const char * filename_passed)
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
 
-#if defined(DXX_BUILD_DESCENT_II)
-	Slide_segs_computed = 0;
-#endif
-
    if (Game_mode & GM_NETWORK)
 	 {
 		 PowerupCaps.clear();
@@ -1387,6 +1383,10 @@ int load_level(const char * filename_passed)
 				"details, and contact Matt or Mike." );
 	#endif
 
+
+#if defined(DXX_BUILD_DESCENT_II)
+	compute_slide_segs();
+#endif
 	return 0;
 }
 

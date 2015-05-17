@@ -153,6 +153,9 @@ struct segment {
 	array<segnum_t, MAX_SIDES_PER_SEGMENT>   children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
 	ubyte light_subtracted;
+#if defined(DXX_BUILD_DESCENT_II)
+	uint8_t slide_textures;
+#endif
 	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
 	array<int, MAX_VERTICES_PER_SEGMENT>     verts;    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is

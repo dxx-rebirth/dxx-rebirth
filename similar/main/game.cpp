@@ -1420,22 +1420,21 @@ void GameProcessFrame(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-ubyte	Slide_segs[MAX_SEGMENTS];
-int	Slide_segs_computed;
-
-static void compute_slide_segs(void)
+void compute_slide_segs()
 {
 	range_for (const auto segnum, highest_valid(Segments))
 	{
-		Slide_segs[segnum] = 0;
+		const auto &segp = vsegptr(static_cast<segnum_t>(segnum));
+		uint8_t slide_textures = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
-			int tmn = Segments[segnum].sides[sidenum].tmap_num;
-			if (TmapInfo[tmn].slide_u != 0 || TmapInfo[tmn].slide_v != 0)
-				Slide_segs[segnum] |= 1 << sidenum;
+			const auto &side = segp->sides[sidenum];
+			const auto &ti = TmapInfo[side.tmap_num];
+			if (!(ti.slide_u || ti.slide_v))
+				continue;
+			slide_textures |= 1 << sidenum;
 		}
+		segp->slide_textures = slide_textures;
 	}
-
-	Slide_segs_computed = 1;
 }
 
 template <fix uvl::*p>
@@ -1455,13 +1454,10 @@ static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
-	if (!Slide_segs_computed)
-		compute_slide_segs();
-
 	range_for (const auto segnum, highest_valid(Segments))
 	{
 		const auto &segp = vsegptr(static_cast<segnum_t>(segnum));
-		if (const auto slide_seg = Slide_segs[segnum])
+		if (const auto slide_seg = segp->slide_textures)
 		{
 			for (int sidenum=0;sidenum<6;sidenum++) {
 				if (slide_seg & (1 << sidenum))
