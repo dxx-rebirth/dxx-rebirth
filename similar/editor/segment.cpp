@@ -73,38 +73,6 @@ void remap_vertices(segment *segp, int *xlate_verts)
 			}
 }
 
-//	Copy everything from sourceside to destside except sourceside->faces[xx].polys[xx].verts
-void copy_side_except_vertex_ids(side *destside, side *sourceside)
-{
-	int	facenum, polynum, v;
-
-	destside->num_faces = sourceside->num_faces;
-	destside->tri_edge = sourceside->tri_edge;
-	destside->wall_num = sourceside->wall_num;
-
-	for (facenum=0; facenum<sourceside->num_faces; facenum++) {
-		face *destface = &destside->faces[facenum];
-		face *sourceface = &sourceside->faces[facenum];
-
-		destface->num_polys = sourceface->num_polys;
-		destface->normal = sourceface->normal;
-
-		for (polynum=0; polynum<sourceface->num_polys; polynum++) {
-			poly *destpoly = &destface->polys[polynum];
-			poly *sourcepoly = &sourceface->polys[polynum];
-
-			destpoly->num_vertices = sourcepoly->num_vertices;
-			destpoly->face_type = sourcepoly->face_type;
-			destpoly->tmap_num = sourcepoly->tmap_num;
-			destpoly->tmap_num2 = sourcepoly->tmap_num2;
-
-			for (v=0; v<sourcepoly->num_vertices; v++)
-				destpoly->uvls[v] = sourcepoly->uvls[v];
-		}
-
-	}
-}
-
 //	[side] [index] [cur:next]
 //	To remap the vertices on a side after a forward rotation
 const array<array<array<uint8_t, 2>, 4>, 6> xlate_previous{
