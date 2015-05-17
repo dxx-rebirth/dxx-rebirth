@@ -1431,6 +1431,12 @@ void compute_slide_segs()
 			const auto &ti = TmapInfo[side.tmap_num];
 			if (!(ti.slide_u || ti.slide_v))
 				continue;
+			if (IS_CHILD(segp->children[sidenum]) && side.wall_num == wall_none)
+				/* If a wall exists, it could be visible at start or
+				 * become visible later, so always enable sliding for
+				 * walls.
+				 */
+				continue;
 			slide_textures |= 1 << sidenum;
 		}
 		segp->slide_textures = slide_textures;
