@@ -1438,6 +1438,20 @@ static void compute_slide_segs(void)
 	Slide_segs_computed = 1;
 }
 
+template <fix uvl::*p>
+static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
+{
+	if (!a)
+		return;
+	const auto ip = (i.*p += a);
+	if (ip > f2_0)
+		range_for (auto &j, uvls)
+			j.*p -= f1_0;
+	else if (ip < -f2_0)
+		range_for (auto &j, uvls)
+			j.*p += f1_0;
+}
+
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
@@ -1446,34 +1460,26 @@ static void slide_textures(void)
 
 	range_for (const auto segnum, highest_valid(Segments))
 	{
-		if (Slide_segs[segnum]) {
+		const auto &segp = vsegptr(static_cast<segnum_t>(segnum));
+		if (const auto slide_seg = Slide_segs[segnum])
+		{
 			for (int sidenum=0;sidenum<6;sidenum++) {
-				if (Slide_segs[segnum] & (1 << sidenum)) {
-					int tmn = Segments[segnum].sides[sidenum].tmap_num;
-					if (TmapInfo[tmn].slide_u != 0 || TmapInfo[tmn].slide_v != 0) {
-						for (int i=0;i<4;i++) {
-							Segments[segnum].sides[sidenum].uvls[i].u += fixmul(FrameTime,TmapInfo[tmn].slide_u<<8);
-							Segments[segnum].sides[sidenum].uvls[i].v += fixmul(FrameTime,TmapInfo[tmn].slide_v<<8);
-							if (Segments[segnum].sides[sidenum].uvls[i].u > f2_0) {
-								int j;
-								for (j=0;j<4;j++)
-									Segments[segnum].sides[sidenum].uvls[j].u -= f1_0;
-							}
-							if (Segments[segnum].sides[sidenum].uvls[i].v > f2_0) {
-								int j;
-								for (j=0;j<4;j++)
-									Segments[segnum].sides[sidenum].uvls[j].v -= f1_0;
-							}
-							if (Segments[segnum].sides[sidenum].uvls[i].u < -f2_0) {
-								int j;
-								for (j=0;j<4;j++)
-									Segments[segnum].sides[sidenum].uvls[j].u += f1_0;
-							}
-							if (Segments[segnum].sides[sidenum].uvls[i].v < -f2_0) {
-								int j;
-								for (j=0;j<4;j++)
-									Segments[segnum].sides[sidenum].uvls[j].v += f1_0;
-							}
+				if (slide_seg & (1 << sidenum))
+				{
+					auto &side = segp->sides[sidenum];
+					const auto &ti = TmapInfo[side.tmap_num];
+					const auto tiu = ti.slide_u;
+					const auto tiv = ti.slide_v;
+					if (tiu || tiv)
+					{
+						const auto frametime = FrameTime;
+						const auto ua = fixmul(frametime, tiu << 8);
+						const auto va = fixmul(frametime, tiv << 8);
+						auto &uvls = side.uvls;
+						range_for (auto &i, uvls)
+						{
+							update_uv<&uvl::u>(uvls, i, ua);
+							update_uv<&uvl::v>(uvls, i, va);
 						}
 					}
 				}
