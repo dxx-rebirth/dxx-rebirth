@@ -4912,12 +4912,9 @@ int HoardEquipped()
 {
 	static int checked=-1;
 
-	if (checked==-1)
+	if (unlikely(checked == -1))
 	{
-		if (PHYSFSX_exists("hoard.ham",1))
-			checked=1;
-		else
-			checked=0;
+		checked = PHYSFSX_exists("hoard.ham",1);
 	}
 	return (checked);
 }
