@@ -1710,7 +1710,7 @@ public:
 		m_value(t)
 	{
 	}
-	constexpr operator int() const
+	operator int() const
 	{
 		return f2i(m_value);
 	}
