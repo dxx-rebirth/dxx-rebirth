@@ -1697,8 +1697,6 @@ static void free_bitmap_replacements()
 void load_bitmap_replacements(const char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
-	int i;
-
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
@@ -1727,9 +1725,10 @@ void load_bitmap_replacements(const char *level_name)
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
 		Bitmap_replacement_data = make_unique<ubyte[]>(bitmap_data_size);
 
-		for (i=0;i<n_bitmaps;i++) {
+		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
+		{
 			DiskBitmapHeader bmh;
-			grs_bitmap *bm = &GameBitmaps[indices[i]];
+			grs_bitmap *bm = &GameBitmaps[i];
 			int width;
 
 			DiskBitmapHeader_read(&bmh, ifile);
@@ -1742,14 +1741,14 @@ void load_bitmap_replacements(const char *level_name)
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
-			GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
+			GameBitmapOffset[i] = 0; // don't try to read bitmap from current pigfile
 		}
 
 		PHYSFS_read(ifile,Bitmap_replacement_data,1,bitmap_data_size);
 
-		for (i = 0; i < n_bitmaps; i++)
+		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
-			grs_bitmap *bm = &GameBitmaps[indices[i]];
+			grs_bitmap *bm = &GameBitmaps[i];
 			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
 		}
 		last_palette_loaded_pig[0]= 0;  //force pig re-load
