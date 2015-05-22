@@ -331,7 +331,7 @@ class g3_draw_morphing_model_state :
 	static constexpr const glow_values_t *glow_values = nullptr;
 	const vms_vector *const new_points;
 	polygon_model_points &Interp_point_list;
-	static constexpr glow_num_stub glow_num{};
+	static constexpr auto glow_num = glow_num_stub{};
 public:
 	g3_draw_morphing_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, g3s_lrgb mlight, const vms_vector *npoints, polygon_model_points &plist) :
 		model_bitmaps(mbitmaps), anim_angles(aangles),
