@@ -285,6 +285,10 @@ public:
 	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
 	~grs_main_bitmap()
 	{
+		reset();
+	}
+	void reset()
+	{
 		gr_free_bitmap_data(*this);
 	}
 };

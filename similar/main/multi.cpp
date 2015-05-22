@@ -4903,7 +4903,7 @@ int HoardEquipped()
 	return (checked);
 }
 
-array<grs_bitmap, 2> Orb_icons;
+array<grs_main_bitmap, 2> Orb_icons;
 int Hoard_goal_eclip, Hoard_bm_idx;
 unsigned Hoard_snd_idx;
 
@@ -4913,7 +4913,7 @@ static void free_hoard_data()
 	range_for (auto &i, partial_range(GameSounds, Hoard_snd_idx, Hoard_snd_idx + 4))
 		d_free(i.data);
 	range_for (auto &i, Orb_icons)
-		d_free(i.bm_mdata);
+		i.reset();
 }
 
 void init_hoard_data()
