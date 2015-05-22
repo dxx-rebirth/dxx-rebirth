@@ -1713,7 +1713,7 @@ static void object_move_one(const vobjptridx_t obj)
 
 		default:
 
-			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj), obj->signature.get(), obj->type, obj->id);
+			Error("Unknown control type %d in object %hu, sig/type/id = %i/%i/%i",obj->control_type, static_cast<objnum_t>(obj), obj->signature.get(), obj->type, obj->id);
 
 			break;
 
@@ -1988,7 +1988,7 @@ void fix_object_segs()
 			if (update_object_seg(o) == 0) {
 				const auto pos = o->pos;
 				compute_segment_center(o->pos,&Segments[o->segnum]);
-				con_printf(CON_URGENT, "Object %u claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<uint16_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
+				con_printf(CON_URGENT, "Object %hu claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<objnum_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
 			}
 	}
 }
