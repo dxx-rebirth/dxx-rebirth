@@ -1509,7 +1509,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		build_segment_list(rstate, visited, start_seg_num);		//fills in Render_list & N_render_segs
 
 	const auto render_range = partial_range(rstate.Render_list, rstate.N_render_segs);
-	const auto reversed_render_range = render_range.reversed();
+	const auto &&reversed_render_range = render_range.reversed();
 	//render away
 	#ifndef NDEBUG
 #if defined(DXX_BUILD_DESCENT_I)
