@@ -106,10 +106,10 @@ struct endian_access
 	 * - native_endian: assume buffered data is native endian
 	 *   Copy regardless of host byte order
 	 */
-	static constexpr tt::integral_constant<uint16_t, 0> foreign_endian{};
-	static constexpr tt::integral_constant<uint16_t, 255> little_endian{};
-	static constexpr tt::integral_constant<uint16_t, 256> big_endian{};
-	static constexpr tt::integral_constant<uint16_t, 257> native_endian{};
+	static constexpr auto foreign_endian= tt::integral_constant<uint16_t, 0>{};
+	static constexpr auto little_endian	= tt::integral_constant<uint16_t, 255>{};
+	static constexpr auto big_endian	= tt::integral_constant<uint16_t, 256>{};
+	static constexpr auto native_endian	= tt::integral_constant<uint16_t, 257>{};
 };
 
 	/* Implementation details - avoid namespace pollution */
