@@ -6,6 +6,7 @@
  */
 /* 8 bit decoding routines */
 
+#include <cstdint>
 #include <stdio.h>
 #include <string.h>
 
