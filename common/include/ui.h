@@ -82,7 +82,7 @@ struct UI_GADGET
 
 struct UI_GADGET_USERBOX : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 7> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 7>{};
 	short           width, height;
 	short           b1_held_down;
 	short           b1_clicked;
@@ -99,7 +99,7 @@ struct UI_GADGET_USERBOX : UI_GADGET
 
 struct UI_GADGET_BUTTON : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 1> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 1>{};
 	std::string  text;
 	short           width, height;
 	short           position;
@@ -113,7 +113,7 @@ struct UI_GADGET_BUTTON : UI_GADGET
 
 struct UI_GADGET_INPUTBOX : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 6> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 6>{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           length;
@@ -126,7 +126,7 @@ struct UI_GADGET_INPUTBOX : UI_GADGET
 
 struct UI_GADGET_RADIO : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 4> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 4>{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -138,7 +138,7 @@ struct UI_GADGET_RADIO : UI_GADGET
 
 struct UI_GADGET_ICON : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 9> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 9>{};
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
 	sbyte           flag;
@@ -151,7 +151,7 @@ struct UI_GADGET_ICON : UI_GADGET
 
 struct UI_GADGET_CHECKBOX : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 5> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 5>{};
 	RAIIdmem<char[]>  text;
 	short           width, height;
 	short           position;
@@ -163,7 +163,7 @@ struct UI_GADGET_CHECKBOX : UI_GADGET
 
 struct UI_GADGET_SCROLLBAR : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 3> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 3>{};
 	short           horz;
 	short           width, height;
 	int             start;
@@ -183,7 +183,7 @@ struct UI_GADGET_SCROLLBAR : UI_GADGET
 
 struct UI_GADGET_LISTBOX : UI_GADGET
 {
-	static constexpr tt::integral_constant<uint8_t, 2> s_kind{};
+	static constexpr auto s_kind = tt::integral_constant<uint8_t, 2>{};
 	const char            *const *list;
 	short           width, height;
 	int             num_items;
