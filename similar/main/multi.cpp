@@ -4889,6 +4889,25 @@ static void multi_do_gmode_update(const ubyte *buf)
 /// CODE TO LOAD HOARD DATA
 ///
 
+namespace {
+
+class hoard_resources_type
+{
+public:
+	int goal_eclip;
+	int bm_idx;
+	unsigned snd_idx;
+	void reset();
+	~hoard_resources_type()
+	{
+		reset();
+	}
+};
+
+}
+
+static hoard_resources_type hoard_resources;
+
 int HoardEquipped()
 {
 	static int checked=-1;
@@ -4904,13 +4923,11 @@ int HoardEquipped()
 }
 
 array<grs_main_bitmap, 2> Orb_icons;
-int Hoard_goal_eclip, Hoard_bm_idx;
-unsigned Hoard_snd_idx;
 
-static void free_hoard_data()
+void hoard_resources_type::reset()
 {
-	d_free(GameBitmaps[Hoard_bm_idx].bm_mdata);
-	range_for (auto &i, partial_range(GameSounds, Hoard_snd_idx, Hoard_snd_idx + 4))
+	d_free(GameBitmaps[bm_idx].bm_mdata);
+	range_for (auto &i, partial_range(GameSounds, snd_idx, snd_idx + 4))
 		d_free(i.data);
 	range_for (auto &i, Orb_icons)
 		i.reset();
@@ -4926,10 +4943,10 @@ void init_hoard_data()
 	palette_array_t palette;
 	ubyte *bitmap_data1;
 	int i,save_pos;
-	int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
+	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
 
 	if (!first_time)
-		free_hoard_data();
+		hoard_resources.reset();
 
 	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (!ifile)
@@ -4972,18 +4989,18 @@ void init_hoard_data()
 	Powerup_info[POW_HOARD_ORB].light = Powerup_info[POW_SHIELD_BOOST].light;
 
 	//Create orb goal wall effect
-	Hoard_goal_eclip = Num_effects++;
+	hoard_resources.goal_eclip = Num_effects++;
 	Assert(Num_effects < MAX_EFFECTS);
-	Effects[Hoard_goal_eclip] = Effects[94];        //copy from blue goal
-	Effects[Hoard_goal_eclip].changing_wall_texture = NumTextures;
-	Effects[Hoard_goal_eclip].vc.num_frames=n_goal_frames;
+	Effects[hoard_resources.goal_eclip] = Effects[94];        //copy from blue goal
+	Effects[hoard_resources.goal_eclip].changing_wall_texture = NumTextures;
+	Effects[hoard_resources.goal_eclip].vc.num_frames=n_goal_frames;
 
 	TmapInfo[NumTextures] = find_required_goal_texture(TMI_GOAL_BLUE);
-	TmapInfo[NumTextures].eclip_num = Hoard_goal_eclip;
+	TmapInfo[NumTextures].eclip_num = hoard_resources.goal_eclip;
 	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
 	NumTextures++;
 	Assert(NumTextures < MAX_TEXTURES);
-	range_for (auto &i, partial_range(Effects[Hoard_goal_eclip].vc.frames, n_goal_frames))
+	range_for (auto &i, partial_range(Effects[hoard_resources.goal_eclip].vc.frames, n_goal_frames))
 	{
 		i.index = bitmap_num;
 		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
@@ -5004,7 +5021,7 @@ void init_hoard_data()
 	//Load and remap bitmap data for goal texture
 	PHYSFSX_readShort(ifile);        //skip frame count
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-	range_for (auto &i, partial_range(Effects[Hoard_goal_eclip].vc.frames, n_goal_frames))
+	range_for (auto &i, partial_range(Effects[hoard_resources.goal_eclip].vc.frames, n_goal_frames))
 	{
 		grs_bitmap *bm = &GameBitmaps[i.index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
@@ -5026,7 +5043,7 @@ void init_hoard_data()
 	}
 
 	//Load sounds for orb game
-	Hoard_snd_idx = Num_sound_files;
+	hoard_resources.snd_idx = Num_sound_files;
 	for (i=0;i<4;i++) {
 		int len;
 
@@ -5049,9 +5066,6 @@ void init_hoard_data()
 		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
 		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
 	}
-	if (first_time)
-		atexit(free_hoard_data);
-
 	first_time = 0;
 }
 
