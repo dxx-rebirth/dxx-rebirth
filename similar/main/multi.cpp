@@ -2389,7 +2389,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	if (multibuf[0] == MULTI_FIRE_BOMB)
 	{
 		map_objnum_local_to_local(is_bomb_objnum);
-		PUT_INTEL_SHORT(multibuf+18, is_bomb_objnum);
+		PUT_INTEL_SHORT(&multibuf[18], static_cast<objnum_t>(is_bomb_objnum));
 		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 20, 1);
 	}
 	else if (multibuf[0] == MULTI_FIRE_TRACK)
