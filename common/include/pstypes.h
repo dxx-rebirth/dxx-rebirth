@@ -39,14 +39,14 @@ typedef unsigned int uint;
  typedef SInt16 int16_t;
  typedef SInt32 int32_t;
  typedef SInt64 int64_t;
- typedef UInt16 u_int16_t;
- typedef UInt32 u_int32_t;
- typedef UInt64 u_int64_t;
+ typedef UInt16 uint16_t;
+ typedef UInt32 uint32_t;
+ typedef UInt64 uint64_t;
 #endif // macintosh
 #if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
- typedef Uint16 u_int16_t;
- typedef Uint32 u_int32_t;
- typedef Uint64 u_int64_t;
+ typedef Uint16 uint16_t;
+ typedef Uint32 uint32_t;
+ typedef Uint64 uint64_t;
 #endif // defined(_WIN32) || defined(__sun__)
 
 #ifdef _MSC_VER

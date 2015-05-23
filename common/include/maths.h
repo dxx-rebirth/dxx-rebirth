@@ -36,7 +36,7 @@ typedef struct quadint // integer 64 bit, previously called "quad"
   {
 	  union {
 		  struct {
-    u_int32_t low;
+    uint32_t low;
     int32_t high;
 		  };
 		  int64_t q;
@@ -120,7 +120,7 @@ ushort long_sqrt (int32_t a);
 
 //computes the square root of a quadint, returning a long
 __attribute_warn_unused_result
-u_int32_t quad_sqrt (quadint);
+uint32_t quad_sqrt (quadint);
 
 //computes the square root of a fix, returning a fix
 __attribute_warn_unused_result
