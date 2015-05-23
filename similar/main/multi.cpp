@@ -612,7 +612,7 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 		return static_cast<const char *>(Players[pnum].callsign);
 }
 
-static void multi_compute_kill(const vobjptridx_t killer, const vobjptridx_t killed)
+static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t killed)
 {
 	// Figure out the results of a network kills and add it to the
 	// appropriate player's tally.
@@ -646,6 +646,8 @@ static void multi_compute_kill(const vobjptridx_t killer, const vobjptridx_t kil
 		Players[killed_pnum].connected=CONNECT_DIED_IN_MINE;
 #endif
 
+	if (killer == object_none)
+		return;
 	const auto killer_type = killer->type;
 	if (killer_type == OBJ_CNTRLCEN)
 	{
