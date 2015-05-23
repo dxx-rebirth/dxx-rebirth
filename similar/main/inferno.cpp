@@ -291,12 +291,6 @@ int standard_handler(const d_event &event)
 					gr_toggle_fullscreen();
 					return 1;
 
-#ifndef NDEBUG
-				case KEY_BACKSP:
-					Int3();
-					return 1;
-#endif
-
 #if defined(__APPLE__) || defined(macintosh)
 				case KEY_COMMAND+KEY_Q:
 					// Alt-F4 already taken, too bad
