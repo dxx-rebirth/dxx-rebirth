@@ -201,7 +201,7 @@ multi_strip_robots(int playernum)
 				Assert((Objects[i].control_type == CT_AI) || (Objects[i].control_type == CT_NONE) || (Objects[i].control_type == CT_MORPH));
 				Objects[i].ctype.ai_info.REMOTE_OWNER = -1;
 				if (playernum == Player_num)
-					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = 4;
+					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
 				else
 					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	  		}
@@ -561,7 +561,7 @@ void multi_send_boss_teleport(const vobjptridx_t bossobj, segnum_t where)
 	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
 	multi_delete_controlled_robot(bossobj);
 #if defined(DXX_BUILD_DESCENT_I)
-	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
+	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD; // Hands-off period!
 #endif
 	multi_send_boss_action<boss_teleport>(bossobj, where);
 }
@@ -720,7 +720,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 		if (robot->ctype.ai_info.REMOTE_OWNER == -1)
 		{
 			// Robot claim packet must have gotten lost, let this player claim it.
-			if (robot->ctype.ai_info.REMOTE_SLOT_NUM > 3) {
+			if (robot->ctype.ai_info.REMOTE_SLOT_NUM >= MAX_ROBOTS_CONTROLLED) { // == HANDS_OFF_PERIOD should do the same trick
 				robot->ctype.ai_info.REMOTE_OWNER = pnum;
 				robot->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 			}
@@ -1185,9 +1185,7 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 
 	const auto slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
 
-	/* Why 5?  Ask Parallax. */
-	static constexpr tt::integral_constant<int8_t, 5> hands_off_period{};
-	if (slot == hands_off_period)
+	if (slot == HANDS_OFF_PERIOD)
 	{
 		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", static_cast<vobjptridx_t::integral_type>(robot), player_num);
 		return;
@@ -1208,6 +1206,6 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		if (robot_send_pending[slot])
 			multi_send_robot_position(rcrobot, -1);
 		multi_send_release_robot(rcrobot);
-		robot->ctype.ai_info.REMOTE_SLOT_NUM = hands_off_period;  // Hands-off period
+		robot->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}
 }

@@ -34,16 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct vms_vector;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
-static const std::size_t MAX_ROBOTS_CONTROLLED = 3;
-#elif defined(DXX_BUILD_DESCENT_II)
 static const std::size_t MAX_ROBOTS_CONTROLLED = 5;
-#endif
+static const std::size_t HANDS_OFF_PERIOD = MAX_ROBOTS_CONTROLLED; // i.e. one slow above max
 
 extern array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
-#endif
 
 int multi_can_move_robot(vobjptridx_t objnum, int agitation);
 void multi_send_robot_position(vobjptridx_t objnum, int fired);
