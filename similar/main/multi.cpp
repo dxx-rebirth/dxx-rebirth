@@ -82,6 +82,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-begin.h"
+#include "compiler-exchange.h"
 #include "partial_range.h"
 #include "highest_valid.h"
 
@@ -4893,11 +4894,17 @@ namespace {
 
 class hoard_resources_type
 {
+	static constexpr auto invalid_bm_idx = tt::integral_constant<int, -1>{};
+	static constexpr auto invalid_snd_idx = tt::integral_constant<unsigned, ~0u>{};
 public:
 	int goal_eclip;
 	int bm_idx;
 	unsigned snd_idx;
 	void reset();
+	constexpr hoard_resources_type() :
+		goal_eclip(0), bm_idx(invalid_bm_idx), snd_idx(invalid_snd_idx)
+	{
+	}
 	~hoard_resources_type()
 	{
 		reset();
@@ -4923,16 +4930,21 @@ array<grs_main_bitmap, 2> Orb_icons;
 
 void hoard_resources_type::reset()
 {
-	d_free(GameBitmaps[bm_idx].bm_mdata);
-	range_for (auto &i, partial_range(GameSounds, snd_idx, snd_idx + 4))
-		d_free(i.data);
+	if (bm_idx != invalid_bm_idx)
+		d_free(GameBitmaps[exchange(bm_idx, invalid_bm_idx)].bm_mdata);
+	if (snd_idx != invalid_snd_idx)
+	{
+		const auto idx = exchange(snd_idx, invalid_snd_idx);
+		range_for (auto &i, partial_range(GameSounds, idx, idx + 4))
+			d_free(i.data);
+	}
 	range_for (auto &i, Orb_icons)
 		i.reset();
 }
 
 void init_hoard_data()
 {
-	static int first_time=1;
+	hoard_resources.reset();
 	static int orb_vclip;
 	unsigned n_orb_frames,n_goal_frames;
 	int orb_w,orb_h;
@@ -4941,9 +4953,6 @@ void init_hoard_data()
 	ubyte *bitmap_data1;
 	int i,save_pos;
 	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
-
-	if (!first_time)
-		hoard_resources.reset();
 
 	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (!ifile)
@@ -5063,7 +5072,6 @@ void init_hoard_data()
 		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
 		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
 	}
-	first_time = 0;
 }
 
 #ifdef EDITOR
