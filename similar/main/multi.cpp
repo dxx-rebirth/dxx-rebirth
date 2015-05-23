@@ -4897,12 +4897,11 @@ class hoard_resources_type
 	static constexpr auto invalid_bm_idx = tt::integral_constant<int, -1>{};
 	static constexpr auto invalid_snd_idx = tt::integral_constant<unsigned, ~0u>{};
 public:
-	int goal_eclip;
 	int bm_idx;
 	unsigned snd_idx;
 	void reset();
 	constexpr hoard_resources_type() :
-		goal_eclip(0), bm_idx(invalid_bm_idx), snd_idx(invalid_snd_idx)
+		bm_idx(invalid_bm_idx), snd_idx(invalid_snd_idx)
 	{
 	}
 	~hoard_resources_type()
@@ -4995,18 +4994,18 @@ void init_hoard_data()
 	Powerup_info[POW_HOARD_ORB].light = Powerup_info[POW_SHIELD_BOOST].light;
 
 	//Create orb goal wall effect
-	hoard_resources.goal_eclip = Num_effects++;
+	const auto goal_eclip = Num_effects++;
 	Assert(Num_effects < MAX_EFFECTS);
-	Effects[hoard_resources.goal_eclip] = Effects[94];        //copy from blue goal
-	Effects[hoard_resources.goal_eclip].changing_wall_texture = NumTextures;
-	Effects[hoard_resources.goal_eclip].vc.num_frames=n_goal_frames;
+	Effects[goal_eclip] = Effects[94];        //copy from blue goal
+	Effects[goal_eclip].changing_wall_texture = NumTextures;
+	Effects[goal_eclip].vc.num_frames=n_goal_frames;
 
 	TmapInfo[NumTextures] = find_required_goal_texture(TMI_GOAL_BLUE);
-	TmapInfo[NumTextures].eclip_num = hoard_resources.goal_eclip;
+	TmapInfo[NumTextures].eclip_num = goal_eclip;
 	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
 	NumTextures++;
 	Assert(NumTextures < MAX_TEXTURES);
-	range_for (auto &i, partial_range(Effects[hoard_resources.goal_eclip].vc.frames, n_goal_frames))
+	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
 		i.index = bitmap_num;
 		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
@@ -5027,7 +5026,7 @@ void init_hoard_data()
 	//Load and remap bitmap data for goal texture
 	PHYSFSX_readShort(ifile);        //skip frame count
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-	range_for (auto &i, partial_range(Effects[hoard_resources.goal_eclip].vc.frames, n_goal_frames))
+	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
 		grs_bitmap *bm = &GameBitmaps[i.index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
