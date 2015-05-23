@@ -340,13 +340,13 @@ class ConfigureTests:
 '''
 		l = ['physfs']
 		successflags = {'LIBS' : l}
-		e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+		e = self._soft_check_system_library(context, header=['physfs.h'], main=main, lib='physfs', successflags=successflags)
 		if not e:
 			return
 		if e[0] == 0:
 			self.message("physfs header usable; adding zlib and retesting library")
 			l.append('z')
-			e = self._soft_check_system_library(context, header=['zlib.h', 'physfs.h'], main=main, lib='physfs', successflags=successflags)
+			e = self._soft_check_system_library(context, header=['physfs.h'], main=main, lib='physfs', successflags=successflags)
 		if e:
 			raise SCons.Errors.StopError(e[1])
 	@_custom_test
