@@ -4246,6 +4246,7 @@ static void set_player_awareness_all(void)
 		}
 }
 
+#ifndef NDEBUG
 #if PARALLAX
 int Ai_dump_enable = 0;
 
@@ -4315,6 +4316,7 @@ void force_dump_ai_objects_all(const char *msg)
 static inline void dump_ai_objects_all()
 {
 }
+#endif
 #endif
 
 // ----------------------------------------------------------------------------------

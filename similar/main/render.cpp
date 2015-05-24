@@ -125,7 +125,9 @@ static const int _search_mode = 0;
 
 #ifdef NDEBUG		//if no debug code, set these vars to constants
 
+#ifdef EDITOR
 const int Show_only_curside = 0;
+#endif
 
 #else
 
