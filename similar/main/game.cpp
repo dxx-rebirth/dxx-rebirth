@@ -941,54 +941,82 @@ void show_newdemo_help()
 
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
 
+enum class leave_type : uint_fast8_t
+{
+	none,
+	maybe_on_release,
+	wait_for_release,
+	on_press,
+};
+
+static leave_type leave_mode;
+
+static void end_rear_view()
+{
+	Rear_view = 0;
+	if (PlayerCfg.CockpitMode[1] == CM_REAR_VIEW)
+		select_cockpit(PlayerCfg.CockpitMode[0]);
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_restore_rearview();
+}
+
+static void check_end_rear_view()
+{
+	leave_mode = leave_type::none;
+	if (Rear_view)
+		end_rear_view();
+}
+
 //deal with rear view - switch it on, or off, or whatever
 void check_rear_view()
 {
-	static int leave_mode;
 	static fix64 entry_time;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
-	if ( Controls.state.rear_view) {	//key/button has gone down
-		Controls.state.rear_view = 0;
-
-		if (Rear_view) {
-			Rear_view = 0;
-			if (PlayerCfg.CockpitMode[1]==CM_REAR_VIEW) {
-				select_cockpit(PlayerCfg.CockpitMode[0]);
-			}
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_restore_rearview();
-		}
-		else {
-			Rear_view = 1;
-			leave_mode = 0;		//means wait for another key
-			entry_time = timer_query();
-			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
-				select_cockpit(CM_REAR_VIEW);
-			}
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_rearview();
-		}
-	}
-	else
-		if (Controls.state.rear_view) {
-
-			if (leave_mode == 0 && (timer_query() - entry_time) > LEAVE_TIME)
-				leave_mode = 1;
-		}
-		else
-		{
-			if (leave_mode==1 && Rear_view) {
-				Rear_view = 0;
-				if (PlayerCfg.CockpitMode[1]==CM_REAR_VIEW) {
-					select_cockpit(PlayerCfg.CockpitMode[0]);
-				}
+	const auto rear_view = Controls.state.rear_view;
+	switch (leave_mode)
+	{
+		case leave_type::none:
+			if (!rear_view)
+				return;
+			if (Rear_view)
+				end_rear_view();
+			else
+			{
+				Rear_view = 1;
+				leave_mode = leave_type::maybe_on_release;		//means wait for another key
+				entry_time = timer_query();
+				if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
+					select_cockpit(CM_REAR_VIEW);
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_restore_rearview();
+					newdemo_record_rearview();
 			}
-		}
+			return;
+		case leave_type::maybe_on_release:
+			if (rear_view)
+			{
+				if (timer_query() - entry_time > LEAVE_TIME)
+					leave_mode = leave_type::wait_for_release;
+			}
+			else
+				leave_mode = leave_type::on_press;
+			return;
+		case leave_type::wait_for_release:
+			if (!rear_view)
+				check_end_rear_view();
+			return;
+		case leave_type::on_press:
+			if (rear_view)
+			{
+				Controls.state.rear_view = 0;
+				check_end_rear_view();
+			}
+			return;
+		default:
+			break;
+	}
 }
 
 void reset_rear_view(void)
@@ -1001,8 +1029,6 @@ void reset_rear_view(void)
 	Rear_view = 0;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 }
-
-int Config_menu_flag;
 
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
