@@ -1710,14 +1710,13 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	//      if (Net_create_loc != remote_created)
 	//              Int3(); // Probably out of object array space, see Rob
 
-	range_for (const auto i, partial_range(Net_create_objnums, remote_created))
+	range_for (const auto i, partial_range(Net_create_objnums, std::min(Net_create_loc, static_cast<unsigned>(remote_created))))
 	{
 		short s;
 
 		s = GET_INTEL_SHORT(buf + count);
 
-		if ((i < Net_create_loc) && (s > 0) &&
-		    (i > 0))
+		if ((s > 0) && (i > 0))
 			map_objnum_local_to_remote((short)i, s, pnum);
 		count += 2;
 	}
