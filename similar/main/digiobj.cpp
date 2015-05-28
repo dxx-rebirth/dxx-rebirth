@@ -132,7 +132,7 @@ static int digi_unxlat_sound(int soundno)
 	throw std::invalid_argument("sound not loaded");
 }
 
-static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, segnum_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, vm_distance max_distance)
+static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, const vcsegptridx_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, vm_distance max_distance)
 {
 
 	vms_vector	vector_to_sound;
@@ -410,7 +410,7 @@ int digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int for
 	return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, vm_distance{256*F1_0});
 }
 
-static int digi_link_sound_to_pos2(int org_soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static int digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const vcobjptr_t viewer{Viewer};
 	int volume, pan;
@@ -426,10 +426,6 @@ static int digi_link_sound_to_pos2(int org_soundnum, segnum_t segnum, short side
 		Int3();
 		return -1;
 	}
-
-	if ((segnum<0)||(segnum>Highest_segment_index))
-		return -1;
-
 	if ( !forever ) { 	//&& GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
 		// Hack to keep sounds from building up...
 		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
@@ -449,7 +445,7 @@ static int digi_link_sound_to_pos2(int org_soundnum, segnum_t segnum, short side
 	return digi_link_sound_common(viewer, so, pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
-int digi_link_sound_to_pos( int soundnum, segnum_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
+int digi_link_sound_to_pos( int soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume )
 {
 	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
