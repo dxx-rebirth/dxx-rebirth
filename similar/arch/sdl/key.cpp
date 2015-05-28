@@ -443,26 +443,28 @@ void key_init()
 	key_flush();
 }
 
+static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
+{
+	if (keystate[key_properties[i].sym]) // do not flush status of sticky keys
+	{
+		keyd_pressed[i] = 1;
+	}
+}
+
 void key_flush()
 {
-	Uint8 *keystate = SDL_GetKeyState(NULL);
-
 	if (!Installed)
 		key_init();
 
 	//Clear the unicode buffer
 	unicode_frame_buffer = {};
-
-	for (int i=0; i<256; i++ ) {
-		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
-		{
-			keyd_pressed[i] = 1;
-		}
-		else
-		{
-			keyd_pressed[i] = 0;
-		}
-	}
+	keyd_pressed = {};
+	if (unlikely(GameArg.CtlNoStickyKeys))
+		return;
+	const auto &keystate = SDL_GetKeyState(NULL);
+	restore_sticky_key(keystate, KEY_NUMLOCK);
+	restore_sticky_key(keystate, KEY_SCROLLOCK);
+	restore_sticky_key(keystate, KEY_CAPSLOCK);
 }
 
 int event_key_get(const d_event &event)
