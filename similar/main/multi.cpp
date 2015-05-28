@@ -4172,23 +4172,18 @@ void DropFlag ()
 		HUD_init_message_literal(HM_MULTI, "No flag to drop!");
 		return;
 	}
-
+	seed = d_rand();
+	const auto &&objnum = spit_powerup(ConsoleObject, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	if (objnum == object_none)
+	{
+		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
+		return;
+	}
 
 	HUD_init_message_literal(HM_MULTI, "Flag dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	seed = d_rand();
-
-	objnum_t objnum;
-	if (get_team (Player_num)==TEAM_RED)
-		objnum = spit_powerup(ConsoleObject,POW_FLAG_BLUE,seed);
-	else
-		objnum = spit_powerup(ConsoleObject,POW_FLAG_RED,seed);
-
-	if (objnum<0)
-		return;
-
-	if (game_mode_capture_flag() && objnum!=object_none)
+	if (game_mode_capture_flag())
 		multi_send_drop_flag(objnum,seed);
 
 	Players[Player_num].flags &=~(PLAYER_FLAGS_FLAG);
