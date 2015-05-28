@@ -104,11 +104,10 @@ const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 }};
 
 // ----------------------------------------------------------------------------
-static const char	*object_types(int objnum)
+static const char *object_types(const vcobjptr_t objp)
 {
-	int	type = Objects[objnum].type;
-
-	Assert((type == OBJ_NONE) || ((type >= 0) && (type < MAX_OBJECT_TYPES)));
+	const auto type = objp->type;
+	assert(type == OBJ_NONE || type < MAX_OBJECT_TYPES);
 	return &Object_type_names[type][0];
 }
 
@@ -340,15 +339,15 @@ static void write_key_text(PHYSFS_file *my_file)
 			if (Objects[i].contains_type == OBJ_POWERUP) {
 				switch (Objects[i].contains_id) {
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						blue_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						gold_count2 += Objects[i].contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(i), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
 						red_count2 += Objects[i].contains_count;
 						break;
 					default:
@@ -455,7 +454,7 @@ static void write_segment_text(PHYSFS_file *my_file)
 			range_for (const auto objp, objects_in(Segments[i]))
 			{
 				short objnum = objp;
-				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objp), objnum);
+				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objp), object_ids(objp), objnum);
 				if (depth++ > 30) {
 					PHYSFSX_printf(my_file, "\nAborted after %i links\n", depth);
 					break;
@@ -1023,8 +1022,8 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		}
 
 		if (objcount) {
-			PHYSFSX_printf(my_file, "Object: ");
-			PHYSFSX_printf(my_file, "%8s %8s %3i\n", object_types(min_objnum), object_ids(vcobjptr(min_objnum)), objcount);
+			const auto &&min_objp = vcobjptr(min_objnum);
+			PHYSFSX_printf(my_file, "Object: %8s %8s %3i\n", object_types(min_objp), object_ids(min_objp), objcount);
 		}
 	}
 
