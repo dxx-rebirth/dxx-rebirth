@@ -79,6 +79,8 @@ static void maybe_send_doubleclick(const fix64 now, const unsigned button)
 
 void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
+	if (unlikely(GameArg.CtlNoMouse))
+		return;
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
 	static const array<int, 17> button_remap{{
@@ -100,16 +102,16 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		MBTN_15,
 		MBTN_16
 	}};
-
-	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
-
-	if (GameArg.CtlNoMouse)
+	const unsigned button_idx = mbe->button - 1; // -1 since SDL seems to start counting at 1
+	if (unlikely(button_idx >= button_remap.size()))
 		return;
 
 	const auto now = timer_query();
+	const auto button = button_remap[button_idx];
+	const auto mbe_state = mbe->state;
 	Mouse.cursor_time = now;
 
-	if (mbe->state == SDL_PRESSED) {
+	if (mbe_state == SDL_PRESSED) {
 		d_event_mouse_moved event2{};
 		event2.type = EVENT_MOUSE_MOVED;
 
@@ -130,9 +132,9 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			event_send(event2);
 		}
 	}
-	send_singleclick(mbe->state, button);
+	send_singleclick(mbe_state, button);
 	//Double-click support
-	if (mbe->state == SDL_PRESSED)
+	if (mbe_state == SDL_PRESSED)
 	{
 		maybe_send_doubleclick(now, button);
 	}
