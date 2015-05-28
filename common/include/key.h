@@ -59,7 +59,6 @@ extern unsigned char key_ascii();
 
 // Set to 1 if the key is currently down, else 0
 extern array<uint8_t, 256> keyd_pressed;
-extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 
 extern void key_toggle_repeat(int enable);

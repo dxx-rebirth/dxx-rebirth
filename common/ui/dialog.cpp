@@ -96,7 +96,6 @@ int ui_play_events_realtime( int NumberOfEvents, UI_EVENT * buffer )
 	Record = 2;
 	_disable();
 	keyd_last_released= 0;
-	keyd_last_pressed= 0;
 	for (i=0; i<256; i++ )
 		SavedState[i] = keyd_pressed[i];
 	_enable();
@@ -115,7 +114,6 @@ int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer )
 	Record = 3;
 	_disable();
 	keyd_last_released= 0;
-	keyd_last_pressed= 0;
 
 	for (int i=0; i<256; i++ )
 	{

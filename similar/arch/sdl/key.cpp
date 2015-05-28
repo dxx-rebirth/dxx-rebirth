@@ -32,7 +32,6 @@ static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
 int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
-volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 array<uint8_t, 256> keyd_pressed;
 fix64			keyd_time_when_last_pressed;
@@ -401,7 +400,6 @@ void key_handler(SDL_KeyboardEvent *kevent)
 
 		// now update the key props
 		if (key_state) {
-			keyd_last_pressed = keycode;
 			keyd_pressed[keycode] = key_data.state[keycode] = 1;
 		} else {
 			keyd_pressed[keycode] = key_data.state[keycode] = 0;
