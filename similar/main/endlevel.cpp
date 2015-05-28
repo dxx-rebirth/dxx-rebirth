@@ -1185,7 +1185,6 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	auto pseg = &Segments[obj->segnum];
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
-		vms_vector nextcenter;
 		fix seg_time;
 		short entry_side,exit_side = -1;//what sides we entry and leave through
 		int up_side=0;
@@ -1216,10 +1215,9 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//where we are heading (center of exit_side)
 		auto dest_point = compute_center_point_on_side(pseg,exit_side);
-		if (pseg->children[exit_side] == segment_exit)
-			nextcenter = dest_point;
-		else
-			compute_segment_center(nextcenter,&Segments[pseg->children[exit_side]]);
+		const vms_vector nextcenter = (pseg->children[exit_side] == segment_exit)
+			? dest_point
+			: compute_segment_center(vcsegptr(pseg->children[exit_side]));
 
 		//update target point and movement points
 
