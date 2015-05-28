@@ -1180,7 +1180,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 // Opens doors/destroys wall/shuts off triggers.
 void wall_toggle(segnum_t segnum, unsigned side)
 {
-	if (segnum < 0 || segnum > Highest_segment_index || side >= MAX_SIDES_PER_SEGMENT)
+	if (side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
 		Warning("Can't toggle side %u of segment %d (%u)!\n", side, segnum, Highest_segment_index);
@@ -1188,7 +1188,8 @@ void wall_toggle(segnum_t segnum, unsigned side)
 		return;
 	}
 
-	auto wall_num = Segments[segnum].sides[side].wall_num;
+	const auto &segp = vsegptridx(segnum);
+	auto wall_num = segp->sides[side].wall_num;
 
 	if (wall_num == wall_none) {
 		return;
@@ -1198,10 +1199,10 @@ void wall_toggle(segnum_t segnum, unsigned side)
 		newdemo_record_wall_toggle(segnum, side );
 
 	if (Walls[wall_num].type == WALL_BLASTABLE)
-		wall_destroy(&Segments[segnum], side);
+		wall_destroy(segp, side);
 
 	if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].state == WALL_DOOR_CLOSED))
-		wall_open_door(&Segments[segnum], side);
+		wall_open_door(segp, side);
 }
 
 

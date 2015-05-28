@@ -2015,13 +2015,13 @@ static multi_do_door_open(const ubyte *buf)
 	ubyte flag= buf[4];
 #endif
 
-	if (segnum < 0 || segnum > Highest_segment_index || side > 5)
+	if (side > 5)
 	{
 		Int3();
 		return;
 	}
 
-	auto seg = &Segments[segnum];
+	const auto &&seg = vsegptridx(segnum);
 
 	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
@@ -2085,14 +2085,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 
 	count++;
 	powerup_type = buf[count++];
-	segnum_t segnum = GET_INTEL_SHORT(buf + count); count += 2;
+	const auto &&segnum = vsegptridx(GET_INTEL_SHORT(&buf[count]));
+	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
-
-	if ((segnum < 0) || (segnum > Highest_segment_index)) {
-		Int3();
-		return;
-	}
-
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 #ifdef WORDS_BIGENDIAN
 	new_pos.x = (fix)SWAPINT((int)new_pos.x);
