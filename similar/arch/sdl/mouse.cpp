@@ -191,11 +191,22 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	SDL_GetRelativeMouseState(dx, dy);
 }
 
-void mouse_toggle_cursor(int noactivate)
+template <bool noactivate>
+static void mouse_change_cursor()
 {
 	Mouse.cursor_enabled = (!noactivate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
 	if (!Mouse.cursor_enabled)
 		SDL_ShowCursor(SDL_DISABLE);
+}
+
+void mouse_enable_cursor()
+{
+	mouse_change_cursor<false>();
+}
+
+void mouse_disable_cursor()
+{
+	mouse_change_cursor<true>();
 }
 
 // If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
