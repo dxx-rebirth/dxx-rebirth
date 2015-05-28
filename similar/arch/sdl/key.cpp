@@ -36,13 +36,6 @@ array<uint8_t, 256> keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
-struct keyboard
-{
-	array<uint8_t, 256> state;
-};
-
-static keyboard key_data;
-
 const array<key_props, 256> key_properties = {{
 { "",       255,    SDLK_UNKNOWN                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
@@ -399,9 +392,9 @@ void key_handler(SDL_KeyboardEvent *kevent)
 
 		// now update the key props
 		if (key_state) {
-			keyd_pressed[keycode] = key_data.state[keycode] = 1;
+			keyd_pressed[keycode] = 1;
 		} else {
-			keyd_pressed[keycode] = key_data.state[keycode] = 0;
+			keyd_pressed[keycode] = 0;
 		}
 
 		if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
@@ -464,12 +457,10 @@ void key_flush()
 		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
 		{
 			keyd_pressed[i] = 1;
-			key_data.state[i] = 0;
 		}
 		else
 		{
 			keyd_pressed[i] = 0;
-			key_data.state[i] = 1;
 		}
 	}
 }
