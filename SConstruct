@@ -598,7 +598,7 @@ help:assume compiler supports __attribute__((noreturn))
 """
 		macro_name = '__attribute_noreturn'
 		macro_value = '__attribute__((noreturn))'
-		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + ' void a();', main='a();', msg='for function __attribute__((noreturn))')
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + ' void a();void a(){for(;;);}', main='a();', msg='for function __attribute__((noreturn))')
 	@_custom_test
 	def check_attribute_used(self,context):
 		"""
