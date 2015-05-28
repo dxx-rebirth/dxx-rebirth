@@ -113,19 +113,15 @@ static const char	*object_types(int objnum)
 }
 
 // ----------------------------------------------------------------------------
-static char	*object_ids(int objnum)
+static const char *object_ids(const vcobjptr_t objp)
 {
-	int	type = Objects[objnum].type;
-
-	switch (type) {
+	switch (objp->type)
+	{
 		case OBJ_ROBOT:
-			return Robot_names[get_robot_id(&Objects[objnum])];
-			break;
+			return Robot_names[get_robot_id(objp)];
 		case OBJ_POWERUP:
-			return Powerup_names[get_powerup_id(&Objects[objnum])];
-			break;
+			return Powerup_names[get_powerup_id(objp)];
 	}
-
 	return	NULL;
 }
 
@@ -459,7 +455,7 @@ static void write_segment_text(PHYSFS_file *my_file)
 			range_for (const auto objp, objects_in(Segments[i]))
 			{
 				short objnum = objp;
-				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objnum), objnum);
+				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objnum), object_ids(objp), objnum);
 				if (depth++ > 30) {
 					PHYSFSX_printf(my_file, "\nAborted after %i links\n", depth);
 					break;
@@ -1028,7 +1024,7 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 
 		if (objcount) {
 			PHYSFSX_printf(my_file, "Object: ");
-			PHYSFSX_printf(my_file, "%8s %8s %3i\n", object_types(min_objnum), object_ids(min_objnum), objcount);
+			PHYSFSX_printf(my_file, "%8s %8s %3i\n", object_types(min_objnum), object_ids(vcobjptr(min_objnum)), objcount);
 		}
 	}
 
