@@ -32,7 +32,7 @@ static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
 int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
-array<uint8_t, 256> keyd_pressed;
+pressed_keys keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
@@ -350,6 +350,44 @@ unsigned char key_ascii()
 		return 255;
 }
 
+void pressed_keys::update(const std::size_t keycode, const uint8_t pressed)
+{
+	constexpr unsigned all_modifiers_combined = KEY_SHIFTED | KEY_ALTED | KEY_CTRLED | KEY_DEBUGGED | KEY_METAED;
+	constexpr unsigned all_modifiers_shifted = all_modifiers_combined >> modifier_shift;
+	static_assert(all_modifiers_combined == all_modifiers_shifted << modifier_shift, "shift error");
+	static_assert(all_modifiers_shifted == static_cast<uint8_t>(all_modifiers_shifted), "truncation error");
+	uint8_t mask;
+	keyd_pressed.update_pressed(keycode, pressed);
+	switch (keycode)
+	{
+		case KEY_LSHIFT:
+		case KEY_RSHIFT:
+			mask = KEY_SHIFTED >> modifier_shift;
+			break;
+		case KEY_LALT:
+		case KEY_RALT:
+			mask = KEY_ALTED >> modifier_shift;
+			break;
+		case KEY_LCTRL:
+		case KEY_RCTRL:
+			mask = KEY_CTRLED >> modifier_shift;
+			break;
+		case KEY_DELETE:
+			mask = KEY_DEBUGGED >> modifier_shift;
+			break;
+		case KEY_LMETA:
+		case KEY_RMETA:
+			mask = KEY_METAED >> modifier_shift;
+			break;
+		default:
+			return;
+	}
+	if (pressed)
+		modifier_cache |= mask;
+	else
+		modifier_cache &= ~mask;
+}
+
 void key_handler(SDL_KeyboardEvent *kevent)
 {
 	int event_keysym=-1;
@@ -391,22 +429,8 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		d_event_keycommand event;
 
 		// now update the key props
-		if (key_state) {
-			keyd_pressed[keycode] = 1;
-		} else {
-			keyd_pressed[keycode] = 0;
-		}
-
-		if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
-			keycode |= KEY_SHIFTED;
-		if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
-			keycode |= KEY_ALTED;
-		if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
-			keycode |= KEY_CTRLED;
-		if ( keyd_pressed[KEY_DELETE] )
-			keycode |= KEY_DEBUGGED;
-		if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
-			keycode |= KEY_METAED;
+		keyd_pressed.update(keycode, key_state);
+		keycode |= keyd_pressed.get_modifiers();
 
 		// We allowed the key to be added to the queue for now,
 		// because there are still input loops without associated windows
@@ -447,7 +471,7 @@ static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 {
 	if (keystate[key_properties[i].sym]) // do not flush status of sticky keys
 	{
-		keyd_pressed[i] = 1;
+		keyd_pressed.update_pressed(i, 1);
 	}
 }
 

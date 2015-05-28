@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cstdint>
 #include <SDL_keysym.h>
 #include "pstypes.h"
 #include "maths.h"
@@ -57,8 +58,29 @@ extern int event_key_get(const d_event &event);	// Get the keycode from the EVEN
 extern int event_key_get_raw(const d_event &event);	// same as above but without mod states
 extern unsigned char key_ascii();
 
+class pressed_keys
+{
 // Set to 1 if the key is currently down, else 0
-extern array<uint8_t, 256> keyd_pressed;
+	uint8_t modifier_cache;
+	array<uint8_t, 256> pressed;
+public:
+	static constexpr unsigned modifier_shift = 8;
+	void update_pressed(std::size_t i, uint8_t p)
+	{
+		pressed[i] = p;
+	}
+	void update(std::size_t, uint8_t);
+	uint8_t operator[](const std::size_t i) const
+	{
+		return pressed[i];
+	}
+	unsigned get_modifiers() const
+	{
+		return modifier_cache << modifier_shift;
+	}
+};
+
+extern pressed_keys keyd_pressed;
 
 extern void key_toggle_repeat(int enable);
 void key_handler(struct SDL_KeyboardEvent *kevent);
