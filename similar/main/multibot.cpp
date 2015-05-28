@@ -945,13 +945,8 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
 	}
-	auto teleport_segnum = b.where;
-	if ((teleport_segnum < 0) || (teleport_segnum > Highest_segment_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
-	compute_segment_center(boss_obj->pos, &Segments[teleport_segnum]);
+	const auto &&teleport_segnum = vsegptridx(b.where);
+	compute_segment_center(boss_obj->pos, teleport_segnum);
 	obj_relink(boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 
