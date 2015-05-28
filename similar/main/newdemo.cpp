@@ -431,6 +431,13 @@ static void nd_read_short(short *s)
 		*s = SWAPSHORT(*s);
 }
 
+static void nd_read_segnum16(segnum_t &s)
+{
+	short i;
+	nd_read_short(&i);
+	s = i;
+}
+
 static void nd_read_objnum16(objnum_t &o)
 {
 	short s;
@@ -2504,7 +2511,7 @@ static int newdemo_read_frame_information(int rewrite)
 			sbyte side;
 			vms_vector pnt;
 
-			nd_read_short(&segnum);
+			nd_read_segnum16(segnum);
 			nd_read_byte(&side);
 			nd_read_vector(pnt);
 			if (rewrite)
@@ -2890,7 +2897,7 @@ static int newdemo_read_frame_information(int rewrite)
 			segnum_t segnum;
 			sbyte side;
 
-			nd_read_short(&segnum);
+			nd_read_segnum16(segnum);
 			nd_read_byte(&side);
 			if (rewrite)
 			{
