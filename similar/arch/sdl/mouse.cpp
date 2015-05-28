@@ -74,10 +74,9 @@ static void maybe_send_z_move(const unsigned button)
 	event_send(event);
 }
 
-static void send_singleclick(uint8_t state, int button)
+static void send_singleclick(const bool pressed, const unsigned button)
 {
 	d_event_mousebutton event;
-	const auto pressed = state != SDL_RELEASED;
 	event.type = pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
 	event.button = button;
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
@@ -133,12 +132,13 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	const auto mbe_state = mbe->state;
 	Mouse.cursor_time = now;
 
-	if (mbe_state == SDL_PRESSED) {
+	const auto pressed = mbe_state != SDL_RELEASED;
+	if (pressed) {
 		maybe_send_z_move(button);
 	}
-	send_singleclick(mbe_state, button);
+	send_singleclick(pressed, button);
 	//Double-click support
-	if (mbe_state == SDL_PRESSED)
+	if (pressed)
 	{
 		maybe_send_doubleclick(now, button);
 	}

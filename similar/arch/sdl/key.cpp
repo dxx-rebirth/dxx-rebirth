@@ -359,13 +359,13 @@ unsigned char key_ascii()
 
 void key_handler(SDL_KeyboardEvent *kevent)
 {
-	int event_keysym=-1, key_state;
+	int event_keysym=-1;
 
 	// Read SDLK symbol and state
         event_keysym = kevent->keysym.sym;
 		if (event_keysym == SDLK_UNKNOWN)
 			return;
-        key_state = (kevent->state == SDL_PRESSED)?1:0;
+	const auto key_state = (kevent->state != SDL_RELEASED);
 
 	// fill the unicode frame-related unicode buffer 
 	if (key_state && kevent->keysym.unicode > 31 && kevent->keysym.unicode < 255)
