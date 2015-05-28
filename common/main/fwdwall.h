@@ -218,7 +218,7 @@ enum wall_hit_process_t
 wall_hit_process_t wall_hit_process(vsegptridx_t seg, int side, fix damage, int playernum, vobjptr_t obj);
 
 // Opens/destroys specified door.
-void wall_toggle(segnum_t segnum, unsigned side);
+void wall_toggle(vsegptridx_t segnum, unsigned side);
 
 // Tidy up Walls array for load/save purposes.
 void reset_walls();
