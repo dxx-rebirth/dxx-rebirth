@@ -52,6 +52,28 @@ void mouse_close(void)
 	SDL_ShowCursor(SDL_ENABLE);
 }
 
+static void maybe_send_z_move(const unsigned button)
+{
+	d_event_mouse_moved event{};
+	event.type = EVENT_MOUSE_MOVED;
+
+	if (button == MBTN_Z_UP)
+	{
+		Mouse.delta_z += Z_SENSITIVITY;
+		Mouse.z += Z_SENSITIVITY;
+		event.dz = Z_SENSITIVITY;
+	}
+	else if (button == MBTN_Z_DOWN)
+	{
+		Mouse.delta_z -= Z_SENSITIVITY;
+		Mouse.z -= Z_SENSITIVITY;
+		event.dz = -1*Z_SENSITIVITY;
+	}
+	else
+		return;
+	event_send(event);
+}
+
 static void send_singleclick(uint8_t state, int button)
 {
 	d_event_mousebutton event;
@@ -112,25 +134,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	Mouse.cursor_time = now;
 
 	if (mbe_state == SDL_PRESSED) {
-		d_event_mouse_moved event2{};
-		event2.type = EVENT_MOUSE_MOVED;
-
-		if (button == MBTN_Z_UP) {
-			Mouse.delta_z += Z_SENSITIVITY;
-			Mouse.z += Z_SENSITIVITY;
-			event2.dz = Z_SENSITIVITY;
-		} else if (button == MBTN_Z_DOWN) {
-			Mouse.delta_z -= Z_SENSITIVITY;
-			Mouse.z -= Z_SENSITIVITY;
-			event2.dz = -1*Z_SENSITIVITY;
-		}
-		
-		if (event2.dz)
-		{
-			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
-			//		   event2.dx, event2.dy, event2.dz);
-			event_send(event2);
-		}
+		maybe_send_z_move(button);
 	}
 	send_singleclick(mbe_state, button);
 	//Double-click support
