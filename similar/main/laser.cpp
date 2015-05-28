@@ -1179,11 +1179,11 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
 //	else return object number of tracking object.
 //	Computes and returns a fairly precise dot product.
-static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptridx_t tracker, fix *dot)
+static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptridx_t tracker, fix *dot, fix tick)
 {
 	if (object_is_trackable(track_goal, tracker, dot)) {
 		return track_goal;
-	} else if ((((tracker) ^ d_tick_count) % 4) == 0)
+	} else if ((((tracker) ^ tick) % 4) == 0)
 	{
 		//	If player fired missile, then search for an object, if not, then give up.
 		if (Objects[tracker->ctype.laser_info.parent_num].type == OBJ_PLAYER) {
@@ -1385,6 +1385,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 			objnum->ctype.laser_info.track_goal = Network_laser_track;
 		}
 		objnum->ctype.laser_info.track_turn_time = HOMING_TURN_TIME;
+                objnum->ctype.laser_info.track_turn_tick = 0;
 	}
 
 	return objnum;
@@ -1504,7 +1505,8 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 		fix				speed, max_speed;
 
 		//	For first 125ms of life, missile flies straight.
-		if (obj->ctype.laser_info.creation_time + HOMING_FLY_STRAIGHT_TIME < GameTime64) {
+		if (obj->ctype.laser_info.creation_time + HOMING_FLY_STRAIGHT_TIME < GameTime64)
+                {
 
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1516,11 +1518,72 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 				obj->mtype.phys_info.flags &= ~PF_BOUNCE;
 			}
 
+#ifdef NEWHOMER
+                        if (obj->ctype.laser_info.track_turn_time >= HOMING_TURN_TIME)
+                        {
+                                objptridx_t obj_track_goal = obj->ctype.laser_info.track_goal;
+                                auto track_goal = track_track_goal(obj_track_goal, obj, &dot, obj->ctype.laser_info.track_turn_tick);
+
+                                if (track_goal == Players[Player_num].objnum) {
+                                        fix	dist_to_player;
+
+                                        dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
+                                        if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
+                                                Players[Player_num].homing_object_dist = dist_to_player;
+                                }
+
+
+                                if (track_goal != object_none)
+                                {
+                                        vm_vec_sub(vector_to_object, track_goal->pos, obj->pos);
+
+                                        // Scale vector to object to current FrameTime if we run really low. This is not really solving the issue accurately but the lower the FPS, the less we *can* do about it
+                                        if (FrameTime > HOMING_TURN_TIME)
+                                                vm_vec_scale(vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
+
+                                        vm_vec_normalize_quick(vector_to_object);
+                                        temp_vec = obj->mtype.phys_info.velocity;
+                                        speed = vm_vec_normalize_quick(temp_vec);
+                                        max_speed = Weapon_info[get_weapon_id(obj)].speed[Difficulty_level];
+                                        if (speed+F1_0 < max_speed) {
+                                                speed += fixmul(max_speed, obj->ctype.laser_info.track_turn_time);
+                                                if (speed > max_speed)
+                                                        speed = max_speed;
+                                        }
+
+                                        vm_vec_add2(temp_vec, vector_to_object);
+                                        //	The boss' smart children track better...
+                                        if (Weapon_info[get_weapon_id(obj)].render_type != WEAPON_RENDER_POLYMODEL)
+                                                vm_vec_add2(temp_vec, vector_to_object);
+                                        vm_vec_normalize_quick(temp_vec);
+                                        vm_vec_scale(temp_vec, speed);
+                                        obj->mtype.phys_info.velocity = temp_vec;
+
+                                        //	Subtract off life proportional to amount turned.
+                                        //	For hardest turn, it will lose 2 seconds per second.
+                                        {
+                                                fix	lifelost, absdot;
+
+                                                absdot = abs(F1_0 - dot);
+
+                                                lifelost = fixmul(absdot*32, obj->ctype.laser_info.track_turn_time);
+                                                obj->lifeleft -= lifelost;
+                                        }
+
+                                        //	Only polygon objects have visible orientation, so only they should turn.
+                                        if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
+                                                homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
+                                }
+                                obj->ctype.laser_info.track_turn_time -= HOMING_TURN_TIME; // reset turn time
+                        }
+                        obj->ctype.laser_info.track_turn_time += FrameTime; // increment turn time
+                        obj->ctype.laser_info.track_turn_tick ++; // increment turn tick
+#else // old FPS-dependent homers
 			//	Make sure the object we are tracking is still trackable.
 			objptridx_t obj_track_goal = object_none;
 			if (obj->ctype.laser_info.track_goal != object_none)
 				obj_track_goal = obj->ctype.laser_info.track_goal;
-			auto track_goal = track_track_goal(obj_track_goal, obj, &dot);
+			auto track_goal = track_track_goal(obj_track_goal, obj, &dot, d_tick_count);
 
 			if (track_goal == Players[Player_num].objnum) {
 				fix	dist_to_player;
@@ -1531,27 +1594,9 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 			}
 
-			if (track_goal != object_none) {
-#ifdef NEWHOMER
-				// See if enough time (see HOMING_TURN_TIME) passed and if yes, allow a turn. If not, fly straight.
-				if (obj->ctype.laser_info.track_turn_time >= HOMING_TURN_TIME)
-				{
-					vm_vec_sub(vector_to_object, track_goal->pos, obj->pos);
-					obj->ctype.laser_info.track_turn_time -= HOMING_TURN_TIME;
-				}
-				else
-				{
-					const auto straight = vm_vec_add(obj->mtype.phys_info.velocity, obj->pos);
-					vm_vec_sub(vector_to_object, straight, obj->pos);
-				}
-				obj->ctype.laser_info.track_turn_time += FrameTime;
-
-				// Scale vector to object to current FrameTime if we run really low
-				if (FrameTime > HOMING_TURN_TIME)
-					vm_vec_scale(vector_to_object, F1_0/((float)HOMING_TURN_TIME/FrameTime));
-#else
+			if (track_goal != object_none)
+                        {
 				vm_vec_sub(vector_to_object, Objects[track_goal].pos, obj->pos);
-#endif
 				vm_vec_normalize_quick(vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
 				speed = vm_vec_normalize_quick(temp_vec);
@@ -1587,6 +1632,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 				if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
 					homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
 			}
+#endif
 		}
 	}
 
