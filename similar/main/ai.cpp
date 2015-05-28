@@ -1991,9 +1991,8 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-objptridx_t gate_in_robot(int type, segnum_t segnum)
+objptridx_t gate_in_robot(int type, const vsegptridx_t segnum)
 {
-	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 	return create_gated_robot(segnum, type, NULL);
 }
 

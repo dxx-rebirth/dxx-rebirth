@@ -1044,13 +1044,13 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Do some validity checking
-	if ( (b.objrobot >= MAX_OBJECTS) || (b.objrobot < 0) || (b.where < 0) || (b.where > Highest_segment_index) )
+	if (b.objrobot >= MAX_OBJECTS || b.objrobot < 0)
 	{
 		Int3(); // See Rob, bad data in boss gate action message
 		return;
 	}
 	// Gate one in!
-	if (gate_in_robot(b.robot_type, b.where) != object_none)
+	if (gate_in_robot(b.robot_type, vsegptridx(b.where)) != object_none)
 		map_objnum_local_to_remote(Net_create_objnums[0], b.objrobot, pnum);
 }
 

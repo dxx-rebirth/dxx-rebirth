@@ -101,7 +101,7 @@ extern sbyte Boss_dying;
 extern vms_vector Believed_player_pos;
 
 void move_towards_segment_center(vobjptr_t objp);
-extern objptridx_t gate_in_robot(int type, segnum_t segnum);
+objptridx_t gate_in_robot(int type, vsegptridx_t segnum);
 void do_ai_frame(vobjptridx_t objp);
 void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
 extern void do_ai_frame_all(void);
