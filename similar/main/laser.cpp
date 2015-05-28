@@ -1575,9 +1575,9 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                                                 homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
                                 }
                                 obj->ctype.laser_info.track_turn_time -= HOMING_TURN_TIME; // reset turn time
+                                obj->ctype.laser_info.track_turn_tick ++; // increment turn tick
                         }
                         obj->ctype.laser_info.track_turn_time += FrameTime; // increment turn time
-                        obj->ctype.laser_info.track_turn_tick ++; // increment turn tick
 #else // old FPS-dependent homers
 			//	Make sure the object we are tracking is still trackable.
 			objptridx_t obj_track_goal = object_none;
