@@ -19,7 +19,6 @@
 #include <cassert>
 #include "window.h"
 
-struct d_event;
 struct SDL_MouseButtonEvent;
 struct SDL_MouseMotionEvent;
 
@@ -61,7 +60,8 @@ void mouse_cursor_autohide();
 class d_event_mousebutton : public d_event
 {
 public:
-	int button;
+	d_event_mousebutton(event_type type, unsigned b);
+	const unsigned button;
 };
 
 class d_event_mouse_moved : public d_event

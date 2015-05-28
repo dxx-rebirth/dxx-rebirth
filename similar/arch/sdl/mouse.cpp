@@ -42,6 +42,11 @@ struct mouseinfo : flushable_mouseinfo
 
 static mouseinfo Mouse;
 
+d_event_mousebutton::d_event_mousebutton(const event_type type, const unsigned b) :
+	d_event{type}, button(b)
+{
+}
+
 void mouse_init(void)
 {
 	Mouse = {};
@@ -76,9 +81,7 @@ static void maybe_send_z_move(const unsigned button)
 
 static void send_singleclick(const bool pressed, const unsigned button)
 {
-	d_event_mousebutton event;
-	event.type = pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
-	event.button = button;
+	const d_event_mousebutton event{pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP, button};
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
 			   pressed ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	event_send(event);
@@ -91,9 +94,7 @@ static void maybe_send_doubleclick(const fix64 now, const unsigned button)
 	when = now;
 	if (now > then + F1_0/5)
 		return;
-	d_event_mousebutton event;
-	event.type = EVENT_MOUSE_DOUBLE_CLICKED;
-	event.button = button;
+	const d_event_mousebutton event{EVENT_MOUSE_DOUBLE_CLICKED, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", button, Mouse.x, Mouse.y);
 	event_send(event);
 }
