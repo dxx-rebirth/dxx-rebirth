@@ -647,7 +647,8 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 					if ((sound_num=Effects[ec].sound_num)!=-1)		//kill sound
 						digi_kill_sound_linked_to_segment(seg,side,sound_num);
 
-					if (Effects[ec].dest_eclip!=-1 && Effects[Effects[ec].dest_eclip].segnum==-1) {
+					if (Effects[ec].dest_eclip!=-1 && Effects[Effects[ec].dest_eclip].segnum == segment_none)
+					{
 						int bm_num;
 						eclip *new_ec;
 

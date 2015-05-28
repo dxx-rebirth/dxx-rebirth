@@ -166,7 +166,8 @@ int wall_add_closed_wall()
 
 int wall_add_external_wall()
 {
-	if (Cursegp->children[Curside] == -2) {
+	if (Cursegp->children[Curside] == segment_exit)
+	{
 		editor_status( "Wall is already external!" );
 		return 1;
 	}

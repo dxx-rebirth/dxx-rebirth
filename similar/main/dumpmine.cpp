@@ -227,7 +227,8 @@ static void write_exit_text(PHYSFS_file *my_file)
 	count = 0;
 	range_for (const auto i, highest_valid(Segments))
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == -2) {
+			if (Segments[i].children[j] == segment_exit)
+			{
 				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(i), j);
 				count++;
 			}

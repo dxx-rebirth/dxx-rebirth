@@ -478,7 +478,7 @@ int pick_connected_segment(const vobjptr_t objp, int max_depth)
 			auto wall_num = segp->sides[snrand].wall_num;
 			sidenum++;
 
-			if ((wall_num == wall_none || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
+			if ((wall_num == wall_none || door_is_openable_by_player(segp, snrand)) && IS_CHILD(segp->children[snrand]))
 			{
 				if (!visited[segp->children[snrand]]) {
 					seg_queue[head++] = segp->children[snrand];

@@ -1200,7 +1200,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 			exit_side = Side_opposite[entry_side];
 		}
 
-		if (flydata->first_time || entry_side==-1 || pseg->children[exit_side]==-1)
+		if (flydata->first_time || entry_side==-1 || pseg->children[exit_side] == segment_none)
 			exit_side = find_exit_side(obj);
 
 		{										//find closest side to align to
@@ -1216,7 +1216,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//where we are heading (center of exit_side)
 		auto dest_point = compute_center_point_on_side(pseg,exit_side);
-		if (pseg->children[exit_side] == -2)
+		if (pseg->children[exit_side] == segment_exit)
 			nextcenter = dest_point;
 		else
 			compute_segment_center(nextcenter,&Segments[pseg->children[exit_side]]);
