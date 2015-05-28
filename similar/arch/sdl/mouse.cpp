@@ -52,6 +52,31 @@ void mouse_close(void)
 	SDL_ShowCursor(SDL_ENABLE);
 }
 
+static void send_singleclick(uint8_t state, int button)
+{
+	d_event_mousebutton event;
+	const auto pressed = state != SDL_RELEASED;
+	event.type = pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
+	event.button = button;
+	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
+			   pressed ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+	event_send(event);
+}
+
+static void maybe_send_doubleclick(const fix64 now, const unsigned button)
+{
+	auto &when = Mouse.time_lastpressed[button];
+	const auto then = when;
+	when = now;
+	if (now > then + F1_0/5)
+		return;
+	d_event_mousebutton event;
+	event.type = EVENT_MOUSE_DOUBLE_CLICKED;
+	event.button = button;
+	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", button, Mouse.x, Mouse.y);
+	event_send(event);
+}
+
 void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
 	// to bad, SDL buttons use a different mapping as descent expects,
@@ -77,12 +102,12 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	}};
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
-	d_event_mousebutton event;
 
 	if (GameArg.CtlNoMouse)
 		return;
 
-	Mouse.cursor_time = timer_query();
+	const auto now = timer_query();
+	Mouse.cursor_time = now;
 
 	if (mbe->state == SDL_PRESSED) {
 		d_event_mouse_moved event2{};
@@ -105,27 +130,11 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			event_send(event2);
 		}
 	}
-	
-	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
-	event.button = button;
-	
-	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
-			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
-	event_send(event);
-	
+	send_singleclick(mbe->state, button);
 	//Double-click support
 	if (mbe->state == SDL_PRESSED)
 	{
-		if (timer_query() <= Mouse.time_lastpressed[button] + F1_0/5)
-		{
-			event.type = EVENT_MOUSE_DOUBLE_CLICKED;
-			//event.button = button; // already set the button
-			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d",
-					   event.button, Mouse.x, Mouse.y);
-			event_send(event);
-		}
-
-		Mouse.time_lastpressed[button] = Mouse.cursor_time;
+		maybe_send_doubleclick(now, button);
 	}
 }
 
