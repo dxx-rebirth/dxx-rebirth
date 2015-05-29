@@ -433,7 +433,7 @@ static bool reject_unusable_primary_weapon_select(const uint_fast32_t weapon_num
 
 static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
-	const auto weapon_status = player_has_primary_weapon(weapon_num);
+	const auto weapon_status = player_has_secondary_weapon(weapon_num);
 	if (weapon_status.has_all())
 		return false;
 	HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
