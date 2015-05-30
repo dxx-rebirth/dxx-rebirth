@@ -425,6 +425,7 @@ void calc_frame_time()
 	GameTime64 += FrameTime;
 
 	calc_d_tick();
+        calc_d_homer_tick();
 }
 
 void move_player_2_segment(const vsegptridx_t seg,int side)

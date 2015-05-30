@@ -365,8 +365,6 @@ static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 				obj->ctype.laser_info.hitobj_list[obj->ctype.laser_info.last_hitobj] = true; // restore most recent hitobj to hitobj_list
 			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
 			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
-			obj->ctype.laser_info.track_turn_time  = HOMING_TURN_TIME;
-                        obj->ctype.laser_info.track_turn_tick  = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.laser_info.last_afterburner_time = 0;
 #endif

@@ -40,8 +40,8 @@ array<g3s_point, MAX_VERTICES> Segment_points;
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
 fix64 GameTime64 = 0;			//	Time in game, in seconds
 
-int d_tick_count = 0; // increments every 50ms
-int d_tick_step = 0;  // true once every 50ms
+int d_tick_count = 0; // increments every 33.33ms
+int d_tick_step = 0;  // true once every 33.33ms
 
 //	This is the global mine which create_new_mine returns.
 segment_array_t	Segments;

@@ -200,8 +200,6 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
 	objnum_t   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
-	fix     track_turn_time;
-        fix     track_turn_tick;
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
 #endif
