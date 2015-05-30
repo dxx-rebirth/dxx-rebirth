@@ -595,7 +595,7 @@ multi_sort_kill_list(void)
 	}
 
 	const auto predicate = [&](unsigned a, unsigned b) {
-		return kills[a] < kills[b];
+		return kills[a] > kills[b];
 	};
 	const auto &range = partial_range(sorted_kills, N_players);
 	std::sort(range.begin(), range.end(), predicate);
