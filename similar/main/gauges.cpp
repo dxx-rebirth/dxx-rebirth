@@ -81,7 +81,8 @@ public:
 	{
 		return hiresmode;
 	}
-	unsigned get(unsigned h, unsigned l) const
+	template <typename T>
+		T get(T h, T l) const
 	{
 		return is_hires() ? h : l;
 	}
