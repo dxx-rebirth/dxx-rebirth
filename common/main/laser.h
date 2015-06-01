@@ -146,7 +146,7 @@ extern void calc_d_homer_tick();
 #define HOMING_MAX_TRACKABLE_DOT        (3*F1_0/4) // was (7*F1_0/8) in original Descent 2
 #define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
-#define HOMING_TURN_TIME                (F1_0/25)
+#define HOMING_TURN_TIME                (F1_0/30)
 
 
 void Laser_render(vobjptr_t obj);
