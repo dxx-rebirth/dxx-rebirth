@@ -1183,22 +1183,19 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 void calc_d_homer_tick()
 {
         static fix timer = 0;
-
-        d_homer_tick_step = 0;
-
-        timer += FrameTime;
-        if (timer >= HOMING_TURN_TIME)
+	auto t = timer + FrameTime;
+	d_homer_tick_step = t >= HOMING_TURN_TIME;
+	if (d_homer_tick_step)
         {
-                d_homer_tick_step = 1;
                 d_homer_tick_count++;
                 if (d_homer_tick_count > F1_0)
                         d_homer_tick_count = 0;
-                timer -= HOMING_TURN_TIME;
-        }
-
+		t -= HOMING_TURN_TIME;
         // Don't let slowdowns have a lasting impact; allow you to build up at most 3 frames worth
-        if(timer > HOMING_TURN_TIME*3)
-                timer = HOMING_TURN_TIME*3;
+		if (t > HOMING_TURN_TIME*3)
+			t = HOMING_TURN_TIME*3;
+	}
+	timer = t;
 }
 
 //	------------------------------------------------------------------------------------------------------------
