@@ -435,10 +435,10 @@ static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
 	return vm_angles_2_matrix(m, a), m;
 }
 
-
+#ifdef EDITOR
 //computes a matrix from a forward vector and an angle
 void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
-
+#endif
 
 //computes a matrix from one or more vectors. The forward vector is required,
 //with the other two being optional.  If both up & right vectors are passed,
