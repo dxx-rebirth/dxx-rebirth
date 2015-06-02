@@ -102,7 +102,7 @@ struct object_intersects_wall_result_t
 };
 
 //Returns true if the object is through any walls
-int object_intersects_wall(vobjptr_t objp);
+int object_intersects_wall(vcobjptr_t objp);
 int object_intersects_wall_d(vcobjptr_t objp, object_intersects_wall_result_t &); // same as above but more detailed
 
 #endif
