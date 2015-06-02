@@ -136,15 +136,6 @@ fix_sincos_result fix_sincos(fix);
 
 //compute sine and cosine of an angle, filling in the variables
 //either of the pointers can be NULL
-static inline void fix_sincos (fix a, fix *s, fix *c)	//with interpolation
-{
-	const auto &r = fix_sincos(a);
-	if (s)
-		*s = r.sin;
-	if (c)
-		*c = r.cos;
-}
-void fix_sincos(fix, std::nullptr_t, std::nullptr_t) = delete;
 
 __attribute_warn_unused_result
 fix fix_sin(fix a);

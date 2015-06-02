@@ -2202,14 +2202,6 @@ void start_boss_death_sequence(const vobjptr_t objp)
 #if defined(DXX_BUILD_DESCENT_I)
 static void do_boss_dying_frame(const vobjptridx_t objp)
 {
-	fix	boss_roll_val;
-
-	boss_roll_val = fixdiv(GameTime64 - Boss_dying_start_time, BOSS_DEATH_DURATION);
-
-	fix_sincos(fixmul(boss_roll_val, boss_roll_val), nullptr, &objp->mtype.phys_info.rotvel.x);
-	fix_sincos(boss_roll_val, nullptr, &objp->mtype.phys_info.rotvel.y);
-	fix_sincos(boss_roll_val-F1_0/8, nullptr, &objp->mtype.phys_info.rotvel.z);
-
 	objp->mtype.phys_info.rotvel.x = (GameTime64 - Boss_dying_start_time)/9;
 	objp->mtype.phys_info.rotvel.y = (GameTime64 - Boss_dying_start_time)/5;
 	objp->mtype.phys_info.rotvel.z = (GameTime64 - Boss_dying_start_time)/7;
@@ -2302,24 +2294,17 @@ void start_robot_death_sequence(const vobjptr_t objp)
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
 static int do_robot_dying_frame(const vobjptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
-	fix	roll_val;
 	fix	sound_duration;
 
 	if (!roll_duration)
 		roll_duration = F1_0/4;
 
-	roll_val = fixdiv(GameTime64 - start_time, roll_duration);
-
-	fix_sincos(fixmul(roll_val, roll_val), nullptr, &objp->mtype.phys_info.rotvel.x);
-	fix_sincos(roll_val, nullptr, &objp->mtype.phys_info.rotvel.y);
-	fix_sincos(roll_val-F1_0/8, nullptr, &objp->mtype.phys_info.rotvel.z);
-
 	objp->mtype.phys_info.rotvel.x = (GameTime64 - start_time)/9;
 	objp->mtype.phys_info.rotvel.y = (GameTime64 - start_time)/5;
 	objp->mtype.phys_info.rotvel.z = (GameTime64 - start_time)/7;
 
-	if (GameArg.SndDigiSampleRate)
-		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,GameArg.SndDigiSampleRate);
+	if (const auto SndDigiSampleRate = GameArg.SndDigiSampleRate)
+		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length, SndDigiSampleRate);
 	else
 		sound_duration = F1_0;
 
