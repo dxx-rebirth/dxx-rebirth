@@ -394,52 +394,50 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	return a;
 }
 
-static void sincos_2_matrix(vms_matrix &m, fix sinp, fix cosp, fix sinb, fix cosb, fix sinh, fix cosh)
+static void sincos_2_matrix(vms_matrix &m, const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
 {
-	fix sbsh,cbch,cbsh,sbch;
+#define DXX_S2M_DECL(V)	\
+	const auto &sin##V = V.sin;	\
+	const auto &cos##V = V.cos
+	DXX_S2M_DECL(p);
+	DXX_S2M_DECL(h);
+	m.fvec.y = -sinp;								//m6
+	m.fvec.x = fixmul(sinh,cosp);				//m3
+	m.fvec.z = fixmul(cosh,cosp);				//m9
+	const auto &&b = fix_sincos(bank);
+	DXX_S2M_DECL(b);
+#undef DXX_S2M_DECL
+	m.rvec.y = fixmul(sinb,cosp);				//m4
+	m.uvec.y = fixmul(cosb,cosp);				//m5
 
-	sbsh = fixmul(sinb,sinh);
-	cbch = fixmul(cosb,cosh);
-	cbsh = fixmul(cosb,sinh);
-	sbch = fixmul(sinb,cosh);
-
+	const auto cbch = fixmul(cosb,cosh);
+	const auto sbsh = fixmul(sinb,sinh);
 	m.rvec.x = cbch + fixmul(sinp,sbsh);		//m1
 	m.uvec.z = sbsh + fixmul(sinp,cbch);		//m8
 
+	const auto sbch = fixmul(sinb,cosh);
+	const auto cbsh = fixmul(cosb,sinh);
 	m.uvec.x = fixmul(sinp,cbsh) - sbch;		//m2
 	m.rvec.z = fixmul(sinp,sbch) - cbsh;		//m7
-
-	m.fvec.x = fixmul(sinh,cosp);				//m3
-	m.rvec.y = fixmul(sinb,cosp);				//m4
-	m.uvec.y = fixmul(cosb,cosp);				//m5
-	m.fvec.z = fixmul(cosh,cosp);				//m9
-
-	m.fvec.y = -sinp;								//m6
 }
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
 void vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 {
-	fix sinp,cosp,sinb,cosb,sinh,cosh;
-	fix_sincos(a.p,&sinp,&cosp);
-	fix_sincos(a.b,&sinb,&cosb);
-	fix_sincos(a.h,&sinh,&cosh);
-	sincos_2_matrix(m, sinp, cosp, sinb, cosb, sinh, cosh);
+	const auto al = a;
+	sincos_2_matrix(m, al.b, fix_sincos(al.p), fix_sincos(al.h));
 }
 
 //computes a matrix from a forward vector and an angle
 void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 {
-	fix sinb,cosb,sinp,cosp,sinh,cosh;
-
-	fix_sincos(a,&sinb,&cosb);
-
+	fix sinp,cosp,sinh,cosh;
 	sinp = -v.y;
 	cosp = fix_sqrt(f1_0 - fixmul(sinp,sinp));
 
 	sinh = fixdiv(v.x,cosp);
 	cosh = fixdiv(v.z,cosp);
-	sincos_2_matrix(m, sinp, cosp, sinb, cosb, sinh, cosh);
+	sincos_2_matrix(m, a, {sinp, cosp}, {sinh, cosh});
 }
 
 //computes a matrix from one or more vectors. The forward vector is required,
