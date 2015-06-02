@@ -537,14 +537,16 @@ void vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matrix
 //extract angles from a matrix 
 void vm_extract_angles_matrix(vms_angvec &a,const vms_matrix &m)
 {
-	fix sinh,cosh,cosp;
+	fix cosp;
 
 	if (m.fvec.x==0 && m.fvec.z==0)		//zero head
 		a.h = 0;
 	else
 		a.h = fix_atan2(m.fvec.z,m.fvec.x);
 
-	fix_sincos(a.h,&sinh,&cosh);
+	const auto &&ah = fix_sincos(a.h);
+	const auto &sinh = ah.sin;
+	const auto &cosh = ah.cos;
 
 	if (abs(sinh) > abs(cosh))				//sine is larger, so use it
 		cosp = fixdiv(m.fvec.x,sinh);
