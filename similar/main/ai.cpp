@@ -2005,23 +2005,18 @@ static objptridx_t gate_in_robot(int type)
 // --------------------------------------------------------------------------------------------------------------------
 static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
 {
-	int			posnum;
 	const auto segcenter = compute_segment_center(segp);
-	for (posnum=0; posnum<9; posnum++) {
-		if (posnum > 0) {
-			vms_vector	vertex_pos;
-
-			Assert((posnum-1 >= 0) && (posnum-1 < 8));
-			vertex_pos = Vertices[segp->verts[posnum-1]];
-			vm_vec_avg(boss_objp->pos, vertex_pos, segcenter);
-		} else
-			boss_objp->pos = segcenter;
-
+	boss_objp->pos = segcenter;
+	for (uint_fast32_t posnum = 0;;)
+	{
 		obj_relink(boss_objp, segp);
 		if (!object_intersects_wall(boss_objp))
 			return 1;
+		if (posnum == segp->verts.size())
+			break;
+		const auto &vertex_pos = Vertices[segp->verts[posnum ++]];
+		vm_vec_avg(boss_objp->pos, vertex_pos, segcenter);
 	}
-
 	return 0;
 }
 
