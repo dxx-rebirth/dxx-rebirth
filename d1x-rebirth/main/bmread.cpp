@@ -872,7 +872,7 @@ static void adjust_field_of_view(array<fix, NDL> &fovp)
 		}
 		ff = ff/360;
 		tt = fl2f(ff);
-		fix_sincos(tt, nullptr, &i);
+		i = fix_cos(tt);
 	}
 }
 

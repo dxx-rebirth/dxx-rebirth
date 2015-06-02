@@ -239,10 +239,9 @@ static void rotate_uv_points_on_side(const vsegptr_t segp, sidenum_fast_t sidenu
 //	rotmat is filled in with 4 fixes
 static array<fix, 4> create_2d_rotation_matrix(fix ang)
 {
-	fix	sinang, cosang;
-
-	fix_sincos(ang, &sinang, &cosang);
-
+	const auto &&a = fix_sincos(ang);
+	const auto &sinang = a.sin;
+	const auto &cosang = a.cos;
 	return {{
 		cosang,
 		sinang,
