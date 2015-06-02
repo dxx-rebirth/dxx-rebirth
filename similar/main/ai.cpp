@@ -1531,8 +1531,6 @@ void make_random_vector(vms_vector &vec)
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
-objnum_t	Break_on_object = object_none;
-
 static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vms_vector &vec_to_player)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2889,6 +2887,9 @@ static bool is_break_object(vcobjptridx_t)
 	return false;
 }
 #else
+__attribute_used
+static objnum_t Break_on_object = object_none;
+
 static bool is_break_object(const vcobjptridx_t robot)
 {
 	return Break_on_object == robot;

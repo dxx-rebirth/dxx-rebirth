@@ -258,7 +258,6 @@ extern fix64            Boss_hit_time;
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
 
 extern int Do_ai_flag;
-extern objnum_t Break_on_object;
 
 #endif //ifndef NDEBUG
 
