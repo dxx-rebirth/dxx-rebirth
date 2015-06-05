@@ -27,4 +27,4 @@
 	}
 
 DEFINE_ASSERT_HELPER_CLASS(assert_equal, ==, "values must be equal");
-#define assert_equal(L,R,S) static_assert(assert_equal<decltype(L), L, R>::value, S)
+#define assert_equal(L,R,S) static_assert(assert_equal<decltype((L) + 0), (L) + 0, (R) + 0>::value, S)

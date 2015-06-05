@@ -54,6 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "compiler-array.h"
 #include "ntstring.h"
+#include "compiler-static_assert.h"
+#include "compiler-type_traits.h"
 
 struct _sockaddr
 {
@@ -225,18 +227,18 @@ extern int multi_protocol; // set and determinate used protocol
 #endif
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
+#define define_netflag_bit_mask(NAME,STR)	static constexpr auto NAME = tt::integral_constant<unsigned, (1 << BIT_##NAME)>{};
 #define define_netflag_powerup_mask(NAME,STR)	| (NAME)
 enum { for_each_netflag_value(define_netflag_bit_enum) };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-enum { for_each_netflag_value(define_netflag_bit_mask) };
+for_each_netflag_value(define_netflag_bit_mask);
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 enum {
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
 	BIT_NETGRANT_MAXIMUM
 };
-enum { for_each_netgrant_value(define_netflag_bit_mask) };
+for_each_netgrant_value(define_netflag_bit_mask);
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
 #undef define_netflag_powerup_mask
@@ -254,6 +256,12 @@ struct packed_spawn_granted_items
 	constexpr packed_spawn_granted_items(mask_type m) :
 		mask(m)
 	{
+	}
+	template <unsigned U>
+		constexpr packed_spawn_granted_items(tt::integral_constant<unsigned, U>) :
+			mask(U)
+	{
+		assert_equal(U, static_cast<mask_type>(U), "truncation error");
 	}
 	explicit operator bool() const { return mask; }
 	bool has_quad_laser() const { return mask & NETGRANT_QUAD; }
