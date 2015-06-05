@@ -294,6 +294,15 @@ static inline const T &extract_value(const std::tuple<T> &t)
 	return std::get<0>(t);
 }
 
+/* Never defined.  Used only in unevaluated context for decltype.
+ * If minimum_size exists, it is used.  Otherwise, maximum_size is used.
+ */
+template <typename T>
+decltype(T::minimum_size) get_minimum_size(T *);
+
+template <typename T>
+decltype(T::maximum_size) get_minimum_size(...);
+
 }
 
 template <std::size_t amount, uint8_t value = 0xcc>
@@ -444,6 +453,7 @@ class message_type : message_dispatch_type<typename tt::remove_reference<T>::typ
 	typedef message_dispatch_type<typename tt::remove_reference<T>::type> base_type;
 	typedef typename base_type::effective_type effective_type;
 public:
+	static constexpr auto minimum_size = decltype(detail::get_minimum_size<effective_type>(nullptr)){};
 	static constexpr auto maximum_size = effective_type::maximum_size;
 };
 
@@ -478,6 +488,7 @@ class message_type<message<A1, A2, Args...>>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
+	static constexpr auto minimum_size = tt::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size>{};
 	static constexpr auto maximum_size = tt::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size>{};
 };
 
