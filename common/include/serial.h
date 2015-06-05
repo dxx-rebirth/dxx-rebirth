@@ -41,7 +41,7 @@ class integral_type
 {
 	static_assert(tt::is_integral<T>::value, "integral_type used on non-integral type");
 public:
-	static const std::size_t maximum_size = sizeof(T);
+	static constexpr auto maximum_size = tt::integral_constant<std::size_t, sizeof(T)>{};
 };
 
 template <typename T>
@@ -49,7 +49,7 @@ class enum_type
 {
 	static_assert(tt::is_enum<T>::value, "enum_type used on non-enum type");
 public:
-	static const std::size_t maximum_size = sizeof(T);
+	static constexpr auto maximum_size = tt::integral_constant<std::size_t, sizeof(T)>{};
 };
 
 template <typename>
@@ -93,8 +93,9 @@ class class_type;
 template <typename>
 class array_type;
 
-struct endian_access
+class endian_access
 {
+public:
 	/*
 	 * Endian access modes:
 	 * - foreign_endian: assume buffered data is foreign endian
@@ -185,8 +186,9 @@ message<array<uint8_t, amount>> udt_to_message(const pad_type<amount, value> &);
  * specialization is missing.
  */
 template <typename T>
-struct missing_udt_specialization
+class missing_udt_specialization
 {
+public:
 	missing_udt_specialization() = delete;
 };
 
@@ -442,7 +444,7 @@ class message_type : message_dispatch_type<typename tt::remove_reference<T>::typ
 	typedef message_dispatch_type<typename tt::remove_reference<T>::type> base_type;
 	typedef typename base_type::effective_type effective_type;
 public:
-	static const std::size_t maximum_size = effective_type::maximum_size;
+	static constexpr auto maximum_size = effective_type::maximum_size;
 };
 
 template <typename A1>
@@ -463,7 +465,7 @@ template <typename T, std::size_t N>
 class array_type<const array<T, N>>
 {
 public:
-	static const std::size_t maximum_size = message_type<T>::maximum_size * N;
+	static constexpr auto maximum_size = tt::integral_constant<std::size_t, message_type<T>::maximum_size * N>{};
 };
 
 template <typename T, std::size_t N>
@@ -476,7 +478,7 @@ class message_type<message<A1, A2, Args...>>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
-	static const std::size_t maximum_size = message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size;
+	static constexpr auto maximum_size = tt::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size>{};
 };
 
 template <typename A1, typename... Args>
