@@ -1117,8 +1117,8 @@ static void extract_vector_from_segment(const vcsegptr_t sp, vms_vector &vp, con
 	auto &verts = sp->verts;
 	for (uint_fast32_t i = 0; i != 4; ++i)
 	{
-		vm_vec_add2(vp, Vertices[verts[start[i]]]);
-		vm_vec_sub2(vp, Vertices[verts[end[i]]]);
+		vm_vec_sub2(vp, Vertices[verts[start[i]]]);
+		vm_vec_add2(vp, Vertices[verts[end[i]]]);
 	}
 	vm_vec_scale(vp,F1_0/4);
 }
