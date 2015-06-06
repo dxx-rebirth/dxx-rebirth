@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
+#include <bitset>
 #include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
@@ -133,66 +134,49 @@ struct laser_parent
 	short   parent_type;        // The type of the parent of this object
 	objnum_t   parent_num;         // The object's parent's number
 	object_signature_t     parent_signature;   // The object's parent's signature...
+	constexpr laser_parent() :
+		parent_type{}, parent_num{}, parent_signature(0)
+	{
+	}
 };
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
 	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
 	{
-		template <typename T>
-			struct tproxy
-			{
-				T *addr;
-				uint8_t mask;
-				tproxy(T *a, uint8_t m) :
-					addr(a), mask(m)
-				{
-					assert(m);
-					assert(!(m & (m - 1)));
-				}
-				dxx_explicit_operator_bool operator bool() const
-				{
-					return *addr & mask;
-				}
-			};
-		typedef tproxy<const uint8_t> cproxy;
-		struct proxy : public tproxy<uint8_t>
+		typedef std::bitset<MAX_OBJECTS> mask_type;
+		mask_type mask;
+		struct proxy
 		{
-			proxy(uint8_t *a, uint8_t m) :
-				tproxy<uint8_t>(a, m)
+			mask_type &mask;
+			std::size_t i;
+			proxy(mask_type &m, std::size_t s) :
+				mask(m), i(s)
 			{
+			}
+			explicit operator bool() const
+			{
+				return mask.test(i);
 			}
 			proxy &operator=(bool b)
 			{
-				if (b)
-					*addr |= mask;
-				else
-					*addr &= ~mask;
+				mask.set(i, b);
 				return *this;
 			}
 			template <typename T>
 				void operator=(T) = delete;
 		};
-		array<uint8_t, (MAX_OBJECTS + 7) / 8> mask;
 		proxy operator[](objnum_t i)
 		{
-			return make_proxy<proxy>(mask, i);
+			return proxy(mask, i);
 		}
-		cproxy operator[](objnum_t i) const
+		bool operator[](objnum_t i) const
 		{
-			return make_proxy<cproxy>(mask, i);
+			return mask.test(i);
 		}
 		void clear()
 		{
-			mask.fill(0);
-		}
-		template <typename T1, typename T2>
-		static T1 make_proxy(T2 &mask, objnum_t i)
-		{
-			typename T2::size_type index = i / 8, bitshift = i % 8;
-			if (!(index < mask.size()))
-				throw std::out_of_range("index exceeds object range");
-			return T1(&mask[index], 1 << bitshift);
+			mask.reset();
 		}
 	};
 	fix64   creation_time;      // Absolute time of creation.
@@ -203,6 +187,13 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
 #endif
+	constexpr laser_info() :
+		creation_time{}, last_hitobj{}, track_goal{}, multiplier{}
+#if defined(DXX_BUILD_DESCENT_II)
+		, last_afterburner_time{}
+#endif
+	{
+	}
 };
 
 // Same as above but structure Savegames/Multiplayer objects expect
@@ -336,7 +327,11 @@ struct object {
 	} rtype;
 
 	// control info, determined by CONTROL_TYPE
-	union {
+	union control_info {
+		constexpr control_info() :
+			laser_info{}
+		{
+		}
 		struct laser_info      laser_info;
 		struct explosion_info  expl_info;      // NOTE: debris uses this also
 		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
