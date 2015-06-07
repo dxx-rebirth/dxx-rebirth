@@ -14,9 +14,9 @@
 #ifndef _CVAR_H
 #define _CVAR_H 1
 
-#include "pstypes.h"
-#include "physfsx.h"
-
+#include <cstdint>
+#include <physfs.h>
+#include "maths.h"
 
 // cvar flags
 #define CVAR_NONE           0
@@ -39,7 +39,7 @@ struct cvar_t
 {
 	const char *name;
 	char *string;
-	ushort flags;
+	uint16_t flags;
 	fix value;
 	int intval;
 

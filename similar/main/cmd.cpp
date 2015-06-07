@@ -11,6 +11,7 @@
  *
  */
 
+#include <cstdarg>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,8 +22,9 @@
 #include "strutil.h"
 #include "inferno.h"
 #include "console.h"
+#include "cvar.h"
 #include "hash.h"
-
+#include "physfsx.h"
 
 struct cmd_t
 {

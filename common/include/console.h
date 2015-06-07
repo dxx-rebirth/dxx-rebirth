@@ -6,8 +6,7 @@
  */
 /* Console */
 
-#ifndef _CONSOLE_H_
-#define _CONSOLE_H_
+#pragma once
 
 #include <cstddef>
 #include <cstring>
@@ -16,7 +15,6 @@
 #include "fmtcheck.h"
 #include "cli.h"
 #include "cmd.h"
-#include "cvar.h"
 
 #ifdef __cplusplus
 
@@ -67,6 +65,3 @@ void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3)
 void con_showup(void);
 
 #endif
-
-#endif /* _CONSOLE_H_ */
-

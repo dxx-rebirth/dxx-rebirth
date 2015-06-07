@@ -11,16 +11,18 @@
  *
  */
 
+#include <cstdarg>
 #include <stdlib.h>
 #include <physfs.h>
 
 #include "console.h"
+#include "cvar.h"
 #include "dxxerror.h"
 #include "strutil.h"
 #include "u_mem.h"
 #include "hash.h"
 #include "game.h"
-
+#include "physfsx.h"
 
 #define CVAR_MAX_LENGTH 1024
 #define CVAR_MAX_CVARS  1024
