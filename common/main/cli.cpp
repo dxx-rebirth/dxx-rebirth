@@ -145,10 +145,7 @@ void cli_draw(int y)
 		gr_get_string_size(Prompt.get(), &prompt_width, &h, &w);
 		gr_get_string_size(LCommand + Offset, &cmd_width, &h, &w);
 		x = CLI_CHAR_BORDER + prompt_width + cmd_width;
-		if (CLI_insert_mode)
-			gr_string(x, y-h, CLI_INS_CURSOR);
-		else
-			gr_string(x, y-h, CLI_OVR_CURSOR);
+		gr_string(x, y-h, CLI_insert_mode ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
 	}
 }
 
