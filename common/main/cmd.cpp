@@ -43,7 +43,7 @@ static std::map<const char *, std::unique_ptr<cmd_t>> cmd_list;
 struct cmd_alias_t
 {
 	char           name[ALIAS_NAME_MAX];
-	char           *value;
+	RAIIdmem<char[]> value;
 };
 
 #define CMD_MAX_ALIASES 1024
@@ -114,8 +114,8 @@ static void cmd_execute(int argc, char **argv)
 
 	if ( (alias = cmd_findalias(argv[0])) && alias->value )
 	{
-		con_printf(CON_DEBUG, "cmd_execute: pushing alias \"%s\": %s", alias->name, alias->value);
-		cmd_insert(alias->value);
+		con_printf(CON_DEBUG, "cmd_execute: pushing alias \"%s\": %s", alias->name, alias->value.get());
+		cmd_insert(alias->value.get());
 		return;
 	}
 	
@@ -329,7 +329,7 @@ static void cmd_alias(int argc, char **argv)
 	if (argc < 2) {
 		con_printf(CON_NORMAL, "aliases:");
 		range_for (const auto &i, cmd_alias_list)
-			con_printf(CON_NORMAL, "%s: %s", i.first.c_str(), i.second->value);
+			con_printf(CON_NORMAL, "%s: %s", i.first.c_str(), i.second->value.get());
 		return;
 	}
 	
@@ -337,7 +337,7 @@ static void cmd_alias(int argc, char **argv)
 		cmd_alias_t *alias;
 		if ( (alias = cmd_findalias(argv[1])) && alias->value )
 		{
-			con_printf(CON_NORMAL, "%s: %s", alias->name, alias->value);
+			con_printf(CON_NORMAL, "%s: %s", alias->name, alias->value.get());
 			return;
 		}
 
@@ -357,12 +357,7 @@ static void cmd_alias(int argc, char **argv)
 		alias = (i.first->second = make_unique<cmd_alias_t>()).get();
 		strncpy(alias->name, argv[1], sizeof(alias->name));
 	}
-	else
-	{
-		if ( alias->value )
-			d_free(alias->value);
-	}
-	alias->value = d_strdup(buf);
+	alias->value.reset(d_strdup(buf));
 }
 
 
@@ -383,9 +378,7 @@ static void cmd_unalias(int argc, char **argv)
 		con_printf(CON_NORMAL, "unalias: %s not found", argv[1]);
 		return;
 	}
-
-	d_free(alias->value);
-
+	alias->value.reset();
 	//d_free(alias); // Can't remove from hashtable, so just leave it
 }
 
@@ -495,16 +488,6 @@ static void cmd_wait(int argc, char **argv)
 		cmd_queue_wait = atoi(argv[1]);
 }
 
-
-static void cmd_free(void)
-{
-	range_for (auto &i, cmd_alias_list)
-	{
-		d_free(i.second->value);
-	}
-}
-
-
 void cmd_init(void)
 {
 	cmd_addcommand("alias",     cmd_alias,      "alias <name> <commands>\n" "    define <name> as an alias for <commands>\n"
@@ -515,6 +498,4 @@ void cmd_init(void)
 	cmd_addcommand("exec",      cmd_exec,       "exec <file>\n"             "    execute <file>");
 	cmd_addcommand("help",      cmd_help,       "help [command]\n"          "    get help for <command>, or list all commands if not specified.");
 	cmd_addcommand("wait",      cmd_wait,       "usage: wait [n]\n"         "    stop processing commands, resume in <n> cycles (default 1)");
-
-	atexit(cmd_free);
 }
