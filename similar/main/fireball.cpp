@@ -190,7 +190,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								}
 								if ( obj0p->shields >= 0 ) {
 #if defined(DXX_BUILD_DESCENT_II)
-									if (Robot_info[obj0p->id].boss_flag)
+									if (Robot_info[obj0p->id].boss_flag >= BOSS_D2)
 										if (Boss_invulnerable_matter[Robot_info[obj0p->id].boss_flag-BOSS_D2])
 											damage /= 4;
 #endif
