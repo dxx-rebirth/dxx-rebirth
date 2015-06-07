@@ -47,9 +47,9 @@
 
 int CLI_insert_mode;                        // Insert or Overwrite characters?
 
-static array<char *, CLI_HISTORY_MAX> CommandLines; // List of all the past commands
+static array<RAIIdmem<char[]>, CLI_HISTORY_MAX> CommandLines; // List of all the past commands
 static int TotalCommands;                   // Number of commands in the Back Commands
-static char *Prompt;                        // Prompt displayed in command line
+static RAIIdmem<char[]> Prompt;                        // Prompt displayed in command line
 static char Command[CLI_CHARS_PER_LINE];    // current command in command line = lcommand + rcommand
 static char LCommand[CLI_CHARS_PER_LINE];   // right hand side of cursor
 static char RCommand[CLI_CHARS_PER_LINE];   // left hand side of cursor
@@ -58,21 +58,6 @@ static uint_fast32_t CursorPos;             // Current cursor position in Curren
 static uint_fast32_t Offset;                // CommandOffset (first visible char of command) - if command is too long to fit into console
 static int CommandScrollBack;               // How much the users scrolled back in the command lines
 
-
-/* Frees all the memory loaded by the cli */
-static void cli_free(void)
-{
-	int i;
-
-	for (i = 0; i <= CLI_HISTORY_MAX - 1; i++) {
-		if (CommandLines[i])
-			d_free(CommandLines[i]);
-	}
-
-	d_free(Prompt);
-}
-
-
 /* Initializes the cli */
 void cli_init()
 {
@@ -80,31 +65,20 @@ void cli_init()
 	CLI_insert_mode = 1;
 	CursorPos = 0;
 	CommandScrollBack = 0;
-	Prompt = d_strdup(CLI_DEFAULT_PROMPT);
+	Prompt.reset(d_strdup(CLI_DEFAULT_PROMPT));
 
 	CommandLines = {};
 	memset(Command, 0, sizeof(Command));
 	memset(LCommand, 0, sizeof(LCommand));
 	memset(RCommand, 0, sizeof(RCommand));
 	memset(VCommand, 0, sizeof(VCommand));
-
-	atexit(cli_free);
 }
 
 
 /* Increments the command lines */
 static void cli_newline(void)
 {
-	int loop;
-
-	if (CommandLines[CLI_HISTORY_MAX - 1])
-		d_free(CommandLines[CLI_HISTORY_MAX - 1]);
-
-	for (loop = CLI_HISTORY_MAX - 1; loop > 0; loop--)
-		CommandLines[loop] = CommandLines[loop - 1];
-
-	CommandLines[0] = NULL;
-
+	std::move(CommandLines.begin(), std::prev(CommandLines.end()), std::next(CommandLines.begin()));
 	if (TotalCommands < CLI_HISTORY_MAX - 1)
 		TotalCommands++;
 }
@@ -131,7 +105,7 @@ void cli_draw(int y)
 		real_aw = (float)w/(float)strlen(Command);
 	else
 		real_aw = (float)aw;
-	commandbuffer = (GWIDTH - 2*CLI_CHAR_BORDER)/real_aw - strlen(Prompt) - 1; // -1 to make cursor visible
+	commandbuffer = (GWIDTH - 2*CLI_CHAR_BORDER)/real_aw - strlen(Prompt.get()) - 1; // -1 to make cursor visible
 
 	//calculate display offset from current cursor position
 	if (CursorPos > commandbuffer && Offset < CursorPos - commandbuffer)
@@ -140,7 +114,7 @@ void cli_draw(int y)
 		Offset = CursorPos;
 
 	// first add prompt to visible part
-	strcpy(VCommand, Prompt);
+	strcpy(VCommand, Prompt.get());
 
 	// then add the visible part of the command
 	strncat(VCommand, &Command[Offset], sizeof(VCommand) - strlen(VCommand) - 1);
@@ -168,7 +142,7 @@ void cli_draw(int y)
 	if (Blink) {
 		int prompt_width, cmd_width, h, w;
 
-		gr_get_string_size(Prompt, &prompt_width, &h, &w);
+		gr_get_string_size(Prompt.get(), &prompt_width, &h, &w);
 		gr_get_string_size(LCommand + Offset, &cmd_width, &h, &w);
 		x = CLI_CHAR_BORDER + prompt_width + cmd_width;
 		if (CLI_insert_mode)
@@ -186,10 +160,10 @@ void cli_execute(void)
 		cli_newline();
 
 		// copy the input into the past commands strings
-		CommandLines[0] = d_strdup(Command);
+		CommandLines[0].reset(d_strdup(Command));
 
 		// display the command including the prompt
-		con_printf(CON_NORMAL, "%s%s", Prompt, Command);
+		con_printf(CON_NORMAL, "%s%s", Prompt.get(), Command);
 
 		cmd_append(Command);
 
@@ -326,8 +300,8 @@ void cli_history_prev(void)
 		CommandScrollBack++;
 		memset(RCommand, 0, sizeof(RCommand));
 		Offset = 0;
-		strcpy(LCommand, CommandLines[CommandScrollBack]);
-		CursorPos = strlen(CommandLines[CommandScrollBack]);
+		strcpy(LCommand, CommandLines[CommandScrollBack].get());
+		CursorPos = strlen(CommandLines[CommandScrollBack].get());
 	}
 }
 
@@ -341,7 +315,7 @@ void cli_history_next(void)
 		memset(LCommand, 0, sizeof(LCommand));
 		Offset = 0;
 		if(CommandScrollBack > -1)
-			strcpy(LCommand, CommandLines[CommandScrollBack]);
+			strcpy(LCommand, CommandLines[CommandScrollBack].get());
 		CursorPos = strlen(LCommand);
 	}
 }
