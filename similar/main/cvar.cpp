@@ -33,7 +33,12 @@ cvar_t *cvar_list[CVAR_MAX_CVARS];
 int Num_cvars;
 
 
-const char *cvar_t::operator=(const char *s) { cvar_set_cvar(this, (char *)s); return this->string; }
+const char *cvar_t::operator=(const char *s)
+{
+	cvar_set_cvar(this, s);
+	return *this;
+}
+
 int         cvar_t::operator=(int i)         { cvar_set_cvarf(this, "%d", i);  return this->intval; }
 
 
@@ -151,7 +156,7 @@ void cvar_registervariable (cvar_t *cvar)
 
 
 /* Set a CVar's value */
-void cvar_set_cvar(cvar_t *cvar, char *value)
+void cvar_set_cvar(cvar_t *cvar, const char *value)
 {
 	if (!cvar)
 		return;

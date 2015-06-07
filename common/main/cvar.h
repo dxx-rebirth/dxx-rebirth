@@ -55,7 +55,7 @@ void cvar_init(void);
 void cvar_registervariable (cvar_t *cvar);
 
 /* Set a CVar's value */
-void cvar_set_cvar(cvar_t *cvar, char *value);
+void cvar_set_cvar(cvar_t *cvar, const char *value);
 void cvar_set_cvarf(cvar_t *cvar, const char *fmt, ...);
 
 /* Equivalent to typing <var_name> <value> at the console */
