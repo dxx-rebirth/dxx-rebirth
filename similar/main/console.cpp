@@ -27,6 +27,8 @@
 #include "key.h"
 #include "vers_id.h"
 #include "timer.h"
+#include "cli.h"
+#include "cvar.h"
 
 #include "dxxsconf.h"
 #include "compiler-array.h"
@@ -157,6 +159,11 @@ static void con_draw(void)
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	y=FSPACY(1)+(LINE_SPACING*con_size);
 	i+=con_scroll_offset;
+
+	gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+	cli_draw(y);
+	y -= LINE_SPACING;
+
 	while (!done)
 	{
 		int w,h,aw;
@@ -185,9 +192,11 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
+			key_toggle_repeat(0);
 			con_size = 0;
 			con_state = CON_STATE_CLOSED;
 			break;
@@ -222,7 +231,28 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 					if (con_scroll_offset<0)
 						con_scroll_offset=0;
 					break;
+				case KEY_CTRLED + KEY_A:
+				case KEY_HOME:              cli_cursor_home();      break;
+				case KEY_END:
+				case KEY_CTRLED + KEY_E:    cli_cursor_end();       break;
+				case KEY_CTRLED + KEY_C:    cli_clear();            break;
+				case KEY_LEFT:              cli_cursor_left();      break;
+				case KEY_RIGHT:             cli_cursor_right();     break;
+				case KEY_BACKSP:            cli_cursor_backspace(); break;
+				case KEY_CTRLED + KEY_D:
+				case KEY_DELETE:            cli_cursor_del();       break;
+				case KEY_UP:                cli_history_prev();     break;
+				case KEY_DOWN:              cli_history_next();     break;
+				case KEY_TAB:               cli_autocomplete();     break;
+				case KEY_ENTER:             cli_execute();          break;
+				case KEY_INSERT:
+					CLI_insert_mode = !CLI_insert_mode;
+					break;
 				default:
+					int character = key_ascii();
+					if (character == 255)
+						break;
+					cli_add_character(character);
 					break;
 			}
 			return window_event_result::handled;
@@ -285,4 +315,9 @@ void con_init(void)
 		gamelog_fp.reset(PHYSFS_openWrite("gamelog.txt"));
 	else
 		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
+
+	cli_init();
+	cmd_init();
+	cvar_init();
+
 }

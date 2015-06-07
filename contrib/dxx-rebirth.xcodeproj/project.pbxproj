@@ -199,6 +199,9 @@
 		1404A2551A9285D500843F81 /* mvelib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14F8AA821A2D6320003AA93A /* mvelib.cpp */; };
 		1404A2561A9285D500843F81 /* mveplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14F8AA841A2D6320003AA93A /* mveplay.cpp */; };
 		1404A2571A9285D500843F81 /* physfsrwops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14F8AA8F1A2D6320003AA93A /* physfsrwops.cpp */; };
+		1498497E1AEC21B60040FDDD /* cli.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1498497B1AEC21B60040FDDD /* cli.cpp */; };
+		1498497F1AEC21B60040FDDD /* cmd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1498497C1AEC21B60040FDDD /* cmd.cpp */; };
+		149849801AEC21B60040FDDD /* cvar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1498497D1AEC21B60040FDDD /* cvar.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -221,6 +224,12 @@
 		1404A25D1A92CCDA00843F81 /* fwdwall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fwdwall.h; sourceTree = "<group>"; };
 		1469259F1A57A0E50014A414 /* ntstring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ntstring.h; sourceTree = "<group>"; };
 		148EC4151AEB445600D738A5 /* .travis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
+		1498497B1AEC21B60040FDDD /* cli.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cli.cpp; sourceTree = "<group>"; };
+		1498497C1AEC21B60040FDDD /* cmd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cmd.cpp; sourceTree = "<group>"; };
+		1498497D1AEC21B60040FDDD /* cvar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cvar.cpp; sourceTree = "<group>"; };
+		149849811AEC21DA0040FDDD /* cli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cli.h; sourceTree = "<group>"; };
+		149849821AEC21DA0040FDDD /* cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cmd.h; sourceTree = "<group>"; };
+		149849831AEC21DA0040FDDD /* cvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cvar.h; sourceTree = "<group>"; };
 		14BD42AF1A9457F1004210A2 /* D1X-Rebirth.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = "D1X-Rebirth.app"; sourceTree = "<group>"; };
 		14BD42B01A9457F1004210A2 /* dxxsconf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dxxsconf.h; sourceTree = "<group>"; };
 		14BD42B11A9457F1004210A2 /* sconf.log */ = {isa = PBXFileReference; lastKnownFileType = text; path = sconf.log; sourceTree = "<group>"; };
@@ -1000,11 +1009,14 @@
 				14F8A9B11A2D6320003AA93A /* aistruct.h */,
 				14F8A9B21A2D6320003AA93A /* automap.h */,
 				14F8A9B31A2D6320003AA93A /* bm.h */,
+				149849811AEC21DA0040FDDD /* cli.h */,
+				149849821AEC21DA0040FDDD /* cmd.h */,
 				14F8A9B41A2D6320003AA93A /* cntrlcen.h */,
 				14F8A9B51A2D6320003AA93A /* collide.h */,
 				14F8A9B61A2D6320003AA93A /* config.h */,
 				14F8A9B71A2D6320003AA93A /* controls.h */,
 				14F8A9B81A2D6320003AA93A /* credits.h */,
+				149849831AEC21DA0040FDDD /* cvar.h */,
 				14F8A9B91A2D6320003AA93A /* digi.h */,
 				14F8A9BA1A2D6320003AA93A /* effects.h */,
 				14F8A9BB1A2D6320003AA93A /* endlevel.h */,
@@ -1533,12 +1545,15 @@
 				14F8AADD1A2D6320003AA93A /* aipath.cpp */,
 				14F8AADE1A2D6320003AA93A /* automap.cpp */,
 				14F8AADF1A2D6320003AA93A /* bm.cpp */,
+				1498497B1AEC21B60040FDDD /* cli.cpp */,
+				1498497C1AEC21B60040FDDD /* cmd.cpp */,
 				14F8AAE01A2D6320003AA93A /* cntrlcen.cpp */,
 				14F8AAE11A2D6320003AA93A /* collide.cpp */,
 				14F8AAE21A2D6320003AA93A /* config.cpp */,
 				14F8AAE31A2D6320003AA93A /* console.cpp */,
 				14F8AAE41A2D6320003AA93A /* controls.cpp */,
 				14F8AAE51A2D6320003AA93A /* credits.cpp */,
+				1498497D1AEC21B60040FDDD /* cvar.cpp */,
 				14F8AAE61A2D6320003AA93A /* digiobj.cpp */,
 				14F8AAE71A2D6320003AA93A /* dumpmine.cpp */,
 				14F8AAE81A2D6320003AA93A /* effects.cpp */,
@@ -1778,6 +1793,7 @@
 				1404A2171A92859600843F81 /* globvars.cpp in Sources */,
 				1404A2181A92859600843F81 /* instance.cpp in Sources */,
 				1404A2191A92859600843F81 /* matrix.cpp in Sources */,
+				1498497E1AEC21B60040FDDD /* cli.cpp in Sources */,
 				1404A21A1A92859600843F81 /* points.cpp in Sources */,
 				1404A21B1A92859600843F81 /* rod.cpp in Sources */,
 				1404A21C1A92859600843F81 /* setup.cpp in Sources */,
@@ -1806,6 +1822,7 @@
 				1404A2331A92859600843F81 /* icon.cpp in Sources */,
 				1404A2341A92859600843F81 /* inputbox.cpp in Sources */,
 				1404A2351A92859600843F81 /* keypad.cpp in Sources */,
+				149849801AEC21B60040FDDD /* cvar.cpp in Sources */,
 				1404A2361A92859600843F81 /* keypress.cpp in Sources */,
 				1404A2381A92859600843F81 /* listbox.cpp in Sources */,
 				1404A2391A92859600843F81 /* menu.cpp in Sources */,
@@ -1941,6 +1958,7 @@
 				1404A1FE1A92852D00843F81 /* vclip.cpp in Sources */,
 				1404A1FF1A92852D00843F81 /* vers_id.cpp in Sources */,
 				1404A2001A92852D00843F81 /* wall.cpp in Sources */,
+				1498497F1AEC21B60040FDDD /* cmd.cpp in Sources */,
 				1404A2011A92852D00843F81 /* weapon.cpp in Sources */,
 				1404A2021A92852D00843F81 /* mem.cpp in Sources */,
 				1404A2031A92852D00843F81 /* args.cpp in Sources */,
