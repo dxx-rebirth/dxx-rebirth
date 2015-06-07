@@ -14,6 +14,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <physfs.h>
 #include "maths.h"
 
@@ -37,12 +38,11 @@
 struct cvar_t
 {
 	const char *name;
-	char *string;
+	std::string string;
 	uint16_t flags;
 	fix value;
 	int intval;
 
-	operator char *() const { return string; }
 	operator    int() const { return intval; }
 	const char  *operator=(const char *s);
 	int          operator=(int i);

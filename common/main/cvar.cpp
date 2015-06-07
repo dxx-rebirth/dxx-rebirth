@@ -36,18 +36,10 @@ int Num_cvars;
 const char *cvar_t::operator=(const char *s)
 {
 	cvar_set_cvar(this, s);
-	return *this;
+	return s;
 }
 
 int         cvar_t::operator=(int i)         { cvar_set_cvarf(this, "%d", i);  return this->intval; }
-
-
-static void cvar_free(void)
-{
-	while (Num_cvars--)
-		d_free(cvar_list[Num_cvars]->string);
-}
-
 
 void cvar_cmd_set(int argc, char **argv); // hack; this should be static, but is used by cmd_execute
 
@@ -60,7 +52,7 @@ void cvar_cmd_set(int argc, char **argv)
 		cvar_t *ptr;
 		
 		if ((ptr = cvar_find(argv[1])))
-			con_printf(CON_NORMAL, "%s: %s", ptr->name, ptr->string);
+			con_printf(CON_NORMAL, "%s: %s", ptr->name, ptr->string.c_str());
 		else
 			con_printf(CON_NORMAL, "set: variable %s not found", argv[1]);
 		return;
@@ -68,7 +60,7 @@ void cvar_cmd_set(int argc, char **argv)
 	
 	if (argc == 1) {
 		for (i = 0; i < Num_cvars; i++)
-			con_printf(CON_NORMAL, "%s: %s", cvar_list[i]->name, cvar_list[i]->string);
+			con_printf(CON_NORMAL, "%s: %s", cvar_list[i]->name, cvar_list[i]->string.c_str());
 		return;
 	}
 	
@@ -94,8 +86,6 @@ void cvar_init(void)
 	cmd_addcommand("set", cvar_cmd_set, "set <name> <value>\n"  "    set variable <name> equal to <value>\n"
 	                                    "set <name>\n"          "    show value of <name>\n"
 	                                    "set\n"                 "    show value of all variables");
-
-	atexit(cvar_free);
 }
 
 
@@ -131,15 +121,10 @@ const char *cvar_complete(char *text)
 /* Register a cvar */
 void cvar_registervariable (cvar_t *cvar)
 {
-	const char *stringval;
-
 	Assert(cvar != NULL);
 	
-	stringval = cvar->string;
-	
-	cvar->string = d_strdup(stringval);
-	cvar->value = fl2f(strtod(cvar->string, NULL));
-	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
+	cvar->value = fl2f(strtod(cvar->string.c_str(), NULL));
+	cvar->intval = static_cast<int>(strtol(cvar->string.c_str(), NULL, 10));
 
 	if (cvar_find(cvar->name))
 	{
@@ -161,11 +146,10 @@ void cvar_set_cvar(cvar_t *cvar, const char *value)
 	if (!cvar)
 		return;
 	
-	d_free(cvar->string);
-	cvar->string = d_strdup(value);
-	cvar->value = fl2f(strtod(cvar->string, NULL));
-	cvar->intval = static_cast<int>(strtol(cvar->string, NULL, 10));
-	con_printf(CON_VERBOSE, "%s: %s", cvar->name, cvar->string);
+	cvar->string = value;
+	cvar->value = fl2f(strtod(value, NULL));
+	cvar->intval = static_cast<int>(strtol(value, NULL, 10));
+	con_printf(CON_VERBOSE, "%s: %s", cvar->name, value);
 }
 
 
@@ -217,5 +201,5 @@ void cvar_write(PHYSFS_file *file)
 
 	for (i = 0; i < Num_cvars; i++)
 		if (cvar_list[i]->flags & CVAR_ARCHIVE)
-			PHYSFSX_printf(file, "%s=%s\n", cvar_list[i]->name, cvar_list[i]->string);
+			PHYSFSX_printf(file, "%s=%s\n", cvar_list[i]->name, cvar_list[i]->string.c_str());
 }
