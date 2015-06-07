@@ -12,6 +12,7 @@
  */
 
 #include <cstdarg>
+#include <map>
 #include <stdlib.h>
 #include <physfs.h>
 
@@ -20,18 +21,17 @@
 #include "dxxerror.h"
 #include "strutil.h"
 #include "u_mem.h"
-#include "hash.h"
 #include "game.h"
 #include "physfsx.h"
 
+#include "dxxsconf.h"
+#include "compiler-range_for.h"
+
 #define CVAR_MAX_LENGTH 1024
-#define CVAR_MAX_CVARS  1024
 
 /* The list of cvars */
-hashtable cvar_hash;
-cvar_t *cvar_list[CVAR_MAX_CVARS];
-int Num_cvars;
-
+typedef std::map<const char *, std::reference_wrapper<cvar_t>> cvar_list_type;
+static cvar_list_type cvar_list;
 
 const char *cvar_t::operator=(const char *s)
 {
@@ -59,8 +59,8 @@ void cvar_cmd_set(int argc, char **argv)
 	}
 	
 	if (argc == 1) {
-		for (i = 0; i < Num_cvars; i++)
-			con_printf(CON_NORMAL, "%s: %s", cvar_list[i]->name, cvar_list[i]->string.c_str());
+		range_for (const auto &i, cvar_list)
+			con_printf(CON_NORMAL, "%s: %s", i.first, i.second.get().string.c_str());
 		return;
 	}
 	
@@ -91,29 +91,19 @@ void cvar_init(void)
 
 cvar_t *cvar_find(const char *cvar_name)
 {
-	int i;
-
-	i = hashtable_search( &cvar_hash, cvar_name );
-
-	if ( i < 0 )
-		return NULL;
-
-	return cvar_list[i];
+	const auto i = cvar_list.find(cvar_name);
+	return i == cvar_list.end() ? nullptr : &i->second.get();
 }
 
 
 const char *cvar_complete(char *text)
 {
-	int i;
 	uint_fast32_t len = strlen(text);
-
 	if (!len)
 		return NULL;
-
-	for (i = 0; i < Num_cvars; i++)
-		if (!d_strnicmp(text, cvar_list[i]->name, len))
-			return cvar_list[i]->name;
-
+	range_for (const auto &i, cvar_list)
+		if (!d_strnicmp(text, i.first, len))
+			return i.first;
 	return NULL;
 }
 
@@ -126,17 +116,14 @@ void cvar_registervariable (cvar_t *cvar)
 	cvar->value = fl2f(strtod(cvar->string.c_str(), NULL));
 	cvar->intval = static_cast<int>(strtol(cvar->string.c_str(), NULL, 10));
 
-	if (cvar_find(cvar->name))
+	const auto i = cvar_list.insert(cvar_list_type::value_type(cvar->name, *cvar));
+	if (!i.second)
 	{
 		Int3();
 		con_printf(CON_URGENT, "cvar %s already exists!", cvar->name);
 		return;
 	}
-
 	/* insert at end of list */
-	hashtable_insert(&cvar_hash, cvar->name, Num_cvars);
-
-	cvar_list[Num_cvars++] = cvar;
 }
 
 
@@ -197,9 +184,7 @@ void cvar_set(const char *cvar_name, char *value)
 /* Write archive cvars to file */
 void cvar_write(PHYSFS_file *file)
 {
-	int i;
-
-	for (i = 0; i < Num_cvars; i++)
-		if (cvar_list[i]->flags & CVAR_ARCHIVE)
-			PHYSFSX_printf(file, "%s=%s\n", cvar_list[i]->name, cvar_list[i]->string.c_str());
+	range_for (const auto &i, cvar_list)
+		if (i.second.get().flags & CVAR_ARCHIVE)
+			PHYSFSX_printf(file, "%s=%s\n", i.first, i.second.get().string.c_str());
 }
