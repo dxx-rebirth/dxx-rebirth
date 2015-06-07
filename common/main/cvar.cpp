@@ -41,9 +41,7 @@ const char *cvar_t::operator=(const char *s)
 
 int         cvar_t::operator=(int i)         { cvar_set_cvarf(this, "%d", i);  return this->intval; }
 
-void cvar_cmd_set(int argc, char **argv); // hack; this should be static, but is used by cmd_execute
-
-void cvar_cmd_set(int argc, char **argv)
+void cvar_cmd_set(unsigned long argc, const char *const *const argv)
 {
 	char buf[CVAR_MAX_LENGTH];
 	int ret, i;

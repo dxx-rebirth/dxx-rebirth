@@ -11,9 +11,7 @@
  *
  */
 
-#ifndef _CMD_H_
-#define _CMD_H_ 1
-
+#pragma once
 
 void cmd_init(void);
 
@@ -39,9 +37,6 @@ void cmd_queue_flush(void);
 /* Attempt to autocomplete an input string */
 const char *cmd_complete(char *input);
 
-typedef void (*cmd_handler_t)(int argc, char *argv[]);
+typedef void (*cmd_handler_t)(unsigned long argc, const char *const *argv);
 
 void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cmd_help_text);
-
-
-#endif /* _CMD_H_ */

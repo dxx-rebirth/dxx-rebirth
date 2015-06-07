@@ -94,11 +94,8 @@ struct cmd_queue_t
 /* The list of commands to be executed */
 static std::forward_list<cmd_queue_t> cmd_queue;
 
-void cvar_cmd_set(int argc, char **argv);
-
-
 /* execute a parsed command */
-static void cmd_execute(int argc, char **argv)
+static void cmd_execute(unsigned long argc, const char *const *const argv)
 {
 	cmd_t *cmd;
 	cmd_alias_t *alias;
@@ -119,10 +116,10 @@ static void cmd_execute(int argc, char **argv)
 	
 	/* Otherwise */
 	{  // set value of cvar
-		char *new_argv[argc+1];
+		const char *new_argv[argc+1];
 		int i;
 		
-		new_argv[0] = (char *)("set");
+		new_argv[0] = "set";
 		for (i = 0; i < argc; i++)
 			new_argv[i+1] = argv[i];
 		cvar_cmd_set(argc + 1, new_argv);
@@ -297,7 +294,7 @@ const char *cmd_complete(char *input)
 
 
 /* alias */
-static void cmd_alias(int argc, char **argv)
+static void cmd_alias(unsigned long argc, const char *const *const argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
 	if (argc < 2) {
@@ -336,7 +333,7 @@ static void cmd_alias(int argc, char **argv)
 
 
 /* unalias */
-static void cmd_unalias(int argc, char **argv)
+static void cmd_unalias(unsigned long argc, const char *const *const argv)
 {
 	if (argc < 2 || argc > 2) {
 		cmd_insertf("help %s", argv[0]);
@@ -354,7 +351,7 @@ static void cmd_unalias(int argc, char **argv)
 }
 
 /* echo to console */
-static void cmd_echo(int argc, char **argv)
+static void cmd_echo(unsigned long argc, const char *const *const argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
 	int i;
@@ -368,7 +365,8 @@ static void cmd_echo(int argc, char **argv)
 }
 
 /* execute script */
-static void cmd_exec(int argc, char **argv) {
+static void cmd_exec(unsigned long argc, const char *const *const argv)
+{
 	PHYSFSX_gets_line_t<CMD_MAX_LENGTH> line;
 
 	if (argc < 2 || argc > 2) {
@@ -392,9 +390,8 @@ static void cmd_exec(int argc, char **argv) {
 	con_printf(CON_DEBUG, "cmd_exec: added to front of list");
 }
 
-
 /* get help */
-static void cmd_help(int argc, char **argv)
+static void cmd_help(unsigned long argc, const char *const *const argv)
 {
 	cmd_t *cmd;
 
@@ -426,9 +423,8 @@ static void cmd_help(int argc, char **argv)
 	con_puts(CON_NORMAL, cmd->help_text);
 }
 
-
 /* execute script */
-static void cmd_wait(int argc, char **argv)
+static void cmd_wait(unsigned long argc, const char *const *const argv)
 {
 	if (argc > 2) {
 		cmd_insertf("help %s", argv[0]);
