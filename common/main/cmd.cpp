@@ -30,6 +30,8 @@
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 
+namespace {
+
 struct cmd_t
 {
 	const char    *name;
@@ -46,6 +48,8 @@ struct cmd_alias_t
 	char           name[ALIAS_NAME_MAX];
 	RAIIdmem<char[]> value;
 };
+
+}
 
 #define CMD_MAX_ALIASES 1024
 
@@ -85,11 +89,14 @@ void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cm
 	con_printf(CON_DEBUG, "cmd_addcommand: added %s", cmd->name);
 }
 
+namespace {
 
 struct cmd_queue_t
 {
 	char *command_line;
 };
+
+}
 
 /* The list of commands to be executed */
 static std::forward_list<cmd_queue_t> cmd_queue;
