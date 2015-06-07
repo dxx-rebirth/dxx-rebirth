@@ -12,6 +12,7 @@
  */
 
 #include <cstdarg>
+#include <map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,9 +23,12 @@
 #include "strutil.h"
 #include "inferno.h"
 #include "console.h"
-#include "cvar.h"
 #include "hash.h"
+#include "cvar.h"
 #include "physfsx.h"
+
+#include "compiler-make_unique.h"
+#include "compiler-range_for.h"
 
 struct cmd_t
 {
@@ -33,13 +37,8 @@ struct cmd_t
 	const char    *help_text;
 };
 
-#define CMD_MAX_CMDS 1024
-
 /* The list of cmds */
-static hashtable cmd_hash;
-static cmd_t *cmd_list[CMD_MAX_CMDS];
-static int Num_cmds;
-
+static std::map<const char *, std::unique_ptr<cmd_t>> cmd_list;
 
 #define ALIAS_NAME_MAX 32
 struct cmd_alias_t
@@ -58,14 +57,8 @@ static int Num_cmd_aliases;
 
 static cmd_t *cmd_findcommand(const char *cmd_name)
 {
-	int i;
-
-	i = hashtable_search( &cmd_hash, cmd_name );
-
-	if ( i < 0 )
-		return NULL;
-
-	return cmd_list[i];
+	const auto i = cmd_list.find(cmd_name);
+	return i == cmd_list.end() ? nullptr : i->second.get();
 }
 
 
@@ -85,27 +78,20 @@ static cmd_alias_t *cmd_findalias(const char *alias_name )
 /* add a new console command */
 void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cmd_help_text)
 {
-	cmd_t *cmd;
-	
-	Assert(cmd_name != NULL);
-
-	if (cmd_findcommand(cmd_name))
+	const auto i = cmd_list.insert(std::make_pair(cmd_name, std::unique_ptr<cmd_t>{}));
+	if (!i.second)
 	{
 		Int3();
 		con_printf(CON_NORMAL, "command %s already exists, not adding", cmd_name);
 		return;
 	}
-
+	auto cmd = (i.first->second = make_unique<cmd_t>()).get();
 	/* create command, insert to hashtable */
-	MALLOC(cmd, cmd_t, 1);
 	cmd->name = cmd_name;
 	cmd->function = cmd_func;
 	cmd->help_text = cmd_help_text;
 
-	hashtable_insert(&cmd_hash, cmd_name, Num_cmds);
 	con_printf(CON_DEBUG, "cmd_addcommand: added %s", cmd->name);
-
-	cmd_list[Num_cmds++] = cmd;
 }
 
 
@@ -335,9 +321,9 @@ const char *cmd_complete(char *input)
 	if (!len)
 		return NULL;
 
-	for (i = 0; i < Num_cmds; i++)
-		if (!d_strnicmp(input, cmd_list[i]->name, len))
-			return cmd_list[i]->name;
+	range_for (const auto &i, cmd_list)
+		if (!d_strnicmp(input, i.first, len))
+			return i.first;
 
 	for (i = 0; i < Num_cmd_aliases; i++)
 		if (!d_strnicmp(input, cmd_alias_list[i]->name, len))
@@ -488,11 +474,9 @@ static void cmd_help(int argc, char **argv)
 	}
 	
 	if (argc < 2) {
-		int i;
-
 		con_printf(CON_NORMAL, "Available commands:");
-		for (i = 0; i < Num_cmds; i++)
-			con_printf(CON_NORMAL, "    %s", cmd_list[i]->name);
+		range_for (const auto &i, cmd_list)
+			con_printf(CON_NORMAL, "    %s", i.first);
 
 		return;
 	}
@@ -530,9 +514,6 @@ static void cmd_wait(int argc, char **argv)
 
 static void cmd_free(void)
 {
-	while (Num_cmds--)
-		d_free(cmd_list[Num_cmds]);
-
 	while (Num_cmd_aliases--)
 	{
 		if (cmd_alias_list[Num_cmd_aliases]->value)
