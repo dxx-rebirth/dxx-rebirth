@@ -126,8 +126,9 @@ static void cmd_execute(unsigned long argc, const char *const *const argv)
 	}
 	
 	/* Otherwise */
+	if (argc < 31)
 	{  // set value of cvar
-		const char *new_argv[argc+1];
+		const char *new_argv[32];
 		int i;
 		
 		new_argv[0] = "set";
