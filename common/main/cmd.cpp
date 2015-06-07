@@ -23,7 +23,6 @@
 #include "strutil.h"
 #include "inferno.h"
 #include "console.h"
-#include "hash.h"
 #include "cvar.h"
 #include "physfsx.h"
 
@@ -50,10 +49,7 @@ struct cmd_alias_t
 #define CMD_MAX_ALIASES 1024
 
 /* The list of aliases */
-static hashtable cmd_alias_hash;
-static cmd_alias_t *cmd_alias_list[CMD_MAX_ALIASES];
-static int Num_cmd_aliases;
-
+static std::map<std::string, std::unique_ptr<cmd_alias_t>> cmd_alias_list;
 
 static cmd_t *cmd_findcommand(const char *cmd_name)
 {
@@ -64,14 +60,8 @@ static cmd_t *cmd_findcommand(const char *cmd_name)
 
 static cmd_alias_t *cmd_findalias(const char *alias_name )
 {
-	int i;
-
-	i = hashtable_search( &cmd_alias_hash, alias_name );
-
-	if ( i < 0 )
-		return NULL;
-
-	return cmd_alias_list[i];
+	const auto i = cmd_alias_list.find(alias_name);
+	return i == cmd_alias_list.end() ? nullptr : i->second.get();
 }
 
 
@@ -315,7 +305,6 @@ void cmd_enqueuef(int insert, const char *fmt, ...)
 /* Attempt to autocomplete an input string */
 const char *cmd_complete(char *input)
 {
-	int i;
 	uint_fast32_t len = strlen(input);
 
 	if (!len)
@@ -325,9 +314,9 @@ const char *cmd_complete(char *input)
 		if (!d_strnicmp(input, i.first, len))
 			return i.first;
 
-	for (i = 0; i < Num_cmd_aliases; i++)
-		if (!d_strnicmp(input, cmd_alias_list[i]->name, len))
-			return cmd_alias_list[i]->name;
+	range_for (const auto &i, cmd_alias_list)
+		if (!d_strnicmp(input, i.first.c_str(), len))
+			return i.first.c_str();
 
 	return cvar_complete(input);
 }
@@ -336,18 +325,16 @@ const char *cmd_complete(char *input)
 /* alias */
 static void cmd_alias(int argc, char **argv)
 {
-	cmd_alias_t *alias;
 	char buf[CMD_MAX_LENGTH] = "";
-	int i;
-
 	if (argc < 2) {
 		con_printf(CON_NORMAL, "aliases:");
-		for (i = 0; i < Num_cmd_aliases; i++)
-			con_printf(CON_NORMAL, "%s: %s", cmd_alias_list[i]->name, cmd_alias_list[i]->value);
+		range_for (const auto &i, cmd_alias_list)
+			con_printf(CON_NORMAL, "%s: %s", i.first.c_str(), i.second->value);
 		return;
 	}
 	
 	if (argc == 2) {
+		cmd_alias_t *alias;
 		if ( (alias = cmd_findalias(argv[1])) && alias->value )
 		{
 			con_printf(CON_NORMAL, "%s: %s", alias->name, alias->value);
@@ -358,27 +345,24 @@ static void cmd_alias(int argc, char **argv)
 		return;
 	}
 	
-	for (i = 2; i < argc; i++) {
+	for (int i = 2; i < argc; i++) {
 		if (i > 2)
 			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
 		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
 	}
-
-	if ( (alias = cmd_findalias(argv[1])) )
+	const auto i = cmd_alias_list.insert(std::make_pair(argv[1], std::unique_ptr<cmd_alias_t>{}));
+	auto alias = i.first->second.get();
+	if (i.second)
+	{
+		alias = (i.first->second = make_unique<cmd_alias_t>()).get();
+		strncpy(alias->name, argv[1], sizeof(alias->name));
+	}
+	else
 	{
 		if ( alias->value )
 			d_free(alias->value);
-		alias->value = d_strdup(buf);
-		return;
 	}
-	
-	MALLOC(alias, cmd_alias_t, 1);
-	strncpy(alias->name, argv[1], sizeof(alias->name));
 	alias->value = d_strdup(buf);
-
-	hashtable_insert(&cmd_alias_hash, argv[1], Num_cmd_aliases);
-
-	cmd_alias_list[Num_cmd_aliases++] = alias;
 }
 
 
@@ -514,11 +498,9 @@ static void cmd_wait(int argc, char **argv)
 
 static void cmd_free(void)
 {
-	while (Num_cmd_aliases--)
+	range_for (auto &i, cmd_alias_list)
 	{
-		if (cmd_alias_list[Num_cmd_aliases]->value)
-			d_free(cmd_alias_list[Num_cmd_aliases]->value);
-		d_free(cmd_alias_list[Num_cmd_aliases]);
+		d_free(i.second->value);
 	}
 }
 
