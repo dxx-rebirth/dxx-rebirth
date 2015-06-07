@@ -93,7 +93,11 @@ namespace {
 
 struct cmd_queue_t
 {
-	char *command_line;
+	RAIIdmem<char[]> command_line;
+	explicit cmd_queue_t(char *p) :
+		command_line(p)
+	{
+	}
 };
 
 }
@@ -196,9 +200,8 @@ int cmd_queue_process(void)
 			break;
 		auto command_line = std::move(cmd->command_line);
 		cmd_queue.pop_front();
-		con_printf(CON_DEBUG, "cmd_queue_process: processing %s", command_line);
-		cmd_parse(command_line);  // Note, this may change the queue
-		d_free(command_line);
+		con_printf(CON_DEBUG, "cmd_queue_process: processing %s", command_line.get());
+		cmd_parse(command_line.get());  // Note, this may change the queue
 	}
 	
 	if (cmd_queue_wait > 0) {
