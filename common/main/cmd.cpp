@@ -364,24 +364,20 @@ static void cmd_alias(int argc, char **argv)
 /* unalias */
 static void cmd_unalias(int argc, char **argv)
 {
-	cmd_alias_t *alias;
-
 	if (argc < 2 || argc > 2) {
 		cmd_insertf("help %s", argv[0]);
 		return;
 	}
 
-	alias = cmd_findalias(argv[1]);
-
-	if (!alias || !alias->value )
+	const char *alias_name = argv[1];
+	const auto alias = cmd_alias_list.find(alias_name);
+	if (alias == cmd_alias_list.end())
 	{
-		con_printf(CON_NORMAL, "unalias: %s not found", argv[1]);
+		con_printf(CON_NORMAL, "unalias: %s not found", alias_name);
 		return;
 	}
-	alias->value.reset();
-	//d_free(alias); // Can't remove from hashtable, so just leave it
+	cmd_alias_list.erase(alias);
 }
-
 
 /* echo to console */
 static void cmd_echo(int argc, char **argv)
