@@ -107,18 +107,16 @@ const char *cvar_complete(char *text)
 
 
 /* Register a cvar */
-void cvar_registervariable (cvar_t *cvar)
+void cvar_registervariable (cvar_t &cvar)
 {
-	Assert(cvar != NULL);
-	
-	cvar->value = fl2f(strtod(cvar->string.c_str(), NULL));
-	cvar->intval = static_cast<int>(strtol(cvar->string.c_str(), NULL, 10));
+	cvar.value = fl2f(strtod(cvar.string.c_str(), NULL));
+	cvar.intval = static_cast<int>(strtol(cvar.string.c_str(), NULL, 10));
 
-	const auto i = cvar_list.insert(cvar_list_type::value_type(cvar->name, *cvar));
+	const auto i = cvar_list.insert(cvar_list_type::value_type(cvar.name, cvar));
 	if (!i.second)
 	{
 		Int3();
-		con_printf(CON_URGENT, "cvar %s already exists!", cvar->name);
+		con_printf(CON_URGENT, "cvar %s already exists!", cvar.name);
 		return;
 	}
 	/* insert at end of list */

@@ -53,7 +53,7 @@ void cvar_init(void);
 void cvar_cmd_set(unsigned long, const char *const *const);
 
 /* Register a CVar with the name and string and optionally archive elements set */
-void cvar_registervariable (cvar_t *cvar);
+void cvar_registervariable (cvar_t &cvar);
 
 /* Set a CVar's value */
 void cvar_set_cvar(cvar_t *cvar, const char *value);
