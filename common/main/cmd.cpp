@@ -13,6 +13,7 @@
 
 #include <cstdarg>
 #include <map>
+#include <forward_list>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -88,13 +89,10 @@ void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cm
 struct cmd_queue_t
 {
 	char *command_line;
-	struct cmd_queue_t *next;
 };
 
 /* The list of commands to be executed */
-static cmd_queue_t *cmd_queue_head;
-static cmd_queue_t *cmd_queue_tail;
-
+static std::forward_list<cmd_queue_t> cmd_queue;
 
 void cvar_cmd_set(int argc, char **argv);
 
@@ -181,23 +179,22 @@ static void cmd_parse(char *input)
 }
 
 
-int cmd_queue_wait = 0;
+static int cmd_queue_wait;
 
 int cmd_queue_process(void)
 {
-	cmd_queue_t *cmd;
-	
-	while (!cmd_queue_wait && cmd_queue_head) {
-		cmd = cmd_queue_head;
-		cmd_queue_head = cmd_queue_head->next;
-		if (!cmd_queue_head)
-			cmd_queue_tail = NULL;
-		
-		con_printf(CON_DEBUG, "cmd_queue_process: processing %s", cmd->command_line);
-		cmd_parse(cmd->command_line);  // Note, this may change the queue
-		
-		d_free(cmd->command_line);
-		d_free(cmd);
+	for (;;)
+	{
+		if (cmd_queue_wait)
+			break;
+		auto cmd = cmd_queue.begin();
+		if (cmd == cmd_queue.end())
+			break;
+		auto command_line = std::move(cmd->command_line);
+		cmd_queue.pop_front();
+		con_printf(CON_DEBUG, "cmd_queue_process: processing %s", command_line);
+		cmd_parse(command_line);  // Note, this may change the queue
+		d_free(command_line);
 	}
 	
 	if (cmd_queue_wait > 0) {
@@ -221,13 +218,9 @@ void cmd_queue_flush(void)
 /* Add some commands to the queue to be executed */
 void cmd_enqueue(int insert, const char *input)
 {
-	cmd_queue_t *item, *head, *tail;
+	std::forward_list<cmd_queue_t> l;
 	char output[CMD_MAX_LENGTH];
 	char *optr;
-	
-	Assert(input != NULL);
-	head = tail = NULL;
-	
 	while (*input) {
 		optr = output;
 		int quoted = 0;
@@ -255,36 +248,17 @@ void cmd_enqueue(int insert, const char *input)
 		*optr = 0;
 		
 		/* make a new queue item, add it to list */
-		MALLOC(item, cmd_queue_t, 1);
-		item->command_line = d_strdup(output);
-		item->next = NULL;
-		
-		if (!head)
-			head = item;
-		if (tail)
-			tail->next = item;
-		tail = item;
-		
+		l.emplace_after(l.end(), cmd_queue_t{d_strdup(output)});
 		con_printf(CON_DEBUG, "cmd_enqueue: adding %s", output);
 	}
 	
 	if (insert) {
 		/* add our list to the head of the main list */
-		if (cmd_queue_head)
-			tail->next = cmd_queue_head;
-		if (!cmd_queue_tail)
-			cmd_queue_tail = tail;
-		
-		cmd_queue_head = head;
+		cmd_queue.splice_after(cmd_queue.before_begin(), l);
 		con_printf(CON_DEBUG, "cmd_enqueue: added to front of list");
 	} else {
 		/* add our list to the tail of the main list */
-		if (!cmd_queue_head)
-			cmd_queue_head = head;
-		if (cmd_queue_tail)
-			cmd_queue_tail->next = head;
-		
-		cmd_queue_tail = tail;
+		cmd_queue.splice_after(cmd_queue.end(), l);
 		con_printf(CON_DEBUG, "cmd_enqueue: added to back of list");
 	}
 }
@@ -395,43 +369,26 @@ static void cmd_echo(int argc, char **argv)
 
 /* execute script */
 static void cmd_exec(int argc, char **argv) {
-	cmd_queue_t *item, *head, *tail;
 	PHYSFSX_gets_line_t<CMD_MAX_LENGTH> line;
 
 	if (argc < 2 || argc > 2) {
 		cmd_insertf("help %s", argv[0]);
 		return;
 	}
-	
-	head = tail = NULL;
-	
 	auto f = PHYSFSX_openReadBuffered(argv[1]);
 	if (!f) {
 		con_printf(CON_CRITICAL, "exec: %s not found", argv[1]);
 		return;
 	}
+	std::forward_list<cmd_queue_t> l;
 	while (PHYSFSX_fgets(line, f)) {
 		/* make a new queue item, add it to list */
-		MALLOC(item, cmd_queue_t, 1);
-		item->command_line = d_strdup(line);
-		item->next = NULL;
-		
-		if (!head)
-			head = item;
-		if (tail)
-			tail->next = item;
-		tail = item;
-		
+		l.emplace_after(l.end(), cmd_queue_t{d_strdup(line)});
 		con_printf(CON_DEBUG, "cmd_exec: adding %s", static_cast<const char *>(line));
 	}
 	
 	/* add our list to the head of the main list */
-	if (cmd_queue_head)
-		tail->next = cmd_queue_head;
-	if (!cmd_queue_tail)
-		cmd_queue_tail = tail;
-	
-	cmd_queue_head = head;
+	cmd_queue.splice_after(cmd_queue.before_begin(), l);
 	con_printf(CON_DEBUG, "cmd_exec: added to front of list");
 }
 
