@@ -11,8 +11,7 @@
  *
  */
 
-#ifndef _CVAR_H
-#define _CVAR_H 1
+#pragma once
 
 #include <cstdint>
 #include <physfs.h>
@@ -48,7 +47,6 @@ struct cvar_t
 	const char  *operator=(const char *s);
 	int          operator=(int i);
 	unsigned int operator=(unsigned int i) { return *this = static_cast<int>(i); }
-	cvar_t(const char *n, const char *s, ushort f) { name = n; string = const_cast<char *>(s); flags = f; }
 };
 
 void cvar_init(void);
@@ -71,6 +69,3 @@ const char *cvar_complete(char *text);
 
 /* Write archive cvars to file */
 void cvar_write(PHYSFS_file *file);
-
-
-#endif /* _CVAR_H_ */
