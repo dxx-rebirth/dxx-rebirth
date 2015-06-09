@@ -739,7 +739,7 @@ static void print_create_table_items(PHYSFS_file *fp, const char *type, const ch
 		d = find_next_item_down(ib, ie, s);
 		l = find_next_item_left(ib, ie, s);
 		r = find_next_item_right(ib, ie, s);
-		PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3hd,%3hd,%3hd,%3hd, BT_%s },\n", 
+		PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3hd,%3hd,%3hd,%3hd, BT_%s },\n",
 					   i.x, i.y, i.xinput, i.w2,
 					   u, d, l, r,
 					   btype_text[i.type] );
@@ -834,12 +834,12 @@ static void kconfig_draw(kc_menu *menu)
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
-		
+
 		gr_rect( FSPACX( 98), FSPACY(42), FSPACX(106), FSPACY(42) ); // horiz/left
 		gr_rect( FSPACX(120), FSPACY(42), FSPACX(128), FSPACY(42) ); // horiz/right
 		gr_rect( FSPACX( 98), FSPACY(42), FSPACX( 98), FSPACY(44) ); // vert/left
 		gr_rect( FSPACX(128), FSPACY(42), FSPACX(128), FSPACY(44) ); // vert/right
-		
+
 		gr_string( FSPACX(109), FSPACY(40), "OR" );
 
 		gr_rect( FSPACX(253), FSPACY(42), FSPACX(261), FSPACY(42) ); // horiz/left
@@ -898,7 +898,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(FSPACX(210), FSPACY(60), "JOYSTICK");
 		gr_string(FSPACX(273), FSPACY(60), "MOUSE");
 	}
-	
+
 	unsigned citem = menu->citem;
 	const char *current_label = NULL;
 	const char *litem = menu->litems;
@@ -912,7 +912,7 @@ static void kconfig_draw(kc_menu *menu)
 			litem += strlen(litem) + 1;
 	}
 	kc_drawinput( menu->items[citem], menu->mitems[citem], 1, current_label );
-	
+
 	if (menu->changing)
 	{
 		switch( menu->items[menu->citem].type )
@@ -925,7 +925,7 @@ static void kconfig_draw(kc_menu *menu)
 		}
 		kc_drawquestion( menu, &menu->items[menu->citem] );
 	}
-	
+
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	grd_curcanv->cv_font	= save_font;
 	gr_set_current_canvas( save_canvas );
@@ -963,11 +963,11 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 	window_event_result rval = window_event_result::ignored;
 
 	gr_set_current_canvas(window_get_canvas(*wind));
-	
+
 	if (menu->mouse_state)
 	{
 		int item_height;
-		
+
 		mouse_get_pos(&mx, &my, &mz);
 		for (unsigned i=0; i<menu->nitems; i++ )	{
 			item_height = get_item_height( menu->items[i], menu->mitems[i] );
@@ -983,7 +983,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 	else if (event.type == EVENT_MOUSE_BUTTON_UP)
 	{
 		int item_height;
-		
+
 		mouse_get_pos(&mx, &my, &mz);
 		item_height = get_item_height( menu->items[menu->citem], menu->mitems[menu->citem] );
 		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].xinput);
@@ -999,9 +999,9 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 			rval = window_event_result::handled;
 		}
 	}
-	
+
 	gr_set_current_canvas(save_canvas);
-	
+
 	return rval;
 }
 
@@ -1026,7 +1026,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 		case KEY_CTRLED+KEY_D:
 			menu->mitems[menu->citem].value = 255;
 			return window_event_result::handled;
-		case KEY_CTRLED+KEY_R:	
+		case KEY_CTRLED+KEY_R:
 			if ( menu->items==kc_keyboard )
 				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
 
@@ -1041,27 +1041,27 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 		case KEY_DELETE:
 			menu->mitems[menu->citem].value=255;
 			return window_event_result::handled;
-		case KEY_UP: 		
+		case KEY_UP:
 		case KEY_PAD8:
-			menu->citem = menu->items[menu->citem].u; 
+			menu->citem = menu->items[menu->citem].u;
 			return window_event_result::handled;
 		case KEY_DOWN:
 		case KEY_PAD2:
-			menu->citem = menu->items[menu->citem].d; 
+			menu->citem = menu->items[menu->citem].d;
 			return window_event_result::handled;
 		case KEY_LEFT:
 		case KEY_PAD4:
-			menu->citem = menu->items[menu->citem].l; 
+			menu->citem = menu->items[menu->citem].l;
 			return window_event_result::handled;
 		case KEY_RIGHT:
 		case KEY_PAD6:
-			menu->citem = menu->items[menu->citem].r; 
+			menu->citem = menu->items[menu->citem].r;
 			return window_event_result::handled;
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			kconfig_start_changing(menu);
 			return window_event_result::handled;
-		case -2:	
+		case -2:
 		case KEY_ESC:
 			if (menu->changing)
 				menu->changing = 0;
@@ -1092,7 +1092,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 #endif
 		case 0:		// some other event
 			break;
-			
+
 		default:
 			break;
 	}
@@ -1106,11 +1106,11 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			break;
-			
+
 		case EVENT_WINDOW_DEACTIVATED:
 			menu->mouse_state = 0;
 			break;
-			
+
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1170,7 +1170,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 		case EVENT_IDLE:
 			kconfig_mouse(wind, event, menu);
 			break;
-			
+
 		case EVENT_WINDOW_DRAW:
 			if (menu->changing)
 				timer_delay(f0_1/10);
@@ -1178,21 +1178,21 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 				timer_delay2(50);
 			kconfig_draw(menu);
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 			delete menu;
-			
+
 			// Update save values...
-			
-			for (unsigned i=0; i < lengthof(kc_keyboard); i++ ) 
+
+			for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
 				PlayerCfg.KeySettings[0][i] = kcm_keyboard[i].value;
-			
-			for (unsigned i=0; i < lengthof(kc_joystick); i++ ) 
+
+			for (unsigned i=0; i < lengthof(kc_joystick); i++ )
 				PlayerCfg.KeySettings[1][i] = kcm_joystick[i].value;
 
-			for (unsigned i=0; i < lengthof(kc_mouse); i++ ) 
+			for (unsigned i=0; i < lengthof(kc_mouse); i++ )
 				PlayerCfg.KeySettings[2][i] = kcm_mouse[i].value;
-			
+
 			for (unsigned i=0; i < lengthof(kc_rebirth); i++)
 				PlayerCfg.KeySettingsRebirth[i] = kcm_rebirth[i].value;
 			return window_event_result::ignored;	// continue closing
@@ -1252,11 +1252,11 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		else
 			gr_setcolor( BM_XRGB(16,0,19) );
 		gr_urect( FSPACX(item.xinput), FSPACY(item.y-1), FSPACX(item.xinput+item.w2), FSPACY(item.y)+h );
-		
+
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
 		x = FSPACX(item.xinput)+((FSPACX(item.w2)-w)/2);
-	
+
 		gr_string( x, FSPACY(item.y), btext );
 	}
 }
@@ -1279,7 +1279,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
 	gr_urect( FSPACX(item->xinput), FSPACY(item->y-1), FSPACX(item->xinput+item->w2), FSPACY(item->y)+h );
-	
+
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
 	x = FSPACX(item->xinput)+((FSPACX(item->w2)-w)/2);
@@ -1373,7 +1373,7 @@ static void kc_change_invert( kc_menu *menu, kc_mitem * item )
 {
 	if (item->value)
 		item->value = 0;
-	else 
+	else
 		item->value = 1;
 
 	menu->changing = 0;		// in case we were changing something else
@@ -1548,13 +1548,12 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			if (axis == kcm_joystick[23].value) // Throttle - default deadzone
 				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
-			if (Controls.raw_joy_axis[axis] > joy_null_value) 
+			if (Controls.raw_joy_axis[axis] > joy_null_value)
 				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]-joy_null_value)*128)/(128-joy_null_value);
 			else if (Controls.raw_joy_axis[axis] < -joy_null_value)
 				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]+joy_null_value)*128)/(128-joy_null_value);
 			else
 				Controls.raw_joy_axis[axis] = 0;
-			Controls.joy_axis[axis] = (Controls.raw_joy_axis[axis]*FrameTime)/128;
 			break;
 		}
 		case EVENT_MOUSE_MOVED:
@@ -1573,7 +1572,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 						Controls.raw_mouse_axis[i] = -MOUSEFS_DELTA_RANGE;
 					if (Controls.raw_mouse_axis[i] > MOUSEFS_DELTA_RANGE)
 						Controls.raw_mouse_axis[i] = MOUSEFS_DELTA_RANGE;
-					if (Controls.raw_mouse_axis[i] > mouse_null_value) 
+					if (Controls.raw_mouse_axis[i] > mouse_null_value)
 						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]-mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
 					else if (Controls.raw_mouse_axis[i] < -mouse_null_value)
 						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]+mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
@@ -1599,6 +1598,49 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
+	}
+
+	for (int i = 0; i < JOY_MAX_AXES; i++) {
+        if (i == kcm_joystick[13].value) { // Pitch U/D
+            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[1]) / 16) {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[1]) / 16)/128;
+            }
+            else {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+            }
+        }
+        if (i == kcm_joystick[15].value) { // Turn L/R
+            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[0]) / 16) {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[0]) / 16)/128;
+            }
+            else {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+            }
+        }
+        if (i == kcm_joystick[17].value) { // Slide L/R
+            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[2]) / 16) {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[2]) / 16)/128;
+            }
+            else {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+            }
+        }
+        if (i == kcm_joystick[19].value) { // Slide U/D
+            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[3]) / 16) {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[3]) / 16)/128;
+            }
+            else {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+            }
+        }
+        if (i == kcm_joystick[21].value) { // Bank
+            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[4]) / 16) {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[4]) / 16)/128;
+            }
+            else {
+                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+            }
+        }
 	}
 
 	//------------ Read pitch_time -----------

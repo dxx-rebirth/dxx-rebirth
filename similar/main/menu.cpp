@@ -1068,6 +1068,20 @@ static void input_config_sensitivity()
 	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
 	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
 
+#define DXX_INPUT_LINEAR(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+
+#define DXX_INPUT_SPEED(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+
 #define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
@@ -1079,6 +1093,12 @@ static void input_config_sensitivity()
 	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
+	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
+	DXX_INPUT_LINEAR(VERB,jl,PlayerCfg.JoystickLinear)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
+	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
+	DXX_INPUT_SPEED(VERB,jp,PlayerCfg.JoystickSpeed)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
 	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_jd)	\
@@ -1103,20 +1123,27 @@ static void input_config_sensitivity()
 	};
 #undef DXX_INPUT_CONFIG_MENU
 #undef DXX_INPUT_THROTTLE_SENSITIVITY
+#undef DXX_INPUT_SPEED
+#undef DXX_INPUT_LINEAR
 #undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "SENSITIVITY & DEADZONE", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
 	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
+	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
+	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
 	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
 	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
 	const auto &m = items.m;
 
 	for (unsigned i = 0; i <= 5; i++)
 	{
-		if (i < 5)
-			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+		if (i < 5) {
+            PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+            PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
+            PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
+		}
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
@@ -1467,7 +1494,7 @@ static int list_directory(browser *b)
 	{
 		b->list.add("<this directory>");	// choose the directory being viewed
 	}
-	
+
 	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
 	b->list.tidy(1 + (b->select_dir ? 1 : 0),
 #ifdef __linux__
@@ -1476,7 +1503,7 @@ static int list_directory(browser *b)
 					  d_stricmp
 #endif
 					  );
-					  
+
 	return 1;
 }
 
@@ -1500,7 +1527,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 					nm_item_input(text),
 				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
-				text[1] = '\0'; 
+				text[1] = '\0';
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
@@ -1520,17 +1547,17 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if (citem == 0)		// go to parent dir
 			{
 				char *p;
-				
+
 				size_t len_newpath = strlen(newpath);
 				size_t len_sep = strlen(sep);
 				if ((p = strstr(&newpath[len_newpath - len_sep], sep)))
 					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
 						*p = 0;
-				
+
 				p = newpath + len_newpath - 1;
 				while ((p > newpath) && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
 					p--;
-				
+
 				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
 				{
 #if defined(__MACH__) && defined(__APPLE__)
@@ -1579,11 +1606,11 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 
 			std::default_delete<browser>()(b);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -1592,7 +1619,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
 	char new_path[PATH_MAX];
-	
+
 	auto b = make_unique<browser>();
 	b->title = title;
 	b->when_selected = when_selected;
@@ -1602,7 +1629,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
-	
+
 	// Check for a PhysicsFS path first, saves complication!
 	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
@@ -1638,21 +1665,21 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 
 		p = b->view_path + strlen(b->view_path) - 1;
 		b->new_path = PHYSFSX_isNewPath(b->view_path);
-		
+
 		while (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
 			size_t len_sep = strlen(sep);
 			while ((p > b->view_path) && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
-			
+
 			if (p == b->view_path)
 				break;
-			
+
 			b->new_path = PHYSFSX_isNewPath(b->view_path);
 		}
 	}
-	
+
 	// Set to user directory if we couldn't find a searchpath
 	if (!b->view_path[0])
 	{
@@ -1664,12 +1691,12 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 			return 0;
 		}
 	}
-	
+
 	if (!list_directory(b.get()))
 	{
 		return 0;
 	}
-	
+
 	auto pb = b.get();
 	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }
