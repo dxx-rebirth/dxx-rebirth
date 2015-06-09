@@ -1453,6 +1453,18 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 	clamp_value(value, -bound, bound);
 }
 
+void convert_raw_joy_axis(int kcm_index, int player_cfg_index, int i)
+{
+	if (i == kcm_joystick[kcm_index].value) {
+		if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16) {
+			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)/128;
+		}
+		else {
+			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+		}
+	}
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	int speed_factor = cheats.turbo?2:1;
@@ -1554,7 +1566,6 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]+joy_null_value)*128)/(128-joy_null_value);
 			else
 				Controls.raw_joy_axis[axis] = 0;
-			Controls.joy_axis[axis] = (Controls.raw_joy_axis[axis]*FrameTime)/128;
 			break;
 		}
 		case EVENT_MOUSE_MOVED:
@@ -1600,6 +1611,16 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			}
 			break;
 	}
+	
+	for (int i = 0; i < JOY_MAX_AXES; i++) {
+		convert_raw_joy_axis(15, 0, i); // Turn L/R
+		convert_raw_joy_axis(13, 1, i); // Pitch U/D
+		convert_raw_joy_axis(17, 2, i); // Slide L/R
+		convert_raw_joy_axis(19, 3, i); // Slide U/D
+		convert_raw_joy_axis(21, 4, i); // Bank
+		convert_raw_joy_axis(23, 5, i); // Throttle
+	}
+
 
 	//------------ Read pitch_time -----------
 	if ( !Controls.state.slide_on )

@@ -130,6 +130,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KEYBOARD_HEADER_TEXT	"[keyboard]"
 #define SENSITIVITY_NAME_TEXT	"sensitivity"
 #define SENSITIVITY_VALUE_TEXT	"%d"
+#define LINEAR_NAME_TEXT	"linearity"
+#define LINEAR_VALUE_TEXT	"%d"
+#define SPEED_NAME_TEXT	        "speed"
+#define SPEED_VALUE_TEXT	"%d"
 #define DEADZONE_NAME_TEXT	"deadzone"
 #define DEADZONE_VALUE_TEXT	"%d"
 #define JOYSTICK_HEADER_TEXT	"[joystick]"
@@ -215,6 +219,8 @@ int new_player_config()
 	PlayerCfg.KeyboardSens[0] = PlayerCfg.KeyboardSens[1] = PlayerCfg.KeyboardSens[2] = PlayerCfg.KeyboardSens[3] = PlayerCfg.KeyboardSens[4] = 16;
 	PlayerCfg.JoystickSens[0] = PlayerCfg.JoystickSens[1] = PlayerCfg.JoystickSens[2] = PlayerCfg.JoystickSens[3] = PlayerCfg.JoystickSens[4] = PlayerCfg.JoystickSens[5] = 8;
 	PlayerCfg.JoystickDead[0] = PlayerCfg.JoystickDead[1] = PlayerCfg.JoystickDead[2] = PlayerCfg.JoystickDead[3] = PlayerCfg.JoystickDead[4] = PlayerCfg.JoystickDead[5] = 0;
+	PlayerCfg.JoystickLinear[0] = PlayerCfg.JoystickLinear[1] = PlayerCfg.JoystickLinear[2] = PlayerCfg.JoystickLinear[3] = PlayerCfg.JoystickLinear[4] = PlayerCfg.JoystickLinear[5] = 0;
+	PlayerCfg.JoystickSpeed[0] = PlayerCfg.JoystickSpeed[1] = PlayerCfg.JoystickSpeed[2] = PlayerCfg.JoystickSpeed[3] = PlayerCfg.JoystickSpeed[4] = PlayerCfg.JoystickSpeed[5] = 16;
 	PlayerCfg.MouseFlightSim = 0;
 	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = PlayerCfg.MouseSens[5] = 8;
 	PlayerCfg.MouseFSDead = 0;
@@ -359,6 +365,8 @@ static int read_player_dxx(const char *filename)
 				if (!value)
 					continue;
 				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens, line, value) ||
+				convert_pattern_array(LINEAR_NAME_TEXT, PlayerCfg.JoystickLinear, line, value) ||
+				convert_pattern_array(SPEED_NAME_TEXT, PlayerCfg.JoystickSpeed, line, value) ||
 				convert_pattern_array(DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead, line, value);
 			}
 		}
@@ -699,6 +707,8 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,JOYSTICK_HEADER_TEXT "\n");
 		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens);
+		print_pattern_array(fout, LINEAR_NAME_TEXT, PlayerCfg.JoystickLinear);
+		print_pattern_array(fout, SPEED_NAME_TEXT, PlayerCfg.JoystickSpeed);
 		print_pattern_array(fout, DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,MOUSE_HEADER_TEXT "\n");

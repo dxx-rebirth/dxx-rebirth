@@ -80,6 +80,8 @@ struct player_config
 	array<int, 5> KeyboardSens;
 	array<int, 6> JoystickSens;
 	array<int, 6> JoystickDead;
+	array<int, 6> JoystickLinear;
+	array<int, 6> JoystickSpeed;
 	ubyte MouseFlightSim;
 	array<int, 6> MouseSens;
 	int MouseFSDead;
