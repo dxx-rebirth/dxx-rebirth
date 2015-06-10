@@ -86,6 +86,7 @@ struct control_info {
 #endif
 
 extern control_info Controls;
+extern void convert_raw_joy_axis(int kcm_index, int player_cfg_index, int i);
 extern void kconfig_read_controls(const d_event &event, int automap_flag);
 extern void kconfig(int n, const char *title);
 

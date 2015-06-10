@@ -1068,20 +1068,6 @@ static void input_config_sensitivity()
 	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
 	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
 
-#define DXX_INPUT_LINEAR(VERB,OPT,VAL)	\
-	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
-
-#define DXX_INPUT_SPEED(VERB,OPT,VAL)	\
-	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
-
 #define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
@@ -1094,10 +1080,10 @@ static void input_config_sensitivity()
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
 	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
-	DXX_INPUT_LINEAR(VERB,jl,PlayerCfg.JoystickLinear)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
 	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
 	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
-	DXX_INPUT_SPEED(VERB,jp,PlayerCfg.JoystickSpeed)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
 	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
 	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	\
@@ -1139,11 +1125,10 @@ static void input_config_sensitivity()
 
 	for (unsigned i = 0; i <= 5; i++)
 	{
-		if (i < 5) {
+		if (i < 5)
             PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
-            PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
-            PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
-		}
+        PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
+        PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;

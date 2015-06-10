@@ -1453,6 +1453,18 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 	clamp_value(value, -bound, bound);
 }
 
+void convert_raw_joy_axis(int kcm_index, int player_cfg_index, int i)
+{
+	if (i == kcm_joystick[kcm_index].value) {
+		if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16) {
+			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)/128;
+		}
+		else {
+			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
+		}
+	}
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	int speed_factor = cheats.turbo?2:1;
@@ -1599,49 +1611,16 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			}
 			break;
 	}
-
+	
 	for (int i = 0; i < JOY_MAX_AXES; i++) {
-        if (i == kcm_joystick[13].value) { // Pitch U/D
-            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[1]) / 16) {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[1]) / 16)/128;
-            }
-            else {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-            }
-        }
-        if (i == kcm_joystick[15].value) { // Turn L/R
-            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[0]) / 16) {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[0]) / 16)/128;
-            }
-            else {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-            }
-        }
-        if (i == kcm_joystick[17].value) { // Slide L/R
-            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[2]) / 16) {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[2]) / 16)/128;
-            }
-            else {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-            }
-        }
-        if (i == kcm_joystick[19].value) { // Slide U/D
-            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[3]) / 16) {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[3]) / 16)/128;
-            }
-            else {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-            }
-        }
-        if (i == kcm_joystick[21].value) { // Bank
-            if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[4]) / 16) {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[4]) / 16)/128;
-            }
-            else {
-                Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-            }
-        }
+		convert_raw_joy_axis(15, 0, i); // Turn L/R
+		convert_raw_joy_axis(13, 1, i); // Pitch U/D
+		convert_raw_joy_axis(17, 2, i); // Slide L/R
+		convert_raw_joy_axis(19, 3, i); // Slide U/D
+		convert_raw_joy_axis(21, 4, i); // Bank
+		convert_raw_joy_axis(23, 5, 1); // Throttle
 	}
+
 
 	//------------ Read pitch_time -----------
 	if ( !Controls.state.slide_on )
