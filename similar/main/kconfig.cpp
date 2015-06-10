@@ -1618,7 +1618,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		convert_raw_joy_axis(17, 2, i); // Slide L/R
 		convert_raw_joy_axis(19, 3, i); // Slide U/D
 		convert_raw_joy_axis(21, 4, i); // Bank
-		convert_raw_joy_axis(23, 5, 1); // Throttle
+		convert_raw_joy_axis(23, 5, i); // Throttle
 	}
 
 
