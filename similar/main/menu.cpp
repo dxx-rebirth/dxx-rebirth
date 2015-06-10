@@ -1124,9 +1124,9 @@ static void input_config_sensitivity()
 	for (unsigned i = 0; i <= 5; i++)
 	{
 		if (i < 5)
-            PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
-        PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
-        PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
+            		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+        	PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
+        	PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
@@ -1477,7 +1477,7 @@ static int list_directory(browser *b)
 	{
 		b->list.add("<this directory>");	// choose the directory being viewed
 	}
-
+	
 	PHYSFS_enumerateFilesCallback("", list_dir_el, b);
 	b->list.tidy(1 + (b->select_dir ? 1 : 0),
 #ifdef __linux__
@@ -1486,7 +1486,7 @@ static int list_directory(browser *b)
 					  d_stricmp
 #endif
 					  );
-
+					  
 	return 1;
 }
 
@@ -1510,7 +1510,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 					nm_item_input(text),
 				}};
 				rval = newmenu_do( NULL, "Enter drive letter", m, unused_newmenu_subfunction, unused_newmenu_userdata );
-				text[1] = '\0';
+				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
@@ -1530,17 +1530,17 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if (citem == 0)		// go to parent dir
 			{
 				char *p;
-
+				
 				size_t len_newpath = strlen(newpath);
 				size_t len_sep = strlen(sep);
 				if ((p = strstr(&newpath[len_newpath - len_sep], sep)))
 					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
 						*p = 0;
-
+				
 				p = newpath + len_newpath - 1;
 				while ((p > newpath) && strncmp(p, sep, len_sep))	// make sure full separator string is matched (typically is)
 					p--;
-
+				
 				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
 				{
 #if defined(__MACH__) && defined(__APPLE__)
@@ -1589,11 +1589,11 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 
 			std::default_delete<browser>()(b);
 			break;
-
+			
 		default:
 			break;
 	}
-
+	
 	return 0;
 }
 
@@ -1602,7 +1602,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
 	char new_path[PATH_MAX];
-
+	
 	auto b = make_unique<browser>();
 	b->title = title;
 	b->when_selected = when_selected;
@@ -1612,7 +1612,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
-
+	
 	// Check for a PhysicsFS path first, saves complication!
 	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
@@ -1648,21 +1648,21 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 
 		p = b->view_path + strlen(b->view_path) - 1;
 		b->new_path = PHYSFSX_isNewPath(b->view_path);
-
+		
 		while (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
 			size_t len_sep = strlen(sep);
 			while ((p > b->view_path) && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
-
+			
 			if (p == b->view_path)
 				break;
-
+			
 			b->new_path = PHYSFSX_isNewPath(b->view_path);
 		}
 	}
-
+	
 	// Set to user directory if we couldn't find a searchpath
 	if (!b->view_path[0])
 	{
@@ -1674,12 +1674,12 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 			return 0;
 		}
 	}
-
+	
 	if (!list_directory(b.get()))
 	{
 		return 0;
 	}
-
+	
 	auto pb = b.get();
 	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }

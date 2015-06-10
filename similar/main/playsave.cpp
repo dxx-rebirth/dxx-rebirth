@@ -120,7 +120,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //version 18 -> 19: added automap-highres flag
 //version 19 -> 20: added kconfig data for windows joysticks
 //version 20 -> 21: save seperate config types for DOS & Windows
-//version 21 -> 22: save lifetime netstats
+//version 21 -> 22: save lifetime netstats 
 //version 22 -> 23: ??
 //version 23 -> 24: add name of joystick for windows version.
 
@@ -130,12 +130,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KEYBOARD_HEADER_TEXT	"[keyboard]"
 #define SENSITIVITY_NAME_TEXT	"sensitivity"
 #define SENSITIVITY_VALUE_TEXT	"%d"
-#define LINEAR_NAME_TEXT	    "linearity"
-#define LINEAR_VALUE_TEXT	    "%d"
+#define LINEAR_NAME_TEXT	"linearity"
+#define LINEAR_VALUE_TEXT	"%d"
 #define SPEED_NAME_TEXT	        "speed"
-#define SPEED_VALUE_TEXT	    "%d"
-#define DEADZONE_NAME_TEXT	    "deadzone"
-#define DEADZONE_VALUE_TEXT	    "%d"
+#define SPEED_VALUE_TEXT	"%d"
+#define DEADZONE_NAME_TEXT	"deadzone"
+#define DEADZONE_VALUE_TEXT	"%d"
 #define JOYSTICK_HEADER_TEXT	"[joystick]"
 #define MOUSE_HEADER_TEXT	"[mouse]"
 #define MOUSE_FLIGHTSIM_NAME_TEXT	"flightsim"
@@ -266,7 +266,7 @@ int new_player_config()
 	PlayerCfg.NetworkMessageMacro[3] = "This one's headed for Uranus";
 #endif
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-
+	
 	return 1;
 }
 
@@ -396,10 +396,10 @@ static int read_player_dxx(const char *filename)
 					continue;
 				unsigned int kc1=0,kc2=0,kc3=0;
 				int i=atoi(line);
-
+				
 				if(i==0) i=10;
 					i=(i-1)*3;
-
+		
 				if (sscanf(value,WEAPON_KEYv2_VALUE_TEXT,&kc1,&kc2,&kc3) != 3)
 					continue;
 				PlayerCfg.KeySettingsRebirth[i]   = kc1;
@@ -692,7 +692,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFS_mkdir(PLAYER_DIRECTORY_STRING(""));	//try making directory
 		fout=PHYSFSX_openWriteBuffered(tempfile);
 	}
-
+	
 	if(fout)
 	{
 		PHYSFSX_printf(fout,PLX_OPTION_HEADER_TEXT "\n");
@@ -894,7 +894,7 @@ int read_player_file()
 		//we know is that he made it to level 7.
 		if (PlayerCfg.NHighestLevels==7)
 			PlayerCfg.HighestLevels[0].LevelNum = 8;
-
+		
 	}
 	else {	//read new highest level info
 		if (PHYSFS_read(file,PlayerCfg.HighestLevels,sizeof(hli),PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)
@@ -984,7 +984,7 @@ int read_player_file()
 
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.ControlType = control_type_dos;
-
+	
 		for (unsigned i=0;i < 11;i++)
 		{
 			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
@@ -1009,7 +1009,7 @@ int read_player_file()
 #if defined(DXX_BUILD_DESCENT_I)
 	if ( saved_game_version != 7 ) 	{
 		int i, found=0;
-
+		
 		Assert( N_SAVE_SLOTS == 10 );
 
 		for (i=0; i < N_SAVE_SLOTS; i++ )	{
@@ -1060,7 +1060,7 @@ int read_player_file()
 		PlayerCfg.GuidebotName = "GUIDE-BOT";
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	{
-		if (player_file_version >= 24)
+		if (player_file_version >= 24) 
 		{
 			PHYSFSX_gets_line_t<128> buf;
 			PHYSFSX_fgets(buf, file);			// Just read it in fpr DPS.
@@ -1086,8 +1086,8 @@ int read_player_file()
 }
 
 
-//finds entry for this level in table.  if not found, returns ptr to
-//empty entry.  If no empty entries, takes over last one
+//finds entry for this level in table.  if not found, returns ptr to 
+//empty entry.  If no empty entries, takes over last one 
 static array<hli, MAX_MISSIONS>::iterator find_hli_entry()
 {
 	auto r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
@@ -1202,7 +1202,7 @@ void write_player_file()
 		for (unsigned i = 0; i < MAX_CONTROLS; i++)
 			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman map field
 				errno_ret=errno;
-
+	
 		if(errno_ret == EZERO)
 		{
 			ubyte old_avg_joy_sensitivity = 8;
@@ -1224,7 +1224,7 @@ void write_player_file()
 	(void)errno_ret;
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-
+	
 	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16))); // skip Game_window_w, Game_window_h
 	PHYSFSX_writeU8(file, PlayerCfg.DefaultDifficulty);
 	PHYSFSX_writeU8(file, PlayerCfg.AutoLeveling);
