@@ -1109,8 +1109,6 @@ static void input_config_sensitivity()
 	};
 #undef DXX_INPUT_CONFIG_MENU
 #undef DXX_INPUT_THROTTLE_SENSITIVITY
-#undef DXX_INPUT_SPEED
-#undef DXX_INPUT_LINEAR
 #undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "SENSITIVITY & DEADZONE", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
