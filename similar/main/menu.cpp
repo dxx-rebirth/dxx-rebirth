@@ -1079,6 +1079,12 @@ static void input_config_sensitivity()
 	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
+	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
+	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
+	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
+	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
 	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_jd)	\
@@ -1109,6 +1115,8 @@ static void input_config_sensitivity()
 
 	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
 	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
+	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
+	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
 	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
 	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
 	const auto &m = items.m;
@@ -1116,7 +1124,9 @@ static void input_config_sensitivity()
 	for (unsigned i = 0; i <= 5; i++)
 	{
 		if (i < 5)
-			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+            		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+        	PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
+        	PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
