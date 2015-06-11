@@ -41,7 +41,8 @@ class integral_type
 {
 	static_assert(tt::is_integral<T>::value, "integral_type used on non-integral type");
 public:
-	static constexpr auto maximum_size = tt::integral_constant<std::size_t, sizeof(T)>{};
+	typedef tt::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
+	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename T>
@@ -49,7 +50,8 @@ class enum_type
 {
 	static_assert(tt::is_enum<T>::value, "enum_type used on non-enum type");
 public:
-	static constexpr auto maximum_size = tt::integral_constant<std::size_t, sizeof(T)>{};
+	typedef tt::integral_constant<std::size_t, sizeof(T)> maximum_size_type;
+	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename>
@@ -303,10 +305,10 @@ static inline const T &extract_value(const std::tuple<T> &t)
  * If minimum_size exists, it is used.  Otherwise, maximum_size is used.
  */
 template <typename T>
-decltype(T::minimum_size) get_minimum_size(T *);
+typename T::minimum_size_type get_minimum_size(T *);
 
 template <typename T>
-decltype(T::maximum_size) get_minimum_size(...);
+typename T::maximum_size_type get_minimum_size(...);
 
 }
 
@@ -458,9 +460,14 @@ class message_type : message_dispatch_type<typename tt::remove_reference<T>::typ
 	typedef message_dispatch_type<typename tt::remove_reference<T>::type> base_type;
 	typedef typename base_type::effective_type effective_type;
 public:
-	static constexpr auto minimum_size = decltype(detail::get_minimum_size<effective_type>(nullptr)){};
-	static constexpr auto maximum_size = effective_type::maximum_size;
+	typedef decltype(detail::get_minimum_size<effective_type>(nullptr)) minimum_size_type;
+	typedef typename effective_type::maximum_size_type maximum_size_type;
+	static constexpr minimum_size_type minimum_size = {};
+	static constexpr maximum_size_type maximum_size = {};
 };
+
+template <typename T>
+constexpr typename message_type<T>::maximum_size_type message_type<T>::maximum_size;
 
 template <typename A1>
 class message_dispatch_type<message<A1>, void>
@@ -480,7 +487,8 @@ template <typename T, std::size_t N>
 class array_type<const array<T, N>>
 {
 public:
-	static constexpr auto maximum_size = tt::integral_constant<std::size_t, message_type<T>::maximum_size * N>{};
+	typedef tt::integral_constant<std::size_t, message_type<T>::maximum_size * N> maximum_size_type;
+	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename T, std::size_t N>
@@ -493,8 +501,10 @@ class message_type<message<A1, A2, Args...>>
 {
 public:
 	typedef message<A1, A2, Args...> as_message;
-	static constexpr auto minimum_size = tt::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size>{};
-	static constexpr auto maximum_size = tt::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size>{};
+	typedef tt::integral_constant<std::size_t, message_type<A1>::minimum_size + message_type<message<A2, Args...>>::minimum_size> minimum_size_type;
+	typedef tt::integral_constant<std::size_t, message_type<A1>::maximum_size + message_type<message<A2, Args...>>::maximum_size> maximum_size_type;
+	static constexpr minimum_size_type minimum_size = {};
+	static constexpr maximum_size_type maximum_size = {};
 };
 
 template <typename A1, typename... Args>
