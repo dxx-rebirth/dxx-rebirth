@@ -32,7 +32,8 @@ extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
 #ifdef DEBUG_MEMORY_ALLOCATIONS
-extern char *d_strdup(const char *str) __attribute_malloc();
+char *d_strdup(const char *str, const char *, const char *, unsigned) __attribute_malloc();
+#define d_strdup(str)	(d_strdup(str, #str, __FILE__,__LINE__))
 #else
 #include <cstring>
 #define d_strdup strdup

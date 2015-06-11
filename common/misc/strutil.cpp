@@ -115,14 +115,13 @@ void d_strrev( char *s1 )
 }
 
 #ifdef DEBUG_MEMORY_ALLOCATIONS
-char *d_strdup(const char *str)
+char *(d_strdup)(const char *str, const char *var, const char *file, unsigned line)
 {
 	char *newstr;
 
-	MALLOC(newstr, char, strlen(str) + 1);
-	strcpy(newstr, str);
-
-	return newstr;
+	const auto len = strlen(str) + 1;
+	MALLOC<char>(newstr, len, var, file, line);
+	return static_cast<char *>(memcpy(newstr, str, len));
 }
 #endif
 
