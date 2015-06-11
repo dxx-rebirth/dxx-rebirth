@@ -61,6 +61,10 @@ static int SOrderList (int num);
 //ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
 //ubyte	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
 
+constexpr tt::integral_constant<uint8_t, 1> has_weapon_result::has_weapon_flag;
+constexpr tt::integral_constant<uint8_t, 2> has_weapon_result::has_energy_flag;
+constexpr tt::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
+
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
 const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID}};
