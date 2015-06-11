@@ -107,10 +107,15 @@ public:
 	 * - native_endian: assume buffered data is native endian
 	 *   Copy regardless of host byte order
 	 */
-	static constexpr auto foreign_endian= tt::integral_constant<uint16_t, 0>{};
-	static constexpr auto little_endian	= tt::integral_constant<uint16_t, 255>{};
-	static constexpr auto big_endian	= tt::integral_constant<uint16_t, 256>{};
-	static constexpr auto native_endian	= tt::integral_constant<uint16_t, 257>{};
+	typedef tt::integral_constant<uint16_t, 0> foreign_endian_type;
+	typedef tt::integral_constant<uint16_t, 255> little_endian_type;
+	typedef tt::integral_constant<uint16_t, 256> big_endian_type;
+	typedef tt::integral_constant<uint16_t, 257> native_endian_type;
+
+	static constexpr auto foreign_endian = foreign_endian_type{};
+	static constexpr auto little_endian = little_endian_type{};
+	static constexpr auto big_endian = big_endian_type{};
+	static constexpr auto native_endian = native_endian_type{};
 };
 
 	/* Implementation details - avoid namespace pollution */
