@@ -320,7 +320,6 @@ void mem_display_blocks()
 				con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: Memory block has not been freed." );
 				PrintInfo( i );
 			}
-			mem_free( (void *)MallocBase[i] );
 		}
 	}
 
