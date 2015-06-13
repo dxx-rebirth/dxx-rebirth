@@ -1919,9 +1919,12 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 #endif
 
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Objects[i].matcen_creator == BOSS_GATE_MATCEN_NUM)
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (objp->matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
+	}
 
 	if (count > maximum_gated_robots)
 	{
@@ -2062,11 +2065,14 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 
 	//	See if there is a boss.  If not, quick out.
 	range_for (const auto i, highest_valid(Objects))
-		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[get_robot_id(&Objects[i])].boss_flag))
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag)
 		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
 			break;
 		}
+	}
 
 	if (boss_objnum != object_none) {
 		vms_vector	original_boss_pos;
@@ -3039,16 +3045,20 @@ void do_ai_frame(const vobjptridx_t obj)
 				fix min_dist = F1_0*200, cur_dist;
 
 				range_for (const auto ii, highest_valid(Objects))
-					if ((Objects[ii].type == OBJ_ROBOT) && (ii != objnum)) {
-						cur_dist = vm_vec_dist_quick(obj->pos, Objects[ii].pos);
-
+				{
+					const auto &&objp = vobjptridx(static_cast<objnum_t>(ii));
+					if (objp->type == OBJ_ROBOT && objp != obj)
+					{
+						cur_dist = vm_vec_dist_quick(obj->pos, objp->pos);
 						if (cur_dist < F1_0*100)
-							if (object_to_object_visibility(obj, &Objects[ii], FQ_TRANSWALL))
+							if (object_to_object_visibility(obj, objp, FQ_TRANSWALL))
 								if (cur_dist < min_dist) {
 									min_obj = ii;
 									min_dist = cur_dist;
 								}
 					}
+				}
+
 				if (min_obj != object_none) {
 					Believed_player_pos = Objects[min_obj].pos;
 					Believed_player_seg = Objects[min_obj].segnum;
@@ -4210,20 +4220,23 @@ static void set_player_awareness_all(void)
 	process_awareness_events(New_awareness);
 
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI)
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
-			ai_local		*ailp = &Objects[i].ctype.ai_info.ail;
-			if (New_awareness[Objects[i].segnum] > ailp->player_awareness_type) {
-				ailp->player_awareness_type = New_awareness[Objects[i].segnum];
-				ailp->player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
+			auto &ailp = objp->ctype.ai_info.ail;
+			if (New_awareness[objp->segnum] > ailp.player_awareness_type) {
+				ailp.player_awareness_type = New_awareness[objp->segnum];
+				ailp.player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
 			}
 
 #if defined(DXX_BUILD_DESCENT_II)
 			// Clear the bit that says this robot is only awake because a camera woke it up.
-			if (New_awareness[Objects[i].segnum] > ailp->player_awareness_type)
-				Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
+			if (New_awareness[objp->segnum] > ailp.player_awareness_type)
+				objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 #endif
 		}
+	}
 }
 
 #ifndef NDEBUG
@@ -4257,7 +4270,7 @@ static void dump_ai_objects_all()
 
 	range_for (const auto objnum, highest_valid(Objects))
 	{
-		object		*objp = &Objects[objnum];
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		ai_static	*aip = &objp->ctype.ai_info;
 		ai_local		*ailp = &objp->ctype.ai_info.ail;
 		fix			dist_to_player;
@@ -4318,17 +4331,23 @@ void do_ai_frame_all(void)
 		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = nullptr;
 			range_for (const auto i, highest_valid(Objects))
-				if (Objects[i].type == OBJ_ROBOT)
-					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
+			{
+				const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+				if (objp->type == OBJ_ROBOT)
+					objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
+			}
 		}
 	}
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
 		range_for (const auto i, highest_valid(Objects))
-			if (Objects[i].type == OBJ_ROBOT)
-				if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
-					do_boss_dying_frame(&Objects[i]);
+		{
+			const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
+			if (objp->type == OBJ_ROBOT)
+				if (Robot_info[get_robot_id(objp)].boss_flag)
+					do_boss_dying_frame(objp);
+		}
 	}
 #endif
 }
