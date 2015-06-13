@@ -651,6 +651,49 @@ static void say_escort_goal(escort_goal_t goal_num)
 	}
 }
 
+static void clear_escort_goals()
+{
+	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
+}
+
+static void escort_goal_does_not_exist(escort_goal_t goal)
+{
+	Last_buddy_message_time = 0;	//	Force this message to get through.
+	buddy_message("No %s in mine.", Escort_goal_text[goal-1]);
+	Looking_for_marker = -1;
+	clear_escort_goals();
+}
+
+static void escort_goal_unreachable(escort_goal_t goal)
+{
+	Last_buddy_message_time = 0;	//	Force this message to get through.
+	buddy_message("Can't reach %s.", Escort_goal_text[goal-1]);
+	Looking_for_marker = -1;
+	clear_escort_goals();
+}
+
+static void escort_go_to_goal(const vobjptridx_t objp, ai_static *aip, segnum_t goal_seg)
+{
+	create_path_to_segment(objp, goal_seg, Max_escort_length, 1);	//	MK!: Last parm (safety_flag) used to be 1!!
+	if (aip->path_length > 3)
+		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
+	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
+		fix	dist_to_player;
+		Last_buddy_message_time = 0;	//	Force this message to get through.
+		buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
+		Looking_for_marker = -1;
+		Escort_goal_object = ESCORT_GOAL_SCRAM;
+		dist_to_player = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 100, WID_FLY_FLAG);
+		if (dist_to_player > MIN_ESCORT_DISTANCE)
+			create_path_to_player(objp, Max_escort_length, 1);	//	MK!: Last parm used to be 1!
+		else {
+			create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
+			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
+		}
+	}
+}
+
 //	-----------------------------------------------------------------------------
 static void escort_create_path_to_goal(const vobjptridx_t objp)
 {
@@ -696,8 +739,13 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum);
-				Escort_goal_index = goal_seg;
-				break;
+				if (goal_seg == segment_none)
+					escort_goal_does_not_exist(ESCORT_GOAL_ENERGYCEN);
+				else if (goal_seg == segment_exit)
+					escort_goal_unreachable(ESCORT_GOAL_ENERGYCEN);
+				else
+					escort_go_to_goal(objp, aip, goal_seg);
+				return;
 			case ESCORT_GOAL_SHIELD:
 				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_SHIELD_BOOST, -1);
 				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
@@ -737,42 +785,17 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 		}
 	}
 
-	if ((Escort_goal_index < 0) && (Escort_goal_index != -3)) {	//	I apologize for this statement -- MK, 09/22/95
 		if (Escort_goal_index == object_none) {
-			Last_buddy_message_time = 0;	//	Force this message to get through.
-			buddy_message("No %s in mine.", Escort_goal_text[Escort_goal_object-1]);
-			Looking_for_marker = -1;
+			escort_goal_does_not_exist(Escort_goal_object);
 		} else if (Escort_goal_index == object_guidebot_cannot_reach) {
-			Last_buddy_message_time = 0;	//	Force this message to get through.
-			buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
-			Looking_for_marker = -1;
-		} else
-			Int3();
+			escort_goal_unreachable(Escort_goal_object);
 
-		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	} else {
 		if (Escort_goal_object == ESCORT_GOAL_SCRAM) {
 			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		} else {
-			create_path_to_segment(objp, goal_seg, Max_escort_length, 1);	//	MK!: Last parm (safety_flag) used to be 1!!
-			if (aip->path_length > 3)
-				aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-			if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
-				fix	dist_to_player;
-				Last_buddy_message_time = 0;	//	Force this message to get through.
-				buddy_message("Can't reach %s.", Escort_goal_text[Escort_goal_object-1]);
-				Looking_for_marker = -1;
-				Escort_goal_object = ESCORT_GOAL_SCRAM;
-				dist_to_player = find_connected_distance(objp->pos, objp->segnum, Believed_player_pos, Believed_player_seg, 100, WID_FLY_FLAG);
-				if (dist_to_player > MIN_ESCORT_DISTANCE)
-					create_path_to_player(objp, Max_escort_length, 1);	//	MK!: Last parm used to be 1!
-				else {
-					create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
-					aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-				}
-			}
+			escort_go_to_goal(objp, aip, goal_seg);
 		}
 
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
