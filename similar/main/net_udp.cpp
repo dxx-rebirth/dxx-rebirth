@@ -3158,7 +3158,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
 	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, 5*F1_0*60)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
-	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 10)	\
+	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
 	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
 	D2X_UDP_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Invulnerable when reappearing", opt_start_invul, Netgame.InvulAppear)	\
@@ -3229,6 +3229,9 @@ static void net_udp_set_power (void)
 	DXX_##VERB##_NUMBER("duplicate primaries", opt_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
 	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
 	D2X_DUPLICATE_POWERUP_MENU(VERB)
+
+#define FORMAT_KILL_GOAL_STRING(BUF)	\
+	snprintf(BUF, 80, "Kill Goal: %3d kills", Netgame.KillGoal*5);
 
 namespace {
 
@@ -3313,7 +3316,7 @@ static void net_udp_more_game_options ()
 	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
-	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
+	FORMAT_KILL_GOAL_STRING(KillText);
 #ifdef USE_TRACKER
 	char tracker[52];
 #endif
@@ -3399,7 +3402,7 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				}
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
-				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
+				FORMAT_KILL_GOAL_STRING(menus[opt_killgoal].text);
 			}
 			break;
 		}
