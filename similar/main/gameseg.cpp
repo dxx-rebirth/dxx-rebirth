@@ -1490,10 +1490,13 @@ void validate_segment(const vsegptridx_t sp)
 void validate_segment_all(void)
 {
 	range_for (const auto s, highest_valid(Segments))
+	{
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(s));
 		#ifdef EDITOR
-		if (Segments[s].segnum != segment_none)
+		if (segp->segnum != segment_none)
 		#endif
-			validate_segment(&Segments[s]);
+			validate_segment(segp);
+	}
 
 	#ifdef EDITOR
 	{
@@ -1737,8 +1740,10 @@ void apply_all_changed_light(void)
 void clear_light_subtracted(void)
 {
 	range_for (const auto i, highest_valid(Segments))
-		Segments[i].light_subtracted = 0;
-
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
+		segp->light_subtracted = 0;
+	}
 }
 
 #define	AMBIENT_SEGMENT_DEPTH		5
@@ -1789,7 +1794,7 @@ void set_ambient_sound_flags()
 	//	Mark all segments which are sources of the sound.
 	range_for (const auto i, highest_valid(Segments))
 	{
-		segment	*segp = &Segments[i];
+		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
 		range_for (auto &s, sound_textures)
 		{
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
