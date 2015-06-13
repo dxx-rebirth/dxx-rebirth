@@ -348,7 +348,6 @@
     <ClInclude Include="..\..\d2x-rebirth\arch\win32\include\resource.h" />
     <ClInclude Include="..\..\d2x-rebirth\include\libmve.h" />
     <ClInclude Include="..\..\d2x-rebirth\include\physfsrwops.h" />
-    <ClInclude Include="..\..\d2x-rebirth\include\pngfile.h" />
     <ClInclude Include="..\..\d2x-rebirth\libmve\decoders.h" />
     <ClInclude Include="..\..\d2x-rebirth\libmve\mvelib.h" />
     <ClInclude Include="..\..\d2x-rebirth\libmve\mve_audio.h" />

@@ -40,9 +40,6 @@
 #include "console.h"
 #include "config.h"
 #include "u_mem.h"
-#ifdef HAVE_LIBPNG
-#include "pngfile.h"
-#endif
 
 #include "segment.h"
 #include "textures.h"
@@ -1602,9 +1599,6 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 {
-#ifdef HAVE_LIBPNG
-	char *bitmapname;
-#endif
 
 	grs_bitmap *bm = &rbm;
 	while (bm->bm_parent)
@@ -1612,36 +1606,6 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
 	auto buf=bm->get_bitmap_data();
-#ifdef HAVE_LIBPNG
-	if ((bitmapname = piggy_game_bitmap_name(bm)))
-	{
-		char filename[64];
-		png_data pdata;
-
-		sprintf(filename, "textures/%s.png", bitmapname);
-		if (read_png(filename, &pdata))
-		{
-			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
-			if (pdata.depth == 8 && pdata.color)
-			{
-				if (bm->gltexture == NULL)
-					ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
-				ogl_loadtexture(pdata.data, 0, 0, *bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, texfilt);
-				free(pdata.data);
-				if (pdata.palette)
-					free(pdata.palette);
-				return;
-			}
-			else
-			{
-				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8", filename);
-				free(pdata.data);
-				if (pdata.palette)
-					free(pdata.palette);
-			}
-		}
-	}
-#endif
 	if (bm->gltexture == NULL){
  		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
 	}
