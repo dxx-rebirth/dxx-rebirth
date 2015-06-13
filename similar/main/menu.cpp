@@ -421,9 +421,10 @@ static void draw_copyright()
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-	gr_string(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
+	const auto &&line_spacing = LINE_SPACING;
+	gr_string(0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
 	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
-	gr_string(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
+	gr_string(0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
 // ------------------------------------------------------------------------

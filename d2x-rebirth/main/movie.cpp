@@ -643,7 +643,8 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//find y coordinate for first line of subtitles
-	y = grd_curcanv->cv_bitmap.bm_h-((LINE_SPACING)*(MAX_ACTIVE_SUBTITLES+2));
+	const auto &&line_spacing = LINE_SPACING;
+	y = grd_curcanv->cv_bitmap.bm_h - (line_spacing * (MAX_ACTIVE_SUBTITLES + 2));
 
 	//erase old subtitles if necessary
 	if (must_erase) {
@@ -655,7 +656,7 @@ static void draw_subtitles(int frame_num)
 	for (int t=0;t<num_active_subtitles;t++)
 		if (active_subtitles[t] != -1) {
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
-			y += LINE_SPACING;
+			y += line_spacing;
 		}
 }
 
