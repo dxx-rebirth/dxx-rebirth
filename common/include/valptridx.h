@@ -667,7 +667,7 @@ struct vvalptr_functions
 	}
 	template <typename T>
 		vptr operator()(T) const = delete;
-	void *operator &() = delete;
+	void *operator &() const = delete;
 };
 
 template <typename A, A &a, typename ptridx>
@@ -679,7 +679,7 @@ struct valptridx_functions
 	}
 	template <typename T>
 		typename tt::enable_if<!tt::is_convertible<T, typename ptridx::index_type>::value, ptridx>::type operator()(T) const = delete;
-	void *operator &() = delete;
+	void *operator &() const = delete;
 };
 
 template <typename A, A &a, typename vptridx>
@@ -695,7 +695,6 @@ struct vvalptridx_functions : valptridx_functions<A, a, vptridx>
 	{
 		return {a, p};
 	}
-	void *operator &() = delete;
 };
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
