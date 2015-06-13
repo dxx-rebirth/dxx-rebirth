@@ -269,47 +269,20 @@ int objpage_goto_next_object()
 
 #define DELTA_ANG 0x800
 
-static int objpage_increase_pitch()
+template <fixang vms_angvec::*a, fixang v>
+static int objpage_change_angle()
 {
-	objpage_view_orient.p += DELTA_ANG;
+	objpage_view_orient.*a += v;
 	redraw_current_object();
 	return 1;
 }
 
-static int objpage_decrease_pitch()
-{
-	objpage_view_orient.p -= DELTA_ANG;
-	redraw_current_object();
-	return 1;
-}
-
-static int objpage_increase_heading()
-{
-	objpage_view_orient.h += DELTA_ANG;
-	redraw_current_object();
-	return 1;
-}
-
-static int objpage_decrease_heading()
-{
-	objpage_view_orient.h -= DELTA_ANG;
-	redraw_current_object();
-	return 1;
-}
-
-static int objpage_increase_bank()
-{
-	objpage_view_orient.b += DELTA_ANG;
-	redraw_current_object();
-	return 1;
-}
-
-static int objpage_decrease_bank()
-{
-	objpage_view_orient.b -= DELTA_ANG;
-	redraw_current_object();
-	return 1;
-}
+#define objpage_increase_pitch objpage_change_angle<&vms_angvec::p, DELTA_ANG>
+#define objpage_decrease_pitch objpage_change_angle<&vms_angvec::p, -DELTA_ANG>
+#define objpage_increase_heading objpage_change_angle<&vms_angvec::h, DELTA_ANG>
+#define objpage_decrease_heading objpage_change_angle<&vms_angvec::h, -DELTA_ANG>
+#define objpage_increase_bank objpage_change_angle<&vms_angvec::b, DELTA_ANG>
+#define objpage_decrease_bank objpage_change_angle<&vms_angvec::b, -DELTA_ANG>
 
 static int objpage_increase_z()
 {
