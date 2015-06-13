@@ -1594,7 +1594,22 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Prepend(CXXFLAGS = ['-Wall', Werror + 'extra', Werror + 'missing-declarations', Werror + 'pointer-arith', Werror + 'undef', Werror + 'missing-braces', Werror + 'unused', Werror + 'format-security', Werror + 'redundant-decls', Werror + 'vla'])
+		self.env.Prepend(CXXFLAGS = [
+			'-Wall',
+			Werror + 'extra',
+			Werror + 'format-security',
+			Werror + 'missing-braces',
+			Werror + 'missing-include-dirs',
+			Werror + 'unused',
+			'-Wsuggest-attribute=noreturn',
+			Werror + 'undef',
+			Werror + 'pointer-arith',
+			Werror + 'cast-align',
+			Werror + 'logical-op',
+			Werror + 'missing-declarations',
+			Werror + 'redundant-decls',
+			Werror + 'vla',
+		])
 		self.env.Append(CXXFLAGS = ['-funsigned-char'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
 		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
@@ -2069,7 +2084,7 @@ class DXXProgram(DXXCommon):
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
 		# For PRIi64
 		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
-		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main']])
+		self.env.Append(CPPPATH = [os.path.join(self.srcdir, 'main')])
 
 	def banner(self):
 		VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
@@ -2095,10 +2110,6 @@ class DXXProgram(DXXCommon):
 		# profiler?
 		if (self.user_settings.profiler == 1):
 			env.Append(LINKFLAGS = '-pg')
-
-		#editor build?
-		if (self.user_settings.editor == 1):
-			env.Append(CPPPATH = [os.path.join(self.srcdir, 'include/editor')])
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
