@@ -310,27 +310,24 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 	return;
 }
 
-	if (Escort_goal_index <= ESCORT_GOAL_RED_KEY)
-	{
 	if (index->type == OBJ_POWERUP)  {
 		if (index->id == POW_KEY_BLUE) {
-			if (Escort_goal_index == ESCORT_GOAL_BLUE_KEY) {
+			if (Escort_goal_object == ESCORT_GOAL_BLUE_KEY) {
 				record_escort_goal_accomplished();
 				return;
 			}
 		} else if (index->id == POW_KEY_GOLD) {
-			if (Escort_goal_index == ESCORT_GOAL_GOLD_KEY) {
+			if (Escort_goal_object == ESCORT_GOAL_GOLD_KEY) {
 				record_escort_goal_accomplished();
 				return;
 			}
 		} else if (index->id == POW_KEY_RED) {
-			if (Escort_goal_index == ESCORT_GOAL_RED_KEY) {
+			if (Escort_goal_object == ESCORT_GOAL_RED_KEY) {
 				record_escort_goal_accomplished();
 				return;
 			}
 		}
 	}
-}
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 	{
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
