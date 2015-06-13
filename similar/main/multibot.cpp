@@ -317,7 +317,7 @@ struct multi_claim_robot
 {
 	uint8_t pnum;
 	int8_t owner;
-	int16_t robjnum;
+	uint16_t robjnum;
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
 
@@ -361,7 +361,7 @@ multi_send_robot_frame(int sent)
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
-		if ( (robot_controlled[sending] != -1) && ((robot_send_pending[sending] > sent) || (robot_fired[sending] > sent)) )
+		if (robot_controlled[sending] != object_none && (robot_send_pending[sending] > sent || robot_fired[sending] > sent))
 		{
 			if (robot_send_pending[sending])
 			{
@@ -644,7 +644,8 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 	multi_claim_robot b;
 	multi_serialize_read(buf, b);
 	auto botnum = objnum_remote_to_local(b.robjnum, b.owner);
-	if ((botnum > Highest_object_index) || (botnum < 0)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -676,7 +677,8 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -710,7 +712,8 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -775,7 +778,7 @@ multi_do_robot_fire(const ubyte *buf)
 	fire.y = (fix)INTEL_INT((int)fire.y);
 	fire.z = (fix)INTEL_INT((int)fire.z);
 
-	if ((botnum < 0) || (botnum > Highest_object_index))
+	if (botnum > Highest_object_index)
 	{
 		return;
 	}
@@ -876,7 +879,8 @@ multi_do_robot_explode(const ubyte *buf)
 	auto botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
 	// Explode robot controlled by other player
 	int rval;
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -897,7 +901,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if ((objnum < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
+	if (fuelcen_num >= Num_fuelcenters || pnum >= N_players)
 	{
 		Int3(); // Bogus data
 		return;
@@ -939,11 +943,6 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 {
 	boss_teleport b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -977,11 +976,6 @@ void multi_do_boss_cloak(const ubyte *buf)
 {
 	boss_cloak b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1001,11 +995,6 @@ void multi_do_boss_start_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1019,11 +1008,6 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1037,11 +1021,6 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 {
 	boss_create_robot b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1049,7 +1028,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Do some validity checking
-	if (b.objrobot >= MAX_OBJECTS || b.objrobot < 0)
+	if (b.objrobot >= MAX_OBJECTS)
 	{
 		Int3(); // See Rob, bad data in boss gate action message
 		return;

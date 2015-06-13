@@ -446,7 +446,7 @@ enum deres_type_t {
 struct owned_remote_objnum
 {
 	int8_t owner;
-	int16_t objnum;
+	uint16_t objnum;
 };
 
 extern int GetMyNetRanking();

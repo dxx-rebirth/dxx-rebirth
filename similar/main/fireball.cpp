@@ -1077,10 +1077,6 @@ void explode_object(const vobjptridx_t hitobj,fix delay_time)
 	
 		obj->lifeleft = delay_time;
 		obj->ctype.expl_info.delete_objnum = hitobj;
-#ifndef NDEBUG
-		if (obj->ctype.expl_info.delete_objnum < 0)
-		 Int3(); // See Rob!
-#endif
 		obj->ctype.expl_info.delete_time = -1;
 		obj->ctype.expl_info.spawn_time = 0;
 
@@ -1141,12 +1137,6 @@ void do_explosion_sequence(const vobjptr_t obj)
 	//See if we should create a secondary explosion
 	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
 		int vclip_num;
-
-		if ((obj->ctype.expl_info.delete_objnum < 0) || (obj->ctype.expl_info.delete_objnum > Highest_object_index)) {
-			Int3(); // get Rob, please... thanks
-			return;
-		}
-
 		auto del_obj = vobjptridx(obj->ctype.expl_info.delete_objnum);
 		auto &spawn_pos = del_obj->pos;
 		Assert(del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER);
@@ -1210,11 +1200,6 @@ void do_explosion_sequence(const vobjptr_t obj)
 
 			expl_obj->ctype.expl_info.delete_time = expl_obj->lifeleft/2;
 			expl_obj->ctype.expl_info.delete_objnum = del_obj;
-#ifndef NDEBUG
-			if (obj->ctype.expl_info.delete_objnum < 0)
-		  		Int3(); // See Rob!
-#endif
-
 		}
 		else {
 			maybe_delete_object(del_obj);

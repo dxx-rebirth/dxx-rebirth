@@ -135,7 +135,7 @@ int multi_message_index = 0;
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
 
 static array<array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
-static array<short, MAX_OBJECTS> local_to_remote;
+static array<uint16_t, MAX_OBJECTS> local_to_remote;
 array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
 unsigned   Net_create_loc;       // pointer into previous array
@@ -337,8 +337,9 @@ objnum_t objnum_remote_to_local(uint16_t remote_objnum, int8_t owner)
 owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 {
 	// Map a local object number to a remote + owner
-	if ((local_objnum < 0) || (local_objnum > Highest_object_index)) {
-		return {owner_none, -1};
+	if (local_objnum > Highest_object_index)
+	{
+		return {owner_none, 0xffff};
 	}
 	auto owner = object_owner[local_objnum];
 	if (owner == owner_none)
@@ -346,7 +347,7 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	if (owner >= N_players || owner < -1)
 		throw std::runtime_error("illegal object owner");
 	auto result = local_to_remote[local_objnum];
-	if (result < 0)
+	if (result >= MAX_OBJECTS)
 		throw std::runtime_error("illegal object remote number");	// See Rob, object has no remote number!
 	return {owner, result};
 }
@@ -381,8 +382,6 @@ map_objnum_local_to_remote(int local_objnum, int remote_objnum, int owner)
 void map_objnum_local_to_local(objnum_t local_objnum)
 {
 	// Add a mapping for our locally created objects
-
-	Assert(local_objnum > -1);
 	Assert(local_objnum < MAX_OBJECTS);
 
 	object_owner[local_objnum] = Player_num;
@@ -2131,7 +2130,6 @@ static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
 	if (!Players[pnum].connected)
 		return;
 
-	Assert(Players[pnum].objnum >= 0);
 	Assert(Players[pnum].objnum <= Highest_object_index);
 	digi_link_sound_to_object( sound_num, vcobjptridx(Players[pnum].objnum), 0, volume);
 }

@@ -405,8 +405,7 @@ int ObjectSelectNextInMine()
 int ObjectSelectPrevInMine()
 {	int i;
 	for (i=0;i<MAX_OBJECTS;i++) {
-		Cur_object_index--;
-		if (Cur_object_index < 0 )
+		if (!(Cur_object_index --))
 			Cur_object_index = MAX_OBJECTS-1;
 
 		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{
