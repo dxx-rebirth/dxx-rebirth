@@ -202,14 +202,18 @@ multi_strip_robots(int playernum)
 		}
 
 		range_for (const auto i, highest_valid(Objects, 1))
-			if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].ctype.ai_info.REMOTE_OWNER == playernum)) {
-				Assert((Objects[i].control_type == CT_AI) || (Objects[i].control_type == CT_NONE) || (Objects[i].control_type == CT_MORPH));
-				Objects[i].ctype.ai_info.REMOTE_OWNER = -1;
+		{
+			const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
+			{
+				Assert(objp->control_type == CT_AI || objp->control_type == CT_NONE || objp->control_type == CT_MORPH);
+				objp->ctype.ai_info.REMOTE_OWNER = -1;
 				if (playernum == Player_num)
-					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
+					objp->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
 				else
-					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+					objp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	  		}
+		}
 	}
 	// Note -- only call this with playernum == Player_num if all other players
 	// already know that we are clearing house.  This does not send a release
