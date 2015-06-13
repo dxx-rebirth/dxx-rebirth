@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 #include "u_mem.h"
 
+#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -407,10 +408,8 @@ static int wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
 
 void close_wall_window()
 {
-	if ( MainWindow!=NULL )	{
-		ui_close_dialog( MainWindow );
-		MainWindow = NULL;
-	}
+	if (likely(MainWindow))
+		ui_close_dialog(exchange(MainWindow, nullptr));
 }
 
 int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
@@ -421,7 +420,6 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			return wall_dialog_created(dlg, wd);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<wall_dialog>()(wd);
-			MainWindow = NULL;
 			return 0;
 		default:
 			break;
