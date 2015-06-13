@@ -52,18 +52,19 @@ static void validate_modified_segments(void)
 
 		range_for (const auto seg, highest_valid(Segments))
 		{
-			if (Segments[seg].segnum != segment_none)
+			const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
+			if (segp->segnum != segment_none)
 			{
 				if (modified_segments[seg])
 					continue;
-				range_for (const auto w, Segments[seg].verts)
+				range_for (const auto w, segp->verts)
 					if (w == v0)
 					{
 						modified_segments[seg] = true;
-						validate_segment(&Segments[seg]);
+						validate_segment(segp);
 						for (unsigned s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 							Num_tilings = 1;
-							assign_default_uvs_to_side(&Segments[seg], s);
+							assign_default_uvs_to_side(segp, s);
 						}
 						break;
 					}
