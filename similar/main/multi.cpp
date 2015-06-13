@@ -3421,7 +3421,7 @@ void multi_apply_goal_textures()
 {
 	range_for (const auto i, highest_valid(Segments))
 	{
-		auto seg = &Segments[i];
+		const auto &&seg = vsegptr(static_cast<segnum_t>(i));
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
 			apply_segment_goal_texture(seg, TMI_GOAL_BLUE);
