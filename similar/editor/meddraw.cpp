@@ -624,25 +624,28 @@ static void draw_special_segments(void)
 
 	// Highlight matcens, fuelcens, etc.
 	range_for (const auto seg, highest_valid(Segments))
-		if (Segments[seg].segnum != segment_none)
-			switch(Segments[seg].special)
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(seg));
+		if (segp->segnum != segment_none)
+			switch(segp->special)
 			{
 			case SEGMENT_IS_FUELCEN:
 				color = BM_XRGB( 29, 27, 13 );
 				gr_setcolor(color);
-				draw_segment(&Segments[seg]);
+				draw_segment(segp);
 				break;
 			case SEGMENT_IS_CONTROLCEN:
 				color = BM_XRGB( 29, 0, 0 );
 				gr_setcolor(color);
-				draw_segment(&Segments[seg]);
+				draw_segment(segp);
 				break;
 			case SEGMENT_IS_ROBOTMAKER:
 				color = BM_XRGB( 29, 0, 31 );
 				gr_setcolor(color);
-				draw_segment(&Segments[seg]);
+				draw_segment(segp);
 				break;
 			}
+	}
 }
 		
 
