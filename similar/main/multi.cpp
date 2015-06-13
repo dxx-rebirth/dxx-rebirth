@@ -1616,10 +1616,10 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 		shortpos sp;
 		memcpy(sp.bytemat, &buf[2], 9);
 		memcpy(&sp.xo, &buf[11], 14);
-		extract_shortpos(obj, &sp, 1);
+		extract_shortpos_little(obj, &sp);
 	}
 	else
-		extract_shortpos(obj, (shortpos *)(&buf[2]), 0);
+		extract_shortpos_little(obj, (shortpos *)(&buf[2]));
 
 	if (obj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(obj);
@@ -2764,7 +2764,7 @@ void multi_send_position(const vobjptridx_t obj)
 	if (words_bigendian)
 	{
 		shortpos sp;
-		create_shortpos(&sp, obj, 1);
+		create_shortpos_little(&sp, obj);
 		memcpy(&multibuf[count], sp.bytemat, 9);
 		count += 9;
 		memcpy(&multibuf[count], &sp.xo, 14);
@@ -2772,7 +2772,7 @@ void multi_send_position(const vobjptridx_t obj)
 	}
 	else
 	{
-		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[count]), obj, 0);
+		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[count]), obj);
 		count += sizeof(shortpos);
 	}
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
@@ -3604,7 +3604,7 @@ void multi_send_guided_info (const vobjptr_t miss,char done)
 	if (words_bigendian)
 	{
 		shortpos sp;
-	create_shortpos(&sp, miss, 1);
+		create_shortpos_little(&sp, miss);
 		memcpy(&multibuf[count], sp.bytemat, 9);
 	count += 9;
 		memcpy(&multibuf[count], &sp.xo, 14);
@@ -3612,7 +3612,7 @@ void multi_send_guided_info (const vobjptr_t miss,char done)
 	}
 	else
 	{
-		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[count]), miss, 0);
+		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[count]), miss);
 		count += sizeof(shortpos);
 	}
 	multi_send_data<MULTI_GUIDED>(multibuf, count, 0);
@@ -3638,11 +3638,11 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 		shortpos sp;
 		memcpy(sp.bytemat, &buf[count], 9);
 		memcpy(&sp.xo, &buf[count + 9], 14);
-	extract_shortpos(Guided_missile[(int)pnum], &sp, 1);
+		extract_shortpos_little(Guided_missile[(int)pnum], &sp);
 	}
 	else
 	{
-		extract_shortpos(Guided_missile[(int)pnum], (shortpos *)(&buf[count]), 0);
+		extract_shortpos_little(Guided_missile[(int)pnum], (shortpos *)(&buf[count]));
 	}
 
 	count+=sizeof (shortpos);

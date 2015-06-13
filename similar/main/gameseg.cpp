@@ -959,7 +959,7 @@ static sbyte convert_to_byte(fix f)
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
+void create_shortpos_native(shortpos *spp, const vcobjptr_t objp)
 {
 	// int	segnum;
 	sbyte   *sp;
@@ -986,10 +986,15 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
  	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
 	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
 	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
+}
 
+void create_shortpos_little(shortpos *spp, const vcobjptr_t objp)
+{
+	create_shortpos_native(spp, objp);
 // swap the short values for the big-endian machines.
 
-	if (swap_bytes) {
+	if (words_bigendian)
+	{
 		spp->xo = INTEL_SHORT(spp->xo);
 		spp->yo = INTEL_SHORT(spp->yo);
 		spp->zo = INTEL_SHORT(spp->zo);
@@ -1000,7 +1005,7 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
 	}
 }
 
-void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
+void extract_shortpos_little(const vobjptridx_t objp, shortpos *spp)
 {
 	sbyte   *sp;
 
@@ -1016,7 +1021,8 @@ void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	if (swap_bytes) {
+	if (words_bigendian)
+	{
 		spp->xo = INTEL_SHORT(spp->xo);
 		spp->yo = INTEL_SHORT(spp->yo);
 		spp->zo = INTEL_SHORT(spp->zo);

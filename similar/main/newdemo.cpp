@@ -394,7 +394,7 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	shortpos sp;
 	ubyte render_type;
 
-	create_shortpos(&sp, obj, 0);
+	create_shortpos_native(&sp, obj);
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {

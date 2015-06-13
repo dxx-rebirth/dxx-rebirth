@@ -404,7 +404,7 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	if (words_bigendian)
 	{
 		shortpos sp;
-	create_shortpos(&sp, objnum, 1);
+		create_shortpos_little(&sp, objnum);
 		memcpy(&multibuf[loc], sp.bytemat, 9);
 	loc += 9;
 		memcpy(&multibuf[loc], &sp.xo, 14);
@@ -412,7 +412,7 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	}
 	else
 	{
-		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[loc]), objnum, 0);
+		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[loc]), objnum);
 		loc += sizeof(shortpos);
 	}
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
@@ -758,11 +758,11 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 		memcpy(sp.bytemat, &buf[loc], 9);
 		loc += 9;
 		memcpy(&sp.xo, &buf[loc], 14);
-	extract_shortpos(robot, &sp, 1);
+		extract_shortpos_little(robot, &sp);
 	}
 	else
 	{
-		extract_shortpos(robot, (shortpos *)(&buf[loc]), 0);
+		extract_shortpos_little(robot, (shortpos *)(&buf[loc]));
 	}
 }
 
