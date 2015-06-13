@@ -226,8 +226,6 @@ void reset_walls();
 // Called once per frame..
 void wall_frame_process();
 
-extern array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
-
 //  An object got stuck in a door (like a flare).
 //  Add global entry.
 void add_stuck_object(vobjptridx_t objp, segnum_t segnum, int sidenum);
