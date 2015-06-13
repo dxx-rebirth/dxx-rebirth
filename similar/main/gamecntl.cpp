@@ -1061,12 +1061,16 @@ static void kill_all_robots(void)
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT) {
-			if (!Robot_info[get_robot_id(&Objects[i])].companion && !Robot_info[get_robot_id(&Objects[i])].boss_flag) {
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+		{
+			if (!Robot_info[get_robot_id(objp)].companion && !Robot_info[get_robot_id(objp)].boss_flag) {
 				dead_count++;
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
 		}
+	}
 
 // --		// Now, if more than boss and buddy left, un-kill boss.
 // --		if ((dead_count > 2) && (boss_index != -1)) {
@@ -1078,12 +1082,15 @@ static void kill_all_robots(void)
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
 		range_for (const auto i, highest_valid(Objects))
-			if (Objects[i].type == OBJ_ROBOT)
-				if (Robot_info[get_robot_id(&Objects[i])].companion) {
-					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+		{
+			const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+			if (objp->type == OBJ_ROBOT)
+				if (Robot_info[get_robot_id(objp)].companion) {
+					objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 					HUD_init_message_literal(HM_DEFAULT, "Toasted the Buddy! *sniff*");
 					dead_count++;
 				}
+		}
 
 	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
 }
@@ -1140,11 +1147,15 @@ static void kill_all_snipers(void)
 
 	//	Kill all snipers.
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Objects[i].ctype.ai_info.behavior == ai_behavior::AIB_SNIPE) {
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+			{
 				dead_count++;
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
+	}
 
 	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
 }
@@ -1154,11 +1165,15 @@ static void kill_thief(void)
 {
 	//	Kill thief.
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].thief) {
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (Robot_info[get_robot_id(objp)].thief)
+			{
+				objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				HUD_init_message_literal(HM_DEFAULT, "Thief toasted!");
 			}
+	}
 }
 
 static void kill_buddy(void) __attribute_used;
@@ -1166,11 +1181,15 @@ static void kill_buddy(void)
 {
 	//	Kill buddy.
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].companion) {
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (Robot_info[get_robot_id(objp)].companion)
+			{
+				objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 				HUD_init_message_literal(HM_DEFAULT, "Buddy toasted!");
 			}
+	}
 }
 #endif
 
