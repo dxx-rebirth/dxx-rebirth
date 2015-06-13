@@ -66,6 +66,9 @@ int g3_poly_get_color(const uint8_t *model_ptr);
 void swap_polygon_model_data(ubyte *data);
 //routines to convert little to big endian in vectors
 void vms_vector_swap(vms_vector &v);
+#else
+static inline void swap_polygon_model_data(uint8_t *) {}
+static inline void vms_vector_swap(vms_vector &) {}
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT

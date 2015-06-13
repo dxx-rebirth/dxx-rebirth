@@ -33,6 +33,7 @@
 #include "digi.h"
 #include "mvelib.h"
 #include "mve_audio.h"
+#include "byteutil.h"
 #include "decoders.h"
 #include "libmve.h"
 #include "args.h"
@@ -353,11 +354,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	mve_audio_compressed = compressed;
 
 	if (bitsize == 1) {
-#ifdef WORDS_BIGENDIAN
-		format = AUDIO_S16MSB;
-#else
-		format = AUDIO_S16LSB;
-#endif
+		format = words_bigendian ? AUDIO_S16MSB : AUDIO_S16LSB;
 	} else {
 		format = AUDIO_U8;
 	}

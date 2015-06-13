@@ -1910,9 +1910,8 @@ void net_udp_send_objects(void)
 		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
-#ifdef WORDS_BIGENDIAN
-		object_rw_swap((object_rw *)&object_buffer[loc], 1);
-#endif
+		if (words_bigendian)
+			object_rw_swap(reinterpret_cast<object_rw *>(&object_buffer[loc]), 1);
 		loc += sizeof(object_rw);
 	}
 
@@ -2054,9 +2053,8 @@ static void net_udp_read_object_packet( ubyte *data )
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
-#ifdef WORDS_BIGENDIAN
-				object_rw_swap((object_rw *)&data[loc], 1);
-#endif
+				if (words_bigendian)
+					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
 				multi_object_rw_to_object((object_rw *)&data[loc], obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;

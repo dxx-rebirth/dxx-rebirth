@@ -1610,18 +1610,16 @@ static void multi_do_message(const uint8_t *const cbuf)
 
 static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 {
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
-
 	const auto obj = vobjptridx(Players[pnum].objnum);
-#ifndef WORDS_BIGENDIAN
-	extract_shortpos(obj, (shortpos *)(buf + 2),0);
-#else
-	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 2), 9);
-	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 11), 14);
-	extract_shortpos(obj, &sp, 1);
-#endif
+	if (words_bigendian)
+	{
+		shortpos sp;
+		memcpy(sp.bytemat, &buf[2], 9);
+		memcpy(&sp.xo, &buf[11], 14);
+		extract_shortpos(obj, &sp, 1);
+	}
+	else
+		extract_shortpos(obj, (shortpos *)(&buf[2]), 0);
 
 	if (obj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(obj);
@@ -2061,11 +2059,12 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	int count = 1;
 
 	memcpy(&to_target, buf+count, 12);          count += 12;
-#ifdef WORDS_BIGENDIAN  // swap the vector to_target
+	if (words_bigendian)// swap the vector to_target
+	{
 	to_target.x = (fix)INTEL_INT((int)to_target.x);
 	to_target.y = (fix)INTEL_INT((int)to_target.y);
 	to_target.z = (fix)INTEL_INT((int)to_target.z);
-#endif
+	}
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
@@ -2088,11 +2087,12 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
-#ifdef WORDS_BIGENDIAN
+	if (words_bigendian)
+	{
 	new_pos.x = (fix)SWAPINT((int)new_pos.x);
 	new_pos.y = (fix)SWAPINT((int)new_pos.y);
 	new_pos.z = (fix)SWAPINT((int)new_pos.z);
-#endif
+	}
 
 	Net_create_loc = 0;
 	auto my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
@@ -2757,23 +2757,24 @@ multi_send_reappear()
 
 void multi_send_position(const vobjptridx_t obj)
 {
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 	int count=0;
 
 	count++;
 	multibuf[count++] = (char)Player_num;
-#ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+count), obj, 0);
-	count += sizeof(shortpos);
-#else
-	create_shortpos(&sp, obj, 1);
-	memcpy(&(multibuf[count]), (ubyte *)(sp.bytemat), 9);
-	count += 9;
-	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
-	count += 14;
-#endif
+	if (words_bigendian)
+	{
+		shortpos sp;
+		create_shortpos(&sp, obj, 1);
+		memcpy(&multibuf[count], sp.bytemat, 9);
+		count += 9;
+		memcpy(&multibuf[count], &sp.xo, 14);
+		count += 14;
+	}
+	else
+	{
+		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[count]), obj, 0);
+		count += sizeof(shortpos);
+	}
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
 	multi_send_data<MULTI_POSITION>(multibuf, count, 2);
 	multi_send_data<MULTI_POSITION>(multibuf, count, 0);
@@ -2931,20 +2932,22 @@ void multi_send_create_explosion(const playernum_t pnum)
 
 void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, objnum_t objnum)
 {
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 	int count = 0;
 
 	count +=  1;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, &to_goal, 12);                    count += 12;
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT( (int)to_goal.x );
 	swapped_vec.y = (fix)INTEL_INT( (int)to_goal.y );
 	swapped_vec.z = (fix)INTEL_INT( (int)to_goal.z );
-	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
-#endif
+		memcpy(&multibuf[count], &swapped_vec, 12);
+	}
+	else
+	{
+		memcpy(&multibuf[count], &to_goal, 12);
+	}
+	count += 12;
 	multibuf[count] = (char)best_gun_num;                   count +=  1;
 	PUT_INTEL_SHORT(multibuf+count, objnum );     count +=  2;
 	//                                                                                                                      ------------
@@ -2958,9 +2961,6 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	// placement of used powerups like missiles and cloaking
 	// powerups.
 
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 	int count = 0;
 
 	multi_send_position(Players[Player_num].objnum);
@@ -2975,14 +2975,20 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	multibuf[count] = powerup_type;                                 count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum );     count += 2;
 	PUT_INTEL_SHORT(multibuf+count, objnum );     count += 2;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+count, &pos, sizeof(vms_vector));  count += sizeof(vms_vector);
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT( (int)pos.x );
 	swapped_vec.y = (fix)INTEL_INT( (int)pos.y );
 	swapped_vec.z = (fix)INTEL_INT( (int)pos.z );
-	memcpy(multibuf+count, &swapped_vec, 12);				count += 12;
-#endif
+		memcpy(&multibuf[count], &swapped_vec, 12);
+		count += 12;
+	}
+	else
+	{
+		memcpy(&multibuf[count], &pos, sizeof(vms_vector));
+		count += sizeof(vms_vector);
+	}
 	//                                                                                                            -----------
 	//                                                                                                            Total =  19
 	multi_send_data<MULTI_CREATE_POWERUP>(multibuf, count, 2);
@@ -3589,35 +3595,32 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 
 void multi_send_guided_info (const vobjptr_t miss,char done)
 {
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 	int count=0;
 
 	count++;
 	multibuf[count++]=(char)Player_num;
 	multibuf[count++]=done;
 
-#ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+count), miss,0);
-	count+=sizeof(shortpos);
-#else
+	if (words_bigendian)
+	{
+		shortpos sp;
 	create_shortpos(&sp, miss, 1);
-	memcpy(&(multibuf[count]), (ubyte *)(sp.bytemat), 9);
+		memcpy(&multibuf[count], sp.bytemat, 9);
 	count += 9;
-	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
+		memcpy(&multibuf[count], &sp.xo, 14);
 	count += 14;
-#endif
-
+	}
+	else
+	{
+		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[count]), miss, 0);
+		count += sizeof(shortpos);
+	}
 	multi_send_data<MULTI_GUIDED>(multibuf, count, 0);
 }
 
 static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 {
 	int count=3;
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 
 	if (Guided_missile[(int)pnum]==NULL)
 	{
@@ -3630,13 +3633,17 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-#ifndef WORDS_BIGENDIAN
-	extract_shortpos(Guided_missile[(int)pnum], (shortpos *)(buf+count),0);
-#else
-	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + count), 9);
-	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + count + 9), 14);
+	if (words_bigendian)
+	{
+		shortpos sp;
+		memcpy(sp.bytemat, &buf[count], 9);
+		memcpy(&sp.xo, &buf[count + 9], 14);
 	extract_shortpos(Guided_missile[(int)pnum], &sp, 1);
-#endif
+	}
+	else
+	{
+		extract_shortpos(Guided_missile[(int)pnum], (shortpos *)(&buf[count]), 0);
+	}
 
 	count+=sizeof (shortpos);
 
@@ -3891,11 +3898,14 @@ void multi_send_sound_function (char whichfunc, char sound)
 	count++;
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
-#ifndef WORDS_BIGENDIAN
+	if (!words_bigendian)
+	{
 	*(uint *)(multibuf+count)=sound;    count++;
-#else
+	}
+	else
+	{
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
-#endif
+	}
 	multi_send_data<MULTI_SOUND_FUNCTION>(multibuf,4,2);
 }
 

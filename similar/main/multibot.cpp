@@ -394,9 +394,6 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 {
 	int loc = 0;
 	short s;
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;											loc += 1;
@@ -404,15 +401,20 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	PUT_INTEL_SHORT(multibuf+loc, s);
 
 																		loc += 3;
-#ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+loc), objnum,0);		loc += sizeof(shortpos);
-#else
+	if (words_bigendian)
+	{
+		shortpos sp;
 	create_shortpos(&sp, objnum, 1);
-	memcpy(&(multibuf[loc]), (ubyte *)(sp.bytemat), 9);
+		memcpy(&multibuf[loc], sp.bytemat, 9);
 	loc += 9;
-	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
+		memcpy(&multibuf[loc], &sp.xo, 14);
 	loc += 14;
-#endif
+	}
+	else
+	{
+		create_shortpos(reinterpret_cast<shortpos *>(&multibuf[loc]), objnum, 0);
+		loc += sizeof(shortpos);
+	}
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
@@ -445,9 +447,6 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 	// Send robot fire event
 	int loc = 0;
 	short s;
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
@@ -455,16 +454,21 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 	PUT_INTEL_SHORT(multibuf+loc, s);
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+loc, &fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
-	// --------------------------
-	//      Total = 18
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT((int)fire.x);
 	swapped_vec.y = (fix)INTEL_INT((int)fire.y);
 	swapped_vec.z = (fix)INTEL_INT((int)fire.z);
-	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
-#endif
+		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
+	}
+	else
+	{
+		memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
+	}
+	loc += sizeof(vms_vector); // 12
+	// --------------------------
+	//      Total = 18
 
 	if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
@@ -602,9 +606,6 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	// Send create robot information
 
 	int loc = 0;
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
@@ -612,14 +613,20 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
 	multibuf[loc] = del_obj->contains_id;						loc += 1;
 	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+loc, &del_obj->pos, sizeof(vms_vector));	loc += 12;
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT((int)del_obj->pos.x);
 	swapped_vec.y = (fix)INTEL_INT((int)del_obj->pos.y);
 	swapped_vec.z = (fix)INTEL_INT((int)del_obj->pos.z);
-	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector));     loc += 12;
-#endif
+		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
+		loc += 12;
+	}
+	else
+	{
+		memcpy(&multibuf[loc], &del_obj->pos, sizeof(vms_vector));
+		loc += 12;
+	}
 
 	memset(multibuf+loc, -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
@@ -707,9 +714,6 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 
 	short remote_botnum;
 	int loc = 1;
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 
 	;										loc += 1;
 
@@ -748,13 +752,18 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	set_thrust_from_velocity(robot); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-#ifndef WORDS_BIGENDIAN
-	extract_shortpos(robot, (shortpos *)(buf+loc), 0);
-#else
-	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + loc), 9);		loc += 9;
-	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + loc), 14);
+	if (words_bigendian)
+	{
+		shortpos sp;
+		memcpy(sp.bytemat, &buf[loc], 9);
+		loc += 9;
+		memcpy(&sp.xo, &buf[loc], 14);
 	extract_shortpos(robot, &sp, 1);
-#endif
+	}
+	else
+	{
+		extract_shortpos(robot, (shortpos *)(&buf[loc]), 0);
+	}
 }
 
 static inline vms_vector calc_gun_point(const vcobjptr_t obj,int gun_num)

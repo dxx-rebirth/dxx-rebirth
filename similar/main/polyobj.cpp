@@ -414,9 +414,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
-#ifdef WORDS_BIGENDIAN
+	if (words_bigendian)
 	swap_polygon_model_data(pm->model_data.get());
-#endif
 	return pm;
 }
 
@@ -741,9 +740,8 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
-#ifdef WORDS_BIGENDIAN
+	if (words_bigendian)
 	swap_polygon_model_data(pm->model_data.get());
-#endif
 #if defined(DXX_BUILD_DESCENT_II)
 	g3_init_polygon_model(pm->model_data.get());
 #endif
