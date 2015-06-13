@@ -1021,28 +1021,17 @@ void extract_shortpos_little(const vobjptridx_t objp, shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	if (words_bigendian)
-	{
-		spp->xo = INTEL_SHORT(spp->xo);
-		spp->yo = INTEL_SHORT(spp->yo);
-		spp->zo = INTEL_SHORT(spp->zo);
-		spp->segment = INTEL_SHORT(spp->segment);
-		spp->velx = INTEL_SHORT(spp->velx);
-		spp->vely = INTEL_SHORT(spp->vely);
-		spp->velz = INTEL_SHORT(spp->velz);
-	}
-
-	auto segnum = spp->segment;
+	auto segnum = INTEL_SHORT(spp->segment);
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
-	objp->pos.x = (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
-	objp->pos.y = (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
-	objp->pos.z = (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
+	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
+	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
+	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
 
-	objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp->velx) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
 	obj_relink(objp, segnum);
 
