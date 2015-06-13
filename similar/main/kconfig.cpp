@@ -837,19 +837,27 @@ static void kconfig_draw(kc_menu *menu)
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 		
-		gr_rect(fspacx( 98), fspacy(42), fspacx(106), fspacy(42)); // horiz/left
-		gr_rect(fspacx(120), fspacy(42), fspacx(128), fspacy(42)); // horiz/right
-		gr_rect(fspacx( 98), fspacy(42), fspacx( 98), fspacy(44)); // vert/left
-		gr_rect(fspacx(128), fspacy(42), fspacx(128), fspacy(44)); // vert/right
-		
-		gr_string(fspacx(109), fspacy(40), "OR");
+		const auto &&fspacx = FSPACX();
+		const auto &&fspacx98 = fspacx(98);
+		const auto &&fspacx128 = fspacx(128);
+		const auto &&fspacy42 = fspacy(42);
+		gr_rect(fspacx98, fspacy42, fspacx(106), fspacy42); // horiz/left
+		gr_rect(fspacx(120), fspacy42, fspacx128, fspacy42); // horiz/right
+		const auto &&fspacy44 = fspacy(44);
+		gr_rect(fspacx98, fspacy42, fspacx98, fspacy44); // vert/left
+		gr_rect(fspacx128, fspacy42, fspacx128, fspacy44); // vert/right
 
-		gr_rect(fspacx(253), fspacy(42), fspacx(261), fspacy(42)); // horiz/left
-		gr_rect(fspacx(275), fspacy(42), fspacx(283), fspacy(42)); // horiz/right
-		gr_rect(fspacx(253), fspacy(42), fspacx(253), fspacy(44)); // vert/left
-		gr_rect(fspacx(283), fspacy(42), fspacx(283), fspacy(44)); // vert/right
+		const auto &&fspacx253 = fspacx(253);
+		const auto &&fspacx283 = fspacx(283);
+		const auto &&fspacy = FSPACY();
+		gr_rect(fspacx253, fspacy42, fspacx(261), fspacy42); // horiz/left
+		gr_rect(fspacx(275), fspacy42, fspacx283, fspacy42); // horiz/right
+		gr_rect(fspacx253, fspacy42, fspacx253, fspacy44); // vert/left
+		gr_rect(fspacx283, fspacy42, fspacx283, fspacy44); // vert/right
 
-		gr_string(fspacx(264), fspacy(40), "OR");
+		const auto &&fspacy40 = fspacy(40);
+		gr_string(fspacx(109), fspacy40, "OR");
+		gr_string(fspacx(264), fspacy40, "OR");
 	}
 	else if ( menu->items == kc_joystick )
 	{
