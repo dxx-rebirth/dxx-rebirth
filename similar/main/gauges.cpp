@@ -2846,9 +2846,16 @@ static void hud_show_kill_list()
 		else
 			name = Players[player_num].callsign;	// Note link to above if!!
 		gr_get_string_size(static_cast<const char *>(name),&sw,&sh,&aw);
-		while (sw > (x1-x0-FSPACX(2))) {
-			name.buffer()[strlen(name)-1]=0;
-			gr_get_string_size(name,&sw,&sh,&aw);
+		{
+			const auto b = x1 - x0 - FSPACX(2);
+			if (sw > b)
+				for (char *e = &name.buffer()[strlen(name)];;)
+				{
+					 *--e = 0;
+					 gr_get_string_size(name, &sw, &sh, &aw);
+					 if (!(sw > b))
+						 break;
+				}
 		}
 		gr_string(x0,y,name);
 
