@@ -421,9 +421,12 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			range_for (const auto i, highest_valid(Objects))
-				if (Objects[i].type == OBJ_ROBOT)
-					if ((Objects[i].matcen_creator^0x80) == my_station_num)
+			{
+				const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+				if (objp->type == OBJ_ROBOT)
+					if ((objp->matcen_creator ^ 0x80) == my_station_num)
 						count++;
+			}
 			if (count > Difficulty_level + 3) {
 				robotcen->Timer /= 2;
 				return;
