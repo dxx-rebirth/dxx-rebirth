@@ -273,8 +273,11 @@ static int compute_num_players(void)
 	int	count = 0;
 
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_PLAYER)
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_PLAYER)
 			count++;
+	}
 
 	return count;
 
