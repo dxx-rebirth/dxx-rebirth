@@ -270,9 +270,9 @@ void do_replacements(void)
 
 		range_for (const auto segnum, highest_valid(Segments))
 		{
-			segment	*segp=&Segments[segnum];
+			const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-				side	*sidep=&segp->sides[sidenum];
+				const auto sidep = &segp->sides[sidenum];
 				if (sidep->tmap_num == old_tmap_num) {
 					sidep->tmap_num = new_tmap_num;
 				}
