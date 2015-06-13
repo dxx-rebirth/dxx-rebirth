@@ -38,11 +38,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "countarray.h"
 #include "aistruct.h"
 #endif
+#include "fwdvalptridx.h"
 
 struct point_seg;
-struct vobjptr_t;
-struct objptridx_t;
-struct vobjptridx_t;
 struct PHYSFS_File;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
