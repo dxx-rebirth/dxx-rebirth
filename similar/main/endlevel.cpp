@@ -310,11 +310,14 @@ void start_endlevel_sequence()
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].companion) {
-				object_create_explosion(Objects[i].segnum, Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
-				Objects[i].flags |= OF_SHOULD_BE_DEAD;
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (Robot_info[get_robot_id(objp)].companion) {
+				object_create_explosion(objp->segnum, objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
+				objp->flags |= OF_SHOULD_BE_DEAD;
 			}
+	}
 #endif
 
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
@@ -1527,8 +1530,10 @@ try_again:
 	exit_segnum = segment_none;
 	range_for (const auto segnum, highest_valid(Segments))
 	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 		for (int sidenum=0;sidenum<6;sidenum++)
-			if (Segments[segnum].children[sidenum] == segment_exit) {
+			if (segp->children[sidenum] == segment_exit)
+			{
 				exit_segnum = segnum;
 				exit_side = sidenum;
 				break;
