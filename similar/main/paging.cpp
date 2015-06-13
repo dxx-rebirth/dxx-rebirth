@@ -312,7 +312,8 @@ void paging_touch_all()
 #endif
 	range_for (const auto s, highest_valid(Segments))
 	{
-		paging_touch_segment( &Segments[s] );
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(s));
+		paging_touch_segment(segp);
 	}	
 	paging_touch_walls();
 
