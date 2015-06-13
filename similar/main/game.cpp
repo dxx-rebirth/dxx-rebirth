@@ -1737,10 +1737,14 @@ int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
 	range_for (const auto i, highest_valid(Segments))
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == segment_exit) {
+			if (segp->children[j] == segment_exit)
+			{
 				return mark_player_path_to_segment(i);
 			}
+	}
 
 	return 0;
 }
