@@ -190,13 +190,16 @@ int CreateAdjacentJointsAll()
 	med_combine_duplicate_vertices(Vertex_active);
 
 	range_for (const auto seg, highest_valid(Segments))
+	{
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
 		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		{
 			segptridx_t adj_sp = segment_none;
-			if (med_find_adjacent_segment_side(&Segments[seg], s, adj_sp, &adj_side))
-				if (Segments[seg].children[s] != adj_sp)
-						med_form_joint(&Segments[seg],s,adj_sp,adj_side);
+			if (med_find_adjacent_segment_side(segp, s, adj_sp, &adj_side))
+				if (segp->children[s] != adj_sp)
+						med_form_joint(segp,s,adj_sp,adj_side);
 		}
+	}
 
 	Update_flags |= UF_WORLD_CHANGED;
 	mine_changed = 1;
