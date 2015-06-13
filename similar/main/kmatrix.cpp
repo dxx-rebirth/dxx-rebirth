@@ -201,14 +201,16 @@ static void kmatrix_redraw(kmatrix_screen *km)
 		multi_sort_kill_list();
 		gr_set_curfont(MEDIUM3_FONT);
 
+		const auto title =
 #if defined(DXX_BUILD_DESCENT_II)
-		if (game_mode_capture_flag())
-			gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
-		else if (game_mode_hoard())
-			gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
-		else
+			game_mode_capture_flag()
+			? "CAPTURE THE FLAG SUMMARY"
+			: game_mode_hoard()
+				? "HOARD SUMMARY"
+				:
 #endif
-			gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
+				TXT_KILL_MATRIX_TITLE;
+		gr_string(0x8000, FSPACY(10), title);
 
 		gr_set_curfont(GAME_FONT);
 		multi_get_kill_list(sorted);
