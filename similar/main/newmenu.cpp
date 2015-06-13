@@ -295,11 +295,12 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 
 	gr_setcolor( BM_XRGB(5,5,5));
 	const auto &&fspacx = FSPACX();
-	gr_rect(x - fspacx(2), y - FSPACY(1), x + w1, y + h);
+	const auto &&fspacy = FSPACY();
+	gr_rect(x - fspacx(2), y - fspacy(1), x + w1, y + h);
 	gr_setcolor( BM_XRGB(2,2,2));
-	gr_rect(x - fspacx(2), y - FSPACY(1), x, y + h);
+	gr_rect(x - fspacx(2), y - fspacy(1), x, y + h);
 	gr_setcolor( BM_XRGB(0,0,0));
-	gr_rect(x - fspacx(1), y - FSPACY(1), x + w1 - fspacx(1), y + h);
+	gr_rect(x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h);
 
 	gr_string( x, y, s );
 }
@@ -1192,6 +1193,7 @@ static void newmenu_create_structure( newmenu *menu )
 	nmenus = nothers = 0;
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	// Find menu height & width (store in w,h)
 	range_for (auto &i, menu->item_range())
 	{
@@ -1278,7 +1280,7 @@ static void newmenu_create_structure( newmenu *menu )
 			menu->w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu->h += string_height+FSPACY(1);		// Find the height of all strings
+		menu->h += string_height + fspacy(1);		// Find the height of all strings
 	}
 
 	if (menu->nitems > menu->max_on_menu)
@@ -1932,21 +1934,22 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i-lb->first_item)*LINE_SPACING+lb->box_y;
 		const auto &&fspacx = FSPACX();
+		const auto &&fspacy = FSPACY();
 		if ( i >= lb->nitems )	{
 			gr_setcolor( BM_XRGB(5,5,5));
-			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect(lb->box_x - fspacx(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING);
+			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect(lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
+			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
 		} else {
 			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
 			gr_setcolor( BM_XRGB(5,5,5));
-			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect(lb->box_x - fspacx(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING);
+			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect(lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
+			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
 
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{

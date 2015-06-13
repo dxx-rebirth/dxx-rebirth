@@ -335,6 +335,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 
 	yy = y;
 
+	const auto &&fspacy = FSPACY();
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -352,7 +353,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += grd_curcanv->cv_font->ft_h+FSPACY(1);
+				yy += grd_curcanv->cv_font->ft_h + fspacy(1);
 				break;
 			}
 
@@ -592,6 +593,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 
 	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
 		Error("carp.\n");
+	const auto &&fspacy = FSPACY();
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -611,7 +613,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
+				yy += FONTSCALE_Y(grd_curcanv->cv_font->ft_h) + fspacy(1);
 				break;
 			}
 

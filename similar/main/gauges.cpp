@@ -1048,7 +1048,8 @@ static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_grap
 static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_hoard()) {
-		int x=0,y=LINE_SPACING+FSPACY(1);
+		const auto &&fspacy = FSPACY();
+		int x = 0, y = LINE_SPACING + fspacy(1);
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -1056,7 +1057,7 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 			x = FSPACX(2);
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h+4)+FSPACY(1);
+			y = HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h + 4) + fspacy(1);
 			x = FSPACX(2);
 		}
 		else
@@ -1073,16 +1074,17 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 {
 	if (game_mode_capture_flag() && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
+		const auto &&fspacy = FSPACY();
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
+			y = HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + 2) + fspacy(1);
 			x = (SWIDTH/10);
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
+			y = HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + 2) + fspacy(1);
 			x = FSPACX(2);
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h+4)+FSPACY(1);
+			y = HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h + 4)+fspacy(1);
 			x = FSPACX(2);
 		}
 		else
@@ -1354,6 +1356,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 	}
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
@@ -1392,7 +1395,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			}
 			gr_get_string_size(txtweapon, &w, &h, &aw );
 			if (vertical){
-				y-=h+FSPACY(2);
+				y -= h + fspacy(2);
 			}else
 				x -= w + fspacx(3);
 			gr_string(x, y, txtweapon);
@@ -1450,7 +1453,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			}
 			gr_get_string_size(txtweapon, &w, &h, &aw );
 			if (vertical){
-				y-=h+FSPACY(2);
+				y -= h + fspacy(2);
 			}else
 				x -= w + fspacx(3);
 			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
@@ -1475,6 +1478,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	}
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
@@ -1484,7 +1488,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
-				y-=h+FSPACY(2);
+				y -= h + fspacy(2);
 			}else
 				x -= w + fspacx(3);
 			gr_string(x, y, weapon_str);
@@ -1513,7 +1517,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
-				y-=h+FSPACY(2);
+				y -= h + fspacy(2);
 			}else
 				x -= w + fspacx(3);
 			gr_string(x, y, weapon_str);
@@ -1696,8 +1700,9 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
-		hud_bitblt_free(x, FSPACY(1), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(HUD_SCALE_X_AR(bm.bm_w)+x, FSPACY(1), " x %d", Players[Player_num].lives - 1);
+		const auto &&fspacy = FSPACY();
+		hud_bitblt_free(x, fspacy(1), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		gr_printf(HUD_SCALE_X_AR(bm.bm_w) + x, fspacy(1), " x %d", Players[Player_num].lives - 1);
 	}
 
 }

@@ -140,6 +140,7 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 	int x;
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	for (int j=0; j<N_players; j++)
 	{
 		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
@@ -152,20 +153,21 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		}
 
-		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0u] );
+		gr_printf(x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
 	}
 
 	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-	gr_string( x, FSPACY(40), "K/E");
+	gr_string(x, fspacy(40), "K/E");
 }
 
 static void kmatrix_draw_coop_names(playernum_array_t &)
 {
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_string( CENTERSCREEN, FSPACY(40), "SCORE");
+	const auto &&fspacy = FSPACY();
+	gr_string(CENTERSCREEN, fspacy(40), "SCORE");
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_string( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
+	gr_string(CENTERSCREEN + FSPACX(50), fspacy(40), "DEATHS");
 }
 
 static void kmatrix_status_msg (fix time, int reactor)

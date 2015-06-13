@@ -155,9 +155,10 @@ static void con_draw(void)
 	gr_set_curfont(GAME_FONT);
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_settransblend(7, GR_BLEND_NORMAL);
-	gr_rect(0,0,SWIDTH,(LINE_SPACING*(con_size))+FSPACY(1));
+	const auto &&fspacy = FSPACY();
+	gr_rect(0, 0, SWIDTH, (LINE_SPACING * con_size) + fspacy(1));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
-	y=FSPACY(1)+(LINE_SPACING*con_size);
+	y = fspacy(1) + (LINE_SPACING * con_size);
 	i+=con_scroll_offset;
 
 	gr_set_fontcolor(BM_XRGB(255,255,255), -1);
@@ -171,7 +172,7 @@ static void con_draw(void)
 
 		gr_set_fontcolor(get_console_color_by_priority(con_buffer[CON_LINES_MAX-1-i].priority), -1);
 		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
-		y-=h+FSPACY(1);
+		y -= h + fspacy(1);
 		gr_string(fspacx(1), y, con_buffer[CON_LINES_MAX - 1 - i].line);
 		i++;
 
@@ -181,8 +182,8 @@ static void con_draw(void)
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(0,0,SWIDTH,LINE_SPACING);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-	gr_printf(fspacx(1), FSPACY(1), "%s LOG", DESCENT_VERSION);
-	gr_string(SWIDTH - fspacx(110), FSPACY(1), "PAGE-UP/DOWN TO SCROLL");
+	gr_printf(fspacx(1), fspacy(1), "%s LOG", DESCENT_VERSION);
+	gr_string(SWIDTH - fspacx(110), fspacy(1), "PAGE-UP/DOWN TO SCROLL");
 }
 
 static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)

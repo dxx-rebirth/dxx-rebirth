@@ -149,12 +149,13 @@ static void show_netplayerinfo()
 	gr_set_fontcolor(255,-1);
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	x = (SWIDTH / 2) - fspacx(120);
-	y=(SHEIGHT/2)-FSPACY(84);
+	y = (SHEIGHT / 2) - fspacy(84);
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
 	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect((SWIDTH / 2) - fspacx(120), (SHEIGHT / 2) - FSPACY(84), (SWIDTH / 2) + fspacx(120), (SHEIGHT / 2) + FSPACY(84));
+	gr_rect((SWIDTH / 2) - fspacx(120), (SHEIGHT / 2) - fspacy(84), (SWIDTH / 2) + fspacx(120), (SHEIGHT / 2) + fspacy(84));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information

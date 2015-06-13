@@ -318,15 +318,16 @@ static void scores_draw_item( int i, stats_info * stats )
 	y -= 3;
 
 	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	if (strlen(stats->name)==0) {
-		gr_string(fspacx(66), FSPACY(y), TXT_EMPTY);
+		gr_string(fspacx(66), fspacy(y), TXT_EMPTY);
 		return;
 	}
-	gr_string(fspacx(66), FSPACY(y), stats->name);
+	gr_string(fspacx(66), fspacy(y), stats->name);
 	int_to_string(stats->score, buffer);
 	scores_rputs( 149, y, buffer );
 
-	gr_string(fspacx(166), FSPACY(y), MENU_DIFFICULTY_TEXT(stats->diff_level));
+	gr_string(fspacx(166), fspacy(y), MENU_DIFFICULTY_TEXT(stats->diff_level));
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
 		scores_rprintf( 232, y, "%d-%d", stats->starting_level, stats->ending_level );
@@ -363,7 +364,8 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 		1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1
 	}};
 	const auto &&fspacx = FSPACX();
-	int w = fspacx(290), h = FSPACY(170);
+	const auto &&fspacy = FSPACY();
+	int w = fspacx(290), h = fspacy(170);
 
 	switch (event.type)
 	{
@@ -410,21 +412,21 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			gr_set_current_canvas(window_get_canvas(*wind));
 			gr_set_curfont(MEDIUM3_FONT);
-			gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
+			gr_string(0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
-			gr_string(fspacx( 71), FSPACY(50), TXT_NAME);
-			gr_string(fspacx(122), FSPACY(50), TXT_SCORE);
-			gr_string(fspacx(167), FSPACY(50), TXT_SKILL);
-			gr_string(fspacx(210), FSPACY(50), TXT_LEVELS);
-			gr_string(fspacx(253), FSPACY(50), TXT_TIME);
+			gr_string(fspacx( 71), fspacy(50), TXT_NAME);
+			gr_string(fspacx(122), fspacy(50), TXT_SCORE);
+			gr_string(fspacx(167), fspacy(50), TXT_SKILL);
+			gr_string(fspacx(210), fspacy(50), TXT_LEVELS);
+			gr_string(fspacx(253), fspacy(50), TXT_TIME);
 			
 			if ( menu->citem < 0 )	
-				gr_string( 0x8000, FSPACY(175), TXT_PRESS_CTRL_R );
+				gr_string(0x8000, fspacy(175), TXT_PRESS_CTRL_R);
 			
 			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 			
-			gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
+			gr_printf(0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
@@ -481,6 +483,7 @@ void scores_view(stats_info *last_game, int citem)
 	show_menus();
 
 	const auto &&fspacx = FSPACX();
-	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - FSPACY(200)) / 2, fspacx(320), FSPACY(200),
+	const auto &&fspacy = FSPACY();
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - fspacy(200)) / 2, fspacx(320), fspacy(200),
 				  scores_handler, menu);
 }
