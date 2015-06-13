@@ -3826,12 +3826,13 @@ static void multi_do_light (const ubyte *buf)
 
 	segnum_t seg;
 	seg = GET_INTEL_INT(buf + 1);
+	auto &side_array = vsegptr(seg)->sides;
 	for (i=0;i<6;i++)
 	{
 		if ((sides & (1<<i)))
 		{
 			subtract_light (seg,i);
-			Segments[seg].sides[i].tmap_num2 = GET_INTEL_SHORT(buf + (6 + (2 * i)));
+			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[6 + (2 * i)]);
 		}
 	}
 }
