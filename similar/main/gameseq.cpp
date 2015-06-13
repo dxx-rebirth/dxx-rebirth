@@ -169,7 +169,8 @@ static int count_number_of_robots()
 	robot_count = 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_ROBOT)
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
 			robot_count++;
 	}
 
@@ -183,7 +184,8 @@ static int count_number_of_hostages()
 	count = 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_HOSTAGE)
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_HOSTAGE)
 			count++;
 	}
 
@@ -501,7 +503,7 @@ static void set_sound_sources()
 
 	range_for (const auto segnum, highest_valid(Segments))
 	{
-		auto seg = &Segments[segnum];
+		const auto &&seg = vcsegptridx(static_cast<segnum_t>(segnum));
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
 
@@ -1826,8 +1828,11 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 static void copy_defaults_to_robot_all(void)
 {
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			copy_defaults_to_robot(&Objects[i]);
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			copy_defaults_to_robot(objp);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------------
