@@ -3161,7 +3161,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
 	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
 	D2X_UDP_MENU_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Invulnerable when reappearing", opt_start_invul, Netgame.InvulAppear)	\
+	DXX_##VERB##_SLIDER(SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
 	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
@@ -3232,6 +3232,9 @@ static void net_udp_set_power (void)
 
 #define FORMAT_KILL_GOAL_STRING(BUF)	\
 	snprintf(BUF, 80, "Kill Goal: %3d kills", Netgame.KillGoal*5);
+
+#define FORMAT_SPAWN_INVULNERABLE_STRING(BUF)	\
+	snprintf(BUF, 50, "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 
 namespace {
 
@@ -3309,6 +3312,7 @@ static void net_udp_more_game_options ()
 {
 	int i;
 	char PlayText[80],KillText[80],srinvul[50],packstring[3];
+	char SpawnInvulnerableText[50];
 	char portstring[6];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
@@ -3316,6 +3320,7 @@ static void net_udp_more_game_options ()
 	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+	FORMAT_SPAWN_INVULNERABLE_STRING(SpawnInvulnerableText);
 	FORMAT_KILL_GOAL_STRING(KillText);
 #ifdef USE_TRACKER
 	char tracker[52];
@@ -3403,6 +3408,11 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
 				FORMAT_KILL_GOAL_STRING(menus[opt_killgoal].text);
+			}
+			else if (citem == opt_start_invul)
+			{
+				Netgame.InvulAppear = menus[opt_start_invul].value;
+				FORMAT_SPAWN_INVULNERABLE_STRING(menus[opt_start_invul].text);
 			}
 			break;
 		}
@@ -3604,7 +3614,8 @@ int net_udp_setup_game()
 	Netgame.PacketsPerSec=10;
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
-	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
+	Netgame.BrightPlayers = 1;
+	Netgame.InvulAppear = 4;
 	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
@@ -5510,7 +5521,13 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 
 			gr_set_current_canvas(NULL);
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
-			
+
+#define SHOW_INVULNERABLE_APPEAR_STRING(X,Y)	\
+			if (netgame->InvulAppear)	\
+				gr_printf(X, Y, "%1.1f sec", static_cast<float>(netgame->InvulAppear) / 2);	\
+			else	\
+				gr_string(X, Y, "OFF");
+
 			gr_set_current_canvas(window_get_canvas(*wind));
 			gr_set_curfont(MEDIUM3_FONT);
 			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
@@ -5552,7 +5569,7 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 			gr_printf(fspacx115, fspacy( 61), "%i Min", netgame->PlayTimeAllowed * 5);
 			gr_printf(fspacx115, fspacy( 67), "%i", netgame->KillGoal * 5);
 			gr_printf(fspacx115, fspacy( 73), "%i", netgame->PacketsPerSec);
-			gr_string(fspacx275, fspacy( 55), netgame->InvulAppear?"ON":"OFF");
+			SHOW_INVULNERABLE_APPEAR_STRING(fspacx275, fspacy( 55));
 			gr_string(fspacx275, fspacy( 61), netgame->BrightPlayers?"ON":"OFF");
 			gr_string(fspacx275, fspacy( 67), netgame->ShowEnemyNames?"ON":"OFF");
 			gr_string(fspacx275, fspacy( 73), netgame->game_flag.show_on_map?"ON":"OFF");
@@ -5616,7 +5633,7 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 			gr_printf(fspacx115, fspacy( 41), "%i Min", netgame->PlayTimeAllowed*5);
 			gr_printf(fspacx115, fspacy( 47), "%i", netgame->KillGoal*5);
 			gr_printf(fspacx115, fspacy( 53), "%i", netgame->PacketsPerSec);
-			gr_string(fspacx275, fspacy( 35), netgame->InvulAppear?"ON":"OFF");
+			SHOW_INVULNERABLE_APPEAR_STRING(fspacx275, fspacy( 35));
 			gr_string(fspacx275, fspacy( 41), netgame->Allow_marker_view?"ON":"OFF");
 			gr_string(fspacx275, fspacy( 47), netgame->AlwaysLighting?"ON":"OFF");
 			gr_string(fspacx275, fspacy( 53), netgame->BrightPlayers?"ON":"OFF");

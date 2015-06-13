@@ -1422,7 +1422,7 @@ void GameProcessFrame(void)
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-			Players[Player_num].invulnerable_time = GameTime64-i2f(27);
+			Players[Player_num].invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			FakingInvul=1;
 		}
 	}
