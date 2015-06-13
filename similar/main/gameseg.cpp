@@ -1647,11 +1647,11 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 				for (int k=0; k<4; k++) {
 					fix	dl,new_l;
 					dl = dir * j.vert_light[k] * DL_SCALE;
-					Assert(j.segnum >= 0 && j.segnum <= Highest_segment_index);
 					Assert(j.sidenum >= 0 && j.sidenum < MAX_SIDES_PER_SEGMENT);
-					new_l = (Segments[j.segnum].sides[j.sidenum].uvls[k].l += dl);
+					const auto &&segp = vsegptr(j.segnum);
+					new_l = (segp->sides[j.sidenum].uvls[k].l += dl);
 					if (new_l < 0)
-						Segments[j.segnum].sides[j.sidenum].uvls[k].l = 0;
+						segp->sides[j.sidenum].uvls[k].l = 0;
 				}
 			}
 		}

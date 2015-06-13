@@ -2158,7 +2158,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	//	Pick a random segment from the list of boss-teleportable-to segments.
 	rand_index = (d_rand() * Boss_teleport_segs.count()) >> 15;
 	rand_segnum = Boss_teleport_segs[rand_index];
-	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
+	Assert(rand_segnum <= Highest_segment_index);
 
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
