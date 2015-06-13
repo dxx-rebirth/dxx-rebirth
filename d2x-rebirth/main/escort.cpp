@@ -74,11 +74,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-static void say_escort_goal(int goal_num);
 static void show_escort_menu(const array<char, 300> &);
+static void say_escort_goal(escort_goal_t goal_num);
 
 
-static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
+static const array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
 	"YELLOW KEY",
 	"RED KEY",
@@ -104,15 +104,16 @@ static const char Escort_goal_text[MAX_ESCORT_GOALS][12] = {
 	"MARKER 8",
 	"MARKER 9",
 // -- too much work -- 	"KAMIKAZE  "
-};
+}};
 
 static int Max_escort_length = 200;
 int	Escort_kill_object = -1;
 stolen_items_t Stolen_items;
 int	Stolen_item_index;
 fix64	Escort_last_path_created = 0;
-int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1;
 static int Buddy_messages_suppressed;
+escort_goal_t Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+escort_goal_t Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 fix64	Buddy_sorry_time;
 objnum_t	 Escort_goal_index,Buddy_objnum;
 int Buddy_allowed_to_talk;
@@ -125,7 +126,7 @@ void init_buddy_for_level(void)
 {
 	Buddy_allowed_to_talk = 0;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-	Escort_special_goal = -1;
+	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	Escort_goal_index = object_none;
 	Buddy_messages_suppressed = 0;
 	Buddy_objnum = find_escort();
@@ -277,7 +278,7 @@ static void record_escort_goal_accomplished()
 		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
 		Escort_goal_index = object_none;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = -1;
+		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 		Looking_for_marker = -1;
 	}
 }
@@ -303,7 +304,8 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 //	See if goal found was a key.  Need to handle default goals differently.
 //	Note, no buddy_met_goal sound when blow up reactor or exit.  Not great, but ok
 //	since for reactor, noisy, for exit, buddy is disappearing.
-if ((Escort_special_goal == -1) && (Escort_goal_index == index)) {
+	if (Escort_special_goal == ESCORT_GOAL_UNSPECIFIED && Escort_goal_index == index)
+	{
 	record_escort_goal_accomplished();
 	return;
 }
@@ -329,7 +331,7 @@ if ((Escort_special_goal == -1) && (Escort_goal_index == index)) {
 		}
 	}
 }
-	if (Escort_special_goal != -1)
+	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 	{
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
 		} else if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
@@ -478,7 +480,7 @@ void set_escort_special_goal(int special_key)
 		Looking_for_marker = -1;
 		
 	if ( Looking_for_marker != -1 ) {
-		Escort_special_goal = ESCORT_GOAL_MARKER1 + marker_key - KEY_1;
+		Escort_special_goal = static_cast<escort_goal_t>(ESCORT_GOAL_MARKER1 + marker_key - KEY_1);
 	} else {
 		switch (special_key) {
 			case KEY_1:	Escort_special_goal = ESCORT_GOAL_ENERGY;			break;
@@ -490,7 +492,7 @@ void set_escort_special_goal(int special_key)
 			case KEY_7:	Escort_special_goal = ESCORT_GOAL_SCRAM;			break;
 			case KEY_8:	Escort_special_goal = ESCORT_GOAL_PLAYER_SPEW;	break;
 			case KEY_9:	Escort_special_goal = ESCORT_GOAL_EXIT;			break;
-			case KEY_0:	Escort_special_goal = -1;								break;
+			case KEY_0:	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;								break;
 			default:
 				Int3();		//	Oops, called with illegal key value.
 		}
@@ -615,7 +617,7 @@ static segnum_t find_exit_segment(void)
 }
 
 //	-----------------------------------------------------------------------------
-void say_escort_goal(int goal_num)
+static void say_escort_goal(escort_goal_t goal_num)
 {
 	if (Player_is_dead)
 		return;
@@ -659,7 +661,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	if (Escort_special_goal != -1)
+	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		Escort_goal_object = Escort_special_goal;
 
 	Escort_kill_object = -1;
@@ -751,7 +753,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 			Int3();
 
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = -1;
+		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	} else {
 		if (Escort_goal_object == ESCORT_GOAL_SCRAM) {
 			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
@@ -786,9 +788,9 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 //	-----------------------------------------------------------------------------
 //	Escort robot chooses goal object based on player's keys, location.
 //	Returns goal object.
-static int escort_set_goal_object(void)
+static escort_goal_t escort_set_goal_object(void)
 {
-	if (Escort_special_goal != -1)
+	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
 	else if (!(ConsoleObject->flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
 		return ESCORT_GOAL_BLUE_KEY;
@@ -1043,7 +1045,7 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 
 void invalidate_escort_goal(void)
 {
-	Escort_goal_object = -1;
+	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 }
 
 //	-------------------------------------------------------------------------------------------------
@@ -1663,11 +1665,11 @@ void do_escort_menu(void)
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
 	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
-		Escort_special_goal = -1;	//	Else setting next goal might fail.
+		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object();
 		Escort_special_goal = ESCORT_GOAL_SCRAM;
 	} else {
-		Escort_special_goal = -1;	//	Else setting next goal might fail.
+		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
 		next_goal = escort_set_goal_object();
 	}
 

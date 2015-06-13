@@ -4641,15 +4641,15 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
 		Escort_last_path_created = (fix64)tmptime32;
-		Escort_goal_object = PHYSFSX_readSXE32(fp, swap);
-		Escort_special_goal = PHYSFSX_readSXE32(fp, swap);
+		Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
+		Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * MAX_STOLEN_ITEMS, 1);
 	} else {
 		Escort_kill_object = -1;
 		Escort_last_path_created = 0;
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = -1;
+		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 		Escort_goal_index = -1;
 
 		Stolen_items.fill(255);
