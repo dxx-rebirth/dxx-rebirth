@@ -691,10 +691,11 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
 	range_for (const auto s, highest_valid(Segments))
 	{
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(s));
 		if (!GroupList[current_group].segments.contains(s))
 			{
 				for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
-					out_vertex_list[Segments[s].verts[v]] = 1;
+					out_vertex_list[segp->verts[v]] = 1;
 			}
 	}
 
