@@ -107,12 +107,16 @@ protected:
 	{
 		return get_global_array(pointer_type());
 	}
+	static constexpr bool check_allowed_invalid_index(index_type s)
+	{
+		return s == static_cast<index_type>(~static_cast<index_type>(0));
+	}
 	template <typename A>
 		static cpointer_type check_null_pointer(const A &, std::nullptr_t) = delete;
 	template <typename T>
 		static inline __attribute_warn_unused_result T check_null_pointer(T p)
 		{
-			return check_null_pointer(get_global_array(pointer_type()), p);
+			return check_null_pointer(get_array(), p);
 		}
 	template <typename A, typename T>
 		static inline __attribute_warn_unused_result T check_null_pointer(const A &a, T p)
@@ -193,6 +197,7 @@ class valptr_t : protected valbaseptridxutil_t<P, I>
 protected:
 	typedef typename valutil::Prc Prc;
 	typedef valptr_t valptr_type;
+	using valutil::check_allowed_invalid_index;
 	using valutil::check_null_pointer;
 	using valutil::check_index_range;
 public:
@@ -288,7 +293,7 @@ public:
 protected:
 	template <typename A>
 		valptr_t(A &a, I i) :
-			p(i != ~static_cast<I>(0) ? &a[check_index_range(a, i)] : nullptr)
+			p(check_allowed_invalid_index(i) ? nullptr : &a[check_index_range(a, i)])
 		{
 		}
 	pointer_type p;
@@ -299,6 +304,7 @@ class validx_t : protected valbaseptridxutil_t<P, I>
 {
 	typedef valbaseptridxutil_t<P, I> valutil;
 protected:
+	using valutil::check_allowed_invalid_index;
 	using valutil::check_index_match;
 	using valutil::check_index_range;
 	typedef validx_t validx_type;
@@ -316,12 +322,12 @@ public:
 	validx_t(vvalidx_t<P, I, magic_constant> &&) = delete;
 	template <typename A>
 		validx_t(A &a, pointer_type p, index_type s) :
-			i(s != ~static_cast<integral_type>(0) ? check_index_match(a, p, check_index_range(a, s)) : s)
+			i(check_allowed_invalid_index(s) ? s : check_index_match(a, p, check_index_range(a, s)))
 	{
 	}
 	template <typename A>
 		validx_t(A &a, index_type s) :
-			i(s != ~static_cast<integral_type>(0) ? check_index_range(a, s) : s)
+			i(check_allowed_invalid_index(s) ? s : check_index_range(a, s))
 	{
 	}
 	operator const index_type&() const { return i; }
@@ -439,7 +445,7 @@ public:
 	}
 	template <integral_type v>
 		valptridx_template_t(const magic_constant<v> &m) :
-			vptr_type(static_cast<std::size_t>(v) < get_array().size() ? &get_array()[v] : NULL),
+			vptr_type(get_array(), static_cast<std::size_t>(v) < get_array().size() ? &get_array()[v] : nullptr),
 			vidx_type(m)
 	{
 	}
@@ -532,7 +538,7 @@ public:
 	}
 	template <typename A>
 		vvalptr_t(A &a, pointer_type p) :
-			base_t(a, check_null_pointer(p))
+			base_t(a, check_null_pointer(a, p))
 	{
 	}
 	template <typename A>
