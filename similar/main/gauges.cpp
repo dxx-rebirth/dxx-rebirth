@@ -1027,19 +1027,20 @@ static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_grap
 	const gauge_key blue(KEY_ICON_BLUE, multires_gauge_graphic);
 	int y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 
+	const auto &&fspacx = FSPACX();
 	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
-		hud_bitblt_free(FSPACX(2),y,HUD_SCALE_X_AR(blue->bm_w),HUD_SCALE_Y_AR(blue->bm_h),blue);
+		hud_bitblt_free(fspacx(2), y, HUD_SCALE_X_AR(blue->bm_w), HUD_SCALE_Y_AR(blue->bm_h), blue);
 
 	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	const gauge_key yellow(KEY_ICON_YELLOW, multires_gauge_graphic);
 	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
-		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+3),y,HUD_SCALE_X_AR(yellow->bm_w),HUD_SCALE_Y_AR(yellow->bm_h),yellow);
+		hud_bitblt_free(fspacx(2) + HUD_SCALE_X_AR(blue->bm_w + 3), y, HUD_SCALE_X_AR(yellow->bm_w), HUD_SCALE_Y_AR(yellow->bm_h), yellow);
 
 	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
 	{
 		const gauge_key red(KEY_ICON_RED, multires_gauge_graphic);
-		hud_bitblt_free(FSPACX(2)+HUD_SCALE_X_AR(blue->bm_w+yellow->bm_w+6),y,HUD_SCALE_X_AR(red->bm_w),HUD_SCALE_Y_AR(red->bm_h),red);
+		hud_bitblt_free(fspacx(2) + HUD_SCALE_X_AR(blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(red->bm_w), HUD_SCALE_Y_AR(red->bm_h), red);
 	}
 }
 
@@ -1352,6 +1353,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 		y=y+(LINE_SPACING*4);
 	}
 
+	const auto &&fspacx = FSPACX();
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
@@ -1392,7 +1394,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			if (vertical){
 				y-=h+FSPACY(2);
 			}else
-				x-=w+FSPACX(3);
+				x -= w + fspacx(3);
 			gr_string(x, y, txtweapon);
 			if (i == primary_weapon_index_t::VULCAN_INDEX && !vertical)
 			{
@@ -1405,7 +1407,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 	y = orig_y;
 	if (vertical)
 	{
-		x=x+FSPACX(15);
+		x += fspacx(15);
 		y=y+(LINE_SPACING*4);
 	}
 	else
@@ -1450,7 +1452,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			if (vertical){
 				y-=h+FSPACY(2);
 			}else
-				x-=w+FSPACX(3);
+				x -= w + fspacx(3);
 			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 			{
 				if (vertical)
@@ -1472,6 +1474,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 		y=y+(LINE_SPACING*4);
 	}
 
+	const auto &&fspacx = FSPACX();
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
@@ -1483,7 +1486,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			if (vertical){
 				y-=h+FSPACY(2);
 			}else
-				x-=w+FSPACX(3);
+				x -= w + fspacx(3);
 			gr_string(x, y, weapon_str);
 		}
 	}
@@ -1493,7 +1496,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	y = orig_y;
 	if (vertical)
 	{
-		x=x+FSPACX(15);
+		x += fspacx(15);
 		y=y+(LINE_SPACING*4);
 	}
 	else
@@ -1512,7 +1515,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			if (vertical){
 				y-=h+FSPACY(2);
 			}else
-				x-=w+FSPACX(3);
+				x -= w + fspacx(3);
 			gr_string(x, y, weapon_str);
 		}
 	}
@@ -1543,15 +1546,17 @@ static void hud_show_weapons(void)
 #endif
 		hud_show_primary_weapons_mode(0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*2*multiplier));
 		hud_show_secondary_weapons_mode(0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*multiplier));
+		return;
 	}
-	else if (PlayerCfg.HudMode==2){
+	const auto &&fspacx = FSPACX();
+	if (PlayerCfg.HudMode == 2) {
 		int x1,x2;
 		int w, aw;
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
 		y=grd_curcanv->cv_bitmap.bm_h/1.75;
-		x1=grd_curcanv->cv_bitmap.bm_w/2.1-(FSPACX(40)+w);
-		x2=grd_curcanv->cv_bitmap.bm_w/1.9+(FSPACX(42)+x2);
+		x1 = grd_curcanv->cv_bitmap.bm_w / 2.1 - (fspacx(40) + w);
+		x2 = grd_curcanv->cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
 		hud_show_primary_weapons_mode(1,x1,y);
 		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
@@ -1610,16 +1615,16 @@ static void hud_show_weapons(void)
 		}
 
 		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);
+		gr_string(grd_curcanv->cv_bitmap.bm_w - w - fspacx(1), y - (LINE_SPACING * 2), disp_primary_weapon_name);
 		const char *disp_secondary_weapon_name;
 
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
+		gr_string(grd_curcanv->cv_bitmap.bm_w - w - fspacx(1), y - LINE_SPACING, weapon_str);
 
-		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
+		show_bomb_count(grd_curcanv->cv_bitmap.bm_w - fspacx(1), y - (LINE_SPACING * 3), -1, 1, 1);
 	}
 }
 
@@ -1633,13 +1638,14 @@ static void hud_show_cloak_invuln(void)
 	const auto &&line_spacing = LINE_SPACING;
 	const auto base_y = grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
 	const auto gametime64 = GameTime64;
+	const auto &&fspacx = FSPACX();
 
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
 	{
 		const fix64 effect_end = plr.cloak_time + CLOAK_TIME_MAX - gametime64;
 		if (effect_end > F1_0*3 || gametime64 & 0x8000)
 		{
-			gr_printf(FSPACX(1), base_y, "%s: %lu", TXT_CLOAKED, static_cast<unsigned long>(effect_end / F1_0));
+			gr_printf(fspacx(1), base_y, "%s: %lu", TXT_CLOAKED, static_cast<unsigned long>(effect_end / F1_0));
 		}
 	}
 
@@ -1648,7 +1654,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = plr.invulnerable_time + INVULNERABLE_TIME_MAX - gametime64;
 		if (effect_end > F1_0*4 || gametime64 & 0x8000)
 		{
-			gr_printf(FSPACX(1), base_y - line_spacing, "%s: %lu", TXT_INVULNERABLE, static_cast<unsigned long>(effect_end / F1_0));
+			gr_printf(fspacx(1), base_y - line_spacing, "%s: %lu", TXT_INVULNERABLE, static_cast<unsigned long>(effect_end / F1_0));
 		}
 	}
 
@@ -2774,19 +2780,21 @@ static void hud_show_kill_list()
 	else
 		n_left = (n_players+1)/2;
 
-	x0 = FSPACX(1); x1 = FSPACX(43);
+	const auto &&fspacx = FSPACX();
+	x0 = fspacx(1);
+	x1 = fspacx(43);
 
 	if (Game_mode & GM_MULTI_COOP)
-		x1 = FSPACX(31);
+		x1 = fspacx(31);
 
 	save_y = y = grd_curcanv->cv_bitmap.bm_h - n_left*(LINE_SPACING);
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
-		save_y = y -= FSPACX(6);
+		save_y = y -= fspacx(6);
 		if (Game_mode & GM_MULTI_COOP)
-			x1 = FSPACX(33);
+			x1 = fspacx(33);
 		else
-			x1 = FSPACX(43);
+			x1 = fspacx(43);
 	}
 
 	for (i=0;i<n_players;i++) {
@@ -2796,23 +2804,23 @@ static void hud_show_kill_list()
 
 		if (i>=n_left) {
 			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-				x0 = grd_curcanv->cv_bitmap.bm_w - FSPACX(53);
+				x0 = grd_curcanv->cv_bitmap.bm_w - fspacx(53);
 			else
-				x0 = grd_curcanv->cv_bitmap.bm_w - FSPACX(60);
+				x0 = grd_curcanv->cv_bitmap.bm_w - fspacx(60);
 			if (Game_mode & GM_MULTI_COOP)
-				x1 = grd_curcanv->cv_bitmap.bm_w - FSPACX(27);
+				x1 = grd_curcanv->cv_bitmap.bm_w - fspacx(27);
 			else
-				x1 = grd_curcanv->cv_bitmap.bm_w - FSPACX(15);  // Right edge of name, change this for width problems
+				x1 = grd_curcanv->cv_bitmap.bm_w - fspacx(15);  // Right edge of name, change this for width problems
 			if (i==n_left)
 				y = save_y;
 
 			if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
-				x1-=FSPACX(18);
+				x1 -= fspacx(18);
 		}
 		else  if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
 		{
-			x1 = FSPACX(43);
-			x1 -=FSPACX(18);
+			x1 = fspacx(43);
+			x1 -= fspacx(18);
 		}
 
 		if (Show_kill_list == 3)
@@ -2847,7 +2855,7 @@ static void hud_show_kill_list()
 			name = Players[player_num].callsign;	// Note link to above if!!
 		gr_get_string_size(static_cast<const char *>(name),&sw,&sh,&aw);
 		{
-			const auto b = x1 - x0 - FSPACX(2);
+			const auto b = x1 - x0 - fspacx(2);
 			if (sw > b)
 				for (char *e = &name.buffer()[strlen(name)];;)
 				{

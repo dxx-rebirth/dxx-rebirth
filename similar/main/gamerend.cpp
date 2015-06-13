@@ -148,12 +148,13 @@ static void show_netplayerinfo()
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(255,-1);
 
-	x=(SWIDTH/2)-FSPACX(120);
+	const auto &&fspacx = FSPACX();
+	x = (SWIDTH / 2) - fspacx(120);
 	y=(SHEIGHT/2)-FSPACY(84);
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
 	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect((SWIDTH/2)-FSPACX(120),(SHEIGHT/2)-FSPACY(84),(SWIDTH/2)+FSPACX(120),(SHEIGHT/2)+FSPACY(84));
+	gr_rect((SWIDTH / 2) - fspacx(120), (SHEIGHT / 2) - FSPACY(84), (SWIDTH / 2) + fspacx(120), (SHEIGHT / 2) + FSPACY(84));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
@@ -162,7 +163,7 @@ static void show_netplayerinfo()
 	y+=LINE_SPACING;
 	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
-	x+=FSPACX(8);
+	x+=fspacx(8);
 	y+=LINE_SPACING*2;
 	unsigned gamemode = Netgame.gamemode;
 	gr_printf(x,y,"game mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
@@ -180,14 +181,14 @@ static void show_netplayerinfo()
 	y+=LINE_SPACING*2;
 	gr_string(x,y,"player");
 	if (Game_mode & GM_MULTI_COOP)
-		gr_string(x+FSPACX(8)*7,y,"score");
+		gr_string(x + fspacx(8) * 7, y, "score");
 	else
 	{
-		gr_string(x+FSPACX(8)*7,y,"kills");
-		gr_string(x+FSPACX(8)*12,y,"deaths");
+		gr_string(x + fspacx(8) * 7, y, "kills");
+		gr_string(x + fspacx(8) * 12, y, "deaths");
 	}
-	gr_string(x+FSPACX(8)*18,y,"ping");
-	gr_string(x+FSPACX(8)*23,y,"efficiency");
+	gr_string(x + fspacx(8) * 18, y, "ping");
+	gr_string(x + fspacx(8) * 23, y, "efficiency");
 
 	// process players table
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
@@ -201,16 +202,16 @@ static void show_netplayerinfo()
 		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].score);
+			gr_printf(x + fspacx(8)*7, y, "%-6d", Players[i].score);
 		else
 		{
-			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].net_kills_total);
-			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
+			gr_printf(x + fspacx(8) * 7, y, "%-6d", Players[i].net_kills_total);
+			gr_printf(x + fspacx(8) * 12, y, "%-6d", Players[i].net_killed_total);
 		}
 
-		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
+		gr_printf(x + fspacx(8) * 18, y, "%-6d", Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(x+FSPACX(8)*23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
+			gr_printf(x + fspacx(8) * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));
@@ -220,15 +221,15 @@ static void show_netplayerinfo()
 	{
 		gr_set_fontcolor(255,-1);
 		gr_string(x,y,"team");
-		gr_string(x+FSPACX(8)*8,y,"score");
+		gr_string(x + fspacx(8) * 8, y, "score");
 		y+=LINE_SPACING;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
 		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
-		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
+		gr_printf(x + fspacx(8) * 8, y, "%i", team_kills[0]);
 		y+=LINE_SPACING;
 		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
 		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
-		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
+		gr_printf(x + fspacx(8) * 8, y, "%i", team_kills[1]);
 		y+=LINE_SPACING*2;
 	}
 	else

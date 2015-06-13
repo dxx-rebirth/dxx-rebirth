@@ -812,7 +812,8 @@ static int get_item_height(const kc_item &item, const kc_mitem &mitem)
 static void kconfig_draw(kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
-	int w = FSPACX(290), h = FSPACY(170);
+	const auto &&fspacx = FSPACX();
+	int w = fspacx(290), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
 	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
@@ -835,19 +836,19 @@ static void kconfig_draw(kc_menu *menu)
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 		
-		gr_rect( FSPACX( 98), FSPACY(42), FSPACX(106), FSPACY(42) ); // horiz/left
-		gr_rect( FSPACX(120), FSPACY(42), FSPACX(128), FSPACY(42) ); // horiz/right
-		gr_rect( FSPACX( 98), FSPACY(42), FSPACX( 98), FSPACY(44) ); // vert/left
-		gr_rect( FSPACX(128), FSPACY(42), FSPACX(128), FSPACY(44) ); // vert/right
+		gr_rect(fspacx( 98), FSPACY(42), fspacx(106), FSPACY(42)); // horiz/left
+		gr_rect(fspacx(120), FSPACY(42), fspacx(128), FSPACY(42)); // horiz/right
+		gr_rect(fspacx( 98), FSPACY(42), fspacx( 98), FSPACY(44)); // vert/left
+		gr_rect(fspacx(128), FSPACY(42), fspacx(128), FSPACY(44)); // vert/right
 		
-		gr_string( FSPACX(109), FSPACY(40), "OR" );
+		gr_string(fspacx(109), FSPACY(40), "OR");
 
-		gr_rect( FSPACX(253), FSPACY(42), FSPACX(261), FSPACY(42) ); // horiz/left
-		gr_rect( FSPACX(275), FSPACY(42), FSPACX(283), FSPACY(42) ); // horiz/right
-		gr_rect( FSPACX(253), FSPACY(42), FSPACX(253), FSPACY(44) ); // vert/left
-		gr_rect( FSPACX(283), FSPACY(42), FSPACX(283), FSPACY(44) ); // vert/right
+		gr_rect(fspacx(253), FSPACY(42), fspacx(261), FSPACY(42)); // horiz/left
+		gr_rect(fspacx(275), FSPACY(42), fspacx(283), FSPACY(42)); // horiz/right
+		gr_rect(fspacx(253), FSPACY(42), fspacx(253), FSPACY(44)); // vert/left
+		gr_rect(fspacx(283), FSPACY(42), fspacx(283), FSPACY(44)); // vert/right
 
-		gr_string( FSPACX(264), FSPACY(40), "OR" );
+		gr_string(fspacx(264), FSPACY(40), "OR");
 	}
 	else if ( menu->items == kc_joystick )
 	{
@@ -856,26 +857,26 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string( 0x8000, FSPACY(30), TXT_BUTTONS );
 		gr_string( 0x8000,FSPACY(137), TXT_AXES );
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( FSPACX( 81), FSPACY(145), TXT_AXIS );
-		gr_string( FSPACX(111), FSPACY(145), TXT_INVERT );
-		gr_string( FSPACX(230), FSPACY(145), TXT_AXIS );
-		gr_string( FSPACX(260), FSPACY(145), TXT_INVERT );
+		gr_string(fspacx( 81), FSPACY(145), TXT_AXIS);
+		gr_string(fspacx(230), FSPACY(145), TXT_AXIS);
+		gr_string(fspacx(111), FSPACY(145), TXT_INVERT);
+		gr_string(fspacx(260), FSPACY(145), TXT_INVERT);
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 
-		gr_rect( FSPACX(115), FSPACY(40), FSPACX(123), FSPACY(40) ); // horiz/left
-		gr_rect( FSPACX(137), FSPACY(40), FSPACX(145), FSPACY(40) ); // horiz/right
-		gr_rect( FSPACX(115), FSPACY(40), FSPACX(115), FSPACY(42) ); // vert/left
-		gr_rect( FSPACX(145), FSPACY(40), FSPACX(145), FSPACY(42) ); // vert/right
+		gr_rect(fspacx(115), FSPACY(40), fspacx(123), FSPACY(40)); // horiz/left
+		gr_rect(fspacx(137), FSPACY(40), fspacx(145), FSPACY(40)); // horiz/right
+		gr_rect(fspacx(115), FSPACY(40), fspacx(115), FSPACY(42)); // vert/left
+		gr_rect(fspacx(145), FSPACY(40), fspacx(145), FSPACY(42)); // vert/right
 
-		gr_string( FSPACX(126), FSPACY(38), "OR" );
+		gr_string(fspacx(126), FSPACY(38), "OR");
 
-		gr_rect( FSPACX(261), FSPACY(40), FSPACX(269), FSPACY(40) ); // horiz/left
-		gr_rect( FSPACX(283), FSPACY(40), FSPACX(291), FSPACY(40) ); // horiz/right
-		gr_rect( FSPACX(261), FSPACY(40), FSPACX(261), FSPACY(42) ); // vert/left
-		gr_rect( FSPACX(291), FSPACY(40), FSPACX(291), FSPACY(42) ); // vert/right
+		gr_rect(fspacx(261), FSPACY(40), fspacx(269), FSPACY(40)); // horiz/left
+		gr_rect(fspacx(283), FSPACY(40), fspacx(291), FSPACY(40)); // horiz/right
+		gr_rect(fspacx(261), FSPACY(40), fspacx(261), FSPACY(42)); // vert/left
+		gr_rect(fspacx(291), FSPACY(40), fspacx(291), FSPACY(42)); // vert/right
 
-		gr_string( FSPACX(272), FSPACY(38), "OR" );
+		gr_string(fspacx(272), FSPACY(38), "OR");
 	}
 	else if ( menu->items == kc_mouse )
 	{
@@ -884,19 +885,19 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string( 0x8000, FSPACY(35), TXT_BUTTONS );
 		gr_string( 0x8000,FSPACY(137), TXT_AXES );
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( FSPACX( 87), FSPACY(145), TXT_AXIS );
-		gr_string( FSPACX(120), FSPACY(145), TXT_INVERT );
-		gr_string( FSPACX(242), FSPACY(145), TXT_AXIS );
-		gr_string( FSPACX(274), FSPACY(145), TXT_INVERT );
+		gr_string(fspacx( 87), FSPACY(145), TXT_AXIS);
+		gr_string(fspacx(242), FSPACY(145), TXT_AXIS);
+		gr_string(fspacx(120), FSPACY(145), TXT_INVERT);
+		gr_string(fspacx(274), FSPACY(145), TXT_INVERT);
 	}
 	else if ( menu->items == kc_rebirth )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 
-		gr_string(FSPACX(152), FSPACY(60), "KEYBOARD");
-		gr_string(FSPACX(210), FSPACY(60), "JOYSTICK");
-		gr_string(FSPACX(273), FSPACY(60), "MOUSE");
+		gr_string(fspacx(152), FSPACY(60), "KEYBOARD");
+		gr_string(fspacx(210), FSPACY(60), "JOYSTICK");
+		gr_string(fspacx(273), FSPACY(60), "MOUSE");
 	}
 	
 	unsigned citem = menu->citem;
@@ -969,11 +970,12 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
+		const auto &&fspacx = FSPACX();
 		for (unsigned i=0; i<menu->nitems; i++ )	{
 			item_height = get_item_height( menu->items[i], menu->mitems[i] );
-			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].xinput);
+			x1 = grd_curcanv->cv_bitmap.bm_x + fspacx(menu->items[i].xinput);
 			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
-			if (in_bounds(mx, my, x1, FSPACX(menu->items[i].w2), y1, item_height)) {
+			if (in_bounds(mx, my, x1, fspacx(menu->items[i].w2), y1, item_height)) {
 				menu->citem = i;
 				rval = window_event_result::handled;
 				break;
@@ -986,9 +988,10 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		
 		mouse_get_pos(&mx, &my, &mz);
 		item_height = get_item_height( menu->items[menu->citem], menu->mitems[menu->citem] );
-		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].xinput);
+		const auto &&fspacx = FSPACX();
+		x1 = grd_curcanv->cv_bitmap.bm_x + fspacx(menu->items[menu->citem].xinput);
 		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
-		if (in_bounds(mx, my, x1, FSPACX(menu->items[menu->citem].w2), y1, item_height)) {
+		if (in_bounds(mx, my, x1, fspacx(menu->items[menu->citem].w2), y1, item_height)) {
 			kconfig_start_changing(menu);
 			rval = window_event_result::handled;
 		}
@@ -1215,7 +1218,8 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	menu->changing = 0;
 	menu->mouse_state = 0;
 
-	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
+	const auto &&fspacx = FSPACX();
+	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - FSPACY(200)) / 2, fspacx(320), FSPACY(200),
 					   kconfig_handler, menu)))
 		delete menu;
 }
@@ -1231,6 +1235,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	int x, w, h, aw;
 	char buf[10];
 	const char *btext;
+	const auto &&fspacx = FSPACX();
 	if (label)
 	{
 		if (is_current)
@@ -1238,7 +1243,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		else
 			gr_set_fontcolor( BM_XRGB(15,15,24), -1 );
 
-		gr_string( FSPACX(item.x), FSPACY(item.y), label );
+		gr_string(fspacx(item.x), FSPACY(item.y), label);
 	}
 
 	btext = get_item_text(item, mitem, buf);
@@ -1251,11 +1256,11 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			gr_setcolor( BM_XRGB(21,0,24) );
 		else
 			gr_setcolor( BM_XRGB(16,0,19) );
-		gr_urect( FSPACX(item.xinput), FSPACY(item.y-1), FSPACX(item.xinput+item.w2), FSPACY(item.y)+h );
+		gr_urect(fspacx(item.xinput), FSPACY(item.y - 1), fspacx(item.xinput + item.w2), FSPACY(item.y) + h);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-		x = FSPACX(item.xinput)+((FSPACX(item.w2)-w)/2);
+		x = fspacx(item.xinput) + ((fspacx(item.w2) - w) / 2);
 	
 		gr_string( x, FSPACY(item.y), btext );
 	}
@@ -1278,11 +1283,12 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
-	gr_urect( FSPACX(item->xinput), FSPACY(item->y-1), FSPACX(item->xinput+item->w2), FSPACY(item->y)+h );
+	const auto &&fspacx = FSPACX();
+	gr_urect(fspacx(item->xinput), FSPACY(item->y - 1), fspacx(item->xinput + item->w2), FSPACY(item->y) + h);
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-	x = FSPACX(item->xinput)+((FSPACX(item->w2)-w)/2);
+	x = fspacx(item->xinput) + ((fspacx(item->w2) - w) / 2);
 
 	gr_string( x, FSPACY(item->y), "?" );
 }

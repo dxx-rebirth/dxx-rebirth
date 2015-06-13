@@ -164,6 +164,7 @@ static void con_draw(void)
 	cli_draw(y);
 	y -= LINE_SPACING;
 
+	const auto &&fspacx = FSPACX();
 	while (!done)
 	{
 		int w,h,aw;
@@ -171,7 +172,7 @@ static void con_draw(void)
 		gr_set_fontcolor(get_console_color_by_priority(con_buffer[CON_LINES_MAX-1-i].priority), -1);
 		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
 		y-=h+FSPACY(1);
-		gr_string(FSPACX(1),y,con_buffer[CON_LINES_MAX-1-i].line);
+		gr_string(fspacx(1), y, con_buffer[CON_LINES_MAX - 1 - i].line);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
@@ -180,8 +181,8 @@ static void con_draw(void)
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(0,0,SWIDTH,LINE_SPACING);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-	gr_printf(FSPACX(1),FSPACY(1),"%s LOG", DESCENT_VERSION);
-	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
+	gr_printf(fspacx(1), FSPACY(1), "%s LOG", DESCENT_VERSION);
+	gr_string(SWIDTH - fspacx(110), FSPACY(1), "PAGE-UP/DOWN TO SCROLL");
 }
 
 static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)

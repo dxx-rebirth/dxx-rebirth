@@ -213,9 +213,10 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 	p=s1=NULL;
 	RAIIdmem<char[]> s2(d_strdup(s));
 
+	const auto &&fspacx = FSPACX();
 	range_for (auto &i, XTabs)
 	{
-		i = FSPACX(i) + x;
+		i = fspacx(i) + x;
 	}
 
 	measure[1]=0;
@@ -293,11 +294,12 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 	if (w1 == 0) w1 = w;
 
 	gr_setcolor( BM_XRGB(5,5,5));
-	gr_rect( x - FSPACX(2), y-FSPACY(1), x+w1, y + h);
+	const auto &&fspacx = FSPACX();
+	gr_rect(x - fspacx(2), y - FSPACY(1), x + w1, y + h);
 	gr_setcolor( BM_XRGB(2,2,2));
-	gr_rect( x - FSPACX(2), y - FSPACY(1), x, y + h );
+	gr_rect(x - fspacx(2), y - FSPACY(1), x, y + h);
 	gr_setcolor( BM_XRGB(0,0,0));
-	gr_rect( x - FSPACX(1), y - FSPACY(1), x+w1 - FSPACX(1), y + h);
+	gr_rect(x - fspacx(1), y - FSPACY(1), x + w1 - fspacx(1), y + h);
 
 	gr_string( x, y, s );
 }
@@ -649,12 +651,13 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 			old_choice = menu->citem;
 
+			const auto &&fspacx = FSPACX();
 			if ((event.type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13) /*- menu->items[i].right_offset - 6*/;
-					x2 = x1 + menu->items[i].w+FSPACX(13);
+					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
+					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (((int)LINE_SPACING)*menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
@@ -711,7 +714,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 					if (menu->scroll_offset != 0) {
 						gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(12);
+						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
@@ -721,7 +724,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(12);
+						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
@@ -732,8 +735,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				}
 
 				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
-					x2 = x1 + menu->items[i].w+FSPACX(13);
+					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
+					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (((int)LINE_SPACING)*menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 
@@ -804,8 +807,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
-					x2 = x1 + menu->items[i].w+FSPACX(13);
+					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
+					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (((int)LINE_SPACING)*menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
@@ -1188,6 +1191,7 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->h = th;
 	nmenus = nothers = 0;
 
+	const auto &&fspacx = FSPACX();
 	// Find menu height & width (store in w,h)
 	range_for (auto &i, menu->item_range())
 	{
@@ -1255,7 +1259,7 @@ static void newmenu_create_structure( newmenu *menu )
 		if (i.type == NM_TYPE_INPUT || i.type == NM_TYPE_INPUT_MENU)
 		{
 			i.saved_text.copy_if(i.text);
-			string_width = i.text_len * FSPACX(8) + i.text_len;
+			string_width = i.text_len * fspacx(8) + i.text_len;
 			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
 				string_width = MAX_TEXT_WIDTH;
 
@@ -1434,7 +1438,8 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
 
 		sy=menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=BORDERX-FSPACX(12);
+		const auto &&fspacx = FSPACX();
+		sx = BORDERX - fspacx(12);
 
 		if (menu->scroll_offset!=0)
 			gr_string( sx, sy, UP_ARROW_MARKER );
@@ -1442,7 +1447,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 			gr_string( sx, sy, "  " );
 
 		sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=BORDERX-FSPACX(12);
+		sx = BORDERX - fspacx(12);
 
 		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
 			gr_string( sx, sy, DOWN_ARROW_MARKER );
@@ -1863,12 +1868,13 @@ static void listbox_create_structure( listbox *lb)
 	gr_set_curfont(MEDIUM3_FONT);
 
 	lb->box_w = 0;
+	const auto &&fspacx = FSPACX();
 	range_for (auto &i, unchecked_partial_range(lb->item, lb->nitems))
 	{
 		int w, h, aw;
 		gr_get_string_size(i, &w, &h, &aw);
 		if ( w > lb->box_w )
-			lb->box_w = w+FSPACX(10);
+			lb->box_w = w + fspacx(10);
 	}
 	lb->height = LINE_SPACING * LB_ITEMS_ON_SCREEN;
 
@@ -1925,21 +1931,22 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_setcolor( BM_XRGB( 0,0,0)  );
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i-lb->first_item)*LINE_SPACING+lb->box_y;
+		const auto &&fspacx = FSPACX();
 		if ( i >= lb->nitems )	{
 			gr_setcolor( BM_XRGB(5,5,5));
-			gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+			gr_rect(lb->box_x - fspacx(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+			gr_rect(lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
 		} else {
 			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
 			gr_setcolor( BM_XRGB(5,5,5));
-			gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+			gr_rect(lb->box_x - fspacx(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING);
 			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+			gr_rect(lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - fspacx(1), y + LINE_SPACING);
 
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{
@@ -1977,11 +1984,11 @@ static window_event_result listbox_draw(window *, listbox *lb)
 				{
 					snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i]);
 				}
-				gr_string(lb->box_x+FSPACX(5), y, shrtstr.get());
+				gr_string(lb->box_x + fspacx(5), y, shrtstr.get());
 			}
 			else
 			{
-				gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+				gr_string(lb->box_x + fspacx(5), y, lb->item[i]);
 			}
 		}
 	}
