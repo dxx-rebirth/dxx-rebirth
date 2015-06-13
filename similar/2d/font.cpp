@@ -762,43 +762,37 @@ void gr_ustring(int x, int y, const char *s )
 
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
 {
-	int i = 0;
-	float longest_width=0.0,string_width_f=0.0,string_height_f=0.0;
-
-	string_height_f = FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
-	string_width_f = 0;
-	*average_width = grd_curcanv->cv_font->ft_w;
-
+	float longest_width=0.0,string_width_f=0.0;
+	unsigned lines = 0;
+	const auto &cv_font = *grd_curcanv->cv_font;
+	*average_width = cv_font.ft_w;
 	if (s != NULL )
 	{
-		string_width_f = 0;
 		while (*s)
 		{
-//			if (*s == '&')
-//				s++;
-			while (*s == '\n')
+			if (*s == '\n')
 			{
-				s++;
-				string_height_f += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
+				if (longest_width < string_width_f)
+					longest_width = string_width_f;
 				string_width_f = 0;
+				const auto os = s;
+				while (*++s == '\n')
+				{
+				}
+				lines += s - os;
+				if (!*s)
+					break;
 			}
-
-			if (*s == 0) break;
 
 			const auto &result = get_char_width<float>(s[0], s[1]);
 			const auto &spacing = result.spacing;
-
 			string_width_f += spacing;
-
-			if (string_width_f > longest_width)
-				longest_width = string_width_f;
-
-			i++;
 			s++;
 		}
 	}
-	string_width_f = longest_width;
-	*string_width = string_width_f;
+	*string_width = std::max(longest_width, string_width_f);
+	const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
+	const float string_height_f = fontscale_y + (lines * (fontscale_y + FSPACY(1)));
 	*string_height = string_height_f;
 }
 
