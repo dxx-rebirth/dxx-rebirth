@@ -389,7 +389,7 @@ public:
 		array<g3s_uvl, 3> uvl_list;
 		array<g3s_lrgb, 3> lrgb_list;
 		for (unsigned i = 0; i < 3; ++i)
-			uvl_list[i] = ((g3s_uvl *) (p+30+((nv&~1)+1)*2))[i];
+			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 		lrgb_list.fill(light);
 		array<cg3s_point *, 3> point_list;
 		unsigned i;

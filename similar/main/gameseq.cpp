@@ -581,7 +581,7 @@ static const d_fname &get_level_file(int level_num)
 }
 
 // routine to calculate the checksum of the segments.
-static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+static void do_checksum_calc(const uint8_t *b, int len, unsigned int *s1, unsigned int *s2)
 {
 
 	while(len--) {
@@ -602,7 +602,7 @@ static ushort netmisc_calc_checksum()
 	for (i = 0; i < Highest_segment_index + 1; i++) {
 		range_for (auto &j, Segments[i].sides)
 		{
-			do_checksum_calc((unsigned char *)&(j.get_type()), 1, &sum1, &sum2);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			s = INTEL_SHORT(j.tmap_num);

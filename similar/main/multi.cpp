@@ -1619,7 +1619,7 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 		extract_shortpos_little(obj, &sp);
 	}
 	else
-		extract_shortpos_little(obj, (shortpos *)(&buf[2]));
+		extract_shortpos_little(obj, reinterpret_cast<const shortpos *>(&buf[2]));
 
 	if (obj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(obj);
@@ -3642,7 +3642,7 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 	}
 	else
 	{
-		extract_shortpos_little(Guided_missile[(int)pnum], (shortpos *)(&buf[count]));
+		extract_shortpos_little(Guided_missile[(int)pnum], reinterpret_cast<const shortpos *>(&buf[count]));
 	}
 
 	count+=sizeof (shortpos);
@@ -3733,7 +3733,7 @@ static void multi_do_kill_goal_counts(const ubyte *buf)
 
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		Players[i].KillGoalCount=*(char *)(buf+count);
+		Players[i].KillGoalCount = buf[count];
 		count++;
 	}
 
@@ -3822,7 +3822,7 @@ void multi_send_light_specific (const playernum_t pnum,segnum_t segnum,ubyte val
 static void multi_do_light (const ubyte *buf)
 {
 	int i;
-	ubyte sides=*(char *)(buf+5);
+	const auto sides = buf[5];
 
 	segnum_t seg;
 	seg = GET_INTEL_INT(buf + 1);
@@ -4628,7 +4628,7 @@ static void multi_do_save_game(const ubyte *buf)
 	uint id;
 	char desc[25];
 
-	slot = *(ubyte *)(buf+count);			count += 1;
+	slot = buf[count];			count += 1;
 	id = GET_INTEL_INT(buf+count);			count += 4;
 	memcpy( desc, &buf[count], 20 );		count += 20;
 
@@ -4641,7 +4641,7 @@ static void multi_do_restore_game(const ubyte *buf)
 	ubyte slot;
 	uint id;
 
-	slot = *(ubyte *)(buf+count);			count += 1;
+	slot = buf[count];			count += 1;
 	id = GET_INTEL_INT(buf+count);			count += 4;
 
 	multi_restore_game( slot, id );

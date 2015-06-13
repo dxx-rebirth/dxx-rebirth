@@ -406,7 +406,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	{
 		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((i+sy)*data_offset)])));
+			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
 			sbits += (int)(src.bm_data[4+i+sy]);
 		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
@@ -429,7 +429,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 	{
 		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((i+sy)*data_offset)])));
+			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
 			sbits += (int)(src.bm_data[4+i+sy]);
 		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
@@ -452,7 +452,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	{
 		gr_rle_expand_scanline_generic(dest, dx, dy+y1, sbits, sx, sx+w-1);
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src.bm_data[4+((y1+sy)*data_offset)])));
+			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((y1 + sy) * data_offset)]);
 		else
 			sbits += (int)src.bm_data[4+y1+sy];
 	}

@@ -768,7 +768,7 @@ int select_demo(void)
 	// Sort by name
 	qsort(list.get(), NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
-	auto clist = (const char **) list.get();
+	auto clist = const_cast<const char **>(list.get());
 	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, clist, 1, 0, demo_menu_handler, list.release());
 
 	return 1;

@@ -525,7 +525,7 @@ void rle_swap_0_255(grs_bitmap &bmp)
 	for (int i = 0; i < bmp.bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
-			line_size = INTEL_SHORT(*((unsigned short *)&bmp.bm_data[4 + 2 * i]));
+			line_size = GET_INTEL_SHORT(&bmp.bm_data[4 + 2 * i]);
 		else
 			line_size = bmp.bm_data[4 + i];
 		for (int j = 0; j < line_size; j++) {

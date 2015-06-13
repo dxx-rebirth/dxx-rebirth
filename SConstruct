@@ -1604,6 +1604,7 @@ class DXXCommon(LazyObjectConstructor):
 			'-Wsuggest-attribute=noreturn',
 			Werror + 'undef',
 			Werror + 'pointer-arith',
+			Werror + 'cast-qual',
 			Werror + 'cast-align',
 			Werror + 'logical-op',
 			Werror + 'missing-declarations',

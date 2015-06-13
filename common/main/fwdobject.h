@@ -259,7 +259,7 @@ void create_shortpos_native(shortpos *spp, vcobjptr_t objp);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void extract_shortpos_little(vobjptridx_t objp, shortpos *spp);
+void extract_shortpos_little(vobjptridx_t objp, const shortpos *spp);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 void create_quaternionpos(quaternionpos * qpp, vobjptr_t objp, int swap_bytes);

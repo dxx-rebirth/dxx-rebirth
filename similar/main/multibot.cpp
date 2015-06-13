@@ -762,7 +762,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	}
 	else
 	{
-		extract_shortpos_little(robot, (shortpos *)(&buf[loc]));
+		extract_shortpos_little(robot, reinterpret_cast<const shortpos *>(&buf[loc]));
 	}
 }
 

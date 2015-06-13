@@ -1005,11 +1005,9 @@ void create_shortpos_little(shortpos *spp, const vcobjptr_t objp)
 	}
 }
 
-void extract_shortpos_little(const vobjptridx_t objp, shortpos *spp)
+void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
 {
-	sbyte   *sp;
-
-	sp = spp->bytemat;
+	auto sp = spp->bytemat;
 
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
 	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
