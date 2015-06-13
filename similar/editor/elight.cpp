@@ -42,42 +42,50 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
-static fix get_light_intensity(const vcsegptr_t segp, int sidenum, int vert)
+static fix get_light_intensity(const side &s, const uint_fast32_t vert)
+{
+	Assert(vert <= 3);
+	return s.uvls[vert].l;
+}
+
+static fix get_light_intensity(const vcsegptr_t segp, const uint_fast32_t sidenum, const uint_fast32_t vert)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
-	Assert(vert <= 3);
+	return get_light_intensity(segp->sides[sidenum], vert);
+}
 
-	return segp->sides[sidenum].uvls[vert].l;
+static fix clamp_light_intensity(const fix intensity)
+{
+	if (intensity < MIN_LIGHTING_VALUE)
+		return MIN_LIGHTING_VALUE;
+	if (intensity > MAX_LIGHTING_VALUE)
+		return MAX_LIGHTING_VALUE;
+	return intensity;
 }
 
 // -----------------------------------------------------------------------------
 //	Set light intensity at a vertex, saturating in .5 to 15.5
-static void set_light_intensity(const vsegptr_t segp, int sidenum, int vert, fix intensity)
+static void set_light_intensity(side &s, const uint_fast32_t vert, const fix intensity)
 {
-	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	Assert(vert <= 3);
-
-	if (intensity < MIN_LIGHTING_VALUE)
-		intensity = MIN_LIGHTING_VALUE;
-
-	if (intensity > MAX_LIGHTING_VALUE)
-		intensity = MAX_LIGHTING_VALUE;
-
-	segp->sides[sidenum].uvls[vert].l = intensity;
-
+	s.uvls[vert].l = clamp_light_intensity(intensity);
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
+static void set_light_intensity(const vsegptr_t segp, const uint_fast32_t sidenum, const uint_fast32_t vert, const fix intensity)
+{
+	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
+	set_light_intensity(segp->sides[sidenum], vert, intensity);
+}
 
 // -----------------------------------------------------------------------------
 //	Add light intensity to a vertex, saturating in .5 to 15.5
-static void add_light_intensity(const vsegptr_t segp, int sidenum, int vert, fix intensity)
+static void add_light_intensity_all_verts(side &s, const fix intensity)
 {
-//	fix	new_intensity;
-
-	set_light_intensity(segp, sidenum, vert, segp->sides[sidenum].uvls[vert].l + intensity);
+	range_for (auto &u, s.uvls)
+		u.l = clamp_light_intensity(u.l + intensity);
+	Update_flags |= UF_WORLD_CHANGED;
 }
-
 
 // -----------------------------------------------------------------------------
 //	Recursively apply light to segments.
@@ -100,15 +108,18 @@ static void apply_light_intensity(const vsegptr_t segp, int sidenum, fix intensi
 
 	auto wid_result = WALL_IS_DOORWAY(segp, sidenum);
 	if (!(wid_result & WID_RENDPAST_FLAG)) {
-		for (int v=0; v<4; v++) // add light to this wall
-			add_light_intensity(segp, sidenum, v, intensity);
+		add_light_intensity_all_verts(segp->sides[sidenum], intensity);
 		return;										// we return because there is a wall here, and light does not shine through walls
 	}
 
 	//	No wall here, so apply light recursively
 	if (depth < 3) {
+		intensity /= 3;
+		if (!intensity)
+			return;
+		const auto &&csegp = vsegptr(segp->children[sidenum]);
 		for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-			apply_light_intensity(&Segments[segp->children[sidenum]], s, intensity/3, depth+1);
+			apply_light_intensity(csegp, s, intensity, depth+1);
 	}
 
 }
@@ -132,8 +143,7 @@ static void propagate_light_intensity(const vsegptr_t segp, int sidenum)
 	intensity += TmapInfo[texmap].lighting;
 
 	if (intensity > 0) {
-		for (int v=0; v<4; v++)
-			add_light_intensity(segp, sidenum, v, intensity);
+		add_light_intensity_all_verts(segp->sides[sidenum], intensity);
 	
 		//	Now, for all sides which are not the same as sidenum (the side casting the light),
 		//	add a light value to them (if they have no children, ie, they have a wall there).
