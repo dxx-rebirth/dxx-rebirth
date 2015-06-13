@@ -426,10 +426,12 @@ static void thief_message(const char * format, ... )
 static int marker_exists_in_mine(int id)
 {
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_MARKER)
-			if (Objects[i].id == id)
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_MARKER)
+			if (objp->id == id)
 				return 1;
-
+	}
 	return 0;
 }
 
@@ -508,10 +510,12 @@ void set_escort_special_goal(int special_key)
 static int get_boss_id(void)
 {
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(&Objects[i])].boss_flag)
-				return Objects[i].id;
-
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			if (Robot_info[get_robot_id(objp)].boss_flag)
+				return objp->id;
+	}
 	return -1;
 }
 
@@ -607,9 +611,12 @@ static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
 	range_for (const auto i, highest_valid(Segments))
-		range_for (const auto j, Segments[i].children)
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
+		range_for (const auto j, segp->children)
 			if (j == segment_exit)
 				return i;
+	}
 	return segment_none;
 }
 
