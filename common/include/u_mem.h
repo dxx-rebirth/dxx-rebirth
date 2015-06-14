@@ -29,6 +29,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
+#ifdef DEBUG_BIAS_MEMORY_ALLOCATIONS
+#include "compiler-array.h"
+#define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (sizeof(array<double, 2>))
+#else
+#define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (0)
+#endif
+
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_init(void);
 
@@ -50,10 +57,32 @@ void mem_validate_heap();
 
 #else
 
-#define mem_malloc(size,var,file,line)	((void)var,(void)file,(void)line,malloc((size)))
-#define mem_calloc(nmemb,size,var,file,line)	((void)var,(void)file,(void)line,calloc((nmemb),(size)))
-#define mem_realloc(ptr,size,var,file,line)	((void)var,(void)file,(void)line,realloc((ptr),(size)))
-#define mem_free	free
+#ifdef DEBUG_BIAS_MEMORY_ALLOCATIONS
+#define bias_malloc(SIZE)	({	\
+		auto p = malloc((SIZE) + DXX_DEBUG_BIAS_MEMORY_ALLOCATION);	\
+		p ? p + DXX_DEBUG_BIAS_MEMORY_ALLOCATION : p;	\
+	})
+/* Bias calloc wastes a bit extra to keep the math simple */
+#define bias_calloc(NMEMB,SIZE)	({	\
+		auto p = calloc((NMEMB), (SIZE) + DXX_DEBUG_BIAS_MEMORY_ALLOCATION);	\
+		p ? p + DXX_DEBUG_BIAS_MEMORY_ALLOCATION : p;	\
+	})
+#define bias_realloc(PTR,SIZE)	({	\
+		auto p = realloc(reinterpret_cast<char *>(PTR) - DXX_DEBUG_BIAS_MEMORY_ALLOCATION, (SIZE) + DXX_DEBUG_BIAS_MEMORY_ALLOCATION);	\
+		p ? p + DXX_DEBUG_BIAS_MEMORY_ALLOCATION : p;	\
+	})
+#define bias_free(PTR)	free(reinterpret_cast<char *>(PTR) - DXX_DEBUG_BIAS_MEMORY_ALLOCATION)
+#else
+#define bias_malloc	malloc
+#define bias_calloc calloc
+#define bias_realloc realloc
+#define bias_free free
+#endif
+
+#define mem_malloc(size,var,file,line)	((void)var,(void)file,(void)line,bias_malloc((size)))
+#define mem_calloc(nmemb,size,var,file,line)	((void)var,(void)file,(void)line,bias_calloc((nmemb),(size)))
+#define mem_realloc(ptr,size,var,file,line)	((void)var,(void)file,(void)line,bias_realloc((ptr),(size)))
+#define mem_free	bias_free
 
 static inline void mem_init(void)
 {
@@ -75,7 +104,6 @@ T *CALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned 
 }
 
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
-#define d_calloc(nmemb,size)    mem_calloc((nmemb),(size),"Unknown", __FILE__,__LINE__ )
 #define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
 template <typename T>
 static inline void d_free(T *&ptr)

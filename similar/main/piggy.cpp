@@ -856,7 +856,7 @@ void piggy_new_pigfile(char *pigname)
 						gr_bitmap_rle_compress(*bm[fnum].get());
 
 					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
-						size = *((int *) bm[fnum]->bm_data);
+						size = *reinterpret_cast<const int *>(bm[fnum]->bm_data);
 					else
 						size = bm[fnum]->bm_w * bm[fnum]->bm_h;
 
@@ -902,7 +902,7 @@ void piggy_new_pigfile(char *pigname)
 					gr_bitmap_rle_compress(n);
 
 				if (n.bm_flags & BM_FLAG_RLE)
-					size = *((int *) n.bm_data);
+					size = *reinterpret_cast<const int *>(n.bm_data);
 				else
 					size = n.bm_w * n.bm_h;
 
@@ -1496,7 +1496,6 @@ static void piggy_write_pigfile(const char *filename)
 	auto fp2 = PHYSFSX_openWriteBuffered(tname);
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
-		int *size;
 		grs_bitmap *bmp;
 
 		{
@@ -1531,7 +1530,7 @@ static void piggy_write_pigfile(const char *filename)
 		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
 
 		if ( bmp->bm_flags & BM_FLAG_RLE ) {
-			size = (int *)bmp->bm_data;
+			const auto size = reinterpret_cast<const int *>(bmp->bm_data);
 			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
 			data_offset += *size;
 			if (fp1)

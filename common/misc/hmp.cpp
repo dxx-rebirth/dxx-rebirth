@@ -27,13 +27,8 @@
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-#ifdef WORDS_BIGENDIAN
-#define MIDIINT(x) (x)
-#define MIDISHORT(x) (x)
-#else
-#define MIDIINT(x) SWAPINT(x)
-#define MIDISHORT(x) SWAPSHORT(x)
-#endif
+#define MIDIINT(x)	(words_bigendian ? (x) : (SWAPINT(x)))
+#define MIDISHORT(x)	(words_bigendian ? (x) : (SWAPSHORT(x)))
 
 #ifdef _WIN32
 static int midi_volume;

@@ -557,7 +557,7 @@ static void draw_automap(automap *am)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		auto objp = vobjptridx(i);
+		const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
@@ -1354,29 +1354,37 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
 		range_for (const auto s, highest_valid(Segments))
+		{
+			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
-			if (Segments[s].segnum != segment_none)
+			if (segp->segnum != segment_none)
 #endif
 			{
-				add_segment_edges(am, &Segments[s]);
+				add_segment_edges(am, segp);
 			}
+		}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
 		range_for (const auto s, highest_valid(Segments))
+		{
+			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
-			if (Segments[s].segnum != segment_none)
+			if (segp->segnum != segment_none)
 #endif
 				if (Automap_visited[s]) {
-					add_segment_edges(am, &Segments[s]);
+					add_segment_edges(am, segp);
 				}
-	
+		}
 		range_for (const auto s, highest_valid(Segments))
+		{
+			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
-			if (Segments[s].segnum != segment_none)
+			if (segp->segnum != segment_none)
 #endif
 				if (!Automap_visited[s]) {
-					add_unknown_segment_edges(am, &Segments[s]);
+					add_unknown_segment_edges(am, segp);
 				}
+		}
 	}
 
 	// Find unnecessary lines (These are lines that don't have to be drawn because they have small curvature)

@@ -959,7 +959,7 @@ static sbyte convert_to_byte(fix f)
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
+void create_shortpos_native(shortpos *spp, const vcobjptr_t objp)
 {
 	// int	segnum;
 	sbyte   *sp;
@@ -986,10 +986,15 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
  	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
 	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
 	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
+}
 
+void create_shortpos_little(shortpos *spp, const vcobjptr_t objp)
+{
+	create_shortpos_native(spp, objp);
 // swap the short values for the big-endian machines.
 
-	if (swap_bytes) {
+	if (words_bigendian)
+	{
 		spp->xo = INTEL_SHORT(spp->xo);
 		spp->yo = INTEL_SHORT(spp->yo);
 		spp->zo = INTEL_SHORT(spp->zo);
@@ -1000,11 +1005,9 @@ void create_shortpos(shortpos *spp, const vcobjptr_t objp, int swap_bytes)
 	}
 }
 
-void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
+void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
 {
-	sbyte   *sp;
-
-	sp = spp->bytemat;
+	auto sp = spp->bytemat;
 
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
 	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
@@ -1016,27 +1019,17 @@ void extract_shortpos(const vobjptridx_t objp, shortpos *spp, int swap_bytes)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	if (swap_bytes) {
-		spp->xo = INTEL_SHORT(spp->xo);
-		spp->yo = INTEL_SHORT(spp->yo);
-		spp->zo = INTEL_SHORT(spp->zo);
-		spp->segment = INTEL_SHORT(spp->segment);
-		spp->velx = INTEL_SHORT(spp->velx);
-		spp->vely = INTEL_SHORT(spp->vely);
-		spp->velz = INTEL_SHORT(spp->velz);
-	}
-
-	auto segnum = spp->segment;
+	auto segnum = INTEL_SHORT(spp->segment);
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
-	objp->pos.x = (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
-	objp->pos.y = (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
-	objp->pos.z = (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
+	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
+	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
+	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
 
-	objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp->velx) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
 	obj_relink(objp, segnum);
 
@@ -1490,10 +1483,13 @@ void validate_segment(const vsegptridx_t sp)
 void validate_segment_all(void)
 {
 	range_for (const auto s, highest_valid(Segments))
+	{
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(s));
 		#ifdef EDITOR
-		if (Segments[s].segnum != segment_none)
+		if (segp->segnum != segment_none)
 		#endif
-			validate_segment(&Segments[s]);
+			validate_segment(segp);
+	}
 
 	#ifdef EDITOR
 	{
@@ -1647,11 +1643,11 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 				for (int k=0; k<4; k++) {
 					fix	dl,new_l;
 					dl = dir * j.vert_light[k] * DL_SCALE;
-					Assert(j.segnum >= 0 && j.segnum <= Highest_segment_index);
 					Assert(j.sidenum >= 0 && j.sidenum < MAX_SIDES_PER_SEGMENT);
-					new_l = (Segments[j.segnum].sides[j.sidenum].uvls[k].l += dl);
+					const auto &&segp = vsegptr(j.segnum);
+					new_l = (segp->sides[j.sidenum].uvls[k].l += dl);
 					if (new_l < 0)
-						Segments[j.segnum].sides[j.sidenum].uvls[k].l = 0;
+						segp->sides[j.sidenum].uvls[k].l = 0;
 				}
 			}
 		}
@@ -1737,8 +1733,10 @@ void apply_all_changed_light(void)
 void clear_light_subtracted(void)
 {
 	range_for (const auto i, highest_valid(Segments))
-		Segments[i].light_subtracted = 0;
-
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
+		segp->light_subtracted = 0;
+	}
 }
 
 #define	AMBIENT_SEGMENT_DEPTH		5
@@ -1789,7 +1787,7 @@ void set_ambient_sound_flags()
 	//	Mark all segments which are sources of the sound.
 	range_for (const auto i, highest_valid(Segments))
 	{
-		segment	*segp = &Segments[i];
+		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
 		range_for (auto &s, sound_textures)
 		{
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {

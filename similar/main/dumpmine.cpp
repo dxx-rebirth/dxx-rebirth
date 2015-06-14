@@ -226,12 +226,15 @@ static void write_exit_text(PHYSFS_file *my_file)
 	//	---------- Find exit doors ----------
 	count = 0;
 	range_for (const auto i, highest_valid(Segments))
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == segment_exit)
+			if (segp->children[j] == segment_exit)
 			{
 				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(i), j);
 				count++;
 			}
+	}
 
 	if (count == 0)
 		err_printf(my_file, "Error: No external wall in this mine.");
@@ -320,36 +323,40 @@ static void write_key_text(PHYSFS_file *my_file)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_POWERUP)
-			if (get_powerup_id(&Objects[i]) == POW_KEY_BLUE) {
-				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_POWERUP)
+			if (get_powerup_id(objp) == POW_KEY_BLUE) {
+				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
 				blue_count2++;
 			}
-		if (Objects[i].type == OBJ_POWERUP)
-			if (get_powerup_id(&Objects[i]) == POW_KEY_RED) {
-				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
+		if (objp->type == OBJ_POWERUP)
+			if (get_powerup_id(objp) == POW_KEY_RED) {
+				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
 				red_count2++;
 			}
-		if (Objects[i].type == OBJ_POWERUP)
-			if (get_powerup_id(&Objects[i]) == POW_KEY_GOLD) {
-				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(i), Objects[i].segnum);
+		if (objp->type == OBJ_POWERUP)
+			if (get_powerup_id(objp) == POW_KEY_GOLD) {
+				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
 				gold_count2++;
 			}
 
-		if (Objects[i].contains_count) {
-			if (Objects[i].contains_type == OBJ_POWERUP) {
-				switch (Objects[i].contains_id) {
+		if (objp->contains_count)
+		{
+			if (objp->contains_type == OBJ_POWERUP)
+			{
+				switch (objp->contains_id)
+				{
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
-						blue_count2 += Objects[i].contains_count;
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						blue_count2 += objp->contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
-						gold_count2 += Objects[i].contains_count;
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						gold_count2 += objp->contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(vcobjptr(static_cast<objnum_t>(i))), Robot_names[get_robot_id(&Objects[i])], Objects[i].segnum);
-						red_count2 += Objects[i].contains_count;
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						red_count2 += objp->contains_count;
 						break;
 					default:
 						break;
@@ -390,11 +397,14 @@ static void write_control_center_text(PHYSFS_file *my_file)
 
 	count = 0;
 	range_for (const auto i, highest_valid(Segments))
-		if (Segments[i].special == SEGMENT_IS_CONTROLCEN) {
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
+		if (segp->special == SEGMENT_IS_CONTROLCEN)
+		{
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(i));
 			count2 = 0;
-			range_for (const auto objp, objects_in(Segments[i]))
+			range_for (const auto objp, objects_in(segp))
 			{
 				if (objp->type == OBJ_CNTRLCEN)
 					count2++;
@@ -404,6 +414,7 @@ static void write_control_center_text(PHYSFS_file *my_file)
 			else if (count2 != 1)
 				PHYSFSX_printf(my_file, "%i control center objects in control center segment.\n", count2);
 		}
+	}
 
 	if (count == 0)
 		err_printf(my_file, "Error: No control center in this mine.");
@@ -434,25 +445,24 @@ static void write_segment_text(PHYSFS_file *my_file)
 
 	range_for (const auto i, highest_valid(Segments))
 	{
-
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
-		if (Segments[i].special != 0)
-			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", Segments[i].special, Special_names[Segments[i].special], Segments[i].value);
-
-		if (Segments[i].matcen_num != -1)
-			PHYSFSX_printf(my_file, "matcen = %3i, ", Segments[i].matcen_num);
-		
+		if (segp->special != 0)
+			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", segp->special, Special_names[segp->special], segp->value);
+		if (segp->matcen_num != -1)
+			PHYSFSX_printf(my_file, "matcen = %3i, ", segp->matcen_num);
 		PHYSFSX_printf(my_file, "\n");
 	}
 
 	range_for (const auto i, highest_valid(Segments))
 	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		int	depth;
 
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
 		depth=0;
 			PHYSFSX_printf(my_file, "Objects: ");
-			range_for (const auto objp, objects_in(Segments[i]))
+		range_for (const auto objp, objects_in(segp))
 			{
 				short objnum = objp;
 				PHYSFSX_printf(my_file, "[%8s %8s %3i] ", object_types(objp), object_ids(objp), objnum);
@@ -537,9 +547,9 @@ static void write_wall_text(PHYSFS_file *my_file)
 
 	range_for (const auto i, highest_valid(Segments))
 	{
-		segment	*segp = &Segments[i];
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			side	*sidep = &segp->sides[j];
+			const auto sidep = &segp->sides[j];
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
@@ -561,9 +571,11 @@ static void write_player_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "Players:\n");
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_PLAYER) {
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_PLAYER)
+		{
 			num_players++;
-			PHYSFSX_printf(my_file, "Player %2i is object #%3hu in segment #%3i.\n", get_player_id(&Objects[i]), static_cast<uint16_t>(i), Objects[i].segnum);
+			PHYSFSX_printf(my_file, "Player %2i is object #%3hu in segment #%3i.\n", get_player_id(objp), static_cast<uint16_t>(i), objp->segnum);
 		}
 	}
 
@@ -729,12 +741,10 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 	range_for (const auto segnum, highest_valid(Segments))
          {
-		segment	*segp = &Segments[segnum];
-
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
                  {
-			side	*sidep = &segp->sides[sidenum];
-
+			const auto sidep = &segp->sides[sidenum];
 			if (sidep->wall_num != wall_none) {
 				int clip_num = Walls[sidep->wall_num].clip_num;
 				if (clip_num != -1) {
@@ -794,8 +804,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	//	Process robots.
 	range_for (const auto objnum, highest_valid(Objects))
 	{
-		object *objp = &Objects[objnum];
-
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		if (objp->render_type == RT_POLYOBJ) {
 			polymodel *po = &Polygon_models[objp->rtype.pobj_info.model_num];
 
@@ -820,11 +829,9 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	//	Process walls and segment sides.
 	range_for (const auto segnum, highest_valid(Segments))
 	{
-		segment	*segp = &Segments[segnum];
-
+		const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			side	*sidep = &segp->sides[sidenum];
-
+			const auto sidep = &segp->sides[sidenum];
 			if (sidep->wall_num != wall_none) {
 				int clip_num = Walls[sidep->wall_num].clip_num;
 				if (clip_num != -1) {
@@ -989,8 +996,10 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 
 		range_for (const auto j, highest_valid(Objects))
 		{
-			if (!used_objects[j] && Objects[j].type!=OBJ_NONE) {
-				cur_obj_val = Objects[j].type * 1000 + Objects[j].id;
+			const auto &&objp = vcobjptr(static_cast<objnum_t>(j));
+			if (!used_objects[j] && objp->type != OBJ_NONE)
+			{
+				cur_obj_val = objp->type * 1000 + objp->id;
 				if (cur_obj_val < min_obj_val) {
 					min_objnum = j;
 					min_obj_val = cur_obj_val;
@@ -1007,13 +1016,13 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 
 		range_for (const auto i, highest_valid(Objects))
 		{
+			const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 			if (!used_objects[i]) {
-
-				if (((Objects[i].type == objtype) && (Objects[i].id == objid)) ||
-						((Objects[i].type == objtype) && (objtype == OBJ_PLAYER)) ||
-						((Objects[i].type == objtype) && (objtype == OBJ_COOP)) ||
-						((Objects[i].type == objtype) && (objtype == OBJ_HOSTAGE))) {
-					if (Objects[i].type == OBJ_ROBOT)
+				if ((objp->type == objtype && objp->id == objid) ||
+						(objp->type == objtype && objtype == OBJ_PLAYER) ||
+						(objp->type == objtype && objtype == OBJ_COOP) ||
+						(objp->type == objtype && objtype == OBJ_HOSTAGE)) {
+					if (objp->type == OBJ_ROBOT)
 						total_robots++;
 					used_objects[i] = true;
 					objcount++;

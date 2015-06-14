@@ -96,7 +96,7 @@ void init_interface_vars_to_assembler(void)
 		bytes_per_row = (int) bp->bm_rowsize;
 	}
 
-        write_buffer = (unsigned char *) bp->bm_data;
+	write_buffer = bp->bm_mdata;
 
 	Window_clip_left = 0;
 	Window_clip_right = (int) bp->bm_w-1;

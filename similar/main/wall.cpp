@@ -1424,7 +1424,7 @@ void wall_frame_process()
 }
 
 static unsigned Num_stuck_objects;
-array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
+static array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.

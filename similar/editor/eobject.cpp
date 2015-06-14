@@ -273,8 +273,11 @@ static int compute_num_players(void)
 	int	count = 0;
 
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_PLAYER)
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_PLAYER)
 			count++;
+	}
 
 	return count;
 
@@ -405,8 +408,7 @@ int ObjectSelectNextInMine()
 int ObjectSelectPrevInMine()
 {	int i;
 	for (i=0;i<MAX_OBJECTS;i++) {
-		Cur_object_index--;
-		if (Cur_object_index < 0 )
+		if (!(Cur_object_index --))
 			Cur_object_index = MAX_OBJECTS-1;
 
 		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{

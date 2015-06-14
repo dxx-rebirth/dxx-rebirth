@@ -202,14 +202,18 @@ multi_strip_robots(int playernum)
 		}
 
 		range_for (const auto i, highest_valid(Objects, 1))
-			if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].ctype.ai_info.REMOTE_OWNER == playernum)) {
-				Assert((Objects[i].control_type == CT_AI) || (Objects[i].control_type == CT_NONE) || (Objects[i].control_type == CT_MORPH));
-				Objects[i].ctype.ai_info.REMOTE_OWNER = -1;
+		{
+			const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
+			{
+				Assert(objp->control_type == CT_AI || objp->control_type == CT_NONE || objp->control_type == CT_MORPH);
+				objp->ctype.ai_info.REMOTE_OWNER = -1;
 				if (playernum == Player_num)
-					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
+					objp->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
 				else
-					Objects[i].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+					objp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	  		}
+		}
 	}
 	// Note -- only call this with playernum == Player_num if all other players
 	// already know that we are clearing house.  This does not send a release
@@ -317,7 +321,7 @@ struct multi_claim_robot
 {
 	uint8_t pnum;
 	int8_t owner;
-	int16_t robjnum;
+	uint16_t robjnum;
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
 
@@ -361,7 +365,7 @@ multi_send_robot_frame(int sent)
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
-		if ( (robot_controlled[sending] != -1) && ((robot_send_pending[sending] > sent) || (robot_fired[sending] > sent)) )
+		if (robot_controlled[sending] != object_none && (robot_send_pending[sending] > sent || robot_fired[sending] > sent))
 		{
 			if (robot_send_pending[sending])
 			{
@@ -390,9 +394,6 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 {
 	int loc = 0;
 	short s;
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;											loc += 1;
@@ -400,15 +401,20 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	PUT_INTEL_SHORT(multibuf+loc, s);
 
 																		loc += 3;
-#ifndef WORDS_BIGENDIAN
-	create_shortpos((shortpos *)(multibuf+loc), objnum,0);		loc += sizeof(shortpos);
-#else
-	create_shortpos(&sp, objnum, 1);
-	memcpy(&(multibuf[loc]), (ubyte *)(sp.bytemat), 9);
+	if (words_bigendian)
+	{
+		shortpos sp;
+		create_shortpos_little(&sp, objnum);
+		memcpy(&multibuf[loc], sp.bytemat, 9);
 	loc += 9;
-	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
+		memcpy(&multibuf[loc], &sp.xo, 14);
 	loc += 14;
-#endif
+	}
+	else
+	{
+		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[loc]), objnum);
+		loc += sizeof(shortpos);
+	}
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
@@ -441,9 +447,6 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 	// Send robot fire event
 	int loc = 0;
 	short s;
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
@@ -451,16 +454,21 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 	PUT_INTEL_SHORT(multibuf+loc, s);
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+loc, &fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
-	// --------------------------
-	//      Total = 18
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT((int)fire.x);
 	swapped_vec.y = (fix)INTEL_INT((int)fire.y);
 	swapped_vec.z = (fix)INTEL_INT((int)fire.z);
-	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
-#endif
+		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
+	}
+	else
+	{
+		memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
+	}
+	loc += sizeof(vms_vector); // 12
+	// --------------------------
+	//      Total = 18
 
 	if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
@@ -598,9 +606,6 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	// Send create robot information
 
 	int loc = 0;
-#ifdef WORDS_BIGENDIAN
-	vms_vector swapped_vec;
-#endif
 
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
@@ -608,14 +613,20 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
 	multibuf[loc] = del_obj->contains_id;						loc += 1;
 	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
-#ifndef WORDS_BIGENDIAN
-	memcpy(multibuf+loc, &del_obj->pos, sizeof(vms_vector));	loc += 12;
-#else
+	if (words_bigendian)
+	{
+		vms_vector swapped_vec;
 	swapped_vec.x = (fix)INTEL_INT((int)del_obj->pos.x);
 	swapped_vec.y = (fix)INTEL_INT((int)del_obj->pos.y);
 	swapped_vec.z = (fix)INTEL_INT((int)del_obj->pos.z);
-	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector));     loc += 12;
-#endif
+		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
+		loc += 12;
+	}
+	else
+	{
+		memcpy(&multibuf[loc], &del_obj->pos, sizeof(vms_vector));
+		loc += 12;
+	}
 
 	memset(multibuf+loc, -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
@@ -644,7 +655,8 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 	multi_claim_robot b;
 	multi_serialize_read(buf, b);
 	auto botnum = objnum_remote_to_local(b.robjnum, b.owner);
-	if ((botnum > Highest_object_index) || (botnum < 0)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -676,7 +688,8 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -701,16 +714,14 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 
 	short remote_botnum;
 	int loc = 1;
-#ifdef WORDS_BIGENDIAN
-	shortpos sp;
-#endif
 
 	;										loc += 1;
 
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -741,13 +752,18 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	set_thrust_from_velocity(robot); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-#ifndef WORDS_BIGENDIAN
-	extract_shortpos(robot, (shortpos *)(buf+loc), 0);
-#else
-	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + loc), 9);		loc += 9;
-	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + loc), 14);
-	extract_shortpos(robot, &sp, 1);
-#endif
+	if (words_bigendian)
+	{
+		shortpos sp;
+		memcpy(sp.bytemat, &buf[loc], 9);
+		loc += 9;
+		memcpy(&sp.xo, &buf[loc], 14);
+		extract_shortpos_little(robot, &sp);
+	}
+	else
+	{
+		extract_shortpos_little(robot, reinterpret_cast<const shortpos *>(&buf[loc]));
+	}
 }
 
 static inline vms_vector calc_gun_point(const vcobjptr_t obj,int gun_num)
@@ -775,7 +791,7 @@ multi_do_robot_fire(const ubyte *buf)
 	fire.y = (fix)INTEL_INT((int)fire.y);
 	fire.z = (fix)INTEL_INT((int)fire.z);
 
-	if ((botnum < 0) || (botnum > Highest_object_index))
+	if (botnum > Highest_object_index)
 	{
 		return;
 	}
@@ -876,7 +892,8 @@ multi_do_robot_explode(const ubyte *buf)
 	auto botnum = objnum_remote_to_local(b.robj_killed, b.owner_killed);
 	// Explode robot controlled by other player
 	int rval;
-	if ((botnum < 0) || (botnum > Highest_object_index)) {
+	if (botnum > Highest_object_index)
+	{
 		return;
 	}
 
@@ -897,7 +914,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(buf + 3);
 
-	if ((objnum < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
+	if (fuelcen_num >= Num_fuelcenters || pnum >= N_players)
 	{
 		Int3(); // Bogus data
 		return;
@@ -939,11 +956,6 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 {
 	boss_teleport b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -977,11 +989,6 @@ void multi_do_boss_cloak(const ubyte *buf)
 {
 	boss_cloak b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1001,11 +1008,6 @@ void multi_do_boss_start_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1019,11 +1021,6 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 {
 	boss_start_gate b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1037,11 +1034,6 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 {
 	boss_create_robot b;
 	multi_serialize_read(buf, b);
-	if ((b.objnum < 0) || (b.objnum > Highest_object_index))
-	{
-		Int3();  // See Rob
-		return;
-	}
 	const vobjptridx_t boss_obj = vobjptridx(b.objnum);
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
 	{
@@ -1049,7 +1041,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Do some validity checking
-	if (b.objrobot >= MAX_OBJECTS || b.objrobot < 0)
+	if (b.objrobot >= MAX_OBJECTS)
 	{
 		Int3(); // See Rob, bad data in boss gate action message
 		return;

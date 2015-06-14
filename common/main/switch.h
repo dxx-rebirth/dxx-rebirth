@@ -74,7 +74,7 @@ struct v29_trigger
 	fix     time;
 	sbyte   link_num;
 	short   num_links;
-	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 
@@ -85,7 +85,7 @@ struct v30_trigger
 	sbyte   pad;                        //keep alignment
 	fix     value;
 	fix     time;
-	array<short, MAX_WALLS_PER_LINK>   seg;
+	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
 } __pack__;
 #endif

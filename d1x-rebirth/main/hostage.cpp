@@ -48,7 +48,6 @@ array<hostage_data, MAX_HOSTAGES> 		Hostages;						// Data for each hostage in m
 int hostage_is_valid( int hostage_num )	{
 	if ( hostage_num < 0 ) return 0;
 	if ( hostage_num >= MAX_HOSTAGES ) return 0;
-	if ( Hostages[hostage_num].objnum < 0 ) return 0;
 	if ( Hostages[hostage_num].objnum > Highest_object_index ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].type != OBJ_HOSTAGE ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].signature != Hostages[hostage_num].objsig ) return 0;

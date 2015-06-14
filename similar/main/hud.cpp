@@ -93,10 +93,11 @@ void HUD_render_message_frame()
 		gr_set_curfont( GAME_FONT );
 		y = FSPACY(1);
 
+		const auto &&line_spacing = LINE_SPACING;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
 		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow)
-			y+=LINE_SPACING;
+			y += line_spacing;
 #endif
 
 		hudmsg_array_t::iterator i, e = HUD_messages.end();
@@ -110,7 +111,7 @@ void HUD_render_message_frame()
 			gr_set_fontcolor( HUD_color, -1);
 
 			gr_string(0x8000,y, &i->message[0] );
-			y += LINE_SPACING;
+			y += line_spacing;
 		}
 	}
 

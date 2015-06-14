@@ -563,10 +563,13 @@ static void change_vertex_occurrences(int dest, int src)
 
 	// now scan all segments, changing occurrences of src to dest
 	range_for (const auto s, highest_valid(Segments))
-		if (Segments[s].segnum != segment_none)
-			range_for (auto &v, Segments[s].verts)
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(s));
+		if (segp->segnum != segment_none)
+			range_for (auto &v, segp->verts)
 				if (v == src)
 					v = dest;
+	}
 }
 
 // --------------------------------------------------------------------------------------------------
@@ -917,13 +920,16 @@ void set_vertex_counts(void)
 
 	// Count number of occurrences of each vertex.
 	range_for (const auto s, highest_valid(Segments))
-		if (Segments[s].segnum != segment_none)
-			range_for (auto &v, Segments[s].verts)
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(s));
+		if (segp->segnum != segment_none)
+			range_for (auto &v, segp->verts)
 			{
 				if (!Vertex_active[v])
 					Num_vertices++;
 				++ Vertex_active[v];
 			}
+	}
 }
 
 // -------------------------------------------------------------------------------
@@ -1230,8 +1236,10 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 
 	for (v=0; v<4; v++)
 		range_for (const auto s, highest_valid(Segments))
-			if (Segments[s].segnum != segment_none)
-				range_for (auto &sv, Segments[s].verts)
+		{
+			const auto &&segp = vsegptr(static_cast<segnum_t>(s));
+			if (segp->segnum != segment_none)
+				range_for (auto &sv, segp->verts)
 					if (sv == lost_vertices[v]) {
 						sv = remap_vertices[v];
 						// Add segment to list of segments to be validated.
@@ -1242,6 +1250,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 							validation_list[nv++] = s;
 						Assert(nv < MAX_VALIDATIONS);
 					}
+		}
 
 	//	Form new connections.
 	seg1->children[side1] = seg2;
@@ -1585,10 +1594,12 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (const auto seg, highest_valid(Segments))
 	{
-		if (seg != sp) {
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
+		if (seg != sp)
+		{
 			range_for (auto &v, abs_verts)
 			{												// do for each vertex in abs_verts
-				range_for (auto &vv, Segments[seg].verts) // do for each vertex in segment
+				range_for (auto &vv, segp->verts) // do for each vertex in segment
 					if (v == vv)
 						goto fass_found1;											// Current vertex (indexed by v) is present in segment, try next
 				goto fass_next_seg;												// This segment doesn't contain the vertex indexed by v
@@ -1602,14 +1613,14 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 				{
 					range_for (auto &vv, abs_verts)
 					{
-						if (Segments[seg].verts[v] == vv)
+						if (segp->verts[v] == vv)
 							goto fass_found2;
 					}
 					goto fass_next_side;											// Couldn't find vertex v in current side, so try next side.
 				fass_found2: ;
 				}
 				// Found all four vertices in current side.  We are done!
-				adj_sp = &Segments[seg];
+				adj_sp = segp;
 				*adj_side = s;
 				return 1;
 			fass_next_side: ;
@@ -1644,18 +1655,21 @@ int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, se
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (const auto seg, highest_valid(Segments))
+	{
+		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
 		if (seg != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
-				if (!IS_CHILD(Segments[seg].children[s])) {
-					const auto vtc = compute_center_point_on_side(&Segments[seg], s); 
+				if (!IS_CHILD(segp->children[s])) {
+					const auto vtc = compute_center_point_on_side(segp, s); 
 					current_dist = vm_vec_dist( vsc, vtc );
 					if (current_dist < closest_seg_dist) {
-						adj_sp = &Segments[seg];
+						adj_sp = segp;
 						*adj_side = s;
 						closest_seg_dist = current_dist;
 					}
 				}
 			}	
+	}
 
 	if (closest_seg_dist < threshold)
 		return 1;

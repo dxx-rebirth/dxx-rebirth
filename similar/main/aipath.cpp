@@ -605,10 +605,9 @@ void validate_all_paths(void)
 #if PATH_VALIDATION
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_ROBOT) {
-			object		*objp = &Objects[i];
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT) {
 			ai_static	*aip = &objp->ctype.ai_info;
-
 			if (objp->control_type == CT_AI) {
 				if ((aip->hide_index != -1) && (aip->path_length > 0))
 					if (!validate_path(4, &Point_segs[aip->hide_index], aip->path_length)) {
@@ -1334,17 +1333,15 @@ void ai_path_garbage_collect(void)
 	//	Create a list of objects which have paths of length 1 or more.
 	range_for (const auto objnum, highest_valid(Objects))
 	{
-		object	*objp = &Objects[objnum];
-
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
 #if defined(DXX_BUILD_DESCENT_II)
 			|| (objp->control_type == CT_MORPH)
 #endif
 										  )) {
-			ai_static	*aip = &objp->ctype.ai_info;
-
-			if (aip->path_length) {
-				object_list[num_path_objects].path_start = aip->hide_index;
+			const auto &aip = objp->ctype.ai_info;
+			if (aip.path_length) {
+				object_list[num_path_objects].path_start = aip.hide_index;
 				object_list[num_path_objects++].objnum = objnum;
 			}
 		}
@@ -1376,10 +1373,11 @@ void ai_path_garbage_collect(void)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		ai_static	*aip = &Objects[i].ctype.ai_info;
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		const auto &aip = objp->ctype.ai_info;
 
-		if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].control_type == CT_AI))
-			if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (aip->path_length>0))
+		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
+			if ((aip.hide_index + aip.path_length > Point_segs_free_ptr - Point_segs) && (aip.path_length>0))
 				Int3();		//	Contact Mike: Debug trap for nasty, elusive bug.
 	}
 
@@ -1420,11 +1418,11 @@ void ai_reset_all_paths(void)
 {
 	range_for (const auto i, highest_valid(Objects))
 	{
-		auto objp = vobjptridx(i);
+		const auto &&objp = vobjptridx(i);
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
-			Objects[i].ctype.ai_info.hide_index = -1;
-			Objects[i].ctype.ai_info.path_length = 0;
+			objp->ctype.ai_info.hide_index = -1;
+			objp->ctype.ai_info.path_length = 0;
 		}
 	}
 
@@ -1506,10 +1504,14 @@ static void test_create_all_paths(void)
 
 	range_for (const auto start_seg, highest_valid(Segments))
 	{
-		if (Segments[start_seg].segnum != segment_none) {
+		const auto &&segp0 = vcsegptr(static_cast<segnum_t>(start_seg));
+		if (segp0->segnum != segment_none)
+		{
 			range_for (const auto end_seg, highest_valid(Segments, start_seg))
 			{
-				if (Segments[end_seg].segnum != segment_none) {
+				const auto &&segp1 = vcsegptr(static_cast<segnum_t>(end_seg));
+				if (segp1->segnum != segment_none)
+				{
 					create_path_points(object_first, start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}
 			}

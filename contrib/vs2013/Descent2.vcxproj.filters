@@ -869,9 +869,6 @@
     <ClInclude Include="..\..\d2x-rebirth\include\physfsrwops.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\d2x-rebirth\include\pngfile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\d2x-rebirth\libmve\decoders.h">
       <Filter>Header Files</Filter>
     </ClInclude>

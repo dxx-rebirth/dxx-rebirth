@@ -40,9 +40,6 @@
 #include "console.h"
 #include "config.h"
 #include "u_mem.h"
-#ifdef HAVE_LIBPNG
-#include "pngfile.h"
-#endif
 
 #include "segment.h"
 #include "textures.h"
@@ -307,10 +304,13 @@ static void ogl_texture_stats(void)
 	gr_set_fontcolor( BM_XRGB(255,255,255),-1 );
 	colorsize = (idx * res * dbl) / 8;
 	depthsize = res * depth / 8;
-	gr_printf(FSPACX(2),FSPACY(1),"%i flat %i tex %i bitmaps",r_polyc,r_tpolyc,r_bitmapc);
-	gr_printf(FSPACX(2), FSPACY(1)+LINE_SPACING, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
-	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
-	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
+	const auto &&fspacx2 = FSPACX(2);
+	const auto &&fspacy1 = FSPACY(1);
+	const auto &&line_spacing = LINE_SPACING;
+	gr_printf(fspacx2, fspacy1, "%i flat %i tex %i bitmaps", r_polyc, r_tpolyc, r_bitmapc);
+	gr_printf(fspacx2, fspacy1 + line_spacing, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
+	gr_printf(fspacx2, fspacy1 + (line_spacing * 2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
+	gr_printf(fspacx2, fspacy1 + (line_spacing * 3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
 static void ogl_bindbmtex(grs_bitmap &bm){
@@ -453,8 +453,8 @@ void ogl_cache_level_textures(void)
 			const auto objp = vcobjptridx(i);
 			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
 			{
-				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
-				switch (get_powerup_id(&Objects[i])){
+				ogl_cache_vclipn_textures(objp->rtype.vclip_info.vclip_num);
+				switch (get_powerup_id(objp)){
 					case POW_VULCAN_WEAPON:
 						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[VULCAN_INDEX]);
 						break;
@@ -523,16 +523,16 @@ void ogl_cache_level_textures(void)
 			}
 			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)
 			{
-				if (Objects[i].type == OBJ_ROBOT)
+				if (objp->type == OBJ_ROBOT)
 				{
-					ogl_cache_vclipn_textures(Robot_info[get_robot_id(&Objects[i])].exp1_vclip_num);
-					ogl_cache_vclipn_textures(Robot_info[get_robot_id(&Objects[i])].exp2_vclip_num);
-					ogl_cache_weapon_textures(Robot_info[get_robot_id(&Objects[i])].weapon_type);
+					ogl_cache_vclipn_textures(Robot_info[get_robot_id(objp)].exp1_vclip_num);
+					ogl_cache_vclipn_textures(Robot_info[get_robot_id(objp)].exp2_vclip_num);
+					ogl_cache_weapon_textures(Robot_info[get_robot_id(objp)].weapon_type);
 				}
-				if (Objects[i].rtype.pobj_info.tmap_override != -1)
-					ogl_loadbmtexture(GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);
+				if (objp->rtype.pobj_info.tmap_override != -1)
+					ogl_loadbmtexture(GameBitmaps[Textures[objp->rtype.pobj_info.tmap_override].index]);
 				else
-					ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
+					ogl_cache_polymodel_textures(objp->rtype.pobj_info.model_num);
 			}
 		}
 	}
@@ -1600,9 +1600,6 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 {
-#ifdef HAVE_LIBPNG
-	char *bitmapname;
-#endif
 
 	grs_bitmap *bm = &rbm;
 	while (bm->bm_parent)
@@ -1610,36 +1607,6 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
 	auto buf=bm->get_bitmap_data();
-#ifdef HAVE_LIBPNG
-	if ((bitmapname = piggy_game_bitmap_name(bm)))
-	{
-		char filename[64];
-		png_data pdata;
-
-		sprintf(filename, "textures/%s.png", bitmapname);
-		if (read_png(filename, &pdata))
-		{
-			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
-			if (pdata.depth == 8 && pdata.color)
-			{
-				if (bm->gltexture == NULL)
-					ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
-				ogl_loadtexture(pdata.data, 0, 0, *bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, texfilt);
-				free(pdata.data);
-				if (pdata.palette)
-					free(pdata.palette);
-				return;
-			}
-			else
-			{
-				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8", filename);
-				free(pdata.data);
-				if (pdata.palette)
-					free(pdata.palette);
-			}
-		}
-	}
-#endif
 	if (bm->gltexture == NULL){
  		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
 	}
@@ -1667,7 +1634,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode({sbits, dbits}, rle_end(*bm, decodebuf));
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
-				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
 				sbits += (int)bm->bm_data[4+i];
 			dbits += bm->bm_w;

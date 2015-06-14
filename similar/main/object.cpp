@@ -980,8 +980,11 @@ objptridx_t obj_allocate()
 {
 Unused_object_slots=0;
 	range_for (const auto i, highest_valid(Objects))
-	if (Objects[i].type == OBJ_NONE)
+	{
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_NONE)
 		Unused_object_slots++;
+	}
 }
 	return objptridx(objnum);
 }
@@ -1024,12 +1027,15 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->flags & OF_SHOULD_BE_DEAD)
+		{
 			num_already_free++;
 			if (MAX_OBJECTS - num_already_free < num_used)
 				return;
 		} else
-			switch (Objects[i].type) {
+			switch (objp->type)
+			{
 				case OBJ_NONE:
 					num_already_free++;
 					if (MAX_OBJECTS - num_already_free < num_used)
@@ -1041,7 +1047,7 @@ static void free_object_slots(uint_fast32_t num_used)
 				case OBJ_FIREBALL:
 				case OBJ_WEAPON:
 				case OBJ_DEBRIS:
-					obj_list[olind++] = &Objects[i];
+					obj_list[olind++] = objp;
 					break;
 				case OBJ_ROBOT:
 				case OBJ_HOSTAGE:
@@ -1588,7 +1594,10 @@ void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 void obj_relink_all(void)
 {
 	range_for (const auto segnum, highest_valid(Segments))
-		Segments[segnum].objects = object_none;
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
+		segp->objects = object_none;
+	}
 	
 	range_for (const auto objnum, highest_valid(Objects))
 	{

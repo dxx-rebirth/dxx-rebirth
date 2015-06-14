@@ -75,11 +75,12 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	char temp[10];
 
 	y = FSPACY(50+i*9);
-	gr_string(FSPACX(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
+	const auto &&fspacx = FSPACX();
+	gr_string(fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
 
 	for (int j=0; j<N_players; j++)
 	{
-		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
+		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		const auto kmij = kill_matrix[sorted[i]][sorted[j]];
 		if (sorted[i]==sorted[j])
@@ -114,7 +115,7 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	else
 		snprintf (temp,sizeof(temp),"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
 
-	x = FSPACX(60 + CENTERING_OFFSET(N_players) + N_players*25);
+	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
 	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
@@ -124,11 +125,12 @@ static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
 	int  x, y;
 
 	y = FSPACY(50+i*9);
-	gr_string(FSPACX(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
+	const auto &&fspacx = FSPACX();
+	gr_string(fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
 	x = CENTERSCREEN;
 	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
 	gr_printf( x, y, "%d", Players[sorted[i]].score );
-	x = CENTERSCREEN+FSPACX(50);
+	x = CENTERSCREEN + fspacx(50);
 	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
 	gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
 }
@@ -137,9 +139,11 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 {
 	int x;
 
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 	for (int j=0; j<N_players; j++)
 	{
-		x = FSPACX (70 + CENTERING_OFFSET(N_players) + j*25);
+		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
@@ -149,20 +153,21 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		}
 
-		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0u] );
+		gr_printf(x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
 	}
 
-	x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);
+	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-	gr_string( x, FSPACY(40), "K/E");
+	gr_string(x, fspacy(40), "K/E");
 }
 
 static void kmatrix_draw_coop_names(playernum_array_t &)
 {
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_string( CENTERSCREEN, FSPACY(40), "SCORE");
+	const auto &&fspacy = FSPACY();
+	gr_string(CENTERSCREEN, fspacy(40), "SCORE");
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_string( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
+	gr_string(CENTERSCREEN + FSPACX(50), fspacy(40), "DEATHS");
 }
 
 static void kmatrix_status_msg (fix time, int reactor)
@@ -201,14 +206,16 @@ static void kmatrix_redraw(kmatrix_screen *km)
 		multi_sort_kill_list();
 		gr_set_curfont(MEDIUM3_FONT);
 
+		const auto title =
 #if defined(DXX_BUILD_DESCENT_II)
-		if (game_mode_capture_flag())
-			gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
-		else if (game_mode_hoard())
-			gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
-		else
+			game_mode_capture_flag()
+			? "CAPTURE THE FLAG SUMMARY"
+			: game_mode_hoard()
+				? "HOARD SUMMARY"
+				:
 #endif
-			gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
+				TXT_KILL_MATRIX_TITLE;
+		gr_string(0x8000, FSPACY(10), title);
 
 		gr_set_curfont(GAME_FONT);
 		multi_get_kill_list(sorted);

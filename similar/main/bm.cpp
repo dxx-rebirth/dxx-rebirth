@@ -746,7 +746,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 			auto dbits = buf.get();
 			gr_rle_decode({sbits, dbits}, {end(*bm), dbits + bm_w});
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
-				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
 				sbits += (int)bm->bm_data[4+i];
 			range_for (const auto color, unchecked_partial_range(dbits, bm_w))

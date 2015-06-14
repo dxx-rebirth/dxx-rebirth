@@ -527,14 +527,13 @@ void set_dynamic_light(render_state_t &rstate)
 
 	range_for (const auto objnum, highest_valid(Objects))
 	{
-		object		*obj = &Objects[objnum];
-		const auto &objpos = obj->pos;
+		const auto &&obj = vcobjptr(static_cast<objnum_t>(objnum));
 		g3s_lrgb	obj_light_emission;
 
 		obj_light_emission = compute_light_emission(objnum);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(obj_light_emission, obj->segnum, objpos, n_render_vertices, render_vertices, vert_segnum_list, objnum);
+			apply_light(obj_light_emission, obj->segnum, obj->pos, n_render_vertices, render_vertices, vert_segnum_list, objnum);
 	}
 }
 

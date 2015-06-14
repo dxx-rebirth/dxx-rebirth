@@ -112,21 +112,22 @@ static void show_framerate()
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 
+	const auto &&line_spacing = LINE_SPACING;
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
 		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= LINE_SPACING * 10;
+			y -= line_spacing * 10;
 		else
-			y -= LINE_SPACING * 4;
+			y -= line_spacing * 4;
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= LINE_SPACING * 6;
+			y -= line_spacing * 6;
 		else
-			y -= LINE_SPACING * 1;
+			y -= line_spacing * 1;
 	} else {
 		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= LINE_SPACING * 7;
+			y -= line_spacing * 7;
 		else
-			y -= LINE_SPACING * 2;
+			y -= line_spacing * 2;
 	}
 
 	fps_count++;
@@ -148,46 +149,51 @@ static void show_netplayerinfo()
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(255,-1);
 
-	x=(SWIDTH/2)-FSPACX(120);
-	y=(SHEIGHT/2)-FSPACY(84);
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacx120 = fspacx(120);
+	const auto &&fspacy84 = FSPACY(84);
+	x = (SWIDTH / 2) - fspacx120;
+	y = (SHEIGHT / 2) - fspacy84;
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
 	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect((SWIDTH/2)-FSPACX(120),(SHEIGHT/2)-FSPACY(84),(SWIDTH/2)+FSPACX(120),(SHEIGHT/2)+FSPACY(84));
+	gr_rect((SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84);
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
-	y+=LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING;
+	y += line_spacing;
 	gr_string(0x8000,y,Netgame.game_name.data());
-	y+=LINE_SPACING;
+	y += line_spacing;
 	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
-	x+=FSPACX(8);
-	y+=LINE_SPACING*2;
+	const auto &&fspacx8 = fspacx(8);
+	x += fspacx8;
+	y += line_spacing * 2;
 	unsigned gamemode = Netgame.gamemode;
 	gr_printf(x,y,"game mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
-	y+=LINE_SPACING;
+	y += line_spacing;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
-	y+=LINE_SPACING;
+	y += line_spacing;
 	gr_printf(x,y,"level time: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);
-	y+=LINE_SPACING;
+	y += line_spacing;
 	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
-	y+=LINE_SPACING;
+	y += line_spacing;
 	if (Netgame.KillGoal)
 		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
 
 	// player information (name, kills, ping, game efficiency)
-	y+=LINE_SPACING*2;
+	y += line_spacing * 2;
 	gr_string(x,y,"player");
 	if (Game_mode & GM_MULTI_COOP)
-		gr_string(x+FSPACX(8)*7,y,"score");
+		gr_string(x + fspacx8 * 7, y, "score");
 	else
 	{
-		gr_string(x+FSPACX(8)*7,y,"kills");
-		gr_string(x+FSPACX(8)*12,y,"deaths");
+		gr_string(x + fspacx8 * 7, y, "kills");
+		gr_string(x + fspacx8 * 12, y, "deaths");
 	}
-	gr_string(x+FSPACX(8)*18,y,"ping");
-	gr_string(x+FSPACX(8)*23,y,"efficiency");
+	gr_string(x + fspacx8 * 18, y, "ping");
+	gr_string(x + fspacx8 * 23, y, "efficiency");
 
 	// process players table
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
@@ -195,44 +201,44 @@ static void show_netplayerinfo()
 		if (!Players[i].connected)
 			continue;
 
-		y+=LINE_SPACING;
+		y += line_spacing;
 
 		const auto color = get_player_or_team_color(i);
 		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].score);
+			gr_printf(x + fspacx8 * 7, y, "%-6d", Players[i].score);
 		else
 		{
-			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].net_kills_total);
-			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
+			gr_printf(x + fspacx8 * 7, y,"%-6d", Players[i].net_kills_total);
+			gr_printf(x + fspacx8 * 12, y,"%-6d", Players[i].net_killed_total);
 		}
 
-		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
+		gr_printf(x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(x+FSPACX(8)*23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
+			gr_printf(x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
-	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));
+	y += (line_spacing * 2) + (line_spacing * (MAX_PLAYERS - N_players));
 
 	// printf team scores
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(255,-1);
 		gr_string(x,y,"team");
-		gr_string(x+FSPACX(8)*8,y,"score");
-		y+=LINE_SPACING;
+		gr_string(x + fspacx8 * 8, y, "score");
+		y += line_spacing;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
 		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
-		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
-		y+=LINE_SPACING;
+		gr_printf(x + fspacx8 * 8, y, "%i", team_kills[0]);
+		y += line_spacing;
 		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
 		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
-		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
-		y+=LINE_SPACING*2;
+		gr_printf(x + fspacx8 * 8, y, "%i", team_kills[1]);
+		y += line_spacing * 2;
 	}
 	else
-		y+=LINE_SPACING*4;
+		y += line_spacing * 4;
 
 	gr_set_fontcolor(255,-1);
 
@@ -254,12 +260,12 @@ static void show_netplayerinfo()
 	if (!PlayerCfg.NoRankings)
 	{
 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
-		y+=LINE_SPACING;
+		y += line_spacing;
 		if (eff<60)
 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
 			gr_string(0x8000,y,"is serving you well.");
-		y+=LINE_SPACING;
+		y += line_spacing;
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }

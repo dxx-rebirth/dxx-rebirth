@@ -254,11 +254,12 @@ void dead_player_end();
 // Extract information from an object (objp->orient, objp->pos,
 // objp->segnum), stuff in a shortpos structure.  See typedef
 // shortpos.
-void create_shortpos(shortpos *spp, vcobjptr_t objp, int swap_bytes);
+void create_shortpos_little(shortpos *spp, vcobjptr_t objp);
+void create_shortpos_native(shortpos *spp, vcobjptr_t objp);
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void extract_shortpos(vobjptridx_t objp, shortpos *spp, int swap_bytes);
+void extract_shortpos_little(vobjptridx_t objp, const shortpos *spp);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 void create_quaternionpos(quaternionpos * qpp, vobjptr_t objp, int swap_bytes);

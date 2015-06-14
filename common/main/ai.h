@@ -38,11 +38,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "countarray.h"
 #include "aistruct.h"
 #endif
+#include "fwdvalptridx.h"
 
 struct point_seg;
-struct vobjptr_t;
-struct objptridx_t;
-struct vobjptridx_t;
 struct PHYSFS_File;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
@@ -172,47 +170,41 @@ extern fix AI_proc_time;
 extern fix Dist_to_last_fired_upon_player_pos;
 extern vms_vector Last_fired_upon_player_pos;
 
-#define ESCORT_GOAL_UNSPECIFIED -1
-
-#define ESCORT_GOAL_UNSPECIFIED -1
-#define ESCORT_GOAL_BLUE_KEY    1
-#define ESCORT_GOAL_GOLD_KEY    2
-#define ESCORT_GOAL_RED_KEY     3
-#define ESCORT_GOAL_CONTROLCEN  4
-#define ESCORT_GOAL_EXIT        5
+enum escort_goal_t
+{
+	ESCORT_GOAL_UNSPECIFIED = -1,
+	ESCORT_GOAL_BLUE_KEY = 1,
+	ESCORT_GOAL_GOLD_KEY = 2,
+	ESCORT_GOAL_RED_KEY = 3,
+	ESCORT_GOAL_CONTROLCEN = 4,
+	ESCORT_GOAL_EXIT = 5,
 
 // Custom escort goals.
-#define ESCORT_GOAL_ENERGY      6
-#define ESCORT_GOAL_ENERGYCEN   7
-#define ESCORT_GOAL_SHIELD      8
-#define ESCORT_GOAL_POWERUP     9
-#define ESCORT_GOAL_ROBOT       10
-#define ESCORT_GOAL_HOSTAGE     11
-#define ESCORT_GOAL_PLAYER_SPEW 12
-#define ESCORT_GOAL_SCRAM       13
-#define ESCORT_GOAL_BOSS        15
-#define ESCORT_GOAL_MARKER1     16
-#define ESCORT_GOAL_MARKER2     17
-#define ESCORT_GOAL_MARKER3     18
-#define ESCORT_GOAL_MARKER4     19
-#define ESCORT_GOAL_MARKER5     20
-#define ESCORT_GOAL_MARKER6     21
-#define ESCORT_GOAL_MARKER7     22
-#define ESCORT_GOAL_MARKER8     23
-#define ESCORT_GOAL_MARKER9     24
+	ESCORT_GOAL_ENERGY = 6,
+	ESCORT_GOAL_ENERGYCEN = 7,
+	ESCORT_GOAL_SHIELD = 8,
+	ESCORT_GOAL_POWERUP = 9,
+	ESCORT_GOAL_ROBOT = 10,
+	ESCORT_GOAL_HOSTAGE = 11,
+	ESCORT_GOAL_PLAYER_SPEW = 12,
+	ESCORT_GOAL_SCRAM = 13,
+	ESCORT_GOAL_BOSS = 15,
+	ESCORT_GOAL_MARKER1 = 16,
+	ESCORT_GOAL_MARKER2 = 17,
+	ESCORT_GOAL_MARKER3 = 18,
+	ESCORT_GOAL_MARKER4 = 19,
+	ESCORT_GOAL_MARKER5 = 20,
+	ESCORT_GOAL_MARKER6 = 21,
+	ESCORT_GOAL_MARKER7 = 22,
+	ESCORT_GOAL_MARKER8 = 23,
+	ESCORT_GOAL_MARKER9 = 24,
+};
 
-#define MAX_ESCORT_GOALS        25
-
-#define MAX_ESCORT_DISTANCE     (F1_0*80)
 #define MIN_ESCORT_DISTANCE     (F1_0*40)
 
-#define FUELCEN_CHECK           1000
-
 extern fix64 Escort_last_path_created;
-extern int Escort_goal_object, Escort_special_goal;
+extern escort_goal_t Escort_goal_object, Escort_special_goal;
 extern objnum_t	 Escort_goal_index;
-
-#define GOAL_WIDTH 11
 
 #define SNIPE_RETREAT_TIME  (F1_0*5)
 #define SNIPE_ABORT_RETREAT_TIME (SNIPE_RETREAT_TIME/2) // Can abort a retreat with this amount of time left in retreat

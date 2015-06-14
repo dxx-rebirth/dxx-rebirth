@@ -394,7 +394,7 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	shortpos sp;
 	ubyte render_type;
 
-	create_shortpos(&sp, obj, 0);
+	create_shortpos_native(&sp, obj);
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
@@ -1907,7 +1907,10 @@ static int newdemo_read_frame_information(int rewrite)
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
 		range_for (const auto segnum, highest_valid(Segments))
-			Segments[segnum].objects = object_none;
+		{
+			const auto segp = vsegptr(static_cast<segnum_t>(segnum));
+			segp->objects = object_none;
+		}
 
 	reset_objects(1);
 	Players[Player_num].homing_object_dist = -F1_0;
@@ -3364,7 +3367,8 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
 			range_for (const auto j, highest_valid(Objects))
 			{
-				if (i.signature == Objects[j].signature) {
+				const auto &&objp = vobjptr(static_cast<objnum_t>(j));
+				if (i.signature == objp->signature) {
 					sbyte render_type = i.render_type;
 					fix delta_x, delta_y, delta_z;
 
@@ -3378,14 +3382,14 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 
 						fvec1 = i.orient.fvec;
 						vm_vec_scale(fvec1, F1_0-factor);
-						fvec2 = Objects[j].orient.fvec;
+						fvec2 = objp->orient.fvec;
 						vm_vec_scale(fvec2, factor);
 						vm_vec_add2(fvec1, fvec2);
 						mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
 							rvec1 = i.orient.rvec;
 							vm_vec_scale(rvec1, F1_0-factor);
-							rvec2 = Objects[j].orient.rvec;
+							rvec2 = objp->orient.rvec;
 							vm_vec_scale(rvec2, factor);
 							vm_vec_add2(rvec1, rvec2);
 							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
@@ -3396,9 +3400,9 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 					// Interpolate the object position.  This is just straight linear
 					// interpolation.
 
-					delta_x = Objects[j].pos.x - i.pos.x;
-					delta_y = Objects[j].pos.y - i.pos.y;
-					delta_z = Objects[j].pos.z - i.pos.z;
+					delta_x = objp->pos.x - i.pos.x;
+					delta_y = objp->pos.y - i.pos.y;
+					delta_z = objp->pos.z - i.pos.z;
 
 					delta_x = fixmul(delta_x, factor);
 					delta_y = fixmul(delta_y, factor);
@@ -3569,9 +3573,10 @@ void newdemo_playback_one_frame()
 					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
 						range_for (const auto j, highest_valid(Objects))
 						{
-							if (i.signature == Objects[j].signature) {
-								Objects[j].orient = i.orient;
-								Objects[j].pos = i.pos;
+							const auto &&objp = vobjptr(static_cast<objnum_t>(j));
+							if (i.signature == objp->signature) {
+								objp->orient = i.orient;
+								objp->pos = i.pos;
 								break;
 							}
 						}

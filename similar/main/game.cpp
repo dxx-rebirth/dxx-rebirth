@@ -1422,7 +1422,7 @@ void GameProcessFrame(void)
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-			Players[Player_num].invulnerable_time = GameTime64-i2f(27);
+			Players[Player_num].invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			FakingInvul=1;
 		}
 	}
@@ -1737,10 +1737,14 @@ int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
 	range_for (const auto i, highest_valid(Segments))
+	{
+		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == segment_exit) {
+			if (segp->children[j] == segment_exit)
+			{
 				return mark_player_path_to_segment(i);
 			}
+	}
 
 	return 0;
 }

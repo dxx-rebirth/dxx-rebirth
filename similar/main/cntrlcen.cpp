@@ -437,7 +437,7 @@ void init_controlcen_for_level(void)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		auto objp = vobjptridx(i);
+		const auto &&objp = vcobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)
 		{
 			if (cntrlcen_objnum != object_none)

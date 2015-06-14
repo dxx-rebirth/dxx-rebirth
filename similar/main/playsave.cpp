@@ -525,7 +525,7 @@ static const char effcode2[]="AObe)7Rn1 -+/zZ'0";
 static const char effcode3[]="aoeuidhtnAOEUIDH6";
 static const char effcode4[]="'/.;]<{=,+?|}->[3";
 
-static unsigned char * decode_stat(unsigned char *p,int *v,const char *effcode)
+static const uint8_t *decode_stat(const uint8_t *p,int *v,const char *effcode)
 {
 	unsigned char c;
 	int neg,i;
@@ -581,9 +581,9 @@ static void plyr_read_stats_v(int *k, int *d)
 			 PHYSFSX_fgets(line,f);
 			 const char *value=splitword(line,':');
 			 if(value && !strcmp(line,"key") && strlen(value)>10){
-				 unsigned char *p;
 				 if (value[0]=='0' && value[1]=='1'){
-					 if ((p=decode_stat((unsigned char*)value+3,&k1,effcode1))&&
+					 const uint8_t *p;
+					 if ((p=decode_stat(reinterpret_cast<const unsigned char *>(value + 3), &k1, effcode1))&&
 					     (p=decode_stat(p+1,&k2,effcode2))&&
 					     (p=decode_stat(p+1,&d1,effcode3))){
 						 decode_stat(p+1,&d2,effcode4);

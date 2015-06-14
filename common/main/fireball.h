@@ -30,13 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "maths.h"
 #include "fwd-partial_range.h"
+#include "fwdvalptridx.h"
 
 struct vms_vector;
-struct objptridx_t;
-struct cobjptridx_t;
-struct vobjptr_t;
-struct vcobjptr_t;
-struct vobjptridx_t;
 enum powerup_type_t : uint8_t;
 
 // explosion types

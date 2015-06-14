@@ -421,9 +421,10 @@ static void draw_copyright()
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-	gr_string(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
+	const auto &&line_spacing = LINE_SPACING;
+	gr_string(0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
 	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
-	gr_string(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
+	gr_string(0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
 // ------------------------------------------------------------------------
@@ -768,7 +769,7 @@ int select_demo(void)
 	// Sort by name
 	qsort(list.get(), NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
-	auto clist = (const char **) list.get();
+	auto clist = const_cast<const char **>(list.get());
 	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, clist, 1, 0, demo_menu_handler, list.release());
 
 	return 1;

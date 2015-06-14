@@ -57,10 +57,8 @@ static int free_list[MAX_INDEX];
 static int num_blocks = 0;
 
 static int Initialized = 0;
-
 static int LargestIndex = 0;
-
-int out_of_memory = 0;
+static int out_of_memory = 0;
 
 void mem_init()
 {
@@ -130,8 +128,7 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 		//con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
-
-	ptr = malloc( size+CHECKSIZE );
+	ptr = malloc(size + DXX_DEBUG_BIAS_MEMORY_ALLOCATION + CHECKSIZE);
 
 	if (ptr==NULL)
 	{
@@ -140,7 +137,7 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_MEMORY" );
 	}
-
+	ptr = reinterpret_cast<char *>(ptr) + DXX_DEBUG_BIAS_MEMORY_ALLOCATION;
 	MallocBase[id] = ptr;
 	MallocSize[id] = size;
 	Varname[id] = var;
@@ -238,7 +235,6 @@ void mem_free( void * buffer )
 		Int3();
 		return;
 	}
-
 	id = mem_find_id( buffer );
 
 	if (id==-1 &&  (!out_of_memory))
@@ -253,6 +249,7 @@ void mem_free( void * buffer )
 	
 	BytesMalloced -= MallocSize[id];
 
+	buffer = reinterpret_cast<char *>(buffer) - DXX_DEBUG_BIAS_MEMORY_ALLOCATION;
 	free( buffer );
 
 	Present[id] = 0;
@@ -343,9 +340,6 @@ static int Initialized = 0;
 static unsigned int SmallestAddress = 0xFFFFFFF;
 static unsigned int LargestAddress = 0x0;
 static unsigned int BytesMalloced = 0;
-
-#define CHECKSIZE 16
-#define CHECKBYTE 0xFC
 
 void mem_init()
 {

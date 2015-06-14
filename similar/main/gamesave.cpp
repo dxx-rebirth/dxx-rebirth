@@ -1099,11 +1099,15 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		int wallnum;
 
 		range_for (const auto segnum, highest_valid(Segments))
+		{
+			const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 			for (int sidenum=0;sidenum<6;sidenum++)
-				if ((wallnum=Segments[segnum].sides[sidenum].wall_num) != -1) {
+				if ((wallnum = segp->sides[sidenum].wall_num) != -1)
+				{
 					Walls[wallnum].segnum = segnum;
 					Walls[wallnum].sidenum = sidenum;
 				}
+		}
 	}
 
 	#ifndef NDEBUG
@@ -1554,7 +1558,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 	object_offset = PHYSFS_tell(SaveFile);
 	range_for (const auto i, highest_valid(Objects))
 	{
-			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		write_object(objp, game_top_fileinfo_version, SaveFile);
 	}
 
 	//==================== SAVE WALL INFO =============================

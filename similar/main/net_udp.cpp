@@ -1130,6 +1130,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		// These next two loops protect against menu skewing
 		// if missiontitle or gamename contain a tab
 
+		const auto &&fspacx = FSPACX();
 		for (x=0,tx=0,k=0,j=0;j<15;j++)
 		{
 			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j]=='\t')
@@ -1137,7 +1138,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
-			if ((x+=tx)>=FSPACX(55))
+			if ((x += tx) >= fspacx(55))
 			{
 				MissName[k]=MissName[k+1]=MissName[k+2]='.';
 				k+=3;
@@ -1155,7 +1156,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
-			if ((x+=tx)>=FSPACX(55))
+			if ((x += tx) >= fspacx(55))
 			{
 				GameName[k]=GameName[k+1]=GameName[k+2]='.';
 				k+=3;
@@ -1727,8 +1728,8 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 		return;
 	range_for (const auto i, highest_valid(Segments))
 	{
+		const auto &&seg = vsegptr(static_cast<segnum_t>(i));
 		int tm, ec, bm;
-		auto seg = &Segments[i];
 		range_for (auto &j, seg->sides)
 		{
 			if ( ((tm = j.tmap_num2) != 0) &&
@@ -1797,8 +1798,8 @@ static int net_udp_create_monitor_vector(void)
 		
 	range_for (const auto i, highest_valid(Segments))
 	{
+		const auto &&seg = vsegptr(static_cast<segnum_t>(i));
 		int tm, ec;
-		auto seg = &Segments[i];
 		range_for (auto &j, seg->sides)
 		{
 			if ((tm = j.tmap_num2) != 0)
@@ -1909,9 +1910,8 @@ void net_udp_send_objects(void)
 		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
-#ifdef WORDS_BIGENDIAN
-		object_rw_swap((object_rw *)&object_buffer[loc], 1);
-#endif
+		if (words_bigendian)
+			object_rw_swap(reinterpret_cast<object_rw *>(&object_buffer[loc]), 1);
 		loc += sizeof(object_rw);
 	}
 
@@ -1973,7 +1973,8 @@ static int net_udp_verify_objects(int remote, int local)
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_PLAYER || objp->type == OBJ_GHOST)
 			nplayers++;
 	}
 
@@ -2052,9 +2053,8 @@ static void net_udp_read_object_packet( ubyte *data )
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
-#ifdef WORDS_BIGENDIAN
-				object_rw_swap((object_rw *)&data[loc], 1);
-#endif
+				if (words_bigendian)
+					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
 				multi_object_rw_to_object((object_rw *)&data[loc], obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
@@ -3158,10 +3158,10 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
 	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, 5*F1_0*60)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
-	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 10)	\
+	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
 	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
 	D2X_UDP_MENU_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Invulnerable when reappearing", opt_start_invul, Netgame.InvulAppear)	\
+	DXX_##VERB##_SLIDER(SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
 	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
@@ -3229,6 +3229,12 @@ static void net_udp_set_power (void)
 	DXX_##VERB##_NUMBER("duplicate primaries", opt_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
 	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
 	D2X_DUPLICATE_POWERUP_MENU(VERB)
+
+#define FORMAT_KILL_GOAL_STRING(BUF)	\
+	snprintf(BUF, 80, "Kill Goal: %3d kills", Netgame.KillGoal*5);
+
+#define FORMAT_SPAWN_INVULNERABLE_STRING(BUF)	\
+	snprintf(BUF, 50, "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 
 namespace {
 
@@ -3306,6 +3312,7 @@ static void net_udp_more_game_options ()
 {
 	int i;
 	char PlayText[80],KillText[80],srinvul[50],packstring[3];
+	char SpawnInvulnerableText[50];
 	char portstring[6];
 	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
 
@@ -3313,7 +3320,8 @@ static void net_udp_more_game_options ()
 	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
 	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
-	snprintf(KillText, sizeof(KillText), "Kill Goal: %d kills", Netgame.KillGoal*5);
+	FORMAT_SPAWN_INVULNERABLE_STRING(SpawnInvulnerableText);
+	FORMAT_KILL_GOAL_STRING(KillText);
 #ifdef USE_TRACKER
 	char tracker[52];
 #endif
@@ -3399,7 +3407,12 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				}
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
-				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
+				FORMAT_KILL_GOAL_STRING(menus[opt_killgoal].text);
+			}
+			else if (citem == opt_start_invul)
+			{
+				Netgame.InvulAppear = menus[opt_start_invul].value;
+				FORMAT_SPAWN_INVULNERABLE_STRING(menus[opt_start_invul].text);
 			}
 			break;
 		}
@@ -3601,7 +3614,8 @@ int net_udp_setup_game()
 	Netgame.PacketsPerSec=10;
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
-	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
+	Netgame.BrightPlayers = 1;
+	Netgame.InvulAppear = 4;
 	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
@@ -5197,8 +5211,11 @@ static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
 	range_for (const auto i, highest_valid(Segments))
-   if (Segments[i].light_subtracted)
-    multi_send_light_specific(pnum,i,Segments[i].light_subtracted);
+	{
+		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
+		if (segp->light_subtracted)
+			multi_send_light_specific(pnum, i, segp->light_subtracted);
+	}
  }
 
 static void net_udp_send_fly_thru_triggers (const playernum_t pnum)
@@ -5473,10 +5490,12 @@ void net_udp_send_extras ()
 static window_event_result show_game_rules_handler(window *wind,const d_event &event, netgame_info *netgame)
 {
 	int k;
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
 #if defined(DXX_BUILD_DESCENT_I)
-	int w = FSPACX(280), h = FSPACY(130);
+	int w = fspacx(280), h = fspacy(130);
 #elif defined(DXX_BUILD_DESCENT_II)
-	int w = FSPACX(280), h = FSPACY(170);
+	int w = fspacx(280), h = fspacy(170);
 #endif
 	
 	switch (event.type)
@@ -5497,146 +5516,160 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 			break;
 			
 		case EVENT_WINDOW_DRAW:
+			{
 			timer_delay2(50);
 
 			gr_set_current_canvas(NULL);
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
-			
+
+#define SHOW_INVULNERABLE_APPEAR_STRING(X,Y)	\
+			if (netgame->InvulAppear)	\
+				gr_printf(X, Y, "%1.1f sec", static_cast<float>(netgame->InvulAppear) / 2);	\
+			else	\
+				gr_string(X, Y, "OFF");
+
 			gr_set_current_canvas(window_get_canvas(*wind));
 			gr_set_curfont(MEDIUM3_FONT);
 			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+			const auto &&fspacx25 = fspacx(25);
+			const auto &&fspacx115 = fspacx(115);
+			const auto &&fspacx130 = fspacx(130);
+			const auto &&fspacx155 = fspacx(155);
+			const auto &&fspacx170 = fspacx(170);
+			const auto &&fspacx275 = fspacx(275);
 #if defined(DXX_BUILD_DESCENT_I)
-			gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
+			gr_string(0x8000, fspacy(35), "NETGAME INFO");
 			
 			gr_set_curfont(GAME_FONT);
-			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
-			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
-			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
-			gr_printf( FSPACX( 25),FSPACY( 73), "Packets per sec.:");
-			gr_printf( FSPACX(155),FSPACY( 55), "Invul when reappearing:");
-			gr_printf( FSPACX(155),FSPACY( 61), "Bright player ships:");
-			gr_printf( FSPACX(155),FSPACY( 67), "Show enemy names on hud:");
-			gr_printf( FSPACX(155),FSPACY( 73), "Show players on automap:");
-			gr_printf( FSPACX(155),FSPACY( 79), "No friendly Fire:");
-			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
-			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
-			gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
-			gr_printf( FSPACX( 25),FSPACY(122), "Vulcan Cannon:");
-			gr_printf( FSPACX( 25),FSPACY(128), "Spreadfire Cannon:");
-			gr_printf( FSPACX( 25),FSPACY(134), "Plasma Cannon:");
-			gr_printf( FSPACX( 25),FSPACY(140), "Fusion Cannon:");
-			gr_printf( FSPACX(170),FSPACY(110), "Homing Missile:");
-			gr_printf( FSPACX(170),FSPACY(116), "Proximity Bomb:");
-			gr_printf( FSPACX(170),FSPACY(122), "Smart Missile:");
-			gr_printf( FSPACX(170),FSPACY(128), "Mega Missile:");
-			gr_printf( FSPACX( 25),FSPACY(150), "Invulnerability:");
-			gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
+			gr_string(fspacx25, fspacy( 55), "Reactor Life:");
+			gr_string(fspacx25, fspacy( 61), "Max Time:");
+			gr_string(fspacx25, fspacy( 67), "Kill Goal:");
+			gr_string(fspacx25, fspacy( 73), "Packets per sec.:");
+			gr_string(fspacx155, fspacy( 55), "Invul when reappearing:");
+			gr_string(fspacx155, fspacy( 61), "Bright player ships:");
+			gr_string(fspacx155, fspacy( 67), "Show enemy names on hud:");
+			gr_string(fspacx155, fspacy( 73), "Show players on automap:");
+			gr_string(fspacx155, fspacy( 79), "No friendly Fire:");
+			gr_string(fspacx25, fspacy(100), "Allowed Objects");
+			gr_string(fspacx25, fspacy(110), "Laser Upgrade:");
+			gr_string(fspacx25, fspacy(116), "Quad Laser:");
+			gr_string(fspacx25, fspacy(122), "Vulcan Cannon:");
+			gr_string(fspacx25, fspacy(128), "Spreadfire Cannon:");
+			gr_string(fspacx25, fspacy(134), "Plasma Cannon:");
+			gr_string(fspacx25, fspacy(140), "Fusion Cannon:");
+			gr_string(fspacx170, fspacy(110), "Homing Missile:");
+			gr_string(fspacx170, fspacy(116), "Proximity Bomb:");
+			gr_string(fspacx170, fspacy(122), "Smart Missile:");
+			gr_string(fspacx170, fspacy(128), "Mega Missile:");
+			gr_string(fspacx25, fspacy(150), "Invulnerability:");
+			gr_string(fspacx25, fspacy(156), "Cloak:");
 			
 			gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
-			gr_printf( FSPACX(115),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
-			gr_printf( FSPACX(115),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
-			gr_printf( FSPACX(115),FSPACY( 67), "%i", netgame->KillGoal*5);
-			gr_printf( FSPACX(115),FSPACY( 73), "%i", netgame->PacketsPerSec);
-			gr_printf( FSPACX(275),FSPACY( 55), netgame->InvulAppear?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 61), netgame->BrightPlayers?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 67), netgame->ShowEnemyNames?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 73), netgame->game_flag.show_on_map?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 79), netgame->NoFriendlyFire?"ON":"OFF");
-			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(116), netgame->AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(122), netgame->AllowedItems&NETFLAG_DOVULCAN?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(128), netgame->AllowedItems&NETFLAG_DOSPREAD?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(134), netgame->AllowedItems&NETFLAG_DOPLASMA?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(140), netgame->AllowedItems&NETFLAG_DOFUSION?"YES":"NO");
-			gr_printf( FSPACX(275),FSPACY(110), netgame->AllowedItems&NETFLAG_DOHOMING?"YES":"NO");
-			gr_printf( FSPACX(275),FSPACY(116), netgame->AllowedItems&NETFLAG_DOPROXIM?"YES":"NO");
-			gr_printf( FSPACX(275),FSPACY(122), netgame->AllowedItems&NETFLAG_DOSMART?"YES":"NO");
-			gr_printf( FSPACX(275),FSPACY(128), netgame->AllowedItems&NETFLAG_DOMEGA?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(150), netgame->AllowedItems&NETFLAG_DOINVUL?"YES":"NO");
-			gr_printf( FSPACX(130),FSPACY(156), netgame->AllowedItems&NETFLAG_DOCLOAK?"YES":"NO");
+			gr_printf(fspacx115, fspacy( 55), "%i Min", netgame->control_invul_time / F1_0 / 60);
+			gr_printf(fspacx115, fspacy( 61), "%i Min", netgame->PlayTimeAllowed * 5);
+			gr_printf(fspacx115, fspacy( 67), "%i", netgame->KillGoal * 5);
+			gr_printf(fspacx115, fspacy( 73), "%i", netgame->PacketsPerSec);
+			SHOW_INVULNERABLE_APPEAR_STRING(fspacx275, fspacy( 55));
+			gr_string(fspacx275, fspacy( 61), netgame->BrightPlayers?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 67), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 73), netgame->game_flag.show_on_map?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 79), netgame->NoFriendlyFire?"ON":"OFF");
+			gr_string(fspacx130, fspacy(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
+			gr_string(fspacx130, fspacy(116), netgame->AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
+			gr_string(fspacx130, fspacy(122), netgame->AllowedItems&NETFLAG_DOVULCAN?"YES":"NO");
+			gr_string(fspacx130, fspacy(128), netgame->AllowedItems&NETFLAG_DOSPREAD?"YES":"NO");
+			gr_string(fspacx130, fspacy(134), netgame->AllowedItems&NETFLAG_DOPLASMA?"YES":"NO");
+			gr_string(fspacx130, fspacy(140), netgame->AllowedItems&NETFLAG_DOFUSION?"YES":"NO");
+			gr_string(fspacx275, fspacy(110), netgame->AllowedItems&NETFLAG_DOHOMING?"YES":"NO");
+			gr_string(fspacx275, fspacy(116), netgame->AllowedItems&NETFLAG_DOPROXIM?"YES":"NO");
+			gr_string(fspacx275, fspacy(122), netgame->AllowedItems&NETFLAG_DOSMART?"YES":"NO");
+			gr_string(fspacx275, fspacy(128), netgame->AllowedItems&NETFLAG_DOMEGA?"YES":"NO");
+			gr_string(fspacx130, fspacy(150), netgame->AllowedItems&NETFLAG_DOINVUL?"YES":"NO");
+			gr_string(fspacx130, fspacy(156), netgame->AllowedItems&NETFLAG_DOCLOAK?"YES":"NO");
 #elif defined(DXX_BUILD_DESCENT_II)
-			gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
+			gr_string(0x8000, fspacy(15), "NETGAME INFO");
 			
 			gr_set_curfont(GAME_FONT);
-			gr_string( FSPACX( 25),FSPACY( 35), "Reactor Life:");
-			gr_string( FSPACX( 25),FSPACY( 41), "Max Time:");
-			gr_string( FSPACX( 25),FSPACY( 47), "Kill Goal:");
-			gr_string( FSPACX( 25),FSPACY( 53), "Packets per sec.:");
-			gr_string( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
-			gr_string( FSPACX(155),FSPACY( 41), "Marker camera views:");
-			gr_string( FSPACX(155),FSPACY( 47), "Indestructible lights:");
-			gr_string( FSPACX(155),FSPACY( 53), "Bright player ships:");
-			gr_string( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
-			gr_string( FSPACX(155),FSPACY( 65), "Show players on automap:");
-			gr_string( FSPACX(155),FSPACY( 71), "No friendly Fire:");
-			gr_string( FSPACX( 25),FSPACY( 80), "Allowed Objects");
-			gr_string( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
-			gr_string( FSPACX( 25),FSPACY( 96), "Super Laser:");
-			gr_string( FSPACX( 25),FSPACY(102), "Quad Laser:");
-			gr_string( FSPACX( 25),FSPACY(108), "Vulcan Cannon:");
-			gr_string( FSPACX( 25),FSPACY(114), "Gauss Cannon:");
-			gr_string( FSPACX( 25),FSPACY(120), "Spreadfire Cannon:");
-			gr_string( FSPACX( 25),FSPACY(126), "Helix Cannon:");
-			gr_string( FSPACX( 25),FSPACY(132), "Plasma Cannon:");
-			gr_string( FSPACX( 25),FSPACY(138), "Phoenix Cannon:");
-			gr_string( FSPACX( 25),FSPACY(144), "Fusion Cannon:");
-			gr_string( FSPACX( 25),FSPACY(150), "Omega Cannon:");
-			gr_string( FSPACX(170),FSPACY( 90), "Flash Missile:");
-			gr_string( FSPACX(170),FSPACY( 96), "Homing Missile:");
-			gr_string( FSPACX(170),FSPACY(102), "Guided Missile:");
-			gr_string( FSPACX(170),FSPACY(108), "Proximity Bomb:");
-			gr_string( FSPACX(170),FSPACY(114), "Smart Mine:");
-			gr_string( FSPACX(170),FSPACY(120), "Smart Missile:");
-			gr_string( FSPACX(170),FSPACY(126), "Mercury Missile:");
-			gr_string( FSPACX(170),FSPACY(132), "Mega Missile:");
-			gr_string( FSPACX(170),FSPACY(138), "Earthshaker Missile:");
-			gr_string( FSPACX( 25),FSPACY(160), "Afterburner:");
-			gr_string( FSPACX( 25),FSPACY(166), "Headlight:");
-			gr_string( FSPACX( 25),FSPACY(172), "Energy->Shield Conv:");
-			gr_string( FSPACX(170),FSPACY(160), "Invulnerability:");
-			gr_string( FSPACX(170),FSPACY(166), "Cloaking Device:");
-			gr_string( FSPACX(170),FSPACY(172), "Ammo Rack:");
+			gr_string(fspacx25, fspacy( 35), "Reactor Life:");
+			gr_string(fspacx25, fspacy( 41), "Max Time:");
+			gr_string(fspacx25, fspacy( 47), "Kill Goal:");
+			gr_string(fspacx25, fspacy( 53), "Packets per sec.:");
+			gr_string(fspacx155, fspacy( 35), "Invul when reappearing:");
+			gr_string(fspacx155, fspacy( 41), "Marker camera views:");
+			gr_string(fspacx155, fspacy( 47), "Indestructible lights:");
+			gr_string(fspacx155, fspacy( 53), "Bright player ships:");
+			gr_string(fspacx155, fspacy( 59), "Show enemy names on hud:");
+			gr_string(fspacx155, fspacy( 65), "Show players on automap:");
+			gr_string(fspacx155, fspacy( 71), "No friendly Fire:");
+			gr_string(fspacx25, fspacy( 80), "Allowed Objects");
+			gr_string(fspacx25, fspacy( 90), "Laser Upgrade:");
+			gr_string(fspacx25, fspacy( 96), "Super Laser:");
+			gr_string(fspacx25, fspacy(102), "Quad Laser:");
+			gr_string(fspacx25, fspacy(108), "Vulcan Cannon:");
+			gr_string(fspacx25, fspacy(114), "Gauss Cannon:");
+			gr_string(fspacx25, fspacy(120), "Spreadfire Cannon:");
+			gr_string(fspacx25, fspacy(126), "Helix Cannon:");
+			gr_string(fspacx25, fspacy(132), "Plasma Cannon:");
+			gr_string(fspacx25, fspacy(138), "Phoenix Cannon:");
+			gr_string(fspacx25, fspacy(144), "Fusion Cannon:");
+			gr_string(fspacx25, fspacy(150), "Omega Cannon:");
+			gr_string(fspacx170, fspacy( 90), "Flash Missile:");
+			gr_string(fspacx170, fspacy( 96), "Homing Missile:");
+			gr_string(fspacx170, fspacy(102), "Guided Missile:");
+			gr_string(fspacx170, fspacy(108), "Proximity Bomb:");
+			gr_string(fspacx170, fspacy(114), "Smart Mine:");
+			gr_string(fspacx170, fspacy(120), "Smart Missile:");
+			gr_string(fspacx170, fspacy(126), "Mercury Missile:");
+			gr_string(fspacx170, fspacy(132), "Mega Missile:");
+			gr_string(fspacx170, fspacy(138), "Earthshaker Missile:");
+			gr_string(fspacx25, fspacy(160), "Afterburner:");
+			gr_string(fspacx25, fspacy(166), "Headlight:");
+			gr_string(fspacx25, fspacy(172), "Energy->Shield Conv:");
+			gr_string(fspacx170, fspacy(160), "Invulnerability:");
+			gr_string(fspacx170, fspacy(166), "Cloaking Device:");
+			gr_string(fspacx170, fspacy(172), "Ammo Rack:");
 			gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-			gr_printf( FSPACX(115),FSPACY( 35), "%i Min", netgame->control_invul_time/F1_0/60);
-			gr_printf( FSPACX(115),FSPACY( 41), "%i Min", netgame->PlayTimeAllowed*5);
-			gr_printf( FSPACX(115),FSPACY( 47), "%i", netgame->KillGoal*5);
-			gr_printf( FSPACX(115),FSPACY( 53), "%i", netgame->PacketsPerSec);
-			gr_string( FSPACX(275),FSPACY( 35), netgame->InvulAppear?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 41), netgame->Allow_marker_view?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 47), netgame->AlwaysLighting?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 53), netgame->BrightPlayers?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 59), netgame->ShowEnemyNames?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 65), netgame->game_flag.show_on_map?"ON":"OFF");
-			gr_string( FSPACX(275),FSPACY( 71), netgame->NoFriendlyFire?"ON":"OFF");
-			gr_string( FSPACX(130),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(102), netgame->AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(108), netgame->AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(114), netgame->AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(120), netgame->AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(126), netgame->AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(132), netgame->AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(138), netgame->AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(144), netgame->AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(150), netgame->AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(102), netgame->AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(108), netgame->AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(114), netgame->AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(120), netgame->AllowedItems & NETFLAG_DOSMART?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(126), netgame->AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(132), netgame->AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(138), netgame->AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(160), netgame->AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(166), netgame->AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
-			gr_string( FSPACX(130),FSPACY(172), netgame->AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(160), netgame->AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(166), netgame->AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
-			gr_string( FSPACX(275),FSPACY(172), netgame->AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
+			gr_printf(fspacx115, fspacy( 35), "%i Min", netgame->control_invul_time/F1_0/60);
+			gr_printf(fspacx115, fspacy( 41), "%i Min", netgame->PlayTimeAllowed*5);
+			gr_printf(fspacx115, fspacy( 47), "%i", netgame->KillGoal*5);
+			gr_printf(fspacx115, fspacy( 53), "%i", netgame->PacketsPerSec);
+			SHOW_INVULNERABLE_APPEAR_STRING(fspacx275, fspacy( 35));
+			gr_string(fspacx275, fspacy( 41), netgame->Allow_marker_view?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 47), netgame->AlwaysLighting?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 53), netgame->BrightPlayers?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 59), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 65), netgame->game_flag.show_on_map?"ON":"OFF");
+			gr_string(fspacx275, fspacy( 71), netgame->NoFriendlyFire?"ON":"OFF");
+			gr_string(fspacx130, fspacy( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
+			gr_string(fspacx130, fspacy( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
+			gr_string(fspacx130, fspacy(102), netgame->AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
+			gr_string(fspacx130, fspacy(108), netgame->AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
+			gr_string(fspacx130, fspacy(114), netgame->AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
+			gr_string(fspacx130, fspacy(120), netgame->AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
+			gr_string(fspacx130, fspacy(126), netgame->AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
+			gr_string(fspacx130, fspacy(132), netgame->AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
+			gr_string(fspacx130, fspacy(138), netgame->AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
+			gr_string(fspacx130, fspacy(144), netgame->AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
+			gr_string(fspacx130, fspacy(150), netgame->AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
+			gr_string(fspacx275, fspacy( 90), netgame->AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
+			gr_string(fspacx275, fspacy( 96), netgame->AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
+			gr_string(fspacx275, fspacy(102), netgame->AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
+			gr_string(fspacx275, fspacy(108), netgame->AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
+			gr_string(fspacx275, fspacy(114), netgame->AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
+			gr_string(fspacx275, fspacy(120), netgame->AllowedItems & NETFLAG_DOSMART?"YES":"NO");
+			gr_string(fspacx275, fspacy(126), netgame->AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
+			gr_string(fspacx275, fspacy(132), netgame->AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
+			gr_string(fspacx275, fspacy(138), netgame->AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
+			gr_string(fspacx130, fspacy(160), netgame->AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
+			gr_string(fspacx130, fspacy(166), netgame->AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
+			gr_string(fspacx130, fspacy(172), netgame->AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
+			gr_string(fspacx275, fspacy(160), netgame->AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
+			gr_string(fspacx275, fspacy(166), netgame->AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
+			gr_string(fspacx275, fspacy(172), netgame->AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
 #endif
 			gr_set_current_canvas(NULL);
 			break;
+			}
 
 		default:
 			break;
@@ -5648,7 +5681,9 @@ static void net_udp_show_game_rules(netgame_info *netgame)
 {
 	gr_set_current_canvas(NULL);
 
-	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200), 
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - fspacy(200)) / 2, fspacx(320), fspacy(200), 
 				  show_game_rules_handler, netgame);
 }
 

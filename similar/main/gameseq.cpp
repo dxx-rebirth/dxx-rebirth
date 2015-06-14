@@ -169,7 +169,8 @@ static int count_number_of_robots()
 	robot_count = 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_ROBOT)
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
 			robot_count++;
 	}
 
@@ -183,7 +184,8 @@ static int count_number_of_hostages()
 	count = 0;
 	range_for (const auto i, highest_valid(Objects))
 	{
-		if (Objects[i].type == OBJ_HOSTAGE)
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_HOSTAGE)
 			count++;
 	}
 
@@ -501,7 +503,7 @@ static void set_sound_sources()
 
 	range_for (const auto segnum, highest_valid(Segments))
 	{
-		auto seg = &Segments[segnum];
+		const auto &&seg = vcsegptridx(static_cast<segnum_t>(segnum));
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
 
@@ -579,7 +581,7 @@ static const d_fname &get_level_file(int level_num)
 }
 
 // routine to calculate the checksum of the segments.
-static void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+static void do_checksum_calc(const uint8_t *b, int len, unsigned int *s1, unsigned int *s2)
 {
 
 	while(len--) {
@@ -600,7 +602,7 @@ static ushort netmisc_calc_checksum()
 	for (i = 0; i < Highest_segment_index + 1; i++) {
 		range_for (auto &j, Segments[i].sides)
 		{
-			do_checksum_calc((unsigned char *)&(j.get_type()), 1, &sum1, &sum2);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
 			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			s = INTEL_SHORT(j.tmap_num);
@@ -1826,8 +1828,11 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 static void copy_defaults_to_robot_all(void)
 {
 	range_for (const auto i, highest_valid(Objects))
-		if (Objects[i].type == OBJ_ROBOT)
-			copy_defaults_to_robot(&Objects[i]);
+	{
+		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
+			copy_defaults_to_robot(objp);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------------

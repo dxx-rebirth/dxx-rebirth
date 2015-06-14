@@ -2562,7 +2562,7 @@ const collision_outer_array_t CollisionResult = collide_init(make_tree_index_seq
 #undef DISABLE_COLLISION
 #undef ENABLE_COLLISION
 
-#define ENABLE_COLLISION(T1,T2)	static_assert(collision_result_t<T1, T2>::value && collision_result_t<T2, T1>::value, #T1 " " #T2);
+#define ENABLE_COLLISION(T1,T2)	static_assert(!!collision_result_t<T1, T2>::value && !!collision_result_t<T2, T1>::value, #T1 " " #T2);
 #define DISABLE_COLLISION(T1,T2)	static_assert(!collision_result_t<T1, T2>::value && !collision_result_t<T2, T1>::value, #T1 " " #T2);
 
 	ENABLE_COLLISION( OBJ_WALL, OBJ_ROBOT );
