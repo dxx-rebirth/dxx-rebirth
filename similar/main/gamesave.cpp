@@ -1199,7 +1199,7 @@ int load_level(const char * filename_passed)
 #endif
 
 	if (!PHYSFSX_exists(filename,1))
-		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
+		sprintf(filename,"%s%s",GameArg.SysMissionDir.c_str(),filename_passed);
 
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 

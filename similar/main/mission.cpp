@@ -336,7 +336,7 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 static int read_mission_file(mission_list &mission_list, const char *filename, enum mle_loc location)
 {
 	char filename2[100];
-	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? MISSION_DIR : "", filename);
+	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? GameArg.SysMissionDir.c_str() : "", filename);
 	if (auto mfile = PHYSFSX_openReadBuffered(filename2))
 	{
 		char *p;
@@ -512,6 +512,7 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 
 static void add_missions_to_list(mission_list &mission_list, char *path, char *rel_path, int anarchy_mode)
 {
+	printf("%s", path);
 	char *ext;
 	const PHYSFSX_uncounted_list find{PHYSFS_enumerateFiles(path)};
 	range_for (const auto i, find)
@@ -567,8 +568,7 @@ Mission::~Mission()
 	if (!path.empty() && builtin_hogsize == 0)
 		{
 			char hogpath[PATH_MAX];
-
-			snprintf(hogpath, sizeof(hogpath), MISSION_DIR "%s.hog", path.c_str());
+			snprintf(hogpath, sizeof(hogpath), "%s%s.hog", GameArg.SysMissionDir.c_str(), path.c_str());
 			PHYSFSX_contfile_close(hogpath);
 		}
 }
@@ -580,7 +580,8 @@ Mission::~Mission()
 
 static mission_list build_mission_list(int anarchy_mode)
 {
-	char	search_str[PATH_MAX] = MISSION_DIR;
+	char	search_str[PATH_MAX];
+	snprintf(search_str, PATH_MAX, "%s", GameArg.SysMissionDir.c_str());
 
 	//now search for levels on disk
 
@@ -639,8 +640,8 @@ int load_mission_ham()
 		auto &altham = Current_mission->alternate_ham_file;
 		unsigned l = strlen(*altham);
 		char althog[PATH_MAX];
-		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, static_cast<const char *>(*altham));
-		char *p = althog + sizeof(MISSION_DIR) - 1;
+		snprintf(althog, sizeof(althog), "%s%.*s.hog", GameArg.SysMissionDir.c_str(), l - 4, static_cast<const char *>(*altham));
+		char *p = althog + strlen(GameArg.SysMissionDir.c_str()) - 1;
 		int exists = PHYSFSX_exists(p,1);
 		if (!exists) {
 			p = althog;
@@ -776,7 +777,7 @@ static int load_mission(const mle *mission)
 	(mission->descent_version == 2) ? ".mn2" :
 #endif
 		".msn";
-	snprintf(buf, sizeof(buf), "%s%s%s", mission->location == ML_MISSIONDIR ? MISSION_DIR : "", mission->path.c_str(), msn_extension);
+	snprintf(buf, sizeof(buf), "%s%s%s", mission->location == ML_MISSIONDIR ? GameArg.SysMissionDir.c_str() : "", mission->path.c_str(), msn_extension);
 
 	PHYSFSEXT_locateCorrectCase(buf);
 

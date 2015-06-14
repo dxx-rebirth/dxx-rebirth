@@ -70,6 +70,8 @@ struct Arg
 	int SysUsePlayersDir;
 	int SysLowMem;
 	std::string SysHogDir;
+	std::string SysMissionDir;
+	std::string SysFullMissionDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
 	bool SysAutoRecordDemo;

@@ -200,6 +200,11 @@ bool PHYSFSX_init(int argc, char *argv[])
 		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", GameArg.SysHogDir.c_str());
 		PHYSFS_addToSearchPath(GameArg.SysHogDir.c_str(),1);
 	}
+	if (GameArg.SysFullMissionDir != "")
+	{
+		con_printf(CON_DEBUG, "PHYSFS: append argument missions directory \"%s\" to search path", GameArg.SysFullMissionDir.c_str());
+		PHYSFS_addToSearchPath(GameArg.SysFullMissionDir.c_str(),1);
+	}
 #if defined(__unix__)
 	else if (!GameArg.SysNoHogDir)
 	{

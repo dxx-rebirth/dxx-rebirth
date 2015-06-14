@@ -123,6 +123,7 @@ static void print_commandline_help()
 	printf( "  -nonicefps                    Don't free CPU-cycles\n");
 	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, available: %i-%i)\n", MAXIMUM_FPS, MINIMUM_FPS, MAXIMUM_FPS);
 	printf( "  -hogdir <s>                   set shared data directory to <s>\n");
+	printf( "  -missiondir <s>               Set folder to search for missions in to <s>\n");
 	printf( "  -nohogdir                     don't try to use shared data directory\n");
 	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
@@ -417,7 +418,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser");
 #elif defined(DXX_BUILD_DESCENT_II)
-	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
+	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(strcat(GameArg.SysMissionDir.c_str(), "d2x.hog"),1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser");

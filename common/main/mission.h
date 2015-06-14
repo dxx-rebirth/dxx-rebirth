@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string>
 #include "pstypes.h"
 #include "inferno.h"
+#include "args.h"
 
 #ifdef __cplusplus
 #include "ntstring.h"
@@ -72,9 +73,6 @@ static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased f
 #define FULL_10_MISSION_HOGSIZE     7107354 // v1.0
 #define MAC_FULL_MISSION_HOGSIZE    7110007 // v1.1 - 1.2
 #endif
-
-//where the missions go
-#define MISSION_DIR "missions/"
 
 /* Path and filename must be kept in sync. */
 class Mission_path
