@@ -1124,9 +1124,9 @@ static void input_config_sensitivity()
 	for (unsigned i = 0; i <= 5; i++)
 	{
 		if (i < 5)
-			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
-		PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
-		PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
+            		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+        	PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
+        	PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
