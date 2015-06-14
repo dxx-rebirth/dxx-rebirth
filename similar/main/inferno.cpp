@@ -127,14 +127,15 @@ static void print_commandline_help()
 #if defined(__unix__)
 	printf( "  -nohogdir                     don't try to use shared data directory\n");
 #endif
-	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
+	printf( "  -add-missions-dir <s>         Add contents of location <s> to the missions directory\n");
+	printf( "  -use_players_dir              Put player files and saved games in Players subdirectory\n");
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
 	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
 	printf( "  -auto-record-demo             Start recording on level entry\n");
 	printf( "  -record-demo-format           Set demo name automatically\n");
 	printf( "  -autodemo                     Start in demo mode\n");
 	printf( "  -window                       Run the game in a window\n");
-	printf( "  -noborders                    Do not show borders in window mode\n");
+	printf( "  -noborders                    Don't show borders in window mode\n");
 #if defined(DXX_BUILD_DESCENT_I)
 	printf( "  -notitles                     Skip title screens\n");
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -164,15 +165,15 @@ static void print_commandline_help()
 	printf( "  -lowresmovies                 Play low resolution movies if available (for slow machines)\n");
 #endif
 #ifdef    OGL
-	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
+	printf( "  -gl_fixedfont                 Don't scale fonts to current resolution\n");
 	printf( "  -gl_syncmethod <n>            OpenGL sync method (default: %i)\n", OGL_SYNC_METHOD_DEFAULT);
-	printf( "                                    0: disabled\n");
-	printf( "                                    1: fence syncs, limit GPU latency to at most one frame\n");
-	printf( "                                    2: like 1, but sleep during sync to reduce CPU load\n");
-	printf( "                                    3: immediately sync after buffer swap\n");
-	printf( "                                    4: immediately sync after buffer swap\n");
-	printf( "                                    5: auto. use mode 2 if available, 0 otherwise\n");
-	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
+	printf( "                                    0: Disabled\n");
+	printf( "                                    1: Fence syncs, limit GPU latency to at most one frame\n");
+	printf( "                                    2: Like 1, but sleep during sync to reduce CPU load\n");
+	printf( "                                    3: Immediately sync after buffer swap\n");
+	printf( "                                    4: Immediately sync after buffer swap\n");
+	printf( "                                    5: Auto. use mode 2 if available, 0 otherwise\n");
+	printf( "  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
 #endif // OGL
 
 #if defined(USE_UDP)
@@ -182,8 +183,8 @@ static void print_commandline_help()
 	printf( "  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT);
 	printf( "  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n");
 #ifdef USE_TRACKER
-	printf( "  -tracker_hostaddr <n>         Address of Tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT);
-	printf( "  -tracker_hostport <n>         Port of Tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT);
+	printf( "  -tracker_hostaddr <n>         Address of tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT);
+	printf( "  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT);
 #endif // USE_TRACKER
 #endif // defined(USE_UDP)
 
@@ -193,8 +194,8 @@ static void print_commandline_help()
 	printf( "  -nobm                         Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data\n");
 #elif defined(DXX_BUILD_DESCENT_II)
 	printf( "  -autoload <s>                 Autoload level <s> in the editor\n");
-	printf( "  -macdata                      Read and write mac data files in editor (swap colors)\n");
-	printf( "  -hoarddata                    Make the hoard ham file from some files, then exit\n");
+	printf( "  -macdata                      Read and write Mac data files in editor (swap colors)\n");
+	printf( "  -hoarddata                    Make the Hoard ham file from some files, then exit\n");
 #endif
 #endif // EDITOR
 
