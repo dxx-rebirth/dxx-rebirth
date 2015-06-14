@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
-
+#include "args.h"
 #include "pstypes.h"
 #include "strutil.h"
 #include "inferno.h"
@@ -640,7 +640,7 @@ int load_mission_ham()
 		unsigned l = strlen(*altham);
 		char althog[PATH_MAX];
 		snprintf(althog, sizeof(althog), "%s%.*s.hog", GameArg.SysMissionDir.c_str(), l - 4, static_cast<const char *>(*altham));
-		char *p = althog + strlen(GameArg.SysMissionDir.c_str()) - 1;
+		char *p = althog + GameArg.SysMissionDir.size() - 1;
 		int exists = PHYSFSX_exists(p,1);
 		if (!exists) {
 			p = althog;

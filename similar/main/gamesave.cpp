@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "newmenu.h"
 #include "inferno.h"
+#include "args.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"

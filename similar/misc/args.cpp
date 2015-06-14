@@ -156,7 +156,6 @@ static void InitGameArg()
 {
 	GameArg.SysMaxFPS = MAXIMUM_FPS;
 	GameArg.SysMissionDir = "missions/";
-	GameArg.SysFullMissionDir = "";
 #if defined(DXX_BUILD_DESCENT_II)
 	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
 #endif
@@ -400,7 +399,7 @@ static void PostProcessGameArg()
 			found = GameArg.SysFullMissionDir.find_last_of("\\/");
 		}
 		GameArg.SysMissionDir = GameArg.SysFullMissionDir.substr(found+1);
-		GameArg.SysFullMissionDir = GameArg.SysFullMissionDir.substr(0,found);
+		GameArg.SysFullMissionDir.erase(GameArg.SysFullMissionDir.begin() + found, GameArg.SysFullMissionDir.end());
 		GameArg.SysMissionDir += "/";
 		GameArg.SysFullMissionDir += "/";
 	}
