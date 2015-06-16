@@ -760,12 +760,12 @@ void menubar_init( const char * file )
 		CommaParse( 0, buf1, buffer );
 		menu = atoi( buf1 );
 		if (menu >= MAXMENUS)
-			Error("Too many menus (%d).",menu);
+			UserError("Too many menus (%d).",menu);
 
 		CommaParse( 1, buf1, buffer );
 		item = atoi(buf1 );
 		if (item >= MAXITEMS)
-			Error("Too many items (%d) in menu %d.",item+1,menu);
+			UserError("Too many items (%d) in menu %d.",item+1,menu);
 
 		CommaParse( 2, buf1, buffer );
 		ul_xlate(buf1);
@@ -795,7 +795,7 @@ void menubar_init( const char * file )
 		else			{
 			i = DecodeKeyText(buf1);
 			if (i<1) {
-				Error("Unknown key, %s, in %s\n", buf1, file );
+				UserError("Unknown key, %s, in %s\n", buf1, file );
 			} else {
 				Menu[menu].Item[item].Hotkey = i;
 			}
@@ -808,7 +808,7 @@ void menubar_init( const char * file )
 
 			if (Menu[menu].Item[item].user_function==NULL)
 			{
-				Error( "Unknown function, %s, in %s\n", buf1, file );
+				UserError( "Unknown function, %s, in %s\n", buf1, file );
 				//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 			}
 		}

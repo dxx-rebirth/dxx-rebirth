@@ -461,10 +461,10 @@ void ui_pad_read( int n, const char * filename )
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
 		{
-			Error( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
+			UserError( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
 		{
-			Error( "Unknown keystroke, %s, in %s\n", static_cast<const char *>(text), filename );
+			UserError( "Unknown keystroke, %s, in %s\n", static_cast<const char *>(text), filename );
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {

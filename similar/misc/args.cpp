@@ -433,13 +433,13 @@ bool InitArgs( int argc,char **argv )
 		PostProcessGameArg();
 		return true;
 	} catch(const missing_parameter& e) {
-		Warning("Missing parameter for argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
+		UserError("Missing parameter for argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const unhandled_argument& e) {
-		Warning("Unhandled argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
+		UserError("Unhandled argument \"%s\"%s", e.arg.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const conversion_failure& e) {
-		Warning("Failed to convert argument \"%s\" parameter \"%s\"%s", e.arg.c_str(), e.value.c_str(), ConstructIniStackExplanation(ini).c_str());
+		UserError("Failed to convert argument \"%s\" parameter \"%s\"%s", e.arg.c_str(), e.value.c_str(), ConstructIniStackExplanation(ini).c_str());
 	} catch(const nesting_depth_exceeded &) {
-		Warning("Nesting depth exceeded%s", ConstructIniStackExplanation(ini).c_str());
+		UserError("Nesting depth exceeded%s", ConstructIniStackExplanation(ini).c_str());
 	}
 	return false;
 }

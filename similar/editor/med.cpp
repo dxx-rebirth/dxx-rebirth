@@ -297,7 +297,7 @@ static void medkey_init()
 				Assert( key < 2048);
 				KeyFunction[key] = func_get( LispCommand, &np );
 			} else {
-				Error( "Bad key %s in GLOBAL.KEY!", keypress );
+				UserError( "Bad key %s in GLOBAL.KEY!", keypress );
 			}
 		}
 	}
