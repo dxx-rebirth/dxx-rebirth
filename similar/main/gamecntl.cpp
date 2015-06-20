@@ -422,19 +422,17 @@ static int HandleDeathInput(const d_event &event)
 	{
 		int key = event_key_get(event);
 
-		if (Player_exploded && !key_isfunc(key) && key != KEY_PAUSE && key)
-			Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 		if (key == KEY_ESC)
 			if (ConsoleObject->flags & OF_EXPLODING)
 				Death_sequence_aborted = 1;
 	}
 
-	if (Player_exploded && (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP))
+	if (Player_exploded && (Controls.state.fire_primary || Controls.state.fire_secondary || Controls.state.fire_flare))
 		Death_sequence_aborted = 1;
 
 	if (Death_sequence_aborted)
 	{
-		game_flush_inputs();
+		game_flush_respawn_inputs();
 		return 1;
 	}
 
@@ -1926,10 +1924,11 @@ window_event_result ReadControls(const d_event &event)
 			return window_event_result::handled;
 	}
 
-	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK))
+	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
 	{
-
 		kconfig_read_controls(event, 0);
+		if (Player_is_dead && HandleDeathInput(event))
+			return window_event_result::handled;
 
 		check_rear_view();
 

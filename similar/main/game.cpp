@@ -361,15 +361,24 @@ void start_time()
 	}
 }
 
-void game_flush_inputs()
+static void game_flush_common_inputs()
 {
-	int dx,dy,dz;
 	event_flush();
 	key_flush();
 	joy_flush();
 	mouse_flush();
-	mouse_get_delta( &dx, &dy, &dz );	// Read mouse
+}
+
+void game_flush_inputs()
+{
 	Controls = {};
+	game_flush_common_inputs();
+}
+
+void game_flush_respawn_inputs()
+{
+	static_cast<control_info::fire_controls_t &>(Controls.state) = {};
+	game_flush_common_inputs();
 }
 
 /*

@@ -50,7 +50,13 @@ struct control_info {
 			key_bank_left,
 			key_bank_right;
 	};
-	struct state_controls_t : public ramp_controls_t<ubyte>
+	struct fire_controls_t
+	{
+		uint8_t fire_primary, fire_secondary, fire_flare, drop_bomb;
+	};
+	struct state_controls_t :
+		public fire_controls_t,
+		public ramp_controls_t<ubyte>
 	{
 		ubyte btn_slide_left, btn_slide_right,
 			btn_slide_up, btn_slide_down,
@@ -59,7 +65,6 @@ struct control_info {
 			accelerate, reverse,
 			cruise_plus, cruise_minus, cruise_off,
 			rear_view,
-			fire_primary, fire_secondary, fire_flare, drop_bomb,
 			automap,
 			cycle_primary, cycle_secondary, select_weapon;
 #if defined(DXX_BUILD_DESCENT_II)

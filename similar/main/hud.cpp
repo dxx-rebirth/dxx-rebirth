@@ -255,6 +255,6 @@ void player_dead_message(void)
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor( HUD_color, -1);
-		gr_string(0x8000, GHEIGHT-LINE_SPACING, TXT_PRESS_ANY_KEY);
+		gr_string(0x8000, GHEIGHT - LINE_SPACING, "Press fire key or button to continue...");
 	}
 }

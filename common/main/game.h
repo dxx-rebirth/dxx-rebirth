@@ -162,6 +162,7 @@ extern int draw_gauges_on;
 extern void init_game_screen(void);
 
 extern void game_flush_inputs();    // clear all inputs
+void game_flush_respawn_inputs();
 
 extern int Playing_game;    // True if playing game
 extern int Auto_flythrough; // if set, start flythough automatically
