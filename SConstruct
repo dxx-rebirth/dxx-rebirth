@@ -415,12 +415,6 @@ struct T {};
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
 	@_custom_test
-	def check_compiler_visibility_hidden(self,context):
-		'''
-help:assume compiler accepts -fvisibility=hidden
-'''
-		self.Compile(context, text='', main='', msg='whether compiler accepts -fvisibility=hidden', successflags={'CXXFLAGS' : ['-fvisibility=hidden']})
-	@_custom_test
 	def check_attribute_error(self,context):
 		"""
 help:assume compiler supports __attribute__((error))
@@ -1122,6 +1116,23 @@ help:always wipe certain freed memory
 '''
 		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']})
 
+def add_compiler_option_tests():
+	def define_compiler_option_test(opt, doc=None):
+		def f(self, context):
+			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]})
+		f.__name__ = n = 'check_compiler_option_' + opt.replace('=', '')
+		f.__doc__ = doc or ('\nhelp:assume compiler accepts ' + opt + '\n')
+		setattr(ConfigureTests, n, custom_tests(f))
+	custom_tests = ConfigureTests._custom_test
+	for opt in (
+		('-fvisibility=hidden',),
+		('-Wsuggest-attribute=noreturn',),
+		('-Wlogical-op',),
+	):
+		define_compiler_option_test(*opt)
+add_compiler_option_tests()
+del add_compiler_option_tests
+
 class LazyObjectConstructor:
 	def __get_lazy_object(self,srcname,transform_target):
 		env = self.env
@@ -1601,12 +1612,10 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'missing-braces',
 			Werror + 'missing-include-dirs',
 			Werror + 'unused',
-			'-Wsuggest-attribute=noreturn',
 			Werror + 'undef',
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
 			Werror + 'cast-align',
-			Werror + 'logical-op',
 			Werror + 'missing-declarations',
 			Werror + 'redundant-decls',
 			Werror + 'vla',
