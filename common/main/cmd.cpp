@@ -229,6 +229,15 @@ void cmd_enqueue(int insert, const char *input)
 	std::forward_list<cmd_queue_t> l;
 	char output[CMD_MAX_LENGTH];
 	char *optr;
+	auto before_end = [](std::forward_list<cmd_queue_t> &f) {
+		for (auto i = f.before_begin();;)
+		{
+			auto j = i;
+			if (++ i == f.end())
+				return j;
+		}
+	};
+	auto iter = before_end(l);
 	while (*input) {
 		optr = output;
 		int quoted = 0;
@@ -256,7 +265,7 @@ void cmd_enqueue(int insert, const char *input)
 		*optr = 0;
 		
 		/* make a new queue item, add it to list */
-		l.emplace_after(l.end(), cmd_queue_t{d_strdup(output)});
+		iter = l.emplace_after(iter, cmd_queue_t{d_strdup(output)});
 		con_printf(CON_DEBUG, "cmd_enqueue: adding %s", output);
 	}
 	
@@ -266,7 +275,7 @@ void cmd_enqueue(int insert, const char *input)
 		con_printf(CON_DEBUG, "cmd_enqueue: added to front of list");
 	} else {
 		/* add our list to the tail of the main list */
-		cmd_queue.splice_after(cmd_queue.end(), l);
+		cmd_queue.splice_after(before_end(cmd_queue), l);
 		con_printf(CON_DEBUG, "cmd_enqueue: added to back of list");
 	}
 }
@@ -390,9 +399,10 @@ static void cmd_exec(unsigned long argc, const char *const *const argv)
 		return;
 	}
 	std::forward_list<cmd_queue_t> l;
+	auto i = l.before_begin();
 	while (PHYSFSX_fgets(line, f)) {
 		/* make a new queue item, add it to list */
-		l.emplace_after(l.end(), cmd_queue_t{d_strdup(line)});
+		i = l.emplace_after(i, cmd_queue_t{d_strdup(line)});
 		con_printf(CON_DEBUG, "cmd_exec: adding %s", static_cast<const char *>(line));
 	}
 	
