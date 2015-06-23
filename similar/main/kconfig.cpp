@@ -1472,16 +1472,20 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 	clamp_value(value, -bound, bound);
 }
 
-void convert_raw_joy_axis(int kcm_index, int player_cfg_index, int i)
+static void convert_raw_joy_axis(const uint_fast32_t player_cfg_index, const uint_fast32_t i)
 {
-	if (i == kcm_joystick[kcm_index].value) {
-		if (abs(Controls.raw_joy_axis[i]) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16) {
-			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*(FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)/128;
-		}
-		else {
-			Controls.joy_axis[i] = (Controls.raw_joy_axis[i]*FrameTime)/128;
-		}
-	}
+	const auto raw_joy_axis = Controls.raw_joy_axis[i];
+	const auto joy_axis = (abs(raw_joy_axis) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16)
+		? (raw_joy_axis * (FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)
+		: (raw_joy_axis * FrameTime);
+	Controls.joy_axis[i] = joy_axis / 128;
+}
+
+static void convert_raw_joy_axis(const uint_fast32_t kcm_index, const uint_fast32_t player_cfg_index, const uint_fast32_t i)
+{
+	if (i != kcm_joystick[kcm_index].value)
+		return;
+	convert_raw_joy_axis(player_cfg_index, i);
 }
 
 void kconfig_read_controls(const d_event &event, int automap_flag)
