@@ -1247,11 +1247,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	const auto &&fspacy = FSPACY();
 	if (label)
 	{
-		if (is_current)
-			gr_set_fontcolor( BM_XRGB(20,20,29), -1 );
-		else
-			gr_set_fontcolor( BM_XRGB(15,15,24), -1 );
-
+		gr_set_fontcolor(is_current ? BM_XRGB(20, 20, 29) : BM_XRGB(15, 15, 24), -1 );
 		gr_string(fspacx(item.x), fspacy(item.y), label);
 	}
 
@@ -1261,10 +1257,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	{
 		gr_get_string_size(btext, &w, &h, &aw  );
 
-		if (is_current)
-			gr_setcolor( BM_XRGB(21,0,24) );
-		else
-			gr_setcolor( BM_XRGB(16,0,19) );
+		gr_setcolor(is_current ? BM_XRGB(21, 0, 24) : BM_XRGB(16, 0, 19));
 		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
