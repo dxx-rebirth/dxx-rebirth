@@ -1504,6 +1504,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 #endif
 
 	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
+	const auto frametime = FrameTime;
 
 	switch (event.type)
 	{
@@ -1627,9 +1628,9 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 					if (Controls.raw_mouse_axis[i] > MOUSEFS_DELTA_RANGE)
 						Controls.raw_mouse_axis[i] = MOUSEFS_DELTA_RANGE;
 					if (Controls.raw_mouse_axis[i] > mouse_null_value) 
-						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]-mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
+						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i] - mouse_null_value) * MOUSEFS_DELTA_RANGE) / (MOUSEFS_DELTA_RANGE - mouse_null_value) * frametime) / MOUSEFS_DELTA_RANGE;
 					else if (Controls.raw_mouse_axis[i] < -mouse_null_value)
-						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]+mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
+						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i] + mouse_null_value) * MOUSEFS_DELTA_RANGE) / (MOUSEFS_DELTA_RANGE - mouse_null_value) * frametime) / MOUSEFS_DELTA_RANGE;
 					else
 						Controls.mouse_axis[i] = 0;
 				}
@@ -1637,9 +1638,9 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			else
 			{
 				event_mouse_get_delta( event, &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
-				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/4;
-				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/4;
-				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
+				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 4;
+				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 4;
+				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2] * frametime);
 				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
@@ -1663,7 +1664,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		convert_raw_joy_axis(23, 5, i); // Throttle
 	}
 
-	const auto speed_factor = (cheats.turbo ? 2 : 1) * FrameTime;
+	const auto speed_factor = (cheats.turbo ? 2 : 1) * frametime;
 
 	//------------ Read pitch_time -----------
 	if ( !Controls.state.slide_on )
@@ -1771,16 +1772,16 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_button_time(Cruise_speed, Controls.state.cruise_plus, Controls.state.cruise_minus, speed_factor * 80);
 		clamp_value(Cruise_speed, 0, i2f(100));
 		if (Controls.forward_thrust_time == 0)
-			Controls.forward_thrust_time = fixmul(Cruise_speed, FrameTime) / 100;
+			Controls.forward_thrust_time = fixmul(Cruise_speed, frametime) / 100;
 	}
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	clamp_symmetric_value(Controls.pitch_time, FrameTime/2);
-	clamp_symmetric_value(Controls.heading_time, FrameTime);
-	clamp_symmetric_value(Controls.vertical_thrust_time, FrameTime);
-	clamp_symmetric_value(Controls.sideways_thrust_time, FrameTime);
-	clamp_symmetric_value(Controls.bank_time, FrameTime);
-	clamp_symmetric_value(Controls.forward_thrust_time, FrameTime);
+	clamp_symmetric_value(Controls.pitch_time, frametime/2);
+	clamp_symmetric_value(Controls.heading_time, frametime);
+	clamp_symmetric_value(Controls.vertical_thrust_time, frametime);
+	clamp_symmetric_value(Controls.sideways_thrust_time, frametime);
+	clamp_symmetric_value(Controls.bank_time, frametime);
+	clamp_symmetric_value(Controls.forward_thrust_time, frametime);
 }
 
 void reset_cruise(void)
