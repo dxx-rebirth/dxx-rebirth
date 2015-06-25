@@ -1042,13 +1042,11 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
 				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
-
-			if ( menu->items==kc_joystick )
+			else if (menu->items == kc_joystick)
 				reset_mitem_values(kcm_joystick, DefaultKeySettings[1]);
-
-			if ( menu->items==kc_mouse )
+			else if (menu->items == kc_mouse)
 				reset_mitem_values(kcm_mouse, DefaultKeySettings[2]);
-			if ( menu->items==kc_rebirth )
+			else if (menu->items == kc_rebirth)
 				reset_mitem_values(kcm_rebirth, DefaultKeySettingsRebirth);
 			return window_event_result::handled;
 		case KEY_DELETE:
@@ -1211,7 +1209,6 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;
-			break;
 	}
 	return window_event_result::handled;
 }
@@ -1508,58 +1505,76 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
+			{
+				const auto &&key = event_key_get_raw(event);
+				if (key < 255)
+				{
 			for (uint_fast32_t i = 0; i < lengthof(kc_keyboard); i++)
 			{
-				if (kcm_keyboard[i].value < 255 && kcm_keyboard[i].value == event_key_get_raw(event))
+				if (kcm_keyboard[i].value == key)
 				{
 					input_button_matched(kc_keyboard[i], (event.type==EVENT_KEY_COMMAND));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
 				for (uint_fast32_t i = 0, j = 0; i < 28; i += 3, j++)
-					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_key_get_raw(event))
+					if (kcm_rebirth[i].value == key)
 					{
 						Controls.state.select_weapon = j+1;
 						break;
 					}
+				}
+			}
 			break;
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
+			{
+				const auto &&button = event_joystick_get_button(event);
+				if (button < 255)
+				{
 			for (uint_fast32_t i = 0; i < lengthof(kc_joystick); i++)
 			{
-				if (kcm_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == event_joystick_get_button(event))
+				if (kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == button)
 				{
 					input_button_matched(kc_joystick[i], (event.type==EVENT_JOYSTICK_BUTTON_DOWN));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
 				for (uint_fast32_t i = 1, j = 0; i < 29; i += 3, j++)
-					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_joystick_get_button(event))
+					if (kcm_rebirth[i].value == button)
 					{
 						Controls.state.select_weapon = j+1;
 						break;
 					}
+				}
 			break;
+			}
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
+			{
+				const auto &&button = event_mouse_get_button(event);
+				if (button < 255)
+				{
 			for (uint_fast32_t i = 0; i < lengthof(kc_mouse); i++)
 			{
-				if (kcm_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == event_mouse_get_button(event))
+				if (kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == button)
 				{
 					input_button_matched(kc_mouse[i], (event.type==EVENT_MOUSE_BUTTON_DOWN));
 				}
 			}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
 				for (uint_fast32_t i = 2, j = 0; i < 30; i += 3, j++)
-					if (kcm_rebirth[i].value < 255 && kcm_rebirth[i].value == event_mouse_get_button(event))
+					if (kcm_rebirth[i].value == button)
 					{
 						Controls.state.select_weapon = j+1;
 						break;
 					}
+				}
+			}
 			break;
 		case EVENT_JOYSTICK_MOVED:
 		{
@@ -1572,15 +1587,15 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 
 			if (axis == kcm_joystick[13].value) // Pitch U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[1]*8;
-			if (axis == kcm_joystick[15].value) // Turn L/R Deadzone
+			else if (axis == kcm_joystick[15].value) // Turn L/R Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[0]*8;
-			if (axis == kcm_joystick[17].value) // Slide L/R Deadzone
+			else if (axis == kcm_joystick[17].value) // Slide L/R Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[2]*8;
-			if (axis == kcm_joystick[19].value) // Slide U/D Deadzone
+			else if (axis == kcm_joystick[19].value) // Slide U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[3]*8;
-			if (axis == kcm_joystick[21].value) // Bank Deadzone
+			else if (axis == kcm_joystick[21].value) // Bank Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[4]*8;
-			if (axis == kcm_joystick[23].value) // Throttle - default deadzone
+			else if (axis == kcm_joystick[23].value) // Throttle - default deadzone
 				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
 			if (Controls.raw_joy_axis[axis] > joy_null_value) 
