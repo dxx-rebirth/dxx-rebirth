@@ -1434,7 +1434,7 @@ static void adjust_ramped_keyboard_field(float& keydown_time, ubyte& state, fix&
 	{
 		if (keydown_time < F1_0)
 			keydown_time += (!keydown_time)?F1_0*((float)sensitivity/16)+1:FrameTime/4;
-		time = F<fix>()(time, speed_factor*FrameTime/speed_divisor*(keydown_time/F1_0));
+		time = F<fix>()(time, speed_factor / speed_divisor * (keydown_time / F1_0));
 	}
 	else
 		keydown_time = 0;
@@ -1478,9 +1478,20 @@ static void convert_raw_joy_axis(const uint_fast32_t kcm_index, const uint_fast3
 	convert_raw_joy_axis(player_cfg_index, i);
 }
 
+static inline void adjust_button_time(fix &o, uint8_t add, uint8_t sub, fix v)
+{
+	if (add)
+	{
+		if (sub)
+			return;
+		o += v;
+	}
+	else if (sub)
+		o -= v;
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
-	int speed_factor = cheats.turbo?2:1;
 	static fix64 mouse_delta_time = 0;
 
 #ifndef NDEBUG
@@ -1652,6 +1663,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		convert_raw_joy_axis(23, 5, i); // Throttle
 	}
 
+	const auto speed_factor = (cheats.turbo ? 2 : 1) * FrameTime;
 
 	//------------ Read pitch_time -----------
 	if ( !Controls.state.slide_on )
@@ -1683,8 +1695,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	adjust_ramped_keyboard_field(plus, key_slide_up, Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 	adjust_ramped_keyboard_field(minus, key_slide_down, Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 	// From buttons...
-	if ( Controls.state.btn_slide_up ) Controls.vertical_thrust_time += speed_factor*FrameTime;
-	if ( Controls.state.btn_slide_down ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
+	adjust_button_time(Controls.vertical_thrust_time, Controls.state.btn_slide_up, Controls.state.btn_slide_down, speed_factor);
 	// From joystick...
 	adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[19].value, !kcm_joystick[20].value, PlayerCfg.JoystickSens[3]);
 	// From mouse...
@@ -1718,8 +1729,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	adjust_ramped_keyboard_field(plus, key_slide_right, Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 	adjust_ramped_keyboard_field(minus, key_slide_left, Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 	// From buttons...
-	if ( Controls.state.btn_slide_left ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
-	if ( Controls.state.btn_slide_right ) Controls.sideways_thrust_time += speed_factor*FrameTime;
+	adjust_button_time(Controls.sideways_thrust_time, Controls.state.btn_slide_right, Controls.state.btn_slide_left, speed_factor);
 	// From joystick...
 	adjust_axis_field(Controls.sideways_thrust_time, Controls.joy_axis, kcm_joystick[17].value, !kcm_joystick[18].value, PlayerCfg.JoystickSens[2]);
 	// From mouse...
@@ -1740,8 +1750,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	adjust_ramped_keyboard_field(plus, key_bank_left, Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 	adjust_ramped_keyboard_field(minus, key_bank_right, Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 	// From buttons...
-	if ( Controls.state.btn_bank_left ) Controls.bank_time += speed_factor*FrameTime;
-	if ( Controls.state.btn_bank_right ) Controls.bank_time -= speed_factor*FrameTime;
+	adjust_button_time(Controls.bank_time, Controls.state.btn_bank_left, Controls.state.btn_bank_right, speed_factor);
 	// From joystick...
 	adjust_axis_field(Controls.bank_time, Controls.joy_axis, kcm_joystick[21].value, kcm_joystick[22].value, PlayerCfg.JoystickSens[4]);
 	// From mouse...
@@ -1749,19 +1758,21 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 
 	//----------- Read forward_thrust_time -------------
 	// From keyboard/buttons...
-	if ( Controls.state.accelerate ) Controls.forward_thrust_time += speed_factor*FrameTime;
-	if ( Controls.state.reverse ) Controls.forward_thrust_time -= speed_factor*FrameTime;
+	adjust_button_time(Controls.forward_thrust_time, Controls.state.accelerate, Controls.state.reverse, speed_factor);
 	// From joystick...
 	adjust_axis_field(Controls.forward_thrust_time, Controls.joy_axis, kcm_joystick[23].value, kcm_joystick[24].value, PlayerCfg.JoystickSens[5]);
 	// From mouse...
 	adjust_axis_field(Controls.forward_thrust_time, Controls.mouse_axis, kcm_mouse[23].value, kcm_mouse[24].value, PlayerCfg.MouseSens[5]);
 
 	//----------- Read cruise-control-type of throttle.
-	if ( Controls.state.cruise_plus ) Cruise_speed += speed_factor*FrameTime*80;
-	if ( Controls.state.cruise_minus ) Cruise_speed -= speed_factor*FrameTime*80;
 	if ( Controls.state.cruise_off > 0 ) Controls.state.cruise_off = Cruise_speed = 0;
-	clamp_value(Cruise_speed, 0, i2f(100));
-	if (Controls.forward_thrust_time==0) Controls.forward_thrust_time = fixmul(Cruise_speed,FrameTime)/100;
+	else
+	{
+		adjust_button_time(Cruise_speed, Controls.state.cruise_plus, Controls.state.cruise_minus, speed_factor * 80);
+		clamp_value(Cruise_speed, 0, i2f(100));
+		if (Controls.forward_thrust_time == 0)
+			Controls.forward_thrust_time = fixmul(Cruise_speed, FrameTime) / 100;
+	}
 
 	//----------- Clamp values between -FrameTime and FrameTime
 	clamp_symmetric_value(Controls.pitch_time, FrameTime/2);
