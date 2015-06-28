@@ -1627,15 +1627,14 @@ static void hud_show_weapons(void)
 
 		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
 		const auto &&bmwx = grd_curcanv->cv_bitmap.bm_w - fspacx(1);
-		const auto &&bmwwx = bmwx - w;
-		gr_string(bmwwx, y - (line_spacing * 2), disp_primary_weapon_name);
+		gr_string(bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name);
 		const char *disp_secondary_weapon_name;
 
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_string(bmwwx, y - line_spacing, weapon_str);
+		gr_string(bmwx - w, y - line_spacing, weapon_str);
 
 		show_bomb_count(bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
