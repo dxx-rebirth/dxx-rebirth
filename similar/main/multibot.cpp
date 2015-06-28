@@ -396,25 +396,27 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	short s;
 
 	loc += 1;
-	multibuf[loc] = Player_num;											loc += 1;
+	multibuf[loc] = Player_num;                                            loc += 1;
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
-	PUT_INTEL_SHORT(multibuf+loc, s);
+	PUT_INTEL_SHORT(multibuf+loc, s);                                      loc += 3; // 5
 
-																		loc += 3;
-	if (words_bigendian)
-	{
-		shortpos sp;
-		create_shortpos_little(&sp, objnum);
-		memcpy(&multibuf[loc], sp.bytemat, 9);
-	loc += 9;
-		memcpy(&multibuf[loc], &sp.xo, 14);
-	loc += 14;
-	}
-	else
-	{
-		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[loc]), objnum);
-		loc += sizeof(shortpos);
-	}
+	quaternionpos qpp{};
+	create_quaternionpos(&qpp, objnum, 0);
+	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.w);			loc += 2;
+	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.x);			loc += 2;
+	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.y);			loc += 2;
+	PUT_INTEL_SHORT(multibuf+loc, qpp.orient.z);			loc += 2;
+	PUT_INTEL_INT(multibuf+loc, qpp.pos.x);				loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.pos.y);				loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.pos.z);				loc += 4;
+	PUT_INTEL_SHORT(multibuf+loc, qpp.segment);			loc += 2;
+	PUT_INTEL_INT(multibuf+loc, qpp.vel.x);				loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.vel.y);				loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.vel.z);				loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.x);			loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.y);			loc += 4;
+	PUT_INTEL_INT(multibuf+loc, qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
+
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
@@ -752,18 +754,22 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	set_thrust_from_velocity(robot); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-	if (words_bigendian)
-	{
-		shortpos sp;
-		memcpy(sp.bytemat, &buf[loc], 9);
-		loc += 9;
-		memcpy(&sp.xo, &buf[loc], 14);
-		extract_shortpos_little(robot, &sp);
-	}
-	else
-	{
-		extract_shortpos_little(robot, reinterpret_cast<const shortpos *>(&buf[loc]));
-	}
+	quaternionpos qpp{};
+	qpp.orient.w = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	qpp.orient.x = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	qpp.orient.y = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	qpp.orient.z = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	qpp.pos.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.pos.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.pos.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.segment = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	qpp.vel.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.vel.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.vel.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.rotvel.x = GET_INTEL_INT(&buf[loc]);					loc += 4;
+	qpp.rotvel.y = GET_INTEL_INT(&buf[loc]);					loc += 4;
+	qpp.rotvel.z = GET_INTEL_INT(&buf[loc]);					loc += 4;
+        extract_quaternionpos(robot, &qpp, 0);
 }
 
 static inline vms_vector calc_gun_point(const vcobjptr_t obj,int gun_num)

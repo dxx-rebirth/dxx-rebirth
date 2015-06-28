@@ -1611,15 +1611,24 @@ static void multi_do_message(const uint8_t *const cbuf)
 static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 {
 	const auto obj = vobjptridx(Players[pnum].objnum);
-	if (words_bigendian)
-	{
-		shortpos sp;
-		memcpy(sp.bytemat, &buf[2], 9);
-		memcpy(&sp.xo, &buf[11], 14);
-		extract_shortpos_little(obj, &sp);
-	}
-	else
-		extract_shortpos_little(obj, reinterpret_cast<const shortpos *>(&buf[2]));
+        int count = 1;
+
+        quaternionpos qpp{};
+	qpp.orient.w = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	qpp.orient.x = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	qpp.orient.y = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	qpp.orient.z = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	qpp.pos.x = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.pos.y = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.pos.z = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.segment = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	qpp.vel.x = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.vel.y = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.vel.z = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.rotvel.x = GET_INTEL_INT(&buf[count]);					count += 4;
+	qpp.rotvel.y = GET_INTEL_INT(&buf[count]);					count += 4;
+	qpp.rotvel.z = GET_INTEL_INT(&buf[count]);					count += 4;
+        extract_quaternionpos(obj, &qpp, 0);
 
 	if (obj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(obj);
@@ -2757,26 +2766,27 @@ multi_send_reappear()
 
 void multi_send_position(const vobjptridx_t obj)
 {
-	int count=0;
+	int count=1;
 
-	count++;
-	multibuf[count++] = (char)Player_num;
-	if (words_bigendian)
-	{
-		shortpos sp;
-		create_shortpos_little(&sp, obj);
-		memcpy(&multibuf[count], sp.bytemat, 9);
-		count += 9;
-		memcpy(&multibuf[count], &sp.xo, 14);
-		count += 14;
-	}
-	else
-	{
-		create_shortpos_little(reinterpret_cast<shortpos *>(&multibuf[count]), obj);
-		count += sizeof(shortpos);
-	}
+	quaternionpos qpp{};
+	create_quaternionpos(&qpp, obj, 0);
+	PUT_INTEL_SHORT(multibuf+count, qpp.orient.w);							count += 2;
+	PUT_INTEL_SHORT(multibuf+count, qpp.orient.x);							count += 2;
+	PUT_INTEL_SHORT(multibuf+count, qpp.orient.y);							count += 2;
+	PUT_INTEL_SHORT(multibuf+count, qpp.orient.z);							count += 2;
+	PUT_INTEL_INT(multibuf+count, qpp.pos.x);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.pos.y);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.pos.z);							count += 4;
+	PUT_INTEL_SHORT(multibuf+count, qpp.segment);							count += 2;
+	PUT_INTEL_INT(multibuf+count, qpp.vel.x);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.vel.y);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.vel.z);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.rotvel.x);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.rotvel.y);							count += 4;
+	PUT_INTEL_INT(multibuf+count, qpp.rotvel.z);							count += 4; // 46
+
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
-	multi_send_data<MULTI_POSITION>(multibuf, count, 2);
+	multi_send_data<MULTI_POSITION>(multibuf, count, 1);
 	multi_send_data<MULTI_POSITION>(multibuf, count, 0);
 }
 
