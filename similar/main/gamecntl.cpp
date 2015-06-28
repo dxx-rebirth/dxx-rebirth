@@ -1455,7 +1455,7 @@ static window_event_result FinalCheats()
 		{
 			gotcha = cheat_codes[i].stateptr;
 #if defined(DXX_BUILD_DESCENT_I)
-			if (!cheats.enabled && cheats.*gotcha != cheats.enabled)
+			if (!cheats.enabled && gotcha != &game_cheats::enabled)
 				return window_event_result::ignored;
 			if (!cheats.enabled)
 				HUD_init_message_literal(HM_DEFAULT, TXT_CHEATS_ENABLED);
