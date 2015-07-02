@@ -232,16 +232,22 @@ public:
 template <typename D>
 class basic_show_rule : protected D
 {
+	using D::show_item;
 public:
 	template <typename T>
 		static void show_bool_oo(int x1, int y, int x2, const char *label, T enabled)
 		{
-			D::show_item(x1, y, label, x2, enabled ? "ON" : "OFF");
+			show_item(x1, y, label, x2, enabled ? "ON" : "OFF");
 		}
 	template <typename T>
 		static void show_bool_yn(int x1, int y, int x2, const char *label, T enabled)
 		{
-			D::show_item(x1, y, label, x2, enabled ? "YES" : "NO");
+			show_item(x1, y, label, x2, enabled ? "YES" : "NO");
+		}
+	template <typename T1, typename T2>
+		static void show_mask_yn(int x1, int y, int x2, const char *label, T1 enabled, T2 mask)
+		{
+			show_bool_yn(x1, y, x2, label, enabled & mask);
 		}
 };
 
@@ -5541,56 +5547,57 @@ static void draw_game_rules(F f, const netgame_info &netgame)
 	const auto &&fspacx275 = fspacx(275);
 	const auto &&fspacy6 = fspacy(6);
 	auto x25y = fspacy(base_y + 69), x155y = fspacy(base_y + 20), x170y = x25y;
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Laser Upgrade:", netgame.AllowedItems & NETFLAG_DOLASER);
+	const auto AllowedItems = netgame.AllowedItems;
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Laser Upgrade:", AllowedItems, NETFLAG_DOLASER);
 #if defined(DXX_BUILD_DESCENT_I)
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Quad Laser:", netgame.AllowedItems & NETFLAG_DOQUAD);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Vulcan Cannon:", netgame.AllowedItems & NETFLAG_DOVULCAN);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Spreadfire Cannon:", netgame.AllowedItems & NETFLAG_DOSPREAD);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Plasma Cannon:", netgame.AllowedItems & NETFLAG_DOPLASMA);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Fusion Cannon:", netgame.AllowedItems & NETFLAG_DOFUSION);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Invulnerability:", netgame.AllowedItems & NETFLAG_DOINVUL);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Cloak:", netgame.AllowedItems & NETFLAG_DOCLOAK);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Quad Laser:", AllowedItems, NETFLAG_DOQUAD);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Vulcan Cannon:", AllowedItems, NETFLAG_DOVULCAN);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Spreadfire Cannon:", AllowedItems, NETFLAG_DOSPREAD);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Plasma Cannon:", AllowedItems, NETFLAG_DOPLASMA);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Fusion Cannon:", AllowedItems, NETFLAG_DOFUSION);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Invulnerability:", AllowedItems, NETFLAG_DOINVUL);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Cloak:", AllowedItems, NETFLAG_DOCLOAK);
 	f.show_bool_oo(fspacx155,x155y += fspacy6, fspacx275, "Bright player ships:", netgame.BrightPlayers);
 	f.show_bool_oo(fspacx155,x155y += fspacy6, fspacx275, "Show enemy names on hud:", netgame.ShowEnemyNames);
 	f.show_bool_oo(fspacx155,x155y += fspacy6, fspacx275, "Show players on automap:", netgame.game_flag.show_on_map);
 	f.show_bool_oo(fspacx155,x155y += fspacy6, fspacx275, "Invul vs allies:", netgame.NoFriendlyFire);
-	f.show_bool_yn(fspacx170,x170y += fspacy6, fspacx275, "Homing Missile:", netgame.AllowedItems & NETFLAG_DOHOMING);
-	f.show_bool_yn(fspacx170,x170y += fspacy6, fspacx275, "Proximity Bomb:", netgame.AllowedItems & NETFLAG_DOPROXIM);
-	f.show_bool_yn(fspacx170,x170y += fspacy6, fspacx275, "Smart Missile:", netgame.AllowedItems & NETFLAG_DOSMART);
-	f.show_bool_yn(fspacx170,x170y += fspacy6, fspacx275, "Mega Missile:", netgame.AllowedItems & NETFLAG_DOMEGA);
+	f.show_mask_yn(fspacx170,x170y += fspacy6, fspacx275, "Homing Missile:", AllowedItems, NETFLAG_DOHOMING);
+	f.show_mask_yn(fspacx170,x170y += fspacy6, fspacx275, "Proximity Bomb:", AllowedItems, NETFLAG_DOPROXIM);
+	f.show_mask_yn(fspacx170,x170y += fspacy6, fspacx275, "Smart Missile:", AllowedItems, NETFLAG_DOSMART);
+	f.show_mask_yn(fspacx170,x170y += fspacy6, fspacx275, "Mega Missile:", AllowedItems, NETFLAG_DOMEGA);
 #elif defined(DXX_BUILD_DESCENT_II)
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Super Laser:", netgame.AllowedItems & NETFLAG_DOSUPERLASER);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Quad Laser:", netgame.AllowedItems & NETFLAG_DOQUAD);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Vulcan Cannon:", netgame.AllowedItems & NETFLAG_DOVULCAN);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Gauss Cannon:", netgame.AllowedItems & NETFLAG_DOGAUSS);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Spreadfire Cannon:", netgame.AllowedItems & NETFLAG_DOSPREAD);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Helix Cannon:", netgame.AllowedItems & NETFLAG_DOHELIX);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Plasma Cannon:", netgame.AllowedItems & NETFLAG_DOPLASMA);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Phoenix Cannon:", netgame.AllowedItems & NETFLAG_DOPHOENIX);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Fusion Cannon:", netgame.AllowedItems & NETFLAG_DOFUSION);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Omega Cannon:", netgame.AllowedItems & NETFLAG_DOOMEGA);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Super Laser:", AllowedItems, NETFLAG_DOSUPERLASER);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Quad Laser:", AllowedItems, NETFLAG_DOQUAD);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Vulcan Cannon:", AllowedItems, NETFLAG_DOVULCAN);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Gauss Cannon:", AllowedItems, NETFLAG_DOGAUSS);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Spreadfire Cannon:", AllowedItems, NETFLAG_DOSPREAD);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Helix Cannon:", AllowedItems, NETFLAG_DOHELIX);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Plasma Cannon:", AllowedItems, NETFLAG_DOPLASMA);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Phoenix Cannon:", AllowedItems, NETFLAG_DOPHOENIX);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Fusion Cannon:", AllowedItems, NETFLAG_DOFUSION);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Omega Cannon:", AllowedItems, NETFLAG_DOOMEGA);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Marker camera views:", netgame.Allow_marker_view);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Indestructible lights:", netgame.AlwaysLighting);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Bright player ships:", netgame.BrightPlayers);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Show enemy names on hud:", netgame.ShowEnemyNames);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Show players on automap:", netgame.game_flag.show_on_map);
 	f.show_bool_oo(fspacx155, x155y += fspacy6, fspacx275, "Invul vs allies:", netgame.NoFriendlyFire);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Flash Missile:", netgame.AllowedItems & NETFLAG_DOFLASH);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Homing Missile:", netgame.AllowedItems & NETFLAG_DOHOMING);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Guided Missile:", netgame.AllowedItems & NETFLAG_DOGUIDED);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Proximity Bomb:", netgame.AllowedItems & NETFLAG_DOPROXIM);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Smart Mine:", netgame.AllowedItems & NETFLAG_DOSMARTMINE);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Smart Missile:", netgame.AllowedItems & NETFLAG_DOSMART);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Mercury Missile:", netgame.AllowedItems & NETFLAG_DOMERCURY);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Mega Missile:", netgame.AllowedItems & NETFLAG_DOMEGA);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Earthshaker Missile:", netgame.AllowedItems & NETFLAG_DOSHAKER);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Flash Missile:", AllowedItems, NETFLAG_DOFLASH);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Homing Missile:", AllowedItems, NETFLAG_DOHOMING);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Guided Missile:", AllowedItems, NETFLAG_DOGUIDED);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Proximity Bomb:", AllowedItems, NETFLAG_DOPROXIM);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Smart Mine:", AllowedItems, NETFLAG_DOSMARTMINE);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Smart Missile:", AllowedItems, NETFLAG_DOSMART);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Mercury Missile:", AllowedItems, NETFLAG_DOMERCURY);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Mega Missile:", AllowedItems, NETFLAG_DOMEGA);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Earthshaker Missile:", AllowedItems, NETFLAG_DOSHAKER);
 	x25y = x170y = fspacy(base_y + 139);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Afterburner:", netgame.AllowedItems & NETFLAG_DOAFTERBURNER);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Headlight:", netgame.AllowedItems & NETFLAG_DOHEADLIGHT);
-	f.show_bool_yn(fspacx25, x25y += fspacy6, fspacx130, "Energy->Shield Conv:", netgame.AllowedItems & NETFLAG_DOCONVERTER);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Invulnerability:", netgame.AllowedItems & NETFLAG_DOINVUL);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Cloaking Device:", netgame.AllowedItems & NETFLAG_DOCLOAK);
-	f.show_bool_yn(fspacx170, x170y += fspacy6, fspacx275, "Ammo Rack:", netgame.AllowedItems & NETFLAG_DOAMMORACK);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Afterburner:", AllowedItems, NETFLAG_DOAFTERBURNER);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Headlight:", AllowedItems, NETFLAG_DOHEADLIGHT);
+	f.show_mask_yn(fspacx25, x25y += fspacy6, fspacx130, "Energy->Shield Conv:", AllowedItems, NETFLAG_DOCONVERTER);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Invulnerability:", AllowedItems, NETFLAG_DOINVUL);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Cloaking Device:", AllowedItems, NETFLAG_DOCLOAK);
+	f.show_mask_yn(fspacx170, x170y += fspacy6, fspacx275, "Ammo Rack:", AllowedItems, NETFLAG_DOAMMORACK);
 #endif
 }
 
