@@ -405,7 +405,10 @@ static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			
 		case CT_POWERUP:
 			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->ctype.powerup_info.creation_time = 0;
+			obj->ctype.powerup_info.flags         = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
 			obj->ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
 #endif

@@ -1200,10 +1200,8 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 #endif
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
 	if (obj->control_type == CT_POWERUP)
 		obj->ctype.powerup_info.creation_time = GameTime64;
-#endif
 
 	if (obj->control_type == CT_EXPLOSION)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;

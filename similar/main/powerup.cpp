@@ -233,10 +233,8 @@ int do_powerup(const vobjptridx_t obj)
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
 		return 0;
 
-#if defined(DXX_BUILD_DESCENT_II)
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime64<obj->ctype.powerup_info.creation_time+i2f(2))
 		return 0;		//not enough time elapsed
-#endif
 
 	if (Game_mode & GM_MULTI)
 	{

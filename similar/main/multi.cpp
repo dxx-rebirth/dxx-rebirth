@@ -3551,18 +3551,19 @@ int multi_all_players_alive()
 	return (1);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-void multi_send_drop_weapon(objnum_t objnum, int seed)
+void multi_send_drop_weapon(const vobjptridx_t objnum, int seed)
 {
 	int count=0;
 	int ammo_count;
 
 	multi_send_position(Players[Player_num].objnum);
-	auto objp = &Objects[objnum];
+	const auto &objp = objnum;
 	ammo_count = objp->ctype.powerup_info.count;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (get_powerup_id(objp) == POW_OMEGA_WEAPON && ammo_count == F1_0)
 		ammo_count = F1_0 - 1; //make fit in short
+#endif
 
 	Assert(ammo_count < F1_0); //make sure fits in short
 
@@ -3603,6 +3604,7 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void multi_send_guided_info (const vobjptr_t miss,char done)
 {
 	int count=0;
@@ -5171,13 +5173,13 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_quit(buf); break;
 		case MULTI_CONTROLCEN:
 			multi_do_controlcen_destroy(buf); break;
+		case MULTI_DROP_WEAPON:
+			multi_do_drop_weapon(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(pnum, buf); break;
 		case MULTI_MARKER:
 			multi_do_drop_marker (pnum, buf); break;
-		case MULTI_DROP_WEAPON:
-			multi_do_drop_weapon(pnum, buf); break;
 		case MULTI_DROP_FLAG:
 			multi_do_drop_flag(pnum, buf); break;
 		case MULTI_GUIDED:
@@ -5569,7 +5571,10 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			
 		case CT_POWERUP:
 			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->ctype.powerup_info.creation_time = 0;
+			obj->ctype.powerup_info.flags         = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
 			obj->ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
 #endif

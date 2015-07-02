@@ -241,10 +241,8 @@ struct light_info_rw
 struct powerup_info : prohibit_void_ptr<powerup_info>
 {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
-#if defined(DXX_BUILD_DESCENT_II)
 	int     flags;          // spat by player?
 	fix64   creation_time;  // Absolute time of creation.
-#endif
 };
 
 struct powerup_info_rw

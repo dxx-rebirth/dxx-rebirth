@@ -262,9 +262,7 @@ static void verify_object(const vobjptr_t obj)
 		}
 		obj->control_type = CT_POWERUP;
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
-#if defined(DXX_BUILD_DESCENT_II)
 		obj->ctype.powerup_info.creation_time = 0;
-#endif
 
 		if (Game_mode & GM_NETWORK)
 		{

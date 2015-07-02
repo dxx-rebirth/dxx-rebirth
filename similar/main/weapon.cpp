@@ -1111,6 +1111,7 @@ void process_super_mines_frame(void)
 		}
 	}
 }
+#endif
 
 #define SPIT_SPEED 20
 
@@ -1244,26 +1245,31 @@ void DropCurrentWeapon ()
 	}
 
 	HUD_init_message(HM_DEFAULT, "%s dropped!", weapon_name);
+#if defined(DXX_BUILD_DESCENT_II)
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
+#endif
 
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
 
 		//if it's one of these, drop some ammo with the weapon
 		auto ammo = plr.vulcan_ammo;
+#if defined(DXX_BUILD_DESCENT_II)
 		if ((plr.primary_weapon_flags & HAS_VULCAN_FLAG) && (plr.primary_weapon_flags & HAS_GAUSS_FLAG))
 			ammo /= 2;		//if both vulcan & gauss, drop half
+#endif
 
 		plr.vulcan_ammo -= ammo;
 
 			objnum->ctype.powerup_info.count = ammo;
 	}
-
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Primary_weapon == OMEGA_INDEX) {
 
 		//dropped weapon has current energy
 
 			objnum->ctype.powerup_info.count = Omega_charge;
 	}
+#endif
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_weapon(objnum,seed);
@@ -1301,9 +1307,11 @@ void DropSecondaryWeapon ()
 	{
 		case POW_MISSILE_1:
 		case POW_HOMING_AMMO_1:
+#if defined(DXX_BUILD_DESCENT_II)
 		case POW_SMISSILE1_1:
 		case POW_GUIDED_MISSILE_1:
 		case POW_MERCURY_MISSILE_1:
+#endif
 			if (Players[Player_num].secondary_ammo[Secondary_weapon] % 4)
 			{
 				sub_ammo = 1;
@@ -1316,7 +1324,9 @@ void DropSecondaryWeapon ()
 			}
 			break;
 		case POW_PROXIMITY_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
 		case POW_SMART_MINE:
+#endif
 			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
 			{
 				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
@@ -1329,7 +1339,9 @@ void DropSecondaryWeapon ()
 			break;
 		case POW_SMARTBOMB_WEAPON:
 		case POW_MEGA_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
 		case POW_EARTHSHAKER_MISSILE:
+#endif
 			sub_ammo = 1;
 			break;
 		case POW_EXTRA_LIFE:
@@ -1351,6 +1363,7 @@ void DropSecondaryWeapon ()
 		case POW_TURBO:
 		case POW_INVULNERABILITY:
 		case POW_MEGAWOW:
+#if defined(DXX_BUILD_DESCENT_II)
 		case POW_GAUSS_WEAPON:
 		case POW_HELIX_WEAPON:
 		case POW_PHOENIX_WEAPON:
@@ -1367,11 +1380,14 @@ void DropSecondaryWeapon ()
 		case POW_FLAG_BLUE:
 		case POW_FLAG_RED:
 		case POW_HOARD_ORB:
+#endif
 			break;
 	}
 
 	HUD_init_message(HM_DEFAULT, "%s dropped!",SECONDARY_WEAPON_NAMES(Secondary_weapon));
+#if defined(DXX_BUILD_DESCENT_II)
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
+#endif
 
 	seed = d_rand();
 
@@ -1393,6 +1409,7 @@ void DropSecondaryWeapon ()
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //	---------------------------------------------------------------------------------------
 //	Do seismic disturbance stuff including the looping sounds with changing volume.
 void do_seismic_stuff(void)

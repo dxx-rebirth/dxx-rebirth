@@ -407,11 +407,11 @@ int pick_up_primary(int weapon_index);
 //called when ammo (for the vulcan cannon) is picked up
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 
-#if defined(DXX_BUILD_DESCENT_II)
-int attempt_to_steal_item(vobjptridx_t objp, int player_num);
-
 //this function is for when the player intentionally drops a powerup
 objptridx_t spit_powerup(vobjptr_t spitter, int id, int seed);
+
+#if defined(DXX_BUILD_DESCENT_II)
+int attempt_to_steal_item(vobjptridx_t objp, int player_num);
 
 #define SMEGA_ID    40
 

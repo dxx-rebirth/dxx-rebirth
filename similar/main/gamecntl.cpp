@@ -1009,14 +1009,10 @@ static window_event_result HandleGameKey(int key)
 			return window_event_result::handled;
 
 		default:
-#if defined(DXX_BUILD_DESCENT_I)
-			return window_event_result::ignored;
-#endif
 			break;
 
 	}	 //switch (key)
 
-#if defined(DXX_BUILD_DESCENT_II)
 	if (!Player_is_dead)
 		switch (key)
 		{
@@ -1030,6 +1026,7 @@ static window_event_result HandleGameKey(int key)
 				DropSecondaryWeapon();
 				break;
 
+#if defined(DXX_BUILD_DESCENT_II)
 			case KEY_0 + KEY_ALTED:
 				DropFlag ();
 				game_flush_inputs();
@@ -1040,13 +1037,13 @@ static window_event_result HandleGameKey(int key)
 				if (!DefiningMarkerMessage)
 					InitMarkerInput();
 				break;
+#endif
 
 			default:
 				return window_event_result::ignored;
 		}
 	else
 		return window_event_result::ignored;
-#endif
 
 	return window_event_result::handled;
 }

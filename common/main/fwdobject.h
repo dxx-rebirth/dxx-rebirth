@@ -93,10 +93,10 @@ const physics_flag_t PF_USES_THRUST = 0x40;    // this object uses its thrust
 const physics_flag_t PF_BOUNCED_ONCE = 0x80;    // Weapon has bounced once.
 const physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotation of this object
 const physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
+#endif
 
 typedef unsigned powerup_flag_t;
 const powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player
-#endif
 
 const unsigned IMMORTAL_TIME = 0x3fffffff;  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
