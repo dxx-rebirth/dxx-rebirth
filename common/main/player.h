@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include <physfs.h>
 #include "vecmat.h"
 #include "weapon.h"
@@ -158,6 +157,7 @@ struct callsign_t
 };
 static_assert(sizeof(callsign_t) == CALLSIGN_LEN + 1, "callsign_t too big");
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
 struct player : public prohibit_void_ptr<player>
@@ -286,6 +286,7 @@ static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
+#endif
 
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
@@ -311,6 +312,7 @@ typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	0
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -318,6 +320,7 @@ extern playernum_t Player_num;  // The player number who is on the console.
 #endif
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
+#endif
 
 extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
@@ -327,6 +330,5 @@ extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
  */
 void player_ship_read(player_ship *ps, PHYSFS_file *fp);
 
-#endif
 
 #endif

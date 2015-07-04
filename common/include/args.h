@@ -56,51 +56,52 @@ typedef enum {
 //   Mpl - Multiplayer Options
 //   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include <string>
 #include "dxxsconf.h"
+#include "pack.h"
 #include "compiler-type_traits.h"
 
-struct Arg
+struct Arg : prohibit_void_ptr<Arg>
 {
-	int SysShowCmdHelp;
-	int SysNoNiceFPS;
 	int SysMaxFPS;
-	int SysNoHogDir;
-	int SysUsePlayersDir;
-	int SysLowMem;
 	std::string SysHogDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
+	bool SysShowCmdHelp;
+	bool SysNoNiceFPS;
+	bool SysNoHogDir;
+	bool SysUsePlayersDir;
+	bool SysLowMem;
 	bool SysAutoRecordDemo;
-	int SysWindow;
-	int SysNoBorders;
-	int SysAutoDemo;
-#ifdef DXX_BUILD_DESCENT_I
-	int SysNoTitles;
-#endif
-#ifdef DXX_BUILD_DESCENT_II
-	int SysNoMovies;
-#endif
-	int CtlNoCursor;
-	int CtlNoMouse;
-	int CtlNoJoystick;
-	int CtlNoStickyKeys;
-	int SndNoSound;
-	int SndNoMusic;
+	bool SysWindow;
+	bool SysNoBorders;
+	bool SysAutoDemo;
+	bool CtlNoCursor;
+	bool CtlNoMouse;
+	bool CtlNoJoystick;
+	bool CtlNoStickyKeys;
+	bool SndNoSound;
+	bool SndNoMusic;
 #ifdef USE_SDLMIXER
 	bool SndDisableSdlMixer;
 #else
 	static constexpr tt::true_type SndDisableSdlMixer{};
 #endif
-#ifdef DXX_BUILD_DESCENT_II
-	int SndDigiSampleRate;
-	int GfxSkipHiresMovie;
-	int GfxSkipHiresGFX;
+	bool GfxSkipHiresFNT;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT_I
+	bool SysNoTitles;
+	bool EdiNoBm;
 #endif
-	int GfxSkipHiresFNT;
+#ifdef DXX_BUILD_DESCENT_II
+	bool SysNoMovies;
+	bool GfxSkipHiresMovie;
+	bool GfxSkipHiresGFX;
+	int SndDigiSampleRate;
+#endif
 #ifdef OGL
-	int OglFixedFont;
+	bool DbgUseOldTextureMerge;
+	bool OglFixedFont;
 	SyncGLMethod OglSyncMethod;
 	int OglSyncWait;
 #endif
@@ -111,27 +112,23 @@ struct Arg
 	uint16_t MplTrackerPort;
 	std::string MplTrackerAddr;
 #endif
-#ifdef DXX_BUILD_DESCENT_I
-	int EdiNoBm;
-#endif
 #ifdef DXX_BUILD_DESCENT_II
 	std::string EdiAutoLoad;
-	int EdiSaveHoardData;
-	int EdiMacData; // also used for some read routines in non-editor build
+	bool EdiSaveHoardData;
+	bool EdiMacData; // also used for some read routines in non-editor build
 #endif
 	int DbgVerbose;
-	int DbgSafelog;
-	int DbgNoRun;
-	int DbgForbidConsoleGrab;
-	int DbgRenderStats;
+	bool DbgSafelog;
+	bool DbgNoRun;
+	bool DbgForbidConsoleGrab;
+	bool DbgRenderStats;
 	std::string DbgAltTex;
 	std::string DbgTexMap;
-	int DbgShowMemInfo;
-	int DbgNoDoubleBuffer;
-	int DbgNoCompressPigBitmap;
+	bool DbgShowMemInfo;
+	bool DbgNoDoubleBuffer;
+	bool DbgNoCompressPigBitmap;
 	int DbgBpp;
 #ifdef OGL
-	int DbgUseOldTextureMerge;
 	int DbgGlIntensity4Ok;
 	int DbgGlLuminance4Alpha4Ok;
 	int DbgGlRGBA2Ok;
@@ -141,10 +138,12 @@ struct Arg
 	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
 #endif
+#endif
 };
 
 extern struct Arg GameArg;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
 {

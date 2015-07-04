@@ -715,6 +715,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 	fix64							LastPacketTime;
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 /*
  * The Network Game structure
  * Contains protocol-specific data with designated prefixes and general game-related data.
@@ -787,6 +788,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	ubyte						Tracker;
 #endif
 };
+#endif
 
 namespace multi
 {

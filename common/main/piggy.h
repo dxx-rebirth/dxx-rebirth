@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include <physfs.h>
 #include "sounds.h"
 #include "inferno.h"
@@ -97,6 +96,7 @@ void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_BITMAP_FILES	1800
 #define MAX_SOUND_FILES     MAX_SOUNDS
@@ -151,6 +151,7 @@ void load_d1_bitmap_replacements();
  */
 bitmap_index read_extra_bitmap_d1_pig(const char *name);
 #endif
+#endif
 
 /*
  * reads a bitmap_index structure from a PHYSFS_file
@@ -180,5 +181,4 @@ void piggy_init_pigfile(const char *filename);
 int read_hamfile();
 void swap_0_255(grs_bitmap *bmp);
 
-#endif
 #endif
