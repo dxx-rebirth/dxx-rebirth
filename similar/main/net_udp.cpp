@@ -2501,6 +2501,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
+		buf[len] = Netgame.SecludedSpawns;			len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
 		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
 		buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
@@ -2728,6 +2729,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.SecludedSpawns = data[len];		len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
 		Netgame.SpawnGrantedItems = data[len];		len += 1;
 		Netgame.DuplicatePowerups.set_packed_field(data[len]);			len += 1;
@@ -3210,6 +3212,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
 	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
 	DXX_##VERB##_MENU("Duplicate powerups at level start", opt_set_powerup_duplicates)	\
+	DXX_##VERB##_SLIDER(SecludedSpawnText, opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
@@ -3281,6 +3284,7 @@ class more_game_options_menu_items
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
 	char SpawnInvulnerableText[sizeof("Spawn invulnerability: 0.0 sec")];
+	char SecludedSpawnText[sizeof("Spawn only at 0 farthest sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
 #ifdef USE_TRACKER
 	char tracker[sizeof("Track this game on\n:65535") + 28];
@@ -3312,6 +3316,10 @@ public:
 	{
 		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 	}
+	void update_secluded_spawn_string()
+	{
+		snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Spawn only at %u farthest sites", Netgame.SecludedSpawns + 1);
+	}
 	void update_kill_goal_string()
 	{
 		snprintf(KillText, sizeof(KillText), "Kill Goal: %3d kills", Netgame.KillGoal * 5);
@@ -3327,6 +3335,7 @@ public:
 		update_reactor_life_string();
 		update_max_play_time_string();
 		update_spawn_invuln_string();
+		update_secluded_spawn_string();
 		update_kill_goal_string();
 		DXX_UDP_MENU_OPTIONS(ADD);
 #ifdef USE_TRACKER
@@ -3496,6 +3505,11 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 			{
 				Netgame.InvulAppear = menus[opt_start_invul].value;
 				items->update_spawn_invuln_string();
+			}
+			else if (citem == opt_secluded_spawns)
+			{
+				Netgame.SecludedSpawns = menus[opt_secluded_spawns].value;
+				items->update_secluded_spawn_string();
 			}
 			break;
 		}
@@ -3699,6 +3713,7 @@ int net_udp_setup_game()
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = 1;
 	Netgame.InvulAppear = 4;
+	Netgame.SecludedSpawns = MAX_PLAYERS - 1;
 	Netgame.AllowedItems = NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;

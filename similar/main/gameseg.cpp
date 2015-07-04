@@ -861,9 +861,11 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 
 			int	snum = sidenum;
 
-			if (WALL_IS_DOORWAY(segp, snum) & wid_flag) {
-				auto this_seg = segp->children[snum];
-
+			const auto this_seg = segp->children[snum];
+			if (!IS_CHILD(this_seg))
+				continue;
+			if (!wid_flag.value || (WALL_IS_DOORWAY(segp, snum) & wid_flag))
+			{
 				if (!visited[this_seg]) {
 					seg_queue[qtail].start = cur_seg;
 					seg_queue[qtail].end = this_seg;

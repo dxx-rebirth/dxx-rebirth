@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <utility>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1736,41 +1736,94 @@ void StartNewLevel(int level_num)
 
 }
 
+namespace
+{
+
+class respawn_locations
+{
+	typedef std::pair<int, fix> site;
+	unsigned max_usable_spawn_sites;
+	array<site, MAX_PLAYERS> sites;
+public:
+	respawn_locations()
+	{
+		const auto player_num = Player_num;
+		const auto find_closest_player = [player_num](const obj_position &candidate) {
+			fix closest_dist = 0x7fffffff;
+			for (uint_fast32_t i = N_players; i--;)
+			{
+				if (i == player_num)
+					continue;
+				const auto &&objp = vobjptr(Players[i].objnum);
+				if (objp->type != OBJ_PLAYER)
+					continue;
+				const auto dist = find_connected_distance(objp->pos, objp->segnum, candidate.pos, candidate.segnum, -1, WALL_IS_DOORWAY_FLAG<0>());
+				if (dist >= 0 && closest_dist > dist)
+					closest_dist = dist;
+			}
+			return closest_dist;
+		};
+		const auto max_spawn_sites = std::min(NumNetPlayerPositions, static_cast<unsigned>(sites.size()));
+		for (uint_fast32_t i = max_spawn_sites; i--;)
+		{
+			auto &s = sites[i];
+			s.first = i;
+			s.second = find_closest_player(Player_init[i]);
+		}
+		const unsigned SecludedSpawns = Netgame.SecludedSpawns + 1;
+		if (max_spawn_sites > SecludedSpawns)
+		{
+			max_usable_spawn_sites = SecludedSpawns;
+			const auto a = [](const site &a, const site &b) {
+				return a.second > b.second;
+			};
+			const auto b = sites.begin();
+			const auto m = std::next(b, SecludedSpawns);
+			const auto e = std::next(b, max_spawn_sites);
+			std::partial_sort(b, m, e, a);
+		}
+		else
+			max_usable_spawn_sites = max_spawn_sites;
+	}
+	unsigned get_usable_sites() const
+	{
+		return max_usable_spawn_sites;
+	}
+	const site &operator[](std::size_t i) const
+	{
+		return sites[i];
+	}
+};
+
+}
+
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(int random_flag)
 {
+	reset_cruise();
 	int NewPlayer=0;
 
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
 		NewPlayer = Player_num;
 	else if (random_flag == 1)
 	{
-		int i;
+		const respawn_locations locations;
+		if (!locations.get_usable_sites())
+			return;
 		uint_fast32_t trys=0;
-		fix closest_dist = 0x7ffffff, dist;
-
 		d_srand(static_cast<fix>(timer_update()));
 		do {
 			trys++;
-			NewPlayer = d_rand() % NumNetPlayerPositions;
-
-			closest_dist = 0x7fffffff;
-
-			for (i=0; i<N_players; i++ )	{
-				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
-					dist = find_connected_distance(Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments
-					if ( (dist < closest_dist) && (dist >= 0) )	{
-						closest_dist = dist;
-					}
-				}
-			}
-
-		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_PLAYERS*2) );
+			NewPlayer = d_rand() % locations.get_usable_sites();
+			const auto closest_dist = locations[NewPlayer].second;
+			if (closest_dist >= i2f(15*20))
+				break;
+		} while (trys < MAX_PLAYERS * 2);
+		NewPlayer = locations[NewPlayer].first;
 	}
 	else {
 		// If deathmatch and not random, positions were already determined by sync packet
 		reset_player_object();
-		reset_cruise();
 		return;
 	}
 	Assert(NewPlayer >= 0);
@@ -1779,7 +1832,6 @@ static void InitPlayerPosition(int random_flag)
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
 	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 	reset_player_object();
-	reset_cruise();
 }
 
 //	-----------------------------------------------------------------------------------------------------
