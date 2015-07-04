@@ -1531,8 +1531,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(wind, event, menu);
 		case EVENT_IDLE:
-			timer_delay2(50);
-			return newmenu_mouse(wind, event, menu, -1);
+			break;
 		case EVENT_WINDOW_DRAW:
 			return newmenu_draw(wind, menu);
 		case EVENT_WINDOW_CLOSE:
