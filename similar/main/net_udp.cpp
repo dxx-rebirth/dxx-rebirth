@@ -107,7 +107,6 @@ static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
 static void net_udp_broadcast_game_info(ubyte info_upid);
 static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info);
-static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 static int net_udp_start_game(void);
 
 // Variables
@@ -3273,13 +3272,81 @@ static void net_udp_set_power (void)
 	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
 	D2X_DUPLICATE_POWERUP_MENU(VERB)
 
-#define FORMAT_KILL_GOAL_STRING(BUF)	\
-	snprintf(BUF, 80, "Kill Goal: %3d kills", Netgame.KillGoal*5);
-
-#define FORMAT_SPAWN_INVULNERABLE_STRING(BUF)	\
-	snprintf(BUF, 50, "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
-
 namespace {
+
+class more_game_options_menu_items
+{
+	char packstring[sizeof("99")];
+	char portstring[sizeof("65535")];
+	char srinvul[sizeof("Reactor life: 50 min")];
+	char PlayText[sizeof("Max time: 50 min")];
+	char SpawnInvulnerableText[sizeof("Spawn invulnerability: 0.0 sec")];
+	char KillText[sizeof("Kill goal: 000 kills")];
+#ifdef USE_TRACKER
+	char tracker[sizeof("Track this game on\n:65535") + 28];
+#endif
+	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
+	menu_array m;
+public:
+	menu_array &get_menu_items()
+	{
+		return m;
+	}
+	void update_packstring()
+	{
+		snprintf(packstring, sizeof(packstring), "%u", Netgame.PacketsPerSec);
+	}
+	void update_portstring()
+	{
+		snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
+	}
+	void update_reactor_life_string()
+	{
+		snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);
+	}
+	void update_max_play_time_string()
+	{
+		snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed * 5, TXT_MINUTES_ABBREV);
+	}
+	void update_spawn_invuln_string()
+	{
+		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
+	}
+	void update_kill_goal_string()
+	{
+		snprintf(KillText, sizeof(KillText), "Kill Goal: %3d kills", Netgame.KillGoal * 5);
+	}
+	enum
+	{
+		DXX_UDP_MENU_OPTIONS(ENUM)
+	};
+	more_game_options_menu_items()
+	{
+		update_packstring();
+		update_portstring();
+		update_reactor_life_string();
+		update_max_play_time_string();
+		update_spawn_invuln_string();
+		update_kill_goal_string();
+		DXX_UDP_MENU_OPTIONS(ADD);
+#ifdef USE_TRACKER
+		const auto &tracker_addr = GameArg.MplTrackerAddr;
+		if (tracker_addr.empty())
+			nm_set_item_text(m[opt_tracker], "Tracker use disabled");
+		else
+			snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
+#endif
+	}
+	void read() const
+	{
+		DXX_UDP_MENU_OPTIONS(READ);
+		char *p;
+		auto pps = strtol(packstring, &p, 10);
+		if (!*p)
+			Netgame.PacketsPerSec = pps;
+		convert_text_portstring(portstring, UDP_MyPort, false);
+	}
+};
 
 class grant_powerup_menu_items
 {
@@ -3351,37 +3418,14 @@ static void net_udp_set_duplicate_powerups()
 	menu.read(Netgame.DuplicatePowerups);
 }
 
+static int net_udp_more_options_handler(newmenu *menu, const d_event &event, more_game_options_menu_items *);
 static void net_udp_more_game_options ()
 {
 	int i;
-	char PlayText[80],KillText[80],srinvul[50],packstring[3];
-	char SpawnInvulnerableText[50];
-	char portstring[6];
-	newmenu_item m[DXX_UDP_MENU_OPTIONS(COUNT)];
-
-	snprintf(packstring,sizeof(packstring),"%d",Netgame.PacketsPerSec);
-	snprintf(portstring,sizeof(portstring),"%hu",UDP_MyPort);
-	snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
-	snprintf(PlayText, sizeof(PlayText), "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
-	FORMAT_SPAWN_INVULNERABLE_STRING(SpawnInvulnerableText);
-	FORMAT_KILL_GOAL_STRING(KillText);
-#ifdef USE_TRACKER
-	char tracker[52];
-#endif
-
-	DXX_UDP_MENU_OPTIONS(ADD);
-
-#ifdef USE_TRACKER
-	const auto &tracker_addr = GameArg.MplTrackerAddr;
-	if (tracker_addr.empty())
-		nm_set_item_text(m[opt_tracker], "Tracker use disabled by -no-tracker");
-	else
-		snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
-#endif
-
+	more_game_options_menu_items menu;
 	for (;;)
 	{
-		i = newmenu_do(nullptr, "Advanced netgame options", sizeof(m) / sizeof(m[0]), m, net_udp_more_options_handler, unused_newmenu_userdata);
+		i = newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), net_udp_more_options_handler, &menu);
 		switch (i)
 		{
 			case opt_setpower:
@@ -3399,10 +3443,7 @@ static void net_udp_more_game_options ()
 		break;
 	}
 
-	DXX_UDP_MENU_OPTIONS(READ);
-
-	Netgame.PacketsPerSec=atoi(packstring);
-	
+	menu.read();
 	if (Netgame.PacketsPerSec>MAX_PPS)
 	{
 		Netgame.PacketsPerSec=MAX_PPS;
@@ -3414,20 +3455,19 @@ static void net_udp_more_game_options ()
 		Netgame.PacketsPerSec=MIN_PPS;
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
 	}
-	convert_text_portstring(portstring, UDP_MyPort, false);
 	Difficulty_level = Netgame.difficulty;
 }
 
-static int net_udp_more_options_handler( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+static int net_udp_more_options_handler(newmenu *, const d_event &event, more_game_options_menu_items *items)
 {
-	newmenu_item *menus = newmenu_get_items(menu);
 	switch (event.type)
 	{
 		case EVENT_NEWMENU_CHANGED:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
+			auto &menus = items->get_menu_items();
 			if (citem == opt_cinvul)
-				sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+				items->update_reactor_life_string();
 			else if (citem == opt_playtime)
 			{
 				if (Game_mode & GM_MULTI_COOP)
@@ -3438,7 +3478,7 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				}
 				
 				Netgame.PlayTimeAllowed=menus[opt_playtime].value;
-				sprintf( menus[opt_playtime].text, "Max Time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+				items->update_max_play_time_string();
 			}
 			else if (citem == opt_killgoal)
 			{
@@ -3450,12 +3490,12 @@ static int net_udp_more_options_handler( newmenu *menu,const d_event &event, con
 				}
 				
 				Netgame.KillGoal=menus[opt_killgoal].value;
-				FORMAT_KILL_GOAL_STRING(menus[opt_killgoal].text);
+				items->update_kill_goal_string();
 			}
 			else if (citem == opt_start_invul)
 			{
 				Netgame.InvulAppear = menus[opt_start_invul].value;
-				FORMAT_SPAWN_INVULNERABLE_STRING(menus[opt_start_invul].text);
+				items->update_spawn_invuln_string();
 			}
 			break;
 		}
