@@ -25,8 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "player.h"
 #include "mission.h"
+#endif
 
 #ifdef __cplusplus
 #include "pack.h"
@@ -35,31 +37,33 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Cfg : prohibit_void_ptr<Cfg>
 {
-	ubyte DigiVolume;
-	ubyte MusicVolume;
-	bool ReverseStereo;
-	bool Grabinput;
-	bool OrigTrackOrder;
 	int MusicType;
 	int CMLevelMusicPlayOrder;
-	array<int, 2> CMLevelMusicTrack;
-	ntstring<PATH_MAX - 1> CMLevelMusicPath;
-	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 	int GammaLevel;
-	callsign_t LastPlayer;
-	ntstring<MISSION_NAME_LEN> LastMission;
 	int ResolutionX;
 	int ResolutionY;
 	int AspectX;
 	int AspectY;
 	int TexFilt;
+	uint8_t DigiVolume;
+	uint8_t MusicVolume;
 	bool WindowMode;
 	bool VSync;
 	bool Multisample;
 	bool FPSIndicator;
+	bool ReverseStereo;
+	bool Grabinput;
+	bool OrigTrackOrder;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef DXX_BUILD_DESCENT_II
 	bool MovieSubtitles;
 	int MovieTexFilt;
+#endif
+	callsign_t LastPlayer;
+	array<int, 2> CMLevelMusicTrack;
+	ntstring<MISSION_NAME_LEN> LastMission;
+	ntstring<PATH_MAX - 1> CMLevelMusicPath;
+	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 #endif
 };
 
