@@ -717,6 +717,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 
 			Players[killed_pnum].net_killed_total += 1;
 			Players[killed_pnum].net_kills_total -= 1;
+			-- Players[killed_pnum].KillGoalCount;
 
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killed_pnum, -1);
@@ -755,17 +756,12 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		{
 			if (Game_mode & GM_TEAM)
 			{
-				if (get_team(killed_pnum) == get_team(killer_pnum))
-				{
-					team_kills[get_team(killed_pnum)] -= 1;
-					Players[killer_pnum].net_kills_total -= 1;
-				}
-				else
-				{
-					team_kills[get_team(killer_pnum)] += 1;
-					Players[killer_pnum].net_kills_total += 1;
-					Players[killer_pnum].KillGoalCount +=1;
-				}
+				const auto killed_team = get_team(killed_pnum);
+				const auto killer_team = get_team(killer_pnum);
+				const short adjust = (killed_team == killer_team) ? -1 : 1;
+				team_kills[killer_team] += adjust;
+				Players[killer_pnum].net_kills_total += adjust;
+				Players[killer_pnum].KillGoalCount += adjust;
 			}
 			else if( Game_mode & GM_BOUNTY )
 			{
