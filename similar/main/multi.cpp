@@ -650,8 +650,11 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	const auto killer_type = killer->type;
 	if (killer_type == OBJ_CNTRLCEN)
 	{
+		if (Game_mode & GM_TEAM)
+			-- team_kills[get_team(killed_pnum)];
 		Players[killed_pnum].net_killed_total++;
 		Players[killed_pnum].net_kills_total--;
+		-- Players[killed_pnum].KillGoalCount;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
