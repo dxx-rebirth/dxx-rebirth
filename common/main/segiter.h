@@ -14,8 +14,8 @@ struct unspecified_pointer_t;
 template <typename T>
 class segment_object_iterator_t : public std::iterator<std::forward_iterator_tag, T, std::ptrdiff_t, typename detail::unspecified_pointer_t<T>, T>, T
 {
-	using T::p;
-	using T::i;
+	using T::m_ptr;
+	using T::m_idx;
 public:
 	segment_object_iterator_t(T o) :
 		T(o)
@@ -24,14 +24,14 @@ public:
 	T operator *() { return *static_cast<T *>(this); }
 	segment_object_iterator_t &operator++()
 	{
-		auto ni = p->next;
-		p = (ni == object_none) ? NULL : p + (static_cast<std::size_t>(ni) - static_cast<std::size_t>(i));
-		i = ni;
+		const auto ni = m_ptr->next;
+		m_ptr = (ni == object_none) ? nullptr : m_ptr + (static_cast<std::size_t>(ni) - static_cast<std::size_t>(m_idx));
+		m_idx = ni;
 		return *this;
 	}
 	bool operator==(const segment_object_iterator_t &rhs) const
 	{
-		return i == rhs.i;
+		return m_idx == rhs.m_idx;
 	}
 	bool operator!=(const segment_object_iterator_t &rhs) const
 	{
