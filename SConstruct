@@ -695,9 +695,9 @@ auto f()->int;
 '''
 		if not self.Cxx11Compile(context, text=f, msg='for C++11 function declarator syntax'):
 			raise SCons.Errors.StopError("C++ compiler does not support C++11 function declarator syntax.")
-	def _check_static_assert_method(self,context,msg,f,testflags={},_Compile=Compile,**kwargs):
-		return _Compile(self, context, text=f % 'true', msg=msg % 'true', testflags=testflags, **kwargs) and \
-			_Compile(self, context, text=f % 'false', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
+	def _check_static_assert_method(self,context,msg,f,testflags={},_Compile=Compile,_tdict={'expr' : 'true&&true'},_fdict={'expr' : 'false||false'},**kwargs):
+		return _Compile(self, context, text=f % _tdict, main='f(A());', msg=msg % 'true', testflags=testflags, **kwargs) and \
+			_Compile(self, context, text=f % _fdict, main='f(A());', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
 	@_implicit_test
 	def check_boost_static_assert(self,context,f):
 		"""
@@ -720,11 +720,57 @@ help:assume compiler supports C++ intrinsic static_assert
 	def _check_static_assert(self,context):
 		f = '''
 #include "compiler-static_assert.h"
-static_assert(%s, "");
+static_assert(%(expr)s, "global");
+struct A
+{
+	static const bool value = %(expr)s;
+	static_assert(%(expr)s, "class literal");
+	static_assert(A::value, "class static");
+	A()
+	{
+		static_assert(%(expr)s, "constructor literal");
+		static_assert(value, "constructor static");
+	}
+};
+template <typename>
+struct B
+{
+	static const bool value = %(expr)s;
+	static_assert(%(expr)s, "template class literal");
+	static_assert(value, "template class static");
+	B(A a)
+	{
+		static_assert(%(expr)s, "constructor literal");
+		static_assert(value, "constructor self static");
+		static_assert(A::value, "constructor static");
+		static_assert(a.value, "constructor member");
+	}
+	template <typename R>
+		B(B<R> &&b)
+		{
+			static_assert(%(expr)s, "template constructor literal");
+			static_assert(value, "template constructor self static");
+			static_assert(B<R>::value, "template constructor static");
+			static_assert(b.value, "template constructor member");
+		}
+};
+template <typename T>
+static void f(B<T> b)
+{
+	static_assert(%(expr)s, "template function literal");
+	static_assert(B<T>::value, "template function static");
+	static_assert(b.value, "template function member");
+}
+void f(A a);
+void f(A a)
+{
+	static_assert(%(expr)s, "function literal");
+	static_assert(A::value, "function static");
+	static_assert(a.value, "function member");
+	f(B<long>(B<int>(a)));
+}
 '''
 		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
-		if not how:
-			raise SCons.Errors.StopError("C++ compiler does not support static_assert or Boost.StaticAssert or typedef-based static assertion.")
 	@_implicit_test
 	def check_boost_type_traits(self,context,f):
 		"""
