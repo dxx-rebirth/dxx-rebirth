@@ -108,7 +108,7 @@ T *CALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned 
 template <typename T>
 static inline void d_free(T *&ptr)
 {
-	static_assert(tt::is_same<T, void>::value || tt::is_pod<T>::value, "d_free cannot free non-POD");
+	static_assert((tt::is_same<T, void>::value || tt::is_pod<T>::value), "d_free cannot free non-POD");
 	mem_free(exchange(ptr, nullptr));
 }
 

@@ -2544,8 +2544,8 @@ COLLISION_TABLE(DISABLE, ENABLE);
 template <std::size_t R, std::size_t... C>
 static inline constexpr collision_inner_array_t collide_init(index_sequence<C...>)
 {
-	static_assert(COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1), "ambiguous collision");
-	static_assert(COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0), "ambiguous collision");
+	static_assert((COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1)), "ambiguous collision");
+	static_assert((COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0)), "ambiguous collision");
 	return collision_inner_array_t{{
 		collision_result_t<static_cast<object_type_t>(R), static_cast<object_type_t>(C)>::value...
 	}};
@@ -2562,8 +2562,8 @@ const collision_outer_array_t CollisionResult = collide_init(make_tree_index_seq
 #undef DISABLE_COLLISION
 #undef ENABLE_COLLISION
 
-#define ENABLE_COLLISION(T1,T2)	static_assert(!!collision_result_t<T1, T2>::value && !!collision_result_t<T2, T1>::value, #T1 " " #T2);
-#define DISABLE_COLLISION(T1,T2)	static_assert(!collision_result_t<T1, T2>::value && !collision_result_t<T2, T1>::value, #T1 " " #T2);
+#define ENABLE_COLLISION(T1,T2)	static_assert((!!collision_result_t<T1, T2>::value && !!collision_result_t<T2, T1>::value), #T1 " " #T2);
+#define DISABLE_COLLISION(T1,T2)	static_assert((!collision_result_t<T1, T2>::value && !collision_result_t<T2, T1>::value), #T1 " " #T2);
 
 	ENABLE_COLLISION( OBJ_WALL, OBJ_ROBOT );
 	ENABLE_COLLISION( OBJ_WALL, OBJ_WEAPON );

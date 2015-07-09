@@ -346,7 +346,7 @@ static inline detail::pad_type<amount, value> pad()
 template <typename M1, typename T1, typename M1rcv_rr = typename tt::remove_cv<typename tt::remove_reference<M1>::type>::type>
 struct udt_message_compatible_same_type : tt::is_same<M1rcv_rr, T1>
 {
-	static_assert(tt::is_same<M1rcv_rr, T1>::value, "parameter type mismatch");
+	static_assert((tt::is_same<M1rcv_rr, T1>::value), "parameter type mismatch");
 };
 
 template <bool, typename M, typename T>
@@ -393,7 +393,7 @@ class assert_udt_message_compatible<C, std::tuple<T1, Tn...>> : public assert_ud
 	ASSERT_SERIAL_UDT_MESSAGE_MUTABLE_TYPE(T, TYPELIST);	\
 
 #define _ASSERT_SERIAL_UDT_MESSAGE_TYPE(T, TYPELIST)	\
-	static_assert(serial::assert_udt_message_compatible<T, std::tuple<_SERIAL_UDT_UNWRAP_LIST TYPELIST>>::value, "udt/message mismatch")
+	static_assert((serial::assert_udt_message_compatible<T, std::tuple<_SERIAL_UDT_UNWRAP_LIST TYPELIST>>::value), "udt/message mismatch")
 
 #define ASSERT_SERIAL_UDT_MESSAGE_CONST_TYPE(T, TYPELIST)	\
 	_ASSERT_SERIAL_UDT_MESSAGE_TYPE(const T, TYPELIST)
@@ -406,7 +406,7 @@ union endian_skip_byteswap_u
 	uint16_t s;
 	constexpr endian_skip_byteswap_u(const uint16_t &u) : s(u)
 	{
-		static_assert(offsetof(endian_skip_byteswap_u, c) == offsetof(endian_skip_byteswap_u, s), "union layout error");
+		static_assert((offsetof(endian_skip_byteswap_u, c) == offsetof(endian_skip_byteswap_u, s)), "union layout error");
 	}
 };
 
