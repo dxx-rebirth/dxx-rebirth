@@ -530,21 +530,10 @@ static void robotmaker_proc( FuelCenter * robotcen )
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
 {
-	fix AmountToreplenish;
-	AmountToreplenish = fixmul(FrameTime,Fuelcen_refill_speed);
-
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
-		} else if ( (Station[i].MaxCapacity > 0) && (PlayerSegment!=&Segments[Station[i].segnum]) )	{
-			if ( Station[i].Capacity < Station[i].MaxCapacity )	{
- 				Station[i].Capacity += AmountToreplenish;
-				if ( Station[i].Capacity >= Station[i].MaxCapacity )		{
-					Station[i].Capacity = Station[i].MaxCapacity;
-					//gauge_message( "Fuel center is fully recharged!    " );
-				}
-			}
 		}
 	}
 }
