@@ -77,8 +77,6 @@ array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
 unsigned Num_fuelcenters;
 
-const segment *PlayerSegment;
-
 #ifdef EDITOR
 const char	Special_names[MAX_CENTER_TYPES][11] = {
 	"NOTHING   ",
@@ -548,7 +546,6 @@ void fuelcen_update_all()
 fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
 {
 	static fix64 last_play_time = 0;
-	PlayerSegment = segp;
 
 	if (segp->special==SEGMENT_IS_FUELCEN)	{
 		fix amount;
@@ -610,7 +607,6 @@ fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
 {
 	static fix last_play_time=0;
 
-	PlayerSegment = segp;
 	if (segp->special==SEGMENT_IS_REPAIRCEN) {
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
