@@ -557,18 +557,12 @@ void digi_sync_sounds()
                                 &s.volume, &s.pan, s.max_distance );
 
 			} else if ( s.flags & SOF_LINK_TO_OBJ )	{
-				const object * objp;
-				if ( Newdemo_state == ND_STATE_PLAYBACK )	{
+				const auto objp = [&s]{
+					if (Newdemo_state != ND_STATE_PLAYBACK)
+						return vcobjptr(s.link_type.obj.objnum);
 					auto objnum = newdemo_find_object(s.link_type.obj.objsignature);
-					if (objnum != object_none)
-					{
-						objp = objnum;
-					} else {
-						objp = &Objects[0];
-					}
-				} else {
-					objp = &Objects[s.link_type.obj.objnum];
-				}
+					return objnum == object_none ? vcobjptr(static_cast<objnum_t>(object_first)) : objnum;
+				}();
 
 				if ((objp->type==OBJ_NONE) || (objp->signature!=s.link_type.obj.objsignature))	{
 					// The object that this is linked to is dead, so just end this sound if it is looping.
