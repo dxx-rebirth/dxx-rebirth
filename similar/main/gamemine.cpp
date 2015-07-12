@@ -1019,9 +1019,10 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	validate_segment_all();			// Fill in side type and normals.
 
 	range_for (auto &i, partial_range(Segments, Num_segments)) {
+		const auto &&pi = vsegptridx(&i);
 		if (Gamesave_current_version > 5)
-			segment2_read(&i, LoadFile);
-		fuelcen_activate( &i, i.special );
+			segment2_read(pi, LoadFile);
+		fuelcen_activate(pi, i.special );
 	}
 
 	reset_objects(1);		//one object, the player
