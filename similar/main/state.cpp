@@ -1763,8 +1763,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) 
 		{
-			object *obj;
-
 			// prepare arrays for mapping our players below
 			coop_player_got[i] = 0;
 
@@ -1772,7 +1770,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			state_read_player(fp, restore_players[i], swap);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
-			obj = &Objects[restore_players[i].objnum];
+			const auto &&obj = vobjptr(restore_players[i].objnum);
 			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
 			{
 				restore_objects[i] = *obj;
