@@ -855,8 +855,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	cur_depth = 0;
 
 	while (cur_seg != seg1) {
-		segment	*segp = &Segments[cur_seg];
-
+		const auto &&segp = vsegptr(cur_seg);
 		for (int sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
 			int	snum = sidenum;
@@ -912,7 +911,7 @@ fcd_done1: ;
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
 		point_segs[num_points].segnum = this_seg;
-		compute_segment_center(point_segs[num_points].point,&Segments[this_seg]);
+		compute_segment_center(point_segs[num_points].point, vcsegptr(this_seg));
 		num_points++;
 
 		if (parent_seg == seg0)
@@ -1599,7 +1598,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vs
 	if (recursion_depth < 2)
 		for (int sidenum=0; sidenum<6; sidenum++) {
 			if (WALL_IS_DOORWAY(segp,sidenum) & WID_RENDPAST_FLAG)
-				apply_light_to_segment(visited, &Segments[segp->children[sidenum]],segment_center,light_intensity,recursion_depth+1);
+				apply_light_to_segment(visited, vsegptridx(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
 
 }
