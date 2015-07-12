@@ -1951,7 +1951,7 @@ void net_udp_send_objects(void)
 		object_buffer[loc] = owner;                                 loc += 1;
 		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
-		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
+		multi_object_to_object_rw(vobjptr(i), (object_rw *)&object_buffer[loc]);
 		if (words_bigendian)
 			object_rw_swap(reinterpret_cast<object_rw *>(&object_buffer[loc]), 1);
 		loc += sizeof(object_rw);
@@ -5157,7 +5157,7 @@ void net_udp_send_pdata()
 	buf[len] = Players[Player_num].connected;						len++;
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, &Objects[Players[Player_num].objnum], 0);
+	create_quaternionpos(&qpp, vobjptr(Players[Player_num].objnum), 0);
 	PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.y);							len += 2;
