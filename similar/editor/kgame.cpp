@@ -129,7 +129,7 @@ int SaveGameData()
 			ConsoleObject->pos = save_pos;
 			auto found_save_segnum = find_point_seg(save_pos,save_segnum);
 			if (found_save_segnum == segment_none) {
-				compute_segment_center(save_pos, &(Segments[save_segnum]));
+				compute_segment_center(save_pos, vcsegptr(save_segnum));
 				found_save_segnum = save_segnum;
 			}
 
