@@ -1164,9 +1164,9 @@ static void build_object_lists(render_state_t &rstate)
 						for (sn=0,sf=1;sn<6;sn++,sf<<=1)
 							if (m.sidemask & sf) {
 #if defined(DXX_BUILD_DESCENT_I)
-								segment *seg = &Segments[obj->segnum];
+								const auto &&seg = vcsegptr(obj->segnum);
 #elif defined(DXX_BUILD_DESCENT_II)
-								segment *seg = &Segments[new_segnum];
+								const auto &&seg = vcsegptr(new_segnum);
 #endif
 		
 								if (WALL_IS_DOORWAY(seg,sn) & WID_FLY_FLAG) {		//can explosion migrate through
@@ -1676,7 +1676,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			// render segment
 			{
-				segment		*seg = &Segments[segnum];
+				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 				g3s_codes 	cc=rotate_list(seg->verts);
@@ -1773,7 +1773,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 			// render segment
 			{
-				segment		*seg = &Segments[segnum];
+				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 				g3s_codes 	cc=rotate_list(seg->verts);
