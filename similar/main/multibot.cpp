@@ -930,10 +930,10 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 
 	// Play effect and sound
 
-	const auto cur_object_loc = compute_segment_center(&Segments[robotcen->segnum]);
+	const auto &&cur_object_loc = compute_segment_center(vcsegptr(robotcen->segnum));
 	objptridx_t obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 	if (obj)
-		extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
+		extract_orient_from_segment(&obj->orient, vcsegptr(robotcen->segnum));
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
 
@@ -943,7 +943,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	robotcen->Capacity -= EnergyToCreateOneRobot;
 	robotcen->Timer = 0;
 
-	obj = create_morph_robot(&Segments[robotcen->segnum], cur_object_loc, type);
+	obj = create_morph_robot(vsegptridx(robotcen->segnum), cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	
