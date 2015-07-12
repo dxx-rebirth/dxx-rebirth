@@ -200,11 +200,12 @@ int LightCopyIntensity(void)
 {
 	int	intensity;
 
-	intensity = get_light_intensity(Cursegp, Curside, Curvert);
+	const vsegptr_t segp = Cursegp;
+	intensity = get_light_intensity(segp, Curside, Curvert);
 
 	for (int v=0; v<4; v++)
 		if (v != Curvert)
-			set_light_intensity(Cursegp, Curside, v, intensity);
+			set_light_intensity(segp, Curside, v, intensity);
 
 	return	1;
 }
@@ -215,12 +216,13 @@ int LightCopyIntensitySegment(void)
 {
 	int	intensity;
 
-	intensity = get_light_intensity(Cursegp, Curside, Curvert);
+	const vsegptr_t segp = Cursegp;
+	intensity = get_light_intensity(segp, Curside, Curvert);
 
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		for (int v=0; v<4; v++)
 			if ((s != Curside) || (v != Curvert))
-				set_light_intensity(Cursegp, s, v, intensity);
+				set_light_intensity(segp, s, v, intensity);
 
 	return	1;
 }
@@ -228,7 +230,8 @@ int LightCopyIntensitySegment(void)
 // -----------------------------------------------------------------------------
 int LightDecreaseLightVertex(void)
 {
-	set_light_intensity(Cursegp, Curside, Curvert, get_light_intensity(Cursegp, Curside, Curvert)-F1_0/NUM_LIGHTING_LEVELS);
+	const vsegptr_t segp = Cursegp;
+	set_light_intensity(segp, Curside, Curvert, get_light_intensity(segp, Curside, Curvert) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -236,7 +239,8 @@ int LightDecreaseLightVertex(void)
 // -----------------------------------------------------------------------------
 int LightIncreaseLightVertex(void)
 {
-	set_light_intensity(Cursegp, Curside, Curvert, get_light_intensity(Cursegp, Curside, Curvert)+F1_0/NUM_LIGHTING_LEVELS);
+	const vsegptr_t segp = Cursegp;
+	set_light_intensity(segp, Curside, Curvert, get_light_intensity(segp, Curside, Curvert) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -244,8 +248,9 @@ int LightIncreaseLightVertex(void)
 // -----------------------------------------------------------------------------
 int LightDecreaseLightSide(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int v=0; v<4; v++)
-		set_light_intensity(Cursegp, Curside, v, get_light_intensity(Cursegp, Curside, v)-F1_0/NUM_LIGHTING_LEVELS);
+		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -253,8 +258,9 @@ int LightDecreaseLightSide(void)
 // -----------------------------------------------------------------------------
 int LightIncreaseLightSide(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int v=0; v<4; v++)
-		set_light_intensity(Cursegp, Curside, v, get_light_intensity(Cursegp, Curside, v)+F1_0/NUM_LIGHTING_LEVELS);
+		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -262,9 +268,10 @@ int LightIncreaseLightSide(void)
 // -----------------------------------------------------------------------------
 int LightDecreaseLightSegment(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		for (int v=0; v<4; v++)
-			set_light_intensity(Cursegp, s, v, get_light_intensity(Cursegp, s, v)-F1_0/NUM_LIGHTING_LEVELS);
+			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -272,9 +279,10 @@ int LightDecreaseLightSegment(void)
 // -----------------------------------------------------------------------------
 int LightIncreaseLightSegment(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		for (int v=0; v<4; v++)
-			set_light_intensity(Cursegp, s, v, get_light_intensity(Cursegp, s, v)+F1_0/NUM_LIGHTING_LEVELS);
+			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
@@ -282,8 +290,9 @@ int LightIncreaseLightSegment(void)
 // -----------------------------------------------------------------------------
 int LightSetDefault(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int v=0; v<4; v++)
-		set_light_intensity(Cursegp, Curside, v, DEFAULT_LIGHTING);
+		set_light_intensity(segp, Curside, v, DEFAULT_LIGHTING);
 
 	return	1;
 }
@@ -292,8 +301,9 @@ int LightSetDefault(void)
 // -----------------------------------------------------------------------------
 int LightSetMaximum(void)
 {
+	const vsegptr_t segp = Cursegp;
 	for (int v=0; v<4; v++)
-		set_light_intensity(Cursegp, Curside, v, (NUM_LIGHTING_LEVELS-1)*F1_0/NUM_LIGHTING_LEVELS);
+		set_light_intensity(segp, Curside, v, (NUM_LIGHTING_LEVELS - 1) * F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
 }
