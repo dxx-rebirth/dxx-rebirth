@@ -630,10 +630,8 @@ void wall_close_door_num(int door_num)
 
 }
 
-static int check_poke(objnum_t objnum,const vcsegptr_t segnum,int side)
+static int check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side)
 {
-	object *obj = &Objects[objnum];
-
 	//note: don't let objects with zero size block door
 
 	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side))
@@ -663,22 +661,22 @@ void do_door_close(int door_num)
 	if (w->flags & WALL_DOOR_AUTO)
 		for (p=0;p<d->n_parts;p++) {
 			int side;
-			auto seg = &Segments[w->segnum];
+			const auto &&seg = vcsegptridx(w->segnum);
 			side = w->sidenum;
 
-			auto csegp = &Segments[seg->children[side]];
+			const auto &&csegp = vcsegptr(seg->children[side]);
 			auto Connectside = find_connect_side(seg, csegp);
 			Assert(Connectside != -1);
 
 			//go through each object in each of two segments, and see if
 			//it pokes into the connecting seg
 
-			for (objnum_t objnum=seg->objects; objnum!=object_none; objnum=Objects[objnum].next)
-				if (check_poke(objnum,seg-Segments,side))
+			range_for (const auto &&objnum, objects_in(seg))
+				if (check_poke(objnum, seg, side))
 					return;		//abort!
 
-			for (objnum_t objnum=csegp->objects; objnum!=object_none; objnum=Objects[objnum].next)
-				if (check_poke(objnum,csegp-Segments,Connectside))
+			range_for (const auto &&objnum, objects_in(csegp))
+				if (check_poke(objnum, csegp, Connectside))
 					return;		//abort!
 		}
 
@@ -749,7 +747,7 @@ void do_door_close(int door_num)
 //returns true of door in unobjstructed (& thus can close)
 static int is_door_free(const vcsegptridx_t seg,int side)
 {
-	auto csegp = vsegptridx(seg->children[side]);
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 
