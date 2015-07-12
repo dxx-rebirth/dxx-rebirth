@@ -95,10 +95,10 @@ int ClearTexture2(void)
 static int propagate_textures_common(int uv_flag, int move_flag)
 {
    autosave_mine( mine_filename );
-	undo_status[Autosave_count] = "Propogate Textures UNDONE.";
-	
-	if (IS_CHILD(Cursegp->children[Curside]))
-		med_propagate_tmaps_to_segments(Cursegp, &Segments[Cursegp->children[Curside]], uv_flag);
+	undo_status[Autosave_count] = "Propagate Textures UNDONE.";
+	const auto c = Cursegp->children[Curside];
+	if (IS_CHILD(c))
+		med_propagate_tmaps_to_segments(Cursegp, vsegptridx(c), uv_flag);
 
 	if (move_flag)
 		SelectCurrentSegForward();
