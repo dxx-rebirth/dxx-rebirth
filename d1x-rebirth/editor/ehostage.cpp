@@ -154,7 +154,7 @@ static int PlaceHostage()	{
 	}
 
 	if (hostage_object_is_valid( Cur_object_index ) )	{
-		CurrentHostageIndex	= get_hostage_id(&Objects[Cur_object_index]);
+		CurrentHostageIndex	= get_hostage_id(vcobjptr(Cur_object_index));
 	} else {
 		Int3();		// Get John! (Object should be valid)
 		i=hostage_object_is_valid( Cur_object_index );	// For debugging only
