@@ -1302,7 +1302,7 @@ static void multi_send_message_end()
 
 					range_for (auto &t, partial_range(Players, N_players))
 						if (t.connected)
-							multi_reset_object_texture (&Objects[t.objnum]);
+							multi_reset_object_texture(vobjptr(t.objnum));
 					reset_cockpit();
 
 					multi_send_gmode_update();
@@ -2103,7 +2103,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	}
 
 	Net_create_loc = 0;
-	auto my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
+	const auto &&my_objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, OBJ_POWERUP, powerup_type);
 
 	if (my_objnum == object_none) {
 		return;
@@ -2243,7 +2243,7 @@ static void multi_do_hostage_door_status(const ubyte *buf)
 	}
 
 	if (hps < Walls[wallnum].hps)
-		wall_damage(&Segments[Walls[wallnum].segnum], Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
+		wall_damage(vsegptridx(Walls[wallnum].segnum), Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
 }
 
 void
@@ -3644,21 +3644,21 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
+	const auto &&guided_missile = vobjptridx(Guided_missile[pnum]);
 	if (words_bigendian)
 	{
 		shortpos sp;
 		memcpy(sp.bytemat, &buf[count], 9);
 		memcpy(&sp.xo, &buf[count + 9], 14);
-		extract_shortpos_little(Guided_missile[(int)pnum], &sp);
+		extract_shortpos_little(guided_missile, &sp);
 	}
 	else
 	{
-		extract_shortpos_little(Guided_missile[(int)pnum], reinterpret_cast<const shortpos *>(&buf[count]));
+		extract_shortpos_little(guided_missile, reinterpret_cast<const shortpos *>(&buf[count]));
 	}
 
 	count+=sizeof (shortpos);
-
-	update_object_seg(Guided_missile[(int)pnum]);
+	update_object_seg(guided_missile);
 }
 
 void multi_send_stolen_items ()
@@ -4886,7 +4886,7 @@ static void multi_do_gmode_update(const ubyte *buf)
 			Netgame.team_vector = buf[1];
 			range_for (auto &t, partial_range(Players, N_players))
 				if (t.connected)
-					multi_reset_object_texture (&Objects[t.objnum]);
+					multi_reset_object_texture (vobjptr(t.objnum));
 			reset_cockpit();
 		}
 	}
