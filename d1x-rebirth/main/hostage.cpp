@@ -51,7 +51,7 @@ int hostage_is_valid( int hostage_num )	{
 	if ( Hostages[hostage_num].objnum > Highest_object_index ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].type != OBJ_HOSTAGE ) return 0;
 	if ( Objects[Hostages[hostage_num].objnum].signature != Hostages[hostage_num].objsig ) return 0;
-	if ( get_hostage_id(&Objects[Hostages[hostage_num].objnum]) != hostage_num) return 0;
+	if ( get_hostage_id(vcobjptr(Hostages[hostage_num].objnum)) != hostage_num) return 0;
 	return 1;
 }
 
@@ -103,7 +103,7 @@ void hostage_compress_all()	{
 			newslot = hostage_get_next_slot();
 			if ( newslot < i )	{
 				Hostages[newslot] = Hostages[i];
-				set_hostage_id(&Objects[Hostages[newslot].objnum], newslot);
+				set_hostage_id(vobjptr(Hostages[newslot].objnum), newslot);
 				Hostages[i].objnum = object_none;
 				i = 0;		// start over
 			}
