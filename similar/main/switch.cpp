@@ -114,7 +114,7 @@ static void do_close_door(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++)
-			wall_close_door(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
+			wall_close_door(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
   	}
 }
 
@@ -325,7 +325,7 @@ static void do_il_on(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
+			wall_illusion_on(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
   		}
   	}
 }
@@ -337,14 +337,14 @@ static void do_il_off(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			segment		*seg = &Segments[Triggers[trigger_num].seg[i]];
+			const auto &&seg = vsegptridx(Triggers[trigger_num].seg[i]);
 			auto side = Triggers[trigger_num].side[i];
 
 			wall_illusion_off(seg, side);
 
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto cp = compute_center_point_on_side(seg, side );
-			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, cp, 0, F1_0 );
+			digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
 #endif
   		}
   	}
@@ -622,7 +622,7 @@ void check_trigger(const vsegptridx_t seg, short side, objnum_t objnum,int shot)
 			int ctrigger_num;
 			Triggers[trigger_num].flags &= ~TRIGGER_ON;
 	
-			auto csegp = &Segments[seg->children[side]];
+			const auto &&csegp = vcsegptr(seg->children[side]);
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != -1);
 		
