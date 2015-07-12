@@ -192,7 +192,7 @@ static void blast_blastable_wall(const vsegptridx_t seg, int side)
 
 	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
 
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vsegptridx(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
@@ -243,7 +243,7 @@ void wall_damage(const vsegptridx_t seg, int side, fix damage)
 	
 	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
 		{
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -334,7 +334,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 	w->state = WALL_DOOR_OPENING;
 
 	// So that door can't be shot while opening
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	if (Connectside >= 0)
 	{
@@ -357,15 +357,14 @@ void wall_open_door(const vsegptridx_t seg, int side)
 		wall *w2;
 
 		w2		= &Walls[w->linked_wall];
-		auto seg2	= &Segments[w2->segnum];
 
 		Assert(w2->linked_wall == seg->sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
 
 		w2->state = WALL_DOOR_OPENING;
 
-		csegp = &Segments[seg2->children[w2->sidenum]];
-		Connectside = find_connect_side(seg2, csegp);
+		const auto &&seg2 = vcsegptridx(w2->segnum);
+		Connectside = find_connect_side(seg2, vcsegptr(seg2->children[w2->sidenum]));
 		Assert(Connectside != -1);
 		if (cwall_num > -1)
 			Walls[cwall_num].state = WALL_DOOR_OPENING;
@@ -409,7 +408,7 @@ void wall_close_door(int door_num)
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -611,7 +610,7 @@ void wall_close_door_num(int door_num)
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -685,7 +684,7 @@ void do_door_close(int door_num)
 
 		w = &Walls[d->front_wallnum[p]];
 
-		auto seg = &Segments[w->segnum];
+		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
 
 		if (seg->sides[side].wall_num == wall_none) {
@@ -696,7 +695,7 @@ void do_door_close(int door_num)
 		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);		
 
 		// Otherwise, close it.
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -707,7 +706,7 @@ void do_door_close(int door_num)
 				if ( d->time==0 )	{		//first time
 					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
+						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg, side, cp, 0, F1_0 );
 				}
 
 		d->time += FrameTime;
@@ -882,7 +881,7 @@ void do_door_open(int door_num)
 			continue;
 		}
 
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -974,7 +973,7 @@ void do_door_close(int door_num)
 //don't assert here, because now we have triggers to close non-auto doors
 
 		// Otherwise, close it.
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptridx(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -1024,7 +1023,7 @@ void do_door_close(int door_num)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_off(const vsegptridx_t seg, int side)
 {
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
@@ -1046,7 +1045,7 @@ void wall_illusion_off(const vsegptridx_t seg, int side)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_on(const vsegptridx_t seg, int side)
 {
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
@@ -1375,7 +1374,7 @@ void wall_frame_process()
 
 			if (d->time > DOOR_WAIT_TIME)
 #if defined(DXX_BUILD_DESCENT_II)
-				if (is_door_free(&Segments[w->segnum],w->sidenum))
+				if (is_door_free(vcsegptridx(w->segnum), w->sidenum))
 #endif
 				{
 					w->state = WALL_DOOR_CLOSING;
@@ -1595,7 +1594,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 			if (!visited[segnum]) {
 				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
 					visited[segnum] = true;
-					bng_process_segment(objp, damage, &Segments[segnum], depth, visited);
+					bng_process_segment(objp, damage, vsegptridx(segnum), depth, visited);
 				}
 			}
 		}
@@ -1610,8 +1609,7 @@ void blast_nearby_glass(const vobjptr_t objp, fix damage)
 	visited_segment_bitarray_t visited;
 
 	visited[objp->segnum] = true;
-	auto cursegp = &Segments[objp->segnum];
-	bng_process_segment(objp, damage, cursegp, 0, visited);
+	bng_process_segment(objp, damage, vsegptridx(objp->segnum), 0, visited);
 }
 
 struct d1wclip
