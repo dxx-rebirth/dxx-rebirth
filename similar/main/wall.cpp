@@ -744,28 +744,26 @@ void do_door_close(int door_num)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
+static int is_door_side_free(const vcsegptr_t seg, int side)
+{
+	range_for (const auto &&obj, objects_in(seg))
+		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,seg,side))
+			return 0;	//not free
+	return 1;
+}
+
 //returns true of door in unobjstructed (& thus can close)
 static int is_door_free(const vcsegptridx_t seg,int side)
 {
+	if (!is_door_side_free(seg, side))
+		return 0;
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
-
-	range_for (const auto obj, objects_in(*seg))
-		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,seg,side))
-			return 0;	//not free
-
-	range_for (const auto obj, objects_in(*csegp))
-		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,csegp,Connectside))
-			return 0;	//not free
-
-	return 1; 	//doorway is free!
+	return is_door_side_free(csegp, Connectside);
 }
-
-
 
 //-----------------------------------------------------------------
 // Closes a door
