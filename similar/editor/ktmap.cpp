@@ -144,15 +144,19 @@ static int is_selected_segment(segnum_t segnum)
 //	-------------------------------------------------------------------------------------
 //	Auxiliary function for PropagateTexturesSelected.
 //	Recursive parse.
-static void pts_aux(segment *sp, visited_segment_bitarray_t &visited)
+static void pts_aux(const vsegptridx_t sp, visited_segment_bitarray_t &visited)
 {
-	visited[sp-Segments] = true;
+	visited[sp] = true;
 
 	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-		if (IS_CHILD(sp->children[side])) {
-			while ((!visited[sp->children[side]]) && is_selected_segment(sp->children[side])) {
-				med_propagate_tmaps_to_segments(sp,&Segments[sp->children[side]],0);
-				pts_aux(&Segments[sp->children[side]], visited);
+		const auto c = sp->children[side];
+		if (IS_CHILD(c))
+		{
+			const auto &&csegp = vsegptridx(c);
+			while (!visited[c] && is_selected_segment(c))
+			{
+				med_propagate_tmaps_to_segments(sp, csegp, 0);
+				pts_aux(csegp, visited);
 			}
 		}
 	}
