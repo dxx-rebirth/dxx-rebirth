@@ -419,14 +419,14 @@ static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return a segment %i segments away from initial segment.
 //	Returns -1 if can't find a segment that distance away.
-int pick_connected_segment(const vobjptr_t objp, int max_depth)
+int pick_connected_segment(const vcobjptr_t objp, int max_depth)
 {
 	using std::swap;
 	int		i;
 	int		cur_depth;
 	int		start_seg;
 	int		head, tail;
-	int		seg_queue[QUEUE_SIZE*2]{};
+	array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
 	sbyte   depth[MAX_SEGMENTS];
 	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
 
@@ -453,14 +453,13 @@ int pick_connected_segment(const vobjptr_t objp, int max_depth)
 
 	while (tail != head) {
 		int		sidenum, count;
-		segment	*segp;
 		int		ind1, ind2;
 
 		if (cur_depth >= max_depth) {
 			return seg_queue[tail];
 		}
 
-		segp = &Segments[seg_queue[tail++]];
+		const auto &&segp = vcsegptr(seg_queue[tail++]);
 		tail &= QUEUE_SIZE-1;
 
 		//	to make random, switch a pair of entries in side_rand.
@@ -495,7 +494,8 @@ int pick_connected_segment(const vobjptr_t objp, int max_depth)
 			}
 		}
 
-		if ((seg_queue[tail] < 0) || (seg_queue[tail] > Highest_segment_index)) {
+		if (seg_queue[tail] > Highest_segment_index)
+		{
 			// -- Int3();	//	Something bad has happened.  Queue is trashed.  --MK, 12/13/94
 			return -1;
 		}
@@ -549,7 +549,7 @@ static segnum_t choose_drop_segment()
 			pnum = Player_num;
 		}
 
-		segnum = pick_connected_segment(&Objects[Players[pnum].objnum], cur_drop_depth);
+		segnum = pick_connected_segment(vcobjptr(Players[pnum].objnum), cur_drop_depth);
 		if (segnum == segment_none)
 		{
 			cur_drop_depth--;
@@ -572,7 +572,7 @@ static segnum_t choose_drop_segment()
 
 		//bail if not far enough from original position
 		if (segnum != segment_none) {
-			const auto tempv = compute_segment_center(&Segments[segnum]);
+			const auto &&tempv = compute_segment_center(vcsegptr(segnum));
 			if (find_connected_distance(*player_pos,player_seg,tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
 				segnum = segment_none;
 			}
@@ -585,7 +585,7 @@ static segnum_t choose_drop_segment()
 		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
-			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
+			segnum = pick_connected_segment(vcobjptr(Players[Player_num].objnum), --cur_drop_depth);
 			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
@@ -609,7 +609,6 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 		if (Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
 			return;
 
-		auto segnum = choose_drop_segment();
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
 //--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 //--old-- 		if (segnum < 0)
@@ -618,12 +617,13 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const objptridx_t objnum = call_object_create_egg(&Objects[Players[Player_num].objnum], 1, OBJ_POWERUP, powerup_type);
+		const auto &&objnum = call_object_create_egg(vobjptr(Players[Player_num].objnum), 1, OBJ_POWERUP, powerup_type);
 
 		if (objnum == object_none)
 			return;
 
-		const auto new_pos = pick_random_point_in_seg(&Segments[segnum]);
+		const auto &&segnum = choose_drop_segment();
+		const auto &&new_pos = pick_random_point_in_seg(vcsegptr(segnum));
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);
@@ -1209,10 +1209,8 @@ void do_explosion_sequence(const vobjptr_t obj)
 
 	//See if we should delete an object
 	if (obj->lifeleft <= obj->ctype.expl_info.delete_time) {
-		object *del_obj = &Objects[obj->ctype.expl_info.delete_objnum];
-
+		const auto &&del_obj = vobjptr(obj->ctype.expl_info.delete_objnum);
 		obj->ctype.expl_info.delete_time = -1;
-
 		maybe_delete_object(del_obj);
 	}
 }
@@ -1284,7 +1282,7 @@ void do_exploding_wall_frame()
 				a = Walls[seg->sides[sidenum].wall_num].clip_num;
 				n = WallAnims[a].num_frames;
 
-				auto csegp = &Segments[seg->children[sidenum]];
+				const auto &&csegp = vsegptridx(seg->children[sidenum]);
 				auto cside = find_connect_side(seg, csegp);
 
 				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
