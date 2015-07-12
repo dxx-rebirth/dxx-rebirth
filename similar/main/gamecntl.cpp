@@ -1121,7 +1121,7 @@ static void kill_and_so_forth(void)
 			range_for (auto &w, partial_range(Walls, Num_walls))
 			{
 				if (w.trigger == i) {
-					compute_segment_center(ConsoleObject->pos, &Segments[w.segnum]);
+					compute_segment_center(ConsoleObject->pos, vcsegptr(w.segnum));
 					obj_relink(ConsoleObject-Objects,w.segnum);
 					goto kasf_done;
 				}
@@ -1323,10 +1323,10 @@ static window_event_result HandleTestKey(int key)
 			slew_stop();
 			game_flush_inputs();
 			if ( ConsoleObject->control_type != CT_FLYING ) {
-				fly_init(ConsoleObject);
+				fly_init(vobjptr(ConsoleObject));
 				Game_suspended &= ~SUSP_ROBOTS;	//robots move
 			} else {
-				slew_init(ConsoleObject);			//start player slewing
+				slew_init(vobjptr(ConsoleObject));			//start player slewing
 				Game_suspended |= SUSP_ROBOTS;	//robots don't move
 			}
 			break;
