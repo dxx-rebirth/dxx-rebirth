@@ -830,12 +830,12 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 				if (Objects[thisobjnum].type == OBJ_ROBOT)
 					if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
-						if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type))
+						if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(vcobjptr(thisobjnum))].attack_type))
 #endif
 						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 							continue;
 
-				if (Objects[thisobjnum].type == OBJ_ROBOT && Robot_info[get_robot_id(&Objects[thisobjnum])].attack_type)
+				if (Objects[thisobjnum].type == OBJ_ROBOT && Robot_info[get_robot_id(vcobjptr(thisobjnum))].attack_type)
 					fudged_rad = (rad*3)/4;
 
 				//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
@@ -845,7 +845,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 					fudged_rad = rad/2;	//(rad*3)/4;
 
 				vms_vector hit_point;
-				const auto d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum,&Objects[thisobjnum]);
+				const auto &&d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum, vcobjptr(thisobjnum));
 
 				if (d)          //we have intersection
 					if (d < closest_d) {
