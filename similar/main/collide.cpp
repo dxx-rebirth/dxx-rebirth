@@ -779,7 +779,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		robot_escort = 0;
 
 		if (Objects[weapon->ctype.laser_info.parent_num].type == OBJ_PLAYER)
-			playernum = get_player_id(&Objects[weapon->ctype.laser_info.parent_num]);
+			playernum = get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num));
 		else
 			playernum = -1;		//not a player (thus a robot)
 	}
@@ -1241,7 +1241,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 			}
 		}
 
-		if (get_player_id(&Objects[weapon->ctype.laser_info.parent_num]) == Player_num)
+		if (get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)) == Player_num)
 			Control_center_been_hit = 1;
 
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
@@ -1698,7 +1698,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
 	       	else
-			multi_robot_request_change(robot, get_robot_id(&Objects[weapon->ctype.laser_info.parent_num]));
+			multi_robot_request_change(robot, get_robot_id(vcobjptr(weapon->ctype.laser_info.parent_num)));
 
 		objptridx_t expl_obj = object_none;
 		if ( robptr->exp1_vclip_num > -1 )
@@ -2223,8 +2223,6 @@ static vms_vector find_exit_direction(vms_vector result, const vcobjptr_t objp, 
 
 void collide_player_and_materialization_center(const vobjptridx_t objp)
 {
-	segment	*segp = &Segments[objp->segnum];
-
 	digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, objp->segnum, 0, objp->pos, 0, F1_0);
 	object_create_explosion( objp->segnum, objp->pos, i2f(10)/2, VCLIP_PLAYER_HIT );
 
@@ -2235,6 +2233,7 @@ void collide_player_and_materialization_center(const vobjptridx_t objp)
 	rand_vec.x /= 4;
 	rand_vec.y /= 4;
 	rand_vec.z /= 4;
+	const auto &&segp = vcsegptr(objp->segnum);
 	auto exit_dir = find_exit_direction(rand_vec, objp, segp);
 	vm_vec_normalize_quick(exit_dir);
 	bump_one_object(objp, exit_dir, 64*F1_0);
@@ -2251,12 +2250,12 @@ void collide_player_and_materialization_center(const vobjptridx_t objp)
 
 void collide_robot_and_materialization_center(const vobjptridx_t objp)
 {
-	segment *segp=&Segments[objp->segnum];
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, objp->segnum, 0, objp->pos, 0, F1_0);
 
 	if ( Robot_info[get_robot_id(objp)].exp1_vclip_num > -1 )
 		object_create_explosion( objp->segnum, objp->pos, (objp->size/2*3)/4, Robot_info[get_robot_id(objp)].exp1_vclip_num );
 
+	const auto &&segp = vcsegptr(objp->segnum);
 	auto exit_dir = find_exit_direction({}, objp, segp);
 	bump_one_object(objp, exit_dir, 8*F1_0);
 
