@@ -920,7 +920,7 @@ void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 		Objects[0].prev = object_none;
 }
 
-void obj_unlink(const vobjptridx_t obj)
+void obj_unlink(const vobjptr_t obj)
 {
 	segment *seg = &Segments[obj->segnum];
 	if (obj->prev == object_none)
@@ -1908,7 +1908,7 @@ void compress_objects(void)
 	for (objnum_t start_i=0;start_i<Highest_object_index;start_i++)
 
 		if (Objects[start_i].type == OBJ_NONE) {
-			const auto h = vobjptridx(Highest_object_index);
+			const auto &&h = vobjptr(static_cast<objnum_t>(Highest_object_index));
 			auto segnum_copy = h->segnum;
 
 			obj_unlink(h);
