@@ -2931,7 +2931,7 @@ static int see_object(int objnum)
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
-	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0, objnum = 0;
+	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0;
 	
 	for (playernum_t pnum=0;pnum<N_players;pnum++)
 	{
@@ -2949,11 +2949,15 @@ void show_HUD_names()
 		show_indi = ((((game_mode_capture_flag() || game_mode_hoard()) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
 #endif
 
+		objnum_t objnum;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			//if this is a demo, the objnum in the player struct is wrong, so we search the object list for the objnum
 			for (objnum=0;objnum<=Highest_object_index;objnum++)
-				if (Objects[objnum].type==OBJ_PLAYER && get_player_id(&Objects[objnum]) == pnum)
+			{
+				const auto &&objp = vcobjptr(objnum);
+				if (objp->type == OBJ_PLAYER && get_player_id(objp) == pnum)
 					break;
+			}
 			if (objnum > Highest_object_index)	//not in list, thus not visible
 				continue;			//..so don't show name
 		}
@@ -3056,7 +3060,8 @@ void draw_hud()
 		return;
 
 	// Cruise speed
-	if (Viewer->type==OBJ_PLAYER && get_player_id(Viewer)==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
+	if (Viewer->type == OBJ_PLAYER && get_player_id(vcobjptr(Viewer)) == Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
+	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
