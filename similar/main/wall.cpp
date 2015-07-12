@@ -630,15 +630,12 @@ void wall_close_door_num(int door_num)
 
 }
 
-static int check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side)
+static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side)
 {
 	//note: don't let objects with zero size block door
-
-	if (obj->size && get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side))
-		return 1;		//pokes through side!
-	else
-		return 0;		//does not!
-
+	if (!obj->size)
+		return 0;
+	return get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
