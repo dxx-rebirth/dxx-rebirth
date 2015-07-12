@@ -158,9 +158,10 @@ static void verify_console_object()
 {
 	Assert(Player_num < Players.size());
 	Assert( Players[Player_num].objnum != object_none );
-	ConsoleObject = &Objects[Players[Player_num].objnum];
-	Assert( ConsoleObject->type==OBJ_PLAYER );
-	Assert( get_player_id(ConsoleObject)==Player_num );
+	const auto &&console = vobjptr(Players[Player_num].objnum);
+	ConsoleObject = console;
+	Assert(console->type == OBJ_PLAYER);
+	Assert(get_player_id(console) == Player_num);
 }
 
 static int count_number_of_robots()
@@ -436,11 +437,11 @@ void editor_reset_stuff_on_level()
 {
 	gameseq_init_network_players();
 	init_player_stats_level(secret_restore::none);
-	Viewer = ConsoleObject;
-	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
-	set_player_id(ConsoleObject, Player_num);
-	ConsoleObject->control_type = CT_FLYING;
-	ConsoleObject->movement_type = MT_PHYSICS;
+	const auto &&console = vobjptr(Players[Player_num].objnum);
+	ConsoleObject = Viewer = console;
+	set_player_id(console, Player_num);
+	console->control_type = CT_FLYING;
+	console->movement_type = MT_PHYSICS;
 	Game_suspended = 0;
 	verify_console_object();
 	Control_center_destroyed = 0;
@@ -744,13 +745,12 @@ void InitPlayerObject()
 	}
 
 	Players[Player_num].objnum = object_first;
-
-	ConsoleObject = &Objects[Players[Player_num].objnum];
-
-	ConsoleObject->type				= OBJ_PLAYER;
-	set_player_id(ConsoleObject, Player_num);
-	ConsoleObject->control_type	= CT_FLYING;
-	ConsoleObject->movement_type	= MT_PHYSICS;
+	const auto &&console = vobjptr(Players[Player_num].objnum);
+	ConsoleObject = console;
+	console->type				= OBJ_PLAYER;
+	set_player_id(console, Player_num);
+	console->control_type	= CT_FLYING;
+	console->movement_type	= MT_PHYSICS;
 }
 
 //starts a new game on the given level
