@@ -1182,9 +1182,10 @@ void recreate_thief(const vobjptr_t objp)
 {
 	segnum_t			segnum;
 	segnum = choose_thief_recreation_segment();
-	const auto center_point = compute_segment_center(&Segments[segnum]);
+	const auto &&segp = vsegptridx(segnum);
+	const auto &&center_point = compute_segment_center(segp);
 
-	auto new_obj = create_morph_robot( &Segments[segnum], center_point, objp->id);
+	const auto &&new_obj = create_morph_robot(segp, center_point, objp->id);
 	if (new_obj == object_none)
 		return;
 	init_ai_object(new_obj, ai_behavior::AIB_SNIPE, segment_none);
