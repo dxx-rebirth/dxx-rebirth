@@ -247,12 +247,12 @@ const array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 }};
 #define MAX_HEADLIGHTS	8
 static unsigned Num_headlights;
-static array<object *, MAX_HEADLIGHTS> Headlights;
+static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
-static g3s_lrgb compute_light_emission(int objnum)
+static g3s_lrgb compute_light_emission(objnum_t objnum)
 {
-	object *obj = &Objects[objnum];
+	const auto &&obj = vobjptr(objnum);
 	int compute_color = 0;
 	float cscale = 255.0;
 	fix light_intensity = 0;
