@@ -533,7 +533,7 @@ static void nd_read_shortpos(const vobjptr_t obj)
 
 	my_extract_shortpos(obj, &sp);
 	if ((obj->id == VCLIP_MORPHING_ROBOT) && (render_type == RT_FIREBALL) && (obj->control_type == CT_EXPLOSION))
-		extract_orient_from_segment(&obj->orient,&Segments[obj->segnum]);
+		extract_orient_from_segment(&obj->orient, vcsegptr(obj->segnum));
 
 }
 
@@ -1204,7 +1204,7 @@ void newdemo_record_morph_frame(morph_data *md)
 		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
-	nd_write_object( md->obj );
+	nd_write_object(vcobjptr(md->obj));
 	start_time();
 }
 
@@ -1882,11 +1882,10 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 static void newdemo_pop_ctrlcen_triggers()
 {
 	int anim_num, n;
-	int side;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
-		auto seg = &Segments[ControlCenterTriggers.seg[i]];
-		side = ControlCenterTriggers.side[i];
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&seg = vsegptridx(ControlCenterTriggers.seg[i]);
+		const auto side = ControlCenterTriggers.side[i];
+		const auto &&csegp = vsegptr(seg->children[side]);
 		auto cside = find_connect_side(seg, csegp);
 		anim_num = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[anim_num].num_frames;
@@ -1978,11 +1977,11 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 #endif
 			{
-			nd_read_object(Viewer);
+			nd_read_object(vobjptridx(Viewer));
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_object(Viewer);
+				nd_write_object(vcobjptr(Viewer));
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
@@ -2155,7 +2154,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_hit_process(&Segments[segnum], side, damage, player, &(Objects[0]) );
+				wall_hit_process(vsegptridx(segnum), side, damage, player, vobjptr(ConsoleObject));
 			break;
 		}
 
@@ -2186,8 +2185,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
+				const auto &&segp = vsegptridx(segnum);
 #if defined(DXX_BUILD_DESCENT_II)
-				if (Triggers[Walls[Segments[segnum].sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
+				if (Triggers[Walls[segp->sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
 					int truth;
 
 					nd_read_byte(&c);
@@ -2200,10 +2200,10 @@ static int newdemo_read_frame_information(int rewrite)
 						break;
 					}
 					if (!truth)
-						check_trigger(&Segments[segnum], side, objnum,shot);
+						check_trigger(segp, side, objnum,shot);
 				} else if (!rewrite)
 #endif
-					check_trigger(&Segments[segnum], side, objnum,shot);
+					check_trigger(segp, side, objnum,shot);
 			}
 		}
 			break;
@@ -2910,9 +2910,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				int anim_num;
-				auto segp = &Segments[segnum];
-				auto csegp = &Segments[segp->children[side]];
-				auto cside = find_connect_side(segp, csegp);
+				const auto &&segp = vsegptridx(segnum);
+				const auto &&csegp = vsegptr(segp->children[side]);
+				const auto &&cside = find_connect_side(segp, csegp);
 				anim_num = Walls[segp->sides[side].wall_num].clip_num;
 
 				if (WallAnims[anim_num].flags & WCF_TMAP1) {
