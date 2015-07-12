@@ -512,7 +512,7 @@ void multi_do_death(int objnum);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
-void multi_reset_player_object(vobjptridx_t objp);
+void multi_reset_player_object(vobjptr_t objp);
 void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);

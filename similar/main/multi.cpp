@@ -2258,7 +2258,7 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-void multi_reset_player_object(const vobjptridx_t objp)
+void multi_reset_player_object(const vobjptr_t objp)
 {
 	//Init physics for a non-console player
 	Assert((objp->type == OBJ_PLAYER) || (objp->type == OBJ_GHOST));
