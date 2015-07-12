@@ -454,7 +454,7 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	//	duplicate segments
 	range_for(const auto &gs, segments)
 	{
-		group::segment_array_type_t::value_type new_segment_id = med_create_duplicate_segment(&Segments[gs]);
+		const auto &&new_segment_id = med_create_duplicate_segment(vsegptr(gs));
 		new_segments.emplace_back(new_segment_id);
 		auto objrange = objects_in(Segments[new_segment_id]);
 		Segments[new_segment_id].objects = object_none;
