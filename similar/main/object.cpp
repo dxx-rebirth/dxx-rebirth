@@ -90,7 +90,7 @@ using std::min;
 using std::max;
 
 static void obj_detach_all(const vobjptr_t parent);
-static void obj_detach_one(const vobjptridx_t sub);
+static void obj_detach_one(const vobjptr_t sub);
 
 /*
  *  Global variables
@@ -2089,7 +2089,7 @@ void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
 }
 
 //dettaches one object
-void obj_detach_one(const vobjptridx_t sub)
+void obj_detach_one(const vobjptr_t sub)
 {
 	Assert(sub->flags & OF_ATTACHED);
 	Assert(sub->ctype.expl_info.attach_parent != object_none);
@@ -2101,17 +2101,20 @@ void obj_detach_one(const vobjptridx_t sub)
 	}
 
 	if (sub->ctype.expl_info.next_attach != object_none) {
-		Assert(Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach==sub);
-		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
+		const auto &&o = vobjptr(sub->ctype.expl_info.next_attach);
+		Assert(vobjptr(o->ctype.expl_info.prev_attach) == sub);
+		o->ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
 	}
 
 	if (sub->ctype.expl_info.prev_attach != object_none) {
-		Assert(Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach==sub);
-		Objects[sub->ctype.expl_info.prev_attach].ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
+		const auto &&o = vobjptr(sub->ctype.expl_info.prev_attach);
+		Assert(vobjptr(o->ctype.expl_info.next_attach) == sub);
+		o->ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
 	}
 	else {
-		Assert(Objects[sub->ctype.expl_info.attach_parent].attached_obj==sub);
-		Objects[sub->ctype.expl_info.attach_parent].attached_obj = sub->ctype.expl_info.next_attach;
+		const auto &&o = vobjptr(sub->ctype.expl_info.attach_parent);
+		Assert(vobjptr(o->attached_obj) == sub);
+		o->attached_obj = sub->ctype.expl_info.next_attach;
 	}
 
 	sub->ctype.expl_info.next_attach = sub->ctype.expl_info.prev_attach = object_none;
@@ -2123,7 +2126,7 @@ void obj_detach_one(const vobjptridx_t sub)
 void obj_detach_all(const vobjptr_t parent)
 {
 	while (parent->attached_obj != object_none)
-		obj_detach_one(vobjptridx(parent->attached_obj));
+		obj_detach_one(vobjptr(parent->attached_obj));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
