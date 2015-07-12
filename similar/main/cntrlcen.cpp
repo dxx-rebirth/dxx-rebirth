@@ -470,7 +470,7 @@ void init_controlcen_for_level(void)
 		}
 	} else if (cntrlcen_objnum != object_none) {
 		//	Compute all gun positions.
-		auto objp = &Objects[cntrlcen_objnum];
+		const auto &&objp = vobjptr(cntrlcen_objnum);
 		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
 		for (uint_fast32_t i=0; i<reactor->n_guns; i++)
 			calc_controlcen_gun_point(reactor, objp, i);
