@@ -370,7 +370,7 @@ void start_endlevel_sequence()
 		//count segments in exit tunnel
 
 		old_segnum = ConsoleObject->segnum;
-		exit_side = find_exit_side(ConsoleObject);
+		exit_side = find_exit_side(vobjptr(ConsoleObject));
 		segnum = Segments[old_segnum].children[exit_side];
 		tunnel_length = 0;
 		do {
@@ -391,7 +391,7 @@ void start_endlevel_sequence()
 		//now pick transition segnum 1/3 of the way in
 
 		old_segnum = ConsoleObject->segnum;
-		exit_side = find_exit_side(ConsoleObject);
+		exit_side = find_exit_side(vobjptr(ConsoleObject));
 		segnum = Segments[old_segnum].children[exit_side];
 		i=tunnel_length/3;
 		while (i--) {
@@ -423,7 +423,7 @@ void start_endlevel_sequence()
 
 	cur_fly_speed = desired_fly_speed = FLY_SPEED;
 
-	start_endlevel_flythrough(&fly_objects[0],ConsoleObject,cur_fly_speed);		//initialize
+	start_endlevel_flythrough(&fly_objects[0], vobjptr(ConsoleObject), cur_fly_speed);		//initialize
 
 	HUD_init_message_literal(HM_DEFAULT, TXT_EXIT_SEQUENCE );
 
@@ -547,7 +547,7 @@ void do_endlevel_frame()
 	if (ext_expl_playing) {
 
 		external_explosion->lifeleft -= FrameTime;
-		do_explosion_sequence(external_explosion);
+		do_explosion_sequence(vobjptr(external_explosion));
 
 		if (external_explosion->lifeleft < ext_expl_halflife)
 			mine_destroyed = 1;
@@ -893,12 +893,12 @@ int find_exit_side(const vobjptr_t obj)
 	vms_vector prefvec;
 	fix best_val=-f2_0;
 	int best_side;
-	segment *pseg = &Segments[obj->segnum];
 
 	//find exit side
 
 	vm_vec_normalized_dir_quick(prefvec,obj->pos,obj->last_pos);
 
+	const auto &&pseg = vcsegptr(obj->segnum);
 	const auto segcenter = compute_segment_center(pseg);
 
 	best_side=-1;
@@ -1003,7 +1003,7 @@ static void render_external_scene(fix eye_offset)
 	{
 		if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for the big explosion
 			gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
-		draw_fireball(external_explosion);
+		draw_fireball(vobjptridx(external_explosion));
 		gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 	}
 
@@ -1168,7 +1168,7 @@ static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
 	int old_player_seg;
-	auto obj = flydata->obj;
+	const auto &&obj = vobjptridx(flydata->obj);
 	
 	old_player_seg = obj->segnum;
 
@@ -1185,7 +1185,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 	//check new player seg
 
 	update_object_seg(obj);
-	auto pseg = &Segments[obj->segnum];
+	const auto &&pseg = vsegptr(obj->segnum);
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
@@ -1544,9 +1544,10 @@ try_again:
 
 	Assert(exit_segnum!=segment_none);
 
-	compute_segment_center(mine_exit_point,&Segments[exit_segnum]);
-	extract_orient_from_segment(&mine_exit_orient,&Segments[exit_segnum]);
-	compute_center_point_on_side(mine_side_exit_point,&Segments[exit_segnum],exit_side);
+	const auto &&exit_seg = vsegptr(exit_segnum);
+	compute_segment_center(mine_exit_point, exit_seg);
+	extract_orient_from_segment(&mine_exit_orient, exit_seg);
+	compute_center_point_on_side(mine_side_exit_point, exit_seg, exit_side);
 
 	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
 
