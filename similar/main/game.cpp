@@ -1081,7 +1081,7 @@ window *game_setup(void)
 #endif
 
 	Viewer = ConsoleObject;
-	fly_init(ConsoleObject);
+	fly_init(vobjptr(ConsoleObject));
 	Game_suspended = 0;
 	reset_time();
 	FrameTime = 0;			//make first frame zero
@@ -1316,7 +1316,7 @@ void GameProcessFrame(void)
 
 #ifdef EDITOR
 	check_create_player_path();
-	player_follow_path(ConsoleObject);
+	player_follow_path(vobjptr(ConsoleObject));
 #endif
 
 	if (Game_mode & GM_MULTI)
@@ -1410,7 +1410,7 @@ void GameProcessFrame(void)
 				if (Fusion_charge > F1_0*2)
 					bump_amount = Fusion_charge*4;
 
-				bump_one_object(ConsoleObject, rand_vec, bump_amount);
+				bump_one_object(vobjptr(ConsoleObject), rand_vec, bump_amount);
 			}
 			else
 			{
@@ -1642,7 +1642,7 @@ void FireLaser()
 					const auto cobjp = vobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
-					create_awareness_event(ConsoleObject, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
+					create_awareness_event(vobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
@@ -1683,10 +1683,11 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 //	way before the player gets there.
 void powerup_grab_cheat_all(void)
 {
-	auto segp = &Segments[ConsoleObject->segnum];
+	const auto &&console = vobjptr(ConsoleObject);
+	const auto &&segp = vsegptr(console->segnum);
 	range_for (const auto objnum, objects_in(*segp))
 		if (objnum->type == OBJ_POWERUP)
-			powerup_grab_cheat(ConsoleObject, objnum);
+			powerup_grab_cheat(console, objnum);
 }
 
 int	Last_level_path_created = -1;
