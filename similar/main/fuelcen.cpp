@@ -248,14 +248,15 @@ void trigger_matcen(const vsegptridx_t segnum)
 //------------------------------------------------------------
 // Takes away a segment's fuel center properties.
 //	Deletes the segment point entry in the FuelCenter list.
-void fuelcen_delete( const vsegptridx_t segp )
+void fuelcen_delete(const vsegptr_t segp)
 {
 Restart: ;
 	segp->special = 0;
 
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
 		FuelCenter &fi = Station[i];
-		if (fi.segnum == segp)	{
+		if (vsegptr(fi.segnum) == segp)
+		{
 
 			// If Robot maker is deleted, fix Segments and RobotCenters.
 			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {

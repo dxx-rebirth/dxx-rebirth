@@ -63,7 +63,7 @@ void fuelcen_create( vsegptridx_t segp);
 // a segment is loaded from disk.
 void fuelcen_activate( vsegptridx_t segp, int station_type );
 // Deletes a segment as a fuel center.
-void fuelcen_delete( vsegptridx_t segp );
+void fuelcen_delete(vsegptr_t segp);
 
 // Charges all fuel centers to max capacity.
 void fuelcen_replentish_all();
