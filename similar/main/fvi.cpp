@@ -654,7 +654,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	}
 
 	// Viewer is not in segment as claimed, so say there is no hit.
-	if(!(get_seg_masks(*fq.p0, fq.startseg, 0).centermask == 0))
+	if(!(get_seg_masks(*fq.p0, vcsegptr(fq.startseg), 0).centermask == 0))
 	{
 
 		hit_data.hit_type = HIT_BAD_P0;
@@ -675,14 +675,14 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	hit_type = fvi_sub(hit_pnt,hit_seg2,*fq.p0,fq.startseg,*fq.p1,fq.rad,fq.thisobjnum,fq.ignore_obj_list,fq.flags,hit_data.seglist,segment_exit,visited);
 	segnum_t hit_seg;
-	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, hit_seg2, 0).centermask)
+	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, vcsegptr(hit_seg2), 0).centermask)
 		hit_seg = hit_seg2;
 	else
 		hit_seg = find_point_seg(hit_pnt,fq.startseg);
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==segment_none)
-		if (fvi_hit_seg2 != segment_none && get_seg_masks(hit_pnt, fvi_hit_seg2, 0).centermask == 0)
+		if (fvi_hit_seg2 != segment_none && get_seg_masks(hit_pnt, vcsegptr(fvi_hit_seg2), 0).centermask == 0)
 			hit_seg = fvi_hit_seg2;
 
 	if (hit_seg == segment_none) {

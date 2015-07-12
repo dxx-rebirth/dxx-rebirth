@@ -1780,7 +1780,7 @@ static void object_move_one(const vobjptridx_t obj)
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
 
-			sidemask = get_seg_masks(obj->pos, obj->segnum, obj->size).sidemask;
+			sidemask = get_seg_masks(obj->pos, vcsegptr(obj->segnum), obj->size).sidemask;
 			if (sidemask) {
 				int sidenum,bit,wall_num;
 	

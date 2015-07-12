@@ -1156,7 +1156,7 @@ static void build_object_lists(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					m = get_seg_masks(obj->pos, new_segnum, obj->size);
+					m = get_seg_masks(obj->pos, vcsegptr(new_segnum), obj->size);
 	
 					if (m.sidemask) {
 						int sn,sf;

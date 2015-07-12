@@ -630,7 +630,7 @@ void wall_close_door_num(int door_num)
 
 }
 
-static int check_poke(objnum_t objnum,segnum_t segnum,int side)
+static int check_poke(objnum_t objnum,const vcsegptr_t segnum,int side)
 {
 	object *obj = &Objects[objnum];
 

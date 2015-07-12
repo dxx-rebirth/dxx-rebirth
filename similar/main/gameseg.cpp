@@ -272,7 +272,7 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(const vms_vector &checkp, const vcsegptridx_t segnum, fix rad)
+segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
