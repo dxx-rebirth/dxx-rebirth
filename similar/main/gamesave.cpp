@@ -874,9 +874,10 @@ static int load_game_data(PHYSFS_file *LoadFile)
 
 		range_for (auto &i, partial_range(Objects, gs_num_objects))
 		{
-			read_object(&i, LoadFile, game_top_fileinfo_version);
+			const auto &&o = vobjptr(&i);
+			read_object(o, LoadFile, game_top_fileinfo_version);
 			i.signature = obj_get_signature();
-			verify_object(&i);
+			verify_object(o);
 		}
 
 	}
@@ -1461,7 +1462,7 @@ int create_new_mine(void)
 	// Create New_segment, which is the segment we will be adding at each instance.
 	med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});		// New_segment = Segments[0];
 	//	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,vm_mat_make(&m1,F1_0,0,0,0,F1_0,0,0,0,F1_0));
-	med_create_segment(&Segments[0],0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,m1);
+	med_create_segment(vsegptridx(static_cast<segnum_t>(0)),0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,m1);
 	
 	Found_segs.clear();
 	Selected_segs.clear();
@@ -1685,7 +1686,7 @@ static int save_level_sub(const char * filename)
 		if (update_object_seg(plr) == 0) {
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
-			compute_segment_center(plr->pos,&(Segments[plr->segnum]));
+			compute_segment_center(plr->pos, vcsegptr(plr->segnum));
 		}
 	}
  
