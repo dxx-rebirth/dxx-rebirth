@@ -1137,8 +1137,12 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 			if (Players[get_player_id(curobjp)].flags & PLAYER_FLAGS_CLOAKED)
 				continue;
 			// Don't track teammates in team games
-			if ((Game_mode & GM_TEAM) && (Objects[tracker->ctype.laser_info.parent_num].type == OBJ_PLAYER) && (get_team(get_player_id(curobjp)) == get_team(get_player_id(&Objects[tracker->ctype.laser_info.parent_num]))))
-				continue;
+			if (Game_mode & GM_TEAM)
+			{
+				const auto &&objparent = vcobjptr(tracker->ctype.laser_info.parent_num);
+				if (objparent->type == OBJ_PLAYER && get_team(get_player_id(curobjp)) == get_team(get_player_id(objparent)))
+					continue;
+			}
 		}
 
 		//	Can't track AI object if he's cloaked.
@@ -2221,15 +2225,16 @@ void do_missile_firing(int drop_bomb)
 		{
 			vms_vector force_vec;
 
+			const auto &&console = vobjptr(ConsoleObject);
 			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
 			force_vec.y = -(ConsoleObject->orient.fvec.y << 7);
 			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);
-			phys_apply_force(ConsoleObject, force_vec);
+			phys_apply_force(console, force_vec);
 
 			force_vec.x = (force_vec.x >> 4) + d_rand() - 16384;
 			force_vec.y = (force_vec.y >> 4) + d_rand() - 16384;
 			force_vec.z = (force_vec.z >> 4) + d_rand() - 16384;
-			phys_apply_rot(ConsoleObject, force_vec);
+			phys_apply_rot(console, force_vec);
 		}
 
 		if (Game_mode & GM_MULTI)
