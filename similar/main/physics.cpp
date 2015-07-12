@@ -362,7 +362,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
-			compute_segment_center(obj->pos,&Segments[obj->segnum]);
+			compute_segment_center(obj->pos, vcsegptr(obj->segnum));
 			obj->pos.x += obj;
 		}
 	}
@@ -448,7 +448,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		fate = find_vector_intersection(fq, hit_info);
 		//	Matt: Mike's hack.
 		if (fate == HIT_OBJECT) {
-			object	*objp = &Objects[hit_info.hit_object];
+			const auto &&objp = vcobjptr(hit_info.hit_object);
 
 			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(get_weapon_id(objp))) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;
@@ -506,7 +506,7 @@ void do_physics_sim(const vobjptridx_t obj)
 					obj_relink(obj, n );
 				}
 				else {
-					compute_segment_center(obj->pos,&Segments[obj->segnum]);
+					compute_segment_center(obj->pos, vcsegptr(obj->segnum));
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -742,7 +742,7 @@ void do_physics_sim(const vobjptridx_t obj)
 	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 
 		const auto orig_segp = vcsegptr(orig_segnum);
-		auto sidenum = find_connect_side(&Segments[obj->segnum],orig_segp);
+		const auto &&sidenum = find_connect_side(vcsegptridx(obj->segnum), orig_segp);
 
 		if (sidenum != -1) {
 
@@ -781,7 +781,7 @@ void do_physics_sim(const vobjptridx_t obj)
 				obj_relink(obj, n );
 			}
 			else {
-				compute_segment_center(obj->pos,&Segments[obj->segnum]);
+				compute_segment_center(obj->pos, vsegptr(obj->segnum));
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)
