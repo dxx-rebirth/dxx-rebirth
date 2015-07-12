@@ -271,7 +271,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				blue_sidenum = Walls[i].sidenum;
 				blue_count++;
 			} else {
-				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[blue_segnum]);
+				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(blue_segnum));
 				if (connect_side != blue_sidenum) {
 					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, blue_segnum, blue_sidenum);
 					blue_count++;
@@ -285,7 +285,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				red_sidenum = Walls[i].sidenum;
 				red_count++;
 			} else {
-				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[red_segnum]);
+				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(red_segnum));
 				if (connect_side != red_sidenum) {
 					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, red_segnum, red_sidenum);
 					red_count++;
@@ -299,7 +299,7 @@ static void write_key_text(PHYSFS_file *my_file)
 				gold_sidenum = Walls[i].sidenum;
 				gold_count++;
 			} else {
-				auto connect_side = find_connect_side(&Segments[Walls[i].segnum], &Segments[gold_segnum]);
+				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(gold_segnum));
 				if (connect_side != gold_sidenum) {
 					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, gold_segnum, gold_sidenum);
 					gold_count++;
