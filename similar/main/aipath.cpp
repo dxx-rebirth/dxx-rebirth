@@ -102,11 +102,12 @@ static uint_fast32_t insert_center_points(point_seg *psegs, uint_fast32_t count)
 	for (uint_fast32_t i = last_point; i; --i)
 	{
 		psegs[2*i] = psegs[i];
-		auto connect_side = find_connect_side(&Segments[psegs[i].segnum], &Segments[psegs[i-1].segnum]);
+		const auto &&seg1 = vcsegptr(psegs[i-1].segnum);
+		auto connect_side = find_connect_side(vcsegptridx(psegs[i].segnum), seg1);
 		Assert(connect_side != -1);	//	Impossible!  These two segments must be connected, they were created by create_path_points (which was created by mk!)
 		if (connect_side == -1)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = 0;
-		const auto center_point = compute_center_point_on_side(&Segments[psegs[i-1].segnum], connect_side);
+		const auto &&center_point = compute_center_point_on_side(seg1, connect_side);
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
@@ -322,8 +323,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	cur_depth = 0;
 
 	while (cur_seg != end_seg) {
-		segment	*segp = &Segments[cur_seg];
-
+		const auto &&segp = vcsegptr(cur_seg);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (random_flag)
 			if (d_rand() < 8192)
