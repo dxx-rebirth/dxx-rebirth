@@ -836,23 +836,18 @@ void reset_player_object()
 //make object0 the player, setting all relevant fields
 void init_player_object()
 {
-	ConsoleObject->type = OBJ_PLAYER;
-	set_player_id(ConsoleObject, 0);					//no sub-types for player
-
+	const auto &&console = vobjptr(ConsoleObject);
+	console->type = OBJ_PLAYER;
+	set_player_id(console, 0);					//no sub-types for player
 #if defined(DXX_BUILD_DESCENT_II)
-	ConsoleObject->signature = object_signature_t{0};			//player has zero, others start at 1
+	console->signature = object_signature_t{0};			//player has zero, others start at 1
 #endif
-	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
-
-	ConsoleObject->control_type = CT_SLEW;			//default is player slewing
-	ConsoleObject->movement_type = MT_PHYSICS;		//change this sometime
-
-	ConsoleObject->lifeleft = IMMORTAL_TIME;
-
-	ConsoleObject->attached_obj = object_none;
-
+	console->size = Polygon_models[Player_ship->model_num].rad;
+	console->control_type = CT_SLEW;			//default is player slewing
+	console->movement_type = MT_PHYSICS;		//change this sometime
+	console->lifeleft = IMMORTAL_TIME;
+	console->attached_obj = object_none;
 	reset_player_object();
-
 }
 
 //sets up the free list & init player & whatever else
@@ -1072,12 +1067,16 @@ static void free_object_slots(uint_fast32_t num_used)
 	// Capture before num_to_free modified
 	const auto r = partial_range(obj_list, num_to_free);
 	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
-		range_for (const auto o, r)
-			if (predicate(o)) {
+		range_for (const auto i, r)
+		{
+			const auto &&o = vobjptr(i);
+			if (predicate(o))
+			{
 				o->flags |= OF_SHOULD_BE_DEAD;
 				if (!-- num_to_free)
 					return true;
 			}
+		}
 		return false;
 	};
 
@@ -1322,7 +1321,7 @@ void dead_player_end(void)
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
-static void set_camera_pos(vms_vector &camera_pos, const vobjptridx_t objp)
+static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 {
 	int	count = 0;
 	fix	camera_player_dist;
@@ -1397,7 +1396,7 @@ void dead_player_frame(void)
 
 		Camera_to_player_dist_goal = min(time_dead*8, F1_0*20) + ConsoleObject->size;
 
-		set_camera_pos(Dead_player_camera->pos, ConsoleObject);
+		set_camera_pos(Dead_player_camera->pos, vcobjptridx(ConsoleObject));
 
 		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
@@ -1636,7 +1635,7 @@ int Drop_afterburner_blob_flag;		//ugly hack
 //move an object for the current frame
 static void object_move_one(const vobjptridx_t obj)
 {
-	int	previous_segment = obj->segnum;
+	const auto previous_segment = obj->segnum;
 
 	obj->last_pos = obj->pos;			// Save the current position
 
@@ -1648,7 +1647,7 @@ static void object_move_one(const vobjptridx_t obj)
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);
 #endif
 
-		fix fuel=fuelcen_give_fuel( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
+		fix fuel=fuelcen_give_fuel(vsegptr(obj->segnum), INITIAL_ENERGY-Players[Player_num].energy );
 		if (fuel > 0 )	{
 			Players[Player_num].energy += fuel;
 		}
@@ -1810,9 +1809,10 @@ static void object_move_one(const vobjptridx_t obj)
 	//see if guided missile has flown through exit trigger
 	if (obj==Guided_missile[Player_num] && obj->signature==Guided_missile_sig[Player_num]) {
 		if (previous_segment != obj->segnum) {
-			auto connect_side = find_connect_side(&Segments[obj->segnum], &Segments[previous_segment]);
+			const auto &&psegp = vcsegptr(previous_segment);
+			const auto &&connect_side = find_connect_side(vcsegptridx(obj->segnum), psegp);
 			if (connect_side != -1) {
-				auto wall_num = Segments[previous_segment].sides[connect_side].wall_num;
+				const auto wall_num = psegp->sides[connect_side].wall_num;
 				if ( wall_num != wall_none ) {
 					auto trigger_num = Walls[wall_num].trigger;
 					if (trigger_num != trigger_none)
@@ -1994,7 +1994,7 @@ void fix_object_segs()
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
 				const auto pos = o->pos;
-				compute_segment_center(o->pos,&Segments[o->segnum]);
+				compute_segment_center(o->pos, vcsegptr(o->segnum));
 				con_printf(CON_URGENT, "Object %hu claims segment %u, but has position {%i,%i,%i}; moving to {%i,%i,%i}", static_cast<objnum_t>(o), o->segnum, pos.x, pos.y, pos.z, o->pos.x, o->pos.y, o->pos.z);
 			}
 	}
