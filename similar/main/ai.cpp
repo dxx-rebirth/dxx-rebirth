@@ -1733,7 +1733,7 @@ void move_towards_segment_center(const vobjptr_t objp)
 	auto segnum = objp->segnum;
 	vms_vector	vec_to_center;
 
-	const auto segment_center = compute_segment_center(&Segments[segnum]);
+	const auto &&segment_center = compute_segment_center(vcsegptr(segnum));
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp->pos);
 	move_towards_vector(objp, vec_to_center, 1);
 }
@@ -2037,8 +2037,9 @@ void create_buddy_bot(void)
 		if (robptr->companion)
 			break;
 	}
-	const auto object_pos = compute_segment_center(&Segments[ConsoleObject->segnum]);
-	create_morph_robot( &Segments[ConsoleObject->segnum], object_pos, buddy_id);
+	const auto &&segp = vsegptridx(ConsoleObject->segnum);
+	const auto &&object_pos = compute_segment_center(segp);
+	create_morph_robot(segp, object_pos, buddy_id);
 }
 #endif
 
@@ -2078,7 +2079,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		vms_vector	original_boss_pos;
 		const vobjptridx_t boss_objp = vobjptridx(boss_objnum);
 		int			head, tail;
-		int			seg_queue[QUEUE_SIZE];
+		array<segnum_t, QUEUE_SIZE> seg_queue;
 		fix			boss_size_save;
 
 		boss_size_save = boss_objp->size;
@@ -2101,7 +2102,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 
 		while (tail != head) {
 			int		sidenum;
-			segment	*segp = &Segments[seg_queue[tail++]];
+			const auto &&segp = vsegptr(seg_queue[tail++]);
 
 			tail &= QUEUE_SIZE-1;
 
@@ -2169,7 +2170,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
 
-	compute_segment_center(objp->pos, &Segments[rand_segnum]);
+	compute_segment_center(objp->pos, vcsegptr(rand_segnum));
 	obj_relink(objp, rand_segnum);
 
 	Last_teleport_time = GameTime64;
@@ -3862,7 +3863,7 @@ _exit_cheat:
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
-			const auto center_point = compute_center_point_on_side(&Segments[obj->segnum], aip->GOALSIDE);
+			const auto &&center_point = compute_center_point_on_side(vcsegptr(obj->segnum), aip->GOALSIDE);
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr->turn_time[Difficulty_level]);
 			move_towards_vector(obj, goal_vector, 0);
