@@ -802,7 +802,7 @@ int wall_add_to_markedside(sbyte type)
 		wall_num = Markedsegp->sides[Markedside].wall_num;
 		cwall_num = csegp->sides[Connectside].wall_num;
 
-		Walls[wall_num].segnum = Markedsegp-Segments;
+		Walls[wall_num].segnum = Markedsegp;
 		Walls[cwall_num].segnum = csegp-Segments;
 
 		Walls[wall_num].sidenum = Markedside;
@@ -904,13 +904,14 @@ int bind_wall_to_control_center() {
 
 	link_num = ControlCenterTriggers.num_links;
 	for (int i=0;i<link_num;i++)
-		if ((Cursegp-Segments == ControlCenterTriggers.seg[i]) && (Curside == ControlCenterTriggers.side[i])) {
+		if (Cursegp == ControlCenterTriggers.seg[i] && Curside == ControlCenterTriggers.side[i])
+		{
 			editor_status("Curside already bound to Control Center.");
 			return 0;
 		}
 
 	// Error checking completed, actual binding begins
-	ControlCenterTriggers.seg[link_num] = Cursegp - Segments;
+	ControlCenterTriggers.seg[link_num] = Cursegp;
 	ControlCenterTriggers.side[link_num] = Curside;
 	ControlCenterTriggers.num_links++;
 

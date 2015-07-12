@@ -1445,7 +1445,7 @@ int create_new_mine(void)
 	Highest_segment_index = 0;
 	Cursegp = &Segments[0];	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side
-	Markedsegp = 0;		// Say there is no marked segment.
+	Markedsegp = segment_none;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
 	for (int s=0;s<MAX_GROUPS+1;s++) {
 		GroupList[s].clear();

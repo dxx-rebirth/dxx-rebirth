@@ -12,7 +12,7 @@
 #include "segment.h"
 #include "editor/editor.h"
 
-extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
+extern segptridx_t Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 
 #define	New_segment	(Segments[MAX_SEGMENTS-1])
 
@@ -21,7 +21,7 @@ extern	int		Curedge;					//	Current edge on current side, in 0..3
 extern	int		Curvert;					//	Current vertex on current side, in 0..3
 extern	int		AttachSide;				//	Side on segment to attach
 extern	int		Draw_all_segments;	// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
-extern	segment	*Markedsegp;			// Marked segment, used in conjunction with *Cursegp to form joints.
+extern segptridx_t Markedsegp;			// Marked segment, used in conjunction with *Cursegp to form joints.
 extern	int		Markedside;				// Marked side on Markedsegp.
 extern array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 

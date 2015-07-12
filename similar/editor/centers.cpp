@@ -170,7 +170,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	// If we change centers, we need to reset the ui code for all
 	// of the checkboxes that control the center flags.  
 	//------------------------------------------------------------
-	if (c->old_seg_num != Cursegp-Segments)
+	if (c->old_seg_num != Cursegp)
 	{
 		range_for (auto &i, c->centerFlag)
 			ui_radio_set_value(i.get(), 0);
@@ -225,7 +225,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
 	
-		ui_dprintf_at( dlg, 12, 6, "Seg: %3ld", (long)(Cursegp-Segments) );
+		ui_dprintf_at(dlg, 12, 6, "Seg: %3hu", static_cast<segnum_t>(Cursegp));
 
 //		for (i=0; i<CENTER_STRING_LENGTH; i++)
 //			temp_text[i] = ' ';
@@ -236,7 +236,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 //		ui_dprintf_at( dlg, 12, 23, " Type: %s", temp_text );
 	}
 
-	if (c->old_seg_num != Cursegp-Segments)
+	if (c->old_seg_num != Cursegp)
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(c->quitButton.get()) || keypress==KEY_ESC)
 	{
@@ -244,7 +244,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 		return 1;
 	}		
 
-	c->old_seg_num = Cursegp-Segments;
+	c->old_seg_num = Cursegp;
 	
 	return rval;
 }

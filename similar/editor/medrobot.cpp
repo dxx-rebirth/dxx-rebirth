@@ -85,12 +85,12 @@ static void call_init_ai_object(const vobjptr_t objp, ai_behavior behavior)
 	segnum_t	hide_segment;
 
 	if (behavior == ai_behavior::AIB_STATION)
-		hide_segment = Cursegp-Segments;
+		hide_segment = Cursegp;
 	else {
-		if (Markedsegp != NULL)
-			hide_segment = Markedsegp-Segments;
+		if (Markedsegp != segment_none)
+			hide_segment = Markedsegp;
 		else
-			hide_segment = Cursegp-Segments;
+			hide_segment = Cursegp;
 	}
 
 	init_ai_object(objp, behavior, hide_segment);

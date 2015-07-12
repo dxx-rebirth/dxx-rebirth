@@ -170,13 +170,13 @@ static int bind_matcen_to_trigger() {
 
 	auto link_num = Triggers[trigger_num].num_links;
 	for (int i=0;i<link_num;i++)
-		if (Cursegp-Segments == Triggers[trigger_num].seg[i]) {
+		if (Cursegp == Triggers[trigger_num].seg[i]) {
 			editor_status("Matcen already bound to Markedside.");
 			return 0;
 		}
 
 	// Error checking completed, actual binding begins
-	Triggers[trigger_num].seg[link_num] = Cursegp - Segments;
+	Triggers[trigger_num].seg[link_num] = Cursegp;
 	Triggers[trigger_num].num_links++;
 
 	editor_status("Matcen linked to trigger");
@@ -215,13 +215,14 @@ int bind_wall_to_trigger() {
 
 	auto link_num = Triggers[trigger_num].num_links;
 	for (int i=0;i<link_num;i++)
-		if ((Cursegp-Segments == Triggers[trigger_num].seg[i]) && (Curside == Triggers[trigger_num].side[i])) {
+		if (Cursegp == Triggers[trigger_num].seg[i] && Curside == Triggers[trigger_num].side[i])
+		{
 			editor_status("Curside already bound to Markedside.");
 			return 0;
 		}
 
 	// Error checking completed, actual binding begins
-	Triggers[trigger_num].seg[link_num] = Cursegp - Segments;
+	Triggers[trigger_num].seg[link_num] = Cursegp;
 	Triggers[trigger_num].side[link_num] = Curside;
 	Triggers[trigger_num].num_links++;
 

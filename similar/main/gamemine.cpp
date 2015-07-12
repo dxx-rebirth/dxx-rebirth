@@ -763,15 +763,8 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	for (int i=0;i<10;i++)
 		Groupside[i] = mine_editor.Groupside[i];
 
-	if ( mine_editor.current_seg != -1 )
-		Cursegp = &Segments[mine_editor.current_seg];
-	else
- 		Cursegp = NULL;
-
-	if (mine_editor.Markedsegp != -1 ) 
-		Markedsegp = &Segments[mine_editor.Markedsegp];
-	else
-		Markedsegp = NULL;
+	Cursegp = mine_editor.current_seg != -1 ? segptridx(mine_editor.current_seg) : segment_first;
+	Markedsegp = mine_editor.Markedsegp != -1 ? segptridx(mine_editor.Markedsegp) : segment_none;
 
 	num_groups = 0;
 	current_group = -1;

@@ -425,14 +425,14 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 	PHYSFS_write( SaveFile, &mine_header, sizeof(mine_header), 1 );
 
 	//===================== SAVE EDITOR INFO ==========================
-	mine_editor.current_seg         =   Cursegp - Segments;
+	mine_editor.current_seg         =   Cursegp;
 	mine_editor.newsegment_offset   =   newsegment_offset; 
 	mine_editor.newsegment_size     =   sizeof(segment);
 
 	// Next 3 vars added 10/07 by JAS
 	mine_editor.Curside             =   Curside;
 	if (Markedsegp)
-		mine_editor.Markedsegp       =   Markedsegp - Segments;
+		mine_editor.Markedsegp      =   Markedsegp;
 	else									  
 		mine_editor.Markedsegp       =   -1;
 	mine_editor.Markedside          =   Markedside;

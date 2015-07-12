@@ -1479,7 +1479,7 @@ static void test_create_path_many(void)
 	for (i=0; i<Test_size; i++) {
 		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
 		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-		create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+		create_path_points(object_first, Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 	}
 
 }
@@ -1490,7 +1490,7 @@ static void test_create_path(void)
 	array<point_seg, 200> point_segs;
 	short			num_points;
 
-	create_path_points(object_first, Cursegp-Segments, Markedsegp-Segments, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+	create_path_points(object_first, Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 
 }
 

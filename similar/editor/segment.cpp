@@ -996,7 +996,7 @@ int med_delete_segment(const vsegptridx_t sp)
 
 	// If deleted segment = marked segment, then say there is no marked segment
 	if (sp == Markedsegp)
-		Markedsegp = 0;
+		Markedsegp = segment_none;
 	
 	//	If deleted segment = a Group segment ptr, then wipe it out.
 	range_for (auto &s, partial_range(Groupsegp, num_groups))
@@ -1023,7 +1023,7 @@ int med_delete_segment(const vsegptridx_t sp)
 			//if the object is the player, move to new curseg
 			if (objnum == ConsoleObject)	{
 				compute_segment_center(ConsoleObject->pos,Cursegp);
-				obj_relink(objnum,Cursegp-Segments);
+				obj_relink(objnum, Cursegp);
 			} else
 				obj_delete(objnum);
 		}

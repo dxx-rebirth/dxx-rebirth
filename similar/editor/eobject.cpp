@@ -170,7 +170,7 @@ int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short ob
 			{
 				segnum_t hide_segment;
 			if (Markedsegp)
-				hide_segment = Markedsegp-Segments;
+				hide_segment = Markedsegp;
 			else
 				hide_segment = segment_none;
 			//	robots which lunge forward to attack cannot have behavior type still.
@@ -363,7 +363,7 @@ int ObjectSelectNextinSegment(void)
 		Cur_object_index = objsegp->objects;
 	} else {
 		objsegp = Cursegp;
-		if (Objects[Cur_object_index].segnum != Cursegp-Segments)
+		if (Objects[Cur_object_index].segnum != Cursegp)
 			Cur_object_index = objsegp->objects;
 	}
 

@@ -42,7 +42,8 @@ int InitCurve()
 
 int GenerateCurve()
 {
-    if ( (Markedsegp != 0) && !IS_CHILD(Markedsegp->children[Markedside])) {
+	if (Markedsegp != segment_none && !IS_CHILD(Markedsegp->children[Markedside]))
+	{
 		r1scale = r4scale = F1_0*20;
       autosave_mine( mine_filename );
       diagnostic_message("Curve Generated.");

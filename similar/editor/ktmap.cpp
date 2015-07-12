@@ -167,7 +167,7 @@ int PropagateTexturesSelected(void)
 	undo_status[Autosave_count] = "Propogate Textures Selected UNDONE.";
 
 	visited_segment_bitarray_t visited;
-	visited[Cursegp-Segments] = true;
+	visited[Cursegp] = true;
 
 	pts_aux(Cursegp, visited);
 

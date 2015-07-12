@@ -246,22 +246,23 @@ static void info_display_default(int show_all)
   	//--------------- Current_segment_number -------------
 	//--------------- Current_side_number -------------
 
-	if (( old_Cursegp_num != Cursegp-Segments ) || ( old_Curside != Curside ))	{
-		gr_uprintf( 0, 48, "Cursegp/side: %3ld/%1d", (long)(Cursegp-Segments), Curside);
+	if (old_Cursegp_num != Cursegp || old_Curside != Curside)
+	{
+		old_Cursegp_num = Cursegp;
+		gr_uprintf( 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
 		gr_uprintf( 0, 128, " tmap1,2,o: %3d/%3dx%1d", Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2 & 0x3FFF, (Cursegp->sides[Curside].tmap_num2 >> 14) & 3);
-		old_Cursegp_num = Cursegp-Segments;
 		old_Curside = Curside;
 	}
 
 	//--------------- Current_vertex_numbers -------------
 
-	if ( old_Cursegp_num_for_verts != Cursegp-Segments )	{
-
+	if (old_Cursegp_num_for_verts != Cursegp)
+	{
+		old_Cursegp_num_for_verts = Cursegp;
 		gr_uprintf( 0, 64, "{%3d,%3d,%3d,%3d,", Cursegp->verts[0],Cursegp->verts[1],
 																							 Cursegp->verts[2],Cursegp->verts[3] );
 		gr_uprintf( 0, 80," %3d,%3d,%3d,%3d}", Cursegp->verts[4],Cursegp->verts[5],
 																							 Cursegp->verts[6],Cursegp->verts[7] );
-		old_Cursegp_num_for_verts = Cursegp-Segments;
 	}
 
 	//--------------- Num walls/links/triggers -------------------------

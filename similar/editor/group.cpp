@@ -885,7 +885,7 @@ void add_segment_to_group(segnum_t segment_num, int group_num)
 //	-----------------------------------------------------------------------------
 int rotate_segment_new(const vms_angvec &pbh)
 {
-	int			newseg,baseseg,newseg_side;
+	int			newseg_side;
 	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
 	int			child_save;
@@ -904,7 +904,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	
 	selected_segs_save = GroupList[current_group].segments;
 	GroupList[ROT_GROUP].segments.clear();
-	newseg = Cursegp - Segments;
+	const auto newseg = Cursegp;
 	newseg_side = Side_opposite[Curside];
 
 	// Create list of segments to rotate.
@@ -915,7 +915,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	Cursegp->children[newseg_side] = child_save;	// restore severed connection
 	GroupList[ROT_GROUP].segments.emplace_back(newseg);
 
-	baseseg = Segments[newseg].children[newseg_side];
+	const auto baseseg = newseg->children[newseg_side];
 	if (!IS_CHILD(baseseg)) {
 		editor_status("Error -- unable to rotate segment, side opposite curside is not attached.");
 		GroupList[current_group].segments = selected_segs_save;
@@ -923,22 +923,22 @@ int rotate_segment_new(const vms_angvec &pbh)
 		return 1;
 	}
 
-	auto baseseg_side = find_connect_side(&Segments[newseg], &Segments[baseseg]);
+	const auto &&baseseg_side = find_connect_side(newseg, vcsegptr(baseseg));
 
-	med_extract_matrix_from_segment(&Segments[newseg],&tm1);
+	med_extract_matrix_from_segment(newseg, &tm1);
 	tm1 = vmd_identity_matrix;
 	const auto tm2 = vm_angles_2_matrix(pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	Segments[baseseg].children[baseseg_side] = segment_none;
-	Segments[newseg].children[newseg_side] = segment_none;
+	newseg->children[newseg_side] = segment_none;
 
-	if (!med_move_group(1, &Segments[baseseg], baseseg_side, &Segments[newseg], newseg_side, orient_matrix, 0)) {
-		Cursegp = &Segments[newseg];
+	if (!med_move_group(1, &Segments[baseseg], baseseg_side, newseg, newseg_side, orient_matrix, 0)) {
+		Cursegp = newseg;
 		med_create_new_segment_from_cursegp();
 //		validate_selected_segments();
-		med_propagate_tmaps_to_segments(&Segments[baseseg], &Segments[newseg], 1);
-		med_propagate_tmaps_to_back_side(&Segments[newseg], Curside, 1);
+		med_propagate_tmaps_to_segments(&Segments[baseseg], newseg, 1);
+		med_propagate_tmaps_to_back_side(newseg, Curside, 1);
 	}
 
 	GroupList[current_group].segments = selected_segs_save;
@@ -1454,7 +1454,7 @@ int UngroupSegment( void )
 	if (Cursegp->group == current_group) {
 	
 		Cursegp->group = -1;
-		delete_segment_from_group( Cursegp-Segments, current_group );
+		delete_segment_from_group(Cursegp, current_group);
 	
 	   Update_flags |= UF_WORLD_CHANGED;
 	   mine_changed = 1;
@@ -1470,7 +1470,7 @@ int GroupSegment( void )
 	if (Cursegp->group == -1) {
 
 		Cursegp->group = current_group;
-		add_segment_to_group( Cursegp-Segments, current_group );
+		add_segment_to_group(Cursegp, current_group);
 	
 	   Update_flags |= UF_WORLD_CHANGED;
 	   mine_changed = 1;
