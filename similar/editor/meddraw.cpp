@@ -551,7 +551,7 @@ static void draw_mine(const vsegptridx_t mine_ptr,int depth)
 // -----------------------------------------------------------------------------
 //	Draw all segments, ignoring connectivity.
 //	A segment is drawn if its segnum != -1.
-void draw_mine_all(segment_array_t &sp, int automap_flag)
+static void draw_mine_all(int automap_flag)
 {
 	int	i;
 
@@ -567,15 +567,15 @@ void draw_mine_all(segment_array_t &sp, int automap_flag)
 	n_used = 0;
 
 	range_for (const auto s, highest_valid(Segments))
-		if (sp[s].segnum != segment_none) {
+		if (Segments[s].segnum != segment_none) {
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-				if (sp[s].sides[i].wall_num != wall_none)
-					draw_special_wall(&sp[s], i);
+				if (Segments[s].sides[i].wall_num != wall_none)
+					draw_special_wall(&Segments[s], i);
 			if (Search_mode)
-				check_segment(&sp[s]);
+				check_segment(&Segments[s]);
 			else {
-				add_edges(&sp[s]);
-				draw_seg_objects(&sp[s]);
+				add_edges(&Segments[s]);
+				draw_seg_objects(&Segments[s]);
 			}
 		}
 
@@ -771,7 +771,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 	// Draw all segments or only connected segments.
 	// We might want to draw all segments if we have broken the mine into pieces.
 	if (Draw_all_segments)
-		draw_mine_all(Segments, Automap_test);
+		draw_mine_all(Automap_test);
 	else
 		draw_mine(mine_ptr,depth);
 
@@ -880,7 +880,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 	Search_x = x; Search_y = y;
 
 	if (Draw_all_segments)
-		draw_mine_all(Segments, 0);
+		draw_mine_all(0);
 	else
 		draw_mine(mine_ptr,depth);
 
