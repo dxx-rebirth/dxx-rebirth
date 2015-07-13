@@ -186,6 +186,7 @@ struct group
 
 struct segment_array_t : public array<segment, MAX_SEGMENTS>
 {
+	typedef uint16_t index_type;
 	unsigned highest;
 #define Highest_segment_index Segments.highest
 	typedef array<segment, MAX_SEGMENTS> array_t;

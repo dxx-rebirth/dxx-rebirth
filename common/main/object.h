@@ -395,6 +395,7 @@ struct obj_position
 
 struct object_array_t : array<object, MAX_OBJECTS>
 {
+	typedef uint16_t index_type;
 	int highest;
 #define Highest_object_index Objects.highest
 	typedef array<object, MAX_OBJECTS> array_t;

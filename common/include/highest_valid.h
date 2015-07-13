@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <iterator>
 
-template <typename T, typename I = std::size_t>
+template <typename T, typename I = typename T::index_type>
 struct highest_valid_t
 {
 	struct iterator : std::iterator<std::forward_iterator_tag, I>
@@ -36,7 +36,7 @@ struct highest_valid_t
 };
 
 template <typename T>
-highest_valid_t<T> highest_valid(T &t, std::size_t start = 0)
+highest_valid_t<T> highest_valid(T &t, typename T::index_type start = 0)
 {
 	return {t, start};
 }
