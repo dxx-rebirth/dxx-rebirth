@@ -81,11 +81,9 @@ public:
 	class null_pointer_exception;
 
 	template <typename vptr>
-		class basic_ptr_global_factory;
+		class basic_vptr_global_factory;
 	template <typename ptridx>
 		class basic_ptridx_global_factory;
-	template <typename vptridx>
-		class basic_vptridx_global_factory;
 };
 
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\

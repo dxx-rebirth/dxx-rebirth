@@ -623,7 +623,7 @@ public:
 
 template <typename managed_type>
 template <typename vptr>
-class valptridx<managed_type>::basic_ptr_global_factory
+class valptridx<managed_type>::basic_vptr_global_factory
 {
 public:
 	__attribute_warn_unused_result
@@ -661,27 +661,10 @@ public:
 	void *operator &() const = delete;
 };
 
-template <typename managed_type>
-template <typename vptridx>
-class valptridx<managed_type>::basic_vptridx_global_factory :
-	public basic_ptridx_global_factory<vptridx>
-{
-public:
-	using basic_ptridx_global_factory<vptridx>::operator();
-	vptridx operator()(typename vptridx::const_pointer_type p) const
-	{
-		return vptridx{p, get_array(p)};
-	}
-	vptridx operator()(typename vptridx::mutable_pointer_type p) const
-	{
-		return vptridx{p, get_array(p)};
-	}
-};
-
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
-	constexpr valptridx<P>::basic_ptr_global_factory<v##prefix##ptr_t> v##prefix##ptr{};	\
+	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptr_t> v##prefix##ptr{};	\
 	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptridx_t> prefix##ptridx{};	\
-	constexpr valptridx<P>::basic_vptridx_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\
+	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\
 	static inline v##prefix##ptridx_t operator-(P Pconst *o, decltype(A) Pconst &O)	\
 	{	\
 		return {o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front())), A};	\
