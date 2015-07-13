@@ -567,17 +567,21 @@ static void draw_mine_all(int automap_flag)
 	n_used = 0;
 
 	range_for (const auto s, highest_valid(Segments))
-		if (Segments[s].segnum != segment_none) {
+	{
+		const auto &&segp = vsegptridx(s);
+		if (segp->segnum != segment_none)
+		{
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-				if (Segments[s].sides[i].wall_num != wall_none)
-					draw_special_wall(&Segments[s], i);
+				if (segp->sides[i].wall_num != wall_none)
+					draw_special_wall(segp, i);
 			if (Search_mode)
-				check_segment(&Segments[s]);
+				check_segment(segp);
 			else {
-				add_edges(&Segments[s]);
-				draw_seg_objects(&Segments[s]);
+				add_edges(segp);
+				draw_seg_objects(segp);
 			}
 		}
+	}
 
 	draw_mine_edges(automap_flag);
 

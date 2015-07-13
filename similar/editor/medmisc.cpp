@@ -126,7 +126,7 @@ int ToggleLockstep()
         //else
         //    diagnostic_message("Lock mode ON");
 
-      Cursegp = &Segments[ConsoleObject->segnum];
+		Cursegp = segptridx(ConsoleObject->segnum);
 		med_create_new_segment_from_cursegp();
 		set_view_target_from_segment(Cursegp);
 		Update_flags = UF_ED_STATE_CHANGED;

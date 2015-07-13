@@ -1069,7 +1069,7 @@ window *game_setup(void)
 #ifdef EDITOR
 	if (!Cursegp)
 	{
-		Cursegp = &Segments[0];
+		Cursegp = segptridx(segment_first);
 		Curside = 0;
 	}
 	

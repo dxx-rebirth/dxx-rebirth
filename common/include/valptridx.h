@@ -500,6 +500,10 @@ public:
 	basic_ptridx(basic_ptridx &&) = default;
 	basic_ptridx &operator=(const basic_ptridx &) = default;
 	basic_ptridx &operator=(basic_ptridx &&) = default;
+	basic_ptridx(std::nullptr_t) = delete;
+	/* Prevent implicit conversion.  Require use of the factory function.
+	 */
+	basic_ptridx(pointer_type p) = delete;
 	template <typename rpolicy>
 		basic_ptridx(const basic_ptridx<rpolicy> &rhs) :
 			vptr_type(static_cast<const basic_ptr<rpolicy> &>(rhs)),
@@ -513,8 +517,8 @@ public:
 	{
 	}
 	template <integral_type v>
-		basic_ptridx(const magic_constant<v> &m) :
-			vptr_type(m),
+		basic_ptridx(const magic_constant<v> &m, array_managed_type &a = get_array()) :
+			vptr_type(m, a),
 			vidx_type(m)
 	{
 	}
@@ -523,7 +527,7 @@ public:
 		vidx_type(i, a)
 	{
 	}
-	basic_ptridx(pointer_type p, array_managed_type &a = get_array(pointer_type())) :	// default argument deprecated
+	basic_ptridx(pointer_type p, array_managed_type &a) :
 		/* Null pointer is never allowed when an index must be computed.
 		 * Check for null, then use the reference constructor for
 		 * vptr_type to avoid checking again.
@@ -650,12 +654,19 @@ template <typename managed_type>
 template <typename ptridx>
 class valptridx<managed_type>::basic_ptridx_global_factory
 {
+	using containing_type = valptridx<managed_type>;
 public:
 	__attribute_warn_unused_result
 	ptridx operator()(typename ptridx::index_type i) const
 	{
 		return ptridx{i, get_array()};
 	}
+	template <containing_type::integral_type v>
+		__attribute_warn_unused_result
+		ptridx operator()(const containing_type::magic_constant<v> &m) const
+		{
+			return ptridx(m);
+		}
 	template <typename T>
 		ptridx operator()(T) const = delete;
 	void *operator &() const = delete;

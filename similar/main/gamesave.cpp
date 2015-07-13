@@ -1444,7 +1444,7 @@ int create_new_mine(void)
 	Highest_vertex_index = 0;
 	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Highest_segment_index = 0;
-	Cursegp = &Segments[0];	// Say current segment is the only segment.
+	Cursegp = segptridx(segment_first);	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = segment_none;		// Say there is no marked segment.
 	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...

@@ -232,7 +232,7 @@ static int segsize_common(int dimension, fix amount)
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				propagated[s]++;
                         propagated[(int) Side_opposite[i]]--;
-			med_propagate_tmaps_to_segments(&Segments[Cursegp->children[i]],Cursegp,1);
+			med_propagate_tmaps_to_segments(vsegptridx(Cursegp->children[i]),Cursegp,1);
 		}
 
 	//	Now, for all sides that were not adjacent to another side, and therefore did not get tmaps

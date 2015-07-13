@@ -391,7 +391,7 @@ int ObjectSelectNextInMine()
 		if (Cur_object_index>= MAX_OBJECTS ) Cur_object_index= 0;
 
 		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{
-			Cursegp = &Segments[Objects[Cur_object_index ].segnum];
+			Cursegp = segptridx(Objects[Cur_object_index].segnum);
 			med_create_new_segment_from_cursegp();
 			//Cur_object_seg = Cursegp;
 			return 1;
@@ -412,7 +412,7 @@ int ObjectSelectPrevInMine()
 			Cur_object_index = MAX_OBJECTS-1;
 
 		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{
-			Cursegp = &Segments[Objects[Cur_object_index ].segnum];
+			Cursegp = segptridx(Objects[Cur_object_index].segnum);
 			med_create_new_segment_from_cursegp();
 			//Cur_object_seg = Cursegp;
 			return 1;
@@ -650,7 +650,7 @@ int	ObjectMoveDown(void)
 		return 1;
 	}
 
-	auto obj = &Objects[Cur_object_index];
+	const auto &&obj = vobjptridx(Cur_object_index);
 
 	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
 	vm_vec_normalize(uvec);

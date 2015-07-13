@@ -344,7 +344,7 @@ void init_editor()
 	Draw_all_segments = 1;						// Say draw all segments, not just connected ones
 	
 	if (!Cursegp)
-		Cursegp = &Segments[0];
+		Cursegp = segptridx(segment_first);
 
 	init_autosave();
   
@@ -1018,7 +1018,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 					Update_flags |= UF_GAME_VIEW_CHANGED;
 					if (Gameview_lockstep)
 					{
-						Cursegp = &Segments[ConsoleObject->segnum];
+						Cursegp = segptridx(ConsoleObject->segnum);
 						med_create_new_segment_from_cursegp();
 						Update_flags |= UF_ED_STATE_CHANGED;
 					}
@@ -1177,7 +1177,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 	
 		if (Found_segs.count()) {
 			sort_seg_list(Found_segs,ConsoleObject->pos);
-			Cursegp = &Segments[Found_segs[0]];
+			Cursegp = segptridx(Found_segs[0]);
 			med_create_new_segment_from_cursegp();
 			if (Lock_view_to_cursegp)
 				set_view_target_from_segment(Cursegp);
@@ -1233,7 +1233,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 
 				//	See if either shift key is down and, if so, assign texture map
 				if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) {
-					Cursegp = &Segments[seg];
+					Cursegp = segptridx(seg);
 					Curside = side;
 					AssignTexture();
 					med_create_new_segment_from_cursegp();
@@ -1245,7 +1245,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
 					move_object_to_mouse_click();
 				} else {
-					Cursegp = &Segments[seg];
+					Cursegp = segptridx(seg);
 					Curside = side;
 					med_create_new_segment_from_cursegp();
 					editor_status("Curseg and curside selected");

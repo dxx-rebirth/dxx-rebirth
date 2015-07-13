@@ -588,7 +588,7 @@ static void render_object_search(const vobjptridx_t obj)
 
 	if (changed) {
 		if (obj->segnum != segment_none)
-			Cursegp = &Segments[obj->segnum];
+			Cursegp = segptridx(obj->segnum);
 		found_seg = segment_none;
 		found_obj = obj;
 	}

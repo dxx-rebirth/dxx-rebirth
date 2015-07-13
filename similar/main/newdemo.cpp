@@ -2527,7 +2527,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
 #if defined(DXX_BUILD_DESCENT_I)
-				check_effect_blowup(&(Segments[segnum]), side, pnt, nullptr, 0, 0);
+				check_effect_blowup(vsegptridx(segnum), side, pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 			//create a dummy object which will be the weapon that hits
 			//the monitor. the blowup code wants to know who the parent of the

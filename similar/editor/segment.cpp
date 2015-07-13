@@ -625,10 +625,10 @@ static void compress_segments(void)
 				Segments[seg].segnum = segment_none;
 
 				if (Cursegp == &Segments[seg])
-					Cursegp = &Segments[hole];
+					Cursegp = segptridx(hole);
 
 				if (Markedsegp == &Segments[seg])
-					Markedsegp = &Segments[hole];
+					Markedsegp = segptridx(hole);
 
 				// Fix segments in groups
 				range_for (auto &g, partial_range(GroupList, num_groups))
@@ -769,7 +769,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	upvec = attmat.uvec;
 
 	//	We are pretty confident we can add the segment.
-	auto nsp = &Segments[segnum];
+	const auto &&nsp = vsegptridx(segnum);
 
 	nsp->segnum = segnum;
 	nsp->objects = object_none;
@@ -780,7 +780,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 
 	// Add segment to proper group list.
 	if (nsp->group > -1)
-		add_segment_to_group(nsp-Segments, nsp->group);
+		add_segment_to_group(nsp, nsp->group);
 
 	// Copy the texture map ids.
 	copy_tmap_ids(nsp,newseg);
@@ -868,7 +868,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside)
 {
 	int		rval;
-	segment	*ocursegp = Cursegp;
+	const auto ocursegp = Cursegp;
 
 	vms_angvec	tang = {0,0,0};
 	const auto &&rotmat = vm_angles_2_matrix(tang);
@@ -980,7 +980,7 @@ int med_delete_segment(const vsegptridx_t sp)
 	// Find out what this segment was connected to and break those connections at the other end.
 	range_for (auto &side, sp->children)
 		if (IS_CHILD(side)) {
-			auto csp = &Segments[side];
+			const auto &&csp = vsegptridx(side);
 			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
@@ -1011,7 +1011,7 @@ int med_delete_segment(const vsegptridx_t sp)
 	if (Cursegp == sp)
 		for (segnum_t s=0; s<MAX_SEGMENTS; s++)
 			if ((Segments[s].segnum != segment_none) && (s!=segnum) ) {
-				Cursegp = &Segments[s];
+				Cursegp = segptridx(s);
 				med_create_new_segment_from_cursegp();
 		   	break;
 			}
@@ -1081,7 +1081,7 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 	if (count != 1)
 		return 3;
 
-	auto destseg = &Segments[seg->children[newside]];
+	const auto &&destseg = vsegptridx(seg->children[newside]);
 
 	destside = 0;
 	while (destside < MAX_SIDES_PER_SEGMENT && destseg->children[destside] != seg)
@@ -1201,7 +1201,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 {
 	int		bfi,v,s1;
 	array<int, 4> lost_vertices, remap_vertices;
-	int		validation_list[MAX_VALIDATIONS];
+	segnum_t validation_list[MAX_VALIDATIONS];
 	uint_fast32_t nv;
 
 	//	Make sure that neither side is connected.
@@ -1260,9 +1260,10 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validate_segment_side(seg1,side1);
 	range_for (auto &s, partial_range(validation_list, nv))
 	{
-		validate_segment(&Segments[s]);
-		remap_side_uvs(&Segments[s],remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
-		warn_if_concave_segment(&Segments[s]);
+		const auto &&segp = vsegptridx(s);
+		validate_segment(segp);
+		remap_side_uvs(segp, remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
+		warn_if_concave_segment(segp);
 	}
 
 	set_vertex_counts();
@@ -1410,8 +1411,7 @@ void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length
 void med_create_new_segment(const vms_vector &scale)
 {
 	int			s,t;
-	segment		*sp = &New_segment;
-
+	const auto &&sp = vsegptridx(&New_segment);
 	fix			length,width,height;
 
 	length = scale.z;

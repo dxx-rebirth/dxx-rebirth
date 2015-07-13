@@ -403,7 +403,7 @@ void wall_close_door(int door_num)
 		int side;
 		w = &Walls[d->front_wallnum[p]];
 
-		auto seg = &Segments[w->segnum];
+		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
@@ -605,7 +605,7 @@ void wall_close_door_num(int door_num)
 
 		w = &Walls[d->front_wallnum[p]];
 
-		auto seg = &Segments[w->segnum];
+		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
@@ -871,7 +871,7 @@ void do_door_open(int door_num)
 		kill_stuck_objects(d->front_wallnum[p]);
 		kill_stuck_objects(d->back_wallnum[p]);
 
-		auto seg = &Segments[w->segnum];
+		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
 
 // 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
@@ -945,11 +945,13 @@ void do_door_close(int door_num)
 
 	w = &Walls[d->front_wallnum[0]];
 
+	const auto &&wsegp = vsegptridx(w->segnum);
+
 	//check for objects in doorway before closing
 	if (w->flags & WALL_DOOR_AUTO)
-		if (!is_door_free(&Segments[w->segnum],w->sidenum)) {
+		if (!is_door_free(wsegp, w->sidenum)) {
 			digi_kill_sound_linked_to_segment(w->segnum,w->sidenum,-1);
-			wall_open_door(&Segments[w->segnum],w->sidenum);		//re-open door
+			wall_open_door(wsegp, w->sidenum);		//re-open door
 			return;
 		}
 
@@ -961,7 +963,7 @@ void do_door_close(int door_num)
 
 		w = &Walls[d->front_wallnum[p]];
 
-		auto seg = &Segments[w->segnum];
+		const auto &seg = wsegp;
 		side = w->sidenum;
 
 		if (seg->sides[side].wall_num == wall_none) {
@@ -984,7 +986,7 @@ void do_door_close(int door_num)
 				if ( d->time==0 )	{		//first time
 					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg-Segments, side, cp, 0, F1_0 );
+						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg, side, cp, 0, F1_0 );
 				}
 
 		d->time += FrameTime;

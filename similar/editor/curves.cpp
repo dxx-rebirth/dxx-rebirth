@@ -44,8 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-static segment *OriginalSeg;
-static segment *OriginalMarkedSeg;
+static segptridx_t OriginalSeg = segment_none;
+static segptridx_t OriginalMarkedSeg = segment_none;
 static int OriginalSide;
 static int OriginalMarkedSide;
 static array<segment *, MAX_SEGMENTS> CurveSegs;
@@ -368,7 +368,7 @@ void delete_curve() {
 	range_for (auto &i, partial_range(CurveSegs, CurveNumSegs))
 	{
         if (i->segnum != segment_none)
-            med_delete_segment(i);
+			med_delete_segment(vsegptridx(i));
     }
     Markedsegp = OriginalMarkedSeg;
     Markedside = OriginalMarkedSide;

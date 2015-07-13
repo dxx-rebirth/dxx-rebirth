@@ -79,7 +79,7 @@ int SelectNextFoundSeg(void)
 	if (++Found_seg_index >= Found_segs.count())
 		Found_seg_index = 0;
 
-	Cursegp = &Segments[Found_segs[Found_seg_index]];
+	Cursegp = segptridx(Found_segs[Found_seg_index]);
 	med_create_new_segment_from_cursegp();
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -99,7 +99,7 @@ int SelectPreviousFoundSeg(void)
 	else
 		Found_seg_index = Found_segs.count()-1;
 
-	Cursegp = &Segments[Found_segs[Found_seg_index]];
+	Cursegp = segptridx(Found_segs[Found_seg_index]);
 	med_create_new_segment_from_cursegp();
 
 	Update_flags |= UF_WORLD_CHANGED;

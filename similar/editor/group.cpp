@@ -405,7 +405,6 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 // ------------------------------------------------------------------------------------------------
 static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
 {
-	int	side;
 	if (ignore_list)
 		if (ignore_list->contains(segp))
 			return;
@@ -414,9 +413,9 @@ static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglis
 		visited[segp] = true;
 		seglistp.emplace_back(segp);
 
-		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-			if (IS_CHILD(segp->children[side]))
-				cgl_aux(&Segments[segp->children[side]], seglistp, ignore_list, visited);
+		range_for (const auto c, segp->children)
+			if (IS_CHILD(c))
+				cgl_aux(vsegptridx(c), seglistp, ignore_list, visited);
 	}
 }
 
@@ -592,7 +591,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		auto segp = &Segments[gs];
+		const auto &&segp = vsegptridx(gs);
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
@@ -641,7 +640,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	current_group = new_current_group;
 
 	//	Now, form joint on connecting sides.
-	med_form_joint(base_seg,base_side,Groupsegp[current_group],Groupside[new_current_group]);
+	med_form_joint(base_seg,base_side,vsegptridx(Groupsegp[current_group]),Groupside[new_current_group]);
 
 	validate_selected_segments();
 	med_combine_duplicate_vertices(in_vertex_list);
@@ -728,17 +727,17 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
-		auto segp = &Segments[gs];
+		const auto &&segp = vsegptridx(gs);
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c]))
 				{
-				auto csegp = &Segments[segp->children[c]];
+				const auto &&csegp = vsegptridx(segp->children[c]);
 				if (csegp->group != current_group)
 					{
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)
 						if (IS_CHILD(csegp->children[d]))
 							{
-							auto dsegp = &Segments[csegp->children[d]];
+							const auto &&dsegp = vsegptr(csegp->children[d]);
 							if (dsegp->group == current_group)
 								{
 								csegp->children[d] = segment_none;
@@ -815,19 +814,20 @@ static segnum_t place_new_segment_in_world(void)
 //	Attach segment in the new-fangled way, which is by using the CopyGroup code.
 static int AttachSegmentNewAng(const vms_angvec &pbh)
 {
-	int			newseg;
 	GroupList[current_group].segments.clear();
-	newseg = place_new_segment_in_world();
+	const auto newseg = place_new_segment_in_world();
 	GroupList[current_group].segments.emplace_back(newseg);
 
-	if (!med_move_group(1, Cursegp, Curside, &Segments[newseg], AttachSide, vm_angles_2_matrix(pbh),0)) {
+	const auto &&nsegp = vsegptridx(newseg);
+	if (!med_move_group(1, Cursegp, Curside, nsegp, AttachSide, vm_angles_2_matrix(pbh),0))
+	{
 		autosave_mine(mine_filename);
 
-		med_propagate_tmaps_to_segments(Cursegp,&Segments[newseg],0);
-		med_propagate_tmaps_to_back_side(&Segments[newseg], Side_opposite[AttachSide],0);
-		copy_uvs_seg_to_seg(&New_segment,&Segments[newseg]);
+		med_propagate_tmaps_to_segments(Cursegp,nsegp,0);
+		med_propagate_tmaps_to_back_side(nsegp, Side_opposite[AttachSide],0);
+		copy_uvs_seg_to_seg(&New_segment,nsegp);
 
-		Cursegp = &Segments[newseg];
+		Cursegp = nsegp;
 		Curside = Side_opposite[AttachSide];
 		med_create_new_segment_from_cursegp();
 
@@ -859,7 +859,7 @@ int AttachSegmentNew(void)
 void validate_selected_segments(void)
 {
 	range_for (const auto &gs, GroupList[current_group].segments)
-		validate_segment(&Segments[gs]);
+		validate_segment(vsegptridx(gs));
 }
 
 // =====================================================================================
@@ -933,11 +933,13 @@ int rotate_segment_new(const vms_angvec &pbh)
 	Segments[baseseg].children[baseseg_side] = segment_none;
 	newseg->children[newseg_side] = segment_none;
 
-	if (!med_move_group(1, &Segments[baseseg], baseseg_side, newseg, newseg_side, orient_matrix, 0)) {
+	const auto &&basesegp = vsegptridx(baseseg);
+	if (!med_move_group(1, basesegp, baseseg_side, newseg, newseg_side, orient_matrix, 0))
+	{
 		Cursegp = newseg;
 		med_create_new_segment_from_cursegp();
 //		validate_selected_segments();
-		med_propagate_tmaps_to_segments(&Segments[baseseg], newseg, 1);
+		med_propagate_tmaps_to_segments(basesegp, newseg, 1);
 		med_propagate_tmaps_to_back_side(newseg, Curside, 1);
 	}
 
@@ -1236,10 +1238,11 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 				
 			group::segment_array_type_t::value_type s = get_free_segment_number();
 			segment_ids.emplace_back(s);
-			Segments[s] = tseg; 
-			Segments[s].objects = object_none;
+			const auto &&segp = vsegptridx(s);
+			*segp = tseg; 
+			segp->objects = object_none;
 
-			fuelcen_activate( &Segments[s], Segments[s].special );
+			fuelcen_activate(segp, segp->special);
 			}
 
 		range_for (const auto &gs, segment_ids)
@@ -1434,7 +1437,8 @@ int LoadGroup()
       checkforgrpext(group_filename);
 	  med_load_group(group_filename, GroupList[current_group].vertices, GroupList[current_group].segments);
 		
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
+	{
 		autosave_mine(mine_filename);
 		set_view_target_from_segment(Cursegp);
 		Update_flags |= UF_WORLD_CHANGED;
@@ -1560,7 +1564,8 @@ int MoveGroup(void)
 
 	med_compress_mine();
 
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix, 0)) {
+	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix, 0))
+	{
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;
@@ -1619,7 +1624,7 @@ int RotateGroup(void)
 
 	med_compress_mine();
 	
-	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group],
+	if (!med_move_group(0, Cursegp, Curside, vsegptridx(Groupsegp[current_group]), Groupside[current_group],
 								vmd_identity_matrix, Group_orientation[current_group]))
 			{
 			Update_flags |= UF_WORLD_CHANGED;
@@ -1747,8 +1752,9 @@ int DeleteGroup( void )
 
 	range_for (const auto &gs, GroupList[current_group].segments)
 	{
-		Segments[gs].group = -1;
-		med_delete_segment(&Segments[gs]);
+		const auto &&segp = vsegptridx(gs);
+		segp->group = -1;
+		med_delete_segment(segp);
 	}
 
 	for (i=current_group;i<num_groups-1;i++) {

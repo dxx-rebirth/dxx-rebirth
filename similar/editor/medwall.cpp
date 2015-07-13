@@ -228,7 +228,7 @@ static int GotoPrevWall() {
 		return 0;
 	}
 
-	Cursegp = &Segments[Walls[current_wall].segnum];
+	Cursegp = segptridx(Walls[current_wall].segnum);
 	Curside = Walls[current_wall].sidenum;
 
 	return 1;
@@ -253,7 +253,7 @@ static int GotoNextWall() {
 		return 0;
 	}
 
-	Cursegp = &Segments[Walls[current_wall].segnum];
+	Cursegp = segptridx(Walls[current_wall].segnum);
 	Curside = Walls[current_wall].sidenum;	
 
 	return 1;
