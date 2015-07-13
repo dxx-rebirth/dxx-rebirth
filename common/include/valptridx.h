@@ -633,49 +633,49 @@ public:
 };
 
 template <typename managed_type>
-template <typename vptr>
+template <typename P>
 class valptridx<managed_type>::basic_vptr_global_factory
 {
 public:
 	__attribute_warn_unused_result
-	vptr operator()(typename vptr::const_pointer_type p) const
+	P operator()(typename P::const_pointer_type p) const
 	{
-		return vptr{p, get_array(p)};
+		return P(p, get_array(p));
 	}
 	__attribute_warn_unused_result
-	vptr operator()(typename vptr::mutable_pointer_type p) const
+	P operator()(typename P::mutable_pointer_type p) const
 	{
-		return vptr{p, get_array(p)};
+		return P(p, get_array(p));
 	}
 	__attribute_warn_unused_result
-	vptr operator()(typename valptridx<managed_type>::index_type i) const
+	P operator()(typename valptridx<managed_type>::index_type i) const
 	{
-		return vptr{i, get_array()};
+		return P(i, get_array());
 	}
 	template <typename T>
-		vptr operator()(T) const = delete;
+		P operator()(T &&) const = delete;
 	void *operator &() const = delete;
 };
 
 template <typename managed_type>
-template <typename ptridx>
+template <typename PI>
 class valptridx<managed_type>::basic_ptridx_global_factory
 {
 	using containing_type = valptridx<managed_type>;
 public:
 	__attribute_warn_unused_result
-	ptridx operator()(typename ptridx::index_type i) const
+	PI operator()(typename PI::index_type i) const
 	{
-		return ptridx{i, get_array()};
+		return PI(i, get_array());
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result
-		ptridx operator()(const containing_type::magic_constant<v> &m) const
+		PI operator()(const containing_type::magic_constant<v> &m) const
 		{
-			return ptridx(m, get_array());
+			return PI(m, get_array());
 		}
 	template <typename T>
-		ptridx operator()(T) const = delete;
+		PI operator()(T &&) const = delete;
 	void *operator &() const = delete;
 };
 
