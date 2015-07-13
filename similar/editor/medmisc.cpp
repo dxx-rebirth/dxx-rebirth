@@ -416,10 +416,9 @@ int ExchangeMarkandCurseg()
 	// If Markedsegp != Cursegp, and Markedsegp->segnum != -1, exchange Markedsegp and Cursegp
 	if (Markedsegp)
 		if (Markedsegp->segnum != segment_none) {
-			segment *tempsegp;
-			int     tempside;
-			tempsegp = Markedsegp;  Markedsegp = Cursegp;   Cursegp = tempsegp;
-			tempside = Markedside;  Markedside = Curside;   Curside = tempside;
+			using std::swap;
+			swap(Markedsegp, Cursegp);
+			swap(Markedside, Curside);
 			med_create_new_segment_from_cursegp();
 			Update_flags |= UF_ED_STATE_CHANGED;
 			mine_changed = 1;
