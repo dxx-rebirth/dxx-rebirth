@@ -626,14 +626,17 @@ template <typename vptr>
 class valptridx<managed_type>::basic_ptr_global_factory
 {
 public:
+	__attribute_warn_unused_result
 	vptr operator()(typename vptr::const_pointer_type p) const
 	{
 		return vptr{p, get_array(p)};
 	}
+	__attribute_warn_unused_result
 	vptr operator()(typename vptr::mutable_pointer_type p) const
 	{
 		return vptr{p, get_array(p)};
 	}
+	__attribute_warn_unused_result
 	vptr operator()(typename valptridx<managed_type>::index_type i) const
 	{
 		return vptr{i, get_array()};
@@ -648,12 +651,13 @@ template <typename ptridx>
 class valptridx<managed_type>::basic_ptridx_global_factory
 {
 public:
+	__attribute_warn_unused_result
 	ptridx operator()(typename ptridx::index_type i) const
 	{
 		return ptridx{i, get_array()};
 	}
 	template <typename T>
-		typename tt::enable_if<!tt::is_convertible<T, typename ptridx::index_type>::value, ptridx>::type operator()(T) const = delete;
+		ptridx operator()(T) const = delete;
 	void *operator &() const = delete;
 };
 

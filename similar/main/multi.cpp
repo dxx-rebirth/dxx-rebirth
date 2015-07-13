@@ -1635,11 +1635,8 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 {
-	short objnum;
+	const objnum_t objnum = GET_INTEL_SHORT(buf + 2);
 
-	objnum = GET_INTEL_SHORT(buf + 2);
-
-	Assert(objnum >= 0);
 	const auto obj = vobjptridx(objnum);
 	if (pnum != get_player_id(obj))
 		return;

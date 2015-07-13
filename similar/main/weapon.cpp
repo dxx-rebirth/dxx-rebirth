@@ -1064,7 +1064,6 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
 {
-	int	i;
 	int	start, add;
 
 	//	If we don't know of there being any super mines in the level, just
@@ -1079,7 +1078,7 @@ void process_super_mines_frame(void)
 
 	Super_mines_yes = 0;
 
-	for (i=start; i<=Highest_object_index; i+=add) {
+	for (objnum_t i=start; i<=Highest_object_index; i+=add) {
 		const auto io = vobjptridx(i);
 		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != SUPERPROX_ID))
 			continue;

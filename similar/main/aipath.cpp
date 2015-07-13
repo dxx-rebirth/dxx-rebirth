@@ -1217,7 +1217,8 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 }
 
 struct obj_path {
-	short	path_start, objnum;
+	short	path_start;
+	objnum_t objnum;
 };
 
 static int path_index_compare(obj_path *i1, obj_path *i2)

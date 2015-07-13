@@ -5240,10 +5240,9 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 void net_udp_read_pdata_packet(UDP_frame_info *pd)
 {
 	int TheirPlayernum;
-	int TheirObjnum;
 
 	TheirPlayernum = pd->Player_num;
-	TheirObjnum = Players[pd->Player_num].objnum;
+	const auto TheirObjnum = Players[pd->Player_num].objnum;
 
 	if (multi_i_am_master())
 	{
