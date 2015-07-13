@@ -368,9 +368,16 @@ public:
 	}
 	template <integral_type v>
 		basic_ptr(const magic_constant<v> &) :
-			m_ptr(static_cast<std::size_t>(v) < get_array().size() ? &(get_array()[v]) : nullptr)
+			m_ptr(nullptr)
 	{
+		static_assert(static_cast<std::size_t>(v) >= get_array().size(), "valid magic index requires an array");
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array().size(), "invalid magic index not allowed for this policy");
+	}
+	template <integral_type v>
+		basic_ptr(const magic_constant<v> &, array_managed_type &a) :
+			m_ptr(static_cast<std::size_t>(v) < a.size() ? &(a[v]) : nullptr)
+	{
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < a.size(), "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy>
 		basic_ptr(const basic_ptr<rpolicy> &rhs, array_managed_type &a = get_array()) :
@@ -665,7 +672,7 @@ public:
 		__attribute_warn_unused_result
 		ptridx operator()(const containing_type::magic_constant<v> &m) const
 		{
-			return ptridx(m);
+			return ptridx(m, get_array());
 		}
 	template <typename T>
 		ptridx operator()(T) const = delete;
