@@ -268,16 +268,13 @@ void cmd_enqueue(int insert, const char *input)
 		iter = l.emplace_after(iter, cmd_queue_t{d_strdup(output)});
 		con_printf(CON_DEBUG, "cmd_enqueue: adding %s", output);
 	}
-	
-	if (insert) {
+	auto after = insert
 		/* add our list to the head of the main list */
-		cmd_queue.splice_after(cmd_queue.before_begin(), l);
-		con_printf(CON_DEBUG, "cmd_enqueue: added to front of list");
-	} else {
+		? (con_printf(CON_DEBUG, "cmd_enqueue: added to front of list"), cmd_queue.before_begin())
 		/* add our list to the tail of the main list */
-		cmd_queue.splice_after(before_end(cmd_queue), l);
-		con_printf(CON_DEBUG, "cmd_enqueue: added to back of list");
-	}
+		: (con_printf(CON_DEBUG, "cmd_enqueue: added to back of list"), before_end(cmd_queue))
+	;
+	cmd_queue.splice_after(after, std::move(l));
 }
 
 void cmd_enqueuef(int insert, const char *fmt, ...)
@@ -407,8 +404,8 @@ static void cmd_exec(unsigned long argc, const char *const *const argv)
 	}
 	
 	/* add our list to the head of the main list */
-	cmd_queue.splice_after(cmd_queue.before_begin(), l);
 	con_printf(CON_DEBUG, "cmd_exec: added to front of list");
+	cmd_queue.splice_after(cmd_queue.before_begin(), std::move(l));
 }
 
 /* get help */
