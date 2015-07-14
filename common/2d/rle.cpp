@@ -329,7 +329,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 		Assert( d==d1 );
 		doffset	+= d;
 		if (large_rle)
-			*((short *)&(rle_data[(y*2)+4])) = (short)d;
+			PUT_INTEL_SHORT(&rle_data[(y*2)+4], static_cast<short>(d));
 		else
 			rle_data[y+4] = d;
 	}
@@ -579,7 +579,7 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 	for (int i = 0; i < bmp.bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
-			line_size = INTEL_SHORT(*((unsigned short *)&bmp.get_bitmap_data()[4 + 2 * i]));
+			line_size = GET_INTEL_SHORT(&bmp.get_bitmap_data()[4 + 2 * i]);
 		else
 			line_size = bmp.get_bitmap_data()[4 + i];
 		for (int j = 0; j < line_size; j++) {
