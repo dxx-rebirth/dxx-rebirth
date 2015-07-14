@@ -350,30 +350,49 @@ class ConfigureTests:
 		if e:
 			raise SCons.Errors.StopError(e[1])
 	@_custom_test
+	def _check_SDL(self,context):
+		if self.user_settings.sdl2:
+			self.check_libSDL2(context)
+			self.check_SDL2_mixer(context)
+		else:
+			self.check_libSDL(context)
+			self.check_SDL_mixer(context)
+	@_implicit_test
 	def check_libSDL(self,context):
-		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl', 'SDL')
+		self._check_libSDL(context, '')
+	@_implicit_test
+	def check_libSDL2(self,context):
+		self._check_libSDL(context, '2')
+	def _check_libSDL(self,context,sdl2):
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl' + sdl2, 'SDL' + sdl2)
+		# SDL2 removed CD-rom support.
+		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
-	SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_CDROM | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	SDL_QuitSubSystem(SDL_INIT_CDROM);
+	SDL_Init(SDL_INIT_JOYSTICK | ''' + init_cdrom + ''' | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_FreeRW(ops);
 	SDL_Quit();
 ''',
 			lib='SDL', successflags=successflags
 		)
-	@_custom_test
+	@_implicit_test
 	def check_SDL_mixer(self,context):
-		msg = 'whether to use SDL_mixer'
-		context.Display('%s: checking %s...' % (self.msgprefix, msg))
+		self._check_SDL_mixer(context, '')
+	@_implicit_test
+	def check_SDL2_mixer(self,context):
+		self._check_SDL_mixer(context, '2')
+	def _check_SDL_mixer(self,context,sdl2):
+		mixer = 'SDL' + sdl2 + '_mixer'
+		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if self.user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
-		context.Result(self.user_settings.sdlmixer)
 		if not self.user_settings.sdlmixer:
 			return
 		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
-		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'SDL_mixer', 'SDL_mixer')
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, mixer, mixer)
 		if self.user_settings.host_platform == 'darwin':
-			successflags['FRAMEWORKS'] = ['SDL_mixer']
-			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL_mixer.framework/Headers'), '/Library/Frameworks/SDL_mixer.framework/Headers']
+			successflags['FRAMEWORKS'] = [mixer]
+			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/' + mixer + '.framework/Headers'), '/Library/Frameworks/' + mixer + '.framework/Headers']
 		self._check_system_library(context,header=['SDL_mixer.h'],main='''
 	int i = Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG);
 	(void)i;
@@ -381,7 +400,7 @@ class ConfigureTests:
 	Mix_ResumeMusic();
 	Mix_Quit();
 ''',
-			lib='SDL_mixer', successflags=successflags)
+			lib=mixer, successflags=successflags)
 	@_implicit_test
 	def check_cxx_works(self,context):
 		"""
@@ -1338,6 +1357,7 @@ class DXXCommon(LazyObjectConstructor):
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
+					('sdl2', False, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
 					('ipv6', False, 'enable IPv6 compability'),
 					('use_udp', True, 'enable UDP support'),
