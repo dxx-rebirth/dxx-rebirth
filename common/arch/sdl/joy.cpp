@@ -159,7 +159,11 @@ void joy_init()
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
 		const auto handle = joystick.handle = SDL_JoystickOpen(i);
+#if SDL_MAJOR_VERSION == 1
 		con_printf(CON_NORMAL, "sdl-joystick %d: %s", i, SDL_JoystickName(i));
+#else
+		con_printf(CON_NORMAL, "sdl-joystick %d: %s", i, SDL_JoystickName(handle));
+#endif
 		if (handle)
 		{
 			const auto n_axes = joystick.n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
