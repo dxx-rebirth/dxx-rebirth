@@ -131,6 +131,15 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 
 /* ----------------------------------------------- */
 
+template <unsigned MAX, typename T>
+static T check_warn_joy_support_limit(const T n, const char *const desc)
+{
+	if (n <= MAX)
+		return n;
+	Warning("sdl-joystick: found %d %ss, only %d supported.\n", n, desc, MAX);
+	return MAX;
+}
+
 void joy_init()
 {
 	int n;
@@ -148,53 +157,33 @@ void joy_init()
 
 	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks", n);
 	for (int i = 0; i < n; i++) {
+		auto &joystick = SDL_Joysticks[num_joysticks];
+		const auto handle = joystick.handle = SDL_JoystickOpen(i);
 		con_printf(CON_NORMAL, "sdl-joystick %d: %s", i, SDL_JoystickName(i));
-		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
-		if (SDL_Joysticks[num_joysticks].handle) {
+		if (handle)
+		{
+			const auto n_axes = joystick.n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
+			const auto n_buttons = joystick.n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
+			const auto n_hats = joystick.n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
+			con_printf(CON_NORMAL, "sdl-joystick: %d axes", n_axes);
+			con_printf(CON_NORMAL, "sdl-joystick: %d buttons", n_buttons);
+			con_printf(CON_NORMAL, "sdl-joystick: %d hats", n_hats);
 
-			SDL_Joysticks[num_joysticks].n_axes
-				= SDL_JoystickNumAxes(SDL_Joysticks[num_joysticks].handle);
-			if(SDL_Joysticks[num_joysticks].n_axes > MAX_AXES_PER_JOYSTICK)
-			{
-				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
-				SDL_Joysticks[num_joysticks].n_axes = MAX_AXES_PER_JOYSTICK;
-			}
-
-			SDL_Joysticks[num_joysticks].n_buttons
-				= SDL_JoystickNumButtons(SDL_Joysticks[num_joysticks].handle);
-			if(SDL_Joysticks[num_joysticks].n_buttons > MAX_BUTTONS_PER_JOYSTICK)
-			{
-				Warning("sdl-joystick: found %d buttons, only %d supported.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);
-				SDL_Joysticks[num_joysticks].n_buttons = MAX_BUTTONS_PER_JOYSTICK;
-			}
-
-			SDL_Joysticks[num_joysticks].n_hats
-				= SDL_JoystickNumHats(SDL_Joysticks[num_joysticks].handle);
-			if(SDL_Joysticks[num_joysticks].n_hats > MAX_HATS_PER_JOYSTICK)
-			{
-				Warning("sdl-joystick: found %d hats, only %d supported.\n", SDL_Joysticks[num_joysticks].n_hats, MAX_HATS_PER_JOYSTICK);
-				SDL_Joysticks[num_joysticks].n_hats = MAX_HATS_PER_JOYSTICK;
-			}
-
-			con_printf(CON_NORMAL, "sdl-joystick: %d axes", SDL_Joysticks[num_joysticks].n_axes);
-			con_printf(CON_NORMAL, "sdl-joystick: %d buttons", SDL_Joysticks[num_joysticks].n_buttons);
-			con_printf(CON_NORMAL, "sdl-joystick: %d hats", SDL_Joysticks[num_joysticks].n_hats);
-
-			joyaxis_text.resize(joyaxis_text.size() + SDL_Joysticks[num_joysticks].n_axes);
-			for (int j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
+			joyaxis_text.resize(joyaxis_text.size() + n_axes);
+			for (int j=0; j < n_axes; j++)
 			{
 				snprintf(&joyaxis_text[Joystick.n_axes][0], sizeof(joyaxis_text[Joystick.n_axes]), "J%d A%d", i + 1, j + 1);
-				SDL_Joysticks[num_joysticks].axis_map[j] = Joystick.n_axes++;
+				joystick.axis_map[j] = Joystick.n_axes++;
 			}
-			joybutton_text.resize(joybutton_text.size() + SDL_Joysticks[num_joysticks].n_buttons + (4 * SDL_Joysticks[num_joysticks].n_hats));
-			for (int j=0; j < SDL_Joysticks[num_joysticks].n_buttons; j++)
+			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
+			for (int j=0; j < n_buttons; j++)
 			{
 				snprintf(&joybutton_text[Joystick.n_buttons][0], sizeof(joybutton_text[Joystick.n_buttons]), "J%d B%d", i + 1, j + 1);
-				SDL_Joysticks[num_joysticks].button_map[j] = Joystick.n_buttons++;
+				joystick.button_map[j] = Joystick.n_buttons++;
 			}
-			for (int j=0; j < SDL_Joysticks[num_joysticks].n_hats; j++)
+			for (int j=0; j < n_hats; j++)
 			{
-				SDL_Joysticks[num_joysticks].hat_map[j] = Joystick.n_buttons;
+				joystick.hat_map[j] = Joystick.n_buttons;
 				//a hat counts as four buttons
 				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0202);
 				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0177);
