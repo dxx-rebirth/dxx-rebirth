@@ -1810,7 +1810,6 @@ class DXXArchive(DXXCommon):
 '3d/rod.cpp',
 '3d/setup.cpp',
 'arch/sdl/joy.cpp',
-'arch/sdl/rbaudio.cpp',
 'arch/sdl/timer.cpp',
 'arch/sdl/window.cpp',
 'main/cli.cpp',
@@ -1826,6 +1825,10 @@ class DXXArchive(DXXCommon):
 'misc/strutil.cpp',
 'texmap/ntmap.cpp',
 'texmap/scanline.cpp'
+]
+])
+	objects_use_sdl1 = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+'arch/sdl/rbaudio.cpp',
 ]
 ])
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
@@ -1887,6 +1890,8 @@ class DXXArchive(DXXCommon):
 	@property
 	def objects_common(self):
 		objects_common = self.__objects_common
+		if not self.user_settings.sdl2:
+			objects_common = objects_common + self.objects_use_sdl1
 		return objects_common + self.platform_settings.platform_objects
 	def __init__(self,user_settings):
 		self.PROGRAM_NAME = 'DXX-Archive'
