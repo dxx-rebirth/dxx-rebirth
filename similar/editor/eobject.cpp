@@ -71,28 +71,31 @@ static void show_objects_in_segment(const vcsegptr_t sp)
 }
 
 //returns the number of the first object in a segment, skipping the player
-static int get_first_object(const vsegptr_t seg)
+static objnum_t get_first_object(const vsegptr_t seg)
 {
-	int id;
-
-	id = seg->objects;
-
-	if (id == (ConsoleObject-Objects))
-		id = Objects[id].next;
-
+	const auto id = seg->objects;
+	if (id == object_none)
+		return object_none;
+	const auto &&o = vobjptr(id);
+	if (o == ConsoleObject)
+		return o->next;
 	return id;
 }
 
 //returns the number of the next object in a segment, skipping the player
-static int get_next_object(const vsegptr_t seg,objnum_t id)
+static objnum_t get_next_object(const vsegptr_t seg,objnum_t id)
 {
-	if (id==object_none || (id=Objects[id].next)==object_none)
+	if (id == object_none)
 		return get_first_object(seg);
-
-	if (id == (ConsoleObject-Objects))
-		return get_next_object(seg,id);
-
-	return id;
+	for (auto o = vobjptr(id);;)
+	{
+		id = o->next;
+		if (id == object_none)
+			return get_first_object(seg);
+		o = vobjptr(id);
+		if (o != ConsoleObject)
+			return id;
+	}
 }
 
 
