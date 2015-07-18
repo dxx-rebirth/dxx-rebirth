@@ -419,7 +419,11 @@ template <typename T, std::size_t N>
 union unaligned_storage
 {
 	T a;
+	typename tt::conditional<N < 4,
+		typename tt::conditional<N == 1, uint8_t, uint16_t>,
+		typename tt::conditional<N == 4, uint32_t, uint64_t>>::type::type i;
 	uint8_t u[N];
+	assert_equal(sizeof(i), N, "sizeof(i) is not N");
 	assert_equal(sizeof(a), sizeof(u), "sizeof(T) is not N");
 };
 
@@ -609,18 +613,11 @@ static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, 1> &
 	dst.u[0] = *src;
 }
 
-#define SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(BITS)	\
-	template <typename A1>	\
-	static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BITS / 8> &dst)	\
-	{	\
-		std::copy_n(src, sizeof(dst.u), dst.u);	\
-	}
-
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(16);
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(32);
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(64);
-
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY
+template <typename A1, std::size_t BYTES>
+static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BYTES> &dst)
+{
+	std::copy_n(src, sizeof(dst.u), dst.u);
+}
 
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, A1 &a1)
@@ -628,7 +625,9 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 	using std::advance;
 	unaligned_storage<A1, message_type<A1>::maximum_size> u;
 	unaligned_copy(buffer, u);
-	a1 = endian_skip_byteswap(buffer.endian()) ? u.a : bswap(u.a);
+	if (!endian_skip_byteswap(buffer.endian()))
+		u.i = bswap(u.i);
+	a1 = u.a;
 	advance(buffer, sizeof(u.u));
 }
 
@@ -660,24 +659,19 @@ static inline void unaligned_copy(const unaligned_storage<A1, 1> &src, uint8_t *
 /* If inline unaligned_copy, gcc inlining of copy_n creates a loop instead
  * of a store.
  */
-#define SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(BITS)	\
-	template <typename A1>	\
-	static inline void unaligned_copy(unaligned_storage<A1, BITS / 8> src, uint8_t *dst)	\
-	{	\
-		std::copy_n(src.u, sizeof(src.u), dst);	\
-	}
-
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(16);
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(32);
-SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY(64);
-
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_UNALIGNED_COPY
+template <typename A1, std::size_t BYTES>
+static inline void unaligned_copy(const unaligned_storage<A1, BYTES> &src, uint8_t *dst)
+{
+	std::copy_n(src.u, sizeof(src.u), dst);
+}
 
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, const A1 &a1)
 {
 	using std::advance;
-	unaligned_storage<A1, message_type<A1>::maximum_size> u{endian_skip_byteswap(buffer.endian()) ? a1 : bswap(a1)};
+	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
+	if (!endian_skip_byteswap(buffer.endian()))
+		u.i = bswap(u.i);
 	unaligned_copy(u, buffer);
 	advance(buffer, sizeof(u.u));
 }
