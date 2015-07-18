@@ -1822,6 +1822,7 @@ class DXXArchive(DXXCommon):
 'maths/rand.cpp',
 'maths/tables.cpp',
 'maths/vecmat.cpp',
+'mem/mem.cpp',
 'misc/error.cpp',
 'misc/hash.cpp',
 'misc/hmp.cpp',
@@ -2041,7 +2042,6 @@ class DXXProgram(DXXCommon):
 'main/vclip.cpp',
 'main/wall.cpp',
 'main/weapon.cpp',
-'mem/mem.cpp',
 'misc/args.cpp',
 'misc/physfsx.cpp',
 ]
