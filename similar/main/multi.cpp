@@ -4545,20 +4545,18 @@ void multi_send_ranking ()
 #if defined(DXX_BUILD_DESCENT_II)
 static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 {
-	char rankstr[20];
 	char rank=buf[2];
-
-	if (Netgame.players[(int)pnum].rank<rank)
-		strcpy (rankstr,"promoted");
-	else if (Netgame.players[(int)pnum].rank>rank)
-		strcpy (rankstr,"demoted");
-	else
+	if (!(rank && rank < RankStrings.size()))
 		return;
 
-	Netgame.players[(int)pnum].rank=rank;
+	auto &netrank = Netgame.players[pnum].rank;
+	if (netrank == rank)
+		return;
+	const auto rankstr = (netrank < rank) ? "pro" : "de";
+	netrank = rank;
 
 	if (!PlayerCfg.NoRankings)
-		HUD_init_message(HM_MULTI, "%s has been %s to %s!",static_cast<const char *>(Players[pnum].callsign),rankstr,RankStrings[(int)rank]);
+		HUD_init_message(HM_MULTI, "%s has been %smoted to %s!",static_cast<const char *>(Players[pnum].callsign), rankstr, RankStrings[rank]);
 }
 #endif
 
