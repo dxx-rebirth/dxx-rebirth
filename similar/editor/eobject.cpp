@@ -354,18 +354,14 @@ int ObjectPlaceObjectTmap(void)
 //	------------------------------------------------------------------------------------------------------
 int ObjectSelectNextinSegment(void)
 {
-	segment *objsegp;
-
-
 	//update_due_to_new_segment();
 
 	//Assert(Cur_object_seg == Cursegp);
 
+	const vsegptr_t objsegp = Cursegp;
 	if (Cur_object_index == object_none) {
-		objsegp = Cursegp;
 		Cur_object_index = objsegp->objects;
 	} else {
-		objsegp = Cursegp;
 		if (Objects[Cur_object_index].segnum != Cursegp)
 			Cur_object_index = objsegp->objects;
 	}
@@ -512,7 +508,7 @@ int	ObjectMoveForward(void)
 
 	auto obj = vobjptridx(Cur_object_index);
 
-	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
+	extract_forward_vector_from_segment(vcsegptr(obj->segnum), fvec);
 	vm_vec_normalize(fvec);
 
 	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
@@ -537,7 +533,7 @@ int	ObjectMoveBack(void)
 
 	auto obj = vobjptridx(Cur_object_index);
 
-	extract_forward_vector_from_segment(&Segments[obj->segnum], fvec);
+	extract_forward_vector_from_segment(vcsegptr(obj->segnum), fvec);
 	vm_vec_normalize(fvec);
 
 	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
@@ -562,7 +558,7 @@ int	ObjectMoveLeft(void)
 
 	auto obj = vobjptridx(Cur_object_index);
 
-	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
+	extract_right_vector_from_segment(vcsegptr(obj->segnum), rvec);
 	vm_vec_normalize(rvec);
 
 	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
@@ -587,7 +583,7 @@ int	ObjectMoveRight(void)
 
 	auto obj = vobjptridx(Cur_object_index);
 
-	extract_right_vector_from_segment(&Segments[obj->segnum], rvec);
+	extract_right_vector_from_segment(vcsegptr(obj->segnum), rvec);
 	vm_vec_normalize(rvec);
 
 	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
@@ -610,7 +606,7 @@ int	ObjectSetDefault(void)
 		return 1;
 	}
 
-	compute_segment_center(Objects[Cur_object_index].pos, &Segments[Objects[Cur_object_index].segnum]);
+	compute_segment_center(Objects[Cur_object_index].pos, vcsegptr(Objects[Cur_object_index].segnum));
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -630,7 +626,7 @@ int	ObjectMoveUp(void)
 
 	auto obj = vobjptridx(Cur_object_index);
 
-	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
+	extract_up_vector_from_segment(vcsegptr(obj->segnum), uvec);
 	vm_vec_normalize(uvec);
 
 	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
@@ -655,7 +651,7 @@ int	ObjectMoveDown(void)
 
 	const auto &&obj = vobjptridx(Cur_object_index);
 
-	extract_up_vector_from_segment(&Segments[obj->segnum], uvec);
+	extract_up_vector_from_segment(vcsegptr(obj->segnum), uvec);
 	vm_vec_normalize(uvec);
 
 	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
@@ -694,7 +690,7 @@ static int rotate_object(const vobjptridx_t obj, int p, int b, int h)
 
 static void reset_object(const vobjptridx_t obj)
 {
-	med_extract_matrix_from_segment(&Segments[obj->segnum],&obj->orient);
+	med_extract_matrix_from_segment(vcsegptr(obj->segnum), &obj->orient);
 }
 
 int ObjectResetObject()
@@ -769,7 +765,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			fvi_info	hit_info;
 
 			temp_viewer_obj = *Viewer;
-			auto viewer_segnum = find_object_seg(&temp_viewer_obj);
+			auto viewer_segnum = find_object_seg(vobjptr(&temp_viewer_obj));
 			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
