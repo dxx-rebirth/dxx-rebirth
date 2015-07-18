@@ -1703,7 +1703,10 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
-			f = ['-flto=%s' % self.user_settings.lto, '-fno-fat-lto-objects']
+			f = [
+				# clang does not support =N syntax
+				('-flto=%s' % self.user_settings.lto) if self.user_settings.lto > 1 else '-flto',
+			]
 			self.env.Append(CXXFLAGS = f)
 
 	def check_endian(self):
