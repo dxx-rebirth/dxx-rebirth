@@ -196,7 +196,6 @@ void med_extract_up_vector_from_segment_side(const vsegptr_t sp, int sidenum, vm
 //	Increase the size of Cursegp in dimension dimension by amount
 static int segsize_common(int dimension, fix amount)
 {
-	int	propagated[MAX_SIDES_PER_SEGMENT];
 	vms_vector	uvec, rvec, fvec, scalevec;
 
 	Degenerate_segment_found = 0;
@@ -223,17 +222,19 @@ static int segsize_common(int dimension, fix amount)
 	//	For all segments to which Cursegp is connected, propagate tmap (uv coordinates) from the connected
 	//	segment back to Cursegp.  This will meaningfully propagate uv coordinates to all sides which havve
 	//	an incident edge.  It will also do some sides more than once.  And it is probably just not what you want.
+	array<int, MAX_SIDES_PER_SEGMENT> propagated = {};
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-		propagated[i] = 0;
-
-	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-		if (IS_CHILD(Cursegp->children[i])) {
+	{
+		const auto c = Cursegp->children[i];
+		if (IS_CHILD(c))
+		{
 			int	s;
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				propagated[s]++;
                         propagated[(int) Side_opposite[i]]--;
-			med_propagate_tmaps_to_segments(vsegptridx(Cursegp->children[i]),Cursegp,1);
+			med_propagate_tmaps_to_segments(vsegptridx(c), Cursegp, 1);
 		}
+	}
 
 	//	Now, for all sides that were not adjacent to another side, and therefore did not get tmaps
 	//	propagated to them, treat as a back side.
