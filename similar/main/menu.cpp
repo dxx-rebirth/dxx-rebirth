@@ -339,8 +339,6 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
-	const char **m;
-	char **f;
 	static const array<file_extension_t, 1> types{{"plr"}};
 	int i = 0, NumItems;
 	int citem = 0;
@@ -373,7 +371,8 @@ int RegisterPlayer()
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 	NumItems++;		// for TXT_CREATE_NEW
 
-	MALLOC(m, const char *, NumItems);
+	RAIIdmem<const char *[]> m;
+	MALLOC(m, const char *[], NumItems);
 	if (m == NULL)
 	{
 		return 0;
@@ -381,18 +380,18 @@ int RegisterPlayer()
 
 	m[i++] = TXT_CREATE_NEW;
 
-	for (f = list.get(); *f; f++)
+	range_for (const auto f, list)
 	{
 		char *p;
 
-		size_t lenf = strlen(*f);
+		size_t lenf = strlen(f);
 		if (lenf > FILENAME_LEN-1 || lenf < 5) // sorry guys, can only have up to eight chars for the player name
 		{
 			NumItems--;
 			continue;
 		}
-		m[i++] = *f;
-		p = strchr(*f, '.');
+		m[i++] = f;
+		p = strchr(f, '.');
 		if (p)
 			*p = '\0';		// chop the .plr
 	}
@@ -410,8 +409,7 @@ int RegisterPlayer()
 		if (!d_stricmp(static_cast<const char *>(Players[Player_num].callsign), m[i]) )
 			citem = i;
 
-	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, player_menu_handler, list.release());
-
+	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
 	return 1;
 }
 
