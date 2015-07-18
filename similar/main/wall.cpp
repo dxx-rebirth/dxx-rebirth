@@ -444,7 +444,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	if (w->type == WALL_OPEN || w->state == WALL_DOOR_CLOAKING)		//already open or cloaking
 		return;
 
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
@@ -564,7 +564,7 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 	w->state = WALL_DOOR_DECLOAKING;
 
 	// So that door can't be shot while opening
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
@@ -816,7 +816,7 @@ void wall_close_door(const vsegptridx_t seg, int side)
 	w->state = WALL_DOOR_CLOSING;
 
 	// So that door can't be shot while opening
-	auto csegp = &Segments[seg->children[side]];
+	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;

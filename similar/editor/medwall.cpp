@@ -129,7 +129,7 @@ static int wall_assign_door(int door_type)
 
 	Current_door_type = door_type;
 
- 	auto csegp = &Segments[Cursegp->children[Curside]];
+	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
 	auto Connectside = find_connect_side(Cursegp, csegp);
 	
  	Walls[Cursegp->sides[Curside].wall_num].clip_num = door_type;
@@ -657,7 +657,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 {
 	int lower_wallnum;
 	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
-		auto csegp = &Segments[seg->children[side]];
+		const auto &&csegp = vsegptr(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 
 		remove_trigger(seg, side);
@@ -796,14 +796,14 @@ int wall_add_to_markedside(sbyte type)
 {
 	if (add_wall(Markedsegp, Markedside)) {
 		int	wall_num, cwall_num;
-		auto csegp = &Segments[Markedsegp->children[Markedside]];
+		const auto &&csegp = vsegptridx(Markedsegp->children[Markedside]);
 		auto Connectside = find_connect_side(Markedsegp, csegp);
 
 		wall_num = Markedsegp->sides[Markedside].wall_num;
 		cwall_num = csegp->sides[Connectside].wall_num;
 
 		Walls[wall_num].segnum = Markedsegp;
-		Walls[cwall_num].segnum = csegp-Segments;
+		Walls[cwall_num].segnum = csegp;
 
 		Walls[wall_num].sidenum = Markedside;
 		Walls[cwall_num].sidenum = Connectside;
@@ -859,7 +859,7 @@ int wall_add_door_flag(sbyte flag)
 		return 0;
 		}
 
- 	auto csegp = &Segments[Cursegp->children[Curside]];
+	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
 	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags |= flag;
@@ -883,7 +883,7 @@ int wall_remove_door_flag(sbyte flag)
 		return 0;
 		}
 
- 	auto csegp = &Segments[Cursegp->children[Curside]];
+	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
 	auto Connectside = find_connect_side(Cursegp, csegp);
 
  	Walls[Cursegp->sides[Curside].wall_num].flags &= ~flag;

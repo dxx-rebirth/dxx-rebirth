@@ -527,7 +527,7 @@ static void set_sound_sources()
 
 						if (IS_CHILD(csegnum) && csegnum < segnum) {
 							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
-								auto csegp = &Segments[seg->children[sidenum]];
+								const auto &&csegp = vcsegptr(seg->children[sidenum]);
 								auto csidenum = find_connect_side(seg, csegp);
 
 								if (csegp->sides[csidenum].tmap_num2 == seg->sides[sidenum].tmap_num2)

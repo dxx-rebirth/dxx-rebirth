@@ -1132,11 +1132,12 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 		auto gun_segnum = find_point_seg(fire_point, obj->segnum);
 
 		//	See if these segments are connected, which should almost always be the case.
-		auto conn_side = find_connect_side(gun_segnum, &Segments[obj->segnum]);
+		const auto &&csegp = vcsegptr(obj->segnum);
+		const auto conn_side = find_connect_side(gun_segnum, csegp);
 		if (conn_side != -1) {
 			//	They are connected via conn_side in segment obj->segnum.
 			//	See if they are unobstructed.
-			if (!(WALL_IS_DOORWAY(&Segments[obj->segnum], conn_side) & WID_FLY_FLAG)) {
+			if (!(WALL_IS_DOORWAY(csegp, conn_side) & WID_FLY_FLAG)) {
 				//	Can't fly through, so don't let this bot fire through!
 				return;
 			}
