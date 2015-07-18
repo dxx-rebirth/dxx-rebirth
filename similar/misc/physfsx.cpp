@@ -299,20 +299,20 @@ void PHYSFSX_listSearchPathContent()
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
 int PHYSFSX_checkSupportedArchiveTypes()
 {
-	const PHYSFS_ArchiveInfo **i;
 	int hog_sup = 0;
 #ifdef DXX_BUILD_DESCENT_II
 	int mvl_sup = 0;
 #endif
 
 	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.");
-	for (i = PHYSFS_supportedArchiveTypes(); *i != NULL; i++)
+	range_for (const auto i, make_null_sentinel_array(PHYSFS_supportedArchiveTypes()))
 	{
-		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].", (*i)->extension, (*i)->description);
-		if (!d_stricmp((*i)->extension, "HOG"))
+		const auto iextension = i->extension;
+		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].", iextension, i->description);
+		if (!d_stricmp(iextension, "HOG"))
 			hog_sup = 1;
 #ifdef DXX_BUILD_DESCENT_II
-		if (!d_stricmp((*i)->extension, "MVL"))
+		else if (!d_stricmp(iextension, "MVL"))
 			mvl_sup = 1;
 #endif
 	}

@@ -47,3 +47,28 @@ public:
 	}
 };
 
+template <typename I>
+class null_sentinel_array
+{
+	typedef null_sentinel_iterator<I> iterator;
+	I *b;
+public:
+	null_sentinel_array(I *i) :
+		b(i)
+	{
+	}
+	iterator begin() const
+	{
+		return b;
+	}
+	iterator end() const
+	{
+		return {};
+	}
+};
+
+template <typename I>
+static inline null_sentinel_array<I> make_null_sentinel_array(I *i)
+{
+	return i;
+}
