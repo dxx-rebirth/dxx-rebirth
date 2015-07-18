@@ -296,6 +296,7 @@ static inline void game_render_frame_mono(int flip)
 void game_leave_menus(void);
 
 //Cheats
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
 	int enabled;
@@ -329,6 +330,8 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 #endif
 };
 extern game_cheats cheats;
+#endif
+int cheats_enabled();
 void game_disable_cheats();
 void move_player_2_segment(vsegptridx_t seg, int side);
 int allowed_to_fire_laser(void);

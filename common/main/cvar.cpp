@@ -167,7 +167,7 @@ void cvar_set(const char *cvar_name, char *value)
 		return;
 	}
 
-	if (cvar->flags & CVAR_CHEAT && !cheats.enabled)
+	if (cvar->flags & CVAR_CHEAT && !cheats_enabled())
 	{
 		con_printf(CON_NORMAL, "cvar %s is cheat protected.", cvar_name);
 		return;

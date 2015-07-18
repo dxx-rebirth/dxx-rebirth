@@ -1043,6 +1043,11 @@ void reset_rear_view(void)
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 }
 
+int cheats_enabled()
+{
+	return cheats.enabled;
+}
+
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
 {
