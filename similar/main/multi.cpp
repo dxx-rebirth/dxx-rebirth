@@ -2192,7 +2192,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	//create a dummy object which will be the weapon that hits
 	//the monitor. the blowup code wants to know who the parent of the
 	//laser is, so create a laser whose parent is the player
-	laser_info laser;
+	laser_parent laser;
 	laser.parent_type = OBJ_PLAYER;
 	laser.parent_num = pnum;
 
