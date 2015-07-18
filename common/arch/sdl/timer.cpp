@@ -53,7 +53,7 @@ void timer_delay_bound(const unsigned caller_bound)
 
 	uint32_t start = FrameStart;
 	const auto multiplayer = Game_mode & GM_MULTI;
-	const auto vsync = GameCfg.VSync;
+	const auto vsync = CGameCfg.VSync;
 	const auto bound = vsync ? 1000u / MAXIMUM_FPS : caller_bound;
 	for (;;)
 	{

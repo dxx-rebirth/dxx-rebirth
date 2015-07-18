@@ -413,11 +413,14 @@ void calc_frame_time()
 	fix64 timer_value = timer_update();
 	FrameTime = timer_value - last_timer_value;
 
-	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
+	const auto vsync = CGameCfg.VSync;
+	const auto bound = f1_0 / (vsync ? MAXIMUM_FPS : GameArg.SysMaxFPS);
+	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
+	while (FrameTime < bound);
 	{
 		if (Game_mode & GM_MULTI)
 			multi_do_frame(); // during long wait, keep packets flowing
-		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
+		if (may_sleep)
 			timer_delay(F1_0>>8);
 		timer_value = timer_update();
 		FrameTime = timer_value - last_timer_value;

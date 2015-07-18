@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
+CCfg CGameCfg;
 struct Cfg GameCfg;
 
 #define DigiVolumeStr "DigiVolume"
@@ -125,7 +126,7 @@ int ReadConfigFile()
 	GameCfg.MovieTexFilt = 0;
 	GameCfg.MovieSubtitles = 0;
 #endif
-	GameCfg.VSync = 0;
+	CGameCfg.VSync = false;
 	GameCfg.Multisample = 0;
 	GameCfg.FPSIndicator = 0;
 	GameCfg.Grabinput = 1;
@@ -205,7 +206,7 @@ int ReadConfigFile()
 			convert_integer(GameCfg.MovieSubtitles, value);
 #endif
 		else if (cmp(lb, eq, VSyncStr))
-			convert_integer(GameCfg.VSync, value);
+			convert_integer(CGameCfg.VSync, value);
 		else if (cmp(lb, eq, MultisampleStr))
 			convert_integer(GameCfg.Multisample, value);
 		else if (cmp(lb, eq, FPSIndicatorStr))
@@ -261,7 +262,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 #endif
-	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
+	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);

@@ -35,6 +35,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "ntstring.h"
 
+struct CCfg : prohibit_void_ptr<CCfg>
+{
+	bool VSync;
+};
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;
@@ -48,13 +54,11 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	uint8_t DigiVolume;
 	uint8_t MusicVolume;
 	bool WindowMode;
-	bool VSync;
 	bool Multisample;
 	bool FPSIndicator;
 	bool ReverseStereo;
 	bool Grabinput;
 	bool OrigTrackOrder;
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef DXX_BUILD_DESCENT_II
 	bool MovieSubtitles;
 	int MovieTexFilt;
@@ -64,10 +68,11 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
-#endif
 };
-
 extern struct Cfg GameCfg;
+#endif
+
+extern struct CCfg CGameCfg;
 
 //#ifdef USE_SDLMIXER
 //#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook || GameCfg.JukeboxOn)

@@ -602,11 +602,14 @@ static void draw_automap(automap *am)
 		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 
 	am->t2 = timer_query();
-	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+	const auto vsync = CGameCfg.VSync;
+	const auto bound = F1_0 / (vsync ? MAXIMUM_FPS : GameArg.SysMaxFPS);
+	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
+	while (am->t2 - am->t1 < bound) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
 		if (Game_mode & GM_MULTI)
 			multi_do_frame(); // during long wait, keep packets flowing
-		if (!GameArg.SysNoNiceFPS && !GameCfg.VSync)
+		if (may_sleep)
 			timer_delay(F1_0>>8);
 		am->t2 = timer_update();
 	}
