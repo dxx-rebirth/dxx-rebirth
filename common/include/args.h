@@ -61,6 +61,15 @@ typedef enum {
 #include "pack.h"
 #include "compiler-type_traits.h"
 
+struct CArg : prohibit_void_ptr<CArg>
+{
+	bool CtlNoCursor;
+	bool CtlNoMouse;
+	bool CtlNoStickyKeys;
+	bool DbgForbidConsoleGrab;
+};
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct Arg : prohibit_void_ptr<Arg>
 {
 	int SysMaxFPS;
@@ -76,10 +85,7 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysWindow;
 	bool SysNoBorders;
 	bool SysAutoDemo;
-	bool CtlNoCursor;
-	bool CtlNoMouse;
 	bool CtlNoJoystick;
-	bool CtlNoStickyKeys;
 	bool SndNoSound;
 	bool SndNoMusic;
 #ifdef USE_SDLMIXER
@@ -88,7 +94,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	static constexpr tt::true_type SndDisableSdlMixer{};
 #endif
 	bool GfxSkipHiresFNT;
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef DXX_BUILD_DESCENT_I
 	bool SysNoTitles;
 	bool EdiNoBm;
@@ -120,7 +125,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	int DbgVerbose;
 	bool DbgSafelog;
 	bool DbgNoRun;
-	bool DbgForbidConsoleGrab;
 	bool DbgRenderStats;
 	std::string DbgAltTex;
 	std::string DbgTexMap;
@@ -138,10 +142,11 @@ struct Arg : prohibit_void_ptr<Arg>
 	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
 #endif
-#endif
 };
 
 extern struct Arg GameArg;
+#endif
+extern CArg CGameArg;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);

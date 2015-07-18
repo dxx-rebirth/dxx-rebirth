@@ -1317,7 +1317,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	keycode = event_key_get_raw(event);
 
 	auto e = end(system_keys);
-	if (unlikely(GameArg.CtlNoStickyKeys))
+	if (unlikely(CGameArg.CtlNoStickyKeys))
 		e = std::prev(e, 3);
 	const auto predicate = [keycode](uint8_t k) { return keycode == k; };
 	if (std::any_of(begin(system_keys), e, predicate))

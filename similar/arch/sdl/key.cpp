@@ -483,7 +483,7 @@ void key_flush()
 	//Clear the unicode buffer
 	unicode_frame_buffer = {};
 	keyd_pressed = {};
-	if (unlikely(GameArg.CtlNoStickyKeys))
+	if (unlikely(CGameArg.CtlNoStickyKeys))
 		return;
 	const auto &keystate = SDL_GetKeyState(NULL);
 	restore_sticky_key(keystate, KEY_NUMLOCK);

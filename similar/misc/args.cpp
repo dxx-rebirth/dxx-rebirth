@@ -98,6 +98,7 @@ class nesting_depth_exceeded
 {
 };
 
+CArg CGameArg;
 struct Arg GameArg;
 
 static void ReadCmdArgs(Inilist &ini, Arglist &Args);
@@ -228,13 +229,13 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// Control Options
 
 		else if (!d_stricmp(p, "-nocursor"))
-			GameArg.CtlNoCursor 		= 1;
+			CGameArg.CtlNoCursor 		= true;
 		else if (!d_stricmp(p, "-nomouse"))
-			GameArg.CtlNoMouse 		= 1;
+			CGameArg.CtlNoMouse 		= true;
 		else if (!d_stricmp(p, "-nojoystick"))
 			GameArg.CtlNoJoystick 		= 1;
 		else if (!d_stricmp(p, "-nostickykeys"))
-			GameArg.CtlNoStickyKeys		= 1;
+			CGameArg.CtlNoStickyKeys	= true;
 
 	// Sound Options
 
@@ -330,7 +331,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.DbgVerbose 	= CON_VERBOSE;
 
 		else if (!d_stricmp(p, "-no-grab"))
-			GameArg.DbgForbidConsoleGrab = 1;
+			CGameArg.DbgForbidConsoleGrab = true;
 		else if (!d_stricmp(p, "-safelog"))
 			GameArg.DbgSafelog 		= 1;
 		else if (!d_stricmp(p, "-norun"))
@@ -390,7 +391,7 @@ static void PostProcessGameArg()
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
 
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
-	if (GameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
+	if (CGameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
 		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 1] = '1';
 	SDL_putenv(sdl_disable_lock_keys);
 }

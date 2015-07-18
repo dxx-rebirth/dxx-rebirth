@@ -101,7 +101,7 @@ static void maybe_send_doubleclick(const fix64 now, const unsigned button)
 
 void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
-	if (unlikely(GameArg.CtlNoMouse))
+	if (unlikely(CGameArg.CtlNoMouse))
 		return;
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
@@ -149,7 +149,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
 	d_event_mouse_moved event;
 	
-	if (GameArg.CtlNoMouse)
+	if (CGameArg.CtlNoMouse)
 		return;
 
 	Mouse.cursor_time = timer_query();
@@ -201,7 +201,7 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 template <bool noactivate>
 static void mouse_change_cursor()
 {
-	Mouse.cursor_enabled = (!noactivate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
+	Mouse.cursor_enabled = (!noactivate && !CGameArg.CtlNoMouse && !CGameArg.CtlNoCursor);
 	if (!Mouse.cursor_enabled)
 		SDL_ShowCursor(SDL_DISABLE);
 }
