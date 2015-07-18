@@ -144,6 +144,7 @@ struct side
 	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct segment {
 #ifdef EDITOR
 	segnum_t   segnum;     // segment number, not sure what it means
@@ -168,6 +169,7 @@ struct segment {
 #endif
 	fix     static_light;
 };
+#endif
 
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
@@ -184,6 +186,7 @@ struct group
 	}
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct segment_array_t : public array<segment, MAX_SEGMENTS>
 {
 	typedef uint16_t index_type;
@@ -207,6 +210,9 @@ struct segment_array_t : public array<segment, MAX_SEGMENTS>
 	segment_array_t &operator=(const segment_array_t &) = delete;
 };
 
+DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
+#endif
+
 // Globals from mglobal.c
 struct vertex : vms_vector
 {
@@ -223,8 +229,6 @@ struct vertex : vms_vector
 	{
 	}
 };
-
-DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 
 struct side::illegal_type : std::runtime_error
 {
