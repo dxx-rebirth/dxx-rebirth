@@ -1823,6 +1823,7 @@ class DXXArchive(DXXCommon):
 'maths/tables.cpp',
 'maths/vecmat.cpp',
 'misc/error.cpp',
+'misc/hash.cpp',
 'misc/hmp.cpp',
 'misc/ignorecase.cpp',
 'misc/strutil.cpp',
@@ -2042,7 +2043,6 @@ class DXXProgram(DXXCommon):
 'main/weapon.cpp',
 'mem/mem.cpp',
 'misc/args.cpp',
-'misc/hash.cpp',
 'misc/physfsx.cpp',
 ]
 ],
