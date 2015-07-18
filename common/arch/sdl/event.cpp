@@ -19,6 +19,7 @@
 #include "window.h"
 #include "timer.h"
 #include "config.h"
+#include "inferno.h"
 
 #include "joy.h"
 #include "args.h"
