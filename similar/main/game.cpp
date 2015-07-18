@@ -410,26 +410,26 @@ void calc_frame_time()
 {
 	fix last_frametime = FrameTime;
 
-	fix64 timer_value = timer_update();
-	FrameTime = timer_value - last_timer_value;
-
 	const auto vsync = CGameCfg.VSync;
-	const auto bound = f1_0 / (vsync ? MAXIMUM_FPS : GameArg.SysMaxFPS);
+	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : GameArg.SysMaxFPS);
 	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
-	while (FrameTime < bound);
+	for (;;)
 	{
+		const auto timer_value = timer_update();
+		FrameTime = timer_value - last_timer_value;
+		if (FrameTime >= bound)
+		{
+			last_timer_value = timer_value;
+			break;
+		}
 		if (Game_mode & GM_MULTI)
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (may_sleep)
 			timer_delay(F1_0>>8);
-		timer_value = timer_update();
-		FrameTime = timer_value - last_timer_value;
 	}
 
 	if ( cheats.turbo )
 		FrameTime *= 2;
-
-	last_timer_value = timer_value;
 
 	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
