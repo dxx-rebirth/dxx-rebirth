@@ -387,18 +387,17 @@ void game_flush_respawn_inputs()
 void calc_d_tick()
 {
 	static fix timer = 0;
+	auto t = timer + FrameTime;
 
-	d_tick_step = 0;
-
-	timer += FrameTime;
-	if (timer >= DESIGNATED_GAME_FRAMETIME)
+	d_tick_step = t >= DESIGNATED_GAME_FRAMETIME;
+	if (d_tick_step)
 	{
-		d_tick_step = 1;
 		d_tick_count++;
 		if (d_tick_count > 1000000)
 			d_tick_count = 0;
-		timer -= DESIGNATED_GAME_FRAMETIME;
+		t -= DESIGNATED_GAME_FRAMETIME;
 	}
+	timer = t;
 }
 
 void reset_time()
@@ -435,8 +434,6 @@ void calc_frame_time()
 		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
 
 	GameTime64 += FrameTime;
-
-	calc_d_tick();
         calc_d_homer_tick();
 }
 
