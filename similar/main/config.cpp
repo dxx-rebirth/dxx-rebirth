@@ -129,7 +129,7 @@ int ReadConfigFile()
 	CGameCfg.VSync = false;
 	GameCfg.Multisample = 0;
 	GameCfg.FPSIndicator = 0;
-	GameCfg.Grabinput = 1;
+	CGameCfg.Grabinput = true;
 
 
 	auto infile = PHYSFSX_openReadBuffered("descent.cfg");
@@ -212,7 +212,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, FPSIndicatorStr))
 			convert_integer(GameCfg.FPSIndicator, value);
 		else if (cmp(lb, eq, GrabinputStr))
-			convert_integer(GameCfg.Grabinput, value);
+			convert_integer(CGameCfg.Grabinput, value);
 	}
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
@@ -265,6 +265,6 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
-	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);
+	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
 	return 0;
 }

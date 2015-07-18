@@ -1153,7 +1153,7 @@ class input_config_menu_items
 	DXX_##VERB##_TEXT("", opt_label_blank_mouse_control_type)	\
 	DXX_##VERB##_MENU("SENSITIVITY & DEADZONE", opt_ic_joymousesens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_sensitivity_deadzone)	\
-	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, GameCfg.Grabinput)	\
+	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, CGameCfg.Grabinput)	\
 	DXX_##VERB##_CHECK("Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_focus)	\
 	DXX_##VERB##_MENU("GAME SYSTEM KEYS", opt_ic_help0)	\
@@ -1209,7 +1209,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 			if (citem == opt_mouse_control_flightsim)
 				PlayerCfg.MouseFlightSim = 1;
 			if (citem == opt_ic_grabinput)
-				GameCfg.Grabinput = items[citem].value;
+				CGameCfg.Grabinput = items[citem].value;
 			if (citem == opt_ic_mousefsgauge)
 				PlayerCfg.MouseFSIndicator = items[citem].value;
 			break;

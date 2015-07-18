@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct CCfg : prohibit_void_ptr<CCfg>
 {
 	bool VSync;
+	bool Grabinput;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -57,7 +58,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	bool Multisample;
 	bool FPSIndicator;
 	bool ReverseStereo;
-	bool Grabinput;
 	bool OrigTrackOrder;
 #ifdef DXX_BUILD_DESCENT_II
 	bool MovieSubtitles;
