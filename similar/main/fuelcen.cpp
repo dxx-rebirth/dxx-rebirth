@@ -63,7 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // The max number of fuel stations per mine.
 
-static const fix Fuelcen_refill_speed = i2f(1);
 static const fix Fuelcen_give_amount = i2f(25);
 static const fix Fuelcen_max_amount = i2f(100);
 
