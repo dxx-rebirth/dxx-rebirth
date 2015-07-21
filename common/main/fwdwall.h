@@ -228,7 +228,7 @@ void wall_frame_process();
 
 //  An object got stuck in a door (like a flare).
 //  Add global entry.
-void add_stuck_object(vobjptridx_t objp, segnum_t segnum, int sidenum);
+void add_stuck_object(vobjptridx_t objp, vsegptr_t segnum, int sidenum);
 void remove_obsolete_stuck_objects();
 
 //set the tmap_num or tmap_num2 field for a wall/door

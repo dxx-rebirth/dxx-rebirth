@@ -1422,12 +1422,12 @@ static array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
-void add_stuck_object(const vobjptridx_t objp, segnum_t segnum, int sidenum)
+void add_stuck_object(const vobjptridx_t objp, const vsegptr_t segp, int sidenum)
 {
 	int	i;
-	int	wallnum;
-	wallnum = Segments[segnum].sides[sidenum].wall_num;
-	if (wallnum != -1) {
+	const auto wallnum = segp->sides[sidenum].wall_num;
+	if (wallnum != wall_none)
+	{
 		if (Walls[wallnum].flags & WALL_BLASTED)
 			objp->flags |= OF_SHOULD_BE_DEAD;
 		for (i=0; i<MAX_STUCK_OBJECTS; i++) {
