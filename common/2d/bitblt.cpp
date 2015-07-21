@@ -40,7 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 
 static int gr_bitblt_dest_step_shift = 0;
-static ubyte *gr_bitblt_fade_table=NULL;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
@@ -52,13 +51,6 @@ static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, 
 {
 	auto predicate = [&](uint8_t s, uint8_t d) {
 		return s == 255 ? d : s;
-	};
-	std::transform(src, src + num_pixels, dest, dest, predicate);
-}
-
-static void gr_linear_rep_movsdm_faded(const ubyte * src, ubyte * dest, int num_pixels, ubyte fade_value ) {
-	auto predicate = [&](ubyte s, ubyte d) {
-		return s == 255 ? d : gr_fade_table[fade_value][s];
 	};
 	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
@@ -86,17 +78,10 @@ static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 	auto src = bm.get_bitmap_data();
 
 	const uint_fast32_t bm_h = bm.bm_h;
-	if (gr_bitblt_fade_table==NULL)	{
+	{
 		for (uint_fast32_t y1 = bm_h; y1 --;)
 		{
 			gr_linear_rep_movsdm( src, dest, bm.bm_w );
-			src += bm.bm_rowsize;
-			dest+= dest_rowsize;
-		}
-	} else {
-		for (uint_fast32_t y1 = 0; y1 != bm_h; ++y1)
-		{
-			gr_linear_rep_movsdm_faded( src, dest, bm.bm_w, gr_bitblt_fade_table[y1+y] );
 			src += bm.bm_rowsize;
 			dest+= dest_rowsize;
 		}
@@ -253,17 +238,10 @@ static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, unsigned d
 
 	// No interlacing, copy the whole buffer.
 
-	if (gr_bitblt_fade_table==NULL)	{
+	{
 		for (auto i = h; i; --i)
 		{
 			gr_linear_rep_movsdm( sbits, dbits, w );
-			sbits += src.bm_rowsize;
-			dbits += dest.bm_rowsize;
-		}
-	} else {
-		for (uint_fast32_t i = 0; i != h; ++i)
-		{
-			gr_linear_rep_movsdm_faded( sbits, dbits, w, gr_bitblt_fade_table[dy+i] );
 			sbits += src.bm_rowsize;
 			dbits += dest.bm_rowsize;
 		}
