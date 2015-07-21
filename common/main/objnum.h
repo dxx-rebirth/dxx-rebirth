@@ -1,11 +1,7 @@
 #pragma once
-#include "strictindex.h"
+#include <cstdint>
 
-DEFINE_STRICT_INDEX_NUMBER(uint16_t, objnum_t);
-DEFINE_STRICT_INDEX_CONSTANT_TYPE(object_magic_constant_t, objnum_t, uint16_t);
-DEFINE_STRICT_INDEX_CONSTANT_NUMBER(object_magic_constant_t, 0xfffe, object_guidebot_cannot_reach);
-DEFINE_STRICT_INDEX_CONSTANT_NUMBER(object_magic_constant_t, 0xffff, object_none);
-DEFINE_STRICT_INDEX_CONSTANT_NUMBER(object_magic_constant_t, 0, object_first);
+typedef uint16_t objnum_t;
 
 class object_signature_t
 {

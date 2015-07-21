@@ -34,8 +34,6 @@ protected:
 	using typename specialized_types::array_managed_type;
 	using typename specialized_types::index_type;
 	using typename specialized_types::integral_type;
-	template <integral_type constant>
-		using magic_constant = typename specialized_types::template magic_constant<constant>;
 
 	template <typename policy>
 		class basic_idx;
@@ -84,6 +82,12 @@ public:
 		class basic_vptr_global_factory;
 	template <typename ptridx>
 		class basic_ptridx_global_factory;
+	template <integral_type constant>
+		class magic_constant
+		{
+		public:
+			constexpr operator integral_type() const { return constant; }	// integral_type conversion deprecated
+		};
 };
 
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\
@@ -98,8 +102,6 @@ public:
 		using array_managed_type = managed_type##_array_t;	\
 		using index_type = derived_type_prefix##num_t;	\
 		using integral_type = derived_type_prefix##num_t;	\
-		template <integral_type constant>	\
-		using magic_constant = managed_type##_magic_constant_t<constant>;	\
 	};	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)
 

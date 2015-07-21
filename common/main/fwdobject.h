@@ -19,6 +19,10 @@ struct bitmap_index;
 struct vms_vector;
 struct vms_matrix;
 
+static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
+static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
+static constexpr valptridx<object>::magic_constant<0> object_first{};
+
 const unsigned MAX_OBJECTS = 350;
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
 

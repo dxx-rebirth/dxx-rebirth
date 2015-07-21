@@ -18,6 +18,10 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
+static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
+static constexpr valptridx<segment>::magic_constant<0> segment_first{};
+
 const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
 const std::size_t MAX_SIDES_PER_SEGMENT = 6;
 const std::size_t MAX_VERTICES_PER_POLY = 4;
