@@ -730,19 +730,17 @@ static void project_list(array<int, 8> &pointnumlist)
 
 // -----------------------------------------------------------------------------------
 #if !defined(OGL)
-static void render_segment(segnum_t segnum)
+static void render_segment(const vcsegptridx_t seg)
 {
-	segment		*seg = &Segments[segnum];
 	int			sn;
 
-	Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 	g3s_codes 	cc=rotate_list(seg->verts);
 	if (! cc.uand) {		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
       if (Viewer->type!=OBJ_ROBOT)
 #endif
-  	   	Automap_visited[segnum]=1;
+		Automap_visited[seg]=1;
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 			render_side(seg, sn);
@@ -1586,7 +1584,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(segnum);
+			render_segment(vcsegptridx(segnum));
 			visited[segnum]=3;
 			if (srsm.objects.empty())
 				continue;
