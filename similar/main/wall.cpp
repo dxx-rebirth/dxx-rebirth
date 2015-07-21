@@ -1424,17 +1424,17 @@ static array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
 //	Add global entry.
 void add_stuck_object(const vobjptridx_t objp, const vsegptr_t segp, int sidenum)
 {
-	int	i;
 	const auto wallnum = segp->sides[sidenum].wall_num;
 	if (wallnum != wall_none)
 	{
 		if (Walls[wallnum].flags & WALL_BLASTED)
 			objp->flags |= OF_SHOULD_BE_DEAD;
-		for (i=0; i<MAX_STUCK_OBJECTS; i++) {
-			if (Stuck_objects[i].wallnum == -1) {
-				Stuck_objects[i].wallnum = wallnum;
-				Stuck_objects[i].objnum = objp;
-				Stuck_objects[i].signature = objp->signature;
+		range_for (auto &i, Stuck_objects)
+		{
+			if (i.wallnum == -1) {
+				i.wallnum = wallnum;
+				i.objnum = objp;
+				i.signature = objp->signature;
 				Num_stuck_objects++;
 				break;
 			}
