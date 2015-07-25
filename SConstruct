@@ -805,12 +805,15 @@ help:assume <type_traits> works
 	@_custom_test
 	def _check_type_traits(self,context):
 		f = '''
+#define DXX_INHERIT_CONSTRUCTORS	/* bypass sanity check */
 #include "compiler-type_traits.h"
 typedef tt::conditional<true,int,long>::type a;
 typedef tt::conditional<false,int,long>::type b;
 '''
 		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
 			context.sconf.Define('DXX_HAVE_TYPE_TRAITS')
+			return
+		raise SCons.Errors.StopError("C++ compiler does not support <type_traits> or Boost.TypeTraits.")
 	@_implicit_test
 	def check_boost_foreach(self,context,**kwargs):
 		"""

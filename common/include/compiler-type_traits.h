@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#ifdef DXX_INHERIT_CONSTRUCTORS
 #if defined(DXX_HAVE_CXX11_TYPE_TRAITS)
 #include <type_traits>
 namespace tt = std;
@@ -14,4 +15,7 @@ namespace tt = std;
 namespace tt = boost;
 #else
 #error "No <type_traits> implementation found."
+#endif
+#else
+#error "\"compiler-type_traits.h\" included before \"dxxsconf.h\""
 #endif
