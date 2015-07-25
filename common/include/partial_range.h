@@ -102,7 +102,7 @@ struct base_partial_range_error_t : std::out_of_range
 #undef REPORT_FORMAT_STRING
 };
 
-template <typename T>
+template <typename I>
 struct partial_range_error_t : base_partial_range_error_t
 {
 	using base_partial_range_error_t::required_buffer_size;
@@ -110,8 +110,8 @@ struct partial_range_error_t : base_partial_range_error_t
 	template <std::size_t N>
 		__attribute_cold
 		__attribute_noreturn
-	static void report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const T &t, unsigned long d);
-	template <std::size_t NF, std::size_t NE, std::size_t ND>
+	static void report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d);
+	template <std::size_t NF, std::size_t NE, std::size_t ND, typename T>
 		__attribute_cold
 		__attribute_noreturn
 	static void report(const char (&file)[NF], unsigned line, const char (&estr)[NE], const char (&desc)[ND], unsigned long expr, const T &t, unsigned long d)
@@ -119,23 +119,23 @@ struct partial_range_error_t : base_partial_range_error_t
 		/* Round reporting into large buckets.  Code size is more
 		 * important than stack space.
 		 */
-		report2<(required_buffer_size(NF + NE + ND) | 0xff) + 1>(file, line, estr, desc, expr, t, d);
+		report2<(required_buffer_size(NF + NE + ND) | 0xff) + 1>(file, line, estr, desc, expr, addressof(t), d);
 	}
 };
 
 template <typename T>
 template <std::size_t N>
-void partial_range_error_t<T>::report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const T &t, unsigned long d)
+void partial_range_error_t<T>::report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
 {
 	char buf[N];
-	base_partial_range_error_t::prepare(buf, file, line, estr, desc, expr, addressof(t), d);
+	base_partial_range_error_t::prepare(buf, file, line, estr, desc, expr, t, d);
 	throw partial_range_error_t<T>(buf);
 }
 
 namespace partial_range_detail
 {
 
-template <typename T, std::size_t NF, std::size_t NE>
+template <typename I, typename T, std::size_t NF, std::size_t NE>
 static inline void check_range_bounds(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const std::size_t o, const std::size_t l, const std::size_t d)
 {
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
@@ -169,7 +169,7 @@ static inline void check_range_bounds(const char (&file)[NF], unsigned line, con
 #endif
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
 	PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S),	\
-	((EXPR > d) && (partial_range_error_t<const T>::report(file, line, estr, #S, EXPR, t, d), 0))
+	((EXPR > d) && (partial_range_error_t<I>::report(file, line, estr, #S, EXPR, t, d), 0))
 	PARTIAL_RANGE_CHECK_BOUND(o, begin);
 	PARTIAL_RANGE_CHECK_BOUND(l, end);
 #undef PARTIAL_RANGE_CHECK_BOUND
@@ -189,10 +189,10 @@ static constexpr std::size_t get_range_size(T &t)
 	return t.size();
 }
 
-template <typename T, std::size_t NF, std::size_t NE>
+template <typename I, typename T, std::size_t NF, std::size_t NE>
 static inline void check_partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const std::size_t o, const std::size_t l)
 {
-	check_range_bounds<T, NF, NE>(file, line, estr, t, o, l, get_range_size(t));
+	check_range_bounds<I, T, NF, NE>(file, line, estr, t, o, l, get_range_size(t));
 }
 
 }
@@ -246,7 +246,7 @@ template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, 
 __attribute_warn_unused_result
 static inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
-	partial_range_detail::check_partial_range(file, line, estr, t, o, l);
+	partial_range_detail::check_partial_range<I, T, NF, NE>(file, line, estr, t, o, l);
 	auto range_begin = begin(t);
 	return unchecked_partial_range<I, UO, UL>(range_begin, o, l);
 }
