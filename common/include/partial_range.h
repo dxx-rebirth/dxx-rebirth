@@ -163,16 +163,15 @@ static inline void check_range_bounds(const char (&file)[NF], unsigned line, con
 	 * !DXX_HAVE_BUILTIN_CONSTANT_P and the macro expands to nothing.
 	 */
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
-	(__builtin_constant_p(EXPR) && __builtin_constant_p(d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw, S " will always throw"), 0))
+	(__builtin_constant_p(EXPR > d) && (EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw_##S, #S " will always throw"), 0))
 #else
-#define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	0
+#define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	static_cast<void>(0)
 #endif
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
-	if (EXPR > d)	\
-		((void)(PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S))),	\
-		partial_range_error_t<const T>::report(file, line, estr, S, EXPR, t, d)
-	PARTIAL_RANGE_CHECK_BOUND(o, "begin");
-	PARTIAL_RANGE_CHECK_BOUND(l, "end");
+	PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S),	\
+	((EXPR > d) && (partial_range_error_t<const T>::report(file, line, estr, #S, EXPR, t, d), 0))
+	PARTIAL_RANGE_CHECK_BOUND(o, begin);
+	PARTIAL_RANGE_CHECK_BOUND(l, end);
 #undef PARTIAL_RANGE_CHECK_BOUND
 #undef PARTIAL_RANGE_COMPILE_CHECK_BOUND
 }
