@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "dxxerror.h"
 
+#ifndef OGL
 void c_tmap_scanline_flat()
 {
 	ubyte *dest;
@@ -51,6 +52,7 @@ void c_tmap_scanline_flat()
 	}
 //         memset(dest,tmap_flat_color,fx_xright-fx_xleft+1);
 }
+#endif
 
 void c_tmap_scanline_shaded()
 {
@@ -250,291 +252,6 @@ void c_tmap_scanline_lin()
 	}
 }
 #endif
-
-// Used for energy centers. See comments for c_tmap_scanline_per().
-static void c_fp_tmap_scanline_per_nolight()
-{
-	ubyte	       *dest;
-	uint		c;
-	int		x, j, index = fx_xleft + (bytes_per_row * fx_y);
-	double		u, v, z, dudx, dvdx, dzdx, rec_z;
-	uint64_t	destlong;
-
-	u = f2db(fx_u);
-	v = f2db(fx_v) * 64.0;
-	z = f2db(fx_z);
-	dudx = f2db(fx_du_dx);
-	dvdx = f2db(fx_dv_dx) * 64.0;
-	dzdx = f2db(fx_dz_dx);
-
-	rec_z = 1.0 / z;
-
-	dest = (ubyte *) (write_buffer + fx_xleft + (bytes_per_row * fx_y));
-
-	x = fx_xright - fx_xleft + 1;
-	if (!Transparency_on) {
-		if (x >= 8) {
-			if ((j = (size_t) dest & 7) != 0) {
-				j = 8 - j;
-
-				while (j > 0) {
-					if (++index >= SWIDTH*SHEIGHT) return;
-					*dest++ =
-					    (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-							 (((int) (u * rec_z)) & 63)];
-					u += dudx;
-					v += dvdx;
-					z += dzdx;
-					rec_z = 1.0 / z;
-					x--;
-					j--;
-				}
-			}
-
-			while (j >= 8) {
-				destlong =
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)];
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 8;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 16;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 24;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 32;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 40;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 48;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				destlong |=
-				    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						       (((int) (u * rec_z)) & 63)] << 56;
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-
-				*((uint64_t *) dest) = destlong;
-				dest += 8;
-				x -= 8;
-				j -= 8;
-				index +=8;
-				if (index+8 >= SWIDTH*SHEIGHT) return;
-			}
-		}
-		while (x-- > 0) {
-			if (++index >= SWIDTH*SHEIGHT) return;
-			*dest++ =
-			    (uint64_t) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-					       (((int) (u * rec_z)) & 63)];
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-			rec_z = 1.0 / z;
-		}
-	} else {
-		x = fx_xright - fx_xleft + 1;
-
-		if (x >= 8) {
-			if ((j = (size_t) dest & 7) != 0) {
-				j = 8 - j;
-
-				while (j > 0) {
-					if (++index >= SWIDTH*SHEIGHT) return;
-					c =
-					    (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-							 (((int) (u * rec_z)) & 63)];
-					if (c != 255)
-						*dest = c;
-					dest++;
-					u += dudx;
-					v += dvdx;
-					z += dzdx;
-					rec_z = 1.0 / z;
-					x--;
-					j--;
-				}
-			}
-
-			j = x;
-			while (j >= 8) {
-				destlong = *((uint64_t *) dest);
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~(uint64_t)0xFF;
-					destlong |= (uint64_t) c;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 8);
-					destlong |= (uint64_t) c << 8;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 16);
-					destlong |= (uint64_t) c << 16;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 24);
-					destlong |= (uint64_t) c << 24;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 32);
-					destlong |= (uint64_t) c << 32;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 40);
-					destlong |= (uint64_t) c << 40;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 48);
-					destlong |= (uint64_t) c << 48;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-						  (((int) (u * rec_z)) & 63)];
-				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 56);
-					destlong |= (uint64_t) c << 56;
-				}
-				u += dudx;
-				v += dvdx;
-				z += dzdx;
-				rec_z = 1.0 / z;
-
-				*((uint64_t *) dest) = destlong;
-				dest += 8;
-				x -= 8;
-				j -= 8;
-				index += 8;
-				if (index+8 >= SWIDTH*SHEIGHT) return;
-			}
-		}
-		while (x-- > 0) {
-			if (++index >= SWIDTH*SHEIGHT) return;
-			c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) +
-					  (((int) (u * rec_z)) & 63)];
-			if (c != 255)
-				*dest = c;
-			dest++;
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-			rec_z = 1.0 / z;
-		}
-	}
-}
-
-void c_tmap_scanline_per_nolight()
-{
-	ubyte *dest;
-	uint c;
-	int x, index = fx_xleft + (bytes_per_row * fx_y);
-	fix u,v,z,dudx, dvdx, dzdx;
-
-	u = fx_u;
-	v = fx_v*64;
-	z = fx_z;
-	dudx = fx_du_dx; 
-	dvdx = fx_dv_dx*64; 
-	dzdx = fx_dz_dx;
-
-	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
-
-	if (!Transparency_on)	{
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
-			if (++index >= SWIDTH*SHEIGHT) return;
-			*dest++ = (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
-	} else {
-		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
-			if (++index >= SWIDTH*SHEIGHT) return;
-			c = (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
-			if ( c!=255)
-				*dest = c;
-			dest++;
-			u += dudx;
-			v += dvdx;
-			z += dzdx;
-		}
-	}
-}
 
 // This texture mapper uses floating point extensively and writes 8 pixels at once, so it likely works
 // best on 64 bit RISC processors.
@@ -812,7 +529,7 @@ static void c_fp_tmap_scanline_per()
 
 #if 1
 // note the unrolling loop is broken. It is never called, and uses big endian. -- FH
-void c_tmap_scanline_per()
+static void c_tmap_scanline_per()
 {
 	ubyte *dest;
 	uint c;
@@ -1039,10 +756,11 @@ static void c_tmap_scanline_quad()
 }
 
 void (*cur_tmap_scanline_per)(void);
-void (*cur_tmap_scanline_per_nolight)(void);
 void (*cur_tmap_scanline_lin)(void);
 void (*cur_tmap_scanline_lin_nolight)(void);
+#ifndef OGL
 void (*cur_tmap_scanline_flat)(void);
+#endif
 void (*cur_tmap_scanline_shaded)(void);
 
 //runtime selection of optimized tmappers.  12/07/99  Matthew Mueller
@@ -1061,36 +779,40 @@ void select_tmap(const char *type)
 #if defined(macintosh) && !defined(OGL)
 	if (d_stricmp(type,"ppc")==0){
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
 		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+#ifndef OGL
 		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+#endif
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else
 #endif
 	if (d_stricmp(type,"fp")==0){
 		cur_tmap_scanline_per=c_fp_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=c_fp_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
 		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+#ifndef OGL
 		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+#endif
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else if (d_stricmp(type,"quad")==0){
 		cur_tmap_scanline_per=c_tmap_scanline_quad;
-		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
 		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+#ifndef OGL
 		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+#endif
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else {
 		cur_tmap_scanline_per=c_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
 		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+#ifndef OGL
 		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+#endif
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 }
