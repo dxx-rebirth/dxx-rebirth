@@ -265,8 +265,21 @@ static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &s
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
-vms_vector &vm_vec_sub (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
-static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1) __attribute_warn_unused_result;
+vms_vector &_vm_vec_sub(vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
+static inline vms_vector &vm_vec_sub(vms_vector &dest, const vms_vector &src0, const vms_vector &src1)
+{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#define vec_sub_constant_true(A)	(__builtin_constant_p(A) && (A))
+	if (vec_sub_constant_true(&src0 == &src1))
+		DXX_ALWAYS_ERROR_FUNCTION(vm_vec_sub_same_op, "vm_vec_sub with &src0 == &src1");
+	else if (vec_sub_constant_true(src0.x == src1.x && src0.y == src1.y && src0.z == src1.z))
+		DXX_ALWAYS_ERROR_FUNCTION(vm_vec_sub_same_values, "vm_vec_sub with equal value inputs");
+#undef vec_sub_constant_true
+#endif
+	return _vm_vec_sub(dest, src0, src1);
+}
+
+__attribute_warn_unused_result
 static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;

@@ -1097,28 +1097,16 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 
 	} else {
-		const auto player_direction_vector = vm_vec_sub(bpp_diff, bpp_diff);
-
 		// If player is not moving, fire right at him!
 		//	Note: If the robot fires in the direction of its forward vector, this is bad because the weapon does not
 		//	come out from the center of the robot; it comes out from the side.  So it is common for the weapon to miss
 		//	its target.  Ideally, we want to point the guns at the player.  For now, just fire right at the player.
-		if (std::abs(player_direction_vector.x) < 0x10000 &&
-			std::abs(player_direction_vector.y) < 0x10000 &&
-			std::abs(player_direction_vector.z) < 0x10000)
 		{
 			vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 		// Player is moving.  Determine where the player will be at the end of the next frame if he doesn't change his
 		//	behavior.  Fire at exactly that point.  This isn't exactly what you want because it will probably take the laser
 		//	a different amount of time to get there, since it will probably be a different distance from the player.
 		//	So, that's why we write games, instead of guiding missiles...
-		} else {
-			vm_vec_sub(fire_vec, bpp_diff, fire_point);
-			vm_vec_scale(fire_vec,fixmul(Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].speed[Difficulty_level], FrameTime));
-
-			vm_vec_add2(fire_vec, player_direction_vector);
-			vm_vec_normalize_quick(fire_vec);
-
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
