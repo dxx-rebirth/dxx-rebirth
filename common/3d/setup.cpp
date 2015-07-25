@@ -18,14 +18,13 @@
 #include "3d.h"
 #include "globvars.h"
 #include "clipper.h"
-//#include "div0.h"
 
 #ifdef OGL
 #include "ogl_init.h"
 #else
 #include "texmap.h"  // for init_interface_vars_to_assembler()
-#include "gr.h"
 #endif
+#include "gr.h"
 
 //start the frame
 void g3_start_frame(void)

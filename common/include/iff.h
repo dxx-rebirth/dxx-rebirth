@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _IFF_H
 
 #include "pstypes.h"
-#include "gr.h"
+#include "fwd-gr.h"
 
 #ifdef __cplusplus
 

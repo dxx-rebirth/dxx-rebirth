@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "makesig.h"
 #include "physfsx.h"
+#include "gr.h"
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"

@@ -21,6 +21,7 @@
 #include "playsave.h"
 #include "dxxerror.h"
 #include "args.h"
+#include "gr.h"
 
 namespace {
 

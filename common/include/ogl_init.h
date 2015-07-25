@@ -37,7 +37,7 @@
 # endif
 #endif
 
-#include "gr.h"
+#include "fwd-gr.h"
 #include "palette.h"
 #include "pstypes.h"
 #include "3d.h"
