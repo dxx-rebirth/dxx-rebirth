@@ -38,6 +38,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "dxxerror.h"
 
+tmap_scanline_function_table tmap_scanline_functions;
+
 #ifndef OGL
 void c_tmap_scanline_flat()
 {
@@ -755,14 +757,6 @@ static void c_tmap_scanline_quad()
 	}
 }
 
-void (*cur_tmap_scanline_per)(void);
-void (*cur_tmap_scanline_lin)(void);
-void (*cur_tmap_scanline_lin_nolight)(void);
-#ifndef OGL
-void (*cur_tmap_scanline_flat)(void);
-#endif
-void (*cur_tmap_scanline_shaded)(void);
-
 //runtime selection of optimized tmappers.  12/07/99  Matthew Mueller
 //the reason I did it this way rather than having a *tmap_funcs that then points to a c_tmap or fp_tmap struct thats already filled in, is to avoid a second pointer dereference.
 void select_tmap(const char *type)
@@ -779,40 +773,16 @@ void select_tmap(const char *type)
 #if defined(macintosh) && !defined(OGL)
 	if (d_stricmp(type,"ppc")==0){
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
-		cur_tmap_scanline_lin=c_tmap_scanline_lin;
-		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
-#ifndef OGL
-		cur_tmap_scanline_flat=c_tmap_scanline_flat;
-#endif
-		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else
 #endif
 	if (d_stricmp(type,"fp")==0){
 		cur_tmap_scanline_per=c_fp_tmap_scanline_per;
-		cur_tmap_scanline_lin=c_tmap_scanline_lin;
-		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
-#ifndef OGL
-		cur_tmap_scanline_flat=c_tmap_scanline_flat;
-#endif
-		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else if (d_stricmp(type,"quad")==0){
 		cur_tmap_scanline_per=c_tmap_scanline_quad;
-		cur_tmap_scanline_lin=c_tmap_scanline_lin;
-		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
-#ifndef OGL
-		cur_tmap_scanline_flat=c_tmap_scanline_flat;
-#endif
-		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else {
 		cur_tmap_scanline_per=c_tmap_scanline_per;
-		cur_tmap_scanline_lin=c_tmap_scanline_lin;
-		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
-#ifndef OGL
-		cur_tmap_scanline_flat=c_tmap_scanline_flat;
-#endif
-		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 }
