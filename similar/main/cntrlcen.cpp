@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "gameseq.h"
 #include "ai.h"
+#include "player.h"
 #include "multi.h"
 #include "fwdwall.h"
 #include "segment.h"

@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-#include "player.h"	// playernum_t
+#include "fwd-player.h"	// playernum_t
 
 struct vms_vector;
 

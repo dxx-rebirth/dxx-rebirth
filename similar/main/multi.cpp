@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "multiinternal.h"
 #include "object.h"
+#include "player.h"
 #include "laser.h"
 #include "fuelcen.h"
 #include "scores.h"

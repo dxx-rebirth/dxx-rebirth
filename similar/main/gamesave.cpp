@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "hostage.h"
 #include "weapon.h"
+#include "player.h"
 #include "newdemo.h"
 #include "gameseq.h"
 #include "automap.h"

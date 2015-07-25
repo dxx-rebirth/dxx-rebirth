@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "effects.h"
 #include "menu.h"
+#include "player.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"

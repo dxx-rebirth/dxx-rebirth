@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "screens.h"
 #include "joy.h"
+#include "player.h"
 #include "vecmat.h"
 #include "effects.h"
 #include "game.h"

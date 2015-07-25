@@ -25,7 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "player.h"
+#include "fwd-player.h"
+#include "player-callsign.h"
+#include "weapon.h"
 #include "mission.h"
 #include "newmenu.h"
 #include "powerup.h"

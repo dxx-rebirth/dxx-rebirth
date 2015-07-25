@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "timer.h"
 #include "text.h"
+#include "player.h"
 #include "ai.h"
 #include "fireball.h"
 #include "aistruct.h"
