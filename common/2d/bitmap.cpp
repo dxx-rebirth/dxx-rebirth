@@ -70,7 +70,7 @@ void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16
 	bm.bm_w = w;
 	bm.bm_h = h;
 	bm.bm_flags = 0;
-	bm.bm_type = mode;
+	bm.set_type(mode);
 	bm.bm_rowsize = bytesperline;
 
 	bm.bm_data = nullptr;
@@ -123,7 +123,7 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	bm.bm_w = w;
 	bm.bm_h = h;
 	bm.bm_flags = bmParent.bm_flags;
-	bm.bm_type = bmParent.bm_type;
+	bm.set_type(bmParent.get_type());
 	bm.bm_rowsize = bmParent.bm_rowsize;
 
 #ifdef OGL
@@ -165,7 +165,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparen
 	array<uint8_t, 256> colormap;
 	array<unsigned, 256> freq;
 
-	if (bmp->bm_type != BM_LINEAR)
+	if (bmp->get_type() != BM_LINEAR)
 		return;	 //can't do it
 
 	// This should be build_colormap_asm, but we're not using invert table, so...

@@ -146,7 +146,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 		}
 		bmp->bm_w = bmp->bm_rowsize = xsize;
 		bmp->bm_h = ysize;
-		bmp->bm_type = bitmap_type;
+		bmp->set_type(bitmap_type);
 	}
 	
 	for (row=0; row< ysize ; row++)      {
@@ -226,7 +226,8 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 		}
 	}
 
-	if ( bmp.bm_type == BM_LINEAR )	{
+	if (bmp.get_type() == BM_LINEAR)
+	{
 		for (row=0; row< ysize ; row++)      {
 			auto pixdata = &bmp.get_bitmap_data()[bmp.bm_rowsize*row];
 			for (col=0; col< xsize ; )      {

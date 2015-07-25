@@ -388,7 +388,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 
 						bmheader->w = prev_bm->bm_w;
 						bmheader->h = prev_bm->bm_h;
-						bmheader->type = prev_bm->bm_type;
+						bmheader->type = prev_bm->get_type();
 
 						MALLOC(bmheader->raw_data, uint8_t[], bmheader->w * bmheader->h);
 
@@ -614,7 +614,7 @@ int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t 
 	if (!ifile)
 		return IFF_NO_FILE;
 
-	ret = iff_parse_bitmap(ifile, *bm, bm->bm_type, palette, nullptr);
+	ret = iff_parse_bitmap(ifile, *bm, bm->get_type(), palette, nullptr);
 	return ret;
 }
 

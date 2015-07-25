@@ -54,7 +54,7 @@ void gr_pixel(unsigned x, unsigned y)
 
 static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
 {
-	switch (bm.bm_type)
+	switch (bm.get_type())
 	{
 #ifdef OGL
 	case BM_OGL:

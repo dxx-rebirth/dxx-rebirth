@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 {
-	switch (bitmap.bm_type)
+	switch (bitmap.get_type())
 	{
 		case BM_LINEAR:
 			return bitmap.bm_data[ bitmap.bm_rowsize*y + x ];

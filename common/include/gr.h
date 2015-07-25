@@ -43,7 +43,17 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 {
 	uint16_t bm_x,bm_y; // Offset from parent's origin
 	uint16_t bm_w,bm_h; // width,height
-	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
+private:
+	uint8_t bm_type;
+public:
+	uint8_t get_type() const
+	{
+		return bm_type;
+	}
+	void set_type(uint8_t t)
+	{
+		bm_type = t;
+	}
 	sbyte   bm_flags;   // bit 0 on means it has transparency.
 	                    // bit 1 on means it has supertransparency
 	                    // bit 2 on means it doesn't get passed through lighting.

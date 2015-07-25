@@ -322,7 +322,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 {
 //a bitmap for the character
 	grs_bitmap char_bm = {};
-	char_bm.bm_type = BM_LINEAR;
+	char_bm.set_type(BM_LINEAR);
 	char_bm.bm_flags = BM_FLAG_TRANSPARENT;
 	unsigned char * fp;
 	const char *text_ptr, *next_row, *text_ptr1;
@@ -591,7 +591,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 
 	yy = y;
 
-	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
+	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != BM_OGL)
 		Error("carp.\n");
 	const auto &&fspacy = FSPACY();
 	while (next_row != NULL)
@@ -650,7 +650,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 			if (grd_curcanv->cv_font->ft_flags&FT_COLOR)
 				ogl_ubitmapm_cs(xx,yy,FONTSCALE_X(ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),grd_curcanv->cv_font->ft_bitmaps[letter],-1,F1_0);
 			else{
-				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
+				if (grd_curcanv->cv_bitmap.get_type() == BM_OGL)
 					ogl_ubitmapm_cs(xx,yy,ft_w*(FONTSCALE_X(grd_curcanv->cv_font->ft_w)/grd_curcanv->cv_font->ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),grd_curcanv->cv_font->ft_bitmaps[letter],grd_curcanv->cv_font_fg_color,F1_0);
 				else
 					Error("ogl_internal_string: non-color string to non-ogl dest\n");

@@ -155,11 +155,12 @@ static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 }
 
 void gr_ubitmap(grs_bitmap &bm)
-{   int source, dest;
+{
+	int dest;
 	const unsigned x = 0;
 	const unsigned y = 0;
 
-	source = bm.bm_type;
+	const auto source = bm.get_type();
 	dest = TYPE;
 
 	if (source==BM_LINEAR) {
@@ -187,7 +188,7 @@ void gr_ubitmap(grs_bitmap &bm)
 
 void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 {
-	auto source = bm.bm_type;
+	const auto source = bm.get_type();
 	auto dest = TYPE;
 	if (source==BM_LINEAR) {
 		switch( dest )
@@ -250,7 +251,7 @@ static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, unsigned d
 
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_LINEAR ))
+	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_LINEAR)
 	{
 		if ( src.bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, src, dest );
@@ -260,22 +261,23 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 	}
 
 #ifdef OGL
-	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_OGL ))
+	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_OGL)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_LINEAR ))
+	if (src.get_type() == BM_OGL && dest.get_type() == BM_LINEAR)
 	{
 		return;
 	}
-	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_OGL ))
+	if (src.get_type() == BM_OGL && dest.get_type() == BM_OGL)
 	{
 		return;
 	}
 #endif
 
-	if ( (src.bm_flags & BM_FLAG_RLE ) && (src.bm_type == BM_LINEAR) )	{
+	if ((src.bm_flags & BM_FLAG_RLE) && src.get_type() == BM_LINEAR)
+	{
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
 	}
@@ -332,7 +334,7 @@ void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm)
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 
-	if ( (bm.bm_type == BM_LINEAR) && (grd_curcanv->cv_bitmap.bm_type == BM_LINEAR ))
+	if (bm.get_type() == BM_LINEAR && grd_curcanv->cv_bitmap.get_type() == BM_LINEAR)
 	{
 		if ( bm.bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
@@ -348,16 +350,16 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 	ubyte c;
 
 #ifdef OGL
-	if ( (src.bm_type == BM_LINEAR) && (dest.bm_type == BM_OGL ))
+	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_OGL)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_LINEAR ))
+	if (src.get_type() == BM_OGL && dest.get_type() == BM_LINEAR)
 	{
 		return;
 	}
-	if ( (src.bm_type == BM_OGL) && (dest.bm_type == BM_OGL ))
+	if (src.get_type() == BM_OGL && dest.get_type() == BM_OGL)
 	{
 		return;
 	}
@@ -482,14 +484,15 @@ void show_fullscr(grs_bitmap &bm)
 {
 	auto &scr = grd_curcanv->cv_bitmap;
 #ifdef OGL
-	if(bm.bm_type == BM_LINEAR && scr.bm_type == BM_OGL &&
+	if (bm.get_type() == BM_LINEAR && scr.get_type() == BM_OGL &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
 		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif
-	if(scr.bm_type != BM_LINEAR) {
+	if (scr.get_type() != BM_LINEAR)
+	{
 		grs_bitmap_ptr p = gr_create_bitmap(scr.bm_w, scr.bm_h);
 		auto &tmp = *p.get();
 		gr_bitmap_scale_to(bm, tmp);
