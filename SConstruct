@@ -1204,9 +1204,7 @@ del add_compiler_option_tests
 class LazyObjectConstructor:
 	def __get_lazy_object(self,srcname,transform_target):
 		env = self.env
-		o = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
-		if env._dxx_pch_node:
-			env.Depends(o, self.env._dxx_pch_node)
+		o = env._dxx_pch_object(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
 		return o
 	def __lazy_objects(self,name,source):
 		try:
@@ -1557,13 +1555,25 @@ class DXXCommon(LazyObjectConstructor):
 
 	@staticmethod
 	def write_pch_inclusion_file(target, source, env):
-		with open(str(target[0]), 'wt') as f:
-			f.write('/* BEGIN PCH GENERATED FILE\n * Threshold=%u\n */\n' % env.__dxx_pch_inclusion_count)
+		cpp = str(target[0])
+		header = cpp[:-3] + 'h'
+		banner0 = '/* BEGIN PCH GENERATED FILE\n * Threshold=%u\n */\n' % env.__dxx_pch_inclusion_count
+		banner1 = '/* END PCH GENERATED FILE */\n'
+		with open(cpp, 'wt') as f:
+			f.write(banner0)
+			f.write('#include "%s"\n' % header)
+			f.write(banner1)
+		with open(header, 'wt') as f:
+			f.write(banner0)
+			f.write('#include "dxxsconf.h"\n')
+			dxx_pch_inclusion_count = env.__dxx_pch_inclusion_count
 			for (name,count) in env.__dxx_pch_candidates.items():
-				if count >= env.__dxx_pch_inclusion_count:
+				if os.path.isabs(name):
+					continue
+				if count >= dxx_pch_inclusion_count:
 					f.write('#include "%s"\t/* %u */\n' % (name, count))
 					env.Depends(target, name)
-			f.write('/* END PCH GENERATED FILE */\n')
+			f.write(banner1)
 
 	def create_header_targets(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -1602,17 +1612,30 @@ class DXXCommon(LazyObjectConstructor):
 				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 
+	@staticmethod
+	def _create_dxx_pch_object_hook(env,pch_node):
+		pch_CXXFLAGS = ['-include', str(pch_node[0])[:-4], '-Winvalid-pch']
+		so = env.StaticObject
+		Depends = env.Depends
+		def StaticObject(*args,**kwargs):
+			CXXFLAGS = kwargs.get('CXXFLAGS', None)
+			if CXXFLAGS is None:
+				CXXFLAGS = env['CXXFLAGS']
+			o = so(CXXFLAGS=CXXFLAGS + pch_CXXFLAGS, *args, **kwargs)
+			Depends(o, pch_node)
+			return o
+		return StaticObject
+
 	def create_pch_node(self,dirname,configure_pch_flags):
 		if self.user_settings.check_header_includes:
 			self.create_header_targets()
+		StaticObject = self.env.StaticObject
 		if not configure_pch_flags:
-			self.env._dxx_pch_node = None
+			self.env._dxx_pch_object = StaticObject
 			return
-		dirname = os.path.join(self.user_settings.builddir, dirname)
-		target = os.path.join(dirname, 'pch.h.gch')
-		source = os.path.join(dirname, 'pch.cpp')
-		self.env._dxx_pch_node = self.env.StaticObject(target=target, source=source, CXXFLAGS=self.env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS'])
-		self.env.Append(CXXFLAGS = ['-include', str(self.env._dxx_pch_node[0])[:-4], '-Winvalid-pch'])
+		source = os.path.join(self.user_settings.builddir, dirname, 'pch.cpp')
+		env = self.env
+		env._dxx_pch_object = self._create_dxx_pch_object_hook(env, StaticObject(target=source[:-3] + 'h.gch', source=source, CXXFLAGS=self.env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']))
 		self.env.__dxx_pch_candidates = {}
 		self.env.__dxx_pch_inclusion_count = int(self.user_settings.pch)
 		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
@@ -2282,11 +2305,9 @@ class DXXProgram(DXXCommon):
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
-		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
+		versid_objlist = [self.env._dxx_pch_object(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
 		if self.user_settings.versid_depend_all:
 			env.Depends(versid_objlist[0], objects)
-		if env._dxx_pch_node:
-			env.Depends(versid_objlist[0], env._dxx_pch_node)
 		objects.extend(versid_objlist)
 		# finally building program...
 		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
