@@ -965,7 +965,7 @@ void newdemo_record_start_demo()
 		}
 	} else
 		// NOTE LINK TO ABOVE!!!
-		nd_write_int(Players[Player_num].score);
+		nd_write_int(get_local_player().score);
 
 	nd_record_v_weapon_type = -1;
 	nd_record_v_weapon_num = -1;
@@ -974,23 +974,23 @@ void newdemo_record_start_demo()
 	nd_record_v_secondary_ammo = -1;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
+		nd_write_short(i == VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
-	range_for (auto &i, Players[Player_num].secondary_ammo)
+	range_for (auto &i, get_local_player().secondary_ammo)
 		nd_write_short(i);
 
-	nd_write_byte((sbyte)Players[Player_num].laser_level);
+	nd_write_byte((sbyte)get_local_player().laser_level);
 
 //  Support for missions added here
 
 	nd_write_string(Current_mission_filename);
 
-	nd_record_v_player_energy = (sbyte)(f2ir(Players[Player_num].energy));
-	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
-	nd_record_v_player_shields = (sbyte)(f2ir(Players[Player_num].shields));
-	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
-	nd_record_v_player_flags = Players[Player_num].flags;
-	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
+	nd_record_v_player_energy = (sbyte)(f2ir(get_local_player().energy));
+	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
+	nd_record_v_player_shields = (sbyte)(f2ir(get_local_player().shields));
+	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
+	nd_record_v_player_flags = get_local_player().flags;
+	nd_write_int(get_local_player().flags);        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
@@ -1757,18 +1757,18 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		} else
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			nd_read_int(&(Players[Player_num].score));      // Note link to above if!
+			nd_read_int(&(get_local_player().score));      // Note link to above if!
 			if (purpose == PURPOSE_REWRITE)
-				nd_write_int(Players[Player_num].score);
+				nd_write_int(get_local_player().score);
 #endif
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Newdemo_game_mode & GM_MULTI))
 	{
-		nd_read_int(&(Players[Player_num].score));      // Note link to above if!
+		nd_read_int(&(get_local_player().score));      // Note link to above if!
 		if (purpose == PURPOSE_REWRITE)
-			nd_write_int(Players[Player_num].score);
+			nd_write_int(get_local_player().score);
 	}
 #endif
 
@@ -1777,12 +1777,12 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		short s;
 		nd_read_short(&s);
 		if (i == VULCAN_INDEX)
-			Players[Player_num].vulcan_ammo = s;
+			get_local_player().vulcan_ammo = s;
 		if (purpose == PURPOSE_REWRITE)
 			nd_write_short(s);
 	}
 
-	range_for (auto &i, Players[Player_num].secondary_ammo)
+	range_for (auto &i, get_local_player().secondary_ammo)
 	{
 		nd_read_short((short*)&(i));
 		if (purpose == PURPOSE_REWRITE)
@@ -1791,8 +1791,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
-	if ((purpose != PURPOSE_REWRITE) && (laser_level != Players[Player_num].laser_level)) {
-		Players[Player_num].laser_level = laser_level;
+	if ((purpose != PURPOSE_REWRITE) && (laser_level != get_local_player().laser_level)) {
+		get_local_player().laser_level = laser_level;
 		update_laser_weapon_info();
 	}
 	else if (purpose == PURPOSE_REWRITE)
@@ -1832,14 +1832,14 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_byte(shield);
 	}
 
-	nd_read_int((int *)&(Players[Player_num].flags));
+	nd_read_int((int *)&(get_local_player().flags));
 	if (purpose == PURPOSE_REWRITE)
-		nd_write_int(Players[Player_num].flags);
-	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+		nd_write_int(get_local_player().flags);
+	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
-	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
@@ -1861,7 +1861,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		if (c != ND_EVENT_NEW_LEVEL) {
 			int flags;
 
-			flags = Players[Player_num].flags;
+			flags = get_local_player().flags;
 			energy = shield;
 			shield = (unsigned char)flags;
 			flags = (flags >> 8) & 0x00ffffff;
@@ -1875,8 +1875,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_II)
 	nd_playback_v_juststarted=1;
 #endif
-	Players[Player_num].energy = i2f(energy);
-	Players[Player_num].shields = i2f(shield);
+	get_local_player().energy = i2f(energy);
+	get_local_player().shields = i2f(shield);
 	return 0;
 }
 
@@ -1913,7 +1913,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 	reset_objects(1);
-	Players[Player_num].homing_object_dist = -F1_0;
+	get_local_player().homing_object_dist = -F1_0;
 
 	prev_obj = NULL;
 
@@ -2352,14 +2352,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (shareware)
-				Players[Player_num].energy = i2f(energy);
+				get_local_player().energy = i2f(energy);
 			else
 			{
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[Player_num].energy = i2f(energy);
+				get_local_player().energy = i2f(energy);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (old_energy != 255)
-					Players[Player_num].energy = i2f(old_energy);
+					get_local_player().energy = i2f(old_energy);
 			}
 			}
 			break;
@@ -2405,14 +2405,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (shareware)
-				Players[Player_num].shields = i2f(shield);
+				get_local_player().shields = i2f(shield);
 			else
 			{
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[Player_num].shields = i2f(shield);
+				get_local_player().shields = i2f(shield);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (old_shield != 255)
-					Players[Player_num].shields = i2f(old_shield);
+					get_local_player().shields = i2f(old_shield);
 			}
 			}
 			break;
@@ -2421,40 +2421,40 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_PLAYER_FLAGS: {
 			uint oflags;
 
-			nd_read_int((int *)&(Players[Player_num].flags));
+			nd_read_int((int *)&(get_local_player().flags));
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_int(Players[Player_num].flags);
+				nd_write_int(get_local_player().flags);
 				break;
 			}
 
-			oflags = Players[Player_num].flags >> 16;
-			Players[Player_num].flags &= 0xffff;
+			oflags = get_local_player().flags >> 16;
+			get_local_player().flags &= 0xffff;
 
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (oflags != 0xffff)) ) {
-				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = 0;
+				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+					get_local_player().cloak_time = 0;
 				}
-				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
-				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = 0;
-				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
-				Players[Player_num].flags = oflags;
+				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+					get_local_player().invulnerable_time = 0;
+				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+				get_local_player().flags = oflags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
-				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = 0;
+				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+					get_local_player().cloak_time = 0;
 				}
-				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
-				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = 0;
+				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+					get_local_player().invulnerable_time = 0;
 			}
 			update_laser_weapon_info();     // in case of quad laser change
 			break;
@@ -2551,7 +2551,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_short(distance);
 				break;
 			}
-			Players[Player_num].homing_object_dist = i2f((int)(distance << 16));
+			get_local_player().homing_object_dist = i2f((int)(distance << 16));
 			break;
 		}
 
@@ -2841,9 +2841,9 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[Player_num].score -= score;
+				get_local_player().score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[Player_num].score += score;
+				get_local_player().score += score;
 			break;
 		}
 
@@ -2874,7 +2874,7 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 #endif
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
-				Players[Player_num].vulcan_ammo = value;
+				get_local_player().vulcan_ammo = value;
 			break;
 		}
 
@@ -2891,9 +2891,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[Player_num].secondary_ammo[Secondary_weapon] = old_ammo;
+				get_local_player().secondary_ammo[Secondary_weapon] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[Player_num].secondary_ammo[Secondary_weapon] = new_ammo;
+				get_local_player().secondary_ammo[Secondary_weapon] = new_ammo;
 			break;
 		}
 
@@ -2937,10 +2937,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[Player_num].laser_level = stored_laser_level(old_level);
+				get_local_player().laser_level = stored_laser_level(old_level);
 				update_laser_weapon_info();
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[Player_num].laser_level = stored_laser_level(new_level);
+				get_local_player().laser_level = stored_laser_level(new_level);
 				update_laser_weapon_info();
 			}
 			break;
@@ -3242,14 +3242,14 @@ void newdemo_goto_end(int to_rewrite)
 
 	nd_read_byte((sbyte *)&energy);
 	nd_read_byte((sbyte *)&shield);
-	Players[Player_num].energy = i2f(energy);
-	Players[Player_num].shields = i2f(shield);
-	nd_read_int((int *)&(Players[Player_num].flags));
-	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+	get_local_player().energy = i2f(energy);
+	get_local_player().shields = i2f(shield);
+	nd_read_int((int *)&(get_local_player().flags));
+	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
-	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
@@ -3257,15 +3257,15 @@ void newdemo_goto_end(int to_rewrite)
 		short s;
 		nd_read_short(&s);
 		if (i == VULCAN_INDEX)
-			Players[Player_num].vulcan_ammo = s;
+			get_local_player().vulcan_ammo = s;
 	}
-	range_for (auto &i, Players[Player_num].secondary_ammo)
+	range_for (auto &i, get_local_player().secondary_ammo)
 		nd_read_short((short *)&(i));
 	int8_t i;
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
-	if (laser_level != Players[Player_num].laser_level) {
-		Players[Player_num].laser_level = laser_level;
+	if (laser_level != get_local_player().laser_level) {
+		get_local_player().laser_level = laser_level;
 		if (!to_rewrite)
 			update_laser_weapon_info();
 	}
@@ -3287,7 +3287,7 @@ void newdemo_goto_end(int to_rewrite)
 			}
 		}
 	} else {
-		nd_read_int(&(Players[Player_num].score));
+		nd_read_int(&(get_local_player().score));
 	}
 
 	if (to_rewrite)
@@ -3443,8 +3443,8 @@ void newdemo_playback_one_frame()
 		if (i.flags & PLAYER_FLAGS_CLOAKED)
 			i.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 
-	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return;
@@ -3650,21 +3650,21 @@ static void newdemo_write_end()
 	{
 	byte_count += 10;       // from nd_record_v_framebytes_written
 
-	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
-	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
-	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
+	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
+	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
+	nd_write_int(get_local_player().flags);        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
 	byte_count += 8;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == VULCAN_INDEX ? Players[Player_num].vulcan_ammo : 0);
+		nd_write_short(i == VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
-	range_for (auto &i, Players[Player_num].secondary_ammo)
+	range_for (auto &i, get_local_player().secondary_ammo)
 		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
-	nd_write_byte(Players[Player_num].laser_level);
+	nd_write_byte(get_local_player().laser_level);
 	byte_count++;
 
 	if (Game_mode & GM_MULTI) {
@@ -3684,7 +3684,7 @@ static void newdemo_write_end()
 			}
 		}
 	} else {
-		nd_write_int(Players[Player_num].score);
+		nd_write_int(get_local_player().score);
 		byte_count += 4;
 	}
 	nd_write_short(byte_count);
@@ -3752,7 +3752,7 @@ static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 					insert = Current_mission_filename;
 					break;
 				case 'p':	/* pilot */
-					insert = Players[Player_num].callsign;
+					insert = get_local_player().callsign;
 					break;
 				default:
 					return false;
@@ -3909,8 +3909,8 @@ void newdemo_start_playback(const char * filename)
 
 	nd_playback_v_bad_read = 0;
 	change_playernum_to(0);                 // force playernum to 0
-	nd_playback_v_save_callsign = Players[Player_num].callsign;
-	Players[Player_num].lives=0;
+	nd_playback_v_save_callsign = get_local_player().callsign;
+	get_local_player().lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 
 	if (newdemo_read_demo_start(rnd_demo)) {
@@ -3947,7 +3947,7 @@ void newdemo_stop_playback()
 	infile.reset();
 	Newdemo_state = ND_STATE_NORMAL;
 	change_playernum_to(0);             //this is reality
-	Players[Player_num].callsign = nd_playback_v_save_callsign;
+	get_local_player().callsign = nd_playback_v_save_callsign;
 	Rear_view=0;
 	nd_playback_v_dead = nd_playback_v_rear = 0;
 #if defined(DXX_BUILD_DESCENT_II)

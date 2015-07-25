@@ -177,17 +177,17 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
-	if (Players[Player_num].energy < 0)
-		Players[Player_num].energy = 0;
+	if (get_local_player().energy < 0)
+		get_local_player().energy = 0;
 
 		weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
-		if (Players[Player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
+		if (get_local_player().primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
 			return_value |= has_weapon_result::has_weapon_flag;
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
-			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].vulcan_ammo)
+			if (Weapon_info[weapon_index].ammo_usage <= get_local_player().vulcan_ammo)
 				return_value |= has_weapon_result::has_ammo_flag;
 		}
 		/* Hack to work around check in do_primary_weapon_select */
@@ -199,17 +199,17 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num==FUSION_INDEX)
 		{
-			if(Players[Player_num].energy >= F1_0*2)
+			if(get_local_player().energy >= F1_0*2)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
-			if (Players[Player_num].energy || Omega_charge)
+			if (get_local_player().energy || Omega_charge)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #endif
 		else
-			if (Weapon_info[weapon_index].energy_usage <= Players[Player_num].energy)
+			if (Weapon_info[weapon_index].energy_usage <= get_local_player().energy)
 				return_value |= has_weapon_result::has_energy_flag;
 	return return_value;
 }
@@ -221,13 +221,13 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 
-		if (Players[Player_num].secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num))
+		if (get_local_player().secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num))
 			return_value |= has_weapon_result::has_weapon_flag;
 
-		if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].secondary_ammo[weapon_num])
+		if (Weapon_info[weapon_index].ammo_usage <= get_local_player().secondary_ammo[weapon_num])
 			return_value |= has_weapon_result::has_ammo_flag;
 
-		if (Weapon_info[weapon_index].energy_usage <= Players[Player_num].energy)
+		if (Weapon_info[weapon_index].energy_usage <= get_local_player().energy)
 			return_value |= has_weapon_result::has_energy_flag;
 	return return_value;
 }
@@ -246,7 +246,7 @@ void CyclePrimary ()
 	
 #if defined(DXX_BUILD_DESCENT_II)
 	// some remapping for SUPER LASER which is not an actual weapon type at all
-	if (Primary_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
+	if (Primary_weapon == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
 		cur_order_slot = POrderList(SUPER_LASER_INDEX);
 	else
 #endif
@@ -273,11 +273,11 @@ void CyclePrimary ()
 		desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
-		if (desired_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
+		if (desired_weapon == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
 			continue;
 		if (desired_weapon == SUPER_LASER_INDEX)
 		{
-			if (Players[Player_num].laser_level <= MAX_LASER_LEVEL)
+			if (get_local_player().laser_level <= MAX_LASER_LEVEL)
 				continue;
 			else
 				desired_weapon = LASER_INDEX;
@@ -366,7 +366,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == LASER_INDEX)
-			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, Players[Player_num].laser_level+1, TXT_SELECTED);
+			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, get_local_player().laser_level+1, TXT_SELECTED);
 		else
 #endif
 			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
@@ -681,26 +681,26 @@ int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
 	int cutpoint;
-	const auto max = PLAYER_MAX_AMMO(Players[Player_num], Secondary_ammo_max[weapon_index]);
+	const auto max = PLAYER_MAX_AMMO(get_local_player(), Secondary_ammo_max[weapon_index]);
 
-	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
+	if (get_local_player().secondary_ammo[weapon_index] >= max) {
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, get_local_player().secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
-	Players[Player_num].secondary_weapon_flags |= (1<<weapon_index);
-	Players[Player_num].secondary_ammo[weapon_index] += count;
+	get_local_player().secondary_weapon_flags |= (1<<weapon_index);
+	get_local_player().secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
-	if (Players[Player_num].secondary_ammo[weapon_index] > max) {
-		num_picked_up = count - (Players[Player_num].secondary_ammo[weapon_index] - max);
-		Players[Player_num].secondary_ammo[weapon_index] = max;
+	if (get_local_player().secondary_ammo[weapon_index] > max) {
+		num_picked_up = count - (get_local_player().secondary_ammo[weapon_index] - max);
+		get_local_player().secondary_ammo[weapon_index] = max;
 	}
 
-	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
+	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		cutpoint=SOrderList (255);
-		if (((Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index) < cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
+		if (((Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index) < cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (get_local_player().secondary_ammo[Secondary_weapon] == 0))   )
 			select_secondary_weapon(nullptr, weapon_index, 1);
 		else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -800,17 +800,17 @@ int pick_up_primary(int weapon_index)
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
 	int cutpoint, supposed_weapon=Primary_weapon;
 
-	if (weapon_index!=LASER_INDEX && Players[Player_num].primary_weapon_flags & flag) {		//already have
+	if (weapon_index!=LASER_INDEX && get_local_player().primary_weapon_flags & flag) {		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
-	Players[Player_num].primary_weapon_flags |= flag;
+	get_local_player().primary_weapon_flags |= flag;
 
 	cutpoint=POrderList (255);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)
+	if (Primary_weapon==LASER_INDEX && get_local_player().laser_level>=4)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 #endif
 
@@ -828,7 +828,7 @@ int pick_up_primary(int weapon_index)
 #if defined(DXX_BUILD_DESCENT_II)
 void check_to_use_primary_super_laser()
 {
-	if (!(Players[Player_num].primary_weapon_flags & HAS_SUPER_LASER_FLAG))
+	if (!(get_local_player().primary_weapon_flags & HAS_SUPER_LASER_FLAG))
 	{
 		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;
 		const auto pwi = POrderList(weapon_index);
@@ -846,7 +846,7 @@ void check_to_use_primary_super_laser()
 //	Returns the amount picked up
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 {
-	auto &plr = Players[Player_num];
+	auto &plr = get_local_player();
 	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
 	if (plr.vulcan_ammo >= max)
@@ -1187,7 +1187,7 @@ void DropCurrentWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	auto &plr = Players[Player_num];
+	auto &plr = get_local_player();
 	powerup_type_t drop_type;
 	const auto Primary_weapon = ::Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
@@ -1293,7 +1293,7 @@ void DropSecondaryWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	if (Players[Player_num].secondary_ammo[Secondary_weapon] ==0)
+	if (get_local_player().secondary_ammo[Secondary_weapon] ==0)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");
 		return;
@@ -1311,7 +1311,7 @@ void DropSecondaryWeapon ()
 		case POW_GUIDED_MISSILE_1:
 		case POW_MERCURY_MISSILE_1:
 #endif
-			if (Players[Player_num].secondary_ammo[Secondary_weapon] % 4)
+			if (get_local_player().secondary_ammo[Secondary_weapon] % 4)
 			{
 				sub_ammo = 1;
 			}
@@ -1326,7 +1326,7 @@ void DropSecondaryWeapon ()
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_SMART_MINE:
 #endif
-			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
+			if (get_local_player().secondary_ammo[Secondary_weapon]<4)
 			{
 				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
 				return;
@@ -1399,11 +1399,11 @@ void DropSecondaryWeapon ()
 	if ((Game_mode & GM_MULTI) && objnum!=object_none)
 		multi_send_drop_weapon(objnum,seed);
 
-	Players[Player_num].secondary_ammo[Secondary_weapon]-=sub_ammo;
+	get_local_player().secondary_ammo[Secondary_weapon]-=sub_ammo;
 
-	if (Players[Player_num].secondary_ammo[Secondary_weapon]==0)
+	if (get_local_player().secondary_ammo[Secondary_weapon]==0)
 	{
-		Players[Player_num].secondary_weapon_flags &= (~(1<<Secondary_weapon));
+		get_local_player().secondary_weapon_flags &= (~(1<<Secondary_weapon));
 		auto_select_secondary_weapon();
 	}
 }

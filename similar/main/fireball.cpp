@@ -195,7 +195,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 											damage /= 4;
 #endif
 									if (apply_damage_to_robot(obj0p, damage, parent))
-										if ((objp != object_none) && (parent == Players[Player_num].objnum))
+										if ((objp != object_none) && (parent == get_local_player().objnum))
 											add_points_to_score(Robot_info[get_robot_id(obj0p)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -585,7 +585,7 @@ static segnum_t choose_drop_segment()
 		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
-			segnum = pick_connected_segment(vcobjptr(Players[Player_num].objnum), --cur_drop_depth);
+			segnum = pick_connected_segment(vcobjptr(get_local_player().objnum), --cur_drop_depth);
 			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
@@ -617,7 +617,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const auto &&objnum = call_object_create_egg(vobjptr(Players[Player_num].objnum), 1, OBJ_POWERUP, powerup_type);
+		const auto &&objnum = call_object_create_egg(vobjptr(get_local_player().objnum), 1, OBJ_POWERUP, powerup_type);
 
 		if (objnum == object_none)
 			return;
@@ -697,7 +697,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (Players[Player_num].vulcan_ammo >= VULCAN_AMMO_MAX))
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (get_local_player().vulcan_ammo >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
 		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id)) {
@@ -722,7 +722,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 			}
 		}
 	} else if (del_obj->contains_id == POW_QUAD_FIRE)
-		if ((Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, del_obj->contains_id)) {
+		if ((get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, del_obj->contains_id)) {
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj->contains_count = 1;
@@ -932,7 +932,7 @@ static bool skip_create_egg_powerup(powerup_type_t powerup)
 		pcurrent = &player::energy;
 	else
 		return false;
-	fix current = Players[Player_num].*pcurrent;
+	fix current = get_local_player().*pcurrent;
 	int limit;
 	if (current >= i2f(150))
 		limit = 8192;

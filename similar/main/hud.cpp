@@ -234,7 +234,7 @@ int HUD_init_message_literal(int class_flag, const char *str)
 void player_dead_message(void)
 {
 	if (Player_exploded) {
-		if ( Players[Player_num].lives < 2 )    {
+		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h, aw;
 			gr_set_curfont( HUGE_FONT );
 			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );

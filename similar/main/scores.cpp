@@ -175,23 +175,23 @@ static void int_to_string( int number, char *dest )
 
 static void scores_fill_struct(stats_info * stats)
 {
-	stats->name = Players[Player_num].callsign;
-	stats->score = Players[Player_num].score;
-	stats->ending_level = Players[Player_num].level;
-	if (Players[Player_num].num_robots_total > 0 )	
-		stats->kill_ratio = (Players[Player_num].num_kills_total*100)/Players[Player_num].num_robots_total;
+	stats->name = get_local_player().callsign;
+	stats->score = get_local_player().score;
+	stats->ending_level = get_local_player().level;
+	if (get_local_player().num_robots_total > 0 )	
+		stats->kill_ratio = (get_local_player().num_kills_total*100)/get_local_player().num_robots_total;
 	else
 		stats->kill_ratio = 0;
 
-	if (Players[Player_num].hostages_total > 0 )	
-		stats->hostage_ratio = (Players[Player_num].hostages_rescued_total*100)/Players[Player_num].hostages_total;
+	if (get_local_player().hostages_total > 0 )	
+		stats->hostage_ratio = (get_local_player().hostages_rescued_total*100)/get_local_player().hostages_total;
 	else
 		stats->hostage_ratio = 0;
 
-	stats->seconds = f2i(Players[Player_num].time_total)+(Players[Player_num].hours_total*3600);
+	stats->seconds = f2i(get_local_player().time_total)+(get_local_player().hours_total*3600);
 
 	stats->diff_level = Difficulty_level;
-	stats->starting_level = Players[Player_num].starting_level;
+	stats->starting_level = get_local_player().starting_level;
 }
 
 static inline const char *get_placement_slot_string(const unsigned position)
@@ -226,7 +226,7 @@ void scores_maybe_add_player(int abort_flag)
 	
 	position = MAX_HIGH_SCORES;
 	for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
-		if ( Players[Player_num].score > scores.stats[i].score )	{
+		if ( get_local_player().score > scores.stats[i].score )	{
 			position = i;
 			break;
 		}

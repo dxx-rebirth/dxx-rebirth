@@ -144,14 +144,14 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 				ai_local		*ailp = &robot->ctype.ai_info.ail;
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
-						if (Walls[wall_num].keys & Players[Player_num].flags)
+						if (Walls[wall_num].keys & get_local_player().flags)
 							wall_open_door(hitseg, hitwall);
 					} else if (!(Walls[wall_num].flags & WALL_DOOR_LOCKED))
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
 				if (Walls[wall_num].keys != KEY_NONE)
-					if (Walls[wall_num].keys & Players[Player_num].flags)
+					if (Walls[wall_num].keys & get_local_player().flags)
 						wall_open_door(hitseg, hitwall);
 			}
 #endif
@@ -394,8 +394,8 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 				multi_send_play_sound(SOUND_PLAYER_HIT_WALL, volume);
 		}
 
-		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-			if ( Players[Player_num].shields > f1_0*10 || ForceFieldHit)
+		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+			if ( get_local_player().shields > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
 		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
@@ -429,7 +429,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		vms_vector	hit_dir;
 		fix damage = fixmul(d,FrameTime);
 
-		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
+		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 			apply_damage_to_player( obj, obj, damage, 0 );
 
 		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
@@ -475,7 +475,7 @@ int check_volatile_wall(const vobjptridx_t obj,const vsegptridx_t seg,int sidenu
 				if (Difficulty_level == 0)
 					damage /= 2;
 
-				if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
+				if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 					apply_damage_to_player( obj, obj, damage, 0 );
 
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
@@ -554,7 +554,7 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 	trigger_check = !(blower.parent_type == OBJ_PLAYER || effect_parent_is_guidebot(blower));
 	// For Multiplayer perform an additional check to see if it's a local-player hit. If a remote player hits, a packet is expected (remote 1) which would be followed by MULTI_TRIGGER to ensure sync with the switch and the actual trigger.
 	if (Game_mode & GM_MULTI)
-		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == Players[Player_num].objnum || remote)));
+		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)));
 	if ( wall_num != wall_none )
 		if (Walls[wall_num].trigger != trigger_none)
 			is_trigger = 1;
@@ -734,7 +734,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 
 	#ifndef NDEBUG
 	if (keyd_pressed[KEY_LAPOSTRO])
-		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
+		if (weapon->ctype.laser_info.parent_num == get_local_player().objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
 			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vsegptridx_t::integral_type>(hitseg), hitwall);
 			if (get_weapon_id(weapon) < 4)
@@ -902,7 +902,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 	//	If weapon fired by player or companion...
 	if (( weapon->ctype.laser_info.parent_type== OBJ_PLAYER ) || robot_escort) {
 
-		if (!(weapon->flags & OF_SILENT) && (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum))
+		if (!(weapon->flags & OF_SILENT) && (weapon->ctype.laser_info.parent_num == get_local_player().objnum))
 			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_WALL_COLLISION);			// object "weapon" can attract attention to player
 
 //		if (weapon->id != FLARE_ID) {
@@ -1082,11 +1082,11 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, const
 		return;
 	}
 
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(get_local_player().hours_level*3600)+get_local_player().time_level) < Netgame.control_invul_time))
 	{
 		if (get_player_id(who) == Player_num) {
-			int secs = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) % 60;
-			int mins = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) / 60;
+			const auto secs = f2i(Netgame.control_invul_time - (i2f(get_local_player().hours_level*3600)+get_local_player().time_level)) % 60;
+			const auto mins = f2i(Netgame.control_invul_time - (i2f(get_local_player().hours_level*3600)+get_local_player().time_level)) / 60;
 			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
 		}
 		return;
@@ -1330,16 +1330,16 @@ void do_final_boss_hacks(void)
 		Player_is_dead = 0;
 	}
 
-	if (Players[Player_num].shields <= 0)
-		Players[Player_num].shields = 1;
+	if (get_local_player().shields <= 0)
+		get_local_player().shields = 1;
 
 	//	If you're not invulnerable, get invulnerable!
-	if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)) {
-		Players[Player_num].invulnerable_time = GameTime64;
-		Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
+	if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)) {
+		get_local_player().invulnerable_time = GameTime64;
+		get_local_player().flags |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
-		buddy_message("Nice job, %s!", static_cast<const char *>(Players[Player_num].callsign));
+		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
 
 	Final_boss_is_dead = 1;
 }
@@ -1388,7 +1388,7 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 					}
 				else
 				  {	// NOTE LINK TO ABOVE!!!
-					if ((Players[Player_num].shields < 0) || Player_is_dead)
+					if ((get_local_player().shields < 0) || Player_is_dead)
 						robot->shields = 1;		//	Sorry, we can't allow you to kill the final boss after you've died.  Rough luck.
 					else
 						do_final_boss_hacks();
@@ -1431,8 +1431,8 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 				return 0;
 		}
 
-		Players[Player_num].num_kills_level++;
-		Players[Player_num].num_kills_total++;
+		get_local_player().num_kills_level++;
+		get_local_player().num_kills_total++;
 
 		if (robptr->boss_flag) {
 			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
@@ -1693,7 +1693,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	if ( ((weapon->ctype.laser_info.parent_type==OBJ_PLAYER) || cheats.robotskillrobots) && !(robot->flags & OF_EXPLODING) )
 #endif
 	{
-		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
+		if (weapon->ctype.laser_info.parent_num == get_local_player().objnum) {
 			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);			// object "weapon" can attract attention to player
 			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
@@ -2064,7 +2064,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 	if (Player_is_dead)
 		return;
 
-	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
+	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
 	if (multi_maybe_disable_friendly_fire(killer) && possibly_friendly)
@@ -2079,12 +2079,12 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 	//be a mirror of the value in the Player structure.
 
 	if (get_player_id(playerobj) == Player_num) {		//is this the local player?
-		Players[Player_num].shields -= damage;
+		get_local_player().shields -= damage;
 		PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
 
-		if (Players[Player_num].shields < 0)	{
+		if (get_local_player().shields < 0)	{
 
-  			Players[Player_num].killer_objnum = killer;
+  			get_local_player().killer_objnum = killer;
 			playerobj->flags |= OF_SHOULD_BE_DEAD;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2094,7 +2094,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 #endif
 		}
 
-		playerobj->shields = Players[Player_num].shields;		//mirror
+		playerobj->shields = get_local_player().shields;		//mirror
 
 	}
 }
@@ -2145,7 +2145,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 
 	if (get_player_id(playerobj) == Player_num)
 	{
-		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
+		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 		{
 			digi_link_sound_to_pos( SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0 );
 			if (Game_mode & GM_MULTI)

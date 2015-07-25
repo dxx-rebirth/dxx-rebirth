@@ -659,7 +659,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	nsaves=0;
 	nm_set_item_text(m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
-		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(Players[Player_num].callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
+		snprintf(filename[i], sizeof(filename[i]), PLAYER_DIRECTORY_STRING("%.8s.%cg%x"), static_cast<const char *>(get_local_player().callsign), (Game_mode & GM_MULTI_COOP)?'m':'s', i );
 		valid = 0;
 		if (auto fp = PHYSFSX_openReadBuffered(filename[i]))
 		{
@@ -918,7 +918,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
-		PHYSFS_write(fp, &Players[Player_num].callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
+		PHYSFS_write(fp, &get_local_player().callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 	}
 
 //Save description
@@ -983,7 +983,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
-	state_write_player(fp, Players[Player_num]);
+	state_write_player(fp, get_local_player());
 
 // Save the current weapon info
 	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -1203,7 +1203,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	auto plobjnum = Players[Player_num].objnum;
+	const auto plobjnum = get_local_player().objnum;
 
 	compute_segment_center(Objects[plobjnum].pos, &Segments[Secret_return_segment]);
 	obj_relink(plobjnum, Secret_return_segment);
@@ -1305,7 +1305,7 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 {
-	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
+	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
@@ -1354,7 +1354,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		callsign_t saved_callsign;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-		if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+		if (!(saved_callsign == get_local_player().callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			return 0;
 		}
@@ -1405,7 +1405,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 	else // in coop we want to stay the player we are already.
 	{
-		org_callsign = Players[Player_num].callsign;
+		org_callsign = get_local_player().callsign;
 		if (secret == secret_restore::none)
 			init_player_stats_game(Player_num);
 	}
@@ -1423,32 +1423,32 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			player	dummy_player;
 			state_read_player(fp, dummy_player, swap);
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
-				Players[Player_num].level = dummy_player.level;
-				Players[Player_num].last_score = dummy_player.last_score;
-				Players[Player_num].time_level = dummy_player.time_level;
+				get_local_player().level = dummy_player.level;
+				get_local_player().last_score = dummy_player.last_score;
+				get_local_player().time_level = dummy_player.time_level;
 
-				Players[Player_num].num_robots_level = dummy_player.num_robots_level;
-				Players[Player_num].num_robots_total = dummy_player.num_robots_total;
-				Players[Player_num].hostages_rescued_total = dummy_player.hostages_rescued_total;
-				Players[Player_num].hostages_total = dummy_player.hostages_total;
-				Players[Player_num].hostages_on_board = dummy_player.hostages_on_board;
-				Players[Player_num].hostages_level = dummy_player.hostages_level;
-				Players[Player_num].homing_object_dist = dummy_player.homing_object_dist;
-				Players[Player_num].hours_level = dummy_player.hours_level;
-				Players[Player_num].hours_total = dummy_player.hours_total;
+				get_local_player().num_robots_level = dummy_player.num_robots_level;
+				get_local_player().num_robots_total = dummy_player.num_robots_total;
+				get_local_player().hostages_rescued_total = dummy_player.hostages_rescued_total;
+				get_local_player().hostages_total = dummy_player.hostages_total;
+				get_local_player().hostages_on_board = dummy_player.hostages_on_board;
+				get_local_player().hostages_level = dummy_player.hostages_level;
+				get_local_player().homing_object_dist = dummy_player.homing_object_dist;
+				get_local_player().hours_level = dummy_player.hours_level;
+				get_local_player().hours_total = dummy_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime);
 			} else {
-				Players[Player_num] = dummy_player;
+				get_local_player() = dummy_player;
 			}
 		} else
 #endif
 		{
-			state_read_player(fp, Players[Player_num], swap);
+			state_read_player(fp, get_local_player(), swap);
 		}
 	}
-	Players[Player_num].callsign = org_callsign;
+	get_local_player().callsign = org_callsign;
 	if (Game_mode & GM_MULTI_COOP)
-		Players[Player_num].objnum = coop_org_objnum;
+		get_local_player().objnum = coop_org_objnum;
 
 // Restore the weapon states
 	PHYSFS_read(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -1891,7 +1891,7 @@ int state_get_game_id(const char *filename)
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
 	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-	if (!(saved_callsign == Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+	if (!(saved_callsign == get_local_player().callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 
 	return state_game_id;

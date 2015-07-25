@@ -202,7 +202,7 @@ static int MakeNewPlayerFile(int allow_abort)
 {
 	int x;
 	char filename[PATH_MAX];
-	callsign_t text = Players[Player_num].callsign;
+	callsign_t text = get_local_player().callsign;
 
 try_again:
 	{
@@ -235,7 +235,7 @@ try_again:
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
 
-	Players[Player_num].callsign = text;
+	get_local_player().callsign = text;
 
 	write_player_file();
 
@@ -315,7 +315,7 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 			}
 			else
 			{
-				Players[Player_num].callsign.copy_lower(items[citem], strlen(items[citem]));
+				get_local_player().callsign.copy_lower(items[citem], strlen(items[citem]));
 			}
 			break;
 		}
@@ -345,17 +345,17 @@ int RegisterPlayer()
 	int citem = 0;
 	int allow_abort_flag = 1;
 
-	if (!*static_cast<const char *>(Players[Player_num].callsign))
+	if (!*static_cast<const char *>(get_local_player().callsign))
 	{
 		if (!*static_cast<const char *>(GameCfg.LastPlayer))
 		{
-			Players[Player_num].callsign = "player";
+			get_local_player().callsign = "player";
 			allow_abort_flag = 0;
 		}
 		else
 		{
 			// Read the last player's name from config file, not lastplr.txt
-			Players[Player_num].callsign = GameCfg.LastPlayer;
+			get_local_player().callsign = GameCfg.LastPlayer;
 		}
 	}
 
@@ -407,7 +407,7 @@ int RegisterPlayer()
 	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
-		if (!d_stricmp(static_cast<const char *>(Players[Player_num].callsign), m[i]) )
+		if (!d_stricmp(static_cast<const char *>(get_local_player().callsign), m[i]) )
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m.release(), allow_abort_flag, citem, player_menu_handler, list.release());
@@ -436,7 +436,7 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 		case EVENT_WINDOW_ACTIVATED:
 			load_palette(MENU_PALETTE,0,1);		//get correct palette
 
-			if (!*static_cast<const char *>(Players[Player_num].callsign))
+			if (!*static_cast<const char *>(get_local_player().callsign))
 				RegisterPlayer();
 			else
 				keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!

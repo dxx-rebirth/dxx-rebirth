@@ -558,7 +558,7 @@ static void plyr_read_stats_v(int *k, int *d)
 	int k1=-1,k2=0,d1=-1,d2=0;
 	*k=0;*d=0;//in case the file doesn't exist.
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
 	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<256> line;
@@ -610,7 +610,7 @@ void plyr_save_stats()
 	array<uint8_t, 16> buf, buf2;
 	uint8_t a;
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
 	auto f = PHYSFSX_openWriteBuffered(filename);
 	if(!f)
 		return; //broken!
@@ -790,7 +790,7 @@ int read_player_file()
 	Assert(Player_num < MAX_PLAYERS);
 
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(get_local_player().callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
 	auto file = PHYSFSX_openReadBuffered(filename);
@@ -1154,9 +1154,9 @@ void write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(get_local_player().callsign));
 	write_player_dxx(filename);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(get_local_player().callsign));
 	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;
@@ -1339,7 +1339,7 @@ void read_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
 
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
 	if (!PHYSFSX_exists(filename,0))
 		return;
 
@@ -1417,7 +1417,7 @@ void read_netgame_profile(netgame_info *ng)
 void write_netgame_profile(netgame_info *ng)
 {
 	char filename[PATH_MAX];
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(Players[Player_num].callsign));
+	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
 	auto file = PHYSFSX_openWriteBuffered(filename);
 	if (!file)
 		return;

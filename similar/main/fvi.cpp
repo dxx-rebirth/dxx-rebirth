@@ -916,7 +916,8 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 						//if what we have hit is a door, check the adjoining seg
 
-						if ( (thisobjnum == Players[Player_num].objnum) && (cheats.ghostphysics) )	{
+						if (thisobjnum == get_local_player().objnum && cheats.ghostphysics)
+						{
 							if (IS_CHILD(seg->children[side]))
  								wid_flag |= WID_FLY_FLAG;
 						}

@@ -538,7 +538,7 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto color = get_player_or_team_color(Player_num);
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-	draw_player(vcobjptr(Players[Player_num].objnum));
+	draw_player(vcobjptr(get_local_player().objnum));
 
 	DrawMarkers(am);
 	
@@ -629,7 +629,7 @@ static void draw_automap(automap *am)
 
 static void recompute_automap_segment_visibility(automap *am)
 {
-	int compute_depth_all_segments = (cheats.fullautomap || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL));
+	int compute_depth_all_segments = (cheats.fullautomap || (get_local_player().flags & PLAYER_FLAGS_MAP_ALL));
 	if (Automap_debug_show_all_segments)
 		compute_depth_all_segments = 1;
 	automap_build_edge_list(am, compute_depth_all_segments);
@@ -1303,7 +1303,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			// If they have a map powerup, draw unvisited areas in dark blue.
 			// NOTE: D1 originally had this part of code but w/o cheat-check. It's only supposed to draw blue with powerup that does not exist in D1. So make this D2-only
 			if (!Automap_debug_show_all_segments)
-			if ((cheats.fullautomap || Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) && (!Automap_visited[segnum]))	
+			if ((cheats.fullautomap || get_local_player().flags & PLAYER_FLAGS_MAP_ALL) && (!Automap_visited[segnum]))	
 				color = am->wall_revealed_color;
 			Here:
 #endif

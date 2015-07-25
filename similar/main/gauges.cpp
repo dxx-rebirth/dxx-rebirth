@@ -785,9 +785,9 @@ static void hud_show_score()
 	gr_set_curfont( GAME_FONT );
 
 	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
-		sprintf(score_str, "%s: %5d", TXT_KILLS, Players[Player_num].net_kills_total);
+		sprintf(score_str, "%s: %5d", TXT_KILLS, get_local_player().net_kills_total);
 	} else {
-		sprintf(score_str, "%s: %5d", TXT_SCORE, Players[Player_num].score);
+		sprintf(score_str, "%s: %5d", TXT_SCORE, get_local_player().score);
   	}
 
 	gr_get_string_size(score_str, &w, &h, &aw );
@@ -877,9 +877,9 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 
 	gr_set_curfont( GAME_FONT );
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
-		sprintf(score_str, "%5d", Players[Player_num].net_kills_total);
+		sprintf(score_str, "%5d", get_local_player().net_kills_total);
 	else
-		sprintf(score_str, "%5d", Players[Player_num].score);
+		sprintf(score_str, "%5d", get_local_player().score);
 	gr_get_string_size(score_str, &w, &h, &aw );
 
 	x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
@@ -950,8 +950,8 @@ void play_homing_warning(void)
 	if (Endlevel_sequence || Player_is_dead)
 		return;
 
-	if (Players[Player_num].homing_object_dist >= 0) {
-		beep_delay = Players[Player_num].homing_object_dist/128;
+	if (get_local_player().homing_object_dist >= 0) {
+		beep_delay = get_local_player().homing_object_dist/128;
 		if (beep_delay > F1_0)
 			beep_delay = F1_0;
 		else if (beep_delay < F1_0/8)
@@ -975,7 +975,7 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 
 	gr_set_current_canvas( NULL );
 
-	if (Players[Player_num].homing_object_dist >= 0)
+	if (get_local_player().homing_object_dist >= 0)
 	{
 		if (GameTime64 & 0x4000)
 		{
@@ -994,7 +994,7 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 
 static void hud_show_homing_warning(void)
 {
-	if (Players[Player_num].homing_object_dist >= 0) {
+	if (get_local_player().homing_object_dist >= 0) {
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
@@ -1005,7 +1005,7 @@ static void hud_show_homing_warning(void)
 
 static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const unsigned player_key_flags = Players[Player_num].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY);
+	const unsigned player_key_flags = get_local_player().flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY);
 	if (!player_key_flags)
 		return;
 	class gauge_key
@@ -1067,13 +1067,13 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", Players[Player_num].secondary_ammo[PROXIMITY_INDEX]);
+		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", get_local_player().secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
 static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	if (game_mode_capture_flag() && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
+	if (game_mode_capture_flag() && (get_local_player().flags & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
 		const auto &&fspacy1 = FSPACY(1);
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
@@ -1106,11 +1106,11 @@ static void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		const auto &&line_spacing = LINE_SPACING;
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * 5) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * 5) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player().energy));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_energy(f2ir(Players[Player_num].energy));
+		newdemo_record_player_energy(f2ir(get_local_player().energy));
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1123,7 +1123,7 @@ static void hud_show_afterburner(void)
 {
 	int y;
 
-	if (! (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
+	if (! (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER))
 		return;		//don't draw if don't have
 
 	gr_set_curfont( GAME_FONT );
@@ -1174,7 +1174,7 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 #endif
 
 	bomb = which_bomb();
-	count = Players[Player_num].secondary_ammo[bomb];
+	count = get_local_player().secondary_ammo[bomb];
 
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
 
@@ -1277,7 +1277,7 @@ static color_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 	if (Secondary_weapon==consider_weapon)
 		return hud_get_rgb_red();
 	else{
-		if (Players[Player_num].secondary_ammo[consider_weapon]>0)
+		if (get_local_player().secondary_ammo[consider_weapon]>0)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
@@ -1325,14 +1325,14 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 {
 	if (PlayerCfg.CockpitMode[1]!=CM_FULL_SCREEN)
 		return;
-	const unsigned primary_weapon_flags = Players[Player_num].primary_weapon_flags;
+	const unsigned primary_weapon_flags = get_local_player().primary_weapon_flags;
 	const auto vulcan_mask = HAS_VULCAN_FLAG;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto gauss_mask = vulcan_mask;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto gauss_mask = HAS_GAUSS_FLAG;
 #endif
-	const int fmt_vulcan_ammo = f2i((unsigned int)Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE);
+	const int fmt_vulcan_ammo = f2i((unsigned int)get_local_player().vulcan_ammo * VULCAN_AMMO_SCALE);
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
@@ -1372,14 +1372,14 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			switch(i)
 			{
 				case primary_weapon_index_t::LASER_INDEX:
-					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', Players[Player_num].laser_level+1);
+					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', get_local_player().laser_level+1);
 					txtweapon = weapon_str;
 					break;
 				case primary_weapon_index_t::VULCAN_INDEX:
 #if defined(DXX_BUILD_DESCENT_I)
 				if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 				{
-					sprintf(weapon_str,"V%i", f2i(Players[Player_num].vulcan_ammo * VULCAN_AMMO_SCALE));
+					sprintf(weapon_str,"V%i", f2i(get_local_player().vulcan_ammo * VULCAN_AMMO_SCALE));
 					txtweapon = weapon_str;
 				}
 				else
@@ -1492,7 +1492,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
+			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player().secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
 				y -= h + fspacy2;
@@ -1521,7 +1521,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",Players[Player_num].secondary_ammo[i]);
+			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player().secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
 				y -= h + fspacy2;
@@ -1572,9 +1572,9 @@ static void hud_show_weapons(void)
 		hud_show_primary_weapons_mode(1,x1,y);
 		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
-		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(Players[Player_num].shields));
+		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_player().shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(Players[Player_num].energy));
+		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(get_local_player().energy));
 	}
 	else
 	{
@@ -1584,10 +1584,10 @@ static void hud_show_weapons(void)
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 		switch (Primary_weapon) {
 			case LASER_INDEX:
-				if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
-					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, Players[Player_num].laser_level+1);
+				if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
+					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, get_local_player().laser_level+1);
 				else
-					sprintf(weapon_str, "%s %i", weapon_name, Players[Player_num].laser_level+1);
+					sprintf(weapon_str, "%s %i", weapon_name, get_local_player().laser_level+1);
 				disp_primary_weapon_name = weapon_str;
 				break;
 
@@ -1595,7 +1595,7 @@ static void hud_show_weapons(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			case GAUSS_INDEX:
 #endif
-				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].vulcan_ammo * (unsigned) VULCAN_AMMO_SCALE));
+				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) get_local_player().vulcan_ammo * (unsigned) VULCAN_AMMO_SCALE));
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -1633,7 +1633,7 @@ static void hud_show_weapons(void)
 
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
-		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
+		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,get_local_player().secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(bmwx - w, y - line_spacing, weapon_str);
 
@@ -1643,7 +1643,7 @@ static void hud_show_weapons(void)
 
 static void hud_show_cloak_invuln(void)
 {
-	const auto &plr = Players[Player_num];
+	const auto &plr = get_local_player();
 	const auto player_flags = plr.flags;
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
@@ -1680,11 +1680,11 @@ static void hud_show_shield(void)
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
 		const auto &&line_spacing = LINE_SPACING;
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 6 : line_spacing * 2), "%s: %i", TXT_SHIELD, Players[Player_num].shields >= 0 ? f2ir(Players[Player_num].shields) : 0);
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 6 : line_spacing * 2), "%s: %i", TXT_SHIELD, get_local_player().shields >= 0 ? f2ir(get_local_player().shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_shields(f2ir(Players[Player_num].shields));
+		newdemo_record_player_shields(f2ir(get_local_player().shields));
 }
 
 //draw the icons for number of lives
@@ -1703,16 +1703,16 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 	if (Game_mode & GM_MULTI) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, Players[Player_num].net_killed_total);
+		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, get_local_player().net_killed_total);
 	}
-	else if (Players[Player_num].lives > 1)  {
+	else if (get_local_player().lives > 1)  {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		const auto &&fspacy1 = FSPACY(1);
 		hud_bitblt_free(x, fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(HUD_SCALE_X_AR(bm.bm_w) + x, fspacy1, " x %d", Players[Player_num].lives - 1);
+		gr_printf(HUD_SCALE_X_AR(bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
 	}
 
 }
@@ -1733,7 +1733,7 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		int w, h, aw;
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
-		sprintf(killed_str, "%5d", Players[Player_num].net_killed_total);
+		sprintf(killed_str, "%5d", get_local_player().net_killed_total);
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0,0,0));
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
@@ -1748,20 +1748,20 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h));
 
-	if (Players[Player_num].lives-1 > 0) {
+	if (get_local_player().lives-1 > 0) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		hud_bitblt_free(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", Players[Player_num].lives - 1);
+		gr_printf(HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", get_local_player().lives - 1);
 	}
 }
 
 #ifndef RELEASE
 static void show_time()
 {
-	int secs = f2i(Players[Player_num].time_level) % 60;
-	int mins = f2i(Players[Player_num].time_level) / 60;
+	int secs = f2i(get_local_player().time_level) % 60;
+	int mins = f2i(get_local_player().time_level) / 60;
 
 	gr_set_curfont( GAME_FONT );
 
@@ -1789,9 +1789,9 @@ void add_points_to_score(int points)
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
 
-	prev_score=Players[Player_num].score;
+	prev_score=get_local_player().score;
 
-	Players[Player_num].score += points;
+	get_local_player().score += points;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
@@ -1802,9 +1802,9 @@ void add_points_to_score(int points)
 	if (Game_mode & GM_MULTI)
 		return;
 
-	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
+	if (get_local_player().score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
-		Players[Player_num].lives += Players[Player_num].score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
+		get_local_player().lives += get_local_player().score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
 		powerup_basic_str(20, 20, 20, 0, TXT_EXTRA_LIFE);
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
@@ -1818,9 +1818,9 @@ void add_bonus_points_to_score(int points)
 	if (points == 0 || cheats.enabled)
 		return;
 
-	prev_score=Players[Player_num].score;
+	prev_score=get_local_player().score;
 
-	Players[Player_num].score += points;
+	get_local_player().score += points;
 
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -1829,9 +1829,9 @@ void add_bonus_points_to_score(int points)
 	if (Game_mode & GM_MULTI)
 		return;
 
-	if (Players[Player_num].score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
+	if (get_local_player().score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
 		int snd;
-		Players[Player_num].lives += Players[Player_num].score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
+		get_local_player().lives += get_local_player().score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
 	}
@@ -2027,11 +2027,11 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	{
 		static int step = 0;
 
-		if (GameTime64-Players[Player_num].cloak_time < F1_0)
+		if (GameTime64-get_local_player().cloak_time < F1_0)
 		{
 			step = -2;
 		}
-		else if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime64 <= F1_0*3)
+		else if (get_local_player().cloak_time+CLOAK_TIME_MAX-GameTime64 <= F1_0*3)
 		{
 			if (cloak_fade_value >= (GR_FADE_LEVELS-1))
 			{
@@ -2110,7 +2110,7 @@ static void draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 	{
 		const unsigned player_key_flags;
 	public:
-		draw_key() : player_key_flags(Players[Player_num].flags)
+		draw_key() : player_key_flags(get_local_player().flags)
 		{
 		}
 		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
@@ -2160,8 +2160,8 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 #endif
 		{
 			const auto &&line_spacing = LINE_SPACING;
-			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, Players[Player_num].laser_level+1);
-			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
+			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, get_local_player().laser_level+1);
+			if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
@@ -2284,7 +2284,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 
 	gr_set_curfont( GAME_FONT );
 
-	laser_level_changed = (weapon_type==0 && weapon_num==LASER_INDEX && (Players[Player_num].laser_level != old_laser_level));
+	laser_level_changed = (weapon_type==0 && weapon_num==LASER_INDEX && (get_local_player().laser_level != old_laser_level));
 
 	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
 	{
@@ -2295,7 +2295,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level, multires_gauge_graphic);
+		draw_weapon_info(weapon_type,weapon_num,get_local_player().laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
@@ -2306,7 +2306,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
 			old_weapon[weapon_type] = weapon_num;
-			old_laser_level = Players[Player_num].laser_level;
+			old_laser_level = get_local_player().laser_level;
 			weapon_box_fade_values[weapon_type] = 0;
 		}
 	}
@@ -2315,7 +2315,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level, multires_gauge_graphic);
+			draw_weapon_info(weapon_type,weapon_num,get_local_player().laser_level, multires_gauge_graphic);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2324,9 +2324,9 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 	} else
 	{
-		draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level, multires_gauge_graphic);
+		draw_weapon_info(weapon_type, weapon_num, get_local_player().laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
-		old_laser_level = Players[Player_num].laser_level;
+		old_laser_level = get_local_player().laser_level;
 	}
 
 	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
@@ -2402,8 +2402,8 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 			unsigned ammo_count;
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
 			{
-				nd_ammo = Players[Player_num].vulcan_ammo;
-				ammo_count = f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].vulcan_ammo);
+				nd_ammo = get_local_player().vulcan_ammo;
+				ammo_count = f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) get_local_player().vulcan_ammo);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (Primary_weapon == OMEGA_INDEX)
@@ -2434,7 +2434,7 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 		draw_weapon_box(1,Secondary_weapon);
 		if (weapon_box_states[1] == WS_SET)
 		{
-			const auto ammo = Players[Player_num].secondary_ammo[Secondary_weapon];
+			const auto ammo = get_local_player().secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_secondary_ammo(ammo);
 			draw_secondary_ammo_info(ammo, multires_gauge_graphic);
@@ -2491,7 +2491,7 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 		gr_uline( i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W))), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i) );
 
 	//draw legend
-	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
+	if (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER)
 		gr_set_fontcolor(BM_XRGB(45,0,0),-1 );
 	else
 		gr_set_fontcolor(BM_XRGB(12,12,12),-1 );
@@ -2529,7 +2529,7 @@ static void sb_draw_keys(const local_multires_gauge_graphic multires_gauge_graph
 	{
 		const unsigned player_key_flags;
 	public:
-		draw_key() : player_key_flags(Players[Player_num].flags)
+		draw_key() : player_key_flags(get_local_player().flags)
 		{
 		}
 		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
@@ -2550,7 +2550,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 	gr_set_current_canvas(NULL);
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
-	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
+	if (get_local_player().invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
 		static fix time;
 		auto ltime = time + FrameTime;
@@ -2575,9 +2575,9 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 		}
 		hud_gauge_bitblt(x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
 	} else if (cmmode == CM_STATUS_BAR)
-		sb_draw_shield_bar(f2ir(Players[Player_num].shields), multires_gauge_graphic);
+		sb_draw_shield_bar(f2ir(get_local_player().shields), multires_gauge_graphic);
 	else
-		draw_shield_bar(f2ir(Players[Player_num].shields), multires_gauge_graphic);
+		draw_shield_bar(f2ir(get_local_player().shields), multires_gauge_graphic);
 }
 
 const rgb_array_t player_rgb_normal{{
@@ -2638,7 +2638,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
 	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
 
-	if (primary_bm_num && Primary_weapon==LASER_INDEX && (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS))
+	if (primary_bm_num && Primary_weapon==LASER_INDEX && (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
 
 	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
@@ -3050,12 +3050,12 @@ void draw_hud()
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
 		if (Primary_weapon == VULCAN_INDEX)
-			newdemo_record_primary_ammo(Players[Player_num].vulcan_ammo);
+			newdemo_record_primary_ammo(get_local_player().vulcan_ammo);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Primary_weapon == OMEGA_INDEX)
 			newdemo_record_primary_ammo(Omega_charge);
 #endif
-		newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
+		newdemo_record_secondary_ammo(get_local_player().secondary_ammo[Secondary_weapon]);
 	}
 	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
 		return;
@@ -3122,7 +3122,7 @@ void draw_hud()
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)
-				newdemo_record_player_flags(Players[Player_num].flags);
+				newdemo_record_player_flags(get_local_player().flags);
 		}
 
 #ifndef RELEASE
@@ -3160,9 +3160,9 @@ void draw_hud()
 //print out some player statistics
 void render_gauges()
 {
-	int energy = f2ir(Players[Player_num].energy);
-	int shields = f2ir(Players[Player_num].shields);
-	int cloak = ((Players[Player_num].flags&PLAYER_FLAGS_CLOAKED) != 0);
+	int energy = f2ir(get_local_player().energy);
+	int shields = f2ir(get_local_player().shields);
+	int cloak = ((get_local_player().flags&PLAYER_FLAGS_CLOAKED) != 0);
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 
@@ -3172,8 +3172,8 @@ void render_gauges()
 	gr_set_curfont( GAME_FONT );
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		if (Players[Player_num].homing_object_dist >= 0)
-			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
+		if (get_local_player().homing_object_dist >= 0)
+			newdemo_record_homing_distance(get_local_player().homing_object_dist);
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_weapon_boxes(multires_gauge_graphic);
@@ -3192,7 +3192,7 @@ void render_gauges()
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
-		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
+		if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			draw_shield_bar(shields, multires_gauge_graphic);
@@ -3201,7 +3201,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(Players[Player_num].flags);
+			newdemo_record_player_flags(get_local_player().flags);
 		}
 		draw_keys(multires_gauge_graphic);
 
@@ -3225,7 +3225,7 @@ void render_gauges()
 
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
-		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
+		if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields, multires_gauge_graphic);
@@ -3234,7 +3234,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(Players[Player_num].flags);
+			newdemo_record_player_flags(get_local_player().flags);
 		}
 		sb_draw_keys(multires_gauge_graphic);
 
@@ -3263,7 +3263,7 @@ void update_laser_weapon_info(void)
 {
 	if (old_weapon[0] == 0)
 #if defined(DXX_BUILD_DESCENT_II)
-		if (! (Players[Player_num].laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
+		if (! (get_local_player().laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
 #endif
 			old_weapon[0] = -1;
 }

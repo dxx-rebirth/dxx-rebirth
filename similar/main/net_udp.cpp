@@ -1346,7 +1346,7 @@ void net_udp_init()
 	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
 	UDP_Seq.type = UPID_REQUEST;
-	UDP_Seq.player.callsign = Players[Player_num].callsign;
+	UDP_Seq.player.callsign = get_local_player().callsign;
 
 	UDP_Seq.player.rank=GetMyNetRanking();	
 
@@ -1475,7 +1475,7 @@ static net_udp_can_join_netgame(netgame_info *game)
 	// Search to see if we were already in this closed netgame in progress
 
 	for (int i = 0; i < num_players; i++) {
-		if (Players[Player_num].callsign == game->players[i].callsign && i == game->protocol.udp.your_index)
+		if (get_local_player().callsign == game->players[i].callsign && i == game->protocol.udp.your_index)
 			return 1;
 	}
 	return 0;
@@ -2159,7 +2159,7 @@ void net_udp_send_rejoin_sync(int player_num)
 		Netgame.player_score[j] = Players[j].score;
 	}
 
-	Netgame.level_time = Players[Player_num].time_level;
+	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
 	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
@@ -2186,7 +2186,7 @@ static void net_udp_resend_sync_due_to_packet_loss()
 		Netgame.player_score[j] = Players[j].score;
 	}
 
-	Netgame.level_time = Players[Player_num].time_level;
+	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
 	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
@@ -2358,10 +2358,10 @@ void net_udp_send_endlevel_packet(void)
 
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
-		buf[len] = Players[Player_num].connected;							len++;
+		buf[len] = get_local_player().connected;							len++;
 		buf[len] = Countdown_seconds_left;									len++;
-		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_kills_total);	len += 2;
-		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_killed_total);	len += 2;
+		PUT_INTEL_SHORT(buf + len, get_local_player().net_kills_total);	len += 2;
+		PUT_INTEL_SHORT(buf + len, get_local_player().net_killed_total);	len += 2;
 
 		range_for (auto &i, kill_matrix[Player_num])
 		{
@@ -3693,7 +3693,7 @@ int net_udp_setup_game()
 	change_playernum_to(0);
 
 	{
-		auto self = &Players[Player_num];
+		const auto self = &get_local_player();
 		range_for (auto &i, Players)
 			if (&i != self)
 				i.callsign.fill(0);
@@ -3709,7 +3709,7 @@ int net_udp_setup_game()
 #endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=10;
-	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(Players[Player_num].callsign), TXT_S_GAME );
+	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(get_local_player().callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = 1;
 	Netgame.InvulAppear = 4;
@@ -3873,7 +3873,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 
 	// Discover my player number
 
-	callsign_t temp_callsign = Players[Player_num].callsign;
+	callsign_t temp_callsign = get_local_player().callsign;
 	
 	Player_num = MULTI_PNUM_UNDEF;
 
@@ -3913,18 +3913,18 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 			Players[i].net_killed_total = Netgame.killed[i];
 
 #if defined(DXX_BUILD_DESCENT_I)
-	PlayerCfg.NetlifeKills -= Players[Player_num].net_kills_total;
-	PlayerCfg.NetlifeKilled -= Players[Player_num].net_killed_total;
+	PlayerCfg.NetlifeKills -= get_local_player().net_kills_total;
+	PlayerCfg.NetlifeKilled -= get_local_player().net_killed_total;
 #endif
 
 	if (Network_rejoined)
 	{
 		net_udp_process_monitor_vector(Netgame.monitor_vector);
-		Players[Player_num].time_level = Netgame.level_time;
+		get_local_player().time_level = Netgame.level_time;
 	}
 
 	team_kills = Netgame.team_kills;
-	Players[Player_num].connected = CONNECT_PLAYING;
+	get_local_player().connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].rank=GetMyNetRanking();
 
@@ -4112,9 +4112,9 @@ static net_udp_select_players(void)
 	m[0].value = 1;                         // Assume server will play...
 
 	if (PlayerCfg.NoRankings)
-		snprintf( text[0], sizeof(text[0]), "%d. %-20s", 1, static_cast<const char *>(Players[Player_num].callsign));
+		snprintf( text[0], sizeof(text[0]), "%d. %-20s", 1, static_cast<const char *>(get_local_player().callsign));
 	else
-		snprintf( text[0], sizeof(text[0]), "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],static_cast<const char *>(Players[Player_num].callsign));
+		snprintf( text[0], sizeof(text[0]), "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],static_cast<const char *>(get_local_player().callsign));
 
 	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER );
 
@@ -4297,7 +4297,7 @@ static int net_udp_wait_for_sync(void)
 	{
 		UDP_sequence_packet me{};
 		me.type = UPID_QUIT_JOINING;
-		me.player.callsign = Players[Player_num].callsign;
+		me.player.callsign = get_local_player().callsign;
 		net_udp_send_sequence_packet(me, Netgame.players[0].protocol.udp.addr);
 		N_players = 0;
 		Game_mode = GM_GAME_OVER;
@@ -4340,7 +4340,7 @@ static int net_udp_wait_for_requests(void)
 	Network_status = NETSTAT_WAITING;
 	net_udp_flush();
 
-	Players[Player_num].connected = CONNECT_PLAYING;
+	get_local_player().connected = CONNECT_PLAYING;
 
 menu:
 	choice = newmenu_do(NULL, TXT_WAIT, m, net_udp_request_poll, unused_newmenu_userdata);
@@ -4397,7 +4397,7 @@ net_udp_level_sync(void)
 
 	if (result)
 	{
-		Players[Player_num].connected = CONNECT_DISCONNECTED;
+		get_local_player().connected = CONNECT_DISCONNECTED;
 		net_udp_send_endlevel_packet();
 		if (Game_wind)
 			window_close(Game_wind);
@@ -4504,7 +4504,7 @@ void net_udp_leave_game()
 #endif
 	}
 
-	Players[Player_num].connected = CONNECT_DISCONNECTED;
+	get_local_player().connected = CONNECT_DISCONNECTED;
 	change_playernum_to(0);
 #if defined(DXX_BUILD_DESCENT_II)
 	write_player_file();
@@ -5145,7 +5145,7 @@ void net_udp_send_pdata()
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
-	if (Players[Player_num].connected != CONNECT_PLAYING)
+	if (get_local_player().connected != CONNECT_PLAYING)
 		return;
 	if ( !( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) )
 		return;
@@ -5154,10 +5154,10 @@ void net_udp_send_pdata()
 	
 	buf[len] = UPID_PDATA;									len++;
 	buf[len] = Player_num;									len++;
-	buf[len] = Players[Player_num].connected;						len++;
+	buf[len] = get_local_player().connected;						len++;
 
 	quaternionpos qpp{};
-	create_quaternionpos(&qpp, vobjptr(Players[Player_num].objnum), 0);
+	create_quaternionpos(&qpp, vobjptr(get_local_player().objnum), 0);
 	PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(buf+len, qpp.orient.y);							len += 2;

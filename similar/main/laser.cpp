@@ -521,7 +521,8 @@ void omega_charge_frame(void)
 	if (Last_omega_fire_time + F1_0/3 > GameTime64)
 		return;
 
-	if (Players[Player_num].energy) {
+	if (get_local_player().energy)
+	{
 		fix	energy_used;
 
 		old_omega_charge = Omega_charge;
@@ -535,9 +536,9 @@ void omega_charge_frame(void)
 		if (Difficulty_level < 2)
 			energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
-		Players[Player_num].energy -= energy_used;
-		if (Players[Player_num].energy < 0)
-			Players[Player_num].energy = 0;
+		get_local_player().energy -= energy_used;
+		if (get_local_player().energy < 0)
+			get_local_player().energy = 0;
 	}
 
 
@@ -787,7 +788,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (weapon_type == GUIDEDMISS_ID) {
-			if (parent==Players[Player_num].objnum) {
+			if (parent==get_local_player().objnum) {
 				Guided_missile[Player_num]= obj;
 				Guided_missile_sig[Player_num] = obj->signature;
 				if (Newdemo_state==ND_STATE_RECORDING)
@@ -1012,7 +1013,7 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 	if (Game_mode & GM_MULTI_COOP)
 		return 0;
 	//	Don't track player if he's cloaked.
-	if ((objp == Players[Player_num].objnum) && (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED))
+	if ((objp == get_local_player().objnum) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED))
 		return 0;
 
 	//	Can't track AI object if he's cloaked.
@@ -1365,7 +1366,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 				return true;
 			if (Missile_viewer->signature != Missile_viewer_sig)
 				return true;
-			if (obj->id == Player_num && Missile_viewer->ctype.laser_info.parent_num != Players[Player_num].objnum)
+			if (obj->id == Player_num && Missile_viewer->ctype.laser_info.parent_num != get_local_player().objnum)
 				/* New missile fired-by local player &&
 				 * currently viewing missile not-fired-by local player
 				 */
@@ -1443,13 +1444,13 @@ void Flare_create(const vobjptridx_t obj)
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
 #if defined(DXX_BUILD_DESCENT_I)
-	if (Players[Player_num].energy > 0)
+	if (get_local_player().energy > 0)
 #endif
 	{
-		Players[Player_num].energy -= energy_usage;
+		get_local_player().energy -= energy_usage;
 
-		if (Players[Player_num].energy <= 0) {
-			Players[Player_num].energy = 0;
+		if (get_local_player().energy <= 0) {
+			get_local_player().energy = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 			auto_select_primary_weapon();
 #endif
@@ -1550,12 +1551,12 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                                 objptridx_t obj_track_goal = obj->ctype.laser_info.track_goal;
                                 auto track_goal = track_track_goal(obj_track_goal, obj, &dot, d_homer_tick_count);
 
-                                if (track_goal == Players[Player_num].objnum) {
+                                if (track_goal == get_local_player().objnum) {
                                         fix	dist_to_player;
 
                                         dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
-                                        if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
-                                                Players[Player_num].homing_object_dist = dist_to_player;
+                                        if ((dist_to_player < get_local_player().homing_object_dist) || (get_local_player().homing_object_dist < 0))
+                                                get_local_player().homing_object_dist = dist_to_player;
                                 }
 
 
@@ -1604,12 +1605,12 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 				obj_track_goal = obj->ctype.laser_info.track_goal;
 			auto track_goal = track_track_goal(obj_track_goal, obj, &dot, d_tick_count);
 
-			if (track_goal == Players[Player_num].objnum) {
+			if (track_goal == get_local_player().objnum) {
 				fix	dist_to_player;
 
 				dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
-				if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
-					Players[Player_num].homing_object_dist = dist_to_player;
+				if ((dist_to_player < get_local_player().homing_object_dist) || (get_local_player().homing_object_dist < 0))
+					get_local_player().homing_object_dist = dist_to_player;
 
 			}
 
@@ -1695,7 +1696,7 @@ static inline int sufficient_ammo(int ammo_used, int uses_vulcan_ammo, ushort vu
 
 int do_laser_firing_player(void)
 {
-	player	*plp = &Players[Player_num];
+	player *const plp = &get_local_player();
 	fix		energy_used;
 	int		ammo_used;
 	int		weapon_index;
@@ -1745,7 +1746,7 @@ int do_laser_firing_player(void)
 			else
 				Next_laser_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
-			laser_level = Players[Player_num].laser_level;
+			laser_level = get_local_player().laser_level;
 
 			flags = 0;
 
@@ -1762,10 +1763,10 @@ int do_laser_firing_player(void)
 			}
 #endif
 
-			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
+			if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
 				flags |= LASER_QUAD;
 
-			rval += do_laser_firing(vobjptridx(Players[Player_num].objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
+			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
 
 			plp->energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (plp->energy < 0)
@@ -1966,7 +1967,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
-	if ((Game_mode & GM_MULTI) && objp == Players[Player_num].objnum)
+	if ((Game_mode & GM_MULTI) && objp == get_local_player().objnum)
 		multi_send_fire(weapon_num, level, flags, nfires, object_none, object_none);
 
 	return nfires;
@@ -2178,12 +2179,12 @@ void do_missile_firing(int drop_bomb)
 	}
 #endif
 
-	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))	{
+	if (!Player_is_dead && (get_local_player().secondary_ammo[weapon] > 0))	{
 
 		enum weapon_type_t weapon_index;
 		int weapon_gun;
 
-		Players[Player_num].secondary_ammo[weapon]--;
+		get_local_player().secondary_ammo[weapon]--;
 
 		weapon_index = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon];
 

@@ -143,7 +143,7 @@ static const int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 //	Called every frame.  If control center been destroyed, then actually do something.
 void do_controlcen_dead_frame(void)
 {
-	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // if out of level already there's no need for this
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return;
 
 	if ((Dead_controlcen_object_num != object_none) && (Countdown_seconds_left > 0))
@@ -368,7 +368,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		reactor *reactor = get_reactor_definition(get_reactor_id(obj));
-		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		if (get_local_player().flags & PLAYER_FLAGS_CLOAKED)
 			best_gun_num = calc_best_gun(reactor->n_guns, obj, Believed_player_pos);
 		else
 			best_gun_num = calc_best_gun(reactor->n_guns, obj, ConsoleObject->pos);
@@ -376,7 +376,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 		if (best_gun_num != -1) {
 			fix			delta_fire_time;
 
-			auto vec_to_goal = vm_vec_sub((Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
+			auto vec_to_goal = vm_vec_sub((get_local_player().flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
 			auto dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 
 			if (dist_to_player > F1_0*300)

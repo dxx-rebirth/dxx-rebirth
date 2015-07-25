@@ -170,7 +170,8 @@ static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
 
-#define get_local_plrobj()	(*vobjptr(Players[Player_num].objnum))
+#define get_local_player()	(Players[Player_num])
+#define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
 #endif
 
 struct player_ship

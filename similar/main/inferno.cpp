@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nRunning game..." );
 	init_game();
 
-	Players[Player_num].callsign.fill(0);
+	get_local_player().callsign.fill(0);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	key_flush();
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
 			{
 				filename[j - 4] = 0;
 				char *b = GameArg.SysUsePlayersDir? &filename[8] : filename;
-				Players[Player_num].callsign.copy(b, std::distance(b, end(filename)));
+				get_local_player().callsign.copy(b, std::distance(b, end(filename)));
 				read_player_file();
 				WriteConfigFile();
 			}

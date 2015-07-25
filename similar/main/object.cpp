@@ -1314,7 +1314,7 @@ void dead_player_end(void)
 
 	ConsoleObject->control_type = Control_type_save;
 	ConsoleObject->render_type = Render_type_save;
-	Players[Player_num].flags &= ~PLAYER_FLAGS_INVULNERABLE;
+	get_local_player().flags &= ~PLAYER_FLAGS_INVULNERABLE;
 	Player_eggs_dropped = 0;
 
 }
@@ -1425,13 +1425,13 @@ void dead_player_frame(void)
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
 
-				if (Players[Player_num].hostages_on_board > 1)
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, Players[Player_num].hostages_on_board);
-				else if (Players[Player_num].hostages_on_board == 1)
+				if (get_local_player().hostages_on_board > 1)
+					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, get_local_player().hostages_on_board);
+				else if (get_local_player().hostages_on_board == 1)
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
 					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
-				Players[Player_num].hostages_on_board = 0;
+				get_local_player().hostages_on_board = 0;
 
 				Player_exploded = 1;
 				if (Game_mode & GM_NETWORK)
@@ -1453,7 +1453,7 @@ void dead_player_frame(void)
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
 #if defined(DXX_BUILD_DESCENT_II)
-				Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+				get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 #endif
 			}
 		} else {
@@ -1491,7 +1491,7 @@ void dead_player_frame(void)
 static void start_player_death_sequence(const vobjptr_t player)
 {
 	Assert(player == ConsoleObject);
-	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)))
+	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)))
 		return;
 
 	//Assert(Player_is_dead == 0);
@@ -1508,16 +1508,16 @@ static void start_player_death_sequence(const vobjptr_t player)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		playernum_t killer_pnum = Player_num;
-		if (Players[Player_num].killer_objnum > 0 && Players[Player_num].killer_objnum < Highest_object_index)
-			killer_pnum = get_player_id(&Objects[Players[Player_num].killer_objnum]);
+		if (get_local_player().killer_objnum > 0 && get_local_player().killer_objnum < Highest_object_index)
+			killer_pnum = get_player_id(&Objects[get_local_player().killer_objnum]);
 		
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard())
-			if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12)
-				if (!(Players[Player_num].killer_objnum == Players[Player_num].objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
-					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
+			if (get_local_player().secondary_ammo[PROXIMITY_INDEX] < 12)
+				if (!(get_local_player().killer_objnum == get_local_player().objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
+					get_local_player().secondary_ammo[PROXIMITY_INDEX]++;
 #endif
-		multi_send_kill(vobjptridx(Players[Player_num].objnum));
+		multi_send_kill(vobjptridx(get_local_player().objnum));
 	}
 	
 	PaletteRedAdd = 40;
@@ -1647,14 +1647,14 @@ static void object_move_one(const vobjptridx_t obj)
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);
 #endif
 
-		fix fuel=fuelcen_give_fuel(vsegptr(obj->segnum), INITIAL_ENERGY-Players[Player_num].energy );
+		fix fuel=fuelcen_give_fuel(vsegptr(obj->segnum), INITIAL_ENERGY - get_local_player().energy );
 		if (fuel > 0 )	{
-			Players[Player_num].energy += fuel;
+			get_local_player().energy += fuel;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS-Players[Player_num].shields );
+		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS - get_local_player().shields );
 		if (shields > 0) {
-			Players[Player_num].shields += shields;
+			get_local_player().shields += shields;
 		}
 #endif
 	}

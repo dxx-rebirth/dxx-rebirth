@@ -297,8 +297,8 @@ Restart: ;
 objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &object_pos, int object_id)
 {
 
-	Players[Player_num].num_robots_level++;
-	Players[Player_num].num_robots_total++;
+	get_local_player().num_robots_level++;
+	get_local_player().num_robots_total++;
 
 	auto obj = obj_create(OBJ_ROBOT, object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
@@ -390,7 +390,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 	// Wait until we have a free slot for this puppy...
    //	  <<<<<<<<<<<<<<<< Num robots in mine >>>>>>>>>>>>>>>>>>>>>>>>>>    <<<<<<<<<<<< Max robots in mine >>>>>>>>>>>>>>>
-	if ( (Players[Player_num].num_robots_level - Players[Player_num].num_kills_level) >= (Gamesave_num_org_robots + Num_extry_robots ) ) {
+	if ( (get_local_player().num_robots_level - get_local_player().num_kills_level) >= (Gamesave_num_org_robots + Num_extry_robots ) ) {
 		return;
 	}
 
@@ -743,19 +743,19 @@ void fuelcen_check_for_goal(const vsegptr_t segp)
 
 	if (segp->special==SEGMENT_IS_GOAL_BLUE )	{
 
-			if ((get_team(Player_num)==TEAM_BLUE) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG))
+			if ((get_team(Player_num)==TEAM_BLUE) && (get_local_player().flags & PLAYER_FLAGS_FLAG))
 			 {
 				multi_send_capture_bonus (Player_num);
-				Players[Player_num].flags &=(~(PLAYER_FLAGS_FLAG));
+				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
 				maybe_drop_net_powerup (POW_FLAG_RED);
 			 }
 	  	 }
 	if ( segp->special==SEGMENT_IS_GOAL_RED) {
 
-			if ((get_team(Player_num)==TEAM_RED) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG))
+			if ((get_team(Player_num)==TEAM_RED) && (get_local_player().flags & PLAYER_FLAGS_FLAG))
 			 {		
 				multi_send_capture_bonus (Player_num);
-				Players[Player_num].flags &=(~(PLAYER_FLAGS_FLAG));
+				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
 				maybe_drop_net_powerup (POW_FLAG_BLUE);
 			 }
 	  	 }
@@ -770,11 +770,11 @@ void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 
 	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	
 	{
-		if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX])
+		if (get_local_player().secondary_ammo[PROXIMITY_INDEX])
 		{
 				multi_send_orb_bonus (Player_num);
-				Players[Player_num].flags &=(~(PLAYER_FLAGS_FLAG));
-				Players[Player_num].secondary_ammo[PROXIMITY_INDEX]=0;
+				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
+				get_local_player().secondary_ammo[PROXIMITY_INDEX]=0;
       }
 	}
 

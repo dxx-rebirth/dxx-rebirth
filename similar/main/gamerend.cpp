@@ -175,9 +175,9 @@ static void show_netplayerinfo()
 	y += line_spacing;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y += line_spacing;
-	gr_printf(x,y,"level time: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);
+	gr_printf(x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
 	y += line_spacing;
-	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
+	gr_printf(x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
 	y += line_spacing;
 	if (Netgame.KillGoal)
 		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
@@ -492,7 +492,7 @@ static bool choose_missile_viewer()
 		const auto laser_type = get_weapon_id(o);
 		if (!is_viewable_missile(laser_type))
 			continue;
-		if (o->ctype.laser_info.parent_num == Players[Player_num].objnum)
+		if (o->ctype.laser_info.parent_num == get_local_player().objnum)
 		{
 			if (!better_match(local_player_missile, o))
 				continue;

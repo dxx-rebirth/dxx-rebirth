@@ -528,10 +528,10 @@ static int FakingInvul=0;
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)
 {
-	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-		if (GameTime64 > Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX)
+	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE) {
+		if (GameTime64 > get_local_player().invulnerable_time+INVULNERABLE_TIME_MAX)
 		{
-			Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
+			get_local_player().flags ^= PLAYER_FLAGS_INVULNERABLE;
 			if (FakingInvul==0)
 			{
 				digi_play_sample( SOUND_INVULNERABILITY_OFF, F1_0);
@@ -564,10 +564,10 @@ static void do_afterburner_stuff(void)
 {
 	static sbyte func_play = 0;
 
-	if (!(Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER))
+	if (!(get_local_player().flags & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge = 0;
 
-	const auto plobj = vcobjptridx(Players[Player_num].objnum);
+	const auto plobj = vcobjptridx(get_local_player().objnum);
 	if (Endlevel_sequence || Player_is_dead)
 	{
 		digi_kill_sound_linked_to_object(plobj);
@@ -579,7 +579,7 @@ static void do_afterburner_stuff(void)
 	}
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
-		if (Afterburner_charge && Controls.state.afterburner && (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)) {
+		if (Afterburner_charge && Controls.state.afterburner && (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER)) {
 			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
@@ -769,7 +769,7 @@ int allowed_to_fire_flare(void)
 		return 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Players[Player_num].energy < Weapon_info[FLARE_ID].energy_usage)
+	if (get_local_player().energy < Weapon_info[FLARE_ID].energy_usage)
 #define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
 	else
@@ -1284,7 +1284,7 @@ void game_leave_menus(void)
 
 void GameProcessFrame(void)
 {
-	fix player_shields = Players[Player_num].shields;
+	fix player_shields = get_local_player().shields;
 	int player_was_dead = Player_is_dead;
 
 	update_player_stats();
@@ -1297,12 +1297,12 @@ void GameProcessFrame(void)
 	init_ai_frame();
 	do_final_boss_frame();
 
-	if ((Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) && (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
+	if ((get_local_player().flags & PLAYER_FLAGS_HEADLIGHT) && (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
 		static int turned_off=0;
-		Players[Player_num].energy -= (FrameTime*3/8);
-		if (Players[Player_num].energy < i2f(10)) {
+		get_local_player().energy -= (FrameTime*3/8);
+		if (get_local_player().energy < i2f(10)) {
 			if (!turned_off) {
-				Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+				get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 				turned_off = 1;
 				if (Game_mode & GM_MULTI)
 					multi_send_flags(Player_num);
@@ -1311,9 +1311,10 @@ void GameProcessFrame(void)
 		else
 			turned_off = 0;
 
-		if (Players[Player_num].energy <= 0) {
-			Players[Player_num].energy = 0;
-			Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+		if (get_local_player().energy <= 0)
+		{
+			get_local_player().energy = 0;
+			get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 			if (Game_mode & GM_MULTI)
 				multi_send_flags(Player_num);
 		}
@@ -1380,7 +1381,7 @@ void GameProcessFrame(void)
 	else
 	{ // Note the link to above!
 
-		Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+		get_local_player().homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 
 		object_move_all();
 		powerup_grab_cheat_all();
@@ -1436,8 +1437,8 @@ void GameProcessFrame(void)
 		Do_appearance_effect = 0;
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
-			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-			Players[Player_num].invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
+			get_local_player().flags |= PLAYER_FLAGS_INVULNERABLE;
+			get_local_player().invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			FakingInvul=1;
 		}
 	}
@@ -1448,15 +1449,15 @@ void GameProcessFrame(void)
 	flicker_lights();
 
 	//if the player is taking damage, give up guided missile control
-	if (Players[Player_num].shields != player_shields)
+	if (get_local_player().shields != player_shields)
 		release_guided_missile(Player_num);
 #endif
 
 	// Check if we have to close in-game menus for multiplayer
-	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected == CONNECT_PLAYING))
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
 		if ( Endlevel_sequence || ((Control_center_destroyed) && (Countdown_seconds_left <= 1)) || // close menus when end of level...
-			(Automap_active && ((Player_is_dead != player_was_dead) || (Players[Player_num].shields<=0 && player_shields>0))) ) // close autmap when dying ...
+			(Automap_active && ((Player_is_dead != player_was_dead) || (get_local_player().shields<=0 && player_shields>0))) ) // close autmap when dying ...
 			game_leave_menus();
 	}
 }
@@ -1613,19 +1614,20 @@ void FireLaser()
 	Global_laser_firing_count = Controls.state.fire_primary?Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count:0;
 
 	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
-		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
+		if ((get_local_player().energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 			Global_laser_firing_count = 0;
 		} else {
 			static fix64 Fusion_next_sound_time = 0;
 
 			if (Fusion_charge == 0)
-				Players[Player_num].energy -= F1_0*2;
+				get_local_player().energy -= F1_0*2;
 
 			Fusion_charge += FrameTime;
-			Players[Player_num].energy -= FrameTime;
+			get_local_player().energy -= FrameTime;
 
-			if (Players[Player_num].energy <= 0) {
-				Players[Player_num].energy = 0;
+			if (get_local_player().energy <= 0)
+			{
+				get_local_player().energy = 0;
 				Auto_fire_fusion_cannon_time = GameTime64 -1;	//	Fire now!
 			} else
 				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.

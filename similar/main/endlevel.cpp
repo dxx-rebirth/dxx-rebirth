@@ -321,7 +321,7 @@ void start_endlevel_sequence()
 	}
 #endif
 
-	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
+	get_local_player().homing_object_dist = -F1_0; // Turn off homing sound.
 
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);

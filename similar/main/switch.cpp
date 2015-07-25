@@ -374,7 +374,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 	(void)shot;
 	if (pnum == Player_num) {
 		if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE) {
-			Players[Player_num].shields -= Triggers[trigger_num].value;
+			get_local_player().shields -= Triggers[trigger_num].value;
 		}
 
 		if (Triggers[trigger_num].flags & TRIGGER_EXIT) {
@@ -395,7 +395,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		}
 
 		if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN) {
-			Players[Player_num].energy -= Triggers[trigger_num].value;
+			get_local_player().energy -= Triggers[trigger_num].value;
 		}
 	}
 
@@ -437,7 +437,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
-				if ((Players[Player_num].shields < 0) || Player_is_dead)
+				if ((get_local_player().shields < 0) || Player_is_dead)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
 				//             playing a D1 secret level
@@ -464,7 +464,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 				break;
 
-			if ((Players[Player_num].shields < 0) || Player_is_dead)
+			if ((get_local_player().shields < 0) || Player_is_dead)
 				break;
 
 			if (is_SHAREWARE || is_MAC_SHARE) {
@@ -589,13 +589,13 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 // Checks for a trigger whenever an object hits a trigger side.
 void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objnum, int shot)
 {
-	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (objnum == Players[Player_num].objnum)
+	if (objnum == get_local_player().objnum)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (objnum == Players[Player_num].objnum || (objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(objnum)].companion))
+	if (objnum == get_local_player().objnum || (objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(objnum)].companion))
 #endif
 	{
 

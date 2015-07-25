@@ -907,7 +907,7 @@ multi_do_robot_explode(const ubyte *buf)
 	const auto robot = vobjptridx(botnum);
 	rval = multi_explode_robot_sub(robot);
 
-	if (rval && (killer == Players[Player_num].objnum))
+	if (rval && (killer == get_local_player().objnum))
 		add_points_to_score(Robot_info[get_robot_id(robot)].score_value);
 }
 

@@ -976,9 +976,9 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;
-		if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
-			if (f2i(Players[Player_num].energy) < 40)
-				if ((f2i(Players[Player_num].energy)/2) & 2)
+		if (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
+			if (f2i(get_local_player().energy) < 40)
+				if ((f2i(get_local_player().energy)/2) & 2)
 					if (!Player_is_dead)
 						buddy_message("Hey, your headlight's on!");
 
@@ -1365,7 +1365,7 @@ static int maybe_steal_flag_item(int player_num, int flagval)
 				case PLAYER_FLAGS_HEADLIGHT:
 					powerup_index = POW_HEADLIGHT;
 					thief_message("Headlight stolen!");
-				   Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+					get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 					break;
 			}
 			Assert(powerup_index != -1);
@@ -1395,7 +1395,7 @@ static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 			Players[player_num].secondary_ammo[weapon_num]--;
 
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
-			if (Players[Player_num].secondary_ammo[weapon_num] == 0)
+			if (get_local_player().secondary_ammo[weapon_num] == 0)
 				auto_select_secondary_weapon();
 
 			// -- compress_stolen_items();

@@ -148,21 +148,21 @@ static void transfer_energy_to_shield()
 	fix e;		//how much energy gets transfered
 	static fix64 last_play_time=0;
 
-	e = min(min(FrameTime*CONVERTER_RATE,Players[Player_num].energy - INITIAL_ENERGY),(MAX_SHIELDS-Players[Player_num].shields)*CONVERTER_SCALE);
+	e = min(min(FrameTime*CONVERTER_RATE, get_local_player().energy - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player().shields) * CONVERTER_SCALE);
 
 	if (e <= 0) {
 
-		if (Players[Player_num].energy <= INITIAL_ENERGY) {
+		if (get_local_player().energy <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
-		else if (Players[Player_num].shields >= MAX_SHIELDS) {
+		else if (get_local_player().shields >= MAX_SHIELDS) {
 			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
 
-	Players[Player_num].energy  -= e;
-	Players[Player_num].shields += e/CONVERTER_SCALE;
+	get_local_player().energy  -= e;
+	get_local_player().shields += e/CONVERTER_SCALE;
 
 	if (last_play_time > GameTime64)
 		last_play_time = 0;
@@ -210,8 +210,8 @@ int which_bomb()
 
 	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
 
-	if (Players[Player_num].secondary_ammo[bomb] == 0 &&
-			Players[Player_num].secondary_ammo[SMART_MINE_INDEX+PROXIMITY_INDEX-bomb] != 0) {
+	if (get_local_player().secondary_ammo[bomb] == 0 &&
+			get_local_player().secondary_ammo[SMART_MINE_INDEX+PROXIMITY_INDEX-bomb] != 0) {
 		bomb = SMART_MINE_INDEX+PROXIMITY_INDEX-bomb;
 		Secondary_last_was_super[bomb%SUPER_WEAPON] = (bomb == SMART_MINE_INDEX);
 	}
@@ -280,14 +280,14 @@ static void do_weapon_n_item_stuff()
 	{
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
-		if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX] && !Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
+		if (!get_local_player().secondary_ammo[PROXIMITY_INDEX] && !get_local_player().secondary_ammo[SMART_MINE_INDEX])
 		{
 			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
 		}
 		else
 		{	
-			if (Players[Player_num].secondary_ammo[bomb]==0)
+			if (get_local_player().secondary_ammo[bomb] == 0)
 			{
 				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 				HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
@@ -301,7 +301,7 @@ static void do_weapon_n_item_stuff()
 		Controls.state.toggle_bomb = 0;
 	}
 
-	if (Controls.state.energy_to_shield && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER))
+	if (Controls.state.energy_to_shield && (get_local_player().flags & PLAYER_FLAGS_CONVERTER))
 		transfer_energy_to_shield();
 #endif
 }
@@ -384,12 +384,12 @@ static int do_game_pause()
 	pause_window *p = new pause_window;
 	songs_pause();
 
-	format_time(total_time, f2i(Players[Player_num].time_total), Players[Player_num].hours_total);
-	format_time(level_time, f2i(Players[Player_num].time_level), Players[Player_num].hours_level);
+	format_time(total_time, f2i(get_local_player().time_total), get_local_player().hours_total);
+	format_time(level_time, f2i(get_local_player().time_level), get_local_player().hours_level);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
+		snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),get_local_player().hostages_on_board,level_time,total_time);
 	else
-	  	snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
+	  	snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),get_local_player().hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
 
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, p))
@@ -640,7 +640,7 @@ dump_door_debugging_info()
 	fq.startseg				= obj->segnum;
 	fq.p1						= &new_pos;
 	fq.rad					= 0;
-	fq.thisobjnum			= Players[Player_num].objnum;
+	fq.thisobjnum			= get_local_player().objnum;
 	fq.ignore_obj_list	= NULL;
 	fq.flags					= 0;
 
@@ -1234,19 +1234,19 @@ static window_event_result HandleTestKey(int key)
 
 
 
-		case KEY_DEBUGGED+KEY_K:	Players[Player_num].shields = 1;	break;							//	a virtual kill
-		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  Players[Player_num].shields = -1;	 break;  //	an actual kill
-		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
+		case KEY_DEBUGGED+KEY_K:	get_local_player().shields = 1;	break;							//	a virtual kill
+		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player().shields = -1;	 break;  //	an actual kill
+		case KEY_DEBUGGED+KEY_X: get_local_player().lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
 			if (Player_is_dead)
 				return window_event_result::ignored;
 
-			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+			get_local_player().flags ^= PLAYER_FLAGS_CLOAKED;
+			if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
 				ai_do_cloak_stuff();
-				Players[Player_num].cloak_time = GameTime64;
+				get_local_player().cloak_time = GameTime64;
 			}
 			break;
 
@@ -1460,7 +1460,7 @@ static window_event_result FinalCheats()
 			cheats.*gotcha = !(cheats.*gotcha);
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
-			Players[Player_num].score = 0;
+			get_local_player().score = 0;
 			break;
 		}
 	}
@@ -1470,19 +1470,19 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
-		Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG);
+		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
+		get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG);
 
-		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<3; i++)
-			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		Players[Player_num].energy = MAX_ENERGY;
-		Players[Player_num].laser_level = MAX_LASER_LEVEL;
-		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		get_local_player().energy = MAX_ENERGY;
+		get_local_player().laser_level = MAX_LASER_LEVEL;
+		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 
@@ -1490,25 +1490,25 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 
-		Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
-		Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG);
+		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
+		get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG);
 
-		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
-			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		Players[Player_num].energy = MAX_ENERGY;
-		Players[Player_num].laser_level = MAX_LASER_LEVEL;
-		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		get_local_player().energy = MAX_ENERGY;
+		get_local_player().laser_level = MAX_LASER_LEVEL;
+		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::lamer)
 	{
-		Players[Player_num].shields=Players[Player_num].energy=i2f(1);
+		get_local_player().shields=get_local_player().energy=i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1518,41 +1518,41 @@ static window_event_result FinalCheats()
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
-			Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
-			Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG);
+			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
+			get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG);
 		}
 		else
 		{
-			Players[Player_num].primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
-			Players[Player_num].secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG | HAS_MERCURY_FLAG | HAS_EARTHSHAKER_FLAG);
+			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
+			get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG | HAS_MERCURY_FLAG | HAS_EARTHSHAKER_FLAG);
 		}
 
-		Players[Player_num].vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
-			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
-			Players[Player_num].secondary_ammo[SMISSILE4_INDEX] = 0;
-			Players[Player_num].secondary_ammo[SMISSILE5_INDEX] = 0;
-			Players[Player_num].secondary_ammo[MEGA_INDEX] = 0;
+			get_local_player().secondary_ammo[SMISSILE4_INDEX] = 0;
+			get_local_player().secondary_ammo[SMISSILE5_INDEX] = 0;
+			get_local_player().secondary_ammo[MEGA_INDEX] = 0;
 		}
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		Players[Player_num].energy = MAX_ENERGY;
-		Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
-		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		get_local_player().energy = MAX_ENERGY;
+		get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
+		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 
 	if (gotcha == &game_cheats::accessory)
 	{
-		Players[Player_num].flags |=PLAYER_FLAGS_HEADLIGHT;
-		Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
-		Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
-		Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
+		get_local_player().flags |=PLAYER_FLAGS_HEADLIGHT;
+		get_local_player().flags |=PLAYER_FLAGS_AFTERBURNER;
+		get_local_player().flags |=PLAYER_FLAGS_AMMO_RACK;
+		get_local_player().flags |=PLAYER_FLAGS_CONVERTER;
 		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 #endif
@@ -1560,39 +1560,39 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::allkeys)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
-		Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
+		get_local_player().flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
 	if (gotcha == &game_cheats::invul)
 	{
-		Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
-		Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
+		get_local_player().flags ^= PLAYER_FLAGS_INVULNERABLE;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (get_local_player().flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+		get_local_player().invulnerable_time = GameTime64+i2f(1000);
 	}
 
 	if (gotcha == &game_cheats::shields)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
-		Players[Player_num].shields = MAX_SHIELDS;
+		get_local_player().shields = MAX_SHIELDS;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::cloak)
 	{
-		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
-		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		get_local_player().flags ^= PLAYER_FLAGS_CLOAKED;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (get_local_player().flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+		if (get_local_player().flags & PLAYER_FLAGS_CLOAKED)
 		{
 			ai_do_cloak_stuff();
-			Players[Player_num].cloak_time = GameTime64;
+			get_local_player().cloak_time = GameTime64;
 		}
 	}
 
 	if (gotcha == &game_cheats::extralife)
 	{
-		if (Players[Player_num].lives<50)
+		if (get_local_player().lives<50)
 		{
-			Players[Player_num].lives++;
+			get_local_player().lives++;
 			HUD_init_message_literal(HM_DEFAULT, "Extra life!");
 		}
 	}
@@ -1813,7 +1813,7 @@ static void do_cheat_menu()
 	int mmn;
 	array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
 	char score_text[sizeof("2147483647")];
-	auto &plr = Players[Player_num];
+	auto &plr = get_local_player();
 	snprintf(score_text, sizeof(score_text), "%d", plr.score);
 	uint8_t plr_laser_level = plr.laser_level;
 	DXX_WIMP_MENU(ADD);

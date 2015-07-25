@@ -286,7 +286,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 					
 					if (choice==0)
 					{
-						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						get_local_player().connected=CONNECT_DISCONNECTED;
 						
 						if (km->network)
 							multi_send_endlevel_packet();
@@ -339,7 +339,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 				{
 					if (Current_level_num==8)
 					{
-						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						get_local_player().connected=CONNECT_DISCONNECTED;
 						
 						if (km->network)
 							multi_send_endlevel_packet();
