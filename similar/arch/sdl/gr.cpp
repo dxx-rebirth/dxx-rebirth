@@ -19,6 +19,8 @@
 #include "gr.h"
 #include "grdef.h"
 #include "palette.h"
+#include "game.h"
+#include "console.h"
 #include "u_mem.h"
 #include "dxxerror.h"
 #include "vers_id.h"

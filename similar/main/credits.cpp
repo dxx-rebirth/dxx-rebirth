@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamepal.h"
 #include "args.h"
 #endif
+#include "piggy.h"
 
 #include "compiler-make_unique.h"
 

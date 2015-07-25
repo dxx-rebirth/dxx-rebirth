@@ -22,6 +22,7 @@
 #include "sounds.h"
 #include "config.h"
 #include "args.h"
+#include "piggy.h"
 
 #include "compiler-range_for.h"
 
