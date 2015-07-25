@@ -11,13 +11,13 @@
 template <typename I>
 class partial_range_t;
 
-template <typename I, typename UO, typename UL>
+template <typename I, typename UO, typename UL, std::size_t NF, std::size_t NE>
 __attribute_warn_unused_result
-static inline partial_range_t<I> unchecked_partial_range(I range_begin, const UO &o, const UL &l);
+static inline partial_range_t<I> unchecked_partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UO &o, const UL &l);
 
-template <typename I, typename UL>
+template <typename I, typename UL, std::size_t NF, std::size_t NE>
 __attribute_warn_unused_result
-static inline partial_range_t<I> unchecked_partial_range(I range_begin, const UL &l);
+static inline partial_range_t<I> unchecked_partial_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UL &l);
 
 template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(std::declval<T &>()))>
 __attribute_warn_unused_result
@@ -44,5 +44,6 @@ static inline partial_range_t<I> partial_const_range(const char (&file)[NF], uns
 template <typename T, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(std::declval<T &&>()))>
 static inline partial_range_t<I> partial_const_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &&t, const UL &l) = delete;
 
+#define unchecked_partial_range(T,...)	unchecked_partial_range(__FILE__, __LINE__, #T, T, ##__VA_ARGS__)
 #define partial_range(T,...)	partial_range(__FILE__, __LINE__, #T, T, ##__VA_ARGS__)
 #define partial_const_range(T,...)	partial_const_range(__FILE__, __LINE__, #T, T, ##__VA_ARGS__)
