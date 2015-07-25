@@ -59,7 +59,7 @@ struct reactor {
 };
 
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs);
+void read_model_guns(const char *filename, reactor &);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1

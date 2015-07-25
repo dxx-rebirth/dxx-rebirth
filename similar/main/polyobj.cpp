@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "robot.h"
 #include "vecmat.h"
+#include "cntrlcen.h"
 #include "interp.h"
 #include "dxxerror.h"
 #include "u_mem.h"
@@ -421,9 +422,10 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs);
-int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_points, array<vms_vector, MAX_CONTROLCEN_GUNS> &gun_dirs)
+void read_model_guns(const char *filename, reactor &r)
 {
+	auto &gun_points = r.gun_points;
+	auto &gun_dirs = r.gun_dirs;
 	short version;
 	int id,len;
 	int n_guns=0;
@@ -476,8 +478,7 @@ int read_model_guns(const char *filename,array<vms_vector, MAX_CONTROLCEN_GUNS> 
 			pof_cfseek(model_buf,len,SEEK_CUR);
 
 	}
-
-	return n_guns;
+	r.n_guns = n_guns;
 }
 
 //free up a model, getting rid of all its memory

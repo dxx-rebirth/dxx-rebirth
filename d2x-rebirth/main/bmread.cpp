@@ -1440,7 +1440,7 @@ void bm_read_reactor(void)
 		Error("No object type specfied for object in BITMAPS.TBL on line %d\n",linenum);
 
 	Reactors[Num_reactors].model_num = model_num;
-	Reactors[Num_reactors].n_guns = read_model_guns(model_name,Reactors[Num_reactors].gun_points,Reactors[Num_reactors].gun_dirs);
+	read_model_guns(model_name, Reactors[Num_reactors]);
 
 	Num_reactors++;
 }
