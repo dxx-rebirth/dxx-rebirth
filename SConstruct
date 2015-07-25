@@ -230,9 +230,9 @@ class ConfigureTests:
 	def _extend_successflags(self,k,v):
 		self.successful_flags.setdefault(k, []).extend(v)
 	def Compile(self,context,**kwargs):
-		if self.user_settings.lto:
-			self.Compile = self.Link
-			return self.Link(context, **kwargs)
+		self.Compile = self.Link if self.user_settings.lto else self._Compile
+		return self.Compile(context, **kwargs)
+	def _Compile(self,context,**kwargs):
 		return self._Test(context,action=context.TryCompile, **kwargs)
 	def Link(self,context,**kwargs):
 		return self._Test(context,action=context.TryLink, **kwargs)
@@ -865,7 +865,7 @@ U a{640};
 	@_implicit_test
 	def check_pch(self,context):
 		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
-			result = self.Compile(context, text='', msg='whether compiler supports pre-compiled headers', testflags=how)
+			result = self._Compile(context, text='', msg='whether compiler supports pre-compiled headers', testflags=how)
 			if result:
 				self.pch_flags = how
 				return result
