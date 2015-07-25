@@ -1785,12 +1785,16 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 		}
 			
 		if (wallp->keys != KEY_NONE) {
-			if (wallp->keys == KEY_BLUE)
-				return (get_local_player().flags & PLAYER_FLAGS_BLUE_KEY);
-			else if (wallp->keys == KEY_GOLD)
-				return (get_local_player().flags & PLAYER_FLAGS_GOLD_KEY);
-			else if (wallp->keys == KEY_RED)
-				return (get_local_player().flags & PLAYER_FLAGS_RED_KEY);
+			const auto flags = get_local_player().flags;
+			switch (wallp->keys)
+			{
+				case KEY_BLUE:
+					return flags & PLAYER_FLAGS_BLUE_KEY;
+				case KEY_GOLD:
+					return flags & PLAYER_FLAGS_GOLD_KEY;
+				case KEY_RED:
+					return flags & PLAYER_FLAGS_RED_KEY;
+			}
 		}
 
 		if ((wallp->type != WALL_DOOR) && (wallp->type != WALL_CLOSED))
