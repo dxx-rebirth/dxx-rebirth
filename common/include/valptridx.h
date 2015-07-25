@@ -206,6 +206,12 @@ public:
 };
 
 template <typename managed_type>
+constexpr tt::false_type valptridx<managed_type>::partial_policy::require_valid::allow_nullptr;
+
+template <typename managed_type>
+constexpr tt::true_type valptridx<managed_type>::partial_policy::allow_invalid::allow_nullptr;
+
+template <typename managed_type>
 class valptridx<managed_type>::partial_policy::const_policy
 {
 protected:
