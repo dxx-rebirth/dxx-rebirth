@@ -527,8 +527,8 @@ static segnum_t choose_drop_segment()
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
-	player_pos = &Objects[Players[Player_num].objnum].pos;
-	auto player_seg = Objects[Players[Player_num].objnum].segnum;
+	player_pos = &get_local_plrobj().pos;
+	const auto player_seg = get_local_plrobj().segnum;
 
 	segnum_t	segnum = segment_none;
 	while ((segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {

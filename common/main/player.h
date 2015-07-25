@@ -169,6 +169,8 @@ static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
+
+#define get_local_plrobj()	(*vobjptr(Players[Player_num].objnum))
 #endif
 
 struct player_ship

@@ -1840,7 +1840,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)
 				multi_disconnect_player(i);
-		Viewer = ConsoleObject = &Objects[Players[Player_num].objnum]; // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
+		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(); // since we juggeled around with objects to remap coop players rebuild the index of free objects
 	}
 	if (Game_wind)

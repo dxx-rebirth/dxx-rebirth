@@ -321,7 +321,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 			// center can spot cloaked dudes.
 
 			if (Game_mode & GM_MULTI)
-				Believed_player_pos = Objects[Players[Player_num].objnum].pos;
+				Believed_player_pos = get_local_plrobj().pos;
 
 			//	Hack for special control centers which are isolated and not reachable because the
 			//	real control center is inside the boss.

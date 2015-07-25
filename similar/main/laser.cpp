@@ -1455,7 +1455,7 @@ void Flare_create(const vobjptridx_t obj)
 #endif
 		}
 
-		Laser_player_fire( obj, FLARE_ID, 6, 1, Objects[Players[Player_num].objnum].orient.fvec);
+		Laser_player_fire( obj, FLARE_ID, 6, 1, get_local_plrobj().orient.fvec);
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ADJUST, 0, 0, 1, object_none, object_none);
@@ -1765,7 +1765,7 @@ int do_laser_firing_player(void)
 			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
 				flags |= LASER_QUAD;
 
-			rval += do_laser_firing(vobjptridx(Players[Player_num].objnum), Primary_weapon, laser_level, flags, nfires, Objects[Players[Player_num].objnum].orient.fvec);
+			rval += do_laser_firing(vobjptridx(Players[Player_num].objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
 
 			plp->energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (plp->energy < 0)
@@ -2199,7 +2199,7 @@ void do_missile_firing(int drop_bomb)
 			Missile_gun++;
 		}
 
-		auto objnum = Laser_player_fire(vobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, Objects[Players[Player_num].objnum].orient.fvec);
+		const auto &&objnum = Laser_player_fire(vobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec);
 
 		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {

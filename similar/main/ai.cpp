@@ -919,7 +919,7 @@ void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playero
 //#endif
 
 	//	If player is dead, stop firing.
-	if (Objects[Players[Player_num].objnum].type == OBJ_GHOST)
+	if (get_local_plrobj().type == OBJ_GHOST)
 		return;
 
 	if (robptr->attack_type == 1) {
@@ -2177,7 +2177,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
-	const auto boss_dir = vm_vec_sub(Objects[Players[Player_num].objnum].pos, objp->pos);
+	const auto boss_dir = vm_vec_sub(get_local_plrobj().pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, objp->pos, 0 , F1_0);

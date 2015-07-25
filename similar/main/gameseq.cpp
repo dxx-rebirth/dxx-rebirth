@@ -1028,7 +1028,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	automap_clear_visited();
 
-	Viewer = &Objects[Players[Player_num].objnum];
+	Viewer = &get_local_plrobj();
 
 	gameseq_remove_unused_players();
 
@@ -1386,7 +1386,7 @@ void DoPlayerDead()
 
 	#ifdef EDITOR
 	if (Game_mode == GM_EDITOR) {			//test mine, not real level
-		object * playerobj = &Objects[Players[Player_num].objnum];
+		const auto playerobj = &get_local_plrobj();
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
 		if (Game_wind)
 			window_set_visible(Game_wind, 1);
@@ -1513,7 +1513,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	gameseq_init_network_players(); // Initialize the Players array for
 											  // this level
 
-	Viewer = &Objects[Players[Player_num].objnum];
+	Viewer = &get_local_plrobj();
 
 	Assert(N_players <= NumNetPlayerPositions);
 		//If this assert fails, there's not enough start positions

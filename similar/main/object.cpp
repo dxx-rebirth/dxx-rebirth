@@ -1379,7 +1379,7 @@ void dead_player_frame(void)
 
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
-			object	*player = &Objects[Players[Player_num].objnum];
+			const auto player = &get_local_plrobj();
 
 			auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 

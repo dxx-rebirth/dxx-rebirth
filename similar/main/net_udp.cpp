@@ -3940,7 +3940,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		}
 	}
 
-	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
+	get_local_plrobj().type = OBJ_PLAYER;
 
 	Network_status = NETSTAT_PLAYING;
 	multi_sort_kill_list();

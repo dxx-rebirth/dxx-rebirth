@@ -1162,7 +1162,7 @@ static segnum_t choose_thief_recreation_segment()
 	cur_drop_depth = THIEF_DEPTH;
 
 	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
-		segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], cur_drop_depth);
+		segnum = pick_connected_segment(&get_local_plrobj(), cur_drop_depth);
 		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 			segnum = segment_none;
 		cur_drop_depth--;

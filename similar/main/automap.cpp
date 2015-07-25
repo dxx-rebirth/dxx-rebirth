@@ -305,7 +305,7 @@ static void DrawMarkerNumber (automap *am, int num)
 static void DropMarker (int player_marker_num)
 {
 	int marker_num = (Player_num*2)+player_marker_num;
-	object *playerp = &Objects[Players[Player_num].objnum];
+	const auto playerp = &get_local_plrobj();
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
@@ -633,7 +633,7 @@ static void recompute_automap_segment_visibility(automap *am)
 	if (Automap_debug_show_all_segments)
 		compute_depth_all_segments = 1;
 	automap_build_edge_list(am, compute_depth_all_segments);
-	am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, compute_depth_all_segments ? NULL : &Automap_visited, am->depth_array);
+	am->max_segments_away = set_segment_depths(get_local_plrobj().segnum, compute_depth_all_segments ? NULL : &Automap_visited, am->depth_array);
 	am->segment_limit = am->max_segments_away;
 	adjust_segment_limit(am, am->segment_limit);
 }
@@ -764,8 +764,8 @@ static window_event_result automap_process_input(window *, const d_event &event,
 		if ( am->controls.state.fire_primary)
 		{
 			// Reset orientation
-			am->viewMatrix = Objects[Players[Player_num].objnum].orient;
-			vm_vec_scale_add(am->view_position, Objects[Players[Player_num].objnum].pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
+			am->viewMatrix = get_local_plrobj().orient;
+			vm_vec_scale_add(am->view_position, get_local_plrobj().pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
 			am->controls.state.fire_primary = 0;
 		}
 		
@@ -803,7 +803,7 @@ static window_event_result automap_process_input(window *, const d_event &event,
 			am->tangles.p = PITCH_DEFAULT;
 			am->tangles.h  = 0;
 			am->tangles.b  = 0;
-			am->view_target = Objects[Players[Player_num].objnum].pos;
+			am->view_target = get_local_plrobj().pos;
 			am->controls.state.fire_primary = 0;
 		}
 
@@ -820,15 +820,15 @@ static window_event_result automap_process_input(window *, const d_event &event,
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
 			const auto &&tempm = vm_angles_2_matrix(tangles1);
-			vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
+			vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
-			if ( vm_vec_dist_quick( am->view_target, Objects[Players[Player_num].objnum].pos) > i2f(1000) )
+			if ( vm_vec_dist_quick( am->view_target, get_local_plrobj().pos) > i2f(1000) )
 				am->view_target = old_vt;
 		}
 
 		const auto &&tempm = vm_angles_2_matrix(am->tangles);
-		vm_matrix_x_matrix(am->viewMatrix,Objects[Players[Player_num].objnum].orient,tempm);
+		vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}
@@ -931,14 +931,14 @@ void do_automap()
 	if ( am->viewDist==0 )
 		am->viewDist = ZOOM_DEFAULT;
 
-	am->viewMatrix = Objects[Players[Player_num].objnum].orient;
+	am->viewMatrix = get_local_plrobj().orient;
 	am->tangles.p = PITCH_DEFAULT;
 	am->tangles.h  = 0;
 	am->tangles.b  = 0;
-	am->view_target = Objects[Players[Player_num].objnum].pos;
+	am->view_target = get_local_plrobj().pos;
 	
 	if (PlayerCfg.AutomapFreeFlight)
-		vm_vec_scale_add(am->view_position, Objects[Players[Player_num].objnum].pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
+		vm_vec_scale_add(am->view_position, get_local_plrobj().pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
 
 	am->t1 = am->entry_time = timer_query();
 	am->t2 = am->t1;

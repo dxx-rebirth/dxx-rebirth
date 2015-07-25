@@ -2353,7 +2353,7 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const objptridx_t is_bomb_objnum)
 {
-	object* ownship = &Objects[Players[Player_num].objnum];
+	const auto ownship = &get_local_plrobj();
 	static fix64 last_fireup_time = 0;
 
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
@@ -3315,7 +3315,7 @@ void multi_prep_level(void)
 		robot_fired[i] = 0;
 	}
 
-	Viewer = ConsoleObject = &Objects[Players[Player_num].objnum];
+	Viewer = ConsoleObject = &get_local_plrobj();
 
 	if (!(Game_mode & GM_MULTI_COOP))
 	{

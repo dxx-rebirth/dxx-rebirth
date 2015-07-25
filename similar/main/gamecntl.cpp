@@ -633,7 +633,7 @@ dump_door_debugging_info()
 	fvi_info hit_info;
 	int fate;
 	PHYSFS_file *dfile;
-	obj = &Objects[Players[Player_num].objnum];
+	obj = &get_local_plrobj();
 	vm_vec_scale_add(&new_pos,&obj->pos,&obj->orient.fvec,i2f(100));
 
 	fq.p0						= &obj->pos;
