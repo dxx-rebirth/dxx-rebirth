@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "titles.h"
+#include "console.h"
 #include "songs.h"
 #include "polyobj.h"
 #include "dxxerror.h"

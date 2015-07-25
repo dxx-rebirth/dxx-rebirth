@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "stdlib.h"
 #include "bm.h"
 #include "3d.h"
+#include "weapon.h"
 #include "segment.h"
 #include "strutil.h"
 #include "texmap.h"

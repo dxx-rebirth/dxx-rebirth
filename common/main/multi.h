@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "powerup.h"
 #include "fwdobject.h"
+#include "window.h"
+#include "game.h"
 
 #ifdef _WIN32
 #ifdef _WIN32_WINNT

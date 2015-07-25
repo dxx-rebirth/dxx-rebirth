@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "args.h"
 #include "player.h"
+#include "digi.h"
 #include "mission.h"
 #include "u_mem.h"
 #include "physfsx.h"

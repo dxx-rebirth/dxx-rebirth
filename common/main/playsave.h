@@ -65,7 +65,7 @@ struct hli
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "kconfig.h"
 #include "multi.h"
-#include "weapon.h"
+#include "fwd-weapon.h"
 
 struct player_config
 {
