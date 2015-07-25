@@ -1843,6 +1843,7 @@ class DXXArchive(DXXCommon):
 ]
 ])
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+'editor/autosave.cpp',
 'editor/func.cpp',
 'ui/button.cpp',
 'ui/checkbox.cpp',
@@ -2056,7 +2057,6 @@ class DXXProgram(DXXCommon):
 	}])
 	objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'editor/autosave.cpp',
 'editor/centers.cpp',
 'editor/curves.cpp',
 'main/dumpmine.cpp',
