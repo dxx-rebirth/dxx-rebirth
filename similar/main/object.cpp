@@ -1507,15 +1507,26 @@ static void start_player_death_sequence(const vobjptr_t player)
 	if (Game_mode & GM_MULTI)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		playernum_t killer_pnum = Player_num;
-		if (get_local_player().killer_objnum > 0 && get_local_player().killer_objnum < Highest_object_index)
-			killer_pnum = get_player_id(&Objects[get_local_player().killer_objnum]);
-		
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard())
 			if (get_local_player().secondary_ammo[PROXIMITY_INDEX] < 12)
-				if (!(get_local_player().killer_objnum == get_local_player().objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
+			{
+				const auto is_bad_kill = []{
+					if (get_local_player().killer_objnum == get_local_player().objnum)
+						/* Self kill */
+						return true;
+					auto &lplr = get_local_player();
+					const auto killer_objnum = lplr.killer_objnum;
+					if (killer_objnum == object_none)
+						/* Non-player kill */
+						return true;
+					if (!(Game_mode & GM_TEAM))
+						return false;
+					return get_team(Player_num) == get_team(get_player_id(vobjptr(killer_objnum)));
+				};
+				if (!is_bad_kill())
 					get_local_player().secondary_ammo[PROXIMITY_INDEX]++;
+			}
 #endif
 		multi_send_kill(vobjptridx(get_local_player().objnum));
 	}
