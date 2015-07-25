@@ -655,7 +655,7 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 
 extern struct netgame_info Netgame;
 
-int multi_i_am_master(void);
+#define multi_i_am_master()	(Player_num == 0)
 playernum_t multi_who_is_master();
 void change_playernum_to(int new_pnum);
 

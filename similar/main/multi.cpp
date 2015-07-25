@@ -3512,12 +3512,6 @@ int multi_delete_extra_objects()
 	return nnp;
 }
 
-// Returns 1 if player is Master/Host of this game
-int multi_i_am_master(void)
-{
-	return (Player_num == 0);
-}
-
 // Returns the Player_num of Master/Host of this game
 playernum_t multi_who_is_master()
 {
