@@ -664,12 +664,12 @@ void bm_read_alias()
 	Num_aliases++;
 }
 
-static void set_lighting_flag(sbyte *bp)
+static void set_lighting_flag(grs_bitmap &bmp)
 {
 	if (vlighting < 0)
-		*bp |= BM_FLAG_NO_LIGHTING;
+		bmp.bm_flags |= BM_FLAG_NO_LIGHTING;
 	else
-		*bp &= (0xff ^ BM_FLAG_NO_LIGHTING);
+		bmp.bm_flags &= ~BM_FLAG_NO_LIGHTING;
 }
 
 static void set_texture_name(char *name)
@@ -722,7 +722,7 @@ static void bm_read_eclip(int skip)
 
 		Assert(clip_count < frames);
 		Effects[clip_num].vc.frames[clip_count] = bitmap;
-		set_lighting_flag(&GameBitmaps[bitmap.index].bm_flags);
+		set_lighting_flag(GameBitmaps[bitmap.index]);
 
 		Assert(!obj_eclip);		//obj eclips for non-abm files not supported!
 		Assert(crit_flag==0);
@@ -751,7 +751,7 @@ static void bm_read_eclip(int skip)
 		Effects[clip_num].vc.frame_time = Effects[clip_num].vc.play_time/Effects[clip_num].vc.num_frames;
 
 		clip_count = 0;	
-		set_lighting_flag( &GameBitmaps[bm[clip_count].index].bm_flags);
+		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 		Effects[clip_num].vc.frames[clip_count] = bm[clip_count];
 
 		if (!obj_eclip && !crit_flag) {
@@ -779,7 +779,7 @@ static void bm_read_eclip(int skip)
 		//if for an object, Effects_bm_ptrs set in object load
 
 		for(clip_count=1;clip_count < Effects[clip_num].vc.num_frames; clip_count++) {
-			set_lighting_flag( &GameBitmaps[bm[clip_count].index].bm_flags);
+			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 			Effects[clip_num].vc.frames[clip_count] = bm[clip_count];
 		}
 
@@ -880,7 +880,7 @@ static void bm_read_wclip(int skip)
 		WallAnims[clip_num].open_sound = wall_open_sound;
 		WallAnims[clip_num].close_sound = wall_close_sound;
 		Textures[texture_count] = bitmap;
-		set_lighting_flag(&GameBitmaps[bitmap.index].bm_flags);
+		set_lighting_flag(GameBitmaps[bitmap.index]);
 		set_texture_name( arg );
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
@@ -905,11 +905,11 @@ static void bm_read_wclip(int skip)
 
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 
-		set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
+		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 
 		for (clip_count=0;clip_count < WallAnims[clip_num].num_frames; clip_count++)	{
 			Textures[texture_count] = bm[clip_count];
-			set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
+			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 			WallAnims[clip_num].frames[clip_count] = texture_count;
 			REMOVE_DOTS(arg);
 			snprintf(&TmapInfo[texture_count].filename[0u], TmapInfo[texture_count].filename.size(), "%s#%d", arg, clip_count);
@@ -937,7 +937,7 @@ static void bm_read_vclip(int skip)
 		Vclip[clip_num].frame_time = fl2f(play_time)/frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
-		set_lighting_flag(&GameBitmaps[bi.index].bm_flags);
+		set_lighting_flag(GameBitmaps[bi.index]);
 		Assert(clip_count < frames);
 		Vclip[clip_num].frames[clip_count++] = bi;
 		if (rod_flag) {
@@ -961,10 +961,10 @@ static void bm_read_vclip(int skip)
 		Vclip[clip_num].frame_time = fl2f(play_time)/Vclip[clip_num].num_frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
-		set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
+		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 
 		for (clip_count=0;clip_count < Vclip[clip_num].num_frames; clip_count++) {
-			set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
+			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
 			Vclip[clip_num].frames[clip_count] = bm[clip_count];
 		}
 	}
