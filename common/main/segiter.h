@@ -1,7 +1,10 @@
 #pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include <iterator>
 #include "dxxsconf.h"
 #include "object.h"
+#include "segment.h"
 
 namespace detail
 {
@@ -51,14 +54,15 @@ struct segment_object_range_t
 	segment_object_iterator_t<T> end() const { return T(object_none); }
 };
 
-static inline segment_object_range_t<objptridx_t> objects_in(segment &s) __attribute_warn_unused_result;
+__attribute_warn_unused_result
 static inline segment_object_range_t<objptridx_t> objects_in(segment &s)
 {
 	return s.objects == object_none ? objptridx_t(object_none) : objptridx_t(s.objects);
 }
 
-static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s) __attribute_warn_unused_result;
+__attribute_warn_unused_result
 static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s)
 {
 	return s.objects == object_none ? cobjptridx_t(object_none) : cobjptridx_t(s.objects);
 }
+#endif

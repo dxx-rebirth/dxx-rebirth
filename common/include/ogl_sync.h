@@ -13,6 +13,7 @@
 #pragma once
 
 #include <memory>
+#include "maths.h"
 #include "args.h"
 #include "ogl_extensions.h"
 

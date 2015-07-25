@@ -11,6 +11,7 @@
 
 #ifdef __cplusplus
 
+struct sound_object;
 int digi_mixer_init();
 void digi_mixer_close();
 int digi_mixer_start_sound(short, fix, int, int, int, int, sound_object *);

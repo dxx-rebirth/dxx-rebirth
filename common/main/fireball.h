@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "fwd-partial_range.h"
 #include "fwdvalptridx.h"
+#include "pack.h"
 
 struct vms_vector;
 enum powerup_type_t : uint8_t;

@@ -26,12 +26,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
+#include "maths.h"
 
 #ifdef __cplusplus
 #include "pack.h"
 #include "segnum.h"
 #include "objnum.h"
 #include "fwdvalptridx.h"
+#include "compiler-array.h"
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -123,7 +125,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 	fix     value;
 	fix     time;
 #if defined(DXX_BUILD_DESCENT_I)
-	sbyte		link_num;
+	int8_t		link_num;
 	uint16_t 	num_links;
 #endif
 	array<segnum_t, MAX_WALLS_PER_LINK>   seg;

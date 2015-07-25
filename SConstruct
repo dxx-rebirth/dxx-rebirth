@@ -1598,7 +1598,7 @@ class DXXCommon(LazyObjectConstructor):
 			if name[:24] == 'common/include/compiler-':
 				CPPFLAGS.extend(['-include', 'dxxsconf.h'])
 			CPPFLAGS.extend(['-include', name])
-			if self.user_settings.verbosebuild:
+			if not self.user_settings.verbosebuild:
 				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 

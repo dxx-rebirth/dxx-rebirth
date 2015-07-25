@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cstdint>
 #include "fwdvalptridx.h"
 
 #ifdef __cplusplus
@@ -46,7 +47,7 @@ extern int wall_remove_blastable();
 
 // Adds a wall. (visually)
 extern int wall_add_to_curside();
-extern int wall_add_to_markedside(sbyte type);
+int wall_add_to_markedside(int8_t type);
  
 // Removes a wall. (visually)
 extern int wall_remove();

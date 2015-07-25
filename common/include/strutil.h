@@ -7,7 +7,9 @@
 #pragma once
 
 #ifdef __cplusplus
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include "dxxsconf.h"
 #include <vector>
 

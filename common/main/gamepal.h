@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _GAMEPAL_H
-#define _GAMEPAL_H
+#pragma once
 
 #ifdef __cplusplus
 
@@ -38,6 +37,8 @@ static inline int load_palette(const char *name, int used_for_level, int no_chan
 	return 1;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+#include "inferno.h"
+
 #define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 
@@ -56,5 +57,3 @@ int load_palette(const char *name, int used_for_level, int no_change_screen);
 #endif
 
 #endif
-
-#endif /* _GAMEPAL_H */

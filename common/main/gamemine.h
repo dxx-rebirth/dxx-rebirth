@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINE_VERSION					17	// Current version expected
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MINE_VERSION        20  // Current version expected
+#include "vecmat.h"
+#include "segnum.h"
 #endif
 #define COMPATIBLE_VERSION  16  // Oldest version that can safely be loaded.
 

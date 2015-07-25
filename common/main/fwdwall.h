@@ -9,6 +9,7 @@
 #pragma once
 
 #include <physfs.h>
+#include "maths.h"
 #include "fwdvalptridx.h"
 
 struct side;

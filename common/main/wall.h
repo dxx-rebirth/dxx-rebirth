@@ -169,7 +169,6 @@ static inline ssize_t operator-(wall *w, array<wall, MAX_WALLS> &W)
 {
 	return w - static_cast<wall *>(&*W.begin());
 }
-#endif
 
 static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, const uint_fast32_t side)
 {
@@ -183,4 +182,5 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, con
 		return WID_NO_WALL;
 	return wall_is_doorway(s);
 }
+#endif
 #endif

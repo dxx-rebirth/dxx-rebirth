@@ -23,13 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _TEXT_H
-#define _TEXT_H
+#pragma once
 
 #include "dxxsconf.h"
 
 #ifdef __cplusplus
+#include "compiler-array.h"
 
 //Symbolic constants for all the strings
 
@@ -1301,5 +1300,3 @@ static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 #endif
 
 #endif
-
-#endif /* _TEXT_H */

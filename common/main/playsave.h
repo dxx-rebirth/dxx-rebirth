@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef __cplusplus
+#include <cstdint>
 
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
@@ -58,7 +59,7 @@ void plyr_save_stats();
 struct hli
 {
 	char	Shortname[9];
-	ubyte	LevelNum;
+	uint8_t LevelNum;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

@@ -68,8 +68,6 @@
 	VALUE(MULTI_DROP_WEAPON          , 10)	\
 	D2X_MP_COMMANDS(VALUE)	\
 
-#endif
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_MP_SIZE_PLAYER_RELATED	58
 #define DXX_MP_SIZE_BEGIN_SYNC	37
@@ -158,3 +156,5 @@ static inline decltype(serial::pad<1, static_cast<uint8_t>(C)>()) multiplayer_co
 	static_assert(static_cast<uint8_t>(C) == static_cast<unsigned>(C), "command truncated");
 	return serial::pad<1, static_cast<uint8_t>(C)>();
 }
+
+#endif

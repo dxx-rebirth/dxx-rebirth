@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "maths.h"
+#include "vecmat.h"
 
 #ifdef __cplusplus
 #include "fwdsegment.h"

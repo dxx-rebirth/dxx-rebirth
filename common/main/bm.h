@@ -26,10 +26,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
+#include "maths.h"
 
 struct bitmap_index;
 
 #ifdef __cplusplus
+#include <cstdint>
 
 struct grs_bitmap;
 
@@ -55,7 +57,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	d_fname filename;
-	ubyte			flags;
+	uint8_t			flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
 	int			eclip_num;		//if not -1, the eclip that changes this   
@@ -66,7 +68,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	short   eclip_num; //the eclip that changes this, or -1
 	short   destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
-	ubyte   flags;     //values defined above
+	uint8_t   flags;     //values defined above
 	#ifdef EDITOR
 	d_fname filename;       //used by editor to remap textures
 	#endif
@@ -113,8 +115,8 @@ void init_textures();
 #define	MAX_OBJTYPE			100
 
 extern int Num_total_object_types;		//	Total number of object types, including robots, hostages, powerups, control centers, faces
-extern sbyte	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
-extern sbyte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
+extern int8_t	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
+extern int8_t	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 #define MAX_OBJ_BITMAPS				210
@@ -135,6 +137,7 @@ extern array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 extern array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
+void load_robot_replacements(const d_fname &level_name);
 #endif
 
 // Initializes all bitmaps from BITMAPS.TBL file.
@@ -143,7 +146,6 @@ int gamedata_read_tbl(int pc_shareware);
 extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
-void load_robot_replacements(const d_fname &level_name);
 void bm_read_extra_robots(const char *fname,int type);
 #if defined(DXX_BUILD_DESCENT_I)
 void properties_read_cmp(PHYSFS_file * fp);

@@ -23,13 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _OUTSIDE_H
-#define _OUTSIDE_H
-
+#pragma once
 
 #ifdef __cplusplus
 #include "vecmat.h"
 #include "segnum.h"
+#include "gr.h"
 
 extern int Endlevel_sequence;
 void do_endlevel_frame();
@@ -55,5 +54,3 @@ extern unsigned exit_modelnum, destroyed_exit_modelnum;
 extern vms_matrix surface_orient;
 
 #endif
-
-#endif /* _OUTSIDE_H */

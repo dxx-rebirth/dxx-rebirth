@@ -26,17 +26,6 @@ int  MVE_rmStepMovie(MVESTREAM *mve);
 void MVE_rmHoldMovie();
 void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> mve);
 
-struct MVESTREAM_deleter_t
-{
-	void operator()(MVESTREAM *p) const
-	{
-		MVE_rmEndMovie(std::unique_ptr<MVESTREAM>(p));
-	}
-};
-
-typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
-int  MVE_rmPrepMovie(MVESTREAM_ptr_t &, void *stream, int x, int y, int track);
-
 void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 
 void MVE_sndInit(int x);

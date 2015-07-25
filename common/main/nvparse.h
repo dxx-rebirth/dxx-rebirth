@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
+#include "dxxsconf.h"
 #include "compiler-type_traits.h"
 #include "ntstring.h"
 

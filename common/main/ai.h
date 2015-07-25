@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include "dxxsconf.h"
 #include "fmtcheck.h"
+#include "vecmat.h"
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
@@ -84,14 +85,17 @@ extern object *Ai_last_missile_camera;
 #endif
 
 void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
-#endif
 
 struct boss_special_segment_array_t : public count_array_t<segnum_t, MAX_BOSS_TELEPORT_SEGS> {};
 struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
 struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
+extern boss_teleport_segment_array_t Boss_teleport_segs;
+ai_mode ai_behavior_to_mode(ai_behavior behavior);
+void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
+void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
+#endif
 
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
-extern boss_teleport_segment_array_t Boss_teleport_segs;
 extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
 extern sbyte Boss_dying;
@@ -101,25 +105,22 @@ extern vms_vector Believed_player_pos;
 void move_towards_segment_center(vobjptr_t objp);
 objptridx_t gate_in_robot(int type, vsegptridx_t segnum);
 void do_ai_frame(vobjptridx_t objp);
-void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
 extern void do_ai_frame_all(void);
 extern void create_all_paths(void);
 void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
 extern void init_ai_objects(void);
-void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void make_random_vector(vms_vector &vec);
-static inline vms_vector make_random_vector() __attribute_warn_unused_result;
+__attribute_warn_unused_result
 static inline vms_vector make_random_vector()
 {
 	vms_vector v;
 	return make_random_vector(v), v;
 }
 extern void init_robots_for_level(void);
-ai_mode ai_behavior_to_mode(ai_behavior behavior);
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
@@ -290,12 +291,12 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 {
 	return std::distance(p.begin(), i);
 }
+
+int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 #endif
 
 int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);
-
-int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 
 #ifdef EDITOR
 void player_follow_path(vobjptr_t objp);

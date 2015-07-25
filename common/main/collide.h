@@ -25,7 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "maths.h"
+
 #ifdef __cplusplus
+#include <cstdint>
 #include "fwdvalptridx.h"
 
 struct vms_vector;
@@ -33,7 +36,7 @@ struct laser_parent;
 
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point);
 void collide_object_with_wall(vobjptridx_t A, fix hitspeed, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
-void apply_damage_to_player(vobjptr_t player, cobjptridx_t killer, fix damage, ubyte possibly_friendly);
+void apply_damage_to_player(vobjptr_t player, cobjptridx_t killer, fix damage, uint8_t possibly_friendly);
 
 // Returns 1 if robot died, else 0.
 int apply_damage_to_robot(vobjptridx_t robot, fix damage, objnum_t killer_objnum);
