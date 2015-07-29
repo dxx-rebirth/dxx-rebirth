@@ -412,7 +412,7 @@ public:
 		if (!allow_nullptr)
 			check_null_pointer(p, a);
 	}
-	basic_ptr(reference_type r, array_managed_type &a = get_array()) :
+	basic_ptr(reference_type r, array_managed_type &a) :
 		m_ptr((check_implicit_index_range_ref(r, a), &r))
 	{
 	}
