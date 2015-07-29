@@ -416,7 +416,7 @@ public:
 		m_ptr((check_implicit_index_range_ref(r, a), &r))
 	{
 	}
-	basic_ptr(reference_type r, index_type i, array_managed_type &a = get_array()) :
+	basic_ptr(reference_type r, index_type i, array_managed_type &a) :
 		m_ptr((check_explicit_index_range_ref(r, i, a), &r))
 	{
 	}
