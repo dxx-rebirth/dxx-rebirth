@@ -163,7 +163,7 @@ static inline void check_range_bounds(const char (&file)[NF], unsigned line, con
 	 * !DXX_HAVE_BUILTIN_CONSTANT_P and the macro expands to nothing.
 	 */
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
-	(__builtin_constant_p(EXPR > d) && (EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw_##S, #S " will always throw"), 0))
+	(DXX_CONSTANT_TRUE(EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw_##S, #S " will always throw"), 0))
 #else
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	static_cast<void>(0)
 #endif
@@ -207,7 +207,7 @@ static inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF
 	 * happen, then the range is always empty, which likely indicates a
 	 * bug.
 	 */
-	if (__builtin_constant_p(!(o < l)) && !(o < l))
+	if (DXX_CONSTANT_TRUE(!(o < l)))
 		DXX_ALWAYS_ERROR_FUNCTION(partial_range_is_always_empty, "offset never less than length");
 #endif
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE

@@ -210,8 +210,8 @@ template <std::size_t N>
 static inline void g3_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (__builtin_constant_p(nv > N) && nv > N)
+#ifdef DXX_CONSTANT_TRUE
+	if (DXX_CONSTANT_TRUE(nv > N))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
 	_g3_draw_tmap(nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);

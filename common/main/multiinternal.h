@@ -119,15 +119,12 @@ static inline void multi_send_data(ubyte *buf, unsigned len, int priority)
 {
 	buf[0] = C;
 	unsigned expected = command_length<C>::value;
+#ifdef DXX_CONSTANT_TRUE
+	if (DXX_CONSTANT_TRUE(len != expected))
+		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
+#endif
 	if (len != expected)
 	{
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-		/* Restate (len != expected) for <gcc-4.9.  Otherwise it reports
-		 * failure on valid inputs.
-		 */
-		if (__builtin_constant_p(len != expected) && len != expected)
-			DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
-#endif
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", C, len, expected);
 	}
 	_multi_send_data(buf, len, priority);

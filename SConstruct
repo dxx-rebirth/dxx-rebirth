@@ -484,6 +484,7 @@ static int a(int b){
 		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p'):
 			context.sconf.Define('DXX_HAVE_BUILTIN_CONSTANT_P')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
+			context.sconf.Define('DXX_CONSTANT_TRUE(E)', '(__builtin_constant_p((E)) && (E))')
 		else:
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_constant_p')
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')

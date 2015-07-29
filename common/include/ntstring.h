@@ -60,8 +60,8 @@ public:
 	template <std::size_t N>
 		std::size_t copy_if(std::size_t out_offset, const array<char, N> &i, std::size_t n = N)
 		{
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-			if (__builtin_constant_p(n > N) && n > N)
+#ifdef DXX_CONSTANT_TRUE
+			if (DXX_CONSTANT_TRUE(n > N))
 				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "read size exceeds array size");
 #endif
 			return copy_if(out_offset, i.data(), n);
@@ -76,8 +76,8 @@ public:
 	std::size_t copy_if(std::size_t offset, const char *i, std::size_t N)
 	{
 		const std::size_t d =
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-			(__builtin_constant_p(i[N - 1]) && !i[N - 1]) ? N - 1 :
+#ifdef DXX_CONSTANT_TRUE
+			(DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
 #endif
 			std::distance(i, std::find(i, i + N, terminator()));
 		return _copy_n(offset, i, d);
