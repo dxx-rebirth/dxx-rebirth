@@ -549,7 +549,7 @@ public:
 		vidx_type(p - a, a)
 	{
 	}
-	basic_ptridx(pointer_type p, index_type i, array_managed_type &a = get_array(pointer_type())) :
+	basic_ptridx(pointer_type p, index_type i, array_managed_type &a) :
 		vptr_type((check_null_pointer(p, a), *p), i, a),
 		vidx_type(i, a)
 	{
