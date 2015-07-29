@@ -530,7 +530,13 @@ public:
 	{
 	}
 	template <integral_type v>
-		basic_ptridx(const magic_constant<v> &m, array_managed_type &a = get_array()) :
+		basic_ptridx(const magic_constant<v> &m) :
+			vptr_type(m),
+			vidx_type(m)
+	{
+	}
+	template <integral_type v>
+		basic_ptridx(const magic_constant<v> &m, array_managed_type &a) :
 			vptr_type(m, a),
 			vidx_type(m)
 	{
@@ -642,6 +648,7 @@ template <typename managed_type>
 template <typename P>
 class valptridx<managed_type>::basic_vptr_global_factory
 {
+	using containing_type = valptridx<managed_type>;
 public:
 	__attribute_warn_unused_result
 	P operator()(typename P::const_pointer_type p) const
@@ -654,10 +661,16 @@ public:
 		return P(p, get_array(p));
 	}
 	__attribute_warn_unused_result
-	P operator()(typename valptridx<managed_type>::index_type i) const
+	P operator()(typename containing_type::index_type i) const
 	{
 		return P(i, get_array());
 	}
+	template <containing_type::integral_type v>
+		__attribute_warn_unused_result
+		P operator()(const containing_type::magic_constant<v> &m) const
+		{
+			return P(m, get_array());
+		}
 	template <typename T>
 		P operator()(T &&) const = delete;
 	void *operator &() const = delete;

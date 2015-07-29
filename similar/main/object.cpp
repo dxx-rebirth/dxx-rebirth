@@ -866,7 +866,7 @@ void init_objects()
 	ConsoleObject = Viewer = &Objects[0];
 
 	init_player_object();
-	obj_link(vobjptridx(ConsoleObject),segment_first);	//put in the world in segment 0
+	obj_link(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
 	num_objects = 1;						//just the player
 	Highest_object_index = 0;
 }

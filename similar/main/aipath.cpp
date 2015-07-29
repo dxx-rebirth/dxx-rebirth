@@ -1480,7 +1480,7 @@ static void test_create_path_many(void)
 	for (i=0; i<Test_size; i++) {
 		Cursegp = segptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
 		Markedsegp = segptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
-		create_path_points(object_first, Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+		create_path_points(vobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 	}
 
 }
@@ -1491,7 +1491,7 @@ static void test_create_path(void)
 	array<point_seg, 200> point_segs;
 	short			num_points;
 
-	create_path_points(object_first, Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
+	create_path_points(vobjptridx(object_first), Cursegp, Markedsegp, point_segs.begin(), &num_points, -1, 0, 0, segment_none);
 
 }
 
@@ -1513,7 +1513,7 @@ static void test_create_all_paths(void)
 				const auto &&segp1 = vcsegptr(static_cast<segnum_t>(end_seg));
 				if (segp1->segnum != segment_none)
 				{
-					create_path_points(object_first, start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
+					create_path_points(vobjptridx(object_first), start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}
 			}
 		}
