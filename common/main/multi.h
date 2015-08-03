@@ -471,7 +471,20 @@ void multi_do_frame(void);
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, int player);
-void multi_send_endlevel_start(int);
+#if defined(DXX_BUILD_DESCENT_I)
+void multi_send_endlevel_start(bool);
+#elif defined(DXX_BUILD_DESCENT_II)
+void multi_send_endlevel_start();
+static inline void multi_send_endlevel_start(bool secret)
+{
+#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+	if (!__builtin_constant_p(secret) || secret)
+		DXX_ALWAYS_ERROR_FUNCTION(multi_send_endlevel_start_with_secret, "secret not supported in Descent II");
+#endif
+	(void)secret;
+	multi_send_endlevel_start();
+}
+#endif
 void multi_send_player_deres(deres_type_t type);
 void multi_send_message(void);
 void multi_send_position(vobjptridx_t objnum);

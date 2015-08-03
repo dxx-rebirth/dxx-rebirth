@@ -2456,16 +2456,19 @@ void multi_send_markers()
 }
 #endif
 
-void
-multi_send_endlevel_start(int secret)
+#if defined(DXX_BUILD_DESCENT_I)
+void multi_send_endlevel_start(const bool secret)
+#elif defined(DXX_BUILD_DESCENT_II)
+void multi_send_endlevel_start()
+#endif
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	const bool secret = false;
+#endif
 	multibuf[1] = Player_num;
 	multibuf[2] = (char)secret;
-
-	if ((secret) && !multi_goto_secret)
-		multi_goto_secret = 1;
-	else if (!multi_goto_secret)
-		multi_goto_secret = 2;
+	if (!multi_goto_secret)
+		multi_goto_secret = 1 + !secret;
 
 	multi_send_data<MULTI_ENDLEVEL_START>(multibuf, 3, 2);
 	if (Game_mode & GM_NETWORK)
