@@ -83,8 +83,8 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 				if (!IS_CHILD(segp->children[sidenum])) {
 					const auto sidep = &segp->sides[sidenum];
 					auto &vp = Side_to_verts[sidenum];
-					const auto vb = std::begin(vp);
-					const auto ve = std::end(vp);
+					const auto vb = begin(vp);
+					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
 					if (vi != ve)
 					{
@@ -134,8 +134,8 @@ static void set_average_light_at_vertex(int vnum)
 				if (!IS_CHILD(segp->children[sidenum])) {
 					const auto sidep = &segp->sides[sidenum];
 					auto &vp = Side_to_verts[sidenum];
-					const auto vb = std::begin(vp);
-					const auto ve = std::end(vp);
+					const auto vb = begin(vp);
+					const auto ve = end(vp);
 					const auto vi = std::find(vb, ve, relvnum);
 					if (vi != ve)
 					{

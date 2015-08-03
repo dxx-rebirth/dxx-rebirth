@@ -732,8 +732,8 @@ static void print_create_table_items(PHYSFS_file *fp, const char *type, const ch
 	range_for (auto &i, items)
 	{
 		short u,d,l,r;
-		const auto ib = std::begin(items);
-		const auto ie = std::end(items);
+		const auto ib = begin(items);
+		const auto ie = end(items);
 		const find_item_state s{i, bm_w, bm_h};
 		u = find_next_item_up(ib, ie, s);
 		d = find_next_item_down(ib, ie, s);
