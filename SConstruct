@@ -223,10 +223,10 @@ class ConfigureTests:
 			context.sconf.Define(macro_name, macro_value)
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
-	def __compiler_test_already_done(self,context):
-		pass
 	def _check_compiler_works(self,context,ext):
-		self.__automatic_compiler_tests.pop(ext, self.__compiler_test_already_done)(context)
+		c = self.__automatic_compiler_tests.pop(ext, None)
+		if c:
+			c(context)
 	def _extend_successflags(self,k,v):
 		self.successful_flags.setdefault(k, []).extend(v)
 	def Compile(self,context,**kwargs):
