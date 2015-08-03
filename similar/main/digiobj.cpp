@@ -561,7 +561,9 @@ void digi_sync_sounds()
 					if (Newdemo_state != ND_STATE_PLAYBACK)
 						return vcobjptr(s.link_type.obj.objnum);
 					auto objnum = newdemo_find_object(s.link_type.obj.objsignature);
-					return objnum == object_none ? vcobjptr(static_cast<objnum_t>(object_first)) : objnum;
+					if (objnum != object_none)
+						return static_cast<vcobjptr_t>(objnum);
+					return vcobjptr(object_first);
 				}();
 
 				if ((objp->type==OBJ_NONE) || (objp->signature!=s.link_type.obj.objsignature))	{
