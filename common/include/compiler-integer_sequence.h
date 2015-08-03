@@ -38,13 +38,5 @@ struct tree_index_sequence<1>
 	typedef index_sequence<0> type;
 };
 
-#ifdef DXX_HAVE_CXX11_TEMPLATE_ALIAS
 template <std::size_t N>
 using make_tree_index_sequence = typename tree_index_sequence<N>::type;
-#else
-template <std::size_t N>
-static inline constexpr typename tree_index_sequence<N>::type make_tree_index_sequence()
-{
-	return {};
-}
-#endif

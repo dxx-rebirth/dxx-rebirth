@@ -12,7 +12,6 @@
 #define DXX_HAVE_CXX11_RANGE_FOR
 #define DXX_HAVE_CXX11_STATIC_ASSERT
 #define DXX_HAVE_CXX11_TYPE_TRAITS
-#define DXX_HAVE_CXX11_TEMPLATE_ALIAS
 #define DXX_HAVE_CXX11_BEGIN
 #define dxx_builtin_constant_p(A)	(false)
 #define DXX_INHERIT_CONSTRUCTORS(D,B,...)	\
