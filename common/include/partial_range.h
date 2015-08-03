@@ -91,7 +91,7 @@ struct base_partial_range_error_t : std::out_of_range
 #define REPORT_FORMAT_STRING	 "%s:%u: %s %lu past %p end %lu \"%s\""
 	template <std::size_t N>
 		__attribute_cold
-	static void prepare(char (&buf)[N], const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
+	static void prepare(char (&buf)[N], unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const void *t)
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, file, line, desc, expr, t, d, estr);
 	}
@@ -110,7 +110,7 @@ struct partial_range_error_t : base_partial_range_error_t
 	template <std::size_t N>
 		__attribute_cold
 		__attribute_noreturn
-	static void report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d);
+	static void report2(const void *t, unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr);
 	template <std::size_t NF, std::size_t NE, std::size_t ND>
 		__attribute_cold
 		__attribute_noreturn
@@ -119,16 +119,16 @@ struct partial_range_error_t : base_partial_range_error_t
 		/* Round reporting into large buckets.  Code size is more
 		 * important than stack space.
 		 */
-		report2<(required_buffer_size(NF + NE + ND) | 0xff) + 1>(file, line, estr, desc, expr, t, d);
+		report2<(required_buffer_size(NF + NE + ND) | 0xff) + 1>(t, d, estr, file, line, desc, expr);
 	}
 };
 
 template <typename T>
 template <std::size_t N>
-void partial_range_error_t<T>::report2(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
+void partial_range_error_t<T>::report2(const void *t, unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr)
 {
 	char buf[N];
-	base_partial_range_error_t::prepare(buf, file, line, estr, desc, expr, t, d);
+	base_partial_range_error_t::prepare(buf, d, estr, file, line, desc, expr, t);
 	throw partial_range_error_t<T>(buf);
 }
 
