@@ -349,7 +349,7 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 			tmpl_maskproxy_t<R>(byte, shift)
 		{
 		}
-		dxx_explicit_operator_bool operator bool() const
+		explicit operator bool() const
 		{
 			return !!(this->m_byte & this->mask());
 		}
@@ -395,7 +395,7 @@ class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned,
 			visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>(byte, shift)
 		{
 		}
-		dxx_explicit_operator_bool operator bool() const
+		explicit operator bool() const
 		{
 			return !!(this->m_byte & this->mask());
 		}
