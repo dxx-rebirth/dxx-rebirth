@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>	// for memset()
 
+#include "render_state.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -35,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "dxxerror.h"
 #include "render.h"
-#include "render_state.h"
 #include "game.h"
 #include "vclip.h"
 #include "lighting.h"

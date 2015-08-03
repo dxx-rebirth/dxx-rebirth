@@ -30,13 +30,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "render_state.h"
 #include "inferno.h"
 #include "segment.h"
 #include "dxxerror.h"
 #include "bm.h"
 #include "texmap.h"
 #include "render.h"
-#include "render_state.h"
 #include "game.h"
 #include "object.h"
 #include "laser.h"
