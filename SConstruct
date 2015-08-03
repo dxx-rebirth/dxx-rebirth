@@ -77,6 +77,12 @@ class ConfigureTests:
 		def __call__(self,f):
 			self.tests.append(f.__name__)
 			return f
+	class Cxx11RequiredFeature:
+		def __init__(self,name,text,main=''):
+			self.name = name
+			name = {'N' : 'test_' + name.replace(' ', '_')}
+			self.text = text % name
+			self.main = ('{' + (main % name) + '}\n') if main else ''
 	class PreservedEnvironment:
 		def __init__(self,env,keys):
 			self.flags = {k: env.get(k, [])[:] for k in keys}
@@ -189,6 +195,58 @@ class ConfigureTests:
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
+	__cxx11_required_features = [
+		Cxx11RequiredFeature('constexpr', '''
+struct %(N)s {};
+constexpr %(N)s a(){return {};}
+'''),
+		Cxx11RequiredFeature('nullptr', '''
+#include <cstddef>
+std::nullptr_t %(N)s1 = nullptr;
+int *%(N)s2 = nullptr;
+'''),
+		Cxx11RequiredFeature('explicit operator bool', '''
+struct %(N)s {
+	explicit operator bool();
+};
+'''),
+		Cxx11RequiredFeature('template aliases', '''
+using %(N)s_typedef = int;
+template <typename>
+struct %(N)s_struct;
+template <typename T>
+using %(N)s_alias = %(N)s_struct<T>;
+''', '''
+	%(N)s_struct<int> *a = nullptr;
+	%(N)s_alias<int> *b = a;
+	(void)b;
+'''),
+		Cxx11RequiredFeature('trailing function return type', '''
+auto %(N)s()->int;
+'''),
+		Cxx11RequiredFeature('class scope static constexpr assignment', '''
+struct %(N)s_instance {
+};
+struct %(N)s_container {
+	static constexpr %(N)s_instance a = {};
+};
+'''),
+		Cxx11RequiredFeature('braced base class initialization', '''
+struct %(N)s_base {
+	int a;
+};
+struct %(N)s_derived : %(N)s_base {
+	%(N)s_derived(int e) : %(N)s_base{e} {}
+};
+'''),
+		Cxx11RequiredFeature('std::unordered_map::emplace', '''
+#include <unordered_map>
+''', '''
+	std::unordered_map<int,int> m;
+	m.emplace(0, 0);
+'''
+),
+]
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
@@ -705,16 +763,6 @@ help:assume <tr1/array> works
 		how = self.check_cxx_array(context, text=include, main=main) or self.check_boost_array(context, text=include, main=main) or self.check_cxx_tr1_array(context, text=include, main=main)
 		if not how:
 			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
-	@_custom_test
-	def check_cxx11_function_auto(self,context):
-		"""
-help:assume compiler supports C++11 function declarator syntax
-"""
-		f = '''
-auto f()->int;
-'''
-		if not self.Cxx11Compile(context, text=f, msg='for C++11 function declarator syntax'):
-			raise SCons.Errors.StopError("C++ compiler does not support C++11 function declarator syntax.")
 	def _check_static_assert_method(self,context,msg,f,testflags={},_Compile=Compile,_tdict={'expr' : 'true&&true'},_fdict={'expr' : 'false||false'},**kwargs):
 		return _Compile(self, context, text=f % _tdict, main='f(A());', msg=msg % 'true', testflags=testflags, **kwargs) and \
 			_Compile(self, context, text=f % _fdict, main='f(A());', msg=msg % 'false', expect_failure=True, successflags=testflags, **kwargs)
@@ -836,13 +884,23 @@ help:assume Boost.Foreach works
 		if not self.check_cxx11_range_for(context, text=include, main=main) and not self.check_boost_foreach(context, text=include, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support range-based for or Boost.Foreach.")
 	@_custom_test
-	def check_cxx11_constexpr(self,context):
-		f = '''
-struct A {};
-constexpr A a(){return {};}
-'''
-		if not self.Cxx11Compile(context, text=f, msg='for C++11 constexpr'):
-			raise SCons.Errors.StopError("C++ compiler does not support constexpr.")
+	def check_cxx11_required_features(self,context):
+		features = self.__cxx11_required_features
+		text = ''
+		main = ''
+		for f in features:
+			text += f.text
+			main += f.main
+		# First test all the features at once.  If all work, then done.
+		# If any fail, then the configure run will stop.
+		if self.Cxx11Compile(context, text=text, main=main, msg='for required C++11 features'):
+			return
+		# Some failed.  Run each test separately and report to the user
+		# which ones failed.
+		raise SCons.Errors.StopError("C++ compiler does not support " +
+			', '.join(
+				[f.name for f in features if not self.Cxx11Compile(context, text=f.text, main=f.main, msg='for C++11 ' + f.name)]
+			) + '.')
 	@_custom_test
 	def check_constexpr_union_constructor(self,context):
 		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
@@ -885,21 +943,6 @@ U a{640};
 		context.Display('if used at least %u time%s\n' % (count, 's' if count > 1 else ''))
 		if not self.check_pch(context):
 			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
-	@_custom_test
-	def check_cxx11_explicit_bool(self,context):
-		"""
-help:assume compiler supports explicit operator bool
-"""
-		f = '''
-struct A{explicit operator bool();};
-'''
-		r = self.Cxx11Compile(context, text=f, msg='for explicit operator bool')
-		macro_name = 'dxx_explicit_operator_bool'
-		if r:
-			context.sconf.Define(macro_name, 'explicit')
-			context.sconf.Define('DXX_HAVE_EXPLICIT_OPERATOR_BOOL')
-		else:
-			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
 	def _check_cxx11_explicit_delete(self,context):
 		# clang 3.4 warns when a named parameter to a deleted function
@@ -1089,21 +1132,6 @@ struct B:A {{
 		if not macro_value:
 			raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 		context.sconf.Define(macro_name + macro_parameters, macro_value)
-	@_custom_test
-	def check_cxx11_template_alias(self,context):
-		text = '''
-template <typename>
-struct A;
-template <typename T>
-using B = A<T>;
-'''
-		main = '''
-	A<int> *a = 0;
-	B<int> *b = a;
-	(void)b;
-'''
-		if self.Cxx11Compile(context, text=text, main=main, msg='for C++11 template aliases'):
-			context.sconf.Define('DXX_HAVE_CXX11_TEMPLATE_ALIAS')
 	@_custom_test
 	def check_cxx11_ref_qualifier(self,context):
 		text = '''
