@@ -32,7 +32,7 @@ protected:
 	using const_reference_type = const managed_type &;
 	using mutable_pointer_type = managed_type *;
 	using typename specialized_types::array_managed_type;
-	using typename specialized_types::index_type;
+	using index_type = typename specialized_types::index_type;
 	using typename specialized_types::integral_type;
 
 	template <typename policy>
