@@ -354,9 +354,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 		phys_apply_rot(playerobj, force);
 
 		//make sound
-		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0 );
-		if (Game_mode & GM_MULTI)
-			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_PLAYER, f1_0);
+		multi_digi_link_sound_to_pos(SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0);
 		ForceFieldHit=1;
 	}
 	else
@@ -389,9 +387,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 		if ( volume > F1_0 )
 			volume = F1_0;
 		if (volume > 0 && !ForceFieldHit) {  // uhhhgly hack
-			digi_link_sound_to_pos( SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_PLAYER_HIT_WALL, volume);
+			multi_digi_link_sound_to_pos(SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume);
 		}
 
 		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
@@ -435,9 +431,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
 			Last_volatile_scrape_sound_time = GameTime64;
-			digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0 );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
+			multi_digi_link_sound_to_pos(SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0);
 		}
 		hit_dir = hitseg->sides[hitside].normals[0];
 		const auto rand_vec = make_random_vector();
@@ -509,9 +503,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 
 			Last_volatile_scrape_sound_time = GameTime64;
 
-			digi_link_sound_to_pos( sound, hitseg, 0, hitpt, 0, F1_0 );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(sound, F1_0);
+			multi_digi_link_sound_to_pos(sound, hitseg, 0, hitpt, 0, F1_0);
 		}
 
 			hit_dir = hitseg->sides[hitside].normals[0];
@@ -725,10 +717,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {
 
 		//make sound
-		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, hitpt, 0, f1_0 );
-		if (Game_mode & GM_MULTI)
-			multi_send_play_sound(SOUND_FORCEFIELD_BOUNCE_WEAPON, f1_0);
-
+		multi_digi_link_sound_to_pos(SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, hitpt, 0, f1_0);
 		return;	//bail here. physics code will bounce this object
 	}
 
@@ -930,9 +919,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 
 					case WHP_NO_KEY:
 						//play special hit door sound (if/when we get it)
-						digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, weapon->segnum, 0, weapon->pos, 0, F1_0 );
-			         if (Game_mode & GM_MULTI)
-							multi_send_play_sound( SOUND_WEAPON_HIT_DOOR, F1_0 );
+						multi_digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, weapon->segnum, 0, weapon->pos, 0, F1_0);
 
 						break;
 
@@ -2147,15 +2134,11 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	{
 		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 		{
-			digi_link_sound_to_pos( SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0 );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_PLAYER_GOT_HIT, F1_0);
+			multi_digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0);
 		}
 		else
 		{
-			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, collision_point, 0, F1_0);
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_WEAPON_HIT_DOOR, F1_0);
+			multi_digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, collision_point, 0, F1_0);
 		}
 	}
 

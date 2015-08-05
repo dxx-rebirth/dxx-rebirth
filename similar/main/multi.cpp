@@ -3012,6 +3012,27 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	map_objnum_local_to_local(objnum);
 }
 
+void multi_digi_play_sample_once(int soundnum, fix max_volume)
+{
+	if (Game_mode & GM_MULTI)
+		multi_send_play_sound(soundnum, max_volume);
+	digi_play_sample_once(soundnum, max_volume);
+}
+
+void multi_digi_play_sample(int soundnum, fix max_volume)
+{
+	if (Game_mode & GM_MULTI)
+		multi_send_play_sound(soundnum, max_volume);
+	digi_play_sample(soundnum, max_volume);
+}
+
+void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
+{
+	if (Game_mode & GM_MULTI)
+		multi_send_play_sound(soundnum, max_volume);
+	digi_link_sound_to_pos(soundnum, segnum, sidenum, pos, forever, max_volume);
+}
+
 void
 multi_send_play_sound(int sound_num, fix volume)
 {

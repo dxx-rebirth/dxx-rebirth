@@ -342,10 +342,8 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
                         Fusion_charge=0;
 			//end edit - Victor Rachels
 #endif
-			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
-			if (Game_mode & GM_MULTI)	{
-				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
-			}
+			if (wait_for_rearm)
+				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 			if (wait_for_rearm)
 				Next_laser_fire_time = GameTime64 + REARM_TIME;
 			else
@@ -381,10 +379,8 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 
 	{
 		if (Secondary_weapon != weapon_num) {
-			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
-			if (Game_mode & GM_MULTI)	{
-				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
-			}
+			if (wait_for_rearm)
+				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
 			if (wait_for_rearm)
 				Next_missile_fire_time = GameTime64 + REARM_TIME;
 			else

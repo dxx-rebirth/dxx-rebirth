@@ -512,9 +512,7 @@ static void do_cloak_stuff(void)
 			{
 				Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
-					digi_play_sample( SOUND_CLOAK_OFF, F1_0);
-					if (Game_mode & GM_MULTI)
-						multi_send_play_sound(SOUND_CLOAK_OFF, F1_0);
+					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
@@ -534,10 +532,9 @@ static void do_invulnerable_stuff(void)
 			get_local_player().flags ^= PLAYER_FLAGS_INVULNERABLE;
 			if (FakingInvul==0)
 			{
-				digi_play_sample( SOUND_INVULNERABILITY_OFF, F1_0);
+				multi_digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 				if (Game_mode & GM_MULTI)
 				{
-					multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
 					maybe_drop_net_powerup(POW_INVULNERABILITY);
 				}
 			}
@@ -1651,9 +1648,7 @@ void FireLaser()
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(vobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
-					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
-					if (Game_mode & GM_MULTI)
-						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
+					multi_digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
 				}
 				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
 			}

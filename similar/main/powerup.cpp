@@ -310,8 +310,7 @@ int do_powerup(const vobjptridx_t obj)
 		case POW_KEY_BLUE:
 			if (get_local_player().flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 			get_local_player().flags |= PLAYER_FLAGS_BLUE_KEY;
 			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -323,8 +322,7 @@ int do_powerup(const vobjptridx_t obj)
 		case POW_KEY_RED:
 			if (get_local_player().flags & PLAYER_FLAGS_RED_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 			get_local_player().flags |= PLAYER_FLAGS_RED_KEY;
 			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -336,8 +334,7 @@ int do_powerup(const vobjptridx_t obj)
 		case POW_KEY_GOLD:
 			if (get_local_player().flags & PLAYER_FLAGS_GOLD_KEY)
 				break;
-			multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 			get_local_player().flags |= PLAYER_FLAGS_GOLD_KEY;
 			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
@@ -590,8 +587,7 @@ int do_powerup(const vobjptridx_t obj)
 			}
 			else {
 				get_local_player().flags |= PLAYER_FLAGS_AMMO_RACK;
-				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 0, 15, 0, "AMMO RACK!");
 				used=1;
 			}
@@ -605,8 +601,7 @@ int do_powerup(const vobjptridx_t obj)
 			}
 			else {
 				get_local_player().flags |= PLAYER_FLAGS_AFTERBURNER;
-				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 15, 15, 0, "AFTERBURNER!");
 				Afterburner_charge = f1_0;
 				used=1;
@@ -621,8 +616,7 @@ int do_powerup(const vobjptridx_t obj)
 			}
 			else {
 				get_local_player().flags |= PLAYER_FLAGS_HEADLIGHT;
-				multi_send_play_sound(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				digi_play_sample( Powerup_info[get_powerup_id(obj)].hit_sound, F1_0 );
+				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				if (PlayerCfg.HeadlightActiveDefault)
 					get_local_player().flags |= PLAYER_FLAGS_HEADLIGHT_ON;
@@ -675,9 +669,7 @@ int do_powerup(const vobjptridx_t obj)
 //!!	used=1;
 
 	if ((used || special_used) && Powerup_info[id].hit_sound  > -1 ) {
-		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
-			multi_send_play_sound(Powerup_info[id].hit_sound, F1_0);
-		digi_play_sample( Powerup_info[id].hit_sound, F1_0 );
+		multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
 		detect_escort_goal_accomplished(obj);
 	}
 

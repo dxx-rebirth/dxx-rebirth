@@ -585,9 +585,7 @@ fix fuelcen_give_fuel(const vcsegptr_t segp, fix MaxAmountCanTake)
 		if (last_play_time + FUELCEN_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
 			last_play_time = GameTime64;
-			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
 
 		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
@@ -635,9 +633,7 @@ fix repaircen_give_shields(const vcsegptr_t segp, fix MaxAmountCanTake)
 		if (last_play_time > GameTime64)
 			last_play_time = 0;
 		if (GameTime64 > last_play_time+FUELCEN_SOUND_DELAY) {
-			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 			last_play_time = GameTime64;
 		}
 //HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
