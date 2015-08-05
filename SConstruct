@@ -1136,8 +1136,8 @@ struct B:A {{
 	def check_cxx11_ref_qualifier(self,context):
 		text = '''
 struct A {
-	int a()&{return 1;}
-	int a()&&{return 2;}
+	int a()const &{return 1;}
+	int a()const &&{return 2;}
 };
 '''
 		main = '''
