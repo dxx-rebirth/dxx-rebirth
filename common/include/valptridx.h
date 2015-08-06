@@ -155,14 +155,14 @@ template <typename managed_type>
 void valptridx<managed_type>::check_index_match(const managed_type &r, index_type i, const array_managed_type &a)
 {
 	const auto pi = &a[i];
-	DXX_VALPTRIDX_CHECK(pi == &r, index_mismatch_exception, "pointer/index mismatch", &a[0], a.size(), i, pi, &r);
+	DXX_VALPTRIDX_CHECK(pi == &r, index_mismatch_exception, "pointer/index mismatch", &a[0], get_array_size(), i, pi, &r);
 }
 
 template <typename managed_type>
 typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(index_type i, const array_managed_type &a)
 {
 	const std::size_t ss = i;
-	const std::size_t as = a.size();
+	const std::size_t as = get_array_size();
 	DXX_VALPTRIDX_CHECK(ss < as, index_range_exception, "invalid index used in array subscript", &a[0], as, ss);
 	return i;
 }
@@ -170,7 +170,7 @@ typename valptridx<managed_type>::index_type valptridx<managed_type>::check_inde
 template <typename managed_type>
 void valptridx<managed_type>::check_null_pointer(const_pointer_type p, const array_managed_type &a)
 {
-	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", &a[0], a.size());
+	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", &a[0], get_array_size());
 }
 
 template <typename managed_type>
@@ -313,7 +313,7 @@ public:
 		basic_idx(const magic_constant<v> &) :
 			m_idx(v)
 	{
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array().size(), "invalid magic index not allowed for this policy");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy>
 		bool operator==(const basic_idx<rpolicy> &rhs) const
@@ -327,7 +327,7 @@ public:
 	template <integral_type v>
 		bool operator==(const magic_constant<v> &) const
 		{
-			static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array().size(), "invalid magic index not allowed for this policy");
+			static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 			return m_idx == v;
 		}
 	template <typename R>
@@ -376,14 +376,14 @@ public:
 		basic_ptr(const magic_constant<v> &) :
 			m_ptr(nullptr)
 	{
-		static_assert(static_cast<std::size_t>(v) >= get_array().size(), "valid magic index requires an array");
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array().size(), "invalid magic index not allowed for this policy");
+		static_assert(static_cast<std::size_t>(v) >= get_array_size(), "valid magic index requires an array");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
 	template <integral_type v>
 		basic_ptr(const magic_constant<v> &, array_managed_type &a) :
-			m_ptr(static_cast<std::size_t>(v) < a.size() ? &(a[v]) : nullptr)
+			m_ptr(static_cast<std::size_t>(v) < get_array_size() ? &(a[v]) : nullptr)
 	{
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < a.size(), "invalid magic index not allowed for this policy");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy>
 		basic_ptr(const basic_ptr<rpolicy> &rhs, array_managed_type &a = get_array()) :

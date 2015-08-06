@@ -50,6 +50,10 @@ protected:
 	{
 		return get_global_array(p);
 	}
+	static constexpr std::size_t get_array_size()
+	{
+		return get_array().size();
+	}
 	static inline void check_index_match(const_reference_type, index_type, const array_managed_type &);
 	static inline index_type check_index_range(index_type, const array_managed_type &);
 	static inline void check_explicit_index_range_ref(const_reference_type, std::size_t, const array_managed_type &);
