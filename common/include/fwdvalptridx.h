@@ -41,6 +41,11 @@ protected:
 		class basic_ptr;
 	template <typename policy>
 		class basic_ptridx;
+	/* Wrapper class so that !is_base_of<basic_ptr<T>, basic_ptridx<T>>.
+	 * Required to avoid slicing.
+	 */
+	template <typename>
+		class td;
 
 	static constexpr const array_managed_type &get_array(const_pointer_type p)
 	{
@@ -75,9 +80,18 @@ protected:
 	VERB(managed_type, derived_type_prefix, vcprefix, ptridx)
 
 public:
-#define DXX_VALPTRIDX_FWD_DECLARE_SUBTYPE(managed_type,derived_type_prefix,vcprefix,suffix)	class vcprefix##suffix
-	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_FWD_DECLARE_SUBTYPE,,);
-#undef DXX_VALPTRIDX_FWD_DECLARE_SUBTYPE
+	typedef basic_ptridx<vc>	vcptridx;
+	typedef basic_ptridx<ic>	cptridx;
+	typedef basic_ptridx<vm>	vptridx;
+	typedef basic_ptridx<im>	ptridx;
+	typedef td<basic_idx<vc>>	vcidx;
+	typedef td<basic_idx<ic>>	cidx;
+	typedef td<basic_idx<vm>>	vidx;
+	typedef td<basic_idx<im>>	idx;
+	typedef td<basic_ptr<vc>>	vcptr;
+	typedef td<basic_ptr<ic>>	cptr;
+	typedef td<basic_ptr<vm>>	vptr;
+	typedef td<basic_ptr<im>>	ptr;
 	class index_mismatch_exception;
 	class index_range_exception;
 	class null_pointer_exception;

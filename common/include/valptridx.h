@@ -497,6 +497,7 @@ protected:
 template <typename managed_type>
 template <typename policy>
 class valptridx<managed_type>::basic_ptridx :
+	public prohibit_void_ptr<basic_ptridx<policy>>,
 	public basic_ptr<policy>,
 	public basic_idx<policy>
 {
@@ -573,75 +574,13 @@ public:
 };
 
 template <typename P>
-class valptridx<P>::cptr :
-	public prohibit_void_ptr<cptr>,
-	public basic_ptr<ic>
+template <typename B>
+class valptridx<P>::td :
+	public prohibit_void_ptr<td<B>>,
+	public B
 {
 public:
-	DXX_INHERIT_CONSTRUCTORS(cptr, basic_ptr<ic>);
-};
-
-template <typename P>
-class valptridx<P>::ptr :
-	public prohibit_void_ptr<ptr>,
-	public basic_ptr<im>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(ptr, basic_ptr<im>);
-};
-
-template <typename P>
-class valptridx<P>::vcptr :
-	public prohibit_void_ptr<vcptr>,
-	public basic_ptr<vc>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(vcptr, basic_ptr<vc>);
-};
-
-template <typename P>
-class valptridx<P>::vptr :
-	public prohibit_void_ptr<vptr>,
-	public basic_ptr<vm>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(vptr, basic_ptr<vm>);
-};
-
-template <typename P>
-class valptridx<P>::cptridx :
-	public prohibit_void_ptr<cptridx>,
-	public basic_ptridx<ic>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(cptridx, basic_ptridx<ic>);
-};
-
-template <typename P>
-class valptridx<P>::ptridx :
-	public prohibit_void_ptr<ptridx>,
-	public basic_ptridx<im>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(ptridx, basic_ptridx<im>);
-};
-
-template <typename P>
-class valptridx<P>::vcptridx :
-	public prohibit_void_ptr<vcptridx>,
-	public basic_ptridx<vc>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(vcptridx, basic_ptridx<vc>);
-};
-
-template <typename P>
-class valptridx<P>::vptridx :
-	public prohibit_void_ptr<vptridx>,
-	public basic_ptridx<vm>
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(vptridx, basic_ptridx<vm>);
+	DXX_INHERIT_CONSTRUCTORS(td, B);
 };
 
 template <typename managed_type>
