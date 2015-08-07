@@ -269,7 +269,7 @@ class valptridx<managed_type>::im :
 };
 
 template <typename managed_type>
-template <typename policy>
+template <typename policy, unsigned>
 class valptridx<managed_type>::basic_idx :
 	public policy
 {
@@ -288,15 +288,15 @@ public:
 
 	index_type get_unchecked_index() const { return m_idx; }
 
-	template <typename rpolicy>
-		basic_idx(const basic_idx<rpolicy> &rhs, array_managed_type &a = get_array()) :
+	template <typename rpolicy, unsigned ru>
+		basic_idx(const basic_idx<rpolicy, ru> &rhs, array_managed_type &a = get_array()) :
 			m_idx(rhs.get_unchecked_index())
 	{
 		if (!(allow_nullptr || !rhs.allow_nullptr))
 			check_index_range(m_idx, a);
 	}
-	template <typename rpolicy>
-		basic_idx(basic_idx<rpolicy> &&rhs) :
+	template <typename rpolicy, unsigned ru>
+		basic_idx(basic_idx<rpolicy, ru> &&rhs) :
 			m_idx(rhs.get_unchecked_index())
 	{
 		/* Prevent move from allow_invalid into require_valid.  The
@@ -315,8 +315,8 @@ public:
 	{
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
-	template <typename rpolicy>
-		bool operator==(const basic_idx<rpolicy> &rhs) const
+	template <typename rpolicy, unsigned ru>
+		bool operator==(const basic_idx<rpolicy, ru> &rhs) const
 		{
 			return m_idx == rhs.get_unchecked_index();
 		}
@@ -344,7 +344,7 @@ protected:
 };
 
 template <typename managed_type>
-template <typename policy>
+template <typename policy, unsigned>
 class valptridx<managed_type>::basic_ptr :
 	public policy
 {
@@ -385,15 +385,15 @@ public:
 	{
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
-	template <typename rpolicy>
-		basic_ptr(const basic_ptr<rpolicy> &rhs, array_managed_type &a = get_array()) :
+	template <typename rpolicy, unsigned ru>
+		basic_ptr(const basic_ptr<rpolicy, ru> &rhs, array_managed_type &a = get_array()) :
 			m_ptr(rhs.get_unchecked_pointer())
 	{
 		if (!(allow_nullptr || !rhs.allow_nullptr))
 			check_null_pointer(m_ptr, a);
 	}
-	template <typename rpolicy>
-		basic_ptr(basic_ptr<rpolicy> &&rhs) :
+	template <typename rpolicy, unsigned ru>
+		basic_ptr(basic_ptr<rpolicy, ru> &&rhs) :
 			m_ptr(rhs.get_unchecked_pointer())
 	{
 		/* Prevent move from allow_invalid into require_valid.  The
@@ -470,8 +470,8 @@ public:
 	{
 		return m_ptr == p;
 	}
-	template <typename rpolicy>
-		bool operator==(const basic_ptr<rpolicy> &rhs) const
+	template <typename rpolicy, unsigned ru>
+		bool operator==(const basic_ptr<rpolicy, ru> &rhs) const
 		{
 			return *this == rhs.get_unchecked_pointer();
 		}
@@ -498,12 +498,12 @@ template <typename managed_type>
 template <typename policy>
 class valptridx<managed_type>::basic_ptridx :
 	public prohibit_void_ptr<basic_ptridx<policy>>,
-	public basic_ptr<policy>,
-	public basic_idx<policy>
+	public basic_ptr<policy, 1>,
+	public basic_idx<policy, 1>
 {
-	using vptr_type = basic_ptr<policy>;
-	using vidx_type = basic_idx<policy>;
 public:
+	typedef basic_ptr<policy, 1> vptr_type;
+	typedef basic_idx<policy, 1> vidx_type;
 	using typename vidx_type::array_managed_type;
 	using typename vidx_type::index_type;
 	using typename vidx_type::integral_type;
@@ -520,14 +520,14 @@ public:
 	basic_ptridx(pointer_type p) = delete;
 	template <typename rpolicy>
 		basic_ptridx(const basic_ptridx<rpolicy> &rhs) :
-			vptr_type(static_cast<const basic_ptr<rpolicy> &>(rhs)),
-			vidx_type(static_cast<const basic_idx<rpolicy> &>(rhs))
+			vptr_type(static_cast<const typename basic_ptridx<rpolicy>::vptr_type &>(rhs)),
+			vidx_type(static_cast<const typename basic_ptridx<rpolicy>::vidx_type &>(rhs))
 	{
 	}
 	template <typename rpolicy>
 		basic_ptridx(basic_ptridx<rpolicy> &&rhs) :
-			vptr_type(static_cast<basic_ptr<rpolicy> &&>(rhs)),
-			vidx_type(static_cast<basic_idx<rpolicy> &&>(rhs))
+			vptr_type(static_cast<typename basic_ptridx<rpolicy>::vptr_type &&>(rhs)),
+			vidx_type(static_cast<typename basic_ptridx<rpolicy>::vidx_type &&>(rhs))
 	{
 	}
 	template <integral_type v>
@@ -564,23 +564,13 @@ public:
 	template <typename rpolicy>
 		bool operator==(const basic_ptridx<rpolicy> &rhs) const
 		{
-			return vptr_type::operator==(static_cast<const basic_ptr<rpolicy> &>(rhs));
+			return vptr_type::operator==(static_cast<const typename basic_ptridx<rpolicy>::vptr_type &>(rhs));
 		}
 	template <typename R>
 		bool operator!=(const R &rhs) const
 		{
 			return !(*this == rhs);
 		}
-};
-
-template <typename P>
-template <typename B>
-class valptridx<P>::td :
-	public prohibit_void_ptr<td<B>>,
-	public B
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(td, B);
 };
 
 template <typename managed_type>

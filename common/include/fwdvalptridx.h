@@ -35,17 +35,12 @@ protected:
 	using index_type = typename specialized_types::index_type;
 	using typename specialized_types::integral_type;
 
-	template <typename policy>
+	template <typename policy, unsigned>
 		class basic_idx;
-	template <typename policy>
+	template <typename policy, unsigned>
 		class basic_ptr;
 	template <typename policy>
 		class basic_ptridx;
-	/* Wrapper class so that !is_base_of<basic_ptr<T>, basic_ptridx<T>>.
-	 * Required to avoid slicing.
-	 */
-	template <typename>
-		class td;
 
 	static constexpr const array_managed_type &get_array(const_pointer_type p)
 	{
@@ -84,14 +79,14 @@ public:
 	typedef basic_ptridx<ic>	cptridx;
 	typedef basic_ptridx<vm>	vptridx;
 	typedef basic_ptridx<im>	ptridx;
-	typedef td<basic_idx<vc>>	vcidx;
-	typedef td<basic_idx<ic>>	cidx;
-	typedef td<basic_idx<vm>>	vidx;
-	typedef td<basic_idx<im>>	idx;
-	typedef td<basic_ptr<vc>>	vcptr;
-	typedef td<basic_ptr<ic>>	cptr;
-	typedef td<basic_ptr<vm>>	vptr;
-	typedef td<basic_ptr<im>>	ptr;
+	typedef basic_idx<vc, 0>	vcidx;
+	typedef basic_idx<ic, 0>	cidx;
+	typedef basic_idx<vm, 0>	vidx;
+	typedef basic_idx<im, 0>	idx;
+	typedef basic_ptr<vc, 0>	vcptr;
+	typedef basic_ptr<ic, 0>	cptr;
+	typedef basic_ptr<vm, 0>	vptr;
+	typedef basic_ptr<im, 0>	ptr;
 	class index_mismatch_exception;
 	class index_range_exception;
 	class null_pointer_exception;
