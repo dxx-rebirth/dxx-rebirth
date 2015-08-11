@@ -2488,7 +2488,8 @@ h = 'DXX-Rebirth, SConstruct file help:' + """
 """
 substenv = SCons.Environment.SubstitutionEnvironment()
 variables.Update(substenv)
-for d in d1x + d2x:
+dxx = d1x + d2x
+for d in dxx:
 	d.init(substenv)
 	h += d.PROGRAM_NAME + ('.%d:\n' % d.program_instance) + d.GenerateHelpText()
 Help(h)
@@ -2499,7 +2500,7 @@ unknown.pop('d2x', None)
 unknown.pop('dxx', None)
 unknown.pop('site', None)
 ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
-if unknown:
+if dxx and unknown:
 	try:
 		ignore_unknown_variables = int(ignore_unknown_variables)
 	except ValueError:
