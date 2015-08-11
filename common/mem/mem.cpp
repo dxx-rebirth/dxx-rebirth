@@ -313,7 +313,7 @@ void mem_display_blocks()
 		if (Present[i]==1 &&  (!out_of_memory))
 		{
 			numleft++;
-			if (GameArg.DbgShowMemInfo)	{
+			if (CGameArg.DbgShowMemInfo)	{
 				con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: Memory block has not been freed." );
 				PrintInfo( i );
 			}
@@ -375,7 +375,7 @@ void mem_display_blocks()
 		con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.", BytesMalloced );
 	}
 
-	if (GameArg.DbgShowMemInfo)	{
+	if (CGameArg.DbgShowMemInfo)	{
 		con_printf(CON_CRITICAL, "\n\nMEMORY USAGE:" );
 		con_printf(CON_CRITICAL, "  %u Kbytes dynamic data", (LargestAddress-SmallestAddress+512)/1024 );
 		con_printf(CON_CRITICAL, "  %u Kbytes code/static data.", (SmallestAddress-(4*1024*1024)+512)/1024 );

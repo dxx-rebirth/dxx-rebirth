@@ -67,6 +67,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool CtlNoMouse;
 	bool CtlNoStickyKeys;
 	bool DbgForbidConsoleGrab;
+	bool DbgShowMemInfo;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -128,7 +129,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool DbgRenderStats;
 	std::string DbgAltTex;
 	std::string DbgTexMap;
-	bool DbgShowMemInfo;
 	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
 	int DbgBpp;

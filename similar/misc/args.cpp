@@ -343,7 +343,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-tmap"))
 			GameArg.DbgTexMap = arg_string(pp, end);
 		else if (!d_stricmp(p, "-showmeminfo"))
-			GameArg.DbgShowMemInfo 		= 1;
+			CGameArg.DbgShowMemInfo 		= 1;
 		else if (!d_stricmp(p, "-nodoublebuffer"))
 			GameArg.DbgNoDoubleBuffer 	= 1;
 		else if (!d_stricmp(p, "-bigpig"))
