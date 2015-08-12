@@ -904,7 +904,7 @@ struct hash_info {
 
 //	Note: This should be malloced.
 //			Also, the vector should not be 12 bytes, you should only care about some smaller portion of it.
-hash_info	fvi_cache[FVI_HASH_SIZE];
+static array<hash_info, FVI_HASH_SIZE> fvi_cache;
 int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 
 //	-----------------------------------------------------------------------------------------

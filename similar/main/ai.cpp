@@ -150,7 +150,7 @@ int             Ai_initialized = 0;
 int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
-ai_cloak_info   Ai_cloak_info[MAX_AI_CLOAK_INFO];
+static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
 fix64           Boss_cloak_end_time = 0;
 fix64           Last_teleport_time = 0;
@@ -4625,7 +4625,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	range_for (object &obj, Objects)
 		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
 	PHYSFSX_serialize_read(fp, Point_segs);
-	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
+	ai_cloak_info_read_n_swap(Ai_cloak_info.data(), Ai_cloak_info.size(), swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_start_time = (fix64)tmptime32;
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);

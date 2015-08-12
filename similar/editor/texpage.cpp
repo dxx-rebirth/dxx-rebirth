@@ -207,8 +207,8 @@ struct replacement
 	int	n, old;
 };
 
-replacement Replacement_list[MAX_REPLACEMENTS];
 int	Num_replacements=0;
+static array<replacement, MAX_REPLACEMENTS> Replacement_list;
 
 int texpage_do(const d_event &event)
 {

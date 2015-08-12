@@ -47,7 +47,7 @@ struct robot_info;
 #endif
 
 // array of names of currently-loaded models
-extern char Pof_names[MAX_POLYGON_MODELS][13];
+extern array<char[13], MAX_POLYGON_MODELS> Pof_names;
 
 //for each model, a model number for dying & dead variants, or -1 if none
 extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;

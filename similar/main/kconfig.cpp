@@ -299,7 +299,7 @@ static const char *const kcl_keyboard =
 	"Toggle Bomb\0"
 #endif
 ;
-static kc_mitem kcm_keyboard[lengthof(kc_keyboard)];
+static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 
 static const kc_item kc_joystick[] = {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -470,7 +470,7 @@ static const char *const kcl_joystick =
 	"Toggle Bomb\0"
 #endif
 ;
-static kc_mitem kcm_joystick[lengthof(kc_joystick)];
+static array<kc_mitem, lengthof(kc_joystick)> kcm_joystick;
 
 static const kc_item kc_mouse[] = {
 	{ 25, 46,110, 26, 19,  1, 20,  5, BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::fire_primary} },
@@ -542,7 +542,7 @@ static const char *const kcl_mouse =
 	"Cycle Primary\0"
 	"Cycle Secondary\0"
 ;
-static kc_mitem kcm_mouse[lengthof(kc_mouse)];
+static array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_EXTENDED_WEAPON_STRING(X)
@@ -605,7 +605,7 @@ static const char *const kcl_rebirth =
 	WEAPON_STRING_SMART	"\0"
 	WEAPON_STRING_MEGA	"\0"
 ;
-static kc_mitem kcm_rebirth[lengthof(kc_rebirth)];
+static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 
 static void kc_drawinput( const kc_item &item, kc_mitem& mitem, int is_current, const char *label );
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -1019,9 +1019,9 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 }
 
 template <std::size_t M, std::size_t C>
-static void reset_mitem_values(kc_mitem (&m)[M], const array<ubyte, C> &c)
+static void reset_mitem_values(array<kc_mitem, M> &m, const array<ubyte, C> &c)
 {
-	for (unsigned i=0; i < min(lengthof(m), C); i++)
+	for (std::size_t i = 0; i != min(M, C); ++i)
 		m[i].value = c[i];
 }
 
@@ -1233,9 +1233,9 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 }
 
 template <std::size_t N>
-static void kconfig_sub(const char *litems, const kc_item (&items)[N], kc_mitem (&mitems)[N], const char *title)
+static void kconfig_sub(const char *litems, const kc_item (&items)[N], array<kc_mitem, N> &mitems, const char *title)
 {
-	kconfig_sub(litems, items, mitems, N, title);
+	kconfig_sub(litems, items, mitems.data(), N, title);
 }
 
 static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, const char *label )

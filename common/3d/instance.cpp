@@ -21,7 +21,9 @@
 struct instance_context {
 	vms_matrix m;
 	vms_vector p;
-} instance_stack[MAX_INSTANCE_DEPTH];
+};
+
+static array<instance_context, MAX_INSTANCE_DEPTH> instance_stack;
 
 int instance_depth = 0;
 

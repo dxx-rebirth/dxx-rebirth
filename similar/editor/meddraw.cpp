@@ -220,9 +220,8 @@ struct seg_edge
 	ubyte		face_count, backface_count;
 };
 
-seg_edge edge_list[MAX_EDGES];
-
-int	used_list[MAX_EDGES];	//which entries in edge_list have been used
+static array<seg_edge, MAX_EDGES> edge_list;
+static array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
 int n_used;
 
 int edge_list_size;		//set each frame
@@ -338,7 +337,7 @@ static void add_edge(int v0,int v1,ubyte type)
 		e->v.n.v0 = v0;
 		e->v.n.v1 = v1;
 		e->type = type;
-		used_list[n_used] = e-edge_list;
+		used_list[n_used] = e - edge_list.begin();
 		if (type == ET_FACING)
 			edge_list[used_list[n_used]].face_count++;
 		else if (type == ET_NOTFACING)

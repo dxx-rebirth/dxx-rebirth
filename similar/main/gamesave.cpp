@@ -165,7 +165,7 @@ int Gamesave_num_players=0;
 #if defined(DXX_BUILD_DESCENT_I)
 int N_save_pof_names=25;
 #define MAX_POLYGON_MODELS_NEW 167
-char Save_pof_names[MAX_POLYGON_MODELS_NEW][FILENAME_LEN];
+static array<char[FILENAME_LEN], MAX_POLYGON_MODELS_NEW> Save_pof_names;
 
 static int convert_vclip(int vc) {
 	if (vc < 0)
@@ -188,7 +188,7 @@ static int convert_polymod(int polymod) {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 int N_save_pof_names;
-char Save_pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
+static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
 static void verify_object(const vobjptr_t obj)
@@ -1546,7 +1546,8 @@ static int save_game_data(PHYSFS_file *SaveFile)
 #endif
 	{
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
-		PHYSFS_write(SaveFile, Pof_names, sizeof(*Pof_names), N_polygon_models);
+		range_for (const auto &i, partial_range(Pof_names, N_polygon_models))
+			PHYSFS_write(SaveFile, &i, sizeof(i), 1);
 	}
 
 	//==================== SAVE PLAYER INFO ===========================

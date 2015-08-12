@@ -61,8 +61,8 @@ struct RAIIMix_Chunk : public Mix_Chunk
 static int digi_initialised = 0;
 static int digi_mixer_max_channels = MAX_SOUND_SLOTS;
 static inline int fix2byte(fix f) { return (f / 256) % 256; }
-static RAIIMix_Chunk SoundChunks[MAX_SOUNDS];
-ubyte channels[MAX_SOUND_SLOTS];
+static array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
+static array<uint8_t, MAX_SOUND_SLOTS> channels;
 
 /* Initialise audio */
 int digi_mixer_init()
@@ -84,7 +84,7 @@ int digi_mixer_init()
 	}
 
 	digi_mixer_max_channels = Mix_AllocateChannels(digi_mixer_max_channels);
-	memset(channels, 0, MAX_SOUND_SLOTS);
+	channels = {};
 	Mix_Pause(0);
 
 	digi_initialised = 1;
@@ -232,8 +232,8 @@ int digi_mixer_is_channel_playing(int) { return 0; }
 void digi_mixer_reset() {}
 void digi_mixer_stop_all_channels()
 {
+	channels = {};
 	Mix_HaltChannel(-1);
-	memset(channels, 0, MAX_SOUND_SLOTS);
 }
 
 #ifndef NDEBUG

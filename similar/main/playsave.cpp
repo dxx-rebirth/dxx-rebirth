@@ -174,7 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct player_config PlayerCfg;
 #if defined(DXX_BUILD_DESCENT_I)
 static void plyr_read_stats();
-saved_game_sw saved_games[N_SAVE_SLOTS];
+static array<saved_game_sw, N_SAVE_SLOTS> saved_games;
 #elif defined(DXX_BUILD_DESCENT_II)
 static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
@@ -202,8 +202,8 @@ static void check_weapon_reorder(array<ubyte, N> &w)
 int new_player_config()
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	for (unsigned i=0;i < N_SAVE_SLOTS;i++)
-		saved_games[i].name[0] = 0;
+	range_for (auto &i, saved_games)
+		i.name[0] = 0;
 #endif
 	InitWeaponOrdering (); //setup default weapon priorities
 	PlayerCfg.ControlType=0; // Assume keyboard

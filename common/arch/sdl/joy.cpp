@@ -27,9 +27,9 @@ int num_joysticks = 0;
 static struct joyinfo {
 	int n_axes;
 	int n_buttons;
-	int axis_value[JOY_MAX_AXES];
-	ubyte button_state[JOY_MAX_BUTTONS];
-	ubyte button_last_state[JOY_MAX_BUTTONS]; // for HAT movement only
+	array<int, JOY_MAX_AXES> axis_value;
+	array<uint8_t, JOY_MAX_BUTTONS> button_state,
+		button_last_state; // for HAT movement only
 } Joystick;
 
 struct d_event_joystickbutton : d_event
@@ -46,7 +46,7 @@ struct d_event_joystick_moved : d_event
 /* This struct is an array, with one entry for each physical joystick
  * found.
  */
-static struct {
+struct d_physical_joystick {
 	SDL_Joystick *handle;
 	int n_axes;
 	int n_buttons;
@@ -54,7 +54,9 @@ static struct {
 	int hat_map[MAX_HATS_PER_JOYSTICK];  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	int axis_map[MAX_AXES_PER_JOYSTICK];
 	int button_map[MAX_BUTTONS_PER_JOYSTICK];
-} SDL_Joysticks[MAX_JOYSTICKS];
+};
+
+static array<d_physical_joystick, MAX_JOYSTICKS> SDL_Joysticks;
 
 void joy_button_handler(SDL_JoyButtonEvent *jbe)
 {

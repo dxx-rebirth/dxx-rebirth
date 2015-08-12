@@ -643,7 +643,7 @@ static void polyobj_find_min_max(polymodel *pm)
 	}
 }
 
-char Pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
+array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
 
 //returns the number of this model
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)

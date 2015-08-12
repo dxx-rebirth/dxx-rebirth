@@ -752,7 +752,7 @@ struct fcd_data {
 };
 
 int	Fcd_index = 0;
-fcd_data Fcd_cache[MAX_FCD_CACHE];
+static array<fcd_data, MAX_FCD_CACHE> Fcd_cache;
 fix64	Last_fcd_flush_time;
 
 //	----------------------------------------------------------------------------------------------------------
