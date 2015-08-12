@@ -19,6 +19,8 @@
 #include "playsave.h"
 #include "kconfig.h"
 
+namespace {
+
 int num_joysticks = 0;
 
 /* This struct is a "virtual" joystick, which includes all the axes
@@ -55,6 +57,8 @@ struct d_physical_joystick {
 	int axis_map[MAX_AXES_PER_JOYSTICK];
 	int button_map[MAX_BUTTONS_PER_JOYSTICK];
 };
+
+}
 
 static array<d_physical_joystick, MAX_JOYSTICKS> SDL_Joysticks;
 

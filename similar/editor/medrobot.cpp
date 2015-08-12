@@ -68,6 +68,8 @@ static int GoodyPrevID();
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
+namespace {
+
 struct robot_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
@@ -77,6 +79,8 @@ struct robot_dialog
 	vms_angvec angles, goody_angles;
 	int old_object;
 };
+
+}
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
@@ -715,6 +719,8 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 
 static UI_DIALOG 				*MattWindow = NULL;
 
+namespace {
+
 struct object_dialog
 {
 	struct creation_context
@@ -729,6 +735,8 @@ struct object_dialog
 	array<std::unique_ptr<UI_GADGET_RADIO>, 2> initialMode;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
 };
+
+}
 
 static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
 

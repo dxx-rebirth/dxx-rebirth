@@ -60,6 +60,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static UI_DIALOG 				*MainWindow = NULL;
 
+namespace {
+
 struct trigger_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
@@ -67,6 +69,8 @@ struct trigger_dialog
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 	int old_trigger_num;
 };
+
+}
 
 
 //-----------------------------------------------------------------

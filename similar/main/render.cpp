@@ -873,7 +873,12 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 char visited2[MAX_SEGMENTS];
 #endif
 
+namespace {
+
 struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
+
+}
+
 int	lcnt_save,scnt_save;
 
 //Given two sides of segment, tell the two verts which form the 

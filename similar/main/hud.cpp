@@ -38,6 +38,8 @@
 #include "playsave.h"
 #include "countarray.h"
 
+namespace {
+
 struct hudmsg
 {
 	fix time;
@@ -49,6 +51,8 @@ struct hudmsg
 		message.copy_if(m);
 	}
 };
+
+}
 
 struct hudmsg_array_t : public count_array_t<hudmsg, HUD_MAX_NUM_STOR> {};
 static hudmsg_array_t HUD_messages;

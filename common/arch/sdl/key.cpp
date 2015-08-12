@@ -295,10 +295,14 @@ const array<key_props, 256> key_properties = {{
 { "W95",    255,    SDLK_WORLD_95      }, // 255
 }};
 
+namespace {
+
 struct d_event_keycommand : d_event
 {
 	int			keycode;
 };
+
+}
 
 static int key_ismodlck(int keycode)
 {

@@ -63,11 +63,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
+namespace {
+
 // Subtitle data
 struct subtitle {
 	short first_frame,last_frame;
 	char *msg;
 };
+
+}
 
 static int init_subtitles(const char *filename);
 
@@ -99,10 +103,14 @@ public:
 // Movielib data
 
 static const array<array<char, 8>, 3> movielib_files{{{"intro"}, {"other"}, {"robots"}}};
+namespace {
+
 struct loaded_movie_t
 {
 	array<char, FILENAME_LEN + 2> filename;
 };
+
+}
 static loaded_movie_t extra_robot_movie_mission;
 
 static RWops_ptr RoboFile;
@@ -253,6 +261,7 @@ static void MovieSetPalette(const unsigned char *p, unsigned start, unsigned cou
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
 
+namespace {
 
 struct movie : ignore_window_pointer_t
 {
@@ -261,6 +270,8 @@ struct movie : ignore_window_pointer_t
 	int paused;
 	MVESTREAM_ptr_t pMovie;
 };
+
+}
 
 static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
 {

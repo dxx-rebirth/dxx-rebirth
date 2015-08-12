@@ -50,6 +50,8 @@
 #endif
 #define MIN_VOLUME 10
 
+namespace {
+
 struct RAIIMix_Chunk : public Mix_Chunk
 {
 	~RAIIMix_Chunk()
@@ -57,6 +59,8 @@ struct RAIIMix_Chunk : public Mix_Chunk
 		delete [] abuf;
 	}
 };
+
+}
 
 static int digi_initialised = 0;
 static int digi_mixer_max_channels = MAX_SOUND_SLOTS;

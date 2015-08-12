@@ -96,6 +96,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_NO_FADE  32  // An edge that doesn't fade with distance
 #define EF_TOO_FAR  64  // An edge that is too far away
 
+namespace {
+
 struct Edge_info
 {
 	array<int, 2>   verts;     // 8  bytes
@@ -153,6 +155,8 @@ struct automap : ignore_window_pointer_t
 	control_info controls;
 	segment_depth_array_t depth_array;
 };
+
+}
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 

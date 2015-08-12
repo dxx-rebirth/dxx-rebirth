@@ -68,6 +68,8 @@ enum mle_loc
 	ML_MISSIONDIR = 1
 };
 
+namespace {
+
 //mission list entry
 struct mle : Mission_path
 {
@@ -79,6 +81,8 @@ struct mle : Mission_path
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 	enum mle_loc	location;           // where the mission is
 };
+
+}
 
 typedef std::vector<mle> mission_list;
 

@@ -97,12 +97,16 @@ static int rescale_y(int y)
 	return y * GHEIGHT / 200;
 }
 
+namespace {
+
 struct title_screen : ignore_window_pointer_t
 {
 	grs_bitmap title_bm;
 	fix64 timer;
 	int allow_keys;
 };
+
+}
 
 static window_event_result title_handler(window *, const d_event &event, title_screen *ts)
 {

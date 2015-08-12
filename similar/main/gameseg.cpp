@@ -745,11 +745,15 @@ static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance d
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
 #define	MAX_FCD_CACHE	8
 
+namespace {
+
 struct fcd_data {
 	segnum_t	seg0, seg1;
 	int csd;
 	vm_distance dist;
 };
+
+}
 
 int	Fcd_index = 0;
 static array<fcd_data, MAX_FCD_CACHE> Fcd_cache;

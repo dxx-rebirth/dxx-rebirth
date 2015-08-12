@@ -41,6 +41,8 @@
 
 /* Sound system function pointers */
 
+namespace {
+
 struct sound_function_table_t
 {
 	int  (*init)();
@@ -91,8 +93,6 @@ static const sound_function_table_t digi_audio_table{
 	&digi_audio_stop_all_channels,
 	&digi_audio_set_digi_volume,
 };
-
-namespace {
 
 class sound_function_pointers_t
 {

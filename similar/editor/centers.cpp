@@ -63,6 +63,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
+namespace {
+
 struct centers_dialog
 {
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
@@ -70,6 +72,8 @@ struct centers_dialog
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 };
+
+}
 
 static int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c);
 

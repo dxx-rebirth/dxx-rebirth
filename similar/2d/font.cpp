@@ -59,6 +59,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_OPEN_FONTS	50
 
+namespace {
+
 struct openfont
 {
 	array<char, FILENAME_LEN> filename;
@@ -66,6 +68,8 @@ struct openfont
 	grs_font *ptr;
 	std::unique_ptr<uint8_t[]> dataptr;
 };
+
+}
 
 //list of open fonts, for use (for now) for palette remapping
 static array<openfont, MAX_OPEN_FONTS> open_font;

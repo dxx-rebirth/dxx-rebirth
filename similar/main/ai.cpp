@@ -4169,9 +4169,13 @@ void create_awareness_event(const vobjptr_t objp, player_awareness_type_t type)
 	}
 }
 
+namespace {
+
 struct awareness_t : array<player_awareness_type_t, MAX_SEGMENTS>
 {
 };
+
+}
 
 // ----------------------------------------------------------------------------------
 static void pae_aux(segnum_t segnum, player_awareness_type_t type, int level, awareness_t &New_awareness)

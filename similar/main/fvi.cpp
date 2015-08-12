@@ -81,6 +81,8 @@ static int find_plane_line_intersection(vms_vector &new_pnt,const vms_vector &pl
 
 }
 
+namespace {
+
 struct vec2d {
 	fix i,j;
 };
@@ -97,6 +99,8 @@ struct ij_pair
 	fix vms_vector::*i;
 	fix vms_vector::*j;
 };
+
+}
 
 __attribute_warn_unused_result
 static ij_pair find_largest_normal(vms_vector t)
@@ -592,6 +596,8 @@ static vm_distance_squared check_vector_to_object(vms_vector &intp,const vms_vec
 }
 
 
+namespace {
+
 #define MAX_SEGS_VISITED 100
 struct fvi_segment_visit_count_t
 {
@@ -600,9 +606,12 @@ struct fvi_segment_visit_count_t
 	{
 	}
 };
+
 struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited_segment_bitarray_t
 {
 };
+
+}
 
 int fvi_nest_count;
 

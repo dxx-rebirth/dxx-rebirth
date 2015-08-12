@@ -181,6 +181,8 @@ static void kmatrix_status_msg (fix time, int reactor)
 		gr_printf(0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
 }
 
+namespace {
+
 struct kmatrix_screen : ignore_window_pointer_t
 {
 	grs_bitmap background;
@@ -189,6 +191,8 @@ struct kmatrix_screen : ignore_window_pointer_t
 	int playing;
         int aborted;
 };
+
+}
 
 static void kmatrix_redraw(kmatrix_screen *km)
 {

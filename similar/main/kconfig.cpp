@@ -120,6 +120,8 @@ fix Cruise_speed=0;
 
 #define INFO_Y (188)
 
+namespace {
+
 struct kc_item
 {
 	const short x, y;              // x, y pos of label
@@ -152,6 +154,8 @@ struct kc_menu : embed_window_pointer_t
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
 };
+
+}
 
 const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings{{
 #if defined(DXX_BUILD_DESCENT_I)

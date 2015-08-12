@@ -65,6 +65,8 @@ static int wall_remove_door_flag(sbyte flag);
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
 
+namespace {
+
 struct wall_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
@@ -76,8 +78,6 @@ struct wall_dialog
 	int framenum;
 };
 
-static int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
-
 static int Current_door_type=1;
 
 struct count_wall
@@ -86,6 +86,10 @@ struct count_wall
 	segnum_t	segnum;
 	short sidenum;
 };
+
+}
+
+static int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)

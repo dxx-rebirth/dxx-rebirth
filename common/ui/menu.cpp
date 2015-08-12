@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2
 
+namespace {
+
 struct menu
 {
 	std::unique_ptr<std::unique_ptr<UI_GADGET_BUTTON>[]> button_g;
@@ -41,6 +43,8 @@ struct menu
 	int *choice;
 	int num_buttons;
 };
+
+}
 
 static int menu_handler(UI_DIALOG *,const d_event &event, menu *m)
 {

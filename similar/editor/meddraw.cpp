@@ -210,6 +210,8 @@ const
 #endif
 array<color_t, 3> edge_colors{{54, 59, 64}};
 
+namespace {
+
 struct seg_edge
 {
 	union {
@@ -219,6 +221,8 @@ struct seg_edge
 	ushort	type;
 	ubyte		face_count, backface_count;
 };
+
+}
 
 static array<seg_edge, MAX_EDGES> edge_list;
 static array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used

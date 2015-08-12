@@ -2514,6 +2514,8 @@ void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_p
 #define ENABLE_SAME_COLLISION(type,f)	COLLISION_RESULT(type,type,RESULT_CHECK);
 #define DISABLE_SAME_COLLISION(type)	COLLISION_RESULT(type,type,RESULT_NOTHING);
 
+namespace {
+
 template <object_type_t A, object_type_t B>
 struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B, A>, tt::integral_constant<ubyte, RESULT_NOTHING>>::type {};
 
@@ -2522,6 +2524,8 @@ struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B
 	struct collision_result_t<type1, type2> : public tt::integral_constant<ubyte, result> {}
 
 COLLISION_TABLE(DISABLE, ENABLE);
+
+}
 
 template <std::size_t R, std::size_t... C>
 static inline constexpr collision_inner_array_t collide_init(index_sequence<C...>)

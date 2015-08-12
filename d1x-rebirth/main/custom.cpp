@@ -29,11 +29,15 @@
 
 //#define D2TMAP_CONV // used for testing
 
+namespace {
+
 struct snd_info
 {
 	unsigned int length;
 	ubyte *data;
 };
+
+}
 
 struct DiskBitmapHeader2 
 {
@@ -66,6 +70,8 @@ struct DiskSoundHeader
 	int offset;
 } __pack__;
 
+namespace {
+
 struct custom_info
 {
 	int offset;
@@ -73,6 +79,8 @@ struct custom_info
 	unsigned int flags;
 	int width, height;
 };
+
+}
 
 static array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
 static array<snd_info, MAX_SOUND_FILES> SoundOriginal;

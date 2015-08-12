@@ -18,10 +18,14 @@
 
 #define MAX_INSTANCE_DEPTH	5
 
+namespace {
+
 struct instance_context {
 	vms_matrix m;
 	vms_vector p;
 };
+
+}
 
 static array<instance_context, MAX_INSTANCE_DEPTH> instance_stack;
 

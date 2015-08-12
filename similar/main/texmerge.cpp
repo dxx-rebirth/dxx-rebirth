@@ -46,6 +46,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
+namespace {
+
 struct TEXTURE_CACHE {
 	grs_bitmap_ptr bitmap;
 	grs_bitmap * bottom_bmp;
@@ -53,6 +55,8 @@ struct TEXTURE_CACHE {
 	int 		orient;
 	fix64		last_time_used;
 };
+
+}
 
 static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 

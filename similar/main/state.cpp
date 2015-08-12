@@ -574,12 +574,16 @@ static void state_read_player(PHYSFS_file *fp, player &pl, int swap)
 	state_player_rw_to_player(&pl_rw, &pl);
 }
 
+namespace {
+
 //-------------------------------------------------------------------
 struct state_userdata
 {
 	int citem;
 	array<grs_bitmap_ptr, NUM_SAVES> sc_bmp;
 };
+
+}
 
 static int state_callback(newmenu *menu,const d_event &event, state_userdata *const userdata)
 {

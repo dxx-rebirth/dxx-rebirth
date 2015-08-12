@@ -68,6 +68,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ALLOWED_CHAR			(!Current_mission ? 'R' : (is_SHAREWARE ? 'S' : 'R'))
 #endif
 
+namespace {
+
 struct credits : ignore_window_pointer_t
 {
 	RAIIPHYSFS_File file;
@@ -80,6 +82,8 @@ struct credits : ignore_window_pointer_t
 	int row;
 	grs_bitmap backdrop;
 };
+
+}
 
 static window_event_result credits_handler(window *, const d_event &event, credits *cr)
 {

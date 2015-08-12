@@ -61,6 +61,8 @@ static UI_DIALOG 				*MainWindow = NULL;
 static int						CurrentHostageIndex = -1;
 static int						LastHostageIndex = -1;
 
+namespace {
+
 struct hostage_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> hostageViewBox;
@@ -71,6 +73,8 @@ struct hostage_dialog
 	fix 			vclip_animation_time;			// How long the rescue sequence has been playing
 	fix 			vclip_playback_speed;				// Calculated internally.  Frames/second of vclip.
 };
+
+}
 
 static int SelectPrevHostage()	{
 	int start=0;

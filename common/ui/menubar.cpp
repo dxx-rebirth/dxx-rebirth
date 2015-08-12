@@ -41,6 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAXMENUS 30
 #define MAXITEMS 32
 
+namespace {
+
 struct ITEM {
 	short 			x, y, w, h;
 	RAIIdmem<char[]> Text;
@@ -58,6 +60,8 @@ struct MENU : embed_window_pointer_t {
 	short				Active;
 	array<ITEM, MAXITEMS> Item;
 };
+
+}
 
 static array<MENU, MAXMENUS> Menu;
 

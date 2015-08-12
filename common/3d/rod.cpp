@@ -20,11 +20,15 @@
 
 #include "compiler-range_for.h"
 
+namespace {
+
 struct rod_4point
 {
 	array<cg3s_point *, 4> point_list;
 	array<g3s_point, 4> points;
 };
+
+}
 
 //compute the corners of a rod.  fills in vertbuf.
 static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
