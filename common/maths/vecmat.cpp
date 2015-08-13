@@ -519,10 +519,8 @@ void vm_vec_rotate(vms_vector &dest,const vms_vector &src,const vms_matrix &m)
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 //dest CANNOT equal either source
-void vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matrix &src1)
+void _vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matrix &src1)
 {
-	Assert(&dest!=&src0 && &dest!=&src1);
-
 	dest.rvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.rvec);
 	dest.uvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.uvec);
 	dest.fvec.x = vm_vec_dot3(src0.rvec.x,src0.uvec.x,src0.fvec.x, src1.fvec);

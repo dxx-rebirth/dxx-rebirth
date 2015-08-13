@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
 #include <utility>
@@ -491,7 +492,19 @@ static inline vms_matrix vm_transposed_matrix(vms_matrix m)
 }
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
-void vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
+void _vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
+static inline void vm_matrix_x_matrix(vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1)
+{
+#ifdef DXX_CONSTANT_TRUE
+	if (DXX_CONSTANT_TRUE(&dest == &src0))
+		DXX_ALWAYS_ERROR_FUNCTION(vm_matrix_x_matrix_dest_src0, "vm_matrix_x_matrix with &dest == &src0");
+	else if (DXX_CONSTANT_TRUE(&dest == &src1))
+		DXX_ALWAYS_ERROR_FUNCTION(vm_matrix_x_matrix_dest_src1, "vm_matrix_x_matrix with &dest == &src1");
+#endif
+	assert(&dest != &src0);
+	assert(&dest != &src1);
+	return _vm_matrix_x_matrix(dest, src0, src1);
+}
 
 static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1) __attribute_warn_unused_result;
 static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_matrix &src1)
