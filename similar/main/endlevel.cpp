@@ -439,7 +439,7 @@ void start_endlevel_sequence()
 }
 
 static vms_angvec player_angles,player_dest_angles;
-#ifdef SLEW_ON
+#ifndef SHORT_SEQUENCE
 static vms_angvec camera_desired_angles,camera_cur_angles;
 #endif
 
@@ -817,7 +817,7 @@ void do_endlevel_frame()
 			int mask;
 			#endif
 
-			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
+			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
@@ -826,7 +826,7 @@ void do_endlevel_frame()
 			_do_slew_movement(endlevel_camera,1);
 			#else
 
-			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
+			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
 			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
 
@@ -853,7 +853,7 @@ void do_endlevel_frame()
 			_do_slew_movement(endlevel_camera,1);
 			#endif
 
-			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
+			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
 			#ifndef SLEW_ON
@@ -865,7 +865,7 @@ void do_endlevel_frame()
 			speed_scale = fixdiv(d,i2f(0x20));
 			if (d<f1_0) d=f1_0;
 
-			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
+			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
@@ -1298,15 +1298,15 @@ int _do_slew_movement(const vobjptr_t obj, int check_keys )
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
-		vm_vec_zero(obj->phys_info.velocity);
+		vm_vec_zero(obj->mtype.phys_info.velocity);
 
 	if (check_keys) {
-		obj->phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-		obj->phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-		obj->phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-		obj->phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-		obj->phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
-		obj->phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
+		obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
+		obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
+		obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
+		obj->mtype.phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
+		obj->mtype.phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
+		obj->mtype.phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
 
 		rotang.pitch = rotang.bank  = rotang.head  = 0;
 		rotang.pitch += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
@@ -1317,17 +1317,17 @@ int _do_slew_movement(const vobjptr_t obj, int check_keys )
 		rotang.head  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
 	}
 	else
-		rotang.pitch = rotang.bank  = rotang.head  = 0;
+		rotang = {};
 
-	moved = rotang.pitch | rotang.bank | rotang.head;
+	moved = rotang.p | rotang.b | rotang.h;
 
 	const auto &&rotmat = vm_angles_2_matrix(rotang);
 	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));
 	//make those columns rows
 
-	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
+	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;
 
-	svel = obj->phys_info.velocity;
+	svel = obj->mtype.phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
 	const auto movement = vm_vec_rotate(svel,new_pm);
 
