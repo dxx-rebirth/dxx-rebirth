@@ -50,6 +50,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "kdefs.h"
 
+#include "compiler-range_for.h"
+
 //return 2d distance, i.e, sqrt(x*x + y*y)
 #ifdef __WATCOMC__
 long dist_2d(long x,long y);
@@ -464,19 +466,17 @@ int ClearFoundList(void)
 // ---------------------------------------------------------------------------------------------------
 void set_view_target_from_segment(const vsegptr_t sp)
 {
-	vms_vector	tv = ZERO_VECTOR;
 	if (Funky_chase_mode)
 		{
 		//set_chase_matrix(sp);
 		}
 	else {
-		for (int v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-			vm_vec_add2(tv,Vertices[sp->verts[v]]);
+		vms_vector tv{};
+		range_for (const auto &v, sp->verts)
+			vm_vec_add2(tv, Vertices[v]);
 
 		vm_vec_scale(tv,F1_0/MAX_VERTICES_PER_SEGMENT);
-
 		Ed_view_target = tv;
-
 	}
 	Update_flags |= UF_VIEWPOINT_MOVED;
 

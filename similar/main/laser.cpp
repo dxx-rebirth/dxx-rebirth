@@ -391,7 +391,6 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vobjptridx_t parent_objp)
 {
 	objptridx_t  last_created_objnum = object_none;
-	vms_vector	omega_delta_vector = ZERO_VECTOR, blob_pos = ZERO_VECTOR;
 	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS]{};
 
 	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
@@ -415,6 +414,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 		}
 	}
 
+	vms_vector omega_delta_vector, blob_pos;
 	omega_delta_vector = vec_to_goal;
 	vm_vec_scale(omega_delta_vector, omega_blob_dist);
 

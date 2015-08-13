@@ -232,10 +232,7 @@ extern const vms_matrix vmd_identity_matrix;
 
 //Here's a handy constant
 
-#define ZERO_VECTOR {0,0,0}
 #define IDENTITY_MATRIX { {f1_0,0,0}, {0,f1_0,0}, {0,0,f1_0} }
-
-const vms_vector vmd_zero_vector ZERO_VECTOR;
 
 //negate a vector
 static inline void vm_vec_negate(vms_vector &v)

@@ -694,13 +694,13 @@ void init_polygon_models()
 //canvas.
 void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 {
-	vms_vector	temp_pos=ZERO_VECTOR;
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
 	Assert(mn<N_polygon_models);
 
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();
+	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
 	if (Polygon_models[mn].rad != 0)
