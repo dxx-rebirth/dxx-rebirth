@@ -3272,17 +3272,18 @@ void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_typ
 	if (!count)
 		return;
 	const auto &vc = Vclip[o->rtype.vclip_info.vclip_num];
+	const auto vc_num_frames = vc.num_frames;
+	const auto &seg_verts = vsegptr(o->segnum)->verts;
 	for (uint_fast32_t i = count++; i; --i)
 	{
-		const auto &seg = vsegptr(o->segnum);
-		const auto no = obj_create(OBJ_POWERUP, id, o->segnum, vm_vec_avg(o->pos, Vertices[seg->verts[i % seg->verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+		const auto no = obj_create(OBJ_POWERUP, id, o->segnum, vm_vec_avg(o->pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
 		PowerupCaps.inc_powerup_both(id);
 		no->mtype.phys_info = o->mtype.phys_info;
 		no->rtype.vclip_info = o->rtype.vclip_info;
-		no->rtype.vclip_info.framenum = (o->rtype.vclip_info.framenum + (i * vc.num_frames) / count) % vc.num_frames;
+		no->rtype.vclip_info.framenum = (o->rtype.vclip_info.framenum + (i * vc_num_frames) / count) % vc_num_frames;
 		no->ctype.powerup_info = o->ctype.powerup_info;
 	}
 }
