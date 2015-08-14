@@ -40,6 +40,7 @@
 #include "compiler-array.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
+#include "partial_range.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	DXX_CONSTANT_TRUE((S) > (v))
@@ -468,14 +469,21 @@ public:
 typedef char file_extension_t[5];
 __attribute_nonnull()
 __attribute_warn_unused_result
-int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *exts, const uint_fast32_t count);
+int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *>);
+
+__attribute_nonnull()
+__attribute_warn_unused_result
+static inline int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *exts, const uint_fast32_t count)
+{
+	return PHYSFSX_checkMatchingExtension(filename, unchecked_partial_range(exts, count));
+}
 
 template <std::size_t count>
 __attribute_nonnull()
 __attribute_warn_unused_result
 static inline int PHYSFSX_checkMatchingExtension(const array<file_extension_t, count> &exts, const char *filename)
 {
-	return PHYSFSX_checkMatchingExtension(filename, exts.data(), count);
+	return PHYSFSX_checkMatchingExtension(filename, exts);
 }
 
 extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);

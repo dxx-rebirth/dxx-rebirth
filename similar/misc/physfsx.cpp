@@ -68,16 +68,16 @@ char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp
 	return cleanup();
 }
 
-int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *const exts, const uint_fast32_t count)
+int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *> range)
 {
 	const char *ext = strrchr(filename, '.');
 	if (!ext)
 		return 0;
 	++ext;
-	const auto e = exts + count;
-	for (auto k = exts; k != e; ++k)	// see if the file is of a type we want
+	// see if the file is of a type we want
+	range_for (auto &k, range)
 	{
-		if (!d_stricmp(ext, *k))
+		if (!d_stricmp(ext, k))
 			return 1;
 	}
 	return 0;
