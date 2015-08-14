@@ -801,8 +801,6 @@ void render_object(const vobjptridx_t obj)
 #endif
 }
 
-#define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
-
 void reset_player_object()
 {
 	//Init physics
@@ -823,8 +821,7 @@ void reset_player_object()
 	ConsoleObject->rtype.pobj_info.subobj_flags = 0;		//zero the flags
 	ConsoleObject->rtype.pobj_info.tmap_override = -1;		//no tmap override!
 
-	range_for (auto &i, ConsoleObject->rtype.pobj_info.anim_angles)
-		vm_angvec_zero(&i);
+	ConsoleObject->rtype.pobj_info.anim_angles = {};
 
 	// Clear misc
 

@@ -158,8 +158,6 @@ static int is_real_level(const char *filename)
 
 //--unused-- vms_angvec zero_angles={0,0,0};
 
-#define vm_angvec_zero(v) do {(v)->p=(v)->b=(v)->h=0;} while (0)
-
 int Gamesave_num_players=0;
 
 #if defined(DXX_BUILD_DESCENT_I)
