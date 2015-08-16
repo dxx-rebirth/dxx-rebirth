@@ -106,29 +106,10 @@ static void game_draw_multi_message()
 static void show_framerate()
 {
 	static int fps_count = 0, fps_rate = 0;
-	int y = GHEIGHT;
 	static fix64 fps_time = 0;
 
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-
-	const auto &&line_spacing = LINE_SPACING;
-	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
-		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= line_spacing * 10;
-		else
-			y -= line_spacing * 4;
-	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= line_spacing * 6;
-		else
-			y -= line_spacing * 1;
-	} else {
-		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
-			y -= line_spacing * 7;
-		else
-			y -= line_spacing * 2;
-	}
 
 	fps_count++;
 	if (timer_query() >= fps_time + F1_0)
@@ -137,7 +118,10 @@ static void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
+	if (GameArg.DbgVerbose)
+                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)1000/(F1_0/FrameTime)));
+        else
+                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);
 }
 
 static void show_netplayerinfo()
