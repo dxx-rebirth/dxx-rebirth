@@ -257,7 +257,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 									damage /= 4;
 #endif
 								if ( obj0p->shields >= 0 )
-									apply_damage_to_player(obj0p, killer, damage, 0 );
+									apply_damage_to_player(obj0p, killer, damage, 1 );
 							}
 								break;
 
