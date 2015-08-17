@@ -1973,7 +1973,8 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 	return nfires;
 }
 
-#define	MAX_SMART_DISTANCE	(F1_0*150)
+const vm_distance MAX_SMART_DISTANCE(F1_0*150);
+const vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
 #define	MAX_OBJDISTS			30
 
 //	-------------------------------------------------------------------------------------------
@@ -2020,7 +2021,7 @@ struct miniparent
 // Create the children of a smart bomb, which is a bunch of homing missiles.
 static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
-	int numobjs=0;
+	unsigned numobjs = 0;
 	enum weapon_type_t blob_id;
 
 	array<objnum_t, MAX_OBJDISTS> objlist;
@@ -2034,8 +2035,6 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 
 			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && objnum != parent.num)
 			{
-				fix dist;
-
 				if (curobjp->type == OBJ_PLAYER)
 				{
 					if (parent.type == OBJ_PLAYER && (Game_mode & GM_MULTI_COOP))
@@ -2059,8 +2058,9 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 #endif
 				}
 
-				dist = vm_vec_dist_quick(objp->pos, curobjp->pos);
-				if (dist < MAX_SMART_DISTANCE) {
+				const auto &&dist = vm_vec_dist2(objp->pos, curobjp->pos);
+				if (dist < MAX_SMART_DISTANCE_SQUARED)
+				{
 					int oovis;
 
 					oovis = object_to_object_visibility(objp, curobjp, FQ_TRANSWALL);
@@ -2096,15 +2096,22 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 #endif
 
 		objnum_t last_sel_objnum = object_none;
-		for (int i=0; i<num_smart_children; i++) {
-			objptridx_t sel_objnum = object_none;
-			if (numobjs)
-				sel_objnum = objlist[(d_rand() * numobjs) >> 15];
-			if (numobjs > 1)
-				while (sel_objnum == last_sel_objnum)
-					sel_objnum = objlist[(d_rand() * numobjs) >> 15];
+		const auto get_random_different_object = [&]{
+			for (;;)
+			{
+				const auto r = objlist[(d_rand() * numobjs) >> 15];
+				if (last_sel_objnum != r)
+					return last_sel_objnum = r;
+			}
+		};
+		for (auto i = num_smart_children; i--;)
+		{
+			const auto &&sel_objnum = numobjs
+				? objptridx((numobjs == 1)
+					? objlist[0]
+					: get_random_different_object())
+				: objptridx(object_none);
 			create_homing_missile(objp, sel_objnum, blob_id, (i==0)?1:0);
-			last_sel_objnum = sel_objnum;
 		}
 	}
 }
