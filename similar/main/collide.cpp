@@ -2132,14 +2132,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 
 	if (get_player_id(playerobj) == Player_num)
 	{
-		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
-		{
-			multi_digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0);
-		}
-		else
-		{
-			multi_digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, playerobj->segnum, 0, collision_point, 0, F1_0);
-		}
+		multi_digi_link_sound_to_pos((get_local_player().flags & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0);
 	}
 
 	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
