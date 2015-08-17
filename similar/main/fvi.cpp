@@ -818,14 +818,23 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 
 	//first, see if vector hit any objects in this segment
 	if (flags & FQ_CHECK_OBJS)
+	{
+		const auto &collision = CollisionResult[likely(thisobjnum != object_none) ? Objects[thisobjnum].type : 0];
 		range_for (const auto objnum, objects_in(*seg))
-			if (	!(objnum->flags & OF_SHOULD_BE_DEAD) &&
-				 	!(thisobjnum == objnum ) &&
-				 	!obj_in_list(objnum,ignore_obj_list) &&
-				 	!laser_are_related( objnum, thisobjnum ) &&
-				 	!((thisobjnum != object_none)	&&
-				  		(CollisionResult[Objects[thisobjnum].type][objnum->type] == RESULT_NOTHING ) &&
-			 	 		(CollisionResult[objnum->type][Objects[thisobjnum].type] == RESULT_NOTHING ))) {
+		{
+			if (objnum->flags & OF_SHOULD_BE_DEAD)
+				continue;
+			if (thisobjnum != object_none)
+			{
+				if (thisobjnum == objnum)
+					continue;
+				if (laser_are_related(objnum, thisobjnum))
+					continue;
+				if (collision[objnum->type] == RESULT_NOTHING)
+					continue;
+			}
+			if (obj_in_list(objnum, ignore_obj_list))
+				continue;
 				int fudged_rad = rad;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -864,7 +873,8 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 						closest_hit_point = hit_point;
 						hit_type=HIT_OBJECT;
 					}
-			}
+		}
+	}
 
 	if (	(thisobjnum != object_none ) && (CollisionResult[Objects[thisobjnum].type][OBJ_WALL] == RESULT_NOTHING ) )
 		rad = 0;		//HACK - ignore when edges hit walls
