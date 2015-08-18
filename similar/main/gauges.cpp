@@ -286,9 +286,9 @@ public:
 #define NUMERICAL_GAUGE_X		((multires_gauge_graphic.get(308, 154)))
 #define PRIMARY_W_PIC_Y			((multires_gauge_graphic.get(370, 154)))
 #define PRIMARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(182, 87)))
-#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(400, 157)))
+#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(378, 157)))
 #define PRIMARY_AMMO_X			HUD_SCALE_X((multires_gauge_graphic.get(186, 93)))
-#define PRIMARY_AMMO_Y			HUD_SCALE_Y((multires_gauge_graphic.get(420, 171)))
+#define PRIMARY_AMMO_Y			HUD_SCALE_Y((multires_gauge_graphic.get(407, 171)))
 #define SB_LIVES_LABEL_X		((multires_gauge_graphic.get(475, 237)))
 #define SB_SCORE_RIGHT_L		301
 #define SB_SCORE_RIGHT			((multires_gauge_graphic.get(SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_L)))
@@ -1376,14 +1376,6 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 					txtweapon = weapon_str;
 					break;
 				case primary_weapon_index_t::VULCAN_INDEX:
-#if defined(DXX_BUILD_DESCENT_I)
-				if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				{
-					sprintf(weapon_str,"V%i", f2i(get_local_player().vulcan_ammo * VULCAN_AMMO_SCALE));
-					txtweapon = weapon_str;
-				}
-				else
-#endif
 					txtweapon = "V";
 					break;
 				case primary_weapon_index_t::SPREADFIRE_INDEX:
