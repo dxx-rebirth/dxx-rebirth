@@ -50,7 +50,7 @@ class valptridxutil_untyped_base::index_mismatch_exception
 {
 protected:
 #define REPORT_STANDARD_FORMAT	" base=%p size=%lu"
-#define REPORT_STANDARD_ARGUMENTS	array_base, array_size
+#define REPORT_STANDARD_ARGUMENTS	array_base, static_cast<unsigned long>(array_size)
 #define REPORT_STANDARD_SIZE	(sizeof(REPORT_FORMAT_STRING) + sizeof("0x0000000000000000") + sizeof("18446744073709551615"))
 #define REPORT_FORMAT_STRING	"pointer/index mismatch:" REPORT_STANDARD_FORMAT " index=%li expected=%p actual=%p"
 	static constexpr std::size_t report_buffer_size = REPORT_STANDARD_SIZE + (sizeof("0x0000000000000000") * 2) + sizeof("18446744073709551615");
