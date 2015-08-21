@@ -682,6 +682,7 @@ void render_object(const vobjptridx_t obj)
 	const auto mld_save = exchange(Max_linear_depth, Max_linear_depth_objects);
 #endif
 
+	bool alpha = false;
 	switch (obj->render_type)
 	{
 		case RT_NONE:
@@ -689,8 +690,11 @@ void render_object(const vobjptridx_t obj)
 
 		case RT_POLYOBJ:
 #if defined(DXX_BUILD_DESCENT_II)
-			if ( PlayerCfg.AlphaEffects && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
+			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
+			{
+				alpha = true;
 				gr_settransblend( 10, GR_BLEND_ADDITIVE_A );
+			}
 #endif
 			draw_polygon_object(obj);
 
@@ -703,15 +707,21 @@ void render_object(const vobjptridx_t obj)
 			break;
 
 		case RT_FIREBALL:
-			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+			if (PlayerCfg.AlphaBlendFireballs) // set nice transparency/blending for certrain objects
+			{
+				alpha = true;
 				gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
+			}
 
 			draw_fireball(obj);
 			break;
 
 		case RT_WEAPON_VCLIP:
-			if ( PlayerCfg.AlphaEffects && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
+			if (PlayerCfg.AlphaBlendWeapons && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
+			{
+				alpha = true;
 				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+			}
 
 			draw_weapon_vclip(obj);
 			break;
@@ -721,7 +731,7 @@ void render_object(const vobjptridx_t obj)
 			break;
 
 		case RT_POWERUP:
-			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+			if (PlayerCfg.AlphaBlendPowerups) // set nice transparency/blending for certrain objects
 				switch ( get_powerup_id(obj) )
 				{
 					case POW_EXTRA_LIFE:
@@ -732,6 +742,7 @@ void render_object(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 					case POW_HOARD_ORB:
 #endif
+						alpha = true;
 						gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 						break;
 					case POW_LASER:
@@ -782,8 +793,11 @@ void render_object(const vobjptridx_t obj)
 			break;
 
 		case RT_LASER:
-			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+			if (PlayerCfg.AlphaBlendLasers) // set nice transparency/blending for certrain objects
+			{
+				alpha = true;
 				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+			}
 
 			Laser_render(obj);
 			break;
@@ -792,6 +806,7 @@ void render_object(const vobjptridx_t obj)
 			Error("Unknown render_type <%d>",obj->render_type);
 	}
 
+	if (alpha)
 	gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )

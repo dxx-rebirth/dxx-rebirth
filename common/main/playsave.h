@@ -118,7 +118,19 @@ struct player_config
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;
 	ubyte CycleAutoselectOnly;
-	int AlphaEffects;
+	union {
+		/* For now, manage all these choices in a single variable, but
+		 * give them separate names to make them easier to find.
+		 */
+		int AlphaEffects;
+		int AlphaBlendMineExplosion;
+		int AlphaBlendMarkers;
+		int AlphaBlendFireballs;
+		int AlphaBlendPowerups;
+		int AlphaBlendLasers;
+		int AlphaBlendWeapons;
+		int AlphaBlendEClips;
+	};
 	int DynLightColor;
 };
 #endif

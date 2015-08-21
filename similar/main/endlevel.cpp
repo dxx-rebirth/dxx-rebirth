@@ -1003,9 +1003,11 @@ static void render_external_scene(fix eye_offset)
 	draw_exit_model();
 	if (ext_expl_playing)
 	{
-		if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for the big explosion
+		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
+		if (alpha) // set nice transparency/blending for the big explosion
 			gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
 		draw_fireball(vobjptridx(external_explosion));
+		if (alpha)
 		gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 	}
 

@@ -337,8 +337,12 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 		}
 	}
 
-	if ( PlayerCfg.AlphaEffects && is_alphablend_eclip(TmapInfo[tmap1].eclip_num) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	bool alpha = false;
+	if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[tmap1].eclip_num)) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+	{
+		alpha = true;
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+	}
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
@@ -353,6 +357,7 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #endif
 			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,*bm);
 
+	if (alpha)
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 #ifndef NDEBUG
