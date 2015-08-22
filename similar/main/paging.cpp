@@ -115,40 +115,47 @@ static void paging_touch_model( int modelnum )
 	}
 }
 
-static void paging_touch_weapon( int weapon_type )
+static void paging_touch_weapon(const weapon_info &weapon)
 {
 	// Page in the robot's weapons.
-	
-	if ( (weapon_type < 0) || (weapon_type > N_weapon_types) ) return;
 
-	if ( Weapon_info[weapon_type].picture.index )	{
-		PIGGY_PAGE_IN( Weapon_info[weapon_type].picture );
+	if(weapon.picture.index)
+	{
+		PIGGY_PAGE_IN(weapon.picture);
 	}		
 	
-	if ( Weapon_info[weapon_type].flash_vclip > -1 )
-		paging_touch_vclip(Vclip[Weapon_info[weapon_type].flash_vclip]);
-	if ( Weapon_info[weapon_type].wall_hit_vclip > -1 )
-		paging_touch_vclip(Vclip[Weapon_info[weapon_type].wall_hit_vclip]);
-	if ( Weapon_info[weapon_type].damage_radius )	{
+	if (weapon.flash_vclip > -1)
+		paging_touch_vclip(Vclip[weapon.flash_vclip]);
+	if (weapon.wall_hit_vclip > -1)
+		paging_touch_vclip(Vclip[weapon.wall_hit_vclip]);
+	if (weapon.damage_radius)
+	{
 		// Robot_hit_vclips are actually badass_vclips
-		if ( Weapon_info[weapon_type].robot_hit_vclip > -1 )
-			paging_touch_vclip(Vclip[Weapon_info[weapon_type].robot_hit_vclip]);
+		if (weapon.robot_hit_vclip > -1)
+			paging_touch_vclip(Vclip[weapon.robot_hit_vclip]);
 	}
 
-	switch( Weapon_info[weapon_type].render_type )	{
+	switch(weapon.render_type)
+	{
 	case WEAPON_RENDER_VCLIP:
-		if ( Weapon_info[weapon_type].weapon_vclip > -1 )
-			paging_touch_vclip(Vclip[Weapon_info[weapon_type].weapon_vclip]);
+		if (weapon.weapon_vclip > -1)
+			paging_touch_vclip(Vclip[weapon.weapon_vclip]);
 		break;
 	case WEAPON_RENDER_NONE:
 		break;
 	case WEAPON_RENDER_POLYMODEL:
-		paging_touch_model( Weapon_info[weapon_type].model_num );
+		paging_touch_model(weapon.model_num);
 		break;
 	case WEAPON_RENDER_BLOB:
-		PIGGY_PAGE_IN( Weapon_info[weapon_type].bitmap );
+		PIGGY_PAGE_IN(weapon.bitmap);
 		break;
 	}
+}
+
+static void paging_touch_weapon(uint_fast32_t weapon_type)
+{
+	if (weapon_type < N_weapon_types)
+		paging_touch_weapon(Weapon_info[weapon_type]);
 }
 
 const array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
@@ -324,8 +331,9 @@ void paging_touch_all()
 			paging_touch_vclip(Vclip[s.vclip_num]);
 	}
 
-	for ( int s=0; s<N_weapon_types; s++ ) {
-		paging_touch_weapon(s);
+	range_for (const auto &w, partial_range(Weapon_info, N_weapon_types))
+	{
+		paging_touch_weapon(w);
 	}
 
 	range_for (auto &s, partial_range(Powerup_info, N_powerup_types))
