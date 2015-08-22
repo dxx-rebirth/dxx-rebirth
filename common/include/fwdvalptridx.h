@@ -118,12 +118,3 @@ public:
 		using integral_type = derived_type_prefix##num_t;	\
 	};	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)
-
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects);
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
-
-#undef DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE
-#undef DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF
-#undef DXX_VALPTRIDX_SUBTYPE_VC
-#undef DXX_VALPTRIDX_SUBTYPE_C
-#undef DXX_VALPTRIDX_SUBTYPE

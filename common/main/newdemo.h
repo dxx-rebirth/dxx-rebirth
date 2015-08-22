@@ -23,15 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _NEWDEMO_H
-#define _NEWDEMO_H
+#pragma once
 
 #ifdef __cplusplus
 #include "physfsx.h"
-#include "segnum.h"
-#include "objnum.h"
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
 class object_signature_t;
 
@@ -150,5 +146,3 @@ int newdemo_count_demos();
 void newdemo_strip_frames(char *, int);
 
 #endif
-
-#endif // _NEWDEMO_H

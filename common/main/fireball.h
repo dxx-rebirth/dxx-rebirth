@@ -30,7 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "maths.h"
 #include "fwd-partial_range.h"
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
+#include "fwdsegment.h"
 #include "pack.h"
 
 struct vms_vector;

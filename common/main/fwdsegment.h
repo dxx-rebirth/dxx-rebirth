@@ -18,6 +18,8 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
+
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
 static constexpr valptridx<segment>::magic_constant<0> segment_first{};

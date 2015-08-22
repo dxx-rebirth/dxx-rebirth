@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct bitmap_index;
 
 #ifdef __cplusplus
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
 //from gauges.c
 

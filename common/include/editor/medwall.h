@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <cstdint>
-#include "fwdvalptridx.h"
+#include "fwdsegment.h"
 
 #ifdef __cplusplus
 

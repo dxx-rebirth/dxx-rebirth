@@ -23,12 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _SLEW_H
-#define _SLEW_H
+#pragma once
 
 #ifdef __cplusplus
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
 //from slew.c
 
@@ -49,5 +47,3 @@ int slew_frame(int dont_check_keys);        // Does slew frame
 #endif
 
 #endif
-
-#endif /* _SLEW_H */

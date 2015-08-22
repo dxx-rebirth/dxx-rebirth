@@ -10,7 +10,8 @@
 
 #include <physfs.h>
 #include "maths.h"
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
+#include "fwdsegment.h"
 
 struct side;
 

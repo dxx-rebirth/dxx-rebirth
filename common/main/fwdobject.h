@@ -14,10 +14,13 @@
 #include "segnum.h"
 #include "fwdvalptridx.h"
 #include "maths.h"
+#include "fwdsegment.h"
 
 struct bitmap_index;
 struct vms_vector;
 struct vms_matrix;
+
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects);
 
 static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};

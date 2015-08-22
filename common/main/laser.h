@@ -29,9 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-#include "objnum.h"
 #include "segnum.h"
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
 enum weapon_type_t
 {

@@ -10,13 +10,12 @@
  *
  */
 
-#ifndef _ESCORT_H
-#define _ESCORT_H
+#pragma once
 
 #include "maths.h"
 
 #ifdef __cplusplus
-#include "fwdvalptridx.h"
+#include "fwdobject.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)
@@ -41,5 +40,3 @@ extern fix64	Buddy_sorry_time;
 #endif
 
 #endif
-
-#endif // _ESCORT_H
