@@ -1217,7 +1217,7 @@ def add_compiler_option_tests():
 	def define_compiler_option_test(opt, doc=None):
 		def f(self, context):
 			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]})
-		f.__name__ = n = 'check_compiler_option_' + opt.replace('=', '')
+		f.__name__ = n = 'check_compiler_option' + opt.replace('-', '_').replace('=', '')
 		f.__doc__ = doc or ('\nhelp:assume compiler accepts ' + opt + '\n')
 		setattr(ConfigureTests, n, custom_tests(f))
 	custom_tests = ConfigureTests._custom_test
