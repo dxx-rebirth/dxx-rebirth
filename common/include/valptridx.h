@@ -14,10 +14,10 @@
 #include "pack.h"
 #include "poison.h"
 
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
 	(	\
-		static_cast<void>(dxx_builtin_constant_p(!(SUCCESS_CONDITION)) && !(SUCCESS_CONDITION) &&	\
+		static_cast<void>(DXX_CONSTANT_TRUE(!(SUCCESS_CONDITION)) &&	\
 			(DXX_ALWAYS_ERROR_FUNCTION(FAILURE_FUNCTION, FAILURE_STRING), 0)	\
 		)	\
 	)
