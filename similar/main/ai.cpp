@@ -4368,7 +4368,7 @@ void init_robots_for_level(void)
 }
 
 // Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
-static void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
+static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_rw)
 {
 	int i = 0;
 
@@ -4433,6 +4433,16 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(point_seg, 16);
 DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<point_seg, MAX_POINT_SEGS> &>(p)));
 DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const array<point_seg, MAX_POINT_SEGS> &>(p)));
 
+static void ai_save_one_ai_local(PHYSFS_File *fp, const object &i)
+{
+	ai_local_rw ail_rw;
+	if (i.type == OBJ_ROBOT)
+		state_ai_local_to_ai_local_rw(&i.ctype.ai_info.ail, &ail_rw);
+	else
+		ail_rw = {};
+	PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
+}
+
 int ai_save_state(PHYSFS_file *fp)
 {
 	fix tmptime32 = 0;
@@ -4440,12 +4450,7 @@ int ai_save_state(PHYSFS_file *fp)
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
 	range_for (auto &i, Objects)
-	{
-		ai_local_rw ail_rw;
-		ai_local		*ailp = &i.ctype.ai_info.ail;
-		state_ai_local_to_ai_local_rw(ailp, &ail_rw);
-		PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
-	}
+		ai_save_one_ai_local(fp, i);
 	PHYSFSX_serialize_write(fp, Point_segs);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	range_for (auto &i, Ai_cloak_info)
