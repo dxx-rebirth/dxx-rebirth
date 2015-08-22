@@ -116,6 +116,5 @@ public:
 		using index_type = derived_type_prefix##num_t;	\
 		using integral_type = derived_type_prefix##num_t;	\
 	};	\
-	typedef valptridx<managed_type>::array_managed_type managed_type##_array_t;	\
-	extern managed_type##_array_t global_array;	\
+	extern valptridx<managed_type>::array_managed_type global_array;	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)

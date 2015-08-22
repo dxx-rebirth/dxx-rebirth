@@ -104,11 +104,7 @@ static array<objnum_t, MAX_OBJECTS> free_obj_list;
 // -- Object stuff
 
 //info on the various types of objects
-#ifndef NDEBUG
-object	Object_minus_one;
-#endif
 
-object_array_t Objects;
 int num_objects=0;
 int Highest_ever_object_index=0;
 

@@ -44,7 +44,6 @@ int d_tick_count = 0; // increments every 33.33ms
 int d_tick_step = 0;  // true once every 33.33ms
 
 //	This is the global mine which create_new_mine returns.
-segment_array_t	Segments;
 //lsegment	Lsegments[MAX_SEGMENTS];
 
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
@@ -97,5 +96,5 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 }
 #endif
 
-template class valptridx<object>::array_managed_type;
-template class valptridx<segment>::array_managed_type;
+valptridx<object>::array_managed_type Objects;
+valptridx<segment>::array_managed_type Segments;

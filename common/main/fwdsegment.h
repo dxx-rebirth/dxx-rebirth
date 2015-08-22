@@ -98,7 +98,6 @@ struct group;
 
 struct vertex;
 extern array<vertex, MAX_VERTICES> Vertices;
-extern segment_array_t Segments;
 extern unsigned Num_segments;
 extern unsigned Num_vertices;
 
