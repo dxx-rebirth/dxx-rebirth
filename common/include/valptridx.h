@@ -168,6 +168,12 @@ typename valptridx<managed_type>::index_type valptridx<managed_type>::check_inde
 }
 
 template <typename managed_type>
+void valptridx<managed_type>::check_null_pointer_conversion(const_pointer_type p)
+{
+	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer converted", p, get_array_size());
+}
+
+template <typename managed_type>
 void valptridx<managed_type>::check_null_pointer(const_pointer_type p, const array_managed_type &a)
 {
 	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", &a[0], get_array_size());
@@ -386,11 +392,11 @@ public:
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy, unsigned ru>
-		basic_ptr(const basic_ptr<rpolicy, ru> &rhs, array_managed_type &a = get_array()) :
+		basic_ptr(const basic_ptr<rpolicy, ru> &rhs) :
 			m_ptr(rhs.get_unchecked_pointer())
 	{
 		if (!(allow_nullptr || !rhs.allow_nullptr))
-			check_null_pointer(m_ptr, a);
+			check_null_pointer_conversion(m_ptr);
 	}
 	template <typename rpolicy, unsigned ru>
 		basic_ptr(basic_ptr<rpolicy, ru> &&rhs) :
