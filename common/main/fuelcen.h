@@ -116,7 +116,7 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 
 struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
-	array<int, 1>     robot_flags;    // Up to 32 different robots
+	array<unsigned, 1>     robot_flags;    // Up to 32 different robots
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
@@ -128,7 +128,7 @@ void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
 struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
-	array<int, 2>     robot_flags; // Up to 64 different robots
+	array<unsigned, 2>     robot_flags; // Up to 64 different robots
 	segnum_t   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
 };
