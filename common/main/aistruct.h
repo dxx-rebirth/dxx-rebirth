@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_SEGMENTS_PER_PATH       20
 
-enum class player_awareness_type_t : int8_t
+enum class player_awareness_type_t : uint8_t
 {
 	PA_NONE,
 	PA_NEARBY_ROBOT_FIRED		= 1,  // Level of robot awareness after nearby robot fires a weapon
