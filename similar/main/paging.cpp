@@ -261,14 +261,15 @@ static void paging_touch_side(const vcsegptr_t segp, int sidenum )
 
 static void paging_touch_robot_maker(const vcsegptr_t segp )
 {
-	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
-			uint	flags;
-			int	robot_index;
-
-			for (unsigned i=0;i<sizeof(RobotCenters[0].robot_flags)/sizeof(RobotCenters[0].robot_flags[0]);i++) {
-				robot_index = i*32;
-				flags = RobotCenters[segp->matcen_num].robot_flags[i];
+			const auto &robot_flags = RobotCenters[segp->matcen_num].robot_flags;
+			const std::size_t bits_per_robot_flags = 8 * sizeof(robot_flags[0]);
+			for (uint_fast32_t i = 0; i != robot_flags.size(); ++i)
+			{
+				auto robot_index = i * bits_per_robot_flags;
+				uint_fast32_t flags = robot_flags[i];
+				if (sizeof(flags) >= 2 * sizeof(robot_flags[0]) && i + 1 != robot_flags.size())
+					flags |= static_cast<uint64_t>(robot_flags[++i]) << bits_per_robot_flags;
 				while (flags) {
 					if (flags & 1)	{
 						// Page in robot_index
@@ -278,7 +279,6 @@ static void paging_touch_robot_maker(const vcsegptr_t segp )
 					robot_index++;
 				}
 			}
-	}
 }
 
 
