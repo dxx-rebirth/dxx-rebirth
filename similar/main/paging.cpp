@@ -103,14 +103,15 @@ static void paging_touch_object_effects( int tmap_num )
 	}
 }
 
-
 static void paging_touch_model( int modelnum )
 {
-	polymodel *pm = &Polygon_models[modelnum];
-
-	for (int i=0;i<pm->n_textures;i++) {
-		PIGGY_PAGE_IN( ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]] );
-		paging_touch_object_effects( ObjBitmapPtrs[pm->first_texture+i] );
+	const auto &pm = Polygon_models[modelnum];
+	uint_fast32_t i = pm.first_texture;
+	for (const uint_fast32_t e = i + pm.n_textures; i != e; ++i)
+	{
+		const auto p = ObjBitmapPtrs[i];
+		PIGGY_PAGE_IN(ObjBitmaps[p]);
+		paging_touch_object_effects(p);
 	}
 }
 
