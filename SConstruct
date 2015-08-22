@@ -492,18 +492,6 @@ help:assume C++ compiler works
 			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
-	def check_compiler_template_parentheses_warning(self,context):
-		# Test for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=51064
-		text = '''
-template <unsigned S1, unsigned S2 = ((S1 + 4 - 1) & ~(4 - 1))>
-struct T {};
-'''
-		main = 'T<3> t;(void)t;'
-		if self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler accepts parenthesized template computations', testflags={'CXXFLAGS' : ['-Wparentheses']}) or \
-			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-parentheses', successflags={'CXXFLAGS' : ['-Wno-parentheses']}):
-			return
-		raise SCons.Errors.StopError("C++ compiler errors on template computed expressions, even with -Wno-parentheses.")
-	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
 		f = {'CXXFLAGS' : ['-Wmissing-field-initializers']}
 		text = 'struct A{int a;};'
