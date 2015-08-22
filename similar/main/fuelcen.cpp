@@ -97,8 +97,8 @@ void fuelcen_reset()
 	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
 	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
 	Num_fuelcenters = 0;
-	for(unsigned i=0; i<sizeof(Segments)/sizeof(Segments[0]); i++ )
-		Segments[i].special = SEGMENT_IS_NOTHING;
+	range_for (auto &i, Segments)
+		i.special = SEGMENT_IS_NOTHING;
 
 	Num_robot_centers = 0;
 
@@ -109,10 +109,11 @@ static void reset_all_robot_centers() __attribute_used;
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
-	for (int i=0; i<Num_segments; i++)
-		if (Segments[i].special == SEGMENT_IS_ROBOTMAKER) {
-			Segments[i].special = SEGMENT_IS_NOTHING;
-			Segments[i].matcen_num = -1;
+	range_for (auto &i, partial_range(Segments, Num_segments))
+		if (i.special == SEGMENT_IS_ROBOTMAKER)
+		{
+			i.special = SEGMENT_IS_NOTHING;
+			i.matcen_num = -1;
 		}
 }
 #endif
@@ -260,13 +261,12 @@ Restart: ;
 			// If Robot maker is deleted, fix Segments and RobotCenters.
 			if (fi.Type == SEGMENT_IS_ROBOTMAKER) {
 				Assert(Num_robot_centers > 0);
+				const auto &&range = partial_range(RobotCenters, static_cast<unsigned>(segp->matcen_num), Num_robot_centers);
 				Num_robot_centers--;
 
-				for (uint_fast32_t j = segp->matcen_num; j < Num_robot_centers; j++)
-					RobotCenters[j] = RobotCenters[j+1];
-
-				for (uint_fast32_t j = 0; j < Num_fuelcenters; j++) {
-					FuelCenter &fj = Station[j];
+				std::move(std::next(range.begin()), range.end(), range.begin());
+				range_for (auto &fj, partial_range(Station, Num_fuelcenters))
+				{
 					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
 						if ( Segments[fj.segnum].matcen_num > segp->matcen_num )
 							Segments[fj.segnum].matcen_num--;
@@ -275,9 +275,9 @@ Restart: ;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//fix RobotCenters so they point to correct fuelcenter
-			for (uint_fast32_t j = 0; j < Num_robot_centers; j++ )
-				if (RobotCenters[j].fuelcen_num > i)		//this robotcenter's fuelcen is changing
-					RobotCenters[j].fuelcen_num--;
+			range_for (auto &j, partial_range(RobotCenters, Num_robot_centers))
+				if (j.fuelcen_num > i)		//this robotcenter's fuelcen is changing
+					j.fuelcen_num--;
 #endif
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
@@ -528,10 +528,12 @@ static void robotmaker_proc( FuelCenter * robotcen )
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
 {
-	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++ )	{
-		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
+	range_for (auto &i, partial_range(Station, Num_fuelcenters))
+	{
+		if (i.Type == SEGMENT_IS_ROBOTMAKER)
+		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc( &Station[i] );
+				robotmaker_proc(&i);
 		}
 	}
 }
@@ -660,6 +662,9 @@ void disable_matcens(void)
 //	Give them all the right number of lives.
 void init_all_matcens(void)
 {
+#ifndef NDEBUG
+	const auto &&robot_range = partial_range(RobotCenters, Num_robot_centers);
+#endif
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
 			Station[i].Lives = 3;
@@ -668,12 +673,9 @@ void init_all_matcens(void)
 #ifndef NDEBUG
 {
 			//	Make sure this fuelcen is pointed at by a matcen.
-			uint_fast32_t j;
-			for (j=0; j<Num_robot_centers; j++) {
-				if (RobotCenters[j].fuelcen_num == i)
-					break;
-			}
-			Assert(j != Num_robot_centers);
+			assert(std::find_if(robot_range.begin(), robot_range.end(), [i](const matcen_info &mi) {
+				return mi.fuelcen_num == i;
+			}) != robot_range.end());
 }
 #endif
 
@@ -681,8 +683,9 @@ void init_all_matcens(void)
 
 #ifndef NDEBUG
 	//	Make sure all matcens point at a fuelcen
-	for (uint_fast32_t i = 0; i < Num_robot_centers; i++) {
-		auto	fuelcen_num = RobotCenters[i].fuelcen_num;
+	range_for (auto &i, robot_range)
+	{
+		auto	fuelcen_num = i.fuelcen_num;
 		Assert(fuelcen_num < Num_fuelcenters);
 		Assert(Station[fuelcen_num].Type == SEGMENT_IS_ROBOTMAKER);
 	}
