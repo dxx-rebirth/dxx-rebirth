@@ -160,28 +160,32 @@ static void paging_touch_weapon(uint_fast32_t weapon_type)
 
 const array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
 
-static void paging_touch_robot( int robot_index )
+static void paging_touch_robot(uint_fast32_t robot_index);
+static void paging_touch_robot(const robot_info &ri)
 {
 	// Page in robot_index
-	paging_touch_model(Robot_info[robot_index].model_num);
-	if ( Robot_info[robot_index].exp1_vclip_num>-1 )
-		paging_touch_vclip(Vclip[Robot_info[robot_index].exp1_vclip_num]);
-	if ( Robot_info[robot_index].exp2_vclip_num>-1 )
-		paging_touch_vclip(Vclip[Robot_info[robot_index].exp2_vclip_num]);
+	paging_touch_model(ri.model_num);
+	if (ri.exp1_vclip_num > -1)
+		paging_touch_vclip(Vclip[ri.exp1_vclip_num]);
+	if (ri.exp2_vclip_num > -1)
+		paging_touch_vclip(Vclip[ri.exp2_vclip_num]);
 
 	// Page in his weapons
-	paging_touch_weapon( Robot_info[robot_index].weapon_type );
+	paging_touch_weapon(ri.weapon_type);
 
 	// A super-boss can gate in robots...
-	if (Robot_info[robot_index].boss_flag == BOSS_SUPER)
+	if (ri.boss_flag == BOSS_SUPER)
 	{
 		range_for (const auto i, super_boss_gate_type_list)
 			paging_touch_robot(i);
-
 		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
 	}
 }
 
+static void paging_touch_robot(uint_fast32_t robot_index)
+{
+	paging_touch_robot(Robot_info[robot_index]);
+}
 
 static void paging_touch_object(const vcobjptr_t obj)
 {
