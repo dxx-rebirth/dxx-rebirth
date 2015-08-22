@@ -27,11 +27,13 @@ class valptridx :
 	class ic;	/* allow_invalid + const_policy */
 	class vm;	/* require_valid + mutable_policy */
 	class im;	/* allow_invalid + mutable_policy */
+public:
+	class array_managed_type;
+
 protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
 	using mutable_pointer_type = managed_type *;
-	using typename specialized_types::array_managed_type;
 	using index_type = typename specialized_types::index_type;
 	using typename specialized_types::integral_type;
 
@@ -108,13 +110,12 @@ public:
 	typedef valptridx<managed_type>::vcprefix##suffix vcprefix##derived_type_prefix##suffix##_t
 #define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array)	\
 	struct managed_type;	\
-	struct managed_type##_array_t;	\
-	extern managed_type##_array_t global_array;	\
 	template <>	\
 	class valptridx_specialized_types<managed_type> {	\
 	public:	\
-		using array_managed_type = managed_type##_array_t;	\
 		using index_type = derived_type_prefix##num_t;	\
 		using integral_type = derived_type_prefix##num_t;	\
 	};	\
+	typedef valptridx<managed_type>::array_managed_type managed_type##_array_t;	\
+	extern managed_type##_array_t global_array;	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)

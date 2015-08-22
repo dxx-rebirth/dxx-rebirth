@@ -33,6 +33,12 @@ const std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
 const std::size_t MAX_SEGMENTS = 9000;
 const std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 
+template <>
+constexpr std::size_t valptridx<segment>::get_array_size()
+{
+	return MAX_SEGMENTS;
+}
+
 typedef uint_fast32_t sidenum_fast_t;
 
 enum sidenum_t : uint8_t
@@ -89,7 +95,6 @@ const std::size_t MAX_CENTER_TYPES = 7;
 
 struct count_segment_array_t;
 struct group;
-struct segment_array_t;
 
 struct vertex;
 extern array<vertex, MAX_VERTICES> Vertices;

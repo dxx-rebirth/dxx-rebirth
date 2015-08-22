@@ -29,6 +29,12 @@ static constexpr valptridx<object>::magic_constant<0> object_first{};
 const unsigned MAX_OBJECTS = 350;
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
 
+template <>
+constexpr std::size_t valptridx<object>::get_array_size()
+{
+	return MAX_OBJECTS;
+}
+
 enum object_type_t : int;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -154,9 +160,6 @@ struct window_rendered_data;
 typedef array<uint8_t, MAX_OBJECT_TYPES> collision_inner_array_t;
 typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
 extern const collision_outer_array_t CollisionResult;
-
-struct object_array_t;
-extern object_array_t Objects;
 #endif
 
 extern int Object_next_signature;   // The next signature for the next newly created object

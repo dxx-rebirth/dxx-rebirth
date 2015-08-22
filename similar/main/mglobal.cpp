@@ -89,3 +89,13 @@ fix64	Next_missile_fire_time;			//	Time at which player can next fire his select
 
 int	Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 
+#if DXX_HAVE_POISON_UNDEFINED
+template <typename managed_type>
+valptridx<managed_type>::array_managed_type::array_managed_type()
+{
+	DXX_MAKE_MEM_UNDEFINED(this->begin(), this->end());
+}
+#endif
+
+template class valptridx<object>::array_managed_type;
+template class valptridx<segment>::array_managed_type;

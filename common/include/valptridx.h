@@ -12,6 +12,7 @@
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 #include "pack.h"
+#include "poison.h"
 
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
@@ -577,6 +578,37 @@ public:
 		{
 			return !(*this == rhs);
 		}
+};
+
+template <typename managed_type>
+class valptridx<managed_type>::array_managed_type : public array<managed_type, get_array_size()>
+{
+	using containing_type = valptridx<managed_type>;
+	using array_type = array<managed_type, get_array_size()>;
+public:
+	using typename array_type::reference;
+	using typename array_type::const_reference;
+	using index_type = typename containing_type::index_type;
+	unsigned highest;
+	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
+		{
+			return array_type::operator[](n);
+		}
+	template <typename T>
+		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
+		{
+			return array_type::operator[](n);
+		}
+	template <typename T>
+		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
+#if DXX_HAVE_POISON_UNDEFINED
+	array_managed_type();
+#else
+	array_managed_type() = default;
+#endif
+	array_managed_type(const array_managed_type &) = delete;
+	array_managed_type &operator=(const array_managed_type &) = delete;
 };
 
 template <typename managed_type>

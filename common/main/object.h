@@ -394,32 +394,7 @@ struct obj_position
 	segnum_t       segnum;     // segment number containing object
 };
 
-struct object_array_t : array<object, MAX_OBJECTS>
-{
-	typedef uint16_t index_type;
-	int highest;
 #define Highest_object_index Objects.highest
-	typedef array<object, MAX_OBJECTS> array_t;
-	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
-		{
-			return array_t::operator[](n);
-		}
-	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
-		{
-			return array_t::operator[](n);
-		}
-	template <typename T>
-		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
-#if DXX_HAVE_POISON_UNDEFINED
-	object_array_t();
-#else
-	object_array_t() = default;
-#endif
-	object_array_t(const object_array_t &) = delete;
-	object_array_t &operator=(const object_array_t &) = delete;
-};
 
 DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
 

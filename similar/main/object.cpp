@@ -153,13 +153,6 @@ void object_goto_next_viewer()
 }
 #endif
 
-#if DXX_HAVE_POISON_UNDEFINED
-object_array_t::object_array_t()
-{
-	DXX_MAKE_MEM_UNDEFINED(begin(), end());
-}
-#endif
-
 objptridx_t obj_find_first_of_type(int type)
 {
 	range_for (const auto o, highest_valid(Objects))

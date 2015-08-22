@@ -187,28 +187,7 @@ struct group
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct segment_array_t : public array<segment, MAX_SEGMENTS>
-{
-	typedef uint16_t index_type;
-	unsigned highest;
 #define Highest_segment_index Segments.highest
-	typedef array<segment, MAX_SEGMENTS> array_t;
-	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
-		{
-			return array_t::operator[](n);
-		}
-	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
-		{
-			return array_t::operator[](n);
-		}
-	template <typename T>
-		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
-	segment_array_t() = default;
-	segment_array_t(const segment_array_t &) = delete;
-	segment_array_t &operator=(const segment_array_t &) = delete;
-};
 
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 #endif
