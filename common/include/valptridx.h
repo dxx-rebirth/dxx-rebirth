@@ -183,7 +183,7 @@ void valptridx<managed_type>::check_null_pointer(const_pointer_type p, const arr
 template <typename managed_type>
 void valptridx<managed_type>::check_implicit_index_range_ref(const managed_type &r, const array_managed_type &a)
 {
-	check_explicit_index_range_ref(r, &r - a, a);
+	check_explicit_index_range_ref(r, &r - &a.front(), a);
 }
 
 template <typename managed_type>
@@ -560,7 +560,7 @@ public:
 		 * vptr_type to avoid checking again.
 		 */
 		vptr_type((check_null_pointer(p, a), *p), a),
-		vidx_type(p - a, a)
+		vidx_type(p - &a.front(), a)
 	{
 	}
 	basic_ptridx(pointer_type p, index_type i, array_managed_type &a) :
