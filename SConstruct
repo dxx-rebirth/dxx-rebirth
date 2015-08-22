@@ -188,6 +188,8 @@ class ConfigureTests:
 	sconf_force_success = 'force-success'
 	# Force test to report success, do not modify flags
 	sconf_assume_success = 'assume-success'
+	expect_sconf_success = 'success'
+	expect_sconf_failure = 'failure'
 	_implicit_test = Collector()
 	_custom_test = Collector()
 	implicit_tests = _implicit_test.tests
@@ -257,6 +259,7 @@ struct %(N)s_derived : %(N)s_base {
 		self.__automatic_compiler_tests = {
 			'.cpp': self.check_cxx_works,
 		}
+		self._sconf_results = []
 	def message(self,msg):
 		print "%s: %s" % (self.msgprefix, msg)
 	@classmethod
@@ -271,8 +274,9 @@ struct %(N)s_derived : %(N)s_base {
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
-		if calling_function is not None:
-			return self._check_forced(calling_function)
+		return self._check_forced(calling_function), self._check_expected(calling_function)
+	@staticmethod
+	def _find_calling_sconf_function():
 		try:
 			1//0
 		except ZeroDivisionError:
@@ -280,11 +284,19 @@ struct %(N)s_derived : %(N)s_base {
 			while frame is not None:
 				co_name = frame.f_code.co_name
 				if co_name[:6] == 'check_':
-					return self._check_forced(co_name[6:])
+					return co_name[6:]
 				frame = frame.f_back
 		assert False
 	def _check_forced(self,name):
 		return getattr(self.user_settings, 'sconf_%s' % name)
+	def _check_expected(self,name):
+		r = getattr(self.user_settings, 'expect_sconf_%s' % name)
+		if r is not None:
+			if r == self.expect_sconf_success:
+				return 1
+			if r == self.expect_sconf_failure:
+				return 0
+		return r
 	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
 		macro_value = self._quote_macro_value(macro_value)
 		r = self.Compile(context, text="""
@@ -310,13 +322,17 @@ struct %(N)s_derived : %(N)s_base {
 		return self._Test(context,action=context.TryLink, **kwargs)
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
 		self._check_compiler_works(context,ext)
+		if calling_function is None:
+			calling_function = self._find_calling_sconf_function()
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
 			context.Result('(skipped){skipped}'.format(skipped=skipped))
+			if self.user_settings.record_sconf_results:
+				self._sconf_results.append((calling_function, 'skipped'))
 			return
 		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
 		context.env.MergeFlags(successflags)
-		forced = self._check_sconf_forced(calling_function)
+		forced, expected = self._check_sconf_forced(calling_function)
 		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
@@ -329,6 +345,8 @@ struct %(N)s_derived : %(N)s_base {
 				r = not r
 			cc_env_strings.restore(context.env)
 			context.Result((successmsg if r else failuremsg) or r)
+			if expected is not None and r != expected:
+				raise SCons.Errors.StopError('Expected and actual results differ.  Test should ' + ('succeed' if expected else 'fail') + ', but it did not.')
 		else:
 			choices = (self.sconf_force_failure, self.sconf_force_success, self.sconf_assume_success)
 			if forced not in choices:
@@ -368,6 +386,7 @@ struct %(N)s_derived : %(N)s_base {
 				self._extend_successflags(k, v)
 		else:
 			env_flags.restore(context.env)
+		self._sconf_results.append((calling_function, r))
 		return r
 	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
@@ -1368,16 +1387,24 @@ class DXXCommon(LazyObjectConstructor):
 		def _enum_variable(key,help,default,allowed_values):
 			return EnumVariable(key, help, default, allowed_values)
 		def _options(self):
+			tests = ConfigureTests.implicit_tests + ConfigureTests.custom_tests
 			return (
 			{
 				'variable': self._enum_variable,
 				'arguments': [
-					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name), {'allowed_values' : ['0', '1', '2', ConfigureTests.sconf_force_failure, ConfigureTests.sconf_force_success, ConfigureTests.sconf_assume_success]}) for name in ConfigureTests.implicit_tests + ConfigureTests.custom_tests if name[0] != '_'
+					('expect_sconf_%s' % name[6:], None, None, {'allowed_values' : ['0', '1', ConfigureTests.expect_sconf_success, ConfigureTests.expect_sconf_failure]}) for name in tests
+				],
+			},
+			{
+				'variable': self._enum_variable,
+				'arguments': [
+					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name), {'allowed_values' : ['0', '1', '2', ConfigureTests.sconf_force_failure, ConfigureTests.sconf_force_success, ConfigureTests.sconf_assume_success]}) for name in tests if name[0] != '_'
 				],
 			},
 			{
 				'variable': BoolVariable,
 				'arguments': (
+					('record_sconf_results', False, 'write sconf results to dxxsconf.h'),
 					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
 					('git_describe_version', os.path.exists(os.environ.get('GIT_DIR', '.git')), 'include git --describe in extra_version'),
 					('git_status', True, 'include git status'),
@@ -2010,6 +2037,8 @@ class DXXArchive(DXXCommon):
 				getattr(conf, k)()
 		except SCons.Errors.StopError as e:
 			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
+		if self.user_settings.record_sconf_results:
+			conf.config_h_text += '/*\n' + '\n'.join(['check_%s=%s' % (n,v) for (n,v) in tests._sconf_results]) + '\n*/\n'
 		self.env = conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 
