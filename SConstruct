@@ -74,8 +74,9 @@ class ConfigureTests:
 	class Collector:
 		def __init__(self):
 			self.tests = []
+			self.record = self.tests.append
 		def __call__(self,f):
-			self.tests.append(f.__name__)
+			self.record(f.__name__)
 			return f
 	class Cxx11RequiredFeature:
 		def __init__(self,name,text,main=''):
@@ -269,7 +270,20 @@ struct %(N)s_derived : %(N)s_base {
 	@staticmethod
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
-	def _check_forced(self,context,name):
+	def _check_sconf_forced(self,calling_function):
+		if calling_function is not None:
+			return self._check_forced(calling_function)
+		try:
+			1//0
+		except ZeroDivisionError:
+			frame = sys.exc_info()[2].tb_frame.f_back.f_back
+			while frame is not None:
+				co_name = frame.f_code.co_name
+				if co_name[:6] == 'check_':
+					return self._check_forced(co_name[6:])
+				frame = frame.f_back
+		assert False
+	def _check_forced(self,name):
 		return getattr(self.user_settings, 'sconf_%s' % name)
 	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
 		macro_value = self._quote_macro_value(macro_value)
@@ -294,7 +308,7 @@ struct %(N)s_derived : %(N)s_base {
 		return self._Test(context,action=context.TryCompile, **kwargs)
 	def Link(self,context,**kwargs):
 		return self._Test(context,action=context.TryLink, **kwargs)
-	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False):
+	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
 		self._check_compiler_works(context,ext)
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
 		if skipped is not None:
@@ -302,18 +316,7 @@ struct %(N)s_derived : %(N)s_base {
 			return
 		env_flags = self.PreservedEnvironment(context.env, successflags.keys() + testflags.keys() + self.__flags_Werror.keys() + ['CPPDEFINES'])
 		context.env.MergeFlags(successflags)
-		frame = None
-		forced = None
-		try:
-			1//0
-		except ZeroDivisionError:
-			frame = sys.exc_info()[2].tb_frame.f_back
-		while frame is not None:
-			co_name = frame.f_code.co_name
-			if co_name[0:6] == 'check_':
-				forced = self._check_forced(context, co_name[6:])
-				break
-			frame = frame.f_back
+		forced = self._check_sconf_forced(calling_function)
 		caller_modified_env_flags = self.PreservedEnvironment(context.env, self.__flags_Werror.keys() + testflags.keys())
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
@@ -1215,12 +1218,14 @@ help:always wipe certain freed memory
 
 def add_compiler_option_tests():
 	def define_compiler_option_test(opt, doc=None):
+		n = 'compiler_option' + opt.replace('-', '_').replace('=', '_')
 		def f(self, context):
-			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]})
-		f.__name__ = n = 'check_compiler_option' + opt.replace('-', '_').replace('=', '')
+			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]}, calling_function=n)
+		cn = 'check_' + n
+		custom_tests(cn)
 		f.__doc__ = doc or ('\nhelp:assume compiler accepts ' + opt + '\n')
-		setattr(ConfigureTests, n, custom_tests(f))
-	custom_tests = ConfigureTests._custom_test
+		setattr(ConfigureTests, cn, f)
+	custom_tests = ConfigureTests._custom_test.record
 	for opt in (
 		('-fvisibility=hidden',),
 		('-Wsuggest-attribute=noreturn',),
