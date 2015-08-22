@@ -617,6 +617,9 @@ class valptridx<managed_type>::basic_vptr_global_factory
 {
 	using containing_type = valptridx<managed_type>;
 public:
+	basic_vptr_global_factory() = default;
+	basic_vptr_global_factory(const basic_vptr_global_factory &) = delete;
+	basic_vptr_global_factory &operator=(const basic_vptr_global_factory &) = delete;
 	__attribute_warn_unused_result
 	P operator()(typename P::const_pointer_type p) const
 	{
@@ -649,6 +652,9 @@ class valptridx<managed_type>::basic_ptridx_global_factory
 {
 	using containing_type = valptridx<managed_type>;
 public:
+	basic_ptridx_global_factory() = default;
+	basic_ptridx_global_factory(const basic_ptridx_global_factory &) = delete;
+	basic_ptridx_global_factory &operator=(const basic_ptridx_global_factory &) = delete;
 	__attribute_warn_unused_result
 	PI operator()(typename PI::index_type i) const
 	{
