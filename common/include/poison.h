@@ -10,6 +10,7 @@ static inline void DXX_MAKE_MEM_UNDEFINED(T *b, unsigned long l)
 	(void)b;(void)l;
 #ifdef DXX_HAVE_POISON_VALGRIND
 	VALGRIND_MAKE_MEM_UNDEFINED(b, l);
+#define DXX_HAVE_POISON_UNDEFINED 1
 #endif
 }
 
@@ -54,3 +55,7 @@ static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
 	_DXX_POISON_MEMORY_RANGE(b, e, v);
 	DXX_MAKE_MEM_UNDEFINED(b, e);
 }
+
+#ifndef DXX_HAVE_POISON_UNDEFINED
+#define DXX_HAVE_POISON_UNDEFINED	0
+#endif

@@ -84,7 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
-#include "poison.h"
 
 using std::min;
 using std::max;
@@ -154,12 +153,12 @@ void object_goto_next_viewer()
 }
 #endif
 
+#if DXX_HAVE_POISON_UNDEFINED
 object_array_t::object_array_t()
 {
 	DXX_MAKE_MEM_UNDEFINED(begin(), end());
-	range_for (auto &o, *this)
-		o.type = OBJ_NONE;
 }
+#endif
 
 objptridx_t obj_find_first_of_type(int type)
 {

@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwdobject.h"
 #include "powerup.h"
+#include "poison.h"
 
 // Object types
 enum object_type_t : int
@@ -327,7 +328,7 @@ struct object {
 	// control info, determined by CONTROL_TYPE
 	union control_info {
 		constexpr control_info() :
-			laser_info{}
+			light_info{}
 		{
 		}
 		struct laser_info      laser_info;
@@ -411,7 +412,11 @@ struct object_array_t : array<object, MAX_OBJECTS>
 		}
 	template <typename T>
 		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
+#if DXX_HAVE_POISON_UNDEFINED
 	object_array_t();
+#else
+	object_array_t() = default;
+#endif
 	object_array_t(const object_array_t &) = delete;
 	object_array_t &operator=(const object_array_t &) = delete;
 };
