@@ -247,7 +247,7 @@ int objpage_goto_next_object()
 
 		case OBJ_POWERUP:
 			Cur_object_type = OBJ_CNTRLCEN;
-			Num_object_subtypes = get_num_reactor_models();
+			Num_object_subtypes = Num_reactors;
 			break;
 
 		case OBJ_CNTRLCEN:

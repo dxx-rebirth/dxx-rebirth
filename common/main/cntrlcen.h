@@ -63,6 +63,7 @@ void read_model_guns(const char *filename, reactor &);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1
+const unsigned Num_reactors = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_REACTORS 7
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
@@ -78,15 +79,6 @@ void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r);
 #endif
 
 extern array<reactor, MAX_REACTORS> Reactors;
-
-static inline int get_num_reactor_models()
-{
-#if defined(DXX_BUILD_DESCENT_I)
-	return 1;
-#elif defined(DXX_BUILD_DESCENT_II)
-	return Num_reactors;
-#endif
-}
 
 static inline int get_reactor_model_number(int id)
 {
@@ -106,8 +98,6 @@ static inline reactor *get_reactor_definition(int id)
 	return &Reactors[id];
 #endif
 }
-#else
-struct reactor;
 #endif
 
 //@@extern int N_controlcen_guns;
