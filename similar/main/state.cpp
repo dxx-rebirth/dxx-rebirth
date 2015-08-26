@@ -1093,7 +1093,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
+#if defined(DXX_BUILD_DESCENT_I)
+		matcen_info_write(fp, r, STATE_VERSION);
+#elif defined(DXX_BUILD_DESCENT_II)
 		matcen_info_write(fp, r, 0x7f);
+#endif
 	control_center_triggers_write(&ControlCenterTriggers, fp);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
