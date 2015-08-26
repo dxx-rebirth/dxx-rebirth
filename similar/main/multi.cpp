@@ -5597,10 +5597,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 		case CT_CNTRLCEN:
 		{
 			// gun points of reactor now part of the object but of course not saved in object_rw. Let's just recompute them.
-			int i = 0;
-			reactor *reactor = get_reactor_definition(get_reactor_id(obj));
-			for (i=0; i<reactor->n_guns; i++)
-				calc_controlcen_gun_point(reactor, obj, i);
+			calc_controlcen_gun_point(obj);
 			break;
 		}
 	}

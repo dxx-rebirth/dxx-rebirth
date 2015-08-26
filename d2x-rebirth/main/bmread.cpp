@@ -395,8 +395,8 @@ int gamedata_read_tbl(int pc_shareware)
 		TmapInfo[i].destroyed = -1;
 	}
 
-	for (i=0;i<MAX_REACTORS;i++)
-		Reactors[i].model_num = -1;
+	range_for (auto &i, Reactors)
+		i.model_num = -1;
 
 	Num_effects = 0;
 	for (i=0; i<MAX_EFFECTS; i++ ) {
@@ -1382,7 +1382,7 @@ void bm_read_reactor(void)
 	fix	lighting = F1_0/2;		// Default
 	int type=-1;
 
-	Assert(Num_reactors < MAX_REACTORS);
+	assert(Num_reactors < Reactors.size());
 
 	if (0 /*skip*/) {
 		Num_reactors++;

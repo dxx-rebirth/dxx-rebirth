@@ -75,22 +75,28 @@ static void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-void calc_controlcen_gun_point(reactor *reactor, const vobjptr_t obj,int gun_num)
+static void calc_controlcen_gun_point(reactor &r, const vobjptr_t obj, const uint_fast32_t gun_num)
 {
-	vms_vector *gun_point = &obj->ctype.reactor_info.gun_pos[gun_num];
-	vms_vector *gun_dir = &obj->ctype.reactor_info.gun_dir[gun_num];
-
 	Assert(obj->type == OBJ_CNTRLCEN);
 	Assert(obj->render_type==RT_POLYOBJ);
 
-	Assert(gun_num < reactor->n_guns);
+	assert(gun_num < r.n_guns);
 
 	//instance gun position & orientation
 
-	vms_matrix m = vm_transposed_matrix(obj->orient);
-	vm_vec_rotate(*gun_point,reactor->gun_points[gun_num],m);
-	vm_vec_add2(*gun_point,obj->pos);
-	vm_vec_rotate(*gun_dir,reactor->gun_dirs[gun_num],m);
+	auto &gun_point = obj->ctype.reactor_info.gun_pos[gun_num];
+	auto &gun_dir = obj->ctype.reactor_info.gun_dir[gun_num];
+	const auto &&m = vm_transposed_matrix(obj->orient);
+	vm_vec_rotate(gun_point, r.gun_points[gun_num], m);
+	vm_vec_add2(gun_point, obj->pos);
+	vm_vec_rotate(gun_dir, r.gun_dirs[gun_num], m);
+}
+
+void calc_controlcen_gun_point(const vobjptr_t obj)
+{
+	auto &reactor = get_reactor_definition(get_reactor_id(obj));
+	for (uint_fast32_t i = reactor.n_guns; i--;)
+		calc_controlcen_gun_point(reactor, obj, i);
 }
 
 //	-----------------------------------------------------------------------------
@@ -367,16 +373,17 @@ void do_controlcen_frame(const vobjptridx_t obj)
 		controlcen_death_silence = 0;
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
-		reactor *reactor = get_reactor_definition(get_reactor_id(obj));
-		if (get_local_player().flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, Believed_player_pos);
-		else
-			best_gun_num = calc_best_gun(reactor->n_guns, obj, ConsoleObject->pos);
+		const auto &player_pos = (get_local_player().flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
+		best_gun_num = calc_best_gun(
+			get_reactor_definition(get_reactor_id(obj)).n_guns,
+			obj,
+			player_pos
+		);
 
 		if (best_gun_num != -1) {
 			fix			delta_fire_time;
 
-			auto vec_to_goal = vm_vec_sub((get_local_player().flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
+			auto vec_to_goal = vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
 			auto dist_to_player = vm_vec_normalize_quick(vec_to_goal);
 
 			if (dist_to_player > F1_0*300)
@@ -472,9 +479,7 @@ void init_controlcen_for_level(void)
 	} else if (cntrlcen_objnum != object_none) {
 		//	Compute all gun positions.
 		const auto &&objp = vobjptr(cntrlcen_objnum);
-		reactor *reactor = get_reactor_definition(get_reactor_id(objp));
-		for (uint_fast32_t i=0; i<reactor->n_guns; i++)
-			calc_controlcen_gun_point(reactor, objp, i);
+		calc_controlcen_gun_point(objp);
 		Control_center_present = 1;
 
 #if defined(DXX_BUILD_DESCENT_I)
