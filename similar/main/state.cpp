@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define STATE_VERSION 7
+#define STATE_MATCEN_VERSION 25 // specific version of metcen info written into D1 savegames. Currenlty equal to GAME_VERSION (see gamesave.cpp). If changed, then only along with STATE_VERSION.
 #define STATE_COMPATIBLE_VERSION 6
 #elif defined(DXX_BUILD_DESCENT_II)
 #define STATE_VERSION 22
@@ -1091,7 +1092,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
-		matcen_info_write(fp, r, STATE_VERSION);
+		matcen_info_write(fp, r, STATE_MATCEN_VERSION);
 #elif defined(DXX_BUILD_DESCENT_II)
 		matcen_info_write(fp, r, 0x7f);
 #endif
@@ -1591,7 +1592,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
-		matcen_info_read(fp, r, version);
+		matcen_info_read(fp, r, STATE_MATCEN_VERSION);
 #elif defined(DXX_BUILD_DESCENT_II)
 		matcen_info_read(fp, r);
 #endif
