@@ -1086,6 +1086,7 @@ void save_screen_shot(int automap_flag)
 	do
 	{
 		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
+                if (savenum > 99999) break; // that's enough I think.
 	} while (PHYSFSX_exists(savename,0));
 
 	if (!automap_flag)
