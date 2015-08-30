@@ -3034,13 +3034,17 @@ static int newdemo_read_frame_information(int rewrite)
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
 					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
 					Current_mission.reset();
+                                        start_time();
 					return -1;
 				}
 
 				LoadLevel((int)loaded_level,1);
 				nd_playback_v_cntrlcen_destroyed = 0;
+                                start_time();
 			}
 
+                        if (!rewrite)
+                                stop_time();
 #if defined(DXX_BUILD_DESCENT_II)
 			if (nd_playback_v_juststarted)
 			{
@@ -3098,7 +3102,8 @@ static int newdemo_read_frame_information(int rewrite)
 			reset_palette_add();                // get palette back to normal
 			full_palette_save();				// initialise for palette_restore()
 
-			start_time();
+                        if (!rewrite)
+                                start_time();
 			break;
 		}
 

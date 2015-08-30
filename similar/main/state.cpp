@@ -881,6 +881,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 		}
 	}
 #endif
+        start_time();
 
 	rval = state_save_all_sub(filename, desc);
 
@@ -905,9 +906,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
-		start_time();
 		return 0;
 	}
+
+        stop_time();
 
 //Save id
 	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);

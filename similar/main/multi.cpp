@@ -4831,7 +4831,6 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(get_local_player().callsign), slot);
 	HUD_init_message(HM_MULTI,  "Saving game #%d, '%s'", slot, desc);
-	stop_time();
 	state_game_id = id;
 	state_save_all_sub(filename, desc );
 }
