@@ -3219,6 +3219,9 @@ public:
 
 void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_type_t id)
 {
+        if (Network_rejoined) // if we come late to this game, we'll get duplicated objects from host during multi_level_sync(), triggered before multi_prep_level() in StartNewLevelSub()
+                return;
+
 	uint_fast32_t count;
 	switch (id)
 	{
