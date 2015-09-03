@@ -391,6 +391,34 @@ multi_send_robot_frame(int sent)
 	return(rval);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+/*
+ * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
+ * To counter this, let host update positions when no one controls it OR the client which does.
+ * Seperated this function to allow the positions being updated more frequently then multi_send_robot_frame (see net_udp_do_frame()).
+ */
+void multi_send_thief_frame()
+{
+        if (!(Game_mode & GM_MULTI_ROBOTS))
+                return;
+
+        range_for (const auto i, highest_valid(Objects))
+        {
+                if (Objects[i].type == OBJ_ROBOT)
+                {
+                        if (robot_is_thief(&Robot_info[get_robot_id(&Objects[i])]))
+                        {
+                                if ((multi_i_am_master() && (Objects[i].ctype.ai_info.REMOTE_OWNER == -1)) || (Objects[i].ctype.ai_info.REMOTE_OWNER == Player_num))
+                                {
+                                        multi_send_robot_position_sub(i,1);
+                                }
+                                return;
+                        }
+                }
+        }
+}
+#endif
+
 void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 {
 	int loc = 0;

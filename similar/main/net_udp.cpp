@@ -4626,6 +4626,9 @@ void net_udp_do_frame(int force, int listen)
 	{
 		last_pdata_time = time;
 		net_udp_send_pdata();
+#if defined(DXX_BUILD_DESCENT_II)
+                multi_send_thief_frame();
+#endif
 	}
 	
 	if (force || (time >= (last_mdata_time+(F1_0/10))))

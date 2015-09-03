@@ -52,6 +52,9 @@ void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
 void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objnum);
 int multi_send_robot_frame(int sent);
+#if defined(DXX_BUILD_DESCENT_II)
+void multi_send_thief_frame();
+#endif
 
 void multi_do_robot_explode(const ubyte *buf);
 void multi_do_robot_position(playernum_t pnum, const ubyte *buf);
