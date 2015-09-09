@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include "fwdvalptridx.h"
+#include "compiler-array.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 #include "pack.h"

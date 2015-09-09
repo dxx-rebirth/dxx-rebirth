@@ -6,10 +6,10 @@
  */
 /* prototypes for function calls between files within the OpenGL module */
 
-#ifndef _INTERNAL_H_
-#define _INTERNAL_H_
+#pragma once
 
 #include "ogl_init.h" // interface to OpenGL module
+#include "gr.h"
 
 #ifdef __cplusplus
 
@@ -68,5 +68,3 @@ extern void ogl_swap_buffers_internal(void);
 //inline GLfloat PAL2Tb(int c);
 
 #endif
-
-#endif // _INTERNAL_H_
