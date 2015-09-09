@@ -23,8 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <cstdlib>
 #include <ctime>
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "game.h"
 #include "gr.h"
-#include "stdlib.h"
 #include "bm.h"
 #include "3d.h"
 #include "weapon.h"

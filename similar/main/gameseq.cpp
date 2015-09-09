@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <cctype>
 #include <utility>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,7 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #  include "multi.h"
 #include "playsave.h"
-#include "ctype.h"
 #include "fireball.h"
 #include "kconfig.h"
 #include "config.h"
