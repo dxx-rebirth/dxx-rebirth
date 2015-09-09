@@ -1247,17 +1247,18 @@ class LazyObjectConstructor:
 		env = self.env
 		o = env._dxx_pch_object(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
 		return o
+	@staticmethod
+	def __strip_extension(_,name):
+		return os.path.splitext(name)[0]
 	def __lazy_objects(self,name,source):
 		try:
 			return self.__lazy_object_cache[name]
 		except KeyError as e:
-			def __strip_extension(self,name):
-				return os.path.splitext(name)[0]
 			value = []
 			for s in source:
 				if isinstance(s, str):
 					s = {'source': [s]}
-				transform_target = s.get('transform_target', __strip_extension)
+				transform_target = s.get('transform_target', self.__strip_extension)
 				value.extend([self.__get_lazy_object(srcname, transform_target) for srcname in s['source']])
 			self.__lazy_object_cache[name] = value
 			return value
