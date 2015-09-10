@@ -1199,9 +1199,10 @@ void calc_d_homer_tick()
         // Don't let slowdowns have a lasting impact; allow you to build up at most 3 frames worth
 		if (t > HOMING_TURN_TIME*3)
 			t = HOMING_TURN_TIME*3;
+
+                get_local_player().homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this. Let's do this here since the homers do not track every frame, we may not want to reset this ever frame.
 	}
 	timer = t;
-	calc_d_tick();
 }
 
 //	------------------------------------------------------------------------------------------------------------

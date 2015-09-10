@@ -435,6 +435,8 @@ void calc_frame_time()
 		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
 
 	GameTime64 += FrameTime;
+
+	calc_d_tick();
         calc_d_homer_tick();
 }
 
@@ -1378,8 +1380,6 @@ void GameProcessFrame(void)
 	}
 	else
 	{ // Note the link to above!
-
-		get_local_player().homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 
 		object_move_all();
 		powerup_grab_cheat_all();
