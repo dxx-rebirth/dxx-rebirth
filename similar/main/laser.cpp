@@ -1253,6 +1253,9 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 				return find_homing_object_complete(tracker->pos, tracker, OBJ_PLAYER, goal2_type);
 			else {
 				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
+                                // HACK: Dead players can be identified as valid track_goal, making it impossible to track players that are alive (further down the object list) in a multibot match. Re-assigning OBJ_GHOST to OBJ_PLAYER so homers can check for valid targets again. I think this should be fixed at the root of the problem but I am not sure if this may break more than we aim to fix. 
+                                if ((Game_mode & GM_MULTI) && (goal_type == OBJ_GHOST))
+                                        goal_type = OBJ_PLAYER;
 				return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);
 			}
 		}
