@@ -475,49 +475,49 @@ void multi_send_robot_position(const vobjptridx_t objnum, int force)
 
 void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector &fire)
 {
-	// Send robot fire event
-	int loc = 0;
-	short s;
+        // Send robot fire event
+        int loc = 0;
+        short s;
 
-	loc += 1;
-	multibuf[loc] = Player_num;								loc += 1;
-	s = objnum_local_to_remote(obj, (sbyte *)&multibuf[loc+2]);
-	PUT_INTEL_SHORT(multibuf+loc, s);
-																		loc += 3;
-	multibuf[loc] = gun_num;									loc += 1;
-	if (words_bigendian)
-	{
-		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT((int)fire.x);
-	swapped_vec.y = (fix)INTEL_INT((int)fire.y);
-	swapped_vec.z = (fix)INTEL_INT((int)fire.z);
-		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
-	}
-	else
-	{
-		memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
-	}
-	loc += sizeof(vms_vector); // 12
-	// --------------------------
-	//      Total = 18
+                                                                        loc += 1;
+        multibuf[loc] = Player_num;                                     loc += 1;
+        s = objnum_local_to_remote(obj, (sbyte *)&multibuf[loc+2]);
+        PUT_INTEL_SHORT(multibuf+loc, s);
+                                                                        loc += 3;
+        multibuf[loc] = gun_num;                                        loc += 1;
+        if (words_bigendian)
+        {
+                vms_vector swapped_vec;
+                swapped_vec.x = (fix)INTEL_INT((int)fire.x);
+                swapped_vec.y = (fix)INTEL_INT((int)fire.y);
+                swapped_vec.z = (fix)INTEL_INT((int)fire.z);
+                memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
+        }
+        else
+        {
+                memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
+        }
+                                                                        loc += sizeof(vms_vector); // 12
+                                                                        // --------------------------
+                                                                        //      Total = 18
 
-	if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
-	{
-		int slot = obj->ctype.ai_info.REMOTE_SLOT_NUM;
-		if (slot<0 || slot>=MAX_ROBOTS_CONTROLLED)
-		 {
-			return;
-		 }
-		if (robot_fired[slot] != 0)
-		 {
-		  //	Int3(); // ROB!
-			return;
-	    }
-		memcpy(robot_fire_buf[slot], multibuf, loc);
-		robot_fired[slot] = 1;
-	}
-	else
-		multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 0); // Not our robot, send ASAP
+        if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
+        {
+                int slot = obj->ctype.ai_info.REMOTE_SLOT_NUM;
+                if (slot<0 || slot>=MAX_ROBOTS_CONTROLLED)
+                {
+                        return;
+                }
+                if (robot_fired[slot] != 0)
+                {
+                        // Int3(); // ROB!
+                        return;
+                }
+                memcpy(robot_fire_buf[slot], multibuf, loc);
+                robot_fired[slot] = 1;
+        }
+        else
+                multi_send_data<MULTI_ROBOT_FIRE>(multibuf, loc, 1); // Not our robot, send ASAP
 }
 
 struct multi_explode_robot
@@ -817,23 +817,22 @@ multi_do_robot_fire(const ubyte *buf)
 	vms_vector fire;
 	robot_info *robptr;
 
-	loc += 1; // pnum
+                                                                                        loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
-	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
-	gun_num = (sbyte)buf[loc];                                      loc += 1;
+	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
+	gun_num = (sbyte)buf[loc];                                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
 	fire.x = (fix)INTEL_INT((int)fire.x);
 	fire.y = (fix)INTEL_INT((int)fire.y);
 	fire.z = (fix)INTEL_INT((int)fire.z);
 
 	if (botnum > Highest_object_index)
-	{
 		return;
-	}
 
 	auto botp = vobjptridx(botnum);
 	if (botp->type != OBJ_ROBOT || botp->flags & OF_EXPLODING)
 		return;
+
 	// Do the firing
 	if (gun_num == -1
 #if defined(DXX_BUILD_DESCENT_II)
