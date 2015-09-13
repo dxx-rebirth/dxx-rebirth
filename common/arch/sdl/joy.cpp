@@ -141,15 +141,16 @@ template <unsigned MAX, typename T>
 static T check_warn_joy_support_limit(const T n, const char *const desc)
 {
 	if (n <= MAX)
+	{
+		con_printf(CON_NORMAL, "sdl-joystick: %d %ss", n, desc);
 		return n;
+	}
 	Warning("sdl-joystick: found %d %ss, only %d supported.\n", n, desc, MAX);
 	return MAX;
 }
 
 void joy_init()
 {
-	int n;
-
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
 		con_printf(CON_NORMAL, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
 		return;
@@ -159,9 +160,7 @@ void joy_init()
 	joyaxis_text.clear();
 	joybutton_text.clear();
 
-	n = SDL_NumJoysticks();
-
-	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks", n);
+	const auto n = check_warn_joy_support_limit<MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
 		const auto handle = joystick.handle = SDL_JoystickOpen(i);
@@ -175,9 +174,6 @@ void joy_init()
 			const auto n_axes = joystick.n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
 			const auto n_buttons = joystick.n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
 			const auto n_hats = joystick.n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
-			con_printf(CON_NORMAL, "sdl-joystick: %d axes", n_axes);
-			con_printf(CON_NORMAL, "sdl-joystick: %d buttons", n_buttons);
-			con_printf(CON_NORMAL, "sdl-joystick: %d hats", n_hats);
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
