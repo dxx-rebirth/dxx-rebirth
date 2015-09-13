@@ -1871,19 +1871,20 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	// add alpha color to the pixels which are inside the window box spans
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
 	const unsigned upper_y = ((multires_gauge_graphic.get(469, 193))) - lower_y;
-	unsigned i = bm->bm_w * lower_y;
+	const unsigned bm_w = bm->bm_w;
+	unsigned i = bm_w * lower_y;
 	const auto *wbl = (multires_gauge_graphic.is_hires() ? weapon_window_left_hires : weapon_window_left);
 	const auto *wbr = (multires_gauge_graphic.is_hires() ? weapon_window_right_hires : weapon_window_right);
+	const auto fill_alpha_one_line = [](unsigned o, const span &s) {
+		std::fill_n(&cockpitbuf[o + s.l], s.r - s.l + 1, TRANSPARENCY_COLOR);
+	};
 	for (unsigned y=0;y < upper_y;y++)
 	{
 		const auto &wbly = wbl[y];
 		const auto &wbry = wbr[y];
-		for (unsigned x=0;x < bm->bm_w;x++)
-		{
-			if ((x >= wbly.l && x <= wbly.r) || (x >= wbry.l && x <= wbry.r))
-				cockpitbuf[i]=TRANSPARENCY_COLOR;
-			i++;
-		}
+		fill_alpha_one_line(i, wbly);
+		fill_alpha_one_line(i, wbry);
+		i += bm_w;
 	}
 #ifdef OGL
 	ogl_freebmtexture(*bm);
