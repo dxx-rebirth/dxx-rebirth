@@ -106,7 +106,10 @@ class ConfigureTests:
 		def __init__(self,env):
 			# Force verbose output to sconf.log
 			self.cc_env_strings = {}
-			for k in ['CXXCOMSTR']:
+			for k in (
+				'CXXCOMSTR',
+				'LINKCOMSTR',
+			):
 				try:
 					self.cc_env_strings[k] = env[k]
 					del env[k]
@@ -343,12 +346,10 @@ struct %(N)s_derived : %(N)s_base {
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
 		if forced is None:
-			cc_env_strings = self.ForceVerboseLog(context.env)
 			undef_SDL_main = '\n#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
 			r = action(text + undef_SDL_main + 'int main(int argc,char**argv){(void)argc;(void)argv;' + main + ';}\n', ext)
 			if expect_failure:
 				r = not r
-			cc_env_strings.restore(context.env)
 			context.Result((successmsg if r else failuremsg) or r)
 			if expected is not None and r != expected:
 				raise SCons.Errors.StopError('Expected and actual results differ.  Test should ' + ('succeed' if expected else 'fail') + ', but it did not.')
@@ -2477,11 +2478,13 @@ class DXXArchive(DXXCommon):
 		self.configure_pch_flags = None
 		if not conf.env:
 			return
+		cc_env_strings = tests.ForceVerboseLog(conf.env)
 		try:
 			for k in tests.custom_tests:
 				getattr(conf, k)()
 		except SCons.Errors.StopError as e:
 			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
+		cc_env_strings.restore(conf.env)
 		if self.user_settings.record_sconf_results:
 			conf.config_h_text += '/*\n' + '\n'.join(['check_%s=%s' % (n,v) for (n,v) in tests._sconf_results]) + '\n*/\n'
 		self.env = conf.Finish()
