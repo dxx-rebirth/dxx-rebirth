@@ -532,28 +532,15 @@ void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r)
 }
 #endif
 
-static void control_center_triggers_swap(control_center_triggers *cct, int swap)
-{
-	if (!swap)
-		return;
-	
-	cct->num_links = SWAPSHORT(cct->num_links);
-	for (unsigned i = 0; i < sizeof(cct->seg) / sizeof(cct->seg[0]); i++)
-		cct->seg[i] = SWAPSHORT(cct->seg[i]);
-	for (unsigned i = 0; i < sizeof(cct->side) / sizeof(cct->side[0]); i++)
-		cct->side[i] = SWAPSHORT(cct->side[i]);
-}
-
 DEFINE_SERIAL_UDT_TO_MESSAGE(control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(control_center_triggers, 42);
 
 /*
  * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_swap(control_center_triggers *cct, int swap, PHYSFS_file *fp)
+void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp)
 {
 	PHYSFSX_serialize_read(fp, *cct);
-	control_center_triggers_swap(cct, swap);
 }
 
 void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp)

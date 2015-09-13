@@ -1598,7 +1598,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #elif defined(DXX_BUILD_DESCENT_II)
 		matcen_info_read(fp, r);
 #endif
-	control_center_triggers_read_swap(&ControlCenterTriggers, swap, fp);
+	control_center_triggers_read(&ControlCenterTriggers, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 		fuelcen_read(fp, s);
