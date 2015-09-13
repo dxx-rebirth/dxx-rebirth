@@ -156,9 +156,9 @@ static void print_commandline_help()
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -lowresfont                   Force to use LowRes fonts\n");
+	printf( "  -lowresfont                   Force use of low resolution fonts\n");
 #if defined(DXX_BUILD_DESCENT_II)
-	printf( "  -lowresgraphics               Force to use LowRes graphics\n");
+	printf( "  -lowresgraphics               Force use of low resolution graphics\n");
 	printf( "  -lowresmovies                 Play low resolution movies if available (for slow machines)\n");
 #endif
 #ifdef    OGL
@@ -167,7 +167,7 @@ static void print_commandline_help()
 	printf( "                                    0: disabled\n");
 	printf( "                                    1: fence syncs, limit GPU latency to at most one frame\n");
 	printf( "                                    2: like 1, but sleep during sync to reduce CPU load\n");
-	printf( "                                    3: immedaitely sync after buffer swap\n");
+	printf( "                                    3: immediately sync after buffer swap\n");
 	printf( "                                    4: immediately sync after buffer swap\n");
 	printf( "                                    5: auto. use mode 2 if available, 0 otherwise\n");
 	printf( "  -gl_syncwait <n>              wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
@@ -201,7 +201,7 @@ static void print_commandline_help()
 	printf( "  -verbose                      Enable verbose output.\n");
 	printf( "  -safelog                      Write gamelog.txt unbuffered.\n\t\t\t\tUse to keep helpful output to trace program crashes.\n");
 	printf( "  -norun                        Bail out after initialization\n");
-	printf( "  -no-grab                      Never grab keymoard/mouse\n");
+	printf( "  -no-grab                      Never grab keyboard/mouse\n");
 	printf( "  -renderstats                  Enable renderstats info by default\n");
 	printf( "  -text <s>                     Specify alternate .tex file\n");
 	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad, i386)\n");
