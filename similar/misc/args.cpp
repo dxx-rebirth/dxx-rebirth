@@ -10,9 +10,10 @@
  * Functions for accessing arguments.
  *
  */
-
+ 
 #include <string>
 #include <vector>
+#include <cstddef>
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_stdinc.h>
@@ -155,6 +156,7 @@ static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, 
 static void InitGameArg()
 {
 	GameArg.SysMaxFPS = MAXIMUM_FPS;
+	GameArg.SysMissionDir = "missions/";
 #if defined(DXX_BUILD_DESCENT_II)
 	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
 #endif
@@ -204,6 +206,8 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.SysNoHogDir = 1;
 		else if (!d_stricmp(p, "-use_players_dir"))
 			GameArg.SysUsePlayersDir 	= 1;
+		else if (!d_stricmp(p, "-missiondir"))
+			GameArg.SysFullMissionDir = arg_string(pp, end);
 		else if (!d_stricmp(p, "-lowmem"))
 			GameArg.SysLowMem 		= 1;
 		else if (!d_stricmp(p, "-pilot"))
@@ -389,6 +393,17 @@ static void PostProcessGameArg()
 		GameArg.SysMaxFPS = MINIMUM_FPS;
 	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
+	if (GameArg.SysFullMissionDir != "") {
+		std::size_t found = GameArg.SysFullMissionDir.find_last_of("\\/");
+		if (found == (GameArg.SysFullMissionDir.size() - 1)) {
+			GameArg.SysFullMissionDir.pop_back();
+			found = GameArg.SysFullMissionDir.find_last_of("\\/");
+		}
+		GameArg.SysMissionDir = GameArg.SysFullMissionDir.substr(found+1);
+		GameArg.SysFullMissionDir.erase(GameArg.SysFullMissionDir.begin() + found, GameArg.SysFullMissionDir.end());
+		GameArg.SysMissionDir += "/";
+		GameArg.SysFullMissionDir += "/";
+	}
 
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
 	if (CGameArg.CtlNoStickyKeys) // Must happen before SDL_Init!

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "newmenu.h"
 #include "inferno.h"
+#include "args.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
@@ -1200,7 +1201,7 @@ int load_level(const char * filename_passed)
 #endif
 
 	if (!PHYSFSX_exists(filename,1))
-		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
+		sprintf(filename,"%s%s",GameArg.SysMissionDir.c_str(),filename_passed);
 
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 
