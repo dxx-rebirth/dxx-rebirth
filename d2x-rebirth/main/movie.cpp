@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "dxxerror.h"
 #include "u_mem.h"
-#include "byteutil.h"
 #include "gr.h"
 #include "gamefont.h"
 #include "menu.h"

@@ -12,7 +12,6 @@
  */
 
 #include "player.h"
-#include "byteutil.h"
 #include "physfsx.h"
 
 

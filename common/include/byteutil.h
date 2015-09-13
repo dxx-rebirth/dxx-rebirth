@@ -75,7 +75,7 @@ const int words_bigendian = 1;
 #ifndef WORDS_NEED_ALIGNMENT
 #define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))
 #else // ! WORDS_NEED_ALIGNMENT
-#define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), reinterpret_cast<const uint8_t *>(s), sizeof(d))
+#define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), (s), sizeof(d))
 #endif // ! WORDS_NEED_ALIGNMENT
 
 template <typename T>

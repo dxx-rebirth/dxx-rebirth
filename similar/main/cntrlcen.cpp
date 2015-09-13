@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "endlevel.h"
 #include "state.h"
-#include "byteutil.h"
 #include "args.h"
 
 #include "compiler-range_for.h"

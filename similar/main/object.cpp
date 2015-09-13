@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "gameseg.h"
 #include "textures.h"
-#include "byteutil.h"
 #include "object.h"
 #include "controls.h"
 #include "physics.h"

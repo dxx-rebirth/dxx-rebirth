@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "u_mem.h"
 #include "args.h"
-#include "byteutil.h"
 #include "physfs-serial.h"
 #include "physfsx.h"
 #ifndef DRIVE

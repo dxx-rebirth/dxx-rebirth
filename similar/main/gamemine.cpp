@@ -50,7 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "key.h"
 #include "piggy.h"
-#include "byteutil.h"
 #include "gamesave.h"
 #include "poison.h"
 #include "compiler-range_for.h"

@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "common/3d/globvars.h"
 #include "playsave.h"
 #include "rle.h"
-#include "byteutil.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif

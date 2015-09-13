@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "dxxerror.h"
-#include "byteutil.h"
 #include "common/2d/bitmap.h"
 #include "makesig.h"
 #include "physfsx.h"
