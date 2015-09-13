@@ -1,6 +1,7 @@
 #SConstruct
 
 # needed imports
+from collections import defaultdict
 import binascii
 import errno
 import subprocess
@@ -254,7 +255,7 @@ struct %(N)s_derived : %(N)s_base {
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
 		self.platform_settings = platform_settings
-		self.successful_flags = {}
+		self.successful_flags = defaultdict(list)
 		self.__cxx_conformance = None
 		self.__automatic_compiler_tests = {
 			'.cpp': self.check_cxx_works,
@@ -312,7 +313,7 @@ struct %(N)s_derived : %(N)s_base {
 		if c:
 			c(context)
 	def _extend_successflags(self,k,v):
-		self.successful_flags.setdefault(k, []).extend(v)
+		self.successful_flags[k].extend(v)
 	def Compile(self,context,**kwargs):
 		self.Compile = self.Link if self.user_settings.lto else self._Compile
 		return self.Compile(context, **kwargs)
@@ -1589,7 +1590,6 @@ class DXXCommon(LazyObjectConstructor):
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		__opengl_libs = ['GL', 'GLU']
-		__pkg_config_sdl = {}
 		def __init__(self,program,user_settings):
 			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 			if (user_settings.opengles == 1):
