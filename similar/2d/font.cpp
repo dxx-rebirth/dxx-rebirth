@@ -1153,6 +1153,8 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 				}
 				const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
 				gr_setcolor(cv_font_fg_color);
+				if (width)
+				{
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
@@ -1162,15 +1164,23 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
 					fp += BITS_TO_BYTES(width)*r;
 
-					uint8_t BitMask = 0, bits;
+					/* Setting bits=0 is a dead store, but is necessary to
+					 * prevent -Og -Wuninitialized from issuing a bogus
+					 * warning.  -Og does not see that bits_remaining=0
+					 * guarantees that bits will be initialized from *fp before
+					 * it is read.
+					 */
+					uint8_t bits_remaining = 0, bits = 0;
 
-					for (uint_fast32_t i = width; i--; ++x, BitMask >>= 1)
+					for (uint_fast32_t i = width; i--; ++x, --bits_remaining)
 					{
-						if (BitMask==0) {
+						if (!bits_remaining)
+						{
 							bits = *fp++;
-							BitMask = 0x80;
+							bits_remaining = 8;
 						}
-						const auto bit_enabled = (bits & BitMask);
+						const auto bit_enabled = (bits & 1);
+						bits >>= 1;
 						if (masked_draws_background)
 							gr_setcolor(bit_enabled ? cv_font_fg_color : cv_font_bg_color);
 						else
@@ -1180,6 +1190,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 						}
 						gr_pixel(x, y);
 					}
+				}
 				}
 				x += spacing-width;		//for kerning
 			}
