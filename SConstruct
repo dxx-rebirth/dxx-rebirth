@@ -77,12 +77,24 @@ class Git(StaticSubprocess):
 
 class ConfigureTests:
 	class Collector:
+		class RecordedTest:
+			def __init__(self,name,desc):
+				self.name = name
+				self.desc = desc
+
 		def __init__(self):
 			self.tests = []
 			self.record = self.tests.append
 		def __call__(self,f):
-			self.record(f.__name__)
+			desc = None
+			doc = getattr(f, '__doc__', None)
+			if doc is not None:
+				doc = doc.rstrip().splitlines()
+				if doc and doc[-1].startswith("help:"):
+					desc = doc[-1][5:]
+			self.record(self.RecordedTest(f.__name__, desc))
 			return f
+
 	class Cxx11RequiredFeature:
 		def __init__(self,name,text,main=''):
 			self.name = name
@@ -270,14 +282,6 @@ struct %(N)s_derived : %(N)s_base {
 		self._sconf_results = []
 	def message(self,msg):
 		print "%s: %s" % (self.msgprefix, msg)
-	@classmethod
-	def describe(cls,name):
-		f = getattr(cls, name)
-		if f.__doc__:
-			lines = f.__doc__.rstrip().split('\n')
-			if lines[-1].startswith("help:"):
-				return lines[-1][5:]
-		return None
 	@staticmethod
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
@@ -1235,9 +1239,9 @@ def add_compiler_option_tests():
 		def f(self, context):
 			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]}, calling_function=n)
 		cn = 'check_' + n
-		custom_tests(cn)
-		f.__doc__ = doc or ('\nhelp:assume compiler accepts ' + opt + '\n')
+		custom_tests(RecordedTest(cn, doc or ('assume compiler accepts ' + opt)))
 		setattr(ConfigureTests, cn, f)
+	RecordedTest = ConfigureTests.Collector.RecordedTest
 	custom_tests = ConfigureTests._custom_test.record
 	for opt in (
 		('-fvisibility=hidden',),
@@ -1871,25 +1875,43 @@ class DXXCommon(LazyObjectConstructor):
 			return self.default_OGLES_LIB
 		def __default_DATA_DIR(self):
 			return self.prefix + '/share/games/' + self._program.target
+		BoolVariable = staticmethod(BoolVariable)
+		EnumVariable = staticmethod(EnumVariable)
 		@staticmethod
 		def _generic_variable(key,help,default):
 			return (key, help, default)
 		@staticmethod
-		def _enum_variable(key,help,default,allowed_values):
-			return EnumVariable(key, help, default, allowed_values)
+		def __get_configure_tests(tests):
+			try:
+				return tests.__configure_tests
+			except AttributeError:
+				tests.__configure_tests = c = tests.implicit_tests + tests.custom_tests
+				return c
 		def _options(self):
-			tests = ConfigureTests.implicit_tests + ConfigureTests.custom_tests
+			EnumVariable = self.EnumVariable
+			BoolVariable = self.BoolVariable
+			generic_variable = self._generic_variable
+			conftests = ConfigureTests
+			tests = self.__get_configure_tests(conftests)
 			return (
 			{
-				'variable': self._enum_variable,
+				'variable': EnumVariable,
 				'arguments': [
-					('expect_sconf_%s' % name[6:], None, None, {'allowed_values' : ['0', '1', ConfigureTests.expect_sconf_success, ConfigureTests.expect_sconf_failure]}) for name in tests
+					('expect_sconf_%s' % t.name[6:],
+						None,
+						None,
+						{'allowed_values' : ['0', '1', conftests.expect_sconf_success, conftests.expect_sconf_failure]}
+					) for t in tests if t.name[0] != '_'
 				],
 			},
 			{
-				'variable': self._enum_variable,
+				'variable': EnumVariable,
 				'arguments': [
-					('sconf_%s' % name[6:], None, ConfigureTests.describe(name) or ('assume result of %s' % name), {'allowed_values' : ['0', '1', '2', ConfigureTests.sconf_force_failure, ConfigureTests.sconf_force_success, ConfigureTests.sconf_assume_success]}) for name in tests if name[0] != '_'
+					('sconf_%s' % t.name[6:],
+						None,
+						t.desc or ('assume result of %s' % t.name),
+						{'allowed_values' : ['0', '1', '2', conftests.sconf_force_failure, conftests.sconf_force_success, conftests.sconf_assume_success]}
+					) for t in tests if t.name[0] != '_'
 				],
 			},
 			{
@@ -1903,7 +1925,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self._generic_variable,
+				'variable': generic_variable,
 				'arguments': (
 					('rpi_vc_path', self.RPI_DEFAULT_VC_PATH, 'directory for RPi VideoCore libraries'),
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
@@ -1939,7 +1961,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self._generic_variable,
+				'variable': generic_variable,
 				'arguments': (
 					('CHOST', os.environ.get('CHOST'), 'CHOST of output'),
 					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
@@ -1952,7 +1974,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self._generic_variable,
+				'variable': generic_variable,
 				'stack': ' ',
 				'arguments': (
 					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
@@ -1962,7 +1984,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self._enum_variable,
+				'variable': EnumVariable,
 				'arguments': (
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
 				),
@@ -1974,7 +1996,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self._generic_variable,
+				'variable': generic_variable,
 				'arguments': (
 					('builddir_prefix', None, 'prefix to generated build directory'),
 					('builddir_suffix', None, 'suffix to generated build directory'),
@@ -2466,7 +2488,7 @@ class DXXArchive(DXXCommon):
 		tests = ConfigureTests(self.program_message_prefix, self.user_settings, self.platform_settings)
 		log_file=fs.File('sconf.log', builddir)
 		conf = self.env.Configure(custom_tests = {
-				k:getattr(tests, k) for k in tests.custom_tests
+				k.name:getattr(tests, k.name) for k in tests.custom_tests
 			},
 			conf_dir=fs.Dir('.sconf_temp', builddir),
 			log_file=log_file,
@@ -2481,7 +2503,7 @@ class DXXArchive(DXXCommon):
 		cc_env_strings = tests.ForceVerboseLog(conf.env)
 		try:
 			for k in tests.custom_tests:
-				getattr(conf, k)()
+				getattr(conf, k.name)()
 		except SCons.Errors.StopError as e:
 			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
 		cc_env_strings.restore(conf.env)
