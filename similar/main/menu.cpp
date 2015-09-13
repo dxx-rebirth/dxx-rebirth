@@ -1462,7 +1462,7 @@ static void list_dir_el(void *vb, const char *, const char *fname)
 	if (!r)
 		r = "";
 	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_list, b->ext_count))
-#if defined(__MACH__) && defined(__APPLE__)
+#if defined(__APPLE__) && defined(__MACH__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
 		)
@@ -1543,7 +1543,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				
 				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
 				{
-#if defined(__MACH__) && defined(__APPLE__)
+#if defined(__APPLE__) && defined(__MACH__)
 					if (!d_stricmp(p, "/Volumes"))
 						return 1;
 #endif
@@ -1551,7 +1551,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 						p[len_sep] = '\0';
 					else
 					{
-#if defined(__MACH__) && defined(__APPLE__)
+#if defined(__APPLE__) && defined(__MACH__)
 						// For Mac OS X, list all active volumes if we leave the root
 						strcpy(newpath, "/Volumes");
 #else

@@ -14,7 +14,7 @@
 #if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
-#if defined(__MACH__) && defined(__APPLE__)
+#if defined(__APPLE__) && defined(__MACH__)
 #include <sys/mount.h>
 #include <unistd.h>	// for chdir hack
 #include <HIServices/Processes.h>
@@ -445,7 +445,7 @@ PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *r
 // Gets bytes free in current write dir
 PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 {
-#if defined(__linux__) || (defined(__MACH__) && defined(__APPLE__))
+#if defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
 	struct statfs sfs;
 	
 	if (!statfs(PHYSFS_getWriteDir(), &sfs))
