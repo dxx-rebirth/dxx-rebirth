@@ -483,7 +483,7 @@ public:
 };
 
 template <typename T>
-class class_type : public message_type<decltype(udt_to_message(std::forward<T>(*static_cast<T*>(nullptr))))>
+class class_type : public message_type<decltype(udt_to_message(std::declval<T>()))>
 {
 };
 
