@@ -1,13 +1,17 @@
 #SConstruct
 
 # needed imports
-from collections import defaultdict
+from collections import (defaultdict, Counter as collections_counter)
 import binascii
 import errno
+import itertools
 import subprocess
 import sys
 import os
 import SCons.Util
+
+# Disable injecting tools into default namespace
+SCons.Defaults.DefaultEnvironment(tools = [])
 
 def message(program,msg):
 	print "%s: %s" % (program.program_message_prefix, msg)
@@ -939,19 +943,19 @@ U a{640};
 			if result:
 				self.pch_flags = how
 				return result
+	def _show_pch_count_message(self,context,which,user_setting):
+		count = user_setting if user_setting else 0
+		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))
+		return count > 0
 	@_custom_test
 	def _check_pch(self,context):
 		self.pch_flags = None
-		msg = 'when to pre-compile headers'
-		context.Display('%s: checking %s...' % (self.msgprefix, msg))
-		if self.user_settings.pch:
-			count = int(self.user_settings.pch)
-		else:
-			count = 0
-		if count <= 0:
-			context.Result('never')
+		# Always evaluate both
+		co = self._show_pch_count_message(context, 'own', self.user_settings.pch)
+		cs = self._show_pch_count_message(context, 'system', self.user_settings.syspch)
+		if not co and not cs:
 			return
-		context.Display('if used at least %u time%s\n' % (count, 's' if count > 1 else ''))
+		context.Display('%s: checking when to compute pre-compiled header input *pch.cpp...%s\n' % (self.msgprefix, 'if missing' if self.user_settings.pch_cpp_assume_unchanged else 'always'))
 		if not self.check_pch(context):
 			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
 	@_custom_test
@@ -1246,7 +1250,7 @@ del add_compiler_option_tests
 class LazyObjectConstructor:
 	def __get_lazy_object(self,srcname,transform_target):
 		env = self.env
-		o = env._dxx_pch_object(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
+		o = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
 		return o
 	@staticmethod
 	def __strip_extension(_,name):
@@ -1297,6 +1301,490 @@ class FilterHelpText:
 			l.append("current: {current}".format(current=actual))
 		return (" {opt:%u}  {help}" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help) + (" [" + "; ".join(l) + "]" if l else '') + '\n'
 
+class PCHManager(object):
+	class ScannedFile:
+		def __init__(self,candidates):
+			self.candidates = candidates
+
+	# Compile on first use, so that non-PCH builds skip the compile
+	_re_preproc_match = None
+	_re_include_match = None
+	_re_singleline_comments_sub = None
+	# Source files are tracked at class scope because all builds share
+	# the same source tree.
+	_cls_scanned_files = None
+
+	# Import required modules when the first PCHManager is created, then
+	# remove the hook and use object.__new__ to create PCHManager
+	# instances.
+	def __new__(cls,*args):
+		from re import compile as c
+		# Match C preprocessor directives that start with i or e,
+		# capture any arguments, and allow no arguments.  This accepts:
+		# - #if
+		# - #ifdef
+		# - #ifndef
+		# - #else
+		# - #endif
+		# - #include
+		# - #error
+		cls._re_preproc_match = c(r'#\s*([ie]\w+)(?:\s+(.*))?').match
+		# Capture the argument in a #include statement, including the
+		# angle brackets or quotes.
+		#
+		# Rebirth currently has no computed includes, so ignore computed
+		# includes.
+		cls._re_include_match = c(r'(<[^>]+>|"[^"]+")').match
+		# Strip a single-line C++ style comment ("// Text") and any
+		# preceding whitespace.  The C preprocessor will discard these
+		# when compiling the header.  Discarding them from the
+		# environment Value will prevent rebuilding pch.cpp when the
+		# only change is in such a comment.
+		cls._re_singleline_comments_sub = c(r'\s*//.*').sub
+		# dict with key=filename with path, value=ScannedFile
+		cls._cls_scanned_files = {}
+		from tempfile import mkstemp
+		cls._tempfile_mkstemp = staticmethod(mkstemp)
+		del cls.__new__
+		return cls.__new__(cls,*args)
+
+	def __init__(self,user_settings,env,pch_subdir,configure_pch_flags,common_pch_manager):
+		assert user_settings.syspch or user_settings.pch
+		self.user_settings = user_settings
+		self.env = env
+		# dict with key=fs.File, value=ScannedFile
+		self._instance_scanned_files = {}
+		self._common_pch_manager = common_pch_manager
+		self.syspch_cpp_filename = syspch_cpp_filename = self.ownpch_cpp_filename = ownpch_cpp_filename = None
+		self.syspch_object_node = syspch_object_node = self.ownpch_object_node = None
+		self.required_pch_object_node = None
+		CXXFLAGS = env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']
+		File = env.File
+		if user_settings.syspch:
+			self.syspch_cpp_filename = syspch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'syspch.cpp')
+			self.syspch_cpp_node = File(syspch_cpp_filename)
+			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target=syspch_cpp_filename + '.gch', source=self.syspch_cpp_node, CXXFLAGS=CXXFLAGS)
+		if user_settings.pch:
+			self.ownpch_cpp_filename = ownpch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'ownpch.cpp')
+			self.ownpch_cpp_node = File(ownpch_cpp_filename)
+			if syspch_object_node:
+				CXXFLAGS += ['-include', syspch_cpp_filename, '-Winvalid-pch']
+			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target=ownpch_cpp_filename + '.gch', source=self.ownpch_cpp_node, CXXFLAGS=CXXFLAGS)
+			env.Depends(ownpch_object_node, File(os.path.join(self.user_settings.builddir, 'dxxsconf.h')))
+			if syspch_object_node:
+				env.Depends(ownpch_object_node, syspch_object_node)
+		self.pch_CXXFLAGS = ['-include', ownpch_cpp_filename or syspch_cpp_filename, '-Winvalid-pch']
+		# If assume unchanged and the file exists, skip registering the
+		# emitter and set __files_included to a dummy value.  This
+		# bypasses scanning source files and guarantees that the text of
+		# pch.cpp is not changed.  SCons will still recompile pch.cpp
+		# into a new .gch file if pch.cpp includes files that SCons
+		# recognizes as changed.
+		if user_settings.pch_cpp_assume_unchanged and \
+			(not syspch_cpp_filename or os.path.exists(syspch_cpp_filename)) and \
+			(not ownpch_cpp_filename or os.path.exists(ownpch_cpp_filename)):
+			return
+		# collections.defaultdict with key from ScannedFile.candidates,
+		# value is a collections.Counter with key=tuple of preprocessor
+		# guards, value=count of times this header was included under
+		# that set of guards.
+		self.__files_included = defaultdict(collections_counter)
+		self.__env_Program = env.Program
+		self.__env_StaticObject = env.StaticObject
+		env.Program = self.Program
+		env.StaticObject = self.StaticObject
+
+	def record_file(self,env,source_file):
+		# Every scanned file goes into self._cls_scanned_files to
+		# prevent duplicate scanning from multiple targets.
+		f = self._cls_scanned_files.get(source_file, None)
+		if f is None:
+			self._cls_scanned_files[source_file] = f = self.scan_file(env, source_file)
+		self._instance_scanned_files[source_file] = f
+		return f
+
+	# Scan a file for preprocessor directives related to conditional
+	# compilation and file inclusion.
+	#
+	# The #include directives found are eventually written to pch.cpp
+	# with their original preprocessor guards in place.  Since the
+	# preprocessor guards are kept and the C preprocessor will evaluate
+	# them when compiling the header, this scanner does not attempt to
+	# track which branches are true and which are false.
+	#
+	# This scanner makes no attempt to normalize guard conditions.  It
+	# considers each of these examples to be distinct guards, even
+	# though a full preprocessor will produce the same result for each:
+	#
+	#	#if 1
+	#	#if 2
+	#	#if 3 < 5
+	#
+	# or:
+	#
+	#	#ifdef A
+	#	#if defined(A)
+	#	#if (defined(A))
+	#	#if !!defined(A)
+	#
+	# or:
+	#
+	# 	#ifndef A
+	# 	#else
+	# 	#endif
+	#
+	# 	#ifdef A
+	# 	#endif
+	#
+	# Include directives are followed only if the calling file will not
+	# be part of the output pch.cpp.  When the calling file will be in
+	# pch.cpp, then the C preprocessor will include the called file, so
+	# there is no need to scan it for other headers to include.
+	#
+	# This scanner completely ignores pragmas, #define, #undef, and
+	# computed includes.
+	@classmethod
+	def scan_file(cls,env,source_filenode):
+		match_preproc_directive = cls._re_preproc_match
+		match_include_directive = cls._re_include_match
+		preceding_line = None
+		lines_since_preprocessor = None
+		# defaultdict with key=name of header to include, value=set of
+		# preprocessor guards under which an include was seen.  Set is
+		# used because duplicate inclusions from a single source file
+		# should not adjust the usage counter.
+		candidates = defaultdict(set)
+		# List of currently active preprocessor guards
+		guard = []
+		header_search_path = None
+		for line in map(str.strip, source_filenode.get_contents().splitlines()):
+			if preceding_line is not None:
+				# Basic support for line continuation.
+				line = preceding_line[:-1] + ' ' + line
+				preceding_line = None
+			elif not line.startswith('#'):
+				# Allow unlimited non-preprocessor lines before the
+				# first preprocessor line.  Once one preprocessor line
+				# is found, track how many lines since the most recent
+				# preprocessor line was seen.  If too many
+				# non-preprocessor lines appear in a row, assume the
+				# scanner is now down in source text and move to the
+				# next file.
+				if lines_since_preprocessor is not None:
+					lines_since_preprocessor += 1
+					if lines_since_preprocessor > 50:
+						break
+				continue
+			lines_since_preprocessor = 0
+			# Joined lines are rare.  Ignore complicated quoting.
+			if line[-1] == '\\':
+				preceding_line = line
+				continue
+			m = match_preproc_directive(line)
+			if not m:
+				# Not a preprocessor directive or not a directive that
+				# this scanner handles.
+				continue
+			directive = m.group(1)
+			if directive == 'include':
+				m = match_include_directive(m.group(2))
+				if not m:
+					# This directive is probably a computed include.
+					continue
+				name = m.group(1)
+				bare_name = name[1:-1]
+				if name[0] == '"':
+					# Canonicalize paths to non-system headers
+					if name == '"dxxsconf.h"':
+						# Ignore generated header here.  PCH generation
+						# will insert it in the right order.
+						continue
+					if header_search_path is None:
+						header_search_path = [
+							d for d in ([os.path.dirname(str(source_filenode))] + env['CPPPATH'])
+							# Filter out SDL paths
+							if not d.startswith('/')
+						]
+					name = None
+					for d in header_search_path:
+						effective_name = os.path.join(d, bare_name)
+						if os.path.exists(effective_name):
+							name = effective_name
+							break
+					if name is None:
+						# name is None if:
+						# - A system header was included using quotes.
+						#
+						# - A game-specific header was included in a
+						# shared file.  A game-specific preprocessor
+						# guard will prevent the preprocessor from
+						# including the file, but the PCH scan logic
+						# looks inside branches that the C preprocessor
+						# will evaluate as false.
+						continue
+					name = env.File(name)
+					name.__filename = '"' + effective_name + '"'
+				candidates[name].add(tuple(guard))
+			elif directive == 'endif':
+				# guard should always be True here, but test to avoid
+				# ugly errors if scanning an ill-formed source file.
+				if guard:
+					guard.pop()
+			elif directive == 'else':
+				# #else is handled separately because it has no
+				# arguments
+				guard.append('#' + directive)
+			elif directive in (
+				'elif',
+				'if',
+				'ifdef',
+				'ifndef',
+			):
+				guard.append('#' + directive + ' ' + m.group(2))
+			elif directive not in ('error',):
+				raise SCons.Errors.StopError("Scanning %s found unhandled C preprocessor directive %r" % (str(source_filenode), directive))
+		return cls.ScannedFile(candidates)
+
+	def _compute_pch_text(self):
+		self._compute_indirect_includes()
+		own_header_inclusion_threshold = self.user_settings.pch
+		sys_header_inclusion_threshold = self.user_settings.syspch
+		# defaultdict with key=name of tuple of active preprocessor
+		# guards, value=tuple of (included file, count of times file was
+		# seen with this set of guards, count of times file would be
+		# included with this set of guards defined).
+		syscpp_includes = defaultdict(list)
+		owncpp_includes = defaultdict(list) if own_header_inclusion_threshold else None
+		for included_file, usage_dict in self.__files_included.iteritems():
+			if isinstance(included_file, str):
+				# System header
+				cpp_includes = syscpp_includes
+				name = included_file
+				threshold = own_header_inclusion_threshold if sys_header_inclusion_threshold is None else sys_header_inclusion_threshold
+			else:
+				# Own header
+				cpp_includes = owncpp_includes
+				name = included_file.__filename
+				threshold = own_header_inclusion_threshold
+			if not threshold:
+				continue
+			g = usage_dict.get((), 0)
+			# As a special case, if this header is included
+			# without any preprocessor guards, ignore all the
+			# conditional includes.
+			guards = \
+				[((), g)] if (g >= threshold) else \
+				sorted(usage_dict.iteritems(), reverse=True)
+			while guards:
+				preprocessor_guard_directives, local_count_seen = guards.pop()
+				total_count_seen = local_count_seen
+				if total_count_seen < threshold:
+					# If not eligible on its own, add in the count from
+					# preprocessor guards that are always true when this
+					# set of guards is true.  Since the scanner does not
+					# normalize preprocessor directives, this is a
+					# conservative count of always-true guards.
+					g = preprocessor_guard_directives
+					while g and total_count_seen < threshold:
+						g = g[:-1]
+						total_count_seen += usage_dict.get(g, 0)
+					if total_count_seen < threshold:
+						# If still not eligible, skip.
+						continue
+				cpp_includes[preprocessor_guard_directives].append((name, local_count_seen, total_count_seen))
+
+		if syscpp_includes:
+			self.__generated_syspch_lines = self._compute_pch_generated_lines(syscpp_includes)
+		if owncpp_includes:
+			self.__generated_ownpch_lines = self._compute_pch_generated_lines(owncpp_includes)
+
+	def _compute_pch_generated_lines(self,cpp_includes):
+		generated_pch_lines = []
+		# Append guarded #include directives for files which passed the
+		# usage threshold above.  This loop could try to combine related
+		# preprocessor guards, but:
+		# - The C preprocessor handles the noncombined guards correctly.
+		# - As a native program optimized for text processing, the C
+		# preprocessor almost certainly handles guard checking faster
+		# than this script could handle guard merging.
+		# - This loop runs whenever pch.cpp might be regenerated, even
+		# if the result eventually shows that pch.cpp has not changed.
+		# The C preprocessor will only run over the file when it is
+		# actually changed and is processed to build a new .gch file.
+		for preprocessor_guard_directives, included_file_tuples in sorted(cpp_includes.iteritems()):
+			generated_pch_lines.append('')
+			generated_pch_lines.extend(preprocessor_guard_directives)
+			# local_count_seen is the direct usage count for this
+			# combination of preprocessor_guard_directives.
+			#
+			# total_count_seen is the sum of local_count_seen and all
+			# guards that are a superset of this
+			# preprocessor_guard_directives.  The total stops counting
+			# when it reaches threshold, so it may undercount actual
+			# usage.
+			for (name, local_count_seen, total_count_seen) in sorted(included_file_tuples):
+				generated_pch_lines.append('#include ' + name + ('\t// %u %u' % (local_count_seen, total_count_seen)))
+			# d[2] == l if d is '#else' or d is '#elif'
+			# Only generate #endif when d is a '#if*' directive, since
+			# '#else/#elif' do not introduce a new scope.
+			generated_pch_lines.extend('#endif' for d in preprocessor_guard_directives if d[2] != 'l')
+		return generated_pch_lines
+
+	def _compute_indirect_includes(self):
+		own_header_inclusion_threshold = self.user_settings.pch
+		sys_header_inclusion_threshold = self.user_settings.syspch
+		# Count how many times each header is used for each preprocessor
+		# guard combination.  After the outer loop finishes,
+		# files_included is a dictionary that maps the name of the
+		# include file to a collections.counter instance.  The mapped
+		# counter maps a preprocessor guard to a count of how many times
+		# it was used.
+		#
+		# Given:
+		#
+		# a.cpp
+		# #include "a.h"
+		# #ifdef A
+		# #include "b.h"
+		# #endif
+		#
+		# b.cpp
+		# #include "b.h"
+		#
+		# files_included = {
+		#	'a.h' : { () : 1 }
+		#	'b.h' : {
+		#		('#ifdef A',) : 1,	# From a.cpp
+		#		() : 1,	# From b.cpp
+		#	}
+		# }
+		files_included = self.__files_included
+		for scanned_file in self._instance_scanned_files.itervalues():
+			for included_file, guards in scanned_file.candidates.iteritems():
+				i = files_included[included_file]
+				for g in guards:
+					i[g] += 1
+		# If own_header_inclusion_threshold == 1, then every header
+		# found will be listed in pch.cpp, so any indirect headers will
+		# be included by the C preprocessor.
+		if own_header_inclusion_threshold == 1:
+			return
+		# For each include file which is below the threshold, scan it
+		# for includes which may end up above the threshold.
+		File = self.env.File
+		includes_to_check = sorted(files_included.iterkeys(), key=str)
+		while includes_to_check:
+			included_file = includes_to_check.pop()
+			if isinstance(included_file, str):
+				# System headers are str.  Internal headers are
+				# fs.File.
+				continue
+			guards = files_included[included_file]
+			unconditional_use_count = guards.get((), 0)
+			if unconditional_use_count >= own_header_inclusion_threshold and own_header_inclusion_threshold:
+				# Header will be unconditionally included in the PCH.
+				continue
+			f = self.record_file(self.env, File(included_file))
+			for nested_included_file, nested_guards in sorted(f.candidates.iteritems(), key=str):
+				if not isinstance(included_file, str) and not nested_included_file in files_included:
+					# If the header is a system header, it will be
+					# str.  Skip system headers.
+					#
+					# Otherwise, if it has not been seen before,
+					# append it to includes_to_check for recursive
+					# scanning.
+					includes_to_check.append(nested_included_file)
+				i = files_included[nested_included_file]
+				# If the nested header is included
+				# unconditionally, skip the generator.
+				for g in (nested_guards if unconditional_use_count else (a + b for a in guards for b in nested_guards)):
+					i[g] += 1
+
+	def write_pch_inclusion_file(self,target,source,env):
+		target = str(target[0])
+		fd, path = self._tempfile_mkstemp(suffix='', prefix=os.path.basename(target) + '.', dir=os.path.dirname(target), text=True)
+		# source[0].get_contents() returns the comment-stripped form
+		os.write(fd, source[0].__generated_pch_text)
+		os.close(fd)
+		os.rename(path, target)
+
+	def StaticObject(self,target,source,CXXFLAGS=None,*args,**kwargs):
+		env = self.env
+		source = env.File(source)
+		o = self.__env_StaticObject(target=target, source=source, CXXFLAGS=self.pch_CXXFLAGS + (env['CXXFLAGS'] if CXXFLAGS is None else CXXFLAGS), *args, **kwargs)
+		# Force an order dependency on the .gch file.  It is never
+		# referenced by the command line or the source files, so SCons
+		# may not recognize it as an input.
+		env.Requires(o, self.required_pch_object_node)
+		self.record_file(env, source)
+		return o
+
+	def Program(self,*args,**kwargs):
+		self._register_pch_commands()
+		if self._common_pch_manager:
+			self._common_pch_manager._register_pch_commands()
+		return self.__env_Program(*args, **kwargs)
+
+	def _register_pch_commands(self):
+		if self.__files_included:
+			# Common code calls this function once for each game which
+			# uses it.  Only one call is necessary for proper operation.
+			# Ignore all later calls.
+			return
+		self._compute_pch_text()
+		syspch_lines = self.__generated_syspch_lines
+		pch_begin_banner_template = '''
+// BEGIN PCH GENERATED FILE
+// %r
+// Threshold=%u
+'''
+		pch_end_banner = ('''
+// END PCH GENERATED FILE
+''',)
+		if self.syspch_object_node:
+			self._register_write_pch_inclusion(self.syspch_cpp_node,
+				(
+					(pch_begin_banner_template % (self.syspch_cpp_filename, self.user_settings.syspch),),
+					syspch_lines,
+					pch_end_banner,
+				)
+			)
+			# ownpch.cpp will include syspch.cpp.gch from the command
+			# line, so clear syspch_lines to avoid repeating system
+			# includes in ownpch.cpp
+			syspch_lines = ()
+		if self.ownpch_object_node:
+			self._register_write_pch_inclusion(self.ownpch_cpp_node,
+				(
+					(pch_begin_banner_template % (self.ownpch_cpp_filename, self.user_settings.pch),),
+					('// System headers' if syspch_lines else '',),
+					syspch_lines,
+					('''
+// SConf generated header
+#include "dxxsconf.h"
+
+// Own headers
+''',),
+					self.__generated_ownpch_lines,
+					pch_end_banner,
+				)
+			)
+
+	def _register_write_pch_inclusion(self,node,lineseq):
+		# The contents of pch.cpp are taken from the iterables in
+		# lineseq.  Set the contents as an input Value instead of
+		# listing file nodes, so that pch.cpp is not rebuilt if a change
+		# to a source file does not change what headers are listed in
+		# pch.cpp.
+		#
+		# Strip C++ single line comments so that changes in comments are
+		# ignored when deciding whether pch.cpp needs to be rebuilt.
+		env = self.env
+		text = '\n'.join(itertools.chain.from_iterable(lineseq))
+		v = env.Value(self._re_singleline_comments_sub('', text))
+		v.__generated_pch_text = text
+		env.Command(node, v, self.write_pch_inclusion_file)
+
 class DXXCommon(LazyObjectConstructor):
 	__shared_program_instance = [0]
 	__shared_header_file_list = []
@@ -1306,6 +1794,16 @@ class DXXCommon(LazyObjectConstructor):
 		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
 	# Settings which affect how the files are compiled
 	class UserBuildSettings:
+		class IntVariable(object):
+			def __new__(cls,key,help,default):
+				return (key, help, default, cls.__validator, int)
+			@staticmethod
+			def __validator(key, value, env):
+				try:
+					int(value)
+					return True
+				except ValueError:
+					raise SCons.Errors.UserError('Invalid value for integer-only option %s: %s.' % (key, val))
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
@@ -1330,7 +1828,9 @@ class DXXCommon(LazyObjectConstructor):
 						crc = crc + 0x100000000
 					fields.append('{:08x}'.format(crc))
 				if self.pch:
-					fields.append('p%s' % self.pch)
+					fields.append('p%u' % self.pch)
+				elif self.syspch:
+					fields.append('sp%u' % self.syspch)
 				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
@@ -1408,13 +1908,20 @@ class DXXCommon(LazyObjectConstructor):
 					('opengles_lib', self.selected_OGLES_LIB, 'name of the OpenGL ES library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data (Linux only)'),
-					('pch', None, 'pre-compile headers used this many times'),
+				),
+			},
+			{
+				'variable': self.IntVariable,
+				'arguments': (
 					('lto', 0, 'enable gcc link time optimization'),
+					('pch', None, 'pre-compile own headers used at least this many times'),
+					('syspch', None, 'pre-compile system headers used at least this many times'),
 				),
 			},
 			{
 				'variable': BoolVariable,
 				'arguments': (
+					('pch_cpp_assume_unchanged', False, 'assume text of *pch.cpp is unchanged'),
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
@@ -1605,38 +2112,7 @@ class DXXCommon(LazyObjectConstructor):
 		self.sources = []
 		self.__shared_program_instance[0] += 1
 		self.program_instance = self.__shared_program_instance[0]
-
-	@staticmethod
-	def _collect_pch_candidates(target,source,env):
-		for t in target:
-			scanner = t.get_source_scanner(source[0])
-			deps = scanner(source[0], env, scanner.path(env))
-			for d in deps:
-				ds = str(d)
-				env.__dxx_pch_candidates[ds] = env.__dxx_pch_candidates.get(ds, 0) + 1
-		return (target, source)
-
-	@staticmethod
-	def write_pch_inclusion_file(target, source, env):
-		cpp = str(target[0])
-		header = cpp[:-3] + 'h'
-		banner0 = '/* BEGIN PCH GENERATED FILE\n * Threshold=%u\n */\n' % env.__dxx_pch_inclusion_count
-		banner1 = '/* END PCH GENERATED FILE */\n'
-		with open(cpp, 'wt') as f:
-			f.write(banner0)
-			f.write('#include "%s"\n' % header)
-			f.write(banner1)
-		with open(header, 'wt') as f:
-			f.write(banner0)
-			f.write('#include "dxxsconf.h"\n')
-			dxx_pch_inclusion_count = env.__dxx_pch_inclusion_count
-			for (name,count) in env.__dxx_pch_candidates.items():
-				if os.path.isabs(name):
-					continue
-				if count >= dxx_pch_inclusion_count:
-					f.write('#include "%s"\t/* %u */\n' % (name, count))
-					env.Depends(target, name)
-			f.write(banner1)
+		self.pch_manager = None
 
 	def create_header_targets(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -1675,34 +2151,14 @@ class DXXCommon(LazyObjectConstructor):
 				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 
-	@staticmethod
-	def _create_dxx_pch_object_hook(env,pch_node):
-		pch_CXXFLAGS = ['-include', str(pch_node[0])[:-4], '-Winvalid-pch']
-		so = env.StaticObject
-		Depends = env.Depends
-		def StaticObject(*args,**kwargs):
-			CXXFLAGS = kwargs.get('CXXFLAGS', None)
-			if CXXFLAGS is None:
-				CXXFLAGS = env['CXXFLAGS']
-			o = so(CXXFLAGS=CXXFLAGS + pch_CXXFLAGS, *args, **kwargs)
-			Depends(o, pch_node)
-			return o
-		return StaticObject
-
-	def create_pch_node(self,dirname,configure_pch_flags):
+	def create_pch_node(self,archive):
 		if self.user_settings.check_header_includes:
 			self.create_header_targets()
-		StaticObject = self.env.StaticObject
-		if not configure_pch_flags:
-			self.env._dxx_pch_object = StaticObject
-			return
-		source = os.path.join(self.user_settings.builddir, dirname, 'pch.cpp')
 		env = self.env
-		env._dxx_pch_object = self._create_dxx_pch_object_hook(env, StaticObject(target=source[:-3] + 'h.gch', source=source, CXXFLAGS=self.env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']))
-		self.env.__dxx_pch_candidates = {}
-		self.env.__dxx_pch_inclusion_count = int(self.user_settings.pch)
-		self.env['BUILDERS']['StaticObject'].add_emitter('.cpp', self._collect_pch_candidates)
-		self.env.Command(source, None, self.write_pch_inclusion_file)
+		configure_pch_flags = archive.configure_pch_flags
+		if not configure_pch_flags:
+			return
+		self.pch_manager = pch_manager = PCHManager(self.user_settings, env, self.srcdir, configure_pch_flags, archive.pch_manager)
 
 	def _quote_cppdefine(self,s,f=repr):
 		r = ''
@@ -2001,7 +2457,7 @@ class DXXArchive(DXXCommon):
 		self.check_endian()
 		self.process_user_settings()
 		self.configure_environment()
-		self.create_pch_node(self.srcdir, self.configure_pch_flags)
+		self.create_pch_node(self)
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -2255,7 +2711,7 @@ class DXXProgram(DXXCommon):
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
 		self.env.MergeFlags(archive.configure_added_environment_flags)
-		self.create_pch_node(self.srcdir, archive.configure_pch_flags)
+		self.create_pch_node(archive)
 		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
 		# For PRIi64
 		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
@@ -2370,12 +2826,12 @@ class DXXProgram(DXXCommon):
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
-		versid_objlist = [self.env._dxx_pch_object(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
+		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
 		if self.user_settings.versid_depend_all:
 			env.Depends(versid_objlist[0], objects)
 		objects.extend(versid_objlist)
 		# finally building program...
-		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, str(exe_target)), source = self.sources + objects)
+		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = self.sources + objects)
 		if self.user_settings.host_platform != 'darwin':
 			if self.user_settings.register_install_target:
 				install_dir = (self.user_settings.DESTDIR or '') + self.user_settings.BIN_DIR
@@ -2482,7 +2938,6 @@ def _filter_duplicate_prefix_elements(e,s):
 	return r
 def register_program(program,other_program):
 	s = program.shortname
-	import itertools
 	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [other_program.shortname not in ARGUMENTS]
 	# Fallback case: build the regular configuration.
 	if len(l) == 1:
