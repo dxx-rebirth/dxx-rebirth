@@ -1472,6 +1472,18 @@ void Flare_create(const vobjptridx_t obj)
 #define	HOMING_MISSILE_SCALE	8
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	HOMING_MISSILE_SCALE	16
+
+static bool is_any_guided_missile(const vcobjptr_t obj)
+{
+	if (get_weapon_id(obj) != GUIDEDMISS_ID)
+		return false;
+	if (obj->ctype.laser_info.parent_type != OBJ_PLAYER)
+		return false;
+	const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
+	if (obj != Guided_missile[pnum])
+		return false;
+	return obj->signature == Guided_missile_sig[pnum];
+}
 #endif
 
 //--------------------------------------------------------------------
@@ -1528,7 +1540,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[get_weapon_id(obj)].homing_flag && !(get_weapon_id(obj)==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER && obj==Guided_missile[get_player_id(&Objects[obj->ctype.laser_info.parent_num])] && obj->signature==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id]->signature))
+	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_any_guided_missile(obj))
 #endif
 	{
 		vms_vector		vector_to_object, temp_vec;
