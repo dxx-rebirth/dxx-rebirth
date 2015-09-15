@@ -184,7 +184,7 @@ void valptridx<managed_type>::check_null_pointer(const_pointer_type p, const arr
 template <typename managed_type>
 void valptridx<managed_type>::check_implicit_index_range_ref(const managed_type &r, const array_managed_type &a)
 {
-	check_explicit_index_range_ref(r, &r - &a.front(), a);
+	check_explicit_index_range_ref(r, static_cast<const_pointer_type>(&r) - static_cast<const_pointer_type>(&a.front()), a);
 }
 
 template <typename managed_type>
@@ -561,7 +561,7 @@ public:
 		 * vptr_type to avoid checking again.
 		 */
 		vptr_type((check_null_pointer(p, a), *p), a),
-		vidx_type(p - &a.front(), a)
+		vidx_type(p - static_cast<pointer_type>(&a.front()), a)
 	{
 	}
 	basic_ptridx(pointer_type p, index_type i, array_managed_type &a) :
@@ -678,7 +678,7 @@ public:
 	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\
 	static inline v##prefix##ptridx_t operator-(P Pconst *o, decltype(A) Pconst &O)	\
 	{	\
-		return {o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - &(const_cast<const decltype(A) &>(O).front())), A};	\
+		return {o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - static_cast<const P *>(&(const_cast<const decltype(A) &>(O).front()))), A};	\
 	}	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\

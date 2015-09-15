@@ -8,7 +8,7 @@ class exact_type
 {
 	T *p;
 public:
-	operator bool() = delete;
+	operator bool() const = delete;
 	// Conversion to void* variants is prohibited
 	operator void *() const = delete;
 	operator volatile void *() const = delete;

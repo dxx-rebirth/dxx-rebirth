@@ -2352,7 +2352,6 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, const objptridx_t is_bomb_objnum)
 {
-	const auto ownship = &get_local_plrobj();
 	static fix64 last_fireup_time = 0;
 
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
@@ -2378,9 +2377,10 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[4] = (char)laser_flags;
 	multibuf[5] = (char)laser_fired;
 
-	PUT_INTEL_INT(multibuf+6 , ownship->orient.fvec.x);
-	PUT_INTEL_INT(multibuf+10, ownship->orient.fvec.y);
-	PUT_INTEL_INT(multibuf+14, ownship->orient.fvec.z);
+	const auto &ownship = get_local_plrobj();
+	PUT_INTEL_INT(multibuf+6 , ownship.orient.fvec.x);
+	PUT_INTEL_INT(multibuf+10, ownship.orient.fvec.y);
+	PUT_INTEL_INT(multibuf+14, ownship.orient.fvec.z);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
@@ -3609,8 +3609,7 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
-	auto objp = &Objects[Players[pnum].objnum];
-	auto objnum = spit_powerup(objp, powerup_id, seed);
+	auto objnum = spit_powerup(vobjptr(Players[pnum].objnum), powerup_id, seed);
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 

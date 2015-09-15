@@ -1070,7 +1070,7 @@ public:
 	{
 		range_for (const auto t, segstate.objects)
 		{
-			auto objp = &Objects[t.objnum];
+			const auto &&objp = vobjptr(t.objnum);
 			auto &e = (*this)[t.objnum];
 #if defined(DXX_BUILD_DESCENT_II)
 			e.objp = objp;

@@ -309,16 +309,15 @@ static void DrawMarkerNumber (automap *am, int num)
 static void DropMarker (int player_marker_num)
 {
 	int marker_num = (Player_num*2)+player_marker_num;
-	const auto playerp = &get_local_plrobj();
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(MarkerObject[marker_num]);
 
-	MarkerObject[marker_num] = drop_marker_object(playerp->pos,playerp->segnum,playerp->orient,marker_num);
+	const auto &playerp = get_local_plrobj();
+	MarkerObject[marker_num] = drop_marker_object(playerp.pos, playerp.segnum, playerp.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
-		multi_send_drop_marker (Player_num,playerp->pos,player_marker_num,MarkerMessage[marker_num]);
-
+		multi_send_drop_marker(Player_num, playerp.pos, player_marker_num, MarkerMessage[marker_num]);
 }
 
 void DropBuddyMarker(const vobjptr_t objp)
