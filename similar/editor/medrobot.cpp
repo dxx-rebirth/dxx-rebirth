@@ -107,8 +107,8 @@ static void call_init_ai_object(const vobjptr_t objp, ai_behavior behavior)
 static int RobotNextType()
 {
 	if (Cur_object_index != object_none )	{
+		const auto &&obj = vobjptr(Cur_object_index);
 		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
-			object * obj = &Objects[Cur_object_index];
 			obj->id++;
 			if (obj->id >= N_robot_types )
 				obj->id = 0;
@@ -135,8 +135,8 @@ static int RobotNextType()
 static int RobotPrevType()
 {
 	if (Cur_object_index != object_none )	{
+		const auto &&obj = vobjptr(Cur_object_index);
 		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
-			object * obj = &Objects[Cur_object_index];
 			if (obj->id == 0 ) 
 				obj->id = N_robot_types-1;
 			else
@@ -686,7 +686,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index != object_none )	{
-			int	id = get_robot_id(&Objects[Cur_object_index]);
+			const auto id = get_robot_id(Objects[Cur_object_index]);
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
 			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);

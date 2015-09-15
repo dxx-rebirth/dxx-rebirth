@@ -90,7 +90,7 @@ void read_flying_controls(const vobjptr_t obj)
 		const auto &&rotmat = vm_angles_2_matrix(rotangs);
 		m->orient = vm_matrix_x_matrix(m->orient, rotmat);
 
-		const auto speed = Weapon_info[get_weapon_id(m)].speed[Difficulty_level];
+		const auto speed = Weapon_info[get_weapon_id(*m)].speed[Difficulty_level];
 
 		vm_vec_copy_scale(m->mtype.phys_info.velocity, m->orient.fvec, speed);
 		if (Game_mode & GM_MULTI)

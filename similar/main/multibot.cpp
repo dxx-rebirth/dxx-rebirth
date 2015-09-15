@@ -406,7 +406,7 @@ void multi_send_thief_frame()
         {
                 if (Objects[i].type == OBJ_ROBOT)
                 {
-                        if (robot_is_thief(&Robot_info[get_robot_id(&Objects[i])]))
+			if (robot_is_thief(&Robot_info[get_robot_id(Objects[i])]))
                         {
                                 if ((multi_i_am_master() && (Objects[i].ctype.ai_info.REMOTE_OWNER == -1)) || (Objects[i].ctype.ai_info.REMOTE_OWNER == Player_num))
                                 {

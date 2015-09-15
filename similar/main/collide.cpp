@@ -519,11 +519,11 @@ static int effect_parent_is_guidebot(const laser_parent &laser)
 {
 	if (laser.parent_type != OBJ_ROBOT)
 		return 0;
-	const object *robot = &Objects[laser.parent_num];
+	const auto &&robot = vcobjptr(laser.parent_num);
 	if (robot->signature != laser.parent_signature)
 		/* parent replaced, no idea what it once was */
 		return 0;
-	const ubyte robot_id = get_robot_id(robot);
+	const auto robot_id = get_robot_id(robot);
 	const robot_info *robptr = &Robot_info[robot_id];
 	return robot_is_companion(robptr);
 }

@@ -398,14 +398,14 @@ struct obj_position
 
 DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
 
-static inline ubyte get_hostage_id(const vcobjptr_t o)
+static inline uint8_t get_hostage_id(const object &o)
 {
-	return o->id;
+	return o.id;
 }
 
-static inline ubyte get_player_id(const vcobjptr_t o)
+static inline uint8_t get_player_id(const object &o)
 {
-	return o->id;
+	return o.id;
 }
 
 static inline powerup_type_t get_powerup_id(const vcobjptr_t o)
@@ -413,41 +413,41 @@ static inline powerup_type_t get_powerup_id(const vcobjptr_t o)
 	return static_cast<powerup_type_t>(o->id);
 }
 
-static inline ubyte get_reactor_id(const vcobjptr_t o)
+static inline uint8_t get_reactor_id(const object &o)
 {
-	return o->id;
+	return o.id;
 }
 
-static inline ubyte get_robot_id(const vcobjptr_t o)
+static inline uint8_t get_robot_id(const object &o)
 {
-	return o->id;
+	return o.id;
 }
 
-static inline weapon_type_t get_weapon_id(const vcobjptr_t o)
+static inline weapon_type_t get_weapon_id(const object &o)
 {
-	return static_cast<weapon_type_t>(o->id);
+	return static_cast<weapon_type_t>(o.id);
 }
 
-static inline void set_hostage_id(const vobjptr_t o, ubyte id)
+static inline void set_hostage_id(object &o, ubyte id)
 {
-	o->id = id;
+	o.id = id;
 }
 
-static inline void set_player_id(const vobjptr_t o, ubyte id)
+static inline void set_player_id(object &o, ubyte id)
 {
-	o->id = id;
+	o.id = id;
 }
 
-void set_powerup_id(vobjptr_t o, powerup_type_t id);
+void set_powerup_id(object &o, powerup_type_t id);
 
-static inline void set_robot_id(const vobjptr_t o, ubyte id)
+static inline void set_robot_id(object &o, ubyte id)
 {
-	o->id = id;
+	o.id = id;
 }
 
-static inline void set_weapon_id(const vobjptr_t o, weapon_type_t id)
+static inline void set_weapon_id(object &o, weapon_type_t id)
 {
-	o->id = id;
+	o.id = id;
 }
 #endif
 

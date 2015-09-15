@@ -1247,7 +1247,7 @@ void obj_delete(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
-		int pnum=get_player_id(&Objects[obj->ctype.laser_info.parent_num]);
+		const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
 
 		if (pnum!=Player_num) {
 			Guided_missile[pnum]=NULL;
@@ -1986,13 +1986,13 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
-void set_powerup_id(const vobjptr_t o, powerup_type_t id)
+void set_powerup_id(object &o, powerup_type_t id)
 {
-	o->id = id;
-	o->size = Powerup_info[id].size;
+	o.id = id;
+	o.size = Powerup_info[id].size;
 	const auto vclip_num = Powerup_info[id].vclip_num;
-	o->rtype.vclip_info.vclip_num = vclip_num;
-	o->rtype.vclip_info.frametime = Vclip[vclip_num].frame_time;
+	o.rtype.vclip_info.vclip_num = vclip_num;
+	o.rtype.vclip_info.frametime = Vclip[vclip_num].frame_time;
 }
 
 //go through all objects and make sure they have the correct segment numbers
