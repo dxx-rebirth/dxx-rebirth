@@ -1522,11 +1522,8 @@ void kill_stuck_objects(int wallnum)
 // Initialize stuck objects array.  Called at start of level
 void init_stuck_objects(void)
 {
-	int	i;
-
-	for (i=0; i<MAX_STUCK_OBJECTS; i++)
-		Stuck_objects[i].wallnum = -1;
-
+	range_for (auto &i, Stuck_objects)
+		i.wallnum = -1;
 	Num_stuck_objects = 0;
 }
 
@@ -1534,19 +1531,14 @@ void init_stuck_objects(void)
 // Clear out all stuck objects.  Called for a new ship
 void clear_stuck_objects(void)
 {
-	int	i;
+	range_for (auto &i, Stuck_objects)
+	{
+		if (i.wallnum != -1) {
+			const auto &&objp = vobjptr(i.objnum);
+			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == FLARE_ID)
+				objp->lifeleft = F1_0/8;
 
-	for (i=0; i<MAX_STUCK_OBJECTS; i++) {
-		if (Stuck_objects[i].wallnum != -1) {
-			int	objnum;
-
-			objnum = Stuck_objects[i].objnum;
-
-			if ((Objects[objnum].type == OBJ_WEAPON) && (get_weapon_id(&Objects[objnum]) == FLARE_ID))
-				Objects[objnum].lifeleft = F1_0/8;
-
-			Stuck_objects[i].wallnum = -1;
-
+			i.wallnum = -1;
 			Num_stuck_objects--;
 		}
 	}
