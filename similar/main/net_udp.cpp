@@ -3182,7 +3182,8 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 #ifdef USE_TRACKER
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
-	DXX_##VERB##_CHECK(tracker, opt_tracker, Netgame.Tracker)
+	DXX_##VERB##_CHECK(tracker, opt_tracker, Netgame.Tracker) \
+	DXX_##VERB##_TEXT(tracker_addr_txt, opt_tracker_addr)
 #else
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
@@ -3201,7 +3202,8 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
 	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, 5*F1_0*60)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
-	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
+	DXX_##VERB##_TEXT(KillText, opt_killgoal_label)	\
+	DXX_##VERB##_SLIDER("", opt_killgoal, Netgame.KillGoal, 0, 20)	\
 	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
 	D2X_UDP_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_SLIDER(SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
@@ -3210,8 +3212,9 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
 	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
-	DXX_##VERB##_MENU("Duplicate powerups at level start", opt_set_powerup_duplicates)	\
-	DXX_##VERB##_SLIDER(SecludedSpawnText, opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
+	DXX_##VERB##_MENU("Duplicate objects at start", opt_set_powerup_duplicates)	\
+	DXX_##VERB##_TEXT(SecludedSpawnText, opt_secluded_spawns_label)	\
+	DXX_##VERB##_SLIDER("", opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
@@ -3282,11 +3285,12 @@ class more_game_options_menu_items
 	char portstring[sizeof("65535")];
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
-	char SpawnInvulnerableText[sizeof("Spawn invulnerability: 0.0 sec")];
+	char SpawnInvulnerableText[sizeof("Spawn invul.: 0.0 sec")];
 	char SecludedSpawnText[sizeof("Spawn only at 0 farthest sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
 #ifdef USE_TRACKER
-	char tracker[sizeof("Track this game on\n:65535") + 28];
+	char tracker[sizeof("Track this game on")];
+        char tracker_addr_txt[sizeof("65535") + 28];
 #endif
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
 	menu_array m;
@@ -3313,7 +3317,7 @@ public:
 	}
 	void update_spawn_invuln_string()
 	{
-		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Spawn invulnerability: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
+		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Spawn invul.: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 	}
 	void update_secluded_spawn_string()
 	{
@@ -3340,9 +3344,15 @@ public:
 #ifdef USE_TRACKER
 		const auto &tracker_addr = GameArg.MplTrackerAddr;
 		if (tracker_addr.empty())
+                {
 			nm_set_item_text(m[opt_tracker], "Tracker use disabled");
+                        nm_set_item_text(m[opt_tracker_addr], "<Tracker address not set>");
+                }
 		else
-			snprintf(tracker, sizeof(tracker), "Track this game on\n%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
+                {
+			snprintf(tracker, sizeof(tracker), "Track this game on");
+                        snprintf(tracker_addr_txt, sizeof(tracker_addr_txt), "%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
+                }
 #endif
 	}
 	void read() const
@@ -3422,7 +3432,7 @@ static void net_udp_set_grant_power()
 static void net_udp_set_duplicate_powerups()
 {
 	duplicate_powerup_menu_items menu{Netgame.DuplicatePowerups};
-	newmenu_do(nullptr, "Duplicate powerups at level start", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
+	newmenu_do(nullptr, "Duplicate objects at start", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	menu.read(Netgame.DuplicatePowerups);
 }
 
