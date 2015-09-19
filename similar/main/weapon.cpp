@@ -126,6 +126,15 @@ array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 
+static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
+{
+#if defined(DXX_BUILD_DESCENT_II)
+	if (weapon_index == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
+		return SUPER_LASER_INDEX;
+#endif
+	return weapon_index;
+}
+
 // ; (0) Laser Level 1
 // ; (1) Laser Level 2
 // ; (2) Laser Level 3
@@ -241,16 +250,10 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	int cur_order_slot, desired_weapon = Primary_weapon, loop=0;
+	int desired_weapon = Primary_weapon, loop=0;
 	const int autoselect_order_slot = POrderList(255);
 	
-#if defined(DXX_BUILD_DESCENT_II)
-	// some remapping for SUPER LASER which is not an actual weapon type at all
-	if (Primary_weapon == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
-		cur_order_slot = POrderList(SUPER_LASER_INDEX);
-	else
-#endif
-		cur_order_slot = POrderList(Primary_weapon);
+	auto cur_order_slot = POrderList(get_mapped_weapon_index());
 	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 
 	while (loop<(MAX_PRIMARY_WEAPONS+1))
@@ -794,7 +797,7 @@ int pick_up_primary(int weapon_index)
 {
 	//ushort old_flags = Players[Player_num].primary_weapon_flags;
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
-	int cutpoint, supposed_weapon=Primary_weapon;
+	int cutpoint;
 
 	if (weapon_index!=LASER_INDEX && get_local_player().primary_weapon_flags & flag) {		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
@@ -805,11 +808,7 @@ int pick_up_primary(int weapon_index)
 
 	cutpoint=POrderList (255);
 
-#if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon==LASER_INDEX && get_local_player().laser_level>=4)
-		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
-#endif
-
+	const auto supposed_weapon = get_mapped_weapon_index();
 	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index) < cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_primary_weapon(nullptr, weapon_index, 1);
 
@@ -863,13 +862,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 		return ammo_count;
 	const auto cutpoint = POrderList(255);
 	const auto primary_weapon = Primary_weapon;
-	const auto supposed_weapon =
-#if defined(DXX_BUILD_DESCENT_II)
-		primary_weapon == primary_weapon_index_t::LASER_INDEX && plr.laser_level >= LASER_LEVEL_5
-		? SUPER_LASER_INDEX  // allotment for stupid way of doing super laser
-		:
-#endif
-		primary_weapon;
+	const auto supposed_weapon = get_mapped_weapon_index(primary_weapon);
 	const auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 	const auto powi = POrderList(weapon_index);
 	if (powi < cutpoint &&
