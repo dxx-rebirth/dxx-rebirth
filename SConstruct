@@ -350,13 +350,20 @@ struct %(N)s_derived : %(N)s_base {
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
 		if forced is None:
-			undef_SDL_main = '\n#undef main	/* avoid -Dmain=SDL_main from libSDL */\n'
-			r = action(text + undef_SDL_main + 'int main(int argc,char**argv){(void)argc;(void)argv;' + main + ';}\n', ext)
+			r = action('''
+%s
+
+#undef main	/* avoid -Dmain=SDL_main from libSDL */
+int main(int argc,char**argv){(void)argc;(void)argv;
+%s
+
+;}
+''' % (text, main), ext)
 			if expect_failure:
 				r = not r
 			context.Result((successmsg if r else failuremsg) or r)
 			if expected is not None and r != expected:
-				raise SCons.Errors.StopError('Expected and actual results differ.  Test should ' + ('succeed' if expected else 'fail') + ', but it did not.')
+				raise SCons.Errors.StopError('Expected and actual results differ.  Test should %s, but it did not.' % ('succeed' if expected else 'fail'))
 		else:
 			choices = (self.sconf_force_failure, self.sconf_force_success, self.sconf_assume_success)
 			if forced not in choices:
@@ -402,11 +409,11 @@ struct %(N)s_derived : %(N)s_base {
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
-		if self.Link(context, text=include, main=main, msg='for usable library ' + lib, successflags=successflags):
+		if self.Link(context, text=include, main=main, msg='for usable library %s' % lib, successflags=successflags):
 			return
-		if self.Compile(context, text=include, main=main, msg='for usable header ' + header[-1], testflags=successflags):
+		if self.Compile(context, text=include, main=main, msg='for usable header %s' % header[-1], testflags=successflags):
 			return (0, "Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		if self.Compile(context, text=include, main=main, msg='for parseable header ' + header[-1], testflags=successflags):
+		if self.Compile(context, text=include, main=main, msg='for parseable header %s' % header[-1], testflags=successflags):
 			return (1, "Header %s is parseable, but cannot compile the test program." % (header[-1]))
 		return (2, "Header %s is missing or unusable." % (header[-1]))
 	def _check_system_library(self,*args,**kwargs):
@@ -454,16 +461,16 @@ struct %(N)s_derived : %(N)s_base {
 	def check_libSDL2(self,context):
 		self._check_libSDL(context, '2')
 	def _check_libSDL(self,context,sdl2):
-		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl' + sdl2, 'SDL' + sdl2)
+		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2)
 		# SDL2 removed CD-rom support.
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
-	SDL_Init(SDL_INIT_JOYSTICK | ''' + init_cdrom + ''' | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_JOYSTICK | %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_FreeRW(ops);
 	SDL_Quit();
-''',
+''' % init_cdrom,
 			lib='SDL', successflags=successflags
 		)
 	@_implicit_test
@@ -473,7 +480,7 @@ struct %(N)s_derived : %(N)s_base {
 	def check_SDL2_mixer(self,context):
 		self._check_SDL_mixer(context, '2')
 	def _check_SDL_mixer(self,context,sdl2):
-		mixer = 'SDL' + sdl2 + '_mixer'
+		mixer = 'SDL%s_mixer' % sdl2
 		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if self.user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
 		if not self.user_settings.sdlmixer:
@@ -482,7 +489,8 @@ struct %(N)s_derived : %(N)s_base {
 		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, mixer, mixer)
 		if self.user_settings.host_platform == 'darwin':
 			successflags['FRAMEWORKS'] = [mixer]
-			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/' + mixer + '.framework/Headers'), '/Library/Frameworks/' + mixer + '.framework/Headers']
+			relative_headers = 'Library/Frameworks/%s.framework/Headers' % mixer
+			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers]
 		self._check_system_library(context,header=['SDL_mixer.h'],main='''
 	int i = Mix_Init(MIX_INIT_FLAC | MIX_INIT_OGG);
 	(void)i;
@@ -619,7 +627,7 @@ help:assume compiler supports __attribute__((always_inline))
 """
 		macro_name = '__attribute_always_inline()'
 		macro_value = '__attribute__((__always_inline__))'
-		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + 'static inline void a(){}', main='a();', msg='for function __attribute__((always_inline))')
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test='%s static inline void a(){}' % macro_name, main='a();', msg='for function __attribute__((always_inline))')
 	@_custom_test
 	def check_attribute_alloc_size(self,context):
 		"""
@@ -690,7 +698,7 @@ help:assume compiler supports __attribute__((noreturn))
 """
 		macro_name = '__attribute_noreturn'
 		macro_value = '__attribute__((noreturn))'
-		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=macro_name + ' void a();void a(){for(;;);}', main='a();', msg='for function __attribute__((noreturn))')
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test='%s void a();void a(){for(;;);}' % macro_name, main='a();', msg='for function __attribute__((noreturn))')
 	@_custom_test
 	def check_attribute_used(self,context):
 		"""
@@ -917,10 +925,11 @@ help:assume Boost.Foreach works
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
-		raise SCons.Errors.StopError("C++ compiler does not support " +
+		raise SCons.Errors.StopError("C++ compiler does not support %s." %
 			', '.join(
-				[f.name for f in features if not self.Cxx11Compile(context, text=f.text, main=f.main, msg='for C++11 ' + f.name)]
-			) + '.')
+				[f.name for f in features if not self.Cxx11Compile(context, text=f.text, main=f.main, msg='for C++11 %s' % f.name)]
+			)
+		)
 	@_custom_test
 	def check_constexpr_union_constructor(self,context):
 		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
@@ -1113,7 +1122,7 @@ I a()
 		macro_value = self._quote_macro_value('''
 	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
 	using _dxx_constructor_base_type::_dxx_constructor_base_type;''')
-		if self.Cxx11Compile(context, text=blacklist_clang_libcxx + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs):
+		if self.Cxx11Compile(context, text=text.format(leading_text=blacklist_clang_libcxx, macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs):
 			return macro_value
 		return None
 	@_implicit_test
@@ -1126,12 +1135,13 @@ help:assume compiler supports variadic template-based constructor forwarding
         D(Args&&... args) :
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
 ''')
-		if self.Cxx11Compile(context, text='#include <algorithm>\n' + text.format(macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
+		if self.Cxx11Compile(context, text=text.format(leading_text='#include <algorithm>\n' , macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
 			return macro_value
 		return None
 	@_custom_test
 	def _check_forward_constructor(self,context):
 		text = '''
+{leading_text}
 #define {macro_name}{macro_parameters} {macro_value}
 struct A {{
 	A(int){{}}
@@ -1145,13 +1155,13 @@ struct B:A {{
 		# C++03 support is possible with enumerated out template
 		# variations.  If someone finds a worthwhile compiler without
 		# variadic templates, enumerated templates can be added.
+		fmtargs = {'macro_name':macro_name, 'macro_parameters':macro_parameters}
 		for f in (self.check_cxx11_inherit_constructor, self.check_cxx11_variadic_forward_constructor):
-			macro_value = f(context, text=text, main='B(0)', fmtargs={'macro_name':macro_name, 'macro_parameters':macro_parameters})
+			macro_value = f(context, text=text, main='B(0)', fmtargs=fmtargs)
 			if macro_value:
-				break
-		if not macro_value:
-			raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
-		context.sconf.Define(macro_name + macro_parameters, macro_value)
+				context.sconf.Define(macro_name + macro_parameters, macro_value)
+				return
+		raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 	@_custom_test
 	def check_cxx11_ref_qualifier(self,context):
 		text = '''
@@ -1235,11 +1245,11 @@ help:always wipe certain freed memory
 
 def add_compiler_option_tests():
 	def define_compiler_option_test(opt, doc=None):
-		n = 'compiler_option' + opt.replace('-', '_').replace('=', '_')
+		n = 'compiler_option%s' % opt.replace('-', '_').replace('=', '_')
 		def f(self, context):
-			self.Compile(context, text='', main='', msg='whether compiler accepts ' + opt, successflags={'CXXFLAGS' : [opt]}, calling_function=n)
-		cn = 'check_' + n
-		custom_tests(RecordedTest(cn, doc or ('assume compiler accepts ' + opt)))
+			self.Compile(context, text='', main='', msg='whether compiler accepts %s' % opt, successflags={'CXXFLAGS' : [opt]}, calling_function=n)
+		cn = 'check_%s' % n
+		custom_tests(RecordedTest(cn, doc or ('assume compiler accepts %s' % opt)))
 		setattr(ConfigureTests, cn, f)
 	RecordedTest = ConfigureTests.Collector.RecordedTest
 	custom_tests = ConfigureTests._custom_test.record
@@ -1313,7 +1323,7 @@ class FilterHelpText:
 			if isinstance(actual, str) and not actual.isalnum():
 				actual = '"%s"' % actual
 			l.append("current: {current}".format(current=actual))
-		return (" {opt:%u}  {help}" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help) + (" [" + "; ".join(l) + "]" if l else '') + '\n'
+		return (" {opt:%u}  {help}{l}\n" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help, l=(" [" + "; ".join(l) + "]" if l else ''))
 
 class PCHManager(object):
 	class ScannedFile:
@@ -1377,13 +1387,13 @@ class PCHManager(object):
 		if user_settings.syspch:
 			self.syspch_cpp_filename = syspch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'syspch.cpp')
 			self.syspch_cpp_node = File(syspch_cpp_filename)
-			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target=syspch_cpp_filename + '.gch', source=self.syspch_cpp_node, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target='%s.gch' % syspch_cpp_filename, source=self.syspch_cpp_node, CXXFLAGS=CXXFLAGS)
 		if user_settings.pch:
 			self.ownpch_cpp_filename = ownpch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'ownpch.cpp')
 			self.ownpch_cpp_node = File(ownpch_cpp_filename)
 			if syspch_object_node:
 				CXXFLAGS += ['-include', syspch_cpp_filename, '-Winvalid-pch']
-			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target=ownpch_cpp_filename + '.gch', source=self.ownpch_cpp_node, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXFLAGS=CXXFLAGS)
 			env.Depends(ownpch_object_node, File(os.path.join(self.user_settings.builddir, 'dxxsconf.h')))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
@@ -1474,7 +1484,7 @@ class PCHManager(object):
 		for line in map(str.strip, source_filenode.get_contents().splitlines()):
 			if preceding_line is not None:
 				# Basic support for line continuation.
-				line = preceding_line[:-1] + ' ' + line
+				line = '%s %s' % (preceding_line[:-1], line)
 				preceding_line = None
 			elif not line.startswith('#'):
 				# Allow unlimited non-preprocessor lines before the
@@ -1537,7 +1547,7 @@ class PCHManager(object):
 						# will evaluate as false.
 						continue
 					name = env.File(name)
-					name.__filename = '"' + effective_name + '"'
+					name.__filename = '"%s"' % effective_name
 				candidates[name].add(tuple(guard))
 			elif directive == 'endif':
 				# guard should always be True here, but test to avoid
@@ -1547,14 +1557,14 @@ class PCHManager(object):
 			elif directive == 'else':
 				# #else is handled separately because it has no
 				# arguments
-				guard.append('#' + directive)
+				guard.append('#%s' % directive)
 			elif directive in (
 				'elif',
 				'if',
 				'ifdef',
 				'ifndef',
 			):
-				guard.append('#' + directive + ' ' + m.group(2))
+				guard.append('#%s %s' % (directive, m.group(2)))
 			elif directive not in ('error',):
 				raise SCons.Errors.StopError("Scanning %s found unhandled C preprocessor directive %r" % (str(source_filenode), directive))
 		return cls.ScannedFile(candidates)
@@ -1637,7 +1647,7 @@ class PCHManager(object):
 			# when it reaches threshold, so it may undercount actual
 			# usage.
 			for (name, local_count_seen, total_count_seen) in sorted(included_file_tuples):
-				generated_pch_lines.append('#include ' + name + ('\t// %u %u' % (local_count_seen, total_count_seen)))
+				generated_pch_lines.append('#include %s\t// %u %u' % (name, local_count_seen, total_count_seen))
 			# d[2] == l if d is '#else' or d is '#elif'
 			# Only generate #endif when d is a '#if*' directive, since
 			# '#else/#elif' do not introduce a new scope.
@@ -1716,7 +1726,7 @@ class PCHManager(object):
 
 	def write_pch_inclusion_file(self,target,source,env):
 		target = str(target[0])
-		fd, path = self._tempfile_mkstemp(suffix='', prefix=os.path.basename(target) + '.', dir=os.path.dirname(target), text=True)
+		fd, path = self._tempfile_mkstemp(suffix='', prefix='%s.' % os.path.basename(target), dir=os.path.dirname(target), text=True)
 		# source[0].get_contents() returns the comment-stripped form
 		os.write(fd, source[0].__generated_pch_text)
 		os.close(fd)
@@ -1883,7 +1893,7 @@ class DXXCommon(LazyObjectConstructor):
 				return 'GLESv2'
 			return self.default_OGLES_LIB
 		def __default_DATA_DIR(self):
-			return self.prefix + '/share/games/' + self._program.target
+			return '%s/share/games/%s' % (self.prefix, self._program.target)
 		BoolVariable = staticmethod(BoolVariable)
 		EnumVariable = staticmethod(EnumVariable)
 		@staticmethod
@@ -2058,7 +2068,7 @@ class DXXCommon(LazyObjectConstructor):
 									value = stack.join([value, v])
 								else:
 									value = v
-							if d.get(n + '_stop', None):
+							if d.get('%s_stop' % n, None):
 								break
 							continue
 						value = v
@@ -2188,9 +2198,11 @@ class DXXCommon(LazyObjectConstructor):
 			return
 		self.pch_manager = pch_manager = PCHManager(self.user_settings, env, self.srcdir, configure_pch_flags, archive.pch_manager)
 
-	def _quote_cppdefine(self,s,f=repr):
+	@staticmethod
+	def _quote_cppdefine(s,f=repr):
 		r = ''
 		prior = False
+		b2a_hex = binascii.b2a_hex
 		for c in f(s):
 			# No xdigit support in str
 			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
@@ -2198,11 +2210,11 @@ class DXXCommon(LazyObjectConstructor):
 			elif c == '\n':
 				r += r'\n'
 			else:
-				r += '\\\\x' + binascii.b2a_hex(c)
+				r += r'\\x%s' % b2a_hex(c)
 				prior = True
 				continue
 			prior = False
-		return '\\"' + r + '\\"'
+		return '\\"%s\\"' % r
 
 	def prepare_environment(self):
 		# Prettier build messages......
@@ -2210,19 +2222,24 @@ class DXXCommon(LazyObjectConstructor):
 		target_string = ' -o $TARGET'
 		cxxcom = self.env['CXXCOM']
 		if target_string + ' ' in cxxcom:
-			cxxcom = cxxcom.replace(target_string, '') + target_string
+			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
 		# Add ccache/distcc only for compile, not link
 		if self.user_settings.ccache:
-			cxxcom = self.user_settings.ccache + ' ' + cxxcom
-			if self.user_settings.distcc:
-				self.env['ENV']['CCACHE_PREFIX'] = self.user_settings.distcc
+			cxxcom = '%s %s' % (self.user_settings.ccache, cxxcom)
+			distcc_path = self.user_settings.distcc
+			if distcc_path is not None:
+				penv = self.env['ENV']
+				if distcc_path:
+					penv['CCACHE_PREFIX'] = distcc_path
+				elif distcc_path is not None:
+					penv.pop('CCACHE_PREFIX', None)
 		elif self.user_settings.distcc:
-			cxxcom = self.user_settings.distcc + ' ' + cxxcom
+			cxxcom = '%s %s' % (self.user_settings.distcc, cxxcom)
 		self.env['CXXCOM'] = cxxcom
 		# Move target to end of link command
 		linkcom = self.env['LINKCOM']
 		if target_string + ' ' in linkcom:
-			linkcom = linkcom.replace(target_string, '') + target_string
+			linkcom = '%s%s' % (linkcom.replace(target_string, ''), target_string)
 		# Add $CXXFLAGS to link command
 		cxxflags = '$CXXFLAGS '
 		if ' ' + cxxflags not in linkcom:
@@ -2349,16 +2366,18 @@ class DXXCommon(LazyObjectConstructor):
 
 		# Raspberry Pi?
 		if (self.user_settings.raspberrypi == 1):
-			message(self, "Raspberry Pi: using VideoCore libs in \"%s\"" % self.user_settings.rpi_vc_path)
+			rpi_vc_path = self.user_settings.rpi_vc_path
+			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
 			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
 			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
 			env.Append(CPPFLAGS = [
-				'-isystem='+self.user_settings.rpi_vc_path+'/include',
-				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vcos/pthreads',
-				'-isystem='+self.user_settings.rpi_vc_path+'/include/interface/vmcs_host/linux'])
-			env.Append(LIBPATH = self.user_settings.rpi_vc_path + '/lib')
+				'-isystem=%s/include' % rpi_vc_path,
+				'-isystem=%s/include/interface/vcos/pthreads' % rpi_vc_path,
+				'-isystem=%s/include/interface/vmcs_host/linux' % rpi_vc_path,
+			])
+			env.Append(LIBPATH = '%s/lib' % rpi_vc_path)
 			env.Append(LIBS = ['bcm_host'])
 
 class DXXArchive(DXXCommon):
@@ -2514,10 +2533,14 @@ class DXXArchive(DXXCommon):
 			for k in tests.custom_tests:
 				getattr(conf, k.name)()
 		except SCons.Errors.StopError as e:
-			raise SCons.Errors.StopError(e.args[0] + '  See {log_file} for details.'.format(log_file=log_file), *e.args[1:])
+			raise SCons.Errors.StopError('{e0}  See {log_file} for details.'.format(e0=e.args[0], log_file=log_file), *e.args[1:])
 		cc_env_strings.restore(conf.env)
 		if self.user_settings.record_sconf_results:
-			conf.config_h_text += '/*\n' + '\n'.join(['check_%s=%s' % (n,v) for (n,v) in tests._sconf_results]) + '\n*/\n'
+			conf.config_h_text += '''
+/*
+%s
+ */
+''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
 		self.env = conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 
@@ -2683,7 +2706,7 @@ class DXXProgram(DXXCommon):
 		@property
 		def BIN_DIR(self):
 			# installation path
-			return self.prefix + '/bin'
+			return '%s/bin' % self.prefix
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def __init__(self,program,user_settings):
@@ -2705,11 +2728,11 @@ class DXXProgram(DXXCommon):
 			self.platform_objects = self.platform_objects[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
-			VERSION = str(program.VERSION_MAJOR) + '.' + str(program.VERSION_MINOR)
+			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
 			if (program.VERSION_MICRO):
-				VERSION += '.' + str(program.VERSION_MICRO)
+				VERSION += '.%s' % program.VERSION_MICRO
 			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = program.PROGRAM_NAME + ' v' + VERSION
+			env['VERSION_NAME'] = '%s v%s' % (program.PROGRAM_NAME, VERSION)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
@@ -2755,19 +2778,18 @@ class DXXProgram(DXXCommon):
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, 'main')])
 
 	def banner(self):
-		VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
-		print '\n===== ' + self.PROGRAM_NAME + VERSION_STRING + ' =====\n'
+		print '\n===== %s v%s.%s.%s =====\n' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 
 	def check_platform(self):
 		DXXCommon.check_platform(self)
 		env = self.env
 		# windows or *nix?
 		if sys.platform == 'darwin':
-			VERSION = str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR)
+			VERSION = '%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if (self.VERSION_MICRO):
-				VERSION += '.' + str(self.VERSION_MICRO)
+				VERSION += '.%s' % self.VERSION_MICRO
 			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
+			env['VERSION_NAME'] = '%s v%s' % (self.PROGRAM_NAME, VERSION)
 		env.Append(LIBS = ['m'])
 
 	def process_user_settings(self):
@@ -2779,7 +2801,7 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.profiler == 1):
 			env.Append(LINKFLAGS = '-pg')
 
-		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
+		env.Append(CPPDEFINES = [('SHAREPATH', r'\"%s\"' % self.user_settings.sharepath)])
 
 	def register_program(self):
 		self._register_program(self.shortname)
@@ -2858,7 +2880,7 @@ class DXXProgram(DXXCommon):
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
 		versid_build_environ.append('git_diffstat')
-		versid_cppdefines.append(('DXX_RBE"(A)"', "'" + ''.join(['A(%s)' % k for k in versid_build_environ]) + "'"))
+		versid_cppdefines.append(('DXX_RBE"(A)"', "'%s'" % ''.join(['A(%s)' % k for k in versid_build_environ])))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
@@ -2870,7 +2892,7 @@ class DXXProgram(DXXCommon):
 		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = objects)
 		if self.user_settings.host_platform != 'darwin':
 			if self.user_settings.register_install_target:
-				install_dir = (self.user_settings.DESTDIR or '') + self.user_settings.BIN_DIR
+				install_dir = '%s%s' % (self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
 				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
 		else:
@@ -2880,7 +2902,7 @@ class DXXProgram(DXXCommon):
 			import tool_bundle
 			sys.path = syspath
 			tool_bundle.TOOL_BUNDLE(env)
-			env.MakeBundle(os.path.join(self.user_settings.builddir, self.PROGRAM_NAME + '.app'), exe_node,
+			env.MakeBundle(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME), exe_node,
 					'free.%s-rebirth' % dxxstr, os.path.join(cocoa, 'Info.plist'),
 					typecode='APPL', creator='DCNT',
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
@@ -3008,7 +3030,7 @@ d1x = register_program(D1XProgram, D2XProgram)
 d2x = register_program(D2XProgram, D1XProgram)
 
 # show some help when running scons -h
-h = 'DXX-Rebirth, SConstruct file help:' + """
+h = """DXX-Rebirth, SConstruct file help:
 
 	Type 'scons' to build the binary.
 	Type 'scons install' to build (if it hasn't been done) and install.
@@ -3026,7 +3048,7 @@ variables.Update(substenv)
 dxx = d1x + d2x
 for d in dxx:
 	d.init(substenv)
-	h += d.PROGRAM_NAME + ('.%d:\n' % d.program_instance) + d.GenerateHelpText()
+	h += '%s.%d:\n%s' % (d.PROGRAM_NAME, d.program_instance, d.GenerateHelpText())
 Help(h)
 unknown = variables.UnknownVariables()
 # Delete known unregistered variables
