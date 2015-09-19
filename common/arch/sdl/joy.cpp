@@ -29,7 +29,6 @@ int num_joysticks = 0;
 static struct joyinfo {
 	int n_axes;
 	int n_buttons;
-	array<int, JOY_MAX_AXES> axis_value;
 	array<uint8_t, JOY_MAX_BUTTONS> button_state;
 } Joystick;
 
@@ -51,7 +50,8 @@ struct d_physical_joystick {
 	int n_buttons;
 	int n_hats;
 	int hat_map[MAX_HATS_PER_JOYSTICK];  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
-	int axis_map[MAX_AXES_PER_JOYSTICK];
+	array<unsigned, MAX_AXES_PER_JOYSTICK> axis_map;
+	array<int, MAX_AXES_PER_JOYSTICK> axis_value;
 	int button_map[MAX_BUTTONS_PER_JOYSTICK];
 };
 
@@ -121,18 +121,17 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 
 int joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
-	int axis;
 	d_event_joystick_moved event;
-
-	axis = SDL_Joysticks[jae->which].axis_map[jae->axis];
-
+	auto &js = SDL_Joysticks[jae->which];
+	const auto axis = js.axis_map[jae->axis];
+	auto &axis_value = js.axis_value[jae->axis];
 	// inaccurate stick is inaccurate. SDL might send SDL_JoyAxisEvent even if the value is the same as before.
-	if (Joystick.axis_value[axis] == jae->value/256)
+	if (axis_value == jae->value/256)
 		return 0;
 
+	event.value = axis_value = jae->value/256;
 	event.type = EVENT_JOYSTICK_MOVED;
 	event.axis = axis;
-	event.value = Joystick.axis_value[axis] = jae->value/256;
 	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d",event.axis, event.value);
 	event_send(event);
 
