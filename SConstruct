@@ -511,10 +511,9 @@ help:assume C++ compiler works
 		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
-		f = {'CXXFLAGS' : ['-Wmissing-field-initializers']}
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
-		if not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler warns for {} initialization', testflags=f, expect_failure=True) or \
+		if self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags={'CXXFLAGS' : ['-Wmissing-field-initializers']}) or \
 			self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags={'CXXFLAGS' : ['-Wno-missing-field-initializers']}) or \
 			not self.Cxx11Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
