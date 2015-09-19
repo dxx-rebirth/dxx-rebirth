@@ -228,8 +228,8 @@ void joy_flush()
 	if (!num_joysticks)
 		return;
 
-	for (int i = 0; i < Joystick.n_buttons; i++)
-		Joystick.button_state[i] = SDL_RELEASED;
+	static_assert(SDL_RELEASED == uint8_t(), "SDL_RELEASED not 0.");
+	Joystick.button_state = {};
 }
 
 int event_joystick_get_button(const d_event &event)
