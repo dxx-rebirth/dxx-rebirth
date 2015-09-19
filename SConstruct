@@ -104,14 +104,8 @@ class ConfigureTests:
 	class PreservedEnvironment:
 		def __init__(self,env,keys):
 			self.flags = {k: env.get(k, [])[:] for k in keys}
-			# Do not distribute tests when run under ccache
-			# Assume distcc users also use ccache.  Harmless when wrong,
-			# saves a bit of latency when right.
-			self.CCACHE_PREFIX = env['ENV'].pop('CCACHE_PREFIX', None)
 		def restore(self,env):
 			env.Replace(**self.flags)
-			if self.CCACHE_PREFIX:
-				env['ENV']['CCACHE_PREFIX'] = self.CCACHE_PREFIX
 		def __getitem__(self,key):
 			return self.flags.__getitem__(key)
 	class ForceVerboseLog:
@@ -276,9 +270,6 @@ struct %(N)s_derived : %(N)s_base {
 		self.platform_settings = platform_settings
 		self.successful_flags = defaultdict(list)
 		self.__cxx_conformance = None
-		self.__automatic_compiler_tests = {
-			'.cpp': self.check_cxx_works,
-		}
 		self._sconf_results = []
 	def message(self,msg):
 		print "%s: %s" % (self.msgprefix, msg)
@@ -298,10 +289,22 @@ struct %(N)s_derived : %(N)s_base {
 				if co_name[:6] == 'check_':
 					return co_name[6:]
 				frame = frame.f_back
-		assert False
+		# This assertion is hit if a test is asked to deduce its caller
+		# (calling_function=None), but no function in the call stack appears to
+		# be a checking function.
+		assert False, "SConf caller not specified and no acceptable caller in stack."
 	def _check_forced(self,name):
+		# This getattr will raise AttributeError if called for a function which
+		# is not a registered test.  Tests must be registered as an implicit
+		# test (in implicit_tests, usually by applying the @_implicit_test
+		# decorator) or a custom test (in custom_tests, usually by applying the
+		# @_custom_test decorator).
+		#
+		# Unregistered tests are never documented and cannot be overridden by
+		# the user.
 		return getattr(self.user_settings, 'sconf_%s' % name)
 	def _check_expected(self,name):
+		# The remarks for _check_forced apply here too.
 		r = getattr(self.user_settings, 'expect_sconf_%s' % name)
 		if r is not None:
 			if r == self.expect_sconf_success:
@@ -319,10 +322,106 @@ struct %(N)s_derived : %(N)s_base {
 			context.sconf.Define(macro_name, macro_value)
 		else:
 			context.sconf.Define(macro_name, self.comment_not_supported)
-	def _check_compiler_works(self,context,ext):
-		c = self.__automatic_compiler_tests.pop(ext, None)
-		if c:
-			c(context)
+	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_ld_works', "assume ccache, C++ compiler, and C++ linker work"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_distcc_ld_works', "assume distcc, C++ compiler, and C++ linker work"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_ld_works', "assume C++ compiler and linker work"))
+	# This must be the first custom test.  This test verifies the compiler
+	# works and disables any use of ccache/distcc for the duration of the
+	# configure run.
+	#
+	# SCons caches configuration results and tests are usually very small, so
+	# ccache will provide limited benefit.
+	#
+	# Some tests are expected to raise a compiler error.  If distcc is used
+	# and DISTCC_FALLBACK prevents local retries, then distcc interprets a
+	# compiler error as an indication that the volunteer which served that
+	# compile is broken and should be blacklisted.  Suppress use of distcc for
+	# all tests to avoid spurious blacklist entries.
+	#
+	# During the main build, compiling remotely can allow more jobs to run in
+	# parallel.  Tests are serialized by SCons, so distcc is helpful during
+	# testing only if compiling remotely is faster than compiling locally.
+	# This may be true for embedded systems that distcc to desktops, but will
+	# not be true for desktops or laptops that distcc to similar sized
+	# machines.
+	@_custom_test
+	def check_cxx_works(self,context):
+		"""
+help:assume C++ compiler works
+"""
+		cenv = context.env
+		penv = cenv['ENV']
+		self.__cxx_com_prefix = cenv['CXXCOM']
+		# Require ccache to run the next stage, but allow it to write the
+		# result to cache.  This lets the test validate that ccache fails for
+		# an unusable CCACHE_DIR and also validate that the next stage handles
+		# the input correctly.  Without this, a cached result may hide that
+		# the next stage compiler (or wrapper) worked when a prior run
+		# performed the test, but is now broken.
+		CCACHE_RECACHE = penv.get('CCACHE_RECACHE', None)
+		penv['CCACHE_RECACHE'] = '1'
+		most_recent_error = self._check_cxx_works(context)
+		if most_recent_error is not None:
+			raise SCons.Errors.StopError(most_recent_error)
+		if CCACHE_RECACHE is None:
+			del penv['CCACHE_RECACHE']
+		else:
+			penv['CCACHE_RECACHE'] = CCACHE_RECACHE
+		# If ccache/distcc are in use, disable them during testing.
+		# This assignment is also done in _check_cxx_works, but only on an
+		# error path.  Repeat it here so that it is effective on the success
+		# path.  It cannot be moved above the call to _check_cxx_works because
+		# some tests in _check_cxx_works rely on its original value.
+		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
+	def _check_cxx_works(self,context):
+		# Test whether the compiler+linker+optional wrapper(s) work.  If
+		# anything fails, a StopError is guaranteed on return.  However, to
+		# help the user, this function pushes through all the combinations and
+		# reports the StopError for the least complicated issue.  If both the
+		# compiler and the linker fail, the compiler will be reported, since
+		# the linker might work once the compiler is fixed.
+		#
+		# If a test fails, then the pending StopError allows this function to
+		# safely modify the construction environment and process environment
+		# without reverting its changes.
+		most_recent_error = None
+		Link = self.Link
+		cenv = context.env
+		use_distcc = self.user_settings.distcc
+		if self.user_settings.ccache:
+			if use_distcc:
+				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
+					return
+				most_recent_error = 'ccache and C++ linker work, but distcc does not work.'
+				# Disable distcc so that the next call to self.Link tests only
+				# ccache+linker.
+				del cenv['ENV']['CCACHE_PREFIX']
+			if Link(context, text='', msg='whether ccache, C++ compiler, and linker work', calling_function='ccache_ld_works'):
+				return most_recent_error
+			most_recent_error = 'C++ linker works, but ccache does not work.'
+		elif use_distcc:
+			if Link(context, text='', msg='whether distcc, C++ compiler, and linker work', calling_function='distcc_ld_works'):
+				return
+			most_recent_error = 'C++ linker works, but distcc does not work.'
+		else:
+			# This assertion fails if the environment's $CXXCOM was modified
+			# to use a prefix, but both user_settings.ccache and
+			# user_settings.distcc evaluate to false.
+			assert cenv._dxx_cxxcom_no_prefix is cenv['CXXCOM'], "Unexpected prefix in $CXXCOM."
+		# If ccache/distcc are in use, then testing with one or both of them
+		# failed.  Disable them so that the next test can check whether the
+		# local linker works.
+		#
+		# If they are not in use, this assignment is a no-op.
+		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
+		if Link(context, text='', msg='whether C++ compiler and linker work', calling_function='ld_works'):
+			return most_recent_error
+		# Force only compile, even if LTO is enabled.
+		elif self._Compile(context, text='', msg='whether C++ compiler works', calling_function='cxx_works'):
+			return 'C++ compiler works, but C++ linker does not work.'
+		else:
+			return 'C++ compiler does not work.'
 	def _extend_successflags(self,k,v):
 		self.successful_flags[k].extend(v)
 	def Compile(self,context,**kwargs):
@@ -333,7 +432,6 @@ struct %(N)s_derived : %(N)s_base {
 	def Link(self,context,**kwargs):
 		return self._Test(context,action=context.TryLink, **kwargs)
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
-		self._check_compiler_works(context,ext)
 		if calling_function is None:
 			calling_function = self._find_calling_sconf_function()
 		context.Message('%s: checking %s...' % (self.msgprefix, msg))
@@ -499,16 +597,6 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	Mix_Quit();
 ''',
 			lib=mixer, successflags=successflags)
-	@_implicit_test
-	def check_cxx_works(self,context):
-		"""
-help:assume C++ compiler works
-"""
-		if self.Link(context, text='', msg='whether C++ compiler and linker work'):
-			return
-		if self.Compile(context, text='', msg='whether C++ compiler works'):
-			raise SCons.Errors.StopError("C++ compiler works, but C++ linker does not work.")
-		raise SCons.Errors.StopError("C++ compiler does not work.")
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
 		text = 'struct A{int a;};'
@@ -966,6 +1054,7 @@ U a{640};
 		# Always evaluate both
 		co = self._show_pch_count_message(context, 'own', self.user_settings.pch)
 		cs = self._show_pch_count_message(context, 'system', self.user_settings.syspch)
+		context.did_show_result = True
 		if not co and not cs:
 			return
 		context.Display('%s: checking when to compute pre-compiled header input *pch.cpp...%s\n' % (self.msgprefix, 'if missing' if self.user_settings.pch_cpp_assume_unchanged else 'always'))
@@ -1295,6 +1384,15 @@ help:always wipe certain freed memory
 		mangle = cls.mangle_linker_option_name
 		for opt in ldopts:
 			record(RecordedTest(mangle(opt), 'assume linker accepts %s' % opt))
+		assert cls.custom_tests[0].name == cls.check_cxx_works.__name__, cls.custom_tests[0].name
+		assert cls.custom_tests[-1].name == cls._restore_cxx_prefix.__name__, cls.custom_tests[-1].name
+	# This must be the last custom test.  It does not test the environment,
+	# but is responsible for reversing test-environment-specific changes made
+	# by check_cxx_works.
+	@_custom_test
+	def _restore_cxx_prefix(self,context):
+		context.env['CXXCOM'] = self.__cxx_com_prefix
+		context.did_show_result = True
 
 ConfigureTests.register_preferred_compiler_options()
 
@@ -2256,9 +2354,11 @@ class DXXCommon(LazyObjectConstructor):
 		# Prettier build messages......
 		# Move target to end of C++ source command
 		target_string = ' -o $TARGET'
-		cxxcom = self.env['CXXCOM']
+		env = self.env
+		cxxcom = env['CXXCOM']
 		if target_string + ' ' in cxxcom:
 			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
+		env._dxx_cxxcom_no_prefix = cxxcom
 		# Add ccache/distcc only for compile, not link
 		if self.user_settings.ccache:
 			cxxcom = '%s %s' % (self.user_settings.ccache, cxxcom)
@@ -2271,9 +2371,9 @@ class DXXCommon(LazyObjectConstructor):
 					penv.pop('CCACHE_PREFIX', None)
 		elif self.user_settings.distcc:
 			cxxcom = '%s %s' % (self.user_settings.distcc, cxxcom)
-		self.env['CXXCOM'] = cxxcom
+		env['CXXCOM'] = cxxcom
 		# Move target to end of link command
-		linkcom = self.env['LINKCOM']
+		linkcom = env['LINKCOM']
 		if target_string + ' ' in linkcom:
 			linkcom = '%s%s' % (linkcom.replace(target_string, ''), target_string)
 		# Add $CXXFLAGS to link command
@@ -2281,7 +2381,7 @@ class DXXCommon(LazyObjectConstructor):
 		if ' ' + cxxflags not in linkcom:
 			linkflags = '$LINKFLAGS'
 			linkcom = linkcom.replace(linkflags, cxxflags + linkflags)
-		self.env['LINKCOM'] = linkcom
+		env['LINKCOM'] = linkcom
 		# Custom DISTCC_HOSTS per target
 		distcc_hosts = self.user_settings.distcc_hosts
 		if distcc_hosts is not None:
