@@ -3182,7 +3182,7 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 #ifdef USE_TRACKER
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
-	DXX_##VERB##_CHECK(tracker, opt_tracker, Netgame.Tracker) \
+	DXX_##VERB##_CHECK("Track this game on", opt_tracker, Netgame.Tracker) \
 	DXX_##VERB##_TEXT(tracker_addr_txt, opt_tracker_addr)
 #else
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
@@ -3289,7 +3289,6 @@ class more_game_options_menu_items
 	char SecludedSpawnText[sizeof("Spawn only at 0 farthest sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
 #ifdef USE_TRACKER
-	char tracker[sizeof("Track this game on")];
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
@@ -3350,7 +3349,6 @@ public:
                 }
 		else
                 {
-			snprintf(tracker, sizeof(tracker), "Track this game on");
                         snprintf(tracker_addr_txt, sizeof(tracker_addr_txt), "%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
                 }
 #endif
