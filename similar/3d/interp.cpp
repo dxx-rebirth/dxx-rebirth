@@ -577,7 +577,7 @@ static void fix_swap(fix *f)
 	fix_swap(*f);
 }
 
-void vms_vector_swap(vms_vector &v)
+static void vms_vector_swap(vms_vector &v)
 {
 	fix_swap(v.x);
 	fix_swap(v.y);
