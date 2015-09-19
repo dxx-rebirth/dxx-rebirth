@@ -28,9 +28,15 @@ struct d_event;
 #define JOY_MAX_AXES				(MAX_AXES_PER_JOYSTICK * MAX_JOYSTICKS)
 #define JOY_MAX_BUTTONS				(MAX_BUTTONS_PER_JOYSTICK * MAX_JOYSTICKS)
 
+struct d_event_joystick_axis_value
+{
+	unsigned axis;
+	int value;
+};
+
 extern void joy_init();
 extern void joy_close();
-extern void event_joystick_get_axis(const d_event &event, int *axis, int *value);
+const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event);
 extern void joy_flush();
 extern int event_joystick_get_button(const d_event &event);
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);

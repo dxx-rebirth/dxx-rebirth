@@ -39,10 +39,8 @@ struct d_event_joystickbutton : d_event
 	int button;
 };
 
-struct d_event_joystick_moved : d_event
+struct d_event_joystick_moved : d_event, d_event_joystick_axis_value
 {
-	int		axis;
-	int 		value;
 };
 
 /* This struct is an array, with one entry for each physical joystick
@@ -215,12 +213,11 @@ void joy_close()
 	joybutton_text.clear();
 }
 
-void event_joystick_get_axis(const d_event &event, int *axis, int *value)
+const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event)
 {
 	auto &e = static_cast<const d_event_joystick_moved &>(event);
 	Assert(e.type == EVENT_JOYSTICK_MOVED);
-	*axis  = e.axis;
-	*value = e.value;
+	return e;
 }
 
 void joy_flush()

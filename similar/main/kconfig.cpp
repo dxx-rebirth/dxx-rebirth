@@ -1167,8 +1167,9 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(*menu, event, menu->mitems[menu->citem]);
 			else
 			{
-				int axis, value;
-				event_joystick_get_axis( event, &axis, &value );
+				const auto &av = event_joystick_get_axis(event);
+				const auto &axis = av.axis;
+				const auto &value = av.value;
 				menu->old_jaxis[axis] = value;
 			}
 			break;
@@ -1352,10 +1353,9 @@ static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem 
 
 static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
-	int axis, value;
-
-	Assert(event.type == EVENT_JOYSTICK_MOVED);
-	event_joystick_get_axis( event, &axis, &value );
+	const auto &av = event_joystick_get_axis(event);
+	const auto &axis = av.axis;
+	const auto &value = av.value;
 
 	if ( abs(value-menu.old_jaxis[axis])<32 )
 		return;
@@ -1587,10 +1587,12 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			break;
 		case EVENT_JOYSTICK_MOVED:
 		{
-			int axis = 0, value = 0, joy_null_value = 0;
+			int joy_null_value = 0;
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
-			event_joystick_get_axis(event, &axis, &value);
+			const auto &av = event_joystick_get_axis(event);
+			const auto &axis = av.axis;
+			const auto &value = av.value;
 
 			Controls.raw_joy_axis[axis] = value;
 
