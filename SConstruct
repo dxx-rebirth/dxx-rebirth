@@ -1242,25 +1242,62 @@ help:always wipe certain freed memory
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);
 '''
 		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']})
+	__preferred_compiler_options = (
+		'-fvisibility=hidden',
+		'-Wsuggest-attribute=noreturn',
+		'-Wlogical-op',
+	)
+	__preferred_win32_linker_options = (
+		'-Wl,--large-address-aware',
+		'-Wl,--dynamicbase',
+		'-Wl,--nxcompat',
+		'-Wl,--insert-timestamp',
+	)
+	@_custom_test
+	def check_preferred_compiler_options(self,context):
+		ccopts = self.__preferred_compiler_options
+		ldopts = ()
+		if self.user_settings.host_platform == 'win32':
+			ldopts = self.__preferred_win32_linker_options
+		f, desc = (self.Link, 'linker') if ldopts else (self.Compile, 'compiler')
+		if f(context, text='', main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
+			# Everything is supported.  Skip individual tests.
+			return
+		# Compiler+linker together failed.  Check if compiler alone will work.
+		# If not ldopts, then next self.Compile is equivalent to previous
+		# f(...).
+		if not ldopts or not self.Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
+			# Compiler alone failed.
+			# Run down the individual compiler options to find any that work.
+			for opt in ccopts:
+				self.Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=self.mangle_compiler_option_name(opt)[6:])
+		# Run down the individual linker options to find any that work.
+		for opt in ldopts:
+			self.Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=self.mangle_linker_option_name(opt)[6:])
+	@staticmethod
+	def mangle_compiler_option_name(opt):
+		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
+	@staticmethod
+	def mangle_linker_option_name(opt):
+		return 'check_linker_option%s' % opt.replace('-', '_').replace(',', '_')
+	@classmethod
+	def register_preferred_compiler_options(cls):
+		del cls.register_preferred_compiler_options
+		ccopts = cls.__preferred_compiler_options
+		# Always register target-specific tests on the class.  Individual
+		# targets will decide whether to run the tests.
+		ldopts = cls.__preferred_win32_linker_options
+		RecordedTest = cls.Collector.RecordedTest
+		record = cls.implicit_tests.append
+		record(RecordedTest('check_preferred_linker_options', 'assume linker accepts preferred options'))
+		mangle = cls.mangle_compiler_option_name
+		for opt in ccopts:
+			record(RecordedTest(mangle(opt), 'assume compiler accepts %s' % opt))
+		mangle = cls.mangle_linker_option_name
+		for opt in ldopts:
+			record(RecordedTest(mangle(opt), 'assume linker accepts %s' % opt))
 
-def add_compiler_option_tests():
-	def define_compiler_option_test(opt, doc=None):
-		n = 'compiler_option%s' % opt.replace('-', '_').replace('=', '_')
-		def f(self, context):
-			self.Compile(context, text='', main='', msg='whether compiler accepts %s' % opt, successflags={'CXXFLAGS' : [opt]}, calling_function=n)
-		cn = 'check_%s' % n
-		custom_tests(RecordedTest(cn, doc or ('assume compiler accepts %s' % opt)))
-		setattr(ConfigureTests, cn, f)
-	RecordedTest = ConfigureTests.Collector.RecordedTest
-	custom_tests = ConfigureTests._custom_test.record
-	for opt in (
-		('-fvisibility=hidden',),
-		('-Wsuggest-attribute=noreturn',),
-		('-Wlogical-op',),
-	):
-		define_compiler_option_test(*opt)
-add_compiler_option_tests()
-del add_compiler_option_tests
+ConfigureTests.register_preferred_compiler_options()
 
 class LazyObjectConstructor:
 	@staticmethod
