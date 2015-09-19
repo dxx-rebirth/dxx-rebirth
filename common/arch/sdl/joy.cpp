@@ -30,8 +30,7 @@ static struct joyinfo {
 	int n_axes;
 	int n_buttons;
 	array<int, JOY_MAX_AXES> axis_value;
-	array<uint8_t, JOY_MAX_BUTTONS> button_state,
-		button_last_state; // for HAT movement only
+	array<uint8_t, JOY_MAX_BUTTONS> button_state;
 } Joystick;
 
 struct d_event_joystickbutton : d_event
@@ -78,37 +77,45 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map[jhe->hat];
-	d_event_joystickbutton event;
-
 	//Save last state of the hat-button
-	Joystick.button_last_state[hat  ] = Joystick.button_state[hat  ];
-	Joystick.button_last_state[hat+1] = Joystick.button_state[hat+1];
-	Joystick.button_last_state[hat+2] = Joystick.button_state[hat+2];
-	Joystick.button_last_state[hat+3] = Joystick.button_state[hat+3];
 
 	//get current state of the hat-button
-	Joystick.button_state[hat  ] = ((jhe->value & SDL_HAT_UP)>0);
-	Joystick.button_state[hat+1] = ((jhe->value & SDL_HAT_RIGHT)>0);
-	Joystick.button_state[hat+2] = ((jhe->value & SDL_HAT_DOWN)>0);
-	Joystick.button_state[hat+3] = ((jhe->value & SDL_HAT_LEFT)>0);
+	const auto jhe_value = jhe->value;
+	/* Every value must have exactly one bit set, and the union must
+	 * cover the lower four bits.  If any of these assertions fail, the
+	 * loop will not work right.
+	 */
+#define assert_hat_one_bit(M)	\
+	static_assert(!((SDL_HAT_##M) & ((SDL_HAT_##M) - 1)), "unexpected " #M " mask");
+	assert_hat_one_bit(UP);
+	assert_hat_one_bit(RIGHT);
+	assert_hat_one_bit(DOWN);
+	assert_hat_one_bit(LEFT);
+#undef assert_hat_one_bit
+	static_assert((SDL_HAT_UP | SDL_HAT_RIGHT | SDL_HAT_DOWN | SDL_HAT_LEFT) == 0xf, "unexpected hat mask");
 
 	//determine if a hat-button up or down event based on state and last_state
-	for(int hbi=0;hbi<4;hbi++)
+	for (uint_fast32_t i = 0; i != 4; ++i)
 	{
-		if( !Joystick.button_last_state[hat+hbi] && Joystick.button_state[hat+hbi]) //last_state up, current state down
+		const auto current_button_state = !!(jhe_value & (1 << i));
+		auto &saved_button_state = Joystick.button_state[hat + i];
+		if (saved_button_state == current_button_state)
+			// Same state as before
+			continue;
+		saved_button_state = current_button_state;
+		d_event_joystickbutton event;
+		event.button = hat + i;
+		if (current_button_state) //last_state up, current state down
 		{
 			event.type = EVENT_JOYSTICK_BUTTON_DOWN;
-			event.button = hat+hbi;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d", event.button);
-			event_send(event);
 		}
-		else if(Joystick.button_last_state[hat+hbi] && !Joystick.button_state[hat+hbi])  //last_state down, current state up
+		else	//last_state down, current state up
 		{
 			event.type = EVENT_JOYSTICK_BUTTON_UP;
-			event.button = hat+hbi;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d", event.button);
-			event_send(event);
 		}
+		event_send(event);
 	}
 }
 
