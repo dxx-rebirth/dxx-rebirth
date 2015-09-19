@@ -1253,34 +1253,43 @@ add_compiler_option_tests()
 del add_compiler_option_tests
 
 class LazyObjectConstructor:
-	def __get_lazy_object(self,srcname,transform_target):
-		env = self.env
-		o = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(self, srcname), env["OBJSUFFIX"]), source=srcname)
-		return o
 	@staticmethod
 	def __strip_extension(_,name):
 		return os.path.splitext(name)[0]
-	def __lazy_objects(self,name,source):
+
+	@classmethod
+	def __lazy_objects(cls,self,source):
+		cache = self.__lazy_object_cache
+		name = id(source)
 		try:
-			return self.__lazy_object_cache[name]
+			return cache[name]
 		except KeyError as e:
+			__strip_extension = cls.__strip_extension
+			env = self.env
+			StaticObject = env.StaticObject
+			OBJSUFFIX = env['OBJSUFFIX']
+			builddir = self.user_settings.builddir
 			value = []
+			extend = value.extend
 			for s in source:
 				if isinstance(s, str):
-					s = {'source': [s]}
-				transform_target = s.get('transform_target', self.__strip_extension)
-				value.extend([self.__get_lazy_object(srcname, transform_target) for srcname in s['source']])
-			self.__lazy_object_cache[name] = value
+					transform_target = __strip_extension
+					s = (s,)
+				else:
+					transform_target = s.get('transform_target', __strip_extension)
+					s = s['source']
+				extend([
+					StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname) for srcname in s
+				])
+			# Convert to a tuple so that attempting to modify a cached
+			# result raises an error.
+			value = tuple(value)
+			cache[name] = value
 			return value
-
-	@staticmethod
-	def create_lazy_object_getter(sources):
-		name = repr(sources)
-		return lambda s: s.__lazy_objects(name, sources)
 
 	@classmethod
 	def create_lazy_object_property(cls,sources):
-		return property(cls.create_lazy_object_getter(sources))
+		return property(lambda s, _f=cls.__lazy_objects, _sources=sources: _f(s, _sources))
 
 	def __init__(self):
 		self.__lazy_object_cache = {}
@@ -2120,20 +2129,15 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
-		__opengl_libs = ['GL', 'GLU']
 		def __init__(self,program,user_settings):
 			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
-			if (user_settings.opengles == 1):
-				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
-			else:
-				self.ogllibs = self.__opengl_libs
+			self.ogllibs = (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CCFLAGS = ['-pthread'])
 
 	def __init__(self):
 		LazyObjectConstructor.__init__(self)
-		self.sources = []
 		self.__shared_program_instance[0] += 1
 		self.program_instance = self.__shared_program_instance[0]
 		self.pch_manager = None
@@ -2465,12 +2469,16 @@ class DXXArchive(DXXCommon):
 			LazyObjectConstructor.__init__(self)
 			DXXCommon.DarwinPlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
+
 	@property
 	def objects_common(self):
-		objects_common = self.__objects_common
+		value = list(self.__objects_common)
+		extend = value.extend
 		if not self.user_settings.sdl2:
-			objects_common = objects_common + self.objects_use_sdl1
-		return objects_common + self.platform_settings.platform_objects
+			extend(self.objects_use_sdl1)
+		extend(self.platform_settings.platform_objects)
+		return value
+
 	def __init__(self,user_settings):
 		self.PROGRAM_NAME = 'DXX-Archive'
 		self._argument_prefix_list = None
@@ -2711,10 +2719,13 @@ class DXXProgram(DXXCommon):
 
 	@property
 	def objects_common(self):
-		objects_common = self.__objects_common
-		if (self.user_settings.use_udp == 1):
-			objects_common = objects_common + self.objects_use_udp
-		return objects_common + self.platform_settings.platform_objects
+		value = list(self.__objects_common)
+		extend = value.extend
+		if self.user_settings.use_udp:
+			extend(self.objects_use_udp)
+		extend(self.platform_settings.platform_objects)
+		return value
+
 	def __init__(self,prefix,variables):
 		self.variables = variables
 		self._argument_prefix_list = prefix
@@ -2803,12 +2814,12 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
-		objects = static_archive_construction.objects_common[:]
+		objects = static_archive_construction.objects_common
 		objects.extend(self.objects_common)
-		if (self.user_settings.sdlmixer == 1):
+		if self.user_settings.sdlmixer:
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
-		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+		if self.user_settings.opengl or self.user_settings.opengles:
 			env.Append(LIBS = self.platform_settings.ogllibs)
 			objects.extend(static_archive_construction.objects_arch_ogl)
 			objects.extend(self.objects_similar_arch_ogl)
@@ -2816,7 +2827,7 @@ class DXXProgram(DXXCommon):
 			message(self, "building with Software Renderer")
 			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
-		if (self.user_settings.editor == 1):
+		if self.user_settings.editor:
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)
 			exe_target += '-editor'
@@ -2856,7 +2867,7 @@ class DXXProgram(DXXCommon):
 			env.Depends(versid_objlist[0], objects)
 		objects.extend(versid_objlist)
 		# finally building program...
-		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = self.sources + objects)
+		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = objects)
 		if self.user_settings.host_platform != 'darwin':
 			if self.user_settings.register_install_target:
 				install_dir = (self.user_settings.DESTDIR or '') + self.user_settings.BIN_DIR
@@ -2900,7 +2911,9 @@ class D1XProgram(DXXProgram):
 	}])
 	@property
 	def objects_common(self):
-		return self.__objects_common + DXXProgram.objects_common.fget(self)
+		value = DXXProgram.objects_common.fget(self)
+		value.extend(self.__objects_common)
+		return value
 
 	# for editor
 	__objects_editor = DXXCommon.create_lazy_object_property([{
@@ -2912,7 +2925,9 @@ class D1XProgram(DXXProgram):
 	}])
 	@property
 	def objects_editor(self):
-		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
+		value = list(DXXProgram.objects_editor.fget(self))
+		value.extend(self.__objects_editor)
+		return value
 
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
@@ -2941,7 +2956,9 @@ class D2XProgram(DXXProgram):
 	}])
 	@property
 	def objects_common(self):
-		return self.__objects_common + DXXProgram.objects_common.fget(self)
+		value = DXXProgram.objects_common.fget(self)
+		value.extend(self.__objects_common)
+		return value
 
 	# for editor
 	__objects_editor = DXXCommon.create_lazy_object_property([{
@@ -2952,7 +2969,9 @@ class D2XProgram(DXXProgram):
 	}])
 	@property
 	def objects_editor(self):
-		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
+		value = list(DXXProgram.objects_editor.fget(self))
+		value.extend(self.__objects_editor)
+		return value
 
 variables = Variables([v for (k,v) in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
 filtered_help = FilterHelpText()
