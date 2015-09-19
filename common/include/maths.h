@@ -46,16 +46,31 @@ quadint;
 
 
 //Convert an int to a fix/fix64 and back
-#define i2f(i) ((i)<<16)
-#define f2i(f) ((f)>>16)
+static constexpr fix i2f(const int &i)
+{
+	return i << 16;
+}
 
-//Get the int part of a fix, with rounding
-#define f2ir(f) (((f)+f0_5)>>16)
+static constexpr int f2i(const fix &f)
+{
+	return f >> 16;
+}
 
 //Convert fix to float and float to fix
-#define f2fl(f) (static_cast<float>(f) / 65536.0)
-#define f2db(f) (static_cast<double>(f) / 65536.0)
-#define fl2f(f) static_cast<fix>((f) * 65536)
+static constexpr float f2fl(const fix &f)
+{
+	return static_cast<float>(f) / static_cast<float>(65536.0);
+}
+
+static constexpr double f2db(const fix &f)
+{
+	return static_cast<double>(f) / static_cast<double>(65536.0);
+}
+
+static constexpr fix fl2f(const float &f)
+{
+	return static_cast<fix>(f * 65536);
+}
 
 //Some handy constants
 #define f0_0	0
@@ -66,6 +81,12 @@ quadint;
 
 #define f0_5 0x8000
 #define f0_1 0x199a
+
+//Get the int part of a fix, with rounding
+static constexpr int f2ir(const fix &f)
+{
+	return (f + f0_5) >> 16;
+}
 
 #define F0_0	f0_0
 #define F1_0	f1_0
@@ -105,7 +126,7 @@ static inline void fixmulaccum (quadint * q, const fix &a, const fix &b)
 __attribute_warn_unused_result
 static inline fix fixquadadjust (const quadint *q)
 {
-	return q->q >> 16;
+	return static_cast<fix>(q->q >> 16);
 }
 
 //negate a quadint
