@@ -73,12 +73,6 @@ struct wallnum_t;
 struct side;
 struct segment;
 
-#if defined(DXX_BUILD_DESCENT_II)
-typedef unsigned s2f_ambient_t;
-const s2f_ambient_t S2F_AMBIENT_WATER = 1;
-const s2f_ambient_t S2F_AMBIENT_LAVA = 2;
-#endif
-
 typedef unsigned segment_type_t;
 const segment_type_t SEGMENT_IS_NOTHING = 0;
 const segment_type_t SEGMENT_IS_FUELCEN = 1;
@@ -88,6 +82,9 @@ const segment_type_t SEGMENT_IS_ROBOTMAKER = 4;
 #if defined(DXX_BUILD_DESCENT_I)
 const std::size_t MAX_CENTER_TYPES = 5;
 #elif defined(DXX_BUILD_DESCENT_II)
+typedef unsigned s2f_ambient_t;
+const s2f_ambient_t S2F_AMBIENT_WATER = 1;
+const s2f_ambient_t S2F_AMBIENT_LAVA = 2;
 const segment_type_t SEGMENT_IS_GOAL_BLUE = 5;
 const segment_type_t SEGMENT_IS_GOAL_RED = 6;
 const std::size_t MAX_CENTER_TYPES = 7;
@@ -107,6 +104,10 @@ extern const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts;       
 extern const array<array<int, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const array<char, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
+void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
+void delete_segment_from_group(segnum_t segment_num, int group_num);
+void add_segment_to_group(segnum_t segment_num, int group_num);
+
 #if defined(DXX_BUILD_DESCENT_II)
 struct delta_light;
 struct dl_index;
@@ -123,13 +124,7 @@ extern unsigned Num_static_lights;
 int subtract_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
 int add_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
 void clear_light_subtracted();
-#endif
 
-void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
-void delete_segment_from_group(segnum_t segment_num, int group_num);
-void add_segment_to_group(segnum_t segment_num, int group_num);
-
-#if defined(DXX_BUILD_DESCENT_II)
 void segment2_read(vsegptr_t s2, PHYSFS_file *fp);
 void segment2_write(vcsegptr_t s2, PHYSFS_file *fp);
 

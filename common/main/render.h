@@ -58,8 +58,6 @@ extern unsigned Max_linear_depth; //	Deepest segment at which linear extern inte
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
-
 // cycle the flashing light for when mine destroyed
 void flash_frame();
 
@@ -118,6 +116,9 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 	return rotate_list(a.size(), &a[0]);
 }
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
+
 void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -129,5 +130,6 @@ static inline void render_frame(fix eye_offset)
 	window_rendered_data window;
 	render_frame(eye_offset, window);
 }
+#endif
 
 #endif

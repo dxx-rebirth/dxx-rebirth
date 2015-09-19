@@ -32,15 +32,13 @@ static const size_t glow_array_size = 1;
 static const size_t glow_array_size = 2;
 #endif
 struct glow_values_t : public array<fix, glow_array_size> {};
-#else
-struct glow_values_t;
-#endif
 
 //Object functions:
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
 void g3_draw_polygon_model(const uint8_t *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,const glow_values_t *glow_values, polygon_model_points &Interp_point_list);
+#endif
 
 //init code for bitmap models
 int16_t g3_init_polygon_model(void *model_ptr);

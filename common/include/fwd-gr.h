@@ -24,10 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "maths.h"
 
-#ifdef DXX_BUILD_DESCENT_I
-extern int HiresGFXAvailable;
-#endif
-
 // some defines for transparency and blending
 #define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
 #define GR_FADE_LEVELS       34
@@ -42,9 +38,9 @@ extern int HiresGFXAvailable;
 #define SHEIGHT (grd_curscreen->get_screen_height())
 
 #if defined(DXX_BUILD_DESCENT_I)
+extern int HiresGFXAvailable;
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
-#endif
-#if defined(DXX_BUILD_DESCENT_II)
+#elif defined(DXX_BUILD_DESCENT_II)
 #define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && !GameArg.GfxSkipHiresGFX)
 #endif
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
