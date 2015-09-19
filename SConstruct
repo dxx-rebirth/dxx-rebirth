@@ -2798,13 +2798,12 @@ class DXXProgram(DXXCommon):
 		d = Git.pcall(['diff', '--quiet'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
 		return g.out.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
 
-	def _register_program(self,dxxstr,program_specific_objects=[]):
+	def _register_program(self,dxxstr):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
 		objects = static_archive_construction.objects_common[:]
 		objects.extend(self.objects_common)
-		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
