@@ -1893,6 +1893,7 @@ class DXXCommon(LazyObjectConstructor):
 			generic_variable = self._generic_variable
 			conftests = ConfigureTests
 			tests = self.__get_configure_tests(conftests)
+			getenv = os.environ.get
 			return (
 			{
 				'variable': EnumVariable,
@@ -1919,7 +1920,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('record_sconf_results', False, 'write sconf results to dxxsconf.h'),
 					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
-					('git_describe_version', os.path.exists(os.environ.get('GIT_DIR', '.git')), 'include git --describe in extra_version'),
+					('git_describe_version', os.path.exists(getenv('GIT_DIR', '.git')), 'include git --describe in extra_version'),
 					('git_status', True, 'include git status'),
 					('versid_depend_all', False, 'rebuild vers_id.cpp if any object file changes'),
 				),
@@ -1963,24 +1964,24 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': generic_variable,
 				'arguments': (
-					('CHOST', os.environ.get('CHOST'), 'CHOST of output'),
-					('CXX', os.environ.get('CXX'), 'C++ compiler command'),
-					('PKG_CONFIG', os.environ.get('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
-					('RC', os.environ.get('RC'), 'Windows resource compiler command'),
+					('CHOST', getenv('CHOST'), 'CHOST of output'),
+					('CXX', getenv('CXX'), 'C++ compiler command'),
+					('PKG_CONFIG', getenv('PKG_CONFIG'), 'PKG_CONFIG to run (Linux only)'),
+					('RC', getenv('RC'), 'Windows resource compiler command'),
 					('extra_version', None, 'text to append to version, such as VCS identity'),
 					('ccache', None, 'path to ccache'),
 					('distcc', None, 'path to distcc'),
-					('distcc_hosts', os.environ.get('DISTCC_HOSTS'), 'hosts to distribute compilation'),
+					('distcc_hosts', getenv('DISTCC_HOSTS'), 'hosts to distribute compilation'),
 				),
 			},
 			{
 				'variable': generic_variable,
 				'stack': ' ',
 				'arguments': (
-					('CPPFLAGS', os.environ.get('CPPFLAGS'), 'C preprocessor flags'),
-					('CXXFLAGS', os.environ.get('CXXFLAGS'), 'C++ compiler flags'),
-					('LDFLAGS', os.environ.get('LDFLAGS'), 'Linker flags'),
-					('LIBS', os.environ.get('LIBS'), 'Libraries to link'),
+					('CPPFLAGS', getenv('CPPFLAGS'), 'C preprocessor flags'),
+					('CXXFLAGS', getenv('CXXFLAGS'), 'C++ compiler flags'),
+					('LDFLAGS', getenv('LDFLAGS'), 'Linker flags'),
+					('LIBS', getenv('LIBS'), 'Libraries to link'),
 				),
 			},
 			{
