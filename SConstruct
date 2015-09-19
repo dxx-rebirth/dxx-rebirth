@@ -616,6 +616,8 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 	SDL_Init(SDL_INIT_JOYSTICK | %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	auto n = SDL_NumJoysticks();
+	(void)n;
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_FreeRW(ops);
 	SDL_Quit();
