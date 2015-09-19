@@ -374,6 +374,7 @@ help:assume C++ compiler works
 		# path.  It cannot be moved above the call to _check_cxx_works because
 		# some tests in _check_cxx_works rely on its original value.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
+		self._check_cxx_conformance_level(context)
 	def _check_cxx_works(self,context):
 		# Test whether the compiler+linker+optional wrapper(s) work.  If
 		# anything fails, a StopError is guaranteed on return.  However, to
@@ -422,6 +423,56 @@ help:assume C++ compiler works
 			return 'C++ compiler works, but C++ linker does not work.'
 		else:
 			return 'C++ compiler does not work.'
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx11', "assume C++ compiler supports C++11"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
+	def _check_cxx_conformance_level(self,context):
+		# Testing the compiler option parser only needs Compile, even when LTO
+		# is enabled.
+		Compile = self._Compile
+		# GCC started with -std=gnu++0x for C++0x (later C++11).  In gcc-4.7,
+		# GCC began accepting -std=gnu++11.  Since gcc-4.6 does not accept
+		# some constructs used in the code, use the newer name here.
+		#
+		# Accepted options by version:
+		#
+		#	gcc-4.6 -std=gnu++0x
+		#
+		#	gcc-4.7 -std=gnu++0x
+		#	gcc-4.7 -std=gnu++11
+		#
+		#	gcc-4.8 -std=gnu++0x
+		#	gcc-4.8 -std=gnu++11
+		#	gcc-4.8 -std=gnu++1y
+		#
+		#	gcc-4.9 -std=gnu++0x
+		#	gcc-4.9 -std=gnu++11
+		#	gcc-4.9 -std=gnu++1y
+		#	gcc-4.9 -std=gnu++14
+		#
+		#	gcc-5 -std=gnu++0x
+		#	gcc-5 -std=gnu++11
+		#	gcc-5 -std=gnu++1y
+		#	gcc-5 -std=gnu++14
+		#	gcc-5 -std=gnu++1z
+		#	gcc-5 -std=gnu++17
+		#
+		# In all supported cases except gcc-4.8, gcc accepts the number-only
+		# form if it accepts the approximated form.  The only C++14 feature of
+		# interest in gcc-4.8 is return type deduction, which cannot be used
+		# until gcc-4.7 is retired.  Therefore, it is acceptable for this
+		# check not to detect C++14 support in gcc-4.8.
+		for level in (
+			# List standards in descending order of preference
+			self._cxx_conformance_cxx14,
+			# C++11 is required, so list it last.  Omit the comma as a
+			# reminder not to append elements to the list.
+			self._cxx_conformance_cxx11
+		):
+			opt = '-std=gnu++%u' % level
+			if Compile(context, text='', msg='whether C++ compiler accepts {opt}'.format(opt=opt), successflags={'CXXFLAGS': [opt]}, calling_function='cxx%s' % level):
+				self.__cxx_conformance = level
+				return
+		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
 	def _extend_successflags(self,k,v):
 		self.successful_flags[k].extend(v)
 	def Compile(self,context,**kwargs):
@@ -819,35 +870,13 @@ help:assume compiler supports __attribute__((warn_unused_result))
 int a()__attribute_warn_unused_result;
 int a(){return 0;}
 """, msg='for function __attribute__((warn_unused_result))')
-	@_implicit_test
-	def check_cxx11(self,context):
-		"""
-help:assume C++ compiler supports C++11
-"""
-		return self._check_cxx_std_flag(context, ('-std=gnu++0x', '-std=c++0x'), self._cxx_conformance_cxx11)
-	@_implicit_test
-	def check_cxx14(self,context):
-		"""
-help:assume C++ compiler supports C++14
-"""
-		return self._check_cxx_std_flag(context, ('-std=gnu++14', '-std=c++14'), self._cxx_conformance_cxx14)
-	def _check_cxx_std_flag(self,context,flags,level):
-		for f in flags:
-			r = self.Compile(context, text='', msg='whether C++ compiler accepts {f}'.format(f=f), successflags={'CXXFLAGS': [f]})
-			if r:
-				return level
-		return 0
-	def Cxx11Compile(self,context,*args,**kwargs):
-		kwargs.setdefault('skipped', self.__skip_missing_cxx_std(context, self._cxx_conformance_cxx11, 'no C++11 support'))
-		return self.Compile(context,*args,**kwargs)
+	Cxx11Compile = Compile
 	def Cxx14Compile(self,context,*args,**kwargs):
-		kwargs.setdefault('skipped', self.__skip_missing_cxx_std(context, self._cxx_conformance_cxx14, 'no C++14 support'))
+		self.__skip_missing_cxx_std(self._cxx_conformance_cxx14, 'no C++14 support', kwargs)
 		return self.Compile(context,*args,**kwargs)
-	def __skip_missing_cxx_std(self,context,level,text):
-		if self.__cxx_conformance is None:
-			self.__cxx_conformance = self.check_cxx14(context) or self.check_cxx11(context)
+	def __skip_missing_cxx_std(self,level,text,kwargs):
 		if self.__cxx_conformance < level:
-			return text
+			kwargs.setdefault('skipped', text)
 	@_implicit_test
 	def check_boost_array(self,context,**kwargs):
 		"""
