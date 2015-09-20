@@ -822,13 +822,12 @@ void reset_player_object()
 	ConsoleObject->rtype.pobj_info.model_num = Player_ship->model_num;		//what model is this?
 	ConsoleObject->rtype.pobj_info.subobj_flags = 0;		//zero the flags
 	ConsoleObject->rtype.pobj_info.tmap_override = -1;		//no tmap override!
-
 	ConsoleObject->rtype.pobj_info.anim_angles = {};
 
 	// Clear misc
 
 	ConsoleObject->flags = 0;
-
+        ConsoleObject->matcen_creator = 0;
 }
 
 
@@ -838,9 +837,7 @@ void init_player_object()
 	const auto &&console = vobjptr(ConsoleObject);
 	console->type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
-#if defined(DXX_BUILD_DESCENT_II)
 	console->signature = object_signature_t{0};			//player has zero, others start at 1
-#endif
 	console->size = Polygon_models[Player_ship->model_num].rad;
 	console->control_type = CT_SLEW;			//default is player slewing
 	console->movement_type = MT_PHYSICS;		//change this sometime
@@ -857,6 +854,7 @@ void init_objects()
 		free_obj_list[i] = i;
 		Objects[i].type = OBJ_NONE;
 		Objects[i].segnum = segment_none;
+                Objects[i].signature = obj_get_signature();
 	}
 
 	range_for (auto &j, Segments)
@@ -1134,27 +1132,33 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 
 	obj->signature				= signature;
-	obj->type 					= type;
-	obj->id 						= id;
+	obj->type 				= type;
+	obj->id 				= id;
 	obj->last_pos				= pos;
-	obj->pos 					= pos;
-	obj->size 					= size;
-	obj->flags 					= 0;
+	obj->pos 				= pos;
+	obj->size 				= size;
+	obj->flags 				= 0;
 	//@@if (orient != NULL)
 	//@@	obj->orient 			= *orient;
 
 	obj->orient 				= orient?*orient:vmd_identity_matrix;
 
-	obj->control_type 		= ctype;
-	obj->movement_type 		= mtype;
+	obj->control_type 		        = ctype;
+	obj->movement_type 		        = mtype;
 	obj->render_type 			= rtype;
-	obj->contains_type		= -1;
-
+	obj->contains_type                      = -1;
+        obj->contains_id                        = -1;
+        obj->contains_count                     = 0;
+        obj->matcen_creator                     = 0;
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
 	obj->attached_obj			= object_none;
 
 	if (obj->control_type == CT_POWERUP)
+        {
 		obj->ctype.powerup_info.count = 1;
+                obj->ctype.powerup_info.flags = 0;
+                obj->ctype.powerup_info.creation_time = GameTime64;
+        }
 
 	// Init physics info for this object
 	if (obj->movement_type == MT_PHYSICS) {
@@ -1171,7 +1175,11 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	}
 
 	if (obj->render_type == RT_POLYOBJ)
+        {
+                obj->rtype.pobj_info.subobj_flags = 0;
 		obj->rtype.pobj_info.tmap_override = -1;
+                obj->rtype.pobj_info.alt_textures = 0;
+        }
 
 	obj->shields 				= 20*F1_0;
 
@@ -1197,9 +1205,6 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 		obj->ctype.laser_info.last_afterburner_time = 0;
 #endif
 	}
-
-	if (obj->control_type == CT_POWERUP)
-		obj->ctype.powerup_info.creation_time = GameTime64;
 
 	if (obj->control_type == CT_EXPLOSION)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
