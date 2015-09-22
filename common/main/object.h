@@ -314,22 +314,33 @@ struct object {
 	// -- Removed, MK, 10/16/95, using lifeleft instead: int     lightlevel;
 
 	// movement info, determined by MOVEMENT_TYPE
-	union {
+	union movement_info {
 		physics_info phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
+		constexpr movement_info() :
+			phys_info{}
+		{
+			static_assert(sizeof(phys_info) == sizeof(*this), "insufficient initialization");
+		}
 	} mtype;
 
 	// render info, determined by RENDER_TYPE
-	union {
+	union render_info {
 		struct polyobj_info    pobj_info;      // polygon model
 		struct vclip_info      vclip_info;     // vclip
+		constexpr render_info() :
+			pobj_info{}
+		{
+			static_assert(sizeof(pobj_info) == sizeof(*this), "insufficient initialization");
+		}
 	} rtype;
 
 	// control info, determined by CONTROL_TYPE
 	union control_info {
 		constexpr control_info() :
-			light_info{}
+			ai_info{}
 		{
+			static_assert(sizeof(ai_info) == sizeof(*this), "insufficient initialization");
 		}
 		struct laser_info      laser_info;
 		struct explosion_info  expl_info;      // NOTE: debris uses this also
