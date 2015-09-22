@@ -123,6 +123,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	chdir(base_dir);	// make sure relative hogdir paths work
 #endif
 	
+	const char *writedir;
 #if defined(__unix__)
 #if defined(DXX_BUILD_DESCENT_I)
 #define DESCENT_PATH_NUMBER	"1"
@@ -149,19 +150,20 @@ bool PHYSFSX_init(int argc, char *argv[])
 		strncpy(fullPath, path, PATH_MAX + 5);
 	
 	PHYSFS_setWriteDir(fullPath);
-	if (!PHYSFS_getWriteDir())
+	if (!(writedir = PHYSFS_getWriteDir()))
 	{                                               // need to make it
 		char *p;
 		char ancestor[PATH_MAX + 5];    // the directory which actually exists
 		char child[PATH_MAX + 5];               // the directory relative to the above we're trying to make
 		
 		strcpy(ancestor, fullPath);
-		while (!PHYSFS_getWriteDir() && ((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+		const auto separator = *PHYSFS_getDirSeparator();
+		while (!PHYSFS_getWriteDir() && (p = strrchr(ancestor, separator)))
 		{
 			if (p[1] == 0)
 			{                                       // separator at the end (intended here, for safety)
 				*p = 0;                 // kill this separator
-				if (!((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+				if (!(p = strrchr(ancestor, separator)))
 					break;          // give up, this is (usually) the root directory
 			}
 			
@@ -170,12 +172,13 @@ bool PHYSFSX_init(int argc, char *argv[])
 		}
 		
 		strcpy(child, fullPath + strlen(ancestor));
-		for (p = child; (p = strchr(p, *PHYSFS_getDirSeparator())); p++)
-			*p = '/';
+		if (separator != '/')
+			for (p = child; (p = strchr(p, separator)); p++)
+				*p = '/';
 		PHYSFS_mkdir(child);
 		PHYSFS_setWriteDir(fullPath);
+		writedir = PHYSFS_getWriteDir();
 	}
-	const char *writedir = PHYSFS_getWriteDir();
 	con_printf(CON_DEBUG, "PHYSFS: append write directory \"%s\" to search path", writedir);
 	PHYSFS_addToSearchPath(writedir, 1);
 #endif
@@ -188,10 +191,9 @@ bool PHYSFSX_init(int argc, char *argv[])
 	if (!PHYSFS_getWriteDir())
 	{
 		PHYSFS_setWriteDir(base_dir);
-		if (!PHYSFS_getWriteDir())
+		if (!(writedir = PHYSFS_getWriteDir()))
 			Error("can't set write dir: %s\n", PHYSFS_getLastError());
-		else
-			PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 0);
+		PHYSFS_addToSearchPath(writedir, 0);
 	}
 	
 	//tell PHYSFS where hogdir is
