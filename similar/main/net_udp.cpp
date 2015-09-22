@@ -3198,9 +3198,12 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 #endif
 
+const unsigned reactor_invul_time_mini_scale = F1_0 * 60;
+const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
+
 #define DXX_UDP_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
-	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, 5*F1_0*60)	\
+	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
 	DXX_##VERB##_TEXT(KillText, opt_killgoal_label)	\
 	DXX_##VERB##_SLIDER("", opt_killgoal, Netgame.KillGoal, 0, 20)	\
@@ -3306,9 +3309,9 @@ public:
 	{
 		snprintf(portstring, sizeof(portstring), "%hu", UDP_MyPort);
 	}
-	void update_reactor_life_string()
+	void update_reactor_life_string(unsigned t)
 	{
-		snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);
+		snprintf(srinvul, sizeof(srinvul), "%s: %u %s", TXT_REACTOR_LIFE, t, TXT_MINUTES_ABBREV);
 	}
 	void update_max_play_time_string()
 	{
@@ -3334,7 +3337,7 @@ public:
 	{
 		update_packstring();
 		update_portstring();
-		update_reactor_life_string();
+		update_reactor_life_string(Netgame.control_invul_time / reactor_invul_time_mini_scale);
 		update_max_play_time_string();
 		update_spawn_invuln_string();
 		update_secluded_spawn_string();
@@ -3483,7 +3486,7 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			auto &menus = items->get_menu_items();
 			if (citem == opt_cinvul)
-				items->update_reactor_life_string();
+				items->update_reactor_life_string(menus[opt_cinvul].value * (reactor_invul_time_scale / reactor_invul_time_mini_scale));
 			else if (citem == opt_playtime)
 			{
 				if (Game_mode & GM_MULTI_COOP)
@@ -5734,7 +5737,7 @@ static window_event_result show_game_rules_handler(window *wind,const d_event &e
 			gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 #endif
 			draw_game_rules(show_rule_value(), *netgame);
-			gr_printf(fspacx115, fspacy(base_y + 20), "%i Min", netgame->control_invul_time / F1_0 / 60);
+			gr_printf(fspacx115, fspacy(base_y + 20), "%i Min", netgame->control_invul_time / reactor_invul_time_mini_scale);
 			gr_printf(fspacx115, fspacy(base_y + 26), "%i Min", netgame->PlayTimeAllowed * 5);
 			gr_printf(fspacx115, fspacy(base_y + 32), "%i", netgame->KillGoal * 5);
 			gr_printf(fspacx115, fspacy(base_y + 38), "%i", netgame->PacketsPerSec);
