@@ -201,7 +201,14 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-hogdir"))
 			GameArg.SysHogDir = arg_string(pp, end);
 		else if (!d_stricmp(p, "-nohogdir"))
+		{
+			/* No effect on non-Unix.  Ignore it so that players can
+			 * pass it via a cross-platform ini.
+			 */
+#if defined(__unix__)
 			GameArg.SysNoHogDir = 1;
+#endif
+		}
 		else if (!d_stricmp(p, "-use_players_dir"))
 			GameArg.SysUsePlayersDir 	= 1;
 		else if (!d_stricmp(p, "-lowmem"))

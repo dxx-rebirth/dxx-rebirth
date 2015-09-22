@@ -79,7 +79,9 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string SysRecordDemoNameTemplate;
 	bool SysShowCmdHelp;
 	bool SysNoNiceFPS;
+#if defined(__unix__)
 	bool SysNoHogDir;
+#endif
 	bool SysUsePlayersDir;
 	bool SysLowMem;
 	bool SysAutoRecordDemo;

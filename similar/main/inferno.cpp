@@ -124,7 +124,9 @@ static void print_commandline_help()
 	printf( "  -nonicefps                    Don't free CPU-cycles\n");
 	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, available: %i-%i)\n", MAXIMUM_FPS, MINIMUM_FPS, MAXIMUM_FPS);
 	printf( "  -hogdir <s>                   set shared data directory to <s>\n");
+#if defined(__unix__)
 	printf( "  -nohogdir                     don't try to use shared data directory\n");
+#endif
 	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
 	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
 	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
