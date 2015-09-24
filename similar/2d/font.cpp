@@ -1179,8 +1179,8 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 							bits = *fp++;
 							bits_remaining = 8;
 						}
-						const auto bit_enabled = (bits & 1);
-						bits >>= 1;
+						const auto bit_enabled = (bits & 0x80);
+						bits <<= 1;
 						if (masked_draws_background)
 							gr_setcolor(bit_enabled ? cv_font_fg_color : cv_font_bg_color);
 						else
