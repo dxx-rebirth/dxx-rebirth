@@ -297,8 +297,8 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 							bits_remaining = 8;
 						}
 
-						const auto bit_enabled = (bits & 1);
-						bits >>= 1;
+						const auto bit_enabled = (bits & 0x80);
+						bits <<= 1;
 						if (!masked_draws_background)
 						{
 							if (!bit_enabled)
