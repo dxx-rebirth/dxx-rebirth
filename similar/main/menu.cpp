@@ -1091,6 +1091,9 @@ static void input_config_sensitivity()
 	DXX_##VERB##_TEXT("Mouse Sensitivity:", opt_label_ms)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_ms)	\
+	DXX_##VERB##_TEXT("Mouse Overrun Buffer:", opt_label_mo)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,mo,PlayerCfg.MouseOverrun)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_mo)	\
 	DXX_##VERB##_TEXT("Mouse FlightSim Deadzone:", opt_label_mfsd)	\
 	DXX_##VERB##_SLIDER("X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
 
@@ -1119,6 +1122,7 @@ static void input_config_sensitivity()
 	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
 	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
 	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
+        constexpr uint_fast32_t mouseoverrun = items.opt_label_mo + 1;
 	const auto &m = items.m;
 
 	for (unsigned i = 0; i <= 5; i++)
@@ -1130,6 +1134,7 @@ static void input_config_sensitivity()
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
+                PlayerCfg.MouseOverrun[i] = m[mouseoverrun+i].value;
 	}
 	constexpr uint_fast32_t mousefsdead = items.opt_mfsd_deadzone;
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;

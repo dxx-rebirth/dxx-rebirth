@@ -85,6 +85,7 @@ struct player_config
 	array<int, 6> JoystickSpeed;
 	ubyte MouseFlightSim;
 	array<int, 6> MouseSens;
+        array<int, 6> MouseOverrun;
 	int MouseFSDead;
 	int MouseFSIndicator;
 	array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.

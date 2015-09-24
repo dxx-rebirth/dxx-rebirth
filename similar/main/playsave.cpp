@@ -143,6 +143,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOUSE_FSDEAD_VALUE_TEXT	"%d"
 #define MOUSE_FSINDICATOR_NAME_TEXT	"fsindi"
 #define MOUSE_FSINDICATOR_VALUE_TEXT	"%d"
+#define MOUSE_OVERRUN_NAME_TEXT	"overrun"
 #define WEAPON_KEYv2_HEADER_TEXT	"[weapon keys v2]"
 #define WEAPON_KEYv2_VALUE_TEXT	"0x%x,0x%x,0x%x"
 #define COCKPIT_HEADER_TEXT "[cockpit]"
@@ -222,6 +223,7 @@ int new_player_config()
 	PlayerCfg.JoystickSpeed[0] = PlayerCfg.JoystickSpeed[1] = PlayerCfg.JoystickSpeed[2] = PlayerCfg.JoystickSpeed[3] = PlayerCfg.JoystickSpeed[4] = PlayerCfg.JoystickSpeed[5] = 16;
 	PlayerCfg.MouseFlightSim = 0;
 	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = PlayerCfg.MouseSens[5] = 8;
+        PlayerCfg.MouseOverrun[0] = PlayerCfg.MouseOverrun[1] = PlayerCfg.MouseOverrun[2] = PlayerCfg.MouseOverrun[3] = PlayerCfg.MouseOverrun[4] = PlayerCfg.MouseOverrun[5] = 0;
 	PlayerCfg.MouseFSDead = 0;
 	PlayerCfg.MouseFSIndicator = 1;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
@@ -379,6 +381,8 @@ static int read_player_dxx(const char *filename)
 				if(!strcmp(line,MOUSE_FLIGHTSIM_NAME_TEXT))
 					PlayerCfg.MouseFlightSim = atoi(value);
 				else if (convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens, line, value))
+					;
+				else if (convert_pattern_array(MOUSE_OVERRUN_NAME_TEXT, PlayerCfg.MouseOverrun, line, value))
 					;
 				else if(!strcmp(line,MOUSE_FSDEAD_NAME_TEXT))
 					PlayerCfg.MouseFSDead = atoi(value);
@@ -713,6 +717,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,MOUSE_HEADER_TEXT "\n");
 		PHYSFSX_printf(fout,MOUSE_FLIGHTSIM_NAME_TEXT "=" MOUSE_FLIGHTSIM_VALUE_TEXT "\n",PlayerCfg.MouseFlightSim);
 		print_pattern_array(fout, SENSITIVITY_NAME_TEXT, PlayerCfg.MouseSens);
+                print_pattern_array(fout, MOUSE_OVERRUN_NAME_TEXT, PlayerCfg.MouseOverrun);
 		PHYSFSX_printf(fout,MOUSE_FSDEAD_NAME_TEXT "=" MOUSE_FSDEAD_VALUE_TEXT "\n",PlayerCfg.MouseFSDead);
 		PHYSFSX_printf(fout,MOUSE_FSINDICATOR_NAME_TEXT "=" MOUSE_FSINDICATOR_VALUE_TEXT "\n",PlayerCfg.MouseFSIndicator);
 		PHYSFSX_printf(fout,END_TEXT "\n");

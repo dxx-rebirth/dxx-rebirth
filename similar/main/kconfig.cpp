@@ -1494,6 +1494,16 @@ static inline void adjust_button_time(fix &o, uint8_t add, uint8_t sub, fix v)
 		o -= v;
 }
 
+static void clamp_kconfig_control_with_overrun(fix &value, const fix &bound, fix &excess, const fix &ebound)
+{
+	/* Assume no integer overflow here */
+	value += excess;
+	const auto ivalue = value;
+	clamp_symmetric_value(value, bound);
+	excess = ivalue - value;
+	clamp_symmetric_value(excess, ebound);
+}
+
 void kconfig_read_controls(const d_event &event, int automap_flag)
 {
 	static fix64 mouse_delta_time = 0;
@@ -1782,12 +1792,12 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	}
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	clamp_symmetric_value(Controls.pitch_time, frametime/2);
-	clamp_symmetric_value(Controls.heading_time, frametime);
-	clamp_symmetric_value(Controls.vertical_thrust_time, frametime);
-	clamp_symmetric_value(Controls.sideways_thrust_time, frametime);
-	clamp_symmetric_value(Controls.bank_time, frametime);
-	clamp_symmetric_value(Controls.forward_thrust_time, frametime);
+	clamp_kconfig_control_with_overrun(Controls.pitch_time, FrameTime/2, Controls.excess_pitch_time, FrameTime * PlayerCfg.MouseOverrun[1] * 2);
+	clamp_kconfig_control_with_overrun(Controls.heading_time, FrameTime, Controls.excess_heading_time, FrameTime * PlayerCfg.MouseOverrun[0] * 2);
+	clamp_kconfig_control_with_overrun(Controls.vertical_thrust_time, FrameTime, Controls.excess_vertical_thrust_time, FrameTime * PlayerCfg.MouseOverrun[3] * 2);
+	clamp_kconfig_control_with_overrun(Controls.sideways_thrust_time, FrameTime, Controls.excess_sideways_thrust_time, FrameTime * PlayerCfg.MouseOverrun[2] * 2);
+	clamp_kconfig_control_with_overrun(Controls.bank_time, FrameTime, Controls.excess_bank_time, FrameTime * PlayerCfg.MouseOverrun[4] * 2);
+	clamp_kconfig_control_with_overrun(Controls.forward_thrust_time, FrameTime, Controls.excess_forward_thrust_time, FrameTime * PlayerCfg.MouseOverrun[5] * 2);
 }
 
 void reset_cruise(void)
