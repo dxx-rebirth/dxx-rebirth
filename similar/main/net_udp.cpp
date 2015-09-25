@@ -3243,7 +3243,7 @@ unsigned secondary = Netgame.DuplicatePowerups.get_secondary_count();
 	D2X_UDP_MENU_OPTIONS(VERB)	                                        \
 	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
-	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
+	DXX_##VERB##_CHECK("No friendly damage (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_##VERB##_TEXT("", blank_4)                                     \
 	DXX_##VERB##_TEXT("Network Options", network_label)	               \
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
