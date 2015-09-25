@@ -1654,8 +1654,8 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			else
 			{
 				event_mouse_get_delta( event, &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
-				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 4;
-				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 4;
+				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 8;
+				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 8;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2] * frametime);
 				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
@@ -1792,12 +1792,12 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	}
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	clamp_kconfig_control_with_overrun(Controls.pitch_time, FrameTime/2, Controls.excess_pitch_time, FrameTime * PlayerCfg.MouseOverrun[1] * 2);
-	clamp_kconfig_control_with_overrun(Controls.heading_time, FrameTime, Controls.excess_heading_time, FrameTime * PlayerCfg.MouseOverrun[0] * 2);
-	clamp_kconfig_control_with_overrun(Controls.vertical_thrust_time, FrameTime, Controls.excess_vertical_thrust_time, FrameTime * PlayerCfg.MouseOverrun[3] * 2);
-	clamp_kconfig_control_with_overrun(Controls.sideways_thrust_time, FrameTime, Controls.excess_sideways_thrust_time, FrameTime * PlayerCfg.MouseOverrun[2] * 2);
-	clamp_kconfig_control_with_overrun(Controls.bank_time, FrameTime, Controls.excess_bank_time, FrameTime * PlayerCfg.MouseOverrun[4] * 2);
-	clamp_kconfig_control_with_overrun(Controls.forward_thrust_time, FrameTime, Controls.excess_forward_thrust_time, FrameTime * PlayerCfg.MouseOverrun[5] * 2);
+	clamp_kconfig_control_with_overrun(Controls.pitch_time, frametime/2, Controls.excess_pitch_time, frametime * PlayerCfg.MouseOverrun[1]);
+	clamp_kconfig_control_with_overrun(Controls.heading_time, frametime, Controls.excess_heading_time, frametime * PlayerCfg.MouseOverrun[0]);
+	clamp_kconfig_control_with_overrun(Controls.vertical_thrust_time, frametime, Controls.excess_vertical_thrust_time, frametime * PlayerCfg.MouseOverrun[3]);
+	clamp_kconfig_control_with_overrun(Controls.sideways_thrust_time, frametime, Controls.excess_sideways_thrust_time, frametime * PlayerCfg.MouseOverrun[2]);
+	clamp_kconfig_control_with_overrun(Controls.bank_time, frametime, Controls.excess_bank_time, frametime * PlayerCfg.MouseOverrun[4]);
+	clamp_kconfig_control_with_overrun(Controls.forward_thrust_time, frametime, Controls.excess_forward_thrust_time, frametime * PlayerCfg.MouseOverrun[5]);
 }
 
 void reset_cruise(void)
