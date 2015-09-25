@@ -1059,9 +1059,51 @@ void change_res()
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
 
-static void input_config_sensitivity()
+static void input_config_keyboard()
 {
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+
+#define DXX_INPUT_CONFIG_MENU(VERB)	\
+	DXX_##VERB##_TEXT("Keyboard Sensitivity:", opt_label_kb)	\
+	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	             \
+
+
+	class menu_items
+	{
+	public:
+		enum
+		{
+			DXX_INPUT_CONFIG_MENU(ENUM)
+		};
+		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		menu_items()
+		{
+			DXX_INPUT_CONFIG_MENU(ADD);
+		}
+	};
+#undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_SENSITIVITY
+	menu_items items;
+	newmenu_do1(nullptr, "Keyboard Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+
+	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
+	const auto &m = items.m;
+
+	for (unsigned i = 0; i <= 5; i++)
+	{
+		if (i < 5)
+			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+	}
+}
+
+static void input_config_mouse()
+{
+#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
 	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
 	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
 	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
@@ -1072,23 +1114,8 @@ static void input_config_sensitivity()
 	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
 
-#define DXX_INPUT_CONFIG_MENU(VERB)	\
-	DXX_##VERB##_TEXT("Keyboard Sensitivity:", opt_label_kb)	\
-	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_kb)	\
-	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
-	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
-	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
-	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
-	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
-	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_jd)	\
-	DXX_##VERB##_TEXT("Mouse Sensitivity:", opt_label_ms)	\
+#define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
+	DXX_##VERB##_TEXT("Mouse Sensitivity:", opt_label_ms)	             \
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_ms)	\
 	DXX_##VERB##_TEXT("Mouse Overrun Buffer:", opt_label_mo)	\
@@ -1114,30 +1141,80 @@ static void input_config_sensitivity()
 #undef DXX_INPUT_THROTTLE_SENSITIVITY
 #undef DXX_INPUT_SENSITIVITY
 	menu_items items;
-	newmenu_do1(nullptr, "SENSITIVITY & DEADZONE", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Mouse Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
-	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
-	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
-	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
-	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
-	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
 	constexpr uint_fast32_t mousesens = items.opt_label_ms + 1;
-        constexpr uint_fast32_t mouseoverrun = items.opt_label_mo + 1;
+    constexpr uint_fast32_t mouseoverrun = items.opt_label_mo + 1;
 	const auto &m = items.m;
 
 	for (unsigned i = 0; i <= 5; i++)
 	{
-		if (i < 5)
-			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+		
+		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
+        PlayerCfg.MouseOverrun[i] = m[mouseoverrun+i].value;
+	}
+	constexpr uint_fast32_t mousefsdead = items.opt_mfsd_deadzone;
+	PlayerCfg.MouseFSDead = m[mousefsdead].value;
+}
+
+static void input_config_joystick()
+{
+#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
+	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+
+#define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
+	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
+
+#define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
+	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	          \
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
+	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
+	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
+	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
+	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
+	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
+	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	    \
+
+	class menu_items
+	{
+	public:
+		enum
+		{
+			DXX_INPUT_CONFIG_MENU(ENUM)
+		};
+		array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
+		menu_items()
+		{
+			DXX_INPUT_CONFIG_MENU(ADD);
+		}
+	};
+#undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_THROTTLE_SENSITIVITY
+#undef DXX_INPUT_SENSITIVITY
+	menu_items items;
+	newmenu_do1(nullptr, "Joystick Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+
+	constexpr uint_fast32_t joysens = items.opt_label_js + 1;
+	constexpr uint_fast32_t joylin = items.opt_label_jl + 1;
+	constexpr uint_fast32_t joyspd = items.opt_label_jp + 1;
+	constexpr uint_fast32_t joydead = items.opt_label_jd + 1;
+	const auto &m = items.m;
+
+	for (unsigned i = 0; i <= 5; i++)
+	{
 		PlayerCfg.JoystickLinear[i] = m[joylin+i].value;
 		PlayerCfg.JoystickSpeed[i] = m[joyspd+i].value;
 		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
-		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
-                PlayerCfg.MouseOverrun[i] = m[mouseoverrun+i].value;
 	}
-	constexpr uint_fast32_t mousefsdead = items.opt_mfsd_deadzone;
-	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
 namespace {
@@ -1157,7 +1234,9 @@ class input_config_menu_items
 	DXX_##VERB##_RADIO("Normal", opt_mouse_control_normal, PlayerCfg.MouseFlightSim == 0, optgrp_mouse_control_type)	\
 	DXX_##VERB##_RADIO("FlightSim", opt_mouse_control_flightsim, PlayerCfg.MouseFlightSim == 1, optgrp_mouse_control_type)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_mouse_control_type)	\
-	DXX_##VERB##_MENU("SENSITIVITY & DEADZONE", opt_ic_joymousesens)	\
+	DXX_##VERB##_MENU("Keyboard Calibration", opt_ic_keyboard)	        \
+	DXX_##VERB##_MENU("Mouse Calibration", opt_ic_mouse)	              \
+	DXX_##VERB##_MENU("Joysick Calibration", opt_ic_joystick)	         \
 	DXX_##VERB##_TEXT("", opt_label_blank_sensitivity_deadzone)	\
 	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, CGameCfg.Grabinput)	\
 	DXX_##VERB##_CHECK("Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
@@ -1231,8 +1310,12 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 				kconfig(2, "MOUSE");
 			if (citem == opt_ic_confweap)
 				kconfig(3, "WEAPON KEYS");
-			if (citem == opt_ic_joymousesens)
-				input_config_sensitivity();
+			if (citem == opt_ic_keyboard)
+				input_config_keyboard();
+			if (citem == opt_ic_mouse)
+				input_config_mouse();
+			if (citem == opt_ic_joystick)
+				input_config_joystick();
 			if (citem == opt_ic_help0)
 				show_help();
 			if (citem == opt_ic_help1)
