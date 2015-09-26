@@ -852,20 +852,15 @@ int do_new_game_menu()
 static void do_sound_menu();
 static void input_config();
 static void change_res();
+static void hud_config();
 static void graphics_config();
-static void do_misc_menu();
+static void gameplay_config();
 
 #define DXX_OPTIONS_MENU(VERB)	\
-	DXX_##VERB##_MENU("Sound effects & music...", sfx)	\
-	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_##VERB##_MENU("Sound & music...", sfx)	\
 	DXX_##VERB##_MENU(TXT_CONTROLS_, controls)	\
-	DXX_##VERB##_TEXT("", blank2)	\
-	DXX_##VERB##_MENU("Screen resolution...", screen)	\
-	DXX_##VERB##_MENU("Graphics Options...", graphics)	\
-	DXX_##VERB##_TEXT("", blank3)	\
-	DXX_##VERB##_MENU("Primary autoselect ordering...", primary)	\
-	DXX_##VERB##_MENU("Secondary autoselect ordering...", secondary)	\
-	DXX_##VERB##_MENU("Misc Options...", misc)	\
+	DXX_##VERB##_MENU("Graphics...", graphics)	\
+	DXX_##VERB##_MENU("Gameplay...", misc)	\
 
 namespace {
 
@@ -903,20 +898,11 @@ static int options_menuset(newmenu *, const d_event &event, options_menu_items *
 				case options_menu_items::controls:
 					input_config();
 					break;
-				case options_menu_items::screen:
-					change_res();
-					break;
 				case options_menu_items::graphics:
 					graphics_config();
 					break;
-				case options_menu_items::primary:
-					ReorderPrimary();
-					break;
-				case options_menu_items::secondary:
-					ReorderSecondary();
-					break;
 				case options_menu_items::misc:
-					do_misc_menu();
+					gameplay_config();
 					break;
 			}
 			return 1;	// stay in menu until escape
@@ -1313,7 +1299,7 @@ static void reticle_config()
 #endif
 	items.m[items.opt_reticle_classic + i].value = 1;
 
-	newmenu_do1(nullptr, "Reticle Options", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
+	newmenu_do1(nullptr, "Reticle Customization", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	for (uint_fast32_t i = items.opt_reticle_classic; i != items.opt_label_blank_reticle_type; ++i)
 		if (items.m[i].value)
@@ -1328,10 +1314,65 @@ static void reticle_config()
 	items.read();
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
+
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
+	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
+
+#endif
+#define DXX_HUD_MENU_OPTIONS(VERB)	\
+        DXX_##VERB##_MENU("Reticle Customization...", opt_hud_reticlemenu)	\
+	DXX_##VERB##_CHECK("Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
+	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
+	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
+	DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
+
+enum {
+	DXX_HUD_MENU_OPTIONS(ENUM)
+};
+
+static int hud_config_menuset(newmenu *, const d_event &event, const unused_newmenu_userdata_t *)
+{
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+                        if (citem == opt_hud_reticlemenu)
+                                reticle_config();
+			return 1;		// stay in menu
+		}
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+void hud_config()
+{
+	int i = 0;
+
+	do {
+		newmenu_item m[DXX_HUD_MENU_OPTIONS(COUNT)];
+		DXX_HUD_MENU_OPTIONS(ADD);
+		i = newmenu_do1( NULL, "Hud Options", sizeof(m)/sizeof(*m), m, hud_config_menuset, unused_newmenu_userdata, 0 );
+		DXX_HUD_MENU_OPTIONS(READ);
+	} while( i>-1 );
+
+}
+
 #define DXX_GRAPHICS_MENU(VERB)	\
-	DXX_OGL0_GRAPHICS_MENU(VERB)	\
+	DXX_##VERB##_MENU("Screen resolution...", opt_gr_screenres)	\
+	DXX_##VERB##_MENU("HUD Options...", opt_gr_hudmenu)	\
 	DXX_##VERB##_SLIDER(TXT_BRIGHTNESS, opt_gr_brightness, gr_palette_get_gamma(), 0, 16)	\
-	DXX_##VERB##_MENU("Reticle Options...", opt_gr_reticlemenu)	\
+	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_OGL0_GRAPHICS_MENU(VERB)	\
 	DXX_OGL1_GRAPHICS_MENU(VERB)	\
 	DXX_##VERB##_CHECK("FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
 
@@ -1346,7 +1387,7 @@ enum {
 	DXX_##VERB##_RADIO("Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
 	DXX_##VERB##_RADIO("Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
 	D2X_OGL_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_##VERB##_TEXT("", blank2)	\
 
 #define DXX_OGL1_GRAPHICS_MENU(VERB)	\
 	DXX_##VERB##_CHECK("Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
@@ -1393,8 +1434,10 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			if (citem == opt_gr_reticlemenu)
-				reticle_config();
+                        if (citem == opt_gr_screenres)
+                                change_res();
+			if (citem == opt_gr_hudmenu)
+				hud_config();
 			return 1;		// stay in menu
 		}
 
@@ -1414,7 +1457,7 @@ void graphics_config()
 	m[opt_filter_none+GameCfg.TexFilt].value=1;
 #endif
 
-	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 1);
+	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 0);
 
 #ifdef OGL
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
@@ -1990,42 +2033,61 @@ void do_sound_menu()
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
 	DXX_##VERB##_CHECK("Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
-	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
 	DXX_##VERB##_CHECK("Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
 	DXX_##VERB##_CHECK("Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
 
 #endif
-#define DXX_MISC_MENU_OPTIONS(VERB)	\
+#define DXX_GAMEPLAY_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
 	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
-	DXX_##VERB##_CHECK("Screenshots w/o HUD",opt_screenshot,PlayerCfg.PRShot)	\
-	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
-	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
 	DXX_##VERB##_CHECK("No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
-	DXX_##VERB##_CHECK("Free Flight controls in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
-	DXX_##VERB##_CHECK("No Weapon Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
-	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_##VERB##_CHECK("Free Flight in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
 	DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+	DXX_##VERB##_TEXT("", opt_label_blank)	\
+        DXX_##VERB##_TEXT("Weapon Autoselect options:", opt_label_autoselect)	\
+	DXX_##VERB##_MENU("Primary ordering...", opt_gameplay_reorderprimary_menu)	\
+	DXX_##VERB##_MENU("Secondary ordering...", opt_gameplay_reordersecondary_menu)	\
+	DXX_##VERB##_CHECK("No Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
+	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
 
+enum {
+        DXX_GAMEPLAY_MENU_OPTIONS(ENUM)
+};
 
-void do_misc_menu()
+static int gameplay_config_menuset(newmenu *, const d_event &event, const unused_newmenu_userdata_t *)
 {
-	enum {
-		DXX_MISC_MENU_OPTIONS(ENUM)
-	};
+	switch (event.type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+		{
+			auto &citem = static_cast<const d_select_event &>(event).citem;
+                        if (citem == opt_gameplay_reorderprimary_menu)
+                                ReorderPrimary();
+                        if (citem == opt_gameplay_reordersecondary_menu)
+                                ReorderSecondary();
+			return 1;		// stay in menu
+		}
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+void gameplay_config()
+{
 	int i = 0;
 
 	do {
-		newmenu_item m[DXX_MISC_MENU_OPTIONS(COUNT)];
-		DXX_MISC_MENU_OPTIONS(ADD);
-		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, unused_newmenu_subfunction, unused_newmenu_userdata, i );
-		DXX_MISC_MENU_OPTIONS(READ);
+		newmenu_item m[DXX_GAMEPLAY_MENU_OPTIONS(COUNT)];
+		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
+                i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, gameplay_config_menuset, unused_newmenu_userdata, 0 );
+		DXX_GAMEPLAY_MENU_OPTIONS(READ);
 	} while( i>-1 );
 
 }
