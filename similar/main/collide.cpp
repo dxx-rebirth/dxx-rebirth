@@ -1069,14 +1069,19 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, const
 		return;
 	}
 
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(get_local_player().hours_level*3600)+get_local_player().time_level) < Netgame.control_invul_time))
+	if ((Game_mode & GM_MULTI) &&
+		!(Game_mode & GM_MULTI_COOP))
 	{
+		auto &player = get_local_player();
+		const auto t = i2f(player.hours_level * 3600) + player.time_level;
+		if (t < Netgame.control_invul_time)
+		{
 		if (get_player_id(who) == Player_num) {
-			const auto secs = f2i(Netgame.control_invul_time - (i2f(get_local_player().hours_level*3600)+get_local_player().time_level)) % 60;
-			const auto mins = f2i(Netgame.control_invul_time - (i2f(get_local_player().hours_level*3600)+get_local_player().time_level)) / 60;
-			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
+			const auto r = f2i(Netgame.control_invul_time - t);
+			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, r / 60, r % 60);
 		}
 		return;
+		}
 	}
 
 	if (get_player_id(who) == Player_num) {
