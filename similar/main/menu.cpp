@@ -1316,7 +1316,7 @@ static void reticle_config()
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
+	DXX_##VERB##_CHECK("Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
