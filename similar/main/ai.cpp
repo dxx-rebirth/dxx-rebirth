@@ -924,15 +924,16 @@ void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playero
 
 	if (robptr->attack_type == 1) {
 		if (ready_to_fire_weapon1(ailp, 0)) {
-			if (!(get_local_player().flags & PLAYER_FLAGS_CLOAKED))
+			auto &player = get_local_player();
+			if (!(player.flags & PLAYER_FLAGS_CLOAKED))
 				if (vm_vec_dist_quick(ConsoleObject->pos, robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
 				{
 					collide_player_and_nasty_robot( playerobj, robot, collision_point );
 #if defined(DXX_BUILD_DESCENT_II)
-					if (robptr->energy_drain && get_local_player().energy) {
-						get_local_player().energy -= robptr->energy_drain * F1_0;
-						if (get_local_player().energy < 0)
-							get_local_player().energy = 0;
+					if (robptr->energy_drain && player.energy) {
+						player.energy -= robptr->energy_drain * F1_0;
+						if (player.energy < 0)
+							player.energy = 0;
 					}
 #endif
 				}
@@ -1974,8 +1975,9 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 
 	Last_gate_time = GameTime64;
 
-	get_local_player().num_robots_level++;
-	get_local_player().num_robots_total++;
+	auto &player = get_local_player();
+	++player.num_robots_level;
+	++player.num_robots_total;
 
 	return objp;
 }
@@ -2804,13 +2806,13 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 // ----------------------------------------------------------------------------
 void init_ai_frame(void)
 {
-	int ab_state;
-
 	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(Last_fired_upon_player_pos, Believed_player_pos);
 
-	ab_state = Afterburner_charge && Controls.state.afterburner && (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER);
-
-	if (!(get_local_player().flags & PLAYER_FLAGS_CLOAKED) || (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON) || ab_state) {
+	auto &player = get_local_player();
+	if (!(player.flags & PLAYER_FLAGS_CLOAKED) ||
+		(player.flags & PLAYER_FLAGS_HEADLIGHT_ON) ||
+		(Afterburner_charge && Controls.state.afterburner && (player.flags & PLAYER_FLAGS_AFTERBURNER)))
+	{
 		ai_do_cloak_stuff();
 	}
 }
