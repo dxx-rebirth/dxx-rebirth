@@ -38,35 +38,59 @@ def get_Werror_string(l):
 	return '-Werror='
 
 class StaticSubprocess:
+	from shlex import split as shlex_split
 	class CachedCall:
 		def __init__(self,out,err,returncode):
 			self.out = out
 			self.err = err
 			self.returncode = returncode
-	__call_cache = {}
-	@classmethod
-	def pcall(cls,args,stderr=None):
+	# @staticmethod delayed so that default arguments pick up the
+	# undecorated form.
+	def pcall(args,stderr=None,_call_cache={},_CachedCall=CachedCall):
+		# Use repr since callers may construct the same argument
+		# list independently.
+		## >>> a = ['git', '--version']
+		## >>> b = ['git', '--version']
+		## >>> a is b
+		## False
+		## >>> id(a) == id(b)
+		## False
+		## >>> a == b
+		## True
+		## >>> repr(a) == repr(b)
+		## True
 		a = repr(args)
 		try:
-			return cls.__call_cache[a]
+			return _call_cache[a]
 		except KeyError:
 			pass
 		p = subprocess.Popen(args, executable=args[0], stdout=subprocess.PIPE, stderr=stderr, close_fds=True)
 		(o, e) = p.communicate()
-		cls.__call_cache[a] = c = cls.CachedCall(o, e, p.wait())
+		_call_cache[a] = c = _CachedCall(o, e, p.wait())
 		return c
+	def qcall(args,stderr=None,_pcall=pcall,_shlex_split=shlex_split):
+		return _pcall(_shlex_split(args),stderr)
+	@staticmethod
+	def get_version_head(cmd,_qcall=qcall):
+		v = _qcall('%s %s' % (cmd, '--version'), stderr=subprocess.PIPE)
+		try:
+			return v.__version_head
+		except AttributeError:
+			v.__version_head = r = (v.out or v.err).splitlines()[0] if not v.returncode and (v.out or v.err) else None
+			return r
+	pcall = staticmethod(pcall)
+	qcall = staticmethod(qcall)
+	shlex_split = staticmethod(shlex_split)
 
 class Git(StaticSubprocess):
-	__missing_git = StaticSubprocess.CachedCall(None, None, 1)
 	__path_git = None
 	@classmethod
-	def pcall(cls,args,stderr=None):
+	def pcall(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
 		git = cls.__path_git
 		if git is None:
-			cls.__path_git = git = (os.environ.get('GIT', 'git').split(),)
-		git = git[0]
+			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
 		if not git:
-			return cls.__missing_git
+			return _missing_git
 		return StaticSubprocess.pcall(git + args, stderr=stderr)
 	@classmethod
 	def spcall(cls,args,stderr=None):
@@ -382,6 +406,29 @@ help:assume C++ compiler works
 		# some tests in _check_cxx_works rely on its original value.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
 		self._check_cxx_conformance_level(context)
+	def _show_tool_version(self,context,tool,desc):
+		# These version results are not used for anything, but are
+		# collected here so that users who post only a build log will
+		# still supply at least some useful information.
+		#
+		# This is split into two lines so that the first line is printed
+		# before the function call required to format the string for the
+		# second line.
+		Display = context.Display
+		Display('%s: checking version of %s %r ... ' % (self.msgprefix, desc, tool))
+		Display('%r\n' % StaticSubprocess.get_version_head(tool))
+	def _show_indirect_tool_version(self,context,CXX,tool,desc):
+		Display = context.Display
+		Display('%s: checking path to %s ... ' % (self.msgprefix, desc))
+		# Include $LINKFLAGS since -fuse-ld=gold influences the path
+		# printed for the linker.
+		name = StaticSubprocess.qcall(context.env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)).out.strip()
+		if not name:
+			# Strange, but not fatal for this to fail.
+			Display('! %r\n' % name)
+			return
+		Display('%r\n' % name)
+		self._show_tool_version(context,name,desc)
 	def _check_cxx_works(self,context):
 		# Test whether the compiler+linker+optional wrapper(s) work.  If
 		# anything fails, a StopError is guaranteed on return.  However, to
@@ -397,7 +444,17 @@ help:assume C++ compiler works
 		Link = self.Link
 		cenv = context.env
 		use_distcc = self.user_settings.distcc
-		if self.user_settings.ccache:
+		use_ccache = self.user_settings.ccache
+		if self.user_settings.show_tool_version:
+			CXX = cenv['CXX']
+			self._show_tool_version(context, CXX, 'C++ compiler')
+			self._show_indirect_tool_version(context, CXX, 'as', 'assembler')
+			self._show_indirect_tool_version(context, CXX, 'ld', 'linker')
+			if use_distcc:
+				self._show_tool_version(context, use_distcc, 'distcc')
+			if use_ccache:
+				self._show_tool_version(context, use_ccache, 'ccache')
+		if use_ccache:
 			if use_distcc:
 				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
 					return
@@ -2325,6 +2382,12 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					# This is intentionally undocumented.  If a bug
+					# report includes a log with this set to False, the
+					# reporter will be asked to provide a log with the
+					# value set to True.  Try to prevent the extra round
+					# trip by hiding the option.
+					('show_tool_version', True, None)
 				),
 			},
 			{
@@ -3207,9 +3270,8 @@ class DXXProgram(DXXCommon):
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
 		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
-		v = StaticSubprocess.pcall(env['CXX'].split(' ') + ['--version'], stderr=subprocess.PIPE)
-		if not v.returncode and (v.out or v.err):
-			v = (v.out or v.err).split('\n')[0]
+		v = StaticSubprocess.get_version_head(env['CXX'])
+		if v is not None:
 			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
 			versid_build_environ.append('CXX_version')
 		extra_version = self.user_settings.extra_version
