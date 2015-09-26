@@ -486,7 +486,9 @@ static bool choose_missile_viewer()
 		{
 			if (!better_match(other_player_missile, o))
 				continue;
-			if (game_mode & GM_MULTI_COOP)
+                        if (!PlayerCfg.FriendMissileView)
+                                continue;
+			else if (game_mode & GM_MULTI_COOP)
 			{
 				/* Always allow missiles of other players */
 			}

@@ -1321,6 +1321,7 @@ static void reticle_config()
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
+	DXX_##VERB##_CHECK("Missile view of friendly players",opt_friendmissileview, PlayerCfg.FriendMissileView)	\
 	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
 
 #endif

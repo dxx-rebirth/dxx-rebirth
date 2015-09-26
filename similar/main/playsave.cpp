@@ -163,6 +163,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "automapfreeflight"
 #define TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "nofireautoselect"
 #define TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "cycleautoselectonly"
+#define TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "friendmissileview"
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
@@ -237,6 +238,7 @@ int new_player_config()
 	PlayerCfg.Cockpit3DView[0]=CV_NONE;
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
 	PlayerCfg.MissileViewEnabled = 1;
+        PlayerCfg.FriendMissileView = 0;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
 	PlayerCfg.GuidebotName = "GUIDE-BOT";
@@ -445,6 +447,8 @@ static int read_player_dxx(const char *filename)
 #elif defined(DXX_BUILD_DESCENT_II)
 				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
 					PlayerCfg.EscortHotKeys = atoi(value);
+				if(!strcmp(line,TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT))
+					PlayerCfg.FriendMissileView = atoi(value);
 #endif
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(value);
@@ -747,6 +751,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
+                PHYSFSX_printf(fout,TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "=%i\n",PlayerCfg.FriendMissileView);
 #endif
 		PHYSFSX_printf(fout,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);

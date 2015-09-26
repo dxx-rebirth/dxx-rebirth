@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "fwdwall.h"
 #include "reverse.h"
+#include "playsave.h"
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -1380,10 +1381,13 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 		const auto can_view_missile = [obj]{
 			if (obj->id == Player_num)
 				return true;
-			if (Game_mode & GM_MULTI_COOP)
-				return true;
-			if (Game_mode & GM_TEAM)
-				return get_team(Player_num) == get_team(obj->id);
+                        if (PlayerCfg.FriendMissileView)
+                        {
+                                if (Game_mode & GM_MULTI_COOP)
+                                        return true;
+                                if (Game_mode & GM_TEAM)
+                                        return get_team(Player_num) == get_team(obj->id);
+                        }
 			return false;
 		};
 		if (need_new_missile_viewer() && can_view_missile())

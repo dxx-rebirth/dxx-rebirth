@@ -100,6 +100,7 @@ struct player_config
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
 	int MissileViewEnabled;
+        int FriendMissileView;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
