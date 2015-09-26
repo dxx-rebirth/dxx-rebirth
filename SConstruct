@@ -2387,7 +2387,8 @@ class DXXCommon(LazyObjectConstructor):
 					(name,value,help) = opt[0:3]
 					kwargs = opt[3] if len(opt) > 3 else {}
 					if name not in variables.keys():
-						filtered_help.visible_arguments.append(name)
+						if help is not None:
+							filtered_help.visible_arguments.append(name)
 						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
 					names = self._names(name, prefix)
 					for n in names:
