@@ -1794,21 +1794,21 @@ class PCHManager(object):
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
 		self.pch_CXXFLAGS = ['-include', ownpch_cpp_filename or syspch_cpp_filename, '-Winvalid-pch']
-		# If assume unchanged and the file exists, skip registering the
-		# emitter and set __files_included to a dummy value.  This
-		# bypasses scanning source files and guarantees that the text of
-		# pch.cpp is not changed.  SCons will still recompile pch.cpp
-		# into a new .gch file if pch.cpp includes files that SCons
-		# recognizes as changed.
+		# If assume unchanged and the file exists, set __files_included
+		# to a dummy value.  This bypasses scanning source files and
+		# guarantees that the text of pch.cpp is not changed.  SCons
+		# will still recompile pch.cpp into a new .gch file if pch.cpp
+		# includes files that SCons recognizes as changed.
 		if user_settings.pch_cpp_assume_unchanged and \
 			(not syspch_cpp_filename or os.path.exists(syspch_cpp_filename)) and \
 			(not ownpch_cpp_filename or os.path.exists(ownpch_cpp_filename)):
-			return
-		# collections.defaultdict with key from ScannedFile.candidates,
-		# value is a collections.Counter with key=tuple of preprocessor
-		# guards, value=count of times this header was included under
-		# that set of guards.
-		self.__files_included = defaultdict(collections_counter)
+			self.__files_included = True
+		else:
+			# collections.defaultdict with key from ScannedFile.candidates,
+			# value is a collections.Counter with key=tuple of preprocessor
+			# guards, value=count of times this header was included under
+			# that set of guards.
+			self.__files_included = defaultdict(collections_counter)
 		self.__env_Program = env.Program
 		self.__env_StaticObject = env.StaticObject
 		env.Program = self.Program
@@ -2137,7 +2137,8 @@ class PCHManager(object):
 		# referenced by the command line or the source files, so SCons
 		# may not recognize it as an input.
 		env.Requires(o, self.required_pch_object_node)
-		self.record_file(env, source)
+		if self.__files_included is not True:
+			self.record_file(env, source)
 		return o
 
 	def Program(self,*args,**kwargs):
