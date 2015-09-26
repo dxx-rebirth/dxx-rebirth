@@ -1331,45 +1331,44 @@ static int maybe_steal_flag_item(int player_num, int flagval)
 {
 	if (Players[player_num].flags & flagval) {
 		if (d_rand() < THIEF_PROBABILITY) {
-			int	powerup_index=-1;
+			int	powerup_index;
+			const char *msg;
 			Players[player_num].flags &= (~flagval);
 			switch (flagval) {
 				case PLAYER_FLAGS_INVULNERABLE:
 					powerup_index = POW_INVULNERABILITY;
-					thief_message("Invulnerability stolen!");
+					msg = "Invulnerability stolen!";
 					break;
 				case PLAYER_FLAGS_CLOAKED:
 					powerup_index = POW_CLOAK;
-					thief_message("Cloak stolen!");
+					msg = "Cloak stolen!";
 					break;
 				case PLAYER_FLAGS_MAP_ALL:
 					powerup_index = POW_FULL_MAP;
-					thief_message("Full map stolen!");
+					msg = "Full map stolen!";
 					break;
 				case PLAYER_FLAGS_QUAD_LASERS:
 					powerup_index = POW_QUAD_FIRE;
-					thief_message("Quad lasers stolen!");
+					msg = "Quad lasers stolen!";
 					break;
 				case PLAYER_FLAGS_AFTERBURNER:
 					powerup_index = POW_AFTERBURNER;
-					thief_message("Afterburner stolen!");
+					msg = "Afterburner stolen!";
 					break;
-// --				case PLAYER_FLAGS_AMMO_RACK:
-// --					powerup_index = POW_AMMO_RACK;
-// --					thief_message("Ammo Rack stolen!");
-// --					break;
 				case PLAYER_FLAGS_CONVERTER:
 					powerup_index = POW_CONVERTER;
-					thief_message("Converter stolen!");
+					msg = "Converter stolen!";
 					break;
-				case PLAYER_FLAGS_HEADLIGHT:
+				case PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON:
 					powerup_index = POW_HEADLIGHT;
-					thief_message("Headlight stolen!");
-					get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+					msg = "Headlight stolen!";
 					break;
+				default:
+					assert(false);
+					return 0;
 			}
-			Assert(powerup_index != -1);
 			Stolen_items[Stolen_item_index] = powerup_index;
+			thief_message_str(msg);
 
 			digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 			return 1;
@@ -1483,7 +1482,7 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, int player_num)
 		return 1;
 // --	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_AMMO_RACK))	//	Can't steal because what if have too many items, say 15 homing missiles?
 // --		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_HEADLIGHT))
+	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON))
 		return 1;
 	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_MAP_ALL))
 		return 1;
