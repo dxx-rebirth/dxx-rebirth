@@ -739,25 +739,31 @@ void fuelcen_check_for_goal(const vsegptr_t segp)
 {
 	Assert (game_mode_capture_flag());
 
-	if (segp->special==SEGMENT_IS_GOAL_BLUE )	{
-
-			if ((get_team(Player_num)==TEAM_BLUE) && (get_local_player().flags & PLAYER_FLAGS_FLAG))
-			 {
+	unsigned check_team;
+	powerup_type_t powerup_to_drop;
+	switch(segp->special)
+	{
+		case SEGMENT_IS_GOAL_BLUE:
+			check_team = TEAM_BLUE;
+			powerup_to_drop = POW_FLAG_RED;
+			break;
+		case SEGMENT_IS_GOAL_RED:
+			check_team = TEAM_RED;
+			powerup_to_drop = POW_FLAG_BLUE;
+			break;
+		default:
+			return;
+	}
+	if (get_team(Player_num) != check_team)
+		return;
+	auto &player = get_local_player();
+	if (player.flags & PLAYER_FLAGS_FLAG)
+	{
+		player.flags &= ~PLAYER_FLAGS_FLAG;
 				multi_send_capture_bonus (Player_num);
-				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
-				maybe_drop_net_powerup (POW_FLAG_RED);
-			 }
-	  	 }
-	if ( segp->special==SEGMENT_IS_GOAL_RED) {
-
-			if ((get_team(Player_num)==TEAM_RED) && (get_local_player().flags & PLAYER_FLAGS_FLAG))
-			 {		
-				multi_send_capture_bonus (Player_num);
-				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
-				maybe_drop_net_powerup (POW_FLAG_BLUE);
-			 }
-	  	 }
-  }
+		maybe_drop_net_powerup(powerup_to_drop);
+	}
+}
 
 void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 {
