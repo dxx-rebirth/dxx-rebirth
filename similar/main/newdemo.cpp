@@ -2185,6 +2185,12 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
 				const auto &&segp = vsegptridx(segnum);
+				/* Demo recording is buggy.  Descent records
+				 * ND_EVENT_TRIGGER for every segment transition, even
+				 * if there is no wall.
+				 */
+				if (segp->sides[side].wall_num != wall_none)
+				{
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Triggers[Walls[segp->sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
 					int truth;
@@ -2203,6 +2209,7 @@ static int newdemo_read_frame_information(int rewrite)
 				} else if (!rewrite)
 #endif
 					check_trigger(segp, side, objnum,shot);
+				}
 			}
 		}
 			break;
