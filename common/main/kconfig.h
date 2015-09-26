@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct d_event;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct control_info {
 	template <typename T>
 	struct ramp_controls_t
@@ -80,6 +81,9 @@ struct control_info {
 	array<fix, 3> mouse_axis, raw_mouse_axis;
 };
 
+extern control_info Controls;
+#endif
+
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
@@ -91,7 +95,6 @@ struct control_info {
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 #endif
 
-extern control_info Controls;
 extern void kconfig_read_controls(const d_event &event, int automap_flag);
 extern void kconfig(int n, const char *title);
 

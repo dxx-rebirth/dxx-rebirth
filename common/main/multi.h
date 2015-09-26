@@ -608,6 +608,7 @@ extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12]
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
@@ -666,6 +667,7 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 		0;
 	return p;
 }
+#endif
 
 #define NETGAME_NAME_LEN                15
 

@@ -113,6 +113,7 @@ public:
 	std::string::const_iterator filename;          // filename without extension
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct Mission : Mission_path
 {
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
@@ -161,6 +162,7 @@ extern Mission_ptr Current_mission; // current mission
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
+#endif
 
 //values for d1 built-in mission
 #define BIMD1_LAST_LEVEL		27

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #include "pstypes.h"
 #include "player.h"
@@ -160,4 +161,5 @@ struct netgame_info;
 void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
 
+#endif
 #endif
