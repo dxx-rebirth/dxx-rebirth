@@ -664,16 +664,20 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		"""
 help:assume compiler supports __attribute__((error))
 """
+		self._check_function_dce_attribute(context, 'error')
+	def _check_function_dce_attribute(self,context,attribute):
+		__attribute__ = '__%s__' % attribute
 		f = '''
-void a()__attribute__((__error__("a called")));
-'''
-		if self.Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((__error__))'):
-			context.sconf.Define('DXX_HAVE_ATTRIBUTE_ERROR')
-			context.sconf.Define('__attribute_error(M)', '__attribute__((__error__(M)))')
+void a()__attribute__((%s("a called")));
+''' % __attribute__
+		macro_name = '__attribute_%s(M)' % attribute
+		if self.Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((%s))' % __attribute__):
+			context.sconf.Define('DXX_HAVE_ATTRIBUTE_%s' % attribute.upper())
+			context.sconf.Define(macro_name, '__attribute__((%s(M)))' % __attribute__)
 		else:
-			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((__error__))') and \
-			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((__error__))', expect_failure=True)
-			context.sconf.Define('__attribute_error(M)', self.comment_not_supported)
+			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((%s))' % __attribute__) and \
+			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
+			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
 	def check_builtin_bswap(self,context):
 		b = '(void)__builtin_bswap{bits}(static_cast<uint{bits}_t>(argc));'
@@ -872,6 +876,9 @@ help:assume compiler supports __attribute__((warn_unused_result))
 int a()__attribute_warn_unused_result;
 int a(){return 0;}
 """, msg='for function __attribute__((warn_unused_result))')
+	@_custom_test
+	def check_attribute_warning(self,context):
+		self._check_function_dce_attribute(context, 'warning')
 	def Cxx14Compile(self,context,*args,**kwargs):
 		self.__skip_missing_cxx_std(self._cxx_conformance_cxx14, 'no C++14 support', kwargs)
 		return self.Compile(context,*args,**kwargs)
