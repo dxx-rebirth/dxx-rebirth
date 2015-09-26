@@ -102,8 +102,11 @@ class ConfigureTests:
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
 	class PreservedEnvironment:
-		def __init__(self,env,keys):
-			self.flags = {k: env.get(k, [])[:] for k in keys}
+		# One empty list for all the defaults.  The comprehension
+		# creates copies, so it is safe for the default value to be
+		# shared.
+		def __init__(self,env,keys,_l=[]):
+			self.flags = {k: env.get(k, _l)[:] for k in keys}
 		def restore(self,env):
 			env.Replace(**self.flags)
 		def __getitem__(self,key):
@@ -117,6 +120,8 @@ class ConfigureTests:
 				'LINKCOMSTR',
 			):
 				try:
+					# env is like a dict, but does not have .pop(), so
+					# emulate it with a lookup + delete.
 					self.cc_env_strings[k] = env[k]
 					del env[k]
 				except KeyError:
@@ -125,8 +130,6 @@ class ConfigureTests:
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
 	class pkgconfig:
-		__pkg_config_path_cache = {}
-		__pkg_config_data_cache = {}
 		@staticmethod
 		def _get_pkg_config_name(user_settings):
 			p = user_settings.PKG_CONFIG
@@ -160,26 +163,24 @@ class ConfigureTests:
 				return fp
 			message("no usable pkg-config %r found in $PATH" % pkgconfig)
 		@classmethod
-		def _get_pkg_config_path(cls,context,message,user_settings,display_name):
+		def _get_pkg_config_path(cls,context,message,user_settings,display_name,_cache={}):
 			pkgconfig = cls._get_pkg_config_name(user_settings)
-			cache = cls.__pkg_config_path_cache
 			try:
-				return cache[pkgconfig]
+				return _cache[pkgconfig]
 			except KeyError:
 				pass
-			cache[pkgconfig] = path = cls._get_pkg_config_exec_path(context, message, pkgconfig)
+			_cache[pkgconfig] = path = cls._get_pkg_config_exec_path(context, message, pkgconfig)
 			return path
 		@classmethod
-		def _find_pkg_config(cls,context,message,user_settings,pkgconfig_name,display_name):
+		def _find_pkg_config(cls,context,message,user_settings,pkgconfig_name,display_name,_cache={}):
 			message("checking %s pkg-config %s" % (display_name, pkgconfig_name))
 			pkgconfig = cls._get_pkg_config_path(context, message, user_settings, display_name)
 			if not pkgconfig:
 				message("skipping %s pkg-config" % display_name)
 				return {}
 			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
-			cache = cls.__pkg_config_data_cache
 			try:
-				flags = cache[cmd]
+				flags = _cache[cmd]
 				message("reusing %s settings from `%s`" % (display_name, cmd))
 				return flags
 			except KeyError as e:
@@ -189,7 +190,7 @@ class ConfigureTests:
 				except OSError as o:
 					message("%s pkg-config failed; user must add required flags via environment for `%s`" % (display_name, cmd))
 					flags = {}
-				cache[cmd] = flags
+				_cache[cmd] = flags
 				return flags
 		@classmethod
 		def merge(cls,context,message,user_settings,pkgconfig_name,display_name):
@@ -215,12 +216,16 @@ class ConfigureTests:
 	__cxx11_required_features = [
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
-constexpr %(N)s a(){return {};}
+static constexpr %(N)s get_%(N)s(){return {};}
+''', '''
+	get_%(N)s();
 '''),
 		Cxx11RequiredFeature('nullptr', '''
 #include <cstddef>
 std::nullptr_t %(N)s1 = nullptr;
 int *%(N)s2 = nullptr;
+''', '''
+	%(N)s2 = %(N)s1;
 '''),
 		Cxx11RequiredFeature('explicit operator bool', '''
 struct %(N)s {
@@ -236,7 +241,9 @@ using %(N)s_alias = %(N)s_struct<T>;
 ''', '''
 	%(N)s_struct<int> *a = nullptr;
 	%(N)s_alias<int> *b = a;
+	%(N)s_typedef *c = nullptr;
 	(void)b;
+	(void)c;
 '''),
 		Cxx11RequiredFeature('trailing function return type', '''
 auto %(N)s()->int;
@@ -476,6 +483,11 @@ help:assume C++ compiler works
 	def _extend_successflags(self,k,v):
 		self.successful_flags[k].extend(v)
 	def Compile(self,context,**kwargs):
+		# Some tests check the functionality of the compiler's
+		# optimizer.
+		#
+		# When LTO is used, the optimizer is deferred to link time.
+		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if self.user_settings.lto else self._Compile
 		return self.Compile(context, **kwargs)
 	def _Compile(self,context,**kwargs):
@@ -498,6 +510,8 @@ help:assume C++ compiler works
 		# Always pass -Werror
 		context.env.Append(**self.__flags_Werror)
 		context.env.Append(**testflags)
+		# If forced is None, run the test.  Otherwise, skip the test and
+		# take an action determined by the value of forced.
 		if forced is None:
 			r = action('''
 %s
@@ -508,6 +522,12 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 
 ;}
 ''' % (text, main), ext)
+			# Some tests check that the compiler rejects an input.
+			# SConf considers the result a failure when the compiler
+			# rejects the input.  For tests that consider a rejection to
+			# be the good result, this conditional flips the sense of
+			# the result so that a compiler rejection is reported as
+			# success.
 			if expect_failure:
 				r = not r
 			context.Result((successmsg if r else failuremsg) or r)
@@ -523,11 +543,26 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 				except IndexError:
 					raise SCons.Errors.UserError("Out of range force value for sconf_%s: %s" % (co_name[6:], forced))
 			if forced == self.sconf_force_failure:
+				# Pretend the test returned a failure result
 				r = False
 			elif forced == self.sconf_force_success or forced == self.sconf_assume_success:
+				# Pretend the test succeeded.  Forced success modifies
+				# the environment as if the test had run and succeeded.
+				# Assumed success modifies the environment as if the
+				# test had run and failed.
+				#
+				# The latter is used when the user arranges for the
+				# environment to be correct.  For example, if the
+				# compiler understands C++14, but uses a non-standard
+				# name for the option, the user would set assume-success
+				# and add the appropriate option to CXXFLAGS.
 				r = True
 			else:
 				raise SCons.Errors.UserError("Unknown force value for sconf_%s: %s" % (co_name[6:], forced))
+			# Flip the sense of the forced value, so that users can
+			# treat "force-failure" as force-bad-result regardless of
+			# whether the bad result is that the compiler rejected good
+			# input or that the compiler accepted bad input.
 			if expect_failure:
 				r = not r
 			context.Result('(forced){inverted}{forced}'.format(forced=forced, inverted='(inverted)' if expect_failure else ''))
@@ -537,7 +572,11 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
 			CPPDEFINES = []
+			# Move most CPPDEFINES to the generated header, so that
+			# command lines are shorter.
 			for v in successflags.pop('CPPDEFINES', []):
+				# d is 'NAME' for -DNAME
+				# d is ('NAME', 'VALUE') for -DNAME=VALUE
 				d = v
 				if isinstance(d, str):
 					d = (d,None)
@@ -547,6 +586,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 					CPPDEFINES.append(v)
 					continue
 				context.sconf.Define(d[0], d[1])
+			# Put back any values that were blacklisted
 			successflags['CPPDEFINES'] = CPPDEFINES
 			for (k,v) in successflags.items():
 				self._extend_successflags(k, v)
@@ -554,6 +594,11 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			env_flags.restore(context.env)
 		self._sconf_results.append((calling_function, r))
 		return r
+	# Compile and link a program that uses a system library.  On
+	# success, return None.  On failure, return a tuple indicating which
+	# stage failed and providing a text error message to show to the
+	# user.  Some callers handle failure by retrying with other options.
+	# Others abort the SConf run.
 	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
 		# Test library.  On success, good.  On failure, test header to
@@ -562,9 +607,11 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			return
 		if self.Compile(context, text=include, main=main, msg='for usable header %s' % header[-1], testflags=successflags):
 			return (0, "Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		if self.Compile(context, text=include, main=main, msg='for parseable header %s' % header[-1], testflags=successflags):
+		if self.Compile(context, text=include, main='', msg='for parseable header %s' % header[-1], testflags=successflags):
 			return (1, "Header %s is parseable, but cannot compile the test program." % (header[-1]))
 		return (2, "Header %s is missing or unusable." % (header[-1]))
+	# Compile and link a program that uses a system library.  On
+	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
 		e = self._soft_check_system_library(*args, **kwargs)
 		if e:
@@ -652,6 +699,17 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			lib=mixer, successflags=successflags)
 	@_custom_test
 	def check_compiler_missing_field_initializers(self,context):
+		"""
+Test whether the compiler warns for a statement of the form
+
+	variable={};
+
+gcc-4.x warns for this form, but -Wno-missing-field-initializers silences it.
+gcc-5 does not warn.
+
+This form is used extensively in the code as a shorthand for resetting
+variables to their default-constructed value.
+"""
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
 		if self.Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags={'CXXFLAGS' : ['-Wmissing-field-initializers']}) or \
@@ -662,6 +720,20 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
+Test whether the compiler accepts and properly implements gcc's function
+attribute [__attribute__((__error__))][1].
+
+A proper implementation will compile correctly if the function is
+declared and, after optimizations are applied, the function is not
+called.  If this function attribute is not supported, then
+DXX_ALWAYS_ERROR_FUNCTION results in link-time errors, rather than
+compile-time errors.
+
+This test will report failure if the optimizer does not remove the call
+to the marked function.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-g_t_0040code_007berror_007d-function-attribute-3097
+
 help:assume compiler supports __attribute__((error))
 """
 		self._check_function_dce_attribute(context, 'error')
@@ -680,6 +752,22 @@ void a()__attribute__((%s("a called")));
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
 	def check_builtin_bswap(self,context):
+		"""
+Test whether the compiler accepts the gcc byte swapping intrinsic
+functions.  These functions may be optimized into architecture-specific
+swap instructions when the idiomatic swap is not.
+
+	u16 = (u16 << 8) | (u16 >> 8);
+
+The 32-bit version ([__builtin_bswap32][1]) and 64-bit version
+([__builtin_bswap64][2]) are present in all supported versions of
+gcc.  The 16-bit version ([__builtin_bswap16][3]) was added in
+gcc-4.8.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap32-4135
+[2]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap64-4136
+[3]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap16-4134
+"""
 		b = '(void)__builtin_bswap{bits}(static_cast<uint{bits}_t>(argc));'
 		include = '''
 #include <cstdint>
@@ -688,6 +776,7 @@ void a()__attribute__((%s("a called")));
 	{b64}
 	{b32}
 #ifdef DXX_HAVE_BUILTIN_BSWAP16
+/* Added in gcc-4.8 */
 	{b16}
 #endif
 '''.format(
@@ -702,6 +791,20 @@ void a()__attribute__((%s("a called")));
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
+Test whether the compiler accepts and properly implements gcc's
+intrinsic [__builtin_constant_p][1].  A proper implementation will
+compile correctly if the intrinsic is recognized and, after
+optimizations are applied, the intrinsic returns true for a constant
+input and that return value is used to optimize away dead code.
+If this intrinsic is not supported, or if applying optimizations
+does not make the intrinsic report true, then the test reports
+failure.  A failure here disables some compile-time sanity checks.
+
+This test is known to fail when optimizations are disabled.  The failure
+is not a bug in the test or in the compiler.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fconstant_005fp-4082
+
 help:assume compiler supports compile-time __builtin_constant_p
 """
 		f = '''
@@ -720,6 +823,17 @@ static int a(int b){
 			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
 	@_custom_test
 	def check_builtin_expect(self,context):
+		"""
+Test whether the compiler accepts gcc's intrinsic
+[__builtin_expect][1].  This intrinsic is a hint to the optimizer,
+which it may ignore.  The test does not try to detect whether the
+optimizer respects such hints.
+
+When this test succeeds, conditional tests can hint to the optimizer
+which path should be considered hot.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fexpect-4083
+"""
 		main = '''
 return __builtin_expect(argc == 1, 1) ? 1 : 0;
 '''
@@ -733,9 +847,22 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 	@_custom_test
 	def check_builtin_object_size(self,context):
 		"""
+Test whether the compiler accepts and optimizes gcc's intrinsic
+[__builtin_object_size][1].  If this intrinsic is optimized,
+compile-time checks can verify that the caller-specified constant
+size of a variable does not exceed the compiler-determined size of
+the variable.  If the compiler cannot determine the size of the
+variable, no compile-time check is done.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Object-Size-Checking.html#index-g_t_005f_005fbuiltin_005fobject_005fsize-3657
+
 help:assume compiler supports __builtin_object_size
 """
 		f = '''
+/* a() is never defined.  An optimizing compiler will eliminate the
+ * attempt to call it, allowing the Link to succeed.  A non-optimizing
+ * compiler will emit the call, and the Link will fail.
+ */
 int a();
 static inline int a(char *c){
 	return __builtin_object_size(c,0) == 4 ? 1 : %s;
@@ -751,6 +878,17 @@ static inline int a(char *c){
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_object_size')
 	@_custom_test
 	def check_embedded_compound_statement(self,context):
+		"""
+Test whether the compiler implements gcc's [statement expression][1]
+extension.  If this extension is present, statements can be used where
+expressions are expected.  If it is absent, it is emulated by defining,
+calling, and then discarding a lambda function.  The compiler produces
+better error messages for errors in statement expressions than for
+errors in lambdas, so prefer statement expressions when they are
+available.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
+"""
 		f = '''
 	return ({ 1 + 2; });
 '''
@@ -763,7 +901,20 @@ static inline int a(char *c){
 		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
 	void F() __attribute_error(S);	\
 	F();	\
-} DXX_END_COMPOUND_STATEMENT )')
+} DXX_END_COMPOUND_STATEMENT )', '''
+Declare a function named F and immediately call it.  If gcc's
+__attribute__((__error__)) is supported, __attribute_error will expand
+to use __attribute__((__error__)) with the explanatory string S, causing
+it to be a compilation error if this expression is not optimized out.
+
+Use this macro to implement static assertions that depend on values that
+are known to the optimizer, but are not considered "compile time
+constant expressions" for the purpose of the static_assert intrinsic.
+
+C++11 deleted functions cannot be used here because the compiler raises
+an error for the call before the optimizer has an opportunity to delete
+the call via a dead code elimination pass.
+''')
 	@_custom_test
 	def check_attribute_always_inline(self,context):
 		"""
@@ -786,6 +937,12 @@ char*b(int,int)__attribute_alloc_size(1,2);
 	@_custom_test
 	def check_attribute_cold(self,context):
 		"""
+Test whether the compiler accepts gcc's function attribute
+[__attribute__((cold))][1].  Use this to annotate functions which are
+rarely called, such as error reporting functions.
+
+[1]: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-g_t_0040code_007bcold_007d-function-attribute-3090
+
 help:assume compiler supports __attribute__((cold))
 """
 		macro_name = '__attribute_cold'
@@ -880,6 +1037,12 @@ int a(){return 0;}
 	def check_attribute_warning(self,context):
 		self._check_function_dce_attribute(context, 'warning')
 	def Cxx14Compile(self,context,*args,**kwargs):
+		"""
+Test whether the compiler supports a C++14 feature.  If the compiler
+failed the test for C++14 support, then the test is not run, but a
+message about skipping the test is printed and the test is assumed to
+fail.
+"""
 		self.__skip_missing_cxx_std(self._cxx_conformance_cxx14, 'no C++14 support', kwargs)
 		return self.Compile(context,*args,**kwargs)
 	def __skip_missing_cxx_std(self,level,text,kwargs):
@@ -1013,7 +1176,6 @@ typedef tt::conditional<true,int,long>::type a;
 typedef tt::conditional<false,int,long>::type b;
 '''
 		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
-			context.sconf.Define('DXX_HAVE_TYPE_TRAITS')
 			return
 		raise SCons.Errors.StopError("C++ compiler does not support <type_traits> or Boost.TypeTraits.")
 	@_implicit_test
@@ -1354,6 +1516,9 @@ help:always wipe certain freed memory
 	@_custom_test
 	def _check_poison_method(self,context):
 		poison = None
+		# Always run both checks.  The user may want a program that
+		# always uses overwrite poisoning and, when running under
+		# Valgrind, marks the memory as undefined.
 		for f in (
 			self.check_poison_valgrind,
 			self.check_poison_overwrite,
@@ -1442,6 +1607,8 @@ class LazyObjectConstructor:
 	@classmethod
 	def __lazy_objects(cls,self,source):
 		cache = self.__lazy_object_cache
+		# Use id because name needs to be hashable and have a 1-to-1
+		# mapping to source.
 		name = id(source)
 		try:
 			return cache[name]
@@ -1896,9 +2063,10 @@ class PCHManager(object):
 				for g in (nested_guards if unconditional_use_count else (a + b for a in guards for b in nested_guards)):
 					i[g] += 1
 
-	def write_pch_inclusion_file(self,target,source,env):
+	@classmethod
+	def write_pch_inclusion_file(cls,target,source,env):
 		target = str(target[0])
-		fd, path = self._tempfile_mkstemp(suffix='', prefix='%s.' % os.path.basename(target), dir=os.path.dirname(target), text=True)
+		fd, path = cls._tempfile_mkstemp(suffix='', prefix='%s.' % os.path.basename(target), dir=os.path.dirname(target), text=True)
 		# source[0].get_contents() returns the comment-stripped form
 		os.write(fd, source[0].__generated_pch_text)
 		os.close(fd)
@@ -1979,6 +2147,11 @@ class PCHManager(object):
 		text = '\n'.join(itertools.chain.from_iterable(lineseq))
 		v = env.Value(self._re_singleline_comments_sub('', text))
 		v.__generated_pch_text = text
+		# Use env.Command instead of env.Textfile or env.Substfile since
+		# the latter use their input both for freshness and as a data
+		# source.  This Command writes the commented form of the Value
+		# to the file, but uses a comment-stripped form for SCons
+		# freshness checking.
 		env.Command(node, v, self.write_pch_inclusion_file)
 
 class DXXCommon(LazyObjectConstructor):
@@ -2073,6 +2246,8 @@ class DXXCommon(LazyObjectConstructor):
 			return (key, help, default)
 		@staticmethod
 		def __get_configure_tests(tests):
+			# Construct combined list on first use, then cache it
+			# forever.
 			try:
 				return tests.__configure_tests
 			except AttributeError:
