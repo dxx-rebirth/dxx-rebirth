@@ -440,7 +440,7 @@ static bool is_viewable_missile(weapon_type_t laser_type)
 
 static bool choose_missile_viewer()
 {
-	if (unlikely(!PlayerCfg.MissileViewEnabled))
+	if (unlikely(PlayerCfg.MissileViewEnabled == MissileViewMode::None))
 		return false;
 	const auto need_new_missile_viewer = []{
 		if (!Missile_viewer)
@@ -486,7 +486,7 @@ static bool choose_missile_viewer()
 		{
 			if (!better_match(other_player_missile, o))
 				continue;
-                        if (!PlayerCfg.FriendMissileView)
+			if (PlayerCfg.MissileViewEnabled != MissileViewMode::EnabledSelfAndAllies)
                                 continue;
 			else if (game_mode & GM_MULTI_COOP)
 			{

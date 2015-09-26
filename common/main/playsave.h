@@ -31,6 +31,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
+
+enum class MissileViewMode : uint8_t
+{
+	None,
+	EnabledSelfOnly,
+	EnabledSelfAndAllies,
+};
 #endif
 
 #ifdef __cplusplus
@@ -68,7 +75,7 @@ struct hli
 #include "multi.h"
 #include "fwd-weapon.h"
 
-struct player_config
+struct player_config : prohibit_void_ptr<player_config>
 {
 	ubyte ControlType;
 	array<ubyte, MAX_PRIMARY_WEAPONS + 1> PrimaryOrder;
@@ -100,8 +107,7 @@ struct player_config
 	array<int, 4> ReticleRGBA;
 	int ReticleSize;
 #if defined(DXX_BUILD_DESCENT_II)
-	int MissileViewEnabled;
-        int FriendMissileView;
+	MissileViewMode MissileViewEnabled;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;

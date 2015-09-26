@@ -1319,9 +1319,14 @@ static void reticle_config()
 	DXX_##VERB##_CHECK("Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
+enum {
+	optgrp_missileview,
+};
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
-	DXX_##VERB##_CHECK("Missile view of friendly players",opt_friendmissileview, PlayerCfg.FriendMissileView)	\
+	DXX_##VERB##_TEXT("Missile view:", opt_missileview_label)	\
+	DXX_##VERB##_RADIO("Disabled", opt_missileview_none, PlayerCfg.MissileViewEnabled == MissileViewMode::None, optgrp_missileview)	\
+	DXX_##VERB##_RADIO("Only own missiles", opt_missileview_selfonly, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfOnly, optgrp_missileview)	\
+	DXX_##VERB##_RADIO("Friendly missiles, preferring self", opt_missileview_selfandallies, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfAndAllies, optgrp_missileview)	\
 	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
 
 #endif
@@ -1364,6 +1369,13 @@ void hud_config()
 		DXX_HUD_MENU_OPTIONS(ADD);
 		i = newmenu_do1( NULL, "Hud Options", sizeof(m)/sizeof(*m), m, hud_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_HUD_MENU_OPTIONS(READ);
+#if defined(DXX_BUILD_DESCENT_II)
+		PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
+			? MissileViewMode::EnabledSelfAndAllies
+			: (m[opt_missileview_selfonly].value
+				? MissileViewMode::EnabledSelfOnly
+				: MissileViewMode::None);
+#endif
 	} while( i>-1 );
 
 }
