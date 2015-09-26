@@ -976,9 +976,10 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;
-		if (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
-			if (f2i(get_local_player().energy) < 40)
-				if ((f2i(get_local_player().energy)/2) & 2)
+		auto &player = get_local_player();
+		if (player.flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
+			if (f2i(player.energy) < 40)
+				if ((f2i(player.energy)/2) & 2)
 					if (!Player_is_dead)
 						buddy_message("Hey, your headlight's on!");
 
