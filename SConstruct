@@ -45,13 +45,13 @@ class StaticSubprocess:
 			self.returncode = returncode
 	__call_cache = {}
 	@classmethod
-	def pcall(cls,args,stdout,stderr=None):
+	def pcall(cls,args,stderr=None):
 		a = repr(args)
 		try:
 			return cls.__call_cache[a]
 		except KeyError:
 			pass
-		p = subprocess.Popen(args, executable=args[0], stdout=stdout, stderr=stderr, close_fds=True)
+		p = subprocess.Popen(args, executable=args[0], stdout=subprocess.PIPE, stderr=stderr, close_fds=True)
 		(o, e) = p.communicate()
 		cls.__call_cache[a] = c = cls.CachedCall(o, e, p.wait())
 		return c
@@ -60,17 +60,17 @@ class Git(StaticSubprocess):
 	__missing_git = StaticSubprocess.CachedCall(None, None, 1)
 	__path_git = None
 	@classmethod
-	def pcall(cls,args,stdout,stderr=None):
+	def pcall(cls,args,stderr=None):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = (os.environ.get('GIT', 'git').split(),)
 		git = git[0]
 		if not git:
 			return cls.__missing_git
-		return StaticSubprocess.pcall(git + args, stdout=stdout, stderr=stderr)
+		return StaticSubprocess.pcall(git + args, stderr=stderr)
 	@classmethod
-	def spcall(cls,args,stdout,stderr=None):
-		g = cls.pcall(args, stdout, stderr)
+	def spcall(cls,args,stderr=None):
+		g = cls.pcall(args, stderr)
 		if g.returncode:
 			return None
 		return g.out
@@ -2505,7 +2505,7 @@ class DXXCommon(LazyObjectConstructor):
 		check_header_includes = os.path.join(builddir, 'check_header_includes.cpp')
 		if not self.__shared_header_file_list:
 			open(check_header_includes, 'wt')
-			headers = Git.pcall(['ls-files', '-z', '--', '*.h'], stdout=subprocess.PIPE).out
+			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			excluded_directories = (
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
@@ -3161,23 +3161,23 @@ class DXXProgram(DXXCommon):
 			s = ds = None
 			v = cls._compute_extra_version()
 			if v:
-				s = Git.spcall(['status', '--short', '--branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				ds = Git.spcall(['diff', '--stat', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				s = Git.spcall(['status', '--short', '--branch'])
+				ds = Git.spcall(['diff', '--stat', 'HEAD'])
 			cls._computed_extra_version = c = (v or '', s, ds)
 		return c
 
 	@classmethod
 	def _compute_extra_version(cls):
 		try:
-			g = Git.pcall(['describe', '--tags', '--abbrev=8'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			g = Git.pcall(['describe', '--tags', '--abbrev=8'], stderr=subprocess.PIPE)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				return None
 			raise
 		if g.returncode:
 			return None
-		c = Git.pcall(['diff', '--quiet', '--cached'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
-		d = Git.pcall(['diff', '--quiet'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
+		c = Git.pcall(['diff', '--quiet', '--cached']).returncode
+		d = Git.pcall(['diff', '--quiet']).returncode
 		return g.out.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
 
 	def _register_program(self,dxxstr):
@@ -3206,7 +3206,7 @@ class DXXProgram(DXXCommon):
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
 		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
-		v = StaticSubprocess.pcall(env['CXX'].split(' ') + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		v = StaticSubprocess.pcall(env['CXX'].split(' ') + ['--version'], stderr=subprocess.PIPE)
 		if not v.returncode and (v.out or v.err):
 			v = (v.out or v.err).split('\n')[0]
 			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
