@@ -1572,8 +1572,7 @@ void drop_stolen_items(const vcobjptr_t objp)
 	{
 		if (i != 255)
 		{
-			drop_powerup(OBJ_POWERUP, i, 1, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
-			i = 255;
+			drop_powerup(OBJ_POWERUP, exchange(i, 255), 1, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
 		}
 	}
 
