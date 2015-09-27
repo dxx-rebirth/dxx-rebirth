@@ -1330,6 +1330,7 @@ static void reticle_config()
 	DXX_##VERB##_CHECK("Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
 	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
 	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
+	DXX_##VERB##_CHECK("Cloak/Invulnerability Timers",opt_cloakinvultimer,PlayerCfg.CloakInvulTimer)	\
 	DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 
 enum {
