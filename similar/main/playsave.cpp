@@ -238,8 +238,7 @@ int new_player_config()
 #elif defined(DXX_BUILD_DESCENT_II)
 	PlayerCfg.Cockpit3DView[0]=CV_NONE;
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
-	PlayerCfg.MissileViewEnabled = 1;
-        PlayerCfg.FriendMissileView = 0;
+	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
 	PlayerCfg.GuidebotName = "GUIDE-BOT";
@@ -449,8 +448,6 @@ static int read_player_dxx(const char *filename)
 #elif defined(DXX_BUILD_DESCENT_II)
 				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
 					PlayerCfg.EscortHotKeys = atoi(value);
-				if(!strcmp(line,TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT))
-					PlayerCfg.FriendMissileView = atoi(value);
 #endif
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(value);
@@ -755,7 +752,6 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
-                PHYSFSX_printf(fout,TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "=%i\n",PlayerCfg.FriendMissileView);
 #endif
 		PHYSFSX_printf(fout,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT "=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);
@@ -938,7 +934,20 @@ int read_player_file()
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); // skip ReticleOn
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = (cockpit_mode_t)PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Default_display_mode
-	PlayerCfg.MissileViewEnabled      = PHYSFSX_readByte(file);
+	{
+		auto i = PHYSFSX_readByte(file);
+		switch (i)
+		{
+			case static_cast<unsigned>(MissileViewMode::None):
+			case static_cast<unsigned>(MissileViewMode::EnabledSelfOnly):
+			case static_cast<unsigned>(MissileViewMode::EnabledSelfAndAllies):
+				break;
+			default:
+				i = 0;
+				break;
+		}
+		PlayerCfg.MissileViewEnabled = static_cast<MissileViewMode>(i);
+	}
 	PlayerCfg.HeadlightActiveDefault  = PHYSFSX_readByte(file);
 	PlayerCfg.GuidedInBigWindow      = PHYSFSX_readByte(file);
 	if (player_file_version >= 19)
@@ -1245,7 +1254,7 @@ void write_player_file()
 	PHYSFSX_writeU8(file, PlayerCfg.ReticleType==RET_TYPE_NONE?0:1);
 	PHYSFSX_writeU8(file, PlayerCfg.CockpitMode[0]);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
-	PHYSFSX_writeU8(file, PlayerCfg.MissileViewEnabled);
+	PHYSFSX_writeU8(file, static_cast<uint8_t>(PlayerCfg.MissileViewEnabled));
 	PHYSFSX_writeU8(file, PlayerCfg.HeadlightActiveDefault);
 	PHYSFSX_writeU8(file, PlayerCfg.GuidedInBigWindow);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Automap_always_hires

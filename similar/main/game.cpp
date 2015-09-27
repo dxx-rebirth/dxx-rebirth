@@ -529,19 +529,22 @@ static int FakingInvul=0;
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)
 {
-	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE) {
-		if (GameTime64 > get_local_player().invulnerable_time+INVULNERABLE_TIME_MAX)
+	auto &player = get_local_player();
+	if (player.flags & PLAYER_FLAGS_INVULNERABLE)
+	{
+		if (GameTime64 > player.invulnerable_time + INVULNERABLE_TIME_MAX)
 		{
-			get_local_player().flags ^= PLAYER_FLAGS_INVULNERABLE;
-			if (FakingInvul==0)
+			player.flags &= ~PLAYER_FLAGS_INVULNERABLE;
+			if (FakingInvul)
 			{
+				FakingInvul = 0;
+				return;
+			}
 				multi_digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 				if (Game_mode & GM_MULTI)
 				{
 					maybe_drop_net_powerup(POW_INVULNERABILITY);
 				}
-			}
-			FakingInvul=0;
 		}
 	}
 }

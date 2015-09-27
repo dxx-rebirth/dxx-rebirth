@@ -1381,7 +1381,8 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 		const auto can_view_missile = [obj]{
 			if (obj->id == Player_num)
 				return true;
-                        if (PlayerCfg.FriendMissileView)
+			if (PlayerCfg.MissileViewEnabled != MissileViewMode::EnabledSelfAndAllies)
+				return false;
                         {
                                 if (Game_mode & GM_MULTI_COOP)
                                         return true;

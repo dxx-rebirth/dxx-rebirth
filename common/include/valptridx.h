@@ -22,6 +22,14 @@
 			(DXX_ALWAYS_ERROR_FUNCTION(FAILURE_FUNCTION, FAILURE_STRING), 0)	\
 		)	\
 	)
+
+#ifdef DXX_HAVE_ATTRIBUTE_WARNING
+/* This causes many warnings because some conversions are not checked for
+ * safety.  Eliminating the warnings by changing the call sites to check first
+ * would be a useful improvement.
+ */
+//#define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT __attribute__((__warning__("call not eliminated")))
+#endif
 #else
 #define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
 	((void)0)
@@ -39,6 +47,10 @@
 			(SUCCESS_CONDITION) || (EXCEPTION::report(__VA_ARGS__), 0)	\
 		)	\
 	)
+
+#ifndef DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+#define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+#endif
 
 class valptridxutil_untyped_base
 {
@@ -102,6 +114,7 @@ class valptridx<P>::index_mismatch_exception :
 public:
 	__attribute_cold
 	__attribute_noreturn
+	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(const_pointer_type, std::size_t, index_type, const_pointer_type, const_pointer_type);
 };
 
@@ -114,6 +127,7 @@ class valptridx<P>::index_range_exception :
 public:
 	__attribute_cold
 	__attribute_noreturn
+	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(const_pointer_type, std::size_t, long);
 };
 
@@ -126,6 +140,7 @@ class valptridx<P>::null_pointer_exception :
 public:
 	__attribute_cold
 	__attribute_noreturn
+	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(const_pointer_type, std::size_t);
 };
 

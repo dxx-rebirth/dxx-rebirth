@@ -377,16 +377,58 @@ void init_player_stats_level(const secret_restore secret_flag)
 void init_player_stats_new_ship(ubyte pnum)
 {
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
+	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
 	auto &plr = get_local_player();
 	if (pnum == Player_num)
 	{
+		Primary_weapon = [=]{
+			range_for (auto i, PlayerCfg.PrimaryOrder)
+			{
+				if (i >= MAX_PRIMARY_WEAPONS)
+					break;
+				if (i == primary_weapon_index_t::LASER_INDEX)
+					break;
+#if defined(DXX_BUILD_DESCENT_II)
+				if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
+				{
+					if (granted_laser_level <= LASER_LEVEL_4)
+						/* Granted lasers are not super lasers */
+						continue;
+					/* Super lasers still set LASER_INDEX, not
+					 * SUPER_LASER_INDEX
+					 */
+					break;
+				}
+#endif
+				if (HAS_PRIMARY_FLAG(i) & static_cast<unsigned>(granted_primary_weapon_flags))
+					return static_cast<primary_weapon_index_t>(i);
+			}
+			return primary_weapon_index_t::LASER_INDEX;
+		}();
+#if defined(DXX_BUILD_DESCENT_II)
+		Primary_last_was_super[0] = 0;
+		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i)
+		{
+			uint8_t last;
+			/* If no super granted, force to non-super. */
+			if (!(HAS_PRIMARY_FLAG(i + 5) & granted_primary_weapon_flags))
+				last = 0;
+			/* If only super granted, force to super. */
+			else if (!(HAS_PRIMARY_FLAG(i) & granted_primary_weapon_flags))
+				last = 1;
+			/* else both granted, so leave as-is. */
+			else
+				continue;
+			Primary_last_was_super[i] = last;
+		}
+#endif
 		if (Newdemo_state == ND_STATE_RECORDING)
 		{
 			newdemo_record_laser_level(get_local_player().laser_level, 0);
 			newdemo_record_player_weapon(0, 0);
 			newdemo_record_player_weapon(1, 0);
 		}
-		Primary_weapon = primary_weapon_index_t::LASER_INDEX;
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
 		Player_is_dead = 0;
@@ -395,10 +437,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
 #if defined(DXX_BUILD_DESCENT_II)
-		range_for (auto &i, Primary_last_was_super)
-			i = 0;
-		range_for (auto &i, Secondary_last_was_super)
-			i = 0;
+		Secondary_last_was_super = {};
 		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
 		Controls.state.afterburner = 0;
 		Last_afterburner_state = 0;
@@ -409,7 +448,7 @@ void init_player_stats_new_ship(ubyte pnum)
 
 	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].shields = StartingShields;
-	Players[pnum].laser_level = map_granted_flags_to_laser_level(GrantedItems);
+	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
 	Players[pnum].vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
@@ -423,7 +462,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
 	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
-	plr.primary_weapon_flags |= map_granted_flags_to_primary_weapon_flags(GrantedItems);
+	plr.primary_weapon_flags |= granted_primary_weapon_flags;
 	Players[pnum].cloak_time = 0;
 	Players[pnum].invulnerable_time = 0;
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH

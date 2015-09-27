@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwdobject.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum powerup_type_t : uint8_t
 {
 	POW_EXTRA_LIFE = 0,
@@ -94,7 +95,6 @@ enum powerup_type_t : uint8_t
 #endif
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392*2)
 #define MAX_POWERUP_TYPES			29

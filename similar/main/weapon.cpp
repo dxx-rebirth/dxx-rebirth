@@ -182,14 +182,13 @@ static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 has_weapon_result player_has_primary_weapon(int weapon_num)
 {
 	int	return_value = 0;
-	int	weapon_index;
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
 	if (get_local_player().energy < 0)
 		get_local_player().energy = 0;
 
-		weapon_index = Primary_weapon_to_weapon_info[weapon_num];
+	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
 		if (get_local_player().primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
 			return_value |= has_weapon_result::has_weapon_flag;
@@ -226,9 +225,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 has_weapon_result player_has_secondary_weapon(int weapon_num)
 {
 	int	return_value = 0;
-	int	weapon_index;
-
-		weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
+	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 
 		if (get_local_player().secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num))
 			return_value |= has_weapon_result::has_weapon_flag;
@@ -250,11 +247,11 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	int desired_weapon = Primary_weapon, loop=0;
-	const int autoselect_order_slot = POrderList(255);
+	int loop=0;
+	const auto autoselect_order_slot = POrderList(255);
 	
 	auto cur_order_slot = POrderList(get_mapped_weapon_index());
-	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
+	const auto use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 
 	while (loop<(MAX_PRIMARY_WEAPONS+1))
 	{
@@ -273,7 +270,7 @@ void CyclePrimary ()
 				continue; // continue?
 			}
 		}
-		desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		auto desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
 		if (desired_weapon == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
@@ -298,9 +295,10 @@ void CyclePrimary ()
 
 void CycleSecondary ()
 {
-	int cur_order_slot = SOrderList(Secondary_weapon), desired_weapon = Secondary_weapon, loop=0;
-	const int autoselect_order_slot = SOrderList(255);
-	const int use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
+	auto cur_order_slot = SOrderList(Secondary_weapon);
+	int loop=0;
+	const auto autoselect_order_slot = SOrderList(255);
+	const auto use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
 	
 	while (loop<(MAX_SECONDARY_WEAPONS+1))
 	{
@@ -319,7 +317,7 @@ void CycleSecondary ()
 				continue; // continue?
 			}
 		}
-		desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		auto desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 		// select the weapon if we have it
 		if (player_has_secondary_weapon(desired_weapon).has_all())
 		{
@@ -458,15 +456,11 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	int	current,has_flag;
-	ubyte	last_was_super;
 	has_weapon_result weapon_status;
 
-	{
-		current = Primary_weapon;
-		last_was_super = Primary_last_was_super[weapon_num];
-		has_flag = weapon_status.has_weapon_flag;
-	}
+	const auto current = Primary_weapon;
+	const auto last_was_super = Primary_last_was_super[weapon_num];
+	const auto has_flag = weapon_status.has_weapon_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
 
@@ -613,15 +607,16 @@ void auto_select_primary_weapon()
 				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
 				//	continue;
 
-				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
+				const auto weapon_num = PlayerCfg.PrimaryOrder[cur_weapon];
+				if (weapon_num == Primary_weapon)
+				{
 					HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
 					select_primary_weapon(nullptr, 0, 1);
 					try_again = 0;			// Tried all weapons!
 
 				}
-				else if (PlayerCfg.PrimaryOrder[cur_weapon]!=255 && player_has_primary_weapon(PlayerCfg.PrimaryOrder[cur_weapon]).has_all())
+				else if (weapon_num != 255 && player_has_primary_weapon(weapon_num).has_all())
 				{
-					const auto weapon_num = PlayerCfg.PrimaryOrder[cur_weapon];
 					const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 					select_primary_weapon(weapon_name, weapon_num, 1);
 					try_again = 0;
@@ -679,7 +674,6 @@ void auto_select_secondary_weapon()
 int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
-	int cutpoint;
 	const auto max = PLAYER_MAX_AMMO(get_local_player(), Secondary_ammo_max[weapon_index]);
 
 	if (get_local_player().secondary_ammo[weapon_index] >= max) {
@@ -698,8 +692,14 @@ int pick_up_secondary(int weapon_index,int count)
 
 	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
-		cutpoint=SOrderList (255);
-		if (((Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index) < cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (get_local_player().secondary_ammo[Secondary_weapon] == 0))   )
+		const auto weapon_order = SOrderList(weapon_index);
+		if (!(Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect) &&
+			weapon_order < SOrderList(255) &&
+			(
+				get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
+				weapon_order < SOrderList(Secondary_weapon)
+			)
+		)
 			select_secondary_weapon(nullptr, weapon_index, 1);
 		else {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -708,12 +708,9 @@ int pick_up_secondary(int weapon_index,int count)
 
 			if (weapon_index_is_player_bomb(weapon_index) &&
 					!weapon_index_is_player_bomb(Secondary_weapon)) {
-				int cur;
-
-				cur = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
-
-				if (SOrderList (weapon_index) < SOrderList(cur))
-					Secondary_last_was_super[PROXIMITY_INDEX] = (weapon_index == SMART_MINE_INDEX);
+				auto &last = Secondary_last_was_super[PROXIMITY_INDEX];
+				if (weapon_order < SOrderList(last ? SMART_MINE_INDEX : PROXIMITY_INDEX))
+					last = (weapon_index == SMART_MINE_INDEX);
 			}
 #endif
 		}
@@ -797,7 +794,6 @@ int pick_up_primary(int weapon_index)
 {
 	//ushort old_flags = Players[Player_num].primary_weapon_flags;
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
-	int cutpoint;
 
 	if (weapon_index!=LASER_INDEX && get_local_player().primary_weapon_flags & flag) {		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
@@ -806,11 +802,13 @@ int pick_up_primary(int weapon_index)
 
 	get_local_player().primary_weapon_flags |= flag;
 
-	cutpoint=POrderList (255);
-
-	const auto supposed_weapon = get_mapped_weapon_index();
-	if (((Controls.state.fire_primary && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index) < cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
-		select_primary_weapon(nullptr, weapon_index, 1);
+	if (!(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
+	{
+		const auto cutpoint = POrderList(255);
+		const auto weapon_order = POrderList(weapon_index);
+		if (weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index()))
+			select_primary_weapon(nullptr, weapon_index, 1);
+	}
 
 	PALETTE_FLASH_ADD(7,14,21);
 
@@ -861,12 +859,10 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 		(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
 		return ammo_count;
 	const auto cutpoint = POrderList(255);
-	const auto primary_weapon = Primary_weapon;
-	const auto supposed_weapon = get_mapped_weapon_index(primary_weapon);
 	const auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 	const auto powi = POrderList(weapon_index);
 	if (powi < cutpoint &&
-		powi < POrderList(supposed_weapon))
+		powi < POrderList(get_mapped_weapon_index(Primary_weapon)))
 		select_primary_weapon(nullptr, weapon_index, 1);
 
 	return ammo_count;	//return amount used
@@ -881,7 +877,7 @@ static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;
 //	Sets all super mega missile detonation times to 0 which means there aren't any.
 void init_smega_detonates(void)
 {
-	Smega_detonate_times.fill(0);
+	Smega_detonate_times = {};
 }
 
 fix	Seismic_tremor_magnitude;
