@@ -162,6 +162,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_NORANKINGS_NAME_TEXT "norankings"
 #define TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "automapfreeflight"
 #define TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "nofireautoselect"
+#define TOGGLES_DELAYEDAUTOSELECT_NAME_TEXT "delayedautoselect"
 #define TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "cycleautoselectonly"
 #define TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "friendmissileview"
 #define TOGGLES_CLOAKINVULTIMER_NAME_TEXT "cloakinvultimer"
@@ -252,6 +253,7 @@ int new_player_config()
 	PlayerCfg.NoRankings = 0;
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.NoFireAutoselect = 0;
+	PlayerCfg.DelayedAutoselect = 0;
 	PlayerCfg.CycleAutoselectOnly = 0;
         PlayerCfg.CloakInvulTimer = 0;
 	PlayerCfg.AlphaEffects = 0;
@@ -463,6 +465,8 @@ static int read_player_dxx(const char *filename)
 					PlayerCfg.AutomapFreeFlight = atoi(value);
 				if(!strcmp(line,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT))
 					PlayerCfg.NoFireAutoselect = atoi(value);
+				if(!strcmp(line,TOGGLES_DELAYEDAUTOSELECT_NAME_TEXT))
+					PlayerCfg.DelayedAutoselect = atoi(value);
 				if(!strcmp(line,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT))
 					PlayerCfg.CycleAutoselectOnly = atoi(value);
 				if(!strcmp(line,TOGGLES_CLOAKINVULTIMER_NAME_TEXT))
@@ -760,6 +764,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_NORANKINGS_NAME_TEXT "=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "=%i\n",PlayerCfg.NoFireAutoselect);
+		PHYSFSX_printf(fout,TOGGLES_DELAYEDAUTOSELECT_NAME_TEXT "=%i\n",PlayerCfg.DelayedAutoselect);
 		PHYSFSX_printf(fout,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "=%i\n",PlayerCfg.CycleAutoselectOnly);
                 PHYSFSX_printf(fout,TOGGLES_CLOAKINVULTIMER_NAME_TEXT "=%i\n",PlayerCfg.CloakInvulTimer);
 		PHYSFSX_printf(fout,END_TEXT "\n");

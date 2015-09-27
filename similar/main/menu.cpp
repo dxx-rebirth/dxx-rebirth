@@ -2066,6 +2066,7 @@ void do_sound_menu()
 	DXX_##VERB##_MENU("Primary ordering...", opt_gameplay_reorderprimary_menu)	\
 	DXX_##VERB##_MENU("Secondary ordering...", opt_gameplay_reordersecondary_menu)	\
 	DXX_##VERB##_CHECK("No Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
+	DXX_##VERB##_CHECK("Autoselect after firing", opt_autoselectafter, PlayerCfg.DelayedAutoselect)\
 	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
 
 enum {

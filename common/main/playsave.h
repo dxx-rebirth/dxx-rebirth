@@ -126,6 +126,7 @@ struct player_config : prohibit_void_ptr<player_config>
 #endif
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;
+	ubyte DelayedAutoselect;
 	ubyte CycleAutoselectOnly;
         int CloakInvulTimer;
 	union {
