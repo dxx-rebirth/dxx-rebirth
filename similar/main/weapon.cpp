@@ -50,12 +50,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "physfs-serial.h"
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
-auto delayed_primary = -1;
-auto delayed_secondary = -1;
+static auto delayed_primary = -1;
+static auto delayed_secondary = -1;
 
 static int POrderList (int num);
 static int SOrderList (int num);
@@ -674,14 +675,12 @@ void delayed_autoselect()
 {
 	if(delayed_primary > -1 && !Controls.state.fire_primary)
 	{
-		select_primary_weapon(nullptr, delayed_primary, 1);
-		delayed_primary = -1;
+		select_primary_weapon(nullptr, exchange(delayed_primary, -1), 1);
 	}
 	
 	if(delayed_secondary > -1 && !Controls.state.fire_secondary)
 	{
-		select_secondary_weapon(nullptr, delayed_secondary, 1);
-		delayed_secondary = -1;
+		select_secondary_weapon(nullptr, exchange(delayed_secondary, -1), 1);
 	}
 }
 
@@ -711,8 +710,9 @@ int pick_up_secondary(int weapon_index,int count)
 	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		const auto weapon_order = SOrderList(weapon_index);
+		const auto cutpoint = SOrderList(255);
 		if (!(Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect) &&
-			weapon_order < SOrderList(255) &&
+			weapon_order < cutpoint &&
 			(
 				get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
 				weapon_order < SOrderList(Secondary_weapon)
@@ -736,7 +736,7 @@ int pick_up_secondary(int weapon_index,int count)
 			{
 				if(delayed_secondary == -1)
 				{
-					if(weapon_order < SOrderList(255) &&
+					if(weapon_order < cutpoint &&
 						(
 							get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
 							weapon_order < SOrderList(Secondary_weapon)
@@ -746,7 +746,7 @@ int pick_up_secondary(int weapon_index,int count)
 				}
 				else
 				{
-					if (weapon_order < SOrderList(255) && weapon_order < SOrderList(delayed_secondary))
+					if (weapon_order < cutpoint && weapon_order < SOrderList(delayed_secondary))
 						delayed_secondary = weapon_index;
 				}
 			}
