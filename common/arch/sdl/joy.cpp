@@ -39,11 +39,20 @@ struct d_event_joystick_moved : d_event, d_event_joystick_axis_value
 {
 };
 
+class SDL_Joystick_deleter
+{
+public:
+	void operator()(SDL_Joystick *j) const
+	{
+		SDL_JoystickClose(j);
+	}
+};
+
 /* This struct is an array, with one entry for each physical joystick
  * found.
  */
 struct d_physical_joystick {
-	SDL_Joystick *handle;
+	std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter> handle;
 	int n_axes;
 	int n_buttons;
 	int n_hats;
@@ -166,7 +175,8 @@ void joy_init()
 	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
-		const auto handle = joystick.handle = SDL_JoystickOpen(i);
+		const auto handle = SDL_JoystickOpen(i);
+		joystick.handle.reset(handle);
 #if SDL_MAJOR_VERSION == 1
 		con_printf(CON_NORMAL, "sdl-joystick %d: %s", i, SDL_JoystickName(i));
 #else
@@ -212,8 +222,8 @@ void joy_init()
 
 void joy_close()
 {
-	SDL_JoystickClose(SDL_Joysticks[num_joysticks].handle);
-
+	range_for (auto &j, SDL_Joysticks)
+		j.handle.reset();
 	joyaxis_text.clear();
 	joybutton_text.clear();
 }
