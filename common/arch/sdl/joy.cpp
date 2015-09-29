@@ -18,6 +18,7 @@
 #include "u_mem.h"
 #include "playsave.h"
 #include "kconfig.h"
+#include "compiler-range_for.h"
 
 namespace {
 
