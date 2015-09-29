@@ -685,43 +685,43 @@ static int gr_internal_color_string(int x, int y, const char *s ){
 }
 #endif //OGL
 
-void gr_string(int x, int y, const char *s )
+void gr_string(const int x, const int y, const char *const s)
 {
 	int clipped=0;
 
 	Assert(grd_curcanv->cv_font != NULL);
 
+	const auto bm_h = grd_curcanv->cv_bitmap.bm_h;
+	if (y > bm_h)
+		return;
+	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
 	int w, h;
 	if ( x == 0x8000 )	{
-		if ( y<0 ) clipped |= 1;
 		gr_get_string_size(s, &w, &h, nullptr);
+		if (y + h < 0)
+			return;
 		// for x, since this will be centered, only look at
 		// width.
-		if ( w > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
-
-		if ( (y+h) < 0 ) clipped |= 2;
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
-
+		if (w > bm_w)
+			clipped = 1;
 	} else {
-		if ( (x<0) || (y<0) ) clipped |= 1;
+		if (x > bm_w)
+			return;
 		gr_get_string_size(s, &w, &h, nullptr);
-		if ( (x+w) > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
-		if ( (x+w) < 0 ) clipped |= 2;
-		if ( (y+h) < 0 ) clipped |= 2;
-		if ( x > grd_curcanv->cv_bitmap.bm_w ) clipped |= 2;
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
+		if (x + w < 0 ||
+			y + h < 0)
+			return;
+		if (x < 0 ||
+			x + w > bm_w)
+			clipped = 1;
 	}
+	if (y < 0 ||
+		y + h > bm_h)
+		clipped = 1;
 
 	if ( !clipped )
 	{
 		gr_ustring(x, y, s );
-		return;
-	}
-
-	if ( clipped & 2 )	{
-		// Completely clipped...
 		return;
 	}
 
