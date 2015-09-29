@@ -4564,7 +4564,6 @@ void multi_send_ranking ()
 	multi_send_data<MULTI_RANK>(multibuf,3,2);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 {
 	char rank=buf[2];
@@ -4580,7 +4579,6 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 	if (!PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "%s has been %smoted to %s!",static_cast<const char *>(Players[pnum].callsign), rankstr, RankStrings[rank]);
 }
-#endif
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
 int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
@@ -5233,11 +5231,11 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_got_flag(pnum); break;
 		case MULTI_GOT_ORB:
 			multi_do_got_orb(pnum); break;
-		case MULTI_RANK:
-			multi_do_ranking (pnum, buf); break;
 		case MULTI_FINISH_GAME:
 			multi_do_finish_game(buf); break;  // do this one regardless of endsequence
 #endif
+		case MULTI_RANK:
+			multi_do_ranking (pnum, buf); break;
 		case MULTI_ROBOT_CLAIM:
 			multi_do_claim_robot(pnum, buf); break;
 		case MULTI_ROBOT_POSITION:
