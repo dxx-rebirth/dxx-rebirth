@@ -419,7 +419,7 @@ static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return a segment %i segments away from initial segment.
 //	Returns -1 if can't find a segment that distance away.
-int pick_connected_segment(const vcobjptr_t objp, int max_depth)
+segidx_t pick_connected_segment(const vcobjptr_t objp, int max_depth)
 {
 	using std::swap;
 	int		i;
@@ -497,12 +497,11 @@ int pick_connected_segment(const vcobjptr_t objp, int max_depth)
 		if (seg_queue[tail] > Highest_segment_index)
 		{
 			// -- Int3();	//	Something bad has happened.  Queue is trashed.  --MK, 12/13/94
-			return -1;
+			return segment_none;
 		}
-
 		cur_depth = depth[seg_queue[tail]];
 	}
-	return -1;
+	return segment_none;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -586,7 +585,7 @@ static segnum_t choose_drop_segment()
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
 			segnum = pick_connected_segment(vcobjptr(get_local_player().objnum), --cur_drop_depth);
-			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
+			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
 		return ((segnum == segment_none)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...

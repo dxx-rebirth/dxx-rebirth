@@ -101,6 +101,6 @@ void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall 
 extern fix	Flash_effect;
 #endif
 
-int pick_connected_segment(vcobjptr_t objp, int max_depth);
+segidx_t pick_connected_segment(vcobjptr_t objp, int max_depth);
 
 #endif

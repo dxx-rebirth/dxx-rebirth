@@ -1164,7 +1164,7 @@ static segnum_t choose_thief_recreation_segment()
 
 	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
 		segnum = pick_connected_segment(&get_local_plrobj(), cur_drop_depth);
-		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
+		if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 			segnum = segment_none;
 		cur_drop_depth--;
 	}
