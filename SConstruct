@@ -154,16 +154,6 @@ class ConfigureTests:
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
 	class pkgconfig:
-		@staticmethod
-		def _get_pkg_config_name(user_settings):
-			p = user_settings.PKG_CONFIG
-			if p is not None:
-				return p
-			p = user_settings.CHOST
-			if p:
-				return p + '-pkg-config'
-			return 'pkg-config'
-		@staticmethod
 		def _get_pkg_config_exec_path(context,message,pkgconfig):
 			if not pkgconfig:
 				message("pkg-config is disabled by user settings")
@@ -171,9 +161,10 @@ class ConfigureTests:
 			if os.sep in pkgconfig:
 				message("using pkg-config at user specified path %s" % pkgconfig)
 				return pkgconfig
+			join = os.path.join
 			# No path specified, search in $PATH
 			for p in os.environ.get('PATH', '').split(os.pathsep):
-				fp = os.path.join(p, pkgconfig)
+				fp = join(p, pkgconfig)
 				try:
 					os.close(os.open(fp, os.O_RDONLY))
 				except OSError as e:
@@ -186,19 +177,24 @@ class ConfigureTests:
 				message("using pkg-config at discovered path %s" % fp)
 				return fp
 			message("no usable pkg-config %r found in $PATH" % pkgconfig)
-		@classmethod
-		def _get_pkg_config_path(cls,context,message,user_settings,display_name,_cache={}):
-			pkgconfig = cls._get_pkg_config_name(user_settings)
+		def __get_pkg_config_path(context,message,user_settings,display_name,
+				_get_pkg_config_exec_path=_get_pkg_config_exec_path,
+				_cache={}):
+			pkgconfig = user_settings.PKG_CONFIG
+			if pkgconfig is None:
+				CHOST = user_settings.CHOST
+				pkgconfig = ('%s-pkg-config' % CHOST) if CHOST else 'pkg-config'
 			try:
 				return _cache[pkgconfig]
 			except KeyError:
-				pass
-			_cache[pkgconfig] = path = cls._get_pkg_config_exec_path(context, message, pkgconfig)
+				_cache[pkgconfig] = path = _get_pkg_config_exec_path(context, message, pkgconfig)
 			return path
-		@classmethod
-		def _find_pkg_config(cls,context,message,user_settings,pkgconfig_name,display_name,_cache={}):
+		@staticmethod
+		def merge(context,message,user_settings,pkgconfig_name,display_name,
+				__get_pkg_config_path=__get_pkg_config_path,
+				_cache={}):
 			message("checking %s pkg-config %s" % (display_name, pkgconfig_name))
-			pkgconfig = cls._get_pkg_config_path(context, message, user_settings, display_name)
+			pkgconfig = __get_pkg_config_path(context, message, user_settings, display_name)
 			if not pkgconfig:
 				message("skipping %s pkg-config" % display_name)
 				return {}
@@ -210,16 +206,15 @@ class ConfigureTests:
 			except KeyError as e:
 				message("reading %s settings from `%s`" % (display_name, cmd))
 				try:
-					flags = context.env.ParseFlags('!' + cmd)
+					flags = {
+						k:v for k,v in context.env.ParseFlags('!' + cmd).items()
+							if v and (k[0] == 'C' or k[0] == 'L')
+					}
 				except OSError as o:
 					message("%s pkg-config failed; user must add required flags via environment for `%s`" % (display_name, cmd))
 					flags = {}
 				_cache[cmd] = flags
 				return flags
-		@classmethod
-		def merge(cls,context,message,user_settings,pkgconfig_name,display_name):
-			flags = cls._find_pkg_config(context, message, user_settings, pkgconfig_name, display_name)
-			return {k:v for k,v in flags.items() if v and (k[0] == 'C' or k[0] == 'L')}
 	# Force test to report failure
 	sconf_force_failure = 'force-failure'
 	# Force test to report success, and modify flags like it
@@ -743,6 +738,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
 		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, mixer, mixer)
 		if self.user_settings.host_platform == 'darwin':
+			successflags = successflags.copy()
 			successflags['FRAMEWORKS'] = [mixer]
 			relative_headers = 'Library/Frameworks/%s.framework/Headers' % mixer
 			successflags['CPPPATH'] = [os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers]
