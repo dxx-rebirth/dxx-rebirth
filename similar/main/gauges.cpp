@@ -723,10 +723,11 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
 	gr_set_curfont( GAME_FONT );
-	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
-		sprintf(score_str, "%5d", get_local_player().net_kills_total);
-	else
-		sprintf(score_str, "%5d", get_local_player().score);
+	auto &player = get_local_player();
+	snprintf(score_str, sizeof(score_str), "%5d",
+			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
+			? player.net_kills_total
+			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player.score));
 	int	w, h;
 	gr_get_string_size(score_str, &w, &h, nullptr);
 
@@ -736,11 +737,6 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	//erase old score
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING);
-
-	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
-		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
-	else
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
 	gr_string(x,y,score_str);
 }
