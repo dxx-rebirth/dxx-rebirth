@@ -233,6 +233,7 @@ void gr_remap_mono_fonts();
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
+void gr_string(int x, int y, const char *s, int w, int h);
 void gr_ustring(int x, int y, const char *s);
 void gr_printf(int x, int y, const char * format, ...) __attribute_format_printf(3, 4);
 #define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printf,gr_string,(A1,A2),(F),##__VA_ARGS__)

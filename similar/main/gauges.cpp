@@ -641,7 +641,7 @@ static void hud_show_score()
 
 	int	w, h;
 	gr_get_string_size(score_str, &w, &h, nullptr);
-	gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), FSPACY(1), score_str);
+	gr_string(grd_curcanv->cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
 }
 
 static void hud_show_timer_count()
@@ -670,7 +670,7 @@ static void hud_show_timer_count()
 
 			int w, h;
 			gr_get_string_size(score_str, &w, &h, nullptr);
-			gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
+			gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
 		}
 	}
 }
@@ -705,7 +705,7 @@ static void hud_show_score_added()
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
 		int w, h;
 		gr_get_string_size(score_str, &w, &h, nullptr);
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
+		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
 	} else {
 		score_time = 0;
 		score_display = 0;
@@ -738,7 +738,7 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING);
 
-	gr_string(x,y,score_str);
+	gr_string(x, y, score_str, w, h);
 }
 
 static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
@@ -775,7 +775,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 		gr_get_string_size(score_str, &w, &h, nullptr);
 		x = HUD_SCALE_X(SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
-		gr_string(x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str);
+		gr_string(x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str, w, h);
 	} else {
 		//erase old score
 		gr_setcolor(BM_XRGB(0,0,0));
@@ -1009,7 +1009,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 
 static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
-	int bomb,count,w=0;
+	int bomb,count;
 	char txt[5],*t;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1038,10 +1038,9 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 	while ((t=strchr(txt,'1')) != NULL)
 		*t = '\x84';	//convert to wide '1'
 
-	if (right_align)
-		gr_get_string_size(txt, &w, nullptr, nullptr);
-
-	gr_string(x-w,y,txt);
+	int w, h;
+	gr_get_string_size(txt, &w, &h, nullptr);
+	gr_string(right_align ? x - w : x, y, txt, w, h);
 }
 
 static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -1243,7 +1242,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 				y -= h + fspacy2;
 			}else
 				x -= w + fspacx3;
-			gr_string(x, y, txtweapon);
+			gr_string(x, y, txtweapon, w, h);
 			if (i == primary_weapon_index_t::VULCAN_INDEX && !vertical)
 			{
 				hud_printf_vulcan_ammo(x, y - line_spacing);
@@ -1308,7 +1307,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 					hud_printf_vulcan_ammo(x, y);
 				continue;
 			}
-			gr_string(x, y, txtweapon);
+			gr_string(x, y, txtweapon, w, h);
 		}
 	}
 #endif
@@ -1340,7 +1339,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 				y -= h + fspacy2;
 			}else
 				x -= w + fspacx3;
-			gr_string(x, y, weapon_str);
+			gr_string(x, y, weapon_str, w, h);
 		}
 	}
 
@@ -1370,7 +1369,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 				y -= h + fspacy2;
 			}else
 				x -= w + fspacx3;
-			gr_string(x, y, weapon_str);
+			gr_string(x, y, weapon_str, w, h);
 		}
 	}
 #endif
@@ -1471,14 +1470,14 @@ static void hud_show_weapons(void)
 		int	w, h;
 		gr_get_string_size(disp_primary_weapon_name, &w, &h, nullptr);
 		const auto &&bmwx = grd_curcanv->cv_bitmap.bm_w - fspacx(1);
-		gr_string(bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name);
+		gr_string(bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
 		const char *disp_secondary_weapon_name;
 
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,get_local_player().secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, nullptr);
-		gr_string(bmwx - w, y - line_spacing, weapon_str);
+		gr_string(bmwx - w, y - line_spacing, weapon_str, w, h);
 
 		show_bomb_count(bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
@@ -1587,7 +1586,7 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
 		gr_rect(exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING);
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1);
-		gr_string(x, HUD_SCALE_Y(y), killed_str);
+		gr_string(x, HUD_SCALE_Y(y), killed_str, w, h);
 		return;
 	}
 
@@ -2365,7 +2364,7 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 
 	int w, h;
 	gr_get_string_size(ab_str, &w, &h, nullptr);
-	gr_string(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W+1)/2)-(w/2), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y+(SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB");
+	gr_string(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
 	gr_set_current_canvas(NULL);
 }
 #endif
@@ -2767,7 +2766,7 @@ static void hud_show_kill_list()
 						 break;
 				}
 		}
-		gr_string(x0,y,name);
+		gr_string(x0, y, name, sw, sh);
 
 		if (Show_kill_list==2)
 		{
@@ -2886,7 +2885,7 @@ void show_HUD_names()
 						gr_set_fontcolor(BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
 						x1 = f2i(x)-w/2;
 						y1 = f2i(y-dy)+FSPACY(1);
-						gr_string (x1, y1, s);
+						gr_string (x1, y1, s, w, h);
 					}
 
 					/* Draw box on HUD */

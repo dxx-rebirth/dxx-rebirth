@@ -92,8 +92,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 		}
 		int w, h;
 		gr_get_string_size(listbox->list[i], &w, &h, nullptr);
-		gr_string(x + 2, y, listbox->list[i]);
-
+		gr_string(x + 2, y, listbox->list[i], w, h);
 		y += h;
 	}
 

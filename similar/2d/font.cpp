@@ -687,6 +687,13 @@ static int gr_internal_color_string(int x, int y, const char *s ){
 
 void gr_string(const int x, const int y, const char *const s)
 {
+	int w, h;
+	gr_get_string_size(s, &w, &h, nullptr);
+	gr_string(x, y, s, w, h);
+}
+
+void gr_string(const int x, const int y, const char *const s, const int w, const int h)
+{
 	int clipped=0;
 
 	Assert(grd_curcanv->cv_font != NULL);
@@ -695,9 +702,7 @@ void gr_string(const int x, const int y, const char *const s)
 	if (y > bm_h)
 		return;
 	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
-	int w, h;
 	if ( x == 0x8000 )	{
-		gr_get_string_size(s, &w, &h, nullptr);
 		if (y + h < 0)
 			return;
 		// for x, since this will be centered, only look at
@@ -707,7 +712,6 @@ void gr_string(const int x, const int y, const char *const s)
 	} else {
 		if (x > bm_w)
 			return;
-		gr_get_string_size(s, &w, &h, nullptr);
 		if (x + w < 0 ||
 			y + h < 0)
 			return;

@@ -1268,7 +1268,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 
 		x = fspacx(item.xinput) + ((fspacx(item.w2) - w) / 2);
 	
-		gr_string(x, fspacy(item.y), btext);
+		gr_string(x, fspacy(item.y), btext, w, h);
 	}
 }
 
@@ -1298,7 +1298,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 
 	x = fspacx(item->xinput) + ((fspacx(item->w2) - w) / 2);
 
-	gr_string(x, fspacy(item->y), "?");
+	gr_string(x, fspacy(item->y), "?", w, h);
 }
 
 static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, unsigned type, unsigned value)

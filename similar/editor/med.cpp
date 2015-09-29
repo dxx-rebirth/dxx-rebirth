@@ -159,7 +159,7 @@ static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_set_fontcolor( CBLACK, CGREY );
 	int w,h;
 	gr_get_string_size( message, &w, &h, nullptr);
-	gr_string( 4, 583, message );
+	gr_string(4, 583, message, w, h);
 	gr_set_fontcolor( CBLACK, CWHITE );
 	gr_setcolor( CGREY );
 	gr_rect( 4+w, 583, 799, 599 );

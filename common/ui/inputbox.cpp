@@ -59,7 +59,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 		inputbox->status = 0;
 
-		gr_string(2, 2, inputbox->text.get());
+		gr_string(2, 2, inputbox->text.get(), w, h);
 
 		//gr_setcolor( CBLACK );
 		//gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );

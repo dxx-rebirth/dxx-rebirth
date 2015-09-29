@@ -279,7 +279,7 @@ static void scores_rputs(int x, int y, char *buffer)
 	int w, h;
 	gr_get_string_size(buffer, &w, &h, nullptr);
 
-	gr_string( FSPACX(x)-w, FSPACY(y), buffer );
+	gr_string(FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
 /* Unimplemented overload to avoid spurious warnings from the
