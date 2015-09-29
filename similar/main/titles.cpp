@@ -980,10 +980,7 @@ static void flash_cursor(briefing *br, int cursor_flag)
 	if (cursor_flag == 0)
 		return;
 
-	if ((timer_query() % (F1_0/2) ) > (F1_0/4))
-		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
-	else
-		gr_set_fontcolor(Erase_color, -1);
+	gr_set_fontcolor((timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
 
 	gr_string(br->text_x, br->text_y, "_" );
 }
