@@ -32,8 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
-	int w, h, aw;
-
 #if 0  //ndef OGL
 	if ((inputbox->status==1) || (inputbox->position != inputbox->oldposition))
 #endif
@@ -42,8 +40,9 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 		gr_setcolor( CBLACK );
 		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1 );
-		gr_get_string_size(inputbox->text.get(), &w, &h, &aw  );
 		
+		int w, h;
+		gr_get_string_size(inputbox->text.get(), &w, &h, nullptr);
 		if (dlg->keyboard_focus_gadget == inputbox)
 		{
 			if (inputbox->first_time)
@@ -76,8 +75,8 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG * dlg, short x, short y, short length, short slength, const char * text)
 {
-	int h, w, aw;
-	gr_get_string_size( NULL, &w, &h, &aw );
+	int h, aw;
+	gr_get_string_size(nullptr, nullptr, &h, &aw);
 	std::unique_ptr<UI_GADGET_INPUTBOX> inputbox{ui_gadget_add<UI_GADGET_INPUTBOX>(dlg, x, y, x+aw*slength-1, y+h-1+4)};
 	MALLOC(inputbox->text, char[], length + 1);
 	auto ltext = strlen(text) + 1;

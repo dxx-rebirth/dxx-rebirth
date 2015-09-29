@@ -467,7 +467,6 @@ static void name_frame(automap *am)
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
-	int wr,h,aw;
 	if (Current_level_num > 0)
 		snprintf(name_level_left, sizeof(name_level_left), "%s %i",TXT_LEVEL, Current_level_num);
 	else
@@ -481,7 +480,8 @@ static void name_frame(automap *am)
 	strcat(name_level_right, Current_level_name);
 
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
-	gr_get_string_size(name_level_right,&wr,&h,&aw);
+	int wr,h;
+	gr_get_string_size(name_level_right, &wr, &h, nullptr);
 	gr_string(grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right);
 #endif
 }

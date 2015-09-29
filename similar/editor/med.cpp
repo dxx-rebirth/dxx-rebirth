@@ -153,12 +153,12 @@ int	Found_seg_index=0;				// Index in Found_segs corresponding to Cursegp
 
 
 static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
-	int w,h,aw;
 
 	gr_set_current_canvas( NULL );
 	gr_set_curfont(editor_font);
 	gr_set_fontcolor( CBLACK, CGREY );
-	gr_get_string_size( message, &w, &h, &aw );
+	int w,h;
+	gr_get_string_size( message, &w, &h, nullptr);
 	gr_string( 4, 583, message );
 	gr_set_fontcolor( CBLACK, CWHITE );
 	gr_setcolor( CGREY );

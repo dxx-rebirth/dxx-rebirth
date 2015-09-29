@@ -687,14 +687,14 @@ static int gr_internal_color_string(int x, int y, const char *s ){
 
 void gr_string(int x, int y, const char *s )
 {
-	int w, h, aw;
 	int clipped=0;
 
 	Assert(grd_curcanv->cv_font != NULL);
 
+	int w, h;
 	if ( x == 0x8000 )	{
 		if ( y<0 ) clipped |= 1;
-		gr_get_string_size(s, &w, &h, &aw );
+		gr_get_string_size(s, &w, &h, nullptr);
 		// for x, since this will be centered, only look at
 		// width.
 		if ( w > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
@@ -705,7 +705,7 @@ void gr_string(int x, int y, const char *s )
 
 	} else {
 		if ( (x<0) || (y<0) ) clipped |= 1;
-		gr_get_string_size(s, &w, &h, &aw );
+		gr_get_string_size(s, &w, &h, nullptr);
 		if ( (x+w) > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
 		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
 		if ( (x+w) < 0 ) clipped |= 2;
@@ -782,8 +782,11 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 	float longest_width=0.0,string_width_f=0.0;
 	unsigned lines = 0;
 	const auto &cv_font = *grd_curcanv->cv_font;
-	*average_width = cv_font.ft_w;
-	if (s != NULL )
+	if (average_width)
+		*average_width = cv_font.ft_w;
+	if (!string_width && !string_height)
+		return;
+	if (s)
 	{
 		while (*s)
 		{
@@ -807,10 +810,13 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 			s++;
 		}
 	}
-	*string_width = std::max(longest_width, string_width_f);
-	const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
-	const float string_height_f = fontscale_y + (lines * (fontscale_y + FSPACY(1)));
-	*string_height = string_height_f;
+	if (string_width)
+		*string_width = std::max(longest_width, string_width_f);
+	if (string_height)
+	{
+		const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
+		*string_height = static_cast<int>(static_cast<float>(fontscale_y + (lines * (fontscale_y + FSPACY(1)))));
+	}
 }
 
 

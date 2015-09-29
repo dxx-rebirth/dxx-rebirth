@@ -68,11 +68,9 @@ static int TexturePage = 0;
 static grs_subcanvas_ptr TmapnameCanvas;
 static void texpage_print_name(d_fname name)
 {
-	 int w,h,aw;
 	name.back() = 0;
 	
     gr_set_current_canvas( TmapnameCanvas );
-    gr_get_string_size( name, &w, &h, &aw );
     gr_string( 0, 0, name );			  
 }
 

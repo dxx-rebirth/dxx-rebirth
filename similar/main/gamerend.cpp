@@ -852,13 +852,13 @@ void game_render_frame()
 //show a message in a nice little box
 void show_boxed_message(const char *msg, int RenderFlag)
 {
-	int w,h,aw;
+	int w,h;
 	int x,y;
 	
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
 	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(msg,&w,&h,&aw);
+	gr_get_string_size(msg, &w, &h, nullptr);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

@@ -1158,7 +1158,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++)
 	{
 		int game_status = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_status;
-		int j,x, k,tx,ty,ta,nplayers = 0;
+		int j,x, k,nplayers = 0;
 		char levelname[8],MissName[25],GameName[25],thold[2];
 		thold[1]=0;
 
@@ -1172,12 +1172,13 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		// if missiontitle or gamename contain a tab
 
 		const auto &&fspacx = FSPACX();
-		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		for (x=0,k=0,j=0;j<15;j++)
 		{
 			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j]=='\t')
 				continue;
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
-			gr_get_string_size (thold,&tx,&ty,&ta);
+			int tx;
+			gr_get_string_size (thold, &tx, nullptr, nullptr);
 
 			if ((x += tx) >= fspacx(55))
 			{
@@ -1190,12 +1191,13 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		}
 		MissName[k]=0;
 
-		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		for (x=0,k=0,j=0;j<15;j++)
 		{
 			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j]=='\t')
 				continue;
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
-			gr_get_string_size (thold,&tx,&ty,&ta);
+			int tx;
+			gr_get_string_size (thold, &tx, nullptr, nullptr);
 
 			if ((x += tx) >= fspacx(55))
 			{

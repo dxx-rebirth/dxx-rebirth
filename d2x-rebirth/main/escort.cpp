@@ -1769,7 +1769,7 @@ void do_escort_menu(void)
 void show_escort_menu(const array<char, 300> &amsg)
 {	
 	const auto msg = amsg.data();
-	int	w,h,aw;
+	int	w,h;
 	int	x,y;
 
 
@@ -1777,7 +1777,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	gr_set_curfont( GAME_FONT );
 
-	gr_get_string_size(msg,&w,&h,&aw);
+	gr_get_string_size(msg, &w, &h, nullptr);
 
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

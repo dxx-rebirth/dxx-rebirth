@@ -739,7 +739,6 @@ static void ul_xlate(char *s)
 void menubar_init( const char * file )
 {
 	int i,j, np;
-	int aw, w, h;
 	char buf1[200];
 	char buf2[200];
 	int menu, item;
@@ -820,11 +819,12 @@ void menubar_init( const char * file )
 		Menu[menu].Item[item].x = Menu[menu].x;
 		Menu[menu].Item[item].y = Menu[menu].y;
 
+		int w, h;
 		if ( Menu[menu].Item[item].Text[0] == '-' )
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size(Menu[menu].Item[item].Text.get(), &w, &h, &aw);
+			gr_get_string_size(Menu[menu].Item[item].Text.get(), &w, &h, nullptr);
 			w += 2;
 			h += 2;
 		}

@@ -44,7 +44,7 @@ static void ui_draw_box_in1( short x1, short y1, short x2, short y2 )
 
 void ui_draw_icon( UI_GADGET_ICON * icon )
 {
-	int height, width, avg;
+	int height, width;
 	int x, y;
 	
 #if 0  //ndef OGL
@@ -54,7 +54,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		icon->status = 0;
 
 		gr_set_current_canvas( icon->canvas );
-		gr_get_string_size(icon->text.get(), &width, &height, &avg);
+		gr_get_string_size(icon->text.get(), &width, &height, nullptr);
 	
 		x = ((icon->width-1)/2)-((width-1)/2);
 		y = ((icon->height-1)/2)-((height-1)/2);

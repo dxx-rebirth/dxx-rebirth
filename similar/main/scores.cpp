@@ -270,14 +270,14 @@ void scores_maybe_add_player(int abort_flag)
 static void scores_rputs(int x, int y, char *buffer) __attribute_nonnull();
 static void scores_rputs(int x, int y, char *buffer)
 {
-	int w, h, aw;
 	char *p;
 
 	//replace the digit '1' with special wider 1
 	for (p=buffer;*p;p++)
 		if (*p=='1') *p=132;
 
-	gr_get_string_size(buffer, &w, &h, &aw );
+	int w, h;
+	gr_get_string_size(buffer, &w, &h, nullptr);
 
 	gr_string( FSPACX(x)-w, FSPACY(y), buffer );
 }

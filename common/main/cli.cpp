@@ -140,10 +140,10 @@ void cli_draw(int y)
 	}
 
 	if (Blink) {
-		int prompt_width, cmd_width, h, w;
+		int prompt_width, cmd_width, h;
 
-		gr_get_string_size(Prompt.get(), &prompt_width, &h, &w);
-		gr_get_string_size(LCommand + Offset, &cmd_width, &h, &w);
+		gr_get_string_size(Prompt.get(), &prompt_width, nullptr, nullptr);
+		gr_get_string_size(LCommand + Offset, &cmd_width, &h, nullptr);
 		x = CLI_CHAR_BORDER + prompt_width + cmd_width;
 		gr_string(x, y-h, CLI_insert_mode ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
 	}

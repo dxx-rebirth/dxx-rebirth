@@ -34,7 +34,7 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 );
 void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 {
 	int i, x, y, stop;
-	int w, h,  aw;
+	int w, h;
 
 	//if (listbox->current_item<0)
 	//    listbox->current_item=0;
@@ -90,8 +90,9 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 			else
 				gr_set_fontcolor( CBLACK, -1 );
 		}
+		int w, h;
+		gr_get_string_size(listbox->list[i], &w, &h, nullptr);
 		gr_string(x + 2, y, listbox->list[i]);
-		gr_get_string_size(listbox->list[i], &w, &h, &aw);
 
 		y += h;
 	}
@@ -122,8 +123,8 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 
 std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
 {
-	int tw, th, taw, i;
-	gr_get_string_size("*", &tw, &th, &taw );
+	int th, i;
+	gr_get_string_size("*", nullptr, &th, nullptr);
 
 	i = h / th;
 	h = i * th;

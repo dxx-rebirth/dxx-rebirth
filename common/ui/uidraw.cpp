@@ -35,9 +35,9 @@ void Vline(short y1, short y2, short x )
 
 void ui_string_centered( short x, short y, const char * s )
 {
-	int height, width, avg;
+	int height, width;
 
-	gr_get_string_size(s, &width, &height, &avg );
+	gr_get_string_size(s, &width, &height, nullptr);
 
 	//baseline = height-grd_curcanv->cv_font->ft_baseline;
 

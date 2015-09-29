@@ -170,10 +170,9 @@ static void con_draw(void)
 	const auto &&fspacx1 = fspacx(1);
 	while (!done)
 	{
-		int w,h,aw;
-
 		gr_set_fontcolor(get_console_color_by_priority(con_buffer[CON_LINES_MAX-1-i].priority), -1);
-		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
+		int w,h;
+		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line, &w, &h, nullptr);
 		y -= h + fspacy1;
 		gr_string(fspacx1, y, con_buffer[CON_LINES_MAX - 1 - i].line);
 		i++;

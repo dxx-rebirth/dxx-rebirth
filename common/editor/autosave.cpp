@@ -113,14 +113,14 @@ tm Editor_time_of_day;
 
 static void print_clock()
 {
-	int w,h,aw;
+	int w, h;
 	gr_set_current_canvas( NULL );
 	gr_set_fontcolor( CBLACK, CGREY );
 	array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
-	gr_get_string_size(message.data(), &w, &h, &aw);
 	gr_setcolor( CGREY );
+	gr_get_string_size(message.data(), &w, &h, nullptr);
 	gr_rect( 700, 0, 799, h+1 );
 	gr_string(700, 0, message.data());
 	gr_set_fontcolor( CBLACK, CWHITE );

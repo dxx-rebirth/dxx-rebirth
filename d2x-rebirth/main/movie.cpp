@@ -291,13 +291,13 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 		case EVENT_WINDOW_DRAW:
 		{
 			const char *msg = TXT_PAUSE;
-			int w,h,aw;
+			int h;
 			int y;
 
 			gr_set_current_canvas(NULL);
 			gr_set_curfont( GAME_FONT );
 
-			gr_get_string_size(msg,&w,&h,&aw);
+			gr_get_string_size(msg, nullptr, &h, nullptr);
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 

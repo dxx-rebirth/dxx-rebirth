@@ -239,9 +239,9 @@ void player_dead_message(void)
 {
 	if (Player_exploded) {
 		if ( get_local_player().lives < 2 )    {
-			int x, y, w, h, aw;
+			int x, y, w, h;
 			gr_set_curfont( HUGE_FONT );
-			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
+			gr_get_string_size(TXT_GAME_OVER, &w, &h, nullptr);
 			w += 20;
 			h += 8;
 			x = (grd_curcanv->cv_bitmap.bm_w - w ) / 2;

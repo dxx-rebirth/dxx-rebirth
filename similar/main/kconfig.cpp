@@ -801,15 +801,14 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 
 static int get_item_height(const kc_item &item, const kc_mitem &mitem)
 {
-	int w, h, aw;
+	int h;
 	char buf[10];
 	const char *btext;
 
 	btext = get_item_text(item, mitem, buf);
 	if (!btext)
 		return 0;
-	gr_get_string_size(btext, &w, &h, &aw  );
-
+	gr_get_string_size(btext, nullptr, &h, nullptr);
 	return h;
 }
 
@@ -1245,7 +1244,6 @@ static void kconfig_sub(const char *litems, const kc_item (&items)[N], array<kc_
 
 static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, const char *label )
 {
-	int x, w, h, aw;
 	char buf[10];
 	const char *btext;
 	const auto &&fspacx = FSPACX();
@@ -1260,9 +1258,10 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	if (!btext)
 		return;
 	{
-		gr_get_string_size(btext, &w, &h, &aw  );
-
 		gr_setcolor(is_current ? BM_XRGB(21, 0, 24) : BM_XRGB(16, 0, 19));
+
+		int x, w, h;
+		gr_get_string_size(btext, &w, &h, nullptr);
 		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -1276,9 +1275,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 
 static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 {
-	int x, w, h, aw;
-
-	gr_get_string_size("?", &w, &h, &aw  );
+	int x;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	int c = BM_XRGB(21,0,24);
@@ -1292,6 +1289,9 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
+	int w, h;
+	gr_get_string_size("?", &w, &h, nullptr);
+
 	gr_urect(fspacx(item->xinput), fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy(item->y) + h);
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );

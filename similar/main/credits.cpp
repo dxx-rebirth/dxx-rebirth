@@ -194,9 +194,6 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{
 					// Wacky Fast Credits thing
-					int w, h, aw;
-					
-					gr_get_string_size( s, &w, &h, &aw);
 					gr_string( 0x8000, y, s );
 				}
 			}
