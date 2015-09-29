@@ -47,10 +47,10 @@ struct d_physical_joystick {
 	int n_axes;
 	int n_buttons;
 	int n_hats;
-	int hat_map[MAX_HATS_PER_JOYSTICK];  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
+	array<unsigned, MAX_HATS_PER_JOYSTICK> hat_map;  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
+	array<unsigned, MAX_BUTTONS_PER_JOYSTICK> button_map;
 	array<unsigned, MAX_AXES_PER_JOYSTICK> axis_map;
 	array<int, MAX_AXES_PER_JOYSTICK> axis_value;
-	int button_map[MAX_BUTTONS_PER_JOYSTICK];
 };
 
 }
@@ -232,6 +232,8 @@ void joy_flush()
 
 	static_assert(SDL_RELEASED == uint8_t(), "SDL_RELEASED not 0.");
 	Joystick.button_state = {};
+	range_for (auto &j, SDL_Joysticks)
+		j.axis_value = {};
 }
 
 int event_joystick_get_button(const d_event &event)
