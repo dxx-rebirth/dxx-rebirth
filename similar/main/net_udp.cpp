@@ -3202,24 +3202,52 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 const unsigned reactor_invul_time_mini_scale = F1_0 * 60;
 const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
+unsigned primary = Netgame.DuplicatePowerups.get_primary_count();
+unsigned secondary = Netgame.DuplicatePowerups.get_secondary_count();
+#if defined(DXX_BUILD_DESCENT_II)
+	unsigned accessory = Netgame.DuplicatePowerups.get_accessory_count();
+#endif
 
-#define DXX_UDP_MENU_OPTIONS(VERB)	\
-	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
+
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
+	DXX_##VERB##_SLIDER(extraAccessory, opt_extra_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
+
+#endif
+
+#define DXX_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
+	DXX_##VERB##_SLIDER(extraPrimary, opt_extra_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
+	DXX_##VERB##_SLIDER(extraSecondary, opt_extra_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
+	D2X_DUPLICATE_POWERUP_OPTIONS(VERB)                                
+
+#define DXX_UDP_MENU_OPTIONS(VERB)	                                    \
+	DXX_##VERB##_TEXT("Game Options", game_label)	                     \
+	DXX_##VERB##_SLIDER(difftext, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
 	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
-	DXX_##VERB##_TEXT(KillText, opt_killgoal_label)	\
-	DXX_##VERB##_SLIDER("", opt_killgoal, Netgame.KillGoal, 0, 20)	\
-	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
-	D2X_UDP_MENU_OPTIONS(VERB)	\
+	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
+	DXX_##VERB##_TEXT("", blank_1)                                     \
+	DXX_##VERB##_TEXT("Duplicate Powerups", duplicate_label)	          \
+	DXX_DUPLICATE_POWERUP_OPTIONS(VERB)		                              \
+	DXX_##VERB##_TEXT("", blank_5)                                     \
+	DXX_##VERB##_TEXT("Spawn Options", spawn_label)	                   \
+	DXX_##VERB##_SLIDER(SecludedSpawnText, opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
 	DXX_##VERB##_SLIDER(SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
+	DXX_##VERB##_TEXT("", blank_2)                                     \
+	DXX_##VERB##_TEXT("Object Options", powerup_label)	                \
+	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	         \
+	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
+	DXX_##VERB##_TEXT("", blank_3)                                     \
+	DXX_##VERB##_TEXT("Misc. Options", misc_label)	                    \
+	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
+	D2X_UDP_MENU_OPTIONS(VERB)	                                        \
 	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
 	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
-	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	\
-	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
-	DXX_##VERB##_MENU("Duplicate objects at start", opt_set_powerup_duplicates)	\
-	DXX_##VERB##_TEXT(SecludedSpawnText, opt_secluded_spawns_label)	\
-	DXX_##VERB##_SLIDER("", opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
+	DXX_##VERB##_TEXT("", blank_4)                                     \
+	DXX_##VERB##_TEXT("Network Options", network_label)	               \
 	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
 	DXX_##VERB##_INPUT(packstring, opt_packets)	\
 	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
@@ -3251,7 +3279,6 @@ static void net_udp_set_power (void)
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_GRANT_POWERUP_MENU(VERB)
-#define D2X_DUPLICATE_POWERUP_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_GRANT_POWERUP_MENU(VERB)	\
 	DXX_##VERB##_CHECK(NETFLAG_LABEL_GAUSS, opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
@@ -3262,9 +3289,6 @@ static void net_udp_set_power (void)
 	DXX_##VERB##_CHECK(NETFLAG_LABEL_AMMORACK, opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
 	DXX_##VERB##_CHECK(NETFLAG_LABEL_CONVERTER, opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
 	DXX_##VERB##_CHECK(NETFLAG_LABEL_HEADLIGHT, opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
-
-#define D2X_DUPLICATE_POWERUP_MENU(VERB)	\
-	DXX_##VERB##_NUMBER("duplicate accessories", opt_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
 
 #endif
 
@@ -3277,22 +3301,21 @@ static void net_udp_set_power (void)
 	DXX_##VERB##_CHECK(NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
 	D2X_GRANT_POWERUP_MENU(VERB)
 
-#define DXX_DUPLICATE_POWERUP_MENU(VERB)	\
-	DXX_##VERB##_NUMBER("duplicate primaries", opt_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
-	DXX_##VERB##_NUMBER("duplicate secondaries", opt_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
-	D2X_DUPLICATE_POWERUP_MENU(VERB)
-
 namespace {
 
 class more_game_options_menu_items
 {
+	char difftext[sizeof("Difficulty: Trainee")];
 	char packstring[sizeof("99")];
 	char portstring[sizeof("65535")];
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
-	char SpawnInvulnerableText[sizeof("Spawn invul.: 0.0 sec")];
-	char SecludedSpawnText[sizeof("Spawn only at 0 farthest sites")];
+	char SpawnInvulnerableText[sizeof("Invulnerable Time: 0.0 sec")];
+	char SecludedSpawnText[sizeof("Use 0 Furthest Sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
+	char extraPrimary[sizeof("Primaries: 0")];
+	char extraSecondary[sizeof("Secondaries: 0")];
+	char extraAccessory[sizeof("Accessories: 0")];
 #ifdef USE_TRACKER
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
@@ -3303,6 +3326,38 @@ public:
 	{
 		return m;
 	}
+	void update_difficulty_string()
+	{
+		if(Netgame.difficulty == 0) {
+			strcpy(difftext, "Difficulty: Trainee");
+		}
+		if(Netgame.difficulty == 1) {
+			strcpy(difftext, "Difficulty: Rookie");
+		}
+		if(Netgame.difficulty == 2) {
+			strcpy(difftext, "Difficulty: Hotshot");
+		}
+		if(Netgame.difficulty == 3) {
+			strcpy(difftext, "Difficulty: Ace");
+		}
+		if(Netgame.difficulty == 4) {
+			strcpy(difftext, "Difficulty: Insane");
+		}
+	}
+	void update_extra_primary_string()
+	{
+		snprintf(extraPrimary, sizeof(extraPrimary), "Primaries: %u", primary);
+	}
+	void update_extra_secondary_string()
+	{
+		snprintf(extraSecondary, sizeof(extraSecondary), "Secondaries: %u", secondary);
+	}
+#if defined(DXX_BUILD_DESCENT_II)
+	void update_extra_accessory_string()
+	{
+		snprintf(extraAccessory, sizeof(extraAccessory), "Accessories: %u", accessory);
+	}
+#endif
 	void update_packstring()
 	{
 		snprintf(packstring, sizeof(packstring), "%u", Netgame.PacketsPerSec);
@@ -3321,15 +3376,15 @@ public:
 	}
 	void update_spawn_invuln_string()
 	{
-		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Spawn invul.: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
+		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Invulnerable Time: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 	}
 	void update_secluded_spawn_string()
 	{
-		snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Spawn only at %u farthest sites", Netgame.SecludedSpawns + 1);
+		snprintf(SecludedSpawnText, sizeof(SecludedSpawnText), "Use %u Furthest Sites", Netgame.SecludedSpawns + 1);
 	}
 	void update_kill_goal_string()
 	{
-		snprintf(KillText, sizeof(KillText), "Kill Goal: %3d kills", Netgame.KillGoal * 5);
+		snprintf(KillText, sizeof(KillText), "Kill Goal: %3d", Netgame.KillGoal * 5);
 	}
 	enum
 	{
@@ -3337,6 +3392,7 @@ public:
 	};
 	more_game_options_menu_items()
 	{
+		update_difficulty_string();
 		update_packstring();
 		update_portstring();
 		update_reactor_life_string(Netgame.control_invul_time / reactor_invul_time_mini_scale);
@@ -3344,6 +3400,11 @@ public:
 		update_spawn_invuln_string();
 		update_secluded_spawn_string();
 		update_kill_goal_string();
+		update_extra_primary_string();
+		update_extra_secondary_string();
+#if defined(DXX_BUILD_DESCENT_II)
+		update_extra_accessory_string();
+#endif
 		DXX_UDP_MENU_OPTIONS(ADD);
 #ifdef USE_TRACKER
 		const auto &tracker_addr = GameArg.MplTrackerAddr;
@@ -3390,38 +3451,6 @@ public:
 	}
 };
 
-class duplicate_powerup_menu_items
-{
-public:
-	enum
-	{
-		DXX_DUPLICATE_POWERUP_MENU(ENUM)
-	};
-	array<newmenu_item, DXX_DUPLICATE_POWERUP_MENU(COUNT)> m;
-	duplicate_powerup_menu_items(const packed_netduplicate_items items)
-	{
-		const auto primary = items.get_primary_count();
-		const auto secondary = items.get_secondary_count();
-#if defined(DXX_BUILD_DESCENT_II)
-		const auto accessory = items.get_accessory_count();
-#endif
-		DXX_DUPLICATE_POWERUP_MENU(ADD);
-	}
-	void read(packed_netduplicate_items &items) const
-	{
-		unsigned primary, secondary;
-#if defined(DXX_BUILD_DESCENT_II)
-		unsigned accessory;
-#endif
-		DXX_DUPLICATE_POWERUP_MENU(READ);
-		items.set_primary_count(primary);
-		items.set_secondary_count(secondary);
-#if defined(DXX_BUILD_DESCENT_II)
-		items.set_accessory_count(accessory);
-#endif
-	}
-};
-
 }
 
 static void net_udp_set_grant_power()
@@ -3430,13 +3459,6 @@ static void net_udp_set_grant_power()
 	grant_powerup_menu_items menu{map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems};
 	newmenu_do(nullptr, "Powerups granted at player spawn", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	menu.read(Netgame.SpawnGrantedItems);
-}
-
-static void net_udp_set_duplicate_powerups()
-{
-	duplicate_powerup_menu_items menu{Netgame.DuplicatePowerups};
-	newmenu_do(nullptr, "Duplicate objects at start", menu.m, unused_newmenu_subfunction, unused_newmenu_userdata);
-	menu.read(Netgame.DuplicatePowerups);
 }
 
 static int net_udp_more_options_handler(newmenu *menu, const d_event &event, more_game_options_menu_items *);
@@ -3454,9 +3476,6 @@ static void net_udp_more_game_options ()
 				continue;
 			case opt_setgrant:
 				net_udp_set_grant_power();
-				continue;
-			case opt_set_powerup_duplicates:
-				net_udp_set_duplicate_powerups();
 				continue;
 			default:
 				break;
@@ -3487,7 +3506,12 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			auto &menus = items->get_menu_items();
-			if (citem == opt_cinvul)
+			if (citem == opt_difficulty)
+			{
+				Netgame.difficulty = menus[opt_difficulty].value;
+				items->update_difficulty_string();
+			}
+			else if (citem == opt_cinvul)
 				items->update_reactor_life_string(menus[opt_cinvul].value * (reactor_invul_time_scale / reactor_invul_time_mini_scale));
 			else if (citem == opt_playtime)
 			{
@@ -3513,6 +3537,26 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 				Netgame.KillGoal=menus[opt_killgoal].value;
 				items->update_kill_goal_string();
 			}
+			else if(citem == opt_extra_primary)
+			{
+				primary = menus[opt_extra_primary].value;
+				Netgame.DuplicatePowerups.set_primary_count(primary);
+				items->update_extra_primary_string();
+			}
+			else if(citem == opt_extra_secondary)
+			{
+				secondary = menus[opt_extra_secondary].value;
+				Netgame.DuplicatePowerups.set_secondary_count(secondary);
+				items->update_extra_secondary_string();
+			}
+#if defined(DXX_BUILD_DESCENT_II)
+			else if(citem == opt_extra_accessory)
+			{
+				accessory = menus[opt_extra_accessory].value;
+				Netgame.DuplicatePowerups.set_accessory_count(accessory);
+				items->update_extra_accessory_string();
+			}
+#endif
 			else if (citem == opt_start_invul)
 			{
 				Netgame.InvulAppear = menus[opt_start_invul].value;
