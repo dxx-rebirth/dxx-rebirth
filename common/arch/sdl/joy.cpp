@@ -27,8 +27,6 @@ int num_joysticks = 0;
  * and buttons of every joystick found.
  */
 static struct joyinfo {
-	int n_axes;
-	int n_buttons;
 	array<uint8_t, JOY_MAX_BUTTONS> button_state;
 } Joystick;
 
@@ -165,6 +163,7 @@ void joy_init()
 	joybutton_text.clear();
 
 	const auto n = check_warn_joy_support_limit<MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
+	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
 		const auto handle = joystick.handle = SDL_JoystickOpen(i);
@@ -182,23 +181,23 @@ void joy_init()
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
 			{
-				snprintf(&joyaxis_text[Joystick.n_axes][0], sizeof(joyaxis_text[Joystick.n_axes]), "J%d A%d", i + 1, j + 1);
-				joystick.axis_map[j] = Joystick.n_axes++;
+				snprintf(&joyaxis_text[joystick_n_axes][0], sizeof(joyaxis_text[joystick_n_axes]), "J%d A%d", i + 1, j + 1);
+				joystick.axis_map[j] = joystick_n_axes++;
 			}
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 			for (int j=0; j < n_buttons; j++)
 			{
-				snprintf(&joybutton_text[Joystick.n_buttons][0], sizeof(joybutton_text[Joystick.n_buttons]), "J%d B%d", i + 1, j + 1);
-				joystick.button_map[j] = Joystick.n_buttons++;
+				snprintf(&joybutton_text[joystick_n_buttons][0], sizeof(joybutton_text[joystick_n_buttons]), "J%d B%d", i + 1, j + 1);
+				joystick.button_map[j] = joystick_n_buttons++;
 			}
 			for (int j=0; j < n_hats; j++)
 			{
-				joystick.hat_map[j] = Joystick.n_buttons;
+				joystick.hat_map[j] = joystick_n_buttons;
 				//a hat counts as four buttons
-				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0202);
-				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0177);
-				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0200);
-				snprintf(&joybutton_text[Joystick.n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0201);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0202);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0177);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0200);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0201);
 			}
 
 			num_joysticks++;
@@ -206,8 +205,8 @@ void joy_init()
 		else
 			con_printf(CON_NORMAL, "sdl-joystick: initialization failed!");
 
-		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)", Joystick.n_axes);
-		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)", Joystick.n_buttons);
+		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)", joystick_n_axes);
+		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)", joystick_n_buttons);
 	}
 }
 
