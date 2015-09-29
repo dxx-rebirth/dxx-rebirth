@@ -146,7 +146,7 @@ static color_t get_console_color_by_priority(int priority)
 
 static void con_draw(void)
 {
-	int i = 0, y = 0, done = 0;
+	int i = 0, y = 0;
 
 	if (con_size <= 0)
 		return;
@@ -168,7 +168,7 @@ static void con_draw(void)
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx1 = fspacx(1);
-	while (!done)
+	for (;;)
 	{
 		gr_set_fontcolor(get_console_color_by_priority(con_buffer[CON_LINES_MAX-1-i].priority), -1);
 		int w,h;
@@ -178,7 +178,7 @@ static void con_draw(void)
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
-			done=1;
+			break;
 	}
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(0, 0, SWIDTH, line_spacing);
