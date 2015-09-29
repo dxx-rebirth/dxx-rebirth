@@ -1943,23 +1943,29 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
 static void draw_numerical_display(int shield, int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	int sw,ew;
-
 	gr_set_curfont( GAME_FONT );
 #ifndef OGL
 	hud_gauge_bitblt(NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
 #endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
+	const auto a = [](int xb, int v, int y) {
+		int w;
+		gr_get_string_size((v > 199)
+			? "200"
+			: &"100"[(v > 99)
+				? 0
+				: (v > 9) ? 1 : 2
+			], &w, nullptr, nullptr);
+		gr_printf(xb - (w / 2), y, "%d", v);
+	};
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
-	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0", &sw, nullptr, nullptr);
-	gr_printf((grd_curscreen->get_screen_width() / 1.951) - (sw / 2),
-			(grd_curscreen->get_screen_height() / 1.365), "%d", shield);
+	const auto xb = grd_curscreen->get_screen_width() / 1.951;
+	const auto screen_height = grd_curscreen->get_screen_height();
+	a(xb, shield, screen_height / 1.365);
 
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew, nullptr, nullptr);
-	gr_printf((grd_curscreen->get_screen_width() / 1.951) - (ew / 2),
-			(grd_curscreen->get_screen_height() / 1.5), "%d", energy);
+	a(xb, energy, screen_height / 1.5);
 
 	gr_set_current_canvas( NULL );
 }
