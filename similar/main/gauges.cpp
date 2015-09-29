@@ -1025,10 +1025,13 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
 
-	if (count)
-		gr_set_fontcolor((bomb==PROXIMITY_INDEX)?gr_find_closest_color(55,0,0):BM_XRGB(59,50,21),bg_color);
-	else
-		gr_set_fontcolor(bg_color,bg_color);	//erase by drawing in background color
+	gr_set_fontcolor(count
+		? (bomb == PROXIMITY_INDEX
+			? gr_find_closest_color(55, 0, 0)
+			: BM_XRGB(59, 50, 21)
+		)
+		: bg_color,	//erase by drawing in background color
+		bg_color);
 
 	snprintf(txt, sizeof(txt), "B:%02d", count);
 
