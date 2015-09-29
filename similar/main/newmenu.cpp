@@ -1452,19 +1452,12 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		if (menu->scroll_offset!=0)
-			gr_string( sx, sy, UP_ARROW_MARKER );
-		else
-			gr_string( sx, sy, "  " );
+		gr_string(sx, sy, menu->scroll_offset ? UP_ARROW_MARKER : "  ");
 
 		sy = menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
-			gr_string( sx, sy, DOWN_ARROW_MARKER );
-		else
-			gr_string( sx, sy, "  " );
-
+		gr_string(sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER : "  ");
 	}
 
 	{
