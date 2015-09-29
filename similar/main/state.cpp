@@ -1628,7 +1628,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	// Restore the automap visited info
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		Automap_visited.fill(0);
+		Automap_visited = {};
 		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), Highest_segment_index + 1);
 	}
 	else

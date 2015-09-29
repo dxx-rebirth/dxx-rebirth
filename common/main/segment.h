@@ -315,7 +315,7 @@ public:
 	}
 	void clear()
 	{
-		a.fill(0);
+		a = {};
 	}
 };
 

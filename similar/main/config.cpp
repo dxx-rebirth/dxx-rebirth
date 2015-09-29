@@ -115,7 +115,7 @@ int ReadConfigFile()
 	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME].data(), GameCfg.CMMiscMusic[SONG_ENDGAME].size(), "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
 #endif
 	GameCfg.GammaLevel = 0;
-	GameCfg.LastPlayer.fill(0);
+	GameCfg.LastPlayer = {};
 	GameCfg.LastMission = "";
 	GameCfg.ResolutionX = 640;
 	GameCfg.ResolutionY = 480;

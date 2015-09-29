@@ -1906,7 +1906,7 @@ void net_udp_send_objects(void)
 	}
 
 	array<uint8_t, UPID_MAX_SIZE> object_buffer;
-	object_buffer.fill(0);
+	object_buffer = {};
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
 
@@ -3706,7 +3706,7 @@ int net_udp_setup_game()
 		const auto self = &get_local_player();
 		range_for (auto &i, Players)
 			if (&i != self)
-				i.callsign.fill(0);
+				i.callsign = {};
 	}
 
 	Netgame.max_numplayers = MAX_PLAYERS;
@@ -4219,7 +4219,7 @@ abort:
 
 	range_for (auto &i, partial_range(Netgame.players, N_players, static_cast<unsigned>(Netgame.players.size())))
 	{
-		i.callsign.fill(0);
+		i.callsign = {};
 		i.rank=0;
 	}
 

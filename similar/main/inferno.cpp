@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nRunning game..." );
 	init_game();
 
-	get_local_player().callsign.fill(0);
+	get_local_player().callsign = {};
 
 #if defined(DXX_BUILD_DESCENT_I)
 	key_flush();

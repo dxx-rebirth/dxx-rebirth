@@ -396,7 +396,7 @@ static void ClearMarkers()
 
 void automap_clear_visited()	
 {
-	Automap_visited.fill(0);
+	Automap_visited = {};
 #ifndef NDEBUG
 	Automap_debug_show_all_segments = 0;
 #endif
