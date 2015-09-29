@@ -85,13 +85,18 @@ class StaticSubprocess:
 class Git(StaticSubprocess):
 	__path_git = None
 	@classmethod
-	def pcall(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
+	def __pcall_missing_git(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
+		return _missing_git
+	@classmethod
+	def __pcall_found_git(cls,args,stderr=None,_pcall=StaticSubprocess.pcall):
+		return _pcall(cls.__path_git + args, stderr=stderr)
+	@classmethod
+	def pcall(cls,args,stderr=None):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
-		if not git:
-			return _missing_git
-		return StaticSubprocess.pcall(git + args, stderr=stderr)
+		cls.pcall = f = cls.__pcall_found_git if git else cls.__pcall_missing_git
+		return f(args, stderr)
 	@classmethod
 	def spcall(cls,args,stderr=None):
 		g = cls.pcall(args, stderr)
