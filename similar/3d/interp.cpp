@@ -20,6 +20,7 @@
 #include "common/3d/globvars.h"
 #include "polyobj.h"
 #include "gr.h"
+#include "byteutil.h"
 #include "u_mem.h"
 
 static const unsigned OP_EOF = 0;   //eof
