@@ -1926,6 +1926,7 @@ window_event_result ReadControls(const d_event &event)
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		kconfig_read_controls(event, 0);
+		const auto Player_is_dead = ::Player_is_dead;
 		if (Player_is_dead && HandleDeathInput(event))
 			return window_event_result::handled;
 
@@ -1935,12 +1936,14 @@ window_event_result ReadControls(const d_event &event)
 		if ( Controls.state.automap )
 		{
 			Controls.state.automap = 0;
-			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
+			if (Player_is_dead || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
 			{
 				do_automap();
 				return window_event_result::handled;
 			}
 		}
+		if (Player_is_dead)
+			return window_event_result::ignored;
 		do_weapon_n_item_stuff();
 	}
 	return window_event_result::ignored;
