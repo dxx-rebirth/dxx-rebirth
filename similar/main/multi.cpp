@@ -243,7 +243,7 @@ void powerup_cap_state::cap_laser_level(stored_laser_level &player_level) const
 	cap_laser_powerup_level(player_level, POW_LASER, 0);
 }
 
-void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint16_t &player_ammo) const
+void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint8_t &player_ammo) const
 {
 	const auto idx = map_powerup_type_to_index(type);
 	const uint_fast32_t current_on_player = player_ammo;
@@ -251,7 +251,7 @@ void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint16_t &player
 	const uint_fast32_t maximum_allowed = get_max(idx);
 	if (current_on_player + current_in_mine <= maximum_allowed)
 		return;
-	const auto capped = static_cast<uint16_t>(current_in_mine < maximum_allowed ? maximum_allowed - current_in_mine : 0);
+	const auto capped = static_cast<uint8_t>(current_in_mine < maximum_allowed ? maximum_allowed - current_in_mine : 0);
 	player_ammo = capped;
 	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
 }

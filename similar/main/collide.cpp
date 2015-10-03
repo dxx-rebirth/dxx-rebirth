@@ -1967,7 +1967,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 			int max_count;
 
-			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], (unsigned short) 12);
+			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], static_cast<uint8_t>(12));
 			for (int i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
 		}

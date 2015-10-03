@@ -91,7 +91,7 @@ extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_poweru
 extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
-extern const array<ubyte, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
+extern const array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_file
  */

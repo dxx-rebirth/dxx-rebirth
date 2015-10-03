@@ -396,7 +396,7 @@ public:
 		m_max[type] = value;
 	}
 	void cap_laser_level(stored_laser_level &player_level) const;
-	void cap_secondary_ammo(powerup_type_t type, uint16_t &player_ammo) const;
+	void cap_secondary_ammo(powerup_type_t type, uint8_t &player_ammo) const;
 	void cap_flag(uint32_t &player_flags, uint32_t powerup_flag, powerup_type_t idx) const;
 	bool can_add_mapped_powerup(const powerup_type_t type) const
 	{

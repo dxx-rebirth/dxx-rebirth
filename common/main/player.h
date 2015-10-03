@@ -69,7 +69,7 @@ struct player : public prohibit_void_ptr<player>
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
 	ushort  vulcan_ammo;
-	array<ushort, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
+	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
