@@ -618,7 +618,6 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	// appropriate player's tally.
 
 	playernum_t killed_pnum, killer_pnum;
-	int TheGoal;
 
 	// Both object numbers are localized already!
 
@@ -812,11 +811,13 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, killed_name);
 	}
 
-	TheGoal=Netgame.KillGoal*5;
-
 	if (Netgame.KillGoal>0)
 	{
-		if (Players[killer_pnum].KillGoalCount>=TheGoal)
+		const auto TheGoal = Netgame.KillGoal * 5;
+		if (((Game_mode & GM_TEAM)
+				? Players[killer_pnum].KillGoalCount
+				: team_kills[get_team(killer_pnum)]
+			) >= TheGoal)
 		{
 			if (killer_pnum==Player_num)
 			{
@@ -824,7 +825,10 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				get_local_player().shields=i2f(200);
 			}
 			else
-				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", static_cast<const char *>(Players[killer_pnum].callsign));
+			{
+				char buf[(CALLSIGN_LEN*2)+4];
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
+			}
 
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
