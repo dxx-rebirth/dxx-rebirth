@@ -1495,15 +1495,19 @@ static void hud_show_cloak_invuln(void)
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
 
+	const auto a = [&](const char *txt, const fix64 effect_end) {
+		if (PlayerCfg.CloakInvulTimer)
+			gr_printf(fspacx1, base_y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
+		else
+			gr_string(fspacx1, base_y, txt);
+	};
+
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
 	{
 		const fix64 effect_end = plr.cloak_time + CLOAK_TIME_MAX - gametime64;
 		if (effect_end > F1_0*3 || gametime64 & 0x8000)
 		{
-                        if (PlayerCfg.CloakInvulTimer)
-                                gr_printf(fspacx1, base_y, "%s: %lu", TXT_CLOAKED, static_cast<unsigned long>(effect_end / F1_0));
-                        else
-                                gr_string(fspacx1, base_y, TXT_CLOAKED);
+			a(TXT_CLOAKED, effect_end);
 		}
 	}
 
@@ -1512,10 +1516,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = plr.invulnerable_time + INVULNERABLE_TIME_MAX - gametime64;
 		if (effect_end > F1_0*4 || gametime64 & 0x8000)
 		{
-                        if (PlayerCfg.CloakInvulTimer)
-                                gr_printf(fspacx1, base_y - line_spacing, "%s: %lu", TXT_INVULNERABLE, static_cast<unsigned long>(effect_end / F1_0));
-                        else
-                                gr_string(fspacx1, base_y - line_spacing, TXT_INVULNERABLE);
+			a(TXT_INVULNERABLE, effect_end);
 		}
 	}
 }
@@ -1863,6 +1864,20 @@ static void draw_shield_bar(int shield, const local_multires_gauge_graphic multi
 	hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
+static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
+{
+	char countdown[8];
+	int ow, oh;
+	snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
+	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
+	gr_get_string_size(countdown, &ow, &oh, nullptr);
+	const int x = grd_curscreen->get_screen_width() / (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR
+		? 2.266
+		: 1.951
+	);
+	gr_string(x - (ow / 2), y, countdown, ow, oh);
+}
+
 #define CLOAK_FADE_WAIT_TIME  0x400
 
 static void draw_player_ship(int cloak_state,int x, int y, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -1926,16 +1941,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
         // Show Cloak Timer if enabled
         if (cloak_fade_value < GR_FADE_LEVELS/2 && PlayerCfg.CloakInvulTimer)
-        {
-                const fix64 effect_end = get_local_player().cloak_time + CLOAK_TIME_MAX - GameTime64;
-                char countdown[5];
-                int ow;
-                int x = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?(grd_curscreen->get_screen_width() / 2.266):(grd_curscreen->get_screen_width() / 1.951);
-                snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
-                gr_get_string_size(countdown, &ow, nullptr, nullptr);
-                gr_set_fontcolor(BM_XRGB(31,31,31),-1 );
-                gr_printf(x-(ow/2), HUD_SCALE_Y(y + (bm.bm_h/2)), "%lu", static_cast<unsigned long>(effect_end / F1_0));
-        }
+		show_cockpit_cloak_invul_timer(get_local_player().cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(y + (bm.bm_h / 2)));
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -2445,14 +2451,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
                 // Show Invulnerability Timer if enabled
                 if (PlayerCfg.CloakInvulTimer)
                 {
-                        const fix64 effect_end = get_local_player().invulnerable_time + INVULNERABLE_TIME_MAX - GameTime64;
-                        char countdown[5];
-                        int ow;
-                        int x = (cmmode==CM_STATUS_BAR)?(grd_curscreen->get_screen_width() / 2.266):(grd_curscreen->get_screen_width() / 1.951);
-                        snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
-                        gr_get_string_size(countdown, &ow, nullptr, nullptr);
-                        gr_set_fontcolor(BM_XRGB(31,31,31),-1 );
-                        gr_printf(x-(ow/2), HUD_SCALE_Y(y), "%lu", static_cast<unsigned long>(effect_end / F1_0));
+			show_cockpit_cloak_invul_timer(get_local_player().invulnerable_time + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
                 }
 
 	} else if (cmmode == CM_STATUS_BAR)

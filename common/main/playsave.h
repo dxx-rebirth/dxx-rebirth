@@ -127,7 +127,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;
 	ubyte CycleAutoselectOnly;
-        int CloakInvulTimer;
+	uint8_t CloakInvulTimer;
 	union {
 		/* For now, manage all these choices in a single variable, but
 		 * give them separate names to make them easier to find.
