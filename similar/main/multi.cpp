@@ -147,7 +147,7 @@ int   Network_message_reciever=-1;
 static array<unsigned, MAX_PLAYERS>   sorted_kills;
 int   multi_goto_secret = 0;
 array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-array<uint16_t, 2> team_kills;
+array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
 const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
 	"Anarchy",
@@ -516,7 +516,7 @@ multi_new_game(void)
 
 	PowerupCaps.clear();
 
-	team_kills[0] = team_kills[1] = 0;
+	team_kills = {};
 	imulti_new_game=1;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
