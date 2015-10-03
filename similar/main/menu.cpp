@@ -1073,17 +1073,15 @@ static void input_config_keyboard()
 		}
 	};
 #undef DXX_INPUT_CONFIG_MENU
-#undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "Keyboard Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
 	constexpr uint_fast32_t keysens = items.opt_label_kb + 1;
 	const auto &m = items.m;
 
-	for (unsigned i = 0; i <= 5; i++)
+	for (unsigned i = 0; i < 5; i++)
 	{
-		if (i < 5)
-			PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
+		PlayerCfg.KeyboardSens[i] = m[keysens+i].value;
 	}
 }
 
@@ -1124,8 +1122,6 @@ static void input_config_mouse()
 		}
 	};
 #undef DXX_INPUT_CONFIG_MENU
-#undef DXX_INPUT_THROTTLE_SENSITIVITY
-#undef DXX_INPUT_SENSITIVITY
 	menu_items items;
 	newmenu_do1(nullptr, "Mouse Calibration", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 
@@ -1145,17 +1141,6 @@ static void input_config_mouse()
 
 static void input_config_joystick()
 {
-#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
-	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
-
-#define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
-
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
 	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	          \
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
