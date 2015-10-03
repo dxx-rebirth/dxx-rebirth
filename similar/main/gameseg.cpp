@@ -241,6 +241,8 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 			vertices[1] = vp[sv[1]];
 			vertices[2] = vp[sv[2]];
 			vertices[3] = vp[sv[3]];
+			vertices[4] = -1;
+			vertices[5] = -2;
 			return 1;
 		case SIDE_IS_TRI_02:
 			vertices[0] = vp[sv[0]];
