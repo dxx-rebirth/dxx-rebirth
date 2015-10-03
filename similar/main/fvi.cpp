@@ -611,8 +611,6 @@ struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited
 {
 };
 
-}
-
 int fvi_nest_count;
 
 //these vars are used to pass vars from fvi_sub() to find_vector_intersection()
@@ -622,6 +620,8 @@ int fvi_hit_side;		// what side was hit
 int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 segnum_t fvi_hit_seg2;		// what segment the hit point is in
+
+}
 
 static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
 
