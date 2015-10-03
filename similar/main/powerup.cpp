@@ -250,9 +250,10 @@ int do_powerup(const vobjptridx_t obj)
 		{
 			if (i == Player_num || Players[i].connected != CONNECT_PLAYING)
 				continue;
-			if (Objects[Players[i].objnum].type == OBJ_GHOST || Players[i].shields < 0)
+			const auto &&o = vcobjptr(Players[i].objnum);
+			if (o->type == OBJ_GHOST)
 				continue;
-			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, Objects[Players[i].objnum].pos))
+			if (mydist > vm_vec_normalized_dir(tvec, obj->pos, o->pos))
 				return 0;
 		}
 	}
