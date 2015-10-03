@@ -851,8 +851,11 @@ int pick_up_primary(int weapon_index)
 	{
 		if(PlayerCfg.DelayedAutoselect)
 		{
-			if(weapon_order < cutpoint && weapon_order < POrderList(delayed_primary == -1 ? get_mapped_weapon_index() : delayed_primary))
-				delayed_primary = weapon_index;
+			if(delayed_primary == -1)
+			{
+				 if(weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index()))
+					delayed_primary = weapon_index;
+			}
 			else
 			{
 				if (weapon_order < cutpoint && weapon_order < POrderList(delayed_primary))
