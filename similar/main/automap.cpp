@@ -124,7 +124,7 @@ struct automap : ignore_window_pointer_t
 	int			max_edges; //set each frame
 	int			highest_edge_index;
 	std::unique_ptr<Edge_info[]>		edges;
-	std::unique_ptr<int[]>			drawingListBright;
+	std::unique_ptr<Edge_info *[]>			drawingListBright;
 	
 	// Screen canvas variables
 	grs_canvas		automap_view;
@@ -910,7 +910,7 @@ void do_automap()
 	am->highest_edge_index = -1;
 	am->max_edges = Num_segments*12;
 	am->edges = make_unique<Edge_info[]>(am->max_edges);
-	am->drawingListBright = make_unique<int[]>(am->max_edges);
+	am->drawingListBright = make_unique<Edge_info *[]>(am->max_edges);
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	am->viewDist = 0;
@@ -1029,7 +1029,7 @@ void draw_all_edges(automap *am)
 
 			if ( nfacing && nnfacing )	{
 				// a contour line
-				am->drawingListBright[nbright++] = e-am->edges.get();
+				am->drawingListBright[nbright++] = e;
 			} else if ( e->flags&(EF_DEFINING|EF_GRATE) )	{
 				if ( nfacing == 0 )	{
 					if ( e->flags & EF_NO_FADE )
@@ -1038,7 +1038,7 @@ void draw_all_edges(automap *am)
 						gr_setcolor( gr_fade_table[8][e->color] );
 					g3_draw_line( Segment_points[e->verts[0]], Segment_points[e->verts[1]] );
 				} 	else {
-					am->drawingListBright[nbright++] = e-am->edges.get();
+					am->drawingListBright[nbright++] = e;
 				}
 			}
 		}
@@ -1056,8 +1056,8 @@ void draw_all_edges(automap *am)
 				j = i - incr;
 				while (j>=0 )	{
 					// compare element j and j+incr
-					v1 = am->edges[am->drawingListBright[j]].verts[0];
-					v2 = am->edges[am->drawingListBright[j+incr]].verts[0];
+					v1 = am->drawingListBright[j]->verts[0];
+					v2 = am->drawingListBright[j+incr]->verts[0];
 
 					if (Segment_points[v1].p3_z < Segment_points[v2].p3_z) {
 						// If not in correct order, them swap 'em
@@ -1076,7 +1076,7 @@ void draw_all_edges(automap *am)
 	for (i=0; i<nbright; i++ )	{
 		int color;
 		fix dist;
-		e = &am->edges[am->drawingListBright[i]];
+		e = am->drawingListBright[i];
 		p1 = &Segment_points[e->verts[0]];
 		p2 = &Segment_points[e->verts[1]];
 		dist = p1->p3_z - min_distance;
