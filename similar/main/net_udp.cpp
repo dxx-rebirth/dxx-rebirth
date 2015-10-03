@@ -3202,11 +3202,6 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 const unsigned reactor_invul_time_mini_scale = F1_0 * 60;
 const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
-unsigned primary = Netgame.DuplicatePowerups.get_primary_count();
-unsigned secondary = Netgame.DuplicatePowerups.get_secondary_count();
-#if defined(DXX_BUILD_DESCENT_II)
-	unsigned accessory = Netgame.DuplicatePowerups.get_accessory_count();
-#endif
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
@@ -3224,7 +3219,7 @@ unsigned secondary = Netgame.DuplicatePowerups.get_secondary_count();
 
 #define DXX_UDP_MENU_OPTIONS(VERB)	                                    \
 	DXX_##VERB##_TEXT("Game Options", game_label)	                     \
-	DXX_##VERB##_SLIDER(difftext, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
+	DXX_##VERB##_SLIDER(get_annotated_difficulty_string(), opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
 	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
 	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
 	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
@@ -3305,7 +3300,6 @@ namespace {
 
 class more_game_options_menu_items
 {
-	char difftext[sizeof("Difficulty: Trainee")];
 	char packstring[sizeof("99")];
 	char portstring[sizeof("65535")];
 	char srinvul[sizeof("Reactor life: 50 min")];
@@ -3321,6 +3315,27 @@ class more_game_options_menu_items
 #endif
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
 	menu_array m;
+	static const char *get_annotated_difficulty_string()
+	{
+		static const array<char[20], 5> text{{
+			"Difficulty: Trainee",
+			"Difficulty: Rookie",
+			"Difficulty: Hotshot",
+			"Difficulty: Ace",
+			"Difficulty: Insane"
+		}};
+		switch (const auto d = Netgame.difficulty)
+		{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				return text[d];
+			default:
+				return &text[3][16];
+		}
+	}
 public:
 	menu_array &get_menu_items()
 	{
@@ -3328,32 +3343,21 @@ public:
 	}
 	void update_difficulty_string()
 	{
-		if(Netgame.difficulty == 0) {
-			strcpy(difftext, "Difficulty: Trainee");
-		}
-		if(Netgame.difficulty == 1) {
-			strcpy(difftext, "Difficulty: Rookie");
-		}
-		if(Netgame.difficulty == 2) {
-			strcpy(difftext, "Difficulty: Hotshot");
-		}
-		if(Netgame.difficulty == 3) {
-			strcpy(difftext, "Difficulty: Ace");
-		}
-		if(Netgame.difficulty == 4) {
-			strcpy(difftext, "Difficulty: Insane");
-		}
+		/* Cast away const because newmenu_item uses `char *text` even
+		 * for fields where text is treated as `const char *`.
+		 */
+		m[opt_difficulty].text = const_cast<char *>(get_annotated_difficulty_string());
 	}
-	void update_extra_primary_string()
+	void update_extra_primary_string(unsigned primary)
 	{
 		snprintf(extraPrimary, sizeof(extraPrimary), "Primaries: %u", primary);
 	}
-	void update_extra_secondary_string()
+	void update_extra_secondary_string(unsigned secondary)
 	{
 		snprintf(extraSecondary, sizeof(extraSecondary), "Secondaries: %u", secondary);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	void update_extra_accessory_string()
+	void update_extra_accessory_string(unsigned accessory)
 	{
 		snprintf(extraAccessory, sizeof(extraAccessory), "Accessories: %u", accessory);
 	}
@@ -3400,11 +3404,14 @@ public:
 		update_spawn_invuln_string();
 		update_secluded_spawn_string();
 		update_kill_goal_string();
-		update_extra_primary_string();
-		update_extra_secondary_string();
+		auto primary = Netgame.DuplicatePowerups.get_primary_count();
+		auto secondary = Netgame.DuplicatePowerups.get_secondary_count();
 #if defined(DXX_BUILD_DESCENT_II)
-		update_extra_accessory_string();
+		auto accessory = Netgame.DuplicatePowerups.get_accessory_count();
+		update_extra_accessory_string(accessory);
 #endif
+		update_extra_primary_string(primary);
+		update_extra_secondary_string(secondary);
 		DXX_UDP_MENU_OPTIONS(ADD);
 #ifdef USE_TRACKER
 		const auto &tracker_addr = GameArg.MplTrackerAddr;
@@ -3421,7 +3428,17 @@ public:
 	}
 	void read() const
 	{
+		unsigned primary, secondary;
+#if defined(DXX_BUILD_DESCENT_II)
+		unsigned accessory;
+#endif
 		DXX_UDP_MENU_OPTIONS(READ);
+		auto &items = Netgame.DuplicatePowerups;
+		items.set_primary_count(primary);
+		items.set_secondary_count(secondary);
+#if defined(DXX_BUILD_DESCENT_II)
+		items.set_accessory_count(accessory);
+#endif
 		char *p;
 		auto pps = strtol(packstring, &p, 10);
 		if (!*p)
@@ -3539,22 +3556,19 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 			}
 			else if(citem == opt_extra_primary)
 			{
-				primary = menus[opt_extra_primary].value;
-				Netgame.DuplicatePowerups.set_primary_count(primary);
-				items->update_extra_primary_string();
+				auto primary = menus[opt_extra_primary].value;
+				items->update_extra_primary_string(primary);
 			}
 			else if(citem == opt_extra_secondary)
 			{
-				secondary = menus[opt_extra_secondary].value;
-				Netgame.DuplicatePowerups.set_secondary_count(secondary);
-				items->update_extra_secondary_string();
+				auto secondary = menus[opt_extra_secondary].value;
+				items->update_extra_secondary_string(secondary);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if(citem == opt_extra_accessory)
 			{
-				accessory = menus[opt_extra_accessory].value;
-				Netgame.DuplicatePowerups.set_accessory_count(accessory);
-				items->update_extra_accessory_string();
+				auto accessory = menus[opt_extra_accessory].value;
+				items->update_extra_accessory_string(accessory);
 			}
 #endif
 			else if (citem == opt_start_invul)
