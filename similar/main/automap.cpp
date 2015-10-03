@@ -924,7 +924,8 @@ void do_automap()
 	if (am->pause_game) {
 		window_set_visible(Game_wind, 0);
 	}
-	if (!am->pause_game)	{
+	else
+	{
 		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
 		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
 	}
@@ -972,19 +973,21 @@ void do_automap()
 
 void adjust_segment_limit(automap *am, int SegmentLimit)
 {
-	int i,e1;
+	int i;
 	Edge_info * e;
 
+	const auto &depth_array = am->depth_array;
+	const auto predicate = [&depth_array, SegmentLimit](const segnum_t &e1) {
+		return depth_array[e1] <= SegmentLimit;
+	};
 	for (i=0; i<=am->highest_edge_index; i++ )	{
 		e = &am->edges[i];
-		e->flags |= EF_TOO_FAR;
-		for (e1=0; e1<e->num_faces; e1++ )	{
-			ubyte depthlimit = am->depth_array[e->segnum[e1]];
-			if ( depthlimit <= SegmentLimit )	{
-				e->flags &= (~EF_TOO_FAR);
-				break;
-			}
-		}
+		// Unchecked for speed
+		const auto &&range = unchecked_partial_range(e->segnum.begin(), e->num_faces);
+		if (std::any_of(range.begin(), range.end(), predicate))
+			e->flags &= ~EF_TOO_FAR;
+		else
+			e->flags |= EF_TOO_FAR;
 	}
 }
 
