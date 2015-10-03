@@ -130,6 +130,27 @@ class ConfigureTests:
 			name = {'N' : 'test_' + name.replace(' ', '_')}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
+	class PCHAction:
+		def __init__(self,context):
+			self._context = context
+		def __call__(self,text,ext):
+			# Ignore caller-supplied text, since _Test always includes a
+			# definition of main().  Using the caller-supplied text
+			# would provide one main() in the PCH and another in the
+			# test which includes the PCH.
+			env = self._context.env
+			s = env['OBJSUFFIX']
+			env['OBJSUFFIX'] = '.h.gch'
+			result = self._context.TryCompile('''
+/* Define this here.  Use it in the file which includes the PCH.  If the
+ * compiler skips including the PCH, and does not fail for that reason
+ * alone, then it will fail when the symbol is used in the later test,
+ * since the only definition comes from the PCH.
+ */
+#define dxx_compiler_supports_pch
+			''', ext)
+			env['OBJSUFFIX'] = s
+			return result
 	class PreservedEnvironment:
 		# One empty list for all the defaults.  The comprehension
 		# creates copies, so it is safe for the default value to be
@@ -1295,19 +1316,17 @@ union U {
 U a{640};
 '''
 		self.Compile(context, text=f, msg='whether compiler supports constexpr union constructors', successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']})
-	@_implicit_test
-	def check_pch(self,context):
-		for how in [{'CXXFLAGS' : ['-x', 'c++-header']}]:
-			result = self._Compile(context, text='', msg='whether compiler supports pre-compiled headers', testflags=how)
-			if result:
-				self.pch_flags = how
-				return result
 	def _show_pch_count_message(self,context,which,user_setting):
 		count = user_setting if user_setting else 0
 		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))
 		return count > 0
+	implicit_tests.append(_implicit_test.RecordedTest('check_pch_compile', "assume C++ compiler can create pre-compiled headers"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_pch_use', "assume C++ compiler can use pre-compiled headers"))
 	@_custom_test
-	def _check_pch(self,context):
+	def _check_pch(self,context,
+		_testflags_compile_pch={'CXXFLAGS' : ['-x', 'c++-header']},
+		_testflags_use_pch={'CXXFLAGS' : ['-Winvalid-pch', '-include', None]}
+	):
 		self.pch_flags = None
 		# Always evaluate both
 		co = self._show_pch_count_message(context, 'own', self.user_settings.pch)
@@ -1316,8 +1335,21 @@ U a{640};
 		if not co and not cs:
 			return
 		context.Display('%s: checking when to compute pre-compiled header input *pch.cpp...%s\n' % (self.msgprefix, 'if missing' if self.user_settings.pch_cpp_assume_unchanged else 'always'))
-		if not self.check_pch(context):
-			raise SCons.Errors.StopError("C++ compiler does not support pre-compiled headers.")
+		result = self._Test(context, action=self.PCHAction(context), text='', msg='whether compiler can create pre-compiled headers', testflags=_testflags_compile_pch, calling_function='pch_compile')
+		if not result:
+			raise SCons.Errors.StopError("C++ compiler cannot create pre-compiled headers.")
+		_testflags_use_pch = _testflags_use_pch.copy()
+		_testflags_use_pch['CXXFLAGS'][-1] = str(context.lastTarget)[:-4]
+		result = self.Compile(context, text='''
+/* This symbol is defined in the PCH.  If the PCH is included, this
+ * symbol will preprocess away to nothing.  If the PCH is not included,
+ * then the compiler is not using PCHs as expected.
+ */
+dxx_compiler_supports_pch
+''', msg='whether compiler uses pre-compiled headers', testflags=_testflags_use_pch, calling_function='pch_use')
+		if not result:
+			raise SCons.Errors.StopError("C++ compiler cannot use pre-compiled headers.")
+		self.pch_flags = _testflags_compile_pch
 	@_custom_test
 	def _check_cxx11_explicit_delete(self,context):
 		# clang 3.4 warns when a named parameter to a deleted function
@@ -1784,13 +1816,13 @@ class PCHManager(object):
 		if user_settings.syspch:
 			self.syspch_cpp_filename = syspch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'syspch.cpp')
 			self.syspch_cpp_node = File(syspch_cpp_filename)
-			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target='%s.gch' % syspch_cpp_filename, source=self.syspch_cpp_node, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target='%s.gch' % syspch_cpp_filename, source=self.syspch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 		if user_settings.pch:
 			self.ownpch_cpp_filename = ownpch_cpp_filename = os.path.join(user_settings.builddir, pch_subdir, 'ownpch.cpp')
 			self.ownpch_cpp_node = File(ownpch_cpp_filename)
 			if syspch_object_node:
 				CXXFLAGS += ['-include', syspch_cpp_filename, '-Winvalid-pch']
-			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 			env.Depends(ownpch_object_node, File(os.path.join(self.user_settings.builddir, 'dxxsconf.h')))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
@@ -2638,18 +2670,21 @@ class DXXCommon(LazyObjectConstructor):
 		if target_string + ' ' in cxxcom:
 			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
 		env._dxx_cxxcom_no_prefix = cxxcom
+		distcc_path = self.user_settings.distcc
+		distcc_cxxcom = ('%s %s' % (distcc_path, cxxcom)) if distcc_path else cxxcom
+		env._dxx_cxxcom_no_ccache_prefix = distcc_cxxcom
+		ccache_path = self.user_settings.ccache
 		# Add ccache/distcc only for compile, not link
-		if self.user_settings.ccache:
-			cxxcom = '%s %s' % (self.user_settings.ccache, cxxcom)
-			distcc_path = self.user_settings.distcc
+		if ccache_path:
+			cxxcom = '%s %s' % (ccache_path, cxxcom)
 			if distcc_path is not None:
 				penv = self.env['ENV']
 				if distcc_path:
 					penv['CCACHE_PREFIX'] = distcc_path
 				elif distcc_path is not None:
 					penv.pop('CCACHE_PREFIX', None)
-		elif self.user_settings.distcc:
-			cxxcom = '%s %s' % (self.user_settings.distcc, cxxcom)
+		elif distcc_path:
+			cxxcom = distcc_cxxcom
 		env['CXXCOM'] = cxxcom
 		# Move target to end of link command
 		linkcom = env['LINKCOM']
