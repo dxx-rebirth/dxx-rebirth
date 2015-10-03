@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,6 +86,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 #define LEAVE_TIME 0x4000
 
@@ -988,15 +990,12 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 
 void draw_all_edges(automap *am)	
 {
-	int i,j,nbright;
+	int i,j;
+	unsigned nbright = 0;
 	ubyte nfacing,nnfacing;
 	Edge_info *e;
 	fix distance;
 	fix min_distance = 0x7fffffff;
-	g3s_point *p1, *p2;
-	
-	
-	nbright=0;
 
 	for (i=0; i<=am->highest_edge_index; i++ )	{
 		//e = &am->edges[Edge_used_list[i]];
@@ -1047,38 +1046,19 @@ void draw_all_edges(automap *am)
 	if ( min_distance < 0 ) min_distance = 0;
 
 	// Sort the bright ones using a shell sort
-	{
-		int i, j, incr, v1, v2;
-	
-		incr = nbright / 2;
-		while( incr > 0 )	{
-			for (i=incr; i<nbright; i++ )	{
-				j = i - incr;
-				while (j>=0 )	{
-					// compare element j and j+incr
-					v1 = am->drawingListBright[j]->verts[0];
-					v2 = am->drawingListBright[j+incr]->verts[0];
-
-					if (Segment_points[v1].p3_z < Segment_points[v2].p3_z) {
-						// If not in correct order, them swap 'em
-						std::swap(am->drawingListBright[j+incr], am->drawingListBright[j]);
-						j -= incr;
-					}
-					else
-						break;
-				}
-			}
-			incr = incr / 2;
-		}
-	}
-					
+	const auto &&range = unchecked_partial_range(am->drawingListBright.get(), nbright);
+	std::sort(range.begin(), range.end(), [am](const Edge_info *const a, const Edge_info *const b) {
+		const auto &v1 = a->verts[0];
+		const auto &v2 = b->verts[0];
+		return Segment_points[v1].p3_z < Segment_points[v2].p3_z;
+	});
 	// Draw the bright ones
-	for (i=0; i<nbright; i++ )	{
+	range_for (const auto e, range)
+	{
+		const auto p1 = &Segment_points[e->verts[0]];
+		const auto p2 = &Segment_points[e->verts[1]];
 		int color;
 		fix dist;
-		e = am->drawingListBright[i];
-		p1 = &Segment_points[e->verts[0]];
-		p2 = &Segment_points[e->verts[1]];
 		dist = p1->p3_z - min_distance;
 		// Make distance be 1.0 to 0.0, where 0.0 is 10 segments away;
 		if ( dist < 0 ) dist=0;
