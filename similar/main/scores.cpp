@@ -282,13 +282,8 @@ static void scores_rputs(int x, int y, char *buffer)
 	gr_string(FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
-/* Unimplemented overload to avoid spurious warnings from the
- * macro-based dispatcher.
- */
-void scores_rputs(int x, int y, const char *buffer);
 static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
 static void scores_rprintf(int x, int y, const char * format, ... )
-#define scores_rprintf(A1,A2,F,...)	dxx_call_printf_checked(scores_rprintf,scores_rputs,(A1,A2),(F),##__VA_ARGS__)
 {
 	va_list args;
 	char buffer[128];
