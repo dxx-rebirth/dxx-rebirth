@@ -1800,7 +1800,7 @@ static void collide_player_and_player(const vobjptridx_t player1, const vobjptri
 	return;
 }
 
-static objnum_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int weapon_index)
+static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
@@ -1983,11 +1983,11 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
 		auto objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+			objnum->ctype.powerup_info.count = vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		objnum = maybe_drop_primary_weapon_egg(playerobj, GAUSS_INDEX);
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+			objnum->ctype.powerup_info.count = vulcan_ammo;
 #endif
 
 		//	Drop the rest of the primary weapons
@@ -2001,7 +2001,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		objnum = maybe_drop_primary_weapon_egg(playerobj, OMEGA_INDEX);
 		if (objnum!=object_none)
-			Objects[objnum].ctype.powerup_info.count = (get_player_id(playerobj)==Player_num)?Omega_charge:MAX_OMEGA_CHARGE;
+			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? Omega_charge : MAX_OMEGA_CHARGE;
 #endif
 
 		//	Drop the secondary weapons
