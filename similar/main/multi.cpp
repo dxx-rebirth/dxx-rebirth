@@ -815,8 +815,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	{
 		const auto TheGoal = Netgame.KillGoal * 5;
 		if (((Game_mode & GM_TEAM)
-				? Players[killer_pnum].KillGoalCount
-				: team_kills[get_team(killer_pnum)]
+				? team_kills[get_team(killer_pnum)]
+				: Players[killer_pnum].KillGoalCount
 			) >= TheGoal)
 		{
 			if (killer_pnum==Player_num)
