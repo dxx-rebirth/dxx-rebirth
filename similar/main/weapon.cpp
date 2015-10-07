@@ -50,9 +50,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "physfs-serial.h"
 
+#include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "partial_range.h"
+
+static auto delayed_primary = -1;
+static auto delayed_secondary = -1;
 
 static int POrderList (int num);
 static int SOrderList (int num);
@@ -667,6 +671,19 @@ void auto_select_secondary_weapon()
 		}
 }
 
+void delayed_autoselect()
+{
+	if(delayed_primary > -1 && !Controls.state.fire_primary)
+	{
+		select_primary_weapon(nullptr, exchange(delayed_primary, -1), 1);
+	}
+	
+	if(delayed_secondary > -1 && !Controls.state.fire_secondary)
+	{
+		select_secondary_weapon(nullptr, exchange(delayed_secondary, -1), 1);
+	}
+}
+
 //	---------------------------------------------------------------------
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
@@ -693,8 +710,9 @@ int pick_up_secondary(int weapon_index,int count)
 	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		const auto weapon_order = SOrderList(weapon_index);
+		const auto cutpoint = SOrderList(255);
 		if (!(Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect) &&
-			weapon_order < SOrderList(255) &&
+			weapon_order < cutpoint &&
 			(
 				get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
 				weapon_order < SOrderList(Secondary_weapon)
@@ -712,7 +730,26 @@ int pick_up_secondary(int weapon_index,int count)
 				if (weapon_order < SOrderList(last ? SMART_MINE_INDEX : PROXIMITY_INDEX))
 					last = (weapon_index == SMART_MINE_INDEX);
 			}
+			
 #endif
+			if(PlayerCfg.DelayedAutoselect)
+			{
+				if(delayed_secondary == -1)
+				{
+					if(weapon_order < cutpoint &&
+						(
+							get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
+							weapon_order < SOrderList(Secondary_weapon)
+						)
+					)
+					delayed_secondary = weapon_index;
+				}
+				else
+				{
+					if (weapon_order < cutpoint && weapon_order < SOrderList(delayed_secondary))
+						delayed_secondary = weapon_index;
+				}
+			}
 		}
 	}
 
@@ -801,13 +838,30 @@ int pick_up_primary(int weapon_index)
 	}
 
 	get_local_player().primary_weapon_flags |= flag;
+	
+	const auto cutpoint = POrderList(255);
+	const auto weapon_order = POrderList(weapon_index);
 
 	if (!(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
 	{
-		const auto cutpoint = POrderList(255);
-		const auto weapon_order = POrderList(weapon_index);
 		if (weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index()))
 			select_primary_weapon(nullptr, weapon_index, 1);
+	}
+	else
+	{
+		if(PlayerCfg.DelayedAutoselect)
+		{
+			if(delayed_primary == -1)
+			{
+				 if(weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index()))
+					delayed_primary = weapon_index;
+			}
+			else
+			{
+				if (weapon_order < cutpoint && weapon_order < POrderList(delayed_primary))
+					delayed_primary = weapon_index;
+			}
+		}
 	}
 
 	PALETTE_FLASH_ADD(7,14,21);
