@@ -108,7 +108,7 @@ static void AppendIniArgs(const char *filename, Arglist &Args)
 	if (auto f = PHYSFSX_openReadBuffered(filename))
 	{
 		PHYSFSX_gets_line_t<1024> line;
-		while(!PHYSFS_eof(f) && Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
+		while (Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
 			static const char separator[] = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))

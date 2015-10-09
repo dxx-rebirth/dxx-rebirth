@@ -140,11 +140,9 @@ int ReadConfigFile()
 	}
 
 	// to be fully safe, assume the whole cfg consists of one big line
-	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); !PHYSFS_eof(infile);)
+	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); const char *const eol = PHYSFSX_fgets(line, infile);)
 	{
-		PHYSFSX_fgets(line, infile);
 		const auto lb = line.begin();
-		const auto eol = std::find(lb, line.end(), 0);
 		if (eol == line.end())
 			continue;
 		auto eq = std::find(lb, eol, '=');

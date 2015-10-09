@@ -320,15 +320,15 @@ static void read_player_dxx(const char *filename)
 	plyr_read_stats();
 
 	auto f = PHYSFSX_openReadBuffered(filename);
-	if(!f || PHYSFS_eof(f))
+	if (!f)
 		return;
 
-	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f) && !PHYSFS_eof(f);)
+	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f);)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
 		if (!strcmp(line, WEAPON_REORDER_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line, f) && strcmp(line, END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -351,7 +351,7 @@ static void read_player_dxx(const char *filename)
 #endif
 		if (!strcmp(line,KEYBOARD_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line, f) && strcmp(line, END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -361,7 +361,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,JOYSTICK_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line, f) && strcmp(line, END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -374,7 +374,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,MOUSE_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line, f) && strcmp(line, END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -393,7 +393,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,WEAPON_KEYv2_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -413,7 +413,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,COCKPIT_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -435,7 +435,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -469,7 +469,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -483,7 +483,7 @@ static void read_player_dxx(const char *filename)
 		else if (!strcmp(line,PLX_VERSION_HEADER_TEXT)) // know the version this pilot was used last with - allow modifications
 		{
 			int v1=0,v2=0,v3=0;
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 				const char *value=splitword(line,'=');
 				if (!value)
@@ -507,7 +507,7 @@ static void read_player_dxx(const char *filename)
 #endif
 				}
 		}
-		else if (PHYSFS_eof(f) || !strcmp(line,END_TEXT))
+		else if (!strcmp(line,END_TEXT))
 		{
 			break;
 		}
@@ -517,7 +517,7 @@ static void read_player_dxx(const char *filename)
 		}
 		else
 		{
-			while(PHYSFSX_fgets(line,f) && !PHYSFS_eof(f) && strcmp(line,END_TEXT))
+			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
 			}
 		}
@@ -1365,12 +1365,9 @@ void read_netgame_profile(netgame_info *ng)
 		return;
 
 	// NOTE that we do not set any defaults here or even initialize netgame_info. For flexibility, leave that to the function calling this.
-	while (!PHYSFS_eof(file))
+	for (PHYSFSX_gets_line_t<50> line; const char *const eol = PHYSFSX_fgets(line, file);)
 	{
-		PHYSFSX_gets_line_t<50> line;
-		PHYSFSX_fgets(line, file);
 		const auto lb = line.begin();
-		const auto eol = std::find(lb, line.end(), 0);
 		if (eol == line.end())
 			continue;
 		auto eq = std::find(lb, eol, '=');

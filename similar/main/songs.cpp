@@ -114,7 +114,7 @@ static void songs_init()
 	else
 	{
 		PHYSFSX_gets_line_t<81> inputline;
-		while (!PHYSFS_eof(fp) && PHYSFSX_fgets(inputline, fp))
+		while (PHYSFSX_fgets(inputline, fp))
 		{
 			if ( strlen( inputline ) )
 			{
