@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "render.h"
 #include "laser.h"
+#include "event.h"
 #include "screens.h"
 #include "textures.h"
 #include "slew.h"

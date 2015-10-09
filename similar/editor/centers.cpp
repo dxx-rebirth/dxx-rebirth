@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "screens.h"
 #include "inferno.h"
+#include "event.h"
 #include "segment.h"
 #include "editor.h"
 #include "editor/esegment.h"

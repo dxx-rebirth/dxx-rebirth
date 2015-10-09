@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "event.h"
+#include "fwd-event.h"
 
 #ifdef __cplusplus
 #include <cstdint>

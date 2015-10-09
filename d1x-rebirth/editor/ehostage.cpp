@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "centers.h"
 #include "piggy.h"
 #include "u_mem.h"
+#include "event.h"
 
 #include "compiler-make_unique.h"
 

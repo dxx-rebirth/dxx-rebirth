@@ -18,6 +18,7 @@
 #ifdef __cplusplus
 #include <cassert>
 #include "window.h"
+#include "event.h"
 
 struct SDL_MouseButtonEvent;
 struct SDL_MouseMotionEvent;

@@ -51,6 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "cntrlcen.h"
 #include "gauges.h"
+#include "event.h"
 #include "key.h"
 #include "fuelcen.h"
 #include "sounds.h"

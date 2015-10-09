@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "event.h"
+#include "fwd-event.h"
 #include "gr.h"
 #include "console.h"
 

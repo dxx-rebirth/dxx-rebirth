@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"		// For NumTextures
 #include "dxxerror.h"
 #include "key.h"
+#include "event.h"
 #include "gamesave.h"
 #include "mission.h"
 

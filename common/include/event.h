@@ -6,13 +6,14 @@
  */
 // Event header file
 
-#ifndef _EVENT_H
-#define _EVENT_H
+#pragma once
+
+#include "fwd-event.h"
 #include "maths.h"
 
 #ifdef __cplusplus
 
-typedef enum event_type
+enum event_type : unsigned
 {
 	EVENT_IDLE = 0,
 	EVENT_QUIT,
@@ -45,7 +46,7 @@ typedef enum event_type
 	EVENT_UI_LISTBOX_MOVED,
 	EVENT_UI_LISTBOX_SELECTED,
 	EVENT_UI_USERBOX_DRAGGED
-} event_type;
+};
 
 // A vanilla event. Cast to the correct type of event according to 'type'.
 struct d_event
@@ -62,7 +63,7 @@ struct d_change_event : d_event
 {
 	int citem;
 	d_change_event(const int c) :
-		d_event(d_event{EVENT_NEWMENU_CHANGED}), citem(c)
+		d_event{EVENT_NEWMENU_CHANGED}, citem(c)
 	{
 	}
 };
@@ -71,40 +72,11 @@ struct d_select_event : d_event
 {
 	int citem;
 	d_select_event(const int c) :
-		d_event(d_event{EVENT_NEWMENU_SELECTED}), citem(c)
+		d_event{EVENT_NEWMENU_SELECTED}, citem(c)
 	{
 	}
 };
 
-int event_init();
-
-// Sends input events to event handlers
-void event_poll();
-void event_flush();
-
-// Set and call the default event handler
-int call_default_handler(const d_event &event);
-
-// Send an event to the front window as first priority, then to the windows behind if it's not modal (editor), then the default handler
-void event_send(const d_event &event);
-
-// Sends input, idle and draw events to event handlers
-void event_process();
-
-void event_enable_focus();
-void event_disable_focus();
-static inline void event_toggle_focus(int activate_focus)
-{
-	if (activate_focus)
-		event_enable_focus();
-	else
-		event_disable_focus();
-}
-
-// See how long we were idle for
-void event_reset_idle_seconds();
 fix event_get_idle_seconds();
-
-#endif
 
 #endif

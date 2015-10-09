@@ -18,6 +18,7 @@
 #include <time.h>
 #include <SDL.h>
 #include "window.h"
+#include "event.h"
 #include "console.h"
 #include "args.h"
 #include "gr.h"

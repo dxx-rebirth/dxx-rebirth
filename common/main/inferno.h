@@ -23,13 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _INFERNO_H
-#define _INFERNO_H
+#pragma once
 
-#include <algorithm>
+#include "fwd-event.h"
 #include "ntstring.h"
-
-struct d_event;
 
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x
@@ -73,5 +70,3 @@ extern int MacHog;
 
 // Default event handler for everything except the editor
 int standard_handler(const d_event &event);
-
-#endif

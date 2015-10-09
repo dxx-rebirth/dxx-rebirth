@@ -18,6 +18,7 @@
 #include "window.h"
 #include "u_mem.h"
 #include "dxxerror.h"
+#include "event.h"
 
 struct window
 {

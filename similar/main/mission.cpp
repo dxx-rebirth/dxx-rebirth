@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "physfs_list.h"
 #include "bm.h"
+#include "event.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
 #endif
