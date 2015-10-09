@@ -1946,6 +1946,16 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
 
+static const char *get_gauge_width_string(unsigned v)
+{
+	if (v > 199)
+		return "200";
+	return &"100"[(v > 99)
+		? 0
+		: (v > 9) ? 1 : 2
+	];
+}
+
 static void draw_numerical_display(int shield, int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_curfont( GAME_FONT );
@@ -1956,12 +1966,7 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	const auto a = [](int xb, int v, int y) {
 		int w;
-		gr_get_string_size((v > 199)
-			? "200"
-			: &"100"[(v > 99)
-				? 0
-				: (v > 9) ? 1 : 2
-			], &w, nullptr, nullptr);
+		gr_get_string_size(get_gauge_width_string(v), &w, nullptr, nullptr);
 		gr_printf(xb - (w / 2), y, "%d", v);
 	};
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
@@ -2338,7 +2343,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 
 	//draw numbers
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0", &ew, nullptr, nullptr);
+	gr_get_string_size(get_gauge_width_string(energy), &ew, nullptr, nullptr);
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned y = SB_ENERGY_NUM_Y;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2383,7 +2388,7 @@ static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic mu
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 
-	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0", &sw, nullptr, nullptr);
+	gr_get_string_size(get_gauge_width_string(shield), &sw, nullptr, nullptr);
 	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
