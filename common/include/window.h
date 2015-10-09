@@ -36,11 +36,7 @@ enum class window_event_result
 void arch_init(void);
 
 template <typename T>
-class window_subfunction_t
-{
-public:
-	typedef window_event_result (*type)(window *menu,const d_event &event, T *userdata);
-};
+using window_subfunction = window_event_result (*)(window *menu,const d_event &event, T *userdata);
 
 class unused_window_userdata_t;
 static const unused_window_userdata_t *const unused_window_userdata = nullptr;
@@ -54,7 +50,7 @@ struct ignore_window_pointer_t
 {
 };
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction_t<void>::type event_callback, void *userdata, const void *createdata);
+window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
 
 static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, window *w)
 {
@@ -64,17 +60,17 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
 
 template <typename T1, typename T2 = const void>
-static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<T1>::type event_callback, T1 *data, T2 *createdata = nullptr)
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<T1> event_callback, T1 *data, T2 *createdata = nullptr)
 {
-	auto win = window_create(src, x, y, w, h, reinterpret_cast<window_subfunction_t<void>::type>(event_callback), static_cast<void *>(data), static_cast<const void *>(createdata));
+	auto win = window_create(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(data), static_cast<const void *>(createdata));
 	set_embedded_window_pointer(data, win);
 	return win;
 }
 
 template <typename T1, typename T2 = const void>
-static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, typename window_subfunction_t<const T1>::type event_callback, const T1 *userdata, T2 *createdata = nullptr)
+static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<const T1> event_callback, const T1 *userdata, T2 *createdata = nullptr)
 {
-	return window_create(src, x, y, w, h, reinterpret_cast<window_subfunction_t<void>::type>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
+	return window_create(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
 }
 
 extern int window_close(window *wind);
