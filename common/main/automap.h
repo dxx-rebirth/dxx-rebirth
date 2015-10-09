@@ -42,7 +42,7 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fwdobject.h"
 #include "ntstring.h"
-#include "window.h"
+#include "fwd-window.h"
 
 struct vms_vector;
 

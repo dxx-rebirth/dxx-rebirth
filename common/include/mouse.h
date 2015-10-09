@@ -17,7 +17,7 @@
 
 #ifdef __cplusplus
 #include <cassert>
-#include "window.h"
+#include "fwd-window.h"
 #include "event.h"
 
 struct SDL_MouseButtonEvent;
