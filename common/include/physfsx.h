@@ -87,16 +87,6 @@ static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>:
 	return PHYSFS_read(file, v, S, C);
 }
 
-template <typename V>
-__attribute_always_inline()
-static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	typedef typename tt::remove_extent<V>::type V0;
-	static_assert(tt::is_pod<V0>::value, "C array of non-POD elements read");
-	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
-	return PHYSFSX_check_read(file, &v[0], S, C);
-}
-
 template <typename V, std::size_t N>
 __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_file *file, array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
@@ -130,16 +120,6 @@ static inline typename tt::enable_if<!tt::is_integral<V>::value, PHYSFS_sint64>:
 	static_assert(tt::is_pod<V>::value, "non-POD non-integral value written");
 	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_write(file, v, S, C);
-}
-
-template <typename V, std::size_t N>
-__attribute_always_inline()
-static inline typename tt::enable_if<tt::is_array<V>::value, PHYSFS_sint64>::type PHYSFSX_check_write(PHYSFS_file *file, const V (&v)[N], PHYSFS_uint32 S, PHYSFS_uint32 C)
-{
-	typedef typename tt::remove_extent<V>::type V0;
-	static_assert(tt::is_pod<V0>::value, "C array of non-POD elements written");
-	DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C);
-	return PHYSFSX_check_write(file, &v[0], S, C);
 }
 
 template <typename V, std::size_t N>
