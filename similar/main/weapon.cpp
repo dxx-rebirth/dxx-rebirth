@@ -833,6 +833,48 @@ void check_to_use_primary_super_laser()
 }
 #endif
 
+static void maybe_autoselect_vulcan_weapon(player &plr)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	const auto weapon_flag_mask = HAS_VULCAN_FLAG;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const auto weapon_flag_mask = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
+#endif
+	const auto primary_weapon_flags = plr.primary_weapon_flags;
+	if (!(primary_weapon_flags & weapon_flag_mask))
+		return;
+	const auto cutpoint = POrderList(255);
+	auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
+#if defined(DXX_BUILD_DESCENT_I)
+	const auto weapon_order_vulcan = POrderList(primary_weapon_index_t::VULCAN_INDEX);
+	const auto better = weapon_order_vulcan;
+#elif defined(DXX_BUILD_DESCENT_II)
+	/* If a weapon is missing, pretend its auto-select priority is equal
+	 * to cutpoint.  Priority at or worse than cutpoint is never
+	 * auto-selected.
+	 */
+	const auto weapon_order_vulcan = (primary_weapon_flags & HAS_VULCAN_FLAG)
+		? POrderList(primary_weapon_index_t::VULCAN_INDEX)
+		: cutpoint;
+	const auto weapon_order_gauss = (primary_weapon_flags & HAS_GAUSS_FLAG)
+		? POrderList(primary_weapon_index_t::GAUSS_INDEX)
+		: cutpoint;
+	/* Set better to whichever vulcan-based weapon is higher priority.
+	 * The chosen weapon might still be worse than cutpoint.
+	 */
+	const auto better = (weapon_order_vulcan < weapon_order_gauss)
+		? weapon_order_vulcan
+		: (weapon_index = primary_weapon_index_t::GAUSS_INDEX, weapon_order_gauss);
+#endif
+	if (better >= cutpoint)
+		/* Preferred weapon is not auto-selectable */
+		return;
+	if (better >= POrderList(get_mapped_weapon_index(Primary_weapon)))
+		/* Preferred weapon is not as desirable as the current weapon */
+		return;
+	select_primary_weapon(nullptr, weapon_index, 1);
+}
+
 //called when ammo (for the vulcan cannon) is picked up
 //	Returns the amount picked up
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
@@ -851,18 +893,10 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 		ammo_count += (max - plr.vulcan_ammo);
 		plr.vulcan_ammo = max;
 	}
-	if (!change_weapon ||
-		!(plr.primary_weapon_flags & HAS_VULCAN_FLAG) ||
-		old_ammo ||
-		(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
-		return ammo_count;
-	const auto cutpoint = POrderList(255);
-	const auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
-	const auto powi = POrderList(weapon_index);
-	if (powi < cutpoint &&
-		powi < POrderList(get_mapped_weapon_index(Primary_weapon)))
-		select_primary_weapon(nullptr, weapon_index, 1);
-
+	if (change_weapon &&
+		!old_ammo &&
+		!(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
+		maybe_autoselect_vulcan_weapon(plr);
 	return ammo_count;	//return amount used
 }
 
