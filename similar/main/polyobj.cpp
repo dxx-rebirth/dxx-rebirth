@@ -490,7 +490,6 @@ void free_model(polymodel *po)
 }
 
 array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
-array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 
 //draw a polygon model
 
@@ -516,6 +515,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 					po = &Polygon_models[po->simpler_model-1];
 			}
 
+	array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 	if (alt_textures)
    {
 		for (int i=0;i<po->n_textures;i++) {

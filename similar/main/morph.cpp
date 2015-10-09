@@ -377,6 +377,7 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 		if (mn == submodel_num) {
  			int i;
 
+			array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 			for (i=0;i<pm->n_textures;i++)		{
 				texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]];
 				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
