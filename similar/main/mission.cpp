@@ -648,14 +648,11 @@ int load_mission_ham()
 		char althog[PATH_MAX];
 		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, static_cast<const char *>(*altham));
 		char *p = althog + sizeof(MISSION_DIR) - 1;
-		int exists = PHYSFSX_exists(p,1);
+		int exists = PHYSFSX_contfile_init(p, 0);
 		if (!exists) {
-			p = althog;
-			exists = PHYSFSX_exists(p,1);
+			exists = PHYSFSX_contfile_init(p = althog, 0);
 		}
-		if (exists)
-			PHYSFSX_contfile_init(p, 0);
-		bm_read_extra_robots(*Current_mission->alternate_ham_file, 2);
+		bm_read_extra_robots(*altham, 2);
 		if (exists)
 			PHYSFSX_contfile_close(p);
 		return 1;
