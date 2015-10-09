@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -161,8 +162,6 @@ int gamedata_init()
 // Read compiled properties data from descent.pig
 void properties_read_cmp(PHYSFS_file * fp)
 {
-	int i;
-
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
@@ -209,14 +208,14 @@ void properties_read_cmp(PHYSFS_file * fp)
 
 	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
 	
-	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dying_modelnums[i] = PHYSFSX_readInt(fp);
-	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dead_modelnums[i] = PHYSFSX_readInt(fp);
+	range_for (auto &i, Dying_modelnums)
+		i = PHYSFSX_readInt(fp);
+	range_for (auto &i, Dead_modelnums)
+		i = PHYSFSX_readInt(fp);
 
 	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
-	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
+	range_for (auto &i, ObjBitmapPtrs)
+		i = PHYSFSX_readShort(fp);
 
 	player_ship_read(&only_player_ship, fp);
 
@@ -229,8 +228,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 	Num_total_object_types = PHYSFSX_readInt(fp);
 	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );
 	PHYSFS_read( fp, ObjId, sizeof(ubyte), MAX_OBJTYPE );
-	for (i = 0; i < MAX_OBJTYPE; i++)
-		ObjStrength[i] = PHYSFSX_readFix(fp);
+	range_for (auto &i, ObjStrength)
+		i = PHYSFSX_readFix(fp);
 
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 	Reactors[0].n_guns = PHYSFSX_readInt(fp);
@@ -245,12 +244,8 @@ void properties_read_cmp(PHYSFS_file * fp)
 
         #ifdef EDITOR
         //Build tmaplist
-        Num_tmaps = 0;
-         for (i=0; i < TextureEffects; i++)
-          Num_tmaps++;
-         for (uint_fast32_t i = 0; i < Num_effects; i++)
-          if (Effects[i].changing_wall_texture >= 0)
-           Num_tmaps++;
+	auto &&effect_range = partial_range(Effects, Num_effects);
+	Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
