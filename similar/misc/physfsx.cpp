@@ -34,7 +34,6 @@ const array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
 {
-	PHYSFS_sint64 t = PHYSFS_tell(fp);
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
 	if (r <= 0)
 		return DXX_POISON_MEMORY(buf, buf + n, 0xcc), nullptr;
@@ -42,7 +41,8 @@ char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp
 	const auto cleanup = [&]{
 		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), p;
 	};
-	for (char *e = buf + r;;)
+	char *const e = &buf[r];
+	for (;;)
 	{
 		if (p == e)
 		{
@@ -64,7 +64,7 @@ char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp
 		}
 		++p;
 	}
-	PHYSFS_seek(fp, t + (p - buf) + 1);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + p - e + 1);
 	return cleanup();
 }
 
