@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 #ifdef __cplusplus
-#include "fwdwall.h"
+#include "fwd-wall.h"
 #include "pack.h"
 
 struct WALL_IS_DOORWAY_mask_t

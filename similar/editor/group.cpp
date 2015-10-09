@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "fuelcen.h"
 #include "kdefs.h"
-#include "fwdwall.h"
+#include "fwd-wall.h"
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
