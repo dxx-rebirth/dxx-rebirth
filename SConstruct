@@ -2002,6 +2002,7 @@ class PCHManager(object):
 		self._compute_indirect_includes()
 		own_header_inclusion_threshold = self.user_settings.pch
 		sys_header_inclusion_threshold = self.user_settings.syspch
+		configured_threshold = 0x7fffffff if self.user_settings.pch_cpp_exact_counts else None
 		# defaultdict with key=name of tuple of active preprocessor
 		# guards, value=tuple of (included file, count of times file was
 		# seen with this set of guards, count of times file would be
@@ -2021,6 +2022,7 @@ class PCHManager(object):
 				threshold = own_header_inclusion_threshold
 			if not threshold:
 				continue
+			count_threshold = configured_threshold or threshold
 			g = usage_dict.get((), 0)
 			# As a special case, if this header is included
 			# without any preprocessor guards, ignore all the
@@ -2031,14 +2033,14 @@ class PCHManager(object):
 			while guards:
 				preprocessor_guard_directives, local_count_seen = guards.pop()
 				total_count_seen = local_count_seen
-				if total_count_seen < threshold:
+				if total_count_seen < count_threshold:
 					# If not eligible on its own, add in the count from
 					# preprocessor guards that are always true when this
 					# set of guards is true.  Since the scanner does not
 					# normalize preprocessor directives, this is a
 					# conservative count of always-true guards.
 					g = preprocessor_guard_directives
-					while g and total_count_seen < threshold:
+					while g and total_count_seen < count_threshold:
 						g = g[:-1]
 						total_count_seen += usage_dict.get(g, 0)
 					if total_count_seen < threshold:
@@ -2084,8 +2086,7 @@ class PCHManager(object):
 		return generated_pch_lines
 
 	def _compute_indirect_includes(self):
-		own_header_inclusion_threshold = self.user_settings.pch
-		sys_header_inclusion_threshold = self.user_settings.syspch
+		own_header_inclusion_threshold = None if self.user_settings.pch_cpp_exact_counts else self.user_settings.pch
 		# Count how many times each header is used for each preprocessor
 		# guard combination.  After the outer loop finishes,
 		# files_included is a dictionary that maps the name of the
@@ -2403,6 +2404,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': BoolVariable,
 				'arguments': (
 					('pch_cpp_assume_unchanged', False, 'assume text of *pch.cpp is unchanged'),
+					('pch_cpp_exact_counts', False, None),
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
