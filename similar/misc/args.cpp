@@ -223,10 +223,9 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.SysWindow 		= 1;
 		else if (!d_stricmp(p, "-noborders"))
 			GameArg.SysNoBorders 		= 1;
-#if defined(DXX_BUILD_DESCENT_I)
 		else if (!d_stricmp(p, "-notitles"))
 			GameArg.SysNoTitles 		= 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 		else if (!d_stricmp(p, "-nomovies"))
 			GameArg.SysNoMovies 		= 1;
 #endif

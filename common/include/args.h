@@ -87,6 +87,7 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysAutoRecordDemo;
 	bool SysWindow;
 	bool SysNoBorders;
+	bool SysNoTitles;
 	bool SysAutoDemo;
 	bool CtlNoJoystick;
 	bool SndNoSound;
@@ -98,7 +99,6 @@ struct Arg : prohibit_void_ptr<Arg>
 #endif
 	bool GfxSkipHiresFNT;
 #ifdef DXX_BUILD_DESCENT_I
-	bool SysNoTitles;
 	bool EdiNoBm;
 #endif
 #ifdef DXX_BUILD_DESCENT_II

@@ -207,11 +207,10 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 
 void show_titles(void)
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	songs_play_song( SONG_TITLE, 1 );
-
 	if (GameArg.SysNoTitles)
 		return;
+#if defined(DXX_BUILD_DESCENT_I)
+	songs_play_song( SONG_TITLE, 1 );
 
 	const char *publisher =  "macplay.pcx";	// Mac Shareware
 	if (!PHYSFSX_exists(publisher,1))
@@ -313,10 +312,10 @@ void show_titles(void)
 
 void show_order_form()
 {
-#if defined(DXX_BUILD_DESCENT_I)
 	if (GameArg.SysNoTitles)
 		return;
 
+#if defined(DXX_BUILD_DESCENT_I)
 	const char *exit_screen = "warning.pcx";	// D1 Registered
 	if ((PHYSFSX_exists(exit_screen, 1)) ||
 		// D1 Mac OEM Demo
