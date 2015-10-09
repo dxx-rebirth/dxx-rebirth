@@ -1078,7 +1078,7 @@ void save_screen_shot(int automap_flag)
 		return;
 	}
 
-	stop_time();
+	pause_game_world_time p;
 
 	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
@@ -1097,6 +1097,4 @@ void save_screen_shot(int automap_flag)
 #endif
 
 	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
-
-	start_time();
 }

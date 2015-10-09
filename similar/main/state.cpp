@@ -830,7 +830,8 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	}
 #endif
 
-	stop_time();
+	{
+		pause_game_world_time p;
 
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', DESC_LENGTH+1);
@@ -844,7 +845,6 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	{
 		if (!(filenum = state_get_save_file(filename, desc, blind_save)))
 		{
-			start_time();
 			return 0;
 		}
 	}
@@ -881,7 +881,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 		}
 	}
 #endif
-        start_time();
+	}
 
 	rval = state_save_all_sub(filename, desc);
 
@@ -909,7 +909,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		return 0;
 	}
 
-        stop_time();
+	pause_game_world_time p;
 
 //Save id
 	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
@@ -1202,7 +1202,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFS_write(fp, &Netgame.numconnected, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.level_time, sizeof(int), 1);
 	}
-	start_time();
 	return 1;
 }
 
@@ -1253,7 +1252,8 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 		return 0;
 	}
 
-	stop_time();
+	{
+		pause_game_world_time p;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (filename_override) {
@@ -1263,7 +1263,6 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 #endif
 	if (!(filenum = state_get_restore_file(filename, blind)))
 	{
-		start_time();
 		return 0;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1299,11 +1298,10 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 		int choice;
 		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
 		if ( choice != 0 )	{
-			start_time();
 			return 0;
 		}
 	}
-	start_time();
+	}
 	return state_restore_all_sub(filename, secret);
 }
 

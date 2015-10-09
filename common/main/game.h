@@ -171,6 +171,13 @@ extern int Mark_count;      // number of debugging marks set
 extern char faded_in;
 extern int last_drawn_cockpit;
 
+class pause_game_world_time
+{
+public:
+	pause_game_world_time();
+	~pause_game_world_time();
+};
+
 extern void stop_time(void);
 extern void start_time(void);
 extern void reset_time(void);       // called when starting level

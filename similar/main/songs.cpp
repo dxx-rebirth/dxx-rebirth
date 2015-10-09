@@ -307,16 +307,14 @@ static int songs_have_cd()
 #if defined(DXX_BUILD_DESCENT_I)
 static void redbook_repeat_func()
 {
-	stop_time();
+	pause_game_world_time p;
 	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
-	start_time();
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 static void play_credits_track()
 {
-	stop_time();
+	pause_game_world_time p;
 	songs_play_song(SONG_CREDITS, 1);
-	start_time();
 }
 #endif
 
@@ -454,10 +452,9 @@ int songs_play_song( int songnum, int repeat )
 
 static void redbook_first_song_func()
 {
-	stop_time();
+	pause_game_world_time p;
 	Song_playing = -1; // Playing Redbook tracks will not modify Song_playing. To repeat we must reset this so songs_play_level_song does not think we want to re-play the same song again.
 	songs_play_level_song(1, 0);
-	start_time();
 }
 
 // play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value

@@ -1293,7 +1293,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 	bmp = &GameBitmaps[i];
 
 	if ( bmp->bm_flags & BM_FLAG_PAGED_OUT ) {
-		stop_time();
+		pause_game_world_time p;
 
 	ReDoIt:
 		PHYSFSX_fseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
@@ -1407,7 +1407,6 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 		compute_average_rgb(bmp, bmp->avg_color_rgb);
 
-		start_time();
 	}
 
 	if ( GameArg.SysLowMem ) {

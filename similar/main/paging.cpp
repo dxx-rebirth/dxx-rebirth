@@ -317,7 +317,7 @@ static void paging_touch_walls()
 
 void paging_touch_all()
 {
-	stop_time();
+	pause_game_world_time p;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
@@ -355,7 +355,5 @@ void paging_touch_all()
 	paging_touch_vclip(Vclip[VCLIP_PLAYER_APPEARANCE]);
 	paging_touch_vclip(Vclip[VCLIP_POWERUP_DISAPPEARANCE]);
 
-	start_time();
 	reset_cockpit();		//force cockpit redraw next time
 }
-

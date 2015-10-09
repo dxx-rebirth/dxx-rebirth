@@ -1345,9 +1345,10 @@ static window_event_result HandleTestKey(int key)
 
 #ifdef EDITOR
 		case KEY_DEBUGGED+KEY_Q:
-			stop_time();
+			{
+				pause_game_world_time p;
 			dump_used_textures_all();
-			start_time();
+			}
 			break;
 #endif
 

@@ -338,9 +338,25 @@ int set_screen_mode(int sm)
 	return 1;
 }
 
-static int time_paused=0;
+namespace {
 
-void stop_time()
+class game_world_time_paused
+{
+	unsigned time_paused;
+public:
+	explicit operator bool() const
+	{
+		return time_paused;
+	}
+	void increase_pause_count();
+	void decrease_pause_count();
+};
+
+}
+
+static game_world_time_paused time_paused;
+
+void game_world_time_paused::increase_pause_count()
 {
 	if (time_paused==0) {
 		const fix64 time = timer_update();
@@ -352,14 +368,34 @@ void stop_time()
 	time_paused++;
 }
 
-void start_time()
+void game_world_time_paused::decrease_pause_count()
 {
-	time_paused--;
-	Assert(time_paused >= 0);
+	Assert(time_paused > 0);
+	--time_paused;
 	if (time_paused==0) {
 		const fix64 time = timer_update();
 		last_timer_value = time - last_timer_value;
 	}
+}
+
+void start_time()
+{
+	time_paused.decrease_pause_count();
+}
+
+void stop_time()
+{
+	time_paused.increase_pause_count();
+}
+
+pause_game_world_time::pause_game_world_time()
+{
+	stop_time();
+}
+
+pause_game_world_time::~pause_game_world_time()
+{
+	start_time();
 }
 
 static void game_flush_common_inputs()
@@ -460,7 +496,7 @@ void save_screen_shot(int automap_flag)
         char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
 	palette_array_t pal;
 
-	stop_time();
+	pause_game_world_time p;
 
 	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
@@ -488,8 +524,6 @@ void save_screen_shot(int automap_flag)
 	gr_set_current_canvas(screen_canv);
 	gr_ubitmap(temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
-
-	start_time();
 }
 
 #endif

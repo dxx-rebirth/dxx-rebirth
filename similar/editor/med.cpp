@@ -238,7 +238,7 @@ int ExitEditor()
 
 int	GotoGameScreen()
 {
-	stop_time();
+	pause_game_world_time p;
 
 //@@	init_player_stats();
 //@@
@@ -256,8 +256,6 @@ int	GotoGameScreen()
 	}
 
 	ai_reset_all_paths();
-
-	start_time();
 
 	ModeFlag = 3;
 	return 1;
