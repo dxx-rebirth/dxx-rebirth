@@ -315,15 +315,13 @@ static const char *splitword(char *line, char c)
 	return p;
 }
 
-static int read_player_dxx(const char *filename)
+static void read_player_dxx(const char *filename)
 {
-	int rc = 0;
-
 	plyr_read_stats();
 
 	auto f = PHYSFSX_openReadBuffered(filename);
 	if(!f || PHYSFS_eof(f))
-		return errno;
+		return;
 
 	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f) && !PHYSFS_eof(f);)
 	{
@@ -524,7 +522,6 @@ static int read_player_dxx(const char *filename)
 			}
 		}
 	}
-	return rc;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
