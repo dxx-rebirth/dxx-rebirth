@@ -193,6 +193,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 
 #if defined(DXX_BUILD_DESCENT_II)
 int intro_played = 0;
+#endif
 
 static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
 {
@@ -203,7 +204,6 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		)
 		show_title_screen(filename, 1, 1);
 }
-#endif
 
 void show_titles(void)
 {
@@ -212,15 +212,11 @@ void show_titles(void)
 #if defined(DXX_BUILD_DESCENT_I)
 	songs_play_song( SONG_TITLE, 1 );
 
-	const char *publisher =  "macplay.pcx";	// Mac Shareware
-	if (!PHYSFSX_exists(publisher,1))
-	{
-		publisher = "mplaycd.pcx";	// Mac Registered
-	if (!PHYSFSX_exists(publisher,1))
-		publisher = "iplogo1.pcx";	// PC. Only down here because it's lowres ;-)
-	}
-
-	show_title_screen( publisher, 1, 1 );
+	show_first_found_title_screen(
+		"macplay.pcx",	// Mac Shareware
+		"mplaycd.pcx",	// Mac Registered
+		"iplogo1.pcx"	// PC. Only down here because it's lowres ;-)
+	);
 	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
 	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx",1))?"descenth.pcx":"descent.pcx"), 1, 1 );
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -316,14 +312,11 @@ void show_order_form()
 		return;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	const char *exit_screen = "warning.pcx";	// D1 Registered
-	if ((PHYSFSX_exists(exit_screen, 1)) ||
-		// D1 Mac OEM Demo
-		(exit_screen = "apple.pcx", PHYSFSX_exists(exit_screen,1)) ||
-		// D1 Demo
-		(exit_screen = "order01.pcx", PHYSFSX_exists(exit_screen,1))
-		)
-		show_title_screen(exit_screen, 1, 1);
+	show_first_found_title_screen(
+		"warning.pcx",	// D1 Registered
+		"apple.pcx",	// D1 Mac OEM Demo
+		"order01.pcx"	// D1 Demo
+	);
 #elif defined(DXX_BUILD_DESCENT_II)
 #ifndef EDITOR
 	key_flush();
