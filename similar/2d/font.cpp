@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <stdarg.h>
@@ -41,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "physfsx.h"
 #include "gamefont.h"
+#include "byteutil.h"
 #include "console.h"
 #include "config.h"
 #include "inferno.h"
@@ -957,19 +959,21 @@ grs_font_ptr gr_init_font( const char * fontname )
 
 		ptr = font->ft_data;
 
-		for (int i=0; i < nchars; i++ ) {
-			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
-			font->ft_chars[i] = ptr;
-			if (font->ft_flags & FT_COLOR)
-				ptr += font->ft_widths[i] * font->ft_h;
-			else
-				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
-
+		auto w = font->ft_widths;
+		const unsigned is_color = font->ft_flags & FT_COLOR;
+		const unsigned ft_h = font->ft_h;
+		std::generate_n(font->ft_chars.get(), nchars, [is_color, ft_h, &w, &ptr]{
+			const unsigned s = INTEL_SHORT(*w);
+			if (words_bigendian)
+				*w = static_cast<uint16_t>(s);
+			++w;
+			const auto r = ptr;
+			ptr += ft_h * (is_color ? s : BITS_TO_BYTES(s));
+			return r;
+		});
 	} else  {
 
 		font->ft_data   = font_data.get();
-		font->ft_chars.reset();
 		font->ft_widths = NULL;
 
 		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
