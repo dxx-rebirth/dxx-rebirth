@@ -312,9 +312,10 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 	if (fading)
 #endif
 	{
-		if ( obj->rtype.pobj_info.alt_textures > 0 )
+		const unsigned ati = static_cast<unsigned>(obj->rtype.pobj_info.alt_textures) - 1;
+		if (ati < multi_player_textures.size())
 		{
-			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
+			alt_textures = multi_player_textures[ati];
 		}
 	}
 
@@ -462,8 +463,9 @@ static void draw_polygon_object(const vobjptridx_t obj)
 				draw_cloaked_object(obj,light,engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10);
 		} else {
 			alternate_textures alt_textures;
-			if ( obj->rtype.pobj_info.alt_textures > 0 )
-				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
+			const unsigned ati = static_cast<unsigned>(obj->rtype.pobj_info.alt_textures) - 1;
+			if (ati < multi_player_textures.size())
+				alt_textures = multi_player_textures[ati];
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Snipers get bright when they fire.
