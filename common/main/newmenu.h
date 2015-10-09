@@ -31,6 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <algorithm>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
@@ -446,23 +448,40 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 template <typename T, typename B>
 class menu_bit_wrapper_t
 {
-	T &m_mask;
-	B m_bit;
+	using M = decltype(std::declval<const T &>() & std::declval<B>());
+	std::tuple<T &, B> m_data;
+	enum
+	{
+		m_mask = 0,
+		m_bit = 1,
+	};
+	T &get_mask()
+	{
+		return std::get<m_mask>(m_data);
+	}
+	const T &get_mask() const
+	{
+		return std::get<m_mask>(m_data);
+	}
+	B get_bit() const
+	{
+		return std::get<m_bit>(m_data);
+	}
 public:
 	constexpr menu_bit_wrapper_t(T &t, B bit) :
-		m_mask(t), m_bit(bit)
+		m_data(t, bit)
 	{
 	}
-	constexpr operator T() const
+	constexpr operator M() const
 	{
-		return m_mask & m_bit;
+		return get_mask() & get_bit();
 	}
 	menu_bit_wrapper_t &operator=(bool n)
 	{
 		if (n)
-			m_mask |= m_bit;
+			get_mask() |= get_bit();
 		else
-			m_mask &= ~m_bit;
+			get_mask() &= ~get_bit();
 		return *this;
 	}
 };

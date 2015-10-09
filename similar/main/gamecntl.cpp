@@ -1738,7 +1738,7 @@ public:
 	}
 };
 
-class cheat_menu_bit_invulnerability : public menu_bit_wrapper_t<uint32_t, uint32_t>
+class cheat_menu_bit_invulnerability : public menu_bit_wrapper_t<uint32_t, decltype(PLAYER_FLAGS_INVULNERABLE)>
 {
 	player &m_player;
 public:
@@ -1758,7 +1758,7 @@ public:
 	}
 };
 
-class cheat_menu_bit_cloak : public menu_bit_wrapper_t<uint32_t, uint32_t>
+class cheat_menu_bit_cloak : public menu_bit_wrapper_t<uint32_t, decltype(PLAYER_FLAGS_CLOAKED)>
 {
 	player &m_player;
 public:
