@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 		"\tIn a subdirectory called 'Data'\n"	\
 		DXX_HOGFILE_APPLICATION_BUNDLE	\
 		"Or use the -hogdir option to specify an alternate location."
-		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
+		UserError(DXX_MISSING_HOGFILE_ERROR_TEXT);
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)

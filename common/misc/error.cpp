@@ -86,6 +86,11 @@ void (Error_puts)(const char *func, const unsigned line, const char *str)
 	abort_print_exit_message(exit_message, len);
 }
 
+void (UserError_puts)(const char *str, std::size_t len)
+{
+	graceful_print_exit_message(str, len);
+}
+
 //terminates with error code 1, printing message
 void (Error)(const char *func, const unsigned line, const char *fmt,...)
 {
