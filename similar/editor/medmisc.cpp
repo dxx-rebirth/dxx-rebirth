@@ -36,7 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "func.h"
 #include "inferno.h"
-#include "ogl_init.h"
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
@@ -49,6 +48,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "meddraw.h"		// For draw_World
 #include "game.h"
 #include "kdefs.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #include "compiler-range_for.h"
 

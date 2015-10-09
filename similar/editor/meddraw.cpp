@@ -50,13 +50,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "screens.h"
 #include "texmap.h"
-#include "ogl_init.h"
 #include "object.h"
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 #include "segiter.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 using std::min;
 
