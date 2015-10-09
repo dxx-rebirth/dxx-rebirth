@@ -12,7 +12,7 @@
 #include "compiler-array.h"
 #include "objnum.h"
 #include "segnum.h"
-#include "fwdvalptridx.h"
+#include "fwd-valptridx.h"
 #include "maths.h"
 #include "fwdsegment.h"
 

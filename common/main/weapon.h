@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "objnum.h"
 #include "pack.h"
-#include "fwdvalptridx.h"
+#include "fwd-valptridx.h"
 #include "fwd-weapon.h"
 
 #include "compiler-type_traits.h"

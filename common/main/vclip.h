@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "compiler-array.h"
-#include "fwdvalptridx.h"
+#include "fwd-valptridx.h"
 
 
 #define VCLIP_SMALL_EXPLOSION       2

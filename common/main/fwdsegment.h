@@ -12,7 +12,7 @@
 #include "maths.h"
 
 #include <cstdint>
-#include "fwdvalptridx.h"
+#include "fwd-valptridx.h"
 #include "segnum.h"
 
 #include "dxxsconf.h"
