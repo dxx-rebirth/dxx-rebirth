@@ -1360,9 +1360,6 @@ void read_netgame_profile(netgame_info *ng)
 	char filename[PATH_MAX];
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(get_local_player().callsign));
-	if (!PHYSFSX_exists(filename,0))
-		return;
-
 	auto file = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 		return;

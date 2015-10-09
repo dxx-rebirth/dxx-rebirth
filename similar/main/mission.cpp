@@ -796,8 +796,6 @@ static int load_mission(const mle *mission)
 #endif
 	{
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
-		PHYSFSEXT_locateCorrectCase(buf);
-		if (PHYSFSX_exists(buf,1))
 			PHYSFSX_contfile_init(buf, 0);
 		set_briefing_filename(Briefing_text_filename, Current_mission_filename);
 		Ending_text_filename = Briefing_text_filename;

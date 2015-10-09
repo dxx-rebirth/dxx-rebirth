@@ -103,9 +103,8 @@ static void songs_init()
 
 		for (i = SONG_FIRST_LEVEL_SONG; i < predef; i++) {
 			snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
-			if (!PHYSFSX_exists(BIMSongs[i].filename,1))
-				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
-			if (!PHYSFSX_exists(BIMSongs[i].filename,1))
+			if (!PHYSFSX_exists(BIMSongs[i].filename,1) &&
+				!PHYSFSX_exists((snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG), BIMSongs[i].filename), 1))
 			{
 				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename)); // music not available
 				break;
