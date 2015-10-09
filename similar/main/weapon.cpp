@@ -701,9 +701,8 @@ int pick_up_secondary(int weapon_index,int count)
 			)
 		)
 			select_secondary_weapon(nullptr, weapon_index, 1);
-		else {
 #if defined(DXX_BUILD_DESCENT_II)
-			//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
+			//if it's a proxbomb or smart mine,
 			//we want to do a mini-auto-selection that applies to the drop bomb key
 
 			if (weapon_index_is_player_bomb(weapon_index) &&
@@ -713,7 +712,6 @@ int pick_up_secondary(int weapon_index,int count)
 					last = (weapon_index == SMART_MINE_INDEX);
 			}
 #endif
-		}
 	}
 
 	//note: flash for all but concussion was 7,14,21
