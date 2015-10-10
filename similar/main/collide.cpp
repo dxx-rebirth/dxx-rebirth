@@ -1000,7 +1000,7 @@ static void collide_robot_and_player(const vobjptridx_t robot, const vobjptridx_
 			ai_local		*ailp = &robot->ctype.ai_info.ail;
 			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK) {
 				Last_thief_hit_time = GameTime64;
-				attempt_to_steal_item(robot, get_player_id(playerobj));
+				attempt_to_steal_item(robot, playerobj);
 				steal_attempt = 1;
 			} else if (GameTime64 - Last_thief_hit_time < F1_0*2)
 				return;		//	ZOUNDS!  BRILLIANT!  Thief not collide with player if not stealing!

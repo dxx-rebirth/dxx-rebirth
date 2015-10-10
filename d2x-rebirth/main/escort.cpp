@@ -1329,13 +1329,15 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 //	----------------------------------------------------------------------------
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
-static int maybe_steal_flag_item(int player_num, int flagval)
+static int maybe_steal_flag_item(const vobjptr_t playerobjp, unsigned flagval)
 {
-	if (Players[player_num].flags & flagval) {
+	auto &plr_flags = Players[get_player_id(playerobjp)].flags;
+	if (plr_flags & flagval)
+	{
 		if (d_rand() < THIEF_PROBABILITY) {
 			int	powerup_index;
 			const char *msg;
-			Players[player_num].flags &= (~flagval);
+			plr_flags &= (~flagval);
 			switch (flagval) {
 				case PLAYER_FLAGS_INVULNERABLE:
 					powerup_index = POW_INVULNERABILITY;
@@ -1381,9 +1383,12 @@ static int maybe_steal_flag_item(int player_num, int flagval)
 }
 
 //	----------------------------------------------------------------------------
-static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
+static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
-	if ((Players[player_num].secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num)) && Players[player_num].secondary_ammo[weapon_num])
+	auto &plr = Players[get_player_id(playerobjp)];
+	if (!(plr.secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num)))
+		return 0;
+	if (auto &secondary_ammo = plr.secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_index_is_player_bomb(weapon_num))
 			{
@@ -1393,10 +1398,8 @@ static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 			//	Smart mines and proxbombs don't get dropped because they only come in 4 packs.
 			else
 				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
-			Players[player_num].secondary_ammo[weapon_num]--;
-
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
-			if (get_local_player().secondary_ammo[weapon_num] == 0)
+			if (-- secondary_ammo == 0)
 				auto_select_secondary_weapon();
 
 			// -- compress_stolen_items();
@@ -1408,24 +1411,33 @@ static int maybe_steal_secondary_weapon(int player_num, int weapon_num)
 }
 
 //	----------------------------------------------------------------------------
-static int maybe_steal_primary_weapon(int player_num, int weapon_num)
+static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
-	if ((Players[player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)) && (!weapon_index_uses_vulcan_ammo(weapon_num) || Players[player_num].vulcan_ammo)) {
+	auto &plr = Players[get_player_id(playerobjp)];
+	if (!(plr.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
+		return 0;
+	if (!weapon_index_uses_vulcan_ammo(weapon_num) || plr.vulcan_ammo)
+	{
 		if (d_rand() < THIEF_PROBABILITY) {
-			if (weapon_num == 0) {
-				if (Players[player_num].laser_level > 0) {
-					if (Players[player_num].laser_level > 3) {
+			if (weapon_num == LASER_INDEX)
+			{
+				if (auto &laser_level = plr.laser_level)
+				{
+					if (laser_level > 3)
+					{
 						Stolen_items[Stolen_item_index] = POW_SUPER_LASER;
 					} else {
 						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 					}
 					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
-					-- Players[player_num].laser_level;
+					-- laser_level;
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 					return 1;
 				}
-			} else if (Players[player_num].primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)) {
-				Players[player_num].primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
+			}
+			else
+			{
+				plr.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
 				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
@@ -1446,7 +1458,7 @@ static int maybe_steal_primary_weapon(int player_num, int weapon_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-static int attempt_to_steal_item_3(const vobjptr_t objp, int player_num)
+static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_num)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	if (ailp->mode != ai_mode::AIM_THIEF_ATTACK)
@@ -1500,7 +1512,7 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, int player_num)
 }
 
 //	----------------------------------------------------------------------------
-static int attempt_to_steal_item_2(const vobjptr_t objp, int player_num)
+static int attempt_to_steal_item_2(const vobjptr_t objp, const vobjptr_t player_num)
 {
 	int	rval;
 
@@ -1520,7 +1532,7 @@ static int attempt_to_steal_item_2(const vobjptr_t objp, int player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(const vobjptridx_t objp, int player_num)
+int attempt_to_steal_item(const vobjptridx_t objp, const vobjptr_t player_num)
 {
 	int	rval = 0;
 

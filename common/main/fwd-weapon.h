@@ -187,7 +187,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 objptridx_t spit_powerup(vobjptr_t spitter, int id, int seed);
 
 #if defined(DXX_BUILD_DESCENT_II)
-int attempt_to_steal_item(vobjptridx_t objp, int player_num);
+int attempt_to_steal_item(vobjptridx_t objp, vobjptr_t playerobjp);
 
 #define SMEGA_ID    40
 
