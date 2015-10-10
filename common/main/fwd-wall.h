@@ -11,7 +11,7 @@
 #include <physfs.h>
 #include "maths.h"
 #include "fwd-object.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 
 struct side;
 

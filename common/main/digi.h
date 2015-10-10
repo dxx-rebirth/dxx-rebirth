@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "segnum.h"
 #include "fwd-object.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 

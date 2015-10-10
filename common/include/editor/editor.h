@@ -34,7 +34,7 @@ struct window;
 
 #ifdef __cplusplus
 
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "objnum.h"
 
 /*

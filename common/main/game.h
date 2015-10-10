@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "segnum.h"
 #include "fwd-object.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "fwd-window.h"
 
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30

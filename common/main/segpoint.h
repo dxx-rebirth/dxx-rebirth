@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "3d.h"
 
 extern	array<g3s_point, MAX_VERTICES>	Segment_points;

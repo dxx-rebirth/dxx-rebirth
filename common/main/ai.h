@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "pstypes.h"
 #include "fwd-object.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "countarray.h"
 #include "aistruct.h"

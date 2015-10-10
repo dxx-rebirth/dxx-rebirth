@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "fwd-partial_range.h"
 #include "fwd-object.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "pack.h"
 
 struct vms_vector;

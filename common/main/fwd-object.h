@@ -14,7 +14,7 @@
 #include "segnum.h"
 #include "fwd-valptridx.h"
 #include "maths.h"
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 
 struct bitmap_index;
 struct vms_vector;

@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 
 struct grs_canvas;
 struct editor_view;

@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <cstddef>
-#include "fwdsegment.h"
+#include "fwd-segment.h"
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
