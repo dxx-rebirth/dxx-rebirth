@@ -1010,8 +1010,6 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 	int bomb,count;
-	char txt[5],*t;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!PlayerCfg.BombGauge)
 		return;
@@ -1033,10 +1031,10 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 		: bg_color,	//erase by drawing in background color
 		bg_color);
 
+	char txt[5];
 	snprintf(txt, sizeof(txt), "B:%02d", count);
-
-	while ((t=strchr(txt,'1')) != NULL)
-		*t = '\x84';	//convert to wide '1'
+	//convert to wide '1'
+	std::replace(&txt[2], &txt[4], '1', '\x84');
 
 	int w, h;
 	gr_get_string_size(txt, &w, &h, nullptr);
