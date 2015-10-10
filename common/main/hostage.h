@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "compiler-array.h"
 
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage

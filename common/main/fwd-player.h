@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 #define MAX_PLAYERS 8u
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3

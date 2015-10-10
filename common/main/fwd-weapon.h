@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 enum powerup_type_t : uint8_t;
 

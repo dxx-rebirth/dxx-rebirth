@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "vecmat.h"
 #include "pack.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "polyobj.h"
 #include "compiler-array.h"
 

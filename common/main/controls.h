@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 void read_flying_controls(vobjptr_t obj);
 

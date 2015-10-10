@@ -15,7 +15,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)

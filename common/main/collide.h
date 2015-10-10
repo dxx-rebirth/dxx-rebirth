@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <cstdint>
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "fwdsegment.h"
 
 struct vms_vector;

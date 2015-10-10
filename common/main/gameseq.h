@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-player.h"
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 struct player;
 

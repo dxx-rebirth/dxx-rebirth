@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "pack.h"
 #include "segnum.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "fwdsegment.h"
 #include "fwd-window.h"
 

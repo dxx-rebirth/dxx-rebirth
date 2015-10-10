@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "pack.h"
 #include "segnum.h"
 

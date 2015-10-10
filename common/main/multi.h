@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "newmenu.h"
 #include "powerup.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "window.h"
 #include "game.h"
 

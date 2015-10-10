@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include "segnum.h"
 #include "objnum.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 struct window_rendered_data
 {

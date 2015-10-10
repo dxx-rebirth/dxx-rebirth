@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "fwdsegment.h"
 
 struct g3s_lrgb;

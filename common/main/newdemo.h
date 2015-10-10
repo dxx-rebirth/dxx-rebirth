@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "physfsx.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 
 class object_signature_t;
 

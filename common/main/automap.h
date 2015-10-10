@@ -40,7 +40,7 @@ extern void automap_clear_visited();
 extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 
 #if defined(DXX_BUILD_DESCENT_II)
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "ntstring.h"
 #include "fwd-window.h"
 

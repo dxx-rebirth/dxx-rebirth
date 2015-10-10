@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include <stdexcept>
 #include "compiler-type_traits.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "powerup.h"
 #include "poison.h"
 

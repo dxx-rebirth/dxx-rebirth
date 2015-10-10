@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
-#include "fwdobject.h"
+#include "fwd-object.h"
 #include "pack.h"
 #include "countarray.h"
 
