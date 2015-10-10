@@ -2207,12 +2207,15 @@ void do_missile_firing(int drop_bomb)
 	}
 #endif
 
-	if (!Player_is_dead && (get_local_player().secondary_ammo[weapon] > 0))	{
+	if (Player_is_dead)
+		return;
+	if (auto &secondary_weapon_ammo = get_local_player().secondary_ammo[weapon])
+	{
 
 		enum weapon_type_t weapon_index;
 		int weapon_gun;
 
-		get_local_player().secondary_ammo[weapon]--;
+		-- secondary_weapon_ammo;
 
 		weapon_index = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon];
 

@@ -1825,8 +1825,7 @@ static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapo
 
 static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
 {
-	int num_missiles;
-	num_missiles = Players[get_player_id(playerobj)].secondary_ammo[missile_index];
+	unsigned num_missiles = Players[get_player_id(playerobj)].secondary_ammo[missile_index];
 	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
 
 	if (num_missiles > 10)
@@ -1887,11 +1886,13 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
 		}
 
+		auto &secondary_ammo = Players[pnum].secondary_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If the player had smart mines, maybe arm one of them.
 		int	rthresh;
 		rthresh = 30000;
-		while ((Players[get_player_id(playerobj)].secondary_ammo[SMART_MINE_INDEX]%4==1) && (d_rand() < rthresh)) {
+		while (secondary_ammo[SMART_MINE_INDEX] % 4 == 1 && d_rand() < rthresh)
+		{
 			const auto randvec = make_random_vector();
 			rthresh /= 2;
 			const auto tvec = vm_vec_add(playerobj->pos, randvec);
@@ -1905,7 +1906,8 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		if ((Game_mode & GM_MULTI) && !game_mode_hoard())
 		{
 			rthresh = 30000;
-			while ((Players[get_player_id(playerobj)].secondary_ammo[PROXIMITY_INDEX]%4==1) && (d_rand() < rthresh)) {
+			while (secondary_ammo[PROXIMITY_INDEX] % 4 == 1 && d_rand() < rthresh)
+			{
 				const auto randvec = make_random_vector();
 				rthresh /= 2;
 				const auto tvec = vm_vec_add(playerobj->pos, randvec);
@@ -1964,10 +1966,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		if (game_mode_hoard())
 		{
 			// Drop hoard orbs
-
-			int max_count;
-
-			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], static_cast<uint8_t>(12));
+			unsigned max_count = min(secondary_ammo[PROXIMITY_INDEX], static_cast<uint8_t>(12));
 			for (int i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
 		}
@@ -2010,14 +2009,14 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!game_mode_hoard())
 #endif
-			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[get_player_id(playerobj)].secondary_ammo[PROXIMITY_INDEX])/4);
+			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (secondary_ammo[PROXIMITY_INDEX])/4);
 
-		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, Players[get_player_id(playerobj)].secondary_ammo[SMART_INDEX]);
-		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, Players[get_player_id(playerobj)].secondary_ammo[MEGA_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, secondary_ammo[SMART_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, secondary_ammo[MEGA_INDEX]);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		maybe_drop_secondary_weapon_egg(playerobj, SMART_MINE_INDEX,(Players[get_player_id(playerobj)].secondary_ammo[SMART_MINE_INDEX])/4);
-		maybe_drop_secondary_weapon_egg(playerobj, SMISSILE5_INDEX, Players[get_player_id(playerobj)].secondary_ammo[SMISSILE5_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, SMART_MINE_INDEX,(secondary_ammo[SMART_MINE_INDEX])/4);
+		maybe_drop_secondary_weapon_egg(playerobj, SMISSILE5_INDEX, secondary_ammo[SMISSILE5_INDEX]);
 #endif
 
 		//	Drop the player's missiles in packs of 1 and/or 4

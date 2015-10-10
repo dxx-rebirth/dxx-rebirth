@@ -1682,18 +1682,19 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].secondary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
-	Players[pnum].secondary_ammo[HOMING_INDEX] = buf[count];                count++;
-	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
-	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count];         count++;
-	Players[pnum].secondary_ammo[MEGA_INDEX] = buf[count];          count++;
-	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
+	auto &secondary_ammo = Players[pnum].secondary_ammo;
+	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
+	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
+	secondary_ammo[SMART_INDEX] = buf[count];         count++;
+	secondary_ammo[MEGA_INDEX] = buf[count];          count++;
+	secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	Players[pnum].secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
-	Players[pnum].secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
-	Players[pnum].secondary_ammo[SMART_MINE_INDEX]= buf[count]; count++;
-	Players[pnum].secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
-	Players[pnum].secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
+	secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
+	secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
+	secondary_ammo[SMART_MINE_INDEX]= buf[count]; count++;
+	secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
+	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
 	Players[pnum].vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
@@ -2599,11 +2600,12 @@ void multi_powcap_cap_objects()
 		return;
 
 	auto &plr = get_local_player();
+	auto &secondary_ammo = plr.secondary_ammo;
 	if (!game_mode_hoard())
-	  	get_local_player().secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
+	  	secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
 	Proximity_dropped=0;
 #if defined(DXX_BUILD_DESCENT_II)
-	get_local_player().secondary_ammo[SMART_MINE_INDEX]+=Smartmines_dropped;
+	secondary_ammo[SMART_MINE_INDEX] += Smartmines_dropped;
 	Smartmines_dropped=0;
 #endif
 
@@ -2621,10 +2623,10 @@ void multi_powcap_cap_objects()
 
 	// Don't do the adjustment stuff for Hoard mode
 	if (!game_mode_hoard())
-		get_local_player().secondary_ammo[2]/=4;
+		secondary_ammo[PROXIMITY_INDEX] /= 4;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	get_local_player().secondary_ammo[7]/=4;
+	secondary_ammo[SMART_MINE_INDEX] /= 4;
 #endif
 
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
@@ -2634,7 +2636,7 @@ void multi_powcap_cap_objects()
 
 		const auto type = Secondary_weapon_to_powerup[index];
 
-		PowerupCaps.cap_secondary_ammo(type, plr.secondary_ammo[index]);
+		PowerupCaps.cap_secondary_ammo(type, secondary_ammo[index]);
 	}
 
 	if (!game_mode_hoard())
@@ -2675,10 +2677,11 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 			PowerupCaps.inc_mapped_powerup_max(type);
 	}
 
+	auto &secondary_ammo = plr.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
 		const auto type = Secondary_weapon_to_powerup[index];
-		PowerupCaps.add_mapped_powerup_max(type, Players[pnum].secondary_ammo[index]);
+		PowerupCaps.add_mapped_powerup_max(type, secondary_ammo[index]);
 	}
 
 	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
@@ -2711,6 +2714,7 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 			PowerupCaps.inc_mapped_powerup_current(type);
 	}
 
+	const auto &plr_secondary_ammo = plr.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
 		const auto type = Secondary_weapon_to_powerup[index];
@@ -2723,7 +2727,7 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 			|| index == secondary_weapon_index_t::SMART_MINE_INDEX // PROX or SMARTMINES? Those bastards...
 #endif
 		);
-		const auto secondary_ammo = plr.secondary_ammo[index];
+		const auto secondary_ammo = plr_secondary_ammo[index];
 		PowerupCaps.add_mapped_powerup_current(type, is_always_4pack ? secondary_ammo / 4 : secondary_ammo);
 	}
 
