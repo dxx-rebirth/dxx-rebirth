@@ -331,45 +331,72 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t outSize)
 {
+	DXX_POISON_MEMORY(realPath, outSize, 0xdd);
 	const char *realDir = PHYSFS_getRealDir(stdPath);
-	const char *sep = PHYSFS_getDirSeparator();
-	char *p;
-	
 	if (!realDir)
 	{
 		realDir = PHYSFS_getWriteDir();
 		if (!realDir)
 			return 0;
 	}
-	
-	strncpy(realPath, realDir, outSize - 1);
-	if (strlen(realPath) >= strlen(sep))
+	const auto realDirSize = strlen(realDir);
+	if (realDirSize >= outSize)
+		return 0;
+	auto mountpoint = PHYSFS_getMountPoint(realDir);
+	if (!mountpoint)
+		return 0;
+	std::copy_n(realDir, realDirSize, realPath);
+#ifdef _unix__
+	auto &sep = "/";
+	assert(!strcmp(PHYSFS_getDirSeparator(), sep));
+#else
+	const auto sep = PHYSFS_getDirSeparator();
+#endif
+	const auto sepSize = strlen(sep);
+	auto realPathUsed = realDirSize;
+	if (realDirSize >= sepSize)
 	{
-		p = realPath + strlen(realPath) - strlen(sep);
+		const auto p = realPath + realDirSize - sepSize;
 		if (strcmp(p, sep)) // no sep at end of realPath
-			strncat(realPath, sep, outSize - 1 - strlen(realPath));
-	}
-	
-	if (strlen(stdPath) >= 1)
-		if (*stdPath == '/')
-			stdPath++;
-	
-	while (*stdPath)
-	{
-		if (*stdPath == '/')
-			strncat(realPath, sep, outSize - 1 - strlen(realPath));
-		else
 		{
-			if (strlen(realPath) < outSize - 2)
-			{
-				p = realPath + strlen(realPath);
-				p[0] = *stdPath;
-				p[1] = '\0';
-			}
+			realPathUsed += sepSize;
+			std::copy_n(sep, sepSize, &realPath[realDirSize]);
 		}
-		stdPath++;
 	}
-	
+	if (*mountpoint == '/')
+		++mountpoint;
+	/* Paths should be relative, but fix up if not. */
+	assert(*stdPath != '/');
+	if (*stdPath == '/')
+		++stdPath;
+	const auto ml = strlen(mountpoint);
+	if (!strncmp(mountpoint, stdPath, ml))
+		stdPath += ml;
+	else
+	{
+		/* Virtual path is not under the virtual mount point that
+		 * provides the path.
+		 */
+		assert(false);
+	}
+	const auto stdPathLen = strlen(stdPath) + 1;
+	if (realPathUsed + stdPathLen >= outSize)
+		return 0;
+#ifdef __unix__
+	/* Separator is "/" and physfs internal separator is "/".  Copy
+	 * through.
+	 */
+	std::copy_n(stdPath, stdPathLen, &realPath[realPathUsed]);
+#else
+	/* Separator might be / on non-unix, but the fallback path works
+	 * regardless of whether separator is "/".
+	 */
+	const auto csep = *sep;
+	const auto a = [csep](char c) {
+		return c == '/' ? csep : c;
+	};
+	std::transform(stdPath, &stdPath[stdPathLen], &realPath[realPathUsed], a);
+#endif
 	return 1;
 }
 
