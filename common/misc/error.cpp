@@ -79,10 +79,10 @@ static void graceful_print_exit_message(const char *exit_message, size_t len)
 	exit(1);
 }
 
-void (Error_puts)(const char *func, const unsigned line, const char *str)
+void (Error_puts)(const char *filename, const unsigned line, const char *func, const char *str)
 {
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
-	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: %s", func, line, str);
+	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: %s", filename, line, func, str);
 	abort_print_exit_message(exit_message, len);
 }
 
@@ -92,12 +92,12 @@ void (UserError_puts)(const char *str, std::size_t len)
 }
 
 //terminates with error code 1, printing message
-void (Error)(const char *func, const unsigned line, const char *fmt,...)
+void (Error)(const char *filename, const unsigned line, const char *func, const char *fmt,...)
 {
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	va_list arglist;
 
-	int leader = snprintf(exit_message, sizeof(exit_message), "%s:%u: error: ", func, line);
+	int leader = snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: ", filename, line, func);
 	va_start(arglist,fmt);
 	int len = vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
 	va_end(arglist);

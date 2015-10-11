@@ -349,12 +349,12 @@ static inline int PHYSFSX_writeVector(PHYSFS_file *file, const vms_vector &v)
 }
 
 #define define_read_helper(T,N,F)	\
-	static inline T N(const char *func, const unsigned line, PHYSFS_file *file)	\
+	static inline T N(const char *filename, const unsigned line, const char *func, PHYSFS_file *file)	\
 	{	\
 		T i;	\
 		if (!(F)(file, &i))	\
 		{	\
-			(Error)(func, line, "reading " #T " in " #N "() at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));	\
+			(Error)(filename, line, func, "reading " #T " in " #N "() at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));	\
 		}	\
 		return i;	\
 	}
@@ -365,44 +365,44 @@ static inline sbyte PHYSFSX_readS8(PHYSFS_file *file, sbyte *b)
 }
 
 define_read_helper(sbyte, PHYSFSX_readByte, PHYSFSX_readS8);
-#define PHYSFSX_readByte(F)	((PHYSFSX_readByte)(__func__, __LINE__, (F)))
+#define PHYSFSX_readByte(F)	((PHYSFSX_readByte)(__FILE__, __LINE__, __func__, (F)))
 
 define_read_helper(int, PHYSFSX_readInt, PHYSFS_readSLE32);
-#define PHYSFSX_readInt(F)	((PHYSFSX_readInt)(__func__, __LINE__, (F)))
+#define PHYSFSX_readInt(F)	((PHYSFSX_readInt)(__FILE__, __LINE__, __func__, (F)))
 
 define_read_helper(int16_t, PHYSFSX_readShort, PHYSFS_readSLE16);
-#define PHYSFSX_readShort(F)	((PHYSFSX_readShort)(__func__, __LINE__, (F)))
+#define PHYSFSX_readShort(F)	((PHYSFSX_readShort)(__FILE__, __LINE__, __func__, (F)))
 
 define_read_helper(fix, PHYSFSX_readFix, PHYSFS_readSLE32);
-#define PHYSFSX_readFix(F)	((PHYSFSX_readFix)(__func__, __LINE__, (F)))
+#define PHYSFSX_readFix(F)	((PHYSFSX_readFix)(__FILE__, __LINE__, __func__, (F)))
 
 define_read_helper(fixang, PHYSFSX_readFixAng, PHYSFS_readSLE16);
-#define PHYSFSX_readFixAng(F)	((PHYSFSX_readFixAng)(__func__, __LINE__, (F)))
+#define PHYSFSX_readFixAng(F)	((PHYSFSX_readFixAng)(__FILE__, __LINE__, __func__, (F)))
 
-static inline void PHYSFSX_readVector(const char *func, const unsigned line, PHYSFS_file *file, vms_vector &v)
+static inline void PHYSFSX_readVector(const char *filename, const unsigned line, const char *func, PHYSFS_file *file, vms_vector &v)
 {
-	v.x = (PHYSFSX_readFix)(func, line, file);
-	v.y = (PHYSFSX_readFix)(func, line, file);
-	v.z = (PHYSFSX_readFix)(func, line, file);
+	v.x = (PHYSFSX_readFix)(filename, line, func, file);
+	v.y = (PHYSFSX_readFix)(filename, line, func, file);
+	v.z = (PHYSFSX_readFix)(filename, line, func, file);
 }
-#define PHYSFSX_readVector(F,V)	PHYSFSX_readVector(__func__, __LINE__, (F), (V))
+#define PHYSFSX_readVector(F,V)	PHYSFSX_readVector(__FILE__, __LINE__, __func__, (F), (V))
 
-static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, vms_angvec *v, PHYSFS_file *file)
+static inline void PHYSFSX_readAngleVec(const char *filename, const unsigned line, const char *func, vms_angvec *v, PHYSFS_file *file)
 {
-	v->p = (PHYSFSX_readFixAng)(func, line, file);
-	v->b = (PHYSFSX_readFixAng)(func, line, file);
-	v->h = (PHYSFSX_readFixAng)(func, line, file);
+	v->p = (PHYSFSX_readFixAng)(filename, line, func, file);
+	v->b = (PHYSFSX_readFixAng)(filename, line, func, file);
+	v->h = (PHYSFSX_readFixAng)(filename, line, func, file);
 }
-#define PHYSFSX_readAngleVec(V,F)	((PHYSFSX_readAngleVec(__func__, __LINE__, (V), (F))))
+#define PHYSFSX_readAngleVec(V,F)	((PHYSFSX_readAngleVec(__FILE__, __LINE__, __func__, (V), (F))))
 
-static inline void PHYSFSX_readMatrix(const char *func, const unsigned line, vms_matrix *m,PHYSFS_file *file)
+static inline void PHYSFSX_readMatrix(const char *filename, const unsigned line, const char *func, vms_matrix *m,PHYSFS_file *file)
 {
-	(PHYSFSX_readVector)(func, line, file, m->rvec);
-	(PHYSFSX_readVector)(func, line, file, m->uvec);
-	(PHYSFSX_readVector)(func, line, file, m->fvec);
+	(PHYSFSX_readVector)(filename, line, func, file, m->rvec);
+	(PHYSFSX_readVector)(filename, line, func, file, m->uvec);
+	(PHYSFSX_readVector)(filename, line, func, file, m->fvec);
 }
 
-#define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__func__, __LINE__, (M), (F)))
+#define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__FILE__, __LINE__, __func__, (M), (F)))
 
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
