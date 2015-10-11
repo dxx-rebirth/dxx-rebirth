@@ -62,14 +62,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-//values that describe where a mission is located
-enum mle_loc
-{
-	ML_CURDIR = 0,
-	ML_MISSIONDIR = 1
-};
+#define MISSION_EXTENSION_DESCENT_I	".msn"
+#if defined(DXX_BUILD_DESCENT_II)
+#define MISSION_EXTENSION_DESCENT_II	".mn2"
+#endif
 
 namespace {
+
+using mission_candidate_search_path = array<char, PATH_MAX>;
 
 //mission list entry
 struct mle : Mission_path
@@ -80,7 +80,6 @@ struct mle : Mission_path
 	ubyte   descent_version;    // descent 1 or descent 2?
 #endif
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
-	enum mle_loc	location;           // where the mission is
 };
 
 }
@@ -340,35 +339,26 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 }
 
 //returns 1 if file read ok, else 0
-static int read_mission_file(mission_list &mission_list, const char *filename, enum mle_loc location)
+static int read_mission_file(mission_list &mission_list, mission_candidate_search_path &pathname)
 {
-	char filename2[100];
-	snprintf(filename2, sizeof(filename2), "%s%s", location == ML_MISSIONDIR ? MISSION_DIR : "", filename);
-	if (auto mfile = PHYSFSX_openReadBuffered(filename2))
+	if (auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
 	{
 		char *p;
-		char temp[PATH_MAX], *ext;
-
-		strcpy(temp,filename);
-		p = strrchr(temp, '/');	// get the filename at the end of the path
+		char *ext;
+		p = strrchr(pathname.data(), '/');
 		if (!p)
-			p = temp;
-		else p++;
-		
+			p = pathname.data();
 		if ((ext = strchr(p, '.')) == NULL)
 			return 0;	//missing extension
 		mission_list.emplace_back();
 		mle *mission = &mission_list.back();
+		mission->path.assign(pathname.data(), ext);
 #if defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
-		mission->descent_version = (ext[3] == '2') ? 2 : 1;
+		mission->descent_version = (ext[3] == MISSION_EXTENSION_DESCENT_II[3]) ? 2 : 1;
 #endif
-		*ext = 0;			//kill extension
-
-		mission->path = temp;
 		mission->anarchy_only_flag = 0;
-		mission->filename = next(begin(mission->path), p - temp);
-		mission->location = location;
+		mission->filename = next(begin(mission->path), mission->path.find_last_of('/') + 1);
 
 		PHYSFSX_gets_line_t<80> buf;
 		p = get_parm_value(buf, "name",mfile);
@@ -499,13 +489,16 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 		set_hardcoded_mission(mission_list, OEM_MISSION_FILENAME, OEM_MISSION_NAME);
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME ".mn2");
+		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
 	case FULL_10_MISSION_HOGSIZE:
 	case MAC_FULL_MISSION_HOGSIZE:
-		if (!read_mission_file(mission_list, FULL_MISSION_FILENAME ".mn2", ML_CURDIR))
-			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
+		{
+			mission_candidate_search_path full_mission_filename = {{FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II}};
+			if (!read_mission_file(mission_list, full_mission_filename))
+				Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
+		}
 	}
 
 	mle *mission = &mission_list.back();
@@ -516,25 +509,47 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 }
 #endif
 
-
-static void add_missions_to_list(mission_list &mission_list, char *path, char *rel_path, int anarchy_mode)
+static void add_missions_to_list(mission_list &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, int anarchy_mode)
 {
-	char *ext;
-	const PHYSFSX_uncounted_list find{PHYSFS_enumerateFiles(path)};
-	range_for (const auto i, find)
+	/* rel_path must point within the array `path`.
+	 * rel_path must point to the null that follows a possibly empty
+	 * directory prefix.
+	 * If the directory prefix is not empty, it must end with a PHYSFS
+	 * path separator, which is always slash, even on Windows.
+	 *
+	 * If any of these assertions fail, then the path transforms used to
+	 * recurse into subdirectories and to open individual missions will
+	 * not work correctly.
+	 */
+	assert(std::distance(path.begin(), rel_path) < path.size());
+	assert(!*rel_path);
+	assert(path.begin() == rel_path || *std::prev(rel_path) == '/');
+	const std::size_t space_remaining = std::distance(rel_path, path.end());
+	range_for (const auto i, PHYSFSX_uncounted_list{PHYSFS_enumerateFiles(path.data())})
 	{
-		if (strlen(path) + strlen(i) + 1 >= PATH_MAX)
+		/* Add 1 to include the terminating null. */
+		const std::size_t il = strlen(i) + 1;
+		/* Add 1 for the slash in case it is a directory. */
+		if (il + 1 >= space_remaining)
 			continue;	// path is too long
 
-		strcat(rel_path, i);
-		if (PHYSFS_isDirectory(path))
+		auto j = std::copy_n(i, il, rel_path);
+		const char *ext;
+		if (PHYSFS_isDirectory(path.data()))
 		{
-			strcat(rel_path, "/");
-			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
-			*(strrchr(path, '/')) = 0;
+			auto null = std::prev(j);
+			*j = 0;
+			*null = '/';
+			add_missions_to_list(mission_list, path, j, anarchy_mode);
+			*null = 0;
 		}
-		else if ((ext = strrchr(i, '.')) && (!d_strnicmp(ext, ".msn") || !d_strnicmp(ext, ".mn2")))
-			if (read_mission_file(mission_list, rel_path, ML_MISSIONDIR))
+		else if (il > 5 &&
+			((ext = &i[il - 5], !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_I))
+#if defined(DXX_BUILD_DESCENT_II)
+				|| !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_II)
+#endif
+			))
+			if (read_mission_file(mission_list, path))
 			{
 				if (anarchy_mode || !mission_list.back().anarchy_only_flag)
 				{
@@ -548,8 +563,7 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 		{
 			break;
 		}
-
-		(strrchr(path, '/'))[1] = 0;	// chop off the entry
+		*rel_path = 0;	// chop off the entry
 	}
 }
 
@@ -583,7 +597,6 @@ Mission::~Mission()
 
 static mission_list build_mission_list(int anarchy_mode)
 {
-	char	search_str[PATH_MAX] = MISSION_DIR;
 
 	//now search for levels on disk
 
@@ -606,7 +619,8 @@ static mission_list build_mission_list(int anarchy_mode)
 	add_builtin_mission_to_list(mission_list, builtin_mission_filename);  //read built-in first
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
-	add_missions_to_list(mission_list, search_str, search_str + strlen(search_str), anarchy_mode);
+	mission_candidate_search_path search_str = {{MISSION_DIR}};
+	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, anarchy_mode);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
@@ -771,10 +785,10 @@ static int load_mission(const mle *mission)
 
 	auto &msn_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-	(mission->descent_version == 2) ? ".mn2" :
+	(mission->descent_version == 2) ? MISSION_EXTENSION_DESCENT_II :
 #endif
-		".msn";
-	snprintf(buf, sizeof(buf), "%s%s%s", mission->location == ML_MISSIONDIR ? MISSION_DIR : "", mission->path.c_str(), msn_extension);
+		MISSION_EXTENSION_DESCENT_I;
+	snprintf(buf, sizeof(buf), "%s%s", mission->path.c_str(), msn_extension);
 
 	PHYSFSEXT_locateCorrectCase(buf);
 
