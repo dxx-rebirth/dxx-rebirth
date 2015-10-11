@@ -1840,7 +1840,7 @@ int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mty
 #ifdef USE_SDLMIXER
 static int get_absolute_path(char *full_path, const char *rel_path)
 {
-	PHYSFSX_getRealPath(rel_path, full_path);
+	PHYSFSX_getRealPath(rel_path, full_path, PATH_MAX);
 	return 1;
 }
 

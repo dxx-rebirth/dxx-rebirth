@@ -329,7 +329,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	return hog_sup;
 }
 
-int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
+int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t outSize)
 {
 	const char *realDir = PHYSFS_getRealDir(stdPath);
 	const char *sep = PHYSFS_getDirSeparator();
@@ -342,12 +342,12 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 			return 0;
 	}
 	
-	strncpy(realPath, realDir, PATH_MAX - 1);
+	strncpy(realPath, realDir, outSize - 1);
 	if (strlen(realPath) >= strlen(sep))
 	{
 		p = realPath + strlen(realPath) - strlen(sep);
 		if (strcmp(p, sep)) // no sep at end of realPath
-			strncat(realPath, sep, PATH_MAX - 1 - strlen(realPath));
+			strncat(realPath, sep, outSize - 1 - strlen(realPath));
 	}
 	
 	if (strlen(stdPath) >= 1)
@@ -357,10 +357,10 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 	while (*stdPath)
 	{
 		if (*stdPath == '/')
-			strncat(realPath, sep, PATH_MAX - 1 - strlen(realPath));
+			strncat(realPath, sep, outSize - 1 - strlen(realPath));
 		else
 		{
-			if (strlen(realPath) < PATH_MAX - 2)
+			if (strlen(realPath) < outSize - 2)
 			{
 				p = realPath + strlen(realPath);
 				p[0] = *stdPath;
