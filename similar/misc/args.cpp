@@ -200,6 +200,10 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.SysMaxFPS = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-hogdir"))
 			GameArg.SysHogDir = arg_string(pp, end);
+#if PHYSFS_VER_MAJOR >= 2
+		else if (!d_stricmp(p, "-add-missions-dir"))
+			GameArg.SysMissionDir = arg_string(pp, end);
+#endif
 		else if (!d_stricmp(p, "-nohogdir"))
 		{
 			/* No effect on non-Unix.  Ignore it so that players can
@@ -395,6 +399,10 @@ static void PostProcessGameArg()
 		GameArg.SysMaxFPS = MINIMUM_FPS;
 	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
+#if PHYSFS_VER_MAJOR >= 2
+	if (!GameArg.SysMissionDir.empty())
+		PHYSFS_mount(GameArg.SysMissionDir.c_str(), MISSION_DIR, 1);
+#endif
 
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
 	if (CGameArg.CtlNoStickyKeys) // Must happen before SDL_Init!

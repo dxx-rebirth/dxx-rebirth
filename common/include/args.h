@@ -75,6 +75,7 @@ struct Arg : prohibit_void_ptr<Arg>
 {
 	int SysMaxFPS;
 	std::string SysHogDir;
+	std::string SysMissionDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
 	bool SysShowCmdHelp;
