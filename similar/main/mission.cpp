@@ -554,12 +554,8 @@ static void add_missions_to_list(mission_list &mission_list, char *path, char *r
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-static void promote (mission_list &mission_list, const char * mission_name, std::size_t &top_place)
+static void promote (mission_list &mission_list, const char *const name, std::size_t &top_place)
 {
-	char name[FILENAME_LEN], * t;
-	strcpy(name, mission_name);
-	if ((t = strchr(name,'.')) != NULL)
-		*t = 0; //kill extension
 	range_for (auto &i, partial_range(mission_list, top_place, mission_list.size()))
 		if (!d_stricmp(&*i.filename, name)) {
 			//swap mission positions
@@ -615,10 +611,8 @@ static mission_list build_mission_list(int anarchy_mode)
 	// move original missions (in story-chronological order)
 	// to top of mission list
 	std::size_t top_place = 0;
-#if defined(DXX_BUILD_DESCENT_I)
-	promote(mission_list, "", top_place); // original descent 1 mission
-#elif defined(DXX_BUILD_DESCENT_II)
-	promote(mission_list, "descent", top_place); // original descent 1 mission
+	promote(mission_list, D1_MISSION_FILENAME, top_place); // original descent 1 mission
+#if defined(DXX_BUILD_DESCENT_II)
 	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
 	promote(mission_list, "d2x", top_place); // vertigo
 #endif
