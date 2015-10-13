@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "highest_valid.h"
+#include "partial_range.h"
 
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
@@ -70,7 +71,7 @@ static void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &g
 static void maybe_ai_path_garbage_collect(void);
 static void ai_path_garbage_collect(void);
 #if PATH_VALIDATION
-static int validate_path(int debug_flag, point_seg* psegs, int num_points);
+static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 #endif
 
 //	------------------------------------------------------------------------
@@ -560,31 +561,25 @@ int polish_path(const vobjptridx_t objp, point_seg *psegs, int num_points)
 //	Make sure that there are connections between all segments on path.
 //	Note that if path has been optimized, connections may not be direct, so this function is useless, or worse.
 //	Return true if valid, else return false.
-int validate_path(int, point_seg *psegs, int num_points)
+int validate_path(int, point_seg *psegs, uint_fast32_t num_points)
 {
 #if PATH_VALIDATION
-	int		i, curseg;
-
-	curseg = psegs->segnum;
-	if ((curseg < 0) || (curseg > Highest_segment_index)) {
+	auto curseg = psegs->segnum;
+	if (curseg > Highest_segment_index)
+	{
 		Int3();		//	Contact Mike: Debug trap for elusive, nasty bug.
 		return 0;
 	}
 
-if (num_points == 0)
-	return 1;
-
-	for (i=1; i<num_points; i++) {
-		int	sidenum;
-		auto nextseg = psegs[i].segnum;
-
+	range_for (const auto &ps, unchecked_partial_range(psegs, 1u, num_points))
+	{
+		auto nextseg = ps.segnum;
 		if (curseg != nextseg) {
-			for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
-				if (Segments[curseg].children[sidenum] == nextseg)
-					break;
-
+			const auto &&csegp = vcsegptr(curseg);
+			const auto &children = csegp->children;
+			if (std::find(children.begin(), children.end(), nextseg) == children.end())
+			{
 			// Assert(sidenum != MAX_SIDES_PER_SEGMENT);	//	Hey, created path is not contiguous, why!?
-			if (sidenum == MAX_SIDES_PER_SEGMENT) {
 				Int3();
 				return 0;
 			}
