@@ -103,6 +103,7 @@ const uint16_t TRACKER_PORT_DEFAULT = 42420;
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
@@ -120,6 +121,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	ubyte                           max_numplayers;
 	bit_game_flags game_flag;
 };
+#endif
 
 struct UDP_sequence_packet : prohibit_void_ptr<UDP_sequence_packet>
 {
