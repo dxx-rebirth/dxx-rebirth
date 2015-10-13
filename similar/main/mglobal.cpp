@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "game.h"
 #include "textures.h"
+#include "valptridx.tcc"
 
 // Global array of vertices, common to one mine.
 array<vertex, MAX_VERTICES> Vertices;
@@ -98,3 +99,6 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 
 valptridx<object>::array_managed_type Objects;
 valptridx<segment>::array_managed_type Segments;
+
+template class valptridx<object>;
+template class valptridx<segment>;
