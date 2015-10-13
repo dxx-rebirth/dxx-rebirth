@@ -115,7 +115,7 @@ public:
 	__attribute_cold
 	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(const_pointer_type, std::size_t, index_type, const_pointer_type, const_pointer_type);
+	static void report(const array_managed_type &, index_type, const_pointer_type, const_pointer_type);
 };
 
 template <typename P>
@@ -128,7 +128,7 @@ public:
 	__attribute_cold
 	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(const_pointer_type, std::size_t, long);
+	static void report(const array_managed_type &, long);
 };
 
 template <typename P>
@@ -141,30 +141,40 @@ public:
 	__attribute_cold
 	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(const_pointer_type, std::size_t);
+	static void report();
+	__attribute_cold
+	__attribute_noreturn
+	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	static void report(const array_managed_type &);
 };
 
 template <typename managed_type>
-void valptridx<managed_type>::index_mismatch_exception::report(const const_pointer_type array_base, const std::size_t array_size, const index_type supplied_index, const const_pointer_type expected_pointer, const const_pointer_type actual_pointer)
+void valptridx<managed_type>::index_mismatch_exception::report(const array_managed_type &array, const index_type supplied_index, const const_pointer_type expected_pointer, const const_pointer_type actual_pointer)
 {
 	char buf[report_buffer_size];
-	prepare_report(buf, array_base, array_size, supplied_index, expected_pointer, actual_pointer);
+	prepare_report(buf, &array[0], array.size(), supplied_index, expected_pointer, actual_pointer);
 	throw index_mismatch_exception(buf);
 }
 
 template <typename managed_type>
-void valptridx<managed_type>::index_range_exception::report(const const_pointer_type array_base, const std::size_t array_size, const long supplied_index)
+void valptridx<managed_type>::index_range_exception::report(const array_managed_type &array, const long supplied_index)
 {
 	char buf[report_buffer_size];
-	prepare_report(buf, array_base, array_size, supplied_index);
+	prepare_report(buf, &array[0], array.size(), supplied_index);
 	throw index_range_exception(buf);
 }
 
 template <typename managed_type>
-void valptridx<managed_type>::null_pointer_exception::report(const const_pointer_type array_base, const std::size_t array_size)
+void valptridx<managed_type>::null_pointer_exception::report()
+{
+	throw null_pointer_exception("NULL pointer converted");
+}
+
+template <typename managed_type>
+void valptridx<managed_type>::null_pointer_exception::report(const array_managed_type &array)
 {
 	char buf[report_buffer_size];
-	prepare_report(buf, array_base, array_size);
+	prepare_report(buf, &array[0], array.size());
 	throw null_pointer_exception(buf);
 }
 
@@ -172,28 +182,27 @@ template <typename managed_type>
 void valptridx<managed_type>::check_index_match(const managed_type &r, index_type i, const array_managed_type &a)
 {
 	const auto pi = &a[i];
-	DXX_VALPTRIDX_CHECK(pi == &r, index_mismatch_exception, "pointer/index mismatch", &a[0], get_array_size(), i, pi, &r);
+	DXX_VALPTRIDX_CHECK(pi == &r, index_mismatch_exception, "pointer/index mismatch", a, i, pi, &r);
 }
 
 template <typename managed_type>
 typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(index_type i, const array_managed_type &a)
 {
 	const std::size_t ss = i;
-	const std::size_t as = get_array_size();
-	DXX_VALPTRIDX_CHECK(ss < as, index_range_exception, "invalid index used in array subscript", &a[0], as, ss);
+	DXX_VALPTRIDX_CHECK(ss < a.size(), index_range_exception, "invalid index used in array subscript", a, ss);
 	return i;
 }
 
 template <typename managed_type>
 void valptridx<managed_type>::check_null_pointer_conversion(const_pointer_type p)
 {
-	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer converted", p, get_array_size());
+	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer converted");
 }
 
 template <typename managed_type>
 void valptridx<managed_type>::check_null_pointer(const_pointer_type p, const array_managed_type &a)
 {
-	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", &a[0], get_array_size());
+	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", a);
 }
 
 template <typename managed_type>
