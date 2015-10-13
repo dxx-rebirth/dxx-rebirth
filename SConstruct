@@ -2570,7 +2570,7 @@ class DXXCommon(LazyObjectConstructor):
 			return DXXCommon.UserBuildSettings._options(self) + DXXCommon.UserInstallSettings._options(self)
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
-		tools = None
+		tools = ['g++', 'gnulink']
 		ogllibs = ''
 		platform_objects = []
 		def __init__(self,program,user_settings):
@@ -2613,10 +2613,23 @@ class DXXCommon(LazyObjectConstructor):
 	def create_header_targets(self):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = self.user_settings.builddir
-		check_header_includes = os.path.join(builddir, 'check_header_includes.cpp')
+		env = self.env
+		check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
 		if not self.__shared_header_file_list:
-			open(check_header_includes, 'wt')
+			# Generate the list once, on first use.  Any other targets
+			# will reuse it.
+			#
+			# Touch the file into existence.  It is always empty, but
+			# must exist and have an extension of '.cpp'.
+			env.Textfile(target=check_header_includes, source=env.Value('''
+/* This file is always empty.  It is only present to act as the source
+ * file for SCons targets that test individual headers.
+ */
+'''))
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
+			# Filter out OS X related directories.  Files in those
+			# directories assume they are only ever built on OS X, so
+			# they unconditionally include headers specific to OS X.
 			excluded_directories = (
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
@@ -2624,12 +2637,14 @@ class DXXCommon(LazyObjectConstructor):
 			self.__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
 		dirname = os.path.join(builddir, self.srcdir)
 		kwargs = {
-			'CXXFLAGS' : self.env['CXXFLAGS'][:],
+			'CXXFLAGS' : env['CXXFLAGS'][:],
 			'source' : check_header_includes
 		}
-		Depends = self.env.Depends
-		StaticObject = self.env.StaticObject
-		OBJSUFFIX = self.env['OBJSUFFIX']
+		Depends = env.Depends
+		StaticObject = env.StaticObject
+		OBJSUFFIX = env['OBJSUFFIX']
+		CPPFLAGS_template = env['CPPFLAGS']
+		CPPFLAGS_dxxsconf = ['-include', 'dxxsconf.h']
 		for name in self.__shared_header_file_list:
 			if not name:
 				continue
@@ -2639,16 +2654,29 @@ class DXXCommon(LazyObjectConstructor):
 			if self.srcdir[0] == 'd' and name[0] == 'd' and not name.startswith(self.srcdir):
 				# Skip d1 in d2 and d2 in d1
 				continue
-			CPPFLAGS = self.env['CPPFLAGS'][:]
+			CPPFLAGS = CPPFLAGS_template[:]
+			# Compiler feature headers cannot include dxxsconf.h because
+			# it confuses the dependency resolver when SConf runs.
+			# Calling code must include dxxsconf.h before including the
+			# compiler feature header, so add the inclusion here.
+			#
+			# For best test coverage, only headers that must avoid
+			# including dxxsconf.h receive an implicit include.  Any
+			# header which needs dxxsconf.h and can include it without
+			# side effects must do so.
 			if name[:24] == 'common/include/compiler-':
-				CPPFLAGS.extend(['-include', 'dxxsconf.h'])
+				CPPFLAGS.extend(CPPFLAGS_dxxsconf)
 			CPPFLAGS.extend(['-include', name])
 			if not self.user_settings.verbosebuild:
+				# $SOURCE is check_header_includes.cpp, not the file under
+				# test.
 				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 
 	def create_pch_node(self,archive):
 		if self.user_settings.check_header_includes:
+			# Create header targets before creating the PCHManager, so that
+			# create_header_targets() uses the stock env.StaticObject
 			self.create_header_targets()
 		env = self.env
 		configure_pch_flags = archive.configure_pch_flags
@@ -2785,7 +2813,7 @@ class DXXCommon(LazyObjectConstructor):
 			platform = self.LinuxPlatformSettings
 		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
-		self.env = Environment(ENV = os.environ, tools = platform.tools)
+		self.env = Environment(ENV = os.environ, tools = platform.tools + ['textfile'])
 		self.platform_settings.adjust_environment(self, self.env)
 
 	def process_user_settings(self):
