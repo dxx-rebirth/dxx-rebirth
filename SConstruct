@@ -2615,7 +2615,8 @@ class DXXCommon(LazyObjectConstructor):
 		builddir = self.user_settings.builddir
 		env = self.env
 		check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
-		if not self.__shared_header_file_list:
+		__shared_header_file_list = self.__shared_header_file_list
+		if not __shared_header_file_list:
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
 			#
@@ -2627,6 +2628,11 @@ class DXXCommon(LazyObjectConstructor):
  */
 '''))
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
+			if not headers:
+				g = Git.pcall(['--version'], stderr=subprocess.STDOUT)
+				if g.returncode:
+					raise SCons.Errors.StopError("`git ls-files` failed.  `git --version` failed.  Check that Git is installed.")
+				raise SCons.Errors.StopError("`git ls-files` failed, but `git --version` works.  Check that scons is run from a Git repository.")
 			# Filter out OS X related directories.  Files in those
 			# directories assume they are only ever built on OS X, so
 			# they unconditionally include headers specific to OS X.
@@ -2634,7 +2640,9 @@ class DXXCommon(LazyObjectConstructor):
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
 			)
-			self.__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
+			__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
+			if not __shared_header_file_list:
+				raise SCons.Errors.StopError("`git ls-files` found headers, but none can be checked.")
 		dirname = os.path.join(builddir, self.srcdir)
 		kwargs = {
 			'CXXFLAGS' : env['CXXFLAGS'][:],
@@ -2645,7 +2653,7 @@ class DXXCommon(LazyObjectConstructor):
 		OBJSUFFIX = env['OBJSUFFIX']
 		CPPFLAGS_template = env['CPPFLAGS']
 		CPPFLAGS_dxxsconf = ['-include', 'dxxsconf.h']
-		for name in self.__shared_header_file_list:
+		for name in __shared_header_file_list:
 			if not name:
 				continue
 			if self.srcdir == 'common' and not name.startswith('common/'):
