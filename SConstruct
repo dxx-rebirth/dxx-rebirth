@@ -3334,10 +3334,13 @@ class DXXProgram(DXXCommon):
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
-		versid_objlist = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines, ENV=versid_environ) for s in ['similar/main/vers_id.cpp']]
+		versid_cpp = 'similar/main/vers_id.cpp'
+		versid_obj = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(versid_cpp), self.env["OBJSUFFIX"]), source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
 		if self.user_settings.versid_depend_all:
-			env.Depends(versid_objlist[0], objects)
-		objects.extend(versid_objlist)
+			# Optional fake dependency to force vers_id to rebuild so
+			# that it picks up the latest timestamp.
+			env.Depends(versid_obj, objects)
+		objects.append(versid_obj)
 		# finally building program...
 		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = objects)
 		if self.user_settings.host_platform != 'darwin':
