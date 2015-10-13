@@ -3246,13 +3246,12 @@ class DXXProgram(DXXCommon):
 	def process_user_settings(self):
 		DXXCommon.process_user_settings(self)
 		env = self.env
-		# opengl or software renderer?
 
 		# profiler?
 		if (self.user_settings.profiler == 1):
 			env.Append(LINKFLAGS = '-pg')
 
-		env.Append(CPPDEFINES = [('SHAREPATH', r'\"%s\"' % self.user_settings.sharepath)])
+		env.Append(CPPDEFINES = [('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str))])
 
 	def register_program(self):
 		self._register_program(self.shortname)
