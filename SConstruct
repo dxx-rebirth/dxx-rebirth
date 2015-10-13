@@ -2270,6 +2270,7 @@ class DXXCommon(LazyObjectConstructor):
 		default_OGLES_LIB = 'GLES_CM'
 		_default_prefix = '/usr/local'
 		__stdout_is_not_a_tty = None
+		__has_git_dir = None
 		def default_builddir(self):
 			builddir_prefix = self.builddir_prefix
 			builddir_suffix = self.builddir_suffix
@@ -2345,6 +2346,16 @@ class DXXCommon(LazyObjectConstructor):
 			except AttributeError:
 				tests.__configure_tests = c = tests.implicit_tests + tests.custom_tests
 				return c
+		@classmethod
+		def __get_has_git_dir(cls):
+			r = cls.__has_git_dir
+			if r is None:
+				# SConstruct is always at the top of the repository.
+				# The user might have run `scons` from elsewhere and
+				# used `-f` to indicate this file, but a false negative
+				# is acceptable here.
+				cls.__has_git_dir = r = os.path.exists(os.environ.get('GIT_DIR', '.git'))
+			return r
 		def _options(self):
 			EnumVariable = self.EnumVariable
 			BoolVariable = self.BoolVariable
@@ -2378,7 +2389,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('record_sconf_results', False, 'write sconf results to dxxsconf.h'),
 					('raspberrypi', False, 'build for Raspberry Pi (automatically sets opengles and opengles_lib)'),
-					('git_describe_version', os.path.exists(getenv('GIT_DIR', '.git')), 'include git --describe in extra_version'),
+					('git_describe_version', self.__get_has_git_dir(), 'include git --describe in extra_version'),
 					('git_status', True, 'include git status'),
 					('versid_depend_all', False, 'rebuild vers_id.cpp if any object file changes'),
 				),
