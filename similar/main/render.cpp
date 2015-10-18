@@ -663,11 +663,13 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 		//NOTE LINK TO ABOVE
 		render_object(obj);
 
-	for (objnum_t n=obj->attached_obj; n != object_none; n = Objects[n].ctype.expl_info.next_attach) {
-		const auto o = vobjptridx(n);
+	for (auto n = obj->attached_obj; n != object_none;)
+	{
+		const auto &&o = vobjptridx(n);
 		Assert(o->type == OBJ_FIREBALL);
 		Assert(o->control_type == CT_EXPLOSION);
 		Assert(o->flags & OF_ATTACHED);
+		n = o->ctype.expl_info.next_attach;
 
 		render_object(o);
 	}
@@ -1138,6 +1140,7 @@ static void sort_segment_object_list(render_state_t::per_segment_state_t &segsta
 static void build_object_lists(render_state_t &rstate)
 {
 	int nn;
+	const auto viewer = Viewer;
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
 		auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
@@ -1145,6 +1148,11 @@ static void build_object_lists(render_state_t &rstate)
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)
+				{
+					assert(obj->type != OBJ_NONE);
+					continue;
+				}
+				if (unlikely(obj == viewer) && likely(obj->attached_obj == object_none))
 					continue;
 
 				Assert( obj->segnum == segnum );
@@ -1350,7 +1358,11 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	for (l=0;l<Render_depth;l++) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			auto segnum = rstate.Render_list[scnt];
-			if (segnum == segment_none) continue;
+			if (unlikely(segnum == segment_none))
+			{
+				assert(segnum != segment_none);
+				continue;
+			}
 
 			auto &srsm = rstate.render_seg_map[segnum];
 			auto &processed = srsm.processed;

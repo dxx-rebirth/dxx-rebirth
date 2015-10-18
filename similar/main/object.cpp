@@ -657,11 +657,9 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 //	Render an object.  Calls one of several routines based on type
 void render_object(const vobjptridx_t obj)
 {
-
-	if ( obj == Viewer )
+	if (unlikely(obj == Viewer))
 		return;
-
-	if ( obj->type==OBJ_NONE )
+	if (unlikely(obj->type==OBJ_NONE))
 	{
 		Int3();
 		return;
