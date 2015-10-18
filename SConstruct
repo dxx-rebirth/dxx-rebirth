@@ -2429,6 +2429,7 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					('register_compile_target', True, 'report compile targets to SCons core'),
 					# This is intentionally undocumented.  If a bug
 					# report includes a log with this set to False, the
 					# reporter will be asked to provide a log with the
@@ -2682,15 +2683,14 @@ class DXXCommon(LazyObjectConstructor):
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 
 	def create_pch_node(self,archive):
-		if self.user_settings.check_header_includes:
+		user_settings = self.user_settings
+		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
 			# create_header_targets() uses the stock env.StaticObject
 			self.create_header_targets()
-		env = self.env
 		configure_pch_flags = archive.configure_pch_flags
-		if not configure_pch_flags:
-			return
-		self.pch_manager = pch_manager = PCHManager(self.user_settings, env, self.srcdir, configure_pch_flags, archive.pch_manager)
+		if configure_pch_flags:
+			self.pch_manager = PCHManager(self.user_settings, self.env, self.srcdir, configure_pch_flags, archive.pch_manager)
 
 	@staticmethod
 	def _quote_cppdefine(s,f=repr):
@@ -3002,6 +3002,8 @@ class DXXArchive(DXXCommon):
 		DXXCommon.__init__(self)
 		self.user_settings = user_settings.clone()
 		self.check_platform()
+		if not user_settings.register_compile_target:
+			return
 		self.prepare_environment()
 		self.check_endian()
 		self.process_user_settings()
@@ -3260,12 +3262,13 @@ class DXXProgram(DXXCommon):
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
 		self.check_platform()
-		self.prepare_environment()
-		self.check_endian()
-		self.process_user_settings()
+		if self.user_settings.register_compile_target:
+			self.prepare_environment()
+			self.process_user_settings()
 		self.register_program()
 
 	def prepare_environment(self):
+		self.check_endian()
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
 		self.env.MergeFlags(archive.configure_added_environment_flags)
@@ -3301,7 +3304,19 @@ class DXXProgram(DXXCommon):
 		env.Append(CPPDEFINES = [('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str))])
 
 	def register_program(self):
-		self._register_program(self.shortname)
+		exe_target = self.user_settings.program_name
+		if not exe_target:
+			exe_target = os.path.join(self.srcdir, self.target)
+			if self.user_settings.editor:
+				exe_target += '-editor'
+		exe_target = os.path.join(self.user_settings.builddir, exe_target)
+		PROGSUFFIX = self.env['PROGSUFFIX']
+		if PROGSUFFIX and not exe_target.endswith(PROGSUFFIX):
+			exe_target += PROGSUFFIX
+		if self.user_settings.register_compile_target:
+			exe_target = self._register_program(exe_target)
+		if self.user_settings.register_install_target:
+			self._register_install(self.shortname, exe_target)
 
 	@classmethod
 	def compute_extra_version(cls):
@@ -3329,9 +3344,8 @@ class DXXProgram(DXXCommon):
 		d = Git.pcall(['diff', '--quiet']).returncode
 		return g.out.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
 
-	def _register_program(self,dxxstr):
+	def _register_program(self,exe_target):
 		env = self.env
-		exe_target = os.path.join(self.srcdir, self.target)
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
 		objects = static_archive_construction.objects_common
 		objects.extend(self.objects_common)
@@ -3349,9 +3363,6 @@ class DXXProgram(DXXCommon):
 		if self.user_settings.editor:
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)
-			exe_target += '-editor'
-		if self.user_settings.program_name:
-			exe_target = self.user_settings.program_name
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
 		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
@@ -3388,9 +3399,11 @@ class DXXProgram(DXXCommon):
 			env.Depends(versid_obj, objects)
 		objects.append(versid_obj)
 		# finally building program...
-		exe_node = env.Program(target=os.path.join(self.user_settings.builddir, exe_target), source = objects)
+		return env.Program(target=exe_target, source = objects)
+
+	def _register_install(self,dxxstr,exe_node):
+		env = self.env
 		if self.user_settings.host_platform != 'darwin':
-			if self.user_settings.register_install_target:
 				install_dir = '%s%s' % (self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
 				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
