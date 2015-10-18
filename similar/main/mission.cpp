@@ -77,7 +77,7 @@ struct mle : Mission_path
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	ntstring<MISSION_NAME_LEN> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
-	ubyte   descent_version;    // descent 1 or descent 2?
+	descent_version_type descent_version;    // descent 1 or descent 2?
 #endif
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 };
@@ -216,7 +216,7 @@ static int load_mission_d1(void)
 static int load_mission_shareware(void)
 {
     Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
-    Current_mission->descent_version = 2;
+    Current_mission->descent_version = Current_mission->descent_version_type::descent2;
     Current_mission->anarchy_only_flag = 0;
     
     switch (Current_mission->builtin_hogsize)
@@ -269,7 +269,7 @@ static int load_mission_shareware(void)
 static int load_mission_oem(void)
 {
     Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
-    Current_mission->descent_version = 2;
+    Current_mission->descent_version = Current_mission->descent_version_type::descent2;
     Current_mission->anarchy_only_flag = 0;
     
 	N_secret_levels = 2;
@@ -355,7 +355,9 @@ static int read_mission_file(mission_list &mission_list, mission_candidate_searc
 		mission->path.assign(pathname.data(), ext);
 #if defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
-		mission->descent_version = (ext[3] == MISSION_EXTENSION_DESCENT_II[3]) ? 2 : 1;
+		mission->descent_version = (ext[3] == MISSION_EXTENSION_DESCENT_II[3])
+			? mission->descent_version_type::descent2
+			: mission->descent_version_type::descent1;
 #endif
 		mission->anarchy_only_flag = 0;
 		mission->filename = next(begin(mission->path), mission->path.find_last_of('/') + 1);
@@ -455,7 +457,7 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 #if defined(DXX_BUILD_DESCENT_I)
 	mission->builtin_hogsize = size;
 #elif defined(DXX_BUILD_DESCENT_II)
-	mission->descent_version = 1;
+	mission->descent_version = mission->descent_version_type::descent1;
 	mission->builtin_hogsize = 0;
 #endif
 	mission->filename = begin(mission->path);
@@ -504,7 +506,7 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 	mle *mission = &mission_list.back();
 	name.copy_if(mission->path.c_str(), FILENAME_LEN);
     mission->builtin_hogsize = size;
-	mission->descent_version = 2;
+	mission->descent_version = mission->descent_version_type::descent2;
 	mission->anarchy_only_flag = 0;
 }
 #endif
@@ -785,7 +787,7 @@ static int load_mission(const mle *mission)
 
 	auto &msn_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-	(mission->descent_version == 2) ? MISSION_EXTENSION_DESCENT_II :
+	(mission->descent_version == mission->descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
 	snprintf(buf, sizeof(buf), "%s%s", mission->path.c_str(), msn_extension);
