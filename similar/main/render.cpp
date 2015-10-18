@@ -1170,18 +1170,17 @@ static void build_object_lists(render_state_t &rstate)
 				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj)==65))		//don't migrate controlcen
 #endif
 				do {
-					segmasks m;
-
 #if defined(DXX_BUILD_DESCENT_I)
 					did_migrate = 0;
 #endif
-					m = get_seg_masks(obj->pos, vcsegptr(new_segnum), obj->size);
+					const uint_fast32_t sidemask = get_seg_masks(obj->pos, vcsegptr(new_segnum), obj->size).sidemask;
 	
-					if (m.sidemask) {
+					if (sidemask) {
 						int sn,sf;
 
 						for (sn=0,sf=1;sn<6;sn++,sf<<=1)
-							if (m.sidemask & sf) {
+							if (sidemask & sf)
+							{
 #if defined(DXX_BUILD_DESCENT_I)
 								const auto &&seg = vcsegptr(obj->segnum);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1201,6 +1200,8 @@ static void build_object_lists(render_state_t &rstate)
 #endif
 										}
 								}
+								if (sidemask <= sf)
+									break;
 							}
 					}
 	

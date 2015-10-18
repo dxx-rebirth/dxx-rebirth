@@ -454,9 +454,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 	range_for (const auto segnum, highest_valid(Segments))
 	{
 		const auto segp = vsegptridx(segnum);
-		segmasks result = get_seg_masks(obj->pos, segp, 0);
-
-		if (result.centermask == 0) {
+		if (get_seg_masks(obj->pos, segp, 0).centermask == 0) {
 			int	fate;
 			fvi_info	hit_info;
 			fvi_query fq;
@@ -753,9 +751,8 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 
 static void move_object_to_position(const vobjptridx_t objp, const vms_vector &newpos)
 {
-	const auto &&result = get_seg_masks(newpos, vcsegptr(objp->segnum), objp->size);
-
-	if (result.facemask == 0) {
+	if (get_seg_masks(newpos, vcsegptr(objp->segnum), objp->size).facemask == 0)
+	{
 		objp->pos = newpos;
 	} else {
 		if (verify_object_seg(objp, newpos)) {
