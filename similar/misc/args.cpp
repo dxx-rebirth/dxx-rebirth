@@ -165,7 +165,7 @@ static void InitGameArg()
 	GameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
 #endif
 #endif
-	GameArg.DbgVerbose = CON_NORMAL;
+	CGameArg.DbgVerbose = CON_NORMAL;
 	GameArg.DbgBpp 			= 32;
 #ifdef OGL
 	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
@@ -336,14 +336,14 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// Debug Options
 
 		else if (!d_stricmp(p, "-debug"))
-			GameArg.DbgVerbose 	= CON_DEBUG;
+			CGameArg.DbgVerbose 	= CON_DEBUG;
 		else if (!d_stricmp(p, "-verbose"))
-			GameArg.DbgVerbose 	= CON_VERBOSE;
+			CGameArg.DbgVerbose 	= CON_VERBOSE;
 
 		else if (!d_stricmp(p, "-no-grab"))
 			CGameArg.DbgForbidConsoleGrab = true;
 		else if (!d_stricmp(p, "-safelog"))
-			GameArg.DbgSafelog 		= 1;
+			CGameArg.DbgSafelog = true;
 		else if (!d_stricmp(p, "-norun"))
 			GameArg.DbgNoRun 		= 1;
 		else if (!d_stricmp(p, "-renderstats"))

@@ -676,7 +676,7 @@ static int init_movie(const char *movielib, char resolution, int required, loade
 	auto r = PHYSFSX_contfile_init(&movie.filename[0], 0);
 	if (!r)
 	{
-		if (required || GameArg.DbgVerbose)
+		if (required || CGameArg.DbgVerbose)
 			con_printf(CON_URGENT, "Can't open movielib <%s>: %s", &movie.filename[0], PHYSFS_getLastError());
 		movie.filename[0] = 0;
 	}

@@ -118,7 +118,7 @@ static void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	if (GameArg.DbgVerbose)
+	if (CGameArg.DbgVerbose)
                 gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)1000/(F1_0/FrameTime)));
         else
                 gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);

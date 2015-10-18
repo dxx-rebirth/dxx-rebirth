@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2013 Christian Beckhaeuser");
 #endif
 
-	if (GameArg.DbgVerbose)
+	if (CGameArg.DbgVerbose)
 		con_puts(CON_VERBOSE, TXT_VERBOSE_1);
 	
 	ReadConfigFile();

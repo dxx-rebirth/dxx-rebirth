@@ -55,7 +55,7 @@ void (con_printf)(int priority, const char *fmt, ...)
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
 
-	if (priority <= ((int)GameArg.DbgVerbose))
+	if (priority <= CGameArg.DbgVerbose)
 	{
 		va_start (arglist, fmt);
 		size_t len = vsnprintf (buffer, sizeof(buffer), fmt, arglist);
@@ -108,7 +108,7 @@ static void con_print_file(const char *buffer)
 
 void con_puts(int priority, char *buffer, size_t len)
 {
-	if (priority <= ((int)GameArg.DbgVerbose))
+	if (priority <= CGameArg.DbgVerbose)
 	{
 		con_add_buffer_line(priority, buffer, len);
 		con_scrub_markup(buffer);
@@ -119,7 +119,7 @@ void con_puts(int priority, char *buffer, size_t len)
 
 void con_puts(int priority, const char *buffer, size_t len)
 {
-	if (priority <= ((int)GameArg.DbgVerbose))
+	if (priority <= CGameArg.DbgVerbose)
 	{
 		/* add given string to con_buffer */
 		con_add_buffer_line(priority, buffer, len);
@@ -315,7 +315,7 @@ void con_showup(void)
 void con_init(void)
 {
 	con_buffer = {};
-	if (GameArg.DbgSafelog)
+	if (CGameArg.DbgSafelog)
 		gamelog_fp.reset(PHYSFS_openWrite("gamelog.txt"));
 	else
 		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");

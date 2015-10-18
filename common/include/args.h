@@ -68,6 +68,8 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool CtlNoStickyKeys;
 	bool DbgForbidConsoleGrab;
 	bool DbgShowMemInfo;
+	bool DbgSafelog;
+	int DbgVerbose;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -126,8 +128,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool EdiSaveHoardData;
 	bool EdiMacData; // also used for some read routines in non-editor build
 #endif
-	int DbgVerbose;
-	bool DbgSafelog;
 	bool DbgNoRun;
 	bool DbgRenderStats;
 	std::string DbgAltTex;
