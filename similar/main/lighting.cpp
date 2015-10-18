@@ -289,12 +289,12 @@ static g3s_lrgb compute_light_emission(objnum_t objnum)
 			}
 			break;
 		case OBJ_FIREBALL:
-			if (obj->id != 0xff)
+			if (obj->id < Vclip.size())
 			{
+				auto &v = Vclip[obj->id];
+				light_intensity = v.light_value;
 				if (obj->lifeleft < F1_0*4)
-					light_intensity = fixmul(fixdiv(obj->lifeleft, Vclip[obj->id].play_time), Vclip[obj->id].light_value);
-				else
-					light_intensity = Vclip[obj->id].light_value;
+					light_intensity = fixmul(fixdiv(obj->lifeleft, v.play_time), light_intensity);
 			}
 			else
 				 light_intensity = 0;
