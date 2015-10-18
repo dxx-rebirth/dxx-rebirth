@@ -309,13 +309,6 @@ static g3s_lrgb compute_light_emission(objnum_t objnum)
 		case OBJ_WEAPON:
 		{
 			fix tval = Weapon_info[get_weapon_id(obj)].light;
-#if defined(DXX_BUILD_DESCENT_II)
-			if (Game_mode & GM_MULTI)
-				if (obj->id == OMEGA_ID)
-					if (d_rand() > 8192)
-						light_intensity = 0; // 3/4 of time, omega blobs will cast 0 light!
-#endif
-
 			if (get_weapon_id(obj) == FLARE_ID )
 				light_intensity = 2*(min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
