@@ -221,7 +221,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 #ifdef OGL
@@ -239,11 +239,15 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
+	(void)segp;
 	(void)wid_flags;
+#ifndef EDITOR
+	(void)sidenum;
+#endif
 #elif defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
-		auto wall_num = Segments[segnum].sides[sidenum].wall_num;
+		auto wall_num = segp->sides[sidenum].wall_num;
 		Assert(wall_num != wall_none);
 		gr_settransblend(Walls[wall_num].cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
@@ -257,10 +261,8 @@ static void render_face(segnum_t segnum, int sidenum, unsigned nv, const array<i
 #endif
 
 	if (tmap1 >= NumTextures) {
-#ifndef RELEASE
 		Int3();
-#endif
-		Segments[segnum].sides[sidenum].tmap_num = 0;
+		return;
 	}
 
 #ifdef OGL
@@ -428,7 +430,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 }
 
 template <std::size_t... N>
-static inline void check_render_face(index_sequence<N...>, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &ovp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &ovp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
 	const array<int, 4> vp{{ovp[N]...}};
 	const array<g3s_uvl, 4> uvl_copy{{
@@ -439,7 +441,7 @@ static inline void check_render_face(index_sequence<N...>, segnum_t segnum, int 
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -448,7 +450,7 @@ static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, segnum_t
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(index_sequence<N0, N1, N2>, segnum_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -875,7 +877,7 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 }
 
 #ifndef NDEBUG
-char visited2[MAX_SEGMENTS];
+static array<char, MAX_SEGMENTS> visited2;
 #endif
 
 namespace {
@@ -1313,7 +1315,7 @@ void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, 
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, short start_seg_num)
+static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, segnum_t start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1321,7 +1323,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 	rstate.render_pos.fill(-1);
 
 	#ifndef NDEBUG
-	memset(visited2, 0, sizeof(visited2[0])*(Highest_segment_index+1));
+	visited2 = {};
 	#endif
 
 	lcnt = scnt = 0;
