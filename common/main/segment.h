@@ -157,7 +157,6 @@ struct segment {
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t slide_textures;
 #endif
-	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
 	array<int, MAX_VERTICES_PER_SEGMENT>     verts;    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
@@ -168,6 +167,7 @@ struct segment {
 	ubyte   s2_flags;
 #endif
 	fix     static_light;
+	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
 };
 #endif
 
