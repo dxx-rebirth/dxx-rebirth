@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <bitset>
 #include <numeric>
 #include <stdio.h>
 #include <string.h>	// for memset()
@@ -486,7 +487,7 @@ void set_dynamic_light(render_state_t &rstate)
 		return;
 	light_time = light_time - (F1_0/60);
 
-	array<int8_t, MAX_VERTICES> render_vertex_flags{};
+	std::bitset<MAX_VERTICES> render_vertex_flags;
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	uint_fast32_t n_render_vertices = 0;
@@ -500,20 +501,17 @@ void set_dynamic_light(render_state_t &rstate)
 					Int3();		//invalid vertex number
 					continue;	//ignore it, and go on to next one
 				}
-				if (!render_vertex_flags[vnum]) {
-					render_vertex_flags[vnum] = 1;
+				auto &&b = render_vertex_flags[vnum];
+				if (!b)
+				{
+					b = true;
 					render_vertices[n_render_vertices] = vnum;
 					vert_segnum_list[n_render_vertices] = segnum;
 					n_render_vertices++;
+					Dynamic_light[vnum] = {};
 				}
 			}
 		}
-	}
-
-	range_for (const auto vertnum, partial_range(render_vertices, n_render_vertices))
-	{
-		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		Dynamic_light[vertnum] = {};
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
