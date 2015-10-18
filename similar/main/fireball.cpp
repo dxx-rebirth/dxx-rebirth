@@ -634,38 +634,36 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
-static int segment_contains_object(int obj_type, int obj_id, const vcsegptridx_t segnum)
+static csegptr_t segment_contains_object(const vcsegptr_t segnum, int obj_type, int obj_id)
 {
 	range_for (const auto objp, objects_in(segnum))
 		if ((objp->type == obj_type) && (objp->id == obj_id))
-			return 1;
-
-	return 0;
+			return segnum;
+	return segment_none;
 }
 
 //	------------------------------------------------------------------------------------------------------
-static int object_nearby_aux(const vcsegptridx_t segnum, int object_type, int object_id, uint_fast32_t depth)
+static csegptr_t object_nearby_aux(const vcsegptr_t segnum, int object_type, int object_id, uint_fast32_t depth)
 {
-	if (segment_contains_object(object_type, object_id, segnum))
-		return 1;
+	if (auto r = segment_contains_object(segnum, object_type, object_id))
+		return r;
 	if (! -- depth)
-		return 0;
+		return segment_none;
 	range_for (const auto seg2, segnum->children)
 	{
 		if (seg2 != segment_none)
-			if (object_nearby_aux(seg2, object_type, object_id, depth))
-				return 1;
+			if (auto r = object_nearby_aux(vcsegptr(seg2), object_type, object_id, depth))
+				return r;
 	}
-
-	return 0;
+	return segment_none;
 }
 
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if some powerup is nearby (within 3 segments).
-static int weapon_nearby(const vobjptr_t objp, int weapon_id)
+static csegptr_t weapon_nearby(const vobjptr_t objp, int weapon_id)
 {
-	return object_nearby_aux(objp->segnum, OBJ_POWERUP, weapon_id, 3);
+	return object_nearby_aux(vcsegptr(objp->segnum), OBJ_POWERUP, weapon_id, 2);
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -677,7 +675,8 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 		return;
 
 	if (del_obj->contains_id == POW_CLOAK) {
-		if (weapon_nearby(del_obj, del_obj->contains_id)) {
+		if (weapon_nearby(del_obj, del_obj->contains_id) != nullptr)
+		{
 			del_obj->contains_count = 0;
 		}
 		return;
@@ -715,7 +714,8 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (get_local_player().vulcan_ammo >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
-		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id)) {
+		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id) != nullptr)
+		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj->contains_count = 1;
@@ -737,7 +737,8 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 			}
 		}
 	} else if (del_obj->contains_id == POW_QUAD_FIRE)
-		if ((get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, del_obj->contains_id)) {
+		if ((get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, del_obj->contains_id) != nullptr)
+		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj->contains_count = 1;
