@@ -1059,6 +1059,7 @@ namespace {
 
 class render_compare_context_t
 {
+	typedef render_state_t::per_segment_state_t::distant_object distant_object;
 	struct element
 	{
 		fix64 dist_squared;
@@ -1083,18 +1084,17 @@ public:
 			e.dist_squared = vm_vec_dist2(objp->pos, Viewer_eye);
 		}
 	}
+	bool operator()(const distant_object &a, const distant_object &b) const;
 };
 
-}
-
 //compare function for object sort. 
-static bool compare_func(const render_compare_context_t &c, const render_state_t::per_segment_state_t::distant_object &a,const render_state_t::per_segment_state_t::distant_object &b)
+bool render_compare_context_t::operator()(const distant_object &a, const distant_object &b) const
 {
-	fix64 delta_dist_squared = c[a.objnum].dist_squared - c[b.objnum].dist_squared;
+	const auto delta_dist_squared = (*this)[a.objnum].dist_squared - (*this)[b.objnum].dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	const auto obj_a = c[a.objnum].objp;
-	const auto obj_b = c[b.objnum].objp;
+	const auto obj_a = (*this)[a.objnum].objp;
+	const auto obj_b = (*this)[b.objnum].objp;
 
 	auto abs_delta_dist_squared = std::abs(delta_dist_squared);
 	fix combined_size = obj_a->size + obj_b->size;
@@ -1127,13 +1127,13 @@ static bool compare_func(const render_compare_context_t &c, const render_state_t
 	return delta_dist_squared < 0;	//return distance
 }
 
+}
+
 static void sort_segment_object_list(render_state_t::per_segment_state_t &segstate)
 {
 	render_compare_context_t context(segstate);
-	typedef render_state_t::per_segment_state_t::distant_object distant_object;
-	const auto predicate = [&context](const distant_object &a, const distant_object &b) { return compare_func(context, a, b); };
 	auto &v = segstate.objects;
-	std::sort(v.begin(), v.end(), predicate);
+	std::sort(v.begin(), v.end(), std::cref(context));
 }
 
 static void build_object_lists(render_state_t &rstate)
