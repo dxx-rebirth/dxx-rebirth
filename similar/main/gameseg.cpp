@@ -284,12 +284,11 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 			int	side_count,center_count;
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
-			
-			
-			if (vertex_list[4] < vertex_list[1])
-					dist = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
-			else
-					dist = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
+
+			auto a = vertex_list[4] < vertex_list[1]
+				? std::make_pair(vertex_list[4], &s->normals[0])
+				: std::make_pair(vertex_list[1], &s->normals[1]);
+			dist = vm_dist_to_plane(Vertices[a.first], *a.second, Vertices[vertnum]);
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
@@ -393,10 +392,10 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 			vertnum = min(vertex_list[0],vertex_list[2]);
 
 
-			if (vertex_list[4] < vertex_list[1])
-					dist = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
-			else
-					dist = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
+			auto a = vertex_list[4] < vertex_list[1]
+				? std::make_pair(vertex_list[4], &s->normals[0])
+				: std::make_pair(vertex_list[1], &s->normals[1]);
+			dist = vm_dist_to_plane(Vertices[a.first], *a.second, Vertices[vertnum]);
 
 			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
 
