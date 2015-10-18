@@ -926,6 +926,59 @@ static void nd_write_object(const vcobjptr_t obj)
 
 }
 
+static void nd_record_meta(char (&buf)[7], const char *s)
+{
+	for (auto l = strlen(s) + 1; l;)
+	{
+		const auto n = std::min(l, sizeof(buf) - 3);
+		std::copy_n(s, n, &buf[3]);
+		s += n;
+		if (!(l -= n))
+			/* On final fragment, overwrite any trailing garbage from
+			 * previous iteration.
+			 */
+			std::fill_n(&buf[3 + n], sizeof(buf) - 3 - n, 0);
+		newdemo_write(buf, 1, sizeof(buf));
+	}
+}
+
+static void nd_rdt(char (&buf)[7])
+{
+	time_t t;
+	if (time(&t) == static_cast<time_t>(-1))
+		return;
+	/* UTC for easy comparison among demos from players in different
+	 * timezones
+	 */
+	if (const auto g = gmtime(&t))
+		if (const auto st = asctime(g))
+			nd_record_meta(buf, st);
+}
+
+static void nd_rbe()
+{
+	char buf[7]{ND_EVENT_PALETTE_EFFECT, 0x80};
+	newdemo_write(buf, 1, sizeof(buf));
+	++buf[2];
+	nd_rdt(buf);
+	++buf[2];
+#define DXX_RBE(A)	\
+	extern const char g_descent_##A[];	\
+	nd_record_meta(buf, g_descent_##A);
+	DXX_RBE(CPPFLAGS);
+	DXX_RBE(CXX);
+	DXX_RBE(CXXFLAGS);
+	DXX_RBE(CXX_version);
+	DXX_RBE(LINKFLAGS);
+	++buf[2];
+	DXX_RBE(build_datetime);
+	DXX_RBE(git_diffstat);
+	DXX_RBE(git_status);
+	DXX_RBE(version);
+	std::fill_n(&buf[1], sizeof(buf) - 1, 0);
+	newdemo_write(buf, 1, sizeof(buf));
+}
+
 void newdemo_record_start_demo()
 {
 	nd_record_v_recordframe_last_time=GameTime64-REC_DELAY; // make sure first frame is recorded!
@@ -996,6 +1049,7 @@ void newdemo_record_start_demo()
 	nd_record_v_player_afterburner = 0;
 	nd_record_v_juststarted=1;
 #endif
+	nd_rbe();
 	newdemo_set_new_level(Current_level_num);
 #if defined(DXX_BUILD_DESCENT_I)
 	newdemo_record_oneframeevent_update(1);
