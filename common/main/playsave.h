@@ -75,6 +75,13 @@ struct hli
 #include "multi.h"
 #include "fwd-weapon.h"
 
+enum class FiringAutoselectMode : uint8_t
+{
+	Immediate,
+	Never,
+	Delayed,
+};
+
 struct player_config : prohibit_void_ptr<player_config>
 {
 	ubyte ControlType;
@@ -125,7 +132,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	ubyte BombGauge;
 #endif
 	ubyte AutomapFreeFlight;
-	ubyte NoFireAutoselect;
+	FiringAutoselectMode NoFireAutoselect;
 	ubyte CycleAutoselectOnly;
 	uint8_t CloakInvulTimer;
 	union {

@@ -111,6 +111,8 @@ weapon_info_array Weapon_info;
 unsigned N_weapon_types;
 primary_weapon_index_t Primary_weapon;
 sbyte Secondary_weapon;
+static primary_weapon_index_t Delayed_primary;
+static sbyte Delayed_secondary;
 
 // autoselect ordering
 
@@ -355,7 +357,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );
 #endif
 		}
-		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
+		Delayed_primary = Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
@@ -394,7 +396,7 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 			}
 
 		}
-		Secondary_weapon = weapon_num;
+		Delayed_secondary = Secondary_weapon = weapon_num;
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
@@ -667,6 +669,33 @@ void auto_select_secondary_weapon()
 		}
 }
 
+void delayed_autoselect()
+{
+	if (!Controls.state.fire_primary && Delayed_primary != Primary_weapon)
+		select_primary_weapon(nullptr, Delayed_primary, 1);
+	if (!Controls.state.fire_secondary && Delayed_secondary != Secondary_weapon)
+		select_secondary_weapon(nullptr, Delayed_secondary, 1);
+}
+
+static void maybe_autoselect_primary_weapon(int weapon_index)
+{
+	const auto want_switch = [weapon_index]{
+		const auto cutpoint = POrderList(255);
+		const auto weapon_order = POrderList(weapon_index);
+		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(Delayed_primary));
+	};
+	if (Controls.state.fire_primary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
+	{
+		if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
+		{
+			if (want_switch())
+				Delayed_primary = static_cast<primary_weapon_index_t>(weapon_index);
+		}
+	}
+	else if (want_switch())
+		select_primary_weapon(nullptr, weapon_index, 1);
+}
+
 //	---------------------------------------------------------------------
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
@@ -693,13 +722,21 @@ int pick_up_secondary(int weapon_index,int count)
 	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		const auto weapon_order = SOrderList(weapon_index);
-		if (!(Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect) &&
-			weapon_order < SOrderList(255) &&
-			(
-				get_local_player().secondary_ammo[Secondary_weapon] == 0 ||
-				weapon_order < SOrderList(Secondary_weapon)
-			)
-		)
+		const auto want_switch = [weapon_index, weapon_order]{
+			return weapon_order < SOrderList(255) && (
+				get_local_player().secondary_ammo[Delayed_secondary] == 0 ||
+				weapon_order < SOrderList(Delayed_secondary)
+				);
+		};
+		if (Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
+		{
+			if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
+			{
+				if (want_switch())
+					Delayed_secondary = weapon_index;
+			}
+		}
+		else if (want_switch())
 			select_secondary_weapon(nullptr, weapon_index, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 			//if it's a proxbomb or smart mine,
@@ -800,13 +837,7 @@ int pick_up_primary(int weapon_index)
 
 	get_local_player().primary_weapon_flags |= flag;
 
-	if (!(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
-	{
-		const auto cutpoint = POrderList(255);
-		const auto weapon_order = POrderList(weapon_index);
-		if (weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index()))
-			select_primary_weapon(nullptr, weapon_index, 1);
-	}
+	maybe_autoselect_primary_weapon(weapon_index);
 
 	PALETTE_FLASH_ADD(7,14,21);
 
@@ -872,7 +903,7 @@ static void maybe_autoselect_vulcan_weapon(player &plr)
 	if (better >= POrderList(get_mapped_weapon_index(Primary_weapon)))
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
-	select_primary_weapon(nullptr, weapon_index, 1);
+	maybe_autoselect_primary_weapon(weapon_index);
 }
 
 //called when ammo (for the vulcan cannon) is picked up
@@ -894,8 +925,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 		plr.vulcan_ammo = max;
 	}
 	if (change_weapon &&
-		!old_ammo &&
-		!(Controls.state.fire_primary && PlayerCfg.NoFireAutoselect))
+		!old_ammo)
 		maybe_autoselect_vulcan_weapon(plr);
 	return ammo_count;	//return amount used
 }

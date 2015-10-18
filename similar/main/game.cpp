@@ -1465,6 +1465,7 @@ void GameProcessFrame(void)
 
 		if (Global_laser_firing_count < 0)
 			Global_laser_firing_count = 0;
+		delayed_autoselect();
 	}
 
 	if (Do_appearance_effect) {

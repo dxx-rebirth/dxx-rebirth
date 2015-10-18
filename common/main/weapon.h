@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-type_traits.h"
 
+void delayed_autoselect();
+
 enum laser_level_t : uint8_t
 {
 	LASER_LEVEL_1,

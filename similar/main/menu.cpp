@@ -2123,6 +2123,11 @@ void do_sound_menu()
 	DXX_##VERB##_CHECK("Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
 
 #endif
+
+enum {
+	optgrp_autoselect_firing,
+};
+
 #define DXX_GAMEPLAY_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
 	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
@@ -2133,7 +2138,10 @@ void do_sound_menu()
         DXX_##VERB##_TEXT("Weapon Autoselect options:", opt_label_autoselect)	\
 	DXX_##VERB##_MENU("Primary ordering...", opt_gameplay_reorderprimary_menu)	\
 	DXX_##VERB##_MENU("Secondary ordering...", opt_gameplay_reordersecondary_menu)	\
-	DXX_##VERB##_CHECK("No Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
+	DXX_##VERB##_TEXT("Autoselect while firing:", opt_autoselect_firing_label)	\
+	DXX_##VERB##_RADIO("Immediately", opt_autoselect_firing_immediate, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Immediate, optgrp_autoselect_firing)	\
+	DXX_##VERB##_RADIO("Never", opt_autoselect_firing_never, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Never, optgrp_autoselect_firing)	\
+	DXX_##VERB##_RADIO("When firing stops", opt_autoselect_firing_delayed, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed, optgrp_autoselect_firing)	\
 	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
 
 enum {
@@ -2170,6 +2178,11 @@ void gameplay_config()
 		DXX_GAMEPLAY_MENU_OPTIONS(ADD);
                 i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, gameplay_config_menuset, unused_newmenu_userdata, 0 );
 		DXX_GAMEPLAY_MENU_OPTIONS(READ);
+		PlayerCfg.NoFireAutoselect = m[opt_autoselect_firing_delayed].value
+			? FiringAutoselectMode::Delayed
+			: (m[opt_autoselect_firing_immediate].value
+				? FiringAutoselectMode::Immediate
+				: FiringAutoselectMode::Never);
 	} while( i>-1 );
 
 }
