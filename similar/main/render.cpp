@@ -634,9 +634,8 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 	//	Added by MK on 09/07/94 (at about 5:28 pm, CDT, on a beautiful, sunny late summer day!) so
 	//	that the guided missile system will know what objects to look at.
 	//	I didn't know we had guided missiles before the release of D1. --MK
-	if ((obj->type == OBJ_ROBOT) || (obj->type == OBJ_PLAYER)) {
+	if (obj->type == OBJ_ROBOT)
 		window.rendered_robots.emplace_back(obj);
-	}
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == obj)) {
 		Int3();					// infinite loop detected
