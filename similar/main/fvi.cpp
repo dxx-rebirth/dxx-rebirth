@@ -246,7 +246,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 
 		norm = seg->sides[side].normals[facenum];
 
-	const auto v = create_abs_vertex_lists(seg, side);
+	const auto v = create_abs_vertex_lists(seg, s, side);
 	const auto &num_faces = v.first;
 	const auto &vertex_list = v.second;
 
@@ -324,7 +324,7 @@ static int special_check_line_to_face(vms_vector &newp,const vms_vector &p0,cons
 
 	//calc some basic stuff
 
-	const auto v = create_abs_vertex_lists(seg, side);
+	const auto v = create_abs_vertex_lists(seg, s, side);
 	const auto &vertex_list = v.second;
 	auto move_vec = vm_vec_sub(p1,p0);
 
@@ -1117,9 +1117,9 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 
 	//when do I return 0 & 1 for non-transparent walls?
 
-	const auto vx = create_abs_vertex_lists(seg, sidenum);
+	const auto vx = create_abs_vertex_lists(seg, side, sidenum);
 	const auto &vertex_list = vx.second;
-	const auto vn = create_all_vertnum_lists(seg, sidenum);
+	const auto vn = create_all_vertnum_lists(seg, side, sidenum);
 	const auto &vertnum_list = vn.second;
 
 	//now the hard work.
@@ -1234,11 +1234,12 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 					int face_hit_type;      //in what way did we hit the face?
 
 					//did we go through this wall/door?
-					const auto v = create_abs_vertex_lists(seg, side);
+					const auto *sidep = &seg->sides[side];
+					const auto v = create_abs_vertex_lists(seg, sidep, side);
 					const auto &num_faces = v.first;
 					const auto &vertex_list = v.second;
 
-					face_hit_type = check_sphere_to_face( pnt,&seg->sides[side],
+					face_hit_type = check_sphere_to_face(pnt, sidep,
 										face,((num_faces==1)?4:3),rad,vertex_list);
 
 					if (face_hit_type) {            //through this wall/door

@@ -23,9 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _GAMESEG_H
-#define _GAMESEG_H
+#pragma once
 
 #include "pstypes.h"
 #include "maths.h"
@@ -87,24 +85,31 @@ struct vertex_array_list_t : array<int, 6> {};
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, const side *sidep, uint_fast32_t sidenum);
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(vcsegptr_t segnum, int sidenum)
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(vcsegptr_t segnum, const side *sidep, uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
-	auto n = create_all_vertex_lists(r, segnum, sidenum);
+	auto n = create_all_vertex_lists(r, segnum, sidep, sidenum);
 	return {n, r};
 }
 #endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, vcsegptr_t segnum, const side *sidep, uint_fast32_t sidenum);
+
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(vcsegptr_t segnum, int sidenum)
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(vcsegptr_t segnum, const side *sidep, uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
-	auto n = create_abs_vertex_lists(r, segnum, sidenum);
+	auto n = create_abs_vertex_lists(r, segnum, sidep, sidenum);
 	return {n, r};
+}
+
+__attribute_warn_unused_result
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_lists(vcsegptr_t segp, uint_fast32_t sidenum)
+{
+	return create_abs_vertex_lists(segp, &segp->sides[sidenum], sidenum);
 }
 
 // -----------------------------------------------------------------------------------
@@ -113,12 +118,12 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_abs_vertex_li
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, vcsegptr_t segnum, int sidenum);
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, vcsegptr_t segnum, const side *const sidep, uint_fast32_t sidenum);
 __attribute_warn_unused_result
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertnum_lists(vcsegptr_t segnum, int sidenum)
+static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertnum_lists(vcsegptr_t segnum, const side *const sidep, uint_fast32_t sidenum)
 {
 	vertex_array_list_t r;
-	auto n = create_all_vertnum_lists(r, segnum, sidenum);
+	auto n = create_all_vertnum_lists(r, segnum, sidep, sidenum);
 	return {n, r};
 }
 
@@ -191,7 +196,3 @@ void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
 
 #endif
-
-#endif
-
-

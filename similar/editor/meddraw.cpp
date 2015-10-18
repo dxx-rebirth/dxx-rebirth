@@ -370,7 +370,7 @@ static void add_edges(const vcsegptridx_t seg)
 		for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 			auto sidep = &seg->sides[sn];
 			int	num_vertices;
-			const auto v = create_all_vertex_lists(seg, sn);
+			const auto v = create_all_vertex_lists(seg, sidep, sn);
 			const auto &num_faces = v.first;
 			const auto &vertex_list = v.second;
 			if (num_faces == 1)

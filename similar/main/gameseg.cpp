@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <cassert>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>	//	for memset()
@@ -53,6 +54,34 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "highest_valid.h"
 
 using std::min;
+
+namespace {
+
+class abs_vertex_lists_predicate
+{
+	const array<int, MAX_VERTICES_PER_SEGMENT> &m_vp;
+	const array<unsigned, 4> &m_sv;
+public:
+	abs_vertex_lists_predicate(const vcsegptr_t segp, uint_fast32_t sidenum) :
+		m_vp(segp->verts), m_sv(Side_to_verts_int[sidenum])
+	{
+	}
+	int operator()(const uint_fast32_t vv) const
+	{
+		return m_vp[m_sv[vv]];
+	}
+};
+
+class all_vertnum_lists_predicate
+{
+public:
+	int operator()(const uint_fast32_t vv) const
+	{
+		return vv;
+	}
+};
+
+}
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -128,6 +157,54 @@ void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int side
 		vertlist[i] = vp[sv[i]];
 }
 
+__attribute_cold
+__noreturn
+static void create_vertex_list_from_invalid_side(const vcsegptr_t segp, const side *const sidep)
+{
+	throw side::illegal_type(segp, sidep);
+}
+
+template <typename F>
+static inline uint_fast32_t create_vertex_lists_by_predicate(vertex_array_list_t &va, const vcsegptr_t segp, const side *const sidep, const F &f)
+{
+	const auto f0 = f(0);
+	const auto f1 = f(1);
+	const auto f2 = f(2);
+	const auto f3 = f(3);
+	const auto type = sidep->get_type();
+	if (type == SIDE_IS_TRI_13)
+	{
+		va[0] = va[5] = f3;
+		va[1] = f0;
+		va[2] = va[3] = f1;
+		va[4] = f2;
+		return 2;
+	}
+	va[0] = f0;
+	va[1] = f1;
+	va[2] = f2;
+	switch (type)
+	{
+		case SIDE_IS_QUAD:
+			va[3] = f3;
+			/* Unused, but required to prevent bogus
+			 * -Wmaybe-uninitialized in check_segment_connections
+			 */
+			va[4] = va[5] = {};
+			DXX_MAKE_MEM_UNDEFINED(&va[4], 2 * sizeof(va[4]));
+			return 1;
+		case SIDE_IS_TRI_02:
+			va[3] = f2;
+			va[4] = f3;
+			va[5] = f0;
+
+			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
+			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
+			return 2;
+		default:
+			create_vertex_list_from_invalid_side(segp, sidep);
+	}
+}
 
 #ifdef EDITOR
 // -----------------------------------------------------------------------------------
@@ -141,46 +218,14 @@ void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int side
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, const side *const sidep, const uint_fast32_t sidenum)
 {
-	auto sidep = &segp->sides[sidenum];
+	assert(sidenum < Side_to_verts_int.size());
 	auto &sv = Side_to_verts_int[sidenum];
-
-	Assert((sidenum >= 0) && (sidenum < 6));
-
-	switch (sidep->get_type()) {
-		case SIDE_IS_QUAD:
-
-			vertices[0] = sv[0];
-			vertices[1] = sv[1];
-			vertices[2] = sv[2];
-			vertices[3] = sv[3];
-			return 1;
-		case SIDE_IS_TRI_02:
-			vertices[0] = sv[0];
-			vertices[1] = sv[1];
-			vertices[2] = sv[2];
-			vertices[3] = sv[2];
-			vertices[4] = sv[3];
-			vertices[5] = sv[0];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		case SIDE_IS_TRI_13:
-			vertices[0] = sv[3];
-			vertices[1] = sv[0];
-			vertices[2] = sv[1];
-			vertices[3] = sv[1];
-			vertices[4] = sv[2];
-			vertices[5] = sv[3];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		default:
-			throw side::illegal_type(segp, sidep);
-	}
+	const auto a = [&sv](const uint_fast32_t vv) {
+		return sv[vv];
+	};
+	return create_vertex_lists_by_predicate(vertices, segp, sidep, a);
 }
 #endif
 
@@ -190,87 +235,18 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcseg
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, const vcsegptr_t segp, const side *const sidep, uint_fast32_t sidenum)
 {
-	auto sidep = &segp->sides[sidenum];
-	switch (sidep->get_type()) {
-		case SIDE_IS_QUAD:
-			vertnums[0] = 0;
-			vertnums[1] = 1;
-			vertnums[2] = 2;
-			vertnums[3] = 3;
-
-			return 1;
-		case SIDE_IS_TRI_02:
-			vertnums[0] = 0;
-			vertnums[1] = 1;
-			vertnums[2] = 2;
-			vertnums[3] = 2;
-			vertnums[4] = 3;
-			vertnums[5] = 0;
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		case SIDE_IS_TRI_13:
-			vertnums[0] = 3;
-			vertnums[1] = 0;
-			vertnums[2] = 1;
-			vertnums[3] = 1;
-			vertnums[4] = 2;
-			vertnums[5] = 3;
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		default:
-			throw side::illegal_type(segp, sidep);
-	}
+	(void)sidenum;
+	return create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate());
 }
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, int sidenum)
+uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcsegptr_t segp, const side *sidep, uint_fast32_t sidenum)
 {
-	auto &vp = segp->verts;
-	auto sidep = &segp->sides[sidenum];
-	auto &sv = Side_to_verts_int[sidenum];
-	switch (sidep->get_type()) {
-		case SIDE_IS_QUAD:
-			vertices[0] = vp[sv[0]];
-			vertices[1] = vp[sv[1]];
-			vertices[2] = vp[sv[2]];
-			vertices[3] = vp[sv[3]];
-			vertices[4] = -1;
-			vertices[5] = -2;
-			return 1;
-		case SIDE_IS_TRI_02:
-			vertices[0] = vp[sv[0]];
-			vertices[1] = vp[sv[1]];
-			vertices[2] = vp[sv[2]];
-			vertices[3] = vp[sv[2]];
-			vertices[4] = vp[sv[3]];
-			vertices[5] = vp[sv[0]];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS(),
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		case SIDE_IS_TRI_13:
-			vertices[0] = vp[sv[3]];
-			vertices[1] = vp[sv[0]];
-			vertices[2] = vp[sv[1]];
-			vertices[3] = vp[sv[1]];
-			vertices[4] = vp[sv[2]];
-			vertices[5] = vp[sv[3]];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
-		default:
-			throw side::illegal_type(segp, sidep);
-	}
+	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
-
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
@@ -293,7 +269,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		const auto v = create_abs_vertex_lists(segnum, sn);
+		const auto v = create_abs_vertex_lists(segnum, s, sn);
 		const auto &num_faces = v.first;
 		const auto &vertex_list = v.second;
 
@@ -399,7 +375,7 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		const auto v = create_abs_vertex_lists(segnum, sn);
+		const auto v = create_abs_vertex_lists(segnum, s, sn);
 		const auto &num_faces = v.first;
 		const auto &vertex_list = v.second;
 
@@ -1407,14 +1383,12 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 			fix			dist0,dist1;
 			int			s0,s1;
 			int			vertnum;
-			side			*s;
 
-			const auto v = create_abs_vertex_lists(sp, sidenum);
+			const auto s = &sp->sides[sidenum];
+			const auto v = create_abs_vertex_lists(sp, s, sidenum);
 			const auto &vertex_list = v.second;
 
 			Assert(v.first == 2);
-
-			s = &sp->sides[sidenum];
 
 			vertnum = min(vertex_list[0],vertex_list[2]);
 
