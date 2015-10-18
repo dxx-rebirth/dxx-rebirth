@@ -3393,9 +3393,8 @@ class DXXProgram(DXXCommon):
 		versid_cppdefines = env['CPPDEFINES'][:]
 		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
 		v = StaticSubprocess.get_version_head(env['CXX'])
-		if v is not None:
-			versid_cppdefines.append(('DESCENT_%s' % 'CXX_version', self._quote_cppdefine(v)))
-			versid_build_environ.append('CXX_version')
+		versid_cppdefines.append(('DESCENT_CXX_version', self._quote_cppdefine(v)))
+		versid_build_environ.append('CXX_version')
 		extra_version = self.user_settings.extra_version
 		if extra_version is None:
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
@@ -3407,8 +3406,7 @@ class DXXProgram(DXXCommon):
 			if extra_version:
 				extra_version += ' '
 			extra_version += git_describe_version[0]
-		if extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version, f=str)))
+		versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version, f=str)))
 		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
