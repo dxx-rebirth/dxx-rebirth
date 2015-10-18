@@ -575,9 +575,8 @@ static fix compute_headlight_light_on_object(const vobjptr_t objp)
 }
 
 //compute the average dynamic light in a segment.  Takes the segment number
-g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
+static g3s_lrgb compute_seg_dynamic_light(const vcsegptr_t seg)
 {
-	auto seg = &Segments[segnum];
 	auto op = [](g3s_lrgb r, unsigned v) {
 		r.r += Dynamic_light[v].r;
 		r.g += Dynamic_light[v].g;
@@ -585,12 +584,10 @@ g3s_lrgb compute_seg_dynamic_light(segnum_t segnum)
 		return r;
 	};
 	g3s_lrgb sum = std::accumulate(begin(seg->verts), end(seg->verts), g3s_lrgb{0, 0, 0}, op);
-	g3s_lrgb seg_lrgb;
-	seg_lrgb.r = sum.r >> 3;
-	seg_lrgb.g = sum.g >> 3;
-	seg_lrgb.b = sum.b >> 3;
-
-	return seg_lrgb;
+	sum.r >>= 3;
+	sum.g >>= 3;
+	sum.b >>= 3;
+	return sum;
 }
 
 static array<g3s_lrgb, MAX_OBJECTS> object_light;
@@ -599,7 +596,7 @@ object *old_viewer;
 static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(const objptr_t viewer)
+void start_lighting_frame(const vobjptr_t viewer)
 {
 	reset_lighting_hack = (viewer != old_viewer);
 	old_viewer = viewer;
@@ -622,7 +619,8 @@ g3s_lrgb compute_object_light(const vobjptridx_t obj,const vms_vector *rotated_p
 	}
 
 	//First, get static (mono) light for this segment
-	light.r = light.g = light.b = Segments[obj->segnum].static_light;
+	const auto &&objsegp = vcsegptr(obj->segnum);
+	light.r = light.g = light.b = objsegp->static_light;
 
 	//Now, maybe return different value to smooth transitions
 	if (!reset_lighting_hack && object_sig[objnum] == obj->signature)
@@ -672,7 +670,7 @@ g3s_lrgb compute_object_light(const vobjptridx_t obj,const vms_vector *rotated_p
 	light.b += mlight;
  
 	//Finally, add in dynamic light for this segment
-	seg_dl = compute_seg_dynamic_light(obj->segnum);
+	seg_dl = compute_seg_dynamic_light(objsegp);
 	light.r += seg_dl.r;
 	light.g += seg_dl.g;
 	light.b += seg_dl.b;

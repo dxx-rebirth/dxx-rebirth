@@ -41,9 +41,6 @@ struct g3s_lrgb;
 extern array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
 extern object *old_viewer;
 
-// compute the average dynamic light in a segment.  Takes the segment number
-g3s_lrgb compute_seg_dynamic_light(segnum_t segnum);
-
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the
 // object's center point is rotated.
@@ -51,6 +48,6 @@ g3s_lrgb compute_object_light(vobjptridx_t obj,const vms_vector *rotated_pnt);
 
 // turn headlight boost on & off
 void toggle_headlight_active(void);
-void start_lighting_frame(objptr_t viewer);
+void start_lighting_frame(vobjptr_t viewer);
 
 #endif
