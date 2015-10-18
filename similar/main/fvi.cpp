@@ -1117,16 +1117,13 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 
 	//when do I return 0 & 1 for non-transparent walls?
 
-	const auto vx = create_abs_vertex_lists(seg, side, sidenum);
-	const auto &vertex_list = vx.second;
-	const auto vn = create_all_vertnum_lists(seg, side, sidenum);
-	const auto &vertnum_list = vn.second;
+	const auto &&vn = create_all_vertnum_lists(seg, side, sidenum);
 
 	//now the hard work.
 
 	//1. find what plane to project this wall onto to make it a 2d case
 
-	vms_vector normal_array = side->normals[facenum];
+	const auto &normal_array = side->normals[facenum];
 	auto fmax = [](const vms_vector &v, fix vms_vector::*a, fix vms_vector::*b) {
 		return abs(v.*a) > abs(v.*b) ? a : b;
 	};
@@ -1137,13 +1134,13 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	const vms_vector &vf1 = Vertices[vertex_list[facenum*3+1]];
+	const vms_vector &vf1 = Vertices[vn[facenum*3+1].vertex];
 	const vec2d p1{vf1.*ii, vf1.*jj};
 
-	const vms_vector &vf0 = Vertices[vertex_list[facenum*3+0]];
+	const vms_vector &vf0 = Vertices[vn[facenum*3+0].vertex];
 	const vec2d vec0{vf0.*ii - p1.i, vf0.*jj - p1.j};
 	//vec from 1 -> 2
-	const vms_vector &vf2 = Vertices[vertex_list[facenum*3+2]];
+	const vms_vector &vf2 = Vertices[vn[facenum*3+2].vertex];
 	const vec2d vec1{vf2.*ii - p1.i, vf2.*jj - p1.j};
 
 	//vec from 1 -> checkpoint
@@ -1164,7 +1161,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 
 	array<uvl, 3> uvls;
 	for (i=0;i<3;i++)
-		uvls[i] = side->uvls[vertnum_list[facenum*3+i]];
+		uvls[i] = side->uvls[vn[facenum*3+i].vertnum];
 
 	auto p = [&uvls, k0, k1](fix uvl::*p) {
 		return uvls[1].*p + fixmul(k0,uvls[0].*p - uvls[1].*p) + fixmul(k1,uvls[2].*p - uvls[1].*p);

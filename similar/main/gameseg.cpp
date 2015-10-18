@@ -72,12 +72,16 @@ public:
 	}
 };
 
-class all_vertnum_lists_predicate
+class all_vertnum_lists_predicate : public abs_vertex_lists_predicate
 {
 public:
-	int operator()(const uint_fast32_t vv) const
+	all_vertnum_lists_predicate(const vcsegptr_t segp, uint_fast32_t sidenum) :
+		abs_vertex_lists_predicate(segp, sidenum)
 	{
-		return vv;
+	}
+	vertex_vertnum_pair operator()(const uint_fast32_t vv) const
+	{
+		return {this->abs_vertex_lists_predicate::operator()(vv), static_cast<int>(vv)};
 	}
 };
 
@@ -164,8 +168,8 @@ static void create_vertex_list_from_invalid_side(const vcsegptr_t segp, const si
 	throw side::illegal_type(segp, sidep);
 }
 
-template <typename F>
-static inline uint_fast32_t create_vertex_lists_by_predicate(vertex_array_list_t &va, const vcsegptr_t segp, const side *const sidep, const F &f)
+template <typename T, typename F>
+static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegptr_t segp, const side *const sidep, const F &f)
 {
 	const auto f0 = f(0);
 	const auto f1 = f(1);
@@ -235,10 +239,9 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcseg
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-uint_fast32_t create_all_vertnum_lists(vertex_array_list_t &vertnums, const vcsegptr_t segp, const side *const sidep, uint_fast32_t sidenum)
+void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const vcsegptr_t segp, const side *const sidep, uint_fast32_t sidenum)
 {
-	(void)sidenum;
-	return create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate());
+	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
 
 // -----
@@ -253,13 +256,11 @@ uint_fast32_t create_abs_vertex_lists(vertex_array_list_t &vertices, const vcseg
 segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix rad)
 {
 	int			sn,facebit,sidebit;
-	segmasks		masks;
+	segmasks		masks{};
 
 	const auto &seg = segnum;
 
 	//check point against each side of segment. return bitmask
-
-	masks.sidemask = masks.facemask = masks.centermask = 0;
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
 		auto s = &seg->sides[sn];
