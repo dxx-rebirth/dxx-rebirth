@@ -1419,7 +1419,7 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 	if (!weapon_index_uses_vulcan_ammo(weapon_num) || plr.vulcan_ammo)
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
-			if (weapon_num == LASER_INDEX)
+			if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			{
 				if (auto &laser_level = plr.laser_level)
 				{

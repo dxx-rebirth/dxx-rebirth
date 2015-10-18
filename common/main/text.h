@@ -1178,11 +1178,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT(u)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)	\
-	((u) == SUPER_LASER_INDEX) ? TXT_W_SLASER :	\
-	((u) == GAUSS_INDEX) ? TXT_W_SVULCAN :	\
-	((u) == HELIX_INDEX) ? TXT_W_SSPREADFIRE :	\
-	((u) == PHOENIX_INDEX) ? TXT_W_SPLASMA :	\
-	((u) == OMEGA_INDEX) ? TXT_W_SFUSION :	\
+	((u) == primary_weapon_index_t::SUPER_LASER_INDEX) ? TXT_W_SLASER :	\
+	((u) == primary_weapon_index_t::GAUSS_INDEX) ? TXT_W_SVULCAN :	\
+	((u) == primary_weapon_index_t::HELIX_INDEX) ? TXT_W_SSPREADFIRE :	\
+	((u) == primary_weapon_index_t::PHOENIX_INDEX) ? TXT_W_SPLASMA :	\
+	((u) == primary_weapon_index_t::OMEGA_INDEX) ? TXT_W_SFUSION :	\
 
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES(u)	\
 	((u) == SMISSILE1_INDEX) ? TXT_W_SMISSILE1 :	\
@@ -1192,11 +1192,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == SMISSILE5_INDEX) ? TXT_W_SMISSILE5 :	\
 
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES_SHORT(u)	\
-	((u) == SUPER_LASER_INDEX) ? TXT_W_SLASER_S :	\
-	((u) == GAUSS_INDEX) ? TXT_W_SVULCAN_S :	\
-	((u) == HELIX_INDEX) ? TXT_W_SSPREADFIRE_S :	\
-	((u) == PHOENIX_INDEX) ? TXT_W_SPLASMA_S :	\
-	((u) == OMEGA_INDEX) ? TXT_W_SFUSION_S :	\
+	((u) == primary_weapon_index_t::SUPER_LASER_INDEX) ? TXT_W_SLASER_S :	\
+	((u) == primary_weapon_index_t::GAUSS_INDEX) ? TXT_W_SVULCAN_S :	\
+	((u) == primary_weapon_index_t::HELIX_INDEX) ? TXT_W_SSPREADFIRE_S :	\
+	((u) == primary_weapon_index_t::PHOENIX_INDEX) ? TXT_W_SPLASMA_S :	\
+	((u) == primary_weapon_index_t::OMEGA_INDEX) ? TXT_W_SFUSION_S :	\
 
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT(u)	\
 	((u) == SMISSILE1_INDEX) ? TXT_W_SMISSILE1_S :	\
@@ -1208,11 +1208,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #define PRIMARY_WEAPON_NAMES(u)	(	\
-	((u) == LASER_INDEX) ? TXT_W_LASER :	\
-	((u) == VULCAN_INDEX) ? TXT_W_VULCAN :	\
-	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE :	\
-	((u) == PLASMA_INDEX) ? TXT_W_PLASMA :	\
-	((u) == FUSION_INDEX) ? TXT_W_FUSION :	\
+	((u) == primary_weapon_index_t::LASER_INDEX) ? TXT_W_LASER :	\
+	((u) == primary_weapon_index_t::VULCAN_INDEX) ? TXT_W_VULCAN :	\
+	((u) == primary_weapon_index_t::SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE :	\
+	((u) == primary_weapon_index_t::PLASMA_INDEX) ? TXT_W_PLASMA :	\
+	((u) == primary_weapon_index_t::FUSION_INDEX) ? TXT_W_FUSION :	\
 	_D2X_PRIMARY_SUPER_WEAPON_NAMES((u))	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER))	\
 	)
@@ -1228,11 +1228,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 #define PRIMARY_WEAPON_NAMES_SHORT(u)	(	\
-	((u) == LASER_INDEX) ? TXT_W_LASER_S :	\
-	((u) == VULCAN_INDEX) ? TXT_W_VULCAN_S :	\
-	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE_S :	\
-	((u) == PLASMA_INDEX) ? TXT_W_PLASMA_S :	\
-	((u) == FUSION_INDEX) ? TXT_W_FUSION_S :	\
+	((u) == primary_weapon_index_t::LASER_INDEX) ? TXT_W_LASER_S :	\
+	((u) == primary_weapon_index_t::VULCAN_INDEX) ? TXT_W_VULCAN_S :	\
+	((u) == primary_weapon_index_t::SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE_S :	\
+	((u) == primary_weapon_index_t::PLASMA_INDEX) ? TXT_W_PLASMA_S :	\
+	((u) == primary_weapon_index_t::FUSION_INDEX) ? TXT_W_FUSION_S :	\
 	_D2X_PRIMARY_SUPER_WEAPON_NAMES_SHORT((u))	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER_S))	\
 	)

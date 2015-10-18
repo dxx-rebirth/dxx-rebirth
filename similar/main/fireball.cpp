@@ -683,15 +683,31 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 		return;
 	}
 	switch (del_obj->contains_id) {
-		case POW_VULCAN_WEAPON:			weapon_index = VULCAN_INDEX;		break;
-		case POW_SPREADFIRE_WEAPON:	weapon_index = SPREADFIRE_INDEX;	break;
-		case POW_PLASMA_WEAPON:			weapon_index = PLASMA_INDEX;		break;
-		case POW_FUSION_WEAPON:			weapon_index = FUSION_INDEX;		break;
+		case POW_VULCAN_WEAPON:
+			weapon_index = primary_weapon_index_t::VULCAN_INDEX;
+			break;
+		case POW_SPREADFIRE_WEAPON:
+			weapon_index = primary_weapon_index_t::SPREADFIRE_INDEX;
+			break;
+		case POW_PLASMA_WEAPON:
+			weapon_index = primary_weapon_index_t::PLASMA_INDEX;
+			break;
+		case POW_FUSION_WEAPON:
+			weapon_index = primary_weapon_index_t::FUSION_INDEX;
+			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_GAUSS_WEAPON:			weapon_index = GAUSS_INDEX;		break;
-		case POW_HELIX_WEAPON:			weapon_index = HELIX_INDEX;		break;
-		case POW_PHOENIX_WEAPON:		weapon_index = PHOENIX_INDEX;		break;
-		case POW_OMEGA_WEAPON:			weapon_index = OMEGA_INDEX;		break;
+		case POW_GAUSS_WEAPON:
+			weapon_index = primary_weapon_index_t::GAUSS_INDEX;
+			break;
+		case POW_HELIX_WEAPON:
+			weapon_index = primary_weapon_index_t::HELIX_INDEX;
+			break;
+		case POW_PHOENIX_WEAPON:
+			weapon_index = primary_weapon_index_t::PHOENIX_INDEX;
+			break;
+		case POW_OMEGA_WEAPON:
+			weapon_index = primary_weapon_index_t::OMEGA_INDEX;
+			break;
 #endif
 	}
 

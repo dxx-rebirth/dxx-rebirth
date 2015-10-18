@@ -1742,10 +1742,10 @@ int do_laser_firing_player(void)
 	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon == OMEGA_INDEX)
+	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
 	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
-	if (weapon_index == HELIX_INDEX)
+	if (weapon_index == primary_weapon_index_t::HELIX_INDEX)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
@@ -1771,14 +1771,14 @@ int do_laser_firing_player(void)
 
 			flags = 0;
 
-			if (Primary_weapon == SPREADFIRE_INDEX) {
+			if (Primary_weapon == primary_weapon_index_t::SPREADFIRE_INDEX) {
 				if (Spreadfire_toggle)
 					flags |= LASER_SPREADFIRE_TOGGLED;
 				Spreadfire_toggle = !Spreadfire_toggle;
 			}
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Primary_weapon == HELIX_INDEX) {
+			if (Primary_weapon == primary_weapon_index_t::HELIX_INDEX) {
 				Helix_orientation++;
 				flags |= ((Helix_orientation & LASER_HELIX_MASK) << LASER_HELIX_SHIFT);
 			}
@@ -1826,7 +1826,7 @@ int do_laser_firing_player(void)
 int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int nfires, vms_vector shot_orientation)
 {
 	switch (weapon_num) {
-		case LASER_INDEX: {
+		case primary_weapon_index_t::LASER_INDEX: {
 			enum weapon_type_t weapon_type;
 
 			switch(level)
@@ -1865,7 +1865,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 		}
-		case VULCAN_INDEX: {
+		case primary_weapon_index_t::VULCAN_INDEX: {
 			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
 			//if (d_rand() > 24576)
@@ -1879,7 +1879,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 		}
-		case SPREADFIRE_INDEX:
+		case primary_weapon_index_t::SPREADFIRE_INDEX:
 			if (flags & LASER_SPREADFIRE_TOGGLED) {
 				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, F1_0/16, 0, 0, shot_orientation);
 				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, -F1_0/16, 0, 0, shot_orientation);
@@ -1891,7 +1891,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 
-		case PLASMA_INDEX:
+		case primary_weapon_index_t::PLASMA_INDEX:
 			Laser_player_fire( objp, PLASMA_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, PLASMA_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
@@ -1900,7 +1900,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 
-		case FUSION_INDEX: {
+		case primary_weapon_index_t::FUSION_INDEX: {
 			vms_vector	force_vec;
 
 			Laser_player_fire( objp, FUSION_ID, 0, 1, shot_orientation);
@@ -1923,7 +1923,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 		}
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case GAUSS_INDEX: {
+		case primary_weapon_index_t::GAUSS_INDEX: {
 			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
 			//if (d_rand() > 24576)
@@ -1938,7 +1938,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 		}
-		case HELIX_INDEX: {
+		case primary_weapon_index_t::HELIX_INDEX: {
 			int helix_orient;
 			fix spreadr,spreadu;
 			helix_orient = (flags >> LASER_HELIX_SHIFT) & LASER_HELIX_MASK;
@@ -1964,7 +1964,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			break;
 		}
 
-		case PHOENIX_INDEX:
+		case primary_weapon_index_t::PHOENIX_INDEX:
 			Laser_player_fire( objp, PHOENIX_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, PHOENIX_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
@@ -1973,13 +1973,13 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			}
 			break;
 
-		case OMEGA_INDEX:
+		case primary_weapon_index_t::OMEGA_INDEX:
 			Laser_player_fire( objp, OMEGA_ID, 1, 1, shot_orientation);
 			break;
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-		case SUPER_LASER_INDEX:
+		case primary_weapon_index_t::SUPER_LASER_INDEX:
 #endif
 		default:
 			Int3();	//	Contact Yuan: Unknown Primary weapon type, setting to 0.

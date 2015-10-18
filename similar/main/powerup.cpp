@@ -295,7 +295,7 @@ int do_powerup(const vobjptridx_t obj)
 				++ get_local_player().laser_level;
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, get_local_player().laser_level+1);
 				update_laser_weapon_info();
-				pick_up_primary (LASER_INDEX);
+				pick_up_primary (primary_weapon_index_t::LASER_INDEX);
 				used=1;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
@@ -358,7 +358,7 @@ int do_powerup(const vobjptridx_t obj)
 
 		case	POW_VULCAN_WEAPON:
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((used = pick_up_primary(VULCAN_INDEX)) != 0) {
+			if ((used = pick_up_primary(primary_weapon_index_t::VULCAN_INDEX)) != 0) {
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
 				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
 				pick_up_vulcan_ammo(vulcan_ammo_to_add_with_cannon);
@@ -386,7 +386,10 @@ int do_powerup(const vobjptridx_t obj)
 		case	POW_GAUSS_WEAPON: {
 			int ammo = obj->ctype.powerup_info.count;
 
-			used = pick_up_primary((get_powerup_id(obj)==POW_VULCAN_WEAPON)?VULCAN_INDEX:GAUSS_INDEX);
+			used = pick_up_primary((get_powerup_id(obj) == POW_VULCAN_WEAPON)
+				? primary_weapon_index_t::VULCAN_INDEX
+				: primary_weapon_index_t::GAUSS_INDEX
+			);
 
 			//didn't get the weapon (because we already have it), but
 			//maybe snag some of the ammo.  if single-player, grab all the ammo
@@ -414,36 +417,36 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 
 		case	POW_SPREADFIRE_WEAPON:
-			used = pick_up_primary(SPREADFIRE_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::SPREADFIRE_INDEX);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 		case	POW_PLASMA_WEAPON:
-			used = pick_up_primary(PLASMA_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::PLASMA_INDEX);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 		case	POW_FUSION_WEAPON:
-			used = pick_up_primary(FUSION_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::FUSION_INDEX);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case	POW_HELIX_WEAPON:
-			used = pick_up_primary(HELIX_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::HELIX_INDEX);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 
 		case	POW_PHOENIX_WEAPON:
-			used = pick_up_primary(PHOENIX_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::PHOENIX_INDEX);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
 
 		case	POW_OMEGA_WEAPON:
-			used = pick_up_primary(OMEGA_INDEX);
+			used = pick_up_primary(primary_weapon_index_t::OMEGA_INDEX);
 			if (used)
 				Omega_charge = obj->ctype.powerup_info.count;
 			if (!used && !(Game_mode & GM_MULTI) )
@@ -572,7 +575,7 @@ int do_powerup(const vobjptridx_t obj)
 					newdemo_record_laser_level(old_level, get_local_player().laser_level);
 				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d",get_local_player().laser_level+1);
 				update_laser_weapon_info();
-				if (Primary_weapon!=LASER_INDEX)
+				if (Primary_weapon!=primary_weapon_index_t::LASER_INDEX)
 					check_to_use_primary_super_laser();
 				used=1;
 			}

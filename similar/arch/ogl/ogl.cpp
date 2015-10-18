@@ -440,7 +440,7 @@ void ogl_cache_level_textures(void)
 	init_special_effects();
 	{
 		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
-		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[LASER_INDEX]);
+		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::LASER_INDEX]);
 		ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
 		ogl_cache_weapon_textures(FLARE_ID);
 		ogl_cache_vclipn_textures(VCLIP_PLAYER_APPEARANCE);
@@ -456,16 +456,16 @@ void ogl_cache_level_textures(void)
 				ogl_cache_vclipn_textures(objp->rtype.vclip_info.vclip_num);
 				switch (get_powerup_id(objp)){
 					case POW_VULCAN_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[VULCAN_INDEX]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::VULCAN_INDEX]);
 						break;
 					case POW_SPREADFIRE_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[SPREADFIRE_INDEX]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::SPREADFIRE_INDEX]);
 						break;
 					case POW_PLASMA_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[PLASMA_INDEX]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::PLASMA_INDEX]);
 						break;
 					case POW_FUSION_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[FUSION_INDEX]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::FUSION_INDEX]);
 						break;
 					case POW_PROXIMITY_WEAPON:
 						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[PROXIMITY_INDEX]);

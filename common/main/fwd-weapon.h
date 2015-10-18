@@ -105,11 +105,11 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #define  HAS_SECONDARY_FLAG(index)  (1<<(index))
 
 // Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
-#define HAS_LASER_FLAG      HAS_PRIMARY_FLAG(LASER_INDEX)
-#define HAS_VULCAN_FLAG     HAS_PRIMARY_FLAG(VULCAN_INDEX)
-#define HAS_SPREADFIRE_FLAG HAS_PRIMARY_FLAG(SPREADFIRE_INDEX)
-#define HAS_PLASMA_FLAG     HAS_PRIMARY_FLAG(PLASMA_INDEX)
-#define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(FUSION_INDEX)
+#define HAS_LASER_FLAG      HAS_PRIMARY_FLAG(primary_weapon_index_t::LASER_INDEX)
+#define HAS_VULCAN_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::VULCAN_INDEX)
+#define HAS_SPREADFIRE_FLAG HAS_PRIMARY_FLAG(primary_weapon_index_t::SPREADFIRE_INDEX)
+#define HAS_PLASMA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX)
+#define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX)
 
 #define HAS_CONCUSSION_FLAG HAS_SECONDARY_FLAG(CONCUSSION_INDEX)
 #define HAS_HOMING_FLAG HAS_SECONDARY_FLAG(HOMING_INDEX)
@@ -129,11 +129,11 @@ enum secondary_weapon_index_t : uint8_t;
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 #define	VULCAN_AMMO_SCALE		(0x198300/2)		//multiply ammo by this before displaying
 #elif defined(DXX_BUILD_DESCENT_II)
-#define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(SUPER_LASER_INDEX)
-#define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(GAUSS_INDEX)
-#define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(HELIX_INDEX)
-#define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(PHOENIX_INDEX)
-#define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(OMEGA_INDEX)
+#define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(primary_weapon_index_t::SUPER_LASER_INDEX)
+#define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX)
+#define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX)
+#define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX)
+#define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)
 #define SUPER_WEAPON        5
 #define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
 #define HAS_FLASH_FLAG	HAS_SECONDARY_FLAG(SMISSILE1_INDEX)

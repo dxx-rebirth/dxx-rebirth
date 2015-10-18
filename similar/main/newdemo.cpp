@@ -972,7 +972,7 @@ void newdemo_record_start_demo()
 	nd_record_v_secondary_ammo = -1;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
+		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
 	range_for (auto &i, get_local_player().secondary_ammo)
 		nd_write_short(i);
@@ -1727,7 +1727,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		short s;
 		nd_read_short(&s);
-		if (i == VULCAN_INDEX)
+		if (i == primary_weapon_index_t::VULCAN_INDEX)
 			get_local_player().vulcan_ammo = s;
 		if (purpose == PURPOSE_REWRITE)
 			nd_write_short(s);
@@ -2827,7 +2827,7 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 				break;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Primary_weapon == OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
+			if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
 				Omega_charge = (value<=0?f1_0:value);
 			else
 #endif
@@ -3217,7 +3217,7 @@ void newdemo_goto_end(int to_rewrite)
 	{
 		short s;
 		nd_read_short(&s);
-		if (i == VULCAN_INDEX)
+		if (i == primary_weapon_index_t::VULCAN_INDEX)
 			get_local_player().vulcan_ammo = s;
 	}
 	range_for (auto &i, get_local_player().secondary_ammo)
@@ -3619,7 +3619,7 @@ static void newdemo_write_end()
 	byte_count += 8;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
+		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
 	range_for (auto &i, get_local_player().secondary_ammo)
 		nd_write_short(i);

@@ -1567,7 +1567,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	}
 	else {
 		fix save_charge = Fusion_charge;
-		if (weapon == FUSION_INDEX) {
+		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
 			Fusion_charge = flags << 12;
 		}
 		if (weapon == LASER_ID) {
@@ -1579,7 +1579,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 
 		do_laser_firing(vobjptridx(Players[pnum].objnum), weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
 
-		if (weapon == FUSION_INDEX)
+		if (weapon == primary_weapon_index_t::FUSION_INDEX)
 			Fusion_charge = save_charge;
 	}
 }

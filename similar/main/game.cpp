@@ -1432,7 +1432,7 @@ void GameProcessFrame(void)
 			FireLaser();				// Fire Laser!
 
 		if (Auto_fire_fusion_cannon_time) {
-			if (Primary_weapon != FUSION_INDEX)
+			if (Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
 			else if (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
 				Auto_fire_fusion_cannon_time = 0;
@@ -1649,7 +1649,7 @@ void FireLaser()
 
 	Global_laser_firing_count = Controls.state.fire_primary?Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count:0;
 
-	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
+	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
 		if ((get_local_player().energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 			Global_laser_firing_count = 0;
 		} else {

@@ -131,8 +131,8 @@ array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_index == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
-		return SUPER_LASER_INDEX;
+	if (weapon_index == primary_weapon_index_t::LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
+		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
 	return weapon_index;
 }
@@ -207,13 +207,13 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 #if defined(DXX_BUILD_DESCENT_I)
 		//added on 1/21/99 by Victor Rachels... yet another hack
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
-		if(weapon_num==FUSION_INDEX)
+		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
 		{
 			if(get_local_player().energy >= F1_0*2)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (weapon_num == OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
+		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (get_local_player().energy || Omega_charge)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
@@ -275,14 +275,14 @@ void CyclePrimary ()
 		auto desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
-		if (desired_weapon == LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
+		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
 			continue;
-		if (desired_weapon == SUPER_LASER_INDEX)
+		if (desired_weapon == primary_weapon_index_t::SUPER_LASER_INDEX)
 		{
 			if (get_local_player().laser_level <= MAX_LASER_LEVEL)
 				continue;
 			else
-				desired_weapon = LASER_INDEX;
+				desired_weapon = primary_weapon_index_t::LASER_INDEX;
 		}
 #endif
 		// select the weapon if we have it
@@ -366,7 +366,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 	if (weapon_name)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		if (weapon_num == LASER_INDEX)
+		if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, get_local_player().laser_level+1, TXT_SELECTED);
 		else
 #endif
@@ -495,7 +495,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 	if ((weapon_status.flags() & has_flag) != has_flag) {
 		{
-			if (weapon_num==SUPER_LASER_INDEX)
+			if (weapon_num == primary_weapon_index_t::SUPER_LASER_INDEX)
 				return; 		//no such thing as super laser, so no error
 			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, weapon_name);
 		}
@@ -830,7 +830,8 @@ int pick_up_primary(int weapon_index)
 	//ushort old_flags = Players[Player_num].primary_weapon_flags;
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
 
-	if (weapon_index!=LASER_INDEX && get_local_player().primary_weapon_flags & flag) {		//already have
+	if (weapon_index != primary_weapon_index_t::LASER_INDEX && get_local_player().primary_weapon_flags & flag)
+	{		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
@@ -841,7 +842,7 @@ int pick_up_primary(int weapon_index)
 
 	PALETTE_FLASH_ADD(7,14,21);
 
-   if (weapon_index!=LASER_INDEX)
+	if (weapon_index != primary_weapon_index_t::LASER_INDEX)
    	HUD_init_message(HM_DEFAULT, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
 
 	return 1;
@@ -857,7 +858,7 @@ void check_to_use_primary_super_laser()
 		if (pwi < POrderList(255) &&
 			pwi < POrderList(Primary_weapon))
 		{
-			select_primary_weapon(nullptr, LASER_INDEX, 1);
+			select_primary_weapon(nullptr, primary_weapon_index_t::LASER_INDEX, 1);
 		}
 	}
 	PALETTE_FLASH_ADD(7,14,21);
@@ -1309,7 +1310,7 @@ void DropCurrentWeapon ()
 			objnum->ctype.powerup_info.count = ammo;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon == OMEGA_INDEX) {
+	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) {
 
 		//dropped weapon has current energy
 
@@ -1320,7 +1321,7 @@ void DropCurrentWeapon ()
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_weapon(objnum,seed);
 
-	if (Primary_weapon == LASER_INDEX)
+	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
 		if (drop_type == POW_QUAD_FIRE)
 			plr.flags &= ~PLAYER_FLAGS_QUAD_LASERS;

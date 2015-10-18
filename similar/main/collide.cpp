@@ -1980,25 +1980,25 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #endif
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
 			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
-		auto objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+		auto objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::VULCAN_INDEX);
 		if (objnum!=object_none)
 			objnum->ctype.powerup_info.count = vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
-		objnum = maybe_drop_primary_weapon_egg(playerobj, GAUSS_INDEX);
+		objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::GAUSS_INDEX);
 		if (objnum!=object_none)
 			objnum->ctype.powerup_info.count = vulcan_ammo;
 #endif
 
 		//	Drop the rest of the primary weapons
-		maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::SPREADFIRE_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::PLASMA_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::FUSION_INDEX);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		maybe_drop_primary_weapon_egg(playerobj, HELIX_INDEX);
-		maybe_drop_primary_weapon_egg(playerobj, PHOENIX_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::HELIX_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::PHOENIX_INDEX);
 
-		objnum = maybe_drop_primary_weapon_egg(playerobj, OMEGA_INDEX);
+		objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::OMEGA_INDEX);
 		if (objnum!=object_none)
 			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? Omega_charge : MAX_OMEGA_CHARGE;
 #endif

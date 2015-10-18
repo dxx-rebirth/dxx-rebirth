@@ -213,11 +213,6 @@ enum primary_weapon_index_t : uint8_t
 	HELIX_INDEX = 7,
 	PHOENIX_INDEX = 8,
 	OMEGA_INDEX = 9,
-#define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(SUPER_LASER_INDEX)
-#define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(GAUSS_INDEX)
-#define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(HELIX_INDEX)
-#define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(PHOENIX_INDEX)
-#define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(OMEGA_INDEX)
 #endif
 };
 
@@ -290,7 +285,7 @@ static inline int which_bomb(void)
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {
-	return id == VULCAN_INDEX;
+	return id == primary_weapon_index_t::VULCAN_INDEX;
 }
 
 static inline int weapon_index_is_player_bomb(unsigned id)
@@ -302,7 +297,7 @@ int which_bomb(void);
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {
-	return id == VULCAN_INDEX || id == GAUSS_INDEX;
+	return id == primary_weapon_index_t::VULCAN_INDEX || id == primary_weapon_index_t::GAUSS_INDEX;
 }
 
 static inline int weapon_index_is_player_bomb(unsigned id)
