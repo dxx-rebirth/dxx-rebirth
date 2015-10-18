@@ -2430,6 +2430,7 @@ class DXXCommon(LazyObjectConstructor):
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
+					('register_cpp_output_targets', None, None),
 					# This is intentionally undocumented.  If a bug
 					# report includes a log with this set to False, the
 					# reporter will be asked to provide a log with the
@@ -2682,12 +2683,31 @@ class DXXCommon(LazyObjectConstructor):
 				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
 			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
 
+	def _cpp_output_StaticObject(self,target=None,source=None,*args,**kwargs):
+		CXXFLAGS = kwargs.get('CXXFLAGS', None)
+		env = self.env
+		OBJSUFFIX = env['OBJSUFFIX']
+		StaticObject = env.__cpp_output_StaticObject
+		StaticObject(
+			target='%s.i' % (target[:-len(OBJSUFFIX)] if target.endswith(OBJSUFFIX) else target),
+			source=source, OBJSUFFIX='.i',
+			# Bypass ccache
+			CXXCOM=env._dxx_cxxcom_no_prefix,
+			CXXFLAGS=(env['CXXFLAGS'] if CXXFLAGS is None else CXXFLAGS) + ['-E'],
+			CXXCOMSTR=env.__generate_cpp_output_COMSTR,
+		)
+		return StaticObject(target=target, source=source, *args, **kwargs)
+
 	def create_pch_node(self,archive):
 		user_settings = self.user_settings
 		if user_settings.check_header_includes:
 			# Create header targets before creating the PCHManager, so that
 			# create_header_targets() uses the stock env.StaticObject
 			self.create_header_targets()
+		if user_settings.register_cpp_output_targets:
+			env = self.env
+			env.__cpp_output_StaticObject = env.StaticObject
+			env.StaticObject = self._cpp_output_StaticObject
 		configure_pch_flags = archive.configure_pch_flags
 		if configure_pch_flags:
 			self.pch_manager = PCHManager(self.user_settings, self.env, self.srcdir, configure_pch_flags, archive.pch_manager)
@@ -2749,10 +2769,16 @@ class DXXCommon(LazyObjectConstructor):
 		distcc_hosts = self.user_settings.distcc_hosts
 		if distcc_hosts is not None:
 			self.env['ENV']['DISTCC_HOSTS'] = distcc_hosts
-		if (self.user_settings.verbosebuild == 0):
-			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
-			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
-			self.env["LINKCOMSTR"]   = "Linking %s $TARGET" % self.target
+		if self.user_settings.verbosebuild:
+			self.env.__generate_cpp_output_COMSTR	= None
+		else:
+			target = self.target[:3]
+			format_tuple = (target, self.user_settings.builddir or '.')
+			self.env.__generate_cpp_output_COMSTR	= "CPP %s %s $SOURCE" % format_tuple
+			self.env["CXXCOMSTR"]					= "CXX %s %s $SOURCE" % format_tuple
+			# `builddir` is implicit since $TARGET is the full path to
+			# the output
+			self.env["LINKCOMSTR"]					= "LD  %s $TARGET" % target
 
 		# Use -Wundef to catch when a shared source file includes a
 		# shared header that misuses conditional compilation.  Use
