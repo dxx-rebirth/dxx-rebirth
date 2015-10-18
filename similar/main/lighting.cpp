@@ -251,9 +251,8 @@ static unsigned Num_headlights;
 static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
-static g3s_lrgb compute_light_emission(objnum_t objnum)
+static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 {
-	const auto &&obj = vobjptr(objnum);
 	int compute_color = 0;
 	float cscale = 255.0;
 	fix light_intensity = 0;
@@ -311,7 +310,7 @@ static g3s_lrgb compute_light_emission(objnum_t objnum)
 		{
 			fix tval = Weapon_info[get_weapon_id(obj)].light;
 			if (get_weapon_id(obj) == FLARE_ID )
-				light_intensity = 2*(min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
+				light_intensity = 2*(min(tval, obj->lifeleft) + ((static_cast<fix>(GameTime64) ^ Obj_light_xlate[obj.get_unchecked_index() % Obj_light_xlate.size()]) & 0x3fff));
 			else
 				light_intensity = tval;
 			break;
@@ -518,10 +517,8 @@ void set_dynamic_light(render_state_t &rstate)
 
 	range_for (const auto objnum, highest_valid(Objects))
 	{
-		const auto &&obj = vcobjptr(static_cast<objnum_t>(objnum));
-		g3s_lrgb	obj_light_emission;
-
-		obj_light_emission = compute_light_emission(objnum);
+		const auto &&obj = vobjptridx(static_cast<objnum_t>(objnum));
+		const auto &&obj_light_emission = compute_light_emission(obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 			apply_light(obj_light_emission, obj->segnum, obj->pos, n_render_vertices, render_vertices, vert_segnum_list, objnum);
