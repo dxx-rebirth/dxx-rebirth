@@ -109,9 +109,8 @@ static void draw_segment(const vcsegptr_t seg)
 		return;
 
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		int i;
 
 		for (i=0;i<4;i++) draw_line(svp[i],svp[i+4]);
@@ -125,16 +124,14 @@ static void draw_segment(const vcsegptr_t seg)
 		draw_line(svp[0+4],svp[3+4]);
 
 	}
-
 }
 
 //for looking for segment under a mouse click
 static void check_segment(const vsegptridx_t seg)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		gr_setcolor(0);
 #ifdef OGL
 		g3_end_frame();
@@ -170,9 +167,8 @@ static void check_segment(const vsegptridx_t seg)
 static void draw_seg_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		int i;
 
 		for (i=0;i<3;i++)
@@ -186,9 +182,7 @@ static void draw_seg_side(const vcsegptr_t seg,int side)
 static void draw_side_edge(const vcsegptr_t seg,int side,int edge)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand)		//on screen?
+	if (!rotate_list(svp).uand)		//on screen?
 		draw_line(svp[Side_to_verts[side][edge]],svp[Side_to_verts[side][(edge+1)%4]]);
 }
 
@@ -364,9 +358,8 @@ static void add_edge(int v0,int v1,ubyte type)
 static void add_edges(const vcsegptridx_t seg)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		int	i,sn,fn,vn;
 		int	flag;
 		ubyte	edge_flags[N_EDGES_PER_SEGMENT];
@@ -423,9 +416,8 @@ static void add_edges(const vcsegptridx_t seg)
 static void draw_trigger_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		// Draw diagonals
 		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
 	}
@@ -435,13 +427,11 @@ static void draw_trigger_side(const vcsegptr_t seg,int side)
 static void draw_wall_side(const vcsegptr_t seg,int side)
 {
 	auto &svp = seg->verts;
-	g3s_codes cc=rotate_list(svp);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(svp).uand)
+	{		//all off screen?
 		// Draw diagonals
 		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
 		draw_line(svp[Side_to_verts[side][1]],svp[Side_to_verts[side][3]]);
-
 	}
 }
 

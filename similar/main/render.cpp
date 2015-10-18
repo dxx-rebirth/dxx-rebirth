@@ -741,8 +741,8 @@ static void render_segment(const vcsegptridx_t seg)
 {
 	int			sn;
 
-	g3s_codes 	cc=rotate_list(seg->verts);
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(seg->verts).uand)
+	{		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
       if (Viewer->type!=OBJ_ROBOT)
@@ -808,9 +808,8 @@ const fix CROSS_HEIGHT = i2f(8);
 //draw outline for curside
 static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 {
-	g3s_codes cc=rotate_list(seg->verts);
-
-	if (! cc.uand) {		//all off screen?
+	if (!rotate_list(seg->verts).uand)
+	{		//all off screen?
 		g3s_point *pnt;
 
 		//render curedge of curside of curseg in green
@@ -1359,7 +1358,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			processed = true;
 
 			auto seg = vsegptridx(segnum);
-			const auto r = rotate_list(seg->verts);
+			const auto uor = rotate_list(seg->verts).uor & CC_BEHIND;
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1370,12 +1369,12 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				auto wid = WALL_IS_DOORWAY(seg, c);
 				if (wid & WID_RENDPAST_FLAG)
 				{
-					ubyte codes_and = r.uor;
-					if (codes_and & CC_BEHIND)
+					if (auto codes_and = uor)
 					{
 						range_for (const auto i, Side_to_verts[c])
 							codes_and &= Segment_points[seg->verts[i]].p3_codes;
-						if (codes_and & CC_BEHIND) continue;
+						if (codes_and)
+							continue;
 					}
 					child_list[n_children++] = c;
 				}
@@ -1689,9 +1688,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				g3s_codes 	cc=rotate_list(seg->verts);
-
-				if (! cc.uand) {		//all off screen?
+				if (!rotate_list(seg->verts).uand)
+				{		//all off screen?
 
 				  if (Viewer->type!=OBJ_ROBOT)
 					Automap_visited[segnum]=1;
@@ -1786,9 +1784,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				const auto &&seg = vcsegptridx(segnum);
 				int			sn;
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				g3s_codes 	cc=rotate_list(seg->verts);
-
-				if (! cc.uand) {		//all off screen?
+				if (!rotate_list(seg->verts).uand)
+				{		//all off screen?
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
 						auto wid = WALL_IS_DOORWAY(seg, sn);

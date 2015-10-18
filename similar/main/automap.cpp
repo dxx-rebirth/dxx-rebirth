@@ -1011,13 +1011,13 @@ void draw_all_edges(automap *am)
 			if ( (!(e->flags&EF_SECRET))&&(e->color==am->wall_normal_color))
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
-		g3s_codes cc=rotate_list(e->verts);
 		distance = Segment_points[e->verts[1]].p3_z;
 
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!cc.uand) {			//all off screen?
+		if (!rotate_list(e->verts).uand)
+		{			//all off screen?
 			nfacing = nnfacing = 0;
 			auto &tv1 = Vertices[e->verts[0]];
 			j = 0;
