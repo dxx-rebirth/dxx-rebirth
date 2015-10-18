@@ -697,24 +697,27 @@ void render_start_frame()
 g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 {
 	g3s_codes cc;
+	const auto current_generation = s_current_generation;
+	const auto cheats_acid = cheats.acid;
+	float f = likely(!cheats_acid)
+		? 0.0f /* unused */
+		: 2.0f * (static_cast<float>(timer_query()) / F1_0);
 
 	range_for (const auto pnum, unchecked_partial_range(pointnumlist, nv))
 	{
 		auto &pnt = Segment_points[pnum];
-		if (pnt.p3_last_generation != s_current_generation)
+		if (pnt.p3_last_generation != current_generation)
 		{
-			pnt.p3_last_generation = s_current_generation;
-			if (cheats.acid)
-			{
-				float f = (float) timer_query() / F1_0;
-				vms_vector tmpv = Vertices[pnum];
-				tmpv.x += fl2f(sinf(f * 2.0f + f2fl(tmpv.x)));
-				tmpv.y += fl2f(sinf(f * 3.0f + f2fl(tmpv.y)));
-				tmpv.z += fl2f(sinf(f * 5.0f + f2fl(tmpv.z)));
-				g3_rotate_point(pnt,tmpv);
-			}
-			else
-				g3_rotate_point(pnt,Vertices[pnum]);
+			pnt.p3_last_generation = current_generation;
+			const auto &v = Vertices[pnum];
+			vertex tmpv;
+			g3_rotate_point(pnt, likely(!cheats_acid) ? v : (
+				tmpv = v,
+				tmpv.x += fl2f(sinf(f + f2fl(tmpv.x))),
+				tmpv.y += fl2f(sinf(f * 1.5f + f2fl(tmpv.y))),
+				tmpv.z += fl2f(sinf(f * 2.5f + f2fl(tmpv.z))),
+				tmpv
+			));
 		}
 		cc.uand &= pnt.p3_codes;
 		cc.uor  |= pnt.p3_codes;
