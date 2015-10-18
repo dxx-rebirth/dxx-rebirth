@@ -294,10 +294,10 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 
 				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
 
+				if (dist-rad < -PLANE_DIST_TOLERANCE) {
 				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
 					center_count++;
 
-				if (dist-rad < -PLANE_DIST_TOLERANCE) {
 					masks.facemask |= facebit;
 					side_count++;
 				}
@@ -330,10 +330,10 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 			const auto vertnum = *std::min_element(b, std::next(b, 4));
 
 			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
+			if (dist-rad < -PLANE_DIST_TOLERANCE) {
 			if (dist < -PLANE_DIST_TOLERANCE)
 				masks.centermask |= sidebit;
 	
-			if (dist-rad < -PLANE_DIST_TOLERANCE) {
 				masks.facemask |= facebit;
 				masks.sidemask |= sidebit;
 			}
