@@ -264,8 +264,6 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
 		auto s = &seg->sides[sn];
-		int	side_pokes_out;
-		int	vertnum;
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -280,23 +278,21 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
 		if (num_faces==2) {
-			fix	dist;
 			int	side_count,center_count;
 
-			vertnum = min(vertex_list[0],vertex_list[2]);
+			const auto vertnum = min(vertex_list[0],vertex_list[2]);
+			const auto &mvert = Vertices[vertnum];
 
 			auto a = vertex_list[4] < vertex_list[1]
 				? std::make_pair(vertex_list[4], &s->normals[0])
 				: std::make_pair(vertex_list[1], &s->normals[1]);
-			dist = vm_dist_to_plane(Vertices[a.first], *a.second, Vertices[vertnum]);
-
-			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
+			const auto mdist = vm_dist_to_plane(Vertices[a.first], *a.second, mvert);
 
 			side_count = center_count = 0;
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(checkp, s->normals[fn], Vertices[vertnum]);
+				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
 
 				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
 					center_count++;
@@ -307,7 +303,7 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 				}
 			}
 
-			if (!side_pokes_out) {		//must be behind both faces
+			if (!(mdist > PLANE_DIST_TOLERANCE)) {		//must be behind both faces
 
 				if (side_count==2)
 					masks.sidemask |= sidebit;
@@ -329,14 +325,11 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 
 		}
 		else {				//only one face on this side
-			fix dist;
 			//use lowest point number
 			auto b = begin(vertex_list);
-			vertnum = *std::min_element(b, std::next(b, 4));
+			const auto vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
-
-	
+			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
 			if (dist < -PLANE_DIST_TOLERANCE)
 				masks.centermask |= sidebit;
 	
@@ -367,10 +360,9 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 
 	mask = 0;
 
+	side_dists = {};
 	for (sn=0,facebit=sidebit=1;sn<6;sn++,sidebit<<=1) {
 		side	*s = &seg->sides[sn];
-		int	side_pokes_out;
-		side_dists[sn] = 0;
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -385,25 +377,22 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
 		if (num_faces==2) {
-			fix	dist;
 			int	center_count;
-			int	vertnum;
 
-			vertnum = min(vertex_list[0],vertex_list[2]);
+			const auto vertnum = min(vertex_list[0],vertex_list[2]);
+			const auto &mvert = Vertices[vertnum];
 
 
 			auto a = vertex_list[4] < vertex_list[1]
 				? std::make_pair(vertex_list[4], &s->normals[0])
 				: std::make_pair(vertex_list[1], &s->normals[1]);
-			dist = vm_dist_to_plane(Vertices[a.first], *a.second, Vertices[vertnum]);
-
-			side_pokes_out = (dist > PLANE_DIST_TOLERANCE);
+			const auto mdist = vm_dist_to_plane(Vertices[a.first], *a.second, mvert);
 
 			center_count = 0;
 
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 
-					dist = vm_dist_to_plane(checkp, s->normals[fn], Vertices[vertnum]);
+				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -412,7 +401,7 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 
 			}
 
-			if (!side_pokes_out) {		//must be behind both faces
+			if (!(mdist > PLANE_DIST_TOLERANCE)) {		//must be behind both faces
 
 				if (center_count==2) {
 					mask |= sidebit;
@@ -434,13 +423,12 @@ static ubyte get_side_dists(const vms_vector &checkp,const vsegptridx_t segnum,a
 
 		}
 		else {				//only one face on this side
-			fix dist;
 			//use lowest point number
 
 			auto b = begin(vertex_list);
 			auto vertnum = *std::min_element(b, std::next(b, 4));
 
-				dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
+			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
 	
 			if (dist < -PLANE_DIST_TOLERANCE) {
 				mask |= sidebit;
