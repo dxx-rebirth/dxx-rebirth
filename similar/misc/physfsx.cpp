@@ -10,7 +10,7 @@
  *
  */
 
-
+#include <cstdlib>
 #if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
@@ -91,9 +91,6 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if defined(__unix__) || defined(__APPLE__) || defined(__MACH__)
 	char fullPath[PATH_MAX + 5];
 #endif
-#if defined(__unix__)
-	const char *path = NULL;
-#endif
 #ifdef macintosh	// Mac OS 9
 	char base_dir[PATH_MAX];
 	int bundle = 0;
@@ -130,11 +127,18 @@ bool PHYSFSX_init(int argc, char *argv[])
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DESCENT_PATH_NUMBER	"2"
 #endif
+	const auto &home_environ_var = "D" DESCENT_PATH_NUMBER "X_REBIRTH_HOME";
+	const char *path = getenv(home_environ_var);
+	if (!path)
+	{
+		path = getenv(&home_environ_var[4]);
+		if (!path)
 # if !(defined(__APPLE__) && defined(__MACH__))
 	path = "~/.d" DESCENT_PATH_NUMBER "x-rebirth/";
 # else
 	path = "~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/";
 # endif
+	}
 	
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
 	{
