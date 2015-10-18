@@ -1858,6 +1858,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 // check the next byte -- it _will_ be a load_new_level event.  If it is
 // not, then we must shift all bytes up by one.
 
+#if defined(DXX_BUILD_DESCENT_I)
 	if (shareware)
 	{
 		unsigned char c;
@@ -1869,13 +1870,12 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			flags = get_local_player().flags;
 			energy = shield;
 			shield = (unsigned char)flags;
-			flags = (flags >> 8) & 0x00ffffff;
-			flags |= (Primary_weapon << 24);
 			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
 			Secondary_weapon = c;
 		} else
 			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);
 	}
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	nd_playback_v_juststarted=1;
