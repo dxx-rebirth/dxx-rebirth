@@ -369,8 +369,6 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t o
 	}
 	if (*mountpoint == '/')
 		++mountpoint;
-	/* Paths should be relative, but fix up if not. */
-	assert(*stdPath != '/');
 	if (*stdPath == '/')
 		++stdPath;
 	const auto ml = strlen(mountpoint);
