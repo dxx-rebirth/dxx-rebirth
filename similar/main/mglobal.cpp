@@ -54,13 +54,13 @@ unsigned Num_segments;
 unsigned Highest_vertex_index;
 
 //	Translate table to get opposite side of a face on a segment.
-const array<char, MAX_SIDES_PER_SEGMENT> Side_opposite{{
+const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
 }};
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
+const array<array<uint8_t, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
 	{{7,6,2,3}},			// left
 	{{0,4,7,3}},			// top
 	{{0,1,5,4}},			// right
@@ -70,7 +70,7 @@ const array<array<sbyte, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts{{
 }};
 
 //	Note, this MUST be the same as Side_to_verts, it is an int for speed reasons.
-const array<array<int, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
+const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 	{{7,6,2,3}},			// left
 	{{0,4,7,3}},			// top
 	{{0,1,5,4}},			// right
