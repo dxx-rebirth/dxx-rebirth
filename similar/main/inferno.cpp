@@ -207,7 +207,7 @@ static void print_commandline_help()
 	printf( "  -no-grab                      Never grab keyboard/mouse\n");
 	printf( "  -renderstats                  Enable renderstats info by default\n");
 	printf( "  -text <s>                     Specify alternate .tex file\n");
-	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad, i386)\n");
+	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad)\n");
 	printf( "  -showmeminfo                  Show memory statistics\n");
 	printf( "  -nodoublebuffer               Disable Doublebuffering\n");
 	printf( "  -bigpig                       Use uncompressed RLE bitmaps\n");
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
 
 	arch_init();
 
-	select_tmap(GameArg.DbgTexMap.c_str());
+	select_tmap(GameArg.DbgTexMap);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;

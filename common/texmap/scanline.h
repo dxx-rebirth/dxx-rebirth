@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
+#include <string>
 
 extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
@@ -45,6 +46,6 @@ struct tmap_scanline_function_table
 #define cur_tmap_scanline_flat (c_tmap_scanline_flat)
 
 extern tmap_scanline_function_table tmap_scanline_functions;
-void select_tmap(const char *type);
+void select_tmap(const std::string &type);
 
 #endif

@@ -759,27 +759,14 @@ static void c_tmap_scanline_quad()
 
 //runtime selection of optimized tmappers.  12/07/99  Matthew Mueller
 //the reason I did it this way rather than having a *tmap_funcs that then points to a c_tmap or fp_tmap struct thats already filled in, is to avoid a second pointer dereference.
-void select_tmap(const char *type)
+void select_tmap(const std::string &type)
 {
-	if (!type)
+	if (type == "fp")
 	{
-#if defined(macintosh) && !defined(OGL)
-		select_tmap("ppc");
-#else
-		select_tmap("c");
-#endif
-		return;
-	}
-#if defined(macintosh) && !defined(OGL)
-	if (d_stricmp(type,"ppc")==0){
-		cur_tmap_scanline_per=asm_tmap_scanline_per;
-	}
-	else
-#endif
-	if (d_stricmp(type,"fp")==0){
 		cur_tmap_scanline_per=c_fp_tmap_scanline_per;
 	}
-	else if (d_stricmp(type,"quad")==0){
+	else if (type == "quad")
+	{
 		cur_tmap_scanline_per=c_tmap_scanline_quad;
 	}
 	else {
