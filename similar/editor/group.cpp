@@ -453,11 +453,10 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	//	duplicate segments
 	range_for(const auto &gs, segments)
 	{
-		const auto &&new_segment_id = med_create_duplicate_segment(vsegptr(gs));
+		const auto &&segp = vsegptr(gs);
+		const auto &&new_segment_id = med_create_duplicate_segment(segp);
 		new_segments.emplace_back(new_segment_id);
-		auto objrange = objects_in(Segments[new_segment_id]);
-		Segments[new_segment_id].objects = object_none;
-		range_for (const auto objp, objrange)
+		range_for (const auto objp, objects_in(segp))
 		{
 			if (objp->type != OBJ_PLAYER) {
 				const auto new_obj_id = obj_create_copy(objp, objp->pos, new_segment_id);
@@ -613,7 +612,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(Segments[segnum]))
+		range_for (const auto objp, objects_in(vsegptr(segnum)))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -630,7 +629,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(Segments[segnum]))
+		range_for (const auto objp, objects_in(vsegptr(segnum)))
 			vm_vec_add2(objp->pos, destv);
 	}
 
@@ -762,7 +761,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(Segments[segnum]))
+		range_for (const auto objp, objects_in(vsegptr(segnum)))
 			vm_vec_sub2(objp->pos, srcv);
 	}
 
@@ -779,7 +778,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(Segments[segnum]))
+		range_for (const auto objp, objects_in(vsegptr(segnum)))
 			vm_vec_add2(objp->pos, destv);
 	}
 

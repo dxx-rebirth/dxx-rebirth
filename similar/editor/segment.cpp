@@ -336,7 +336,9 @@ segnum_t med_create_duplicate_segment(const vsegptr_t sp)
 
 	segnum = get_free_segment_number();
 
-	Segments[segnum] = *sp;	
+	const auto &&nsp = vsegptr(segnum);
+	*nsp = *sp;	
+	nsp->objects = object_none;
 
 	return segnum;
 }

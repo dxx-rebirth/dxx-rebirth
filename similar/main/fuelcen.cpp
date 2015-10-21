@@ -432,7 +432,8 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
 			auto segnum = robotcen->segnum;
-			range_for (const auto objp, objects_in(Segments[segnum]))
+			const auto &&csegp = vsegptr(segnum);
+			range_for (const auto objp, objects_in(csegp))
 			{
 				count++;
 				if ( count > MAX_OBJECTS )	{
@@ -450,7 +451,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				}
 			}
 
-			const auto &&cur_object_loc = compute_segment_center(vcsegptr(robotcen->segnum));
+			const auto &&cur_object_loc = compute_segment_center(csegp);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
 			auto obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
 

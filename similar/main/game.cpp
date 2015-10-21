@@ -1726,8 +1726,7 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 void powerup_grab_cheat_all(void)
 {
 	const auto &&console = vobjptr(ConsoleObject);
-	const auto &&segp = vsegptr(console->segnum);
-	range_for (const auto objnum, objects_in(*segp))
+	range_for (const auto objnum, objects_in(vsegptr(console->segnum)))
 		if (objnum->type == OBJ_POWERUP)
 			powerup_grab_cheat(console, objnum);
 }

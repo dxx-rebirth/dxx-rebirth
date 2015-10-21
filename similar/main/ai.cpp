@@ -2826,7 +2826,7 @@ static void make_nearby_robot_snipe(void)
 	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, bfs_list);
 
 	range_for (auto &i, partial_range(bfs_list, bfs_length)) {
-		range_for (const auto objp, objects_in(Segments[i]))
+		range_for (const auto objp, objects_in(vsegptr(i)))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
 
