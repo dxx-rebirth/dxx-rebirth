@@ -1082,7 +1082,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 
 	// If it is not a "wall" then just return.
 	if ( seg->sides[side].wall_num == wall_none )
-		return WHP_NOT_SPECIAL;
+		return wall_hit_process_t::WHP_NOT_SPECIAL;
 
 	w = &Walls[seg->sides[side].wall_num];
 
@@ -1094,11 +1094,11 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 		if (obj->ctype.laser_info.parent_type == OBJ_PLAYER)
 #endif
 			wall_damage(seg, side, damage);
-		return WHP_BLASTABLE;
+		return wall_hit_process_t::WHP_BLASTABLE;
 	}
 
 	if (playernum != Player_num)	//return if was robot fire
-		return WHP_NOT_SPECIAL;
+		return wall_hit_process_t::WHP_NOT_SPECIAL;
 
 	Assert( playernum > -1 );
 	
@@ -1120,7 +1120,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 			if ( playernum==Player_num )
 				if (show_message)
 					HUD_init_message(HM_DEFAULT, "%s %s",TXT_BLUE,TXT_ACCESS_DENIED);
-			return WHP_NO_KEY;
+			return wall_hit_process_t::WHP_NO_KEY;
 		}
 
 	if (w->keys == KEY_RED)
@@ -1128,7 +1128,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 			if ( playernum==Player_num )
 				if (show_message)
 					HUD_init_message(HM_DEFAULT, "%s %s",TXT_RED,TXT_ACCESS_DENIED);
-			return WHP_NO_KEY;
+			return wall_hit_process_t::WHP_NO_KEY;
 		}
 	
 	if (w->keys == KEY_GOLD)
@@ -1136,7 +1136,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 			if ( playernum==Player_num )
 				if (show_message)
 					HUD_init_message(HM_DEFAULT, "%s %s",TXT_YELLOW,TXT_ACCESS_DENIED);
-			return WHP_NO_KEY;
+			return wall_hit_process_t::WHP_NO_KEY;
 		}
 
 	if (w->type == WALL_DOOR)
@@ -1145,7 +1145,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 			if ( playernum==Player_num )
 				if (show_message)
 					HUD_init_message_literal(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
-			return WHP_NO_KEY;
+			return wall_hit_process_t::WHP_NO_KEY;
 		}
 		else {
 			if (w->state != WALL_DOOR_OPENING)
@@ -1162,12 +1162,11 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 					multi_send_door_open(seg, side,flags);
 				}
 			}
-			return WHP_DOOR;
+			return wall_hit_process_t::WHP_DOOR;
 			
 		}
 	}
-
-	return WHP_NOT_SPECIAL;		//default is treat like normal wall
+	return wall_hit_process_t::WHP_NOT_SPECIAL;		//default is treat like normal wall
 }
 
 //-----------------------------------------------------------------

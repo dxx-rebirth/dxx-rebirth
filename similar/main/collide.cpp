@@ -691,7 +691,6 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	int blew_up;
-	int wall_type;
 	int playernum;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -786,7 +785,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		smega_rock_stuff();
 #endif
 
-	wall_type = wall_hit_process( hitseg, hitwall, weapon->shields, playernum, weapon );
+	const auto wall_type = wall_hit_process( hitseg, hitwall, weapon->shields, playernum, weapon );
 
 	// Wall is volatile if either tmap 1 or 2 is volatile
 	if ((TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_VOLATILE) || (hitseg->sides[hitwall].tmap_num2 && (TmapInfo[hitseg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_VOLATILE))) {
@@ -871,7 +870,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 
 			//if it's not the player's weapon, or it is the player's and there
 			//is no wall, and no blowing up monitor, then play sound
-			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((hitseg->sides[hitwall].wall_num == wall_none || wall_type==WHP_NOT_SPECIAL) && !blew_up))
+			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((hitseg->sides[hitwall].wall_num == wall_none || wall_type == wall_hit_process_t::WHP_NOT_SPECIAL) && !blew_up))
 				if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
 				digi_link_sound_to_pos( Weapon_info[get_weapon_id(weapon)].wall_hit_sound,weapon->segnum, 0, weapon->pos, 0, F1_0 );
 
@@ -912,18 +911,18 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 			if (!(weapon->flags & OF_SILENT)) {
 				switch (wall_type) {
 
-					case WHP_NOT_SPECIAL:
+					case wall_hit_process_t::WHP_NOT_SPECIAL:
 						//should be handled above
 						//digi_link_sound_to_pos( Weapon_info[weapon->id].wall_hit_sound, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
 						break;
 
-					case WHP_NO_KEY:
+					case wall_hit_process_t::WHP_NO_KEY:
 						//play special hit door sound (if/when we get it)
 						multi_digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, weapon->segnum, 0, weapon->pos, 0, F1_0);
 
 						break;
 
-					case WHP_BLASTABLE:
+					case wall_hit_process_t::WHP_BLASTABLE:
 						//play special blastable wall sound (if/when we get it)
 #if defined(DXX_BUILD_DESCENT_II)
 						if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
@@ -931,7 +930,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 							digi_link_sound_to_pos( SOUND_WEAPON_HIT_BLASTABLE, weapon->segnum, 0, weapon->pos, 0, F1_0 );
 						break;
 
-					case WHP_DOOR:
+					case wall_hit_process_t::WHP_DOOR:
 						//don't play anything, since door open sound will play
 						break;
 				}

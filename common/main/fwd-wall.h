@@ -207,7 +207,7 @@ void wall_close_door(vsegptridx_t seg, int side);
 #endif
 
 //return codes for wall_hit_process()
-enum wall_hit_process_t
+enum class wall_hit_process_t : unsigned
 {
 	WHP_NOT_SPECIAL = 0,       //wasn't a quote-wall-unquote
 	WHP_NO_KEY = 1,       //hit door, but didn't have key
