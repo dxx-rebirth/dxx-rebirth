@@ -1115,34 +1115,30 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 	else
 		show_message = 1;
 
-	if (w->keys == KEY_BLUE)
-		if (!(Players[playernum].flags & PLAYER_FLAGS_BLUE_KEY)) {
-			if ( playernum==Player_num )
+	/* Set key_color only after the type matches, since TXT_* are macros
+	 * that trigger a load from memory.  Use operator,() to suppress the
+	 * truth test on the second branch since the compiler cannot prove
+	 * that the loaded value will always be non-null.
+	 */
+	const char *key_color;
+	if (
+		(w->keys == KEY_BLUE && (key_color = TXT_BLUE, true)) ||
+		(w->keys == KEY_GOLD && (key_color = TXT_YELLOW, true)) ||
+		(w->keys == KEY_RED && (key_color = TXT_RED, true))
+	)
+		if (!(Players[playernum].flags & w->keys))
+		{
+			static_assert(KEY_BLUE == PLAYER_FLAGS_BLUE_KEY, "BLUE key flag mismatch");
+			static_assert(KEY_GOLD == PLAYER_FLAGS_GOLD_KEY, "GOLD key flag mismatch");
+			static_assert(KEY_RED == PLAYER_FLAGS_RED_KEY, "RED key flag mismatch");
 				if (show_message)
-					HUD_init_message(HM_DEFAULT, "%s %s",TXT_BLUE,TXT_ACCESS_DENIED);
-			return wall_hit_process_t::WHP_NO_KEY;
-		}
-
-	if (w->keys == KEY_RED)
-		if (!(Players[playernum].flags & PLAYER_FLAGS_RED_KEY)) {
-			if ( playernum==Player_num )
-				if (show_message)
-					HUD_init_message(HM_DEFAULT, "%s %s",TXT_RED,TXT_ACCESS_DENIED);
-			return wall_hit_process_t::WHP_NO_KEY;
-		}
-	
-	if (w->keys == KEY_GOLD)
-		if (!(Players[playernum].flags & PLAYER_FLAGS_GOLD_KEY)) {
-			if ( playernum==Player_num )
-				if (show_message)
-					HUD_init_message(HM_DEFAULT, "%s %s",TXT_YELLOW,TXT_ACCESS_DENIED);
+					HUD_init_message(HM_DEFAULT, "%s %s",key_color,TXT_ACCESS_DENIED);
 			return wall_hit_process_t::WHP_NO_KEY;
 		}
 
 	if (w->type == WALL_DOOR)
 	{
 		if ((w->flags & WALL_DOOR_LOCKED ) && !(special_boss_opening_allowed(seg, side)) ) {
-			if ( playernum==Player_num )
 				if (show_message)
 					HUD_init_message_literal(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
 			return wall_hit_process_t::WHP_NO_KEY;
