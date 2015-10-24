@@ -75,16 +75,6 @@ extern array<int, 2> Coop_view_player;     // left & right
 extern array<int, 2> Marker_viewer_num;    // left & right
 #endif
 
-// constants for ft_preference
-#define FP_RIGHT        0
-#define FP_UP           1
-#define FP_FORWARD      2       // this is the default
-#define FP_LEFT         3
-#define FP_DOWN         4
-#define FP_FIRST_TIME   5
-
-extern int ft_preference;
-
 // The following bits define the game modes.
 #define GM_EDITOR       1       // You came into the game from the editor
 // #define GM_SERIAL       2       // You are in serial mode // OBSOLETE
@@ -111,8 +101,6 @@ extern int ft_preference;
 extern int Game_mode;
 extern screen_mode Game_screen_mode;
 
-extern int gauge_message_on;
-
 #ifndef NDEBUG      // if debugging, these are variables
 
 extern int Slew_on;                 // in slew or sim mode?
@@ -120,15 +108,12 @@ extern int Slew_on;                 // in slew or sim mode?
 #else               // if not debugging, these are constants
 
 #define Slew_on             0       // no slewing in real game
-#define Game_double_buffer  1       // always double buffer in real game
 
 #endif
 
 // Suspend flags
 
-#define SUSP_NONE       0           // Everything moving normally
 #define SUSP_ROBOTS     1           // Robot AI doesn't move
-#define SUSP_WEAPONS    2           // Lasers, etc. don't move
 
 extern int Game_suspended;          // if non-zero, nothing moves but player
 
@@ -158,17 +143,9 @@ extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 //sets the rgb values for palette flash
 #define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
 
-extern int draw_gauges_on;
-
-extern void init_game_screen(void);
-
 extern void game_flush_inputs();    // clear all inputs
 void game_flush_respawn_inputs();
 
-extern int Playing_game;    // True if playing game
-extern int Auto_flythrough; // if set, start flythough automatically
-extern int Mark_count;      // number of debugging marks set
-extern char faded_in;
 extern int last_drawn_cockpit;
 
 class pause_game_world_time
@@ -194,9 +171,6 @@ enum cockpit_mode_t
 	CM_FULL_SCREEN,   // full screen, no cockpit (w/ reticle)
 	CM_LETTERBOX   // half-height window (for cutscenes)
 };
-
-extern int Game_window_w,       // width and height of player's game window
-           Game_window_h;
 
 extern int Rear_view;           // if true, looking back.
 

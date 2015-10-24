@@ -116,10 +116,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-#ifndef NDEBUG
-int	Mark_count = 0;                 // number of debugging marks set
-#endif
-
 static fix64 last_timer_value=0;
 fix ThisLevelTime=0;
 
@@ -127,11 +123,6 @@ grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
-
-#ifdef EDITOR
-//flag for whether initial fade-in has been done
-char	faded_in;
-#endif
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix64	Auto_fire_fusion_cannon_time = 0;

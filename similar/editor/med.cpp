@@ -394,12 +394,6 @@ void init_editor()
 	//set the wire-frame window to be the current view
 	current_view = &LargeView;
 	
-	if (faded_in==0)
-	{
-		faded_in = 1;
-		//gr_pal_fade_in( grd_curscreen->pal );
-	}
-	
 	gr_set_current_canvas( GameViewBox->canvas );
 	gr_set_curfont(editor_font);
 	//gr_setcolor( CBLACK );
@@ -1289,24 +1283,3 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 	
 	return rval;
 }
-
-#ifndef NDEBUG
-int MarkStart(void)
-{
-	char mystr[30];
-	sprintf(mystr,"mark %i start",Mark_count);
-//	_MARK_(mystr);//Nuked to compile -KRB
-
-	return 1;
-}
-
-int MarkEnd(void)
-{
-	char mystr[30];
-	sprintf(mystr,"mark %i end",Mark_count);
-	Mark_count++;
-//	_MARK_(mystr);//Nuked to compile -KRB
-
-	return 1;
-}
-#endif
