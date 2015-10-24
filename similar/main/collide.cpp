@@ -1956,10 +1956,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		if (game_mode_capture_flag() && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
 		{
-		 if ((get_team (pnum)==TEAM_RED))
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FLAG_BLUE);
-		 else
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FLAG_RED);
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, get_team (pnum)==TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
 		}
 
 
