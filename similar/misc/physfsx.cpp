@@ -349,7 +349,7 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t o
 	auto mountpoint = PHYSFS_getMountPoint(realDir);
 	if (!mountpoint)
 		return 0;
-	std::copy_n(realDir, realDirSize, realPath);
+	std::copy_n(realDir, realDirSize + 1, realPath);
 #ifdef _unix__
 	auto &sep = "/";
 	assert(!strcmp(PHYSFS_getDirSeparator(), sep));
