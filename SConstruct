@@ -323,6 +323,7 @@ struct %(N)s_derived : %(N)s_base {
 		self.successful_flags = defaultdict(list)
 		self.__cxx_conformance = None
 		self._sconf_results = []
+		self.__tool_versions = []
 	def message(self,msg):
 		print "%s: %s" % (self.msgprefix, msg)
 	@staticmethod
@@ -427,7 +428,7 @@ help:assume C++ compiler works
 		# some tests in _check_cxx_works rely on its original value.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
 		self._check_cxx_conformance_level(context)
-	def _show_tool_version(self,context,tool,desc):
+	def _show_tool_version(self,context,tool,desc,save_tool_version=True):
 		# These version results are not used for anything, but are
 		# collected here so that users who post only a build log will
 		# still supply at least some useful information.
@@ -437,20 +438,25 @@ help:assume C++ compiler works
 		# second line.
 		Display = context.Display
 		Display('%s: checking version of %s %r ... ' % (self.msgprefix, desc, tool))
-		Display('%r\n' % StaticSubprocess.get_version_head(tool))
+		v = StaticSubprocess.get_version_head(tool)
+		if save_tool_version:
+			self.__tool_versions.append((tool, v))
+		Display('%r\n' % v)
 	def _show_indirect_tool_version(self,context,CXX,tool,desc):
 		Display = context.Display
 		Display('%s: checking path to %s ... ' % (self.msgprefix, desc))
 		# Include $LINKFLAGS since -fuse-ld=gold influences the path
 		# printed for the linker.
-		name = StaticSubprocess.qcall(context.env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)).out.strip()
+		tool = context.env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
+		name = StaticSubprocess.qcall(tool).out.strip()
+		self.__tool_versions.append((tool, name))
 		if not name:
 			# Strange, but not fatal for this to fail.
 			Display('! %r\n' % name)
 			return
 		Display('%r\n' % name)
 		self._show_tool_version(context,name,desc)
-	def _check_cxx_works(self,context):
+	def _check_cxx_works(self,context,_crc32=binascii.crc32):
 		# Test whether the compiler+linker+optional wrapper(s) work.  If
 		# anything fails, a StopError is guaranteed on return.  However, to
 		# help the user, this function pushes through all the combinations and
@@ -472,9 +478,24 @@ help:assume C++ compiler works
 			self._show_indirect_tool_version(context, CXX, 'as', 'assembler')
 			self._show_indirect_tool_version(context, CXX, 'ld', 'linker')
 			if use_distcc:
-				self._show_tool_version(context, use_distcc, 'distcc')
+				self._show_tool_version(context, use_distcc, 'distcc', False)
 			if use_ccache:
-				self._show_tool_version(context, use_ccache, 'ccache')
+				self._show_tool_version(context, use_ccache, 'ccache', False)
+		# Use C++ single line comment so that it is guaranteed to extend
+		# to the end of the line.  repr ensures that embedded newlines
+		# will be escaped and that the final character will not be a
+		# backslash.
+		self.__commented_tool_versions = s = ''.join('// %r => %r\n' % (v[0], v[1]) for v in self.__tool_versions)
+		self.__tool_versions = '''
+/* This test is always false.  Use a non-trivial condition to
+ * discourage external text scanners from recognizing that the block
+ * is never compiled.
+ */
+#if 1 < -1
+%.8x
+%s
+#endif
+''' % (_crc32(s), s)
 		if use_ccache:
 			if use_distcc:
 				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
@@ -593,13 +614,14 @@ help:assume C++ compiler works
 		if forced is None:
 			r = action('''
 %s
+%s
 
 #undef main	/* avoid -Dmain=SDL_main from libSDL */
 int main(int argc,char**argv){(void)argc;(void)argv;
 %s
 
 ;}
-''' % (text, main), ext)
+''' % (self.__tool_versions, text, main), ext)
 			# Some tests check that the compiler rejects an input.
 			# SConf considers the result a failure when the compiler
 			# rejects the input.  For tests that consider a rejection to
@@ -1684,6 +1706,8 @@ help:always wipe certain freed memory
 	# by check_cxx_works.
 	@_custom_test
 	def _restore_cxx_prefix(self,context):
+		sconf = context.sconf
+		sconf.config_h_text = self.__commented_tool_versions + sconf.config_h_text
 		context.env['CXXCOM'] = self.__cxx_com_prefix
 		context.did_show_result = True
 
