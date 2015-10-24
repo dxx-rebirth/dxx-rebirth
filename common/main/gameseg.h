@@ -79,6 +79,7 @@ struct vertex_vertnum_pair
 };
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
@@ -130,6 +131,7 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(vcsegptr_t segn
 	vertex_vertnum_array_list r;
 	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
 }
+#endif
 
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);
