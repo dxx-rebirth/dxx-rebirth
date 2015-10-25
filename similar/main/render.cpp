@@ -1124,7 +1124,7 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 		//no special case, fall through to normal return
 	}
 #endif
-	return delta_dist_squared < 0;	//return distance
+	return delta_dist_squared > 0;	//return distance
 }
 
 }
@@ -1634,62 +1634,19 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		}
 	}
 #else
-	struct render_subrange : partial_range_t<std::reverse_iterator<segnum_t *>>
+        // Two pass rendering. Since sprites and some level geometry can have transparency (blending), we need some fancy sorting.
+        // GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
+        // If walls use blending, they should be rendered along with objects (in same pass) to prevent some ugly clipping.
+
+        // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
+	range_for (const auto segnum, reversed_render_range)
 	{
-		iterator *m_pbegin;
-		render_subrange(iterator i) :
-			partial_range_t<iterator>(i, std::prev(i)),
-			m_pbegin(&m_begin)
-		{
-		}
-		/* Prevent pointing m_pbegin at m_begin of different instance */
-		render_subrange(const render_subrange &rhs) = delete;
-		render_subrange &operator=(const render_subrange &rhs) = delete;
-		void record(iterator p, iterator &dummy)
-		{
-			*m_pbegin = m_end = p;
-			m_pbegin = &dummy;
-		}
-	};
-	struct render_ranges
-	{
-		typedef render_subrange::iterator iterator;
-		iterator dummy_write_only_begin;
-		render_subrange reversed_object_render_range, reversed_alpha_segment_render_range;
-		render_ranges(iterator e) :
-			reversed_object_render_range(e),
-			reversed_alpha_segment_render_range(e)
-		{
-		}
-		void record_object(iterator p)
-		{
-			reversed_object_render_range.record(p, dummy_write_only_begin);
-		}
-		void record_alpha(iterator p)
-		{
-			reversed_alpha_segment_render_range.record(p, dummy_write_only_begin);
-		}
-	};
-	/* Initially empty */
-	render_ranges rr{reversed_render_range.end()};
-	// Sorting elements for Alpha - 3 passes
-	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
-	for (auto iter = reversed_render_range.begin(); iter != reversed_render_range.end(); ++iter)
-	{
-		const auto segnum = *iter;
 		auto &srsm = rstate.render_seg_map[segnum];
 
-#if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
-#elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
-#endif
-		{
-			Current_seg_depth = srsm.Seg_depth;
-			if (!srsm.objects.empty())
-				rr.record_object(iter);
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
+			Current_seg_depth = srsm.Seg_depth;
 			{
 				const auto &rw = srsm.render_window;
 				Window_clip_left  = rw.left;
@@ -1718,74 +1675,29 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 #endif
 							)
 						{
-							glAlphaFunc(GL_GEQUAL,0.8);
+                                                        if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[seg->sides[sn].tmap_num].eclip_num)) // Do NOT render geometry with blending textures. Since we've not rendered any objects, yet, they would disappear behind them.
+                                                                continue;
+							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
 							render_side(seg, sn);
 							glAlphaFunc(GL_GEQUAL,0.02);
-							rr.record_alpha(iter);
 						}
 						else
 							render_side(seg, sn);
 					}
 				}
 			}
-			visited[segnum]=3;
 		}
 	}
 
-	visited.clear();
-
-	// Second Pass: Objects
-	advance(rr.reversed_object_render_range.m_end, 1);
-	range_for (const auto segnum, rr.reversed_object_render_range)
-	{
-		auto &srsm = rstate.render_seg_map[segnum];
-		if (srsm.objects.empty())
-			continue;
-
-#if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
-#elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
-#endif
-		{
-			Current_seg_depth = srsm.Seg_depth;
-			//set global render window vars
-
-			visited[segnum]=3;
-
-			{		//reset for objects
-				Window_clip_left  = Window_clip_top = 0;
-				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-			}
-
-			// render objects
-			{
-				range_for (auto &v, srsm.objects)
-				{
-					do_render_object(v.objnum, window);	// note link to above else
-				}
-			}
-		}
-	}
-
-	visited.clear();
-
-	// Third Pass - Render Transculent level geometry with normal Alpha-Func
-	advance(rr.reversed_alpha_segment_render_range.m_end, 1);
-	range_for (const auto segnum, rr.reversed_alpha_segment_render_range)
+        // Second pass: Render objects and level geometry with alpha pixels (normal Alpha-Test func) and eclips with blending
+	range_for (const auto segnum, reversed_render_range)
 	{
 		auto &srsm = rstate.render_seg_map[segnum];
 
-#if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=segment_none && (_search_mode || eye_offset>0 || visited[segnum]!=3))
-#elif defined(DXX_BUILD_DESCENT_II)
-		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3))
-#endif
-		{
-			Current_seg_depth = srsm.Seg_depth;
+		if (segnum!=segment_none && (_search_mode || visited[segnum]!=3)) {
 			//set global render window vars
 
+			Current_seg_depth = srsm.Seg_depth;
 			{
 				const auto &rw = srsm.render_window;
 				Window_clip_left  = rw.left;
@@ -1801,6 +1713,10 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
 				if (!rotate_list(seg->verts).uand)
 				{		//all off screen?
+
+				  if (Viewer->type!=OBJ_ROBOT)
+					Automap_visited[segnum]=1;
+
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
 						auto wid = WALL_IS_DOORWAY(seg, sn);
@@ -1809,11 +1725,27 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 							|| (wid & WID_CLOAKED_FLAG)
 #endif
 							)
+						{
 							render_side(seg, sn);
+						}
 					}
 				}
 			}
 			visited[segnum]=3;
+			if (srsm.objects.empty())
+				continue;
+			{		//reset for objects
+				Window_clip_left  = Window_clip_top = 0;
+				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
+				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+			}
+
+			{
+				range_for (auto &v, srsm.objects)
+				{
+					do_render_object(v.objnum, window);	// note link to above else
+				}
+			}
 		}
 	}
 #endif
