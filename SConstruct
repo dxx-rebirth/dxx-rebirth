@@ -2623,12 +2623,13 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
-		def __init__(self,program,user_settings):
-			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
-			self.ogllibs = (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
+		@property
+		def ogllibs(self):
+			user_settings = self.user_settings
+			return (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
-			env.Append(CCFLAGS = ['-pthread'])
+			env.Append(CXXFLAGS = ['-pthread'])
 
 	def __init__(self):
 		LazyObjectConstructor.__init__(self)
