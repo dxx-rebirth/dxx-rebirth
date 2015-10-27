@@ -103,14 +103,6 @@ static int end_movie_handler(unsigned char, unsigned char, const unsigned char *
  * timer handlers
  *************************/
 
-#if !defined(HAVE_STRUCT_TIMEVAL) || !HAVE_STRUCT_TIMEVAL
-struct timeval
-{
-	long tv_sec;
-	long tv_usec;
-};
-#endif
-
 /*
  * timer variables
  */

@@ -2610,12 +2610,12 @@ class DXXCommon(LazyObjectConstructor):
 		ogllibs = ('opengl32',)
 		tools = ['mingw']
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'WIN32_LEAN_AND_MEAN'])
+			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
 		def __init__(self,program,user_settings):
 			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
 			env.Append(FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'])
 			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
@@ -2628,7 +2628,7 @@ class DXXCommon(LazyObjectConstructor):
 			user_settings = self.user_settings
 			return (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'])
 			env.Append(CXXFLAGS = ['-pthread'])
 
 	def __init__(self):

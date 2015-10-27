@@ -1978,7 +1978,6 @@
 					"DEBUG=1",
 					"$(inherited)",
 					"HAVE_STRUCT_TIMESPEC=1",
-					"HAVE_STRUCT_TIMEVAL=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
