@@ -1714,21 +1714,17 @@ help:always wipe certain freed memory
 ConfigureTests.register_preferred_compiler_options()
 
 class LazyObjectConstructor:
-	@staticmethod
 	def __strip_extension(_,name):
 		return os.path.splitext(name)[0]
 
-	@classmethod
-	def __lazy_objects(cls,self,source):
-		cache = self.__lazy_object_cache
+	def __lazy_objects(self,source,cache={},__strip_extension=__strip_extension):
+		env = self.env
 		# Use id because name needs to be hashable and have a 1-to-1
 		# mapping to source.
-		name = id(source)
+		name = (id(env), id(source))
 		try:
 			return cache[name]
 		except KeyError as e:
-			__strip_extension = cls.__strip_extension
-			env = self.env
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
 			builddir = self.user_settings.builddir
@@ -1750,12 +1746,9 @@ class LazyObjectConstructor:
 			cache[name] = value
 			return value
 
-	@classmethod
-	def create_lazy_object_property(cls,sources):
-		return property(lambda s, _f=cls.__lazy_objects, _sources=sources: _f(s, _sources))
-
-	def __init__(self):
-		self.__lazy_object_cache = {}
+	@staticmethod
+	def create_lazy_object_property(sources,__lazy_objects=__lazy_objects):
+		return property(lambda s, _f=__lazy_objects, _sources=sources: _f(s, _sources))
 
 class FilterHelpText:
 	def __init__(self):
@@ -2632,7 +2625,6 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(CXXFLAGS = ['-pthread'])
 
 	def __init__(self):
-		LazyObjectConstructor.__init__(self)
 		self.__shared_program_instance[0] += 1
 		self.program_instance = self.__shared_program_instance[0]
 		self.pch_manager = None
@@ -3024,7 +3016,6 @@ class DXXArchive(DXXCommon):
 'common/arch/win32/messagebox.cpp'
 ])
 		def __init__(self,program,user_settings):
-			LazyObjectConstructor.__init__(self)
 			DXXCommon.Win32PlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
 	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings):
@@ -3034,7 +3025,6 @@ class DXXArchive(DXXCommon):
 		])
 
 		def __init__(self, program, user_settings):
-			LazyObjectConstructor.__init__(self)
 			DXXCommon.DarwinPlatformSettings.__init__(self, program, user_settings)
 			self.user_settings = user_settings
 
