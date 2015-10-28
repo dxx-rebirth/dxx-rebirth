@@ -2605,8 +2605,6 @@ class DXXCommon(LazyObjectConstructor):
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
-		def __init__(self,program,user_settings):
-			DXXCommon._PlatformSettings.__init__(self,program,user_settings)
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', '__unix__'])
 			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
@@ -3015,18 +3013,11 @@ class DXXArchive(DXXCommon):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 'common/arch/win32/messagebox.cpp'
 ])
-		def __init__(self,program,user_settings):
-			DXXCommon.Win32PlatformSettings.__init__(self, program, user_settings)
-			self.user_settings = user_settings
 	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
 		])
-
-		def __init__(self, program, user_settings):
-			DXXCommon.DarwinPlatformSettings.__init__(self, program, user_settings)
-			self.user_settings = user_settings
 
 	@property
 	def objects_common(self):
