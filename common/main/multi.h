@@ -343,9 +343,9 @@ uint_fast32_t map_granted_flags_to_player_flags(packed_spawn_granted_items grant
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 
-extern const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH];
-extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
-extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
+extern const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text;
+extern const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames;
+extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 
 extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;

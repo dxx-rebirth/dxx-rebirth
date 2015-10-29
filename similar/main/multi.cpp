@@ -149,7 +149,7 @@ int   multi_goto_secret = 0;
 array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
-const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
+const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames = {{
 	"Anarchy",
 	"Team Anarchy",
 	"Robo Anarchy",
@@ -164,8 +164,8 @@ const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH]={
 	"Team Hoard",
 #endif
 	"Bounty"
-};
-const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8]={
+}};
+const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
 	"ANRCHY",
 	"TEAM",
 	"ROBO",
@@ -180,7 +180,7 @@ const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8]={
 	"TMHOARD",
 #endif
 	"BOUNTY"
-};
+}};
 
 // For rejoin object syncing (used here and all protocols - globally)
 
@@ -213,11 +213,10 @@ powerup_cap_state PowerupCaps;
 const array<char[16], 10> RankStrings{{"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "}};
 
-const char multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX][MULTI_ALLOW_POWERUP_TEXT_LENGTH] =
-{
+const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text = {{
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
-};
+}};
 
 void powerup_cap_state::cap_laser_powerup_level(stored_laser_level &player_level, const powerup_type_t type, const uint_fast32_t level_bias) const
 {

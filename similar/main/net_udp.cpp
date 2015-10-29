@@ -3259,8 +3259,8 @@ enum {
 
 static void net_udp_set_power (void)
 {
-	newmenu_item m[MULTI_ALLOW_POWERUP_MAX];
-	for (int i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
+	newmenu_item m[multi_allow_powerup_text.size()];
+	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
 	{
 		nm_set_item_checkbox(m[i], multi_allow_powerup_text[i], (Netgame.AllowedItems >> i) & 1);
 	}
@@ -3268,7 +3268,7 @@ static void net_udp_set_power (void)
 	newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0 );
 
 	Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
-	for (int i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
+	for (int i = 0; i < multi_allow_powerup_text.size(); i++)
 		if (m[i].value)
 			Netgame.AllowedItems |= (1 << i);
 }
@@ -5868,7 +5868,7 @@ int net_udp_show_game_info()
 	F("%s", netgame->mission_title.data())	\
 	F(" - Lvl " DXX_SECRET_LEVEL_FORMAT "%i", DXX_SECRET_LEVEL_PARAMETER netgame->levelnum)	\
 	F("\n\nDifficulty: %s", MENU_DIFFICULTY_TEXT(netgame->difficulty))	\
-	F("\nGame Mode: %s", gamemode < lengthof(GMNames) ? GMNames[gamemode] : "INVALID")	\
+	F("\nGame Mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID")	\
 	F("\nPlayers: %u/%i", players, netgame->max_numplayers)
 #define EXPAND_FORMAT(A,B,...)	A
 #define EXPAND_ARGUMENT(A,B,...)	, B, ## __VA_ARGS__
