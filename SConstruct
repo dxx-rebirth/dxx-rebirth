@@ -2264,7 +2264,7 @@ class PCHManager(object):
 		env.Command(node, v, self.write_pch_inclusion_file)
 
 class DXXCommon(LazyObjectConstructor):
-	__shared_program_instance = [0]
+	pch_manager = None
 	__shared_header_file_list = []
 	__endian = checkEndian()
 	@property
@@ -2622,10 +2622,8 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'])
 			env.Append(CXXFLAGS = ['-pthread'])
 
-	def __init__(self):
-		self.__shared_program_instance[0] += 1
-		self.program_instance = self.__shared_program_instance[0]
-		self.pch_manager = None
+	def __init__(self,__program_instance=itertools.count(1)):
+		self.program_instance = next(__program_instance)
 
 	def create_header_targets(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -2920,6 +2918,8 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(LIBS = ['bcm_host'])
 
 class DXXArchive(DXXCommon):
+	PROGRAM_NAME = 'DXX-Archive'
+	_argument_prefix_list = None
 	srcdir = 'common'
 	target = 'dxx-common'
 	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
@@ -3029,8 +3029,6 @@ class DXXArchive(DXXCommon):
 		return value
 
 	def __init__(self,user_settings):
-		self.PROGRAM_NAME = 'DXX-Archive'
-		self._argument_prefix_list = None
 		DXXCommon.__init__(self)
 		self.user_settings = user_settings.clone()
 		self.check_platform()
