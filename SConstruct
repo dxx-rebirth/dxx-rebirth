@@ -2606,12 +2606,15 @@ class DXXCommon(LazyObjectConstructor):
 			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', '__unix__'])
-			env.Append(CPPPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks/SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'])
-			env.Append(FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'])
-			if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
+			env.Append(
+				CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', '__unix__'],
+				CPPPATH = [os.path.join(library_frameworks, 'SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'],
+				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
+				FRAMEWORKPATH = [library_frameworks, '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'],
+			)
+			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
-			env.Append(FRAMEWORKPATH = [os.path.join(os.getenv("HOME"), 'Library/Frameworks'), '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		@property
@@ -2619,8 +2622,10 @@ class DXXCommon(LazyObjectConstructor):
 			user_settings = self.user_settings
 			return (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'])
-			env.Append(CXXFLAGS = ['-pthread'])
+			env.Append(
+				CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'],
+				CXXFLAGS = ['-pthread'],
+			)
 
 	def __init__(self,__program_instance=itertools.count(1)):
 		self.program_instance = next(__program_instance)
@@ -2813,10 +2818,12 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'redundant-decls',
 			Werror + 'vla',
 		])
-		self.env.Append(CXXFLAGS = ['-funsigned-char'])
-		self.env.Append(CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir])
-		self.env.Append(CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'))
-		if (self.user_settings.editor == 1):
+		env.Append(
+			CXXFLAGS = ['-funsigned-char'],
+			CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir],
+			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
+		)
+		if self.user_settings.editor:
 			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
 		for cc in ('CXX', 'RC',):
@@ -2830,11 +2837,10 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.LDFLAGS:
 			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
-			f = [
+			env.Append(CXXFLAGS = [
 				# clang does not support =N syntax
 				('-flto=%s' % self.user_settings.lto) if self.user_settings.lto > 1 else '-flto',
-			]
-			self.env.Append(CXXFLAGS = f)
+			])
 
 	def check_endian(self):
 		# set endianess
@@ -2905,17 +2911,19 @@ class DXXCommon(LazyObjectConstructor):
 		if (self.user_settings.raspberrypi == 1):
 			rpi_vc_path = self.user_settings.rpi_vc_path
 			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
-			env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
+			env.Append(
+				CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'],
 			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
-			env.Append(CPPFLAGS = [
+				CPPFLAGS = [
 				'-isystem=%s/include' % rpi_vc_path,
 				'-isystem=%s/include/interface/vcos/pthreads' % rpi_vc_path,
 				'-isystem=%s/include/interface/vmcs_host/linux' % rpi_vc_path,
-			])
-			env.Append(LIBPATH = '%s/lib' % rpi_vc_path)
-			env.Append(LIBS = ['bcm_host'])
+			],
+				LIBPATH = '%s/lib' % rpi_vc_path,
+				LIBS = ['bcm_host'],
+			)
 
 class DXXArchive(DXXCommon):
 	PROGRAM_NAME = 'DXX-Archive'
@@ -3247,9 +3255,11 @@ class DXXProgram(DXXCommon):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			rcbasename = os.path.join(program.srcdir, 'arch/win32/%s' % program.target)
 			self.platform_objects.append(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))
-			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')])
-			env.Append(LINKFLAGS = '-mwindows')
-			env.Append(LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'])
+			env.Append(
+				CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')],
+				LINKFLAGS = ['-mwindows'],
+				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
+			)
 	# Settings to apply to Apple builds
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def __init__(self,program,user_settings):
@@ -3303,10 +3313,14 @@ class DXXProgram(DXXCommon):
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
 		self.env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_pch_node(archive)
-		self.env.Append(CPPDEFINES = [('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)]))])
+		self.env.Append(
+			CPPDEFINES = [
+				('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)])),
 		# For PRIi64
-		self.env.Append(CPPDEFINES = [('__STDC_FORMAT_MACROS',)])
-		self.env.Append(CPPPATH = [os.path.join(self.srcdir, 'main')])
+				('__STDC_FORMAT_MACROS',),
+			],
+			CPPPATH = [os.path.join(self.srcdir, 'main')],
+		)
 
 	def banner(self):
 		print '\n===== %s v%s.%s.%s =====\n' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
