@@ -942,7 +942,7 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", get_local_player().secondary_ammo[PROXIMITY_INDEX]);
+		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", get_local_player_secondary_ammo()[PROXIMITY_INDEX]);
 	}
 }
 
@@ -1047,7 +1047,7 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 #endif
 
 	bomb = which_bomb();
-	count = get_local_player().secondary_ammo[bomb];
+	count = get_local_player_secondary_ammo()[bomb];
 
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
 
@@ -1152,7 +1152,7 @@ static color_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 	if (Secondary_weapon==consider_weapon)
 		return hud_get_rgb_red();
 	else{
-		if (get_local_player().secondary_ammo[consider_weapon]>0)
+		if (get_local_player_secondary_ammo()[consider_weapon]>0)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
@@ -1361,7 +1361,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player().secondary_ammo[i]);
+			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player_secondary_ammo()[i]);
 			int w, h;
 			gr_get_string_size(weapon_str, &w, &h, nullptr);
 			if (vertical){
@@ -1386,12 +1386,13 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	}
 
 	{
+		auto &secondary_ammo = get_local_player_secondary_ammo();
 		for (uint_fast32_t ui = 10; ui -- != 5;)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player().secondary_ammo[i]);
+			snprintf(weapon_str, sizeof(weapon_str), "%u", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(weapon_str, &w, &h, nullptr);
 			if (vertical){
@@ -1504,7 +1505,7 @@ static void hud_show_weapons(void)
 
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
-		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,get_local_player().secondary_ammo[Secondary_weapon]);
+		snprintf(weapon_str, sizeof(weapon_str), "%s %u", disp_secondary_weapon_name, get_local_player_secondary_ammo()[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, nullptr);
 		gr_string(bmwx - w, y - line_spacing, weapon_str, w, h);
 
@@ -2326,7 +2327,7 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 		draw_weapon_box(1,Secondary_weapon);
 		if (weapon_box_states[1] == WS_SET)
 		{
-			const auto ammo = get_local_player().secondary_ammo[Secondary_weapon];
+			const auto ammo = get_local_player_secondary_ammo()[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_secondary_ammo(ammo);
 			draw_secondary_ammo_info(ammo, multires_gauge_graphic);
@@ -2953,7 +2954,7 @@ void draw_hud()
 		if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 			newdemo_record_primary_ammo(Omega_charge);
 #endif
-		newdemo_record_secondary_ammo(get_local_player().secondary_ammo[Secondary_weapon]);
+		newdemo_record_secondary_ammo(get_local_player_secondary_ammo()[Secondary_weapon]);
 	}
 	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
 		return;

@@ -775,11 +775,11 @@ void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 
 	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	
 	{
-		if (get_local_player().secondary_ammo[PROXIMITY_INDEX])
+		if (auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX])
 		{
 				multi_send_orb_bonus (Player_num);
 				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
-				get_local_player().secondary_ammo[PROXIMITY_INDEX]=0;
+				proximity = 0;
       }
 	}
 

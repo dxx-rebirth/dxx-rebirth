@@ -230,7 +230,7 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 	int	return_value = 0;
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 
-		if (Weapon_info[weapon_index].ammo_usage <= get_local_player().secondary_ammo[weapon_num])
+		if (Weapon_info[weapon_index].ammo_usage <= get_local_player_secondary_ammo()[weapon_num])
 			return_value |= has_weapon_result::has_ammo_flag;
 
 		if (Weapon_info[weapon_index].energy_usage <= get_local_player_energy())
@@ -719,25 +719,28 @@ int pick_up_secondary(int weapon_index,int count)
 	int	num_picked_up;
 	const auto max = PLAYER_MAX_AMMO(get_local_player(), Secondary_ammo_max[weapon_index]);
 
-	if (get_local_player().secondary_ammo[weapon_index] >= max) {
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, get_local_player().secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
+	auto &secondary_ammo = get_local_player_secondary_ammo();
+	if (secondary_ammo[weapon_index] >= max)
+	{
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, secondary_ammo[weapon_index], SECONDARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
-	get_local_player().secondary_ammo[weapon_index] += count;
+	secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
-	if (get_local_player().secondary_ammo[weapon_index] > max) {
-		num_picked_up = count - (get_local_player().secondary_ammo[weapon_index] - max);
-		get_local_player().secondary_ammo[weapon_index] = max;
+	if (secondary_ammo[weapon_index] > max)
+	{
+		num_picked_up = count - (secondary_ammo[weapon_index] - max);
+		secondary_ammo[weapon_index] = max;
 	}
 
-	if (get_local_player().secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
+	if (secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		const auto weapon_order = SOrderList(weapon_index);
-		const auto want_switch = [weapon_index, weapon_order]{
+		const auto want_switch = [weapon_index, weapon_order, &secondary_ammo]{
 			return weapon_order < SOrderList(255) && (
-				get_local_player().secondary_ammo[Delayed_secondary] == 0 ||
+				secondary_ammo[Delayed_secondary] == 0 ||
 				weapon_order < SOrderList(Delayed_secondary)
 				);
 		};
@@ -1354,7 +1357,7 @@ void DropSecondaryWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	if (get_local_player().secondary_ammo[Secondary_weapon] ==0)
+	if (get_local_player_secondary_ammo()[Secondary_weapon] ==0)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");
 		return;
@@ -1372,7 +1375,7 @@ void DropSecondaryWeapon ()
 		case POW_GUIDED_MISSILE_1:
 		case POW_MERCURY_MISSILE_1:
 #endif
-			if (get_local_player().secondary_ammo[Secondary_weapon] % 4)
+			if (get_local_player_secondary_ammo()[Secondary_weapon] % 4)
 			{
 				sub_ammo = 1;
 			}
@@ -1387,7 +1390,7 @@ void DropSecondaryWeapon ()
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_SMART_MINE:
 #endif
-			if (get_local_player().secondary_ammo[Secondary_weapon]<4)
+			if (get_local_player_secondary_ammo()[Secondary_weapon] < 4)
 			{
 				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
 				return;
@@ -1460,9 +1463,10 @@ void DropSecondaryWeapon ()
 	if ((Game_mode & GM_MULTI) && objnum!=object_none)
 		multi_send_drop_weapon(objnum,seed);
 
-	get_local_player().secondary_ammo[Secondary_weapon]-=sub_ammo;
+	auto &secondary_ammo = get_local_player_secondary_ammo();
+	secondary_ammo[Secondary_weapon] -= sub_ammo;
 
-	if (get_local_player().secondary_ammo[Secondary_weapon]==0)
+	if (secondary_ammo[Secondary_weapon]==0)
 	{
 		auto_select_secondary_weapon();
 	}

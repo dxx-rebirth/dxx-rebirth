@@ -156,11 +156,12 @@ void do_megawow_powerup(int quantity)
 #endif
 	get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 
+	auto &secondary_ammo = get_local_player_secondary_ammo();
 	for (int i=0; i<3; i++)
-		get_local_player().secondary_ammo[i] = quantity;
+		secondary_ammo[i] = quantity;
 
 	for (int i=3; i<MAX_SECONDARY_WEAPONS; i++)
-		get_local_player().secondary_ammo[i] = quantity/5;
+		secondary_ammo[i] = quantity/5;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
@@ -174,7 +175,7 @@ void do_megawow_powerup(int quantity)
 	get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
 
 	if (game_mode_hoard())
-		get_local_player().secondary_ammo[PROXIMITY_INDEX] = 12;
+		secondary_ammo[PROXIMITY_INDEX] = 12;
 #endif
 
 
@@ -640,13 +641,16 @@ int do_powerup(const vobjptridx_t obj)
 
 		case POW_HOARD_ORB:
 			if (game_mode_hoard())			
-				if (get_local_player().secondary_ammo[PROXIMITY_INDEX]<12) {
+			{
+				auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+				if (proximity < 12) {
+					++ proximity;
 					powerup_basic(15, 0, 15, 0, "Orb!!!");
-					get_local_player().secondary_ammo[PROXIMITY_INDEX]++;
 					get_local_player().flags |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_orb (Player_num);
 				}
+			}
 		  break;	
 
 		case POW_FLAG_RED:

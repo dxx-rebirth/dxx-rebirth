@@ -212,8 +212,10 @@ int which_bomb()
 
 	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
 
-	if (get_local_player().secondary_ammo[bomb] == 0 &&
-			get_local_player().secondary_ammo[SMART_MINE_INDEX+PROXIMITY_INDEX-bomb] != 0) {
+	auto &secondary_ammo = get_local_player_secondary_ammo();
+	if (secondary_ammo[bomb] == 0 &&
+		secondary_ammo[SMART_MINE_INDEX + PROXIMITY_INDEX - bomb] != 0)
+	{
 		bomb = SMART_MINE_INDEX+PROXIMITY_INDEX-bomb;
 		Secondary_last_was_super[bomb%SUPER_WEAPON] = (bomb == SMART_MINE_INDEX);
 	}
@@ -282,14 +284,15 @@ static void do_weapon_n_item_stuff()
 	{
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
-		if (!get_local_player().secondary_ammo[PROXIMITY_INDEX] && !get_local_player().secondary_ammo[SMART_MINE_INDEX])
+		auto &secondary_ammo = get_local_player_secondary_ammo();
+		if (!secondary_ammo[PROXIMITY_INDEX] && !secondary_ammo[SMART_MINE_INDEX])
 		{
 			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
 		}
 		else
 		{	
-			if (get_local_player().secondary_ammo[bomb] == 0)
+			if (secondary_ammo[bomb] == 0)
 			{
 				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 				HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
@@ -1476,8 +1479,9 @@ static window_event_result FinalCheats()
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
+		auto &secondary_ammo = get_local_player_secondary_ammo();
 		for (unsigned i=0; i<3; i++)
-			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
+			secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
@@ -1495,8 +1499,7 @@ static window_event_result FinalCheats()
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
-		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
-			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
+		get_local_player_secondary_ammo() = Secondary_ammo_max;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
@@ -1527,14 +1530,14 @@ static window_event_result FinalCheats()
 		}
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
-		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
-			get_local_player().secondary_ammo[i] = Secondary_ammo_max[i];
+		auto &secondary_ammo = get_local_player_secondary_ammo();
+		secondary_ammo = Secondary_ammo_max;
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
-			get_local_player().secondary_ammo[SMISSILE4_INDEX] = 0;
-			get_local_player().secondary_ammo[SMISSILE5_INDEX] = 0;
-			get_local_player().secondary_ammo[MEGA_INDEX] = 0;
+			secondary_ammo[SMISSILE4_INDEX] = 0;
+			secondary_ammo[SMISSILE5_INDEX] = 0;
+			secondary_ammo[MEGA_INDEX] = 0;
 		}
 
 		if (Newdemo_state == ND_STATE_RECORDING)

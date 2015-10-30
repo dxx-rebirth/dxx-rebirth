@@ -294,8 +294,9 @@ static void init_ammo_and_energy(void)
 		get_local_player_energy() = INITIAL_ENERGY;
 	if (get_local_player_shields() < StartingShields)
 		get_local_player_shields() = StartingShields;
-	if (get_local_player().secondary_ammo[0] < 2 + NDL - Difficulty_level)
-		get_local_player().secondary_ammo[0] = 2 + NDL - Difficulty_level;
+	auto &concussion = get_local_player_secondary_ammo()[CONCUSSION_INDEX];
+	if (concussion < 2 + NDL - Difficulty_level)
+		concussion = 2 + NDL - Difficulty_level;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

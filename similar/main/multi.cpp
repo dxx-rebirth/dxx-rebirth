@@ -2522,18 +2522,19 @@ void multi_send_player_deres(deres_type_t type)
 	PUT_WEAPON_FLAGS(multibuf, count, get_local_player().primary_weapon_flags);
 	multibuf[count++] = (char)get_local_player().laser_level;
 
-	multibuf[count++] = (char)get_local_player().secondary_ammo[HOMING_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[CONCUSSION_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[SMART_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[MEGA_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[PROXIMITY_INDEX];
+	auto &secondary_ammo = get_local_player_secondary_ammo();
+	multibuf[count++] = secondary_ammo[HOMING_INDEX];
+	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
+	multibuf[count++] = secondary_ammo[SMART_INDEX];
+	multibuf[count++] = secondary_ammo[MEGA_INDEX];
+	multibuf[count++] = secondary_ammo[PROXIMITY_INDEX];
 
 #if defined(DXX_BUILD_DESCENT_II)
-	multibuf[count++] = (char)get_local_player().secondary_ammo[SMISSILE1_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[GUIDED_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[SMART_MINE_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[SMISSILE4_INDEX];
-	multibuf[count++] = (char)get_local_player().secondary_ammo[SMISSILE5_INDEX];
+	multibuf[count++] = secondary_ammo[SMISSILE1_INDEX];
+	multibuf[count++] = secondary_ammo[GUIDED_INDEX];
+	multibuf[count++] = secondary_ammo[SMART_MINE_INDEX];
+	multibuf[count++] = secondary_ammo[SMISSILE4_INDEX];
+	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
 #endif
 
 	PUT_INTEL_SHORT(multibuf+count, get_local_player().vulcan_ammo );
@@ -2607,7 +2608,7 @@ void multi_powcap_cap_objects()
 		return;
 
 	auto &plr = get_local_player();
-	auto &secondary_ammo = plr.secondary_ammo;
+	auto &secondary_ammo = get_local_player_secondary_ammo();
 	if (!game_mode_hoard())
 	  	secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
 	Proximity_dropped=0;
@@ -2647,9 +2648,9 @@ void multi_powcap_cap_objects()
 	}
 
 	if (!game_mode_hoard())
-		get_local_player().secondary_ammo[2]*=4;
+		get_local_player_secondary_ammo()[2]*=4;
 #if defined(DXX_BUILD_DESCENT_II)
-	get_local_player().secondary_ammo[7]*=4;
+	get_local_player_secondary_ammo()[7]*=4;
 #endif
 	PowerupCaps.cap_laser_level(plr.laser_level);
 	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
@@ -3995,7 +3996,7 @@ void multi_send_orb_bonus (const playernum_t pnum)
 	Assert (game_mode_hoard());
 
 	multibuf[1]=pnum;
-	multibuf[2]=get_local_player().secondary_ammo[PROXIMITY_INDEX];
+	multibuf[2] = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
 
 	multi_send_data<MULTI_ORB_BONUS>(multibuf,3,2);
 	multi_do_orb_bonus (pnum, multibuf);
@@ -4174,7 +4175,7 @@ static void DropOrb ()
 	if (!game_mode_hoard())
 		Int3(); // How did we get here? Get Leighton!
 
-	if (!get_local_player().secondary_ammo[PROXIMITY_INDEX])
+	if (!get_local_player_secondary_ammo()[PROXIMITY_INDEX])
 	{
 		HUD_init_message_literal(HM_MULTI, "No orbs to drop!");
 		return;
@@ -4193,10 +4194,10 @@ static void DropOrb ()
 	if (game_mode_hoard())
 		multi_send_drop_flag(objnum,seed);
 
-	get_local_player().secondary_ammo[PROXIMITY_INDEX]--;
+	-- get_local_player_secondary_ammo()[PROXIMITY_INDEX];
 
 	// If empty, tell everyone to stop drawing the box around me
-	if (get_local_player().secondary_ammo[PROXIMITY_INDEX]==0)
+	if (!get_local_player_secondary_ammo()[PROXIMITY_INDEX])
 	{
 		get_local_player().flags &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);

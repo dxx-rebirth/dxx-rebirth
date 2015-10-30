@@ -1028,7 +1028,7 @@ void newdemo_record_start_demo()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
-	range_for (auto &i, get_local_player().secondary_ammo)
+	range_for (auto &i, get_local_player_secondary_ammo())
 		nd_write_short(i);
 
 	nd_write_byte((sbyte)get_local_player().laser_level);
@@ -1771,7 +1771,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(s);
 	}
 
-	range_for (auto &i, get_local_player().secondary_ammo)
+	range_for (auto &i, get_local_player_secondary_ammo())
 	{
 		nd_read_short((short*)&(i));
 		if (purpose == PURPOSE_REWRITE)
@@ -2887,9 +2887,9 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				get_local_player().secondary_ammo[Secondary_weapon] = old_ammo;
+				get_local_player_secondary_ammo()[Secondary_weapon] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				get_local_player().secondary_ammo[Secondary_weapon] = new_ammo;
+				get_local_player_secondary_ammo()[Secondary_weapon] = new_ammo;
 			break;
 		}
 
@@ -3260,7 +3260,7 @@ void newdemo_goto_end(int to_rewrite)
 		if (i == primary_weapon_index_t::VULCAN_INDEX)
 			get_local_player().vulcan_ammo = s;
 	}
-	range_for (auto &i, get_local_player().secondary_ammo)
+	range_for (auto &i, get_local_player_secondary_ammo())
 		nd_read_short((short *)&(i));
 	int8_t i;
 	nd_read_byte(&i);
@@ -3661,7 +3661,7 @@ static void newdemo_write_end()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player().vulcan_ammo : 0);
 
-	range_for (auto &i, get_local_player().secondary_ammo)
+	range_for (auto &i, get_local_player_secondary_ammo())
 		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
