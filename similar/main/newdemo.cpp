@@ -1041,8 +1041,7 @@ void newdemo_record_start_demo()
 	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
 	nd_record_v_player_shields = (sbyte)(f2ir(get_local_player().shields));
 	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
-	nd_record_v_player_flags = get_local_player().flags;
-	nd_write_int(get_local_player().flags);        // be sure players flags are set
+	nd_write_int(nd_record_v_player_flags = get_local_player().flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
@@ -1824,7 +1823,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
-	get_local_player().flags = recorded_player_flags;
+	get_local_player().flags = player_flags(recorded_player_flags);
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_int(recorded_player_flags);
 	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
@@ -1852,9 +1851,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 		nd_read_byte((sbyte *)&c);
 		if (c != ND_EVENT_NEW_LEVEL) {
-			int flags;
-
-			flags = get_local_player().flags;
+			auto flags = get_local_player().flags.get_player_flags();
 			energy = shield;
 			shield = (unsigned char)flags;
 			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
@@ -2427,14 +2424,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 
-			uint16_t old_player_flags = static_cast<unsigned>(recorded_player_flags) >> 16;
-			uint16_t new_player_flags = static_cast<unsigned>(recorded_player_flags);
+			const auto old_player_flags = player_flags(static_cast<unsigned>(recorded_player_flags) >> 16);
+			const auto new_player_flags = player_flags(static_cast<unsigned>(recorded_player_flags));
 
 			const auto old_cloaked = old_player_flags & PLAYER_FLAGS_CLOAKED;
 			const auto new_cloaked = new_player_flags & PLAYER_FLAGS_CLOAKED;
 			const auto old_invul = old_player_flags & PLAYER_FLAGS_INVULNERABLE;
 			const auto new_invul = new_player_flags & PLAYER_FLAGS_INVULNERABLE;
-			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (old_player_flags != 0xffff)) ) {
+			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (old_player_flags.get_player_flags() != 0xffff)) ) {
 				if (!old_cloaked && new_cloaked)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
 				if (old_cloaked && !new_cloaked)
@@ -3248,7 +3245,7 @@ void newdemo_goto_end(int to_rewrite)
 	get_local_player().shields = i2f(shield);
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
-	get_local_player().flags = recorded_player_flags;
+	get_local_player().flags = player_flags(recorded_player_flags);
 	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
 		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
@@ -3656,7 +3653,7 @@ static void newdemo_write_end()
 
 	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
 	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
-	nd_write_int(get_local_player().flags);        // be sure players flags are set
+	nd_write_int(get_local_player().flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
 	byte_count += 8;

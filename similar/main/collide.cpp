@@ -144,14 +144,14 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 				ai_local		*ailp = &robot->ctype.ai_info.ail;
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
-						if (Walls[wall_num].keys & get_local_player().flags)
+						if (get_local_player().flags & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
 							wall_open_door(hitseg, hitwall);
 					} else if (!(Walls[wall_num].flags & WALL_DOOR_LOCKED))
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
 				if (Walls[wall_num].keys != KEY_NONE)
-					if (Walls[wall_num].keys & get_local_player().flags)
+					if (get_local_player().flags & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
 						wall_open_door(hitseg, hitwall);
 			}
 #endif

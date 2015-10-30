@@ -36,21 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INITIAL_LIVES               3   // start off with 3 lives
 
 // Values for special flags
-#define PLAYER_FLAGS_INVULNERABLE   1       // Player is invincible
-#define PLAYER_FLAGS_BLUE_KEY       2       // Player has blue key
-#define PLAYER_FLAGS_RED_KEY        4       // Player has red key
-#define PLAYER_FLAGS_GOLD_KEY       8       // Player has gold key
-#define PLAYER_FLAGS_MAP_ALL        64      // Player can see unvisited areas on map
-#define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
-#define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
 #if defined(DXX_BUILD_DESCENT_II)
-#define PLAYER_FLAGS_FLAG           16      // Player has his team's flag
-#define PLAYER_FLAGS_AMMO_RACK      128     // Player has ammo rack
-#define PLAYER_FLAGS_CONVERTER      256     // Player has energy->shield converter
 #define PLAYER_MAX_AMMO(PLR,BASE)	((PLR.flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
-#define PLAYER_FLAGS_AFTERBURNER    4096    // Player's afterburner is engaged
-#define PLAYER_FLAGS_HEADLIGHT      8192    // Player has headlight boost
-#define PLAYER_FLAGS_HEADLIGHT_ON   16384   // is headlight on or off?
 
 #define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
 #endif

@@ -255,7 +255,7 @@ void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint8_t &player_
 	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
 }
 
-void powerup_cap_state::cap_flag(uint32_t &player_flags, const uint32_t powerup_flag, const powerup_type_t idx) const
+void powerup_cap_state::cap_flag(player_flags &player_flags, const PLAYER_FLAG powerup_flag, const powerup_type_t idx) const
 {
 	if (player_flags & powerup_flag)
 		if (!can_add_mapped_powerup(idx))
@@ -501,7 +501,7 @@ multi_new_game(void)
 		Players[i].connected = CONNECT_DISCONNECTED;
 		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
-		Players[i].flags = 0;
+		Players[i].flags = {};
 		Players[i].KillGoalCount=0;
 		multi_sending_message[i] = msgsend_none;
 	}
@@ -1696,7 +1696,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 
 	Players[pnum].vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
-	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
+	Players[pnum].flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
 	multi_powcap_adjust_remote_cap (pnum);
 
@@ -2528,7 +2528,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	PUT_INTEL_SHORT(multibuf+count, get_local_player().vulcan_ammo );
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, get_local_player().flags );
+	PUT_INTEL_INT(multibuf+count, get_local_player().flags.get_player_flags());
 	count += 4;
 
 	multibuf[count++] = Net_create_loc;
@@ -3145,17 +3145,19 @@ static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p,
 	return s > 0 ? p.mask >> s : p.mask << -s;
 }
 
-uint_fast32_t map_granted_flags_to_player_flags(const packed_spawn_granted_items p)
+player_flags map_granted_flags_to_player_flags(const packed_spawn_granted_items p)
 {
 	auto &grant = p.mask;
-	return ((grant & NETGRANT_QUAD) ? PLAYER_FLAGS_QUAD_LASERS : 0)
+	const auto None = PLAYER_FLAG::None;
+	return player_flags(
+		((grant & NETGRANT_QUAD) ? PLAYER_FLAGS_QUAD_LASERS : None)
 #if defined(DXX_BUILD_DESCENT_II)
-		| ((grant & NETGRANT_AFTERBURNER) ? PLAYER_FLAGS_AFTERBURNER : 0)
-		| ((grant & NETGRANT_AMMORACK) ? PLAYER_FLAGS_AMMO_RACK : 0)
-		| ((grant & NETGRANT_CONVERTER) ? PLAYER_FLAGS_CONVERTER : 0)
-		| ((grant & NETGRANT_HEADLIGHT) ? PLAYER_FLAGS_HEADLIGHT : 0)
+		| ((grant & NETGRANT_AFTERBURNER) ? PLAYER_FLAGS_AFTERBURNER : None)
+		| ((grant & NETGRANT_AMMORACK) ? PLAYER_FLAGS_AMMO_RACK : None)
+		| ((grant & NETGRANT_CONVERTER) ? PLAYER_FLAGS_CONVERTER : None)
+		| ((grant & NETGRANT_HEADLIGHT) ? PLAYER_FLAGS_HEADLIGHT : None)
 #endif
-		;
+	);
 }
 
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(const packed_spawn_granted_items p)
@@ -3878,13 +3880,13 @@ static void multi_do_flags (const playernum_t pnum, const ubyte *buf)
 
 	flags = GET_INTEL_INT(buf + 2);
 	if (pnum!=Player_num)
-		Players[(int)pnum].flags=flags;
+		Players[pnum].flags = player_flags(flags);
 }
 
 void multi_send_flags (const playernum_t pnum)
 {
 	multibuf[1]=pnum;
-	PUT_INTEL_INT(multibuf+2, Players[(int)pnum].flags);
+	PUT_INTEL_INT(multibuf+2, Players[pnum].flags.get_player_flags());
  
 	multi_send_data<MULTI_FLAGS>(multibuf, 6, 2);
 }

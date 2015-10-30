@@ -41,6 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player-callsign.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "player-flags.h"
+
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
 struct player : public prohibit_void_ptr<player>
@@ -53,7 +55,7 @@ struct player : public prohibit_void_ptr<player>
 	//  -- make sure you're 4 byte aligned now!
 
 	// Game data
-	uint    flags;                  // Powerup flags, see below...
+	player_flags flags;   // Powerup flags, see below...
 	fix     energy;                 // Amount of energy remaining.
 	fix     shields;                // shields remaining (protection)
 	ubyte   lives;                  // Lives remaining, 0 = game over.

@@ -1327,7 +1327,7 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 		//	Evasion speed is scaled by percentage of shields left so wounded robots evade less effectively.
 
 		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
-		if ((dot > robptr->field_of_view[Difficulty_level]) && !(ConsoleObject->flags & PLAYER_FLAGS_CLOAKED)) {
+		if ((dot > robptr->field_of_view[Difficulty_level]) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
 			if (!robptr->strength)
@@ -1849,7 +1849,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
 			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
-				if (wallp->keys & get_local_player().flags)
+				if (get_local_player().flags & static_cast<PLAYER_FLAG>(wallp->keys))
 					return 1;
 			}
 		}

@@ -279,7 +279,7 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
 	Players[pnum].laser_level = LASER_LEVEL_1;
-	Players[pnum].flags = 0;
+	Players[pnum].flags = {};
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -340,10 +340,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
-		get_local_player().flags &= (~KEY_BLUE);
-		get_local_player().flags &= (~KEY_RED);
-		get_local_player().flags &= (~KEY_GOLD);
-
 		get_local_player().flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 #if defined(DXX_BUILD_DESCENT_II)
 		get_local_player().flags &= ~(PLAYER_FLAGS_MAP_ALL);
@@ -352,8 +348,11 @@ void init_player_stats_level(const secret_restore secret_flag)
 		DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
 		DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
 
+		const auto all_keys = PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY;
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-			get_local_player().flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
+			get_local_player().flags |= all_keys;
+		else
+			get_local_player().flags &= ~all_keys;
 	}
 
 	Player_is_dead = 0; // Added by RH

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-player.h"
 #include "player-callsign.h"
+#include "player-flags.h"
 #include "weapon.h"
 #include "mission.h"
 #include "newmenu.h"
@@ -339,7 +340,7 @@ static inline laser_level_t map_granted_flags_to_laser_level(const packed_spawn_
 	/* Laser level in lowest bits */
 	return laser_level_t(grant.mask & ((1 << DXX_GRANT_LASER_LEVEL_BITS) - 1));
 }
-uint_fast32_t map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
+player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
 
@@ -397,7 +398,7 @@ public:
 	}
 	void cap_laser_level(stored_laser_level &player_level) const;
 	void cap_secondary_ammo(powerup_type_t type, uint8_t &player_ammo) const;
-	void cap_flag(uint32_t &player_flags, uint32_t powerup_flag, powerup_type_t idx) const;
+	void cap_flag(player_flags &player_flags, const PLAYER_FLAG powerup_flag, powerup_type_t idx) const;
 	bool can_add_mapped_powerup(const powerup_type_t type) const
 	{
 		return get_current(type) < get_max(type);
@@ -407,12 +408,12 @@ public:
 		return can_add_mapped_powerup(map_powerup_type_to_index(type));
 	}
 	void recount();
-	void inc_flag_current(const uint32_t player_flags, const uint32_t powerup_flag, const powerup_type_t id)
+	void inc_flag_current(const player_flags player_flags, const PLAYER_FLAG powerup_flag, const powerup_type_t id)
 	{
 		if (player_flags & powerup_flag)
 			inc_powerup_current(id);
 	}
-	void inc_flag_max(const uint32_t player_flags, const uint32_t powerup_flag, const powerup_type_t id)
+	void inc_flag_max(const player_flags player_flags, const PLAYER_FLAG powerup_flag, const powerup_type_t id)
 	{
 		if (player_flags & powerup_flag)
 			inc_powerup_max(id);
@@ -806,7 +807,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	array<uint16_t, MAX_PLAYERS>						killed;
 	array<uint16_t, MAX_PLAYERS>						player_kills;
 	array<uint32_t, MAX_PLAYERS>						player_score;
-	array<uint8_t, MAX_PLAYERS>						net_player_flags;
+	array<player_flags, MAX_PLAYERS>					net_player_flags;
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif

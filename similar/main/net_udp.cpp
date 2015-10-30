@@ -1533,7 +1533,7 @@ static net_udp_new_player(UDP_sequence_packet *their)
 	Players[pnum].net_killed_total = 0;
 	kill_matrix[pnum] = {};
 	Players[pnum].score = 0;
-	Players[pnum].flags = 0;
+	Players[pnum].flags = {};
 	Players[pnum].KillGoalCount=0;
 
 	if (pnum == N_players)
@@ -2312,8 +2312,8 @@ void net_udp_update_netgame(void)
 		Netgame.player_kills[i] = Players[i].net_kills_total;
 #if defined(DXX_BUILD_DESCENT_II)
 		Netgame.player_score[i] = Players[i].score;
-		Netgame.net_player_flags[i] = (Players[i].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY));
 #endif
+		Netgame.net_player_flags[i] = Players[i].flags;
 	}
 	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;
@@ -2554,7 +2554,8 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		}
 		range_for (auto &i, Netgame.net_player_flags)
 		{
-			buf[len] = i;					len++;
+			buf[len] = static_cast<uint8_t>(i.get_player_flags());
+			len++;
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
@@ -2785,7 +2786,8 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		}
 		range_for (auto &i, Netgame.net_player_flags)
 		{
-			i = data[len];					len++;
+			i = player_flags(data[len]);
+			len++;
 		}
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.PacketLossPrevention = data[len];					len++;

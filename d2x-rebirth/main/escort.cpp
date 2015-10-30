@@ -820,11 +820,12 @@ static escort_goal_t escort_set_goal_object(void)
 {
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	else if (!(ConsoleObject->flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
+	const auto &pl_flags = get_local_player().flags;
+	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
 		return ESCORT_GOAL_BLUE_KEY;
-	else if (!(ConsoleObject->flags & PLAYER_FLAGS_GOLD_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1) != object_none))
+	else if (!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1) != object_none))
 		return ESCORT_GOAL_GOLD_KEY;
-	else if (!(ConsoleObject->flags & PLAYER_FLAGS_RED_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_RED, -1) != object_none))
+	else if (!(pl_flags & PLAYER_FLAGS_RED_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_RED, -1) != object_none))
 		return ESCORT_GOAL_RED_KEY;
 	else if (Control_center_destroyed == 0) {
 		if (Boss_teleport_segs.count())
@@ -1329,7 +1330,7 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 //	----------------------------------------------------------------------------
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
-static int maybe_steal_flag_item(const vobjptr_t playerobjp, unsigned flagval)
+static int maybe_steal_flag_item(const vobjptr_t playerobjp, const PLAYER_FLAG flagval)
 {
 	auto &plr_flags = Players[get_player_id(playerobjp)].flags;
 	if (plr_flags & flagval)
@@ -1363,7 +1364,7 @@ static int maybe_steal_flag_item(const vobjptr_t playerobjp, unsigned flagval)
 					powerup_index = POW_CONVERTER;
 					msg = "Converter stolen!";
 					break;
-				case PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON:
+				case PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON:
 					powerup_index = POW_HEADLIGHT;
 					msg = "Headlight stolen!";
 					break;
@@ -1494,7 +1495,7 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 		return 1;
 // --	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_AMMO_RACK))	//	Can't steal because what if have too many items, say 15 homing missiles?
 // --		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON))
+	if (maybe_steal_flag_item(player_num, PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON))
 		return 1;
 	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_MAP_ALL))
 		return 1;

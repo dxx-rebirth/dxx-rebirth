@@ -471,7 +471,7 @@ static void state_player_to_player_rw(const player *pl, player_rw *pl_rw)
 	pl_rw->objnum                    = pl->objnum;
 	pl_rw->n_packets_got             = 0;
 	pl_rw->n_packets_sent            = 0;
-	pl_rw->flags                     = pl->flags;
+	pl_rw->flags                     = pl->flags.get_player_flags();
 	pl_rw->energy                    = pl->energy;
 	pl_rw->shields                   = pl->shields;
 	pl_rw->lives                     = pl->lives;
@@ -521,7 +521,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl)
 	pl->callsign = pl_rw->callsign;
 	pl->connected                 = pl_rw->connected;
 	pl->objnum                    = pl_rw->objnum;
-	pl->flags                     = pl_rw->flags;
+	pl->flags                     = player_flags(pl_rw->flags);
 	pl->energy                    = pl_rw->energy;
 	pl->shields                   = pl_rw->shields;
 	pl->lives                     = pl_rw->lives;

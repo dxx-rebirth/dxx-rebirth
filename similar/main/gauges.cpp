@@ -624,14 +624,14 @@ static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local
 
 class draw_keys_state
 {
-	const unsigned player_key_flags;
+	const player_flags player_key_flags;
 protected:
 	draw_keys_state() :
 		player_key_flags(get_local_player().flags)
 	{
 		gr_set_current_canvas(nullptr);
 	}
-	void draw_one_key(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic, uint32_t flag) const
+	void draw_one_key(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic, const PLAYER_FLAG flag) const
 	{
 		hud_gauge_bitblt(x, y, (player_key_flags & flag) ? gauge : (gauge + 3), multires_gauge_graphic);
 	}
@@ -880,8 +880,8 @@ static void hud_show_homing_warning(void)
 
 static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const unsigned player_key_flags = get_local_player().flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY);
-	if (!player_key_flags)
+	const auto player_key_flags = get_local_player().flags;
+	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	class gauge_key
 	{
@@ -3007,7 +3007,7 @@ void draw_hud()
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)
-				newdemo_record_player_flags(get_local_player().flags);
+				newdemo_record_player_flags(get_local_player().flags.get_player_flags());
 		}
 
 #ifndef RELEASE
@@ -3086,7 +3086,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(get_local_player().flags);
+			newdemo_record_player_flags(get_local_player().flags.get_player_flags());
 		}
 		draw_cockpit_keys_state().draw_all_keys(multires_gauge_graphic);
 
@@ -3119,7 +3119,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(get_local_player().flags);
+			newdemo_record_player_flags(get_local_player().flags.get_player_flags());
 		}
 		draw_statusbar_keys_state().draw_all_keys(multires_gauge_graphic);
 

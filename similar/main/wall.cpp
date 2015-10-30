@@ -1126,11 +1126,11 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 		(w->keys == KEY_GOLD && (key_color = TXT_YELLOW, true)) ||
 		(w->keys == KEY_RED && (key_color = TXT_RED, true))
 	)
-		if (!(Players[playernum].flags & w->keys))
+		if (!(Players[playernum].flags & static_cast<PLAYER_FLAG>(w->keys)))
 		{
-			static_assert(KEY_BLUE == PLAYER_FLAGS_BLUE_KEY, "BLUE key flag mismatch");
-			static_assert(KEY_GOLD == PLAYER_FLAGS_GOLD_KEY, "GOLD key flag mismatch");
-			static_assert(KEY_RED == PLAYER_FLAGS_RED_KEY, "RED key flag mismatch");
+			static_assert(KEY_BLUE == static_cast<unsigned>(PLAYER_FLAGS_BLUE_KEY), "BLUE key flag mismatch");
+			static_assert(KEY_GOLD == static_cast<unsigned>(PLAYER_FLAGS_GOLD_KEY), "GOLD key flag mismatch");
+			static_assert(KEY_RED == static_cast<unsigned>(PLAYER_FLAGS_RED_KEY), "RED key flag mismatch");
 				if (show_message)
 					HUD_init_message(HM_DEFAULT, "%s %s",key_color,TXT_ACCESS_DENIED);
 			return wall_hit_process_t::WHP_NO_KEY;
