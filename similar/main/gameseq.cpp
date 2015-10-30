@@ -1584,7 +1584,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	{
 		int i;
 		for (i = 0; i < N_players; i++)
-			Players[i].flags |= Netgame.player_flags[i];
+			Players[i].flags |= Netgame.net_player_flags[i];
 	}
 
 	if (Game_mode & GM_MULTI)

@@ -806,7 +806,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	array<uint16_t, MAX_PLAYERS>						killed;
 	array<uint16_t, MAX_PLAYERS>						player_kills;
 	array<uint32_t, MAX_PLAYERS>						player_score;
-	array<uint8_t, MAX_PLAYERS>						player_flags;
+	array<uint8_t, MAX_PLAYERS>						net_player_flags;
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif

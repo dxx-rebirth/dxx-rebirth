@@ -1841,7 +1841,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		{
 			Netgame.killed[i] = Players[i].net_killed_total;
 			Netgame.player_score[i] = Players[i].score;
-			Netgame.player_flags[i] = Players[i].flags;
+			Netgame.net_player_flags[i] = Players[i].flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)

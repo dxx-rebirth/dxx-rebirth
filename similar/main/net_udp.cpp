@@ -2312,7 +2312,7 @@ void net_udp_update_netgame(void)
 		Netgame.player_kills[i] = Players[i].net_kills_total;
 #if defined(DXX_BUILD_DESCENT_II)
 		Netgame.player_score[i] = Players[i].score;
-		Netgame.player_flags[i] = (Players[i].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY));
+		Netgame.net_player_flags[i] = (Players[i].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY));
 #endif
 	}
 	Netgame.team_kills = team_kills;
@@ -2552,7 +2552,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		{
 			PUT_INTEL_INT(buf + len, i);			len += 4;
 		}
-		range_for (auto &i, Netgame.player_flags)
+		range_for (auto &i, Netgame.net_player_flags)
 		{
 			buf[len] = i;					len++;
 		}
@@ -2783,7 +2783,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		{
 			i = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
-		range_for (auto &i, Netgame.player_flags)
+		range_for (auto &i, Netgame.net_player_flags)
 		{
 			i = data[len];					len++;
 		}
