@@ -530,8 +530,8 @@ void set_dynamic_light(render_state_t &rstate)
 #if defined(DXX_BUILD_DESCENT_II)
 void toggle_headlight_active()
 {
-	if (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT) {
-		get_local_player().flags ^= PLAYER_FLAGS_HEADLIGHT_ON;
+	if (get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT) {
+		get_local_player_flags() ^= PLAYER_FLAGS_HEADLIGHT_ON;
 		if (Game_mode & GM_MULTI)
 			multi_send_flags(Player_num);
 	}

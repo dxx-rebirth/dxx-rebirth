@@ -168,7 +168,7 @@ void do_megawow_powerup(int quantity)
 
 	get_local_player_energy() = F1_0*200;
 	get_local_player_shields() = F1_0*200;
-	get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
+	get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
 	get_local_player().laser_level = MAX_LASER_LEVEL;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -308,10 +308,10 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_KEY_BLUE:
-			if (get_local_player().flags & PLAYER_FLAGS_BLUE_KEY)
+			if (get_local_player_flags() & PLAYER_FLAGS_BLUE_KEY)
 				break;
 			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player().flags |= PLAYER_FLAGS_BLUE_KEY;
+			get_local_player_flags() |= PLAYER_FLAGS_BLUE_KEY;
 			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
 				used=0;
@@ -320,10 +320,10 @@ int do_powerup(const vobjptridx_t obj)
 			invalidate_escort_goal();
 			break;
 		case POW_KEY_RED:
-			if (get_local_player().flags & PLAYER_FLAGS_RED_KEY)
+			if (get_local_player_flags() & PLAYER_FLAGS_RED_KEY)
 				break;
 			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player().flags |= PLAYER_FLAGS_RED_KEY;
+			get_local_player_flags() |= PLAYER_FLAGS_RED_KEY;
 			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
 				used=0;
@@ -332,10 +332,10 @@ int do_powerup(const vobjptridx_t obj)
 			invalidate_escort_goal();
 			break;
 		case POW_KEY_GOLD:
-			if (get_local_player().flags & PLAYER_FLAGS_GOLD_KEY)
+			if (get_local_player_flags() & PLAYER_FLAGS_GOLD_KEY)
 				break;
 			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player().flags |= PLAYER_FLAGS_GOLD_KEY;
+			get_local_player_flags() |= PLAYER_FLAGS_GOLD_KEY;
 			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
 			if (Game_mode & GM_MULTI)
 				used=0;
@@ -344,8 +344,8 @@ int do_powerup(const vobjptridx_t obj)
 			invalidate_escort_goal();
 			break;
 		case POW_QUAD_FIRE:
-			if (!(get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)) {
-				get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
+			if (!(get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)) {
+				get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 				powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!",TXT_QUAD_LASERS);
 				update_laser_weapon_info();
 				used=1;
@@ -502,12 +502,12 @@ int do_powerup(const vobjptridx_t obj)
 			used=pick_up_secondary(HOMING_INDEX,4);
 			break;
 		case	POW_CLOAK:
-			if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+			if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
 				get_local_player().cloak_time = GameTime64;	//	Not! changed by awareness events (like player fires laser).
-				get_local_player().flags |= PLAYER_FLAGS_CLOAKED;
+				get_local_player_flags() |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
@@ -516,12 +516,12 @@ int do_powerup(const vobjptridx_t obj)
 				break;
 			}
 		case	POW_INVULNERABILITY:
-			if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE) {
+			if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
 				get_local_player().invulnerable_time = GameTime64;
-				get_local_player().flags |= PLAYER_FLAGS_INVULNERABLE;
+				get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
 				break;
@@ -535,24 +535,24 @@ int do_powerup(const vobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_FULL_MAP:
-			if (get_local_player().flags & PLAYER_FLAGS_MAP_ALL) {
+			if (get_local_player_flags() & PLAYER_FLAGS_MAP_ALL) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the FULL MAP");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			} else {
-				get_local_player().flags |= PLAYER_FLAGS_MAP_ALL;
+				get_local_player_flags() |= PLAYER_FLAGS_MAP_ALL;
 				powerup_basic(15, 0, 15, 0, "FULL MAP!");
 				used=1;
 			}
 			break;
 
 		case POW_CONVERTER:
-			if (get_local_player().flags & PLAYER_FLAGS_CONVERTER) {
+			if (get_local_player_flags() & PLAYER_FLAGS_CONVERTER) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Converter");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			} else {
-				get_local_player().flags |= PLAYER_FLAGS_CONVERTER;
+				get_local_player_flags() |= PLAYER_FLAGS_CONVERTER;
 			    	powerup_basic(15, 0, 15, 0, "Energy -> shield converter!");
 
 
@@ -583,13 +583,13 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_AMMO_RACK:
-			if (get_local_player().flags & PLAYER_FLAGS_AMMO_RACK) {
+			if (get_local_player_flags() & PLAYER_FLAGS_AMMO_RACK) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Ammo rack");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
 			else {
-				get_local_player().flags |= PLAYER_FLAGS_AMMO_RACK;
+				get_local_player_flags() |= PLAYER_FLAGS_AMMO_RACK;
 				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 0, 15, 0, "AMMO RACK!");
 				used=1;
@@ -597,13 +597,13 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_AFTERBURNER:
-			if (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER) {
+			if (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Afterburner");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
 			else {
-				get_local_player().flags |= PLAYER_FLAGS_AFTERBURNER;
+				get_local_player_flags() |= PLAYER_FLAGS_AFTERBURNER;
 				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 15, 15, 0, "AFTERBURNER!");
 				Afterburner_charge = f1_0;
@@ -612,17 +612,17 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_HEADLIGHT:
-			if (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT) {
+			if (get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Headlight boost");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
 			else {
-				get_local_player().flags |= PLAYER_FLAGS_HEADLIGHT;
+				get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT;
 				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
 				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				if (PlayerCfg.HeadlightActiveDefault)
-					get_local_player().flags |= PLAYER_FLAGS_HEADLIGHT_ON;
+					get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT_ON;
 				used=1;
 			   if (Game_mode & GM_MULTI)
 					multi_send_flags (Player_num);
@@ -633,7 +633,7 @@ int do_powerup(const vobjptridx_t obj)
 			if (game_mode_capture_flag())			
 				if (get_team(Player_num) == TEAM_RED) {
 					powerup_basic(15, 0, 15, 0, "BLUE FLAG!");
-					get_local_player().flags |= PLAYER_FLAGS_FLAG;
+					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_flag (Player_num);
 				}
@@ -646,7 +646,7 @@ int do_powerup(const vobjptridx_t obj)
 				if (proximity < 12) {
 					++ proximity;
 					powerup_basic(15, 0, 15, 0, "Orb!!!");
-					get_local_player().flags |= PLAYER_FLAGS_FLAG;
+					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_orb (Player_num);
 				}
@@ -657,7 +657,7 @@ int do_powerup(const vobjptridx_t obj)
 			if (game_mode_capture_flag())			
 				if (get_team(Player_num) == TEAM_BLUE) {
 					powerup_basic(15, 0, 15, 0, "RED FLAG!");
-					get_local_player().flags |= PLAYER_FLAGS_FLAG;
+					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_flag (Player_num);
 				}

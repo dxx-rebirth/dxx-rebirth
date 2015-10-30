@@ -1014,7 +1014,7 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 	if (Game_mode & GM_MULTI_COOP)
 		return 0;
 	//	Don't track player if he's cloaked.
-	if ((objp == get_local_player().objnum) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED))
+	if ((objp == get_local_player().objnum) && (get_local_player_flags() & PLAYER_FLAGS_CLOAKED))
 		return 0;
 
 	//	Can't track AI object if he's cloaked.
@@ -1784,7 +1784,7 @@ int do_laser_firing_player(void)
 			}
 #endif
 
-			if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
+			if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
 				flags |= LASER_QUAD;
 
 			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);

@@ -592,7 +592,7 @@ static void do_afterburner_stuff(void)
 {
 	static sbyte func_play = 0;
 
-	if (!(get_local_player().flags & PLAYER_FLAGS_AFTERBURNER))
+	if (!(get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER))
 		Afterburner_charge = 0;
 
 	const auto plobj = vcobjptridx(get_local_player().objnum);
@@ -607,7 +607,7 @@ static void do_afterburner_stuff(void)
 	}
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
-		if (Afterburner_charge && Controls.state.afterburner && (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER)) {
+		if (Afterburner_charge && Controls.state.afterburner && (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER)) {
 			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
@@ -1325,12 +1325,12 @@ void GameProcessFrame(void)
 	init_ai_frame();
 	do_final_boss_frame();
 
-	if ((get_local_player().flags & PLAYER_FLAGS_HEADLIGHT) && (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
+	if ((get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT) && (get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT_ON)) {
 		static int turned_off=0;
 		get_local_player_energy() -= (FrameTime*3/8);
 		if (get_local_player_energy() < i2f(10)) {
 			if (!turned_off) {
-				get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+				get_local_player_flags() &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 				turned_off = 1;
 				if (Game_mode & GM_MULTI)
 					multi_send_flags(Player_num);
@@ -1342,7 +1342,7 @@ void GameProcessFrame(void)
 		if (get_local_player_energy() <= 0)
 		{
 			get_local_player_energy() = 0;
-			get_local_player().flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+			get_local_player_flags() &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 			if (Game_mode & GM_MULTI)
 				multi_send_flags(Player_num);
 		}
@@ -1464,7 +1464,7 @@ void GameProcessFrame(void)
 		Do_appearance_effect = 0;
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
-			get_local_player().flags |= PLAYER_FLAGS_INVULNERABLE;
+			get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 			get_local_player().invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			FakingInvul=1;
 		}

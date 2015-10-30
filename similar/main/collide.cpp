@@ -390,7 +390,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 			multi_digi_link_sound_to_pos(SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume);
 		}
 
-		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+		if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
 			if ( get_local_player_shields() > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
@@ -425,7 +425,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		vms_vector	hit_dir;
 		fix damage = fixmul(d,FrameTime);
 
-		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+		if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
 			apply_damage_to_player( obj, obj, damage, 0 );
 
 		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
@@ -469,7 +469,7 @@ int check_volatile_wall(const vobjptridx_t obj,const vsegptridx_t seg,int sidenu
 				if (Difficulty_level == 0)
 					damage /= 2;
 
-				if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+				if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
 					apply_damage_to_player( obj, obj, damage, 0 );
 
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
@@ -1325,9 +1325,9 @@ void do_final_boss_hacks(void)
 		get_local_player_shields() = 1;
 
 	//	If you're not invulnerable, get invulnerable!
-	if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)) {
+	if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)) {
 		get_local_player().invulnerable_time = GameTime64;
-		get_local_player().flags |= PLAYER_FLAGS_INVULNERABLE;
+		get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
@@ -2048,7 +2048,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 	if (Player_is_dead)
 		return;
 
-	if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
 	if (multi_maybe_disable_friendly_fire(killer) && possibly_friendly)
@@ -2130,7 +2130,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 
 	if (get_player_id(playerobj) == Player_num)
 	{
-		multi_digi_link_sound_to_pos((get_local_player().flags & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0);
+		multi_digi_link_sound_to_pos((get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, playerobj->segnum, 0, collision_point, 0, F1_0);
 	}
 
 	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );

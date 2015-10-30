@@ -778,7 +778,7 @@ void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 		if (auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX])
 		{
 				multi_send_orb_bonus (Player_num);
-				get_local_player().flags &=(~(PLAYER_FLAGS_FLAG));
+				get_local_player_flags() &=(~(PLAYER_FLAGS_FLAG));
 				proximity = 0;
       }
 	}

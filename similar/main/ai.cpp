@@ -969,7 +969,7 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 	weapon_info	*wptr;
 	robot_info	*robptr;
 
-	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED)
+	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		return 0;
 
 	player_movement_dir = ConsoleObject->mtype.phys_info.velocity;
@@ -1076,7 +1076,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 #endif
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
-	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
 		fix64	cloak_time = Ai_cloak_info[static_cast<objptridx_t::index_type>(obj) % MAX_AI_CLOAK_INFO].last_time;
 
 		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
@@ -1327,7 +1327,7 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 		//	Evasion speed is scaled by percentage of shields left so wounded robots evade less effectively.
 
 		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
-		if ((dot > robptr->field_of_view[Difficulty_level]) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+		if ((dot > robptr->field_of_view[Difficulty_level]) && !(get_local_player_flags() & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
 			if (!robptr->strength)
@@ -1531,7 +1531,7 @@ static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vm
 	{
 		//	Now, if in robot's field of view, lock onto player
 		fix	dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
-		if ((dot >= 7*F1_0/8) || (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+		if ((dot >= 7*F1_0/8) || (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)) {
 			ai_static	*aip = &obj->ctype.ai_info;
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
 
@@ -1631,7 +1631,7 @@ int		Robot_sound_volume=DEFAULT_ROBOT_SOUND_VOLUME;
 static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_local *ailp, vms_vector &vec_to_player, int *player_visibility, const robot_info *robptr, int *flag)
 {
 	if (!*flag) {
-		if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+		if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
 			fix			delta_time;
 			int			cloak_index = (objp) % MAX_AI_CLOAK_INFO;
 
@@ -1774,7 +1774,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 		}
 			
 		if (wallp->keys != KEY_NONE) {
-			const auto flags = get_local_player().flags;
+			const auto flags = get_local_player_flags();
 			switch (wallp->keys)
 			{
 				case KEY_BLUE:
@@ -3026,7 +3026,7 @@ void do_ai_frame(const vobjptridx_t obj)
 	previous_visibility = ailp->previous_visibility;    //  Must get this before we toast the master copy!
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (!(get_local_player().flags & PLAYER_FLAGS_CLOAKED))
+	if (!(get_local_player_flags() & PLAYER_FLAGS_CLOAKED))
 		Believed_player_pos = ConsoleObject->pos;
 #elif defined(DXX_BUILD_DESCENT_II)
 	// If only awake because of a camera, make that the believed player position.
@@ -3066,7 +3066,7 @@ void do_ai_frame(const vobjptridx_t obj)
 		} else {
 _exit_cheat:
 			visibility_and_vec_computed = 0;
-			if (!(get_local_player().flags & PLAYER_FLAGS_CLOAKED))
+			if (!(get_local_player_flags() & PLAYER_FLAGS_CLOAKED))
 				Believed_player_pos = ConsoleObject->pos;
 			else
 				Believed_player_pos = Ai_cloak_info[objnum & (MAX_AI_CLOAK_INFO-1)].last_position;
@@ -3271,7 +3271,7 @@ _exit_cheat:
 		rval = d_rand();
 		sval = (dist_to_player * (Difficulty_level+1))/64;
 
-		if ((fixmul(rval, sval) < FrameTime) || (get_local_player().flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
+		if ((fixmul(rval, sval) < FrameTime) || (get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT_ON)) {
 			ailp->player_awareness_type = player_awareness_type_t::PA_PLAYER_COLLISION;
 			ailp->player_awareness_time = F1_0*3;
 			compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
@@ -3324,7 +3324,7 @@ _exit_cheat:
 				auto dtp = dist_to_player/4;
 
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
-			if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+			if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
 				pv = 0;
 				dtp = vm_vec_dist_quick(ConsoleObject->pos, obj->pos)/4;
 			}
@@ -3350,7 +3350,7 @@ _exit_cheat:
 			pv = player_visibility;
 
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
-			if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
+			if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
 				pv = 0;
 			}
 

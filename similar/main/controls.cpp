@@ -108,7 +108,7 @@ void read_flying_controls(const vobjptr_t obj)
 	forward_thrust_time = Controls.forward_thrust_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER)
+	if (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER)
 	{
 		if (Controls.state.afterburner) {			//player has key down
 			{

@@ -880,7 +880,7 @@ static void hud_show_homing_warning(void)
 
 static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	const auto player_key_flags = get_local_player().flags;
+	const auto player_key_flags = get_local_player_flags();
 	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	class gauge_key
@@ -948,7 +948,7 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 
 static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	if (game_mode_capture_flag() && (get_local_player().flags & PLAYER_FLAGS_FLAG)) {
+	if (game_mode_capture_flag() && (get_local_player_flags() & PLAYER_FLAGS_FLAG)) {
 		int x=0,y=0,icon;
 		const auto &&fspacy1 = FSPACY(1);
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
@@ -998,7 +998,7 @@ static void hud_show_afterburner(void)
 {
 	int y;
 
-	if (! (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER))
+	if (! (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER))
 		return;		//don't draw if don't have
 
 	gr_set_curfont( GAME_FONT );
@@ -1247,7 +1247,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			switch(i)
 			{
 				case primary_weapon_index_t::LASER_INDEX:
-					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', get_local_player().laser_level+1);
+					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', get_local_player().laser_level+1);
 					txtweapon = weapon_str;
 					break;
 				case primary_weapon_index_t::VULCAN_INDEX:
@@ -1455,7 +1455,7 @@ static void hud_show_weapons(void)
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 		switch (Primary_weapon) {
 			case primary_weapon_index_t::LASER_INDEX:
-				if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
+				if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
 					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, get_local_player().laser_level+1);
 				else
 					sprintf(weapon_str, "%s %i", weapon_name, get_local_player().laser_level+1);
@@ -2054,7 +2054,7 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 		{
 			const auto &&line_spacing = LINE_SPACING;
 			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, get_local_player().laser_level+1);
-			if (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS)
+			if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
@@ -2384,7 +2384,7 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 		gr_uline( i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W))), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i) );
 
 	//draw legend
-	if (get_local_player().flags & PLAYER_FLAGS_AFTERBURNER)
+	if (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER)
 		gr_set_fontcolor(BM_XRGB(45,0,0),-1 );
 	else
 		gr_set_fontcolor(BM_XRGB(12,12,12),-1 );
@@ -2524,7 +2524,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
 	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
 
-	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (get_local_player().flags & PLAYER_FLAGS_QUAD_LASERS))
+	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
 
 	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
@@ -3060,7 +3060,7 @@ void draw_hud()
 void render_gauges()
 {
 	int energy = f2ir(get_local_player_energy());
-	int cloak = ((get_local_player().flags&PLAYER_FLAGS_CLOAKED) != 0);
+	int cloak = ((get_local_player_flags()&PLAYER_FLAGS_CLOAKED) != 0);
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 
@@ -3091,7 +3091,7 @@ void render_gauges()
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
-		if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+		if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			draw_shield_bar(shields, multires_gauge_graphic);
@@ -3124,7 +3124,7 @@ void render_gauges()
 
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
-		if (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)
+		if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields, multires_gauge_graphic);

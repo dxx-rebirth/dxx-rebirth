@@ -1522,7 +1522,7 @@ void multi_do_death(int)
 	// Do any miscellaneous stuff for a new network player after death
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
-		get_local_player().flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
+		get_local_player_flags() |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 }
 
@@ -2570,7 +2570,7 @@ void multi_send_player_deres(deres_type_t type)
 	}
 
 	multi_send_data<MULTI_PLAYER_DERES>(multibuf, command_length<MULTI_PLAYER_DERES>::value, 2);
-	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED)
+	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	multi_strip_robots(Player_num);
 }
@@ -4199,7 +4199,7 @@ static void DropOrb ()
 	// If empty, tell everyone to stop drawing the box around me
 	if (!get_local_player_secondary_ammo()[PROXIMITY_INDEX])
 	{
-		get_local_player().flags &=~(PLAYER_FLAGS_FLAG);
+		get_local_player_flags() &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);
 	}
 }
@@ -4216,7 +4216,7 @@ void DropFlag ()
 		return;
 	}
 
-	if (!(get_local_player().flags & PLAYER_FLAGS_FLAG))
+	if (!(get_local_player_flags() & PLAYER_FLAGS_FLAG))
 	{
 		HUD_init_message_literal(HM_MULTI, "No flag to drop!");
 		return;
@@ -4235,7 +4235,7 @@ void DropFlag ()
 	if (game_mode_capture_flag())
 		multi_send_drop_flag(objnum,seed);
 
-	get_local_player().flags &=~(PLAYER_FLAGS_FLAG);
+	get_local_player_flags() &=~(PLAYER_FLAGS_FLAG);
 }
 
 
