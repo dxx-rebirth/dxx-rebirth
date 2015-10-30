@@ -407,6 +407,8 @@ static_assert(WS_SET == 0, "weapon_box_states must start at zero");
 static array<fix, 2> weapon_box_fade_values;
 int	Color_0_31_0 = -1;
 
+namespace {
+
 struct gauge_box
 {
 	int left,top;
@@ -618,6 +620,35 @@ static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local
 {
 	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
 	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
+}
+
+class draw_keys_state
+{
+	const unsigned player_key_flags;
+protected:
+	draw_keys_state() :
+		player_key_flags(get_local_player().flags)
+	{
+		gr_set_current_canvas(nullptr);
+	}
+	void draw_one_key(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic, uint32_t flag) const
+	{
+		hud_gauge_bitblt(x, y, (player_key_flags & flag) ? gauge : (gauge + 3), multires_gauge_graphic);
+	}
+};
+
+class draw_cockpit_keys_state : public draw_keys_state
+{
+public:
+	void draw_all_keys(local_multires_gauge_graphic multires_gauge_graphic);
+};
+
+class draw_statusbar_keys_state : public draw_keys_state
+{
+public:
+	void draw_all_keys(local_multires_gauge_graphic multires_gauge_graphic);
+};
+
 }
 
 static void hud_show_score()
@@ -1978,26 +2009,11 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 	gr_set_current_canvas( NULL );
 }
 
-static void draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
+void draw_cockpit_keys_state::draw_all_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	gr_set_current_canvas( NULL );
-	class draw_key
-	{
-		const unsigned player_key_flags;
-	public:
-		draw_key() : player_key_flags(get_local_player().flags)
-		{
-		}
-		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_x, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
-		{
-			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
-			hud_gauge_bitblt(gauge_key_x, gauge_key_y, gauge, multires_gauge_graphic);
-		}
-	};
-	const draw_key draw_one_key;
-	draw_one_key(PLAYER_FLAGS_BLUE_KEY, GAUGE_BLUE_KEY, GAUGE_BLUE_KEY_OFF, GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
-	draw_one_key(PLAYER_FLAGS_GOLD_KEY, GAUGE_GOLD_KEY, GAUGE_GOLD_KEY_OFF, GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
-	draw_one_key(PLAYER_FLAGS_RED_KEY, GAUGE_RED_KEY, GAUGE_RED_KEY_OFF, GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, multires_gauge_graphic);
+	draw_one_key(GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, GAUGE_BLUE_KEY, multires_gauge_graphic, PLAYER_FLAGS_BLUE_KEY);
+	draw_one_key(GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, GAUGE_GOLD_KEY, multires_gauge_graphic, PLAYER_FLAGS_GOLD_KEY);
+	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, multires_gauge_graphic, PLAYER_FLAGS_RED_KEY);
 }
 
 static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x, int pic_y, const char *name, int text_x, int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2398,26 +2414,11 @@ static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic mu
 	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
-static void sb_draw_keys(const local_multires_gauge_graphic multires_gauge_graphic)
+void draw_statusbar_keys_state::draw_all_keys(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	gr_set_current_canvas(NULL);
-	class draw_key
-	{
-		const unsigned player_key_flags;
-	public:
-		draw_key() : player_key_flags(get_local_player().flags)
-		{
-		}
-		void operator()(const unsigned player_flags_key, const unsigned gauge_key_on, const unsigned gauge_key_off, const unsigned gauge_key_y, const local_multires_gauge_graphic multires_gauge_graphic) const
-		{
-			const auto gauge = (player_key_flags & player_flags_key) ? gauge_key_on : gauge_key_off;
-			hud_gauge_bitblt(SB_GAUGE_KEYS_X, gauge_key_y, gauge, multires_gauge_graphic);
-		}
-	};
-	const draw_key draw_one_key;
-	draw_one_key(PLAYER_FLAGS_BLUE_KEY, SB_GAUGE_BLUE_KEY, SB_GAUGE_BLUE_KEY_OFF, SB_GAUGE_BLUE_KEY_Y, multires_gauge_graphic);
-	draw_one_key(PLAYER_FLAGS_GOLD_KEY, SB_GAUGE_GOLD_KEY, SB_GAUGE_GOLD_KEY_OFF, SB_GAUGE_GOLD_KEY_Y, multires_gauge_graphic);
-	draw_one_key(PLAYER_FLAGS_RED_KEY, SB_GAUGE_RED_KEY, SB_GAUGE_RED_KEY_OFF, SB_GAUGE_RED_KEY_Y, multires_gauge_graphic);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, SB_GAUGE_BLUE_KEY, multires_gauge_graphic, PLAYER_FLAGS_BLUE_KEY);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, SB_GAUGE_GOLD_KEY, multires_gauge_graphic, PLAYER_FLAGS_GOLD_KEY);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, SB_GAUGE_RED_KEY, multires_gauge_graphic, PLAYER_FLAGS_RED_KEY);
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
@@ -3087,7 +3088,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(get_local_player().flags);
 		}
-		draw_keys(multires_gauge_graphic);
+		draw_cockpit_keys_state().draw_all_keys(multires_gauge_graphic);
 
 		show_homing_warning(multires_gauge_graphic);
 		draw_wbu_overlay(multires_gauge_graphic);
@@ -3120,7 +3121,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(get_local_player().flags);
 		}
-		sb_draw_keys(multires_gauge_graphic);
+		draw_statusbar_keys_state().draw_all_keys(multires_gauge_graphic);
 
 		sb_show_lives(multires_gauge_graphic);
 
