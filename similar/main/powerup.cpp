@@ -165,7 +165,7 @@ void do_megawow_powerup(int quantity)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-	get_local_player().energy = F1_0*200;
+	get_local_player_energy() = F1_0*200;
 	get_local_player_shields() = F1_0*200;
 	get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -187,17 +187,17 @@ static int pick_up_energy(void)
 {
 	int	used=0;
 
-	if (get_local_player().energy < MAX_ENERGY) {
+	if (get_local_player_energy() < MAX_ENERGY) {
 		fix boost;
 		boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Difficulty_level == 0)
 			boost += boost/2;
 #endif
-		get_local_player().energy += boost;
-		if (get_local_player().energy > MAX_ENERGY)
-			get_local_player().energy = MAX_ENERGY;
-		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(get_local_player().energy));
+		get_local_player_energy() += boost;
+		if (get_local_player_energy() > MAX_ENERGY)
+			get_local_player_energy() = MAX_ENERGY;
+		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(get_local_player_energy()));
 		used=1;
 	} else
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_ENERGY);

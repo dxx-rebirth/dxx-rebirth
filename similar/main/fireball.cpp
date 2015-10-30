@@ -941,14 +941,13 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 #if defined(DXX_BUILD_DESCENT_II)
 static bool skip_create_egg_powerup(powerup_type_t powerup)
 {
-	fix player::*pcurrent;
+	fix current;
 	if (powerup == POW_SHIELD_BOOST)
-		pcurrent = &player::shields;
+		current = get_local_player_shields();
 	else if (powerup == POW_ENERGY)
-		pcurrent = &player::energy;
+		current = get_local_player_energy();
 	else
 		return false;
-	fix current = get_local_player().*pcurrent;
 	int limit;
 	if (current >= i2f(150))
 		limit = 8192;

@@ -522,7 +522,7 @@ void omega_charge_frame(void)
 	if (Last_omega_fire_time + F1_0/3 > GameTime64)
 		return;
 
-	if (get_local_player().energy)
+	if (get_local_player_energy())
 	{
 		fix	energy_used;
 
@@ -537,9 +537,9 @@ void omega_charge_frame(void)
 		if (Difficulty_level < 2)
 			energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
-		get_local_player().energy -= energy_used;
-		if (get_local_player().energy < 0)
-			get_local_player().energy = 0;
+		get_local_player_energy() -= energy_used;
+		if (get_local_player_energy() < 0)
+			get_local_player_energy() = 0;
 	}
 
 
@@ -1453,13 +1453,13 @@ void Flare_create(const vobjptridx_t obj)
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
 #if defined(DXX_BUILD_DESCENT_I)
-	if (get_local_player().energy > 0)
+	if (get_local_player_energy() > 0)
 #endif
 	{
-		get_local_player().energy -= energy_usage;
+		get_local_player_energy() -= energy_usage;
 
-		if (get_local_player().energy <= 0) {
-			get_local_player().energy = 0;
+		if (get_local_player_energy() <= 0) {
+			get_local_player_energy() = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 			auto_select_primary_weapon();
 #endif

@@ -290,8 +290,8 @@ void init_player_stats_game(ubyte pnum)
 
 static void init_ammo_and_energy(void)
 {
-	if (get_local_player().energy < INITIAL_ENERGY)
-		get_local_player().energy = INITIAL_ENERGY;
+	if (get_local_player_energy() < INITIAL_ENERGY)
+		get_local_player_energy() = INITIAL_ENERGY;
 	if (get_local_player_shields() < StartingShields)
 		get_local_player_shields() = StartingShields;
 	if (get_local_player().secondary_ammo[0] < 2 + NDL - Difficulty_level)
@@ -373,6 +373,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 void init_player_stats_new_ship(ubyte pnum)
 {
 	auto &plr = Players[pnum];
+	plr.energy = INITIAL_ENERGY;
 	plr.shields = StartingShields;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
@@ -442,8 +443,6 @@ void init_player_stats_new_ship(ubyte pnum)
 		init_ai_for_ship();
 #endif
 	}
-
-	Players[pnum].energy = INITIAL_ENERGY;
 	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
@@ -861,10 +860,10 @@ void DoEndLevelScoreGlitz(int network)
 		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
 #if defined(DXX_BUILD_DESCENT_I)
 		shield_points = f2i(get_local_player_shields()) * 10 * (Difficulty_level+1);
-		energy_points = f2i(get_local_player().energy) * 5 * (Difficulty_level+1);
+		energy_points = f2i(get_local_player_energy()) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
 		shield_points = f2i(get_local_player_shields()) * 5 * mine_level;
-		energy_points = f2i(get_local_player().energy) * 2 * mine_level;
+		energy_points = f2i(get_local_player_energy()) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
 		energy_points -= energy_points % 50;
@@ -1451,7 +1450,7 @@ void DoPlayerDead()
 
 		//clear out stuff so no bonus
 		get_local_player().hostages_on_board = 0;
-		get_local_player().energy = 0;
+		get_local_player_energy() = 0;
 		get_local_player_shields() = 0;
 		get_local_player().connected = CONNECT_DIED_IN_MINE;
 

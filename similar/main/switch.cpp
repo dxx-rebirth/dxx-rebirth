@@ -394,7 +394,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		}
 
 		if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN) {
-			get_local_player().energy -= Triggers[trigger_num].value;
+			get_local_player_energy() -= Triggers[trigger_num].value;
 		}
 	}
 

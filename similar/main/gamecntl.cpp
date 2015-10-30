@@ -150,11 +150,11 @@ static void transfer_energy_to_shield()
 	fix e;		//how much energy gets transfered
 	static fix64 last_play_time=0;
 
-	e = min(min(FrameTime*CONVERTER_RATE, get_local_player().energy - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player_shields()) * CONVERTER_SCALE);
+	e = min(min(FrameTime*CONVERTER_RATE, get_local_player_energy() - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player_shields()) * CONVERTER_SCALE);
 
 	if (e <= 0) {
 
-		if (get_local_player().energy <= INITIAL_ENERGY) {
+		if (get_local_player_energy() <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
 		else if (get_local_player_shields() >= MAX_SHIELDS) {
@@ -163,7 +163,7 @@ static void transfer_energy_to_shield()
 		return;
 	}
 
-	get_local_player().energy  -= e;
+	get_local_player_energy()  -= e;
 	get_local_player_shields() += e/CONVERTER_SCALE;
 
 	if (last_play_time > GameTime64)
@@ -1482,7 +1482,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		get_local_player().energy = MAX_ENERGY;
+		get_local_player_energy() = MAX_ENERGY;
 		get_local_player().laser_level = MAX_LASER_LEVEL;
 		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
@@ -1501,7 +1501,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		get_local_player().energy = MAX_ENERGY;
+		get_local_player_energy() = MAX_ENERGY;
 		get_local_player().laser_level = MAX_LASER_LEVEL;
 		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
@@ -1509,7 +1509,7 @@ static window_event_result FinalCheats()
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::lamer)
 	{
-		get_local_player_shields()=get_local_player().energy=i2f(1);
+		get_local_player_shields()=get_local_player_energy()=i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1540,7 +1540,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
-		get_local_player().energy = MAX_ENERGY;
+		get_local_player_energy() = MAX_ENERGY;
 		get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
 		get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();

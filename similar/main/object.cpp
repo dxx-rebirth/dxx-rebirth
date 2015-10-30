@@ -1661,9 +1661,9 @@ static void object_move_one(const vobjptridx_t obj)
 			 fuelcen_check_for_hoard_goal (&Segments[obj->segnum]);
 #endif
 
-		fix fuel=fuelcen_give_fuel(vsegptr(obj->segnum), INITIAL_ENERGY - get_local_player().energy );
+		fix fuel=fuelcen_give_fuel(vsegptr(obj->segnum), INITIAL_ENERGY - get_local_player_energy() );
 		if (fuel > 0 )	{
-			get_local_player().energy += fuel;
+			get_local_player_energy() += fuel;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS - get_local_player_shields() );

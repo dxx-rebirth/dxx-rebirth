@@ -981,11 +981,11 @@ static void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		const auto &&line_spacing = LINE_SPACING;
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * 5) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player().energy));
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * 5) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player_energy()));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_energy(f2ir(get_local_player().energy));
+		newdemo_record_player_energy(f2ir(get_local_player_energy()));
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1445,7 +1445,7 @@ static void hud_show_weapons(void)
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_player_shields()));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(get_local_player().energy));
+		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(get_local_player_energy()));
 	}
 	else
 	{
@@ -3058,7 +3058,7 @@ void draw_hud()
 //print out some player statistics
 void render_gauges()
 {
-	int energy = f2ir(get_local_player().energy);
+	int energy = f2ir(get_local_player_energy());
 	int cloak = ((get_local_player().flags&PLAYER_FLAGS_CLOAKED) != 0);
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);

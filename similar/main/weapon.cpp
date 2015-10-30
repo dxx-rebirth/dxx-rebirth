@@ -188,8 +188,8 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
-	if (get_local_player().energy < 0)
-		get_local_player().energy = 0;
+	if (get_local_player_energy() < 0)
+		get_local_player_energy() = 0;
 
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
@@ -210,17 +210,17 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
 		{
-			if(get_local_player().energy >= F1_0*2)
+			if(get_local_player_energy() >= F1_0*2)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
-			if (get_local_player().energy || Omega_charge)
+			if (get_local_player_energy() || Omega_charge)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #endif
 		else
-			if (Weapon_info[weapon_index].energy_usage <= get_local_player().energy)
+			if (Weapon_info[weapon_index].energy_usage <= get_local_player_energy())
 				return_value |= has_weapon_result::has_energy_flag;
 	return return_value;
 }
@@ -233,7 +233,7 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 		if (Weapon_info[weapon_index].ammo_usage <= get_local_player().secondary_ammo[weapon_num])
 			return_value |= has_weapon_result::has_ammo_flag;
 
-		if (Weapon_info[weapon_index].energy_usage <= get_local_player().energy)
+		if (Weapon_info[weapon_index].energy_usage <= get_local_player_energy())
 			return_value |= has_weapon_result::has_energy_flag;
 	return return_value;
 }
