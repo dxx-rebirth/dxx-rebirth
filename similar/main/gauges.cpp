@@ -2816,23 +2816,11 @@ static int see_object(int objnum)
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
-	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0;
-	
 	for (playernum_t pnum=0;pnum<N_players;pnum++)
 	{
 		if (pnum == Player_num || Players[pnum].connected != CONNECT_PLAYING)
 			continue;
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
-		is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
-		show_friend_name = Show_reticle_name;
-		show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
-		show_name = ((is_friend && show_friend_name) || (!is_friend && show_enemy_name));
-		show_typing = is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
-#if defined(DXX_BUILD_DESCENT_I)
-		show_indi = ((/*(Game_mode & ( GM_CAPTURE | GM_HOARD ) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || */(Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
-#elif defined(DXX_BUILD_DESCENT_II)
-		show_indi = ((((game_mode_capture_flag() || game_mode_hoard()) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
-#endif
 
 		objnum_t objnum;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
@@ -2848,6 +2836,21 @@ void show_HUD_names()
 		}
 		else
 			objnum = Players[pnum].objnum;
+
+		const auto &pl_flags = Players[pnum].flags;
+		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
+		const auto show_friend_name = Show_reticle_name;
+		const auto is_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
+		const auto show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !is_cloaked;
+		const auto show_name = is_friend ? show_friend_name : show_enemy_name;
+		const auto show_typing = is_friend || !is_cloaked;
+		const auto is_bounty_target = (Game_mode & GM_BOUNTY) && pnum == Bounty_target;
+		const auto show_indi = (is_friend || !is_cloaked) &&
+#if defined(DXX_BUILD_DESCENT_I)
+			is_bounty_target;
+#elif defined(DXX_BUILD_DESCENT_II)
+			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
+#endif
 
 		if ((show_name || show_typing || show_indi) && see_object(objnum))
 		{
@@ -2867,7 +2870,7 @@ void show_HUD_names()
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					/* Set the text to show */
 					const char *name = NULL;
-					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
+					if(is_bounty_target)
 						name = "Target";
 					else if (show_name)
 						name = static_cast<const char *>(Players[pnum].callsign);
