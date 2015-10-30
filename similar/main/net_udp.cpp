@@ -1546,10 +1546,8 @@ static net_udp_new_player(UDP_sequence_packet *their)
 
 	ClipRank (&their->player.rank);
 
-	if (PlayerCfg.NoRankings)
-		HUD_init_message(HM_MULTI, "'%s' %s\n", static_cast<const char *>(their->player.callsign), TXT_JOINING);
-	else
-		HUD_init_message(HM_MULTI, "%s'%s' %s\n",RankStrings[their->player.rank],static_cast<const char *>(their->player.callsign), TXT_JOINING);
+	const auto &&rankstr = GetRankStringWithSpace(their->player.rank);
+	HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign), TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
@@ -1688,10 +1686,8 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		if (PlayerCfg.NoRankings)
-			HUD_init_message(HM_MULTI, "'%s' %s", static_cast<const char *>(Players[player_num].callsign), TXT_REJOIN);
-		else
-			HUD_init_message(HM_MULTI, "%s'%s' %s", RankStrings[Netgame.players[player_num].rank],static_cast<const char *>(Players[player_num].callsign), TXT_REJOIN);
+		const auto &&rankstr = GetRankStringWithSpace(Netgame.players[player_num].rank);
+		HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(Players[player_num].callsign), TXT_REJOIN);
 
 		multi_send_score();
 
@@ -3151,10 +3147,8 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 
 	for (int i=0; i<N_players; i++ ) // fill this in always in case players change but not their numbers
 	{
-		if (PlayerCfg.NoRankings)	
-			snprintf( menus[i].text, 45, "%d. %-20s", i+1, static_cast<const char *>(Netgame.players[i].callsign));
-		else
-			snprintf( menus[i].text, 45, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],static_cast<const char *>(Netgame.players[i].callsign));
+		const auto &&rankstr = GetRankStringWithSpace(Netgame.players[i].rank);
+		snprintf(menus[i].text, 45, "%d. %s%s%-20s", i+1, rankstr.first, rankstr.second, static_cast<const char *>(Netgame.players[i].callsign));
 	}
 
 	if (spd->playercount < Netgame.numplayers ) // A new player
@@ -4184,10 +4178,8 @@ static net_udp_select_players(void)
 
 	m[0].value = 1;                         // Assume server will play...
 
-	if (PlayerCfg.NoRankings)
-		snprintf( text[0], sizeof(text[0]), "%d. %-20s", 1, static_cast<const char *>(get_local_player().callsign));
-	else
-		snprintf( text[0], sizeof(text[0]), "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],static_cast<const char *>(get_local_player().callsign));
+	const auto &&rankstr = GetRankStringWithSpace(Netgame.players[Player_num].rank);
+	snprintf( text[0], sizeof(text[0]), "%d. %s%s%-20s", 1, rankstr.first, rankstr.second, static_cast<const char *>(get_local_player().callsign));
 
 	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER );
 
@@ -5343,10 +5335,8 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 			digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
 			ClipRank (&Netgame.players[TheirPlayernum].rank);
 			
-			if (PlayerCfg.NoRankings)
-				HUD_init_message(HM_MULTI, "'%s' %s", static_cast<const char *>(Players[TheirPlayernum].callsign), TXT_REJOIN );
-			else
-				HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank], static_cast<const char *>(Players[TheirPlayernum].callsign), TXT_REJOIN );
+			const auto &&rankstr = GetRankStringWithSpace(Netgame.players[TheirPlayernum].rank);
+			HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(Players[TheirPlayernum].callsign), TXT_REJOIN);
 
 			multi_send_score();
 
@@ -5518,21 +5508,15 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
 #endif
 	
+		const auto &&rankstr = GetRankStringWithSpace(their->player.rank);
 		if (Game_mode & GM_TEAM)
 		{
-			if (!PlayerCfg.NoRankings)
-			{
-				HUD_init_message(HM_MULTI, "%s %s wants to join",RankStrings[their->player.rank],static_cast<const char *>(their->player.callsign));
-			}
-			else
-			{
-				HUD_init_message(HM_MULTI, "%s wants to join",static_cast<const char *>(their->player.callsign));
-			}
+			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign));
 			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s", static_cast<const char *>(Netgame.team_name[0]), static_cast<const char *>(Netgame.team_name[1]));
 		}
 		else
 		{
-			HUD_init_message(HM_MULTI, "%s wants to join (accept: F6)", static_cast<const char *>(their->player.callsign));
+			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join (accept: F6)", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign));
 		}
 	
 		strcpy (RefusePlayerName,their->player.callsign);

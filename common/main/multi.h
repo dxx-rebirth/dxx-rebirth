@@ -603,6 +603,7 @@ extern int Bounty_target;
 extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
 
 extern const array<char[16], 10> RankStrings;
+#define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];

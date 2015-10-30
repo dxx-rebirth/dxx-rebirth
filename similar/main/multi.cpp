@@ -210,8 +210,18 @@ static const int message_length[] = {
 
 powerup_cap_state PowerupCaps;
 
-const array<char[16], 10> RankStrings{{"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
-                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "}};
+const array<char[16], 10> RankStrings{{
+	"(unpatched)",
+	"Cadet",
+	"Ensign",
+	"Lieutenant",
+	"Lt.Commander",
+	"Commander",
+	"Captain",
+	"Vice Admiral",
+	"Admiral",
+	"Demigod"
+}};
 
 const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text = {{
 #define define_netflag_string(NAME,STR)	STR,
