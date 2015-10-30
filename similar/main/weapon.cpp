@@ -51,11 +51,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 
 #include "compiler-range_for.h"
+#include "compiler-type_traits.h"
 #include "highest_valid.h"
 #include "partial_range.h"
 
-static int POrderList (int num);
-static int SOrderList (int num);
+static uint_fast32_t POrderList (uint_fast32_t num);
+static uint_fast32_t SOrderList (uint_fast32_t num);
 //	Note, only Vulcan cannon requires ammo.
 // NOTE: Now Vulcan and Gauss require ammo. -5/3/95 Yuan
 //ubyte	Default_primary_ammo_level[MAX_PRIMARY_WEAPONS] = {255, 0, 255, 255, 255};
@@ -244,66 +245,75 @@ void InitWeaponOrdering ()
 	PlayerCfg.SecondaryOrder = DefaultSecondaryOrder;
  }
 
-void CyclePrimary ()
-{
-	int loop=0;
-	const auto autoselect_order_slot = POrderList(255);
-	
-	auto cur_order_slot = POrderList(get_mapped_weapon_index());
-	const auto use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
+namespace {
 
-	while (loop<(MAX_PRIMARY_WEAPONS+1))
+class cycle_weapon_state
+{
+public:
+	static constexpr tt::integral_constant<uint8_t, 255> cycle_never_autoselect_below{};
+};
+
+class cycle_primary_state : public cycle_weapon_state
+{
+public:
+	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
+	static uint_fast32_t get_cycle_position(uint_fast32_t i)
 	{
-		loop++;
-		cur_order_slot++; // next slot
-		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
-			cur_order_slot = 0;
-		if (cur_order_slot == autoselect_order_slot) // what to to with non-autoselect weapons?
-		{
-			if (use_restricted_autoselect)
-			{
-				cur_order_slot = 0; // loop over or ...
-			}
-			else
-			{
-				continue; // continue?
-			}
-		}
+		return POrderList(i);
+	}
+	bool maybe_select_weapon(uint_fast32_t cur_order_slot) const
+	{
 		auto desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
 		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
-			continue;
+			return false;
 		if (desired_weapon == primary_weapon_index_t::SUPER_LASER_INDEX)
 		{
 			if (get_local_player().laser_level <= MAX_LASER_LEVEL)
-				continue;
+				return false;
 			else
 				desired_weapon = primary_weapon_index_t::LASER_INDEX;
 		}
 #endif
-		// select the weapon if we have it
-		if (player_has_primary_weapon(desired_weapon).has_all())
-		{
-			const auto weapon_name = PRIMARY_WEAPON_NAMES(desired_weapon);
-			select_primary_weapon(weapon_name, desired_weapon, 1);
-			return;
-		}
+		if (!player_has_primary_weapon(desired_weapon).has_all())
+			return false;
+		select_primary_weapon(PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
+		return true;
 	}
-}
+};
 
-void CycleSecondary ()
+class cycle_secondary_state : public cycle_weapon_state
 {
-	auto cur_order_slot = SOrderList(Secondary_weapon);
-	int loop=0;
-	const auto autoselect_order_slot = SOrderList(255);
-	const auto use_restricted_autoselect = (cur_order_slot < autoselect_order_slot) && (1 < autoselect_order_slot) && (PlayerCfg.CycleAutoselectOnly);
-	
-	while (loop<(MAX_SECONDARY_WEAPONS+1))
+public:
+	static constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
+	static uint_fast32_t get_cycle_position(uint_fast32_t i)
 	{
-		loop++;
+		return SOrderList(i);
+	}
+	static bool maybe_select_weapon(uint_fast32_t cur_order_slot)
+	{
+		const auto desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		if (!player_has_secondary_weapon(desired_weapon).has_all())
+			return false;
+		select_secondary_weapon(SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
+		return true;
+	}
+};
+
+template <typename T>
+void CycleWeapon(T t, const uint_fast32_t effective_weapon)
+{
+	auto cur_order_slot = t.get_cycle_position(effective_weapon);
+	const auto autoselect_order_slot = t.get_cycle_position(t.cycle_never_autoselect_below);
+	const auto use_restricted_autoselect =
+		(cur_order_slot < autoselect_order_slot) &&
+		(1 < autoselect_order_slot) &&
+		PlayerCfg.CycleAutoselectOnly;
+	for (uint_fast32_t loop = t.max_weapons + 1; loop--;)
+	{
 		cur_order_slot++; // next slot
-		if (cur_order_slot >= MAX_SECONDARY_WEAPONS+1) // loop if necessary
+		if (cur_order_slot >= t.max_weapons + 1) // loop if necessary
 			cur_order_slot = 0;
 		if (cur_order_slot == autoselect_order_slot) // what to to with non-autoselect weapons?
 		{
@@ -316,15 +326,22 @@ void CycleSecondary ()
 				continue; // continue?
 			}
 		}
-		auto desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		if (t.maybe_select_weapon(cur_order_slot)) // now that is the weapon next to our current one
 		// select the weapon if we have it
-		if (player_has_secondary_weapon(desired_weapon).has_all())
-		{
-			const auto weapon_name = SECONDARY_WEAPON_NAMES(desired_weapon);
-			select_secondary_weapon(weapon_name, desired_weapon, 1);
 			return;
-		}
 	}
+}
+
+}
+
+void CyclePrimary ()
+{
+	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index());
+}
+
+void CycleSecondary ()
+{
+	CycleWeapon<cycle_secondary_state>({}, Secondary_weapon);
 }
 
 
@@ -794,7 +811,7 @@ void ReorderSecondary ()
 		PlayerCfg.SecondaryOrder[i]=m[i].value;
 }
 
-int POrderList (int num)
+uint_fast32_t POrderList (uint_fast32_t num)
 {
 	int i;
 
@@ -806,7 +823,7 @@ int POrderList (int num)
 	throw std::runtime_error("primary weapon list corrupt");
 }
 
-int SOrderList (int num)
+uint_fast32_t SOrderList (uint_fast32_t num)
 {
 	int i;
 
