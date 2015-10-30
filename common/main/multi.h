@@ -762,7 +762,6 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 #endif
 	} protocol;	
 #endif
-	array<netplayer_info, MAX_PLAYERS> 				players;
 	ntstring<NETGAME_NAME_LEN> game_name;
 	ntstring<MISSION_NAME_LEN> mission_title;
 	ntstring<8> mission_name;
@@ -809,6 +808,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	array<uint16_t, MAX_PLAYERS>						player_kills;
 	array<uint32_t, MAX_PLAYERS>						player_score;
 	array<player_flags, MAX_PLAYERS>					net_player_flags;
+	array<netplayer_info, MAX_PLAYERS> 				players;
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif
