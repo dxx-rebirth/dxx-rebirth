@@ -1830,7 +1830,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
@@ -2437,9 +2437,9 @@ static int newdemo_read_frame_information(int rewrite)
 				if (old_cloaked && !new_cloaked)
 					get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 				if (!old_invul && new_invul)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
+					DXX_MAKE_VAR_UNDEFINED(get_local_player_invulnerable_time());
 				if (old_invul && !new_invul)
-					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+					get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				get_local_player().flags = old_player_flags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (!old_cloaked  && new_cloaked)
@@ -2447,9 +2447,9 @@ static int newdemo_read_frame_information(int rewrite)
 				if (old_cloaked && !new_cloaked)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
 				if (!old_invul && new_invul)
-					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+					get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				if (old_invul && !new_invul)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
+					DXX_MAKE_VAR_UNDEFINED(get_local_player_invulnerable_time());
 				get_local_player().flags = new_player_flags;
 			}
 			update_laser_weapon_info();     // in case of quad laser change
@@ -3250,7 +3250,7 @@ void newdemo_goto_end(int to_rewrite)
 		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
@@ -3445,7 +3445,7 @@ void newdemo_playback_one_frame()
 			i.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return;

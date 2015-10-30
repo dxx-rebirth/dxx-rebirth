@@ -1465,7 +1465,7 @@ void GameProcessFrame(void)
 		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
 			get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
-			get_local_player().invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
+			get_local_player_invulnerable_time() = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			FakingInvul=1;
 		}
 	}

@@ -1569,7 +1569,7 @@ static window_event_result FinalCheats()
 	{
 		get_local_player_flags() ^= PLAYER_FLAGS_INVULNERABLE;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (get_local_player_flags()&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
-		get_local_player().invulnerable_time = GameTime64+i2f(1000);
+		get_local_player_invulnerable_time() = GameTime64+i2f(1000);
 	}
 
 	if (gotcha == &game_cheats::shields)

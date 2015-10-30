@@ -520,7 +520,7 @@ int do_powerup(const vobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
-				get_local_player().invulnerable_time = GameTime64;
+				get_local_player_invulnerable_time() = GameTime64;
 				get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;

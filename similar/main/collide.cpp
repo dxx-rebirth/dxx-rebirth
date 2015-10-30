@@ -1326,7 +1326,7 @@ void do_final_boss_hacks(void)
 
 	//	If you're not invulnerable, get invulnerable!
 	if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)) {
-		get_local_player().invulnerable_time = GameTime64;
+		get_local_player_invulnerable_time() = GameTime64;
 		get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
