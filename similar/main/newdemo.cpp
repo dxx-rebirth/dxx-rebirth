@@ -93,6 +93,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "dxxsconf.h"
+#include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 #include "compiler-range_for.h"
 #include "highest_valid.h"
@@ -1287,9 +1288,8 @@ void newdemo_record_player_energy(int energy)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_ENERGY );
-	nd_write_byte((sbyte) nd_record_v_player_energy);
+	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_energy, energy)));
 	nd_write_byte((sbyte) energy);
-	nd_record_v_player_energy = energy;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1299,9 +1299,8 @@ void newdemo_record_player_afterburner(fix afterburner)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_AFTERBURNER );
-	nd_write_byte((sbyte) (nd_record_v_player_afterburner>>9));
+	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_afterburner, afterburner) >> 9));
 	nd_write_byte((sbyte) (afterburner>>9));
-	nd_record_v_player_afterburner = afterburner;
 }
 #endif
 
@@ -1311,9 +1310,8 @@ void newdemo_record_player_shields(int shield)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_SHIELD );
-	nd_write_byte((sbyte)nd_record_v_player_shields);
+	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_shields, shield)));
 	nd_write_byte((sbyte)shield);
-	nd_record_v_player_shields = shield;
 }
 
 void newdemo_record_player_flags(uint flags)
@@ -1322,8 +1320,7 @@ void newdemo_record_player_flags(uint flags)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_FLAGS );
-	nd_write_int(((short)nd_record_v_player_flags << 16) | (short)flags);
-	nd_record_v_player_flags = flags;
+	nd_write_int((static_cast<short>(exchange(nd_record_v_player_flags, flags)) << 16) | static_cast<short>(flags));
 }
 
 void newdemo_record_player_weapon(int weapon_type, int weapon_num)
@@ -1332,14 +1329,9 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 		return;
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_WEAPON );
-	nd_write_byte((sbyte)weapon_type);
-	nd_write_byte((sbyte)weapon_num);
-	if (weapon_type)
-		nd_write_byte((sbyte)Secondary_weapon);
-	else
-		nd_write_byte((sbyte)Primary_weapon);
-	nd_record_v_weapon_type = weapon_type;
-	nd_record_v_weapon_num = weapon_num;
+	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_type = weapon_type));
+	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_num = weapon_num));
+	nd_write_byte(weapon_type ? static_cast<int8_t>(Secondary_weapon) : static_cast<int8_t>(Primary_weapon));
 }
 
 void newdemo_record_effect_blowup(segnum_t segment, int side, const vms_vector &pnt)
@@ -1357,8 +1349,7 @@ void newdemo_record_homing_distance(fix distance)
 		return;
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_HOMING_DISTANCE);
-	nd_write_short((short)(distance>>16));
-	nd_record_v_homing_distance = distance;
+	nd_write_short(static_cast<short>((nd_record_v_homing_distance = distance) >> 16));
 }
 
 void newdemo_record_letterbox(void)
@@ -1485,12 +1476,8 @@ void newdemo_record_primary_ammo(int new_ammo)
 		return;
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_PRIMARY_AMMO);
-	if (nd_record_v_primary_ammo < 0)
-		nd_write_short((short)new_ammo);
-	else
-		nd_write_short((short)nd_record_v_primary_ammo);
-	nd_write_short((short)new_ammo);
-	nd_record_v_primary_ammo = new_ammo;
+	nd_write_short(nd_record_v_primary_ammo < 0 ? static_cast<short>(new_ammo) : static_cast<short>(nd_record_v_primary_ammo));
+	nd_write_short(static_cast<short>(nd_record_v_primary_ammo = new_ammo));
 }
 
 void newdemo_record_secondary_ammo(int new_ammo)
@@ -1499,12 +1486,8 @@ void newdemo_record_secondary_ammo(int new_ammo)
 		return;
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_SECONDARY_AMMO);
-	if (nd_record_v_secondary_ammo < 0)
-		nd_write_short((short)new_ammo);
-	else
-		nd_write_short((short)nd_record_v_secondary_ammo);
-	nd_write_short((short)new_ammo);
-	nd_record_v_secondary_ammo = new_ammo;
+	nd_write_short(nd_record_v_secondary_ammo < 0 ? static_cast<short>(new_ammo) : static_cast<short>(nd_record_v_secondary_ammo));
+	nd_write_short(static_cast<short>(nd_record_v_secondary_ammo = new_ammo));
 }
 
 void newdemo_record_door_opening(segnum_t segnum, int side)
@@ -1596,10 +1579,10 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 			auto seg = &Segments[w.segnum];
 			side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
-			if (seg->sides[side].tmap_num != 0)
-				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,seg->sides[side].tmap_num);
-			if (seg->sides[side].tmap_num2 != 0)
-				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,seg->sides[side].tmap_num2);
+			if (auto tmap_num = seg->sides[side].tmap_num)
+				newdemo_record_wall_set_tmap_num1(w.segnum,side,w.segnum,side,tmap_num);
+			if (auto tmap_num2 = seg->sides[side].tmap_num2)
+				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,tmap_num2);
 		}
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
