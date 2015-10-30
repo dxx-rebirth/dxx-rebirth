@@ -850,21 +850,7 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 
 	gr_set_current_canvas( NULL );
 
-	if (get_local_player().homing_object_dist >= 0)
-	{
-		if (GameTime64 & 0x4000)
-		{
-			hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_ON, multires_gauge_graphic);
-		}
-		else
-		{
-			hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
-		}
-	}
-	else
-	{
-		hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
-	}
+	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, (get_local_player().homing_object_dist >= 0 && (GameTime64 & 0x4000)) ? GAUGE_HOMING_WARNING_ON : GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
 }
 
 static void hud_show_homing_warning(void)
