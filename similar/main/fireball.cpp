@@ -711,7 +711,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (get_local_player().vulcan_ammo >= VULCAN_AMMO_MAX))
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (get_local_player_vulcan_ammo() >= VULCAN_AMMO_MAX))
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
 		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, del_obj->contains_id) != nullptr)

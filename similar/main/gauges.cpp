@@ -1207,7 +1207,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto gauss_mask = HAS_GAUSS_FLAG;
 #endif
-	const int fmt_vulcan_ammo = f2i((unsigned int)get_local_player().vulcan_ammo * VULCAN_AMMO_SCALE);
+	const int fmt_vulcan_ammo = f2i(static_cast<unsigned int>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE);
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
@@ -1466,7 +1466,7 @@ static void hud_show_weapons(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			case primary_weapon_index_t::GAUSS_INDEX:
 #endif
-				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) get_local_player().vulcan_ammo * (unsigned) VULCAN_AMMO_SCALE));
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %i", weapon_name, f2i(static_cast<unsigned>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE));
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2295,8 +2295,8 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 			unsigned ammo_count;
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
 			{
-				nd_ammo = get_local_player().vulcan_ammo;
-				ammo_count = f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) get_local_player().vulcan_ammo);
+				nd_ammo = get_local_player_vulcan_ammo();
+				ammo_count = f2i(static_cast<unsigned>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
@@ -2949,7 +2949,7 @@ void draw_hud()
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
 		if (Primary_weapon == primary_weapon_index_t::VULCAN_INDEX)
-			newdemo_record_primary_ammo(get_local_player().vulcan_ammo);
+			newdemo_record_primary_ammo(get_local_player_vulcan_ammo());
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 			newdemo_record_primary_ammo(Omega_charge);

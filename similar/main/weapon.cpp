@@ -198,7 +198,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
-			if (Weapon_info[weapon_index].ammo_usage <= get_local_player().vulcan_ammo)
+			if (Weapon_info[weapon_index].ammo_usage <= get_local_player_vulcan_ammo())
 				return_value |= has_weapon_result::has_ammo_flag;
 		}
 		/* Hack to work around check in do_primary_weapon_select */
@@ -930,10 +930,9 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	auto &plr = get_local_player();
 	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
-	if (plr.vulcan_ammo >= max)
-		return 0;
-
 	const auto old_ammo = plr.vulcan_ammo;
+	if (old_ammo >= max)
+		return 0;
 
 	plr.vulcan_ammo += ammo_count;
 

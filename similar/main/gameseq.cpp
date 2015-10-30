@@ -447,7 +447,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
+	plr.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	range_for (auto &i, partial_range(Players[pnum].secondary_ammo, 1u, MAX_SECONDARY_WEAPONS))
 		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;

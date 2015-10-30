@@ -1478,7 +1478,7 @@ static window_event_result FinalCheats()
 
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
-		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 		auto &secondary_ammo = get_local_player_secondary_ammo();
 		for (unsigned i=0; i<3; i++)
 			secondary_ammo[i] = Secondary_ammo_max[i];
@@ -1498,7 +1498,7 @@ static window_event_result FinalCheats()
 
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 
-		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 		get_local_player_secondary_ammo() = Secondary_ammo_max;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -1529,7 +1529,7 @@ static window_event_result FinalCheats()
 			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
 		}
 
-		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
+		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 		auto &secondary_ammo = get_local_player_secondary_ammo();
 		secondary_ammo = Secondary_ammo_max;
 
