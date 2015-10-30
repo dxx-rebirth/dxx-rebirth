@@ -4013,12 +4013,12 @@ void multi_do_capture_bonus(const playernum_t pnum)
 	else
 		HUD_init_message(HM_MULTI, "%s has Scored!", static_cast<const char *>(Players[pnum].callsign));
 
-	if (pnum==Player_num)
-		digi_play_sample (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
-	else if (get_team(pnum)==TEAM_RED)
-		digi_play_sample (SOUND_HUD_RED_GOT_GOAL,F1_0*2);
-	else
-		digi_play_sample (SOUND_HUD_BLUE_GOT_GOAL,F1_0*2);
+	digi_play_sample(pnum == Player_num
+		? SOUND_HUD_YOU_GOT_GOAL
+		: (get_team(pnum) == TEAM_RED
+			? SOUND_HUD_RED_GOT_GOAL
+			: SOUND_HUD_BLUE_GOT_GOAL
+		), F1_0*2);
 
 	Players[(int)pnum].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
@@ -4072,15 +4072,12 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 
 	if (pnum==Player_num)
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
-	else if (Game_mode & GM_TEAM)
-	{
-		if (get_team(pnum)==TEAM_RED)
-			digi_play_sample (SOUND_HUD_RED_GOT_GOAL,F1_0*2);
-		else
-			digi_play_sample (SOUND_HUD_BLUE_GOT_GOAL,F1_0*2);
-	}
 	else
-		digi_play_sample (SOUND_OPPONENT_HAS_SCORED,F1_0*2);
+		digi_play_sample((Game_mode & GM_TEAM)
+			? (get_team(pnum) == TEAM_RED
+				? SOUND_HUD_RED_GOT_GOAL
+				: SOUND_HUD_BLUE_GOT_GOAL
+			) : SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
 	if (bonus>PhallicLimit)
 	{
@@ -4147,28 +4144,23 @@ void multi_send_got_orb (const playernum_t pnum)
 
 static void multi_do_got_flag (const playernum_t pnum)
 {
-	if (pnum==Player_num)
-		digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
-	else if (get_team(pnum)==TEAM_RED)
-		digi_start_sound_queued (SOUND_HUD_RED_GOT_FLAG,F1_0*2);
-	else
-		digi_start_sound_queued (SOUND_HUD_BLUE_GOT_FLAG,F1_0*2);
+	digi_start_sound_queued(pnum == Player_num
+		? SOUND_HUD_YOU_GOT_FLAG
+		: (get_team(pnum) == TEAM_RED
+			? SOUND_HUD_RED_GOT_FLAG
+			: SOUND_HUD_BLUE_GOT_FLAG
+		), F1_0*2);
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(Players[pnum].callsign));
 }
+
 static void multi_do_got_orb (const playernum_t pnum)
 {
 	Assert (game_mode_hoard());
 
-	if (Game_mode & GM_TEAM)
-	{
-		if (get_team(pnum)==get_team(Player_num))
-			digi_play_sample (SOUND_FRIEND_GOT_ORB,F1_0*2);
-		else
-			digi_play_sample (SOUND_OPPONENT_GOT_ORB,F1_0*2);
-    }
-	else
-		digi_play_sample (SOUND_OPPONENT_GOT_ORB,F1_0*2);
+	digi_play_sample((Game_mode & GM_TEAM) && get_team(pnum) == get_team(Player_num)
+		? SOUND_FRIEND_GOT_ORB
+		: SOUND_OPPONENT_GOT_ORB, F1_0*2);
 
 	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up an orb!",static_cast<const char *>(Players[pnum].callsign));
