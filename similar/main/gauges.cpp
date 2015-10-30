@@ -2899,19 +2899,28 @@ void show_HUD_names()
 						w = dx/4;
 						h = dy/4;
 
+						{
+							struct {
+								int r, g, b;
+							} c{};
 #if defined(DXX_BUILD_DESCENT_II)
 						if (game_mode_capture_flag())
-							gr_setcolor((get_team(pnum) == TEAM_BLUE)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
+								((get_team(pnum) == TEAM_BLUE) ? c.r : c.b) = 31;
 						else if (game_mode_hoard())
 						{
-							if (Game_mode & GM_TEAM)
-								gr_setcolor((get_team(pnum) == TEAM_RED)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
-							else
-								gr_setcolor(BM_XRGB(0,31,0));
+								((Game_mode & GM_TEAM)
+									? ((get_team(pnum) == TEAM_RED) ? c.r : c.b)
+									: c.g
+								) = 31;
 						}
-						else if( Game_mode & GM_BOUNTY )
+						else
 #endif
-							gr_setcolor( BM_XRGB( player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b ) );
+							{
+								auto &color = player_rgb[get_player_color(pnum)];
+								c = {color.r, color.g, color.b};
+							}
+							gr_setcolor(BM_XRGB(c.r, c.g, c.b));
+						};
 
 						gr_line(x+dx-w,y-dy,x+dx,y-dy);
 						gr_line(x+dx,y-dy,x+dx,y-dy+h);
