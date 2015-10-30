@@ -1827,7 +1827,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_int(recorded_player_flags);
 	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
-		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
@@ -2433,9 +2433,9 @@ static int newdemo_read_frame_information(int rewrite)
 			const auto new_invul = new_player_flags & PLAYER_FLAGS_INVULNERABLE;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (old_player_flags.get_player_flags() != 0xffff)) ) {
 				if (!old_cloaked && new_cloaked)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
+					DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
 				if (old_cloaked && !new_cloaked)
-					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+					get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 				if (!old_invul && new_invul)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
 				if (old_invul && !new_invul)
@@ -2443,9 +2443,9 @@ static int newdemo_read_frame_information(int rewrite)
 				get_local_player().flags = old_player_flags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (!old_cloaked  && new_cloaked)
-					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+					get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 				if (old_cloaked && !new_cloaked)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
+					DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
 				if (!old_invul && new_invul)
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				if (old_invul && !new_invul)
@@ -3247,7 +3247,7 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_int(&recorded_player_flags);
 	get_local_player().flags = player_flags(recorded_player_flags);
 	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
-		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);

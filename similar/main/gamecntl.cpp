@@ -1251,7 +1251,7 @@ static window_event_result HandleTestKey(int key)
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
 				ai_do_cloak_stuff();
-				get_local_player().cloak_time = GameTime64;
+				get_local_player_cloak_time() = GameTime64;
 			}
 			break;
 
@@ -1586,7 +1586,7 @@ static window_event_result FinalCheats()
 		if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		{
 			ai_do_cloak_stuff();
-			get_local_player().cloak_time = GameTime64;
+			get_local_player_cloak_time() = GameTime64;
 		}
 	}
 
