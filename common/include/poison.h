@@ -21,6 +21,13 @@ static inline void DXX_MAKE_MEM_UNDEFINED(T *b, T *e)
 	DXX_MAKE_MEM_UNDEFINED(bc, reinterpret_cast<unsigned char *>(e) - bc);
 }
 
+template <typename T>
+static inline void DXX_MAKE_VAR_UNDEFINED(T &b)
+{
+	unsigned char *const bc = reinterpret_cast<unsigned char *>(&b);
+	DXX_MAKE_MEM_UNDEFINED(bc, sizeof(T));
+}
+
 template <typename T, typename V>
 static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 {

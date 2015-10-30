@@ -1747,7 +1747,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~PLAYER_FLAGS_FLAG;
 #endif
-	Players[pnum].cloak_time = 0;
+	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 }
 
 /*

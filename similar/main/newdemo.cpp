@@ -1702,7 +1702,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 		range_for (auto &i, Players)
 		{
-			i.cloak_time = 0;
+			i.flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+			DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
 			i.invulnerable_time = 0;
 		}
 	}
@@ -1731,7 +1732,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
-				i.cloak_time = 0;
+				i.flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+				DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
 				i.invulnerable_time = 0;
 				nd_read_string(i.callsign.buffer());
 				nd_read_byte(&(i.connected));
@@ -2446,7 +2448,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (oflags != 0xffff)) ) {
 				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
-					get_local_player().cloak_time = 0;
+					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
 				}
 				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
 					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
@@ -2461,7 +2463,7 @@ static int newdemo_read_frame_information(int rewrite)
 					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
 				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
-					get_local_player().cloak_time = 0;
+					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
 				}
 				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
@@ -2667,7 +2669,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].flags &= ~PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = 0;
+				DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
 				Players[pnum].cloak_time = GameTime64  - (CLOAK_TIME_MAX / 2);
@@ -2690,7 +2692,7 @@ static int newdemo_read_frame_information(int rewrite)
 				Players[pnum].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].flags &= ~PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = 0;
+				DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 			}
 			break;
 		}
@@ -3039,8 +3041,8 @@ static int newdemo_read_frame_information(int rewrite)
 					loaded_level = new_level;
 					range_for (auto &i, Players)
 					{
-						i.cloak_time = 0;
 						i.flags &= ~PLAYER_FLAGS_CLOAKED;
+						DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
