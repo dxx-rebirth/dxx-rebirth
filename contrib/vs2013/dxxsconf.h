@@ -1,6 +1,7 @@
 #pragma once
 
 #define __attribute_alloc_size(A,...)
+#define __attribute_always_inline()
 #define __attribute_format_printf(A,B)
 #define __attribute_format_arg(A)
 #define __attribute_malloc()
