@@ -172,6 +172,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 
 #define get_local_player()	(Players[Player_num])
 #define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
+#define get_local_player_shields()	(get_local_player().shields)
 #endif
 
 struct player_ship

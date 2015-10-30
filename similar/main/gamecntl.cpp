@@ -150,21 +150,21 @@ static void transfer_energy_to_shield()
 	fix e;		//how much energy gets transfered
 	static fix64 last_play_time=0;
 
-	e = min(min(FrameTime*CONVERTER_RATE, get_local_player().energy - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player().shields) * CONVERTER_SCALE);
+	e = min(min(FrameTime*CONVERTER_RATE, get_local_player().energy - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player_shields()) * CONVERTER_SCALE);
 
 	if (e <= 0) {
 
 		if (get_local_player().energy <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
-		else if (get_local_player().shields >= MAX_SHIELDS) {
+		else if (get_local_player_shields() >= MAX_SHIELDS) {
 			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
 
 	get_local_player().energy  -= e;
-	get_local_player().shields += e/CONVERTER_SCALE;
+	get_local_player_shields() += e/CONVERTER_SCALE;
 
 	if (last_play_time > GameTime64)
 		last_play_time = 0;
@@ -1236,8 +1236,8 @@ static window_event_result HandleTestKey(int key)
 
 
 
-		case KEY_DEBUGGED+KEY_K:	get_local_player().shields = 1;	break;							//	a virtual kill
-		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player().shields = -1;	 break;  //	an actual kill
+		case KEY_DEBUGGED+KEY_K:	get_local_player_shields() = 1;	break;							//	a virtual kill
+		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player_shields() = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: get_local_player().lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
 			if (Player_is_dead)
@@ -1509,7 +1509,7 @@ static window_event_result FinalCheats()
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::lamer)
 	{
-		get_local_player().shields=get_local_player().energy=i2f(1);
+		get_local_player_shields()=get_local_player().energy=i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1572,7 +1572,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::shields)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
-		get_local_player().shields = MAX_SHIELDS;
+		get_local_player_shields() = MAX_SHIELDS;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1798,7 +1798,7 @@ public:
 	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_RED_KEY))	\
 	WIMP_MENU_DXX(VERB)	\
 	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plr.energy), 0, 200)	\
-	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plr.shields), 0, 200)	\
+	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
 	DXX_##VERB##_TEXT(TXT_SCORE, opt_txt_score)	\
 	DXX_##VERB##_INPUT(score_text, opt_score)	\
 	DXX_##VERB##_NUMBER("Laser Level", opt_laser_level, menu_number_bias_wrapper(plr_laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
@@ -1813,6 +1813,7 @@ static void do_cheat_menu()
 	array<newmenu_item, DXX_WIMP_MENU(COUNT)> m;
 	char score_text[sizeof("2147483647")];
 	auto &plr = get_local_player();
+	auto &plrobj = get_local_plrobj();
 	snprintf(score_text, sizeof(score_text), "%d", plr.score);
 	uint8_t plr_laser_level = plr.laser_level;
 	DXX_WIMP_MENU(ADD);

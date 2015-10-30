@@ -166,7 +166,7 @@ void do_megawow_powerup(int quantity)
 		newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
 
 	get_local_player().energy = F1_0*200;
-	get_local_player().shields = F1_0*200;
+	get_local_player_shields() = F1_0*200;
 	get_local_player().flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
 	get_local_player().laser_level = MAX_LASER_LEVEL;
@@ -228,7 +228,7 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
 
-	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (get_local_player().shields < 0))
+	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (get_local_player_shields() < 0))
 		return 0;
 
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime64<obj->ctype.powerup_info.creation_time+i2f(2))
@@ -267,16 +267,16 @@ int do_powerup(const vobjptridx_t obj)
 			used = pick_up_energy();
 			break;
 		case POW_SHIELD_BOOST:
-			if (get_local_player().shields < MAX_SHIELDS) {
+			if (get_local_player_shields() < MAX_SHIELDS) {
 				fix boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Difficulty_level == 0)
 					boost += boost/2;
 #endif
-				get_local_player().shields += boost;
-				if (get_local_player().shields > MAX_SHIELDS)
-					get_local_player().shields = MAX_SHIELDS;
-				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(get_local_player().shields));
+				get_local_player_shields() += boost;
+				if (get_local_player_shields() > MAX_SHIELDS)
+					get_local_player_shields() = MAX_SHIELDS;
+				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(get_local_player_shields()));
 				used=1;
 			} else
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);

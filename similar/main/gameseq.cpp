@@ -292,12 +292,8 @@ static void init_ammo_and_energy(void)
 {
 	if (get_local_player().energy < INITIAL_ENERGY)
 		get_local_player().energy = INITIAL_ENERGY;
-	if (get_local_player().shields < StartingShields)
-		get_local_player().shields = StartingShields;
-
-//	for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
-//		if (Players[Player_num].secondary_ammo[i] < Default_secondary_ammo_level[i])
-//			Players[Player_num].secondary_ammo[i] = Default_secondary_ammo_level[i];
+	if (get_local_player_shields() < StartingShields)
+		get_local_player_shields() = StartingShields;
 	if (get_local_player().secondary_ammo[0] < 2 + NDL - Difficulty_level)
 		get_local_player().secondary_ammo[0] = 2 + NDL - Difficulty_level;
 }
@@ -376,10 +372,11 @@ void init_player_stats_level(const secret_restore secret_flag)
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
+	auto &plr = Players[pnum];
+	plr.shields = StartingShields;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
-	auto &plr = get_local_player();
 	if (pnum == Player_num)
 	{
 		Primary_weapon = [=]{
@@ -447,7 +444,6 @@ void init_player_stats_new_ship(ubyte pnum)
 	}
 
 	Players[pnum].energy = INITIAL_ENERGY;
-	Players[pnum].shields = StartingShields;
 	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
@@ -864,10 +860,10 @@ void DoEndLevelScoreGlitz(int network)
 
 		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(get_local_player().shields) * 10 * (Difficulty_level+1);
+		shield_points = f2i(get_local_player_shields()) * 10 * (Difficulty_level+1);
 		energy_points = f2i(get_local_player().energy) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
-		shield_points = f2i(get_local_player().shields) * 5 * mine_level;
+		shield_points = f2i(get_local_player_shields()) * 5 * mine_level;
 		energy_points = f2i(get_local_player().energy) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
@@ -1456,7 +1452,7 @@ void DoPlayerDead()
 		//clear out stuff so no bonus
 		get_local_player().hostages_on_board = 0;
 		get_local_player().energy = 0;
-		get_local_player().shields = 0;
+		get_local_player_shields() = 0;
 		get_local_player().connected = CONNECT_DIED_IN_MINE;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened

@@ -1666,9 +1666,9 @@ static void object_move_one(const vobjptridx_t obj)
 			get_local_player().energy += fuel;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS - get_local_player().shields );
+		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS - get_local_player_shields() );
 		if (shields > 0) {
-			get_local_player().shields += shields;
+			get_local_player_shields() += shields;
 		}
 #endif
 	}

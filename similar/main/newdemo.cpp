@@ -1039,8 +1039,8 @@ void newdemo_record_start_demo()
 
 	nd_record_v_player_energy = (sbyte)(f2ir(get_local_player().energy));
 	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
-	nd_record_v_player_shields = (sbyte)(f2ir(get_local_player().shields));
-	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
+	nd_record_v_player_shields = (sbyte)(f2ir(get_local_player_shields()));
+	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
 	nd_write_int(nd_record_v_player_flags = get_local_player().flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
@@ -1865,7 +1865,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_playback_v_juststarted=1;
 #endif
 	get_local_player().energy = i2f(energy);
-	get_local_player().shields = i2f(shield);
+	get_local_player_shields() = i2f(shield);
 	return 0;
 }
 
@@ -2401,14 +2401,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (shareware)
-				get_local_player().shields = i2f(shield);
+				get_local_player_shields() = i2f(shield);
 			else
 			{
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				get_local_player().shields = i2f(shield);
+				get_local_player_shields() = i2f(shield);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (old_shield != 255)
-					get_local_player().shields = i2f(old_shield);
+					get_local_player_shields() = i2f(old_shield);
 			}
 			}
 			break;
@@ -3242,7 +3242,7 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_byte((sbyte *)&energy);
 	nd_read_byte((sbyte *)&shield);
 	get_local_player().energy = i2f(energy);
-	get_local_player().shields = i2f(shield);
+	get_local_player_shields() = i2f(shield);
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
 	get_local_player().flags = player_flags(recorded_player_flags);
@@ -3652,7 +3652,7 @@ static void newdemo_write_end()
 	byte_count += 10;       // from nd_record_v_framebytes_written
 
 	nd_write_byte((sbyte)(f2ir(get_local_player().energy)));
-	nd_write_byte((sbyte)(f2ir(get_local_player().shields)));
+	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
 	nd_write_int(get_local_player().flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);

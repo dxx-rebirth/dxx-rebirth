@@ -1312,7 +1312,7 @@ void game_leave_menus(void)
 
 void GameProcessFrame(void)
 {
-	fix player_shields = get_local_player().shields;
+	fix player_shields = get_local_player_shields();
 	int player_was_dead = Player_is_dead;
 
 	update_player_stats();
@@ -1476,7 +1476,7 @@ void GameProcessFrame(void)
 	flicker_lights();
 
 	//if the player is taking damage, give up guided missile control
-	if (get_local_player().shields != player_shields)
+	if (get_local_player_shields() != player_shields)
 		release_guided_missile(Player_num);
 #endif
 
@@ -1484,7 +1484,7 @@ void GameProcessFrame(void)
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
 		if ( Endlevel_sequence || ((Control_center_destroyed) && (Countdown_seconds_left <= 1)) || // close menus when end of level...
-			(Automap_active && ((Player_is_dead != player_was_dead) || (get_local_player().shields<=0 && player_shields>0))) ) // close autmap when dying ...
+			(Automap_active && ((Player_is_dead != player_was_dead) || (get_local_player_shields()<=0 && player_shields>0))) ) // close autmap when dying ...
 			game_leave_menus();
 	}
 }

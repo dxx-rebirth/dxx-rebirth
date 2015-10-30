@@ -391,7 +391,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 		}
 
 		if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
-			if ( get_local_player().shields > f1_0*10 || ForceFieldHit)
+			if ( get_local_player_shields() > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
 		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
@@ -1321,8 +1321,8 @@ void do_final_boss_hacks(void)
 		Player_is_dead = 0;
 	}
 
-	if (get_local_player().shields <= 0)
-		get_local_player().shields = 1;
+	if (get_local_player_shields() <= 0)
+		get_local_player_shields() = 1;
 
 	//	If you're not invulnerable, get invulnerable!
 	if (!(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE)) {
@@ -1379,7 +1379,7 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 					}
 				else
 				  {	// NOTE LINK TO ABOVE!!!
-					if ((get_local_player().shields < 0) || Player_is_dead)
+					if ((get_local_player_shields() < 0) || Player_is_dead)
 						robot->shields = 1;		//	Sorry, we can't allow you to kill the final boss after you've died.  Rough luck.
 					else
 						do_final_boss_hacks();
@@ -2063,10 +2063,11 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 	//be a mirror of the value in the Player structure.
 
 	if (get_player_id(playerobj) == Player_num) {		//is this the local player?
-		get_local_player().shields -= damage;
 		PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
+		const auto shields = (playerobj->shields -= damage);
 
-		if (get_local_player().shields < 0)	{
+		if (shields < 0)
+		{
 
   			get_local_player().killer_objnum = killer;
 			playerobj->flags |= OF_SHOULD_BE_DEAD;
@@ -2078,7 +2079,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 #endif
 		}
 
-		playerobj->shields = get_local_player().shields;		//mirror
+		playerobj->shields = get_local_player_shields();		//mirror
 
 	}
 }

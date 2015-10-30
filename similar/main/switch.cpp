@@ -373,7 +373,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 	(void)shot;
 	if (pnum == Player_num) {
 		if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE) {
-			get_local_player().shields -= Triggers[trigger_num].value;
+			get_local_player_shields() -= Triggers[trigger_num].value;
 		}
 
 		if (Triggers[trigger_num].flags & TRIGGER_EXIT) {
@@ -436,7 +436,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
-				if ((get_local_player().shields < 0) || Player_is_dead)
+				if ((get_local_player_shields() < 0) || Player_is_dead)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
 				//             playing a D1 secret level
@@ -463,7 +463,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 				break;
 
-			if ((get_local_player().shields < 0) || Player_is_dead)
+			if ((get_local_player_shields() < 0) || Player_is_dead)
 				break;
 
 			if (is_SHAREWARE || is_MAC_SHARE) {
