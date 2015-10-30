@@ -350,7 +350,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 #endif
 
 		DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
-		get_local_player().invulnerable_time = 0;
+		DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
 
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			get_local_player().flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
@@ -464,7 +464,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
 	plr.primary_weapon_flags |= granted_primary_weapon_flags;
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
-	Players[pnum].invulnerable_time = 0;
+	DXX_MAKE_VAR_UNDEFINED(Players[pnum].invulnerable_time);
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
 	digi_kill_sound_linked_to_object(vcobjptridx(Players[pnum].objnum));
 }

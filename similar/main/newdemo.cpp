@@ -1704,7 +1704,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		{
 			i.flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 			DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
-			i.invulnerable_time = 0;
+			DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
 		}
 	}
 	else
@@ -1734,7 +1734,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			range_for (auto &i, partial_range(Players, N_players)) {
 				i.flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 				DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
-				i.invulnerable_time = 0;
+				DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
 				nd_read_string(i.callsign.buffer());
 				nd_read_byte(&(i.connected));
 				if (purpose == PURPOSE_REWRITE)
@@ -2454,7 +2454,7 @@ static int newdemo_read_frame_information(int rewrite)
 					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
 				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
-					get_local_player().invulnerable_time = 0;
+					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
 				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				get_local_player().flags = oflags;
@@ -2468,7 +2468,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
-					get_local_player().invulnerable_time = 0;
+					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
 			}
 			update_laser_weapon_info();     // in case of quad laser change
 			break;
