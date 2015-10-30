@@ -1822,9 +1822,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_byte(shield);
 	}
 
-	nd_read_int((int *)&(get_local_player().flags));
+	int recorded_player_flags;
+	nd_read_int(&recorded_player_flags);
+	get_local_player().flags = recorded_player_flags;
 	if (purpose == PURPOSE_REWRITE)
-		nd_write_int(get_local_player().flags);
+		nd_write_int(recorded_player_flags);
 	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
 		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
@@ -2416,42 +2418,42 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_PLAYER_FLAGS: {
-			uint oflags;
-
-			nd_read_int((int *)&(get_local_player().flags));
+			int recorded_player_flags;
+			nd_read_int(&recorded_player_flags);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_int(get_local_player().flags);
+				nd_write_int(recorded_player_flags);
 				break;
 			}
 
-			oflags = get_local_player().flags >> 16;
-			get_local_player().flags &= 0xffff;
+			uint16_t old_player_flags = static_cast<unsigned>(recorded_player_flags) >> 16;
+			uint16_t new_player_flags = static_cast<unsigned>(recorded_player_flags);
 
-			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (oflags != 0xffff)) ) {
-				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+			const auto old_cloaked = old_player_flags & PLAYER_FLAGS_CLOAKED;
+			const auto new_cloaked = new_player_flags & PLAYER_FLAGS_CLOAKED;
+			const auto old_invul = old_player_flags & PLAYER_FLAGS_INVULNERABLE;
+			const auto new_invul = new_player_flags & PLAYER_FLAGS_INVULNERABLE;
+			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (old_player_flags != 0xffff)) ) {
+				if (!old_cloaked && new_cloaked)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
-				}
-				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+				if (old_cloaked && !new_cloaked)
 					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
-				}
-				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+				if (!old_invul && new_invul)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
-				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+				if (old_invul && !new_invul)
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
-				get_local_player().flags = oflags;
+				get_local_player().flags = old_player_flags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+				if (!old_cloaked  && new_cloaked)
 					get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
-				}
-				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(get_local_player().flags & PLAYER_FLAGS_CLOAKED)) {
+				if (old_cloaked && !new_cloaked)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().cloak_time);
-				}
-				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+				if (!old_invul && new_invul)
 					get_local_player().invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
-				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(get_local_player().flags & PLAYER_FLAGS_INVULNERABLE))
+				if (old_invul && !new_invul)
 					DXX_MAKE_VAR_UNDEFINED(get_local_player().invulnerable_time);
+				get_local_player().flags = new_player_flags;
 			}
 			update_laser_weapon_info();     // in case of quad laser change
 			break;
@@ -3244,7 +3246,9 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_byte((sbyte *)&shield);
 	get_local_player().energy = i2f(energy);
 	get_local_player().shields = i2f(shield);
-	nd_read_int((int *)&(get_local_player().flags));
+	int recorded_player_flags;
+	nd_read_int(&recorded_player_flags);
+	get_local_player().flags = recorded_player_flags;
 	if (get_local_player().flags & PLAYER_FLAGS_CLOAKED) {
 		get_local_player().cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
