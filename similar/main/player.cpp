@@ -29,7 +29,6 @@ void player_rw_swap(player_rw *p, int swap)
 	p->killer_objnum = SWAPSHORT(p->killer_objnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	p->primary_weapon_flags = SWAPSHORT(p->primary_weapon_flags);
-	p->secondary_weapon_flags = SWAPSHORT(p->secondary_weapon_flags);
 #endif
 	p->vulcan_ammo = SWAPSHORT(p->vulcan_ammo);
 	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)

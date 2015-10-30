@@ -1679,7 +1679,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
 #endif
 	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
-	Players[pnum].secondary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
 	auto &secondary_ammo = Players[pnum].secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
@@ -2511,7 +2510,6 @@ void multi_send_player_deres(deres_type_t type)
 #define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
 #endif
 	PUT_WEAPON_FLAGS(multibuf, count, get_local_player().primary_weapon_flags);
-	PUT_WEAPON_FLAGS(multibuf, count, get_local_player().secondary_weapon_flags);
 	multibuf[count++] = (char)get_local_player().laser_level;
 
 	multibuf[count++] = (char)get_local_player().secondary_ammo[HOMING_INDEX];

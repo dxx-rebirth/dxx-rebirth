@@ -63,10 +63,8 @@ struct player : public prohibit_void_ptr<player>
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 #if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
-	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
-	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
 	ushort  vulcan_ammo;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.

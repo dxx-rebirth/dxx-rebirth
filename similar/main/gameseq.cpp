@@ -457,7 +457,6 @@ void init_player_stats_new_ship(ubyte pnum)
 		i = 0;
 	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
-	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
 	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);

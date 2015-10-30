@@ -1811,15 +1811,12 @@ static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int 
 
 static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
 {
-	int weapon_flag = HAS_SECONDARY_FLAG(weapon_index);
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
-	if (Players[get_player_id(playerobj)].secondary_weapon_flags & weapon_flag) {
 		int	max_count;
 
 		max_count = min(count, 3);
 		for (int i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
-	}
 }
 
 static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)

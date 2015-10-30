@@ -229,9 +229,6 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 	int	return_value = 0;
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 
-		if (get_local_player().secondary_weapon_flags & HAS_SECONDARY_FLAG(weapon_num))
-			return_value |= has_weapon_result::has_weapon_flag;
-
 		if (Weapon_info[weapon_index].ammo_usage <= get_local_player().secondary_ammo[weapon_num])
 			return_value |= has_weapon_result::has_ammo_flag;
 
@@ -710,7 +707,6 @@ int pick_up_secondary(int weapon_index,int count)
 		return 0;
 	}
 
-	get_local_player().secondary_weapon_flags |= (1<<weapon_index);
 	get_local_player().secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
@@ -1451,7 +1447,6 @@ void DropSecondaryWeapon ()
 
 	if (get_local_player().secondary_ammo[Secondary_weapon]==0)
 	{
-		get_local_player().secondary_weapon_flags &= (~(1<<Secondary_weapon));
 		auto_select_secondary_weapon();
 	}
 }

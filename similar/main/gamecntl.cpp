@@ -1474,7 +1474,6 @@ static window_event_result FinalCheats()
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
-		get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG);
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<3; i++)
@@ -1494,7 +1493,6 @@ static window_event_result FinalCheats()
 		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 
 		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
-		get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG);
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
 		for (unsigned i=0; i<MAX_SECONDARY_WEAPONS; i++)
@@ -1522,12 +1520,10 @@ static window_event_result FinalCheats()
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
 			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
-			get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG);
 		}
 		else
 		{
 			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
-			get_local_player().secondary_weapon_flags |= (HAS_CONCUSSION_FLAG | HAS_HOMING_FLAG | HAS_PROXIMITY_BOMB_FLAG | HAS_SMART_FLAG | HAS_MEGA_FLAG) | (HAS_FLASH_FLAG | HAS_GUIDED_FLAG | HAS_SMART_BOMB_FLAG | HAS_MERCURY_FLAG | HAS_EARTHSHAKER_FLAG);
 		}
 
 		get_local_player().vulcan_ammo = VULCAN_AMMO_MAX;
