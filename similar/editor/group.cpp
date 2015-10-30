@@ -1590,7 +1590,7 @@ int CopyGroup(void)
 	attach_seg = Groupsegp[current_group]->children[Groupside[current_group]];
 	if (attach_seg != segment_none) {
 		if (GroupList[current_group].segments.contains(attach_seg)) {
-			editor_status_fmt("Error -- Cannot copy group, attach side has a child (segment %i) attached.", Groupsegp[current_group]->children[Groupside[current_group]]);
+			editor_status_fmt("Error -- Cannot copy group, attach side has a child (segment %i) attached.", attach_seg);
 			return 1;
 		}
 	}
