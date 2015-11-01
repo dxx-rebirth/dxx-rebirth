@@ -22,6 +22,9 @@
 #include "kconfig.h"
 #include "compiler-range_for.h"
 
+#if MAX_JOYSTICKS
+#include "compiler-type_traits.h"
+
 namespace {
 
 int num_joysticks = 0;
@@ -30,7 +33,9 @@ int num_joysticks = 0;
  * and buttons of every joystick found.
  */
 static struct joyinfo {
+#if MAX_BUTTONS_PER_JOYSTICK
 	array<uint8_t, JOY_MAX_BUTTONS> button_state;
+#endif
 } Joystick;
 
 struct d_event_joystickbutton : d_event
@@ -50,6 +55,12 @@ public:
 		SDL_JoystickClose(j);
 	}
 };
+
+template <typename>
+class ignore_empty {};
+
+template <typename T>
+using maybe_empty_array = typename tt::conditional<T().empty(), ignore_empty<T>, T>::type;
 
 /* This struct is an array, with one entry for each physical joystick
  * found.
@@ -82,10 +93,10 @@ class d_physical_joystick
 	struct tuple_member_type_axis_value : array<int, MAX_AXES_PER_JOYSTICK> {};
 	std::tuple<
 		tuple_member_type_handle,
-		tuple_member_type_hat_map,
-		tuple_member_type_button_map,
-		tuple_member_type_axis_map,
-		tuple_member_type_axis_value
+		maybe_empty_array<tuple_member_type_hat_map>,
+		maybe_empty_array<tuple_member_type_button_map>,
+		maybe_empty_array<tuple_member_type_axis_map>,
+		maybe_empty_array<tuple_member_type_axis_value>
 	> t;
 public:
 	for_each_tuple_item(define_getter);
@@ -97,6 +108,7 @@ public:
 
 static array<d_physical_joystick, MAX_JOYSTICKS> SDL_Joysticks;
 
+#if MAX_BUTTONS_PER_JOYSTICK
 void joy_button_handler(SDL_JoyButtonEvent *jbe)
 {
 	int button;
@@ -111,7 +123,9 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 	con_printf(CON_DEBUG, "Sending event %s, button %d", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
 	event_send(event);
 }
+#endif
 
+#if MAX_HATS_PER_JOYSTICK
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
@@ -156,7 +170,9 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 		event_send(event);
 	}
 }
+#endif
 
+#if MAX_AXES_PER_JOYSTICK
 int joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	d_event_joystick_moved event;
@@ -175,6 +191,7 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 
 	return 1;
 }
+#endif
 
 
 /* ----------------------------------------------- */
@@ -199,8 +216,12 @@ void joy_init()
 	}
 
 	Joystick = {};
+#if MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
+#endif
+#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
+#endif
 
 	const auto n = check_warn_joy_support_limit<MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
 	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
@@ -215,6 +236,7 @@ void joy_init()
 #endif
 		if (handle)
 		{
+#if MAX_AXES_PER_JOYSTICK
 			const auto n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
@@ -224,17 +246,22 @@ void joy_init()
 				joystick.axis_map()[j] = joystick_n_axes++;
 				snprintf(&text[0], sizeof(text), "J%d A%d", i + 1, j + 1);
 			}
+#endif
 
+#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 			const auto n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
 			const auto n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
 
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
+#if MAX_BUTTONS_PER_JOYSTICK
 			for (int j=0; j < n_buttons; j++)
 			{
 				auto &text = joybutton_text[joystick_n_buttons];
 				joystick.button_map()[j] = joystick_n_buttons++;
 				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, j + 1);
 			}
+#endif
+#if MAX_HATS_PER_JOYSTICK
 			for (int j=0; j < n_hats; j++)
 			{
 				joystick.hat_map()[j] = joystick_n_buttons;
@@ -244,6 +271,8 @@ void joy_init()
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0200);
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0201);
 			}
+#endif
+#endif
 
 			num_joysticks++;
 		}
@@ -259,8 +288,12 @@ void joy_close()
 {
 	range_for (auto &j, SDL_Joysticks)
 		j.handle().reset();
+#if MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
+#endif
+#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
+#endif
 }
 
 const d_event_joystick_axis_value &event_joystick_get_axis(const d_event &event)
@@ -276,9 +309,13 @@ void joy_flush()
 		return;
 
 	static_assert(SDL_RELEASED == uint8_t(), "SDL_RELEASED not 0.");
+#if MAX_BUTTONS_PER_JOYSTICK
 	Joystick.button_state = {};
+#endif
+#if MAX_AXES_PER_JOYSTICK
 	range_for (auto &j, SDL_Joysticks)
 		j.axis_value() = {};
+#endif
 }
 
 int event_joystick_get_button(const d_event &event)
@@ -287,3 +324,4 @@ int event_joystick_get_button(const d_event &event)
 	Assert(e.type == EVENT_JOYSTICK_BUTTON_DOWN || e.type == EVENT_JOYSTICK_BUTTON_UP);
 	return e.button;
 }
+#endif

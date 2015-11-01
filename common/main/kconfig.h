@@ -77,8 +77,10 @@ struct control_info {
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
         fix excess_pitch_time, excess_vertical_thrust_time, excess_heading_time, excess_sideways_thrust_time, excess_bank_time, excess_forward_thrust_time;
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
-	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
 	array<fix, 3> mouse_axis, raw_mouse_axis;
+#if MAX_AXES_PER_JOYSTICK
+	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
+#endif
 };
 
 extern control_info Controls;
@@ -100,7 +102,9 @@ extern void kconfig_read_controls(const d_event &event, int automap_flag);
 enum class kconfig_type
 {
 	keyboard,
+#if MAX_JOYSTICKS
 	joystick,
+#endif
 	mouse,
 	rebirth,
 };
@@ -120,6 +124,7 @@ extern void reset_cruise(void);
 extern fix Cruise_speed;
 
 
+#if MAX_JOYSTICKS
 template <std::size_t N>
 struct joystick_text_length : tt::integral_constant<std::size_t, (N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1>
 {
@@ -143,14 +148,19 @@ public:
 	reference operator[](size_type s) { return text.at(s); }
 };
 
+#if MAX_AXES_PER_JOYSTICK
 class joyaxis_text_t : public joystick_text_t<sizeof("J A") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>
 {
 };
+extern joyaxis_text_t joyaxis_text;
+#endif
 
-class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_BUTTONS_PER_JOYSTICK>::value>
+#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>
 {
 };
-
 extern joybutton_text_t joybutton_text;
-extern joyaxis_text_t joyaxis_text;
+#endif
+
+#endif
 #endif

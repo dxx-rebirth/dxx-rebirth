@@ -757,14 +757,38 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def check_libSDL2(self,context):
 		self._check_libSDL(context, '2')
 	def _check_libSDL(self,context,sdl2):
-		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2)
+		user_settings = self.user_settings
+		successflags = self.pkgconfig.merge(context, self.message, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2)
+		if user_settings.max_joysticks:
+			# If joysticks are enabled, but all possible inputs are
+			# disabled, then disable joystick support.
+			if not (user_settings.max_axes_per_joystick or user_settings.max_buttons_per_joystick or user_settings.max_hats_per_joystick):
+				user_settings.max_joysticks = 0
+		else:
+			# If joysticks are disabled, then disable all possible
+			# inputs.
+			user_settings.max_axes_per_joystick = user_settings.max_buttons_per_joystick = user_settings.max_hats_per_joystick = 0
+		successflags.setdefault('CPPDEFINES', []).extend((
+			('MAX_JOYSTICKS', user_settings.max_joysticks),
+			('MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
+			('MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
+			('MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
+		))
+		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
 		# SDL2 removed CD-rom support.
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
-	SDL_Init(SDL_INIT_JOYSTICK | %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+#if MAX_JOYSTICKS
+#define DXX_SDL_INIT_JOYSTICK	SDL_INIT_JOYSTICK |
+#else
+#define DXX_SDL_INIT_JOYSTICK
+#endif
+	SDL_Init(DXX_SDL_INIT_JOYSTICK %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+#if MAX_JOYSTICKS
 	auto n = SDL_NumJoysticks();
 	(void)n;
+#endif
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	SDL_FreeRW(ops);
 	SDL_Quit();
@@ -2288,14 +2312,23 @@ class DXXCommon(LazyObjectConstructor):
 	class UserBuildSettings:
 		class IntVariable(object):
 			def __new__(cls,key,help,default):
-				return (key, help, default, cls.__validator, int)
+				return (key, help, default, cls._validator, int)
 			@staticmethod
-			def __validator(key, value, env):
+			def _validator(key, value, env):
 				try:
 					int(value)
 					return True
 				except ValueError:
-					raise SCons.Errors.UserError('Invalid value for integer-only option %s: %s.' % (key, val))
+					raise SCons.Errors.UserError('Invalid value for integer-only option %s: %s.' % (key, value))
+		class UIntVariable(IntVariable):
+			@staticmethod
+			def _validator(key, value, env):
+				try:
+					if int(value) < 0:
+						raise ValueError
+					return True
+				except ValueError:
+					raise SCons.Errors.UserError('Invalid value for unsigned-integer-only option %s: %s.' % (key, value))
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
@@ -2432,11 +2465,15 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 			{
-				'variable': self.IntVariable,
+				'variable': self.UIntVariable,
 				'arguments': (
 					('lto', 0, 'enable gcc link time optimization'),
 					('pch', None, 'pre-compile own headers used at least this many times'),
 					('syspch', None, 'pre-compile system headers used at least this many times'),
+					('max_joysticks', 8, 'maximum number of usable joysticks'),
+					('max_axes_per_joystick', 128, 'maximum number of axes per joystick'),
+					('max_buttons_per_joystick', 128, 'maximum number of buttons per joystick'),
+					('max_hats_per_joystick', 4, 'maximum number of hats per joystick'),
 				),
 			},
 			{

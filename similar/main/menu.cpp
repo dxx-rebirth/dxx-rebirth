@@ -1139,6 +1139,7 @@ static void input_config_mouse()
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
+#if MAX_AXES_PER_JOYSTICK
 static void input_config_joystick()
 {
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
@@ -1187,17 +1188,30 @@ static void input_config_joystick()
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 	}
 }
+#endif
 
 namespace {
 
 class input_config_menu_items
 {
+#if MAX_JOYSTICKS
+#define DXX_INPUT_CONFIG_JOYSTICK_ITEM(I)	I
+#else
+#define DXX_INPUT_CONFIG_JOYSTICK_ITEM(I)
+#endif
+
+#if MAX_AXES_PER_JOYSTICK
+#define DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(I)	I
+#else
+#define DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(I)
+#endif
+
 #define DXX_INPUT_CONFIG_MENU(VERB)	\
-	DXX_##VERB##_CHECK("Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK)	\
+	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_##VERB##_CHECK("Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))	\
 	DXX_##VERB##_CHECK("Use mouse", opt_ic_usemouse, PlayerCfg.ControlType & CONTROL_USING_MOUSE)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_use)	\
 	DXX_##VERB##_MENU(TXT_CUST_KEYBOARD, opt_ic_confkey)	\
-	DXX_##VERB##_MENU("Customize Joystick", opt_ic_confjoy)	\
+	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_##VERB##_MENU("Customize Joystick", opt_ic_confjoy))	\
 	DXX_##VERB##_MENU("Customize Mouse", opt_ic_confmouse)	\
 	DXX_##VERB##_MENU("Customize Weapon Keys", opt_ic_confweap)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_customize)	\
@@ -1207,7 +1221,7 @@ class input_config_menu_items
 	DXX_##VERB##_TEXT("", opt_label_blank_mouse_control_type)	\
 	DXX_##VERB##_MENU("Keyboard Calibration", opt_ic_keyboard)	        \
 	DXX_##VERB##_MENU("Mouse Calibration", opt_ic_mouse)	              \
-	DXX_##VERB##_MENU("Joysick Calibration", opt_ic_joystick)	         \
+	DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(DXX_##VERB##_MENU("Joystick Calibration", opt_ic_joystick))	         \
 	DXX_##VERB##_TEXT("", opt_label_blank_sensitivity_deadzone)	\
 	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, CGameCfg.Grabinput)	\
 	DXX_##VERB##_CHECK("Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
@@ -1232,6 +1246,8 @@ public:
 	}
 	static int menuset(newmenu *, const d_event &event, input_config_menu_items *pitems);
 #undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM
+#undef DXX_INPUT_CONFIG_JOYSTICK_ITEM
 };
 
 }
@@ -1244,6 +1260,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 		case EVENT_NEWMENU_CHANGED:
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
+#if MAX_JOYSTICKS
 			if (citem == opt_ic_usejoy)
 			{
 				constexpr auto flag = CONTROL_USING_JOYSTICK;
@@ -1252,6 +1269,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 				else
 					PlayerCfg.ControlType &= ~flag;
 			}
+#endif
 			if (citem == opt_ic_usemouse)
 			{
 				constexpr auto flag = CONTROL_USING_MOUSE;
@@ -1275,8 +1293,10 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
 				kconfig(kconfig_type::keyboard);
+#if MAX_JOYSTICKS
 			if (citem == opt_ic_confjoy)
 				kconfig(kconfig_type::joystick);
+#endif
 			if (citem == opt_ic_confmouse)
 				kconfig(kconfig_type::mouse);
 			if (citem == opt_ic_confweap)
@@ -1285,8 +1305,10 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 				input_config_keyboard();
 			if (citem == opt_ic_mouse)
 				input_config_mouse();
+#if MAX_AXES_PER_JOYSTICK
 			if (citem == opt_ic_joystick)
 				input_config_joystick();
+#endif
 			if (citem == opt_ic_help0)
 				show_help();
 			if (citem == opt_ic_help1)
@@ -1306,7 +1328,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 void input_config()
 {
 	input_config_menu_items menu_items;
-	newmenu_do1(nullptr, TXT_CONTROLS, menu_items.m.size(), menu_items.m.data(), &input_config_menu_items::menuset, &menu_items, 3);
+	newmenu_do1(nullptr, TXT_CONTROLS, menu_items.m.size(), menu_items.m.data(), &input_config_menu_items::menuset, &menu_items, menu_items.opt_ic_confkey);
 }
 
 static void reticle_config()
