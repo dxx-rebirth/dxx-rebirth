@@ -581,7 +581,7 @@ static const kc_item kc_rebirth[] = {
 	{ 15, 93,273, 26,  8, 14, 10, 12, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,101,157, 26,  9, 15, 11, 13, BT_KEY, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,101,215, 26, 10, 16, 12, 14, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
-	{ 15,101,273, 26, 11, 17, 13, 15, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
+	{ 15,101,273, 26, 11, 17, 13, 15, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,109,157, 26, 12, 18, 14, 16, BT_KEY, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,109,215, 26, 13, 19, 15, 17, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,109,273, 26, 14, 20, 16, 18, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
