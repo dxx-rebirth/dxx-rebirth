@@ -192,14 +192,16 @@ void joy_init()
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
 			{
-				snprintf(&joyaxis_text[joystick_n_axes][0], sizeof(joyaxis_text[joystick_n_axes]), "J%d A%d", i + 1, j + 1);
+				auto &text = joyaxis_text[joystick_n_axes];
 				joystick.axis_map[j] = joystick_n_axes++;
+				snprintf(&text[0], sizeof(text), "J%d A%d", i + 1, j + 1);
 			}
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 			for (int j=0; j < n_buttons; j++)
 			{
-				snprintf(&joybutton_text[joystick_n_buttons][0], sizeof(joybutton_text[joystick_n_buttons]), "J%d B%d", i + 1, j + 1);
+				auto &text = joybutton_text[joystick_n_buttons];
 				joystick.button_map[j] = joystick_n_buttons++;
+				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, j + 1);
 			}
 			for (int j=0; j < n_hats; j++)
 			{
