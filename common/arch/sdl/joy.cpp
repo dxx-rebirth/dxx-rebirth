@@ -23,6 +23,7 @@
 #include "compiler-range_for.h"
 
 #if MAX_JOYSTICKS
+#include "compiler-integer_sequence.h"
 #include "compiler-type_traits.h"
 
 namespace {
@@ -56,6 +57,50 @@ public:
 	}
 };
 
+#ifndef DXX_USE_SIZE_SORTED_TUPLE
+#define DXX_USE_SIZE_SORTED_TUPLE	(__cplusplus > 201103L)
+#endif
+
+#if DXX_USE_SIZE_SORTED_TUPLE
+template <typename T, std::size_t... Is, std::size_t... Js>
+auto d_split_tuple(T &&t, index_sequence<Is...>, index_sequence<Js...>) ->
+	std::pair<
+		std::tuple<typename std::tuple_element<Is, T>::type...>,
+		std::tuple<typename std::tuple_element<sizeof...(Is) + Js, T>::type...>
+	>;
+
+template <typename>
+class d_size_sorted;
+
+/* Given an input tuple T, define a public member `type` with the same
+ * members as T, but sorted such that sizeof(Ti) <= sizeof(Tj) for all i
+ * <= j.
+ */
+template <typename... Ts>
+class d_size_sorted<std::tuple<Ts...>>
+{
+	using split_tuple = decltype(d_split_tuple(
+		std::declval<std::tuple<Ts...>>(),
+		make_tree_index_sequence<sizeof...(Ts) / 2>(),
+		make_tree_index_sequence<(1 + sizeof...(Ts)) / 2>()
+	));
+	using first_type = typename split_tuple::first_type;
+	using second_type = typename split_tuple::second_type;
+public:
+	using type = typename tt::conditional<(sizeof(first_type) < sizeof(second_type)),
+		decltype(std::tuple_cat(std::declval<first_type>(), std::declval<second_type>())),
+		decltype(std::tuple_cat(std::declval<second_type>(), std::declval<first_type>()))
+	>::type;
+};
+
+template <typename T1>
+class d_size_sorted<std::tuple<T1>>
+{
+public:
+	using type = std::tuple<T1>;
+};
+#endif
+
 template <typename>
 class ignore_empty {};
 
@@ -74,6 +119,17 @@ class d_physical_joystick
 	VERB(axis_map)	\
 	VERB(axis_value)	\
 
+#if DXX_USE_SIZE_SORTED_TUPLE
+	template <typename... Ts>
+		using tuple_type = typename d_size_sorted<std::tuple<Ts...>>::type;
+#define define_getter(N)	\
+	auto N() -> decltype(std::get<tuple_member_type_##N>(t))	\
+	{	\
+		return std::get<tuple_member_type_##N>(t);	\
+	}
+#else
+	template <typename... Ts>
+		using tuple_type = std::tuple<Ts...>;
 	enum
 	{
 #define define_enum(V)	tuple_item_##V,
@@ -85,13 +141,14 @@ class d_physical_joystick
 	{	\
 		return std::get<tuple_item_##N>(t);	\
 	}
+#endif
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	struct tuple_member_type_hat_map : array<unsigned, MAX_HATS_PER_JOYSTICK> {};
 	struct tuple_member_type_button_map : array<unsigned, MAX_BUTTONS_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_map : array<unsigned, MAX_AXES_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_value : array<int, MAX_AXES_PER_JOYSTICK> {};
-	std::tuple<
+	tuple_type<
 		tuple_member_type_handle,
 		maybe_empty_array<tuple_member_type_hat_map>,
 		maybe_empty_array<tuple_member_type_button_map>,
