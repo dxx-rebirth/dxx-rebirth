@@ -2349,9 +2349,6 @@ class DXXCommon(LazyObjectConstructor):
 			return self.default_OGLES_LIB
 		def __default_DATA_DIR(self):
 			return '%s/share/games/%s' % (self.prefix, self._program.target)
-		BoolVariable = staticmethod(BoolVariable)
-		EnumVariable = staticmethod(EnumVariable)
-		@staticmethod
 		def _generic_variable(key,help,default):
 			return (key, help, default)
 		@staticmethod
@@ -2373,13 +2370,14 @@ class DXXCommon(LazyObjectConstructor):
 				# is acceptable here.
 				cls.__has_git_dir = r = os.path.exists(os.environ.get('GIT_DIR', '.git'))
 			return r
-		def _options(self):
-			EnumVariable = self.EnumVariable
-			BoolVariable = self.BoolVariable
-			generic_variable = self._generic_variable
-			conftests = ConfigureTests
+		def _options(self,
+				generic_variable=_generic_variable,
+				BoolVariable=BoolVariable,
+				EnumVariable=EnumVariable,
+				conftests=ConfigureTests,
+				getenv=os.environ.get
+			):
 			tests = self.__get_configure_tests(conftests)
-			getenv = os.environ.get
 			return (
 			{
 				'variable': EnumVariable,
@@ -2502,6 +2500,7 @@ class DXXCommon(LazyObjectConstructor):
 				),
 			},
 		)
+		_generic_variable = staticmethod(_generic_variable)
 		@staticmethod
 		def _names(name,prefix):
 			return ['%s%s%s' % (p, '_' if p else '', name) for p in prefix]
