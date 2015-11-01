@@ -1729,10 +1729,10 @@ class cached_property(object):
 		return r
 
 class LazyObjectConstructor(object):
-	def __strip_extension(_,name):
-		return os.path.splitext(name)[0]
-
-	def __lazy_objects(self,source,cache={},__strip_extension=__strip_extension):
+	def __lazy_objects(self,source,
+			cache={},
+			__strip_extension=lambda _, name, _splitext=os.path.splitext: _splitext(name)[0]
+		):
 		env = self.env
 		# Use id because name needs to be hashable and have a 1-to-1
 		# mapping to source.
