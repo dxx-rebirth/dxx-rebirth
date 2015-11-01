@@ -2329,7 +2329,6 @@ class DXXCommon(LazyObjectConstructor):
 				for a in (
 					('debug', 'dbg'),
 					('lto', 'lto'),
-					('profiler', 'prf'),
 					('editor', 'ed'),
 					('opengl', 'ogl', 'sdl'),
 					('opengles', 'es'),
@@ -2449,7 +2448,6 @@ class DXXCommon(LazyObjectConstructor):
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
 					('memdebug', self.default_memdebug, 'build with malloc tracking'),
-					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
@@ -2910,10 +2908,6 @@ class DXXCommon(LazyObjectConstructor):
 			message(self, "including: MEMDEBUG")
 			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
 
-		# profiler?
-		if (self.user_settings.profiler == 1):
-			env.Append(CPPFLAGS = ['-pg'])
-
 		#editor build?
 		if (self.user_settings.editor == 1):
 			env.Append(CPPDEFINES = ['EDITOR'])
@@ -3346,14 +3340,6 @@ class DXXProgram(DXXCommon):
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
 		)
-
-	def process_user_settings(self):
-		DXXCommon.process_user_settings(self)
-		env = self.env
-
-		# profiler?
-		if (self.user_settings.profiler == 1):
-			env.Append(LINKFLAGS = '-pg')
 
 	def register_program(self):
 		exe_target = self.user_settings.program_name
