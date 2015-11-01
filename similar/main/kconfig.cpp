@@ -920,7 +920,7 @@ static void kconfig_draw(kc_menu *menu)
 		int next_label = (i + 1 >= menu->nitems || menu->items[i + 1].y != menu->items[i].y);
 		if (i == citem)
 			current_label = litem;
-		else
+		else if (menu->items[i].w2)
 			kc_drawinput( menu->items[i], menu->mitems[i], 0, next_label ? litem : NULL );
 		if (next_label)
 			litem += strlen(litem) + 1;
@@ -1029,6 +1029,13 @@ static void reset_mitem_values(array<kc_mitem, M> &m, const array<ubyte, C> &c)
 		m[i].value = c[i];
 }
 
+static void step_citem_past_empty_cell(unsigned &citem, const kc_item *items, const short kc_item::*next)
+{
+	do {
+		citem = items[citem].*next;
+	} while (!items[citem].w2);
+}
+
 static window_event_result kconfig_key_command(window *, const d_event &event, kc_menu *menu)
 {
 	int k;
@@ -1058,19 +1065,19 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 			return window_event_result::handled;
 		case KEY_UP: 		
 		case KEY_PAD8:
-			menu->citem = menu->items[menu->citem].u; 
+			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::u);
 			return window_event_result::handled;
 		case KEY_DOWN:
 		case KEY_PAD2:
-			menu->citem = menu->items[menu->citem].d; 
+			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::d);
 			return window_event_result::handled;
 		case KEY_LEFT:
 		case KEY_PAD4:
-			menu->citem = menu->items[menu->citem].l; 
+			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::l);
 			return window_event_result::handled;
 		case KEY_RIGHT:
 		case KEY_PAD6:
-			menu->citem = menu->items[menu->citem].r; 
+			step_citem_past_empty_cell(menu->citem, menu->items, &kc_item::r);
 			return window_event_result::handled;
 		case KEY_ENTER:
 		case KEY_PADENTER:
@@ -1230,6 +1237,8 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	menu->nitems = nitems;
 	menu->title = title;
 	menu->citem = 0;
+	if (!items[0].w2)
+		step_citem_past_empty_cell(menu->citem, items, &kc_item::r);
 	menu->changing = 0;
 	menu->mouse_state = 0;
 
