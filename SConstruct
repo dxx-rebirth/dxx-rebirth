@@ -2280,9 +2280,8 @@ class PCHManager(object):
 
 class DXXCommon(LazyObjectConstructor):
 	pch_manager = None
-	__shared_header_file_list = []
 	__endian = checkEndian()
-	@property
+	@cached_property
 	def program_message_prefix(self):
 		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
 	# Settings which affect how the files are compiled
@@ -2644,12 +2643,11 @@ class DXXCommon(LazyObjectConstructor):
 	def __init__(self,__program_instance=itertools.count(1)):
 		self.program_instance = next(__program_instance)
 
-	def create_header_targets(self):
+	def create_header_targets(self,__shared_header_file_list=[]):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = self.user_settings.builddir
 		env = self.env
 		check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
-		__shared_header_file_list = self.__shared_header_file_list
 		if not __shared_header_file_list:
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
