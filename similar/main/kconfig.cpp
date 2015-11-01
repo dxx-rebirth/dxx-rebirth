@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "collide.h"
 #include "playsave.h"
+#include "screens.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1219,6 +1220,9 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 
 static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mitems,int nitems, const char *title)
 {
+	set_screen_mode(SCREEN_MENU);
+	kc_set_controls();
+
 	kc_menu *menu = new kc_menu{};
 	menu->items = items;
 	menu->litems = litems;
@@ -1392,19 +1396,19 @@ static void kc_change_invert( kc_menu *menu, kc_mitem * item )
 	menu->changing = 0;		// in case we were changing something else
 }
 
-#include "screens.h"
-
-void kconfig(int n, const char * title)
+void kconfig(const kconfig_type n)
 {
-	set_screen_mode( SCREEN_MENU );
-	kc_set_controls();
-
-	switch(n)
-    	{
-		case 0:kconfig_sub( kcl_keyboard, kc_keyboard,kcm_keyboard,title); break;
-		case 1:kconfig_sub( kcl_joystick, kc_joystick,kcm_joystick,title); break;
-		case 2:kconfig_sub( kcl_mouse,	  kc_mouse,   kcm_mouse,   title); break;
-		case 3:kconfig_sub( kcl_rebirth,  kc_rebirth, kcm_rebirth, title); break;
+	switch (n)
+	{
+#define kconfig_case(TYPE,TITLE)	\
+		case kconfig_type::TYPE:	\
+			kconfig_sub(kcl_##TYPE, kc_##TYPE, kcm_##TYPE, TITLE);	\
+			break;
+		kconfig_case(keyboard, "KEYBOARD");
+		kconfig_case(joystick, "JOYSTICK");
+		kconfig_case(mouse, "MOUSE");
+		kconfig_case(rebirth, "WEAPON KEYS");
+#undef kconfig_case
 		default:
 			Int3();
 			return;

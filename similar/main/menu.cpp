@@ -1274,13 +1274,13 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 		{
 			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
-				kconfig(0, "KEYBOARD");
+				kconfig(kconfig_type::keyboard);
 			if (citem == opt_ic_confjoy)
-				kconfig(1, "JOYSTICK");
+				kconfig(kconfig_type::joystick);
 			if (citem == opt_ic_confmouse)
-				kconfig(2, "MOUSE");
+				kconfig(kconfig_type::mouse);
 			if (citem == opt_ic_confweap)
-				kconfig(3, "WEAPON KEYS");
+				kconfig(kconfig_type::rebirth);
 			if (citem == opt_ic_keyboard)
 				input_config_keyboard();
 			if (citem == opt_ic_mouse)

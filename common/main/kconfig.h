@@ -96,7 +96,16 @@ extern control_info Controls;
 #endif
 
 extern void kconfig_read_controls(const d_event &event, int automap_flag);
-extern void kconfig(int n, const char *title);
+
+enum class kconfig_type
+{
+	keyboard,
+	joystick,
+	mouse,
+	rebirth,
+};
+
+void kconfig(kconfig_type n);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings;
