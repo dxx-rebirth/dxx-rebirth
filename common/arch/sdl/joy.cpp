@@ -10,6 +10,8 @@
  *
  */
 
+#include <memory>
+#include <tuple>
 #include "joy.h"
 #include "dxxerror.h"
 #include "timer.h"
@@ -52,12 +54,43 @@ public:
 /* This struct is an array, with one entry for each physical joystick
  * found.
  */
-struct d_physical_joystick {
-	std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter> handle;
-	array<unsigned, MAX_HATS_PER_JOYSTICK> hat_map;  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
-	array<unsigned, MAX_BUTTONS_PER_JOYSTICK> button_map;
-	array<unsigned, MAX_AXES_PER_JOYSTICK> axis_map;
-	array<int, MAX_AXES_PER_JOYSTICK> axis_value;
+class d_physical_joystick
+{
+#define for_each_tuple_item(VERB)	\
+	VERB(handle)	\
+	VERB(hat_map)	\
+	VERB(button_map)	\
+	VERB(axis_map)	\
+	VERB(axis_value)	\
+
+	enum
+	{
+#define define_enum(V)	tuple_item_##V,
+		for_each_tuple_item(define_enum)
+#undef define_enum
+	};
+#define define_getter(N)	\
+	auto N() -> decltype(std::get<tuple_item_##N>(t))	\
+	{	\
+		return std::get<tuple_item_##N>(t);	\
+	}
+	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
+	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
+	struct tuple_member_type_hat_map : array<unsigned, MAX_HATS_PER_JOYSTICK> {};
+	struct tuple_member_type_button_map : array<unsigned, MAX_BUTTONS_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_map : array<unsigned, MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_value : array<int, MAX_AXES_PER_JOYSTICK> {};
+	std::tuple<
+		tuple_member_type_handle,
+		tuple_member_type_hat_map,
+		tuple_member_type_button_map,
+		tuple_member_type_axis_map,
+		tuple_member_type_axis_value
+	> t;
+public:
+	for_each_tuple_item(define_getter);
+#undef define_getter
+#undef for_each_tuple_item
 };
 
 }
@@ -69,7 +102,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 	int button;
 	d_event_joystickbutton event;
 
-	button = SDL_Joysticks[jbe->which].button_map[jbe->button];
+	button = SDL_Joysticks[jbe->which].button_map()[jbe->button];
 
 	Joystick.button_state[button] = jbe->state;
 
@@ -81,7 +114,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
-	int hat = SDL_Joysticks[jhe->which].hat_map[jhe->hat];
+	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
 	//Save last state of the hat-button
 
 	//get current state of the hat-button
@@ -128,8 +161,8 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	d_event_joystick_moved event;
 	auto &js = SDL_Joysticks[jae->which];
-	const auto axis = js.axis_map[jae->axis];
-	auto &axis_value = js.axis_value[jae->axis];
+	const auto axis = js.axis_map()[jae->axis];
+	auto &axis_value = js.axis_value()[jae->axis];
 	// inaccurate stick is inaccurate. SDL might send SDL_JoyAxisEvent even if the value is the same as before.
 	if (axis_value == jae->value/256)
 		return 0;
@@ -174,7 +207,7 @@ void joy_init()
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
 		const auto handle = SDL_JoystickOpen(i);
-		joystick.handle.reset(handle);
+		joystick.handle().reset(handle);
 #if SDL_MAJOR_VERSION == 1
 		con_printf(CON_NORMAL, "sdl-joystick %d: %s", i, SDL_JoystickName(i));
 #else
@@ -188,7 +221,7 @@ void joy_init()
 			for (int j=0; j < n_axes; j++)
 			{
 				auto &text = joyaxis_text[joystick_n_axes];
-				joystick.axis_map[j] = joystick_n_axes++;
+				joystick.axis_map()[j] = joystick_n_axes++;
 				snprintf(&text[0], sizeof(text), "J%d A%d", i + 1, j + 1);
 			}
 
@@ -199,12 +232,12 @@ void joy_init()
 			for (int j=0; j < n_buttons; j++)
 			{
 				auto &text = joybutton_text[joystick_n_buttons];
-				joystick.button_map[j] = joystick_n_buttons++;
+				joystick.button_map()[j] = joystick_n_buttons++;
 				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, j + 1);
 			}
 			for (int j=0; j < n_hats; j++)
 			{
-				joystick.hat_map[j] = joystick_n_buttons;
+				joystick.hat_map()[j] = joystick_n_buttons;
 				//a hat counts as four buttons
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0202);
 				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0177);
@@ -225,7 +258,7 @@ void joy_init()
 void joy_close()
 {
 	range_for (auto &j, SDL_Joysticks)
-		j.handle.reset();
+		j.handle().reset();
 	joyaxis_text.clear();
 	joybutton_text.clear();
 }
@@ -245,7 +278,7 @@ void joy_flush()
 	static_assert(SDL_RELEASED == uint8_t(), "SDL_RELEASED not 0.");
 	Joystick.button_state = {};
 	range_for (auto &j, SDL_Joysticks)
-		j.axis_value = {};
+		j.axis_value() = {};
 }
 
 int event_joystick_get_button(const d_event &event)
