@@ -2772,7 +2772,6 @@ class DXXCommon(LazyObjectConstructor):
 					penv.pop('CCACHE_PREFIX', None)
 		elif distcc_path:
 			cxxcom = distcc_cxxcom
-		env['CXXCOM'] = cxxcom
 		# Move target to end of link command
 		linkcom = env['LINKCOM']
 		if target_string + ' ' in linkcom:
@@ -2782,21 +2781,26 @@ class DXXCommon(LazyObjectConstructor):
 		if ' ' + cxxflags not in linkcom:
 			linkflags = '$LINKFLAGS'
 			linkcom = linkcom.replace(linkflags, cxxflags + linkflags)
-		env['LINKCOM'] = linkcom
+		env.Replace(
+			CXXCOM = cxxcom,
+			LINKCOM = linkcom,
+		)
 		# Custom DISTCC_HOSTS per target
 		distcc_hosts = self.user_settings.distcc_hosts
 		if distcc_hosts is not None:
-			self.env['ENV']['DISTCC_HOSTS'] = distcc_hosts
+			env['ENV']['DISTCC_HOSTS'] = distcc_hosts
 		if self.user_settings.verbosebuild:
-			self.env.__generate_cpp_output_COMSTR	= None
+			env.__generate_cpp_output_COMSTR	= None
 		else:
 			target = self.target[:3]
 			format_tuple = (target, self.user_settings.builddir or '.')
-			self.env.__generate_cpp_output_COMSTR	= "CPP %s %s $SOURCE" % format_tuple
-			self.env["CXXCOMSTR"]					= "CXX %s %s $SOURCE" % format_tuple
+			env.__generate_cpp_output_COMSTR	= "CPP %s %s $SOURCE" % format_tuple
+			env.Replace(
+				CXXCOMSTR						= "CXX %s %s $SOURCE" % format_tuple,
 			# `builddir` is implicit since $TARGET is the full path to
 			# the output
-			self.env["LINKCOMSTR"]					= "LD  %s $TARGET" % target
+				LINKCOMSTR						= "LD  %s $TARGET" % target,
+			)
 
 		# Use -Wundef to catch when a shared source file includes a
 		# shared header that misuses conditional compilation.  Use
@@ -2804,7 +2808,7 @@ class DXXCommon(LazyObjectConstructor):
 		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
 		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
-		self.env.Prepend(CXXFLAGS = [
+		env.Prepend(CXXFLAGS = [
 			'-Wall',
 			Werror + 'extra',
 			Werror + 'format-security',
@@ -2824,18 +2828,18 @@ class DXXCommon(LazyObjectConstructor):
 			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
 		)
 		if self.user_settings.editor:
-			self.env.Append(CPPPATH = ['common/include/editor'])
+			env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
 		for cc in ('CXX', 'RC',):
 			value = getattr(self.user_settings, cc)
 			if value is not None:
-				self.env[cc] = value
+				env[cc] = value
 		for flags in ['CPPFLAGS', 'CXXFLAGS', 'LIBS']:
 			value = getattr(self.user_settings, flags)
 			if value is not None:
-				self.env.Append(**{flags : SCons.Util.CLVar(value)})
+				env.Append(**{flags : SCons.Util.CLVar(value)})
 		if self.user_settings.LDFLAGS:
-			self.env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
+			env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
 		if self.user_settings.lto:
 			env.Append(CXXFLAGS = [
 				# clang does not support =N syntax
@@ -2866,8 +2870,8 @@ class DXXCommon(LazyObjectConstructor):
 			platform = self.LinuxPlatformSettings
 		self.platform_settings = platform(self, self.user_settings)
 		# Acquire environment object...
-		self.env = Environment(ENV = os.environ, tools = platform.tools + ['textfile'])
-		self.platform_settings.adjust_environment(self, self.env)
+		self.env = env = Environment(ENV = os.environ, tools = platform.tools + ['textfile'])
+		self.platform_settings.adjust_environment(self, env)
 
 	def process_user_settings(self):
 		env = self.env
@@ -3271,8 +3275,10 @@ class DXXProgram(DXXCommon):
 			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
 			if (program.VERSION_MICRO):
 				VERSION += '.%s' % program.VERSION_MICRO
-			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = '%s v%s' % (program.PROGRAM_NAME, VERSION)
+			env.Replace(
+				VERSION_NUM = VERSION,
+				VERSION_NAME = '%s v%s' % (program.PROGRAM_NAME, VERSION),
+			)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
 		def __init__(self,program,user_settings):
@@ -3311,9 +3317,10 @@ class DXXProgram(DXXCommon):
 		self.check_endian()
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
-		self.env.MergeFlags(archive.configure_added_environment_flags)
+		env = self.env
+		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_pch_node(archive)
-		self.env.Append(
+		env.Append(
 			CPPDEFINES = [
 				('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)])),
 		# For PRIi64
@@ -3328,13 +3335,6 @@ class DXXProgram(DXXCommon):
 	def check_platform(self):
 		DXXCommon.check_platform(self)
 		env = self.env
-		# windows or *nix?
-		if sys.platform == 'darwin':
-			VERSION = '%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR)
-			if (self.VERSION_MICRO):
-				VERSION += '.%s' % self.VERSION_MICRO
-			env['VERSION_NUM'] = VERSION
-			env['VERSION_NAME'] = '%s v%s' % (self.PROGRAM_NAME, VERSION)
 		env.Append(LIBS = ['m'])
 
 	def process_user_settings(self):
