@@ -2710,10 +2710,10 @@ class DXXCommon(LazyObjectConstructor):
 			if not self.user_settings.verbosebuild:
 				# $SOURCE is check_header_includes.cpp, not the file under
 				# test.
-				kwargs['CXXCOMSTR'] = "Checking %s %s %s" % (self.target, builddir, name)
-			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, **kwargs), fs.File(name))
+				kwargs['CXXCOMSTR'] = "CHK %s %s %s" % (self.target, builddir, name)
+			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, DXX_EFFECTIVE_SOURCE=name, **kwargs), fs.File(name))
 
-	def _cpp_output_StaticObject(self,target=None,source=None,*args,**kwargs):
+	def _cpp_output_StaticObject(self,target=None,source=None,DXX_EFFECTIVE_SOURCE='$SOURCE',*args,**kwargs):
 		CXXFLAGS = kwargs.get('CXXFLAGS', None)
 		env = self.env
 		OBJSUFFIX = env['OBJSUFFIX']
@@ -2725,19 +2725,21 @@ class DXXCommon(LazyObjectConstructor):
 			CXXCOM=env._dxx_cxxcom_no_prefix,
 			CXXFLAGS=(env['CXXFLAGS'] if CXXFLAGS is None else CXXFLAGS) + ['-E'],
 			CXXCOMSTR=env.__generate_cpp_output_COMSTR,
+			DXX_EFFECTIVE_SOURCE=DXX_EFFECTIVE_SOURCE,
 		)
 		return StaticObject(target=target, source=source, *args, **kwargs)
 
-	def create_pch_node(self,archive):
+	def create_special_target_nodes(self,archive):
 		user_settings = self.user_settings
-		if user_settings.check_header_includes:
-			# Create header targets before creating the PCHManager, so that
-			# create_header_targets() uses the stock env.StaticObject
-			self.create_header_targets()
 		if user_settings.register_cpp_output_targets:
 			env = self.env
 			env.__cpp_output_StaticObject = env.StaticObject
 			env.StaticObject = self._cpp_output_StaticObject
+		if user_settings.check_header_includes:
+			# Create header targets before creating the PCHManager, so that
+			# create_header_targets() does not call the PCHManager
+			# StaticObject hook.
+			self.create_header_targets()
 		configure_pch_flags = archive.configure_pch_flags
 		if configure_pch_flags:
 			self.pch_manager = PCHManager(self.user_settings, self.env, self.srcdir, configure_pch_flags, archive.pch_manager)
@@ -2806,7 +2808,7 @@ class DXXCommon(LazyObjectConstructor):
 		else:
 			target = self.target[:3]
 			format_tuple = (target, self.user_settings.builddir or '.')
-			env.__generate_cpp_output_COMSTR	= "CPP %s %s $SOURCE" % format_tuple
+			env.__generate_cpp_output_COMSTR	= "CPP %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
 			env.Replace(
 				CXXCOMSTR						= "CXX %s %s $SOURCE" % format_tuple,
 			# `builddir` is implicit since $TARGET is the full path to
@@ -3059,7 +3061,7 @@ class DXXArchive(DXXCommon):
 		self.check_endian()
 		self.process_user_settings()
 		self.configure_environment()
-		self.create_pch_node(self)
+		self.create_special_target_nodes(self)
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -3327,7 +3329,7 @@ class DXXProgram(DXXCommon):
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
-		self.create_pch_node(archive)
+		self.create_special_target_nodes(archive)
 		env.Append(
 			CPPDEFINES = [
 				('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)])),
