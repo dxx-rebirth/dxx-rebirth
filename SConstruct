@@ -3316,7 +3316,7 @@ class DXXProgram(DXXCommon):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
-		self.banner()
+		print('===== %s v%s.%s.%s =====' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO))
 		self.user_settings = self.UserSettings(program=self)
 		self.user_settings.register_variables(prefix=prefix, variables=self.variables)
 
@@ -3346,9 +3346,6 @@ class DXXProgram(DXXCommon):
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
 		)
-
-	def banner(self):
-		print '\n===== %s v%s.%s.%s =====\n' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 
 	def process_user_settings(self):
 		DXXCommon.process_user_settings(self)
