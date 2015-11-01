@@ -54,9 +54,6 @@ public:
  */
 struct d_physical_joystick {
 	std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter> handle;
-	int n_axes;
-	int n_buttons;
-	int n_hats;
 	array<unsigned, MAX_HATS_PER_JOYSTICK> hat_map;  //Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	array<unsigned, MAX_BUTTONS_PER_JOYSTICK> button_map;
 	array<unsigned, MAX_AXES_PER_JOYSTICK> axis_map;
@@ -185,9 +182,7 @@ void joy_init()
 #endif
 		if (handle)
 		{
-			const auto n_axes = joystick.n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
-			const auto n_buttons = joystick.n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
-			const auto n_hats = joystick.n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
+			const auto n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
@@ -196,6 +191,10 @@ void joy_init()
 				joystick.axis_map[j] = joystick_n_axes++;
 				snprintf(&text[0], sizeof(text), "J%d A%d", i + 1, j + 1);
 			}
+
+			const auto n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
+			const auto n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
+
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 			for (int j=0; j < n_buttons; j++)
 			{
