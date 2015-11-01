@@ -1713,7 +1713,22 @@ help:always wipe certain freed memory
 
 ConfigureTests.register_preferred_compiler_options()
 
-class LazyObjectConstructor:
+class cached_property(object):
+	def __init__(self,f):
+		self.method = f
+		self.name = f.__name__
+	def __get__(self,instance,cls):
+		# This should never be accessed directly on the class.
+		assert instance is not None
+		name = self.name
+		d = instance.__dict__
+		# After the first access, Python should find the cached value in
+		# the instance dictionary instead of calling __get__ again.
+		assert name not in d
+		d[name] = r = self.method(instance)
+		return r
+
+class LazyObjectConstructor(object):
 	def __strip_extension(_,name):
 		return os.path.splitext(name)[0]
 
@@ -2508,6 +2523,8 @@ class DXXCommon(LazyObjectConstructor):
 			self._program = program
 		def register_variables(self,prefix,variables):
 			self.known_variables = []
+			append_known_variable = self.known_variables.append
+			add_variable = variables.Add
 			for grp in self._options():
 				variable = grp['variable']
 				stack = grp.get('stack', None)
@@ -2517,17 +2534,17 @@ class DXXCommon(LazyObjectConstructor):
 					if name not in variables.keys():
 						if help is not None:
 							filtered_help.visible_arguments.append(name)
-						variables.Add(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
+						add_variable(variable(key=name, help=help, default=None if callable(value) else value, **kwargs))
 					names = self._names(name, prefix)
 					for n in names:
 						if n not in variables.keys():
-							variables.Add(variable(key=n, help=help, default=None, **kwargs))
+							add_variable(variable(key=n, help=help, default=None, **kwargs))
 					if not name in names:
 						names.append(name)
-					self.known_variables.append((names, name, value, stack))
+					append_known_variable((names, name, value, stack))
 					if stack:
 						for n in names:
-							variables.Add(self._generic_variable(key='%s_stop' % n, help=None, default=None))
+							add_variable(self._generic_variable(key='%s_stop' % n, help=None, default=None))
 		def read_variables(self,variables,d):
 			for (namelist,cname,dvalue,stack) in self.known_variables:
 				value = None
@@ -2853,24 +2870,26 @@ class DXXCommon(LazyObjectConstructor):
 		elif (self.__endian == "little"):
 			message(self, "LittleEndian machine detected")
 
-	def check_platform(self):
+	@cached_property
+	def platform_settings(self):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform
-		if self._argument_prefix_list:
-			prefix = ' with prefix list %s' % list(self._argument_prefix_list)
-		else:
-			prefix = ''
-		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.', prefix))
-		if platform_name == 'win32':
-			platform = self.Win32PlatformSettings
-		elif platform_name == 'darwin':
-			platform = self.DarwinPlatformSettings
-		else:
-			platform = self.LinuxPlatformSettings
-		self.platform_settings = platform(self, self.user_settings)
+		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.',
+			(' with prefix list %s' % list(self._argument_prefix_list)) if self._argument_prefix_list else ''))
+		return (
+			self.Win32PlatformSettings if platform_name == 'win32' else (
+				self.DarwinPlatformSettings if platform_name == 'darwin' else
+				self.LinuxPlatformSettings
+			)
+		)(self, self.user_settings)
+
+	@cached_property
+	def env(self):
+		platform_settings = self.platform_settings
 		# Acquire environment object...
-		self.env = env = Environment(ENV = os.environ, tools = platform.tools + ['textfile'])
-		self.platform_settings.adjust_environment(self, env)
+		env = Environment(ENV = os.environ, tools = platform_settings.tools + ['textfile'])
+		platform_settings.adjust_environment(self, env)
+		return env
 
 	def process_user_settings(self):
 		env = self.env
@@ -3042,7 +3061,6 @@ class DXXArchive(DXXCommon):
 	def __init__(self,user_settings):
 		DXXCommon.__init__(self)
 		self.user_settings = user_settings.clone()
-		self.check_platform()
 		if not user_settings.register_compile_target:
 			return
 		self.prepare_environment()
@@ -3082,7 +3100,7 @@ class DXXArchive(DXXCommon):
 %s
  */
 ''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
-		self.env = conf.Finish()
+		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 
 class DXXProgram(DXXCommon):
@@ -3306,7 +3324,6 @@ class DXXProgram(DXXCommon):
 		self.user_settings.read_variables(self.variables, substenv)
 		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
 			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
-		self.check_platform()
 		if self.user_settings.register_compile_target:
 			self.prepare_environment()
 			self.process_user_settings()
@@ -3324,17 +3341,14 @@ class DXXProgram(DXXCommon):
 				('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)])),
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
+				('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str)),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
+			LIBS = ['m'],
 		)
 
 	def banner(self):
 		print '\n===== %s v%s.%s.%s =====\n' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
-
-	def check_platform(self):
-		DXXCommon.check_platform(self)
-		env = self.env
-		env.Append(LIBS = ['m'])
 
 	def process_user_settings(self):
 		DXXCommon.process_user_settings(self)
@@ -3343,8 +3357,6 @@ class DXXProgram(DXXCommon):
 		# profiler?
 		if (self.user_settings.profiler == 1):
 			env.Append(LINKFLAGS = '-pg')
-
-		env.Append(CPPDEFINES = [('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str))])
 
 	def register_program(self):
 		exe_target = self.user_settings.program_name
