@@ -1945,9 +1945,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(WhichWindow);
 			if (WhichWindow&15)
 			{
-				const auto obj = obj_allocate();
-				if (obj==object_none)
-					break;
+				const auto &&obj = vobjptridx(static_cast<objnum_t>(MAX_OBJECTS - 1));
 				nd_read_object(obj);
 				if (nd_playback_v_bad_read)
 				{
@@ -1962,7 +1960,6 @@ static int newdemo_read_frame_information(int rewrite)
 				// offset to compensate inaccuracy between object and viewer
 				vm_vec_scale_add(obj->pos, obj->pos, obj->orient.fvec, F1_0*5 );
 				nd_render_extras (WhichWindow,obj);
-				obj_delete(obj);
 			}
 			else
 #endif
