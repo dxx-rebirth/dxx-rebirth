@@ -1403,10 +1403,8 @@ void dead_player_frame(void)
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 
 			// the following "if" added by WraithX to get rid of camera "wiggle"
-			if (Dead_player_camera->mtype.phys_info.flags & PF_WIGGLE)
-			{
-				Dead_player_camera->mtype.phys_info.flags = (Dead_player_camera->mtype.phys_info.flags & ~PF_WIGGLE);
-			}// end "if" added by WraithX, 4/13/00
+			Dead_player_camera->mtype.phys_info.flags &= ~PF_WIGGLE;
+			// end "if" added by WraithX, 4/13/00
 
 		// the following line uncommented by WraithX, 4-12-00
 		}
@@ -1421,14 +1419,12 @@ void dead_player_frame(void)
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
+				const auto hostages_lost = exchange(get_local_player().hostages_on_board, 0);
 
-				if (get_local_player().hostages_on_board > 1)
+				if (hostages_lost > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, get_local_player().hostages_on_board);
-				else if (get_local_player().hostages_on_board == 1)
-					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_1);
 				else
-					HUD_init_message_literal(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
-				get_local_player().hostages_on_board = 0;
+					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? TXT_SHIP_DESTROYED_1 : TXT_SHIP_DESTROYED_0);
 
 				Player_exploded = 1;
 				if (Game_mode & GM_NETWORK)
