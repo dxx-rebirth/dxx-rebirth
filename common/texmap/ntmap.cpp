@@ -47,7 +47,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
 
-int	Interpolation_method=0;	// 0 = choose best method
 int     Lighting_on=1;                  // initialize to no lighting
 unsigned	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
 
@@ -68,6 +67,7 @@ ubyte tmap_flat_shade_value;
 
 
 #ifndef OGL
+int	Interpolation_method;	// 0 = choose best method
 // -------------------------------------------------------------------------------------
 template <std::size_t... N>
 static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(index_sequence<0, N...>)

@@ -358,7 +358,6 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 static void draw_polygon_object(const vobjptridx_t obj)
 {
 	g3s_lrgb light;
-	int	imsave;
 	glow_values_t engine_glow_value;
 	engine_glow_value[0] = 0;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -399,9 +398,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	}
 #endif
 
-	imsave = Interpolation_method;
-	if (Linear_tmap_polygon_objects)
-		Interpolation_method = 1;
+	push_interpolation_method imsave(1, Linear_tmap_polygon_objects);
 
 	//set engine glow value
 	engine_glow_value[0] = f1_0/5;
@@ -522,9 +519,6 @@ static void draw_polygon_object(const vobjptridx_t obj)
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		}
 	}
-
-	Interpolation_method = imsave;
-
 }
 
 //------------------------------------------------------------------------------

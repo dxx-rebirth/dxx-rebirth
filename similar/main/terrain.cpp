@@ -164,8 +164,6 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 	return dyp;
 }
 
-static int im=1;
-
 void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 {
 	vms_vector delta_i,delta_j;		//delta_y;
@@ -186,7 +184,9 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 	terrain_y_cache get_dy_vec;
 
 	//Lighting_on = 0;
-	Interpolation_method = im;
+#ifndef OGL
+	Interpolation_method = 1;
+#endif
 
 	{
 	const auto tv = vm_vec_copy_scale(surface_orient.rvec,GRID_SCALE);

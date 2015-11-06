@@ -78,7 +78,29 @@ struct g3ds_tmap {
 
 //	Note:	Not all interpolation method and lighting combinations are supported.
 //	Set Interpolation_method to 0/1/2 for linear/linear, perspective/linear, perspective/perspective
+#ifndef OGL
 extern	int	Interpolation_method;
+#endif
+class push_interpolation_method
+{
+#ifdef OGL
+public:
+	push_interpolation_method(int, bool = true) {}
+#else
+	int previous;
+public:
+	push_interpolation_method(int next, bool condition = true) :
+		previous(Interpolation_method)
+	{
+		if (condition)
+			Interpolation_method = next;
+	}
+	~push_interpolation_method()
+	{
+		Interpolation_method = previous;
+	}
+#endif
+};
 
 // Set Lighting_on to 0/1/2 for no lighting/intensity lighting/rgb lighting
 extern	int	Lighting_on;

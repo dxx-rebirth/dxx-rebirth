@@ -512,7 +512,9 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 void stop_endlevel_sequence()
 {
+#ifndef OGL
 	Interpolation_method = 0;
+#endif
 
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 
@@ -974,14 +976,12 @@ static void render_external_scene(fix eye_offset)
 		g3_add_delta_vec(top_pnt,p,delta);
 
 		if (! (p.p3_codes & CC_BEHIND)) {
-			int save_im = Interpolation_method;
 			//p.p3_flags &= ~PF_PROJECTED;
 			//g3_project_point(&p);
 			if (! (p.p3_flags & PF_OVERFLOW)) {
-				Interpolation_method = 0;
+				push_interpolation_method save_im(0);
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
 				g3_draw_rod_tmap(*satellite_bitmap,p,SATELLITE_WIDTH,top_pnt,SATELLITE_WIDTH,lrgb);
-				Interpolation_method = save_im;
 			}
 		}
 	}
