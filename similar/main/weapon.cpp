@@ -301,6 +301,10 @@ public:
 	}
 };
 
+constexpr tt::integral_constant<uint8_t, 255> cycle_weapon_state::cycle_never_autoselect_below;
+constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> cycle_primary_state::max_weapons;
+constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> cycle_secondary_state::max_weapons;
+
 template <typename T>
 void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 {
