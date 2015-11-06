@@ -1511,11 +1511,11 @@ static void hud_show_cloak_invuln(void)
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
 
-	const auto a = [&](const char *txt, const fix64 effect_end) {
+	const auto a = [&](const fix64 effect_end, int y, const char *txt) {
 		if (PlayerCfg.CloakInvulTimer)
-			gr_printf(fspacx1, base_y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
+			gr_printf(fspacx1, y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
 		else
-			gr_string(fspacx1, base_y, txt);
+			gr_string(fspacx1, y, txt);
 	};
 
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
@@ -1523,7 +1523,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = plr.cloak_time + CLOAK_TIME_MAX - gametime64;
 		if (effect_end > F1_0*3 || gametime64 & 0x8000)
 		{
-			a(TXT_CLOAKED, effect_end);
+			a(effect_end, base_y, TXT_CLOAKED);
 		}
 	}
 
@@ -1532,7 +1532,7 @@ static void hud_show_cloak_invuln(void)
 		const fix64 effect_end = plr.invulnerable_time + INVULNERABLE_TIME_MAX - gametime64;
 		if (effect_end > F1_0*4 || gametime64 & 0x8000)
 		{
-			a(TXT_INVULNERABLE, effect_end);
+			a(effect_end, base_y - line_spacing, TXT_INVULNERABLE);
 		}
 	}
 }
