@@ -83,6 +83,11 @@ struct reactor_static {
 		gun_dir;
 };
 
+struct player_info
+{
+	fix     energy;                 // Amount of energy remaining.
+};
+
 // A compressed form for sending crucial data
 struct shortpos
 {
@@ -348,6 +353,7 @@ struct object {
 		struct powerup_info    powerup_info;
 		struct ai_static       ai_info;
 		struct reactor_static  reactor_info;
+		struct player_info     player_info;
 	} ctype;
 };
 

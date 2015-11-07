@@ -1800,7 +1800,7 @@ public:
 	DXX_##VERB##_CHECK("GOLD KEY", opt_key_gold, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_GOLD_KEY))	\
 	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_RED_KEY))	\
 	WIMP_MENU_DXX(VERB)	\
-	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plr.energy), 0, 200)	\
+	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plrobj.ctype.player_info.energy), 0, 200)	\
 	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
 	DXX_##VERB##_TEXT(TXT_SCORE, opt_txt_score)	\
 	DXX_##VERB##_INPUT(score_text, opt_score)	\

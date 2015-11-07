@@ -374,9 +374,10 @@ void init_player_stats_level(const secret_restore secret_flag)
 void init_player_stats_new_ship(ubyte pnum)
 {
 	auto &plr = Players[pnum];
-	plr.energy = INITIAL_ENERGY;
 	const auto &&plrobj = vobjptridx(plr.objnum);
 	plrobj->shields = StartingShields;
+	auto &player_info = plrobj->ctype.player_info;
+	player_info.energy = INITIAL_ENERGY;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);

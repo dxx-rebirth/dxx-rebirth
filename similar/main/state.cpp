@@ -462,7 +462,7 @@ static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 
 // Following functions convert player to player_rw and back to be written to/read from Savegames. player only differ to player_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn player to player_rw to be saved to Savegame.
-static void state_player_to_player_rw(const fix pl_shields, const player *pl, player_rw *pl_rw)
+static void state_player_to_player_rw(const fix pl_shields, const player *pl, player_rw *pl_rw, const player_info &pl_info)
 {
 	int i=0;
 	pl_rw->callsign = pl->callsign;
@@ -472,7 +472,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->n_packets_got             = 0;
 	pl_rw->n_packets_sent            = 0;
 	pl_rw->flags                     = pl->flags.get_player_flags();
-	pl_rw->energy                    = pl->energy;
+	pl_rw->energy                    = pl_info.energy;
 	pl_rw->shields                   = pl_shields;
 	pl_rw->lives                     = pl->lives;
 	pl_rw->level                     = pl->level;
@@ -515,14 +515,14 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 }
 
 // turn player_rw to player after reading from Savegame
-static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, fix &pl_shields)
+static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player_info &pl_info, fix &pl_shields)
 {
 	int i=0;
 	pl->callsign = pl_rw->callsign;
 	pl->connected                 = pl_rw->connected;
 	pl->objnum                    = pl_rw->objnum;
 	pl->flags                     = player_flags(pl_rw->flags);
-	pl->energy                    = pl_rw->energy;
+	pl_info.energy                = pl_rw->energy;
 	pl_shields                    = pl_rw->shields;
 	pl->lives                     = pl_rw->lives;
 	pl->level                     = pl_rw->level;
@@ -557,19 +557,19 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, fix &p
 	pl->hours_total               = pl_rw->hours_total;
 }
 
-static void state_write_player(PHYSFS_file *fp, const player &pl, const fix pl_shields)
+static void state_write_player(PHYSFS_file *fp, const player &pl, const fix pl_shields, const player_info &pl_info)
 {
 	player_rw pl_rw;
-	state_player_to_player_rw(pl_shields, &pl, &pl_rw);
+	state_player_to_player_rw(pl_shields, &pl, &pl_rw, pl_info);
 	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
 }
 
-static void state_read_player(PHYSFS_file *fp, player &pl, int swap, fix &pl_shields)
+static void state_read_player(PHYSFS_file *fp, player &pl, int swap, player_info &pl_info, fix &pl_shields)
 {
 	player_rw pl_rw;
 	PHYSFS_read(fp, &pl_rw, sizeof(pl_rw), 1);
 	player_rw_swap(&pl_rw, swap);
-	state_player_rw_to_player(&pl_rw, &pl, pl_shields);
+	state_player_rw_to_player(&pl_rw, &pl, pl_info, pl_shields);
 }
 
 namespace {
@@ -987,7 +987,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
-	state_write_player(fp, get_local_player(), get_local_player_shields());
+	state_write_player(fp, get_local_player(), get_local_player_shields(), get_local_plrobj().ctype.player_info);
 
 // Save the current weapon info
 	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -1193,9 +1193,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * than using it only for the one slot where it may matter.
 		 */
 		const auto shields = get_local_player_shields();
+		const auto &pl_info = get_local_plrobj().ctype.player_info;
 		for (i = 0; i < MAX_PLAYERS; i++) // I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		{
-			state_write_player(fp, Players[i], shields);
+			state_write_player(fp, Players[i], shields, pl_info);
 		}
 		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
 		PHYSFS_write(fp, Netgame.mission_name.data(), Netgame.mission_name.size(), 1);
@@ -1426,6 +1427,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 //Read player info
 
+	player_info pl_info;
 	fix pl_shields;
 	{
 		StartNewLevelSub(current_level, 1, secret);
@@ -1433,7 +1435,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (secret != secret_restore::none) {
 			player	dummy_player;
-			state_read_player(fp, dummy_player, swap, pl_shields);
+			state_read_player(fp, dummy_player, swap, pl_info, pl_shields);
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				get_local_player().level = dummy_player.level;
 				get_local_player().last_score = dummy_player.last_score;
@@ -1455,7 +1457,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		} else
 #endif
 		{
-			state_read_player(fp, get_local_player(), swap, pl_shields);
+			state_read_player(fp, get_local_player(), swap, pl_info, pl_shields);
 		}
 	}
 	get_local_player().callsign = org_callsign;
@@ -1528,6 +1530,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 	special_reset_objects();
 	get_local_player_shields() = pl_shields;
+	get_local_plrobj().ctype.player_info = pl_info;
 
 	//	1 = Didn't die on secret level.
 	//	2 = Died on secret level.
@@ -1780,13 +1783,15 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			coop_player_got[i] = 0;
 
 			// read the stored players
+			player_info pl_info;
 			fix shields;
-			state_read_player(fp, restore_players[i], swap, shields);
+			state_read_player(fp, restore_players[i], swap, pl_info, shields);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
 			const auto &&obj = vobjptr(restore_players[i].objnum);
 			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
 			{
+				obj->ctype.player_info = pl_info;
 				obj->shields = shields;
 				restore_objects[i] = *obj;
 				obj->type = OBJ_GHOST;

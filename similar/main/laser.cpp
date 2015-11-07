@@ -559,7 +559,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
-		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !Players[pnum].energy))) {
+		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !get_local_player_energy()))) {
 			obj_delete(weapon_objp);
 			return;
 		}
@@ -1741,6 +1741,7 @@ int do_laser_firing_player(void)
 
 	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
+	auto &pl_energy = get_local_plrobj().ctype.player_info.energy;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
@@ -1749,12 +1750,12 @@ int do_laser_firing_player(void)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
-	if	(!(sufficient_energy(energy_used, plp->energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)))
+	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)))
 		auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 #endif
 
 	while (Next_laser_fire_time <= GameTime64) {
-		if	(sufficient_energy(energy_used, plp->energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)) {
+		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)) {
 			int	laser_level, flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
@@ -1789,9 +1790,9 @@ int do_laser_firing_player(void)
 
 			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
 
-			plp->energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
-			if (plp->energy < 0)
-				plp->energy = 0;
+			pl_energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
+			if (pl_energy < 0)
+				pl_energy = 0;
 
 			if (uses_vulcan_ammo) {
 				if (ammo_used > plp->vulcan_ammo)

@@ -930,10 +930,11 @@ void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playero
 				{
 					collide_player_and_nasty_robot( playerobj, robot, collision_point );
 #if defined(DXX_BUILD_DESCENT_II)
-					if (robptr->energy_drain && player.energy) {
-						player.energy -= robptr->energy_drain * F1_0;
-						if (player.energy < 0)
-							player.energy = 0;
+					auto &energy = playerobj->ctype.player_info.energy;
+					if (robptr->energy_drain && energy) {
+						energy -= robptr->energy_drain * F1_0;
+						if (energy < 0)
+							energy = 0;
 					}
 #endif
 				}

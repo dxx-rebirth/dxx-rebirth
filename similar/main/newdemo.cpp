@@ -542,11 +542,14 @@ object *prev_obj=NULL;      //ptr to last object read in
 static void nd_read_object(const vobjptridx_t obj)
 {
 	short shortsig = 0;
-	const auto &pl_shields = get_local_player_shields();
-	const fix shields = (&pl_shields == &obj->shields) ? pl_shields : 0;
+	const auto &pl_info = get_local_plrobj().ctype.player_info;
+	const auto saved = (&pl_info == &obj->ctype.player_info)
+		? std::pair<fix, player_info>(obj->shields, pl_info)
+		: std::pair<fix, player_info>(0, {});
 
 	*obj = {};
-	obj->shields = shields;
+	obj->shields = saved.first;
+	obj->ctype.player_info = saved.second;
 	obj->next = obj->prev = object_none;
 	obj->segnum = segment_none;
 
