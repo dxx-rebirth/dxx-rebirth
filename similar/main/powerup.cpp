@@ -164,20 +164,19 @@ void do_megawow_powerup(int quantity)
 	for (int i=3; i<MAX_SECONDARY_WEAPONS; i++)
 		secondary_ammo[i] = quantity/5;
 
-	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
-
 	get_local_player_energy() = F1_0*200;
 	get_local_player_shields() = F1_0*200;
 	get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
-	get_local_player().laser_level = MAX_LASER_LEVEL;
+	const auto laser_level = MAX_LASER_LEVEL;
 #elif defined(DXX_BUILD_DESCENT_II)
-	get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
-
 	if (game_mode_hoard())
 		secondary_ammo[PROXIMITY_INDEX] = 12;
+	const auto laser_level = MAX_SUPER_LASER_LEVEL;
 #endif
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_laser_level(player_info.laser_level, laser_level);
+	player_info.laser_level = laser_level;
 
 
 	update_laser_weapon_info();
@@ -258,6 +257,7 @@ int do_powerup(const vobjptridx_t obj)
 		}
 	}
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	int id=get_powerup_id(obj);
 	switch (get_powerup_id(obj)) {
 		case POW_EXTRA_LIFE:
@@ -284,16 +284,16 @@ int do_powerup(const vobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
-			if (get_local_player().laser_level >= MAX_LASER_LEVEL) {
+			if (player_info.laser_level >= MAX_LASER_LEVEL) {
 #if defined(DXX_BUILD_DESCENT_I)
-				get_local_player().laser_level = MAX_LASER_LEVEL;
+				player_info.laser_level = MAX_LASER_LEVEL;
 #endif
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
 			} else {
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_laser_level(get_local_player().laser_level, get_local_player().laser_level + 1);
-				++ get_local_player().laser_level;
-				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, get_local_player().laser_level+1);
+					newdemo_record_laser_level(player_info.laser_level, player_info.laser_level + 1);
+				++ player_info.laser_level;
+				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, player_info.laser_level+1);
 				update_laser_weapon_info();
 				pick_up_primary (primary_weapon_index_t::LASER_INDEX);
 				used=1;
@@ -562,18 +562,19 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_SUPER_LASER:
-			if (get_local_player().laser_level >= MAX_SUPER_LASER_LEVEL) {
-				get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
+			if (player_info.laser_level >= MAX_SUPER_LASER_LEVEL)
+			{
+				player_info.laser_level = MAX_SUPER_LASER_LEVEL;
 				HUD_init_message_literal(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "SUPER LASER MAXED OUT!");
 			} else {
-				int old_level=get_local_player().laser_level;
+				const auto old_level = player_info.laser_level;
 
-				if (get_local_player().laser_level <= MAX_LASER_LEVEL)
-					get_local_player().laser_level = MAX_LASER_LEVEL;
-				++ get_local_player().laser_level;
+				if (player_info.laser_level <= MAX_LASER_LEVEL)
+					player_info.laser_level = MAX_LASER_LEVEL;
+				++ player_info.laser_level;
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_laser_level(old_level, get_local_player().laser_level);
-				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d",get_local_player().laser_level+1);
+					newdemo_record_laser_level(old_level, player_info.laser_level);
+				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d", player_info.laser_level + 1);
 				update_laser_weapon_info();
 				if (Primary_weapon!=primary_weapon_index_t::LASER_INDEX)
 					check_to_use_primary_super_laser();

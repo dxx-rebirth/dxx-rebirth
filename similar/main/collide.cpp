@@ -1846,22 +1846,23 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		}
 		auto &plr = Players[pnum];
 		auto &player_info = playerobj->ctype.player_info;
+		auto &plr_laser_level = player_info.laser_level;
 		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
 		{
 			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems))
 			{
-				if (plr.laser_level <= granted_laser_level)
+				if (plr_laser_level <= granted_laser_level)
 					/* All levels were from grant */
-					plr.laser_level = LASER_LEVEL_1;
+					plr_laser_level = LASER_LEVEL_1;
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (granted_laser_level > MAX_LASER_LEVEL)
 				{
 					/* Grant gives super laser 5.
 					 * Player has super laser 6.
 					 */
-					-- plr.laser_level;
+					-- plr_laser_level;
 				}
-				else if (plr.laser_level > MAX_LASER_LEVEL)
+				else if (plr_laser_level > MAX_LASER_LEVEL)
 				{
 					/* Grant gives only regular lasers.
 					 * Player has super lasers, will drop only
@@ -1870,7 +1871,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 				}
 #endif
 				else
-					plr.laser_level -= granted_laser_level;
+					plr_laser_level -= granted_laser_level;
 			}
 			if (uint16_t subtract_vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems))
 			{
@@ -1920,12 +1921,12 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		//	If the player dies and he has powerful lasers, create the powerups here.
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Players[pnum].laser_level > MAX_LASER_LEVEL)
-			call_object_create_egg(playerobj, Players[pnum].laser_level-MAX_LASER_LEVEL, OBJ_POWERUP, POW_SUPER_LASER);
+		if (plr_laser_level > MAX_LASER_LEVEL)
+			call_object_create_egg(playerobj, plr_laser_level - MAX_LASER_LEVEL, OBJ_POWERUP, POW_SUPER_LASER);
 		else
 #endif
-			if (Players[pnum].laser_level >= 1)
-			call_object_create_egg(playerobj, Players[pnum].laser_level, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
+			if (auto l = plr_laser_level)
+				call_object_create_egg(playerobj, l, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
 
 		//	Drop quad laser if appropos
 		if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)

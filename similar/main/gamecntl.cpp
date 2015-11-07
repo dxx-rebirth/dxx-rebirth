@@ -1480,15 +1480,15 @@ static window_event_result FinalCheats()
 		player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
-		auto &secondary_ammo = get_local_player_secondary_ammo();
+		auto &secondary_ammo = player_info.secondary_ammo;
 		for (unsigned i=0; i<3; i++)
 			secondary_ammo[i] = Secondary_ammo_max[i];
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(player_info.laser_level, MAX_LASER_LEVEL);
 
 		get_local_player_energy() = MAX_ENERGY;
-		get_local_player().laser_level = MAX_LASER_LEVEL;
+		player_info.laser_level = MAX_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
@@ -1501,13 +1501,14 @@ static window_event_result FinalCheats()
 		player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
-		get_local_player_secondary_ammo() = Secondary_ammo_max;
+		auto &secondary_ammo = player_info.secondary_ammo;
+		secondary_ammo = Secondary_ammo_max;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(player_info.laser_level, MAX_LASER_LEVEL);
 
 		get_local_player_energy() = MAX_ENERGY;
-		get_local_player().laser_level = MAX_LASER_LEVEL;
+		player_info.laser_level = MAX_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
@@ -1544,10 +1545,10 @@ static window_event_result FinalCheats()
 		}
 
 		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_laser_level(get_local_player().laser_level, MAX_LASER_LEVEL);
+			newdemo_record_laser_level(player_info.laser_level, MAX_SUPER_LASER_LEVEL);
 
 		get_local_player_energy() = MAX_ENERGY;
-		get_local_player().laser_level = MAX_SUPER_LASER_LEVEL;
+		player_info.laser_level = MAX_SUPER_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
@@ -1820,13 +1821,14 @@ static void do_cheat_menu()
 	char score_text[sizeof("2147483647")];
 	auto &plr = get_local_player();
 	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	snprintf(score_text, sizeof(score_text), "%d", plr.score);
-	uint8_t plr_laser_level = plr.laser_level;
+	uint8_t plr_laser_level = player_info.laser_level;
 	DXX_WIMP_MENU(ADD);
 	mmn = newmenu_do("Wimp Menu",NULL,m, unused_newmenu_subfunction, unused_newmenu_userdata);
 	if (mmn > -1 )  {
 		DXX_WIMP_MENU(READ);
-		plr.laser_level = laser_level_t(plr_laser_level);
+		player_info.laser_level = laser_level_t(plr_laser_level);
 		char *p;
 		auto ul = strtoul(score_text, &p, 10);
 		if (!*p)

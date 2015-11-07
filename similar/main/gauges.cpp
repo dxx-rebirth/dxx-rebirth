@@ -1233,8 +1233,11 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			switch(i)
 			{
 				case primary_weapon_index_t::LASER_INDEX:
-					snprintf(weapon_str, sizeof(weapon_str), "%c%i", (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L', get_local_player().laser_level+1);
+					{
+						auto &player_info = get_local_plrobj().ctype.player_info;
+						snprintf(weapon_str, sizeof(weapon_str), "%c%i", (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS) ? 'Q' : 'L', player_info.laser_level + 1);
 					txtweapon = weapon_str;
+					}
 					break;
 				case primary_weapon_index_t::VULCAN_INDEX:
 					txtweapon = "V";
@@ -1441,10 +1444,13 @@ static void hud_show_weapons(void)
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 		switch (Primary_weapon) {
 			case primary_weapon_index_t::LASER_INDEX:
+				{
+					auto &player_info = get_local_plrobj().ctype.player_info;
 				if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
-					sprintf(weapon_str, "%s %s %i", TXT_QUAD, weapon_name, get_local_player().laser_level+1);
+					snprintf(weapon_str, sizeof(weapon_str), "%s %s %i", TXT_QUAD, weapon_name, player_info.laser_level + 1);
 				else
-					sprintf(weapon_str, "%s %i", weapon_name, get_local_player().laser_level+1);
+					snprintf(weapon_str, sizeof(weapon_str), "%s %i", weapon_name, player_info.laser_level + 1);
+				}
 				disp_primary_weapon_name = weapon_str;
 				break;
 
@@ -2039,7 +2045,8 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 #endif
 		{
 			const auto &&line_spacing = LINE_SPACING;
-			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, get_local_player().laser_level+1);
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
 			if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
@@ -2163,7 +2170,8 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 
 	gr_set_curfont( GAME_FONT );
 
-	laser_level_changed = (weapon_type == 0 && weapon_num == primary_weapon_index_t::LASER_INDEX && (get_local_player().laser_level != old_laser_level));
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	laser_level_changed = (weapon_type == 0 && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
 	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
 	{
@@ -2174,7 +2182,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(weapon_type,weapon_num,get_local_player().laser_level, multires_gauge_graphic);
+		draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
@@ -2185,7 +2193,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
 			old_weapon[weapon_type] = weapon_num;
-			old_laser_level = get_local_player().laser_level;
+			old_laser_level = player_info.laser_level;
 			weapon_box_fade_values[weapon_type] = 0;
 		}
 	}
@@ -2194,7 +2202,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(weapon_type,weapon_num,get_local_player().laser_level, multires_gauge_graphic);
+			draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2203,9 +2211,9 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 	} else
 	{
-		draw_weapon_info(weapon_type, weapon_num, get_local_player().laser_level, multires_gauge_graphic);
+		draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
-		old_laser_level = get_local_player().laser_level;
+		old_laser_level = player_info.laser_level;
 	}
 
 	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
@@ -3148,7 +3156,7 @@ void update_laser_weapon_info(void)
 {
 	if (old_weapon[0] == 0)
 #if defined(DXX_BUILD_DESCENT_II)
-		if (! (get_local_player().laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
+		if (!(get_local_plrobj().ctype.player_info.laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
 #endif
 			old_weapon[0] = -1;
 }

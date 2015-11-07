@@ -132,7 +132,7 @@ array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_index == primary_weapon_index_t::LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
+	if (weapon_index == primary_weapon_index_t::LASER_INDEX && get_local_plrobj().ctype.player_info.laser_level > MAX_LASER_LEVEL)
 		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
 	return weapon_index;
@@ -252,6 +252,9 @@ public:
 
 class cycle_primary_state : public cycle_weapon_state
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	player_info &pl_info = get_local_plrobj().ctype.player_info;
+#endif
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
 	static uint_fast32_t get_cycle_position(uint_fast32_t i)
@@ -263,11 +266,11 @@ public:
 		auto desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
-		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && get_local_player().laser_level > MAX_LASER_LEVEL)
+		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && pl_info.laser_level > MAX_LASER_LEVEL)
 			return false;
 		if (desired_weapon == primary_weapon_index_t::SUPER_LASER_INDEX)
 		{
-			if (get_local_player().laser_level <= MAX_LASER_LEVEL)
+			if (pl_info.laser_level <= MAX_LASER_LEVEL)
 				return false;
 			else
 				desired_weapon = primary_weapon_index_t::LASER_INDEX;
@@ -382,7 +385,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::LASER_INDEX)
-			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, get_local_player().laser_level+1, TXT_SELECTED);
+			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, get_local_plrobj().ctype.player_info.laser_level+1, TXT_SELECTED);
 		else
 #endif
 			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
@@ -1270,13 +1273,13 @@ void DropCurrentWeapon ()
 			drop_type = POW_QUAD_FIRE;
 			weapon_name = TXT_QUAD_LASERS;
 		}
-		else if (plr.laser_level == LASER_LEVEL_1)
+		else if (player_info.laser_level == LASER_LEVEL_1)
 		{
 			HUD_init_message_literal(HM_DEFAULT, "You cannot drop your base weapon!");
 			return;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (plr.laser_level > MAX_LASER_LEVEL)
+		else if (player_info.laser_level > MAX_LASER_LEVEL)
 		{
 			/* Disallow dropping any super lasers until someone requests
 			 * it.
@@ -1285,7 +1288,7 @@ void DropCurrentWeapon ()
 			return;
 		}
 #endif
-		else if (plr.laser_level <= map_granted_flags_to_laser_level(GrantedItems))
+		else if (player_info.laser_level <= map_granted_flags_to_laser_level(GrantedItems))
 		{
 			HUD_init_message_literal(HM_DEFAULT, "You cannot drop granted lasers!");
 			return;
@@ -1348,7 +1351,7 @@ void DropCurrentWeapon ()
 		if (drop_type == POW_QUAD_FIRE)
 			plr.flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		else
-			-- plr.laser_level;
+			-- player_info.laser_level;
 	}
 	else
 		player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);

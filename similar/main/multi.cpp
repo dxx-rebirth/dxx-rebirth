@@ -1691,7 +1691,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	const auto &&objp = vobjptridx(Players[pnum].objnum);
 	auto &player_info = objp->ctype.player_info;
 	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
-	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
+	player_info.laser_level = stored_laser_level(buf[count]);                           count++;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
@@ -2522,7 +2522,7 @@ void multi_send_player_deres(deres_type_t type)
 #endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
-	multibuf[count++] = (char)get_local_player().laser_level;
+	multibuf[count++] = (char)player_info.laser_level;
 
 	auto &secondary_ammo = get_local_player_secondary_ammo();
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];
@@ -2655,7 +2655,7 @@ void multi_powcap_cap_objects()
 #if defined(DXX_BUILD_DESCENT_II)
 	get_local_player_secondary_ammo()[7]*=4;
 #endif
-	PowerupCaps.cap_laser_level(plr.laser_level);
+	PowerupCaps.cap_laser_level(player_info.laser_level);
 	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
 	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2705,11 +2705,11 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
 	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
 	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
-	if (plr.laser_level > MAX_LASER_LEVEL)
-		PowerupCaps.add_mapped_powerup_max(POW_SUPER_LASER, plr.laser_level - MAX_LASER_LEVEL);
+	if (player_info.laser_level > MAX_LASER_LEVEL)
+		PowerupCaps.add_mapped_powerup_max(POW_SUPER_LASER, player_info.laser_level - MAX_LASER_LEVEL);
 	else
 #endif
-		PowerupCaps.add_mapped_powerup_max(POW_LASER, plr.laser_level);
+		PowerupCaps.add_mapped_powerup_max(POW_LASER, player_info.laser_level);
 }
 
 void multi_powcap_adjust_remote_cap(const playernum_t pnum)
@@ -2755,11 +2755,11 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
 	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
 	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
-	if (plr.laser_level > MAX_LASER_LEVEL)
-		PowerupCaps.add_mapped_powerup_current(POW_SUPER_LASER, plr.laser_level - MAX_LASER_LEVEL);
+	if (player_info.laser_level > MAX_LASER_LEVEL)
+		PowerupCaps.add_mapped_powerup_current(POW_SUPER_LASER, player_info.laser_level - MAX_LASER_LEVEL);
 	else
 #endif
-		PowerupCaps.add_mapped_powerup_current(POW_LASER, plr.laser_level);
+		PowerupCaps.add_mapped_powerup_current(POW_LASER, player_info.laser_level);
 }
 
 void

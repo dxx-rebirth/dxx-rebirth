@@ -1768,7 +1768,7 @@ int do_laser_firing_player(void)
 			else
 				Next_laser_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
-			laser_level = get_local_player().laser_level;
+			laser_level = player_info.laser_level;
 
 			flags = 0;
 

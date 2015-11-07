@@ -1416,7 +1416,6 @@ static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_n
 //	----------------------------------------------------------------------------
 static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
-	auto &plr = Players[get_player_id(playerobjp)];
 	auto &player_info = playerobjp->ctype.player_info;
 	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 		return 0;
@@ -1425,7 +1424,7 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			{
-				if (auto &laser_level = plr.laser_level)
+				if (auto &laser_level = player_info.laser_level)
 				{
 					if (laser_level > 3)
 					{

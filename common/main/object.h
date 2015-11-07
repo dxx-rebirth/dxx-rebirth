@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "compiler-type_traits.h"
 #include "fwd-object.h"
-#include "fwd-weapon.h"
+#include "weapon.h"
 #include "powerup.h"
 #include "poison.h"
 
@@ -95,6 +95,7 @@ struct player_info
 	using primary_weapon_flag_type = uint16_t;
 #endif
 	primary_weapon_flag_type primary_weapon_flags;
+	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 };
 

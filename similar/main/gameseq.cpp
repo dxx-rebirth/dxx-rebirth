@@ -277,7 +277,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_rescued_total = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
-	Players[pnum].laser_level = LASER_LEVEL_1;
 	Players[pnum].flags = {};
 
 	init_player_stats_new_ship(pnum);
@@ -384,6 +383,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	player_info.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
+	player_info.laser_level = granted_laser_level;
 	const auto granted_primary_weapon_flags = HAS_LASER_FLAG | map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	player_info.primary_weapon_flags = granted_primary_weapon_flags;
 	if (pnum == Player_num)
@@ -431,7 +431,7 @@ void init_player_stats_new_ship(ubyte pnum)
 #endif
 		if (Newdemo_state == ND_STATE_RECORDING)
 		{
-			newdemo_record_laser_level(get_local_player().laser_level, 0);
+			newdemo_record_laser_level(player_info.laser_level, 0);
 			newdemo_record_player_weapon(0, 0);
 			newdemo_record_player_weapon(1, 0);
 		}
@@ -451,7 +451,6 @@ void init_player_stats_new_ship(ubyte pnum)
 		init_ai_for_ship();
 #endif
 	}
-	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].hostages_on_board = 0;
 	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
