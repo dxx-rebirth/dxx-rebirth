@@ -1688,11 +1688,11 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
 #endif
-	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
-	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
-
 	const auto &&objp = vobjptridx(Players[pnum].objnum);
 	auto &player_info = objp->ctype.player_info;
+	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
+	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
+
 	auto &secondary_ammo = player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
@@ -2520,7 +2520,8 @@ void multi_send_player_deres(deres_type_t type)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
 #endif
-	PUT_WEAPON_FLAGS(multibuf, count, get_local_player().primary_weapon_flags);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = (char)get_local_player().laser_level;
 
 	auto &secondary_ammo = get_local_player_secondary_ammo();
@@ -2618,14 +2619,15 @@ void multi_powcap_cap_objects()
 	Smartmines_dropped=0;
 #endif
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
 		const auto type = Primary_weapon_to_powerup[index];
-		if (get_local_player().primary_weapon_flags & HAS_PRIMARY_FLAG(index))
+		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 				if (!PowerupCaps.can_add_powerup(type))
 			{
 				con_printf(CON_VERBOSE, "Removing primary %u due to powerup cap: current=%u max=%u", index, PowerupCaps.get_current(type), PowerupCaps.get_max(type));
-				get_local_player().primary_weapon_flags&=(~HAS_PRIMARY_FLAG(index));
+				player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(index);
 			}
 	}
 
@@ -2679,14 +2681,15 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 		return;
 
 	auto &plr = Players[pnum];
+	const auto &&objp = vobjptridx(plr.objnum);
+	auto &player_info = objp->ctype.player_info;
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
 		const auto type = Primary_weapon_to_powerup[index];
-		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
+		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 			PowerupCaps.inc_mapped_powerup_max(type);
 	}
 
-	const auto &&objp = vobjptridx(Players[pnum].objnum);
 	auto &secondary_ammo = objp->ctype.player_info.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
@@ -2717,14 +2720,15 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 		return;
 
 	const auto &plr = Players[pnum];
+	const auto &&objp = vobjptridx(Players[pnum].objnum);
+	auto &player_info = objp->ctype.player_info;
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
 	{
 		const auto type = Primary_weapon_to_powerup[index];
-		if (Players[pnum].primary_weapon_flags & HAS_PRIMARY_FLAG(index))
+		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
 			PowerupCaps.inc_mapped_powerup_current(type);
 	}
 
-	const auto &&objp = vobjptridx(Players[pnum].objnum);
 	const auto &plr_secondary_ammo = objp->ctype.player_info.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{

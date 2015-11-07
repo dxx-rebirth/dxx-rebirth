@@ -60,11 +60,6 @@ struct player : public prohibit_void_ptr<player>
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
 	stored_laser_level   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
-#if defined(DXX_BUILD_DESCENT_I)
-	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
-#elif defined(DXX_BUILD_DESCENT_II)
-	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
-#endif
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.

@@ -185,6 +185,7 @@ static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 has_weapon_result player_has_primary_weapon(int weapon_num)
 {
 	int	return_value = 0;
+	auto &player_info = get_local_plrobj().ctype.player_info;
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
@@ -193,7 +194,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
-		if (get_local_player().primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
+	if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
 			return_value |= has_weapon_result::has_weapon_flag;
 
 		// Special case: Gauss cannon uses vulcan ammo.
@@ -843,16 +844,17 @@ uint_fast32_t SOrderList (uint_fast32_t num)
 //returns true if actually picked up
 int pick_up_primary(int weapon_index)
 {
-	//ushort old_flags = Players[Player_num].primary_weapon_flags;
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
+	auto &player_info = get_local_plrobj().ctype.player_info;
 
-	if (weapon_index != primary_weapon_index_t::LASER_INDEX && get_local_player().primary_weapon_flags & flag)
+	if (weapon_index != primary_weapon_index_t::LASER_INDEX &&
+		(player_info.primary_weapon_flags & flag))
 	{		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
-	get_local_player().primary_weapon_flags |= flag;
+	player_info.primary_weapon_flags |= flag;
 
 	maybe_autoselect_primary_weapon(weapon_index);
 
@@ -867,7 +869,8 @@ int pick_up_primary(int weapon_index)
 #if defined(DXX_BUILD_DESCENT_II)
 void check_to_use_primary_super_laser()
 {
-	if (!(get_local_player().primary_weapon_flags & HAS_SUPER_LASER_FLAG))
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!(player_info.primary_weapon_flags & HAS_SUPER_LASER_FLAG))
 	{
 		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;
 		const auto pwi = POrderList(weapon_index);
@@ -881,14 +884,14 @@ void check_to_use_primary_super_laser()
 }
 #endif
 
-static void maybe_autoselect_vulcan_weapon(player &plr)
+static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto weapon_flag_mask = HAS_VULCAN_FLAG;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto weapon_flag_mask = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
 #endif
-	const auto primary_weapon_flags = plr.primary_weapon_flags;
+	const auto primary_weapon_flags = player_info.primary_weapon_flags;
 	if (!(primary_weapon_flags & weapon_flag_mask))
 		return;
 	const auto cutpoint = POrderList(255);
@@ -943,7 +946,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	}
 	if (change_weapon &&
 		!old_ammo)
-		maybe_autoselect_vulcan_weapon(plr);
+		maybe_autoselect_vulcan_weapon(get_local_plrobj().ctype.player_info);
 	return ammo_count;	//return amount used
 }
 
@@ -1252,6 +1255,7 @@ void DropCurrentWeapon ()
 		return;
 
 	auto &plr = get_local_player();
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	powerup_type_t drop_type;
 	const auto Primary_weapon = ::Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
@@ -1318,7 +1322,8 @@ void DropCurrentWeapon ()
 		auto &plr_vulcan_ammo = get_local_player_vulcan_ammo();
 		auto ammo = plr_vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
-		if ((plr.primary_weapon_flags & HAS_VULCAN_FLAG) && (plr.primary_weapon_flags & HAS_GAUSS_FLAG))
+		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
+		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
 			ammo /= 2;		//if both vulcan & gauss, drop half
 #endif
 
@@ -1346,7 +1351,7 @@ void DropCurrentWeapon ()
 			-- plr.laser_level;
 	}
 	else
-		plr.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);
+		player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);
 	auto_select_primary_weapon();
 }
 

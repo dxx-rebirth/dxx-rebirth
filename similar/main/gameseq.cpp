@@ -383,8 +383,9 @@ void init_player_stats_new_ship(ubyte pnum)
 	}};
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	player_info.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
-	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
+	const auto granted_primary_weapon_flags = HAS_LASER_FLAG | map_granted_flags_to_primary_weapon_flags(GrantedItems);
+	player_info.primary_weapon_flags = granted_primary_weapon_flags;
 	if (pnum == Player_num)
 	{
 		Primary_weapon = [=]{
@@ -452,13 +453,11 @@ void init_player_stats_new_ship(ubyte pnum)
 	}
 	Players[pnum].laser_level = granted_laser_level;
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
 	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
-	plr.primary_weapon_flags |= granted_primary_weapon_flags;
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].invulnerable_time);
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH

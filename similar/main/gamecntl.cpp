@@ -1476,7 +1476,8 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 		auto &secondary_ammo = get_local_player_secondary_ammo();
@@ -1496,7 +1497,8 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 
-		get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 		get_local_player_secondary_ammo() = Secondary_ammo_max;
@@ -1520,13 +1522,14 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
-			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
+			player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
 		}
 		else
 		{
-			get_local_player().primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
+			player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
 		}
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;

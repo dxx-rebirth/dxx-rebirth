@@ -89,6 +89,12 @@ struct player_info
 	fix     energy;                 // Amount of energy remaining.
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 	uint16_t vulcan_ammo;
+#if defined(DXX_BUILD_DESCENT_I)
+	using primary_weapon_flag_type = uint8_t;
+#elif defined(DXX_BUILD_DESCENT_II)
+	using primary_weapon_flag_type = uint16_t;
+#endif
+	primary_weapon_flag_type primary_weapon_flags;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 };
 

@@ -1417,9 +1417,10 @@ static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_n
 static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
 	auto &plr = Players[get_player_id(playerobjp)];
-	if (!(plr.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
+	auto &player_info = playerobjp->ctype.player_info;
+	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 		return 0;
-	if (!weapon_index_uses_vulcan_ammo(weapon_num) || playerobjp->ctype.player_info.vulcan_ammo)
+	if (!weapon_index_uses_vulcan_ammo(weapon_num) || player_info.vulcan_ammo)
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == primary_weapon_index_t::LASER_INDEX)
@@ -1440,7 +1441,7 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 			}
 			else
 			{
-				plr.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
+				player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(weapon_num);
 				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!

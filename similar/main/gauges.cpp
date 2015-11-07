@@ -1185,7 +1185,8 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 {
 	if (PlayerCfg.CockpitMode[1]!=CM_FULL_SCREEN)
 		return;
-	const unsigned primary_weapon_flags = get_local_player().primary_weapon_flags;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
 	const auto vulcan_mask = HAS_VULCAN_FLAG;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto gauss_mask = vulcan_mask;

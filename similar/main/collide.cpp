@@ -1803,7 +1803,8 @@ static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int 
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
-	if (Players[get_player_id(playerobj)].primary_weapon_flags & weapon_flag)
+	auto &player_info = playerobj->ctype.player_info;
+	if (player_info.primary_weapon_flags & weapon_flag)
 		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	else
 		return object_none;
@@ -1844,6 +1845,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			d_srand(5483L);
 		}
 		auto &plr = Players[pnum];
+		auto &player_info = playerobj->ctype.player_info;
 		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
 		{
 			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems))
@@ -1879,7 +1881,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 					v -= subtract_vulcan_ammo;
 			}
 			plr.flags &= ~map_granted_flags_to_player_flags(GrantedItems);
-			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
+			player_info.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
 		}
 
 		auto &secondary_ammo = playerobj->ctype.player_info.secondary_ammo;
@@ -1968,7 +1970,8 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		//Drop the vulcan, gauss, and ammo
 		auto vulcan_ammo = playerobj->ctype.player_info.vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
-		if ((Players[pnum].primary_weapon_flags & HAS_VULCAN_FLAG) && (Players[pnum].primary_weapon_flags & HAS_GAUSS_FLAG))
+		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
+		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
 			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
 #endif
 		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
@@ -2024,8 +2027,9 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #endif
 
 		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
-		if (!(Players[get_player_id(playerobj)].primary_weapon_flags & HAS_VULCAN_FLAG)) {
-			auto amount = playerobj->ctype.player_info.vulcan_ammo;
+		if (!(player_info.primary_weapon_flags & HAS_VULCAN_FLAG))
+		{
+			auto amount = player_info.vulcan_ammo;
 			if (amount > 200) {
 				amount = 200;
 			}
