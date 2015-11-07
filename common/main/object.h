@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include "compiler-type_traits.h"
 #include "fwd-object.h"
+#include "fwd-weapon.h"
 #include "powerup.h"
 #include "poison.h"
 
@@ -86,6 +87,7 @@ struct reactor_static {
 struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
+	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 };
 
 // A compressed form for sending crucial data

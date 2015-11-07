@@ -1821,7 +1821,7 @@ static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapo
 
 static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
 {
-	unsigned num_missiles = Players[get_player_id(playerobj)].secondary_ammo[missile_index];
+	unsigned num_missiles = playerobj->ctype.player_info.secondary_ammo[missile_index];
 	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
 
 	if (num_missiles > 10)
@@ -1882,7 +1882,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
 		}
 
-		auto &secondary_ammo = Players[pnum].secondary_ammo;
+		auto &secondary_ammo = playerobj->ctype.player_info.secondary_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If the player had smart mines, maybe arm one of them.
 		int	rthresh;

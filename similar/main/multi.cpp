@@ -1690,7 +1690,9 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 	Players[pnum].primary_weapon_flags = GET_WEAPON_FLAGS(buf,count);
 	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
-	auto &secondary_ammo = Players[pnum].secondary_ammo;
+
+	const auto &&objp = vobjptridx(Players[pnum].objnum);
+	auto &secondary_ammo = objp->ctype.player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
 	secondary_ammo[SMART_INDEX] = buf[count];         count++;
@@ -1709,8 +1711,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	Players[pnum].flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
 	multi_powcap_adjust_remote_cap (pnum);
-
-	const auto objp = vobjptridx(Players[pnum].objnum);
 
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
@@ -2685,7 +2685,8 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 			PowerupCaps.inc_mapped_powerup_max(type);
 	}
 
-	auto &secondary_ammo = plr.secondary_ammo;
+	const auto &&objp = vobjptridx(Players[pnum].objnum);
+	auto &secondary_ammo = objp->ctype.player_info.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
 		const auto type = Secondary_weapon_to_powerup[index];
@@ -2722,7 +2723,8 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 			PowerupCaps.inc_mapped_powerup_current(type);
 	}
 
-	const auto &plr_secondary_ammo = plr.secondary_ammo;
+	const auto &&objp = vobjptridx(Players[pnum].objnum);
+	const auto &plr_secondary_ammo = objp->ctype.player_info.secondary_ammo;
 	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
 	{
 		const auto type = Secondary_weapon_to_powerup[index];

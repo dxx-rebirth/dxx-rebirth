@@ -483,7 +483,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->secondary_weapon_flags    = 0;
 	pl_rw->vulcan_ammo   = pl->vulcan_ammo;
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		pl_rw->secondary_ammo[i] = pl->secondary_ammo[i];
+		pl_rw->secondary_ammo[i] = pl_info.secondary_ammo[i];
 	pl_rw->last_score                = pl->last_score;
 	pl_rw->score                     = pl->score;
 	pl_rw->time_level                = pl->time_level;
@@ -532,7 +532,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->primary_weapon_flags      = pl_rw->primary_weapon_flags;
 	pl->vulcan_ammo   = pl_rw->vulcan_ammo;
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		pl->secondary_ammo[i] = pl_rw->secondary_ammo[i];
+		pl_info.secondary_ammo[i] = pl_rw->secondary_ammo[i];
 	pl->last_score                = pl_rw->last_score;
 	pl->score                     = pl_rw->score;
 	pl->time_level                = pl_rw->time_level;

@@ -67,7 +67,6 @@ struct player : public prohibit_void_ptr<player>
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 #endif
 	ushort  vulcan_ammo;
-	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
@@ -173,8 +172,8 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_player_energy()	(get_local_plrobj().ctype.player_info.energy)
 #define get_local_player_vulcan_ammo()	(get_local_player().vulcan_ammo)
 #define get_local_player_shields()	(get_local_plrobj().shields)
-#define get_local_player_secondary_ammo() (get_local_player().secondary_ammo)
 #define get_local_player_flags()	(get_local_player().flags)
+#define get_local_player_secondary_ammo()	(get_local_plrobj().ctype.player_info.secondary_ammo)
 #define get_local_player_cloak_time()	(get_local_player().cloak_time)
 #define get_local_player_invulnerable_time()	(get_local_player().invulnerable_time)
 #endif

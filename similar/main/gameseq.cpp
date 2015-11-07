@@ -378,6 +378,9 @@ void init_player_stats_new_ship(ubyte pnum)
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
+	player_info.secondary_ammo = {{
+		static_cast<uint8_t>(2 + NDL - Difficulty_level)
+	}};
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
@@ -450,9 +453,6 @@ void init_player_stats_new_ship(ubyte pnum)
 	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
 	plr.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
-	plr.secondary_ammo = {{
-		static_cast<uint8_t>(2 + NDL - Difficulty_level)
-	}};
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)

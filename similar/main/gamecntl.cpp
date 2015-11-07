@@ -1805,7 +1805,7 @@ public:
 	DXX_##VERB##_TEXT(TXT_SCORE, opt_txt_score)	\
 	DXX_##VERB##_INPUT(score_text, opt_score)	\
 	DXX_##VERB##_NUMBER("Laser Level", opt_laser_level, menu_number_bias_wrapper(plr_laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
-	DXX_##VERB##_NUMBER("Concussion", opt_concussion, plr.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+	DXX_##VERB##_NUMBER("Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
 
 static void do_cheat_menu()
 {
