@@ -3070,11 +3070,11 @@ class DXXArchive(DXXCommon):
 'arch/sdl/digi_mixer_music.cpp',
 ]
 ])
-	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
+	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 'common/arch/win32/messagebox.cpp'
 ])
-	class DarwinPlatformSettings(LazyObjectConstructor, DXXCommon.DarwinPlatformSettings):
+	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
 			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
