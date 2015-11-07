@@ -267,7 +267,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].time_total = 0;
 	Players[pnum].hours_level = 0;
 	Players[pnum].hours_total = 0;
-	Players[pnum].killer_objnum = object_none;
 	Players[pnum].net_killed_total = 0;
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].num_kills_level = 0;
@@ -324,7 +323,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 		get_local_player().hours_level = 0;
 	}
 
-	get_local_player().killer_objnum = object_none;
+	get_local_plrobj().ctype.player_info.killer_objnum = object_none;
 
 	get_local_player().num_kills_level = 0;
 	get_local_player().num_robots_level = count_number_of_robots();
@@ -378,6 +377,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
+	player_info.killer_objnum = object_none;
 	player_info.secondary_ammo = {{
 		static_cast<uint8_t>(2 + NDL - Difficulty_level)
 	}};
@@ -451,7 +451,6 @@ void init_player_stats_new_ship(ubyte pnum)
 #endif
 	}
 	Players[pnum].laser_level = granted_laser_level;
-	Players[pnum].killer_objnum = object_none;
 	Players[pnum].hostages_on_board = 0;
 	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
 	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);

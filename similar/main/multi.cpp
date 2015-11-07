@@ -2819,7 +2819,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 	int count = 0;
 
 	Assert(get_player_id(objnum) == Player_num);
-	auto killer_objnum = get_local_player().killer_objnum;
+	const auto killer_objnum = get_local_plrobj().ctype.player_info.killer_objnum;
 
 							count += 1;
 	multibuf[count] = Player_num;			count += 1;

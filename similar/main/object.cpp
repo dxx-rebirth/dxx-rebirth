@@ -1505,11 +1505,12 @@ static void start_player_death_sequence(const vobjptr_t player)
 			if (get_local_player_secondary_ammo()[PROXIMITY_INDEX] < 12)
 			{
 				const auto is_bad_kill = []{
-					if (get_local_player().killer_objnum == get_local_player().objnum)
+					auto &lplr = get_local_player();
+					auto &lplrobj = get_local_plrobj();
+					const auto killer_objnum = lplrobj.ctype.player_info.killer_objnum;
+					if (killer_objnum == lplr.objnum)
 						/* Self kill */
 						return true;
-					auto &lplr = get_local_player();
-					const auto killer_objnum = lplr.killer_objnum;
 					if (killer_objnum == object_none)
 						/* Non-player kill */
 						return true;

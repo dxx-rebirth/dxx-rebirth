@@ -2069,7 +2069,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 		if (shields < 0)
 		{
 
-  			get_local_player().killer_objnum = killer;
+			get_local_plrobj().ctype.player_info.killer_objnum = killer;
 			playerobj->flags |= OF_SHOULD_BE_DEAD;
 
 #if defined(DXX_BUILD_DESCENT_II)
