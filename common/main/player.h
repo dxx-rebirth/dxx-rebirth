@@ -57,7 +57,6 @@ struct player : public prohibit_void_ptr<player>
 	// Game data
 	player_flags flags;   // Powerup flags, see below...
 	fix     energy;                 // Amount of energy remaining.
-	fix     shields;                // shields remaining (protection)
 	ubyte   lives;                  // Lives remaining, 0 = game over.
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
 	stored_laser_level   laser_level;            // Current level of the laser.
@@ -174,7 +173,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
 #define get_local_player_energy()	(get_local_player().energy)
 #define get_local_player_vulcan_ammo()	(get_local_player().vulcan_ammo)
-#define get_local_player_shields()	(get_local_player().shields)
+#define get_local_player_shields()	(get_local_plrobj().shields)
 #define get_local_player_secondary_ammo() (get_local_player().secondary_ammo)
 #define get_local_player_flags()	(get_local_player().flags)
 #define get_local_player_cloak_time()	(get_local_player().cloak_time)

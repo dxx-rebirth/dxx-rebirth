@@ -2078,9 +2078,6 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 					Buddy_sorry_time = GameTime64;
 #endif
 		}
-
-		playerobj->shields = get_local_player_shields();		//mirror
-
 	}
 }
 

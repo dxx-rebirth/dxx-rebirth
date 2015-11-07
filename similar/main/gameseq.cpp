@@ -375,7 +375,8 @@ void init_player_stats_new_ship(ubyte pnum)
 {
 	auto &plr = Players[pnum];
 	plr.energy = INITIAL_ENERGY;
-	plr.shields = StartingShields;
+	const auto &&plrobj = vobjptridx(plr.objnum);
+	plrobj->shields = StartingShields;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	const auto granted_primary_weapon_flags = map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
@@ -461,7 +462,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].invulnerable_time);
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
-	digi_kill_sound_linked_to_object(vcobjptridx(Players[pnum].objnum));
+	digi_kill_sound_linked_to_object(plrobj);
 }
 
 #ifdef EDITOR
