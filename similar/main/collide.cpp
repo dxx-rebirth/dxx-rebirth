@@ -1221,9 +1221,10 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 		if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 		{
 			damage = weapon->shields*2; // to not alter Gameplay too much, multiply damage by 2.
-			if (!weapon->ctype.laser_info.hitobj_list[controlcen])
+			auto was_hit = weapon->ctype.laser_info.hitobj_list[controlcen];
+			if (!was_hit)
 			{
-				weapon->ctype.laser_info.hitobj_list[controlcen] = true;
+				was_hit = true;
 				weapon->ctype.laser_info.last_hitobj = controlcen;
 			}
 			else
@@ -1602,9 +1603,10 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (!weapon->ctype.laser_info.hitobj_list[robot])
+		auto was_hit = weapon->ctype.laser_info.hitobj_list[robot];
+		if (!was_hit)
 		{
-			weapon->ctype.laser_info.hitobj_list[robot] = true;
+			was_hit = true;
 			weapon->ctype.laser_info.last_hitobj = robot;
 		}
 		else
@@ -1691,16 +1693,18 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	       	else
 			multi_robot_request_change(robot, get_robot_id(vcobjptr(weapon->ctype.laser_info.parent_num)));
 
-		objptridx_t expl_obj = object_none;
-		if ( robptr->exp1_vclip_num > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, collision_point, (robot->size/2*3)/4, robptr->exp1_vclip_num );
+		std::pair<fix, int> explosion_size_and_vclip;
+		if ((robptr->exp1_vclip_num > -1 && (explosion_size_and_vclip = {(robot->size / 2 * 3) / 4, robptr->exp1_vclip_num}, true))
 #if defined(DXX_BUILD_DESCENT_II)
-		else if ( wi->robot_hit_vclip > -1 )
-			expl_obj = object_create_explosion( weapon->segnum, collision_point, wi->impact_size, wi->robot_hit_vclip );
+			|| (wi->robot_hit_vclip > -1 && (explosion_size_and_vclip = {wi->impact_size, wi->robot_hit_vclip}, true))
 #endif
+			)
+		{
+			const auto &&expl_obj = object_create_explosion(weapon->segnum, collision_point, explosion_size_and_vclip.first, explosion_size_and_vclip.second);
 
 		if (expl_obj != object_none)
 			obj_attach(robot,expl_obj);
+		}
 
 		if ( damage_flag && (robptr->exp1_sound_num > -1 ))
 			digi_link_sound_to_pos( robptr->exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
@@ -1917,13 +1921,13 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
 
+		std::pair<int, int> laser_level_and_id;
+		if (
 #if defined(DXX_BUILD_DESCENT_II)
-		if (plr_laser_level > MAX_LASER_LEVEL)
-			call_object_create_egg(playerobj, plr_laser_level - MAX_LASER_LEVEL, OBJ_POWERUP, POW_SUPER_LASER);
-		else
+			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {plr_laser_level - MAX_LASER_LEVEL, POW_SUPER_LASER}, true)) ||
 #endif
-			if (auto l = plr_laser_level)
-				call_object_create_egg(playerobj, l, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
+			(plr_laser_level && (laser_level_and_id = {plr_laser_level, POW_LASER}, true)))
+			call_object_create_egg(playerobj, laser_level_and_id.first, OBJ_POWERUP, laser_level_and_id.second);
 
 		//	Drop quad laser if appropos
 		if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
