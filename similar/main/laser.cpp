@@ -785,7 +785,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 				obj->ctype.laser_info.multiplier /= 2;
 #endif
 		}
-		else if (is_laser_weapon_type(weapon_type) && (Players[get_player_id(parent)].flags & PLAYER_FLAGS_QUAD_LASERS))
+		else if (is_laser_weapon_type(weapon_type) && (parent->ctype.player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (weapon_type == GUIDEDMISS_ID) {
@@ -1136,7 +1136,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 		//	Don't track cloaked players.
 		if (curobjp->type == OBJ_PLAYER)
 		{
-			if (Players[get_player_id(curobjp)].flags & PLAYER_FLAGS_CLOAKED)
+			if (curobjp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 				continue;
 			// Don't track teammates in team games
 			if (Game_mode & GM_TEAM)
@@ -2064,7 +2064,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 						continue;
 					if ((Game_mode & GM_TEAM) && get_team(get_player_id(curobjp)) == get_team(get_player_id(vcobjptr(parent.num))))
 						continue;
-					if (Players[get_player_id(curobjp)].flags & PLAYER_FLAGS_CLOAKED)
+					if (curobjp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 						continue;
 				}
 

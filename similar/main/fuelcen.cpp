@@ -757,10 +757,11 @@ void fuelcen_check_for_goal(const vsegptr_t segp)
 	}
 	if (get_team(Player_num) != check_team)
 		return;
-	auto &player = get_local_player();
-	if (player.flags & PLAYER_FLAGS_FLAG)
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
+	if (player_info.powerup_flags & PLAYER_FLAGS_FLAG)
 	{
-		player.flags &= ~PLAYER_FLAGS_FLAG;
+		player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
 				multi_send_capture_bonus (Player_num);
 		maybe_drop_net_powerup(powerup_to_drop);
 	}

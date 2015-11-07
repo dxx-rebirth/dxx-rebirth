@@ -627,7 +627,7 @@ class draw_keys_state
 	const player_flags player_key_flags;
 protected:
 	draw_keys_state() :
-		player_key_flags(get_local_player().flags)
+		player_key_flags(get_local_player_flags())
 	{
 		gr_set_current_canvas(nullptr);
 	}
@@ -1508,7 +1508,7 @@ static void hud_show_weapons(void)
 static void hud_show_cloak_invuln(void)
 {
 	const auto &plr = get_local_player();
-	const auto player_flags = plr.flags;
+	const auto player_flags = get_local_plrobj().ctype.player_info.powerup_flags;
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
@@ -2833,7 +2833,8 @@ void show_HUD_names()
 		else
 			objnum = Players[pnum].objnum;
 
-		const auto &pl_flags = Players[pnum].flags;
+		const auto &&objp = vcobjptr(objnum);
+		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
 		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
 		const auto show_friend_name = Show_reticle_name;
 		const auto is_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
@@ -3015,7 +3016,7 @@ void draw_hud()
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)
-				newdemo_record_player_flags(get_local_player().flags.get_player_flags());
+				newdemo_record_player_flags(get_local_player_flags().get_player_flags());
 		}
 
 #ifndef RELEASE
@@ -3094,7 +3095,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(get_local_player().flags.get_player_flags());
+			newdemo_record_player_flags(get_local_player_flags().get_player_flags());
 		}
 		draw_cockpit_keys_state().draw_all_keys(multires_gauge_graphic);
 
@@ -3127,7 +3128,7 @@ void render_gauges()
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
-			newdemo_record_player_flags(get_local_player().flags.get_player_flags());
+			newdemo_record_player_flags(get_local_player_flags().get_player_flags());
 		}
 		draw_statusbar_keys_state().draw_all_keys(multires_gauge_graphic);
 

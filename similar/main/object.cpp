@@ -421,8 +421,9 @@ static void draw_polygon_object(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 	//set value for player headlight
 	if (obj->type == OBJ_PLAYER) {
-		if (Players[get_player_id(obj)].flags & PLAYER_FLAGS_HEADLIGHT && !Endlevel_sequence)
-			if (Players[get_player_id(obj)].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+		auto &player_flags = obj->ctype.player_info.powerup_flags;
+		if (player_flags & PLAYER_FLAGS_HEADLIGHT && !Endlevel_sequence)
+			if (player_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 				engine_glow_value[1] = -2;		//draw white!
 			else
 				engine_glow_value[1] = -1;		//draw normal color (grey)
@@ -451,7 +452,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	}
 	else {
 
-		if (obj->type==OBJ_PLAYER && (Players[get_player_id(obj)].flags&PLAYER_FLAGS_CLOAKED))
+		if (obj->type==OBJ_PLAYER && (obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 			draw_cloaked_object(obj,light,engine_glow_value,Players[get_player_id(obj)].cloak_time,Players[get_player_id(obj)].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[get_robot_id(obj)].boss_flag)

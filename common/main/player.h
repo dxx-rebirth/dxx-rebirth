@@ -55,7 +55,6 @@ struct player : public prohibit_void_ptr<player>
 	//  -- make sure you're 4 byte aligned now!
 
 	// Game data
-	player_flags flags;   // Powerup flags, see below...
 	ubyte   lives;                  // Lives remaining, 0 = game over.
 	sbyte   level;                  // Current level player is playing. (must be signed for secret levels)
 	sbyte   starting_level;         // What level the player started on.
@@ -164,7 +163,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_player_energy()	(get_local_plrobj().ctype.player_info.energy)
 #define get_local_player_vulcan_ammo()	(get_local_plrobj().ctype.player_info.vulcan_ammo)
 #define get_local_player_shields()	(get_local_plrobj().shields)
-#define get_local_player_flags()	(get_local_player().flags)
+#define get_local_player_flags()	(get_local_plrobj().ctype.player_info.powerup_flags)
 #define get_local_player_secondary_ammo()	(get_local_plrobj().ctype.player_info.secondary_ammo)
 #define get_local_player_cloak_time()	(get_local_player().cloak_time)
 #define get_local_player_invulnerable_time()	(get_local_player().invulnerable_time)

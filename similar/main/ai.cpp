@@ -924,8 +924,8 @@ void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playero
 
 	if (robptr->attack_type == 1) {
 		if (ready_to_fire_weapon1(ailp, 0)) {
-			auto &player = get_local_player();
-			if (!(player.flags & PLAYER_FLAGS_CLOAKED))
+			auto &player_info = playerobj->ctype.player_info;
+			if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 				if (vm_vec_dist_quick(ConsoleObject->pos, robot->pos) < robot->size + ConsoleObject->size + F1_0*2)
 				{
 					collide_player_and_nasty_robot( playerobj, robot, collision_point );
@@ -1850,7 +1850,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
 			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
-				if (get_local_player().flags & static_cast<PLAYER_FLAG>(wallp->keys))
+				if (get_local_player_flags() & static_cast<PLAYER_FLAG>(wallp->keys))
 					return 1;
 			}
 		}
@@ -2809,10 +2809,10 @@ void init_ai_frame(void)
 {
 	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(Last_fired_upon_player_pos, Believed_player_pos);
 
-	auto &player = get_local_player();
-	if (!(player.flags & PLAYER_FLAGS_CLOAKED) ||
-		(player.flags & PLAYER_FLAGS_HEADLIGHT_ON) ||
-		(Afterburner_charge && Controls.state.afterburner && (player.flags & PLAYER_FLAGS_AFTERBURNER)))
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ||
+		(player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) ||
+		(Afterburner_charge && Controls.state.afterburner && (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)))
 	{
 		ai_do_cloak_stuff();
 	}

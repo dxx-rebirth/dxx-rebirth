@@ -1746,7 +1746,7 @@ class cheat_menu_bit_invulnerability : public menu_bit_wrapper_t<player_flags, P
 	player &m_player;
 public:
 	cheat_menu_bit_invulnerability(player &plr) :
-		menu_bit_wrapper_t(plr.flags, PLAYER_FLAGS_INVULNERABLE),
+		menu_bit_wrapper_t(vobjptr(plr.objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_INVULNERABLE),
 		m_player(plr)
 	{
 	}
@@ -1766,7 +1766,7 @@ class cheat_menu_bit_cloak : public menu_bit_wrapper_t<player_flags, PLAYER_FLAG
 	player &m_player;
 public:
 	cheat_menu_bit_cloak(player &plr) :
-		menu_bit_wrapper_t(plr.flags, PLAYER_FLAGS_CLOAKED),
+		menu_bit_wrapper_t(vobjptr(plr.objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_CLOAKED),
 		m_player(plr)
 	{
 	}
@@ -1793,16 +1793,16 @@ public:
  * a cheat.  The player can change his energy up if he needs more.
  */
 #define WIMP_MENU_DXX(VERB)	\
-	DXX_##VERB##_CHECK(TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_AFTERBURNER))	\
+	DXX_##VERB##_CHECK(TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER))	\
 
 #endif
 
 #define DXX_WIMP_MENU(VERB)	\
 	DXX_##VERB##_CHECK(TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plr))	\
 	DXX_##VERB##_CHECK(TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plr))	\
-	DXX_##VERB##_CHECK("BLUE KEY", opt_key_blue, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_BLUE_KEY))	\
-	DXX_##VERB##_CHECK("GOLD KEY", opt_key_gold, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_GOLD_KEY))	\
-	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(plr.flags, PLAYER_FLAGS_RED_KEY))	\
+	DXX_##VERB##_CHECK("BLUE KEY", opt_key_blue, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
+	DXX_##VERB##_CHECK("GOLD KEY", opt_key_gold, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
+	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
 	WIMP_MENU_DXX(VERB)	\
 	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plrobj.ctype.player_info.energy), 0, 200)	\
 	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\

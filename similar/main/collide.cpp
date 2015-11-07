@@ -144,14 +144,14 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 				ai_local		*ailp = &robot->ctype.ai_info.ail;
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
-						if (get_local_player().flags & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
+						if (get_local_player_flags() & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
 							wall_open_door(hitseg, hitwall);
 					} else if (!(Walls[wall_num].flags & WALL_DOOR_LOCKED))
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
 				if (Walls[wall_num].keys != KEY_NONE)
-					if (get_local_player().flags & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
+					if (get_local_player_flags() & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
 						wall_open_door(hitseg, hitwall);
 			}
 #endif
@@ -1835,8 +1835,6 @@ static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
 void drop_player_eggs(const vobjptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
-		playernum_t	pnum = get_player_id(playerobj);
-
 		// Seed the random number generator so in net play the eggs will always
 		// drop the same way
 		if (Game_mode & GM_MULTI)
@@ -1844,7 +1842,6 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			Net_create_loc = 0;
 			d_srand(5483L);
 		}
-		auto &plr = Players[pnum];
 		auto &player_info = playerobj->ctype.player_info;
 		auto &plr_laser_level = player_info.laser_level;
 		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
@@ -1881,7 +1878,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 				else
 					v -= subtract_vulcan_ammo;
 			}
-			plr.flags &= ~map_granted_flags_to_player_flags(GrantedItems);
+			player_info.powerup_flags &= ~map_granted_flags_to_player_flags(GrantedItems);
 			player_info.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
 		}
 
@@ -1929,33 +1926,33 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 				call_object_create_egg(playerobj, l, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
 
 		//	Drop quad laser if appropos
-		if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
+		if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_QUAD_FIRE);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
+		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
+		if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FULL_MAP);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER)
+		if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AFTERBURNER);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
+		if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AMMO_RACK);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_CONVERTER)
+		if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CONVERTER);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_HEADLIGHT)
+		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HEADLIGHT);
 
 		// drop the other enemies flag if you have it
 
-		if (game_mode_capture_flag() && (Players[pnum].flags & PLAYER_FLAGS_FLAG))
+		if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 		{
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, get_team (pnum)==TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, get_team (get_player_id(playerobj)) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
 		}
 
 
@@ -2258,13 +2255,13 @@ void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t po
 	{
 		switch (get_powerup_id(powerup)) {
 			case POW_KEY_BLUE:
-				Players[get_player_id(playerobj)].flags |= PLAYER_FLAGS_BLUE_KEY;
+				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY;
 				break;
 			case POW_KEY_RED:
-				Players[get_player_id(playerobj)].flags |= PLAYER_FLAGS_RED_KEY;
+				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_RED_KEY;
 				break;
 			case POW_KEY_GOLD:
-				Players[get_player_id(playerobj)].flags |= PLAYER_FLAGS_GOLD_KEY;
+				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_GOLD_KEY;
 				break;
 			default:
 				break;

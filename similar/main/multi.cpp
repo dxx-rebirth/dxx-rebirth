@@ -467,12 +467,12 @@ kmatrix_result multi_endlevel_score()
 	{
 		range_for (auto &i, partial_range(Players, Netgame.max_numplayers))
 			// Reset keys
-			i.flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
+			vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
 	range_for (auto &i, partial_range(Players, Netgame.max_numplayers))
-		i.flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
+		vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 #endif
 
 	range_for (auto &i, Players)
@@ -511,7 +511,6 @@ multi_new_game(void)
 		Players[i].connected = CONNECT_DISCONNECTED;
 		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
-		Players[i].flags = {};
 		Players[i].KillGoalCount=0;
 		multi_sending_message[i] = msgsend_none;
 	}
@@ -847,7 +846,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	multi_sort_kill_list();
 	multi_show_player_list();
 #if defined(DXX_BUILD_DESCENT_II)
-	Players[killed_pnum].flags&=(~(PLAYER_FLAGS_HEADLIGHT_ON));  // clear the killed guys flags/headlights
+	// clear the killed guys flags/headlights
+	killed->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_HEADLIGHT_ON); 
 #endif
 }
 
@@ -1303,7 +1303,7 @@ static void multi_send_message_end()
 				if (Players[i].connected && !d_strnicmp(static_cast<const char *>(Players[i].callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
-					if (game_mode_capture_flag() && (Players[i].flags & PLAYER_FLAGS_FLAG))
+					if (game_mode_capture_flag() && (vobjptr(Players[i].objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 					{
 						HUD_init_message_literal(HM_MULTI, "Can't move player because s/he has a flag!");
 						return;
@@ -1579,14 +1579,16 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
 			Fusion_charge = flags << 12;
 		}
+		const auto &&objp = vobjptridx(Players[pnum].objnum);
 		if (weapon == LASER_ID) {
+			auto &powerup_flags = objp->ctype.player_info.powerup_flags;
 			if (flags & LASER_QUAD)
-				Players[pnum].flags |= PLAYER_FLAGS_QUAD_LASERS;
+				powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 			else
-				Players[pnum].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
+				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(vobjptridx(Players[pnum].objnum), weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
+		do_laser_firing(objp, weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
 
 		if (weapon == primary_weapon_index_t::FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -1709,7 +1711,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #endif
 
 	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
-	Players[pnum].flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
+	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
 	multi_powcap_adjust_remote_cap (pnum);
 
@@ -1754,9 +1756,9 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 		create_player_appearance_effect(objp);
 	}
 
-	Players[pnum].flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
-	Players[pnum].flags &= ~PLAYER_FLAGS_FLAG;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
 #endif
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 }
@@ -2002,7 +2004,8 @@ static void multi_do_cloak(const playernum_t pnum)
 {
 	Assert(pnum < N_players);
 
-	Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
+	const auto &&objp = vobjptr(Players[pnum].objnum);
+	objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 	Players[pnum].cloak_time = GameTime64;
 	ai_do_cloak_stuff();
 
@@ -2541,7 +2544,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, get_local_player().flags.get_player_flags());
+	PUT_INTEL_INT(multibuf+count, get_local_player_flags().get_player_flags());
 	count += 4;
 
 	multibuf[count++] = Net_create_loc;
@@ -2609,7 +2612,6 @@ void multi_powcap_cap_objects()
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
-	auto &plr = get_local_player();
 	auto &secondary_ammo = get_local_player_secondary_ammo();
 	if (!game_mode_hoard())
 	  	secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
@@ -2656,17 +2658,17 @@ void multi_powcap_cap_objects()
 	get_local_player_secondary_ammo()[7]*=4;
 #endif
 	PowerupCaps.cap_laser_level(player_info.laser_level);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-	PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
 	if (game_mode_capture_flag())
 	{
-		PowerupCaps.cap_flag(plr.flags, PLAYER_FLAGS_FLAG, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
+		PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_FLAG, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
 	}
 #endif
 
@@ -2697,14 +2699,14 @@ static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
 		PowerupCaps.add_mapped_powerup_max(type, secondary_ammo[index]);
 	}
 
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-	PowerupCaps.inc_flag_max(plr.flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
 	if (player_info.laser_level > MAX_LASER_LEVEL)
 		PowerupCaps.add_mapped_powerup_max(POW_SUPER_LASER, player_info.laser_level - MAX_LASER_LEVEL);
 	else
@@ -2719,7 +2721,6 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
 		return;
 
-	const auto &plr = Players[pnum];
 	const auto &&objp = vobjptridx(Players[pnum].objnum);
 	auto &player_info = objp->ctype.player_info;
 	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
@@ -2746,7 +2747,7 @@ void multi_powcap_adjust_remote_cap(const playernum_t pnum)
 		PowerupCaps.add_mapped_powerup_current(type, is_always_4pack ? secondary_ammo / 4 : secondary_ammo);
 	}
 
-	const auto player_flags = plr.flags;
+	const auto player_flags = player_info.powerup_flags;
 	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
 	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3898,13 +3899,13 @@ static void multi_do_flags (const playernum_t pnum, const ubyte *buf)
 
 	flags = GET_INTEL_INT(buf + 2);
 	if (pnum!=Player_num)
-		Players[pnum].flags = player_flags(flags);
+		vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags = player_flags(flags);
 }
 
 void multi_send_flags (const playernum_t pnum)
 {
 	multibuf[1]=pnum;
-	PUT_INTEL_INT(multibuf+2, Players[pnum].flags.get_player_flags());
+	PUT_INTEL_INT(multibuf+2, vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags.get_player_flags());
  
 	multi_send_data<MULTI_FLAGS>(multibuf, 6, 2);
 }
@@ -4028,7 +4029,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			: SOUND_HUD_BLUE_GOT_GOAL
 		), F1_0*2);
 
-	Players[(int)pnum].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
+	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	team_kills[get_team(pnum)] += 5;
 	Players[(int)pnum].net_kills_total += 5;
@@ -4098,7 +4099,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 		PhallicLimit=bonus;
 	}
 
-	Players[(int)pnum].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear orb flag
+	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear orb flag
 
 	team_kills[get_team(pnum)] += bonus;
 	Players[(int)pnum].net_kills_total += bonus;
@@ -4158,7 +4159,7 @@ static void multi_do_got_flag (const playernum_t pnum)
 			? SOUND_HUD_RED_GOT_FLAG
 			: SOUND_HUD_BLUE_GOT_FLAG
 		), F1_0*2);
-	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
+	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(Players[pnum].callsign));
 }
 
@@ -4170,7 +4171,8 @@ static void multi_do_got_orb (const playernum_t pnum)
 		? SOUND_FRIEND_GOT_ORB
 		: SOUND_OPPONENT_GOT_ORB, F1_0*2);
 
-	Players[(int)pnum].flags|=PLAYER_FLAGS_FLAG;
+	const auto &objp = vobjptr(Players[pnum].objnum);
+	objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up an orb!",static_cast<const char *>(Players[pnum].callsign));
 }
 
@@ -4281,7 +4283,8 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	{
 		if (Game_mode & GM_NETWORK)
 			PowerupCaps.inc_mapped_powerup_current(powerup_id);
-		Players[pnum].flags &= ~(PLAYER_FLAGS_FLAG);
+		const auto &objp = vobjptr(Players[pnum].objnum);
+		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
 	}
 }
 #endif

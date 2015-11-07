@@ -721,7 +721,7 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
-	const auto max = PLAYER_MAX_AMMO(get_local_player(), Secondary_ammo_max[weapon_index]);
+	const auto max = PLAYER_MAX_AMMO(get_local_plrobj(), Secondary_ammo_max[weapon_index]);
 
 	auto &secondary_ammo = get_local_player_secondary_ammo();
 	if (secondary_ammo[weapon_index] >= max)
@@ -933,7 +933,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 //	Returns the amount picked up
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 {
-	auto &plr = get_local_player();
+	auto &plr = get_local_plrobj();
 	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
 	auto &plr_vulcan_ammo = get_local_player_vulcan_ammo();
@@ -1257,7 +1257,6 @@ void DropCurrentWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	auto &plr = get_local_player();
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	powerup_type_t drop_type;
 	const auto Primary_weapon = ::Primary_weapon;
@@ -1265,7 +1264,7 @@ void DropCurrentWeapon ()
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
 	if (Primary_weapon==0)
 	{
-		if ((plr.flags & PLAYER_FLAGS_QUAD_LASERS) && !GrantedItems.has_quad_laser())
+		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) && !GrantedItems.has_quad_laser())
 		{
 			/* Sorry, no message.  Need to fall through in case player
 			 * wanted to drop a laser powerup.
@@ -1349,7 +1348,7 @@ void DropCurrentWeapon ()
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
 		if (drop_type == POW_QUAD_FIRE)
-			plr.flags &= ~PLAYER_FLAGS_QUAD_LASERS;
+			player_info.powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		else
 			-- player_info.laser_level;
 	}

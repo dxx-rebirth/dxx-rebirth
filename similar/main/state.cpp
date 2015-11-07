@@ -471,7 +471,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->objnum                    = pl->objnum;
 	pl_rw->n_packets_got             = 0;
 	pl_rw->n_packets_sent            = 0;
-	pl_rw->flags                     = pl->flags.get_player_flags();
+	pl_rw->flags                     = pl_info.powerup_flags.get_player_flags();
 	pl_rw->energy                    = pl_info.energy;
 	pl_rw->shields                   = pl_shields;
 	pl_rw->lives                     = pl->lives;
@@ -521,7 +521,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->callsign = pl_rw->callsign;
 	pl->connected                 = pl_rw->connected;
 	pl->objnum                    = pl_rw->objnum;
-	pl->flags                     = player_flags(pl_rw->flags);
+	pl_info.powerup_flags         = player_flags(pl_rw->flags);
 	pl_info.energy                = pl_rw->energy;
 	pl_shields                    = pl_rw->shields;
 	pl->lives                     = pl_rw->lives;
@@ -1855,7 +1855,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		{
 			Netgame.killed[i] = Players[i].net_killed_total;
 			Netgame.player_score[i] = Players[i].score;
-			Netgame.net_player_flags[i] = Players[i].flags;
+			const auto &&objp = vobjptr(Players[i].objnum);
+			Netgame.net_player_flags[i] = objp->ctype.player_info.powerup_flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)

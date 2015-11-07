@@ -1533,7 +1533,8 @@ static net_udp_new_player(UDP_sequence_packet *their)
 	Players[pnum].net_killed_total = 0;
 	kill_matrix[pnum] = {};
 	Players[pnum].score = 0;
-	Players[pnum].flags = {};
+	const auto &&objp = vobjptr(Players[pnum].objnum);
+	objp->ctype.player_info.powerup_flags = {};
 	Players[pnum].KillGoalCount=0;
 
 	if (pnum == N_players)
@@ -2309,7 +2310,8 @@ void net_udp_update_netgame(void)
 #if defined(DXX_BUILD_DESCENT_II)
 		Netgame.player_score[i] = Players[i].score;
 #endif
-		Netgame.net_player_flags[i] = Players[i].flags;
+		const auto &&objp = vobjptr(Players[i].objnum);
+		Netgame.net_player_flags[i] = objp->ctype.player_info.powerup_flags;
 	}
 	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;

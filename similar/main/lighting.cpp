@@ -125,7 +125,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 #if defined(DXX_BUILD_DESCENT_II)
 			if (objnum != object_none)
 				if (Objects[objnum].type == OBJ_PLAYER)
-					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
+					if (Objects[objnum].ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
 						if (Objects[objnum].id != Player_num) {
 							fvi_query	fq;
@@ -262,7 +262,7 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 	{
 		case OBJ_PLAYER:
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+			if (obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 			{
 				if (Num_headlights < MAX_HEADLIGHTS)
 					Headlights[Num_headlights++] = obj;

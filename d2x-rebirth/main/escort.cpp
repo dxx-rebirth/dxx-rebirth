@@ -820,7 +820,7 @@ static escort_goal_t escort_set_goal_object(void)
 {
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	const auto &pl_flags = get_local_player().flags;
+	const auto &pl_flags = get_local_player_flags();
 	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
 		return ESCORT_GOAL_BLUE_KEY;
 	else if (!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1) != object_none))
@@ -978,10 +978,9 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;
-		auto &player = get_local_player();
-		if (player.flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
+		auto &plrobj = get_local_plrobj();
+		if (plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
-			auto &plrobj = get_local_plrobj();
 			const auto energy = plrobj.ctype.player_info.energy;
 			const auto ienergy = f2i(energy);
 			if (ienergy < 40)
@@ -1336,7 +1335,7 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
 static int maybe_steal_flag_item(const vobjptr_t playerobjp, const PLAYER_FLAG flagval)
 {
-	auto &plr_flags = Players[get_player_id(playerobjp)].flags;
+	auto &plr_flags = playerobjp->ctype.player_info.powerup_flags;
 	if (plr_flags & flagval)
 	{
 		if (d_rand() < THIEF_PROBABILITY) {

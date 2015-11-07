@@ -535,10 +535,15 @@ void fly_init(const vobjptr_t obj)
 static void do_cloak_stuff(void)
 {
 	for (int i = 0; i < N_players; i++)
-		if (Players[i].flags & PLAYER_FLAGS_CLOAKED) {
+	{
+		const auto &&plobj = vobjptr(Players[i].objnum);
+		auto &player_info = plobj->ctype.player_info;
+		auto &pl_flags = player_info.powerup_flags;
+		if (pl_flags & PLAYER_FLAGS_CLOAKED)
+		{
 			if (GameTime64 > Players[i].cloak_time+CLOAK_TIME_MAX)
 			{
-				Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
+				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
@@ -547,6 +552,7 @@ static void do_cloak_stuff(void)
 				}
 			}
 		}
+	}
 }
 
 static int FakingInvul=0;
@@ -555,11 +561,13 @@ static int FakingInvul=0;
 static void do_invulnerable_stuff(void)
 {
 	auto &player = get_local_player();
-	if (player.flags & PLAYER_FLAGS_INVULNERABLE)
+	auto &plobj = get_local_plrobj();
+	auto &pl_flags = plobj.ctype.player_info.powerup_flags;
+	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
 		if (GameTime64 > player.invulnerable_time + INVULNERABLE_TIME_MAX)
 		{
-			player.flags &= ~PLAYER_FLAGS_INVULNERABLE;
+			pl_flags &= ~PLAYER_FLAGS_INVULNERABLE;
 			if (FakingInvul)
 			{
 				FakingInvul = 0;

@@ -277,7 +277,8 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_rescued_total = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
-	Players[pnum].flags = {};
+	const auto &&plobj = vobjptr(Players[pnum].objnum);
+	plobj->ctype.player_info.powerup_flags = {};
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -347,7 +348,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			get_local_player_flags() |= all_keys;
 		else
-			get_local_player().flags &= ~all_keys;
+			get_local_player_flags() &= ~all_keys;
 	}
 
 	Player_is_dead = 0; // Added by RH
@@ -452,11 +453,11 @@ void init_player_stats_new_ship(ubyte pnum)
 #endif
 	}
 	Players[pnum].hostages_on_board = 0;
-	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	player_info.powerup_flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
-	Players[pnum].flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
+	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 #endif
-	plr.flags |= map_granted_flags_to_player_flags(GrantedItems);
+	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
 	DXX_MAKE_VAR_UNDEFINED(Players[pnum].invulnerable_time);
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
@@ -1578,7 +1579,10 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	{
 		int i;
 		for (i = 0; i < N_players; i++)
-			Players[i].flags |= Netgame.net_player_flags[i];
+		{
+			const auto &&plobj = vobjptr(Players[i].objnum);
+			plobj->ctype.player_info.powerup_flags |= Netgame.net_player_flags[i];
+		}
 	}
 
 	if (Game_mode & GM_MULTI)

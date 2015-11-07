@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Values for special flags
 #if defined(DXX_BUILD_DESCENT_II)
-#define PLAYER_MAX_AMMO(PLR,BASE)	((PLR.flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
+#define PLAYER_MAX_AMMO(PLR,BASE)	((PLR.ctype.player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
 
 #define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
 #endif

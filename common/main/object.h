@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "powerup.h"
 #include "poison.h"
+#include "player-flags.h"
 
 // Object types
 enum object_type_t : int
@@ -87,6 +88,7 @@ struct reactor_static {
 struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
+	player_flags powerup_flags;
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 	uint16_t vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_I)
