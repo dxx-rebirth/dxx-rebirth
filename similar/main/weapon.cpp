@@ -261,9 +261,16 @@ public:
 	{
 		return POrderList(i);
 	}
-	bool maybe_select_weapon(uint_fast32_t cur_order_slot) const
+	static uint_fast32_t get_weapon_by_order_slot(uint_fast32_t cur_order_slot)
 	{
-		auto desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		return PlayerCfg.PrimaryOrder[cur_order_slot];
+	}
+	bool maybe_select_weapon_by_order_slot(uint_fast32_t cur_order_slot) const
+	{
+		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
+	}
+	bool maybe_select_weapon_by_type(uint_fast32_t desired_weapon) const
+	{
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
 		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && pl_info.laser_level > MAX_LASER_LEVEL)
@@ -281,6 +288,11 @@ public:
 		select_primary_weapon(PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
 	}
+	static void abandon_auto_select()
+	{
+		HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
+		select_primary_weapon(nullptr, 0, 1);
+	}
 };
 
 class cycle_secondary_state : public cycle_weapon_state
@@ -291,13 +303,24 @@ public:
 	{
 		return SOrderList(i);
 	}
-	static bool maybe_select_weapon(uint_fast32_t cur_order_slot)
+	static uint_fast32_t get_weapon_by_order_slot(uint_fast32_t cur_order_slot)
 	{
-		const auto desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		return PlayerCfg.SecondaryOrder[cur_order_slot];
+	}
+	static bool maybe_select_weapon_by_order_slot(uint_fast32_t cur_order_slot)
+	{
+		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
+	}
+	static bool maybe_select_weapon_by_type(uint_fast32_t desired_weapon)
+	{
 		if (!player_has_secondary_weapon(desired_weapon).has_all())
 			return false;
 		select_secondary_weapon(SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
+	}
+	static void abandon_auto_select()
+	{
+		HUD_init_message_literal(HM_DEFAULT, "No secondary weapons available!");
 	}
 };
 
@@ -330,7 +353,7 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 				continue; // continue?
 			}
 		}
-		if (t.maybe_select_weapon(cur_order_slot)) // now that is the weapon next to our current one
+		if (t.maybe_select_weapon_by_order_slot(cur_order_slot)) // now that is the weapon next to our current one
 		// select the weapon if we have it
 			return;
 	}
@@ -589,102 +612,35 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	select_secondary_weapon(weapon_name, weapon_num, 1);
 }
 
+template <typename T>
+void auto_select_weapon(T t)
+{
+	for (uint_fast32_t cur_order_slot = 0; cur_order_slot != t.max_weapons + 1; ++cur_order_slot)
+	{
+		const auto weapon_type = t.get_weapon_by_order_slot(cur_order_slot);
+		if (weapon_type >= t.max_weapons)
+		{
+			t.abandon_auto_select();
+			return;
+		}
+		if (t.maybe_select_weapon_by_type(weapon_type))
+			return;
+	}
+}
+
 //	----------------------------------------------------------------------------------------
 //	Automatically select next best weapon if unable to fire current weapon.
 // Weapon type: 0==primary, 1==secondary
 void auto_select_primary_weapon()
 {
-	int looped=0;
-
-	{
 		if (!player_has_primary_weapon(Primary_weapon).has_all())
-		{
-			int	try_again = 1;
-			auto cur_weapon = POrderList(Primary_weapon);
-			const auto cutpoint = POrderList (255);
-			while (try_again) {
-				cur_weapon++;
-
-				if (cur_weapon>=cutpoint)
-				{
-					if (looped)
-					{
-						HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-						select_primary_weapon(nullptr, 0, 1);
-						try_again = 0;
-						continue;
-					}
-					cur_weapon=0;
-					looped=1;
-				}
-
-
-				if (cur_weapon==MAX_PRIMARY_WEAPONS)
-					cur_weapon = 0;
-
-				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
-				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
-				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
-				//	continue;
-
-				const auto weapon_num = PlayerCfg.PrimaryOrder[cur_weapon];
-				if (weapon_num == Primary_weapon)
-				{
-					HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-					select_primary_weapon(nullptr, 0, 1);
-					try_again = 0;			// Tried all weapons!
-
-				}
-				else if (weapon_num != 255 && player_has_primary_weapon(weapon_num).has_all())
-				{
-					const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-					select_primary_weapon(weapon_name, weapon_num, 1);
-					try_again = 0;
-				}
-			}
-		}
-	}
+			auto_select_weapon<cycle_primary_state>({});
 }
 
 void auto_select_secondary_weapon()
 {
-	int looped=0;
 		if (!player_has_secondary_weapon(Secondary_weapon).has_all())
-		{
-			int	try_again = 1;
-			auto cur_weapon = SOrderList(Secondary_weapon);
-			const auto cutpoint = SOrderList(255);
-			while (try_again) {
-				cur_weapon++;
-
-				if (cur_weapon>=cutpoint)
-				{
-					if (looped)
-					{
-						HUD_init_message_literal(HM_DEFAULT, "No secondary weapons selected!");
-						try_again = 0;
-						continue;
-					}
-					cur_weapon=0;
-					looped=1;
-				}
-
-				if (cur_weapon==MAX_SECONDARY_WEAPONS)
-					cur_weapon = 0;
-
-				if (PlayerCfg.SecondaryOrder[cur_weapon] == Secondary_weapon) {
-					HUD_init_message_literal(HM_DEFAULT, "No secondary weapons available!");
-					try_again = 0;				// Tried all weapons!
-				}
-				else if (player_has_secondary_weapon(PlayerCfg.SecondaryOrder[cur_weapon]).has_all())
-				{
-					const auto weapon_num = PlayerCfg.SecondaryOrder[cur_weapon];
-					const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-					select_secondary_weapon(weapon_name, weapon_num, 1);
-					try_again = 0;
-				}
-			}
-		}
+			auto_select_weapon<cycle_secondary_state>({});
 }
 
 void delayed_autoselect()
