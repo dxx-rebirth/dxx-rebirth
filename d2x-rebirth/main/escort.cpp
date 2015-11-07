@@ -1419,7 +1419,7 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 	auto &plr = Players[get_player_id(playerobjp)];
 	if (!(plr.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 		return 0;
-	if (!weapon_index_uses_vulcan_ammo(weapon_num) || plr.vulcan_ammo)
+	if (!weapon_index_uses_vulcan_ammo(weapon_num) || playerobjp->ctype.player_info.vulcan_ammo)
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_num == primary_weapon_index_t::LASER_INDEX)

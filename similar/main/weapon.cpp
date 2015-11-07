@@ -930,15 +930,16 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	auto &plr = get_local_player();
 	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
-	const auto old_ammo = plr.vulcan_ammo;
+	auto &plr_vulcan_ammo = get_local_player_vulcan_ammo();
+	const auto old_ammo = plr_vulcan_ammo;
 	if (old_ammo >= max)
 		return 0;
 
-	plr.vulcan_ammo += ammo_count;
+	plr_vulcan_ammo += ammo_count;
 
-	if (plr.vulcan_ammo > max) {
-		ammo_count += (max - plr.vulcan_ammo);
-		plr.vulcan_ammo = max;
+	if (plr_vulcan_ammo > max) {
+		ammo_count += (max - plr_vulcan_ammo);
+		plr_vulcan_ammo = max;
 	}
 	if (change_weapon &&
 		!old_ammo)
@@ -1314,13 +1315,14 @@ void DropCurrentWeapon ()
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
 
 		//if it's one of these, drop some ammo with the weapon
-		auto ammo = plr.vulcan_ammo;
+		auto &plr_vulcan_ammo = get_local_player_vulcan_ammo();
+		auto ammo = plr_vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		if ((plr.primary_weapon_flags & HAS_VULCAN_FLAG) && (plr.primary_weapon_flags & HAS_GAUSS_FLAG))
 			ammo /= 2;		//if both vulcan & gauss, drop half
 #endif
 
-		plr.vulcan_ammo -= ammo;
+		plr_vulcan_ammo -= ammo;
 
 			objnum->ctype.powerup_info.count = ammo;
 	}

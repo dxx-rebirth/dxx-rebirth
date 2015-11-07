@@ -1835,7 +1835,6 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 {
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
 		playernum_t	pnum = get_player_id(playerobj);
-		int	vulcan_ammo=0;
 
 		// Seed the random number generator so in net play the eggs will always
 		// drop the same way
@@ -1873,10 +1872,11 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			}
 			if (uint16_t subtract_vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems))
 			{
-				if (plr.vulcan_ammo < subtract_vulcan_ammo)
-					plr.vulcan_ammo = 0;
+				auto &v = playerobj->ctype.player_info.vulcan_ammo;
+				if (v < subtract_vulcan_ammo)
+					v = 0;
 				else
-					plr.vulcan_ammo -= subtract_vulcan_ammo;
+					v -= subtract_vulcan_ammo;
 			}
 			plr.flags &= ~map_granted_flags_to_player_flags(GrantedItems);
 			plr.primary_weapon_flags &= ~map_granted_flags_to_primary_weapon_flags(GrantedItems);
@@ -1966,7 +1966,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #endif
 
 		//Drop the vulcan, gauss, and ammo
-		vulcan_ammo = Players[pnum].vulcan_ammo;
+		auto vulcan_ammo = playerobj->ctype.player_info.vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		if ((Players[pnum].primary_weapon_flags & HAS_VULCAN_FLAG) && (Players[pnum].primary_weapon_flags & HAS_GAUSS_FLAG))
 			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
@@ -2025,7 +2025,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
 		if (!(Players[get_player_id(playerobj)].primary_weapon_flags & HAS_VULCAN_FLAG)) {
-			int	amount = Players[get_player_id(playerobj)].vulcan_ammo;
+			auto amount = playerobj->ctype.player_info.vulcan_ammo;
 			if (amount > 200) {
 				amount = 200;
 			}

@@ -1692,7 +1692,8 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	Players[pnum].laser_level = stored_laser_level(buf[count]);                                                 count++;
 
 	const auto &&objp = vobjptridx(Players[pnum].objnum);
-	auto &secondary_ammo = objp->ctype.player_info.secondary_ammo;
+	auto &player_info = objp->ctype.player_info;
+	auto &secondary_ammo = player_info.secondary_ammo;
 	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
 	secondary_ammo[SMART_INDEX] = buf[count];         count++;
@@ -1707,7 +1708,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
-	Players[pnum].vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
+	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	Players[pnum].flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
 	multi_powcap_adjust_remote_cap (pnum);

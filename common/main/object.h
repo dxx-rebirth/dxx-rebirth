@@ -87,6 +87,7 @@ struct reactor_static {
 struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
+	uint16_t vulcan_ammo;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 };
 

@@ -1717,7 +1717,6 @@ static inline int sufficient_ammo(int ammo_used, int uses_vulcan_ammo, ushort vu
 
 int do_laser_firing_player(void)
 {
-	player *const plp = &get_local_player();
 	fix		energy_used;
 	int		ammo_used;
 	int		weapon_index;
@@ -1741,7 +1740,8 @@ int do_laser_firing_player(void)
 
 	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
-	auto &pl_energy = get_local_plrobj().ctype.player_info.energy;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &pl_energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
@@ -1750,12 +1750,12 @@ int do_laser_firing_player(void)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
-	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)))
+	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)))
 		auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 #endif
 
 	while (Next_laser_fire_time <= GameTime64) {
-		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, plp->vulcan_ammo)) {
+		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)) {
 			int	laser_level, flags, fire_frame_overhead = 0;
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
@@ -1795,10 +1795,11 @@ int do_laser_firing_player(void)
 				pl_energy = 0;
 
 			if (uses_vulcan_ammo) {
-				if (ammo_used > plp->vulcan_ammo)
-					plp->vulcan_ammo = 0;
+				auto &v = player_info.vulcan_ammo;
+				if (v < ammo_used)
+					v = 0;
 				else
-					plp->vulcan_ammo -= ammo_used;
+					v -= ammo_used;
 			}
 
 			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.

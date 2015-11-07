@@ -66,7 +66,6 @@ struct player : public prohibit_void_ptr<player>
 #elif defined(DXX_BUILD_DESCENT_II)
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 #endif
-	ushort  vulcan_ammo;
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
@@ -170,7 +169,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_player()	(Players[Player_num])
 #define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
 #define get_local_player_energy()	(get_local_plrobj().ctype.player_info.energy)
-#define get_local_player_vulcan_ammo()	(get_local_player().vulcan_ammo)
+#define get_local_player_vulcan_ammo()	(get_local_plrobj().ctype.player_info.vulcan_ammo)
 #define get_local_player_shields()	(get_local_plrobj().shields)
 #define get_local_player_flags()	(get_local_player().flags)
 #define get_local_player_secondary_ammo()	(get_local_plrobj().ctype.player_info.secondary_ammo)
