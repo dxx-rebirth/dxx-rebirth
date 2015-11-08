@@ -346,13 +346,14 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 {
 	if (tiny)
 	{
-		if (is_current)
-			gr_set_fontcolor(gr_find_closest_color_current(57,49,20),-1);
-		else
-			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
-
+		int r, g, b;
 		if (item->text[0]=='\t')
-			gr_set_fontcolor (gr_find_closest_color_current(63,63,63),-1);
+			r = g = b = 63;
+		else if (is_current)
+			r = 57, g = 49, b = 20;
+		else
+			r = g = 29, b = 47;
+		gr_set_fontcolor(gr_find_closest_color_current(r, g, b), -1);
 	}
 	else
 	{
@@ -798,27 +799,17 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 								x1 = grd_curcanv->cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
-								if (mx > x1 && mx < (x1 + sleft_width) && citem.value != citem.min_value)
-								{
-									citem.value = citem.min_value;
-									changed = 1;
-								}
-								else if (mx < x2 && mx > (x2 - sright_width) && citem.value != citem.max_value)
-								{
-									citem.value = citem.max_value;
-									changed = 1;
-								} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
-									int num_values, value_width, new_value;
-
-									num_values = citem.max_value - citem.min_value + 1;
-									value_width = (slider_width - sleft_width - sright_width) / num_values;
-									new_value = (mx - x1 - sleft_width) / value_width;
+								int new_value;
+								if (
+									(mx > x1 && mx < x1 + sleft_width && (new_value = citem.min_value, true)) ||
+									(mx < x2 && mx > x2 - sright_width && (new_value = citem.max_value, true)) ||
+									(mx > x1 + sleft_width && mx < x2 - sright_width - sleft_width && (new_value = (mx - x1 - sleft_width) / ((slider_width - sleft_width - sright_width) / (citem.max_value - citem.min_value + 1)), true))
+								)
 									if (citem.value != new_value)
 									{
 										citem.value = new_value;
 										changed = 1;
 									}
-								}
 								*p = '\t';
 							}
 						}
