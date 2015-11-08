@@ -2380,13 +2380,13 @@ static void collide_weapon_and_debris(const vobjptridx_t weapon, const vobjptrid
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_COLLISION_TABLE(NO,DO)	\
 	NO##_SAME_COLLISION(OBJ_MARKER)	\
-	DO##_COLLISION( OBJ_MARKER, OBJ_PLAYER,  collide_player_and_marker)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_ROBOT)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_HOSTAGE)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_WEAPON)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_CAMERA)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_POWERUP)	\
-	NO##_COLLISION( OBJ_MARKER, OBJ_DEBRIS)	\
+	DO##_COLLISION(OBJ_PLAYER, OBJ_MARKER, collide_player_and_marker)	\
+	NO##_COLLISION(OBJ_ROBOT, OBJ_MARKER)	\
+	NO##_COLLISION(OBJ_HOSTAGE, OBJ_MARKER)	\
+	NO##_COLLISION(OBJ_WEAPON, OBJ_MARKER)	\
+	NO##_COLLISION(OBJ_CAMERA, OBJ_MARKER)	\
+	NO##_COLLISION(OBJ_POWERUP, OBJ_MARKER)	\
+	NO##_COLLISION(OBJ_DEBRIS, OBJ_MARKER)	\
 
 #endif
 
@@ -2447,10 +2447,8 @@ static void collide_weapon_and_debris(const vobjptridx_t weapon, const vobjptrid
 
 #define DO_COLLISION(type1,type2,collision_function)	\
 	case COLLISION_OF( (type1), (type2) ):	\
+		static_assert(type1 < type2, "do " #type1 " < " #type2);	\
 		collision_function( (A), (B), collision_point );	\
-		break;	\
-	case COLLISION_OF( (type2), (type1) ):	\
-		collision_function( (B), (A), collision_point );	\
 		break;
 #define DO_SAME_COLLISION(type1,collision_function)	\
 	case COLLISION_OF( (type1), (type1) ):	\
@@ -2460,8 +2458,7 @@ static void collide_weapon_and_debris(const vobjptridx_t weapon, const vobjptrid
 //these next two macros define a case that does nothing
 #define NO_COLLISION(type1,type2)	\
 	case COLLISION_OF( (type1), (type2) ):	\
-		break;	\
-	case COLLISION_OF( (type2), (type1) ):	\
+		static_assert(type1 < type2, "no " #type1 " < " #type2);	\
 		break;
 
 #define NO_SAME_COLLISION(type1)	\
@@ -2476,17 +2473,16 @@ struct assert_no_truncation
 
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point)
 {
+	uint_fast8_t at, bt;
+	const char *emsg;
+	if (((at = A->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type A", true)) ||
+		((bt = B->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type B", true)))
+		throw std::runtime_error(emsg);
 	if (B->type < A->type)
 	{
 		using std::swap;
 		swap(A, B);
 	}
-	uint_fast8_t at = A->type;
-	if (at >= MAX_OBJECT_TYPES)
-		throw std::runtime_error("illegal object type");
-	uint_fast8_t bt = B->type;
-	if (bt >= MAX_OBJECT_TYPES)
-		throw std::runtime_error("illegal object type");
 	uint_fast8_t collision_type = COLLISION_OF(at, bt);
 	struct assert_object_type_not_truncated : std::pair<assert_no_truncation<decltype(at), MAX_OBJECT_TYPES>, assert_no_truncation<decltype(bt), MAX_OBJECT_TYPES>> {};
 	struct assert_collision_of_not_truncated : assert_no_truncation<decltype(collision_type), COLLISION_OF(MAX_OBJECT_TYPES - 1, MAX_OBJECT_TYPES - 1)> {};
