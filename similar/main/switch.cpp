@@ -753,10 +753,9 @@ static ubyte trigger_type_from_flags(short flags)
 {
 	if (flags & TRIGGER_CONTROL_DOORS)
 		return TT_OPEN_DOOR;
-	else if (flags & TRIGGER_SHIELD_DAMAGE)
-		throw std::runtime_error("unsupported trigger type");
-	else if (flags & TRIGGER_ENERGY_DRAIN)
-		throw std::runtime_error("unsupported trigger type");
+	else if (flags & (TRIGGER_SHIELD_DAMAGE | TRIGGER_ENERGY_DRAIN))
+	{
+	}
 	else if (flags & TRIGGER_EXIT)
 		return TT_EXIT;
 	else if (flags & TRIGGER_MATCEN)
@@ -775,8 +774,7 @@ static ubyte trigger_type_from_flags(short flags)
 		return TT_CLOSE_WALL;
 	else if (flags & TRIGGER_ILLUSORY_WALL)
 		return TT_ILLUSORY_WALL;
-	else
-		throw std::runtime_error("unsupported trigger type");
+	throw std::runtime_error("unsupported trigger type");
 }
 
 static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)

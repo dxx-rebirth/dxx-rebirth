@@ -354,11 +354,13 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	auto owner = object_owner[local_objnum];
 	if (owner == owner_none)
 		return {owner, local_objnum};
-	if (owner >= N_players || owner < -1)
-		throw std::runtime_error("illegal object owner");
 	auto result = local_to_remote[local_objnum];
-	if (result >= MAX_OBJECTS)
-		throw std::runtime_error("illegal object remote number");	// See Rob, object has no remote number!
+	const char *emsg;
+	if (
+		((owner >= N_players || owner < -1) && (emsg = "illegal object owner", true)) ||
+		(result >= MAX_OBJECTS && (emsg = "illegal object remote number", true))	// See Rob, object has no remote number!
+	)
+		throw std::runtime_error(emsg);
 	return {owner, result};
 }
 
