@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <functional>
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -478,6 +479,25 @@ static void swap_menu_item_entries(newmenu_item &a, newmenu_item &b)
 	swap(a.value, b.value);
 }
 
+template <typename T>
+static void move_menu_item_entry(T &&t, newmenu_item *const items, uint_fast32_t citem, uint_fast32_t boundary)
+{
+	if (citem == boundary)
+		return;
+	auto a = &items[citem];
+	auto selected = std::make_pair(a->text, a->value);
+	for (; citem != boundary;)
+	{
+		citem = t(citem, 1);
+		auto &b = items[citem];
+		a->text = b.text;
+		a->value = b.value;
+		a = &b;
+	}
+	a->text = selected.first;
+	a->value = selected.second;
+}
+
 static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
 {
 	auto k = event_key_get(event);
@@ -498,6 +518,12 @@ static int newmenu_save_selection_key(newmenu *menu, const d_event &event)
 				auto &b = menu->items[++ menu->citem];
 				swap_menu_item_entries(a, b);
 			}
+			break;
+		case KEY_PAGEUP + KEY_SHIFTED:
+			move_menu_item_entry(std::minus<uint_fast32_t>(), menu->items, menu->citem, 0);
+			break;
+		case KEY_PAGEDOWN + KEY_SHIFTED:
+			move_menu_item_entry(std::plus<uint_fast32_t>(), menu->items, menu->citem, menu->nitems - 1);
 			break;
 	}
 	return 0;
