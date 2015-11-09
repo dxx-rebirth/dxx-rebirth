@@ -2473,16 +2473,16 @@ struct assert_no_truncation
 
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point)
 {
-	uint_fast8_t at, bt;
-	const char *emsg;
-	if (((at = A->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type A", true)) ||
-		((bt = B->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type B", true)))
-		throw std::runtime_error(emsg);
 	if (B->type < A->type)
 	{
 		using std::swap;
 		swap(A, B);
 	}
+	uint_fast8_t at, bt;
+	const char *emsg;
+	if (((at = A->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type A", true)) ||
+		((bt = B->type) >= MAX_OBJECT_TYPES && (emsg = "illegal object type B", true)))
+		throw std::runtime_error(emsg);
 	uint_fast8_t collision_type = COLLISION_OF(at, bt);
 	struct assert_object_type_not_truncated : std::pair<assert_no_truncation<decltype(at), MAX_OBJECT_TYPES>, assert_no_truncation<decltype(bt), MAX_OBJECT_TYPES>> {};
 	struct assert_collision_of_not_truncated : assert_no_truncation<decltype(collision_type), COLLISION_OF(MAX_OBJECT_TYPES - 1, MAX_OBJECT_TYPES - 1)> {};
