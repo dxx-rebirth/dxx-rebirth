@@ -645,10 +645,30 @@ void auto_select_secondary_weapon()
 
 void delayed_autoselect()
 {
-	if (!Controls.state.fire_primary && Delayed_primary != Primary_weapon)
-		select_primary_weapon(nullptr, Delayed_primary, 1);
-	if (!Controls.state.fire_secondary && Delayed_secondary != Secondary_weapon)
-		select_secondary_weapon(nullptr, Delayed_secondary, 1);
+	if (!Controls.state.fire_primary)
+	{
+		const auto primary_weapon = Primary_weapon;
+		const auto delayed_primary = Delayed_primary;
+		if (delayed_primary != primary_weapon)
+		{
+			if (player_has_primary_weapon(delayed_primary).has_all())
+				select_primary_weapon(nullptr, delayed_primary, 1);
+			else
+				Delayed_primary = primary_weapon;
+		}
+	}
+	if (!Controls.state.fire_secondary)
+	{
+		const auto secondary_weapon = Secondary_weapon;
+		const auto delayed_secondary = Delayed_secondary;
+		if (delayed_secondary != secondary_weapon)
+		{
+			if (player_has_secondary_weapon(delayed_secondary).has_all())
+				select_secondary_weapon(nullptr, delayed_secondary, 1);
+			else
+				Delayed_secondary = secondary_weapon;
+		}
+	}
 }
 
 static void maybe_autoselect_primary_weapon(int weapon_index)
