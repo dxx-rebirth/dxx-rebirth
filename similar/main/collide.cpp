@@ -1889,33 +1889,27 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		auto &secondary_ammo = playerobj->ctype.player_info.secondary_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If the player had smart mines, maybe arm one of them.
-		int	rthresh;
-		rthresh = 30000;
-		while (secondary_ammo[SMART_MINE_INDEX] % 4 == 1 && d_rand() < rthresh)
+		const auto drop_armed_bomb = [&](uint8_t mines, weapon_type_t id) {
+			mines %= 4;
+			for (int rthresh = 30000; mines && d_rand() < rthresh; rthresh /= 2)
 		{
 			const auto randvec = make_random_vector();
-			rthresh /= 2;
 			const auto tvec = vm_vec_add(playerobj->pos, randvec);
 			auto newseg = find_point_seg(tvec, playerobj->segnum);
 			if (newseg != segment_none)
-				Laser_create_new(randvec, tvec, newseg, playerobj, SUPERPROX_ID, 0);
-	  	}
+			{
+				-- mines;
+				Laser_create_new(randvec, tvec, newseg, playerobj, id, 0);
+			}
+		}
+		};
+		drop_armed_bomb(secondary_ammo[SMART_MINE_INDEX], SUPERPROX_ID);
 
 		//	If the player had proximity bombs, maybe arm one of them.
 
 		if ((Game_mode & GM_MULTI) && !game_mode_hoard())
 		{
-			rthresh = 30000;
-			while (secondary_ammo[PROXIMITY_INDEX] % 4 == 1 && d_rand() < rthresh)
-			{
-				const auto randvec = make_random_vector();
-				rthresh /= 2;
-				const auto tvec = vm_vec_add(playerobj->pos, randvec);
-				auto newseg = find_point_seg(tvec, playerobj->segnum);
-				if (newseg != segment_none)
-					Laser_create_new(randvec, tvec, newseg, playerobj, PROXIMITY_ID, 0);
-
-			}
+			drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], PROXIMITY_ID);
 		}
 #endif
 
