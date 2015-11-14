@@ -985,7 +985,6 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 			const auto ienergy = f2i(energy);
 			if (ienergy < 40)
 				if (ienergy & 4)
-					if (!Player_is_dead)
 						buddy_message("Hey, your headlight's on!");
 		}
 	}
