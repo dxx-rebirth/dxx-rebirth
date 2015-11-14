@@ -116,8 +116,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
 
-int sc_last_item= 0;
-
 static const char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
 unsigned state_game_id;
@@ -712,8 +710,6 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
 		return 0;
 	}
-
-	sc_last_item = -1;
 
 	if (blind != blind_save::no && state_quick_item < 0)
 		blind = blind_save::no;		// haven't picked a slot yet
