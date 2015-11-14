@@ -471,10 +471,13 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			}
 #endif
 
-			if (obj->type == OBJ_WEAPON && (Weapon_info[get_weapon_id(obj)].model_num_inner > -1 )) {
-				fix dist_to_eye = vm_vec_dist_quick(Viewer->pos, obj->pos);
+			const auto is_weapon_with_inner_model = (obj->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].model_num_inner > -1);
+			bool draw_simple_model;
+			if (is_weapon_with_inner_model)
+			{
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
-				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
+				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
+				if (draw_simple_model)
 					draw_polygon_model(obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
@@ -493,11 +496,11 @@ static void draw_polygon_object(const vobjptridx_t obj)
 					   &engine_glow_value,
 					   alt_textures);
 
+			if (is_weapon_with_inner_model)
+			{
 #ifndef OGL // in software rendering must draw inner model last
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
-				fix dist_to_eye = vm_vec_dist_quick(Viewer->pos, obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
-				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
+				if (draw_simple_model)
 					draw_polygon_model(obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
@@ -506,11 +509,9 @@ static void draw_polygon_object(const vobjptridx_t obj)
 							   light,
 							   &engine_glow_value,
 							   alt_textures);
-			}
 #endif
-
-			if (obj->type == OBJ_WEAPON && (Weapon_info[get_weapon_id(obj)].model_num_inner > -1 ))
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+			}
 			return;
 		}
 		draw_cloaked_object(obj, light, engine_glow_value, cloak_duration.first, cloak_duration.second);
