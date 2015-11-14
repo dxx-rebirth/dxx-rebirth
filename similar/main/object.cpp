@@ -224,7 +224,7 @@ int	Linear_tmap_polygon_objects = 1;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_t &glow,fix64 cloak_start_time,fix64 cloak_end_time)
+static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow_values_t glow, fix64 cloak_start_time, fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -321,13 +321,11 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 	}
 
 	if (fading) {
-		fix save_glow;
 		g3s_lrgb new_light;
 
 		new_light.r = fixmul(light.r,light_scale);
 		new_light.g = fixmul(light.g,light_scale);
 		new_light.b = fixmul(light.b,light_scale);
-		save_glow = glow[0];
 		glow[0] = fixmul(glow[0],light_scale);
 		draw_polygon_model(obj->pos,
 				   &obj->orient,
@@ -336,7 +334,6 @@ static void draw_cloaked_object(const vcobjptr_t obj,g3s_lrgb light,glow_values_
 				   new_light,
 				   &glow,
 				   alt_textures );
-		glow[0] = save_glow;
 	}
 	else {
 		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
