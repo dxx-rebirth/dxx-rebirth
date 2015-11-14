@@ -1741,13 +1741,14 @@ public:
 	}
 };
 
-class cheat_menu_bit_invulnerability : public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
+class cheat_menu_bit_invulnerability :
+	std::reference_wrapper<player>,
+	public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
 {
-	player &m_player;
 public:
 	cheat_menu_bit_invulnerability(player &plr) :
-		menu_bit_wrapper_t(vobjptr(plr.objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_INVULNERABLE),
-		m_player(plr)
+		reference_wrapper(plr),
+		menu_bit_wrapper_t(vobjptr(get().objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_INVULNERABLE)
 	{
 	}
 	cheat_menu_bit_invulnerability &operator=(uint32_t n)
@@ -1755,19 +1756,20 @@ public:
 		this->menu_bit_wrapper_t::operator=(n);
 		if (n)
 		{
-			m_player.invulnerable_time = GameTime64+i2f(1000);
+			get().invulnerable_time = GameTime64+i2f(1000);
 		}
 		return *this;
 	}
 };
 
-class cheat_menu_bit_cloak : public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
+class cheat_menu_bit_cloak :
+	std::reference_wrapper<player>,
+	public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
 {
-	player &m_player;
 public:
 	cheat_menu_bit_cloak(player &plr) :
-		menu_bit_wrapper_t(vobjptr(plr.objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_CLOAKED),
-		m_player(plr)
+		reference_wrapper(plr),
+		menu_bit_wrapper_t(vobjptr(get().objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_CLOAKED)
 	{
 	}
 	cheat_menu_bit_cloak &operator=(uint32_t n)
@@ -1778,7 +1780,7 @@ public:
 			if (Game_mode & GM_MULTI)
 				multi_send_cloak();
 			ai_do_cloak_stuff();
-			m_player.cloak_time = GameTime64;
+			get().cloak_time = GameTime64;
 		}
 		return *this;
 	}
