@@ -725,7 +725,7 @@ static window_event_result HandleSystemKey(int key)
 
 			case KEY_ESC:
 			{
-				const bool allow_saveload = !(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP);
+				const bool allow_saveload = !(Game_mode & GM_MULTI) || ((Game_mode & GM_MULTI_COOP) && Player_num == 0);
 				const auto choice = nm_messagebox_str(nullptr, allow_saveload ? nm_messagebox_tie("Abort Game", TXT_OPTIONS_, "Save Game...", TXT_LOAD_GAME) : nm_messagebox_tie("Abort Game", TXT_OPTIONS_), "Game Menu");
 				switch(choice)
 				{
