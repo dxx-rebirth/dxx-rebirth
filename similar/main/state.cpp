@@ -509,7 +509,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->hostages_total            = pl->hostages_total;
 	pl_rw->hostages_on_board         = pl->hostages_on_board;
 	pl_rw->hostages_level            = pl->hostages_level;
-	pl_rw->homing_object_dist        = pl->homing_object_dist;
+	pl_rw->homing_object_dist        = pl_info.homing_object_dist;
 	pl_rw->hours_level               = pl->hours_level;
 	pl_rw->hours_total               = pl->hours_total;
 }
@@ -552,7 +552,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->hostages_total            = pl_rw->hostages_total;
 	pl->hostages_on_board         = pl_rw->hostages_on_board;
 	pl->hostages_level            = pl_rw->hostages_level;
-	pl->homing_object_dist        = pl_rw->homing_object_dist;
+	pl_info.homing_object_dist        = pl_rw->homing_object_dist;
 	pl->hours_level               = pl_rw->hours_level;
 	pl->hours_total               = pl_rw->hours_total;
 }
@@ -1447,7 +1447,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				get_local_player().hostages_total = dummy_player.hostages_total;
 				get_local_player().hostages_on_board = dummy_player.hostages_on_board;
 				get_local_player().hostages_level = dummy_player.hostages_level;
-				get_local_player().homing_object_dist = dummy_player.homing_object_dist;
+				get_local_plrobj().ctype.player_info.homing_object_dist = -1;
 				get_local_player().hours_level = dummy_player.hours_level;
 				get_local_player().hours_total = dummy_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime);

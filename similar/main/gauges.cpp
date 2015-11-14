@@ -825,8 +825,9 @@ void play_homing_warning(void)
 	if (Endlevel_sequence || Player_is_dead)
 		return;
 
-	if (get_local_player().homing_object_dist >= 0) {
-		beep_delay = get_local_player().homing_object_dist/128;
+	const auto homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+	if (homing_object_dist >= 0) {
+		beep_delay = homing_object_dist / 128;
 		if (beep_delay > F1_0)
 			beep_delay = F1_0;
 		else if (beep_delay < F1_0/8)
@@ -850,12 +851,12 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 
 	gr_set_current_canvas( NULL );
 
-	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, (get_local_player().homing_object_dist >= 0 && (GameTime64 & 0x4000)) ? GAUGE_HOMING_WARNING_ON : GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
+	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, (get_local_plrobj().ctype.player_info.homing_object_dist >= 0 && (GameTime64 & 0x4000)) ? GAUGE_HOMING_WARNING_ON : GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
 }
 
 static void hud_show_homing_warning(void)
 {
-	if (get_local_player().homing_object_dist >= 0) {
+	if (get_local_plrobj().ctype.player_info.homing_object_dist >= 0) {
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
@@ -3067,8 +3068,11 @@ void render_gauges()
 	gr_set_curfont( GAME_FONT );
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		if (get_local_player().homing_object_dist >= 0)
-			newdemo_record_homing_distance(get_local_player().homing_object_dist);
+	{
+		const auto homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+		if (homing_object_dist >= 0)
+			newdemo_record_homing_distance(homing_object_dist);
+	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	draw_weapon_boxes(multires_gauge_graphic);

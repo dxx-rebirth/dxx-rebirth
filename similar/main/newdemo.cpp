@@ -1914,7 +1914,7 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 	reset_objects(1);
-	get_local_player().homing_object_dist = -F1_0;
+	get_local_plrobj().ctype.player_info.homing_object_dist = -1;
 
 	prev_obj = NULL;
 
@@ -2556,7 +2556,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_short(distance);
 				break;
 			}
-			get_local_player().homing_object_dist = i2f((int)(distance << 16));
+			get_local_plrobj().ctype.player_info.homing_object_dist = i2f((int)(distance << 16));
 			break;
 		}
 

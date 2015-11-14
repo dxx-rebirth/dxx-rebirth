@@ -77,7 +77,6 @@ struct player : public prohibit_void_ptr<player>
 	ushort  hostages_total;         // Total number of hostages.
 	ubyte   hostages_on_board;      // Number of hostages on ship.
 	ubyte   hostages_level;         // Number of hostages on this level.
-	fix     homing_object_dist;     // Distance of nearest homing object.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 };

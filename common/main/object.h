@@ -88,6 +88,7 @@ struct reactor_static {
 struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
+	fix     homing_object_dist;     // Distance of nearest homing object.
 	player_flags powerup_flags;
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 	uint16_t vulcan_ammo;

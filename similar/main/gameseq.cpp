@@ -323,6 +323,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 		get_local_player().hours_level = 0;
 	}
 
+	get_local_plrobj().ctype.player_info.homing_object_dist = -F1_0; // Added by RH
 	get_local_plrobj().ctype.player_info.killer_objnum = object_none;
 
 	get_local_player().num_kills_level = 0;
@@ -353,7 +354,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 
 	Player_is_dead = 0; // Added by RH
 	Dead_player_camera = NULL;
-	get_local_player().homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
 	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
@@ -460,7 +460,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 	DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
-	Players[pnum].homing_object_dist = -F1_0; // Added by RH
+	player_info.homing_object_dist = -F1_0; // Added by RH
 	digi_kill_sound_linked_to_object(plrobj);
 }
 

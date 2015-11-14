@@ -2272,7 +2272,7 @@ multi_reset_stuff(void)
 	// connection loss.  Fixes several weird bugs!
 
 	dead_player_end();
-	get_local_player().homing_object_dist = -F1_0; // Turn off homing sound.
+	get_local_plrobj().ctype.player_info.homing_object_dist = -1; // Turn off homing sound.
 	reset_rear_view();
 }
 

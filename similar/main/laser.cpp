@@ -1201,7 +1201,7 @@ void calc_d_homer_tick()
 		if (t > HOMING_TURN_TIME*3)
 			t = HOMING_TURN_TIME*3;
 
-                get_local_player().homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this. Let's do this here since the homers do not track every frame, we may not want to reset this ever frame.
+		get_local_plrobj().ctype.player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this. Let's do this here since the homers do not track every frame, we may not want to reset this ever frame.
 	}
 	timer = t;
 }
@@ -1576,8 +1576,9 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                                         fix	dist_to_player;
 
                                         dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
-                                        if ((dist_to_player < get_local_player().homing_object_dist) || (get_local_player().homing_object_dist < 0))
-                                                get_local_player().homing_object_dist = dist_to_player;
+									auto &homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+									if (dist_to_player < homing_object_dist || homing_object_dist < 0)
+										homing_object_dist = dist_to_player;
                                 }
 
 
