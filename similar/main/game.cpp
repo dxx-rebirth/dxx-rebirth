@@ -541,7 +541,7 @@ static void do_cloak_stuff(void)
 		auto &pl_flags = player_info.powerup_flags;
 		if (pl_flags & PLAYER_FLAGS_CLOAKED)
 		{
-			if (GameTime64 > Players[i].cloak_time+CLOAK_TIME_MAX)
+			if (GameTime64 > player_info.cloak_time+CLOAK_TIME_MAX)
 			{
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {

@@ -99,6 +99,7 @@ struct player_info
 	primary_weapon_flag_type primary_weapon_flags;
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
+	fix64   cloak_time;             // Time cloaked
 };
 
 // A compressed form for sending crucial data

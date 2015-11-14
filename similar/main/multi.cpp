@@ -1762,7 +1762,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
 #endif
-	DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
+	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 }
 
 /*
@@ -2007,8 +2007,9 @@ static void multi_do_cloak(const playernum_t pnum)
 	Assert(pnum < N_players);
 
 	const auto &&objp = vobjptr(Players[pnum].objnum);
-	objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
-	Players[pnum].cloak_time = GameTime64;
+	auto &player_info = objp->ctype.player_info;
+	player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
+	player_info.cloak_time = GameTime64;
 	ai_do_cloak_stuff();
 
 	multi_strip_robots(pnum);

@@ -1508,7 +1508,8 @@ static void hud_show_weapons(void)
 static void hud_show_cloak_invuln(void)
 {
 	const auto &plr = get_local_player();
-	const auto player_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+	const auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto player_flags = player_info.powerup_flags;
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
@@ -1526,7 +1527,7 @@ static void hud_show_cloak_invuln(void)
 
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
 	{
-		const fix64 effect_end = plr.cloak_time + CLOAK_TIME_MAX - gametime64;
+		const fix64 effect_end = player_info.cloak_time + CLOAK_TIME_MAX - gametime64;
 		if (effect_end > F1_0*3 || gametime64 & 0x8000)
 		{
 			a(effect_end, base_y, TXT_CLOAKED);
@@ -1911,12 +1912,13 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	if (cloak_state)
 	{
 		static int step = 0;
+		const auto cloak_time = get_local_player_cloak_time();
 
-		if (GameTime64-get_local_player_cloak_time() < F1_0)
+		if (GameTime64 - cloak_time < F1_0)
 		{
 			step = -2;
 		}
-		else if (get_local_player_cloak_time()+CLOAK_TIME_MAX-GameTime64 <= F1_0*3)
+		else if (cloak_time + CLOAK_TIME_MAX - GameTime64 <= F1_0*3)
 		{
 			if (cloak_fade_value >= (GR_FADE_LEVELS-1))
 			{

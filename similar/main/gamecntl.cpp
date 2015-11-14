@@ -1763,13 +1763,13 @@ public:
 };
 
 class cheat_menu_bit_cloak :
-	std::reference_wrapper<player>,
+	std::reference_wrapper<player_info>,
 	public menu_bit_wrapper_t<player_flags, PLAYER_FLAG>
 {
 public:
 	cheat_menu_bit_cloak(player &plr) :
-		reference_wrapper(plr),
-		menu_bit_wrapper_t(vobjptr(get().objnum)->ctype.player_info.powerup_flags, PLAYER_FLAGS_CLOAKED)
+		reference_wrapper(vobjptr(plr.objnum)->ctype.player_info),
+		menu_bit_wrapper_t(get().powerup_flags, PLAYER_FLAGS_CLOAKED)
 	{
 	}
 	cheat_menu_bit_cloak &operator=(uint32_t n)

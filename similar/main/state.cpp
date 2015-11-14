@@ -488,10 +488,10 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->score                     = pl->score;
 	pl_rw->time_level                = pl->time_level;
 	pl_rw->time_total                = pl->time_total;
-	if (pl->cloak_time - GameTime64 < F1_0*(-18000))
+	if (pl_info.cloak_time - GameTime64 < F1_0*(-18000))
 		pl_rw->cloak_time        = F1_0*(-18000);
 	else
-		pl_rw->cloak_time        = pl->cloak_time - GameTime64;
+		pl_rw->cloak_time        = pl_info.cloak_time - GameTime64;
 	if (pl->invulnerable_time - GameTime64 < F1_0*(-18000))
 		pl_rw->invulnerable_time = F1_0*(-18000);
 	else
@@ -537,7 +537,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->score                     = pl_rw->score;
 	pl->time_level                = pl_rw->time_level;
 	pl->time_total                = pl_rw->time_total;
-	pl->cloak_time                = pl_rw->cloak_time;
+	pl_info.cloak_time                = pl_rw->cloak_time;
 	pl->invulnerable_time         = pl_rw->invulnerable_time;
 #if defined(DXX_BUILD_DESCENT_II)
 	pl->KillGoalCount             = pl_rw->KillGoalCount;

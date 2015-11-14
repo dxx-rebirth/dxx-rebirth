@@ -1692,8 +1692,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		range_for (auto &i, Players)
 		{
 			const auto &&objp = vobjptr(i.objnum);
-			objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-			DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
+			auto &player_info = objp->ctype.player_info;
+			player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+			DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 			DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
 		}
 	}
@@ -1723,8 +1724,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
 				const auto &&objp = vobjptr(i.objnum);
-				objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-				DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
+				auto &player_info = objp->ctype.player_info;
+				player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 				DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
 				nd_read_string(i.callsign.buffer());
 				nd_read_byte(&(i.connected));
@@ -2659,10 +2661,10 @@ static int newdemo_read_frame_information(int rewrite)
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.powerup_flags &= ~PLAYER_FLAGS_CLOAKED;
-				DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
+				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = GameTime64  - (CLOAK_TIME_MAX / 2);
+				player_info.cloak_time = GameTime64  - (CLOAK_TIME_MAX / 2);
 			}
 			break;
 		}
@@ -2680,10 +2682,10 @@ static int newdemo_read_frame_information(int rewrite)
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+				player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				player_info.powerup_flags &= ~PLAYER_FLAGS_CLOAKED;
-				DXX_MAKE_VAR_UNDEFINED(Players[pnum].cloak_time);
+				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 			}
 			break;
 		}
@@ -3034,8 +3036,9 @@ static int newdemo_read_frame_information(int rewrite)
 					range_for (auto &i, Players)
 					{
 						const auto &&objp = vobjptr(i.objnum);
-						objp->ctype.player_info.powerup_flags &= ~PLAYER_FLAGS_CLOAKED;
-						DXX_MAKE_VAR_UNDEFINED(i.cloak_time);
+						auto &player_info = objp->ctype.player_info;
+						player_info.powerup_flags &= ~PLAYER_FLAGS_CLOAKED;
+						DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
@@ -3218,12 +3221,13 @@ void newdemo_goto_end(int to_rewrite)
 			PHYSFSX_fseek(infile, -10, SEEK_END);
 			nd_read_byte(&cloaked);
 			for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++) {
+				const auto &&objp = vobjptr(Players[i].objnum);
+				auto &player_info = objp->ctype.player_info;
 				if ((1 << i) & cloaked)
 				{
-					const auto &&objp = vobjptr(Players[i].objnum);
-					objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
+					player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 				}
-				Players[i].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+				player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 			}
 		}
 
@@ -3463,8 +3467,9 @@ void newdemo_playback_one_frame()
 	range_for (auto &i, Players)
 	{
 		const auto &&objp = vobjptr(i.objnum);
-		if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
-			i.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+		auto &player_info = objp->ctype.player_info;
+		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
+			player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)

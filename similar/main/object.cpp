@@ -444,7 +444,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 		std::pair<fix64, fix64> cloak_duration;
 		if (obj->type==OBJ_PLAYER && (obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		{
-			auto &cloak_time = Players[get_player_id(obj)].cloak_time;
+			auto &cloak_time = obj->ctype.player_info.cloak_time;
 			cloak_duration = {cloak_time, cloak_time + CLOAK_TIME_MAX};
 		}
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
