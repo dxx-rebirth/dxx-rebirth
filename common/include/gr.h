@@ -88,7 +88,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	ubyte     * ft_data;        // Ptr to raw data.
 	std::unique_ptr<ubyte *[]>    ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
-	ubyte     * ft_kerndata;    // Array of kerning triplet data
+	const uint8_t *ft_kerndata;    // Array of kerning triplet data
 #ifdef OGL
 	// These fields do not participate in disk i/o!
 	std::unique_ptr<grs_bitmap[]> ft_bitmaps;

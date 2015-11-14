@@ -62,6 +62,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace {
 
+const uint8_t kerndata_terminator = 255;
+
 struct openfont
 {
 	array<char, FILENAME_LEN> filename;
@@ -84,7 +86,7 @@ static const uint8_t *find_kern_entry(const grs_font &font, const uint8_t first,
 {
 	auto p = font.ft_kerndata;
 
-	while (*p!=255)
+	while (*p != kerndata_terminator)
 		if (p[0]==first && p[1]==second)
 			return p;
 		else p+=3;
@@ -905,18 +907,19 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_minchar = PHYSFSX_readByte(fp);
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
 	gf->ft_bytewidth = PHYSFSX_readShort(fp);
-	gf->ft_data = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
+	gf->ft_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 	PHYSFSX_readInt(fp);
-	gf->ft_widths = (short *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
-	gf->ft_kerndata = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
+	gf->ft_widths = reinterpret_cast<int16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
+	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 }
 
 grs_font_ptr gr_init_font( const char * fontname )
 {
 	unsigned char * ptr;
-	int nchars;
-	char file_id[4];
-	int datasize;	//size up to (but not including) palette
+	struct {
+		array<char, 4> magic;
+		unsigned datasize;	//size up to (but not including) palette
+	} file_header;
 
 	//find free font slot
 	auto e = end(open_font);
@@ -934,32 +937,51 @@ grs_font_ptr gr_init_font( const char * fontname )
 		return {};
 	}
 
-	PHYSFS_read(fontfile, file_id, 4, 1);
-	if (memcmp( file_id, "PSFN", 4 )) {
-		con_printf(CON_NORMAL, "File %s is not a font file", fontname);
+	static_assert(sizeof(file_header) == 8, "file header size error");
+	auto &datasize = file_header.datasize;
+	if (PHYSFS_read(fontfile, &file_header, sizeof(file_header), 1) != 1 ||
+		memcmp(file_header.magic.data(), "PSFN", 4) ||
+		datasize < GRS_FONT_SIZE)
+	{
+		con_printf(CON_NORMAL, "Invalid header in font file %s", fontname);
 		return {};
 	}
 
-	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
 	auto font = make_unique<grs_font>();
 	grs_font_read(font.get(), fontfile);
 
 	auto font_data = make_unique<uint8_t[]>(datasize);
-	PHYSFS_read(fontfile, font_data, 1, datasize);
+	if (PHYSFS_read(fontfile, font_data, 1, datasize) != datasize)
+	{
+		con_printf(CON_URGENT, "Insufficient data in font file %s", fontname);
+		return {};
+	}
 
+	unsigned nchars;
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
-
-		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
-		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
+		const auto offset_widths = reinterpret_cast<uintptr_t>(font->ft_widths);
+		auto w = reinterpret_cast<short *>(&font_data[offset_widths]);
+		if (offset_widths >= datasize || offset_widths + (nchars * sizeof(*w)) >= datasize)
+		{
+			con_printf(CON_URGENT, "Missing widths in font file %s", fontname);
+			return {};
+		}
+		font->ft_widths = w;
+		const auto offset_data = reinterpret_cast<uintptr_t>(font->ft_data);
+		if (offset_data >= datasize)
+		{
+			con_printf(CON_URGENT, "Missing data in font file %s", fontname);
+			return {};
+		}
+		font->ft_data = reinterpret_cast<unsigned char *>(&font_data[offset_data]);
 		font->ft_chars = make_unique<uint8_t *[]>(nchars);
 
 		ptr = font->ft_data;
 
-		auto w = font->ft_widths;
 		const unsigned is_color = font->ft_flags & FT_COLOR;
 		const unsigned ft_h = font->ft_h;
 		std::generate_n(font->ft_chars.get(), nchars, [is_color, ft_h, &w, &ptr]{
@@ -980,7 +1002,29 @@ grs_font_ptr gr_init_font( const char * fontname )
 	}
 
 	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
+	{
+		const auto offset_kerndata = reinterpret_cast<uintptr_t>(font->ft_kerndata);
+		if (datasize <= offset_kerndata)
+		{
+			con_printf(CON_URGENT, "Missing kerndata in font file %s", fontname);
+			return {};
+		}
+		const auto begin_kerndata = reinterpret_cast<const unsigned char *>(&font_data[offset_kerndata]);
+		const auto end_font_data = &font_data[datasize - ((datasize - offset_kerndata + 2) % 3)];
+		for (auto cur_kerndata = begin_kerndata;; cur_kerndata += 3)
+		{
+			if (cur_kerndata == end_font_data)
+			{
+				con_printf(CON_URGENT, "Unterminated kerndata in font file %s", fontname);
+				return {};
+			}
+			if (*cur_kerndata == kerndata_terminator)
+				break;
+		}
+		font->ft_kerndata = begin_kerndata;
+	}
+	else
+		font->ft_kerndata = nullptr;
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
