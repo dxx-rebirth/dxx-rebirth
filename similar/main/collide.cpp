@@ -2029,8 +2029,12 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			if (amount > 200) {
 				amount = 200;
 			}
-			while (amount > 0) {
+			if (amount)
+				for (;;)
+			{
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_VULCAN_AMMO);
+				if (amount <= VULCAN_AMMO_AMOUNT)
+					break;
 				amount -= VULCAN_AMMO_AMOUNT;
 			}
 		}
