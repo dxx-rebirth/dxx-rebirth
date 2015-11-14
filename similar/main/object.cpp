@@ -362,38 +362,30 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	engine_glow_value[1] = -1;		//element 0 is for engine glow, 1 for headlight
 #endif
 
-	light = compute_object_light(obj,nullptr);
-
 	//	If option set for bright players in netgame, brighten them!
-	if ((Game_mode & GM_MULTI) && (obj->type == OBJ_PLAYER))
-		if (Netgame.BrightPlayers)
-			light.r = light.g = light.b = F1_0*2;
+	light = unlikely(Netgame.BrightPlayers && (Game_mode & GM_MULTI) && obj->type == OBJ_PLAYER)
+		? g3s_lrgb{F1_0 * 2, F1_0 * 2, F1_0 * 2}
+		: compute_object_light(obj, nullptr);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//make robots brighter according to robot glow field
 	if (obj->type == OBJ_ROBOT)
 	{
-		light.r += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
-		light.g += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
-		light.b += (Robot_info[get_robot_id(obj)].glow<<12); //convert 4:4 to 16:16
+		const auto glow = Robot_info[get_robot_id(obj)].glow<<12;
+		light.r += glow; //convert 4:4 to 16:16
+		light.g += glow; //convert 4:4 to 16:16
+		light.b += glow; //convert 4:4 to 16:16
 	}
 
-	if (obj->type == OBJ_WEAPON)
-	{
-		if (get_weapon_id(obj) == FLARE_ID)
+	if ((obj->type == OBJ_WEAPON &&
+			get_weapon_id(obj) == FLARE_ID) ||
+		obj->type == OBJ_MARKER
+		)
 		{
 			light.r += F1_0*2;
 			light.g += F1_0*2;
 			light.b += F1_0*2;
 		}
-	}
-
-	if (obj->type == OBJ_MARKER)
-	{
- 		light.r += F1_0*2;
-		light.g += F1_0*2;
-		light.b += F1_0*2;
-	}
 #endif
 
 	push_interpolation_method imsave(1, Linear_tmap_polygon_objects);
