@@ -560,12 +560,12 @@ static int FakingInvul=0;
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)
 {
-	auto &player = get_local_player();
 	auto &plobj = get_local_plrobj();
-	auto &pl_flags = plobj.ctype.player_info.powerup_flags;
+	auto &player_info = plobj.ctype.player_info;
+	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
-		if (GameTime64 > player.invulnerable_time + INVULNERABLE_TIME_MAX)
+		if (GameTime64 > player_info.invulnerable_time + INVULNERABLE_TIME_MAX)
 		{
 			pl_flags &= ~PLAYER_FLAGS_INVULNERABLE;
 			if (FakingInvul)

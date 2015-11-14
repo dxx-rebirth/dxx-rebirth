@@ -100,6 +100,7 @@ struct player_info
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 	fix64   cloak_time;             // Time cloaked
+	fix64   invulnerable_time;      // Time invulnerable
 };
 
 // A compressed form for sending crucial data

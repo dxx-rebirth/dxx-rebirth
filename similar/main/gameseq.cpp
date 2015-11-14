@@ -459,7 +459,7 @@ void init_player_stats_new_ship(ubyte pnum)
 #endif
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
-	DXX_MAKE_VAR_UNDEFINED(Players[pnum].invulnerable_time);
+	DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 	Players[pnum].homing_object_dist = -F1_0; // Added by RH
 	digi_kill_sound_linked_to_object(plrobj);
 }

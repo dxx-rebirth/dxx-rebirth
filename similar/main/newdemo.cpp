@@ -1695,7 +1695,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			auto &player_info = objp->ctype.player_info;
 			player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 			DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
-			DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
+			DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 		}
 	}
 	else
@@ -1727,7 +1727,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				auto &player_info = objp->ctype.player_info;
 				player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
-				DXX_MAKE_VAR_UNDEFINED(i.invulnerable_time);
+				DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 				nd_read_string(i.callsign.buffer());
 				nd_read_byte(&(i.connected));
 				if (purpose == PURPOSE_REWRITE)

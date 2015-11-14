@@ -65,7 +65,6 @@ struct player : public prohibit_void_ptr<player>
 	fix     time_level;             // Level time played
 	fix     time_total;             // Game time played (high word = seconds)
 
-	fix64   invulnerable_time;      // Time invulnerable
 
 	short   KillGoalCount;          // Num of players killed this level
 	short   net_killed_total;       // Number of times killed total
@@ -165,7 +164,7 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_player_flags()	(get_local_plrobj().ctype.player_info.powerup_flags)
 #define get_local_player_secondary_ammo()	(get_local_plrobj().ctype.player_info.secondary_ammo)
 #define get_local_player_cloak_time()	(get_local_plrobj().ctype.player_info.cloak_time)
-#define get_local_player_invulnerable_time()	(get_local_player().invulnerable_time)
+#define get_local_player_invulnerable_time()	(get_local_plrobj().ctype.player_info.invulnerable_time)
 #endif
 
 struct player_ship

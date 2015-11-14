@@ -1507,7 +1507,6 @@ static void hud_show_weapons(void)
 
 static void hud_show_cloak_invuln(void)
 {
-	const auto &plr = get_local_player();
 	const auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto player_flags = player_info.powerup_flags;
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
@@ -1536,7 +1535,7 @@ static void hud_show_cloak_invuln(void)
 
 	if (player_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
-		const fix64 effect_end = plr.invulnerable_time + INVULNERABLE_TIME_MAX - gametime64;
+		const fix64 effect_end = player_info.invulnerable_time + INVULNERABLE_TIME_MAX - gametime64;
 		if (effect_end > F1_0*4 || gametime64 & 0x8000)
 		{
 			a(effect_end, base_y - line_spacing, TXT_INVULNERABLE);
