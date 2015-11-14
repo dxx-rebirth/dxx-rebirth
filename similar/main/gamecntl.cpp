@@ -975,14 +975,22 @@ static window_event_result HandleGameKey(int key)
 
 		case KEY_ALTED+KEY_F7:
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
-			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
+			PlayerCfg.HudMode = static_cast<HudType>((static_cast<unsigned>(PlayerCfg.HudMode) + 1) % GAUGE_HUD_NUMMODES);
 			write_player_file();
 			switch (PlayerCfg.HudMode)
 			{
-				case 0: HUD_init_message_literal(HM_DEFAULT, "Standard HUD"); break;
-				case 1: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #1"); break;
-				case 2: HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #2"); break;
-				case 3: HUD_init_message_literal(HM_DEFAULT, "No HUD"); break;
+				case HudType::Standard:
+					HUD_init_message_literal(HM_DEFAULT, "Standard HUD");
+					break;
+				case HudType::Alternate1:
+					HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #1");
+					break;
+				case HudType::Alternate2:
+					HUD_init_message_literal(HM_DEFAULT, "Alternative HUD #2");
+					break;
+				case HudType::Hidden:
+					HUD_init_message_literal(HM_DEFAULT, "No HUD");
+					break;
 			}
 			return window_event_result::handled;
 

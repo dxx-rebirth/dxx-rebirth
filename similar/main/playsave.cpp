@@ -232,7 +232,7 @@ int new_player_config()
 	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
 	PlayerCfg.ReticleSize = 0;
-	PlayerCfg.HudMode = 0;
+	PlayerCfg.HudMode = HudType::Standard;
 #if defined(DXX_BUILD_DESCENT_I)
 	PlayerCfg.BombGauge = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -424,7 +424,7 @@ static void read_player_dxx(const char *filename)
 				else
 #endif
 				if(!strcmp(line,COCKPIT_HUD_NAME_TEXT))
-					PlayerCfg.HudMode = atoi(value);
+					PlayerCfg.HudMode = static_cast<HudType>(atoi(value));
 				else if(!strcmp(line,COCKPIT_RETICLE_TYPE_NAME_TEXT))
 					PlayerCfg.ReticleType = atoi(value);
 				else if(!strcmp(line,COCKPIT_RETICLE_COLOR_NAME_TEXT))
@@ -739,7 +739,7 @@ static int write_player_dxx(const char *filename)
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(fout,COCKPIT_MODE_NAME_TEXT "=%i\n",PlayerCfg.CockpitMode[0]);
 #endif
-		PHYSFSX_printf(fout,COCKPIT_HUD_NAME_TEXT "=%i\n",PlayerCfg.HudMode);
+		PHYSFSX_printf(fout,COCKPIT_HUD_NAME_TEXT "=%u\n", static_cast<unsigned>(PlayerCfg.HudMode));
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_TYPE_NAME_TEXT "=%i\n",PlayerCfg.ReticleType);
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_COLOR_NAME_TEXT "=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_SIZE_NAME_TEXT "=%i\n",PlayerCfg.ReticleSize);

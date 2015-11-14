@@ -964,7 +964,8 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 
 static void hud_show_energy(void)
 {
-	if (PlayerCfg.HudMode<2) {
+	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
+	{
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		const auto &&line_spacing = LINE_SPACING;
@@ -1412,7 +1413,8 @@ static void hud_show_weapons(void)
 	if (Game_mode & GM_MULTI)
 		y -= line_spacing * 4;
 
-	if (PlayerCfg.HudMode==1){
+	if (PlayerCfg.HudMode == HudType::Alternate1)
+	{
 #if defined(DXX_BUILD_DESCENT_I)
 		unsigned multiplier = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1423,7 +1425,8 @@ static void hud_show_weapons(void)
 		return;
 	}
 	const auto &&fspacx = FSPACX();
-	if (PlayerCfg.HudMode == 2) {
+	if (PlayerCfg.HudMode == HudType::Alternate2)
+	{
 		int x1,x2;
 		int w;
 		gr_get_string_size("V1000", &w, nullptr, nullptr);
@@ -1546,7 +1549,8 @@ static void hud_show_cloak_invuln(void)
 
 static void hud_show_shield(void)
 {
-	if (PlayerCfg.HudMode<2) {
+	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
+	{
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
@@ -2033,7 +2037,7 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 
 	hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
 
-	if (PlayerCfg.HudMode == 0)
+	if (PlayerCfg.HudMode == HudType::Standard)
 	{
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 
@@ -2091,7 +2095,7 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
-		if (PlayerCfg.HudMode!=0)
+		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[0] == WBU_WEAPON)
@@ -2128,7 +2132,7 @@ static void draw_secondary_weapon_info(int weapon_num, const local_multires_gaug
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
-		if (PlayerCfg.HudMode!=0)
+		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[1] == WBU_WEAPON)
@@ -2148,7 +2152,7 @@ static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, c
 
 static void draw_ammo_info(int x,int y,int ammo_count)
 {
-	if (!PlayerCfg.HudMode)
+	if (PlayerCfg.HudMode == HudType::Standard)
 	{
 		gr_setcolor(BM_XRGB(0,0,0));
 		gr_set_fontcolor(BM_XRGB(20,0,0),-1 );
@@ -2175,7 +2179,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	laser_level_changed = (weapon_type == 0 && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
+	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && PlayerCfg.HudMode == HudType::Standard)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
@@ -2953,7 +2957,7 @@ void draw_hud()
 #endif
 		newdemo_record_secondary_ammo(get_local_player_secondary_ammo()[Secondary_weapon]);
 	}
-	if (PlayerCfg.HudMode==3) // no hud, "immersion mode"
+	if (PlayerCfg.HudMode == HudType::Hidden) // no hud, "immersion mode"
 		return;
 
 	// Cruise speed
@@ -3082,7 +3086,7 @@ void render_gauges()
 		draw_energy_bar(energy, multires_gauge_graphic);
 		draw_numerical_display(shields, energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
-		if (!PlayerCfg.HudMode)
+		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
@@ -3113,12 +3117,12 @@ void render_gauges()
 			newdemo_record_player_energy(energy);
 		sb_draw_energy_bar(energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
-		if (!PlayerCfg.HudMode)
+		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
 		sb_draw_afterburner(multires_gauge_graphic);
-		if (!PlayerCfg.HudMode && weapon_box_user[1] == WBU_WEAPON)
+		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
 #endif
 			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
