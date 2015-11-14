@@ -84,11 +84,11 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	short       ft_baseline;    //
 	ubyte       ft_minchar;     // First char defined by this font
 	ubyte       ft_maxchar;     // Last char defined by this font
-	short       ft_bytewidth;   // Width in unsigned chars
 	ubyte     * ft_data;        // Ptr to raw data.
 	std::unique_ptr<ubyte *[]>    ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
 	const uint8_t *ft_kerndata;    // Array of kerning triplet data
+	std::unique_ptr<uint8_t[]> ft_allocdata;
 #ifdef OGL
 	// These fields do not participate in disk i/o!
 	std::unique_ptr<grs_bitmap[]> ft_bitmaps;

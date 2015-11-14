@@ -69,7 +69,6 @@ struct openfont
 	array<char, FILENAME_LEN> filename;
 	// Unowned
 	grs_font *ptr;
-	std::unique_ptr<uint8_t[]> dataptr;
 };
 
 }
@@ -863,7 +862,6 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 		gr_free_bitmap_data(font->ft_parent_bitmap);
 #endif
 		auto &f = *i;
-		f.dataptr.reset();
 		f.ptr = nullptr;
 	}
 }
@@ -879,7 +877,7 @@ void gr_remap_color_fonts()
 	{
 		auto font = i.ptr;
 		if (font && (font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &i.filename[0], i.dataptr.get());
+			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
 	}
 }
 
@@ -890,7 +888,7 @@ void gr_remap_mono_fonts()
 	{
 		auto font = i.ptr;
 		if (font && !(font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &i.filename[0], i.dataptr.get());
+			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
 	}
 }
 #endif
@@ -906,7 +904,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_baseline = PHYSFSX_readShort(fp);
 	gf->ft_minchar = PHYSFSX_readByte(fp);
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
-	gf->ft_bytewidth = PHYSFSX_readShort(fp);
+	PHYSFSX_readShort(fp);
 	gf->ft_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 	PHYSFSX_readInt(fp);
 	gf->ft_widths = reinterpret_cast<int16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
@@ -1051,7 +1049,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 #endif
 
 	f.ptr = font.get();
-	f.dataptr = move(font_data);
+	f.ptr->ft_allocdata = move(font_data);
 	return grs_font_ptr(font.release());
 }
 
