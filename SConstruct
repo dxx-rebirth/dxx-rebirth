@@ -258,6 +258,7 @@ class ConfigureTests:
 	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
+	__cxx_conformance = None
 	__cxx11_required_features = [
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
@@ -321,7 +322,6 @@ struct %(N)s_derived : %(N)s_base {
 		self.user_settings = user_settings
 		self.platform_settings = platform_settings
 		self.successful_flags = defaultdict(list)
-		self.__cxx_conformance = None
 		self._sconf_results = []
 		self.__tool_versions = []
 	def message(self,msg):
@@ -1790,9 +1790,9 @@ class LazyObjectConstructor(object):
 		return property(lambda s, _f=__lazy_objects, _sources=sources: _f(s, _sources))
 
 class FilterHelpText:
+	_sconf_align = None
 	def __init__(self):
 		self.visible_arguments = []
-		self._sconf_align = None
 	def FormatVariableHelpText(self, env, opt, help, default, actual, aliases):
 		if not opt in self.visible_arguments:
 			return ''
@@ -1814,6 +1814,12 @@ class PCHManager(object):
 	class ScannedFile:
 		def __init__(self,candidates):
 			self.candidates = candidates
+
+	syspch_cpp_filename = None
+	ownpch_cpp_filename = None
+	syspch_object_node = None
+	ownpch_object_node = None
+	required_pch_object_node = None
 
 	# Compile on first use, so that non-PCH builds skip the compile
 	_re_preproc_match = None
@@ -1864,9 +1870,8 @@ class PCHManager(object):
 		# dict with key=fs.File, value=ScannedFile
 		self._instance_scanned_files = {}
 		self._common_pch_manager = common_pch_manager
-		self.syspch_cpp_filename = syspch_cpp_filename = self.ownpch_cpp_filename = ownpch_cpp_filename = None
-		self.syspch_object_node = syspch_object_node = self.ownpch_object_node = None
-		self.required_pch_object_node = None
+		syspch_cpp_filename = ownpch_cpp_filename = None
+		syspch_object_node = None
 		CXXFLAGS = env['CXXFLAGS'] + configure_pch_flags['CXXFLAGS']
 		File = env.File
 		if user_settings.syspch:
