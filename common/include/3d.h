@@ -280,29 +280,27 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
 #ifdef OGL
-template <uint_fast8_t type>
-class tmap_drawer_constant
+enum class tmap_drawer_constant : uint_fast8_t
 {
+	polygon,
+	flat,
 };
 
-const tmap_drawer_constant<0> draw_tmap{};
-const tmap_drawer_constant<1> draw_tmap_flat{};
+#define draw_tmap tmap_drawer_constant::polygon
+#define draw_tmap_flat tmap_drawer_constant::flat
 
 class tmap_drawer_type
 {
-	uint_fast8_t type;
+	tmap_drawer_constant type;
 public:
-	template <uint_fast8_t t>
-		constexpr tmap_drawer_type(tmap_drawer_constant<t>) : type(t)
+	constexpr tmap_drawer_type(tmap_drawer_constant t) : type(t)
 	{
 	}
-	template <uint_fast8_t t>
-		bool operator==(tmap_drawer_constant<t>) const
+	bool operator==(tmap_drawer_constant t) const
 		{
 			return type == t;
 		}
-	template <uint_fast8_t t>
-		bool operator!=(tmap_drawer_constant<t>) const
+	bool operator!=(tmap_drawer_constant t) const
 		{
 			return type != t;
 		}
