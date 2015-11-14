@@ -611,19 +611,16 @@ public:
 };
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
+	static constexpr Pconst valptridx<P>::array_managed_type &get_global_array(P Pconst *) { return A; }	\
 	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptr_t> v##prefix##ptr{};	\
 	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptridx_t> prefix##ptridx{};	\
 	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\
-	static inline v##prefix##ptridx_t operator-(P Pconst *o, decltype(A) Pconst &O)	\
+	static inline v##prefix##ptridx_t operator-(Pconst P *o, Pconst valptridx<P>::array_managed_type &O)	\
 	{	\
-		return {o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - static_cast<const P *>(&(const_cast<const decltype(A) &>(O).front()))), A};	\
+		return {o, static_cast<v##prefix##ptridx_t::integral_type>(const_cast<const P *>(o) - static_cast<const P *>(&(const_cast<const valptridx<P>::array_managed_type &>(O).front()))), O};	\
 	}	\
 
 #define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
-	static inline constexpr decltype(A) &get_global_array(P *) { return A; }	\
-	/* "decltype(A) const &" parses correctly, but fails to match */	\
-	static inline constexpr typename tt::add_const<decltype(A)>::type &get_global_array(P const *) { return A; }	\
-	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N,);	\
 	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,c##N,const)	\
 
