@@ -63,8 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //check point against each side of segment. return bitmask, where bit
 //set means behind that side
 
-int floor_levelling=0;
-
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix &m)
 {
@@ -91,13 +89,7 @@ static void do_physics_align_object(const vobjptr_t obj)
 		if (d > largest_d) {largest_d = d; best_side=i;}
 	}
 
-	if (floor_levelling) {
-
-		// old way: used floor's normal as upvec
-			desired_upvec = Segments[obj->segnum].sides[3].normals[0];
-
-	}
-	else  // new player leveling code: use normal of side closest to our up vec
+	// new player leveling code: use normal of side closest to our up vec
 		if (get_num_faces(&Segments[obj->segnum].sides[best_side])==2) {
 				side *s = &Segments[obj->segnum].sides[best_side];
 				desired_upvec.x = (s->normals[0].x + s->normals[1].x) / 2;
@@ -128,7 +120,6 @@ static void do_physics_align_object(const vobjptr_t obj)
 			const auto &&rotmat = vm_angles_2_matrix(tangles);
 			obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
 		}
-		else floor_levelling=0;
 	}
 
 }
