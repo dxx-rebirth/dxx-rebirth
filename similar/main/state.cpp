@@ -149,9 +149,7 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 	obj_rw->orient.uvec.z = obj->orient.uvec.z;
 	obj_rw->size          = obj->size;
 	obj_rw->shields       = obj->shields;
-	obj_rw->last_pos.x    = obj->last_pos.x;
-	obj_rw->last_pos.y    = obj->last_pos.y;
-	obj_rw->last_pos.z    = obj->last_pos.z;
+	obj_rw->last_pos    = obj->last_pos;
 	obj_rw->contains_type = obj->contains_type;
 	obj_rw->contains_id   = obj->contains_id;
 	obj_rw->contains_count= obj->contains_count;
@@ -316,9 +314,7 @@ static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 	obj->orient.uvec.z = obj_rw->orient.uvec.z;
 	obj->size          = obj_rw->size;
 	obj->shields       = obj_rw->shields;
-	obj->last_pos.x    = obj_rw->last_pos.x;
-	obj->last_pos.y    = obj_rw->last_pos.y;
-	obj->last_pos.z    = obj_rw->last_pos.z;
+	obj->last_pos    = obj_rw->last_pos;
 	obj->contains_type = obj_rw->contains_type;
 	obj->contains_id   = obj_rw->contains_id;
 	obj->contains_count= obj_rw->contains_count;
