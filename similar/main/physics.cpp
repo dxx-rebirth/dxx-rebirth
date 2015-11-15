@@ -75,31 +75,31 @@ static void do_physics_align_object(const vobjptr_t obj)
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
 	//vms_vector forvec = {0,0,f1_0};
-	fix d,largest_d=-f1_0;
-	int best_side;
-
-        best_side=0;
+	fix largest_d=-f1_0;
+	const side *best_side = nullptr;
 	// bank player according to segment orientation
 
 	//find side of segment that player is most alligned with
 
-	for (int i=0;i<6;i++) {
-			d = vm_vec_dot(Segments[obj->segnum].sides[i].normals[0],obj->orient.uvec);
+	range_for (auto &i, Segments[obj->segnum].sides)
+	{
+		const auto d = vm_vec_dot(i.normals[0], obj->orient.uvec);
 
-		if (d > largest_d) {largest_d = d; best_side=i;}
+		if (largest_d < d)
+		{
+			largest_d = d;
+			best_side = &i;
+		}
 	}
 
 	// new player leveling code: use normal of side closest to our up vec
-		if (get_num_faces(&Segments[obj->segnum].sides[best_side])==2) {
-				side *s = &Segments[obj->segnum].sides[best_side];
-				desired_upvec.x = (s->normals[0].x + s->normals[1].x) / 2;
-				desired_upvec.y = (s->normals[0].y + s->normals[1].y) / 2;
-				desired_upvec.z = (s->normals[0].z + s->normals[1].z) / 2;
-		
+	if (get_num_faces(best_side) == 2)
+	{
+		desired_upvec = vm_vec_avg(best_side->normals[0], best_side->normals[1]);
 				vm_vec_normalize(desired_upvec);
 		}
 		else
-				desired_upvec = Segments[obj->segnum].sides[best_side].normals[0];
+		desired_upvec = best_side->normals[0];
 
 	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
 		vms_angvec tangles;
