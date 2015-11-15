@@ -1216,35 +1216,39 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 		return track_goal;
 	} else if ((((tracker) ^ tick_count) % 4) == 0)
 	{
+		int	goal_type, goal2_type;
 		//	If player fired missile, then search for an object, if not, then give up.
-		if (Objects[tracker->ctype.laser_info.parent_num].type == OBJ_PLAYER) {
-			int	goal_type;
+		if (vcobjptr(tracker->ctype.laser_info.parent_num)->type == OBJ_PLAYER)
+		{
 
 			if (track_goal == object_none)
 			{
 				if (Game_mode & GM_MULTI)
 				{
 					if (Game_mode & GM_MULTI_COOP)
-						return find_homing_object_complete( tracker->pos, tracker, OBJ_ROBOT, -1);
-					else if (Game_mode & GM_MULTI_ROBOTS)		//	Not cooperative, if robots, track either robot or player
-						return find_homing_object_complete( tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
-					else		//	Not cooperative and no robots, track only a player
-						return find_homing_object_complete( tracker->pos, tracker, OBJ_PLAYER, -1);
+						goal_type = OBJ_ROBOT, goal2_type = -1;
+					else
+					{
+						goal_type = OBJ_PLAYER;
+						goal2_type = (Game_mode & GM_MULTI_ROBOTS)
+							? OBJ_ROBOT	//	Not cooperative, if robots, track either robot or player
+							: -1;		//	Not cooperative and no robots, track only a player
+					}
 				}
 				else
-					return find_homing_object_complete(tracker->pos, tracker, OBJ_PLAYER, OBJ_ROBOT);
+					goal_type = OBJ_PLAYER, goal2_type = OBJ_ROBOT;
 			}
 			else
 			{
-				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
+				goal_type = vcobjptr(tracker->ctype.laser_info.track_goal)->type;
 				if ((goal_type == OBJ_PLAYER) || (goal_type == OBJ_ROBOT))
-					return find_homing_object_complete(tracker->pos, tracker, goal_type, -1);
+					goal2_type = -1;
 				else
 					return object_none;
 			}
 		}
 		else {
-			int	goal_type, goal2_type = -1;
+			goal2_type = -1;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			if (cheats.robotskillrobots)
@@ -1252,15 +1256,15 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 #endif
 
 			if (track_goal == object_none)
-				return find_homing_object_complete(tracker->pos, tracker, OBJ_PLAYER, goal2_type);
+				goal_type = OBJ_PLAYER;
 			else {
-				goal_type = Objects[tracker->ctype.laser_info.track_goal].type;
+				goal_type = vcobjptr(tracker->ctype.laser_info.track_goal)->type;
                                 // HACK: Dead players can be identified as valid track_goal, making it impossible to track players that are alive (further down the object list) in a multibot match. Re-assigning OBJ_GHOST to OBJ_PLAYER so homers can check for valid targets again. I think this should be fixed at the root of the problem but I am not sure if this may break more than we aim to fix. 
                                 if ((Game_mode & GM_MULTI) && (goal_type == OBJ_GHOST))
                                         goal_type = OBJ_PLAYER;
-				return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);
 			}
 		}
+		return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);
 	}
 
 	return object_none;
