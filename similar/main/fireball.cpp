@@ -1041,15 +1041,16 @@ static void explode_model(const vobjptr_t obj)
 {
 	Assert(obj->render_type == RT_POLYOBJ);
 
-	if (Dying_modelnums[obj->rtype.pobj_info.model_num] != -1)
-		obj->rtype.pobj_info.model_num = Dying_modelnums[obj->rtype.pobj_info.model_num];
-
-	if (Polygon_models[obj->rtype.pobj_info.model_num].n_models > 1) {
-		int i;
-
-		for (i=1;i<Polygon_models[obj->rtype.pobj_info.model_num].n_models;i++)
+	const auto poly_model_num = obj->rtype.pobj_info.model_num;
+	const auto dying_model_num = Dying_modelnums[poly_model_num];
+	const auto model_num = (dying_model_num != -1)
+		? (obj->rtype.pobj_info.model_num = dying_model_num)
+		: poly_model_num;
+	const auto n_models = Polygon_models[model_num].n_models;
+	if (n_models > 1) {
+		for (unsigned i = 1; i < n_models; ++i)
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(obj->type == OBJ_ROBOT && get_robot_id(obj) == 44 && i == 5)) 	//energy sucker energy part
+			if (!(i == 5 && obj->type == OBJ_ROBOT && get_robot_id(obj) == 44))	//energy sucker energy part
 #endif
 				object_create_debris(obj,i);
 
