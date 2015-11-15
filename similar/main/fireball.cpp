@@ -320,7 +320,7 @@ void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 static void explode_badass_object(const vobjptridx_t objp, fix damage, fix distance, fix force)
 {
 	const objptridx_t rval = object_create_badass_explosion(objp, objp->segnum, objp->pos, objp->size,
-					get_explosion_vclip(objp, 0),
+					get_explosion_vclip(objp, explosion_vclip_stage::s0),
 					damage, distance, force,
 					objp);
 	if (rval != object_none)
@@ -1020,15 +1020,15 @@ objptridx_t call_object_create_egg(const vobjptr_t objp, int count, int type, in
 }
 
 //what vclip does this explode with?
-int get_explosion_vclip(const vcobjptr_t obj,int stage)
+int get_explosion_vclip(const vcobjptr_t obj, explosion_vclip_stage stage)
 {
 	if (obj->type==OBJ_ROBOT) {
-
-		if (stage==0 && Robot_info[get_robot_id(obj)].exp1_vclip_num>-1)
-				return Robot_info[get_robot_id(obj)].exp1_vclip_num;
-		else if (stage==1 && Robot_info[get_robot_id(obj)].exp2_vclip_num>-1)
-				return Robot_info[get_robot_id(obj)].exp2_vclip_num;
-
+		const auto vclip_ptr = stage == explosion_vclip_stage::s0
+			? &robot_info::exp1_vclip_num
+			: &robot_info::exp2_vclip_num;
+		const auto vclip_num = Robot_info[get_robot_id(obj)].*vclip_ptr;
+		if (vclip_num > -1)
+			return vclip_num;
 	}
 	else if (obj->type==OBJ_PLAYER && Player_ship->expl_vclip_num>-1)
 			return Player_ship->expl_vclip_num;
@@ -1099,7 +1099,7 @@ void explode_object(const vobjptridx_t hitobj,fix delay_time)
 	else {
 		int vclip_num;
 
-		vclip_num = get_explosion_vclip(hitobj,0);
+		vclip_num = get_explosion_vclip(hitobj, explosion_vclip_stage::s0);
 
 		auto expl_obj = object_create_explosion(hitobj->segnum, hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num );
 	
@@ -1151,14 +1151,13 @@ void do_explosion_sequence(const vobjptr_t obj)
 
 	//See if we should create a secondary explosion
 	if (obj->lifeleft <= obj->ctype.expl_info.spawn_time) {
-		int vclip_num;
 		auto del_obj = vobjptridx(obj->ctype.expl_info.delete_objnum);
 		auto &spawn_pos = del_obj->pos;
 		Assert(del_obj->type==OBJ_ROBOT || del_obj->type==OBJ_CLUTTER || del_obj->type==OBJ_CNTRLCEN || del_obj->type == OBJ_PLAYER);
 		Assert(del_obj->segnum != segment_none);
 
 		const auto &&expl_obj = [&]{
-		vclip_num = get_explosion_vclip(del_obj,1);
+			const auto vclip_num = get_explosion_vclip(del_obj, explosion_vclip_stage::s1);
 #if defined(DXX_BUILD_DESCENT_II)
 			if (del_obj->type == OBJ_ROBOT)
 			{

@@ -86,7 +86,13 @@ void init_exploding_walls(void);
 void maybe_drop_net_powerup(powerup_type_t powerup_type);
 void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
 
-int get_explosion_vclip(vcobjptr_t obj, int stage);
+enum class explosion_vclip_stage : int
+{
+	s0,
+	s1,
+};
+
+int get_explosion_vclip(vcobjptr_t obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
 objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vsegptridx_t segnum);
