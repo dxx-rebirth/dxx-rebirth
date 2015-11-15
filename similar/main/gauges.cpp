@@ -969,7 +969,7 @@ static void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		const auto &&line_spacing = LINE_SPACING;
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * 5) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player_energy()));
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player_energy()));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -1556,7 +1556,7 @@ static void hud_show_shield(void)
 
 		const auto &&line_spacing = LINE_SPACING;
 		const auto &shields = get_local_player_shields();
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 6 : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
@@ -1603,13 +1603,13 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 	gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 	gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X), HUD_SCALE_Y(y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
 
+	gr_setcolor(BM_XRGB(0,0,0));
 	if (Game_mode & GM_MULTI)
 	{
 		char killed_str[20];
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
 		sprintf(killed_str, "%5d", get_local_player().net_killed_total);
-		gr_setcolor(BM_XRGB(0,0,0));
 		int w, h;
 		gr_get_string_size(killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
@@ -1620,7 +1620,6 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 	}
 
 	//erase old icons
-	gr_setcolor(BM_XRGB(0,0,0));
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h));
 
@@ -2794,7 +2793,7 @@ static void hud_show_kill_list()
 }
 
 //returns true if viewer can see object
-static int see_object(int objnum)
+static int see_object(const vcobjptridx_t objnum)
 {
 	fvi_query fq;
 	int hit_type;
@@ -2803,7 +2802,7 @@ static int see_object(int objnum)
 	//see if we can see this player
 
 	fq.p0 					= &Viewer->pos;
-	fq.p1 					= &Objects[objnum].pos;
+	fq.p1 					= &objnum->pos;
 	fq.rad 					= 0;
 	fq.thisobjnum			= Viewer - Objects;
 	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS | FQ_GET_SEGLIST;
