@@ -2685,22 +2685,26 @@ class DXXCommon(LazyObjectConstructor):
 	def __init__(self,__program_instance=itertools.count(1)):
 		self.program_instance = next(__program_instance)
 
-	def create_header_targets(self,__shared_header_file_list=[]):
+	def create_header_targets(self,__shared_header_file_list=[],__shared_cpp_dict={}):
 		fs = SCons.Node.FS.get_default_fs()
 		builddir = self.user_settings.builddir
 		env = self.env
-		check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
-		if not __shared_header_file_list:
+		try:
+			check_header_includes = __shared_cpp_dict[builddir]
+		except KeyError:
+			check_header_includes = env.File(os.path.join(builddir, 'check_header_includes.cpp'))
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
 			#
 			# Touch the file into existence.  It is always empty, but
 			# must exist and have an extension of '.cpp'.
-			env.Textfile(target=check_header_includes, source=env.Value('''
+			check_header_includes = env.Textfile(target=check_header_includes, source=env.Value('''
 /* This file is always empty.  It is only present to act as the source
  * file for SCons targets that test individual headers.
  */
 '''))
+			__shared_cpp_dict[builddir] = check_header_includes
+		if not __shared_header_file_list:
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			if not headers:
 				g = Git.pcall(['--version'], stderr=subprocess.STDOUT)
@@ -2748,7 +2752,7 @@ class DXXCommon(LazyObjectConstructor):
 			# side effects must do so.
 			if name[:24] == 'common/include/compiler-':
 				CPPFLAGS.extend(CPPFLAGS_dxxsconf)
-			CPPFLAGS.extend(['-include', name])
+			CPPFLAGS.extend(['-g0', '-include', name])
 			if not self.user_settings.verbosebuild:
 				# $SOURCE is check_header_includes.cpp, not the file under
 				# test.
