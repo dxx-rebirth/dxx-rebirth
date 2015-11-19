@@ -1908,7 +1908,7 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(vobjptridx(start_i),segnum_copy);
+			obj_link(vobjptridx(start_i), vsegptridx(segnum_copy));
 
 			while (Objects[--Highest_object_index].type == OBJ_NONE);
 
@@ -1943,7 +1943,7 @@ void reset_objects(int n_objs)
 //Tries to find a segment for an object, using find_point_seg()
 segnum_t find_object_seg(const vobjptr_t obj)
 {
-	return find_point_seg(obj->pos,obj->segnum);
+	return find_point_seg(obj->pos, vsegptridx(obj->segnum));
 }
 
 
@@ -1957,7 +1957,7 @@ int update_object_seg(const vobjptridx_t obj)
 		return 0;
 
 	if ( newseg != obj->segnum )
-		obj_relink(obj, newseg );
+		obj_relink(obj, vsegptridx(newseg));
 
 	return 1;
 }
@@ -2117,7 +2117,7 @@ void obj_detach_all(const vobjptr_t parent)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
-objnum_t drop_marker_object(const vms_vector &pos,segnum_t segnum,const vms_matrix &orient, int marker_num)
+objptridx_t drop_marker_object(const vms_vector &pos, const vsegptridx_t segnum, const vms_matrix &orient, int marker_num)
 {
 	Assert(Marker_model_num != -1);
 	auto obj = obj_create(OBJ_MARKER, marker_num, segnum, pos, &orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);

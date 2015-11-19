@@ -1208,12 +1208,12 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
-	const auto plobjnum = get_local_player().objnum;
-
-	compute_segment_center(Objects[plobjnum].pos, &Segments[Secret_return_segment]);
-	obj_relink(plobjnum, Secret_return_segment);
+	const auto &&plobjnum = vobjptridx(get_local_player().objnum);
+	const auto &&segp = vsegptridx(Secret_return_segment);
+	compute_segment_center(plobjnum->pos, segp);
+	obj_relink(plobjnum, segp);
 	reset_player_object();
-	Objects[plobjnum].orient = Secret_return_orient;
+	plobjnum->orient = Secret_return_orient;
 }
 #endif
 
@@ -1503,7 +1503,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		auto segnum = exchange(obj->segnum, segment_none);
 		obj->next = obj->prev = object_none;
 		if ( obj->type != OBJ_NONE )	{
-			obj_link(obj,segnum);
+			obj_link(obj, vsegptridx(segnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields

@@ -822,8 +822,7 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 
 				objp->pos = hit_info.hit_pnt;
 				auto new_segnum = find_object_seg(objp);
-				Assert(new_segnum != segment_none);
-				obj_relink(objp, new_segnum);
+				obj_relink(objp, vsegptridx(new_segnum));
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
 			}

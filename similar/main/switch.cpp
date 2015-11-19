@@ -99,7 +99,7 @@ static void do_link(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]);
+			wall_toggle(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
   		}
   	}
 }
@@ -126,12 +126,12 @@ static int do_light_on(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			auto segnum = Triggers[trigger_num].seg[i];
+			const auto &&segnum = vsegptridx(Triggers[trigger_num].seg[i]);
 			auto sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
-			if (TmapInfo[Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= add_light(segnum, sidenum); 		//any light sets flag
 				enable_flicker(segnum, sidenum);
 			}
@@ -151,12 +151,12 @@ static int do_light_off(uint8_t trigger_num)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int sidenum;
-			auto segnum = Triggers[trigger_num].seg[i];
+			const auto &&segnum = vsegptridx(Triggers[trigger_num].seg[i]);
 			sidenum = Triggers[trigger_num].side[i];
 
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
-			if (TmapInfo[Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff].lighting) {
+			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
 				disable_flicker(segnum, sidenum);
 			}
@@ -311,7 +311,7 @@ static void do_matcen(uint8_t trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			trigger_matcen(Triggers[trigger_num].seg[i] );
+			trigger_matcen(vsegptridx(Triggers[trigger_num].seg[i]));
   		}
   	}
 }

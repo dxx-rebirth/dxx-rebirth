@@ -309,12 +309,12 @@ static int is_legal_type(int the_type)
 	return (the_type == OBJ_ROBOT) || (the_type == OBJ_CLUTTER);
 }
 
-static int is_legal_type_for_this_window(const objptridx_t objnum)
+static int is_legal_type_for_this_window(const objidx_t objnum)
 {
 	if (objnum == object_none)
 		return 1;
 	else
-		return is_legal_type(objnum->type);
+		return is_legal_type(vobjptr(objnum)->type);
 }
 
 static int LocalObjectSelectNextinSegment(void)

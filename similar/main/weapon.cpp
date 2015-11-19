@@ -1192,7 +1192,7 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 		}
 	}
 
-	auto obj = obj_create( OBJ_POWERUP, id, spitter->segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+	const auto &&obj = obj_create(OBJ_POWERUP, id, vsegptridx(spitter->segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (obj == object_none ) {
 		Int3();

@@ -580,6 +580,11 @@ public:
 		{
 			return P(m, get_array());
 		}
+	template <typename policy>
+		P operator()(containing_type::basic_idx<policy, 0> i) const
+		{
+			return P(i, get_array());
+		}
 	template <typename T>
 		P operator()(T &&) const = delete;
 	void *operator &() const = delete;

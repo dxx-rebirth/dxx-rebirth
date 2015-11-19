@@ -2100,10 +2100,12 @@ static void net_udp_read_object_packet( ubyte *data )
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
-				obj->segnum = segment_none;
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
-					obj_link(obj,segnum);
+				{
+					obj->segnum = segment_none;
+					obj_link(obj, vsegptridx(segnum));
+				}
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
 				else if (obj_owner != -1)
@@ -4005,7 +4007,7 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 			const auto &p = Player_init[Netgame.locations[i]];
 			o->pos = p.pos;
 			o->orient = p.orient;
-			obj_relink(o, p.segnum);
+			obj_relink(o, vsegptridx(p.segnum));
 		}
 	}
 

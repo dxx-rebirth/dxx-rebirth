@@ -924,7 +924,7 @@ void gamestate_restore_check()
 			if (Save_position.segnum <= Highest_segment_index) {
 				ConsoleObject->pos = Save_position.pos;
 				ConsoleObject->orient = Save_position.orient;
-				obj_relink(ConsoleObject-Objects,Save_position.segnum);
+				obj_relink(vobjptridx(ConsoleObject), vsegptridx(Save_position.segnum));
 			}
 
 			gamestate_not_restored = 0;

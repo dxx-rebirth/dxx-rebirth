@@ -767,12 +767,14 @@ void do_physics_sim(const vobjptridx_t obj)
 			segnum_t n;
 
 			//Int3();
-			if (obj->type==OBJ_PLAYER && (n=find_point_seg(obj->last_pos,obj->segnum))!=segment_none) {
+			const auto &&obj_segp = vsegptridx(obj->segnum);
+			if (obj->type==OBJ_PLAYER && (n = find_point_seg(obj->last_pos,obj_segp)) != segment_none)
+			{
 				obj->pos = obj->last_pos;
-				obj_relink(obj, n );
+				obj_relink(obj, vsegptridx(n));
 			}
 			else {
-				compute_segment_center(obj->pos, vsegptr(obj->segnum));
+				compute_segment_center(obj->pos, obj_segp);
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)
