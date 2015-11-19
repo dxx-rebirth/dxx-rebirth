@@ -136,7 +136,7 @@ static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT,
 
 #define		MAX_AI_CLOAK_INFO	8	//	Must be a power of 2!
 
-#define	BOSS_CLOAK_DURATION	(F1_0*7)
+#define	BOSS_CLOAK_DURATION	Boss_cloak_duration
 #define	BOSS_DEATH_DURATION	(F1_0*6)
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.
@@ -156,7 +156,6 @@ fix64           Boss_cloak_end_time = 0;
 fix64           Last_teleport_time = 0;
 fix             Boss_teleport_interval = F1_0*8;
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
-fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
 fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix64           Boss_dying_start_time;
@@ -4646,7 +4645,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	Last_teleport_time = (fix64)tmptime32;
 	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_interval = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_duration = PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_gate_time = (fix64)tmptime32;
 	Gate_interval = PHYSFSX_readSXE32(fp, swap);

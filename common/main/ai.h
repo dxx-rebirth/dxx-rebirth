@@ -97,7 +97,7 @@ void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segm
 
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern fix64 Last_teleport_time;
-extern fix Boss_cloak_duration;
+constexpr fix Boss_cloak_duration = F1_0*7;
 extern sbyte Boss_dying;
 
 extern vms_vector Believed_player_pos;
