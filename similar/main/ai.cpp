@@ -152,7 +152,6 @@ point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
-fix64           Boss_cloak_end_time = 0;
 fix64           Last_teleport_time = 0;
 fix             Boss_teleport_interval = F1_0*8;
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
@@ -2405,7 +2404,10 @@ static void do_boss_stuff(const vobjptridx_t objp)
 
 	if (!Boss_dying) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			if ((GameTime64 - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime64 > BOSS_CLOAK_DURATION/3) && (GameTime64 - Last_teleport_time > Boss_teleport_interval)) {
+			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
+				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
+				GameTime64 - Last_teleport_time > Boss_teleport_interval)
+			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(objp);
 			} else if (Boss_hit_this_frame) {
@@ -2413,15 +2415,16 @@ static void do_boss_stuff(const vobjptridx_t objp)
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime64 > Boss_cloak_end_time)
+			if (GameTime64 > Boss_cloak_start_time + Boss_cloak_duration)
 				objp->ctype.ai_info.CLOAKED = 0;
 		} else {
-			if ((GameTime64 - Boss_cloak_end_time > Boss_cloak_interval) || Boss_hit_this_frame) {
+			if (Boss_hit_this_frame ||
+				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > Boss_cloak_interval)
+			{
 				if (ai_multiplayer_awareness(objp, 95))
 				{
 					Boss_hit_this_frame = 0;
 					Boss_cloak_start_time = GameTime64;
-					Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
 						multi_send_boss_cloak(objp);
@@ -2507,19 +2510,23 @@ static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
 	if (!Boss_dying && Boss_teleports[boss_index]) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
-			if ((GameTime64 - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime64 > BOSS_CLOAK_DURATION/3) && (GameTime64 - Last_teleport_time > Boss_teleport_interval)) {
+			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
+				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
+				GameTime64 - Last_teleport_time > Boss_teleport_interval)
+			{
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(objp);
 			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime64 > Boss_cloak_end_time || GameTime64 < Boss_cloak_start_time)
+			if (GameTime64 > (Boss_cloak_start_time + Boss_cloak_duration) ||
+				GameTime64 < Boss_cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
-		} else if ((GameTime64 - Boss_cloak_end_time > Boss_cloak_interval) || (GameTime64 - Boss_cloak_end_time < -Boss_cloak_duration)) {
+		} else if (GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > Boss_cloak_interval ||
+				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) < -Boss_cloak_duration) {
 			if (ai_multiplayer_awareness(objp, 95)) {
 				Boss_cloak_start_time = GameTime64;
-				Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 				objp->ctype.ai_info.CLOAKED = 1;
 				if (Game_mode & GM_MULTI)
 					multi_send_boss_cloak(objp);
@@ -4466,10 +4473,10 @@ int ai_save_state(PHYSFS_file *fp)
 	else
 		tmptime32 = Boss_cloak_start_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	if (Boss_cloak_end_time - GameTime64 < F1_0*(-18000))
+	if ((Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
-		tmptime32 = Boss_cloak_end_time - GameTime64;
+		tmptime32 = (Boss_cloak_start_time + Boss_cloak_duration) - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
@@ -4640,7 +4647,6 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_start_time = (fix64)tmptime32;
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_end_time = (fix64)tmptime32;
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_teleport_time = (fix64)tmptime32;
 	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);

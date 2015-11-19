@@ -449,7 +449,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 		}
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[get_robot_id(obj)].boss_flag)
-				cloak_duration = {Boss_cloak_start_time, Boss_cloak_end_time};
+				cloak_duration = {Boss_cloak_start_time, (Boss_cloak_start_time + Boss_cloak_duration)};
 			else
 				cloak_duration = {GameTime64-F1_0*10, GameTime64+F1_0*10};
 		} else {

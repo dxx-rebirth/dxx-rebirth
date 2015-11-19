@@ -1034,7 +1034,6 @@ void multi_do_boss_cloak(const ubyte *buf)
 	Boss_hit_time = -F1_0*10;
 #endif
 	Boss_cloak_start_time = GameTime64;
-	Boss_cloak_end_time = GameTime64 + Boss_cloak_duration;
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 

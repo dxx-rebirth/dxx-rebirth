@@ -828,7 +828,8 @@ static void nd_write_object(const vcobjptr_t obj)
 
 	if (obj->type == OBJ_ROBOT) {
 		if (Robot_info[get_robot_id(obj)].boss_flag) {
-			if ((GameTime64 > Boss_cloak_start_time) && (GameTime64 < Boss_cloak_end_time))
+			if (GameTime64 > Boss_cloak_start_time &&
+				GameTime64 < (Boss_cloak_start_time + Boss_cloak_duration))
 				nd_write_byte(1);
 			else
 				nd_write_byte(0);
@@ -1676,7 +1677,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_int(Newdemo_game_mode);
 	}
 
-	Boss_cloak_start_time=Boss_cloak_end_time=GameTime64;
+	Boss_cloak_start_time=GameTime64;
 #endif
 
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
