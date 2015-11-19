@@ -224,14 +224,13 @@ int	Linear_tmap_polygon_objects = 1;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow_values_t glow, const fix64 cloak_start_time, const fix64 cloak_end_time, const fix Cloak_fadein_duration, const fix Cloak_fadeout_duration)
+static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow_values_t glow, const fix64 cloak_start_time, const fix total_cloaked_time, const fix Cloak_fadein_duration, const fix Cloak_fadeout_duration)
 {
-	fix cloak_delta_time,total_cloaked_time;
+	fix cloak_delta_time;
 	fix light_scale=F1_0;
 	int cloak_value=0;
 	int fading=0;		//if true, fading, else cloaking
 
-	total_cloaked_time = cloak_end_time-cloak_start_time;
 	cloak_delta_time = GameTime64 - cloak_start_time;
 
 	if (cloak_delta_time < Cloak_fadein_duration/2) {
@@ -252,7 +251,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 		cloak_value = f2i(fixdiv(cloak_delta_time - Cloak_fadein_duration/2,Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
 #endif
 
-	} else if (GameTime64 < cloak_end_time-Cloak_fadeout_duration) {
+	} else if (GameTime64 < (cloak_start_time + total_cloaked_time) -Cloak_fadeout_duration) {
 		static int cloak_delta=0,cloak_dir=1;
 		static fix cloak_timer=0;
 
@@ -272,7 +271,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 
 		cloak_value = CLOAKED_FADE_LEVEL - cloak_delta;
 	
-	} else if (GameTime64 < cloak_end_time-Cloak_fadeout_duration/2) {
+	} else if (GameTime64 < (cloak_start_time + total_cloaked_time) -Cloak_fadeout_duration/2) {
 
 #if defined(DXX_BUILD_DESCENT_I)
 		cloak_value = f2i((total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time) * CLOAKED_FADE_LEVEL);
@@ -423,19 +422,19 @@ static void draw_polygon_object(const vobjptridx_t obj)
 				   bm_ptrs);
 	}
 	else {
-		std::pair<fix64, fix64> cloak_duration;
+		std::pair<fix64, fix> cloak_duration;
 		std::pair<fix, fix> cloak_fade;
 		if (obj->type==OBJ_PLAYER && (obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		{
 			auto &cloak_time = obj->ctype.player_info.cloak_time;
-			cloak_duration = {cloak_time, cloak_time + CLOAK_TIME_MAX};
+			cloak_duration = {cloak_time, CLOAK_TIME_MAX};
 			cloak_fade = {CLOAK_FADEIN_DURATION_PLAYER, CLOAK_FADEOUT_DURATION_PLAYER};
 		}
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[get_robot_id(obj)].boss_flag)
-				cloak_duration = {Boss_cloak_start_time, (Boss_cloak_start_time + Boss_cloak_duration)};
+				cloak_duration = {Boss_cloak_start_time, Boss_cloak_duration};
 			else
-				cloak_duration = {GameTime64-F1_0*10, GameTime64+F1_0*10};
+				cloak_duration = {GameTime64-F1_0*10, F1_0 * 20};
 			cloak_fade = {CLOAK_FADEIN_DURATION_ROBOT, CLOAK_FADEOUT_DURATION_ROBOT};
 		} else {
 			alternate_textures alt_textures;
