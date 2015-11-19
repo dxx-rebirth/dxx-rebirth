@@ -19,11 +19,18 @@
  *
  */
 
-#ifndef _CLI_H_
-#define _CLI_H_
+#pragma once
+
+#include <cstdint>
+
+enum class CLI_insert_type : uint8_t
+{
+	insert,
+	overwrite,
+};
 
 // Insert or Overwrite characters?
-extern int CLI_insert_mode;
+extern CLI_insert_type CLI_insert_mode;
 
 void cli_init(void);
 /* executes the command typed in at the console (called if you press ENTER)*/
@@ -52,5 +59,3 @@ void cli_clear(void);
 void cli_history_prev(void);
 /* Called if you press DOWN key (switches through recent typed in commands */
 void cli_history_next(void);
-
-#endif /* _CLI_H_ */

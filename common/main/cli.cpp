@@ -29,7 +29,7 @@
 #include "strutil.h"
 #include "gamefont.h"
 #include "console.h"
-
+#include "cli.h"
 
 #define CLI_HISTORY_MAX         128
 // Cut the buffer line if it becomes longer than this
@@ -45,7 +45,7 @@
 // Cursor shown if we are in overwrite mode
 #define CLI_OVR_CURSOR          "|"
 
-int CLI_insert_mode;                        // Insert or Overwrite characters?
+CLI_insert_type CLI_insert_mode;                        // Insert or Overwrite characters?
 
 static array<RAIIdmem<char[]>, CLI_HISTORY_MAX> CommandLines; // List of all the past commands
 static int TotalCommands;                   // Number of commands in the Back Commands
@@ -62,7 +62,6 @@ static int CommandScrollBack;               // How much the users scrolled back 
 void cli_init()
 {
 	TotalCommands = 0;
-	CLI_insert_mode = 1;
 	CursorPos = 0;
 	CommandScrollBack = 0;
 	Prompt.reset(d_strdup(CLI_DEFAULT_PROMPT));
@@ -145,7 +144,7 @@ void cli_draw(int y)
 		gr_get_string_size(Prompt.get(), &prompt_width, nullptr, nullptr);
 		gr_get_string_size(LCommand + Offset, &cmd_width, &h, nullptr);
 		x = CLI_CHAR_BORDER + prompt_width + cmd_width;
-		gr_string(x, y-h, CLI_insert_mode ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
+		gr_string(x, y-h, CLI_insert_mode == CLI_insert_type::insert ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
 	}
 }
 
@@ -275,7 +274,7 @@ void cli_add_character(char character)
 		LCommand[strlen(LCommand)] = character;
 		LCommand[strlen(LCommand)] = '\0';
 	}
-	if (!CLI_insert_mode)
+	if (CLI_insert_mode == CLI_insert_type::overwrite)
 		cli_cursor_del();
 }
 

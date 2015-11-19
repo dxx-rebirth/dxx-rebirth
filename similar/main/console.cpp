@@ -250,7 +250,7 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 				case KEY_TAB:               cli_autocomplete();     break;
 				case KEY_ENTER:             cli_execute();          break;
 				case KEY_INSERT:
-					CLI_insert_mode = !CLI_insert_mode;
+					CLI_insert_mode = CLI_insert_mode == CLI_insert_type::insert ? CLI_insert_type::overwrite : CLI_insert_type::insert;
 					break;
 				default:
 					int character = key_ascii();
