@@ -90,10 +90,17 @@ enum class HudType : uint8_t
 	Hidden,
 };
 
+enum class RespawnPress : uint8_t
+{
+	Any,
+	Fire,
+};
+
 struct player_config : prohibit_void_ptr<player_config>
 {
 	ubyte ControlType;
 	HudType HudMode;
+	RespawnPress RespawnMode;
 	array<ubyte, MAX_PRIMARY_WEAPONS + 1> PrimaryOrder;
 	array<ubyte, MAX_SECONDARY_WEAPONS + 1> SecondaryOrder;
 	array<array<ubyte, MAX_CONTROLS>, 3> KeySettings;

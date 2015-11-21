@@ -165,6 +165,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "cycleautoselectonly"
 #define TOGGLES_FRIENDMISSILEVIEW_NAME_TEXT "friendmissileview"
 #define TOGGLES_CLOAKINVULTIMER_NAME_TEXT "cloakinvultimer"
+#define TOGGLES_RESPAWN_ANY_KEY	"respawnkey"
 #define GRAPHICS_HEADER_TEXT "[graphics]"
 #define GRAPHICS_ALPHAEFFECTS_NAME_TEXT "alphaeffects"
 #define GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "dynlightcolor"
@@ -465,6 +466,8 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.CycleAutoselectOnly = atoi(value);
 				if(!strcmp(line,TOGGLES_CLOAKINVULTIMER_NAME_TEXT))
 					PlayerCfg.CloakInvulTimer = atoi(value);
+				else if (!strcmp(line, TOGGLES_RESPAWN_ANY_KEY))
+					PlayerCfg.RespawnMode = static_cast<RespawnPress>(atoi(value));
 			}
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
@@ -759,6 +762,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "=%i\n",static_cast<unsigned>(PlayerCfg.NoFireAutoselect));
 		PHYSFSX_printf(fout,TOGGLES_CYCLEAUTOSELECTONLY_NAME_TEXT "=%i\n",PlayerCfg.CycleAutoselectOnly);
                 PHYSFSX_printf(fout,TOGGLES_CLOAKINVULTIMER_NAME_TEXT "=%i\n",PlayerCfg.CloakInvulTimer);
+		PHYSFSX_printf(fout,TOGGLES_RESPAWN_ANY_KEY "=%i\n",static_cast<unsigned>(PlayerCfg.RespawnMode));
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_HEADER_TEXT "\n");
 		PHYSFSX_printf(fout,GRAPHICS_ALPHAEFFECTS_NAME_TEXT "=%i\n",PlayerCfg.AlphaEffects);
