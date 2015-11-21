@@ -2354,7 +2354,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
 	gr_setcolor( 0 );
 	for (i=0;i<erase_height;i++)
-		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
+		gr_uline(i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i));
 
 	//draw numbers
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
@@ -3141,14 +3141,13 @@ void render_gauges()
 		draw_statusbar_keys_state().draw_all_keys(multires_gauge_graphic);
 
 		sb_show_lives(multires_gauge_graphic);
+		sb_show_score(multires_gauge_graphic);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
-			sb_show_score(multires_gauge_graphic);
 		}
 		else
 		{
-			sb_show_score(multires_gauge_graphic);
 			sb_show_score_added(multires_gauge_graphic);
 		}
 	}
