@@ -108,12 +108,16 @@ static void multi_send_gmode_update();
 static void multi_send_quit();
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 
+#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+static void multi_add_lifetime_kills();
+#endif
+
 //
 // Global variables
 //
 
 int multi_protocol=0; // set and determinate used protocol
-int imulti_new_game=0; // to prep stuff for level only when starting new game
+static int imulti_new_game; // to prep stuff for level only when starting new game
 
 //do we draw the kill list on the HUD?
 int Show_kill_list = 1;
@@ -131,7 +135,7 @@ int Bounty_target = 0;
 
 array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 int multi_defining_message = 0;
-int multi_message_index = 0;
+static int multi_message_index;
 
 ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer message are built
 
@@ -145,7 +149,7 @@ int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 static array<unsigned, MAX_PLAYERS>   sorted_kills;
-int   multi_goto_secret = 0;
+static int multi_goto_secret;
 array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
@@ -785,10 +789,6 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 					Players[killer_pnum].net_kills_total++;
 					Players[killer_pnum].KillGoalCount++;
 					
-					/* Record the kill in a demo */
-					if( Newdemo_state == ND_STATE_RECORDING )
-						newdemo_record_multi_kill( killer_pnum, 1 );
-					
 					/* If the target died, the new one is set! */
 					if( killed_pnum == Bounty_target )
 						multi_new_bounty_target( killer_pnum );
@@ -800,7 +800,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				Players[killer_pnum].KillGoalCount+=1;
 			}
 			
-			if (Newdemo_state == ND_STATE_RECORDING && !( Game_mode & GM_BOUNTY ) )
+			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killer_pnum, 1);
 		}
 
@@ -808,9 +808,13 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		Players[killed_pnum].net_killed_total += 1;
 		if (killer_pnum == Player_num) {
 			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
-			multi_add_lifetime_kills();
-			if ((Game_mode & GM_MULTI_COOP) && (get_local_player().score >= 1000))
-				add_points_to_score(-1000);
+			if (Game_mode & GM_MULTI_COOP)
+			{
+				const auto local_player_score = get_local_player().score;
+				add_points_to_score(local_player_score >= 1000 ? -1000 : -local_player_score);
+			}
+			else
+				multi_add_lifetime_kills();
 		}
 		else if (killed_pnum == Player_num)
 		{
@@ -4562,6 +4566,9 @@ void multi_add_lifetime_killed ()
 	int oldrank;
 
 	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	if (Game_mode & GM_MULTI_COOP)
 		return;
 
 	oldrank=GetMyNetRanking();

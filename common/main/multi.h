@@ -516,8 +516,10 @@ void multi_send_guided_info (vobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
-#endif
+#ifndef RELEASE
 void multi_add_lifetime_kills(void);
+#endif
+#endif
 void multi_send_bounty( void );
 
 void multi_consistency_error(int reset);
@@ -571,8 +573,6 @@ extern int Network_player_added;
 
 extern array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 extern array<int16_t, 2> team_kills;
-
-extern int multi_goto_secret;
 
 extern ushort my_segments_checksum;
 
