@@ -505,15 +505,7 @@ int event_key_get(const d_event &event)
 // same as above but without mod states
 int event_key_get_raw(const d_event &event)
 {
-	auto &e = static_cast<const d_event_keycommand &>(event);
-	Assert(e.type == EVENT_KEY_COMMAND || e.type == EVENT_KEY_RELEASE);
-	auto keycode = e.keycode;
-	if ( keycode & KEY_SHIFTED ) keycode &= ~KEY_SHIFTED;
-	if ( keycode & KEY_ALTED ) keycode &= ~KEY_ALTED;
-	if ( keycode & KEY_CTRLED ) keycode &= ~KEY_CTRLED;
-	if ( keycode & KEY_DEBUGGED ) keycode &= ~KEY_DEBUGGED;
-	if ( keycode & KEY_METAED ) keycode &= ~KEY_METAED;
-	return keycode;
+	return event_key_get(event) & ~(KEY_SHIFTED | KEY_ALTED | KEY_CTRLED | KEY_DEBUGGED | KEY_METAED);
 }
 
 void key_toggle_repeat(int enable)
