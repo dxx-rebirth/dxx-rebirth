@@ -31,7 +31,7 @@
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
-int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
+static bool keyd_repeat; // 1 = use repeats, 0 no repeats
 pressed_keys keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
