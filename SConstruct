@@ -2722,15 +2722,14 @@ class DXXCommon(LazyObjectConstructor):
 			if not __shared_header_file_list:
 				raise SCons.Errors.StopError("`git ls-files` found headers, but none can be checked.")
 		dirname = os.path.join(builddir, self.srcdir)
-		kwargs = {
-			'CXXFLAGS' : env['CXXFLAGS'][:],
-			'source' : check_header_includes
-		}
 		Depends = env.Depends
 		StaticObject = env.StaticObject
-		OBJSUFFIX = env['OBJSUFFIX']
 		CPPFLAGS_template = env['CPPFLAGS']
-		CPPFLAGS_dxxsconf = ['-include', 'dxxsconf.h']
+		CPPFLAGS_no_sconf = CPPFLAGS_template + ['-g0', '-include', '$DXX_EFFECTIVE_SOURCE']
+		CPPFLAGS_with_sconf = ['-include', 'dxxsconf.h'] + CPPFLAGS_no_sconf
+		CXXCOMSTR = env.__header_check_output_COMSTR
+		CXXFLAGS = env['CXXFLAGS']
+		target = os.path.join('%s/chi/${DXX_EFFECTIVE_SOURCE}%s' % (dirname, env['OBJSUFFIX']))
 		for name in __shared_header_file_list:
 			if not name:
 				continue
@@ -2740,7 +2739,6 @@ class DXXCommon(LazyObjectConstructor):
 			if self.srcdir[0] == 'd' and name[0] == 'd' and not name.startswith(self.srcdir):
 				# Skip d1 in d2 and d2 in d1
 				continue
-			CPPFLAGS = CPPFLAGS_template[:]
 			# Compiler feature headers cannot include dxxsconf.h because
 			# it confuses the dependency resolver when SConf runs.
 			# Calling code must include dxxsconf.h before including the
@@ -2750,16 +2748,10 @@ class DXXCommon(LazyObjectConstructor):
 			# including dxxsconf.h receive an implicit include.  Any
 			# header which needs dxxsconf.h and can include it without
 			# side effects must do so.
-			if name[:24] == 'common/include/compiler-':
-				CPPFLAGS.extend(CPPFLAGS_dxxsconf)
-			CPPFLAGS.extend(['-g0', '-include', name])
-			if not self.user_settings.verbosebuild:
-				# $SOURCE is check_header_includes.cpp, not the file under
-				# test.
-				kwargs['CXXCOMSTR'] = "CHK %s %s %s" % (self.target, builddir, name)
-			Depends(StaticObject(target=os.path.join('%s/chi/%s%s' % (dirname, name, OBJSUFFIX)), CPPFLAGS=CPPFLAGS, DXX_EFFECTIVE_SOURCE=name, **kwargs), fs.File(name))
+			Depends(StaticObject(target=target, CPPFLAGS=CPPFLAGS_with_sconf if name[:24] == 'common/include/compiler-' else CPPFLAGS_no_sconf, CXXCOMSTR=CXXCOMSTR, CXXFLAGS=CXXFLAGS, DXX_EFFECTIVE_SOURCE=name, source=check_header_includes), fs.File(name))
 
 	def _cpp_output_StaticObject(self,target=None,source=None,DXX_EFFECTIVE_SOURCE='$SOURCE',*args,**kwargs):
+		CPPFLAGS = kwargs.get('CPPFLAGS', None)
 		CXXFLAGS = kwargs.get('CXXFLAGS', None)
 		env = self.env
 		OBJSUFFIX = env['OBJSUFFIX']
@@ -2769,11 +2761,12 @@ class DXXCommon(LazyObjectConstructor):
 			source=source, OBJSUFFIX='.i',
 			# Bypass ccache
 			CXXCOM=env._dxx_cxxcom_no_prefix,
+			CPPFLAGS=(env['CPPFLAGS'] if CPPFLAGS is None else CPPFLAGS),
 			CXXFLAGS=(env['CXXFLAGS'] if CXXFLAGS is None else CXXFLAGS) + ['-E'],
 			CXXCOMSTR=env.__generate_cpp_output_COMSTR,
 			DXX_EFFECTIVE_SOURCE=DXX_EFFECTIVE_SOURCE,
 		)
-		return StaticObject(target=target, source=source, *args, **kwargs)
+		return StaticObject(target=target, source=source, DXX_EFFECTIVE_SOURCE=DXX_EFFECTIVE_SOURCE, *args, **kwargs)
 
 	def create_special_target_nodes(self,archive):
 		user_settings = self.user_settings
@@ -2850,10 +2843,12 @@ class DXXCommon(LazyObjectConstructor):
 		if distcc_hosts is not None:
 			env['ENV']['DISTCC_HOSTS'] = distcc_hosts
 		if self.user_settings.verbosebuild:
+			env.__header_check_output_COMSTR	= None
 			env.__generate_cpp_output_COMSTR	= None
 		else:
 			target = self.target[:3]
 			format_tuple = (target, self.user_settings.builddir or '.')
+			env.__header_check_output_COMSTR	= "CHK %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
 			env.__generate_cpp_output_COMSTR	= "CPP %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
 			env.Replace(
 				CXXCOMSTR						= "CXX %s %s $SOURCE" % format_tuple,
