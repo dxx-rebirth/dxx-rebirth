@@ -1312,9 +1312,9 @@ static window_event_result HandleTestKey(int key)
 			static int Toggle_var;
 			Toggle_var = !Toggle_var;
 			if (Toggle_var)
-				GameArg.SysMaxFPS = 300;
+				CGameArg.SysMaxFPS = 300;
 			else
-				GameArg.SysMaxFPS = 30;
+				CGameArg.SysMaxFPS = 30;
 		}
 #endif
 			break;

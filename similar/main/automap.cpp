@@ -608,7 +608,7 @@ static void draw_automap(automap *am)
 
 	am->t2 = timer_query();
 	const auto vsync = CGameCfg.VSync;
-	const auto bound = F1_0 / (vsync ? MAXIMUM_FPS : GameArg.SysMaxFPS);
+	const auto bound = F1_0 / (vsync ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
 	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
 	while (am->t2 - am->t1 < bound) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{

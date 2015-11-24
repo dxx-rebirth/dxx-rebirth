@@ -438,7 +438,7 @@ void calc_frame_time()
 	fix last_frametime = FrameTime;
 
 	const auto vsync = CGameCfg.VSync;
-	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : GameArg.SysMaxFPS);
+	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
 	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
 	for (;;)
 	{

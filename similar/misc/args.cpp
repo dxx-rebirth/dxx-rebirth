@@ -154,7 +154,7 @@ static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, 
 
 static void InitGameArg()
 {
-	GameArg.SysMaxFPS = MAXIMUM_FPS;
+	CGameArg.SysMaxFPS = MAXIMUM_FPS;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
 #endif
@@ -197,7 +197,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-nonicefps"))
 			GameArg.SysNoNiceFPS = 1;
 		else if (!d_stricmp(p, "-maxfps"))
-			GameArg.SysMaxFPS = arg_integer(pp, end);
+			CGameArg.SysMaxFPS = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-hogdir"))
 			GameArg.SysHogDir = arg_string(pp, end);
 #if PHYSFS_VER_MAJOR >= 2
@@ -395,10 +395,10 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 
 static void PostProcessGameArg()
 {
-	if (GameArg.SysMaxFPS < MINIMUM_FPS)
-		GameArg.SysMaxFPS = MINIMUM_FPS;
-	else if (GameArg.SysMaxFPS > MAXIMUM_FPS)
-		GameArg.SysMaxFPS = MAXIMUM_FPS;
+	if (CGameArg.SysMaxFPS < MINIMUM_FPS)
+		CGameArg.SysMaxFPS = MINIMUM_FPS;
+	else if (CGameArg.SysMaxFPS > MAXIMUM_FPS)
+		CGameArg.SysMaxFPS = MAXIMUM_FPS;
 #if PHYSFS_VER_MAJOR >= 2
 	if (!GameArg.SysMissionDir.empty())
 		PHYSFS_mount(GameArg.SysMissionDir.c_str(), MISSION_DIR, 1);

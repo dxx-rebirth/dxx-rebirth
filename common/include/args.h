@@ -70,12 +70,12 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgShowMemInfo;
 	bool DbgSafelog;
 	int DbgVerbose;
+	int SysMaxFPS;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct Arg : prohibit_void_ptr<Arg>
 {
-	int SysMaxFPS;
 	std::string SysHogDir;
 	std::string SysMissionDir;
 	std::string SysPilot;
