@@ -29,6 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+extern const char copyright[];
+
+const
 #if defined(DXX_BUILD_DESCENT_I)
 char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -113,8 +116,6 @@ int Screen_mode=-1;					//game screen or editor screen?
 #if defined(DXX_BUILD_DESCENT_I)
 int HiresGFXAvailable = 0;
 int MacHog = 0;	// using a Mac hogfile?
-#elif defined(DXX_BUILD_DESCENT_II)
-
 #endif
 
 //read help from a file & print to screen
