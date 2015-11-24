@@ -489,7 +489,6 @@ static inline int PHYSFSX_getRealPath(const char *stdPath, array<char, N> &realP
 extern int PHYSFSX_isNewPath(const char *path);
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
-extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 #define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
 int PHYSFSX_exists_ignorecase(const char *filename);
 RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);

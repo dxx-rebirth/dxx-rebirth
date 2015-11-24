@@ -471,24 +471,6 @@ PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *r
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
 
-#if 0
-// returns -1 if error
-// Gets bytes free in current write dir
-PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
-{
-#if defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
-	struct statfs sfs;
-	
-	if (!statfs(PHYSFS_getWriteDir(), &sfs))
-		return (PHYSFS_sint64)(sfs.f_bavail * sfs.f_bsize);
-	
-	return -1;
-#else
-	return 0x7FFFFFFF;
-#endif
-}
-#endif
-
 int PHYSFSX_exists_ignorecase(const char *filename)
 {
 	char filename2[PATH_MAX];
