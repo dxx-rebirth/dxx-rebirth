@@ -73,6 +73,11 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoHogDir;
 #endif
 	bool SysShowCmdHelp;
+#ifdef USE_SDLMIXER
+	bool SndDisableSdlMixer;
+#else
+	static constexpr tt::true_type SndDisableSdlMixer{};
+#endif
 	int DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
@@ -95,11 +100,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool CtlNoJoystick;
 	bool SndNoSound;
 	bool SndNoMusic;
-#ifdef USE_SDLMIXER
-	bool SndDisableSdlMixer;
-#else
-	static constexpr tt::true_type SndDisableSdlMixer{};
-#endif
 	bool GfxSkipHiresFNT;
 #ifdef DXX_BUILD_DESCENT_I
 	bool EdiNoBm;

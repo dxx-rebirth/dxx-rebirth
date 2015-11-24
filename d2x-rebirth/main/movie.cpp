@@ -168,7 +168,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 	songs_stop_all();
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-	if (GameArg.SndDisableSdlMixer)
+	if (CGameArg.SndDisableSdlMixer)
 		digi_close();
 
 	// Start sound
@@ -178,7 +178,7 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!GameArg.SndNoSound
-		&& GameArg.SndDisableSdlMixer
+		&& CGameArg.SndDisableSdlMixer
 	)
 		digi_init();
 

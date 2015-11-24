@@ -158,7 +158,7 @@ static void songs_init()
 		GameCfg.MusicType = MUSIC_TYPE_NONE;
 
 	// If SDL_Mixer is not supported (or deactivated), switch to no-music type if SDL_mixer-related music type was selected
-	if (GameArg.SndDisableSdlMixer)
+	if (CGameArg.SndDisableSdlMixer)
 	{
 #ifndef _WIN32
 		if (GameCfg.MusicType == MUSIC_TYPE_BUILTIN)

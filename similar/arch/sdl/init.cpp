@@ -49,7 +49,7 @@ void arch_init(void)
 	key_init();
 
 	int system = SDLAUDIO_SYSTEM;
-	if (!GameArg.SndDisableSdlMixer)
+	if (!CGameArg.SndDisableSdlMixer)
 		system = SDLMIXER_SYSTEM;
 	digi_select_system( system );
 
