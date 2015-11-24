@@ -353,13 +353,6 @@ static void digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms
 	}
 }
 
-//sounds longer than this get their 3d aspects updated
-#if defined(DXX_BUILD_DESCENT_I)
-#define SOUND_3D_THRESHHOLD  (digi_sample_rate * 3 / 2)	//1.5 seconds
-#elif defined(DXX_BUILD_DESCENT_II)
-#define SOUND_3D_THRESHHOLD  (GameArg.SndDigiSampleRate * 3 / 2)	//1.5 seconds
-#endif
-
 void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance, int loop_start, int loop_end )
 {
 	const vcobjptr_t viewer{Viewer};
@@ -378,7 +371,8 @@ void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, i
 		Int3();
 		return;
 	}
-	if ( !forever ) { 		// && GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
+	if (!forever)
+	{
 		// Hack to keep sounds from building up...
 		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, objnum->pos, objnum->segnum, max_volume,&volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
@@ -429,7 +423,8 @@ static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum
 		Int3();
 		return;
 	}
-	if ( !forever ) { 	//&& GameSounds[soundnum - SOUND_OFFSET].length < SOUND_3D_THRESHHOLD)	{
+	if (!forever)
+	{
 		// Hack to keep sounds from building up...
 		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
 		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
