@@ -210,7 +210,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			 * pass it via a cross-platform ini.
 			 */
 #if defined(__unix__)
-			GameArg.SysNoHogDir = 1;
+			CGameArg.SysNoHogDir = true;
 #endif
 		}
 		else if (!d_stricmp(p, "-use_players_dir"))

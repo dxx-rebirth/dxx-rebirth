@@ -69,6 +69,9 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgForbidConsoleGrab;
 	bool DbgShowMemInfo;
 	bool DbgSafelog;
+#if defined(__unix__)
+	bool SysNoHogDir;
+#endif
 	int DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
@@ -82,9 +85,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string SysRecordDemoNameTemplate;
 	bool SysShowCmdHelp;
 	bool SysNoNiceFPS;
-#if defined(__unix__)
-	bool SysNoHogDir;
-#endif
 	bool SysUsePlayersDir;
 	bool SysLowMem;
 	bool SysAutoRecordDemo;
