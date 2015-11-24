@@ -193,7 +193,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// System Options
 
 		if (!d_stricmp(p, "-help") || !d_stricmp(p, "-h") || !d_stricmp(p, "-?") || !d_stricmp(p, "?"))
-			GameArg.SysShowCmdHelp = 1;
+			CGameArg.SysShowCmdHelp = true;
 		else if (!d_stricmp(p, "-nonicefps"))
 			GameArg.SysNoNiceFPS = 1;
 		else if (!d_stricmp(p, "-maxfps"))

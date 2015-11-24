@@ -72,6 +72,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #if defined(__unix__)
 	bool SysNoHogDir;
 #endif
+	bool SysShowCmdHelp;
 	int DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
@@ -83,7 +84,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string SysHogDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
-	bool SysShowCmdHelp;
 	bool SysNoNiceFPS;
 	bool SysUsePlayersDir;
 	bool SysLowMem;

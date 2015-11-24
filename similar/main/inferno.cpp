@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
 	freopen( "CON", "w", stderr );
 #endif
 
-	if (GameArg.SysShowCmdHelp) {
+	if (CGameArg.SysShowCmdHelp) {
 		print_commandline_help();
 
 		return(0);
