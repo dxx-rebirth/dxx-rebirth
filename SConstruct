@@ -2704,6 +2704,9 @@ class DXXCommon(LazyObjectConstructor):
  */
 '''))
 			__shared_cpp_dict[builddir] = check_header_includes
+			check_header_includes[0].get_found_includes = \
+				lambda env, scanner, path, __get_found_includes=check_header_includes[0].get_found_includes: \
+					__get_found_includes(env, scanner, path) + [fs.File(env['DXX_EFFECTIVE_SOURCE'])]
 		if not __shared_header_file_list:
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			if not headers:
@@ -2748,7 +2751,12 @@ class DXXCommon(LazyObjectConstructor):
 			# including dxxsconf.h receive an implicit include.  Any
 			# header which needs dxxsconf.h and can include it without
 			# side effects must do so.
-			Depends(StaticObject(target=target, CPPFLAGS=CPPFLAGS_with_sconf if name[:24] == 'common/include/compiler-' else CPPFLAGS_no_sconf, CXXCOMSTR=CXXCOMSTR, CXXFLAGS=CXXFLAGS, DXX_EFFECTIVE_SOURCE=name, source=check_header_includes), fs.File(name))
+			StaticObject(target=target,
+				CPPFLAGS=CPPFLAGS_with_sconf if name[:24] == 'common/include/compiler-' else CPPFLAGS_no_sconf,
+				CXXCOMSTR=CXXCOMSTR,
+				CXXFLAGS=CXXFLAGS,
+				DXX_EFFECTIVE_SOURCE=name,
+				source=check_header_includes)
 
 	def _cpp_output_StaticObject(self,target=None,source=None,DXX_EFFECTIVE_SOURCE='$SOURCE',*args,**kwargs):
 		CPPFLAGS = kwargs.get('CPPFLAGS', None)
