@@ -250,7 +250,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// Sound Options
 
 		else if (!d_stricmp(p, "-nosound"))
-			GameArg.SndNoSound 		= 1;
+			CGameArg.SndNoSound		= 1;
 		else if (!d_stricmp(p, "-nomusic"))
 			GameArg.SndNoMusic 		= 1;
 #if defined(DXX_BUILD_DESCENT_II)

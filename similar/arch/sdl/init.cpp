@@ -29,7 +29,7 @@ static void arch_close(void)
 
 	mouse_close();
 
-	if (!GameArg.SndNoSound)
+	if (!CGameArg.SndNoSound)
 	{
 		digi_close();
 	}
@@ -53,7 +53,7 @@ void arch_init(void)
 		system = SDLMIXER_SYSTEM;
 	digi_select_system( system );
 
-	if (!GameArg.SndNoSound)
+	if (!CGameArg.SndNoSound)
 		digi_init();
 
 	mouse_init();

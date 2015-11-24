@@ -172,12 +172,12 @@ int PlayMovie(const char *subtitles, const char *filename, int must_have)
 		digi_close();
 
 	// Start sound
-	MVE_sndInit(!GameArg.SndNoSound ? 1 : -1);
+	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
 
 	ret = RunMovie(name, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-	if (!GameArg.SndNoSound
+	if (!CGameArg.SndNoSound
 		&& CGameArg.SndDisableSdlMixer
 	)
 		digi_init();
