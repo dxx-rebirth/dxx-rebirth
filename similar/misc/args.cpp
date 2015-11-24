@@ -202,7 +202,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.SysHogDir = arg_string(pp, end);
 #if PHYSFS_VER_MAJOR >= 2
 		else if (!d_stricmp(p, "-add-missions-dir"))
-			GameArg.SysMissionDir = arg_string(pp, end);
+			CGameArg.SysMissionDir = arg_string(pp, end);
 #endif
 		else if (!d_stricmp(p, "-nohogdir"))
 		{
@@ -400,8 +400,8 @@ static void PostProcessGameArg()
 	else if (CGameArg.SysMaxFPS > MAXIMUM_FPS)
 		CGameArg.SysMaxFPS = MAXIMUM_FPS;
 #if PHYSFS_VER_MAJOR >= 2
-	if (!GameArg.SysMissionDir.empty())
-		PHYSFS_mount(GameArg.SysMissionDir.c_str(), MISSION_DIR, 1);
+	if (!CGameArg.SysMissionDir.empty())
+		PHYSFS_mount(CGameArg.SysMissionDir.c_str(), MISSION_DIR, 1);
 #endif
 
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";

@@ -71,13 +71,13 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgSafelog;
 	int DbgVerbose;
 	int SysMaxFPS;
+	std::string SysMissionDir;
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct Arg : prohibit_void_ptr<Arg>
 {
 	std::string SysHogDir;
-	std::string SysMissionDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
 	bool SysShowCmdHelp;
