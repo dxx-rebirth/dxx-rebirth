@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else
