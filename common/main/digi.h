@@ -129,7 +129,7 @@ extern int digi_sample_rate;
 extern int Dont_start_sound_objects;
 #endif
 extern int SoundQ_channel;
-void digi_select_system(int);
+void digi_select_system();
 
 #ifdef _WIN32
 // Windows native-MIDI stuff.

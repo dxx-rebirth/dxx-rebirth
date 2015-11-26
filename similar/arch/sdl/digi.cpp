@@ -160,20 +160,18 @@ sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_func
 
 static sound_function_pointers_t fptr;
 
-void digi_select_system(int n) {
-	switch (n) {
+void digi_select_system()
+{
 #ifdef USE_SDLMIXER
-	case SDLMIXER_SYSTEM:
+	if (!CGameArg.SndDisableSdlMixer)
+	{
 	con_printf(CON_NORMAL,"Using SDL_mixer library");
 		fptr = digi_mixer_table;
-	break;
+		return;
+	}
 #endif
-	case SDLAUDIO_SYSTEM:
-	default:
 	con_printf(CON_NORMAL,"Using plain old SDL audio");
 		fptr = digi_audio_table;
- 	break;
-	}
 }
 
 /* Common digi functions */
