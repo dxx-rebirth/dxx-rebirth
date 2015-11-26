@@ -93,7 +93,6 @@ extern void digi_end_sound( int channel );
 extern void digi_set_channel_pan( int channel, int pan );
 extern void digi_set_channel_volume( int channel, int volume );
 extern int digi_is_channel_playing(int channel);
-extern void digi_debug();
 
 extern void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end );
 extern void digi_change_looping_volume( fix volume );
