@@ -594,7 +594,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 
 	// close stale socket
 	sock.reset();
-	struct _sockaddr sAddr{};   // my address information
+	struct _sockaddr sAddr;   // my address information
 
 	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
 	if (!sock)
@@ -603,10 +603,11 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
+	sAddr = {};
 	sAddr.sa.sa_family = sAddr.address_family();
 #ifdef IPv6
 	sAddr.sin6.sin6_port = htons (port); // short, network byte order
-	sAddr.sin6.sin6_addr = in6addr_any; // automatically fill with my IP
+	sAddr.sin6.sin6_addr = IN6ADDR_ANY_INIT; // automatically fill with my IP
 #else
 	sAddr.sin.sin_port = htons (port); // short, network byte order
 	sAddr.sin.sin_addr.s_addr = INADDR_ANY; // automatically fill with my IP
