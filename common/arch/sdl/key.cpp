@@ -28,8 +28,6 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-static unsigned char Installed = 0;
-
 //-------- Variable accessed by outside functions ---------
 static bool keyd_repeat; // 1 = use repeats, 0 no repeats
 pressed_keys keyd_pressed;
@@ -453,16 +451,8 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	}
 }
 
-void key_close()
-{
-      Installed = 0;
-}
-
 void key_init()
 {
-	if (Installed) return;
-
-	Installed=1;
 	SDL_EnableUNICODE(1);
 	key_toggle_repeat(1);
 
@@ -481,9 +471,6 @@ static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 
 void key_flush()
 {
-	if (!Installed)
-		key_init();
-
 	//Clear the unicode buffer
 	unicode_frame_buffer = {};
 	keyd_pressed = {};

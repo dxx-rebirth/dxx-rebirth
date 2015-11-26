@@ -33,9 +33,6 @@ static void arch_close(void)
 	{
 		digi_close();
 	}
-
-	key_close();
-
 	SDL_Quit();
 }
 

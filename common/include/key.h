@@ -45,7 +45,6 @@ struct SDL_KeyboardEvent;
 // This installs the int9 vector and initializes the keyboard in buffered
 // ASCII mode. key_close simply undoes that.
 extern void key_init();
-extern void key_close();
 
 // Time in seconds when last key was pressed...
 extern fix64 keyd_time_when_last_pressed;
