@@ -1495,9 +1495,12 @@ static void start_player_death_sequence(const vobjptr_t player)
 					if (killer_objnum == object_none)
 						/* Non-player kill */
 						return true;
+					const auto &&killer_objp = vobjptr(killer_objnum);
+					if (killer_objp->type != OBJ_PLAYER)
+						return true;
 					if (!(Game_mode & GM_TEAM))
 						return false;
-					return get_team(Player_num) == get_team(get_player_id(vobjptr(killer_objnum)));
+					return get_team(Player_num) == get_team(get_player_id(killer_objp));
 				};
 				if (!is_bad_kill())
 					++ get_local_player_secondary_ammo()[PROXIMITY_INDEX];
