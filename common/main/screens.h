@@ -26,8 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-
-struct grs_canvas;
+#include "fwd-gr.h"
 
 // What graphics modes the game & editor open
 

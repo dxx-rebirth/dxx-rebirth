@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 #include <string>
+#include "fwd-gr.h"
 #include "varutil.h"
 #include "window.h"
 #include "compiler-array.h"
@@ -40,7 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ntstring.h"
 
 struct grs_bitmap;
-struct grs_canvas;
 struct grs_font;
 
 struct UI_KEYPAD {

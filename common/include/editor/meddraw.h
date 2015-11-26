@@ -27,8 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-segment.h"
+#include "fwd-gr.h"
 
-struct grs_canvas;
 struct editor_view;
 
 void meddraw_init_views( grs_canvas * canvas);
