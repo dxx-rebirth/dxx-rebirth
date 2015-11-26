@@ -100,7 +100,9 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
 int gr_set_mode(screen_mode mode);
 
 int gr_init();
+#ifdef OGL
 void gr_set_attributes();
+#endif
 void gr_close();
 
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h);

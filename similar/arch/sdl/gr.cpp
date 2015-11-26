@@ -150,10 +150,6 @@ void gr_toggle_fullscreen()
 	GameCfg.WindowMode = WindowMode;
 }
 
-void gr_set_attributes(void)
-{
-}
-
 int gr_init()
 {
 	// Only do this function once!
