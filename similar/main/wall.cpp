@@ -677,7 +677,6 @@ void do_door_close(int door_num)
 		}
 
 	for (p=0;p<d->n_parts;p++) {
-		wall *w;
 		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;

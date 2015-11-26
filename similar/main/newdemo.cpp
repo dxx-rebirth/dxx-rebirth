@@ -1610,7 +1610,7 @@ enum purpose_type
 
 static int newdemo_read_demo_start(enum purpose_type purpose)
 {
-	sbyte i=0, version=0, game_type=0, c=0;
+	sbyte version=0, game_type=0, c=0;
 	ubyte energy=0, shield=0;
 	char current_mission[9];
 	fix nd_GameTime32 = 0;
@@ -1773,7 +1773,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 #endif
 
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
 		nd_read_short(&s);
@@ -1790,6 +1790,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(i);
 	}
 
+	sbyte i;
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1860,8 +1861,6 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (shareware)
 	{
-		unsigned char c;
-
 		nd_read_byte((sbyte *)&c);
 		if (c != ND_EVENT_NEW_LEVEL) {
 			auto flags = get_local_player_flags().get_player_flags();
@@ -1902,7 +1901,7 @@ static void newdemo_pop_ctrlcen_triggers()
 
 static int newdemo_read_frame_information(int rewrite)
 {
-	int done, side, soundno, angle, volume;
+	int done, angle, volume;
 	sbyte c;
 
 	done = 0;
@@ -2049,6 +2048,8 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 
 		case ND_EVENT_SOUND:
+			{
+				int soundno;
 			nd_read_int(&soundno);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
@@ -2058,9 +2059,12 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
 				digi_play_sample( soundno, F1_0 );
+			}
 			break;
 
 		case ND_EVENT_SOUND_3D:
+			{
+				int soundno;
 			nd_read_int(&soundno);
 			nd_read_int(&angle);
 			nd_read_int(&volume);
@@ -2074,9 +2078,12 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
 				digi_play_sample_3d( soundno, angle, volume, 0 );
+			}
 			break;
 
 		case ND_EVENT_SOUND_3D_ONCE:
+			{
+				int soundno;
 			nd_read_int(&soundno);
 			nd_read_int(&angle);
 			nd_read_int(&volume);
@@ -2090,6 +2097,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
 				digi_play_sample_3d( soundno, angle, volume, 1 );
+			}
 			break;
 
 		case ND_EVENT_LINK_SOUND_TO_OBJ:
@@ -2137,6 +2145,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_WALL_HIT_PROCESS: {
 			int player;
+			int side;
 			segnum_t segnum;
 			fix damage;
 
@@ -2160,6 +2169,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_TRIGGER:
 		{
+			int side;
 			segnum_t segnum;
 			objnum_t objnum;
 			nd_read_segnum32(segnum);
@@ -2263,6 +2273,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_WALL_TOGGLE:
 		{
+			int side;
 			segnum_t segnum;
 			nd_read_segnum32(segnum);
 			nd_read_int(&side);
@@ -3068,6 +3079,7 @@ static int newdemo_read_frame_information(int rewrite)
 					nd_read_byte ((signed char *)&w.state);
 
 					segment *seg;
+					int side;
 					if (rewrite)	// hack some dummy variables
 					{
 						seg = &Segments[0];

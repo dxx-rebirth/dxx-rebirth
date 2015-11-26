@@ -139,7 +139,7 @@ void cli_draw(int y)
 	}
 
 	if (Blink) {
-		int prompt_width, cmd_width, h;
+		int prompt_width, cmd_width;
 
 		gr_get_string_size(Prompt.get(), &prompt_width, nullptr, nullptr);
 		gr_get_string_size(LCommand + Offset, &cmd_width, &h, nullptr);

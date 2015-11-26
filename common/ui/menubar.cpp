@@ -274,7 +274,6 @@ static int state2_alt_down;
 
 static window_event_result do_state_0(const d_event &event)
 {
-	int i;
 	int keypress = 0;
 	
 	if (event.type == EVENT_KEY_COMMAND)
@@ -286,7 +285,7 @@ static window_event_result do_state_0(const d_event &event)
 	Menu[0].ShowBar = 0;
 
 	if ( keypress & KEY_ALTED )	{
-		i = menu_match_keypress( &Menu[0], keypress );
+		const auto i = menu_match_keypress( &Menu[0], keypress );
 		if (i > -1 )
 		{
 			Menu[0].CurrentItem = i;
@@ -333,7 +332,7 @@ static window_event_result do_state_0(const d_event &event)
 		return window_event_result::handled;
 	}
 
-	i = menu_check_mouse_item( &Menu[0] );
+	const auto i = menu_check_mouse_item( &Menu[0] );
 
 	if ( B1_JUST_PRESSED && (i > -1))
 	{
@@ -738,7 +737,7 @@ static void ul_xlate(char *s)
 
 void menubar_init( const char * file )
 {
-	int i,j, np;
+	int np;
 	char buf1[200];
 	char buf2[200];
 	int menu, item;
@@ -782,8 +781,7 @@ void menubar_init( const char * file )
 		
 		Menu[menu].Item[item].InactiveText.reset(d_strdup(Menu[menu].Item[item].Text.get()));
 		
-		j= 0;
-		for (i=0;; i++ )
+		for (int i = 0, j = 0;; i++ )
 		{
 			np = Menu[menu].Item[item].Text[i];
 			if (np != CC_UNDERLINE) 
@@ -796,7 +794,7 @@ void menubar_init( const char * file )
 		if (buf1[0]=='{' && buf1[1] =='}')
 			Menu[menu].Item[item].Hotkey = -1;
 		else			{
-			i = DecodeKeyText(buf1);
+			const auto i = DecodeKeyText(buf1);
 			if (i<1) {
 				UserError("Unknown key, %s, in %s\n", buf1, file );
 			} else {

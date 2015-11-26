@@ -774,14 +774,14 @@ static
 objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
 {
 	objptridx_t	objnum = object_none;
-	vms_vector	new_velocity, new_pos;
+	vms_vector	new_pos;
    int             count;
 
 	switch (type) {
 		case OBJ_POWERUP:
 			for (count=0; count<num; count++) {
 				int	rand_scale;
-				new_velocity = init_vel;
+				auto new_velocity = init_vel;
 				const auto old_mag = vm_vec_mag_quick(init_vel);
 
 				//	We want powerups to move more in network mode.
@@ -1254,8 +1254,8 @@ void explode_wall(const vsegptridx_t segnum,int sidenum)
 {
 	//find a free slot
 	const auto e = end(expl_wall_list);
-	const auto predicate = [](expl_wall &e) {
-		return e.segnum == segment_none;
+	const auto predicate = [](expl_wall &w) {
+		return w.segnum == segment_none;
 	};
 	const auto i = std::find_if(begin(expl_wall_list), e, predicate);
 	if (i == e)

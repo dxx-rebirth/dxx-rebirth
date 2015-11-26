@@ -168,8 +168,8 @@ void ui_pad_activate(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y)
 	const auto fh = [=](uint_fast32_t h) {
 		return bh * h;
 	};
-	const auto ui_add_pad_gadget = [&dlg, &font](uint_fast32_t n, uint_fast32_t x, uint_fast32_t y, uint_fast32_t w, uint_fast32_t h) {
-		Pad[n] = ui_create_pad_gadget(dlg, x, y, w, h, font);
+	const auto ui_add_pad_gadget = [&dlg, &font](uint_fast32_t n, uint_fast32_t gx, uint_fast32_t gy, uint_fast32_t w, uint_fast32_t h) {
+		Pad[n] = ui_create_pad_gadget(dlg, gx, gy, w, h, font);
 	};
 
 	int w,h,row,col, n;

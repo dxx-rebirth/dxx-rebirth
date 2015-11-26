@@ -44,7 +44,7 @@ int         cvar_t::operator=(int i)         { cvar_set_cvarf(this, "%d", i);  r
 void cvar_cmd_set(unsigned long argc, const char *const *const argv)
 {
 	char buf[CVAR_MAX_LENGTH];
-	int ret, i;
+	int ret;
 
 	if (argc == 2) {
 		cvar_t *ptr;
@@ -68,7 +68,7 @@ void cvar_cmd_set(unsigned long argc, const char *const *const argv)
 		return;
 	}
 	
-	for (i = 3; i < argc; i++) {
+	for (int i = 3; i < argc; i++) {
 		ret = snprintf(buf, CVAR_MAX_LENGTH, "%s %s", buf, argv[i]);
 		if (ret >= CVAR_MAX_LENGTH) {
 			con_printf(CON_CRITICAL, "set: value too long (max %d characters)", CVAR_MAX_LENGTH);

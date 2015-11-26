@@ -101,21 +101,21 @@ static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fa
 
 static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t x, const uint_fast32_t y) {
+	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		gr_setcolor(*src);
-		gr_upixel(x, y);
+		gr_upixel(px, py);
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
 
 static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t x, const uint_fast32_t y) {
+	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		const uint8_t c = *src;
 		if (c != 255)
 		{
 			gr_setcolor(c);
-			gr_upixel(x, y);
+			gr_upixel(px, py);
 		}
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);

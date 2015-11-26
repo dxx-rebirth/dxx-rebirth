@@ -43,8 +43,8 @@ struct mouseinfo : flushable_mouseinfo
 
 static mouseinfo Mouse;
 
-d_event_mousebutton::d_event_mousebutton(const event_type type, const unsigned b) :
-	d_event{type}, button(b)
+d_event_mousebutton::d_event_mousebutton(const event_type etype, const unsigned b) :
+	d_event{etype}, button(b)
 {
 }
 

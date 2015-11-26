@@ -354,14 +354,14 @@ unsigned char key_ascii()
 		return 255;
 }
 
-void pressed_keys::update(const std::size_t keycode, const uint8_t pressed)
+void pressed_keys::update(const std::size_t keycode, const uint8_t down)
 {
 	constexpr unsigned all_modifiers_combined = KEY_SHIFTED | KEY_ALTED | KEY_CTRLED | KEY_DEBUGGED | KEY_METAED;
 	constexpr unsigned all_modifiers_shifted = all_modifiers_combined >> modifier_shift;
 	static_assert(all_modifiers_combined == all_modifiers_shifted << modifier_shift, "shift error");
 	static_assert(all_modifiers_shifted == static_cast<uint8_t>(all_modifiers_shifted), "truncation error");
 	uint8_t mask;
-	keyd_pressed.update_pressed(keycode, pressed);
+	keyd_pressed.update_pressed(keycode, down);
 	switch (keycode)
 	{
 		case KEY_LSHIFT:
@@ -386,7 +386,7 @@ void pressed_keys::update(const std::size_t keycode, const uint8_t pressed)
 		default:
 			return;
 	}
-	if (pressed)
+	if (down)
 		modifier_cache |= mask;
 	else
 		modifier_cache &= ~mask;

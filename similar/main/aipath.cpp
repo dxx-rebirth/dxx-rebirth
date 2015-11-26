@@ -77,9 +77,7 @@ static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 //	------------------------------------------------------------------------
 static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 {
-	int	i;
-
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+	for (int i = 0; i<MAX_SIDES_PER_SEGMENT; i++)
 		xt[i] = i;
 
 	range_for (auto &i, xt)

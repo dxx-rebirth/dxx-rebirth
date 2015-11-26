@@ -244,8 +244,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
-	const auto &&rotmat = vm_angles_2_matrix(tangles);
-	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
+	obj->orient = vm_matrix_x_matrix(obj->orient, vm_angles_2_matrix(tangles));
 
 	if (obj->mtype.phys_info.flags & PF_TURNROLL)
 		set_object_turnroll(obj);
@@ -254,8 +253,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	if (obj->mtype.phys_info.turnroll) {
 		tangles.p = tangles.h = 0;
 		tangles.b = obj->mtype.phys_info.turnroll;
-		const auto &&rotmat = vm_angles_2_matrix(tangles);
-		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
+		obj->orient = vm_matrix_x_matrix(obj->orient, vm_angles_2_matrix(tangles));
 	}
 
 	check_and_fix_matrix(obj->orient);
@@ -310,7 +308,6 @@ void do_physics_sim(const vobjptridx_t obj)
 	int try_again;
 	int fate=0;
 	vms_vector ipos;		//position after this frame
-	int count=0;
 	segnum_t WallHitSeg;
 	int WallHitSide;
 	fvi_info hit_info;
@@ -407,6 +404,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		}
 	}
 
+	int count = 0;
 	do {
 		try_again = 0;
 
