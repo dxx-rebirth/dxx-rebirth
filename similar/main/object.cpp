@@ -2308,3 +2308,9 @@ void object_rw_swap(object_rw *obj, int swap)
 			
 	}
 }
+
+void check_warn_object_type(const object &o, object_type_t t, const char *file, unsigned line)
+{
+	if (o.type != t)
+		con_printf(CON_URGENT, "%s:%u: BUG: object %p has type %u, expected %u", file, line, &o, o.type, t);
+}

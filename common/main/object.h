@@ -482,6 +482,18 @@ static inline void set_weapon_id(object &o, weapon_type_t id)
 {
 	o.id = id;
 }
+
+void check_warn_object_type(const object &, object_type_t, const char *file, unsigned line);
+#define get_hostage_id(O)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), get_hostage_id(O))
+#define get_player_id(O)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), get_player_id(O))
+#define get_powerup_id(O)	(check_warn_object_type(O, OBJ_POWERUP, __FILE__, __LINE__), get_powerup_id(O))
+#define get_reactor_id(O)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), get_reactor_id(O))
+#define get_robot_id(O)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), get_robot_id(O))
+#define get_weapon_id(O)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), get_weapon_id(O))
+#define set_hostage_id(O,I)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), set_hostage_id(O, I))
+#define set_player_id(O,I)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), set_player_id(O, I))
+#define set_robot_id(O,I)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), set_robot_id(O, I))
+#define set_weapon_id(O,I)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), set_weapon_id(O, I))
 #endif
 
 #endif

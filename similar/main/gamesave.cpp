@@ -468,16 +468,23 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 			else
 				obj->ctype.powerup_info.count = 1;
 
+			if (obj->type == OBJ_POWERUP)
+			{
+				/* Hostages have control type CT_POWERUP, but object
+				 * type OBJ_HOSTAGE.  Hostages are never weapons, so
+				 * prevent checking their IDs.
+				 */
 			if (get_powerup_id(obj) == POW_VULCAN_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (get_powerup_id(obj) == POW_GAUSS_WEAPON)
+			else if (get_powerup_id(obj) == POW_GAUSS_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
-			if (get_powerup_id(obj) == POW_OMEGA_WEAPON)
+			else if (get_powerup_id(obj) == POW_OMEGA_WEAPON)
 					obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 #endif
+			}
 
 			break;
 

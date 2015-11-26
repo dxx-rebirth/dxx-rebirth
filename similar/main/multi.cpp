@@ -4258,7 +4258,7 @@ void DropFlag ()
 void multi_send_drop_flag(objnum_t objnum,int seed)
 {
 	int count=0;
-	auto objp = &Objects[objnum];
+	const auto &&objp = vobjptr(objnum);
 	count++;
 	multibuf[count++]=(char)get_powerup_id(objp);
 

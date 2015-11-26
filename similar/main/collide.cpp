@@ -520,6 +520,8 @@ static int effect_parent_is_guidebot(const laser_parent &laser)
 	if (laser.parent_type != OBJ_ROBOT)
 		return 0;
 	const auto &&robot = vcobjptr(laser.parent_num);
+	if (robot->type != OBJ_ROBOT)
+		return 0;
 	if (robot->signature != laser.parent_signature)
 		/* parent replaced, no idea what it once was */
 		return 0;

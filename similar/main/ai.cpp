@@ -4142,7 +4142,7 @@ static int add_awareness_event(const vobjptr_t objp, player_awareness_type_t typ
 	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
 		if (type == player_awareness_type_t::PA_WEAPON_WALL_COLLISION ||
 			type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
-			if (get_weapon_id(objp) == VULCAN_ID)
+			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == VULCAN_ID)
 				if (d_rand() > 3276)
 					return 0;       // For vulcan cannon, only about 1/10 actually cause awareness
 
