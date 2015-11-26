@@ -164,7 +164,6 @@ static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #define get_local_player_secondary_ammo()	(get_local_plrobj().ctype.player_info.secondary_ammo)
 #define get_local_player_cloak_time()	(get_local_plrobj().ctype.player_info.cloak_time)
 #define get_local_player_invulnerable_time()	(get_local_plrobj().ctype.player_info.invulnerable_time)
-#endif
 
 struct player_ship
 {
@@ -180,5 +179,6 @@ struct player_ship
 __pack__
 #endif
 ;
+#endif
 
 #endif

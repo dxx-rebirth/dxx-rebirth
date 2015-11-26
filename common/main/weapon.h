@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void delayed_autoselect();
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum laser_level_t : uint8_t
 {
 	LASER_LEVEL_1,
@@ -92,7 +93,6 @@ public:
 	}
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct weapon_info : prohibit_void_ptr<weapon_info>
 {
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
@@ -198,7 +198,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	bitmap_index    hires_picture;  // a hires picture of the above
 #endif
 };
-#endif
 
 enum primary_weapon_index_t : uint8_t
 {
@@ -275,6 +274,7 @@ static inline has_weapon_result player_has_weapon(int weapon_num, int secondary_
 {
 	return secondary_flag ? player_has_secondary_weapon(weapon_num) : player_has_primary_weapon(weapon_num);
 }
+#endif
 
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)

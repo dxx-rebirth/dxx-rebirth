@@ -63,6 +63,7 @@ struct jointlist
 	short offset;
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
 #define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
@@ -181,30 +182,27 @@ static inline int robot_is_thief(const robot_info *robptr)
 #endif
 
 #define ROBOT_NAME_LENGTH   16
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
 //the array of robots types
 extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
-#endif
 
 //how many kinds of robots
 extern unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
 //test data for one robot
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_ROBOT_JOINTS 600
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_ROBOT_JOINTS 1600
 #endif
 extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
-#endif
 extern unsigned N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
 void calc_gun_point(vms_vector &gun_point,vcobjptr_t obj,int gun_num);
+#endif
 
 //  Tells joint positions for a gun to be in a specified state.
 //  A gun can have associated with it any number of joints.  In order to tell whether a gun is a certain

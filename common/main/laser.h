@@ -147,7 +147,7 @@ extern void calc_d_homer_tick();
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #define HOMING_TURN_TIME                (F1_0/30)
 
-
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void Laser_render(vobjptr_t obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
@@ -189,13 +189,12 @@ extern fix Omega_charge;
 extern int Smartmines_dropped;
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
 int ok_to_do_omega_damage(vcobjptr_t weapon);
+void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
 #endif
 
 void create_weapon_smart_children(vobjptridx_t objp);
-#if defined(DXX_BUILD_DESCENT_II)
-void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
-#endif
 int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
+#endif
 
 extern int Missile_gun;
 extern int Proximity_dropped;
@@ -213,6 +212,7 @@ extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
 void omega_charge_frame(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 static inline int is_proximity_bomb_or_smart_mine(enum weapon_type_t id)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -230,5 +230,6 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(enum weapon_typ
 #endif
 	return id == PROXIMITY_ID;
 }
+#endif
 
 #endif

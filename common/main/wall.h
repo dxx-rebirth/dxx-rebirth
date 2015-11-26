@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-wall.h"
 #include "pack.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct WALL_IS_DOORWAY_mask_t
 {
 	unsigned value;
@@ -75,6 +76,7 @@ struct WALL_IS_DOORWAY_result_t
 			return !(*this == t);
 		}
 };
+#endif
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
 {

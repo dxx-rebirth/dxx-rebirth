@@ -58,7 +58,6 @@ struct morph_data : prohibit_void_ptr<morph_data>
 };
 
 extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
-#endif
 
 void morph_start(vobjptr_t obj);
 void draw_morph_object(vobjptridx_t obj);
@@ -70,5 +69,6 @@ void do_morph_frame(vobjptr_t obj);
 void init_morphs();
 
 morph_data *find_morph_data(vobjptr_t obj);
+#endif
 
 #endif

@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct vms_vector;
 struct laser_parent;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void collide_two_objects(vobjptridx_t A, vobjptridx_t B, vms_vector &collision_point);
 void collide_object_with_wall(vobjptridx_t A, fix hitspeed, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 void apply_damage_to_player(vobjptr_t player, cobjptridx_t killer, fix damage, uint8_t possibly_friendly);
@@ -67,6 +68,7 @@ void do_final_boss_frame(void);
 void do_final_boss_hacks(void);
 int check_volatile_wall(vobjptridx_t obj,vsegptridx_t seg,int sidenum);
 extern int	Final_boss_is_dead;
+#endif
 #endif
 
 #endif

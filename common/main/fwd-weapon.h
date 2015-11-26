@@ -52,7 +52,6 @@ struct weapon_info;
 
 struct PHYSFS_File;
 void weapon_info_write(PHYSFS_File *, const weapon_info &);
-#endif
 
 #define REARM_TIME                  (F1_0)
 
@@ -69,7 +68,6 @@ void weapon_info_write(PHYSFS_File *, const weapon_info &);
 #define WEAPON_RENDER_POLYMODEL     2
 #define WEAPON_RENDER_VCLIP         3
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_WEAPON_TYPES = 30;
 
@@ -98,7 +96,6 @@ extern const array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 typedef array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
 extern weapon_info_array Weapon_info;
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset = 0);
-#endif
 
 //given a weapon index, return the flag value
 #define  HAS_PRIMARY_FLAG(index)  (1<<(index))
@@ -123,7 +120,6 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 enum primary_weapon_index_t : uint8_t;
 enum secondary_weapon_index_t : uint8_t;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
@@ -147,7 +143,6 @@ extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 //for each Secondary weapon, which gun it fires out of
 extern const array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
-#endif
 
 extern unsigned N_weapon_types;
 void do_primary_weapon_select(uint_fast32_t weapon_num);
@@ -195,6 +190,7 @@ extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 extern fix64 Seismic_disturbance_end_time;
+#endif
 #endif
 
 void InitWeaponOrdering();

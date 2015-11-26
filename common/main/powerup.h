@@ -120,9 +120,9 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 
 extern unsigned N_powerup_types;
 extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
-#else
-struct powerup_type_info;
-#endif
+
+void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti);
+void powerup_type_info_write(PHYSFS_file *fp, const powerup_type_info &pti);
 
 void draw_powerup(vobjptridx_t obj);
 
@@ -131,6 +131,7 @@ int do_powerup(vobjptridx_t obj);
 
 //process (animate) a powerup for one frame
 void do_powerup_frame(vobjptridx_t obj);
+#endif
 
 // Diminish shields and energy towards max in case they exceeded it.
 extern void diminish_towards_max(void);
@@ -140,8 +141,5 @@ extern void do_megawow_powerup(int quantity);
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute_format_printf(5, 6);
 #define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
-
-void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti);
-void powerup_type_info_write(PHYSFS_file *fp, const powerup_type_info &pti);
 
 #endif

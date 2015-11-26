@@ -19,11 +19,13 @@
 #include "compiler-array.h"
 
 constexpr std::size_t MAX_SEGMENTS = 9000;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments, MAX_SEGMENTS);
 
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
 static constexpr valptridx<segment>::magic_constant<0> segment_first{};
+#endif
 
 const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
 const std::size_t MAX_SIDES_PER_SEGMENT = 6;
@@ -65,7 +67,6 @@ struct wall_magic_constant_t;
 
 struct wallnum_t;
 struct side;
-struct segment;
 
 typedef unsigned segment_type_t;
 const segment_type_t SEGMENT_IS_NOTHING = 0;

@@ -12,6 +12,7 @@
 #include "segment.h"
 #include "editor/editor.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern segptridx_t Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 
 #define	New_segment	(Segments[MAX_SEGMENTS-1])
@@ -22,12 +23,13 @@ extern	int		Curvert;					//	Current vertex on current side, in 0..3
 extern	int		AttachSide;				//	Side on segment to attach
 extern	int		Draw_all_segments;	// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 extern segptridx_t Markedsegp;			// Marked segment, used in conjunction with *Cursegp to form joints.
+extern array<segment *, MAX_GROUPS+1> Groupsegp;
+#endif
 extern	int		Markedside;				// Marked side on Markedsegp.
 extern array<uint8_t, MAX_VERTICES> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 
 // The extra group in the following arrays is used for group rotation.
 extern array<group, MAX_GROUPS+1> GroupList;
-extern array<segment *, MAX_GROUPS+1> Groupsegp;
 extern array<int, MAX_GROUPS+1> Groupside;
 extern	int 		current_group;
 extern unsigned num_groups;

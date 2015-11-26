@@ -44,12 +44,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwd-segment.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
 static inline bool IS_CHILD(segnum_t s)
 {
 	return s != segment_none && s != segment_exit;
 }
+#endif
 
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
@@ -209,6 +211,7 @@ struct vertex : vms_vector
 	}
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct side::illegal_type : std::runtime_error
 {
 	csegptr_t m_segment;
@@ -256,6 +259,7 @@ struct dl_index {
 	uint8_t count;
 	uint16_t index;
 };
+#endif
 #endif
 
 template <typename T, unsigned bits>

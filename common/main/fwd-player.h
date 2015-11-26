@@ -63,11 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 struct callsign_t;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct player;
-struct player_rw;
-#endif
-
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
 
@@ -80,6 +75,8 @@ extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+struct player;
+struct player_rw;
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	0
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -87,9 +84,9 @@ extern playernum_t Player_num;  // The player number who is on the console.
 #endif
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
-#endif
 
 extern array<object *, MAX_PLAYERS> Guided_missile;
+#endif
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*

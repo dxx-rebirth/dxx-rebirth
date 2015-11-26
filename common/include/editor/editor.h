@@ -195,6 +195,7 @@ int med_set_vertex(int vnum,const vertex &vp);
 
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.
 // Forms a weld between the two segments by making the new segment fit to the old segment.
@@ -231,6 +232,7 @@ int med_rotate_segment(vsegptridx_t seg, const vms_matrix &rotmat);
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
 void create_removable_wall(vsegptridx_t sp, int side, int tmap_num);
+#endif
 
 // Saves mine contained in Segments[] and Vertices[].
 // Num_segments = number of segments in mine.
@@ -253,10 +255,12 @@ extern   int medlisp_update_screen();
 //    Cursegp = pointer to only segment.
 extern	int create_new_mine(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
 void med_create_segment(vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
+#endif
 
 //	Create New_segment with sizes found in *scale.
 void med_create_new_segment(const vms_vector &scale);
@@ -264,9 +268,7 @@ void med_create_new_segment(const vms_vector &scale);
 //	Create New_segment with sizes found in Cursegp.
 extern void med_create_new_segment_from_cursegp(void);
 
-//	Update New_segment using scale factors.
-extern	void med_update_new_segment(void);
-
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //	Create a new segment and use it to form a bridge between two existing segments.
 //	Specify two segment:side pairs.  If either segment:side is not open (ie, segment->children[side] != -1)
 //	then it is not legal to form the brider.
@@ -275,6 +277,7 @@ extern	void med_update_new_segment(void);
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
 int med_form_bridge_segment(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
+#endif
 
 //	Compress mine at Segments and Vertices by squeezing out all holes.
 //	If no holes (ie, an unused segment followed by a used segment), then no action.
@@ -312,6 +315,7 @@ extern int generate_curve( fix r1scale, fix r4scale );
 // Deletes existing curve generated in generate_curve().
 extern void delete_curve();
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 
 //	Assign default u,v coordinates to all sides of a segment.
@@ -393,6 +397,7 @@ int med_create_duplicate_vertex(const vertex &vp);
 
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
 segnum_t med_create_duplicate_segment(vsegptr_t sp);
+#endif
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
@@ -500,12 +505,14 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 //shutdown ui on the editor screen
 void close_editor_screen(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //    From eobject.c
 int place_object(vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
 void med_extract_up_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
 void med_extract_right_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
+#endif
 
 //	In medmisc.c
 extern void draw_world_from_game(void);

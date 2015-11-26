@@ -93,7 +93,6 @@ extern boss_teleport_segment_array_t Boss_teleport_segs;
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
 void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
-#endif
 
 extern fix64 Boss_cloak_start_time;
 extern fix64 Last_teleport_time;
@@ -113,6 +112,7 @@ void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix 
 extern void init_ai_objects(void);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
+#endif
 void make_random_vector(vms_vector &vec);
 __attribute_warn_unused_result
 static inline vms_vector make_random_vector()
@@ -127,6 +127,7 @@ int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
 void move_towards_player(vobjptr_t objp, const vms_vector &vec_to_player);
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
 void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
@@ -134,14 +135,12 @@ void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 typedef vobjptr_t _ai_door_is_openable_objptr;
 #elif defined(DXX_BUILD_DESCENT_II)
 typedef objptr_t _ai_door_is_openable_objptr;
 #endif
 int ai_door_is_openable(_ai_door_is_openable_objptr objp, vcsegptr_t segp, int sidenum);
-#endif
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
@@ -283,7 +282,6 @@ void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 extern void special_reactor_stuff(void);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
 extern point_seg_array_t        Point_segs;
 extern point_seg_array_t::iterator        Point_segs_free_ptr;
@@ -293,7 +291,6 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 }
 
 int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
-#endif
 
 int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);
@@ -301,6 +298,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 #ifdef EDITOR
 void player_follow_path(vobjptr_t objp);
 void check_create_player_path(void);
+#endif
 #endif
 
 #endif

@@ -73,8 +73,12 @@ struct morph_data;
 // Functions called during recording process...
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_render_object(vobjptridx_t  obj);
 void newdemo_record_viewer_object(vobjptridx_t  obj);
+cobjptridx_t newdemo_find_object(object_signature_t signature);
+void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
+#endif
 extern void newdemo_record_sound_3d( int soundno, int angle, int volume );
 extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
@@ -138,8 +142,6 @@ extern int newdemo_swap_endian(const char *filename);
 extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
-cobjptridx_t newdemo_find_object(object_signature_t signature);
-void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 void newdemo_record_guided_end();
 void newdemo_record_guided_start();
 int newdemo_count_demos();

@@ -34,9 +34,9 @@ static inline void assign_light_to_side(segment &sp, uint_fast32_t sidenum)
 {
 	assign_light_to_side(sp.sides[sidenum]);
 }
-#endif
 
 extern void assign_default_lighting_all(void);
 void stretch_uvs_from_curedge(vsegptridx_t segp, int side);
+#endif
 
 #endif

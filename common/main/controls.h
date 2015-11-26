@@ -28,11 +28,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-object.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void read_flying_controls(vobjptr_t obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "maths.h"
 extern fix Afterburner_charge;
+#endif
 #endif
 
 #endif

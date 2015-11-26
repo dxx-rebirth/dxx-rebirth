@@ -58,6 +58,8 @@ struct vms_vector;
 
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Makes a segment a fuel center.
 void fuelcen_create( vsegptridx_t segp);
 // Makes a fuel center active... needs to be called when
@@ -87,6 +89,7 @@ void fuelcen_update_all();
 #elif defined(DXX_BUILD_DESCENT_II)
 fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
 #define MAX_NUM_FUELCENS    70
+#endif
 #endif
 
 //--repair-- //do the repair center for this frame
@@ -147,7 +150,6 @@ static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> 
 {
 	return std::distance(a.begin(), s);
 }
-#endif
 
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
@@ -161,7 +163,6 @@ extern void init_all_matcens(void);
 
 extern const fix EnergyToCreateOneRobot;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */

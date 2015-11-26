@@ -39,6 +39,7 @@ struct g3s_lrgb;
 #define MIN_LIGHT_DIST  (F1_0*4)
 
 extern array<g3s_lrgb, MAX_VERTICES> Dynamic_light;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern object *old_viewer;
 
 // compute the lighting for an object.  Takes a pointer to the object,
@@ -49,5 +50,6 @@ g3s_lrgb compute_object_light(vobjptridx_t obj,const vms_vector *rotated_pnt);
 // turn headlight boost on & off
 void toggle_headlight_active(void);
 void start_lighting_frame(vobjptr_t viewer);
+#endif
 
 #endif

@@ -25,6 +25,7 @@ const std::size_t MAX_WALL_ANIMS = 60;  // Maximum different types of doors
 const std::size_t MAX_DOORS = 90;  // Maximum number of open doors
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum wall_type_t : uint8_t
 {
 	WALL_NORMAL = 0,   // Normal wall
@@ -60,6 +61,7 @@ const wall_state_t WALL_DOOR_OPEN = 4;       // Door is open, and staying open
 const wall_state_t WALL_DOOR_CLOAKING = 5;       // Wall is going from closed -> open
 const wall_state_t WALL_DOOR_DECLOAKING = 6;       // Wall is going from open -> closed
 #endif
+#endif
 
 enum wall_key_t : uint8_t
 {
@@ -75,6 +77,7 @@ const fix WALL_DOOR_INTERVAL = 5*F1_0;      // How many seconds a door is open
 const fix DOOR_OPEN_TIME = i2f(2);      // How long takes to open
 const fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 const std::size_t MAX_CLIP_FRAMES = 20;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -124,6 +127,7 @@ const auto WID_NO_WALL             = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_
 const auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WID_EXTERNAL_FLAG);   // 0/0/0/1  don't see it, dont fly through it
 #if defined(DXX_BUILD_DESCENT_II)
 const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG);
+#endif
 #endif
 
 template <int16_t I>
@@ -177,6 +181,7 @@ extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 void wall_init();
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Automatically checks if a there is a doorway (i.e. can fly through)
 WALL_IS_DOORWAY_result_t wall_is_doorway (const side &side);
 
@@ -247,6 +252,8 @@ void start_wall_decloak(vsegptridx_t seg, int side);
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_file *fp);
 #endif
+void blast_nearby_glass(vobjptr_t objp, fix damage);
+#endif
 
 void wclip_read(PHYSFS_file *, wclip &wc);
 void wclip_write(PHYSFS_file *, const wclip &);
@@ -262,4 +269,3 @@ void wall_write(PHYSFS_file *fp, const wall &w, short version);
 void wall_close_door_num(int door_num);
 void init_stuck_objects();
 void clear_stuck_objects();
-void blast_nearby_glass(vobjptr_t objp, fix damage);

@@ -47,6 +47,7 @@ struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
 extern int	Doing_lighting_hack_flag;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void compute_center_point_on_side(vms_vector &vp,vcsegptr_t sp,int side);
 static inline vms_vector compute_center_point_on_side(const vcsegptr_t sp,int side)
 {
@@ -79,7 +80,6 @@ struct vertex_vertnum_pair
 };
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
@@ -131,7 +131,6 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(vcsegptr_t segn
 	vertex_vertnum_array_list r;
 	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
 }
-#endif
 
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);
@@ -195,6 +194,7 @@ static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
 }
 
 void validate_segment_side(vsegptridx_t sp, int sidenum);
+#endif
 int check_segment_connections(void);
 void flush_fcd_cache(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);

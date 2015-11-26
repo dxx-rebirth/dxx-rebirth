@@ -97,8 +97,12 @@ extern int reset_high_scores();
 void open_message_window(void);
 void close_message_window(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // create flash for player appearance
 void create_player_appearance_effect(vobjptridx_t player_obj);
+void bash_to_shield(const vobjptr_t i);
+void copy_defaults_to_robot(vobjptr_t objp);
+#endif
 
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
@@ -111,13 +115,11 @@ extern unsigned NumNetPlayerPositions;
 extern fix StartingShields;
 extern int	Do_appearance_effect;
 
-void bash_to_shield(const vobjptr_t i);
 
 int p_secret_level_destroyed(void);
 void ExitSecretLevel(void);
 void do_cloak_invul_secret_stuff(fix64 old_gametime);
 void EnterSecretLevel(void);
-void copy_defaults_to_robot(vobjptr_t objp);
 void init_player_stats_new_ship(ubyte pnum);
 
 #endif

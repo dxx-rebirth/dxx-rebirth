@@ -61,6 +61,7 @@ static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 #define MAX_EXPLODING_WALLS     10
 extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
@@ -108,5 +109,6 @@ extern fix	Flash_effect;
 #endif
 
 segidx_t pick_connected_segment(vcobjptr_t objp, int max_depth);
+#endif
 
 #endif

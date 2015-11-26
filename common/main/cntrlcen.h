@@ -98,7 +98,6 @@ static inline reactor &get_reactor_definition(int id)
 	return Reactors[id];
 #endif
 }
-#endif
 
 //@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
@@ -116,6 +115,7 @@ extern void init_controlcen_for_level(void);
 void calc_controlcen_gun_point(vobjptr_t obj);
 
 void do_controlcen_destroyed_stuff(objptridx_t objp);
+#endif
 extern void do_controlcen_dead_frame(void);
 
 extern fix Countdown_timer;

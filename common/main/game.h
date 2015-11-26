@@ -174,8 +174,10 @@ enum cockpit_mode_t
 
 extern int Rear_view;           // if true, looking back.
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // initalize flying
 void fly_init(vobjptr_t obj);
+#endif
 
 // selects a given cockpit (or lack of one).
 void select_cockpit(cockpit_mode_t mode);
@@ -312,10 +314,11 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 #endif
 };
 extern game_cheats cheats;
+
+void move_player_2_segment(vsegptridx_t seg, int side);
 #endif
 int cheats_enabled();
 void game_disable_cheats();
-void move_player_2_segment(vsegptridx_t seg, int side);
 int allowed_to_fire_laser(void);
 int allowed_to_fire_flare(void);
 int allowed_to_fire_missile(void);

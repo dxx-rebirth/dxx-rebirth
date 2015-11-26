@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern unsigned state_game_id;
 extern int state_quick_item;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum class secret_save
 {
 	none,
@@ -54,6 +55,7 @@ enum class secret_restore
 	died,
 #endif
 };
+#endif
 
 enum class blind_save
 {

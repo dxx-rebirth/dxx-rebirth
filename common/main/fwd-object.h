@@ -21,11 +21,13 @@ struct vms_vector;
 struct vms_matrix;
 
 constexpr std::size_t MAX_OBJECTS = 350;
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects, MAX_OBJECTS);
 
 static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
+#endif
 
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
 
@@ -162,9 +164,11 @@ extern int num_objects;
 
 extern int Num_robot_types;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern object *ConsoleObject;       // pointer to the object that is the player
 extern object *Viewer;              // which object we are seeing from
 extern object *Dead_player_camera;
+#endif
 
 extern int Player_is_dead;          // !0 means player is dead!
 extern int Player_exploded;
@@ -176,6 +180,7 @@ extern int Drop_afterburner_blob_flag;		//ugly hack
 // do whatever setup needs to be done
 void init_objects();
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
 void obj_relink(vobjptridx_t objnum,vsegptridx_t newsegnum);
@@ -307,3 +312,5 @@ objptridx_t obj_find_first_of_type(int type);
 
 void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object();
+
+#endif

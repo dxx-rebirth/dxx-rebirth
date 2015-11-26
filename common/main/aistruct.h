@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 
 #ifdef __cplusplus
+#include "polyobj.h"
 #include "pack.h"
 #include "objnum.h"
 #include "segnum.h"
@@ -58,6 +59,7 @@ enum class player_awareness_type_t : uint8_t
 #define AI_DIR_FORWARD  1
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum class ai_behavior : uint8_t
 {
 // Behaviors
@@ -74,8 +76,6 @@ enum class ai_behavior : uint8_t
 	AIB_FOLLOW = 0x86,
 #endif
 };
-
-#include "polyobj.h"
 
 #define MIN_BEHAVIOR    0x80
 #if defined(DXX_BUILD_DESCENT_I)
@@ -112,6 +112,7 @@ enum class ai_mode : uint8_t
 	AIM_THIEF_WAIT = 17,
 #endif
 };
+#endif
 
 #define AISM_GOHIDE                 0
 #define AISM_HIDING                 1

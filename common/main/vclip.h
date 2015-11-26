@@ -69,11 +69,11 @@ const int vclip_none = -1;
 extern unsigned Num_vclips;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern array<vclip, VCLIP_MAXNUM> Vclip;
-#endif
 
 // draw an object which renders as a vclip.
 void draw_vclip_object(vobjptridx_t obj, fix timeleft, int lighted, int vclip_num);
 void draw_weapon_vclip(vobjptridx_t obj);
+#endif
 
 /*
  * reads n vclip structs from a PHYSFS_file

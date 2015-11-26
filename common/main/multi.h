@@ -343,6 +343,9 @@ static inline laser_level_t map_granted_flags_to_laser_level(const packed_spawn_
 player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
+void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume);
+void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 
 extern const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text;
 extern const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames;
@@ -433,6 +436,16 @@ public:
 };
 
 extern powerup_cap_state PowerupCaps;
+
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
+void multi_send_destroy_controlcen(objnum_t objnum, int player);
+void multi_send_position(vobjptridx_t objnum);
+void multi_send_kill(vobjptridx_t objnum);
+void multi_send_remobj(vobjptridx_t objnum);
+void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
+void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
+void multi_reset_player_object(vobjptr_t objp);
+int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
 #endif
 
 enum msgsend_state_t {
@@ -470,8 +483,6 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
-void multi_send_destroy_controlcen(objnum_t objnum, int player);
 #if defined(DXX_BUILD_DESCENT_I)
 void multi_send_endlevel_start(bool);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -488,11 +499,7 @@ static inline void multi_send_endlevel_start(bool secret)
 #endif
 void multi_send_player_deres(deres_type_t type);
 void multi_send_message(void);
-void multi_send_position(vobjptridx_t objnum);
 void multi_send_reappear();
-void multi_send_kill(vobjptridx_t objnum);
-void multi_send_remobj(vobjptridx_t objnum);
-void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
 void multi_send_cloak(void);
@@ -501,11 +508,9 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
-void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(uint16_t wallnum);
-void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
 #if defined(DXX_BUILD_DESCENT_II)
 extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
@@ -535,7 +540,6 @@ void multi_do_death(int objnum);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
-void multi_reset_player_object(vobjptr_t objp);
 void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);
@@ -543,15 +547,12 @@ void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
 int get_team(playernum_t pnum);
-int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
-void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
-void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void multi_send_got_flag (playernum_t a) { (void)a; }
+static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_got_flag (playernum_t);
 #endif
