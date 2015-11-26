@@ -243,7 +243,11 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-nomouse"))
 			CGameArg.CtlNoMouse 		= true;
 		else if (!d_stricmp(p, "-nojoystick"))
-			GameArg.CtlNoJoystick 		= 1;
+		{
+#if MAX_JOYSTICKS
+			CGameArg.CtlNoJoystick		= 1;
+#endif
+		}
 		else if (!d_stricmp(p, "-nostickykeys"))
 			CGameArg.CtlNoStickyKeys	= true;
 

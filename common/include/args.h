@@ -79,6 +79,11 @@ struct CArg : prohibit_void_ptr<CArg>
 #else
 	static constexpr tt::true_type SndDisableSdlMixer{};
 #endif
+#if MAX_JOYSTICKS
+	bool CtlNoJoystick;
+#else
+	static constexpr tt::true_type CtlNoJoystick{};
+#endif
 	int DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
@@ -98,7 +103,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysNoBorders;
 	bool SysNoTitles;
 	bool SysAutoDemo;
-	bool CtlNoJoystick;
 	bool SndNoMusic;
 	bool GfxSkipHiresFNT;
 #ifdef DXX_BUILD_DESCENT_I

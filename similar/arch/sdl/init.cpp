@@ -24,7 +24,7 @@ static void arch_close(void)
 
 	gr_close();
 
-	if (!GameArg.CtlNoJoystick)
+	if (!CGameArg.CtlNoJoystick)
 		joy_close();
 
 	mouse_close();
@@ -55,7 +55,7 @@ void arch_init(void)
 
 	mouse_init();
 
-	if (!GameArg.CtlNoJoystick)
+	if (!CGameArg.CtlNoJoystick)
 		joy_init();
 
 	if ((t = gr_init()) != 0)
