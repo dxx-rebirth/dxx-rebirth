@@ -240,8 +240,8 @@ static void info_display_default(int show_all)
 	//---------------- Number of objects -----------------
 	
 	if ( old_Num_objects != num_objects )	{
-		gr_uprintf( 0, 32, "Objs: %3d/%3d", num_objects, MAX_OBJECTS );
 		old_Num_objects = num_objects;
+		gr_uprintf( 0, 32, "Objs: %3d/%3lu", num_objects, static_cast<unsigned long>(MAX_OBJECTS));
 	}
 
   	//--------------- Current_segment_number -------------

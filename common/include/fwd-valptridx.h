@@ -6,7 +6,7 @@
 #include "segnum.h"
 
 template <typename managed_type>
-class valptridx_specialized_types;
+using valptridx_specialized_types = decltype(valptridx_specialized_type(static_cast<managed_type *>(nullptr)));
 
 template <typename managed_type>
 class valptridx :
@@ -34,8 +34,9 @@ protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
 	using mutable_pointer_type = managed_type *;
-	using index_type = typename specialized_types::index_type;
 	using typename specialized_types::integral_type;
+	using index_type = integral_type;	// deprecated; should be dedicated UDT
+	using specialized_types::array_size;
 
 	template <typename policy, unsigned>
 		class basic_idx;
@@ -51,10 +52,6 @@ protected:
 	static constexpr array_managed_type &get_array(mutable_pointer_type p = mutable_pointer_type())
 	{
 		return get_global_array(p);
-	}
-	static constexpr std::size_t get_array_size()
-	{
-		return get_array().size();
 	}
 	static inline void check_index_match(const_reference_type, index_type, const array_managed_type &);
 	static inline index_type check_index_range(index_type, const array_managed_type &);
@@ -106,15 +103,18 @@ public:
 		};
 };
 
+template <typename INTEGRAL_TYPE, std::size_t array_size_value>
+class valptridx_specialized_type_parameters
+{
+public:
+	using integral_type = INTEGRAL_TYPE;
+	static constexpr std::size_t array_size = array_size_value;
+};
+
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\
 	typedef valptridx<managed_type>::vcprefix##suffix vcprefix##derived_type_prefix##suffix##_t
-#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array)	\
+#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array,array_size_value)	\
 	struct managed_type;	\
-	template <>	\
-	class valptridx_specialized_types<managed_type> {	\
-	public:	\
-		using index_type = derived_type_prefix##num_t;	\
-		using integral_type = derived_type_prefix##num_t;	\
-	};	\
+	valptridx_specialized_type_parameters<derived_type_prefix##num_t, array_size_value> valptridx_specialized_type(managed_type *);	\
 	extern valptridx<managed_type>::array_managed_type global_array;	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)

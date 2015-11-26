@@ -20,20 +20,14 @@ struct bitmap_index;
 struct vms_vector;
 struct vms_matrix;
 
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects);
+constexpr std::size_t MAX_OBJECTS = 350;
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects, MAX_OBJECTS);
 
 static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
 
-const unsigned MAX_OBJECTS = 350;
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
-
-template <>
-constexpr std::size_t valptridx<object>::get_array_size()
-{
-	return MAX_OBJECTS;
-}
 
 enum object_type_t : int;
 

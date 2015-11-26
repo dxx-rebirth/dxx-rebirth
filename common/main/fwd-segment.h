@@ -18,7 +18,8 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
+constexpr std::size_t MAX_SEGMENTS = 9000;
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments, MAX_SEGMENTS);
 
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
@@ -30,14 +31,7 @@ const std::size_t MAX_VERTICES_PER_POLY = 4;
 
 const std::size_t MAX_SEGMENTS_ORIGINAL = 900;
 const std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
-const std::size_t MAX_SEGMENTS = 9000;
 const std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
-
-template <>
-constexpr std::size_t valptridx<segment>::get_array_size()
-{
-	return MAX_SEGMENTS;
-}
 
 typedef uint_fast32_t sidenum_fast_t;
 

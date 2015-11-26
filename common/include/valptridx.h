@@ -259,7 +259,7 @@ public:
 		basic_idx(const magic_constant<v> &) :
 			m_idx(v)
 	{
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy, unsigned ru>
 		bool operator==(const basic_idx<rpolicy, ru> &rhs) const
@@ -273,7 +273,7 @@ public:
 	template <integral_type v>
 		bool operator==(const magic_constant<v> &) const
 		{
-			static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
+			static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 			return m_idx == v;
 		}
 	template <typename R>
@@ -322,14 +322,14 @@ public:
 		basic_ptr(const magic_constant<v> &) :
 			m_ptr(nullptr)
 	{
-		static_assert(static_cast<std::size_t>(v) >= get_array_size(), "valid magic index requires an array");
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
+		static_assert(static_cast<std::size_t>(v) >= array_size, "valid magic index requires an array");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <integral_type v>
 		basic_ptr(const magic_constant<v> &, array_managed_type &a) :
-			m_ptr(static_cast<std::size_t>(v) < get_array_size() ? &(a[v]) : nullptr)
+			m_ptr(static_cast<std::size_t>(v) < array_size ? &(a[v]) : nullptr)
 	{
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < get_array_size(), "invalid magic index not allowed for this policy");
+		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy, unsigned ru>
 		basic_ptr(const basic_ptr<rpolicy, ru> &rhs) :
@@ -520,10 +520,10 @@ public:
 };
 
 template <typename managed_type>
-class valptridx<managed_type>::array_managed_type : public array<managed_type, get_array_size()>
+class valptridx<managed_type>::array_managed_type : public array<managed_type, array_size>
 {
 	using containing_type = valptridx<managed_type>;
-	using array_type = array<managed_type, get_array_size()>;
+	using array_type = array<managed_type, array_size>;
 public:
 	using typename array_type::reference;
 	using typename array_type::const_reference;
