@@ -126,9 +126,10 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 extern int digi_volume;
 #if defined(DXX_BUILD_DESCENT_I)
 extern int digi_sample_rate;
+#elif defined(DXX_BUILD_DESCENT_II)
+extern int Dont_start_sound_objects;
 #endif
 extern int SoundQ_channel;
-extern int Dont_start_sound_objects;
 void digi_select_system(int);
 
 #ifdef _WIN32
