@@ -2058,7 +2058,7 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
-	if (multi_maybe_disable_friendly_fire(killer) && possibly_friendly)
+	if (possibly_friendly && multi_maybe_disable_friendly_fire(killer))
 		return;
 
 	if (Endlevel_sequence)

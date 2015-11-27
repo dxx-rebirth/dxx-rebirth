@@ -4602,8 +4602,8 @@ int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
 		return 0;
 	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
 		return 0;
-	if (Game_mode & GM_MULTI_COOP) // coop mode -> don't harm me!
-		return 1;
+	if (auto is_coop = Game_mode & GM_MULTI_COOP) // coop mode -> don't harm me!
+		return is_coop;
 	else if (Game_mode & GM_TEAM) // team mode - find out if killer is in my team
 	{
 		if (get_team(Player_num) == get_team(get_player_id(killer))) // in my team -> don't harm me!
