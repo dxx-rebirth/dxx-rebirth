@@ -1222,7 +1222,7 @@ static window_event_result HandleTestKey(int key)
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
 			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
-			multi_add_lifetime_kills();
+			multi_add_lifetime_kills(1);
 			break;
 
 		case KEY_DEBUGGED+KEY_R+KEY_SHIFTED:

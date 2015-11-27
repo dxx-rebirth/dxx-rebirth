@@ -100,7 +100,7 @@ static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
 static void multi_send_drop_flag(objnum_t objnum,int seed);
 #endif
-static void multi_send_ranking();
+static void multi_send_ranking(uint8_t);
 static void multi_new_bounty_target( playernum_t pnum );
 static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
@@ -109,7 +109,7 @@ static void multi_send_quit();
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 
 #if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
-static void multi_add_lifetime_kills();
+static void multi_add_lifetime_kills(int count);
 #endif
 
 //
@@ -723,9 +723,6 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 
 	if (killer_pnum == killed_pnum)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
-		if (!game_mode_hoard())
-#endif
 		{
 			if (Game_mode & GM_TEAM)
 			{
@@ -767,15 +764,14 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 
 	else
 	{
-#if defined(DXX_BUILD_DESCENT_II)
-		if (!game_mode_hoard())
-#endif
+		short adjust = 1;
 		{
 			if (Game_mode & GM_TEAM)
 			{
 				const auto killed_team = get_team(killed_pnum);
 				const auto killer_team = get_team(killer_pnum);
-				const short adjust = (killed_team == killer_team) ? -1 : 1;
+				if (killed_team == killer_team)
+					adjust = -1;
 				team_kills[killer_team] += adjust;
 				Players[killer_pnum].net_kills_total += adjust;
 				Players[killer_pnum].KillGoalCount += adjust;
@@ -814,7 +810,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				add_points_to_score(local_player_score >= 1000 ? -1000 : -local_player_score);
 			}
 			else
-				multi_add_lifetime_kills();
+				multi_add_lifetime_kills(adjust);
 		}
 		else if (killed_pnum == Player_num)
 		{
@@ -4528,34 +4524,36 @@ static void multi_do_start_trigger (const ubyte *buf)
 }
 #endif
 
-void multi_add_lifetime_kills ()
+static void multi_adjust_lifetime_ranking(int &k, const int count)
 {
-	// This function adds a kill to lifetime stats of this player, and possibly
-	// gives a promotion.  If so, it will tell everyone else
-
-	int oldrank;
-
 	if (!(Game_mode & GM_NETWORK))
 		return;
 
-	oldrank=GetMyNetRanking();
-
-	PlayerCfg.NetlifeKills++;
-
-	if (oldrank!=GetMyNetRanking())
+	const auto oldrank = GetMyNetRanking();
+	k += count;
+	const auto newrank = GetMyNetRanking();
+	if (oldrank != newrank)
 	{
-		multi_send_ranking();
+		Netgame.players[Player_num].rank = newrank;
+		multi_send_ranking(newrank);
 		if (!PlayerCfg.NoRankings)
 		{
-			HUD_init_message(HM_MULTI, "You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
+			HUD_init_message(HM_MULTI, "You have been %smoted to %s!", newrank > oldrank ? "pro" : "de", RankStrings[newrank]);
 #if defined(DXX_BUILD_DESCENT_I)
 			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif defined(DXX_BUILD_DESCENT_II)
 			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
 #endif
-			Netgame.players[Player_num].rank=GetMyNetRanking();
 		}
 	}
+}
+
+void multi_add_lifetime_kills(const int count)
+{
+	// This function adds a kill to lifetime stats of this player, and possibly
+	// gives a promotion.  If so, it will tell everyone else
+
+	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKills, count);
 }
 
 void multi_add_lifetime_killed ()
@@ -4563,40 +4561,23 @@ void multi_add_lifetime_killed ()
 	// This function adds a "killed" to lifetime stats of this player, and possibly
 	// gives a demotion.  If so, it will tell everyone else
 
-	int oldrank;
-
-	if (!(Game_mode & GM_NETWORK))
-		return;
-
 	if (Game_mode & GM_MULTI_COOP)
 		return;
 
-	oldrank=GetMyNetRanking();
-
-	PlayerCfg.NetlifeKilled++;
-
-	if (oldrank!=GetMyNetRanking())
-	{
-		multi_send_ranking();
-		Netgame.players[Player_num].rank=GetMyNetRanking();
-
-		if (!PlayerCfg.NoRankings)
-			HUD_init_message(HM_MULTI, "You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
-
-	}
+	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKilled, 1);
 }
 
-void multi_send_ranking ()
+void multi_send_ranking (uint8_t newrank)
 {
 	multibuf[1]=(char)Player_num;
-	multibuf[2]=(char)GetMyNetRanking();
+	multibuf[2] = newrank;
 
 	multi_send_data<MULTI_RANK>(multibuf,3,2);
 }
 
 static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 {
-	char rank=buf[2];
+	const uint8_t rank = buf[2];
 	if (!(rank && rank < RankStrings.size()))
 		return;
 

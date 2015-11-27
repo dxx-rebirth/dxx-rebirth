@@ -522,7 +522,7 @@ void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
 #ifndef RELEASE
-void multi_add_lifetime_kills(void);
+void multi_add_lifetime_kills(int count);
 #endif
 #endif
 void multi_send_bounty( void );
