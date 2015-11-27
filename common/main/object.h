@@ -495,7 +495,16 @@ void check_warn_object_type(const object &, object_type_t, const char *file, uns
 #define set_robot_id(O,I)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), set_robot_id(O, I))
 #define set_weapon_id(O,I)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), set_weapon_id(O, I))
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-#define check_warn_object_type(O,T,F,L)	(({const object &dxx_check_warn_o = O; __builtin_constant_p(dxx_check_warn_o.type == T) && dxx_check_warn_o.type == T;}) || ((check_warn_object_type)(O,T,F,L), 0))
+#define check_warn_object_type(O,T,F,L)	\
+	({	\
+		const object &dxx_check_warn_o = O;	\
+		/* If the type is always wrong, force a compile-time error. */	\
+		if (__builtin_constant_p(dxx_check_warn_o.type != T) && dxx_check_warn_o.type != T)	\
+			DXX_ALWAYS_ERROR_FUNCTION(dxx_error_object_type_mismatch, "object type mismatch");	\
+		/* If the type is always right, omit the runtime check. */	\
+		if (!(__builtin_constant_p(dxx_check_warn_o.type == T) && dxx_check_warn_o.type == T))	\
+			(check_warn_object_type)(O,T,F,L);	\
+	})
 #endif
 #endif
 
