@@ -105,27 +105,31 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 		range_for (const auto i, highest_valid(Objects))
 		{
 			auto obj0p = vobjptridx(i);
-			sbyte parent_check = 0;
 
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
 
-			if (parent != object_none)
-				if ((parent->type != OBJ_ROBOT) || (get_robot_id(parent) != obj0p->id))
-					parent_check = 1;
-
 #if defined(DXX_BUILD_DESCENT_I)
 			if ( (obj0p->type == OBJ_CNTRLCEN) ||
 				(obj0p->type==OBJ_PLAYER) ||
-				((obj0p->type==OBJ_ROBOT) && parent_check))
+				(
+					obj0p->type == OBJ_ROBOT &&
+					parent != object_none &&
+					(parent->type != OBJ_ROBOT || get_robot_id(parent) != obj0p->id)
+				)
+			)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ( !(obj0p==objp) &&
 				!(obj0p->flags&OF_SHOULD_BE_DEAD) &&
 				((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) ||
 				 (obj0p->type == OBJ_CNTRLCEN) ||
 				 (obj0p->type==OBJ_PLAYER) ||
-				 ((obj0p->type==OBJ_ROBOT) && parent_check)
+				(
+					obj0p->type == OBJ_ROBOT &&
+					parent != object_none &&
+					(parent->type != OBJ_ROBOT || get_robot_id(parent) != obj0p->id)
+				)
 				 ))
 #endif
 			{
