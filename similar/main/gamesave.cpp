@@ -232,7 +232,7 @@ static void verify_object(const vobjptr_t obj)
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (obj->id == 65)						//special "reactor" robots
+		if (get_robot_id(obj) == 65)						//special "reactor" robots
 			obj->movement_type = MT_NONE;
 #endif
 
@@ -275,16 +275,17 @@ static void verify_object(const vobjptr_t obj)
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (obj->id == PMINE_ID) {		//make sure pmines have correct values
-
-			obj->mtype.phys_info.mass = Weapon_info[obj->id].mass;
-			obj->mtype.phys_info.drag = Weapon_info[obj->id].drag;
+		const auto weapon_id = get_weapon_id(obj);
+		if (weapon_id == PMINE_ID)
+		{		//make sure pmines have correct values
+			obj->mtype.phys_info.mass = Weapon_info[weapon_id].mass;
+			obj->mtype.phys_info.drag = Weapon_info[weapon_id].drag;
 			obj->mtype.phys_info.flags |= PF_FREE_SPINNING;
 
 			// Make sure model number & size are correct...		
 			Assert( obj->render_type == RT_POLYOBJ );
 
-			obj->rtype.pobj_info.model_num = Weapon_info[obj->id].model_num;
+			obj->rtype.pobj_info.model_num = Weapon_info[weapon_id].model_num;
 			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
 		}
 #endif
@@ -305,7 +306,7 @@ static void verify_object(const vobjptr_t obj)
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Gamesave_current_version <= 1) { // descent 1 reactor
-			obj->id = 0;                         // used to be only one kind of reactor
+			set_reactor_id(obj, 0);                         // used to be only one kind of reactor
 			obj->rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
 		}
 

@@ -905,9 +905,10 @@ int multi_explode_robot_sub(const vobjptridx_t robot)
 	else
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		if (robot->id == SPECIAL_REACTOR_ROBOT)
+		const auto robot_id = get_robot_id(robot);
+		if (robot_id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
-		if (Robot_info[get_robot_id(robot)].kamikaze)
+		if (Robot_info[robot_id].kamikaze)
 			explode_object(robot,1);	//	Kamikaze, explode right away, IN YOUR FACE!
 		else
 #endif

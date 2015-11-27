@@ -168,7 +168,7 @@ void draw_object_blob(const vobjptr_t obj,bitmap_index bmi)
 	PIGGY_PAGE_IN( bmi );
 
 	// draw these with slight offset to viewer preventing too much ugly clipping
-	if ( obj->type == OBJ_FIREBALL && obj->id == VCLIP_VOLATILE_WALL_HIT )
+	if (obj->type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_VOLATILE_WALL_HIT)
 	{
 		vms_vector offs_vec;
 		vm_vec_normalized_dir_quick(offs_vec,Viewer->pos,obj->pos);
@@ -1778,17 +1778,18 @@ static void object_move_one(const vobjptridx_t obj)
 						if ((type=check_volatile_wall(obj,vsegptridx(obj->segnum),sidenum))!=0) {
 							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
 							under_lavafall = 1;
-							if (!lavafall_hiss_playing[obj->id]) {
+							if (!lavafall_hiss_playing[get_player_id(obj)])
+							{
+								lavafall_hiss_playing[get_player_id(obj)] = 1;
 								digi_link_sound_to_object3( sound, obj, 1, F1_0, vm_distance{i2f(256)}, -1, -1);
-								lavafall_hiss_playing[obj->id] = 1;
 							}
 						}
 					}
 			}
 	
-			if (!under_lavafall && lavafall_hiss_playing[obj->id]) {
+			if (!under_lavafall && lavafall_hiss_playing[get_player_id(obj)]) {
+				lavafall_hiss_playing[get_player_id(obj)] = 0;
 				digi_kill_sound_linked_to_object( obj);
-				lavafall_hiss_playing[obj->id] = 0;
 			}
 		}
 #endif

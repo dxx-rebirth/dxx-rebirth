@@ -495,7 +495,7 @@ static bool choose_missile_viewer()
 			else if (game_mode & GM_TEAM)
 			{
 				/* Allow missiles from same team */
-				if (get_team(Player_num) != get_team(Objects[o->ctype.laser_info.parent_num].id))
+				if (get_team(Player_num) != get_team(get_player_id(Objects[o->ctype.laser_info.parent_num])))
 					continue;
 			}
 			else
@@ -550,7 +550,10 @@ static void show_extra_views()
 		return;
 	}
 
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) 
+	if (Guided_missile[Player_num] &&
+		Guided_missile[Player_num]->type == OBJ_WEAPON &&
+		get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
 	{
 		if (PlayerCfg.GuidedInBigWindow)
 		{
@@ -576,7 +579,7 @@ static void show_extra_views()
 		//do missile view
 			{
   				RenderingType=2+(1<<4);
-				do_cockpit_window_view(1,Missile_viewer,0,WBU_MISSILE,get_missile_name(Missile_viewer->id));
+				do_cockpit_window_view(1, Missile_viewer, 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
 				did_missile_view=1;
 			}
 			else {
@@ -667,7 +670,12 @@ void game_render_frame_mono()
 
 	gr_set_current_canvas(&Screen_3d_window);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
+	if (PlayerCfg.GuidedInBigWindow &&
+		Guided_missile[Player_num] &&
+		Guided_missile[Player_num]->type == OBJ_WEAPON &&
+		get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
+	{
 		object *viewer_save = Viewer;
 
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_REAR_VIEW)

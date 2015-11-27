@@ -127,7 +127,8 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 				if (Objects[objnum].type == OBJ_PLAYER)
 					if (Objects[objnum].ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
-						if (Objects[objnum].id != Player_num) {
+						if (get_player_id(Objects[objnum]) != Player_num)
+						{
 							fvi_query	fq;
 							fvi_info		hit_data;
 							int			fate;
@@ -289,15 +290,18 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 			}
 			break;
 		case OBJ_FIREBALL:
-			if (obj->id < Vclip.size())
 			{
-				auto &v = Vclip[obj->id];
+				const auto oid = get_fireball_id(obj);
+			if (oid < Vclip.size())
+			{
+				auto &v = Vclip[oid];
 				light_intensity = v.light_value;
 				if (obj->lifeleft < F1_0*4)
 					light_intensity = fixmul(fixdiv(obj->lifeleft, v.play_time), light_intensity);
 			}
 			else
 				 light_intensity = 0;
+			}
 			break;
 		case OBJ_ROBOT:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -434,8 +438,9 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 			}
 			default:
 			{
-				t_idx_s = Vclip[obj->id].frames[0].index;
-				t_idx_e = Vclip[obj->id].frames[Vclip[obj->id].num_frames-1].index;
+				const auto &vc = Vclip[obj->id];
+				t_idx_s = vc.frames[0].index;
+				t_idx_e = vc.frames[vc.num_frames-1].index;
 				break;
 			}
 		}

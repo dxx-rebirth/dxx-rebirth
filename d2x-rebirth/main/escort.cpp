@@ -312,18 +312,15 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 }
 
 	if (index->type == OBJ_POWERUP)  {
-		if (index->id == POW_KEY_BLUE) {
-			if (Escort_goal_object == ESCORT_GOAL_BLUE_KEY) {
-				record_escort_goal_accomplished();
-				return;
-			}
-		} else if (index->id == POW_KEY_GOLD) {
-			if (Escort_goal_object == ESCORT_GOAL_GOLD_KEY) {
-				record_escort_goal_accomplished();
-				return;
-			}
-		} else if (index->id == POW_KEY_RED) {
-			if (Escort_goal_object == ESCORT_GOAL_RED_KEY) {
+		const auto index_id = get_powerup_id(index);
+		escort_goal_t goal_key;
+		if ((index_id == POW_KEY_BLUE && (goal_key = ESCORT_GOAL_BLUE_KEY, true)) ||
+			(index_id == POW_KEY_GOLD && (goal_key = ESCORT_GOAL_GOLD_KEY, true)) ||
+			(index_id == POW_KEY_RED && (goal_key = ESCORT_GOAL_RED_KEY, true))
+		)
+		{
+			if (Escort_goal_object == goal_key)
+			{
 				record_escort_goal_accomplished();
 				return;
 			}
@@ -430,7 +427,7 @@ static int marker_exists_in_mine(int id)
 	{
 		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_MARKER)
-			if (objp->id == id)
+			if (get_marker_id(objp) == id)
 				return 1;
 	}
 	return 0;
@@ -514,8 +511,11 @@ static int get_boss_id(void)
 	{
 		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(objp)].boss_flag)
-				return objp->id;
+		{
+			const auto objp_id = get_robot_id(objp);
+			if (Robot_info[objp_id].boss_flag)
+				return objp_id;
+		}
 	}
 	return -1;
 }
@@ -536,12 +536,9 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 
 			if (curobjp->type == objtype) {
 				//	Don't find escort robots if looking for robot!
-				if ((curobjp->type == OBJ_ROBOT) && (Robot_info[curobjp->id].companion))
+				if ((curobjp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(curobjp)].companion))
 					;
 				else if (objid == -1) {
-					if ((objtype == OBJ_POWERUP) && (curobjp->id != POW_KEY_BLUE) && (curobjp->id != POW_KEY_GOLD) && (curobjp->id != POW_KEY_RED))
-						return objnum;
-					else
 						return objnum;
 				} else if (curobjp->id == objid)
 					return objnum;
@@ -1190,7 +1187,7 @@ void recreate_thief(const vobjptr_t objp)
 	const auto &&segp = vsegptridx(segnum);
 	const auto &&center_point = compute_segment_center(segp);
 
-	const auto &&new_obj = create_morph_robot(segp, center_point, objp->id);
+	const auto &&new_obj = create_morph_robot(segp, center_point, get_robot_id(objp));
 	if (new_obj == object_none)
 		return;
 	init_ai_object(new_obj, ai_behavior::AIB_SNIPE, segment_none);

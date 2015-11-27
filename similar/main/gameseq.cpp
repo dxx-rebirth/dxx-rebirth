@@ -1665,8 +1665,11 @@ static void filter_objects_from_level()
 	{
 		const auto objp = vobjptridx(i);
 		if (objp->type==OBJ_POWERUP)
-			if (objp->id==POW_FLAG_RED || objp->id==POW_FLAG_BLUE)
+		{
+			const auto powerup_id = get_powerup_id(objp);
+			if (powerup_id == POW_FLAG_RED || powerup_id == POW_FLAG_BLUE)
 				bash_to_shield(objp);
+		}
    }
 
  }

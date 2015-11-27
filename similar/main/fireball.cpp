@@ -122,7 +122,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ( !(obj0p==objp) &&
 				!(obj0p->flags&OF_SHOULD_BE_DEAD) &&
-				((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) ||
+				((obj0p->type==OBJ_WEAPON && (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(obj0p)))) ||
 				 (obj0p->type == OBJ_CNTRLCEN) ||
 				 (obj0p->type==OBJ_PLAYER) ||
 				(
@@ -153,7 +153,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 							case OBJ_WEAPON:
 								phys_apply_force(obj0p,vforce);
 
-								if (obj0p->id == PROXIMITY_ID || obj0p->id == SUPERPROX_ID) {		//prox bombs have chance of blowing up
+								if (is_proximity_bomb_or_smart_mine(get_weapon_id(obj0p)))
+								{		//prox bombs have chance of blowing up
 									if (fixmul(dist,force) > i2f(8000)) {
 										obj0p->flags |= OF_SHOULD_BE_DEAD;
 										explode_badass_weapon(obj0p, obj0p->pos);
@@ -166,9 +167,9 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								phys_apply_force(obj0p,vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
-								if ((objp != object_none) && (!Robot_info[obj0p->id].boss_flag) && (Weapon_info[objp->id].flash)) {
+								if ((objp != object_none) && (!Robot_info[get_robot_id(obj0p)].boss_flag) && (Weapon_info[get_weapon_id(objp)].flash)) {
 									ai_static	*aip = &obj0p->ctype.ai_info;
-									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[objp->id].flash, FrameTime)/128) + 2;
+									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[get_weapon_id(objp)].flash, FrameTime)/128) + 2;
 
 									if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < F1_0) {
 										aip->SKIP_AI_COUNT += force_val;
@@ -194,8 +195,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								}
 								if ( obj0p->shields >= 0 ) {
 #if defined(DXX_BUILD_DESCENT_II)
-									if (Robot_info[obj0p->id].boss_flag >= BOSS_D2)
-										if (Boss_invulnerable_matter[Robot_info[obj0p->id].boss_flag-BOSS_D2])
+									const auto &robot_info = Robot_info[get_robot_id(obj0p)];
+									if (robot_info.boss_flag >= BOSS_D2 && Boss_invulnerable_matter[robot_info.boss_flag - BOSS_D2])
 											damage /= 4;
 #endif
 									if (apply_damage_to_robot(obj0p, damage, parent))
@@ -203,7 +204,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 											add_points_to_score(Robot_info[get_robot_id(obj0p)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
-								if ((objp != object_none) && (Robot_info[obj0p->id].companion) && (!Weapon_info[objp->id].flash)) {
+								if (objp != object_none && Robot_info[get_robot_id(obj0p)].companion && !Weapon_info[get_weapon_id(objp)].flash)
+								{
 									static const char ouch_str[] = "ouch! " "ouch! " "ouch! " "ouch! ";
 									int	count;
 
@@ -228,10 +230,11 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								vms_vector	vforce2;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
-								if ((objp != object_none) && Weapon_info[objp->id].flash && obj0p->id==Player_num) {
+								if (objp != object_none && Weapon_info[get_weapon_id(objp)].flash && get_player_id(obj0p) == Player_num)
+								{
 									int	fe;
 
-									fe = min(F1_0*4, force*Weapon_info[objp->id].flash/32);	//	For four seconds or less
+									fe = min(F1_0 * 4, force*Weapon_info[get_weapon_id(objp)].flash / 32);	//	For four seconds or less
 
 									if (objp->ctype.laser_info.parent_signature == ConsoleObject->signature) {
 										fe /= 2;
@@ -303,11 +306,12 @@ objptridx_t object_create_badass_explosion(const objptridx_t objp, const vsegptr
 //return the explosion object
 void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 {
-	weapon_info *wi = &Weapon_info[get_weapon_id(obj)];
+	const auto weapon_id = get_weapon_id(obj);
+	const weapon_info *wi = &Weapon_info[weapon_id];
 
 	Assert(wi->damage_radius);
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->id == EARTHSHAKER_ID) || (obj->id == ROBOT_EARTHSHAKER_ID))
+	if (weapon_id == EARTHSHAKER_ID || weapon_id == ROBOT_EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);
@@ -393,8 +397,7 @@ static void object_create_debris(const vobjptr_t parent, int subobj_num)
 void draw_fireball(const vobjptridx_t obj)
 {
 	if ( obj->lifeleft > 0 )
-		draw_vclip_object(obj,obj->lifeleft,0, obj->id);
-
+		draw_vclip_object(obj,obj->lifeleft,0, get_fireball_id(obj));
 }
 
 // --------------------------------------------------------------------------------------------------------------------

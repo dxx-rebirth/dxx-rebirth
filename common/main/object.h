@@ -451,7 +451,17 @@ static inline uint8_t get_reactor_id(const object &o)
 	return o.id;
 }
 
+static inline uint8_t get_fireball_id(const object &o)
+{
+	return o.id;
+}
+
 static inline uint8_t get_robot_id(const object &o)
+{
+	return o.id;
+}
+
+static inline uint8_t get_marker_id(const object &o)
 {
 	return o.id;
 }
@@ -473,6 +483,11 @@ static inline void set_player_id(object &o, ubyte id)
 
 void set_powerup_id(object &o, powerup_type_t id);
 
+static inline void set_reactor_id(object &o, uint8_t id)
+{
+	o.id = id;
+}
+
 static inline void set_robot_id(object &o, ubyte id)
 {
 	o.id = id;
@@ -488,10 +503,13 @@ void check_warn_object_type(const object &, object_type_t, const char *file, uns
 #define get_player_id(O)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), get_player_id(O))
 #define get_powerup_id(O)	(check_warn_object_type(O, OBJ_POWERUP, __FILE__, __LINE__), get_powerup_id(O))
 #define get_reactor_id(O)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), get_reactor_id(O))
+#define get_fireball_id(O)	(check_warn_object_type(O, OBJ_FIREBALL, __FILE__, __LINE__), get_fireball_id(O))
 #define get_robot_id(O)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), get_robot_id(O))
 #define get_weapon_id(O)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), get_weapon_id(O))
+#define get_marker_id(O)	(check_warn_object_type(O, OBJ_MARKER, __FILE__, __LINE__), get_marker_id(O))
 #define set_hostage_id(O,I)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), set_hostage_id(O, I))
 #define set_player_id(O,I)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), set_player_id(O, I))
+#define set_reactor_id(O,I)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), set_reactor_id(O, I))
 #define set_robot_id(O,I)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), set_robot_id(O, I))
 #define set_weapon_id(O,I)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), set_weapon_id(O, I))
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P

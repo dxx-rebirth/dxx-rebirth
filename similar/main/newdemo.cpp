@@ -532,7 +532,7 @@ static void nd_read_shortpos(const vobjptr_t obj)
 	nd_read_short(&(sp.velz));
 
 	my_extract_shortpos(obj, &sp);
-	if ((obj->id == VCLIP_MORPHING_ROBOT) && (render_type == RT_FIREBALL) && (obj->control_type == CT_EXPLOSION))
+	if (get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj->control_type == CT_EXPLOSION)
 		extract_orient_from_segment(&obj->orient, vcsegptr(obj->segnum));
 
 }

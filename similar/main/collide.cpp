@@ -1132,16 +1132,17 @@ static void collide_player_and_marker(const vobjptridx_t  marker, const vobjptr_
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
 
+		const auto marker_id = get_marker_id(marker);
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(Players[marker->id/2].callsign), &MarkerMessage[marker->id][0]);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(Players[marker_id / 2].callsign), &MarkerMessage[marker_id][0]);
 		}
 		else
 		{
-			if (MarkerMessage[marker->id][0])
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker->id+1,&MarkerMessage[marker->id][0]);
+			if (MarkerMessage[marker_id][0])
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker_id + 1, &MarkerMessage[marker_id][0]);
 			else
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", marker->id+1);
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", marker_id + 1);
 	   }
 
 		if (drawn)

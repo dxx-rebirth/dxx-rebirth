@@ -99,8 +99,11 @@ void HUD_render_message_frame()
 
 		const auto &&line_spacing = LINE_SPACING;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow)
+		if (PlayerCfg.GuidedInBigWindow &&
+			Guided_missile[Player_num] &&
+			Guided_missile[Player_num]->type == OBJ_WEAPON &&
+			get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+			Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
 			y += line_spacing;
 #endif
 

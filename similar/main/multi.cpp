@@ -686,7 +686,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		const auto killer_id = killer->id;
+		const auto killer_id = get_weapon_id(killer);
 		if (killer_id==PMINE_ID && killer_type!=OBJ_ROBOT)
 		{
 			if (killed_pnum == Player_num)

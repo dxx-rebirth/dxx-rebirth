@@ -67,7 +67,8 @@ void read_flying_controls(const vobjptr_t obj)
 	Assert(FrameTime > 0); 		//Get MATT if hit this!
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->type!=OBJ_PLAYER) || (obj->id!=Player_num)) return;	//references to player_ship require that this obj be the player
+	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
+		return;	//references to player_ship require that this obj be the player
 
 	const auto control_guided_missile = [&] {
 		const auto m = Guided_missile[Player_num];
