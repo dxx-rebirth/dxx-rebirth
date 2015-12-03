@@ -244,63 +244,89 @@ static inline void ClearMarkers()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void DrawMarkerNumber (automap *am, int num)
+static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &BasePoint)
 {
-	int i;
-	g3s_point FromPoint,ToPoint;
-
-	static const float sArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
-				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
-				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0},
-				{-1.0, -1.0, -1.0, 1.0, 1.0, 1.0},
-				{-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
-				{-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
-				{-1.0, 1.0, 1.0, 1.0},
-				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
-				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0}
-				};
-
-	static const float sArrayY[10][20]={	{.75, 1.0, 1.0, -1.0, -1.0, -1.0},
-				{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
-				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, 0.0, 0.0},
-				{1.0, 0.0, 0.0, 0.0, 1.0, -1.0},
-				{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
-				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 0.0, 0.0, 0.0},
-				{1.0, 1.0, 1.0, -1.0},
-				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 0.0, 0.0},
-				{1.0, 1.0, 1.0, -1.0, 0.0, 0.0, 0.0, 1.0}
-				};
-	static const int NumOfPoints[]={6,10,8,6,10,10,4,10,8};
-
-	float ArrayX[10], ArrayY[10];
-	
-	for (i=0;i<NumOfPoints[num];i++)
+	struct xy
 	{
-		ArrayX[i] = sArrayX[num][i] * MarkerScale;
-		ArrayY[i] = sArrayY[num][i] * MarkerScale;
-	}
-	
+		float x0, y0, x1, y1;
+	};
+	static const array<array<xy, 5>, 9> sArray = {{
+		{{
+			{-0.25, 0.75, 0, 1},
+			{0, 1, 0, -1},
+			{-1, -1, 1, -1},
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{1, 1, 1, 0},
+			{-1, 0, 1, 0},
+			{-1, 0, -1, -1},
+			{-1, -1, 1, -1}
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{1, 1, 1, -1},
+			{-1, -1, 1, -1},
+			{0, 0, 1, 0},
+		}},
+		{{
+			{-1, 1, -1, 0},
+			{-1, 0, 1, 0},
+			{1, 1, 1, -1},
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{-1, 1, -1, 0},
+			{-1, 0, 1, 0},
+			{1, 0, 1, -1},
+			{-1, -1, 1, -1}
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{-1, 1, -1, -1},
+			{-1, -1, 1, -1},
+			{1, -1, 1, 0},
+			{-1, 0, 1, 0}
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{1, 1, 1, -1},
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{1, 1, 1, -1},
+			{-1, -1, 1, -1},
+			{-1, -1, -1, 1},
+			{-1, 0, 1, 0}
+		}},
+		{{
+			{-1, 1, 1, 1},
+			{1, 1, 1, -1},
+			{-1, 0, 1, 0},
+			{-1, 0, -1, 1},
+		 }}
+	}};
+	static const array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
+
 	gr_setcolor(num==HighlightMarker ? am->white_63: am->blue_48);
-	
-	
-	const auto &&BasePoint = g3_rotate_point(vcobjptr(MarkerObject[(Player_num*2)+num])->pos);
-	
-	for (i=0;i<NumOfPoints[num];i+=2)
+	const auto scale_x = Matrix_scale.x;
+	const auto scale_y = Matrix_scale.y;
+	range_for (const auto &i, unchecked_partial_range(&sArray[num][0], NumOfPoints[num]))
 	{
-	
-		FromPoint=BasePoint;
-		ToPoint=BasePoint;
-		
-		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[i])),Matrix_scale.x);
-		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[i])),Matrix_scale.y);
+		const auto ax0 = i.x0 * MarkerScale;
+		const auto ay0 = i.y0 * MarkerScale;
+		const auto ax1 = i.x1 * MarkerScale;
+		const auto ay1 = i.y1 * MarkerScale;
+		auto FromPoint = BasePoint;
+		auto ToPoint = BasePoint;
+		FromPoint.p3_x += fixmul(fl2f(ax0), scale_x);
+		FromPoint.p3_y += fixmul(fl2f(ay0), scale_y);
+		ToPoint.p3_x += fixmul(fl2f(ax1), scale_x);
+		ToPoint.p3_y += fixmul(fl2f(ay1), scale_y);
 		g3_code_point(FromPoint);
-		g3_project_point(FromPoint);
-		
-		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[i+1])),Matrix_scale.x);
-		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[i+1])),Matrix_scale.y);
 		g3_code_point(ToPoint);
+		g3_project_point(FromPoint);
 		g3_project_point(ToPoint);
-	
 		automap_draw_line(FromPoint, ToPoint);
 	}
 }
@@ -342,25 +368,35 @@ void DropBuddyMarker(const vobjptr_t objp)
 
 static void DrawMarkers (automap *am)
  {
-	int i,maxdrop;
 	static int cyc=10,cycdir=1;
 
-	if (Game_mode & GM_MULTI)
-		maxdrop=2;
-	else
-		maxdrop=9;
-
-	for (i=0;i<maxdrop;i++)
-		if (MarkerObject[(Player_num*2)+i] != object_none) {
-			auto sphere_point = g3_rotate_point(vcobjptr(MarkerObject[(Player_num*2)+i])->pos);
-			gr_setcolor (gr_find_closest_color_current(cyc,0,0));
+	const auto mb = &MarkerObject[(Player_num * 2)];
+	const auto me = std::next(mb, (Game_mode & GM_MULTI) ? 2 : 9);
+	for (auto iter = mb;;)
+	{
+		if (*iter != object_none)
+			break;
+		if (++ iter == me)
+			return;
+	}
+	const auto current_cycle_color = cyc;
+	const array<color_t, 3> colors{{
+		gr_find_closest_color_current(current_cycle_color, 0, 0),
+		gr_find_closest_color_current(current_cycle_color + 10, 0, 0),
+		gr_find_closest_color_current(current_cycle_color + 20, 0, 0),
+	}};
+	unsigned i = 0;
+	for (auto iter = mb; iter != me; ++iter, ++i)
+		if (*iter != object_none)
+		{
+			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
+			gr_setcolor(colors[0]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE);
-			gr_setcolor (gr_find_closest_color_current(cyc+10,0,0));
+			gr_setcolor(colors[1]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2);
-			gr_setcolor (gr_find_closest_color_current(cyc+20,0,0));
+			gr_setcolor(colors[2]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4);
-
-			DrawMarkerNumber (am, i);
+			DrawMarkerNumber(am, i, sphere_point);
 		}
 
 	if (cycdir)
