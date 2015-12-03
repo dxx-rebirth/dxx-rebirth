@@ -157,10 +157,9 @@ class ConfigureTests:
 		# shared.
 		def __init__(self,env,keys,_l=[]):
 			self.flags = {k: env.get(k, _l)[:] for k in keys}
+			self.__getitem__ = self.flags.__getitem__
 		def restore(self,env):
 			env.Replace(**self.flags)
-		def __getitem__(self,key):
-			return self.flags.__getitem__(key)
 	class ForceVerboseLog:
 		def __init__(self,env):
 			# Force verbose output to sconf.log
@@ -326,7 +325,6 @@ struct %(N)s_derived : %(N)s_base {
 		self.__tool_versions = []
 	def message(self,msg):
 		print "%s: %s" % (self.msgprefix, msg)
-	@staticmethod
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -365,16 +363,12 @@ struct %(N)s_derived : %(N)s_base {
 			if r == self.expect_sconf_failure:
 				return 0
 		return r
-	def _check_macro(self,context,macro_name,macro_value,test,**kwargs):
-		macro_value = self._quote_macro_value(macro_value)
+	def _check_macro(self,context,macro_name,macro_value,test,_comment_not_supported=comment_not_supported,**kwargs):
 		r = self.Compile(context, text="""
 #define {macro_name} {macro_value}
 {test}
 """.format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
-		if r:
-			context.sconf.Define(macro_name, macro_value)
-		else:
-			context.sconf.Define(macro_name, self.comment_not_supported)
+		context.sconf.Define(macro_name, macro_value if r else _comment_not_supported)
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_ld_works', "assume ccache, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_distcc_ld_works', "assume distcc, C++ compiler, and C++ linker work"))
@@ -531,7 +525,16 @@ help:assume C++ compiler works
 			return 'C++ compiler does not work.'
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx11', "assume C++ compiler supports C++11"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
-	def _check_cxx_conformance_level(self,context):
+	__cxx_conformance_CXXFLAGS = [None]
+	def _check_cxx_conformance_level(self,context,_levels=(
+			# List standards in descending order of preference
+			_cxx_conformance_cxx14,
+			# C++11 is required, so list it last.  Omit the comma as a
+			# reminder not to append elements to the list.
+			_cxx_conformance_cxx11
+		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
+		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
+		):
 		# Testing the compiler option parser only needs Compile, even when LTO
 		# is enabled.
 		Compile = self._Compile
@@ -567,20 +570,13 @@ help:assume C++ compiler works
 		# interest in gcc-4.8 is return type deduction, which cannot be used
 		# until gcc-4.7 is retired.  Therefore, it is acceptable for this
 		# check not to detect C++14 support in gcc-4.8.
-		for level in (
-			# List standards in descending order of preference
-			self._cxx_conformance_cxx14,
-			# C++11 is required, so list it last.  Omit the comma as a
-			# reminder not to append elements to the list.
-			self._cxx_conformance_cxx11
-		):
+		for level in _levels:
 			opt = '-std=gnu++%u' % level
-			if Compile(context, text='', msg='whether C++ compiler accepts {opt}'.format(opt=opt), successflags={'CXXFLAGS': [opt]}, calling_function='cxx%s' % level):
+			_CXXFLAGS[0] = opt
+			if Compile(context, text='', msg='whether C++ compiler accepts {opt}'.format(opt=opt), successflags=_successflags, calling_function='cxx%s' % level):
 				self.__cxx_conformance = level
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
-	def _extend_successflags(self,k,v):
-		self.successful_flags[k].extend(v)
 	def Compile(self,context,**kwargs):
 		# Some tests check the functionality of the compiler's
 		# optimizer.
@@ -589,10 +585,6 @@ help:assume C++ compiler works
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if self.user_settings.lto else self._Compile
 		return self.Compile(context, **kwargs)
-	def _Compile(self,context,**kwargs):
-		return self._Test(context,action=context.TryCompile, **kwargs)
-	def Link(self,context,**kwargs):
-		return self._Test(context,action=context.TryLink, **kwargs)
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
 		if calling_function is None:
 			calling_function = self._find_calling_sconf_function()
@@ -671,29 +663,34 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if r and forced != self.sconf_assume_success:
 			caller_modified_env_flags.restore(context.env)
 			context.env.Replace(CPPDEFINES=env_flags['CPPDEFINES'])
-			CPPDEFINES = []
+			f = self.successful_flags
 			# Move most CPPDEFINES to the generated header, so that
 			# command lines are shorter.
-			for v in successflags.pop('CPPDEFINES', []):
-				# d is 'NAME' for -DNAME
-				# d is ('NAME', 'VALUE') for -DNAME=VALUE
-				d = v
-				if isinstance(d, str):
-					d = (d,None)
-				if d[0] in ('_REENTRANT',):
-					# Blacklist defines that must not be moved to the
-					# configuration header.
-					CPPDEFINES.append(v)
+			for k, v in successflags.iteritems():
+				if k == 'CPPDEFINES':
 					continue
-				context.sconf.Define(d[0], d[1])
-			# Put back any values that were blacklisted
-			successflags['CPPDEFINES'] = CPPDEFINES
-			for (k,v) in successflags.items():
-				self._extend_successflags(k, v)
+				f[k].extend(v)
+			d = successflags.get('CPPDEFINES', None)
+			if d:
+				append_CPPDEFINE = f['CPPDEFINES'].append
+				for v in d:
+					# v is 'NAME' for -DNAME
+					# v is ('NAME', 'VALUE') for -DNAME=VALUE
+					d = (v, None) if isinstance(v, str) else v
+					if d[0] in ('_REENTRANT',):
+						# Blacklist defines that must not be moved to the
+						# configuration header.
+						append_CPPDEFINE(v)
+						continue
+					context.sconf.Define(d[0], d[1])
 		else:
 			env_flags.restore(context.env)
 		self._sconf_results.append((calling_function, r))
 		return r
+	def _Compile(self,context,_Test=_Test,**kwargs):
+		return _Test(self, context,action=context.TryCompile, **kwargs)
+	def Link(self,context,_Test=_Test,**kwargs):
+		return _Test(self, context,action=context.TryLink, **kwargs)
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, return a tuple indicating which
 	# stage failed and providing a text error message to show to the
@@ -701,15 +698,16 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# Others abort the SConf run.
 	def _soft_check_system_library(self,context,header,main,lib,successflags={}):
 		include = '\n'.join(['#include <%s>' % h for h in header])
+		header = header[-1]
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
 		if self.Link(context, text=include, main=main, msg='for usable library %s' % lib, successflags=successflags):
 			return
-		if self.Compile(context, text=include, main=main, msg='for usable header %s' % header[-1], testflags=successflags):
-			return (0, "Header %s is usable, but library %s is not usable." % (header[-1], lib))
-		if self.Compile(context, text=include, main='', msg='for parseable header %s' % header[-1], testflags=successflags):
-			return (1, "Header %s is parseable, but cannot compile the test program." % (header[-1]))
-		return (2, "Header %s is missing or unusable." % (header[-1]))
+		if self.Compile(context, text=include, main=main, msg='for usable header %s' % header, testflags=successflags):
+			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
+		if self.Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
+			return (1, "Header %s is parseable, but cannot compile the test program." % header)
+		return (2, "Header %s is missing or unusable." % header)
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
@@ -717,7 +715,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if e:
 			raise SCons.Errors.StopError(e[1])
 	@_custom_test
-	def check_libphysfs(self,context):
+	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
 	PHYSFS_File *f;
 	char b[1] = {0};
@@ -733,13 +731,13 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 '''
 		l = ['physfs']
 		successflags = {'LIBS' : l}
-		e = self._soft_check_system_library(context, header=['physfs.h'], main=main, lib='physfs', successflags=successflags)
+		e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if not e:
 			return
 		if e[0] == 0:
 			self.message("physfs header usable; adding zlib and retesting library")
 			l.append('z')
-			e = self._soft_check_system_library(context, header=['physfs.h'], main=main, lib='physfs', successflags=successflags)
+			e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if e:
 			raise SCons.Errors.StopError(e[1])
 	@_custom_test
@@ -807,7 +805,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		# SDL_mixer support?
 		if not self.user_settings.sdlmixer:
 			return
-		self._extend_successflags('CPPDEFINES', ['USE_SDLMIXER'])
+		self.successful_flags['CPPDEFINES'].append('USE_SDLMIXER')
 		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, mixer, mixer)
 		if self.user_settings.host_platform == 'darwin':
 			successflags = successflags.copy()
@@ -823,7 +821,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 ''',
 			lib=mixer, successflags=successflags)
 	@_custom_test
-	def check_compiler_missing_field_initializers(self,context):
+	def check_compiler_missing_field_initializers(self,context,
+		_testflags_warn={'CXXFLAGS' : ['-Wmissing-field-initializers']},
+		_successflags_nowarn={'CXXFLAGS' : ['-Wno-missing-field-initializers']}
+	):
 		"""
 Test whether the compiler warns for a statement of the form
 
@@ -837,8 +838,8 @@ variables to their default-constructed value.
 """
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
-		if self.Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags={'CXXFLAGS' : ['-Wmissing-field-initializers']}) or \
-			self.Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags={'CXXFLAGS' : ['-Wno-missing-field-initializers']}) or \
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags=_testflags_warn) or \
+			self.Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags=_successflags_nowarn) or \
 			not self.Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
@@ -876,7 +877,18 @@ void a()__attribute__((%s("a called")));
 			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
-	def check_builtin_bswap(self,context):
+	def check_builtin_bswap(self,context,
+		_main='''
+	(void)__builtin_bswap64(static_cast<uint64_t>(argc));
+	(void)__builtin_bswap32(static_cast<uint32_t>(argc));
+#ifdef DXX_HAVE_BUILTIN_BSWAP16
+/* Added in gcc-4.8 */
+	(void)__builtin_bswap16(static_cast<uint16_t>(argc));
+#endif
+''',
+		_successflags_bswap16={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']},
+		_successflags_bswap={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']},
+	):
 		"""
 Test whether the compiler accepts the gcc byte swapping intrinsic
 functions.  These functions may be optimized into architecture-specific
@@ -893,25 +905,11 @@ gcc-4.8.
 [2]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap64-4136
 [3]: https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html#index-g_t_005f_005fbuiltin_005fbswap16-4134
 """
-		b = '(void)__builtin_bswap{bits}(static_cast<uint{bits}_t>(argc));'
 		include = '''
 #include <cstdint>
 '''
-		main = '''
-	{b64}
-	{b32}
-#ifdef DXX_HAVE_BUILTIN_BSWAP16
-/* Added in gcc-4.8 */
-	{b16}
-#endif
-'''.format(
-			b64 = b.format(bits=64),
-			b32 = b.format(bits=32),
-			b16 = b.format(bits=16),
-		)
-		if self.Compile(context, text=include, main=main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP', 'DXX_HAVE_BUILTIN_BSWAP16']}):
-			return
-		if self.Compile(context, text=include, main=main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags={'CPPDEFINES' : ['DXX_HAVE_BUILTIN_BSWAP']}):
+		if self.Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16) or \
+			self.Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
 			return
 	@_custom_test
 	def check_builtin_constant_p(self,context):
@@ -1002,7 +1000,10 @@ static inline int a(char *c){
 		else:
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_object_size')
 	@_custom_test
-	def check_embedded_compound_statement(self,context):
+	def check_embedded_compound_statement(self,context,
+		_compound_statement_native=('', ''),
+		_compound_statement_emulated=('[&]', '()')
+	):
 		"""
 Test whether the compiler implements gcc's [statement expression][1]
 extension.  If this extension is present, statements can be used where
@@ -1017,12 +1018,9 @@ available.
 		f = '''
 	return ({ 1 + 2; });
 '''
-		if self.Compile(context, text='', main=f, msg='whether compiler understands embedded compound statements'):
-			context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', '')
-			context.sconf.Define('DXX_END_COMPOUND_STATEMENT', '')
-		else:
-			context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', '[&]')
-			context.sconf.Define('DXX_END_COMPOUND_STATEMENT', '()')
+		t = _compound_statement_native if self.Compile(context, text='', main=f, msg='whether compiler understands embedded compound statements') else _compound_statement_emulated
+		context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', t[0])
+		context.sconf.Define('DXX_END_COMPOUND_STATEMENT', t[1])
 		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
 	void F() __attribute_error(S);	\
 	F();	\
@@ -1159,8 +1157,8 @@ int a()__attribute_warn_unused_result;
 int a(){return 0;}
 """, msg='for function __attribute__((warn_unused_result))')
 	@_custom_test
-	def check_attribute_warning(self,context):
-		self._check_function_dce_attribute(context, 'warning')
+	def check_attribute_warning(self,context,_check_function_dce_attribute=_check_function_dce_attribute):
+		_check_function_dce_attribute(self, context, 'warning')
 	def Cxx14Compile(self,context,*args,**kwargs):
 		"""
 Test whether the compiler supports a C++14 feature.  If the compiler
@@ -1180,11 +1178,11 @@ help:assume Boost.Array works
 """
 		return self.Compile(context, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']}, **kwargs)
 	@_implicit_test
-	def check_cxx_array(self,context,**kwargs):
+	def check_cxx_array(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']},**kwargs):
 		"""
 help:assume <array> works
 """
-		return self.Compile(context, msg='for <array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']}, **kwargs)
+		return self.Compile(context, msg='for <array>', successflags=_successflags, **kwargs)
 	@_implicit_test
 	def check_cxx_tr1_array(self,context,**kwargs):
 		"""
@@ -1287,11 +1285,11 @@ help:assume Boost.TypeTraits works
 """
 		return self.Compile(context, text=f, msg='for Boost.TypeTraits', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_TYPE_TRAITS']})
 	@_implicit_test
-	def check_cxx11_type_traits(self,context,f):
+	def check_cxx11_type_traits(self,context,f,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']}):
 		"""
 help:assume <type_traits> works
 """
-		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']})
+		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', successflags=_successflags)
 	@_custom_test
 	def _check_type_traits(self,context):
 		f = '''
@@ -1310,8 +1308,8 @@ help:assume Boost.Foreach works
 """
 		return self.Compile(context, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']}, **kwargs)
 	@_implicit_test
-	def check_cxx11_range_for(self,context,**kwargs):
-		return self.Compile(context, msg='for C++11 range-based for', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']}, **kwargs)
+	def check_cxx11_range_for(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']},**kwargs):
+		return self.Compile(context, msg='for C++11 range-based for', successflags=_successflags, **kwargs)
 	@_custom_test
 	def _check_range_based_for(self,context):
 		include = '''
@@ -1343,7 +1341,7 @@ help:assume Boost.Foreach works
 			)
 		)
 	@_custom_test
-	def check_constexpr_union_constructor(self,context):
+	def check_constexpr_union_constructor(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']}):
 		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
 		# <=gcc-4.7.x ICE on constexpr union constructors with anonymous
 		# substructure.
@@ -1361,7 +1359,7 @@ union U {
 };
 U a{640};
 '''
-		self.Compile(context, text=f, msg='whether compiler supports constexpr union constructors', successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']})
+		self.Compile(context, text=f, msg='whether compiler supports constexpr union constructors', successflags=_successflags)
 	def _show_pch_count_message(self,context,which,user_setting):
 		count = user_setting if user_setting else 0
 		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))
@@ -1370,6 +1368,7 @@ U a{640};
 	implicit_tests.append(_implicit_test.RecordedTest('check_pch_use', "assume C++ compiler can use pre-compiled headers"))
 	@_custom_test
 	def _check_pch(self,context,
+		_Test=_Test,
 		_testflags_compile_pch={'CXXFLAGS' : ['-x', 'c++-header']},
 		_testflags_use_pch={'CXXFLAGS' : ['-Winvalid-pch', '-include', None]}
 	):
@@ -1381,7 +1380,7 @@ U a{640};
 		if not co and not cs:
 			return
 		context.Display('%s: checking when to compute pre-compiled header input *pch.cpp...%s\n' % (self.msgprefix, 'if missing' if self.user_settings.pch_cpp_assume_unchanged else 'always'))
-		result = self._Test(context, action=self.PCHAction(context), text='', msg='whether compiler can create pre-compiled headers', testflags=_testflags_compile_pch, calling_function='pch_compile')
+		result = _Test(self, context, action=self.PCHAction(context), text='', msg='whether compiler can create pre-compiled headers', testflags=_testflags_compile_pch, calling_function='pch_compile')
 		if not result:
 			raise SCons.Errors.StopError("C++ compiler cannot create pre-compiled headers.")
 		_testflags_use_pch = _testflags_use_pch.copy()
@@ -1423,11 +1422,11 @@ help:assume compiler supports explicitly deleted functions with named parameters
 """
 		return self.Compile(context, text=f % 'b', msg='for explicitly deleted functions with named parameters')
 	@_implicit_test
-	def check_cxx11_explicit_delete_named_unused(self,context,f):
+	def check_cxx11_explicit_delete_named_unused(self,context,f,_successflags={'CXXFLAGS' : ['-Wno-unused-parameter']}):
 		"""
 help:assume compiler supports explicitly deleted functions with named parameters with -Wno-unused-parameter
 """
-		return self.Compile(context, text=f % 'b', msg='for explicitly deleted functions with named parameters and -Wno-unused-parameter', successflags={'CXXFLAGS' : ['-Wno-unused-parameter']})
+		return self.Compile(context, text=f % 'b', msg='for explicitly deleted functions with named parameters and -Wno-unused-parameter', successflags=_successflags)
 	@_implicit_test
 	def check_cxx11_explicit_delete_anonymous(self,context,f):
 		"""
@@ -1435,8 +1434,8 @@ help:assume compiler supports explicitly deleted functions with anonymous parame
 """
 		return self.Compile(context, text=f % '', msg='for explicitly deleted functions with anonymous parameters')
 	@_implicit_test
-	def check_cxx11_free_begin(self,context,**kwargs):
-		return self.Compile(context, msg='for C++11 functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']}, **kwargs)
+	def check_cxx11_free_begin(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_BEGIN']},**kwargs):
+		return self.Compile(context, msg='for C++11 functions begin(), end()', successflags=_successflags, **kwargs)
 	@_implicit_test
 	def check_boost_free_begin(self,context,**kwargs):
 		return self.Compile(context, msg='for Boost.Range functions begin(), end()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_BEGIN']}, **kwargs)
@@ -1462,8 +1461,8 @@ struct A {
 		if not self.check_cxx11_free_begin(context, text=f, main=main) and not self.check_boost_free_begin(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free functions begin() and end().")
 	@_implicit_test
-	def check_cxx11_addressof(self,context,**kwargs):
-		return self.Compile(context, msg='for C++11 function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']}, **kwargs)
+	def check_cxx11_addressof(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_ADDRESSOF']},**kwargs):
+		return self.Compile(context, msg='for C++11 function addressof()', successflags=_successflags, **kwargs)
 	@_implicit_test
 	def check_boost_addressof(self,context,**kwargs):
 		return self.Compile(context, msg='for Boost.Utility function addressof()', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ADDRESSOF']}, **kwargs)
@@ -1482,21 +1481,21 @@ struct A {
 		if not self.check_cxx11_addressof(context, text=f, main=main) and not self.check_boost_addressof(context, text=f, main=main):
 			raise SCons.Errors.StopError("C++ compiler does not support free function addressof().")
 	@_custom_test
-	def check_cxx14_exchange(self,context):
+	def check_cxx14_exchange(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']}):
 		f = '''
 #include "compiler-exchange.h"
 '''
-		self.Cxx14Compile(context, text=f, main='return exchange(argc, 5)', msg='for C++14 exchange', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_EXCHANGE']})
+		self.Cxx14Compile(context, text=f, main='return exchange(argc, 5)', msg='for C++14 exchange', successflags=_successflags)
 	@_custom_test
-	def check_cxx14_integer_sequence(self,context):
+	def check_cxx14_integer_sequence(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']}):
 		f = '''
 #include <utility>
 using std::integer_sequence;
 using std::index_sequence;
 '''
-		self.Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_INTEGER_SEQUENCE']})
+		self.Cxx14Compile(context, text=f, msg='for C++14 integer_sequence', successflags=_successflags)
 	@_custom_test
-	def check_cxx14_make_unique(self,context):
+	def check_cxx14_make_unique(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']}):
 		f = '''
 #include "compiler-make_unique.h"
 '''
@@ -1504,9 +1503,12 @@ using std::index_sequence;
 	make_unique<int>(0);
 	make_unique<int[]>(1);
 '''
-		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX14_MAKE_UNIQUE']})
+		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags=_successflags)
 	@_implicit_test
-	def check_cxx11_inherit_constructor(self,context,text,fmtargs,**kwargs):
+	def check_cxx11_inherit_constructor(self,context,text,_macro_value=_quote_macro_value('''
+	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
+	using _dxx_constructor_base_type::_dxx_constructor_base_type;'''),
+		**kwargs):
 		"""
 help:assume compiler supports inheriting constructors
 """
@@ -1543,47 +1545,39 @@ I a()
 	return nullptr;
 }
 '''
-		macro_value = self._quote_macro_value('''
-	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
-	using _dxx_constructor_base_type::_dxx_constructor_base_type;''')
-		if self.Compile(context, text=text.format(leading_text=blacklist_clang_libcxx, macro_value=macro_value, **fmtargs), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs):
-			return macro_value
-		return None
+		return _macro_value \
+			if self.Compile(context, text=text.format(leading_text=blacklist_clang_libcxx, macro_value=_macro_value), msg='for C++11 inherited constructors with good unique_ptr<T[]> support', **kwargs) \
+			else None
 	@_implicit_test
-	def check_cxx11_variadic_forward_constructor(self,context,text,fmtargs,**kwargs):
-		"""
-help:assume compiler supports variadic template-based constructor forwarding
-"""
-		macro_value = self._quote_macro_value('''
+	def check_cxx11_variadic_forward_constructor(self,context,text,_macro_value=_quote_macro_value('''
     template <typename... Args>
         D(Args&&... args) :
             B,##__VA_ARGS__(std::forward<Args>(args)...) {}
-''')
-		if self.Compile(context, text=text.format(leading_text='#include <algorithm>\n' , macro_value=macro_value, **fmtargs), msg='for C++11 variadic templates on constructors', **kwargs):
-			return macro_value
-		return None
+'''),**kwargs):
+		"""
+help:assume compiler supports variadic template-based constructor forwarding
+"""
+		return _macro_value \
+			if self.Compile(context, text=text.format(leading_text='#include <algorithm>\n', macro_value=_macro_value), msg='for C++11 variadic templates on constructors', **kwargs) \
+			else None
 	@_custom_test
-	def _check_forward_constructor(self,context):
-		text = '''
+	def _check_forward_constructor(self,context,_text='''
 {leading_text}
-#define {macro_name}{macro_parameters} {macro_value}
+#define DXX_INHERIT_CONSTRUCTORS(D,B,...) {macro_value}
 struct A {{
 	A(int){{}}
 }};
 struct B:A {{
-{macro_name}(B,A);
+DXX_INHERIT_CONSTRUCTORS(B,A);
 }};
-'''
-		macro_name = 'DXX_INHERIT_CONSTRUCTORS'
-		macro_parameters = '(D,B,...)'
-		# C++03 support is possible with enumerated out template
-		# variations.  If someone finds a worthwhile compiler without
-		# variadic templates, enumerated templates can be added.
-		fmtargs = {'macro_name':macro_name, 'macro_parameters':macro_parameters}
-		for f in (self.check_cxx11_inherit_constructor, self.check_cxx11_variadic_forward_constructor):
-			macro_value = f(context, text=text, main='B(0)', fmtargs=fmtargs)
+''',
+		_macro_define='DXX_INHERIT_CONSTRUCTORS(D,B,...)',
+		_methods=(check_cxx11_inherit_constructor, check_cxx11_variadic_forward_constructor)
+):
+		for f in _methods:
+			macro_value = f(self, context, text=_text, main='B(0)')
 			if macro_value:
-				context.sconf.Define(macro_name + macro_parameters, macro_value)
+				context.sconf.Define(_macro_define, macro_value)
 				return
 		raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 	@_custom_test
@@ -1616,11 +1610,13 @@ static void a(){{
 		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 20-element tuples'):
 			return
 		count = 2
-		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples'):
-			raise SCons.Errors.StopError("Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth.")
-		raise SCons.Errors.StopError("Compiler cannot handle tuples of 2 elements.")
+		raise SCons.Errors.StopError(
+			"Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth." \
+			if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples') \
+			else "Compiler cannot handle tuples of 2 elements."
+		)
 	@_implicit_test
-	def check_poison_valgrind(self,context):
+	def check_poison_valgrind(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
 		'''
 help:add Valgrind annotations; wipe certain freed memory when running under Valgrind
 '''
@@ -1635,7 +1631,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 		main = '''
 	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
 '''
-		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
+		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags=_successflags):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
 	@_implicit_test
@@ -1650,25 +1646,24 @@ help:always wipe certain freed memory
 			context.sconf.Define('DXX_HAVE_POISON_OVERWRITE')
 		return r
 	@_custom_test
-	def _check_poison_method(self,context):
+	def _check_poison_method(self,context,
+		_methods=(check_poison_valgrind, check_poison_overwrite),
 		poison = None
+	):
 		# Always run both checks.  The user may want a program that
 		# always uses overwrite poisoning and, when running under
 		# Valgrind, marks the memory as undefined.
-		for f in (
-			self.check_poison_valgrind,
-			self.check_poison_overwrite,
-		):
-			if f(context):
+		for f in _methods:
+			if f(self, context):
 				poison = True
 		if poison:
 			context.sconf.Define('DXX_HAVE_POISON')
 	@_custom_test
-	def check_strcasecmp_present(self,context):
+	def check_strcasecmp_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']}):
 		main = '''
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);
 '''
-		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']})
+		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags=_successflags)
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wsuggest-attribute=noreturn',
@@ -1680,10 +1675,17 @@ help:always wipe certain freed memory
 		'-Wl,--nxcompat',
 		'-Wl,--insert-timestamp',
 	)
+	def __mangle_compiler_option_name(opt):
+		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
+	def __mangle_linker_option_name(opt):
+		return 'check_linker_option%s' % opt.replace('-', '_').replace(',', '_')
 	@_custom_test
-	def check_preferred_compiler_options(self,context):
-		ccopts = self.__preferred_compiler_options
-		ldopts = ()
+	def check_preferred_compiler_options(self,context,
+		ccopts=__preferred_compiler_options,
+		ldopts=(),
+		_mangle_compiler_option_name=__mangle_compiler_option_name,
+		_mangle_linker_option_name=__mangle_linker_option_name
+	):
 		if self.user_settings.host_platform == 'win32':
 			ldopts = self.__preferred_win32_linker_options
 		f, desc = (self.Link, 'linker') if ldopts else (self.Compile, 'compiler')
@@ -1697,30 +1699,27 @@ help:always wipe certain freed memory
 			# Compiler alone failed.
 			# Run down the individual compiler options to find any that work.
 			for opt in ccopts:
-				self.Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=self.mangle_compiler_option_name(opt)[6:])
+				self.Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
 		# Run down the individual linker options to find any that work.
 		for opt in ldopts:
-			self.Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=self.mangle_linker_option_name(opt)[6:])
-	@staticmethod
-	def mangle_compiler_option_name(opt):
-		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
-	@staticmethod
-	def mangle_linker_option_name(opt):
-		return 'check_linker_option%s' % opt.replace('-', '_').replace(',', '_')
+			self.Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
 	@classmethod
-	def register_preferred_compiler_options(cls):
-		del cls.register_preferred_compiler_options
-		ccopts = cls.__preferred_compiler_options
+	def register_preferred_compiler_options(cls,
+		ccopts = __preferred_compiler_options,
 		# Always register target-specific tests on the class.  Individual
 		# targets will decide whether to run the tests.
-		ldopts = cls.__preferred_win32_linker_options
-		RecordedTest = cls.Collector.RecordedTest
-		record = cls.implicit_tests.append
+		ldopts = __preferred_win32_linker_options,
+		RecordedTest = Collector.RecordedTest,
+		record = implicit_tests.append,
+		_mangle_compiler_option_name=__mangle_compiler_option_name,
+		_mangle_linker_option_name=__mangle_linker_option_name
+	):
+		del cls.register_preferred_compiler_options
 		record(RecordedTest('check_preferred_linker_options', 'assume linker accepts preferred options'))
-		mangle = cls.mangle_compiler_option_name
+		mangle = _mangle_compiler_option_name
 		for opt in ccopts:
 			record(RecordedTest(mangle(opt), 'assume compiler accepts %s' % opt))
-		mangle = cls.mangle_linker_option_name
+		mangle = _mangle_linker_option_name
 		for opt in ldopts:
 			record(RecordedTest(mangle(opt), 'assume linker accepts %s' % opt))
 		assert cls.custom_tests[0].name == cls.check_cxx_works.__name__, cls.custom_tests[0].name
@@ -2814,7 +2813,16 @@ class DXXCommon(LazyObjectConstructor):
 		# Move target to end of C++ source command
 		target_string = ' -o $TARGET'
 		env = self.env
-		cxxcom = env['CXXCOM']
+		# Get traditional compiler environment variables
+		for cc in ('CXX', 'RC'):
+			value = getattr(self.user_settings, cc)
+			if value is not None:
+				env[cc] = value
+		# Expand $CXX immediately.
+		# $CCFLAGS is never used.  Remove it.
+		cxxcom = env['CXXCOM'] \
+			.replace('$CXX ', '%s ' % env['CXX']) \
+			.replace('$CCFLAGS ', '')
 		if target_string + ' ' in cxxcom:
 			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
 		env._dxx_cxxcom_no_prefix = cxxcom
@@ -2833,8 +2841,9 @@ class DXXCommon(LazyObjectConstructor):
 					penv.pop('CCACHE_PREFIX', None)
 		elif distcc_path:
 			cxxcom = distcc_cxxcom
+		# Expand $LINK immediately.
+		linkcom = env['LINKCOM'].replace('$LINK ', '%s ' % env['LINK'])
 		# Move target to end of link command
-		linkcom = env['LINKCOM']
 		if target_string + ' ' in linkcom:
 			linkcom = '%s%s' % (linkcom.replace(target_string, ''), target_string)
 		# Add $CXXFLAGS to link command
@@ -2890,19 +2899,17 @@ class DXXCommon(LazyObjectConstructor):
 			CPPPATH = ['common/include', 'common/main', '.', self.user_settings.builddir],
 			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
 		)
+		add_flags = {}
 		if self.user_settings.editor:
-			env.Append(CPPPATH = ['common/include/editor'])
-		# Get traditional compiler environment variables
-		for cc in ('CXX', 'RC',):
-			value = getattr(self.user_settings, cc)
-			if value is not None:
-				env[cc] = value
-		for flags in ['CPPFLAGS', 'CXXFLAGS', 'LIBS']:
+			add_flags['CPPPATH'] = ['common/include/editor']
+		CLVar = SCons.Util.CLVar
+		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS'):
 			value = getattr(self.user_settings, flags)
 			if value is not None:
-				env.Append(**{flags : SCons.Util.CLVar(value)})
+				add_flags[flags] = CLVar(value)
 		if self.user_settings.LDFLAGS:
-			env.Append(LINKFLAGS = SCons.Util.CLVar(self.user_settings.LDFLAGS))
+			add_flags['LINKFLAGS'] = CLVar(self.user_settings.LDFLAGS)
+		env.Append(**add_flags)
 		if self.user_settings.lto:
 			env.Append(CXXFLAGS = [
 				# clang does not support =N syntax
@@ -2922,7 +2929,7 @@ class DXXCommon(LazyObjectConstructor):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform
 		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.',
-			(' with prefix list %s' % list(self._argument_prefix_list)) if self._argument_prefix_list else ''))
+			(' with prefix list %s' % self._argument_prefix_list) if self._argument_prefix_list else ''))
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
 				self.DarwinPlatformSettings if platform_name == 'darwin' else
@@ -2941,40 +2948,43 @@ class DXXCommon(LazyObjectConstructor):
 	def process_user_settings(self):
 		env = self.env
 		# opengl or software renderer?
-		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
-			if (self.user_settings.opengles == 1):
+		CPPDEFINES = []
+		add_cpp_define = CPPDEFINES.append
+		user_settings = self.user_settings
+		if user_settings.opengl or user_settings.opengles:
+			if user_settings.opengles:
 				message(self, "building with OpenGL ES")
-				env.Append(CPPDEFINES = ['OGLES'])
+				add_cpp_define('OGLES')
 			else:
 				message(self, "building with OpenGL")
-			env.Append(CPPDEFINES = ['OGL'])
+			add_cpp_define('OGL')
 
 		# debug?
-		if not self.user_settings.debug:
-			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
+		if not user_settings.debug:
+			CPPDEFINES.extend(['NDEBUG', 'RELEASE'])
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
-		if self.user_settings.memdebug:
+		if user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
-			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
+			add_cpp_define('DEBUG_MEMORY_ALLOCATIONS')
 
 		#editor build?
-		if (self.user_settings.editor == 1):
-			env.Append(CPPDEFINES = ['EDITOR'])
+		if user_settings.editor:
+			add_cpp_define('EDITOR')
 
 		# IPv6 compability?
-		if (self.user_settings.ipv6 == 1):
-			env.Append(CPPDEFINES = ['IPv6'])
+		if user_settings.ipv6:
+			add_cpp_define('IPv6')
 
 		# UDP support?
-		if (self.user_settings.use_udp == 1):
-			env.Append(CPPDEFINES = ['USE_UDP'])
+		if user_settings.use_udp:
+			add_cpp_define('USE_UDP')
 			# Tracker support?  (Relies on UDP)
-			if( self.user_settings.use_tracker == 1 ):
-				env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
+			if user_settings.use_tracker:
+				add_cpp_define('USE_TRACKER')
 
 		# Raspberry Pi?
-		if (self.user_settings.raspberrypi == 1):
-			rpi_vc_path = self.user_settings.rpi_vc_path
+		if user_settings.raspberrypi:
+			rpi_vc_path = user_settings.rpi_vc_path
 			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
 			env.Append(
 				CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'],
@@ -2989,6 +2999,7 @@ class DXXCommon(LazyObjectConstructor):
 				LIBPATH = '%s/lib' % rpi_vc_path,
 				LIBS = ['bcm_host'],
 			)
+		env.Append(CPPDEFINES = CPPDEFINES)
 
 class DXXArchive(DXXCommon):
 	PROGRAM_NAME = 'DXX-Archive'
@@ -3372,7 +3383,9 @@ class DXXProgram(DXXCommon):
 			self.process_user_settings()
 		self.register_program()
 
-	def prepare_environment(self):
+	def prepare_environment(self,
+			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
+		):
 		self.check_endian()
 		DXXCommon.prepare_environment(self)
 		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
@@ -3381,7 +3394,7 @@ class DXXProgram(DXXCommon):
 		self.create_special_target_nodes(archive)
 		env.Append(
 			CPPDEFINES = [
-				('DXX_VERSION_SEQ', ','.join([str(self.VERSION_MAJOR), str(self.VERSION_MINOR), str(self.VERSION_MICRO)])),
+				_DXX_VERSION_SEQ,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
 				('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str)),
