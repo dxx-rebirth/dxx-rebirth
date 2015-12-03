@@ -102,7 +102,7 @@ void HUD_render_message_frame()
 		if (PlayerCfg.GuidedInBigWindow &&
 			Guided_missile[Player_num] &&
 			Guided_missile[Player_num]->type == OBJ_WEAPON &&
-			get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+			get_weapon_id(*Guided_missile[Player_num]) == weapon_id_type::GUIDEDMISS_ID &&
 			Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
 			y += line_spacing;
 #endif

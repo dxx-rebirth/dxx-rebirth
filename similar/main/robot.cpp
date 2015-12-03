@@ -210,10 +210,10 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	ri.weapon_type = PHYSFSX_readShort(fp);
+	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readShort(fp));
 #elif defined(DXX_BUILD_DESCENT_II)
-	ri.weapon_type = PHYSFSX_readByte(fp);
-	ri.weapon_type2 = PHYSFSX_readByte(fp);
+	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
+	ri.weapon_type2 = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
 	ri.n_guns = PHYSFSX_readByte(fp);
 #endif
 	ri.contains_id = PHYSFSX_readByte(fp);

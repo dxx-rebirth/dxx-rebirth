@@ -311,7 +311,7 @@ void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 
 	Assert(wi->damage_radius);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_id == EARTHSHAKER_ID || weapon_id == ROBOT_EARTHSHAKER_ID)
+	if (weapon_id == weapon_id_type::EARTHSHAKER_ID || weapon_id == weapon_id_type::ROBOT_EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);

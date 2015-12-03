@@ -495,7 +495,7 @@ static inline void set_robot_id(object &o, ubyte id)
 
 static inline void set_weapon_id(object &o, weapon_id_type id)
 {
-	o.id = id;
+	o.id = static_cast<uint8_t>(id);
 }
 
 void check_warn_object_type(const object &, object_type_t, const char *file, unsigned line);

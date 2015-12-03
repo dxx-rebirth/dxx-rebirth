@@ -321,7 +321,7 @@ static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE]
 	}
 };
 
-uint8_t get_robot_weapon(const robot_info &ri, const unsigned gun_num)
+weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)gun_num;
@@ -1199,7 +1199,7 @@ player_led: ;
 
 	const auto weapon_type = get_robot_weapon(*robptr, gun_num);
 
-	Laser_create_new_easy( fire_vec, fire_point, obj, static_cast<weapon_id_type>(weapon_type), 1);
+	Laser_create_new_easy( fire_vec, fire_point, obj, weapon_type, 1);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -3477,7 +3477,7 @@ _exit_cheat:
 			}
 
 			if (do_stuff) {
-				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (!Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp->next_fire += d_rand()*4;
@@ -3498,7 +3498,7 @@ _exit_cheat:
 
 			if (do_stuff) {
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
-				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp->next_fire += d_rand()*4;
@@ -3641,10 +3641,10 @@ _exit_cheat:
 #elif defined(DXX_BUILD_DESCENT_II)
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
 				if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-					Laser_create_new_easy( fire_vec, fire_pos, obj, ROBOT_SUPERPROX_ID, 1);
+					Laser_create_new_easy( fire_vec, fire_pos, obj, weapon_id_type::ROBOT_SUPERPROX_ID, 1);
 				else
 #endif
-					Laser_create_new_easy( fire_vec, fire_pos, obj, PROXIMITY_ID, 1);
+					Laser_create_new_easy( fire_vec, fire_pos, obj, weapon_id_type::PROXIMITY_ID, 1);
 
 				if (Game_mode & GM_MULTI)
 				{
@@ -4143,7 +4143,7 @@ static int add_awareness_event(const vobjptr_t objp, player_awareness_type_t typ
 	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
 		if (type == player_awareness_type_t::PA_WEAPON_WALL_COLLISION ||
 			type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
-			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == VULCAN_ID)
+			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::VULCAN_ID)
 				if (d_rand() > 3276)
 					return 0;       // For vulcan cannon, only about 1/10 actually cause awareness
 

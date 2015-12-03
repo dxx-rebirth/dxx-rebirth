@@ -999,7 +999,7 @@ static void bm_read_robot(char *&arg, int skip)
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;
 	fix			drag = f1_0/2;
-	short 		weapon_type = 0;
+	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1;
 	int			g,s;
 	char			name[ROBOT_NAME_LENGTH];
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
@@ -1048,7 +1048,7 @@ static void bm_read_robot(char *&arg, int skip)
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!d_stricmp( arg, "weapon_type" )) {
-				weapon_type = atoi(equal_ptr);
+				weapon_type = static_cast<weapon_id_type>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "strength" )) {
 				strength = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "mass" )) {

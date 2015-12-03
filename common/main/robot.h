@@ -23,8 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _ROBOT_H
-#define _ROBOT_H
+#pragma once
 
 #include "vecmat.h"
 #include "game.h"
@@ -33,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "aistruct.h"
 #include "polyobj.h"
+#include "weapon_id.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -81,7 +81,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	short   exp1_sound_num;
 	short   exp2_vclip_num;
 	short   exp2_sound_num;
-	uint8_t weapon_type;
+	weapon_id_type weapon_type;
 	uint8_t   n_guns;         // how many different gun positions
 	sbyte   contains_id;    //  ID of powerup this robot can contain.
 
@@ -94,7 +94,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	sbyte   badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
 	sbyte   energy_drain;   //  Points of energy drained at each collision.
-	uint8_t   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
+	weapon_id_type   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
 #endif
 	fix     lighting;       // should this be here or with polygon model?
 	fix     strength;       // Initial shields of robot
@@ -145,7 +145,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	int     always_0xabcd;      // debugging
 };
 
-const uint8_t weapon_none = 0xff;
+const auto weapon_none = weapon_id_type::unspecified;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
@@ -228,8 +228,6 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
-uint8_t get_robot_weapon(const robot_info &ri, const unsigned gun_num);
-
-#endif
+weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 
 #endif

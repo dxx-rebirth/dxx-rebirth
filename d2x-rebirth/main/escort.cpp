@@ -890,7 +890,7 @@ static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
 
-	if (Weapon_info[MEGA_ID].render_type == 0) {
+	if (Weapon_info[weapon_id_type::MEGA_ID].render_type == 0) {
 		con_printf(CON_VERBOSE, "Buddy can't fire mega (shareware)");
 		buddy_message("CLICK!");
 		return 0;
@@ -898,7 +898,7 @@ static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, MEGA_ID, 1);
+	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);
@@ -922,7 +922,7 @@ static int maybe_buddy_fire_smart(const vobjptridx_t objp)
 
 	buddy_message("WHAMMO!");
 
-	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, SMART_ID, 1);
+	const objptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, 1);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(weapon_objnum);

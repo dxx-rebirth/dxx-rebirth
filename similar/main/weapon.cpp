@@ -68,20 +68,20 @@ constexpr tt::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
 
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
-const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID}};
-const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID}};
+const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, weapon_id_type::VULCAN_ID, 12, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID}};
+const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID}};
 
 //for each Secondary weapon, which gun it fires out of
 const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
 const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
-	LASER_ID, VULCAN_ID, SPREADFIRE_ID, PLASMA_ID, FUSION_ID,
-	SUPER_LASER_ID, GAUSS_ID, HELIX_ID, PHOENIX_ID, OMEGA_ID
+	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID,
+	weapon_id_type::SUPER_LASER_ID, weapon_id_type::GAUSS_ID, weapon_id_type::HELIX_ID, weapon_id_type::PHOENIX_ID, weapon_id_type::OMEGA_ID
 }};
-const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{
-	CONCUSSION_ID, HOMING_ID, PROXIMITY_ID, SMART_ID, MEGA_ID,
-	FLASH_ID, GUIDEDMISS_ID, SUPERPROX_ID, MERCURY_ID, EARTHSHAKER_ID
+const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{
+	weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID,
+	weapon_id_type::FLASH_ID, weapon_id_type::GUIDEDMISS_ID, weapon_id_type::SUPERPROX_ID, weapon_id_type::MERCURY_ID, weapon_id_type::EARTHSHAKER_ID
 }};
 
 //for each Secondary weapon, which gun it fires out of
@@ -1127,10 +1127,10 @@ void process_super_mines_frame(void)
 
 	for (objnum_t i=start; i<=Highest_object_index; i+=add) {
 		const auto io = vobjptridx(i);
-		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != SUPERPROX_ID))
+		if (likely(io->type != OBJ_WEAPON || get_weapon_id(io) != weapon_id_type::SUPERPROX_ID))
 			continue;
 		Super_mines_yes = 1;
-		if (unlikely(io->lifeleft + F1_0*2 >= Weapon_info[SUPERPROX_ID].lifetime))
+		if (unlikely(io->lifeleft + F1_0*2 >= Weapon_info[weapon_id_type::SUPERPROX_ID].lifetime))
 			continue;
 		const auto parent_num = io->ctype.laser_info.parent_num;
 		const auto &bombpos = io->pos;
@@ -1503,7 +1503,7 @@ struct v2_weapon_info : weapon_info {};
 template <typename Accessor>
 void postprocess_udt(Accessor &, v2_weapon_info &w)
 {
-	w.children = -1;
+	w.children = weapon_id_type::unspecified;
 	w.multi_damage_scale = F1_0;
 	w.hires_picture = w.picture;
 }
@@ -1534,8 +1534,8 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 		 * datafiles.  In earlier descent versions this was simply
 		 * hard-coded in create_smart_children().
 		 */
-		wi[SMART_ID].children = PLAYER_SMART_HOMING_ID;
-		wi[SUPERPROX_ID].children = SMART_MINE_HOMING_ID;
+		wi[weapon_id_type::SMART_ID].children = weapon_id_type::PLAYER_SMART_HOMING_ID;
+		wi[weapon_id_type::SUPERPROX_ID].children = weapon_id_type::SMART_MINE_HOMING_ID;
 		return;
 	}
 #endif

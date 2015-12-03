@@ -359,7 +359,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	}
 
 	if ((obj->type == OBJ_WEAPON &&
-			get_weapon_id(obj) == FLARE_ID) ||
+			get_weapon_id(obj) == weapon_id_type::FLARE_ID) ||
 		obj->type == OBJ_MARKER
 		)
 		{
@@ -1060,11 +1060,11 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (l(predicate_fireball))
 		return;
 
-	auto predicate_flare = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == FLARE_ID); };
+	auto predicate_flare = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) == weapon_id_type::FLARE_ID); };
 	if (l(predicate_flare))
 		return;
 
-	auto predicate_nonflare_weapon = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != FLARE_ID); };
+	auto predicate_nonflare_weapon = [](const vcobjptr_t o) { return (o->type == OBJ_WEAPON) && (get_weapon_id(o) != weapon_id_type::FLARE_ID); };
 	if (l(predicate_nonflare_weapon))
 		return;
 }
@@ -1225,7 +1225,7 @@ void obj_delete(const vobjptridx_t obj)
 	Assert(obj != ConsoleObject);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
+	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==weapon_id_type::GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
 		const auto pnum = get_player_id(vcobjptr(obj->ctype.laser_info.parent_num));
 

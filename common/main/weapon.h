@@ -169,7 +169,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	sbyte   afterburner_size;   // Size of blobs in F1_0/16 units, specify in bitmaps.tbl as floating point.  Player afterburner size = 2.5.
 
 	/* not present in shareware datafiles */
-	sbyte   children;           // ID of weapon to drop if this contains children.  -1 means no children.
+	weapon_id_type   children;           // ID of weapon to drop if this contains children.  -1 means no children.
 
 	fix energy_usage;           // How much fuel is consumed to fire this weapon.
 	fix fire_wait;              // Time until this weapon can be fired again.

@@ -2046,7 +2046,7 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 #if defined(DXX_BUILD_DESCENT_I)
 		if (info_index == primary_weapon_index_t::LASER_INDEX)
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (info_index == LASER_ID || info_index == SUPER_LASER_ID)
+		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
 #endif
 		{
 			const auto &&line_spacing = LINE_SPACING;
@@ -2070,8 +2070,8 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 		info_index = Primary_weapon_to_weapon_info[weapon_num];
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (info_index == LASER_ID && laser_level > MAX_LASER_LEVEL)
-			info_index = SUPER_LASER_ID;
+		if (info_index == weapon_id_type::LASER_ID && laser_level > MAX_LASER_LEVEL)
+			info_index = weapon_id_type::SUPER_LASER_ID;
 #endif
 
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)

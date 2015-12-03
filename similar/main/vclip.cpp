@@ -84,7 +84,7 @@ void draw_weapon_vclip(const vobjptridx_t obj)
 	if (modtime == IMMORTAL_TIME)
 		modtime = play_time;
 
-	if (get_weapon_id(obj) == PROXIMITY_ID) {		//make prox bombs spin out of sync
+	if (get_weapon_id(obj) == weapon_id_type::PROXIMITY_ID) {		//make prox bombs spin out of sync
 		int objnum = obj;
 
 		modtime += (modtime * (objnum&7)) / 16;	//add variance to spin rate

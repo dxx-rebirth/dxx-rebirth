@@ -180,12 +180,12 @@ static bool ignore_guided_missile_weapon(vcobjptr_t)
 #elif defined(DXX_BUILD_DESCENT_II)
 static bool ignore_phoenix_weapon(const vcobjptr_t o)
 {
-	return get_weapon_id(o) == PHOENIX_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0/4;
+	return get_weapon_id(o) == weapon_id_type::PHOENIX_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0/4;
 }
 
 static bool ignore_guided_missile_weapon(const vcobjptr_t o)
 {
-	return get_weapon_id(o) == GUIDEDMISS_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
+	return get_weapon_id(o) == weapon_id_type::GUIDEDMISS_ID && GameTime64 > o->ctype.laser_info.creation_time + F1_0*2;
 }
 #endif
 
@@ -247,10 +247,10 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Anything can cause a collision with a robot super prox mine.
 	if (!(
-		get_weapon_id(o1) == ROBOT_SUPERPROX_ID || get_weapon_id(o2) == ROBOT_SUPERPROX_ID ||
-		get_weapon_id(o1) == PROXIMITY_ID || get_weapon_id(o2) == PROXIMITY_ID ||
-		get_weapon_id(o1) == SUPERPROX_ID || get_weapon_id(o2) == SUPERPROX_ID ||
-		get_weapon_id(o1) == PMINE_ID || get_weapon_id(o2) == PMINE_ID
+		get_weapon_id(o1) == weapon_id_type::ROBOT_SUPERPROX_ID || get_weapon_id(o2) == weapon_id_type::ROBOT_SUPERPROX_ID ||
+		get_weapon_id(o1) == weapon_id_type::PROXIMITY_ID || get_weapon_id(o2) == weapon_id_type::PROXIMITY_ID ||
+		get_weapon_id(o1) == weapon_id_type::SUPERPROX_ID || get_weapon_id(o2) == weapon_id_type::SUPERPROX_ID ||
+		get_weapon_id(o1) == weapon_id_type::PMINE_ID || get_weapon_id(o2) == weapon_id_type::PMINE_ID
 	))
 		return 1;
 #endif
@@ -360,7 +360,7 @@ constexpr vm_distance OMEGA_MAX_TRACKABLE_DIST = MAX_OMEGA_DIST; //	An object mu
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
 static int omega_cleanup(const vobjptridx_t weapon)
 {
-	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != OMEGA_ID)
+	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 0;
 	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
 	const auto parent_num = weapon->ctype.laser_info.parent_num;
@@ -377,7 +377,7 @@ static int omega_cleanup(const vobjptridx_t weapon)
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
 int ok_to_do_omega_damage(const vcobjptr_t weapon)
 {
-	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != OMEGA_ID)
+	if (weapon->type != OBJ_WEAPON || get_weapon_id(weapon) != weapon_id_type::OMEGA_ID)
 		return 1;
 	if (!(Game_mode & GM_MULTI))
 		return 1;
@@ -459,7 +459,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 		auto segnum = find_point_seg(temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			auto blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
+			auto blob_objnum = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
 			if (blob_objnum == object_none)
 				break;
 
@@ -489,7 +489,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
-		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[OMEGA_ID].speed[Difficulty_level]/4);
+		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[weapon_id_type::OMEGA_ID].speed[Difficulty_level]/4);
 		last_created_objnum->movement_type = MT_PHYSICS;
 	}
 
@@ -639,10 +639,10 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 static inline int is_laser_weapon_type(weapon_id_type weapon_type)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_type == LASER_ID_L5 || weapon_type == LASER_ID_L6)
+	if (weapon_type == weapon_id_type::LASER_ID_L5 || weapon_type == weapon_id_type::LASER_ID_L6)
 		return 1;
 #endif
-	return (weapon_type == LASER_ID_L1 || weapon_type == LASER_ID_L2 || weapon_type == LASER_ID_L3 || weapon_type == LASER_ID_L4);
+	return (weapon_type == weapon_id_type::LASER_ID_L1 || weapon_type == weapon_id_type::LASER_ID_L2 || weapon_type == weapon_id_type::LASER_ID_L3 || weapon_type == weapon_id_type::LASER_ID_L4);
 }
 
 // ---------------------------------------------------------------------------------
@@ -658,77 +658,77 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 	switch(weapon_type)
 	{
-		case LASER_ID_L1:
-		case LASER_ID_L2:
-		case LASER_ID_L3:
-		case LASER_ID_L4:
-		case CLS1_DRONE_FIRE:
-		case CONTROLCEN_WEAPON_NUM:
-		case CONCUSSION_ID:
-		case FLARE_ID:
-		case CLS2_DRONE_LASER:
-		case VULCAN_ID:
+		case weapon_id_type::LASER_ID_L1:
+		case weapon_id_type::LASER_ID_L2:
+		case weapon_id_type::LASER_ID_L3:
+		case weapon_id_type::LASER_ID_L4:
+		case weapon_id_type::CLS1_DRONE_FIRE:
+		case weapon_id_type::CONTROLCEN_WEAPON_NUM:
+		case weapon_id_type::CONCUSSION_ID:
+		case weapon_id_type::FLARE_ID:
+		case weapon_id_type::CLS2_DRONE_LASER:
+		case weapon_id_type::VULCAN_ID:
 #if defined(DXX_BUILD_DESCENT_II)
-		case SPREADFIRE_ID:
+		case weapon_id_type::SPREADFIRE_ID:
 #endif
-		case PLASMA_ID:
-		case FUSION_ID:
-		case HOMING_ID:
-		case PROXIMITY_ID:
-		case SMART_ID:
-		case MEGA_ID:
+		case weapon_id_type::PLASMA_ID:
+		case weapon_id_type::FUSION_ID:
+		case weapon_id_type::HOMING_ID:
+		case weapon_id_type::PROXIMITY_ID:
+		case weapon_id_type::SMART_ID:
+		case weapon_id_type::MEGA_ID:
 
-		case PLAYER_SMART_HOMING_ID:
+		case weapon_id_type::PLAYER_SMART_HOMING_ID:
 #if defined(DXX_BUILD_DESCENT_I)
-		case SPREADFIRE_ID:
+		case weapon_id_type::SPREADFIRE_ID:
 #endif
-		case SUPER_MECH_MISS:
-		case REGULAR_MECH_MISS:
-		case SILENT_SPREADFIRE_ID:
-		case MEDIUM_LIFTER_LASER:
-		case SMALL_HULK_FIRE:
-		case HEAVY_DRILLER_PLASMA:
-		case SPIDER_ROBOT_FIRE:
-		case ROBOT_MEGA_ID:
-		case ROBOT_SMART_HOMING_ID:
+		case weapon_id_type::SUPER_MECH_MISS:
+		case weapon_id_type::REGULAR_MECH_MISS:
+		case weapon_id_type::SILENT_SPREADFIRE_ID:
+		case weapon_id_type::MEDIUM_LIFTER_LASER:
+		case weapon_id_type::SMALL_HULK_FIRE:
+		case weapon_id_type::HEAVY_DRILLER_PLASMA:
+		case weapon_id_type::SPIDER_ROBOT_FIRE:
+		case weapon_id_type::ROBOT_MEGA_ID:
+		case weapon_id_type::ROBOT_SMART_HOMING_ID:
 #if defined(DXX_BUILD_DESCENT_II)
-		case LASER_ID_L5:
-		case LASER_ID_L6:
+		case weapon_id_type::LASER_ID_L5:
+		case weapon_id_type::LASER_ID_L6:
 
-		case GAUSS_ID:
-		case HELIX_ID:
-		case PHOENIX_ID:
-		case OMEGA_ID:
+		case weapon_id_type::GAUSS_ID:
+		case weapon_id_type::HELIX_ID:
+		case weapon_id_type::PHOENIX_ID:
+		case weapon_id_type::OMEGA_ID:
 
-		case FLASH_ID:
-		case GUIDEDMISS_ID:
-		case SUPERPROX_ID:
-		case MERCURY_ID:
-		case EARTHSHAKER_ID:
-		case SMELTER_PHOENIX_ID:
+		case weapon_id_type::FLASH_ID:
+		case weapon_id_type::GUIDEDMISS_ID:
+		case weapon_id_type::SUPERPROX_ID:
+		case weapon_id_type::MERCURY_ID:
+		case weapon_id_type::EARTHSHAKER_ID:
+		case weapon_id_type::SMELTER_PHOENIX_ID:
 
-		case SMART_MINE_HOMING_ID:
-		case ROBOT_SMART_MINE_HOMING_ID:
-		case ROBOT_SUPERPROX_ID:
-		case EARTHSHAKER_MEGA_ID:
-		case ROBOT_EARTHSHAKER_ID:
+		case weapon_id_type::SMART_MINE_HOMING_ID:
+		case weapon_id_type::ROBOT_SMART_MINE_HOMING_ID:
+		case weapon_id_type::ROBOT_SUPERPROX_ID:
+		case weapon_id_type::EARTHSHAKER_MEGA_ID:
+		case weapon_id_type::ROBOT_EARTHSHAKER_ID:
 
-		case PMINE_ID:
+		case weapon_id_type::PMINE_ID:
 
-		case ROBOT_26_WEAPON_46_ID:
-		case ROBOT_27_WEAPON_52_ID:
-		case ROBOT_28_WEAPON_42_ID:
-		case ROBOT_29_WEAPON_20_ID:
-		case ROBOT_30_WEAPON_48_ID:
-		case ROBOT_36_WEAPON_41_ID:
-		case ROBOT_39_WEAPON_43_ID:
-		case ROBOT_43_WEAPON_55_ID:
-		case ROBOT_45_WEAPON_45_ID:
-		case ROBOT_50_WEAPON_50_ID:
-		case ROBOT_62_WEAPON_60_ID:
-		case ROBOT_47_WEAPON_57_ID:
-		case ROBOT_62_WEAPON_61_ID:
-		case ROBOT_71_WEAPON_62_ID:
+		case weapon_id_type::ROBOT_26_WEAPON_46_ID:
+		case weapon_id_type::ROBOT_27_WEAPON_52_ID:
+		case weapon_id_type::ROBOT_28_WEAPON_42_ID:
+		case weapon_id_type::ROBOT_29_WEAPON_20_ID:
+		case weapon_id_type::ROBOT_30_WEAPON_48_ID:
+		case weapon_id_type::ROBOT_36_WEAPON_41_ID:
+		case weapon_id_type::ROBOT_39_WEAPON_43_ID:
+		case weapon_id_type::ROBOT_43_WEAPON_55_ID:
+		case weapon_id_type::ROBOT_45_WEAPON_45_ID:
+		case weapon_id_type::ROBOT_50_WEAPON_50_ID:
+		case weapon_id_type::ROBOT_62_WEAPON_60_ID:
+		case weapon_id_type::ROBOT_47_WEAPON_57_ID:
+		case weapon_id_type::ROBOT_62_WEAPON_61_ID:
+		case weapon_id_type::ROBOT_71_WEAPON_62_ID:
 #endif
 			break;
 		default:
@@ -753,7 +753,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Do the special Omega Cannon stuff.  Then return on account of everything that follows does
 	//	not apply to the Omega Cannon.
-	if (weapon_type == OMEGA_ID) {
+	if (weapon_type == weapon_id_type::OMEGA_ID) {
 		// Create orientation matrix for tracking purposes.
 		vm_vector_2_matrix( obj->orient, direction, &parent->orient.uvec ,nullptr);
 
@@ -770,7 +770,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #endif
 
 	if (parent->type == OBJ_PLAYER) {
-		if (weapon_type == FUSION_ID) {
+		if (weapon_type == weapon_id_type::FUSION_ID) {
 			int	fusion_scale;
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
@@ -795,7 +795,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		else if (is_laser_weapon_type(weapon_type) && (parent->ctype.player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (weapon_type == GUIDEDMISS_ID) {
+		else if (weapon_type == weapon_id_type::GUIDEDMISS_ID) {
 			if (parent==get_local_player().objnum) {
 				Guided_missile[Player_num]= obj;
 				Guided_missile_sig[Player_num] = obj->signature;
@@ -809,16 +809,16 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	//	Make children of smart bomb bounce so if they hit a wall right away, they
 	//	won't detonate.  The frame interval code will clear this bit after 1/2 second.
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((weapon_type == PLAYER_SMART_HOMING_ID) || (weapon_type == ROBOT_SMART_HOMING_ID))
+	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID))
 #elif defined(DXX_BUILD_DESCENT_II)
-	if ((weapon_type == PLAYER_SMART_HOMING_ID) || (weapon_type == SMART_MINE_HOMING_ID) || (weapon_type == ROBOT_SMART_HOMING_ID) || (weapon_type == ROBOT_SMART_MINE_HOMING_ID) || (weapon_type == EARTHSHAKER_MEGA_ID))
+	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID))
 #endif
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
 	if (weapon_info.render_type == WEAPON_RENDER_POLYMODEL)
 		laser_length = Polygon_models[obj->rtype.pobj_info.model_num].rad * 2;
 
-	if (weapon_type == FLARE_ID)
+	if (weapon_type == weapon_id_type::FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
 	obj->shields = weapon_info.strength[Difficulty_level];
@@ -871,7 +871,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	{
 		if (make_sound)	{
 			if ( parent == (Viewer-Objects) )	{
-				if (weapon_type == VULCAN_ID)	// Make your own vulcan gun  1/2 as loud.
+				if (weapon_type == weapon_id_type::VULCAN_ID)	// Make your own vulcan gun  1/2 as loud.
 					volume = F1_0 / 2;
 				digi_play_sample(weapon_info.flash_sound, volume);
 			} else {
@@ -885,9 +885,9 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	// This also jitters the laser a bit so that it doesn't alias.
 	//	Don't do for weapons created by weapons.
 #if defined(DXX_BUILD_DESCENT_I)
-	if (parent->type != OBJ_WEAPON && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != FLARE_ID)
+	if (parent->type != OBJ_WEAPON && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (parent->type == OBJ_PLAYER && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != FLARE_ID)
+	if (parent->type == OBJ_PLAYER && weapon_info.render_type != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #endif
 	{
 	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
@@ -924,9 +924,9 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 	//	Ugly hack (too bad we're on a deadline), for homing missiles dropped by smart bomb, start them out slower.
 #if defined(DXX_BUILD_DESCENT_I)
-	if (weapon_type == PLAYER_SMART_HOMING_ID || weapon_type == ROBOT_SMART_HOMING_ID)
+	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (weapon_type == PLAYER_SMART_HOMING_ID || weapon_type == SMART_MINE_HOMING_ID || weapon_type == ROBOT_SMART_HOMING_ID || weapon_type == ROBOT_SMART_MINE_HOMING_ID || weapon_type == EARTHSHAKER_MEGA_ID)
+	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID)
 #endif
 		weapon_speed /= 4;
 
@@ -942,7 +942,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		vm_vec_scale(obj->mtype.phys_info.thrust, fixdiv(weapon_info.thrust, weapon_speed+parent_speed));
 	}
 
-	if (obj->type == OBJ_WEAPON && weapon_type == FLARE_ID)
+	if (obj->type == OBJ_WEAPON && weapon_type == weapon_id_type::FLARE_ID)
 		obj->lifeleft += (d_rand()-16384) << 2;		//	add in -2..2 seconds
 
 	return obj;
@@ -1083,7 +1083,7 @@ static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx
 #ifndef NDEBUG
 	const auto tracker_id = get_weapon_id(tracker);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (tracker_id != OMEGA_ID)
+	if (tracker_id != weapon_id_type::OMEGA_ID)
 #endif
 		assert(Weapon_info[tracker_id].homing_flag);
 #endif
@@ -1105,7 +1105,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 
 	const auto tracker_id = get_weapon_id(tracker);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (tracker_id != OMEGA_ID)
+	if (tracker_id != weapon_id_type::OMEGA_ID)
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #endif
 	{
@@ -1118,7 +1118,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (tracker_id == OMEGA_ID)
+	if (tracker_id == weapon_id_type::OMEGA_ID)
 	{
 		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST * OMEGA_MAX_TRACKABLE_DIST;
 		min_trackable_dot = OMEGA_MIN_TRACKABLE_DOT;
@@ -1364,24 +1364,24 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
-	if (laser_type == OMEGA_ID)
+	if (laser_type == weapon_id_type::OMEGA_ID)
 		return objnum;
 
-	if (laser_type==GUIDEDMISS_ID && Multi_is_guided) {
+	if (laser_type == weapon_id_type::GUIDEDMISS_ID && Multi_is_guided) {
 		Guided_missile[get_player_id(obj)] = objnum;
 	}
 
 	Multi_is_guided=0;
 
-	if (laser_type == CONCUSSION_ID ||
-			 laser_type == HOMING_ID ||
-			 laser_type == SMART_ID ||
-			 laser_type == MEGA_ID ||
-			 laser_type == FLASH_ID ||
+	if (laser_type == weapon_id_type::CONCUSSION_ID ||
+			 laser_type == weapon_id_type::HOMING_ID ||
+			 laser_type == weapon_id_type::SMART_ID ||
+			 laser_type == weapon_id_type::MEGA_ID ||
+			 laser_type == weapon_id_type::FLASH_ID ||
 			 //laser_type == GUIDEDMISS_ID ||
 			 //laser_type == SUPERPROX_ID ||
-			 laser_type == MERCURY_ID ||
-			 laser_type == EARTHSHAKER_ID)
+			 laser_type == weapon_id_type::MERCURY_ID ||
+			 laser_type == weapon_id_type::EARTHSHAKER_ID)
 	{
 		const auto need_new_missile_viewer = [obj]{
 			if (!Missile_viewer)
@@ -1465,7 +1465,7 @@ void Flare_create(const vobjptridx_t obj)
 {
 	fix	energy_usage;
 
-	energy_usage = Weapon_info[FLARE_ID].energy_usage;
+	energy_usage = Weapon_info[weapon_id_type::FLARE_ID].energy_usage;
 
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
@@ -1485,7 +1485,7 @@ void Flare_create(const vobjptridx_t obj)
 #endif
 		}
 
-		Laser_player_fire( obj, FLARE_ID, 6, 1, get_local_plrobj().orient.fvec);
+		Laser_player_fire( obj, weapon_id_type::FLARE_ID, 6, 1, get_local_plrobj().orient.fvec);
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(FLARE_ADJUST, 0, 0, 1, object_none, object_none);
@@ -1500,7 +1500,7 @@ void Flare_create(const vobjptridx_t obj)
 
 static bool is_any_guided_missile(const vcobjptr_t obj)
 {
-	if (get_weapon_id(obj) != GUIDEDMISS_ID)
+	if (get_weapon_id(obj) != weapon_id_type::GUIDEDMISS_ID)
 		return false;
 	if (obj->ctype.laser_info.parent_type != OBJ_PLAYER)
 		return false;
@@ -1547,14 +1547,14 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 	//delete weapons that are not moving
 	if (	!((d_tick_count ^ obj->signature.get()) & 3) &&
-			(get_weapon_id(obj) != FLARE_ID) &&
+			(get_weapon_id(obj) != weapon_id_type::FLARE_ID) &&
 			(Weapon_info[get_weapon_id(obj)].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(obj->mtype.phys_info.velocity) < F2_0)) {
 		obj_delete(obj);
 		return;
 	}
 
-	if ( get_weapon_id(obj) == FUSION_ID ) {		//always set fusion weapon to max vel
+	if ( get_weapon_id(obj) == weapon_id_type::FUSION_ID ) {		//always set fusion weapon to max vel
 
 		vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
 
@@ -1578,9 +1578,9 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((get_weapon_id(obj) == ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == PLAYER_SMART_HOMING_ID))
+			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if ((get_weapon_id(obj) == ROBOT_SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == PLAYER_SMART_HOMING_ID) || (get_weapon_id(obj) == EARTHSHAKER_MEGA_ID))
+			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::EARTHSHAKER_MEGA_ID))
 #endif
 			{
 				obj->mtype.phys_info.flags &= ~PF_BOUNCE;
@@ -1856,23 +1856,23 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			switch(level)
 			{
 				case LASER_LEVEL_1:
-					weapon_type = LASER_ID_L1;
+					weapon_type = weapon_id_type::LASER_ID_L1;
 					break;
 				case LASER_LEVEL_2:
-					weapon_type = LASER_ID_L2;
+					weapon_type = weapon_id_type::LASER_ID_L2;
 					break;
 				case LASER_LEVEL_3:
-					weapon_type = LASER_ID_L3;
+					weapon_type = weapon_id_type::LASER_ID_L3;
 					break;
 				case LASER_LEVEL_4:
-					weapon_type = LASER_ID_L4;
+					weapon_type = weapon_id_type::LASER_ID_L4;
 					break;
 #if defined(DXX_BUILD_DESCENT_II)
 				case LASER_LEVEL_5:
-					weapon_type = LASER_ID_L5;
+					weapon_type = weapon_id_type::LASER_ID_L5;
 					break;
 				case LASER_LEVEL_6:
-					weapon_type = LASER_ID_L6;
+					weapon_type = weapon_id_type::LASER_ID_L6;
 					break;
 #endif
 				default:
@@ -1894,41 +1894,41 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			int	make_sound = 1;
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
-			Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation);
 				if (nfires > 2) {
-					Laser_player_fire_spread( objp, VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation);
+					Laser_player_fire_spread( objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation);
 				}
 			}
 			break;
 		}
 		case primary_weapon_index_t::SPREADFIRE_INDEX:
 			if (flags & LASER_SPREADFIRE_TOGGLED) {
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, F1_0/16, 0, 0, shot_orientation);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, -F1_0/16, 0, 0, shot_orientation);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, F1_0/16, 0, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, -F1_0/16, 0, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
 			} else {
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, F1_0/16, 0, shot_orientation);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, -F1_0/16, 0, shot_orientation);
-				Laser_player_fire_spread( objp, SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, F1_0/16, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, -F1_0/16, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
 			}
 			break;
 
 		case primary_weapon_index_t::PLASMA_INDEX:
-			Laser_player_fire( objp, PLASMA_ID, 0, 1, shot_orientation);
-			Laser_player_fire( objp, PLASMA_ID, 1, 0, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::PLASMA_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, PLASMA_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
-				Laser_player_fire_spread_delay( objp, PLASMA_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
+				Laser_player_fire_spread_delay( objp, weapon_id_type::PLASMA_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
+				Laser_player_fire_spread_delay( objp, weapon_id_type::PLASMA_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
 			}
 			break;
 
 		case primary_weapon_index_t::FUSION_INDEX: {
 			vms_vector	force_vec;
 
-			Laser_player_fire( objp, FUSION_ID, 0, 1, shot_orientation);
-			Laser_player_fire( objp, FUSION_ID, 1, 1, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 1, 1, shot_orientation);
 
 			flags = (sbyte)(Fusion_charge >> 12);
 
@@ -1953,11 +1953,11 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
 
-			Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation);
+				Laser_player_fire_spread( objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation);
 				if (nfires > 2) {
-					Laser_player_fire_spread( objp, GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation);
+					Laser_player_fire_spread( objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation);
 				}
 			}
 			break;
@@ -1980,25 +1980,25 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 					Error("Invalid helix_orientation value %x\n",helix_orient);
 			}
 
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  0,  0, 1, shot_orientation);
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr,  spreadu, 0, shot_orientation);
-			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr, -spreadu, 0, shot_orientation);
-			Laser_player_fire_spread( objp, HELIX_ID, 6,  spreadr*2,  spreadu*2, 0, shot_orientation);
-			Laser_player_fire_spread( objp, HELIX_ID, 6, -spreadr*2, -spreadu*2, 0, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6,  0,  0, 1, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6,  spreadr,  spreadu, 0, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6, -spreadr, -spreadu, 0, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6,  spreadr*2,  spreadu*2, 0, shot_orientation);
+			Laser_player_fire_spread( objp, weapon_id_type::HELIX_ID, 6, -spreadr*2, -spreadu*2, 0, shot_orientation);
 			break;
 		}
 
 		case primary_weapon_index_t::PHOENIX_INDEX:
-			Laser_player_fire( objp, PHOENIX_ID, 0, 1, shot_orientation);
-			Laser_player_fire( objp, PHOENIX_ID, 1, 0, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::PHOENIX_ID, 1, 0, shot_orientation);
 			if (nfires > 1) {
-				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
-				Laser_player_fire_spread_delay( objp, PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
+				Laser_player_fire_spread_delay( objp, weapon_id_type::PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation);
+				Laser_player_fire_spread_delay( objp, weapon_id_type::PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation);
 			}
 			break;
 
 		case primary_weapon_index_t::OMEGA_INDEX:
-			Laser_player_fire( objp, OMEGA_ID, 1, 1, shot_orientation);
+			Laser_player_fire( objp, weapon_id_type::OMEGA_ID, 1, 1, shot_orientation);
 			break;
 #endif
 
@@ -2126,17 +2126,17 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 #if defined(DXX_BUILD_DESCENT_I)
 		if (parent.type == OBJ_PLAYER)
 		{
-			blob_id = PLAYER_SMART_HOMING_ID;
+			blob_id = weapon_id_type::PLAYER_SMART_HOMING_ID;
 		} else {
-			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
+			blob_id = ((N_weapon_types<weapon_id_type::ROBOT_SMART_HOMING_ID)?(weapon_id_type::PLAYER_SMART_HOMING_ID):(weapon_id_type::ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (objp->type == OBJ_WEAPON) {
-			blob_id = (weapon_id_type) Weapon_info[get_weapon_id(objp)].children;
+			blob_id = Weapon_info[get_weapon_id(objp)].children;
 			Assert(blob_id != weapon_none);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
 			Assert(objp->type == OBJ_ROBOT);
-			blob_id = ROBOT_SMART_HOMING_ID;
+			blob_id = weapon_id_type::ROBOT_SMART_HOMING_ID;
 		}
 #endif
 
@@ -2165,14 +2165,14 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 {
 	const auto wid = get_weapon_id(objp);
 #if defined(DXX_BUILD_DESCENT_I)
-	if (wid != SMART_ID)
+	if (wid != weapon_id_type::SMART_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (Weapon_info[wid].children == -1)
+	if (Weapon_info[wid].children == weapon_id_type::unspecified)
 #endif
 		return;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (wid == EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
+	if (wid == weapon_id_type::EARTHSHAKER_ID)
+		blast_nearby_glass(objp, Weapon_info[weapon_id_type::EARTHSHAKER_ID].strength[Difficulty_level]);
 #endif
 	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
@@ -2236,12 +2236,11 @@ void do_missile_firing(int drop_bomb)
 	if (auto &secondary_weapon_ammo = get_local_player_secondary_ammo()[weapon])
 	{
 
-		weapon_id_type weapon_index;
 		int weapon_gun;
 
 		-- secondary_weapon_ammo;
 
-		weapon_index = (weapon_id_type) Secondary_weapon_to_weapon_info[weapon];
+		const auto weapon_index = Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;

@@ -1533,7 +1533,7 @@ void clear_stuck_objects(void)
 	{
 		if (i.wallnum != -1) {
 			const auto &&objp = vobjptr(i.objnum);
-			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == FLARE_ID)
+			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::FLARE_ID)
 				objp->lifeleft = F1_0/8;
 
 			i.wallnum = -1;

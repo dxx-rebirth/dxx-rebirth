@@ -442,7 +442,7 @@ void ogl_cache_level_textures(void)
 		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
 		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::LASER_INDEX]);
 		ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
-		ogl_cache_weapon_textures(FLARE_ID);
+		ogl_cache_weapon_textures(weapon_id_type::FLARE_ID);
 		ogl_cache_vclipn_textures(VCLIP_PLAYER_APPEARANCE);
 		ogl_cache_vclipn_textures(VCLIP_POWERUP_DISAPPEARANCE);
 		ogl_cache_polymodel_textures(Player_ship->model_num);

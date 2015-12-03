@@ -129,19 +129,19 @@ void omega_charge_frame(void);
 static inline int is_proximity_bomb_or_smart_mine(weapon_id_type id)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (id == SUPERPROX_ID)
+	if (id == weapon_id_type::SUPERPROX_ID)
 		return 1;
 #endif
-	return id == PROXIMITY_ID;
+	return id == weapon_id_type::PROXIMITY_ID;
 }
 
 static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(weapon_id_type id)
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	if (id == SUPERPROX_ID || id == PMINE_ID)
+	if (id == weapon_id_type::SUPERPROX_ID || id == weapon_id_type::PMINE_ID)
 		return 1;
 #endif
-	return id == PROXIMITY_ID;
+	return id == weapon_id_type::PROXIMITY_ID;
 }
 #endif
 

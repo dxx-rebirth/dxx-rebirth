@@ -699,12 +699,12 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 	if (weapon->mtype.phys_info.flags & PF_BOUNCE)
 		return;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (get_weapon_id(weapon) == OMEGA_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	//	If this is a guided missile and it strikes fairly directly, clear bounce flag.
-	if (get_weapon_id(weapon) == GUIDEDMISS_ID) {
+	if (get_weapon_id(weapon) == weapon_id_type::GUIDEDMISS_ID) {
 		fix	dot;
 
 		dot = vm_vec_dot(weapon->orient.fvec, hitseg->sides[hitwall].normals[0]);
@@ -729,7 +729,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vsegptridx_t::integral_type>(hitseg), hitwall);
 			if (get_weapon_id(weapon) < 4)
 				subtract_light(hitseg, hitwall);
-			else if (get_weapon_id(weapon) == FLARE_ID)
+			else if (get_weapon_id(weapon) == weapon_id_type::FLARE_ID)
 				add_light(hitseg, hitwall);
 		}
 
@@ -783,7 +783,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		check_trigger(hitseg,hitwall,weapon->ctype.laser_info.parent_num,1);
 	}
 
-	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 
@@ -802,7 +802,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		vclip = VCLIP_VOLATILE_WALL_HIT;
 #elif defined(DXX_BUILD_DESCENT_II)
 		//for most weapons, use volatile wall hit.  For mega, use its special vclip
-		vclip = (get_weapon_id(weapon) == MEGA_ID)?wi->robot_hit_vclip:VCLIP_VOLATILE_WALL_HIT;
+		vclip = (get_weapon_id(weapon) == weapon_id_type::MEGA_ID)?wi->robot_hit_vclip:VCLIP_VOLATILE_WALL_HIT;
 
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
@@ -899,14 +899,14 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 //	We now allow flares to open doors.
 		{
 #if defined(DXX_BUILD_DESCENT_I)
-			if (get_weapon_id(weapon) != FLARE_ID)
+			if (get_weapon_id(weapon) != weapon_id_type::FLARE_ID)
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (((get_weapon_id(weapon) != FLARE_ID) || (weapon->ctype.laser_info.parent_type != OBJ_PLAYER)) && !(weapon->mtype.phys_info.flags & PF_BOUNCE))
+			if (((get_weapon_id(weapon) != weapon_id_type::FLARE_ID) || (weapon->ctype.laser_info.parent_type != OBJ_PLAYER)) && !(weapon->mtype.phys_info.flags & PF_BOUNCE))
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 
 			//don't let flares stick in force fields
-			if ((get_weapon_id(weapon) == FLARE_ID) && (TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD))
+			if ((get_weapon_id(weapon) == weapon_id_type::FLARE_ID) && (TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD))
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 #endif
 
@@ -1208,7 +1208,7 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 #if defined(DXX_BUILD_DESCENT_I)
 	fix explosion_size = ((controlcen->size/3)*3)/4;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (get_weapon_id(weapon) == OMEGA_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
@@ -1571,7 +1571,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 #if defined(DXX_BUILD_DESCENT_II)
 	int	boss_invul_flag=0;
 
-	if (get_weapon_id(weapon) == OMEGA_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 #endif
@@ -1595,7 +1595,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	if ((robot_is_companion(robptr)) && ((weapon->ctype.laser_info.parent_type != OBJ_ROBOT) && !cheats.robotskillrobots))
 		return;
 
-	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 
@@ -1723,7 +1723,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Cut Gauss damage on bosses because it just breaks the game.  Bosses are so easy to
 			//	hit, and missing a robot is what prevents the Gauss from being game-breaking.
-			if (get_weapon_id(weapon) == GAUSS_ID)
+			if (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)
 				if (robptr->boss_flag)
 					damage = damage * (2*NDL-Difficulty_level)/(2*NDL);
 #endif
@@ -1738,7 +1738,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If Gauss Cannon, spin robot.
-		if (!robot_is_companion(robptr) && (!robptr->boss_flag) && (get_weapon_id(weapon) == GAUSS_ID)) {
+		if (!robot_is_companion(robptr) && (!robptr->boss_flag) && (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)) {
 			ai_static	*aip = &robot->ctype.ai_info;
 
 			if (aip->SKIP_AI_COUNT * FrameTime < F1_0) {
@@ -1906,13 +1906,13 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 			}
 		}
 		};
-		drop_armed_bomb(secondary_ammo[SMART_MINE_INDEX], SUPERPROX_ID);
+		drop_armed_bomb(secondary_ammo[SMART_MINE_INDEX], weapon_id_type::SUPERPROX_ID);
 
 		//	If the player had proximity bombs, maybe arm one of them.
 
 		if ((Game_mode & GM_MULTI) && !game_mode_hoard())
 		{
-			drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], PROXIMITY_ID);
+			drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], weapon_id_type::PROXIMITY_ID);
 		}
 #endif
 
@@ -2093,17 +2093,17 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	fix		damage = weapon->shields;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_weapon_id(weapon) == OMEGA_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	//	Don't collide own smart mines unless direct hit.
-	if (get_weapon_id(weapon) == SUPERPROX_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::SUPERPROX_ID)
 		if (playerobj == weapon->ctype.laser_info.parent_num)
 			if (vm_vec_dist_quick(collision_point, playerobj->pos) > playerobj->size)
 				return;
 
-	if (get_weapon_id(weapon) == EARTHSHAKER_ID)
+	if (get_weapon_id(weapon) == weapon_id_type::EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
 
@@ -2312,13 +2312,13 @@ static void collide_weapon_and_weapon(const vobjptridx_t weapon1, const vobjptri
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	// -- Does this look buggy??:  if (weapon1->id == PMINE_ID && weapon1->id == PMINE_ID)
-	if (get_weapon_id(weapon1) == PMINE_ID && get_weapon_id(weapon2) == PMINE_ID)
+	if (get_weapon_id(weapon1) == weapon_id_type::PMINE_ID && get_weapon_id(weapon2) == weapon_id_type::PMINE_ID)
 		return;		//these can't blow each other up
 
-	if (get_weapon_id(weapon1) == OMEGA_ID) {
+	if (get_weapon_id(weapon1) == weapon_id_type::OMEGA_ID) {
 		if (!ok_to_do_omega_damage(weapon1)) // see comment in laser.c
 			return;
-	} else if (get_weapon_id(weapon2) == OMEGA_ID) {
+	} else if (get_weapon_id(weapon2) == weapon_id_type::OMEGA_ID) {
 		if (!ok_to_do_omega_damage(weapon2)) // see comment in laser.c
 			return;
 	}
@@ -2357,7 +2357,7 @@ static void collide_weapon_and_debris(const vobjptridx_t weapon, const vobjptrid
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Hack!  Prevent debris from causing bombs spewed at player death to detonate!
-	if ((get_weapon_id(weapon) == PROXIMITY_ID) || (get_weapon_id(weapon) == SUPERPROX_ID)) {
+	if ((get_weapon_id(weapon) == weapon_id_type::PROXIMITY_ID) || (get_weapon_id(weapon) == weapon_id_type::SUPERPROX_ID)) {
 		if (weapon->ctype.laser_info.creation_time + F1_0/2 > GameTime64)
 			return;
 	}

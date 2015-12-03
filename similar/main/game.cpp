@@ -805,7 +805,7 @@ int allowed_to_fire_flare(void)
 		return 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_local_player_energy() < Weapon_info[FLARE_ID].energy_usage)
+	if (get_local_player_energy() < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
 #define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
 	else

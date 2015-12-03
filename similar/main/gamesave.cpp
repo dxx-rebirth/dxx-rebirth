@@ -270,13 +270,13 @@ static void verify_object(const vobjptr_t obj)
 
 	if ( obj->type == OBJ_WEAPON )	{
 		if ( get_weapon_id(obj) >= N_weapon_types )	{
-			set_weapon_id(obj, LASER_ID_L1);
+			set_weapon_id(obj, weapon_id_type::LASER_ID_L1);
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
 		const auto weapon_id = get_weapon_id(obj);
-		if (weapon_id == PMINE_ID)
+		if (weapon_id == weapon_id_type::PMINE_ID)
 		{		//make sure pmines have correct values
 			obj->mtype.phys_info.mass = Weapon_info[weapon_id].mass;
 			obj->mtype.phys_info.drag = Weapon_info[weapon_id].drag;

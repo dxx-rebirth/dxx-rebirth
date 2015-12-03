@@ -231,7 +231,7 @@ static void paging_touch_object(const vcobjptr_t obj)
 		paging_touch_robot( get_robot_id(obj) );
 		break;
 	case OBJ_CNTRLCEN:
-		paging_touch_weapon( CONTROLCEN_WEAPON_NUM );
+		paging_touch_weapon( weapon_id_type::CONTROLCEN_WEAPON_NUM );
 		if (Dead_modelnums[obj->rtype.pobj_info.model_num] != -1)	{
 			paging_touch_model( Dead_modelnums[obj->rtype.pobj_info.model_num] );
 		}

@@ -395,19 +395,19 @@ static const char *get_missile_name(const unsigned laser_type)
 {
 	switch(laser_type)
 	{
-		case CONCUSSION_ID:
+		case weapon_id_type::CONCUSSION_ID:
 			return "CONCUSSION";
-		case HOMING_ID:
+		case weapon_id_type::HOMING_ID:
 			return "HOMING";
-		case SMART_ID:
+		case weapon_id_type::SMART_ID:
 			return "SMART";
-		case MEGA_ID:
+		case weapon_id_type::MEGA_ID:
 			return "MEGA";
-		case FLASH_ID:
+		case weapon_id_type::FLASH_ID:
 			return "FLASH";
-		case MERCURY_ID:
+		case weapon_id_type::MERCURY_ID:
 			return "MERCURY";
-		case EARTHSHAKER_ID:
+		case weapon_id_type::EARTHSHAKER_ID:
 			return "SHAKER";
 		default:
 			return "MISSILE";	// Bad!
@@ -428,14 +428,14 @@ static void clear_missile_viewer()
 __attribute_warn_unused_result
 static bool is_viewable_missile(weapon_id_type laser_type)
 {
-	return laser_type == CONCUSSION_ID ||
-		laser_type == HOMING_ID ||
-		laser_type == SMART_ID ||
-		laser_type == MEGA_ID ||
-		laser_type == FLASH_ID ||
-		laser_type == GUIDEDMISS_ID ||
-		laser_type == MERCURY_ID ||
-		laser_type == EARTHSHAKER_ID;
+	return laser_type == weapon_id_type::CONCUSSION_ID ||
+		laser_type == weapon_id_type::HOMING_ID ||
+		laser_type == weapon_id_type::SMART_ID ||
+		laser_type == weapon_id_type::MEGA_ID ||
+		laser_type == weapon_id_type::FLASH_ID ||
+		laser_type == weapon_id_type::GUIDEDMISS_ID ||
+		laser_type == weapon_id_type::MERCURY_ID ||
+		laser_type == weapon_id_type::EARTHSHAKER_ID;
 }
 
 static bool choose_missile_viewer()
@@ -552,7 +552,7 @@ static void show_extra_views()
 
 	if (Guided_missile[Player_num] &&
 		Guided_missile[Player_num]->type == OBJ_WEAPON &&
-		get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+		get_weapon_id(*Guided_missile[Player_num]) == weapon_id_type::GUIDEDMISS_ID &&
 		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
 	{
 		if (PlayerCfg.GuidedInBigWindow)
@@ -673,7 +673,7 @@ void game_render_frame_mono()
 	if (PlayerCfg.GuidedInBigWindow &&
 		Guided_missile[Player_num] &&
 		Guided_missile[Player_num]->type == OBJ_WEAPON &&
-		get_weapon_id(*Guided_missile[Player_num]) == GUIDEDMISS_ID &&
+		get_weapon_id(*Guided_missile[Player_num]) == weapon_id_type::GUIDEDMISS_ID &&
 		Guided_missile[Player_num]->signature == Guided_missile_sig[Player_num])
 	{
 		object *viewer_save = Viewer;

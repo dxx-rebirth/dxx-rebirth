@@ -313,7 +313,7 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 		case OBJ_WEAPON:
 		{
 			fix tval = Weapon_info[get_weapon_id(obj)].light;
-			if (get_weapon_id(obj) == FLARE_ID )
+			if (get_weapon_id(obj) == weapon_id_type::FLARE_ID )
 				light_intensity = 2*(min(tval, obj->lifeleft) + ((static_cast<fix>(GameTime64) ^ Obj_light_xlate[obj.get_unchecked_index() % Obj_light_xlate.size()]) & 0x3fff));
 			else
 				light_intensity = tval;

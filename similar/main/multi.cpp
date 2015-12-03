@@ -687,7 +687,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		const auto killer_id = get_weapon_id(killer);
-		if (killer_id==PMINE_ID && killer_type!=OBJ_ROBOT)
+		if (killer_id == weapon_id_type::PMINE_ID && killer_type != OBJ_ROBOT)
 		{
 			if (killed_pnum == Player_num)
 				HUD_init_message_literal(HM_MULTI, "You were killed by a mine!");
@@ -1555,11 +1555,11 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		multi_make_ghost_player(pnum);
 
 	if (weapon == FLARE_ADJUST)
-		Laser_player_fire( obj, FLARE_ID, 6, 1, shot_orientation);
+		Laser_player_fire( obj, weapon_id_type::FLARE_ID, 6, 1, shot_orientation);
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,remote_objnum;
-		weapon_id_type weapon_id = (weapon_id_type) Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
+		const auto weapon_id = Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
 		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1582,7 +1582,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 			Fusion_charge = flags << 12;
 		}
 		const auto &&objp = vobjptridx(Players[pnum].objnum);
-		if (weapon == LASER_ID) {
+		if (weapon == weapon_id_type::LASER_ID) {
 			auto &powerup_flags = objp->ctype.player_info.powerup_flags;
 			if (flags & LASER_QUAD)
 				powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
@@ -2095,7 +2095,7 @@ static multi_do_controlcen_fire(const ubyte *buf)
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
 	auto objp = vobjptridx(objnum);
-	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, CONTROLCEN_WEAPON_NUM, 1);
+	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, 1);
 }
 
 static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
@@ -3531,7 +3531,7 @@ static inline int object_allowed_in_anarchy(const vobjptr_t objp)
 		(objp->type==OBJ_HOSTAGE))
 		return 1;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (objp->type==OBJ_WEAPON && get_weapon_id(objp)==PMINE_ID)
+	if (objp->type==OBJ_WEAPON && get_weapon_id(objp)==weapon_id_type::PMINE_ID)
 		return 1;
 #endif
 	return 0;

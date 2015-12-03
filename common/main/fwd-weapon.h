@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "dxxsconf.h"
 #include "compiler-array.h"
+#include "weapon_id.h"
 
 #include "fwd-object.h"
 
@@ -86,7 +87,7 @@ const unsigned MAX_SECONDARY_WEAPONS = 10;
 extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
 extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
-extern const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
+extern const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
 extern const array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;

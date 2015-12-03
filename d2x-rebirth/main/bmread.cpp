@@ -1141,7 +1141,7 @@ void bm_read_robot(int skip)
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;
 	fix			drag = f1_0/2;
-	short 		weapon_type = 0, weapon_type2 = -1;
+	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1, weapon_type2 = weapon_id_type::unspecified;
 	int			g,s;
 	char			name[ROBOT_NAME_LENGTH];
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
@@ -1196,9 +1196,9 @@ void bm_read_robot(int skip)
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!d_stricmp( arg, "weapon_type" )) {
-				weapon_type = atoi(equal_ptr);
+				weapon_type = static_cast<weapon_id_type>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "weapon_type2" )) {
-				weapon_type2 = atoi(equal_ptr);
+				weapon_type2 = static_cast<weapon_id_type>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "strength" )) {
 				strength = i2f(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "mass" )) {
@@ -1808,7 +1808,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].flash = 0;
 	Weapon_info[n].multi_damage_scale = F1_0;
 	Weapon_info[n].afterburner_size = 0;
-	Weapon_info[n].children = -1;
+	Weapon_info[n].children = weapon_id_type::unspecified;
 
 	// Process arguments
 	arg = strtok( NULL, space_tab );
@@ -1938,7 +1938,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp(arg, "afterburner_size" )) {
 				Weapon_info[n].afterburner_size = f2i(16*fl2f(atof(equal_ptr)));
 			} else if (!d_stricmp(arg, "children" )) {
-				Weapon_info[n].children = atoi(equal_ptr);
+				Weapon_info[n].children = static_cast<weapon_id_type>(atoi(equal_ptr));
 			} else if (!d_stricmp(arg, "placable" )) {
 				if (atoi(equal_ptr)) {
 					Weapon_info[n].flags |= WIF_PLACABLE;
