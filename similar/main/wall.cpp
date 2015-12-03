@@ -1451,7 +1451,8 @@ void remove_obsolete_stuck_objects(void)
 	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
 	if (Stuck_objects[objnum].wallnum != -1)
-		if ((Stuck_objects[objnum].wallnum == 0) || (Objects[Stuck_objects[objnum].objnum].signature != Stuck_objects[objnum].signature)) {
+		if ((Stuck_objects[objnum].wallnum == 0) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature))
+		{
 			Num_stuck_objects--;
 			Stuck_objects[objnum].wallnum = -1;
 		}
@@ -1473,9 +1474,9 @@ void remove_obsolete_stuck_objects(void)
 	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
 	if (Stuck_objects[objnum].wallnum != -1)
-		if ((Walls[Stuck_objects[objnum].wallnum].state != WALL_DOOR_CLOSED) || (Objects[Stuck_objects[objnum].objnum].signature != Stuck_objects[objnum].signature)) {
+		if ((Walls[Stuck_objects[objnum].wallnum].state != WALL_DOOR_CLOSED) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)) {
 			Num_stuck_objects--;
-			Objects[Stuck_objects[objnum].objnum].lifeleft = F1_0/8;
+			vobjptr(Stuck_objects[objnum].objnum)->lifeleft = F1_0/8;
 			Stuck_objects[objnum].wallnum = -1;
 		}
 
@@ -1496,13 +1497,14 @@ void kill_stuck_objects(int wallnum)
 
 	for (i=0; i<MAX_STUCK_OBJECTS; i++)
 		if (Stuck_objects[i].wallnum == wallnum) {
-			if (Objects[Stuck_objects[i].objnum].type == OBJ_WEAPON) {
+			const auto &&objp = vobjptr(Stuck_objects[i].objnum);
+			if (objp->type == OBJ_WEAPON) {
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_WEAPON_LIFELEFT	F1_0/4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_WEAPON_LIFELEFT	F1_0/8
 #endif
-				Objects[Stuck_objects[i].objnum].lifeleft = DXX_WEAPON_LIFELEFT;
+				objp->lifeleft = DXX_WEAPON_LIFELEFT;
 			}
 			Stuck_objects[i].wallnum = -1;
 		} else if (Stuck_objects[i].wallnum != -1) {
@@ -1573,7 +1575,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))
-						check_effect_blowup(segp, sidenum, pnt, Objects[objp->ctype.laser_info.parent_num].ctype.laser_info, 1, 0);
+						check_effect_blowup(segp, sidenum, pnt, vcobjptr(objp->ctype.laser_info.parent_num)->ctype.laser_info, 1, 0);
 				}
 			}
 		}

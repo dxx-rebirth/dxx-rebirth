@@ -364,8 +364,9 @@ static int omega_cleanup(const vobjptridx_t weapon)
 		return 0;
 	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
 	const auto parent_num = weapon->ctype.laser_info.parent_num;
-	if (Objects[parent_num].signature == parent_sig)
-		if (vm_vec_dist2(weapon->pos, Objects[parent_num].pos) > MAX_OMEGA_DIST_SQUARED)
+	const auto &&objp = vcobjptr(parent_num);
+	if (objp->signature == parent_sig)
+		if (vm_vec_dist2(weapon->pos, objp->pos) > MAX_OMEGA_DIST_SQUARED)
 		{
 			obj_delete(weapon);
 			return 1;
@@ -383,8 +384,9 @@ int ok_to_do_omega_damage(const vcobjptr_t weapon)
 		return 1;
 	const auto parent_sig = weapon->ctype.laser_info.parent_signature;
 	const auto parent_num = weapon->ctype.laser_info.parent_num;
-	if (Objects[parent_num].signature == parent_sig)
-		if (vm_vec_dist2(Objects[parent_num].pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
+	const auto &&objp = vcobjptr(parent_num);
+	if (objp->signature == parent_sig)
+		if (vm_vec_dist2(objp->pos, weapon->pos) > MAX_OMEGA_DIST_SQUARED)
 			return 0;
 
 	return 1;
@@ -555,7 +557,6 @@ void omega_charge_frame(void)
 //	*pos is the location from which the omega bolt starts
 static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &firing_pos, const vobjptridx_t weapon_objp)
 {
-	objnum_t			lock_objnum;
 	vms_vector	goal_pos;
 	const auto pnum = get_player_id(parent_objp);
 	fix fire_frame_overhead = 0;
@@ -580,9 +581,9 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
 	weapon_objp->ctype.laser_info.parent_num = Players[pnum].objnum;
-	weapon_objp->ctype.laser_info.parent_signature = Objects[Players[pnum].objnum].signature;
+	weapon_objp->ctype.laser_info.parent_signature = vcobjptr(Players[pnum].objnum)->signature;
 
-	lock_objnum = find_homing_object(firing_pos, weapon_objp);
+	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
 	auto firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
 
@@ -628,7 +629,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 			goal_pos = hit_data.hit_pnt;
 		}
 	} else
-		goal_pos = Objects[lock_objnum].pos;
+		goal_pos = lock_objnum->pos;
 
 	//	This is where we create a pile of omega blobs!
 	create_omega_blobs(firing_segnum, firing_pos, goal_pos, parent_objp);
@@ -839,7 +840,8 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		count = 0;
 		while ((count++ < 10) && (highest_parent->type == OBJ_WEAPON)) {
 			auto next_parent = highest_parent->ctype.laser_info.parent_num;
-			if (Objects[next_parent].signature != highest_parent->ctype.laser_info.parent_signature)
+			const auto &&parent_objp = vobjptridx(next_parent);
+			if (parent_objp->signature != highest_parent->ctype.laser_info.parent_signature)
 				break;	//	Probably means parent was killed.  Just continue.
 
 			if (next_parent == highest_parent) {
@@ -847,7 +849,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 				break;
 			}
 
-			highest_parent = vobjptridx(next_parent);
+			highest_parent = parent_objp;
 
 			obj->ctype.laser_info.parent_num			= highest_parent;
 			obj->ctype.laser_info.parent_type = highest_parent->type;
@@ -1658,7 +1660,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 			if (track_goal != object_none)
                         {
-				vm_vec_sub(vector_to_object, Objects[track_goal].pos, obj->pos);
+				vm_vec_sub(vector_to_object, track_goal->pos, obj->pos);
 				vm_vec_normalize_quick(vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
 				speed = vm_vec_normalize_quick(temp_vec);

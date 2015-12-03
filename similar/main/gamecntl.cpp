@@ -1140,7 +1140,7 @@ static void kill_and_so_forth(void)
 			{
 				if (w.trigger == i) {
 					compute_segment_center(ConsoleObject->pos, vcsegptr(w.segnum));
-					obj_relink(ConsoleObject-Objects,w.segnum);
+					obj_relink(vobjptridx(ConsoleObject), w.segnum);
 					goto kasf_done;
 				}
 			}

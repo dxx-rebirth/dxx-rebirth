@@ -2856,7 +2856,8 @@ void show_HUD_names()
 
 		if ((show_name || show_typing || show_indi) && see_object(objnum))
 		{
-			auto player_point = g3_rotate_point(Objects[objnum].pos);
+			const auto &&objp = vcobjptr(objnum);
+			auto player_point = g3_rotate_point(objp->pos);
 			if (player_point.p3_codes == 0) //on screen
 			{
 				g3_project_point(player_point);
@@ -2868,7 +2869,7 @@ void show_HUD_names()
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
-					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
+					dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(grd_curcanv->cv_bitmap.bm_h) / 2, player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					/* Set the text to show */
 					const char *name = NULL;

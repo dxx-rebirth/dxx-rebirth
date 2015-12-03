@@ -134,7 +134,7 @@ int SaveGameData()
 				compute_segment_center(save_pos, save_segp);
 			}
 
-			obj_relink(ConsoleObject-Objects,found_save_segnum);
+			obj_relink(vobjptridx(ConsoleObject), found_save_segnum);
 			ConsoleObject->orient = save_orient;
 		}
 		if (saved_flag)

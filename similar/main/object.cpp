@@ -127,8 +127,7 @@ int print_object_info = 0;
 //set viewer object to next object in array
 void object_goto_next_viewer()
 {
-	int start_obj = 0;
-
+	objnum_t start_obj;
 	start_obj = Viewer - Objects;		//get viewer object number
 	
 	range_for (const auto i, highest_valid(Objects))
@@ -137,8 +136,10 @@ void object_goto_next_viewer()
 		start_obj++;
 		if (start_obj > Highest_object_index ) start_obj = 0;
 
-		if (Objects[start_obj].type != OBJ_NONE )	{
-			Viewer = &Objects[start_obj];
+		const auto &&objp = vobjptr(start_obj);
+		if (objp->type != OBJ_NONE)
+		{
+			Viewer = objp;
 			return;
 		}
 	}
@@ -576,7 +577,7 @@ static void set_robot_location_info(const vobjptr_t objp)
 
 		if ((abs(temp.p3_x) < F1_0*4) && (abs(temp.p3_y) < F1_0*4)) {
 			objp->ctype.ai_info.danger_laser_num = Player_fired_laser_this_frame;
-			objp->ctype.ai_info.danger_laser_signature = Objects[Player_fired_laser_this_frame].signature;
+			objp->ctype.ai_info.danger_laser_signature = vcobjptr(Player_fired_laser_this_frame)->signature;
 		}
 	}
 
@@ -825,11 +826,13 @@ void init_player_object()
 void init_objects()
 {
 	DXX_MAKE_MEM_UNDEFINED(Objects.begin(), Objects.end());
-	for (int i=0;i<MAX_OBJECTS;i++) {
+	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
+	{
 		free_obj_list[i] = i;
-		Objects[i].type = OBJ_NONE;
-		Objects[i].segnum = segment_none;
-                Objects[i].signature = obj_get_signature();
+		const auto &&objp = vobjptr(i);
+		objp->type = OBJ_NONE;
+		objp->segnum = segment_none;
+		objp->signature = obj_get_signature();
 	}
 
 	range_for (auto &j, Segments)
@@ -854,8 +857,8 @@ void special_reset_objects(void)
 	Assert(Objects[0].type != OBJ_NONE);		//0 should be used
 
 	DXX_MAKE_MEM_UNDEFINED(free_obj_list.begin(), free_obj_list.end());
-	for (int i=MAX_OBJECTS;i--;)
-		if (Objects[i].type == OBJ_NONE)
+	for (objnum_t i = MAX_OBJECTS; i--;)
+		if (vcobjptr(i)->type == OBJ_NONE)
 			free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)
@@ -873,7 +876,8 @@ void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 
 	segnum->objects = obj;
 
-	if (obj->next != object_none) Objects[obj->next].prev = obj;
+	if (obj->next != object_none)
+		vobjptr(obj->next)->prev = obj;
 	
 	//list_seg_objects( segnum );
 	//check_duplicate_objects();
@@ -893,9 +897,10 @@ void obj_unlink(const vobjptr_t obj)
 	if (obj->prev == object_none)
 		seg->objects = obj->next;
 	else
-		Objects[obj->prev].next = obj->next;
+		vobjptr(obj->prev)->next = obj->next;
 
-	if (obj->next != object_none) Objects[obj->next].prev = obj->prev;
+	if (obj->next != object_none)
+		vobjptr(obj->next)->prev = obj->prev;
 
 	obj->segnum = segment_none;
 
@@ -966,11 +971,11 @@ static void obj_free(objnum_t objnum)
 
 	if (objnum == Highest_object_index)
 	{
-		int o = Highest_object_index;
+		objnum_t o = Highest_object_index;
 		for (;;)
 		{
 			--o;
-			if (Objects[o].type != OBJ_NONE)
+			if (vcobjptr(o)->type != OBJ_NONE)
 				break;
 			if (o == 0)
 				break;
@@ -1282,7 +1287,7 @@ void dead_player_end(void)
 
 	Player_is_dead = 0;
 	Player_exploded = 0;
-	obj_delete(Dead_player_camera-Objects);
+	obj_delete(vobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 	Viewer = Viewer_save;
@@ -1896,14 +1901,15 @@ void compress_objects(void)
 	//	Note: It's proper to do < (rather than <=) Highest_object_index here because we
 	//	are just removing gaps, and the last object can't be a gap.
 	for (objnum_t start_i=0;start_i<Highest_object_index;start_i++)
-
-		if (Objects[start_i].type == OBJ_NONE) {
+	{
+		const auto &&start_objp = vobjptridx(start_i);
+		if (start_objp->type == OBJ_NONE) {
 			const auto &&h = vobjptr(static_cast<objnum_t>(Highest_object_index));
 			auto segnum_copy = h->segnum;
 
 			obj_unlink(h);
 
-			Objects[start_i] = *h;
+			*start_objp = *h;
 
 			#ifdef EDITOR
 			if (Cur_object_index == Highest_object_index)
@@ -1912,13 +1918,14 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(vobjptridx(start_i), vsegptridx(segnum_copy));
+			obj_link(start_objp, vsegptridx(segnum_copy));
 
 			while (Objects[--Highest_object_index].type == OBJ_NONE);
 
 			//last_i = find_last_obj(last_i);
 			
 		}
+	}
 
 	reset_objects(num_objects);
 
@@ -1932,11 +1939,13 @@ void reset_objects(int n_objs)
 
 	Assert(num_objects>0);
 
-	for (int i=num_objects;i<MAX_OBJECTS;i++) {
+	for (objnum_t i = num_objects; i < MAX_OBJECTS; ++i)
+	{
 		free_obj_list[i] = i;
-		Objects[i] = {};
-		Objects[i].type = OBJ_NONE;
-		Objects[i].segnum = segment_none;
+		const auto &&objp = vobjptr(i);
+		*objp = {};
+		objp->type = OBJ_NONE;
+		objp->segnum = segment_none;
 	}
 
 	Highest_object_index = num_objects-1;
@@ -2062,12 +2071,12 @@ void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
 	Assert(sub->ctype.expl_info.next_attach==object_none);
 	Assert(sub->ctype.expl_info.prev_attach==object_none);
 
-	Assert(parent->attached_obj==object_none || Objects[parent->attached_obj].ctype.expl_info.prev_attach==object_none);
+	Assert(parent->attached_obj==object_none || vcobjptr(parent->attached_obj)->ctype.expl_info.prev_attach==object_none);
 
 	sub->ctype.expl_info.next_attach = parent->attached_obj;
 
 	if (sub->ctype.expl_info.next_attach != object_none)
-		Objects[sub->ctype.expl_info.next_attach].ctype.expl_info.prev_attach = sub;
+		vobjptr(sub->ctype.expl_info.next_attach)->ctype.expl_info.prev_attach = sub;
 
 	parent->attached_obj = sub;
 
@@ -2084,7 +2093,8 @@ void obj_detach_one(const vobjptr_t sub)
 	Assert(sub->flags & OF_ATTACHED);
 	Assert(sub->ctype.expl_info.attach_parent != object_none);
 
-	if ((Objects[sub->ctype.expl_info.attach_parent].type == OBJ_NONE) || (Objects[sub->ctype.expl_info.attach_parent].attached_obj == object_none))
+	const auto &&parent_objp = vcobjptr(sub->ctype.expl_info.attach_parent);
+	if (parent_objp->type == OBJ_NONE || parent_objp->attached_obj == object_none)
 	{
 		sub->flags &= ~OF_ATTACHED;
 		return;
@@ -2149,10 +2159,9 @@ void wake_up_rendered_objects(const vobjptr_t viewer, window_rendered_data &wind
 
 	range_for (const auto objnum, window.rendered_robots)
 	{
-		object *objp;
 		int	fcval = d_tick_count & 3;
 		if ((objnum & 3) == fcval) {
-			objp = &Objects[objnum];
+			const auto &&objp = vobjptr(objnum);
 	
 			if (objp->type == OBJ_ROBOT) {
 				if (vm_vec_dist_quick(viewer->pos, objp->pos) < F1_0*100) {

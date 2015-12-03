@@ -1925,11 +1925,12 @@ void net_udp_send_objects(void)
 	objnum_t i;
 	for (i = Network_send_objnum; i <= Highest_object_index; i++)
 	{
-		if ((Objects[i].type != OBJ_POWERUP) && (Objects[i].type != OBJ_PLAYER) &&
-				(Objects[i].type != OBJ_CNTRLCEN) && (Objects[i].type != OBJ_GHOST) &&
-				(Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE)
+		const auto &&objp = vobjptr(i);
+		if ((objp->type != OBJ_POWERUP) && (objp->type != OBJ_PLAYER) &&
+				(objp->type != OBJ_CNTRLCEN) && (objp->type != OBJ_GHOST) &&
+				(objp->type != OBJ_ROBOT) && (objp->type != OBJ_HOSTAGE)
 #if defined(DXX_BUILD_DESCENT_II)
-				&& !(Objects[i].type == OBJ_WEAPON && get_weapon_id(Objects[i]) == weapon_id_type::PMINE_ID)
+				&& !(objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::PMINE_ID)
 #endif
 				)
 			continue;

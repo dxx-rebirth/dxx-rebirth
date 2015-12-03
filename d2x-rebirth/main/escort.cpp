@@ -331,7 +331,10 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
 		} else if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
-		else if ((index->type == Objects[Escort_goal_index].type) && (index->id == Objects[Escort_goal_index].id)) {
+		else
+		{
+			const auto &&egi_objp = vcobjptr(Escort_goal_index);
+			if (index->type == egi_objp->type && index->id == egi_objp->id)
 			//	Note: This will help a little bit in making the buddy believe a goal is satisfied.  Won't work for a general goal like "find any powerup"
 			// because of the insistence of both type and id matching.
 			record_escort_goal_accomplished();
@@ -558,7 +561,7 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto length = create_bfs_list(start_seg, bfs_list);
-	auto predicate = [](const segnum_t &s) { return Segments[s].special == SEGMENT_IS_FUELCEN; };
+	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
 		auto rb = partial_range(bfs_list, length);
 		auto i = std::find_if(rb.begin(), rb.end(), predicate);
@@ -700,6 +703,15 @@ static void escort_go_to_goal(const vobjptridx_t objp, ai_static *aip, segnum_t 
 }
 
 //	-----------------------------------------------------------------------------
+static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid)
+{
+	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1);
+	Escort_goal_index = egi;
+	if (egi != object_none)
+		return vcobjptr(egi)->segnum;
+	return segment_none;
+}
+
 static void escort_create_path_to_goal(const vobjptridx_t objp)
 {
 	segnum_t	goal_seg = segment_none;
@@ -712,35 +724,27 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 	Escort_kill_object = -1;
 
 	if (Looking_for_marker != -1) {
-
-		Escort_goal_index = exists_in_mine(objp->segnum, OBJ_MARKER, Escort_goal_object-ESCORT_GOAL_MARKER1, -1);
-		if (Escort_goal_index != object_none)
-			goal_seg = Objects[Escort_goal_index].segnum;
+		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1);
 	} else {
 		switch (Escort_goal_object) {
 			case ESCORT_GOAL_BLUE_KEY:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_BLUE);
 				break;
 			case ESCORT_GOAL_GOLD_KEY:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_GOLD);
 				break;
 			case ESCORT_GOAL_RED_KEY:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_KEY_RED, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_RED);
 				break;
 			case ESCORT_GOAL_CONTROLCEN:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_CNTRLCEN, -1, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_CNTRLCEN, -1);
 				break;
 			case ESCORT_GOAL_EXIT:
 				goal_seg = find_exit_segment();
 				Escort_goal_index = goal_seg;
 				break;
 			case ESCORT_GOAL_ENERGY:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_ENERGY, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY);
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum);
@@ -752,20 +756,16 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 					escort_go_to_goal(objp, aip, goal_seg);
 				return;
 			case ESCORT_GOAL_SHIELD:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, POW_SHIELD_BOOST, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_SHIELD_BOOST);
 				break;
 			case ESCORT_GOAL_POWERUP:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_POWERUP, -1, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, -1);
 				break;
 			case ESCORT_GOAL_ROBOT:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_ROBOT, -1, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, -1);
 				break;
 			case ESCORT_GOAL_HOSTAGE:
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_HOSTAGE, -1, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_HOSTAGE, -1);
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
 				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW);
@@ -779,8 +779,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 	
 				boss_id = get_boss_id();
 				Assert(boss_id != -1);
-				Escort_goal_index = exists_in_mine(objp->segnum, OBJ_ROBOT, boss_id, -1);
-				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
+				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, boss_id);
 				break;
 			}
 			default:

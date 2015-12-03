@@ -49,9 +49,13 @@ int hostage_is_valid( int hostage_num )	{
 	if ( hostage_num < 0 ) return 0;
 	if ( hostage_num >= MAX_HOSTAGES ) return 0;
 	if ( Hostages[hostage_num].objnum > Highest_object_index ) return 0;
-	if ( Objects[Hostages[hostage_num].objnum].type != OBJ_HOSTAGE ) return 0;
-	if ( Objects[Hostages[hostage_num].objnum].signature != Hostages[hostage_num].objsig ) return 0;
-	if ( get_hostage_id(vcobjptr(Hostages[hostage_num].objnum)) != hostage_num) return 0;
+	const auto &&objp = vcobjptr(Hostages[hostage_num].objnum);
+	if (objp->type != OBJ_HOSTAGE)
+		return 0;
+	if (objp->signature != Hostages[hostage_num].objsig)
+		return 0;
+	if (get_hostage_id(objp) != hostage_num)
+		return 0;
 	return 1;
 }
 

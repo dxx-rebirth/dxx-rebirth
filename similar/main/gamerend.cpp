@@ -495,7 +495,7 @@ static bool choose_missile_viewer()
 			else if (game_mode & GM_TEAM)
 			{
 				/* Allow missiles from same team */
-				if (get_team(Player_num) != get_team(get_player_id(Objects[o->ctype.laser_info.parent_num])))
+				if (get_team(Player_num) != get_team(get_player_id(vcobjptr(o->ctype.laser_info.parent_num))))
 					continue;
 			}
 			else
@@ -636,7 +636,7 @@ static void show_one_extra_view(const int w)
 	         RenderingType=255; // don't handle coop stuff			
 				
 				if (player!=-1 && Players[player].connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
-					do_cockpit_window_view(w,&Objects[Players[Coop_view_player[w]].objnum],0,WBU_COOP,Players[Coop_view_player[w]].callsign);
+					do_cockpit_window_view(w, vobjptr(Players[Coop_view_player[w]].objnum), 0, WBU_COOP, Players[Coop_view_player[w]].callsign);
 				else {
 					do_cockpit_window_view(w,WBU_WEAPON);
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
@@ -651,7 +651,7 @@ static void show_one_extra_view(const int w)
 					break;
 				}
 				sprintf(label,"Marker %d",Marker_viewer_num[w]+1);
-				do_cockpit_window_view(w,&Objects[MarkerObject[Marker_viewer_num[w]]],0,WBU_MARKER,label);
+				do_cockpit_window_view(w, vobjptr(MarkerObject[Marker_viewer_num[w]]), 0, WBU_MARKER, label);
 				break;
 			}
 			default:

@@ -292,8 +292,10 @@ int ObjectMakeCoop(void)
 	Assert(Cur_object_index < MAX_OBJECTS);
 //	Assert(Objects[Cur_object_index.type == OBJ_PLAYER);
 
-	if (Objects[Cur_object_index].type == OBJ_PLAYER ) {
-		Objects[Cur_object_index].type = OBJ_COOP;
+	const auto &&objp = vobjptr(Cur_object_index);
+	if (objp->type == OBJ_PLAYER)
+	{
+		objp->type = OBJ_COOP;
 		editor_status("You just made a player object COOPERATIVE");
 	} else
 		editor_status("This is not a player object");
@@ -326,7 +328,7 @@ int ObjectPlaceObject(void)
 	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
-		Objects[Cur_object_index].rtype.pobj_info.tmap_override = -1;
+		vobjptr(Cur_object_index)->rtype.pobj_info.tmap_override = -1;
 
 	return rval;
 
@@ -389,8 +391,10 @@ int ObjectSelectNextInMine()
 		Cur_object_index++;
 		if (Cur_object_index>= MAX_OBJECTS ) Cur_object_index= 0;
 
-		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{
-			Cursegp = segptridx(Objects[Cur_object_index].segnum);
+		const auto &&objp = vcobjptr(Cur_object_index);
+		if (objp->type != OBJ_NONE && objp != ConsoleObject)
+		{
+			Cursegp = segptridx(objp->segnum);
 			med_create_new_segment_from_cursegp();
 			//Cur_object_seg = Cursegp;
 			return 1;
@@ -410,8 +414,10 @@ int ObjectSelectPrevInMine()
 		if (!(Cur_object_index --))
 			Cur_object_index = MAX_OBJECTS-1;
 
-		if ((Objects[Cur_object_index ].type != OBJ_NONE) && (Cur_object_index != (ConsoleObject-Objects)) )	{
-			Cursegp = segptridx(Objects[Cur_object_index].segnum);
+		const auto &&objp = vcobjptr(Cur_object_index);
+		if (objp->type != OBJ_NONE && objp != ConsoleObject)
+		{
+			Cursegp = segptridx(objp->segnum);
 			med_create_new_segment_from_cursegp();
 			//Cur_object_seg = Cursegp;
 			return 1;
@@ -604,7 +610,8 @@ int	ObjectSetDefault(void)
 		return 1;
 	}
 
-	compute_segment_center(Objects[Cur_object_index].pos, vcsegptr(Objects[Cur_object_index].segnum));
+	const auto &&objp = vobjptr(Cur_object_index);
+	compute_segment_center(objp->pos, vcsegptr(objp->segnum));
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -703,7 +710,7 @@ int ObjectResetObject()
 
 int ObjectFlipObject()
 {
-	vms_matrix *m=&Objects[Cur_object_index].orient;
+	const auto m = &vobjptr(Cur_object_index)->orient;
 
 	vm_vec_negate(m->uvec);
 	vm_vec_negate(m->rvec);
@@ -834,8 +841,9 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 
 static void move_object_to_vector(const vms_vector &vec_through_screen, fix delta_distance)
 {
-	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, Objects[Cur_object_index].pos) + delta_distance);
-	move_object_to_position(vobjptridx(Cur_object_index), result);
+	const auto &&objp = vobjptridx(Cur_object_index);
+	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, objp->pos) + delta_distance);
+	move_object_to_position(objp, result);
 }
 
 static void move_object_to_mouse_click_delta(fix delta_distance)
@@ -871,7 +879,7 @@ int	ObjectMoveNearer(void)
 
 //	move_object_to_mouse_click_delta(-4*F1_0);		//	Move four units closer to eye
 
-	const auto result = vm_vec_normalized(vm_vec_sub(Objects[Cur_object_index].pos, Viewer->pos));
+	const auto &&result = vm_vec_normalized(vm_vec_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
 	move_object_to_vector(result, -4*F1_0);
 
 	return 1;	
@@ -886,7 +894,7 @@ int	ObjectMoveFurther(void)
 
 //	move_object_to_mouse_click_delta(+4*F1_0);		//	Move four units further from eye
 
-	const auto result = vm_vec_normalized(vm_vec_sub(Objects[Cur_object_index].pos, Viewer->pos));
+	const auto &&result = vm_vec_normalized(vm_vec_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
 	move_object_to_vector(result, 4*F1_0);
 
 	return 1;	

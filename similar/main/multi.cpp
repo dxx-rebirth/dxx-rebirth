@@ -1743,7 +1743,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	}
 	range_for (const auto i, partial_range(Net_create_objnums, remote_created, Net_create_loc))
 	{
-		Objects[i].flags |= OF_SHOULD_BE_DEAD;
+		vobjptr(i)->flags |= OF_SHOULD_BE_DEAD;
 	}
 
 	if (buf[2] == deres_explode)
@@ -1890,7 +1890,7 @@ static multi_do_remobj(const ubyte *buf)
 	}
 
 	const auto &obj = vobjptr(local_objnum);
-	if ((Objects[local_objnum].type != OBJ_POWERUP) && (Objects[local_objnum].type != OBJ_HOSTAGE))
+	if (obj->type != OBJ_POWERUP && obj->type != OBJ_HOSTAGE)
 	{
 		return;
 	}
@@ -1899,14 +1899,12 @@ static multi_do_remobj(const ubyte *buf)
 	{
 		Network_send_objnum = -1;
 	}
-	if (Objects[local_objnum].type==OBJ_POWERUP)
+	if (obj->type == OBJ_POWERUP)
 		if (Game_mode & GM_NETWORK)
 		{
 			PowerupCaps.dec_powerup_current(get_powerup_id(obj));
 		}
-
-	Objects[local_objnum].flags |= OF_SHOULD_BE_DEAD; // quick and painless
-
+	obj->flags |= OF_SHOULD_BE_DEAD; // quick and painless
 }
 
 void multi_disconnect_player(const playernum_t pnum)
@@ -2236,10 +2234,12 @@ static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
 	for (i=0;i<40;i++)
 		MarkerMessage[(pnum*2)+mesnum][i]=buf[15+i];
 
-	if (MarkerObject[(pnum*2)+mesnum] !=object_none && Objects[MarkerObject[(pnum*2)+mesnum]].type!=OBJ_NONE && MarkerObject[(pnum*2)+mesnum] !=0)
+	if (MarkerObject[(pnum*2)+mesnum] != object_none &&
+		vcobjptr(MarkerObject[(pnum*2)+mesnum])->type != OBJ_NONE)
 		obj_delete(MarkerObject[(pnum*2)+mesnum]);
 
-	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(position,Objects[Players[pnum].objnum].segnum,Objects[Players[pnum].objnum].orient,(pnum*2)+mesnum);
+	const auto &&plr_objp = vcobjptr(Players[pnum].objnum);
+	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(position, plr_objp->segnum, plr_objp->orient, (pnum*2) + mesnum);
 }
 #endif
 
@@ -2467,10 +2467,10 @@ void multi_send_markers()
 		objnum_t mo;
 		mo = MarkerObject[(i*2)];
 		if (mo!=object_none)
-			multi_send_drop_marker (i,Objects[mo].pos,0,MarkerMessage[i*2]);
+			multi_send_drop_marker (i, vcobjptr(mo)->pos, 0, MarkerMessage[i*2]);
 		mo = MarkerObject[(i*2)+1];
 		if (mo!=object_none)
-			multi_send_drop_marker (i,Objects[mo].pos,1,MarkerMessage[(i*2)+1]);
+			multi_send_drop_marker (i, vcobjptr(mo)->pos, 1, MarkerMessage[(i*2)+1]);
 	}
 }
 #endif
@@ -2599,7 +2599,7 @@ void powerup_cap_state::recount()
 	m_powerups = {};
 	range_for (const auto i, highest_valid(Objects))
 	{
-		const auto &obj = vobjptr(static_cast<objnum_t>(i));
+		const auto &&obj = vcobjptr(static_cast<objnum_t>(i));
 		if (obj->type == OBJ_POWERUP)
 		{
 			inc_powerup_current(get_powerup_id(obj));
@@ -3591,7 +3591,7 @@ int multi_all_players_alive()
 {
 	range_for (auto &i, partial_range(Players, N_players))
 	{
-		if ((i.connected == CONNECT_PLAYING) && (Objects[i.objnum].type == OBJ_GHOST)) // player alive?
+		if (i.connected == CONNECT_PLAYING && vcobjptr(i.objnum)->type == OBJ_GHOST) // player alive?
 			return (0);
 		if ((i.connected != CONNECT_DISCONNECTED) && (i.connected != CONNECT_PLAYING)) // ... and actually playing?
 			return (0);
@@ -3922,7 +3922,7 @@ void multi_send_drop_blobs (const playernum_t pnum)
 
 static void multi_do_drop_blob (const playernum_t pnum)
 {
-	drop_afterburner_blobs (&Objects[Players[(int)pnum].objnum], 2, i2f(5)/2, -1);
+	drop_afterburner_blobs (vobjptr(Players[pnum].objnum), 2, i2f(5) / 2, -1);
 }
 #endif
 
@@ -4277,7 +4277,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	seed = GET_INTEL_INT(buf + 6);
 
-	auto objp = &Objects[Players[pnum].objnum];
+	const auto &&objp = vobjptr(Players[pnum].objnum);
 
 	auto objnum = spit_powerup(objp, powerup_id, seed);
 
@@ -4286,7 +4286,6 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 	{
 		if (Game_mode & GM_NETWORK)
 			PowerupCaps.inc_mapped_powerup_current(powerup_id);
-		const auto &objp = vobjptr(Players[pnum].objnum);
 		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
 	}
 }

@@ -219,7 +219,7 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 int HighlightMarker=-1;
 marker_message_text_t Marker_input;
 marker_messages_array_t MarkerMessage;
-float MarkerScale=2.0;
+static float MarkerScale=2.0;
 
 template <std::size_t... N>
 static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_sequence<N...>)
@@ -280,13 +280,10 @@ static void DrawMarkerNumber (automap *am, int num)
 		ArrayY[i] = sArrayY[num][i] * MarkerScale;
 	}
 	
-	if (num==HighlightMarker)
-		gr_setcolor (am->white_63);
-	else
-		gr_setcolor (am->blue_48);
+	gr_setcolor(num==HighlightMarker ? am->white_63: am->blue_48);
 	
 	
-	const auto BasePoint = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+num]].pos);
+	const auto &&BasePoint = g3_rotate_point(vcobjptr(MarkerObject[(Player_num*2)+num])->pos);
 	
 	for (i=0;i<NumOfPoints[num];i+=2)
 	{
@@ -355,8 +352,7 @@ static void DrawMarkers (automap *am)
 
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != object_none) {
-
-			auto sphere_point = g3_rotate_point(Objects[MarkerObject[(Player_num*2)+i]].pos);
+			auto sphere_point = g3_rotate_point(vcobjptr(MarkerObject[(Player_num*2)+i])->pos);
 			gr_setcolor (gr_find_closest_color_current(cyc,0,0));
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE);
 			gr_setcolor (gr_find_closest_color_current(cyc+10,0,0));
@@ -551,10 +547,13 @@ static void draw_automap(automap *am)
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
 		for (i=0; i<N_players; i++)		{
 			if ( (i != Player_num) && ((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flag.show_on_map)) )	{
-				if ( Objects[Players[i].objnum].type == OBJ_PLAYER )	{
+				const auto &&objp = vcobjptr(Players[i].objnum);
+				if (objp->type == OBJ_PLAYER)
+				{
 					const auto color = get_player_or_team_color(i);
-					gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-					draw_player(vcobjptr(Players[i].objnum));
+					const auto &rgb = player_rgb[color];
+					gr_setcolor(BM_XRGB(rgb.r, rgb.g, rgb.b));
+					draw_player(objp);
 				}
 			}
 		}

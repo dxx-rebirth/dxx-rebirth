@@ -109,7 +109,8 @@ static int RobotNextType()
 {
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vobjptr(Cur_object_index);
-		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
+		if (obj->type == OBJ_ROBOT)
+		{
 			obj->id++;
 			if (obj->id >= N_robot_types )
 				obj->id = 0;
@@ -137,7 +138,8 @@ static int RobotPrevType()
 {
 	if (Cur_object_index != object_none )	{
 		const auto &&obj = vobjptr(Cur_object_index);
-		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
+		if (obj->type == OBJ_ROBOT)
+		{
 			if (obj->id == 0 ) 
 				obj->id = N_robot_types-1;
 			else
@@ -196,9 +198,9 @@ int		Cur_goody_count = 0;
 static void update_goody_info(void)
 {
 	if (Cur_object_index != object_none )	{
-		if ( Objects[Cur_object_index].type == OBJ_ROBOT )	{
-			object * obj = &Objects[Cur_object_index];
-
+		const auto &&obj = vobjptr(Cur_object_index);
+		if (obj->type == OBJ_ROBOT)
+		{
 			obj->contains_type = Cur_goody_type;
 			obj->contains_id = Cur_goody_id;
 			obj->contains_count = Cur_goody_count;
@@ -331,11 +333,12 @@ static int LocalObjectSelectNextinSegment(void)
 				break;
 		}
 
-		Cur_goody_type = Objects[Cur_object_index].contains_type;
-		Cur_goody_id = Objects[Cur_object_index].contains_id;
-		if (Objects[Cur_object_index].contains_count < 0)
-			Objects[Cur_object_index].contains_count = 0;
-		Cur_goody_count = Objects[Cur_object_index].contains_count;
+		const auto &&objp = vobjptr(Cur_object_index);
+		Cur_goody_type = objp->contains_type;
+		Cur_goody_id = objp->contains_id;
+		if (objp->contains_count < 0)
+			objp->contains_count = 0;
+		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -359,11 +362,12 @@ static int LocalObjectSelectNextinMine(void)
 				break;
 		}
 
-		Cur_goody_type = Objects[Cur_object_index].contains_type;
-		Cur_goody_id = Objects[Cur_object_index].contains_id;
-		if (Objects[Cur_object_index].contains_count < 0)
-			Objects[Cur_object_index].contains_count = 0;
-		Cur_goody_count = Objects[Cur_object_index].contains_count;
+		const auto &&objp = vobjptr(Cur_object_index);
+		Cur_goody_type = objp->contains_type;
+		Cur_goody_id = objp->contains_id;
+		if (objp->contains_count < 0)
+			objp->contains_count = 0;
+		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -387,11 +391,12 @@ static int LocalObjectSelectPrevinMine(void)
 				break;
 		}
 
-		Cur_goody_type = Objects[Cur_object_index].contains_type;
-		Cur_goody_id = Objects[Cur_object_index].contains_id;
-		if (Objects[Cur_object_index].contains_count < 0)
-			Objects[Cur_object_index].contains_count = 0;
-		Cur_goody_count = Objects[Cur_object_index].contains_count;
+		const auto &&objp = vobjptr(Cur_object_index);
+		Cur_goody_type = objp->contains_type;
+		Cur_goody_id = objp->contains_id;
+		if (objp->contains_count < 0)
+			objp->contains_count = 0;
+		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -407,9 +412,10 @@ static int LocalObjectDelete(void)
 	rval = ObjectDelete();
 
 	if (Cur_object_index != object_none) {
-		Cur_goody_type = Objects[Cur_object_index].contains_type;
-		Cur_goody_id = Objects[Cur_object_index].contains_id;
-		Cur_goody_count = Objects[Cur_object_index].contains_count;
+		const auto &&objp = vcobjptr(Cur_object_index);
+		Cur_goody_type = objp->contains_type;
+		Cur_goody_id = objp->contains_id;
+		Cur_goody_count = objp->contains_count;
 	}
 
 	set_view_target_from_segment(Cursegp);
@@ -434,9 +440,10 @@ static int LocalObjectPlaceObject(void)
 	if (rval == -1)
 		return -1;
 
-	Objects[Cur_object_index].contains_type = Cur_goody_type;
-	Objects[Cur_object_index].contains_id = Cur_goody_id;
-	Objects[Cur_object_index].contains_count = Cur_goody_count;
+	const auto &&objp = vobjptr(Cur_object_index);
+	objp->contains_type = Cur_goody_type;
+	objp->contains_id = Cur_goody_id;
+	objp->contains_count = Cur_goody_count;
 
 	set_view_target_from_segment(Cursegp);
 
@@ -566,7 +573,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		range_for (auto &i, r->initialMode)
 			ui_radio_set_value(i.get(), 0);
 		if ( Cur_object_index != object_none ) {
-			auto &behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
+			auto &behavior = vobjptr(Cur_object_index)->ctype.ai_info.behavior;
 			switch (behavior)
 			{
 				case ai_behavior::AIB_STILL:
@@ -598,9 +605,11 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		if (GADGET_PRESSED(r->initialMode[i].get()))
 		{
 			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
-			if (Objects[Cur_object_index].ctype.ai_info.behavior != b) {
-				Objects[Cur_object_index].ctype.ai_info.behavior = b;		// Set the ai_state to the cooresponding radio button
-				call_init_ai_object(&Objects[Cur_object_index], b);
+			const auto &&objp = vobjptr(Cur_object_index);
+			auto &behavior = objp->ctype.ai_info.behavior;
+			if (behavior != b) {
+				behavior = b;		// Set the ai_state to the cooresponding radio button
+				call_init_ai_object(objp, b);
 				rval = 1;
 			}
 		}
@@ -617,7 +626,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		r->time = Temp;
 
 		if (Cur_object_index != object_none )	{
-			object *obj = &Objects[Cur_object_index];
+			const auto &&obj = vobjptr(Cur_object_index);
 
 			gr_set_current_canvas( r->robotViewBox->canvas );
 			draw_object_picture(obj->id, &r->angles, obj->type );
@@ -656,11 +665,12 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		const char *type_text;
 
 		if (Cur_object_index != object_none) {
-			Cur_goody_type = Objects[Cur_object_index].contains_type;
-			Cur_goody_id = Objects[Cur_object_index].contains_id;
-			if (Objects[Cur_object_index].contains_count < 0)
-				Objects[Cur_object_index].contains_count = 0;
-			Cur_goody_count = Objects[Cur_object_index].contains_count;
+			const auto &&obj = vobjptr(Cur_object_index);
+			Cur_goody_type = obj->contains_type;
+			Cur_goody_id = obj->contains_id;
+			if (obj->contains_count < 0)
+				obj->contains_count = 0;
+			Cur_goody_count = obj->contains_count;
 		}
 
 		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y,    " Type:");
@@ -687,7 +697,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index != object_none )	{
-			const auto id = get_robot_id(Objects[Cur_object_index]);
+			const auto id = get_robot_id(vcobjptr(Cur_object_index));
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
 			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
@@ -806,7 +816,7 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 		default:
 			break;
 	}
-	object *obj=&Objects[Cur_object_index];
+	const auto &&obj = vobjptr(Cur_object_index);
 	int keypress = 0;
 	int rval = 0;
 	

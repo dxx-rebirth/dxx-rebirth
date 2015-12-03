@@ -172,7 +172,7 @@ multi_check_robot_timeout(void)
 		{
 			if (robot_controlled[i] != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
 			{
-				if (Objects[robot_controlled[i]].ctype.ai_info.REMOTE_OWNER != Player_num)
+				if (vcobjptr(robot_controlled[i])->ctype.ai_info.REMOTE_OWNER != Player_num)
 				{		
 					robot_controlled[i] = object_none;
 					Int3(); // Non-terminal but Rob is interesting, step over please...
@@ -243,7 +243,7 @@ int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
-		if (robot_controlled[i] == object_none || Objects[robot_controlled[i]].type != OBJ_ROBOT) {
+		if (robot_controlled[i] == object_none || vcobjptr(robot_controlled[i])->type != OBJ_ROBOT) {
 			first_free_robot = i;
 			break;
 		}
@@ -404,11 +404,12 @@ void multi_send_thief_frame()
 
         range_for (const auto i, highest_valid(Objects))
         {
-                if (Objects[i].type == OBJ_ROBOT)
+		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		if (objp->type == OBJ_ROBOT)
                 {
-			if (robot_is_thief(&Robot_info[get_robot_id(Objects[i])]))
+			if (robot_is_thief(&Robot_info[get_robot_id(objp)]))
                         {
-                                if ((multi_i_am_master() && (Objects[i].ctype.ai_info.REMOTE_OWNER == -1)) || (Objects[i].ctype.ai_info.REMOTE_OWNER == Player_num))
+				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
                                 {
                                         multi_send_robot_position_sub(i,1);
                                 }
@@ -691,25 +692,27 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-	if (Objects[botnum].type != OBJ_ROBOT) {
+	const auto &&botp = vobjptr(botnum);
+	if (botp->type != OBJ_ROBOT)
+	{
 		return;
 	}
 	
-	if (Objects[botnum].ctype.ai_info.REMOTE_OWNER != -1)
+	if (botp->ctype.ai_info.REMOTE_OWNER != -1)
 	{
-		if (MULTI_ROBOT_PRIORITY(b.robjnum, pnum) <= MULTI_ROBOT_PRIORITY(b.robjnum, Objects[botnum].ctype.ai_info.REMOTE_OWNER))
+		if (MULTI_ROBOT_PRIORITY(b.robjnum, pnum) <= MULTI_ROBOT_PRIORITY(b.robjnum, botp->ctype.ai_info.REMOTE_OWNER))
 			return;
 	}
 	
 	// Perform the requested change
 
-	if (Objects[botnum].ctype.ai_info.REMOTE_OWNER == Player_num)
+	if (botp->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
 		multi_delete_controlled_robot(botnum);
 	}
 
-	Objects[botnum].ctype.ai_info.REMOTE_OWNER = pnum;
-	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+	botp->ctype.ai_info.REMOTE_OWNER = pnum;
+	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
 void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
@@ -724,19 +727,21 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-	if (Objects[botnum].type != OBJ_ROBOT) {
+	const auto &&botp = vobjptr(botnum);
+	if (botp->type != OBJ_ROBOT)
+	{
 		return;
 	}
 	
-	if (Objects[botnum].ctype.ai_info.REMOTE_OWNER != pnum)
+	if (botp->ctype.ai_info.REMOTE_OWNER != pnum)
 	{
 		return;
 	}
 	
 	// Perform the requested change
 
-	Objects[botnum].ctype.ai_info.REMOTE_OWNER = -1;
-	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
+	botp->ctype.ai_info.REMOTE_OWNER = -1;
+	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
 void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
@@ -1002,7 +1007,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 	obj_relink(boss_obj, teleport_segnum);
 	Last_teleport_time = GameTime64;
 
-	const auto boss_dir = vm_vec_sub(Objects[Players[pnum].objnum].pos, boss_obj->pos);
+	const auto boss_dir = vm_vec_sub(vcobjptr(Players[pnum].objnum)->pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, boss_obj->pos, 0 , F1_0);
@@ -1125,7 +1130,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 		if ( s != -1)
 			map_objnum_local_to_remote(i, s, pnum);
 		else
-			Objects[i].flags |= OF_SHOULD_BE_DEAD; // Delete objects other guy didn't create one of
+			vobjptr(i)->flags |= OF_SHOULD_BE_DEAD; // Delete objects other guy didn't create one of
 		loc += 2;
 	}
 }

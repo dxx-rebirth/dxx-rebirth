@@ -103,7 +103,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
-			auto &vp = Segments[obj_seg].verts;
+			auto &vp = vcsegptr(obj_seg)->verts;
 
 			range_for (const auto vertnum, vp)
 			{
@@ -124,19 +124,21 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 
 #if defined(DXX_BUILD_DESCENT_II)
 			if (objnum != object_none)
-				if (Objects[objnum].type == OBJ_PLAYER)
-					if (Objects[objnum].ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
+			{
+				const auto &&objp = vcobjptr(objnum);
+				if (objp->type == OBJ_PLAYER)
+					if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
-						if (get_player_id(Objects[objnum]) != Player_num)
+						if (get_player_id(objp) != Player_num)
 						{
 							fvi_query	fq;
 							fvi_info		hit_data;
 							int			fate;
 
-							const auto tvec = vm_vec_scale_add(Objects[objnum].pos, Objects[objnum].orient.fvec, F1_0*200);
+							const auto tvec = vm_vec_scale_add(objp->pos, objp->orient.fvec, F1_0*200);
 
-							fq.startseg				= Objects[objnum].segnum;
-							fq.p0						= &Objects[objnum].pos;
+							fq.startseg				= objp->segnum;
+							fq.p0						= &objp->pos;
 							fq.p1						= &tvec;
 							fq.rad					= 0;
 							fq.thisobjnum			= objnum;
@@ -145,9 +147,10 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 
 							fate = find_vector_intersection(fq, hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, Objects[objnum].pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, objp->pos)) + F1_0*4;
 						}
 					}
+			}
 #endif
 			for (int vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum;
@@ -180,7 +183,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 						fix dot;
 						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
 						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(vertpos, obj_pos));
-						dot = vm_vec_dot(vec_to_point, Objects[objnum].orient.fvec);
+						dot = vm_vec_dot(vec_to_point, vcobjptr(objnum)->orient.fvec);
 						if (dot < F1_0/2)
 						{
 							// Do the normal thing, but darken around headlight.

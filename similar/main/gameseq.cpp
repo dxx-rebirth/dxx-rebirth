@@ -1871,7 +1871,7 @@ static void InitPlayerPosition(int random_flag)
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
+	obj_relink(vobjptridx(ConsoleObject), Player_init[NewPlayer].segnum);
 	reset_player_object();
 }
 

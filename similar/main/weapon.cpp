@@ -994,8 +994,9 @@ void rock_the_mine_frame(void)
 
 					//	Shake the buddy!
 					if (Buddy_objnum != object_none) {
-						Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
-						Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+						const auto &&objp = vobjptr(Buddy_objnum);
+						objp->mtype.phys_info.rotvel.x += rx*4;
+						objp->mtype.phys_info.rotvel.z += rz*4;
 					}
 					//	Shake a guided missile!
 					Seismic_tremor_magnitude += rx;
@@ -1062,8 +1063,9 @@ static void seismic_disturbance_frame(void)
 
 				//	Shake the buddy!
 				if (Buddy_objnum != object_none) {
-					Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
-					Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+					const auto &&objp = vobjptr(Buddy_objnum);
+					objp->mtype.phys_info.rotvel.x += rx*4;
+					objp->mtype.phys_info.rotvel.z += rz*4;
 				}
 				//	Shake a guided missile!
 				Seismic_tremor_magnitude += rx;

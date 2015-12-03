@@ -505,8 +505,7 @@ static void move_player_2_segment_and_rotate(const vsegptridx_t seg,int side)
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
 
-	obj_relink( ConsoleObject-Objects, seg );
-	
+	obj_relink(vobjptridx(ConsoleObject), seg);
 }
 
 int SetPlayerFromCursegAndRotate()
@@ -557,7 +556,7 @@ int SetPlayerFromCursegMinusOne()
 
 	auto newseg = find_point_seg(ConsoleObject->pos,Cursegp);
 	if (newseg != segment_none)
-		obj_relink(ConsoleObject-Objects,newseg);
+		obj_relink(vobjptridx(ConsoleObject), newseg);
 
 	Update_flags |= UF_ED_STATE_CHANGED | UF_GAME_VIEW_CHANGED;
 	return 1;

@@ -1179,12 +1179,12 @@ void newdemo_record_sound_3d_once( int soundno, int angle, int volume )
 }
 
 
-void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
 	nd_write_int( soundno );
-	nd_write_int(Objects[objnum].signature.get());
+	nd_write_int(vcobjptr(objnum)->signature.get());
 	nd_write_int( max_volume );
 	nd_write_int( max_distance );
 	nd_write_int( loop_start );
@@ -1995,7 +1995,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link(Viewer-Objects,segnum);
+				obj_link(vobjptridx(Viewer), segnum);
 			}
 			}
 		}

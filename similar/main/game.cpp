@@ -473,9 +473,7 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 	auto vp = compute_center_point_on_side(seg,side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
-
-	obj_relink( ConsoleObject-Objects, seg );
-
+	obj_relink(vobjptridx(ConsoleObject), seg );
 }
 
 #ifndef OGL
@@ -1116,7 +1114,7 @@ window *game_setup(void)
 	}
 	
 	if (Segments[ConsoleObject->segnum].segnum == segment_none)      //segment no longer exists
-		obj_relink( ConsoleObject-Objects, Cursegp );
+		obj_relink(vobjptridx(ConsoleObject), Cursegp);
 
 	if (!check_obj_seg(ConsoleObject))
 		move_player_2_segment(Cursegp,Curside);

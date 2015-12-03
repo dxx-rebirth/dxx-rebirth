@@ -768,8 +768,9 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 	{
 		robot_escort = 0;
 
-		if (Objects[weapon->ctype.laser_info.parent_num].type == OBJ_PLAYER)
-			playernum = get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num));
+		const auto &&objp = vcobjptr(weapon->ctype.laser_info.parent_num);
+		if (objp->type == OBJ_PLAYER)
+			playernum = get_player_id(objp);
 		else
 			playernum = -1;		//not a player (thus a robot)
 	}

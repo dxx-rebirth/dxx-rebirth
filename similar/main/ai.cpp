@@ -1792,11 +1792,9 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 		//	If Buddy is returning to player, don't let him think he can get through triggered doors.
 		//	It's only valid to think that if the player is going to get him through.  But if he's
 		//	going to the player, the player is probably on the opposite side.
-		ai_mode ailp_mode;
-		if (objp == nullptr)
-			ailp_mode = Objects[Buddy_objnum].ctype.ai_info.ail.mode;
-		else
-			ailp_mode = objp->ctype.ai_info.ail.mode;
+		const ai_mode ailp_mode = ((objp == nullptr)
+			? static_cast<const object *>(vcobjptr(Buddy_objnum))
+			: static_cast<const object *>(objp))->ctype.ai_info.ail.mode;
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
@@ -3045,7 +3043,7 @@ void do_ai_frame(const vobjptridx_t obj)
 			vis_vec_pos = obj->pos;
 			compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility) {
-				objnum_t min_obj = object_none;
+				cobjptr_t min_obj = nullptr;
 				fix min_dist = F1_0*200, cur_dist;
 
 				range_for (const auto ii, highest_valid(Objects))
@@ -3057,15 +3055,16 @@ void do_ai_frame(const vobjptridx_t obj)
 						if (cur_dist < F1_0*100)
 							if (object_to_object_visibility(obj, objp, FQ_TRANSWALL))
 								if (cur_dist < min_dist) {
-									min_obj = ii;
+									min_obj = objp;
 									min_dist = cur_dist;
 								}
 					}
 				}
 
-				if (min_obj != object_none) {
-					Believed_player_pos = Objects[min_obj].pos;
-					Believed_player_seg = Objects[min_obj].segnum;
+				if (min_obj != nullptr)
+				{
+					Believed_player_pos = min_obj->pos;
+					Believed_player_seg = min_obj->segnum;
 					vm_vec_normalized_dir_quick(vec_to_player, Believed_player_pos, obj->pos);
 				} else
 					goto _exit_cheat;
@@ -3459,8 +3458,7 @@ _exit_cheat:
 		do_escort_frame(obj, dist_to_player, player_visibility);
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
-			object *dobjp = &Objects[obj->ctype.ai_info.danger_laser_num];
-
+			const auto &&dobjp = vobjptr(obj->ctype.ai_info.danger_laser_num);
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
 				fix circle_distance;
 				circle_distance = robptr->circle_distance[Difficulty_level] + ConsoleObject->size;

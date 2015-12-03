@@ -440,44 +440,46 @@ void do_controlcen_frame(const vobjptridx_t obj)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
 void init_controlcen_for_level(void)
 {
-	objnum_t		cntrlcen_objnum=object_none, boss_objnum=object_none;
+	objptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
 	range_for (const auto i, highest_valid(Objects))
 	{
-		const auto &&objp = vcobjptridx(i);
+		const auto &&objp = vobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)
 		{
-			if (cntrlcen_objnum != object_none)
-				;
-			else
+			if (cntrlcen_objnum == nullptr)
 				cntrlcen_objnum = i;
 		}
 
 		if ((objp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(objp)].boss_flag)) {
-			if (boss_objnum != object_none)
-				;
-			else
+			if (boss_objnum == nullptr)
 				boss_objnum = i;
 		}
 	}
 
 #ifndef NDEBUG
-	if (cntrlcen_objnum == object_none) {
+	if (cntrlcen_objnum == nullptr)
+	{
 		Dead_controlcen_object_num = object_none;
 		return;
 	}
 #endif
 
-	if ( (boss_objnum != object_none) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
-		if (cntrlcen_objnum != object_none) {
-			Objects[cntrlcen_objnum].type = OBJ_GHOST;
-			Objects[cntrlcen_objnum].control_type = CT_NONE;
-			Objects[cntrlcen_objnum].render_type = RT_NONE;
+	if (boss_objnum != nullptr && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)))
+	{
+		if (cntrlcen_objnum != nullptr)
+		{
+			const vobjptr_t objp = cntrlcen_objnum;
+			objp->type = OBJ_GHOST;
+			objp->control_type = CT_NONE;
+			objp->render_type = RT_NONE;
 			Control_center_present = 0;
 		}
-	} else if (cntrlcen_objnum != object_none) {
+	}
+	else if (cntrlcen_objnum != nullptr)
+	{
 		//	Compute all gun positions.
-		const auto &&objp = vobjptr(cntrlcen_objnum);
+		const vobjptr_t objp = cntrlcen_objnum;
 		calc_controlcen_gun_point(objp);
 		Control_center_present = 1;
 
