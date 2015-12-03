@@ -426,7 +426,7 @@ static void clear_missile_viewer()
 }
 
 __attribute_warn_unused_result
-static bool is_viewable_missile(weapon_type_t laser_type)
+static bool is_viewable_missile(weapon_id_type laser_type)
 {
 	return laser_type == CONCUSSION_ID ||
 		laser_type == HOMING_ID ||

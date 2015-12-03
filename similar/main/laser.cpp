@@ -636,7 +636,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 }
 #endif
 
-static inline int is_laser_weapon_type(enum weapon_type_t weapon_type)
+static inline int is_laser_weapon_type(weapon_id_type weapon_type)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_type == LASER_ID_L5 || weapon_type == LASER_ID_L6)
@@ -648,7 +648,7 @@ static inline int is_laser_weapon_type(enum weapon_type_t weapon_type)
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, const vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
+objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
 	fix parent_speed, weapon_speed;
 	fix volume;
@@ -950,7 +950,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
-objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vobjptridx_t parent, enum weapon_type_t weapon_type, int make_sound )
+objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
@@ -1287,7 +1287,7 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, vms_vector shot_orientation)
+static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, vms_vector shot_orientation)
 {
 	int			Fate;
 	vms_vector	LaserDir;
@@ -1448,14 +1448,14 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, enum w
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static objptridx_t Laser_player_fire_spread(const vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, vms_vector shot_orientation)
+static objptridx_t Laser_player_fire_spread(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, vms_vector shot_orientation)
 {
 	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-objptridx_t Laser_player_fire(const vobjptridx_t obj, enum weapon_type_t laser_type, int gun_num, int make_sound, vms_vector shot_orientation)
+objptridx_t Laser_player_fire(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, vms_vector shot_orientation)
 {
 	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, shot_orientation);
 }
@@ -1851,7 +1851,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 {
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
-			enum weapon_type_t weapon_type;
+			weapon_id_type weapon_type;
 
 			switch(level)
 			{
@@ -2024,7 +2024,7 @@ const vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
-static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptridx_t goal_obj, enum weapon_type_t objtype, int make_sound)
+static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptridx_t goal_obj, weapon_id_type objtype, int make_sound)
 {
 	vms_vector	vector_to_goal;
 	//vms_vector	goal_pos;
@@ -2067,7 +2067,7 @@ struct miniparent
 static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children, const miniparent parent)
 {
 	unsigned numobjs = 0;
-	enum weapon_type_t blob_id;
+	weapon_id_type blob_id;
 
 	array<objnum_t, MAX_OBJDISTS> objlist;
 	{
@@ -2132,8 +2132,8 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (objp->type == OBJ_WEAPON) {
-			blob_id = (enum weapon_type_t) Weapon_info[get_weapon_id(objp)].children;
-			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
+			blob_id = (weapon_id_type) Weapon_info[get_weapon_id(objp)].children;
+			Assert(blob_id != weapon_none);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
 			Assert(objp->type == OBJ_ROBOT);
 			blob_id = ROBOT_SMART_HOMING_ID;
@@ -2236,12 +2236,12 @@ void do_missile_firing(int drop_bomb)
 	if (auto &secondary_weapon_ammo = get_local_player_secondary_ammo()[weapon])
 	{
 
-		enum weapon_type_t weapon_index;
+		weapon_id_type weapon_index;
 		int weapon_gun;
 
 		-- secondary_weapon_ammo;
 
-		weapon_index = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon];
+		weapon_index = (weapon_id_type) Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;

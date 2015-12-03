@@ -466,9 +466,9 @@ static inline uint8_t get_marker_id(const object &o)
 	return o.id;
 }
 
-static inline weapon_type_t get_weapon_id(const object &o)
+static inline weapon_id_type get_weapon_id(const object &o)
 {
-	return static_cast<weapon_type_t>(o.id);
+	return static_cast<weapon_id_type>(o.id);
 }
 
 static inline void set_hostage_id(object &o, ubyte id)
@@ -493,7 +493,7 @@ static inline void set_robot_id(object &o, ubyte id)
 	o.id = id;
 }
 
-static inline void set_weapon_id(object &o, weapon_type_t id)
+static inline void set_weapon_id(object &o, weapon_id_type id)
 {
 	o.id = id;
 }

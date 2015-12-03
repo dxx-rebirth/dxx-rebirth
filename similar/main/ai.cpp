@@ -321,6 +321,17 @@ static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE]
 	}
 };
 
+uint8_t get_robot_weapon(const robot_info &ri, const unsigned gun_num)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)gun_num;
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (ri.weapon_type2 != weapon_none && !gun_num)
+		return ri.weapon_type2;
+#endif
+	return ri.weapon_type;
+}
+
 static int ready_to_fire_weapon1(const ai_local *ailp, fix threshold)
 {
 	return (ailp->next_fire <= threshold);
@@ -964,7 +975,6 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 {
 	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
 	vms_vector	player_movement_dir;
-	int			weapon_type;
 	weapon_info	*wptr;
 	robot_info	*robptr;
 
@@ -989,10 +999,7 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 
 	//	Looks like it might be worth trying to lead the player.
 	robptr = &Robot_info[get_robot_id(objp)];
-	weapon_type = robptr->weapon_type;
-	if (robptr->weapon_type2 != weapon_none)
-		if (gun_num == 0)
-			weapon_type = robptr->weapon_type2;
+	const auto weapon_type = get_robot_weapon(*robptr, gun_num);
 
 	wptr = &Weapon_info[weapon_type];
 	max_weapon_speed = wptr->speed[Difficulty_level];
@@ -1190,15 +1197,9 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 player_led: ;
 #endif
 
-	int			weapon_type;
-	weapon_type = robptr->weapon_type;
-#if defined(DXX_BUILD_DESCENT_II)
-	if (robptr->weapon_type2 != weapon_none)
-		if (gun_num == 0)
-			weapon_type = robptr->weapon_type2;
-#endif
+	const auto weapon_type = get_robot_weapon(*robptr, gun_num);
 
-	Laser_create_new_easy( fire_vec, fire_point, obj, static_cast<weapon_type_t>(weapon_type), 1);
+	Laser_create_new_easy( fire_vec, fire_point, obj, static_cast<weapon_id_type>(weapon_type), 1);
 
 	if (Game_mode & GM_MULTI)
 	{

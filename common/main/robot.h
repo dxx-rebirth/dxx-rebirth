@@ -74,35 +74,27 @@ struct jointlist
 struct robot_info : prohibit_void_ptr<robot_info>
 {
 	int     model_num;                  // which polygon model?
-#if defined(DXX_BUILD_DESCENT_I)
-	int			n_guns;								// how many different gun positions
-#endif
 	array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
 	array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
+	uint16_t score_value;						//	Score from this robot.
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
 	short   exp2_vclip_num;
 	short   exp2_sound_num;
-#if defined(DXX_BUILD_DESCENT_I)
-	short			weapon_type;
-#elif defined(DXX_BUILD_DESCENT_II)
-	sbyte   weapon_type;
-	sbyte   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
-	sbyte   n_guns;         // how many different gun positions
-#endif
+	uint8_t weapon_type;
+	uint8_t   n_guns;         // how many different gun positions
 	sbyte   contains_id;    //  ID of powerup this robot can contain.
 
 	sbyte   contains_count; //  Max number of things this instance can contain.
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
 	sbyte   contains_type;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 #if defined(DXX_BUILD_DESCENT_I)
-	int			score_value;						//	Score from this robot.
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
 
-	short   score_value;    //  Score from this robot.
 	sbyte   badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
 	sbyte   energy_drain;   //  Points of energy drained at each collision.
+	uint8_t   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
 #endif
 	fix     lighting;       // should this be here or with polygon model?
 	fix     strength;       // Initial shields of robot
@@ -153,7 +145,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	int     always_0xabcd;      // debugging
 };
 
-const int weapon_none = -1;
+const uint8_t weapon_none = 0xff;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
@@ -236,6 +228,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
+uint8_t get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 
 #endif
 

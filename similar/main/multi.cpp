@@ -1559,7 +1559,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	else
 	if (weapon >= MISSILE_ADJUST) {
 		int weapon_gun,remote_objnum;
-		enum weapon_type_t weapon_id = (enum weapon_type_t) Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
+		weapon_id_type weapon_id = (weapon_id_type) Secondary_weapon_to_weapon_info[weapon-MISSILE_ADJUST];
 		weapon_gun = Secondary_weapon_to_gun_num[weapon-MISSILE_ADJUST] + (flags & 1);
 
 #if defined(DXX_BUILD_DESCENT_II)

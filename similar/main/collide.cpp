@@ -1892,7 +1892,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		auto &secondary_ammo = playerobj->ctype.player_info.secondary_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If the player had smart mines, maybe arm one of them.
-		const auto drop_armed_bomb = [&](uint8_t mines, weapon_type_t id) {
+		const auto drop_armed_bomb = [&](uint8_t mines, weapon_id_type id) {
 			mines %= 4;
 			for (int rthresh = 30000; mines && d_rand() < rthresh; rthresh /= 2)
 		{

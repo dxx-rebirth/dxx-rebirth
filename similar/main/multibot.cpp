@@ -842,18 +842,18 @@ multi_do_robot_fire(const ubyte *buf)
 	{
 		// Drop proximity bombs
 		const auto gun_point = vm_vec_add(botp->pos, fire);
-		if (gun_num == -1)
-			Laser_create_new_easy( fire, gun_point, botp, PROXIMITY_ID, 1);
+		const auto weapon_id =
 #if defined(DXX_BUILD_DESCENT_II)
-		else
-			Laser_create_new_easy( fire, gun_point, botp, SUPERPROX_ID, 1);
+			gun_num != -1 ? SUPERPROX_ID :
 #endif
+			PROXIMITY_ID;
+			Laser_create_new_easy( fire, gun_point, botp, weapon_id, 1);
 	}
 	else
 	{
 		const auto gun_point = calc_gun_point(botp, gun_num);
 		robptr = &Robot_info[get_robot_id(botp)];
-		Laser_create_new_easy( fire, gun_point, botp, (enum weapon_type_t) robptr->weapon_type, 1);
+		Laser_create_new_easy( fire, gun_point, botp, (weapon_id_type) get_robot_weapon(*robptr, 1), 1);
 	}
 }
 
