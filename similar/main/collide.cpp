@@ -1128,20 +1128,21 @@ static void collide_player_and_controlcen(const vobjptridx_t controlcen, const v
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void collide_player_and_marker(const vobjptridx_t  marker, const vobjptr_t playerobj, const vms_vector &)
+static void collide_player_and_marker(const vobjptr_t playerobj, const vobjptridx_t marker, const vms_vector &)
 {
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
 
 		const auto marker_id = get_marker_id(marker);
+		auto &msg = MarkerMessage[marker_id];
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(Players[marker_id / 2].callsign), &MarkerMessage[marker_id][0]);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(Players[marker_id / 2].callsign), &msg[0]);
 		}
 		else
 		{
-			if (MarkerMessage[marker_id][0])
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker_id + 1, &MarkerMessage[marker_id][0]);
+			if (msg[0])
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", marker_id + 1, &msg[0]);
 			else
 				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", marker_id + 1);
 	   }
