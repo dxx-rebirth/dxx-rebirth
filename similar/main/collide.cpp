@@ -1351,9 +1351,8 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 	if (robot->shields < 0 ) return 0;	//robot already dead...
 
 	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
-	if (robptr->boss_flag)
-		Boss_been_hit = 1;
 #if defined(DXX_BUILD_DESCENT_II)
+	if (robptr->boss_flag)
 		Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.

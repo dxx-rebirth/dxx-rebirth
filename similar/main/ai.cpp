@@ -158,7 +158,6 @@ fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix64           Boss_dying_start_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
-int				Boss_been_hit=0;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -395,7 +394,6 @@ ai_mode ai_behavior_to_mode(ai_behavior behavior)
 //	Call every time the player starts a new ship.
 void ai_init_boss_for_ship(void)
 {
-	Boss_been_hit = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	Boss_hit_time = -F1_0*10;
 #endif
@@ -502,7 +500,6 @@ void init_ai_objects(void)
 	init_boss_segments(Boss_gate_segs, 0, 0);
 
 	init_boss_segments(Boss_teleport_segs, 1, 0);
-	Boss_been_hit = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -4510,6 +4507,7 @@ int ai_save_state(PHYSFS_file *fp)
 #if defined(DXX_BUILD_DESCENT_I)
 	int boss_hit_this_frame = Boss_hit_this_frame;
 	PHYSFS_write(fp, &boss_hit_this_frame, sizeof(int), 1);
+	const int Boss_been_hit = 0;
 	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Boss_hit_time - GameTime64 < F1_0*(-18000))
@@ -4659,7 +4657,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
 	Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
-	Boss_been_hit = PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_readSXE32(fp, swap);
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Boss_hit_time = (fix64)tmptime32;
