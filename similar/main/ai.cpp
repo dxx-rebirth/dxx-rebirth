@@ -146,7 +146,6 @@ boss_teleport_segment_array_t	Boss_teleport_segs;
 boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
-int             Ai_initialized = 0;
 int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
@@ -499,8 +498,6 @@ void init_ai_objects(void)
 
 	Boss_dying_sound_playing = 0;
 	Boss_dying = 0;
-
-	Ai_initialized = 1;
 
 	init_boss_segments(Boss_gate_segs, 0, 0);
 
@@ -4455,6 +4452,7 @@ int ai_save_state(PHYSFS_file *fp)
 {
 	fix tmptime32 = 0;
 
+	const int Ai_initialized = 0;
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
 	range_for (auto &i, Objects)
@@ -4637,7 +4635,7 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 {
 	fix tmptime32 = 0;
 
-	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	range_for (object &obj, Objects)
 		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
