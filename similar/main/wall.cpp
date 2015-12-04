@@ -1627,10 +1627,12 @@ void wclip_read(PHYSFS_file *fp, wclip &wc)
 	PHYSFSX_serialize_read(fp, wc);
 }
 
+#if 0
 void wclip_write(PHYSFS_file *fp, const wclip &wc)
 {
 	PHYSFSX_serialize_write(fp, wc);
 }
+#endif
 
 struct wrap_v16_wall
 {

@@ -256,7 +256,9 @@ void blast_nearby_glass(vobjptr_t objp, fix damage);
 #endif
 
 void wclip_read(PHYSFS_file *, wclip &wc);
+#if 0
 void wclip_write(PHYSFS_file *, const wclip &);
+#endif
 
 void v16_wall_read(PHYSFS_file *fp, v16_wall &w);
 void v19_wall_read(PHYSFS_file *fp, v19_wall &w);
