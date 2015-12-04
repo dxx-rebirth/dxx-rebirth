@@ -107,6 +107,8 @@ static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
 static void multi_send_quit();
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
+static playernum_t multi_who_is_master();
+static void multi_show_player_list();
 
 #if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
 static void multi_add_lifetime_kills(int count);

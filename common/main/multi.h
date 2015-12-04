@@ -479,7 +479,6 @@ int multi_objnum_is_past(objnum_t objnum);
 void multi_do_ping_frame();
 
 void multi_init_objects(void);
-void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
@@ -677,7 +676,6 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 extern struct netgame_info Netgame;
 
 #define multi_i_am_master()	(Player_num == 0)
-playernum_t multi_who_is_master();
 void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
