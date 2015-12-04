@@ -189,7 +189,8 @@ grs_canvas &window_get_canvas(window &wind)
 	return wind.w_canv;
 }
 
-extern void window_update_canvases(void)
+#ifndef OGL
+void window_update_canvases()
 {
 	window *wind;
 	
@@ -201,6 +202,7 @@ extern void window_update_canvases(void)
 							wind->w_canv.cv_bitmap.bm_w,
 							wind->w_canv.cv_bitmap.bm_h);
 }
+#endif
 
 window_event_result window_send_event(window &wind, const d_event &event)
 {

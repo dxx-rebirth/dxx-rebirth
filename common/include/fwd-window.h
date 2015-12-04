@@ -36,7 +36,9 @@ void window_select(window &wind);
 window *window_set_visible(window &wind, int visible);
 int window_is_visible(window &wind);
 grs_canvas &window_get_canvas(window &wind);
+#ifndef OGL
 void window_update_canvases();
+#endif
 window_event_result window_send_event(window &wind,const d_event &event);
 void window_set_modal(window &wind, int modal);
 int window_is_modal(window &wind);

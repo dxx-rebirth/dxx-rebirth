@@ -77,7 +77,6 @@ static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(
 }
 
 const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
-#endif
 
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.
@@ -104,7 +103,6 @@ void init_interface_vars_to_assembler(void)
 	Window_clip_bot = (int) bp->bm_h-1;
 }
 
-#ifndef OGL
 static int Lighting_enabled;
 // -------------------------------------------------------------------------------------
 //                             VARIABLES

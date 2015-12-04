@@ -80,6 +80,7 @@ struct g3ds_tmap {
 //	Set Interpolation_method to 0/1/2 for linear/linear, perspective/linear, perspective/perspective
 #ifndef OGL
 extern	int	Interpolation_method;
+void init_interface_vars_to_assembler();
 #endif
 class push_interpolation_method
 {
@@ -119,7 +120,5 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 
 #define FIX_XLIMIT	(639 * F1_0)
 #define FIX_YLIMIT	(479 * F1_0)
-
-extern void init_interface_vars_to_assembler(void);
 
 #endif

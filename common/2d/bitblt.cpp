@@ -42,11 +42,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static int gr_bitblt_dest_step_shift = 0;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
+#ifndef OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
+#endif
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
+#ifndef OGL
 static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, const uint_fast32_t num_pixels)
 {
 	auto predicate = [&](uint8_t s, uint8_t d) {
@@ -54,6 +57,7 @@ static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, 
 	};
 	std::transform(src, src + num_pixels, dest, dest, predicate);
 }
+#endif
 
 static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 {
@@ -70,6 +74,7 @@ static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
+#ifndef OGL
 static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
@@ -87,6 +92,7 @@ static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 		}
 	}
 }
+#endif
 
 template <typename F>
 static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, F f)
@@ -108,6 +114,7 @@ static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
 
+#ifndef OGL
 static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
@@ -120,6 +127,7 @@ static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
+#endif
 
 static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 {
@@ -135,6 +143,7 @@ static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
+#ifndef OGL
 static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	ubyte c;
@@ -153,6 +162,7 @@ static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 		}
 	}
 }
+#endif
 
 void gr_ubitmap(grs_bitmap &bm)
 {
@@ -186,6 +196,7 @@ void gr_ubitmap(grs_bitmap &bm)
 	}
 }
 
+#ifndef OGL
 void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 {
 	const auto source = bm.get_type();
@@ -286,6 +297,7 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 		for (uint_fast32_t x1 = 0; x1 != w; ++x1)
 			gr_bm_pixel(dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
 }
+#endif
 
 // Clipped bitmap ...
 void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
@@ -319,6 +331,7 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 #endif
 }
 
+#ifndef OGL
 void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dx1=x, dx2=x+bm.bm_w-1;
@@ -369,6 +382,7 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
 				gr_bm_pixel(dest, dx+x1, dy+y1,c  );
 }
+#endif
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
@@ -393,6 +407,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	}
 }
 
+#ifndef OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	int data_offset;
@@ -437,6 +452,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 			sbits += (int)src.bm_data[4+y1+sy];
 	}
 }
+#endif
 
 // rescalling bitmaps, 10/14/99 Jan Bobrowski jb@wizard.ae.krakow.pl
 
