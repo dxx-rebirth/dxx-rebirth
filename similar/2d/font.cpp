@@ -925,16 +925,16 @@ grs_font_ptr gr_init_font( const char * fontname )
 	}
 
 	static_assert(sizeof(file_header) == 8, "file header size error");
-	auto &datasize = file_header.datasize;
 	if (PHYSFS_read(fontfile, &file_header, sizeof(file_header), 1) != 1 ||
 		memcmp(file_header.magic.data(), "PSFN", 4) ||
-		datasize < GRS_FONT_SIZE)
+		(file_header.datasize = INTEL_INT(file_header.datasize)) < GRS_FONT_SIZE)
 	{
 		con_printf(CON_NORMAL, "Invalid header in font file %s", fontname);
 		return {};
 	}
 
-	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
+	file_header.datasize -= GRS_FONT_SIZE; // subtract the size of the header.
+	const auto &datasize = file_header.datasize;
 
 	auto font = make_unique<grs_font>();
 	grs_font_read(font.get(), fontfile);
