@@ -186,10 +186,10 @@ void select_cockpit(cockpit_mode_t mode);
 void reset_cockpit(void);       // called if you've trashed the screen
 
 // functions to save, clear, and resture palette flash effects
-void palette_save(void);
 void reset_palette_add(void);
 void palette_restore(void);
 #if defined(DXX_BUILD_DESCENT_I)
+void palette_save();
 static inline void full_palette_save(void)
 {
 	palette_save();

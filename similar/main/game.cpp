@@ -760,8 +760,15 @@ static void diminish_palette_towards_normal(void)
 	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
 }
 
+namespace {
+
 int	Redsave, Bluesave, Greensave;
 
+}
+
+#if defined(DXX_BUILD_DESCENT_II)
+static
+#endif
 void palette_save(void)
 {
 	Redsave = PaletteRedAdd; Bluesave = PaletteBlueAdd; Greensave = PaletteGreenAdd;
