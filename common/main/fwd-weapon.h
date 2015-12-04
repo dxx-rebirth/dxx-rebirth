@@ -52,7 +52,9 @@ class stored_laser_level;
 struct weapon_info;
 
 struct PHYSFS_File;
+#if 0
 void weapon_info_write(PHYSFS_File *, const weapon_info &);
+#endif
 
 #define REARM_TIME                  (F1_0)
 
