@@ -756,7 +756,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._check_libSDL(context, '2')
 	def _check_libSDL(self,context,sdl2):
 		user_settings = self.user_settings
-		successflags = self.pkgconfig.merge(context, self.message, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2)
+		successflags = self.pkgconfig.merge(context, self.message, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2).copy()
 		if user_settings.max_joysticks:
 			# If joysticks are enabled, but all possible inputs are
 			# disabled, then disable joystick support.
@@ -766,7 +766,8 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			# If joysticks are disabled, then disable all possible
 			# inputs.
 			user_settings.max_axes_per_joystick = user_settings.max_buttons_per_joystick = user_settings.max_hats_per_joystick = 0
-		successflags.setdefault('CPPDEFINES', []).extend((
+		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', [])[:]
+		CPPDEFINES.extend((
 			('MAX_JOYSTICKS', user_settings.max_joysticks),
 			('MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
