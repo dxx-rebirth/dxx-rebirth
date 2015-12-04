@@ -1603,10 +1603,6 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 	}
 
 }
-#ifndef NDEBUG
-int	Do_ai_flag=1;
-#endif
-
 #define	CHASE_TIME_LENGTH		(F1_0*8)
 #define	DEFAULT_ROBOT_SOUND_VOLUME		F1_0
 int		Robot_sound_volume=DEFAULT_ROBOT_SOUND_VOLUME;
@@ -2972,9 +2968,6 @@ void do_ai_frame(const vobjptridx_t obj)
 #ifndef NDEBUG
 	if ((aip->behavior == ai_behavior::AIB_RUN_FROM) && (ailp->mode != ai_mode::AIM_RUN_FROM_OBJECT))
 		Int3(); // This is peculiar.  Behavior is run from, but mode is not.  Contact Mike.
-
-	if (!Do_ai_flag)
-		return;
 
 	if (Break_on_object != object_none)
 		if ((obj) == Break_on_object)

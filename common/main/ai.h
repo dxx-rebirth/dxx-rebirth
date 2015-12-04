@@ -239,17 +239,6 @@ extern fix64            Boss_hit_time;
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 
-#ifndef NDEBUG
-// Index into this array with ailp->mode
-
-// Index into this array with aip->behavior
-
-// Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-
-extern int Do_ai_flag;
-
-#endif //ifndef NDEBUG
-
 extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
