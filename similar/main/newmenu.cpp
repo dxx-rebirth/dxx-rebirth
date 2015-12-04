@@ -1680,10 +1680,12 @@ int listbox_get_citem(listbox *lb)
 	return lb->citem;
 }
 
+#ifdef _WIN32
 window *listbox_get_window(listbox *lb)
 {
 	return lb->wind;
 }
+#endif
 
 void listbox_delete_item(listbox *lb, int item)
 {
