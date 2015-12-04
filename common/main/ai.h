@@ -226,9 +226,6 @@ void init_ai_for_ship(void);
 // It is not valid to use FrameTime because robots do not get moved every frame.
 
 // --------- John: These variables must be saved as part of gamesave. ---------
-extern int              Overall_agitation;
-extern fix              Boss_teleport_interval;
-extern fix              Boss_cloak_interval;        // Time between cloaks
 extern fix64            Last_gate_time;
 extern fix              Gate_interval;
 extern fix64            Boss_dying_start_time;

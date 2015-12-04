@@ -146,13 +146,17 @@ boss_teleport_segment_array_t	Boss_teleport_segs;
 boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
-int             Overall_agitation;
+static int             Overall_agitation;
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
 fix64           Last_teleport_time = 0;
 fix             Boss_teleport_interval = F1_0*8;
+static
+#if defined(DXX_BUILD_DESCENT_I)
+const
+#endif
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
 fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
@@ -4638,7 +4642,10 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_teleport_time = (fix64)tmptime32;
 	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_interval = PHYSFSX_readSXE32(fp, swap);
+#if defined(DXX_BUILD_DESCENT_II)
+	Boss_cloak_interval =
+#endif
+		PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_gate_time = (fix64)tmptime32;
