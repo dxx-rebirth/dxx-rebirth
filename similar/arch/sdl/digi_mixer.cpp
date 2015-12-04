@@ -239,7 +239,3 @@ void digi_mixer_stop_all_channels()
 	channels = {};
 	Mix_HaltChannel(-1);
 }
-
-#ifndef NDEBUG
-void digi_mixer_debug() {}
-#endif

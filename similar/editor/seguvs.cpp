@@ -803,31 +803,6 @@ int fix_bogus_uvs_all(void)
 }
 
 // -----------------------------------------------------------------------------
-//	Propagate texture map u,v coordinates to base_seg:back_side from base_seg:some-other-side
-//	There is no easy way to figure out which side is adjacent to another side along some edge, so we do a bit of searching.
-void med_propagate_tmaps_to_any_side(const vsegptridx_t base_seg, int back_side, int tmap_num, int uv_only_flag)
-{
-        int     v1=0,v2=0;
-	int	s;
-
-	//	Scan all sides, look for an occupied side which is not back_side or Side_opposite[back_side]
-	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
-		if ((s != back_side) && (s != Side_opposite[back_side])) {
-			v1 = Edge_between_sides[s][back_side][0];
-			v2 = Edge_between_sides[s][back_side][1];
-			goto found1;
-		}
-	Assert(0);		// Error -- couldn't find edge != back_side and Side_opposite[back_side]
-found1: ;
-	Assert( (v1 != -1) && (v2 != -1));		// This means there was no shared edge between the two sides.
-
-	propagate_tmaps_to_segment_side(base_seg, s, base_seg, back_side, base_seg->verts[v1], base_seg->verts[v2], uv_only_flag);
-
-	base_seg->sides[back_side].tmap_num = tmap_num;
-
-}
-
-// -----------------------------------------------------------------------------
 //	Segment base_seg is connected through side base_side to segment con_seg on con_side.
 //	For all walls in con_seg, find the wall in base_seg which shares an edge.  Copy tmap_num
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present

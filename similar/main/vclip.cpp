@@ -112,7 +112,9 @@ void vclip_read(PHYSFS_file *fp, vclip &vc)
 	PHYSFSX_serialize_read(fp, vc);
 }
 
+#if 0
 void vclip_write(PHYSFS_file *fp, const vclip &vc)
 {
 	PHYSFSX_serialize_write(fp, vc);
 }
+#endif

@@ -180,7 +180,9 @@ void eclip_read(PHYSFS_file *fp, eclip &ec)
 	PHYSFSX_serialize_read(fp, ec);
 }
 
+#if 0
 void eclip_write(PHYSFS_file *fp, const eclip &ec)
 {
 	PHYSFSX_serialize_write(fp, ec);
 }
+#endif

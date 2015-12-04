@@ -191,16 +191,10 @@ void digi_play_sample( int soundno, fix max_volume )
 	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, sound_object_none);
 }
 
-void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
+void digi_play_sample_3d(int soundno, int angle, int volume)
 {
-
-	no_dups = 1;
-
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
-		if ( no_dups )
 			newdemo_record_sound_3d_once( soundno, angle, volume );
-		else
-			newdemo_record_sound_3d( soundno, angle, volume );
 	}
 
 	soundno = digi_xlat_sound(soundno);
@@ -381,7 +375,7 @@ void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, i
 	{
 		// Hack to keep sounds from building up...
 		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, objnum->pos, objnum->segnum, max_volume,&volume, &pan, max_distance );
-		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
+		digi_play_sample_3d(org_soundnum, pan, volume);
 		return;
 	}
 
@@ -433,7 +427,7 @@ static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum
 	{
 		// Hack to keep sounds from building up...
 		digi_get_sound_loc( viewer->orient, viewer->pos, viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
-		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
+		digi_play_sample_3d(org_soundnum, pan, volume);
 		return;
 	}
 

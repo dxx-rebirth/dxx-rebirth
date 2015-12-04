@@ -160,32 +160,6 @@ void build_colormap_good(palette_array_t &palette, array<color_t, 256> &colormap
 	}
 }
 
-void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color )
-{
-	array<uint8_t, 256> colormap;
-	array<unsigned, 256> freq;
-
-	if (bmp->get_type() != BM_LINEAR)
-		return;	 //can't do it
-
-	// This should be build_colormap_asm, but we're not using invert table, so...
-	build_colormap_good( palette, colormap, freq );
-
-	if ( (super_transparent_color>=0) && (super_transparent_color<=255))
-		colormap[super_transparent_color] = 254;
-
-	if ( (transparent_color>=0) && (transparent_color<=255))
-		colormap[transparent_color] = TRANSPARENCY_COLOR;
-
-	decode_data(bmp->get_bitmap_data(), bmp->bm_w * bmp->bm_h, colormap, freq );
-
-	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent(*bmp, 1);
-
-	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
-		gr_set_super_transparent(*bmp, 0);
-}
-
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color)
 {
 	array<uint8_t, 256> colormap;

@@ -592,8 +592,6 @@ fix64	Time_flash_last_played;
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
-int	Ab_scale = 4;
-
 static void do_afterburner_stuff(void)
 {
 	static sbyte func_play = 0;

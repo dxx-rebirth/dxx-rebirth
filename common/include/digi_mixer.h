@@ -23,7 +23,6 @@ int digi_mixer_is_channel_playing(int);
 void digi_mixer_reset();
 void digi_mixer_stop_all_channels();
 void digi_mixer_set_digi_volume(int);
-void digi_mixer_debug();
 
 #endif
 

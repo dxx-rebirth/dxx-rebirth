@@ -725,10 +725,12 @@ void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 	PHYSFSX_serialize_read(fp, *pm);
 }
 
+#if 0
 void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
 {
 	PHYSFSX_serialize_write(fp, pm);
 }
+#endif
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data

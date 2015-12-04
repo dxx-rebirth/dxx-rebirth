@@ -832,10 +832,6 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	return 0;
 }
 
-int gr_circle(fix xc1,fix yc1,fix r1){
-	return gr_ucircle(xc1,yc1,r1);
-}
-
 int gr_disk(fix x,fix y,fix r)
 {
 	int c, nsides;

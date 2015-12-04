@@ -567,11 +567,6 @@ int newmenu_get_citem(newmenu *menu)
 	return menu->citem;
 }
 
-window *newmenu_get_window(newmenu *menu)
-{
-	return menu->wind;
-}
-
 namespace {
 
 struct step_down
@@ -1668,11 +1663,6 @@ struct listbox : embed_window_pointer_t
 const char **listbox_get_items(listbox *lb)
 {
 	return lb->item;
-}
-
-int listbox_get_nitems(listbox *lb)
-{
-	return lb->nitems;
 }
 
 int listbox_get_citem(listbox *lb)

@@ -307,8 +307,10 @@ void jointpos_read(PHYSFS_file *fp, jointpos &jp)
 	PHYSFSX_readAngleVec(&jp.angles, fp);
 }
 
+#if 0
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp)
 {
 	PHYSFS_writeSLE16(fp, jp.jointnum);
 	PHYSFSX_writeAngleVec(fp, jp.angles);
 }
+#endif

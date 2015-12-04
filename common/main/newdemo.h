@@ -79,12 +79,10 @@ void newdemo_record_viewer_object(vobjptridx_t  obj);
 cobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 #endif
-extern void newdemo_record_sound_3d( int soundno, int angle, int volume );
 extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
 void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum );
-extern void newdemo_record_hostage_rescued( int hostage_num );
 extern void newdemo_record_morph_frame(struct morph_data *);
 extern void newdemo_record_player_stats(int shields, int energy, int score );
 void newdemo_record_wall_toggle(segnum_t segnum, int side );

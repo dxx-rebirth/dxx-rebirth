@@ -156,14 +156,6 @@ array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 #define MAX_IGNORE_OBJS 100
 
 #ifndef NDEBUG
-#define EXTRA_DEBUG 1		//no extra debug when NDEBUG is on
-#endif
-
-#ifdef EXTRA_DEBUG
-object *debug_obj=NULL;
-#endif
-
-#ifndef NDEBUG
 int	Total_retries=0, Total_sims=0;
 int	Dont_move_ai_objects=0;
 #endif
@@ -340,21 +332,6 @@ void do_physics_sim(const vobjptridx_t obj)
 	n_phys_segs = 0;
 
 	sim_time = FrameTime;
-
-	//debug_obj = obj;
-
-#ifdef EXTRA_DEBUG
-	//check for correct object segment
-	if(!get_seg_masks(obj->pos, vcsegptr(obj->segnum), 0).centermask == 0)
-	{
-		if (!update_object_seg(obj)) {
-			if (!(Game_mode & GM_MULTI))
-				Int3();
-			compute_segment_center(obj->pos, vcsegptr(obj->segnum));
-			obj->pos.x += obj;
-		}
-	}
-#endif
 
 	start_pos = obj->pos;
 

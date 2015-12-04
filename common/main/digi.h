@@ -66,7 +66,7 @@ void digi_link_sound_to_object3(int org_soundnum, vcobjptridx_t objnum, int fore
 void digi_kill_sound_linked_to_object(vcobjptridx_t);
 #endif
 
-extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
+void digi_play_sample_3d(int soundno, int angle, int volume); // Volume from 0-0x7fff
 
 extern void digi_init_sounds();
 extern void digi_sync_sounds();

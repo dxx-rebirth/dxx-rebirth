@@ -375,16 +375,6 @@ void ui_free( void * buffer );
 #define UI_STATUS_PLAYING   2
 #define UI_STATUS_FASTPLAY  3
 
-int ui_record_events( int NumberOfEvents, UI_EVENT * buffer, int Flags );
-int ui_play_events_realtime( int NumberOfEvents, UI_EVENT * buffer );
-int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer );
-int ui_recorder_status();
-void ui_set_playback_speed( int speed );
-
-extern unsigned int ui_number_of_events;
-extern unsigned int ui_event_counter;
-
-
 int ui_get_file( char * filename, const char * Filespec  );
 
 void ui_draw_icon( UI_GADGET_ICON * icon );

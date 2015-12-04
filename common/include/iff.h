@@ -48,10 +48,6 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette
 	//   gr_free_bitmap( MyPicture );
 	//   exit(0)
 
-//like iff_read_bitmap(), but reads into a bitmap that already exists,
-//without allocating memory for the bitmap.
-int iff_read_into_bitmap(const char *ifilename,grs_bitmap *bm, palette_array_t *palette);
-
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.

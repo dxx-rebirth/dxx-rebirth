@@ -79,7 +79,9 @@ void draw_weapon_vclip(vobjptridx_t obj);
  * reads n vclip structs from a PHYSFS_file
  */
 void vclip_read(PHYSFS_file *fp, vclip &vc);
+#if 0
 void vclip_write(PHYSFS_file *fp, const vclip &vc);
+#endif
 
 /* Defer expansion to source file so that serial.h not needed here */
 #define DEFINE_VCLIP_SERIAL_UDT()	\

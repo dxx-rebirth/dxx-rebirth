@@ -99,7 +99,9 @@ void restart_effect(int effect_num);
  * reads n eclip structs from a PHYSFS_file
  */
 void eclip_read(PHYSFS_file *fp, eclip &ec);
+#if 0
 void eclip_write(PHYSFS_file *fp, const eclip &ec);
+#endif
 
 #endif
 

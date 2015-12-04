@@ -107,22 +107,6 @@ static array<objnum_t, MAX_OBJECTS> free_obj_list;
 int num_objects=0;
 int Highest_ever_object_index=0;
 
-// grs_bitmap *robot_bms[MAX_ROBOT_BITMAPS];	//all bitmaps for all robots
-
-// int robot_bm_nums[MAX_ROBOT_TYPES];		//starting bitmap num for each robot
-// int robot_n_bitmaps[MAX_ROBOT_TYPES];		//how many bitmaps for each robot
-
-// char *robot_names[MAX_ROBOT_TYPES];		//name of each robot
-
-//--unused-- int Num_robot_types=0;
-
-int print_object_info = 0;
-//@@int Object_viewer = 0;
-
-//object * Slew_object = NULL;	// Object containing slew object info.
-
-//--unused-- int Player_controller_type = 0;
-
 #ifndef RELEASE
 //set viewer object to next object in array
 void object_goto_next_viewer()
@@ -209,8 +193,6 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 
 	g3_draw_rod_tmap(bitmap,bot_p,obj->size,top_p,obj->size,light);
 }
-
-int	Linear_tmap_polygon_objects = 1;
 
 //used for robot engine glow
 #define MAX_VELOCITY i2f(50)
@@ -370,7 +352,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 		}
 #endif
 
-	push_interpolation_method imsave(1, Linear_tmap_polygon_objects);
+	push_interpolation_method imsave(1, true);
 
 	//set engine glow value
 	engine_glow_value[0] = f1_0/5;

@@ -431,20 +431,6 @@ int ExchangeMarkandCurseg()
 	return 1;
 }
 
-int medlisp_add_segment()
-{
-	AttachSegment();
-//segment *ocursegp = Cursegp;
-//	med_attach_segment(Cursegp, &New_segment, Curside, WFRONT); // Used to be WBACK instead of Curside
-//med_propagate_tmaps_to_segments(ocursegp,Cursegp);
-//	set_view_target_from_segment(Cursegp);
-////	while (!vm_angvec_make(&Seg_orientation,0,0,0));
-//	Curside = WBACK;
-
-	return 1;
-}
-
-
 int ClearSelectedList(void)
 {
 	Selected_segs.clear();

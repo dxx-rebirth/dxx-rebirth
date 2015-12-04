@@ -1460,7 +1460,6 @@ void attempt_to_resume_path(const vobjptridx_t objp)
 //	----------------------------------------------------------------------------------------------------------
 
 #ifdef EDITOR
-int	Test_size = 1000;
 
 static void test_create_path_many(void) __attribute_used;
 static void test_create_path_many(void)
@@ -1470,6 +1469,7 @@ static void test_create_path_many(void)
 
 	int			i;
 
+	const unsigned Test_size = 1000;
 	for (i=0; i<Test_size; i++) {
 		Cursegp = segptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
 		Markedsegp = segptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));

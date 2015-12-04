@@ -226,7 +226,9 @@ void robot_info_read(PHYSFS_File *fp, robot_info &r);
  * reads n jointpos structs from a PHYSFS_file
  */
 void jointpos_read(PHYSFS_file *fp, jointpos &jp);
+#if 0
 void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
+#endif
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 

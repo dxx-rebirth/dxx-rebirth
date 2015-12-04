@@ -201,7 +201,6 @@ void gr_urect(int left,int top,int right,int bot);
 int gr_disk(fix x,fix y,fix r);
 
 // Draw an outline circle
-int gr_circle(fix x,fix y,fix r);
 int gr_ucircle(fix x,fix y,fix r);
 
 // Draw an unfilled rectangle into the current canvas
@@ -303,7 +302,6 @@ extern uint16_t gr_fade_table_selector;
 //			gr_remap_bitmap(new, newpal, iff_transparent_color);
 //		else
 //			gr_remap_bitmap(new, newpal, -1);
-void gr_remap_bitmap(grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color);
 
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.

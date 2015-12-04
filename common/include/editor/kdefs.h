@@ -161,7 +161,6 @@ int PropagateTexturesSelected();
 //--//int MacroLoad();
 
 // In editor.c
-int medlisp_add_segment();
 int AttachSegment();
 int DeleteSegment();
 int CallLisp();
@@ -289,7 +288,6 @@ extern int wall_add_blastable(void);
 extern int wall_add_closed_wall(void);
 extern int wall_add_external_wall(void);
 extern int wall_lock_door(void);
-extern int wall_unlock_door(void);
 extern int wall_automate_door(void);
 extern int wall_deautomate_door(void);
 extern int wall_assign_door_1(void);

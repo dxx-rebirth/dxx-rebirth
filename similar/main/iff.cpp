@@ -605,19 +605,6 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette
 	return ret;
 }
 
-//like iff_read_bitmap(), but reads into a bitmap that already exists,
-//without allocating memory for the bitmap.
-int iff_read_into_bitmap(const char *ifilename, grs_bitmap *bm, palette_array_t *palette)
-{
-	int ret;			//return code
-	auto ifile = PHYSFSX_openReadBuffered(ifilename);
-	if (!ifile)
-		return IFF_NO_FILE;
-
-	ret = iff_parse_bitmap(ifile, *bm, bm->get_type(), palette, nullptr);
-	return ret;
-}
-
 #define BMHD_SIZE 20
 
 #if 0

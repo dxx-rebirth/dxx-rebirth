@@ -42,14 +42,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
 
 int		Autosave_count;
-int		Autosave_numfiles;
-int		Autosave_total;
-int		undo_count;
-int		original;
+static int Autosave_numfiles;
+static int Autosave_total;
+static int undo_count;
 
-int		Timer_save_flag=0;
+static int Timer_save_flag;
 int		Autosave_flag;
-int		save_second=-1;
 
 array<const char *, 10> undo_status;
 

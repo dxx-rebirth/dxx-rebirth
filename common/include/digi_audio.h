@@ -24,7 +24,6 @@ void digi_audio_set_channel_pan(int, int );
 void digi_audio_stop_sound(int );
 void digi_audio_end_sound(int );
 void digi_audio_set_digi_volume(int);
-void digi_audio_debug();
 
 #endif
 

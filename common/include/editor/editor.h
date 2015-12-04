@@ -351,7 +351,6 @@ extern int CurrentTexture;
 
 void med_propagate_tmaps_to_segments(vsegptridx_t base_seg,vsegptridx_t con_seg, int uv_only_flag);
 void med_propagate_tmaps_to_back_side(vsegptridx_t base_seg, int back_side, int uv_only_flag);
-void med_propagate_tmaps_to_any_side(vsegptridx_t base_seg, int back_side, int tmap_num, int uv_only_flag);
 
 //	Find segment adjacent to sp:side.
 //	Adjacent means a segment which shares all four vertices.

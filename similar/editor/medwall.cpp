@@ -57,9 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "highest_valid.h"
 #include "partial_range.h"
 
-static int wall_add_door_flag(sbyte flag);
 static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type);
-static int wall_remove_door_flag(sbyte flag);
 
 //-------------------------------------------------------------------------
 // Variables for this module...
@@ -191,26 +189,6 @@ int wall_add_external_wall()
 int wall_add_illusion()
 {
 	return wall_add_to_side(Cursegp, Curside, WALL_ILLUSION);
-}
-
-int wall_lock_door()
-{
-	return wall_add_door_flag(WALL_DOOR_LOCKED);
-}
-
-int wall_unlock_door()
-{
-	return wall_remove_door_flag(WALL_DOOR_LOCKED);
-}
-
-int wall_automate_door()
-{
-	return wall_add_door_flag(WALL_DOOR_AUTO);
-}
-	
-int wall_deautomate_door()
-{
-	return wall_remove_door_flag(WALL_DOOR_AUTO);
 }
 
 static int GotoPrevWall() {
@@ -848,56 +826,6 @@ int wall_add_to_markedside(sbyte type)
 		return 0;
 	}
 }
-
-
-int wall_add_door_flag(sbyte flag)
-{
-	if (Cursegp->sides[Curside].wall_num == wall_none)
-		{
-		editor_status("Cannot change flag. No wall at Curside.");
-		return 0;
-		}
-
-	if (Walls[Cursegp->sides[Curside].wall_num].type != WALL_DOOR)
-		{
-		editor_status("Cannot change flag. No door at Curside.");
-		return 0;
-		}
-
-	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
-	auto Connectside = find_connect_side(Cursegp, csegp);
-
- 	Walls[Cursegp->sides[Curside].wall_num].flags |= flag;
-  	Walls[csegp->sides[Connectside].wall_num].flags |= flag;
-
-	Update_flags |= UF_ED_STATE_CHANGED;
-	return 1;
-}
-
-int wall_remove_door_flag(sbyte flag)
-{
-	if (Cursegp->sides[Curside].wall_num == wall_none)
-		{
-		editor_status("Cannot change flag. No wall at Curside.");
-		return 0;
-		}
-
-	if (Walls[Cursegp->sides[Curside].wall_num].type != WALL_DOOR)
-		{
-		editor_status("Cannot change flag. No door at Curside.");
-		return 0;
-		}
-
-	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
-	auto Connectside = find_connect_side(Cursegp, csegp);
-
- 	Walls[Cursegp->sides[Curside].wall_num].flags &= ~flag;
-  	Walls[csegp->sides[Connectside].wall_num].flags &= ~flag;
-
-	Update_flags |= UF_ED_STATE_CHANGED;
-	return 1;
-}
-
 
 int bind_wall_to_control_center() {
 

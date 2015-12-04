@@ -50,8 +50,6 @@ object *slew_obj=NULL;	//what object is slewing, or NULL if none
 #define SLIDE_SPEED 			(700)
 #define ZOOM_SPEED_FACTOR		(1000)	//(1500)
 
-short old_joy_x,old_joy_y;	//position last time around
-
 // -------------------------------------------------------------------
 //say start slewing with this object
 void slew_init(const vobjptr_t obj)

@@ -64,8 +64,6 @@ unsigned Num_triggers;
 array<trigger, MAX_TRIGGERS> Triggers;
 
 #ifdef EDITOR
-fix trigger_time_count=F1_0;
-
 //-----------------------------------------------------------------
 // Initializes all the switches.
 void trigger_init()

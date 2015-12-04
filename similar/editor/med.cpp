@@ -143,8 +143,6 @@ static std::unique_ptr<UI_GADGET_ICON>
 	OutlineIcon,
 	LockIcon;
 
-UI_EVENT * DemoBuffer = NULL;
-
 //grs_canvas * BigCanvas[2];
 //int CurrentBigCanvas = 0;
 //int BigCanvasFirstTime = 1;

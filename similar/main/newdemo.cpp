@@ -1160,15 +1160,6 @@ void newdemo_record_sound( int soundno )
 	nd_write_int( soundno );
 }
 
-void newdemo_record_sound_3d( int soundno, int angle, int volume )
-{
-	pause_game_world_time p;
-	nd_write_byte( ND_EVENT_SOUND_3D );
-	nd_write_int( soundno );
-	nd_write_int( angle );
-	nd_write_int( volume );
-}
-
 void newdemo_record_sound_3d_once( int soundno, int angle, int volume )
 {
 	pause_game_world_time p;
@@ -1237,13 +1228,6 @@ void newdemo_record_trigger( segnum_t segnum, int side, objnum_t objnum,int shot
 	nd_write_int(shot);
 }
 #endif
-
-void newdemo_record_hostage_rescued( int hostage_number )
-{
-	pause_game_world_time p;
-	nd_write_byte( ND_EVENT_HOSTAGE_RESCUED );
-	nd_write_int( hostage_number );
-}
 
 void newdemo_record_morph_frame(morph_data *md)
 {
@@ -2077,7 +2061,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d( soundno, angle, volume, 0 );
+				digi_play_sample_3d(soundno, angle, volume);
 			}
 			break;
 
@@ -2096,7 +2080,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d( soundno, angle, volume, 1 );
+				digi_play_sample_3d(soundno, angle, volume);
 			}
 			break;
 

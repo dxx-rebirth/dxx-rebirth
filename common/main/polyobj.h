@@ -143,7 +143,9 @@ extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
  * reads a polymodel structure from a PHYSFS_file
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
+#if 0
 void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
+#endif
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data

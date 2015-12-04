@@ -1002,11 +1002,6 @@ void gr_palette_load( palette_array_t &pal )
 	init_computed_colors();
 }
 
-void gr_palette_read(palette_array_t &pal)
-{
-	copy_bound_palette(pal, gr_current_pal);
-}
-
 #define GL_BGR_EXT 0x80E0
 
 struct TGA_header

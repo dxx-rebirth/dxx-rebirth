@@ -351,19 +351,3 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
 }
-
-#ifndef NDEBUG
-void digi_audio_debug()
-{
-	int n_voices = 0;
-
-	if (!digi_initialised)
-		return;
-
-	for (int i = 0; i < digi_max_channels; i++)
-	{
-		if (digi_is_channel_playing(i))
-			n_voices++;
-	}
-}
-#endif
