@@ -115,7 +115,7 @@ static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
-float		vlighting=0;
+static float		vlighting=0;
 static int			obj_eclip;
 static int			dest_vclip;		//what vclip to play when exploding
 static int			dest_eclip;		//what eclip to play when exploding

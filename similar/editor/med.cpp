@@ -344,8 +344,6 @@ void init_editor()
 
 	init_autosave();
   
-//	atexit(close_editor);
-
 	Clear_window = 1;	//	do full window clear.
 	
 	InitCurve();
@@ -817,8 +815,9 @@ int SafetyCheck()
 }
 
 //called at the end of the program
-void close_editor() {
 
+static void close_editor()
+{
 	//	_MARK_("end of editor");//Nuked to compile -KRB
 	
 #ifndef __linux__

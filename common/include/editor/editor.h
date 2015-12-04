@@ -182,7 +182,6 @@ extern	struct tm Editor_time_of_day;
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
 
 void init_editor(void);
-void close_editor(void);
 
 //	Initialize all vertices to inactive status.
 extern void init_all_vertices(void);
