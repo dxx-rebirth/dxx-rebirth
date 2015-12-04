@@ -2177,35 +2177,38 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_int(shot);
 #endif
 			}
-			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-			{
-				const auto &&segp = vsegptridx(segnum);
-				/* Demo recording is buggy.  Descent records
-				 * ND_EVENT_TRIGGER for every segment transition, even
-				 * if there is no wall.
-				 */
-				if (segp->sides[side].wall_num != wall_none)
-				{
-#if defined(DXX_BUILD_DESCENT_II)
-				if (Triggers[Walls[segp->sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
-					int truth;
 
-					nd_read_byte(&c);
-					Assert(c == ND_EVENT_SECRET_THINGY);
-					nd_read_int(&truth);
-					if (rewrite)
-					{
-						nd_write_byte(c);
-						nd_write_int(truth);
-						break;
-					}
-					if (!truth)
-						check_trigger(segp, side, objnum,shot);
-				} else if (!rewrite)
+                        const auto &&segp = vsegptridx(segnum);
+                        /* Demo recording is buggy.  Descent records
+                            * ND_EVENT_TRIGGER for every segment transition, even
+                            * if there is no wall.
+                            */
+                        if (segp->sides[side].wall_num != wall_none)
+                        {
+#if defined(DXX_BUILD_DESCENT_II)
+                                if (Triggers[Walls[segp->sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
+                                        int truth;
+
+                                        nd_read_byte(&c);
+                                        Assert(c == ND_EVENT_SECRET_THINGY);
+                                        nd_read_int(&truth);
+                                        if (Newdemo_vcr_state == ND_STATE_PAUSED)
+                                                break;
+                                        if (rewrite)
+                                        {
+                                                nd_write_byte(c);
+                                                nd_write_int(truth);
+                                                break;
+                                        }
+                                        if (!truth)
+                                                check_trigger(segp, side, objnum,shot);
+                                } else if (!rewrite)
 #endif
-					check_trigger(segp, side, objnum,shot);
-				}
-			}
+                                {
+                                        if (Newdemo_vcr_state != ND_STATE_PAUSED)
+                                                check_trigger(segp, side, objnum,shot);
+                                }
+                        }
 		}
 			break;
 
