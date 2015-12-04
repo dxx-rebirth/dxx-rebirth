@@ -880,17 +880,6 @@ void gr_remap_color_fonts()
 			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
 	}
 }
-
-void gr_remap_mono_fonts()
-{
-	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()");
-	range_for (auto &i, open_font)
-	{
-		auto font = i.ptr;
-		if (font && !(font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
-	}
-}
 #endif
 
 /*
@@ -1061,9 +1050,6 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	char file_id[4];
 	int datasize;        //size up to (but not including) palette
 	unsigned char *ptr;
-
-	if (! (font->ft_flags & FT_COLOR))
-		return;
 
 	auto fontfile = PHYSFSX_openReadBuffered(fontname);
 

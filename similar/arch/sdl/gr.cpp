@@ -130,7 +130,6 @@ int gr_set_mode(screen_mode mode)
 	gamefont_choose_game_font(w,h);
 	gr_palette_load(gr_palette);
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 
 	return 0;
 }
@@ -145,7 +144,6 @@ void gr_toggle_fullscreen()
 	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
 	const int WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 	SDL_WM_ToggleFullScreen(screen);
 	GameCfg.WindowMode = WindowMode;
 }
@@ -289,7 +287,6 @@ void gr_palette_load( palette_array_t &pal )
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 	init_computed_colors();
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 }
 
 void gr_palette_read(palette_array_t &pal)

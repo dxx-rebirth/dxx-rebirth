@@ -481,7 +481,6 @@ void gr_toggle_fullscreen()
 	}
 
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 
 	if (gl_initialized) // update viewing values for menus
 	{
@@ -659,7 +658,6 @@ int gr_set_mode(screen_mode mode)
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 
 	return 0;
 }
@@ -717,7 +715,6 @@ void gr_set_attributes(void)
 #endif
 	ogl_smash_texture_list_internal();
 	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 }
 
 int gr_init()

@@ -1622,7 +1622,6 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	reset_special_effects();
 
 #ifdef OGL
-	gr_remap_mono_fonts();
 	ogl_cache_level_textures();
 #endif
 

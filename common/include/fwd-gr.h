@@ -225,7 +225,6 @@ grs_font_ptr gr_init_font(const char * fontfile);
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d1x-rebirth.bmp"
 
 static inline void gr_remap_color_fonts() {}
-static inline void gr_remap_mono_fonts() {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_SDL_WINDOW_CAPTION	"Descent II"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
@@ -233,7 +232,6 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal);
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();
-void gr_remap_mono_fonts();
 #endif
 
 // Writes a string using current font. Returns the next column after last char.
