@@ -101,7 +101,6 @@ static int ogl_rgb_internalformat = GL_RGB8;
 static std::unique_ptr<GLfloat[]> sphere_va, circle_va, disk_va;
 static array<std::unique_ptr<GLfloat[]>, 3> secondary_lva;
 static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
-int r_upixelc;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
@@ -1223,7 +1222,7 @@ void ogl_set_blending()
 }
 
 void ogl_start_frame(void){
-	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
+	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;
 
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);

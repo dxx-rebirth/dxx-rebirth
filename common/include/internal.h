@@ -22,7 +22,6 @@ void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
 extern int linedotscale;
-extern int r_upixelc;
 
 extern int GL_TEXTURE_2D_enabled;
 

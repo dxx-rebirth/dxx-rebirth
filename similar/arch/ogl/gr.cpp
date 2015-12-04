@@ -827,7 +827,6 @@ void ogl_upixelc(int x, int y, int c)
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0
 	};
 
-	r_upixelc++;
 	OGL_DISABLE(TEXTURE_2D);
 	glPointSize(linedotscale);
 	glEnableClientState(GL_VERTEX_ARRAY);
