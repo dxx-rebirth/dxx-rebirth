@@ -497,7 +497,6 @@ static inline void multi_send_endlevel_start(bool secret)
 }
 #endif
 void multi_send_player_deres(deres_type_t type);
-void multi_send_message(void);
 void multi_send_reappear();
 void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
