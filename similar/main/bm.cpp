@@ -121,6 +121,17 @@ static inline void bitmap_index_read_n(partial_range_t<bitmap_index *> r, uint_f
 	bitmap_index_read_n(fp, partial_range(r, n));
 }
 
+void gamedata_close()
+{
+	free_polygon_models();
+#if defined(DXX_BUILD_DESCENT_II)
+	bm_free_extra_objbitmaps();
+#endif
+	free_endlevel_data();
+	rle_cache_close();
+	piggy_close();
+}
+
 /*
  * reads n tmap_info structs from a PHYSFS_file
  */
@@ -132,14 +143,6 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readInt(fp);
-}
-
-void gamedata_close()
-{
-	free_polygon_models();
-	free_endlevel_data();
-	rle_cache_close();
-	piggy_close();
 }
 
 //-----------------------------------------------------------------
@@ -261,15 +264,6 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
 	ti.destroyed = PHYSFSX_readShort(fp);
 	ti.slide_u = PHYSFSX_readShort(fp);
 	ti.slide_v = PHYSFSX_readShort(fp);
-}
-
-void gamedata_close()
-{
-	free_polygon_models();
-	bm_free_extra_objbitmaps();
-	free_endlevel_data();
-	rle_cache_close();
-	piggy_close();
 }
 
 //-----------------------------------------------------------------
