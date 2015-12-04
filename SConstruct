@@ -2930,7 +2930,7 @@ class DXXCommon(LazyObjectConstructor):
 		# windows or *nix?
 		platform_name = self.user_settings.host_platform
 		message(self, "compiling on %s for %s into %s%s" % (sys.platform, platform_name, self.user_settings.builddir or '.',
-			(' with prefix list %s' % self._argument_prefix_list) if self._argument_prefix_list else ''))
+			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
 		return (
 			self.Win32PlatformSettings if platform_name == 'win32' else (
 				self.DarwinPlatformSettings if platform_name == 'darwin' else
@@ -3619,12 +3619,12 @@ def register_program(program,other_program):
 	# Fallback case: build the regular configuration.
 	if len(l) == 1:
 		try:
-			if int(l[0]):
-				return [program((s,''), variables)]
-			return []
+			r = int(l[0])
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
 			pass
+		else:
+			return [program((s,''), variables)] if r else []
 	r = []
 	seen = set()
 	for e in l:
@@ -3634,7 +3634,7 @@ def register_program(program,other_program):
 			if prefix in seen:
 				continue
 			seen.add(prefix)
-			prefix = ['%s%s%s' % (s, '_' if p else '', p) for p in prefix] + list(prefix)
+			prefix = tuple('%s%s%s' % (s, '_' if p else '', p) for p in prefix) + prefix
 			r.append(program(prefix, variables))
 	return r
 d1x = register_program(D1XProgram, D2XProgram)
