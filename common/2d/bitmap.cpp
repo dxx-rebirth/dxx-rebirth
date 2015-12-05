@@ -182,23 +182,3 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 	if (super_transparent_color < freq.size() && freq[super_transparent_color])
 		gr_set_super_transparent(bmp, 1);
 }
-
-void gr_bitmap_check_transparency( grs_bitmap * bmp )
-{
-	auto data = bmp->bm_data;
-	const uint_fast32_t bm_h = bmp->bm_h;
-	const uint_fast32_t bm_w = bmp->bm_w;
-	const uint_fast32_t stride = bmp->bm_rowsize - bm_w;
-	for (uint_fast32_t y = 0; y != bm_h; ++y)
-	{
-		for (uint_fast32_t x = 0; x != bm_w; ++x)
-		{
-			if (*data++ == TRANSPARENCY_COLOR )	{
-				gr_set_transparent(*bmp, 1);
-				return;
-			}
-		}
-		data += stride;
-	}
-	bmp->bm_flags = 0;
-}
