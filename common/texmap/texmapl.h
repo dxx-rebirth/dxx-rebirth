@@ -34,6 +34,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 struct g3ds_tmap;
 
 #ifndef OGL
@@ -74,6 +76,8 @@ static inline fix fix_recip(unsigned i)
 		return F1_0 / i;
 }
 #endif
+
+}
 
 #endif
 

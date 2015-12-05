@@ -39,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 const unsigned MAX_TMAP_VERTS = 25;
 
 #ifndef OGL
@@ -120,5 +122,7 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 
 #define FIX_XLIMIT	(639 * F1_0)
 #define FIX_YLIMIT	(479 * F1_0)
+
+}
 
 #endif

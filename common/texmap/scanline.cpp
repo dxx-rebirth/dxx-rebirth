@@ -38,6 +38,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "dxxerror.h"
 
+inline namespace dcx {
+
 tmap_scanline_function_table tmap_scanline_functions;
 
 #ifndef OGL
@@ -772,4 +774,6 @@ void select_tmap(const std::string &type)
 	else {
 		cur_tmap_scanline_per=c_tmap_scanline_per;
 	}
+}
+
 }

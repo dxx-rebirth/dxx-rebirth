@@ -39,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-integer_sequence.h"
 
+inline namespace dcx {
+
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff
 #endif
@@ -890,3 +892,5 @@ void draw_tmap(const grs_bitmap &rbp,uint_fast32_t nverts,const g3s_point *const
 
 }
 #endif
+
+}
