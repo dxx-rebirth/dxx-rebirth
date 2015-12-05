@@ -37,11 +37,6 @@ static int func_size = 0;
 static int initialized = 0;
 static int func_params[MAX_PARAMS];
 
-int func_howmany()
-{
-	return func_size;
-}
-
 void func_init( const FUNCTION * funtable, int size )
 {
 	if (!initialized)
@@ -98,11 +93,6 @@ int (*func_nget( int func_number, int * numparams, const char **name ))(void)
 	}
 
 	return NULL;
-}
-
-void func_set_param( int n, int value )
-{
-	func_params[n] = value;
 }
 
 int func_get_param( int n )
