@@ -17,13 +17,11 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
-#ifndef _FUNC_H
-#define _FUNC_H
+#pragma once
 
 #ifdef __cplusplus
 
+inline namespace dcx {
 typedef struct {
 	const char *  name;
 	int     nparams;
@@ -36,7 +34,6 @@ int (*func_get( char * name, int * numparams ))(void);
 int (*func_nget( int func_number, int * numparams, const char **name ))(void);
 int func_get_param( int n );
 int func_get_index( char * name );
-
-#endif
+}
 
 #endif

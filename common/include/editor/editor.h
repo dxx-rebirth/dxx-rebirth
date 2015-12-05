@@ -173,9 +173,11 @@ extern	struct window *Pad_info;		// Keypad text
 
 extern	int		Show_axes_flag;		// 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
+inline namespace dcx {
 extern   int		Autosave_count;		// Current counter for which autosave mine we are "on"
 extern	int		Autosave_flag;			// Whether or not Autosave is on.
 extern	struct tm Editor_time_of_day;
+}
 
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
 
@@ -448,6 +450,8 @@ extern	int	Lock_view_to_cursegp;			// !0 means whenever cursegp changes, view it
 extern	int	Num_tilings;						// number of tilings/wall
 extern	int	Degenerate_segment_found;
 
+inline namespace dcx {
+
 // Initializes autosave system.
 // Sets global Autosave_count to 0.
 extern void init_autosave(void);
@@ -469,8 +473,10 @@ extern void set_editor_time_of_day();
 
 // Undo function
 extern int undo(void);
-extern char mine_filename[PATH_MAX];
 extern array<const char *, 10> undo_status;
+}
+
+extern char mine_filename[PATH_MAX];
 
 //	group.c
 int RotateSegmentNew(vms_angvec *pbh);

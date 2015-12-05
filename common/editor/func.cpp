@@ -30,6 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "strutil.h"
 
+inline namespace dcx {
+
 #define MAX_PARAMS 10
 
 static const FUNCTION * func_table = NULL;
@@ -101,3 +103,4 @@ int func_get_param( int n )
 }
 
 
+}
