@@ -14,6 +14,8 @@
 #include "3d.h"
 #include "globvars.h"
 
+inline namespace dcx {
+
 static void scale_matrix(void);
 
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
@@ -52,3 +54,4 @@ static void scale_matrix(void)
 
 }
 
+}

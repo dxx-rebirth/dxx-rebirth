@@ -105,6 +105,8 @@ struct g3s_object {
 
 //Frame setup functions:
 
+inline namespace dcx {
+
 #ifdef OGL
 typedef const g3s_point cg3s_point;
 #else
@@ -124,9 +126,6 @@ void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix
 #define g3_end_frame()
 #endif
 
-//draw a horizon
-void g3_draw_horizon(int sky_color,int ground_color);
-
 //Instancing
 
 //instance at specified point with specified orientation
@@ -140,13 +139,11 @@ void g3_done_instance();
 
 //Misc utility functions:
 
-//get zoom.  For a given window size, return the zoom which will achieve
-//the given FOV along the given axis.
-fix g3_get_zoom(char axis,fixang fov,short window_width,short window_height);
-
 //returns true if a plane is facing the viewer. takes the unrotated surface 
 //normal of the plane, and a point on it.  The normal need not be normalized
 bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
+
+}
 
 //Point definition and rotation functions:
 
@@ -157,6 +154,8 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 
 //returns codes_and & codes_or of a list of points numbers
 g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
+
+inline namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
@@ -181,6 +180,7 @@ ubyte g3_code_point(g3s_point &point);
 
 //delta rotation functions
 void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);
+
 ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav);
 
 //Drawing functions:
@@ -229,7 +229,6 @@ void g3_draw_sphere(g3s_point &pnt,fix rad);
 
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);
-
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
 //NULL, this routine must compute it, which will be slow.  It is better to 
@@ -316,8 +315,11 @@ typedef void (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert);
 #endif
+
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 
 extern tmap_drawer_type tmap_drawer_ptr;
+
+}
 
 #endif

@@ -23,6 +23,8 @@ struct g3s_point;
 #include "globvars.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 struct polygon_clip_points : array<g3s_point *, MAX_POINTS_IN_POLY> {};
 struct temporary_points_t
 {
@@ -35,6 +37,8 @@ struct temporary_points_t
 
 const polygon_clip_points &clip_polygon(polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc,temporary_points_t &);
 void clip_line(g3s_point *&p0,g3s_point *&p1,uint_fast8_t codes_or,temporary_points_t &);
+
+}
 #endif
 
 #endif

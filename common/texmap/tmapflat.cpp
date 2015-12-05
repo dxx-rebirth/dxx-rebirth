@@ -37,6 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "tmapext.h"
 
 #ifndef OGL
+#include "3d.h"
+#include "dxxerror.h"
 
 static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert);
 
@@ -169,6 +171,7 @@ static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func
 	(*scanline_func)(boty, xleft, xright);
 }
 
+inline namespace dcx {
 
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
@@ -178,8 +181,7 @@ void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> 
 	gr_upoly_tmap_ylr(nverts, vert.data());
 }
 
-#include "3d.h"
-#include "dxxerror.h"
+}
 
 struct pnt2d {
 	fix x,y;

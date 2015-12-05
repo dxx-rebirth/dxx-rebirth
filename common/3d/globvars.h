@@ -18,6 +18,8 @@ struct vms_vector;
 struct vms_matrix;
 struct g3s_point;
 
+inline namespace dcx {
+
 extern int Canvas_width,Canvas_height;	//the actual width & height
 extern fix Canv_w2,Canv_h2;				//fixed-point width,height/2
 
@@ -31,6 +33,7 @@ extern fix View_zoom;
 extern vms_vector View_position,Matrix_scale;
 extern vms_matrix View_matrix,Unscaled_matrix;
 
+}
 
 //vertex buffers for polygon drawing and clipping
 //list of 2d coords

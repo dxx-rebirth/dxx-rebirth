@@ -539,6 +539,8 @@ void ogl_cache_level_textures(void)
 	r_cachedtexcount = r_texcount;
 }
 
+inline namespace dcx {
+
 void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
 	int c;
@@ -565,6 +567,8 @@ void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 	glDrawArrays(GL_LINES, 0, 2);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+}
+
 }
 
 static void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
@@ -773,6 +777,8 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glLineWidth(linedotscale);
 }
 
+inline namespace dcx {
+
 /*
  * Stars on heaven in exit sequence, automap objects
  */
@@ -812,8 +818,6 @@ void g3_draw_sphere(g3s_point &pnt,fix rad)
 	glPopMatrix();
 }
 
-inline namespace dcx {
-
 int gr_ucircle(fix xc1, fix yc1, fix r1)
 {
 	int c, nsides;
@@ -850,8 +854,6 @@ int gr_disk(fix x,fix y,fix r)
 	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va.get());
 	glPopMatrix();
 	return 0;
-}
-
 }
 
 /*
@@ -968,6 +970,8 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
+}
+
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
@@ -1033,6 +1037,8 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
+
+inline namespace dcx {
 
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
@@ -1119,6 +1125,8 @@ void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
 }
 
 /*

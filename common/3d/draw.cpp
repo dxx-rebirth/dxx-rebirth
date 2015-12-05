@@ -21,6 +21,8 @@
 #include "gr.h"
 #endif
 
+inline namespace dcx {
+
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
 #ifndef OGL
 static const flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
@@ -288,3 +290,4 @@ void g3_draw_sphere(g3s_point &pnt,fix rad)
 }
 #endif
 
+}

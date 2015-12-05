@@ -16,6 +16,8 @@
 #include "3d.h"
 #include "globvars.h"
 
+inline namespace dcx {
+
 #define MAX_INSTANCE_DEPTH	5
 
 namespace {
@@ -81,3 +83,4 @@ void g3_done_instance()
 }
 
 
+}

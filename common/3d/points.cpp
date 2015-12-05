@@ -14,6 +14,7 @@
 #include "3d.h"
 #include "globvars.h"
 
+inline namespace dcx {
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 ubyte g3_code_point(g3s_point &p)
@@ -143,4 +144,6 @@ fix g3_calc_point_depth(const vms_vector &pnt)
 	fixmulaccum(&q,(pnt.y - View_position.y),View_matrix.fvec.y);
 	fixmulaccum(&q,(pnt.z - View_position.z),View_matrix.fvec.z);
 	return fixquadadjust(&q);
+}
+
 }

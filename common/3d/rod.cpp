@@ -20,6 +20,8 @@
 
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 namespace {
 
 struct rod_4point
@@ -167,3 +169,4 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 
 
 
+}

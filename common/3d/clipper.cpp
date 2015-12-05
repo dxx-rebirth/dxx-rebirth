@@ -13,6 +13,8 @@
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 temporary_points_t::temporary_points_t() :
 	free_point_num(0)
 {
@@ -185,3 +187,4 @@ const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_p
 	return *src;		//we swapped after we copied
 }
 
+}

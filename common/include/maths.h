@@ -182,8 +182,12 @@ fixang fix_acos (fix v);
 __attribute_warn_unused_result
 fixang fix_atan2 (fix cos, fix sin);
 
+inline namespace dcx {
+
 __attribute_warn_unused_result
 int checkmuldiv(fix *r,fix a,fix b,fix c);
+
+}
 
 extern const array<ubyte, 256> guess_table;
 extern const array<short, 321> sincos_table;
