@@ -12,10 +12,10 @@
  *
  */
 
-#ifndef _MESSAGEBOX_H
-#define _MESSAGEBOX_H
+#pragma once
 
 #ifdef __cplusplus
+inline namespace dcx {
 
 // Display a warning in a messagebox
 extern void msgbox_warning(const char *message);
@@ -23,6 +23,5 @@ extern void msgbox_warning(const char *message);
 // Display an error in a messagebox
 extern void msgbox_error(const char *message);
 
-#endif
-
+}
 #endif

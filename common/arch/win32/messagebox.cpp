@@ -17,6 +17,8 @@
 #include "event.h"
 #include "messagebox.h"
 
+inline namespace dcx {
+
 static void display_win32_alert(const char *message, int error)
 {
 	d_event	event;
@@ -47,4 +49,6 @@ void msgbox_warning(const char *message)
 void msgbox_error(const char *message)
 {
 	display_win32_alert(message, 1);
+}
+
 }

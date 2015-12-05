@@ -18,6 +18,8 @@
 #include "event.h"
 #include "messagebox.h"
 
+inline namespace dcx {
+
 void display_cocoa_alert(const char *message, int error)
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -39,4 +41,6 @@ void msgbox_warning(const char *message)
 void msgbox_error(const char *message)
 {
 	display_cocoa_alert(message, 1);
+}
+
 }
