@@ -111,6 +111,8 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "dxxsconf.h"
 #include "compiler-begin.h"
 
+inline namespace dsx {
+
 int Screen_mode=-1;					//game screen or editor screen?
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -232,6 +234,10 @@ static void print_commandline_help()
 
 int Quitting = 0;
 
+}
+
+inline namespace dcx {
+
 // Default event handler for everything except the editor
 int standard_handler(const d_event &event)
 {
@@ -328,6 +334,10 @@ int standard_handler(const d_event &event)
 	return 0;
 }
 
+}
+
+inline namespace dsx {
+
 #define PROGNAME argv[0]
 
 //	DESCENT by Parallax Software
@@ -335,7 +345,7 @@ int standard_handler(const d_event &event)
 //	(varies based on preprocessor options)
 //		Descent Main
 
-int main(int argc, char *argv[])
+static int main(int argc, char *argv[])
 {
 	mem_init();
 #ifdef __linux__
@@ -575,4 +585,11 @@ int main(int argc, char *argv[])
 	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit
+}
+
+}
+
+int main(int argc, char *argv[])
+{
+	return dsx::main(argc, argv);
 }

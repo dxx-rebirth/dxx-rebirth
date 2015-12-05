@@ -28,6 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-event.h"
 #include "ntstring.h"
 
+inline namespace dcx {
+
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x
 #else
@@ -45,6 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // the maximum length of a filename
 static const std::size_t FILENAME_LEN = 13;
 
+// Default event handler for everything except the editor
+int standard_handler(const d_event &event);
+
 // a filename, useful for declaring arrays of filenames
 struct d_fname : ntstring<FILENAME_LEN - 1>
 {
@@ -58,6 +63,11 @@ struct d_fname : ntstring<FILENAME_LEN - 1>
 		}
 };
 
+}
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 /**
  **	Global variables
  **/
@@ -68,5 +78,5 @@ extern int Screen_mode;			// editor screen or game screen?
 extern int MacHog;
 #endif
 
-// Default event handler for everything except the editor
-int standard_handler(const d_event &event);
+}
+#endif

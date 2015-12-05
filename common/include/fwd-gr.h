@@ -38,7 +38,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SHEIGHT (grd_curscreen->get_screen_height())
 
 #if defined(DXX_BUILD_DESCENT_I)
+inline namespace dsx {
 extern int HiresGFXAvailable;
+}
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && !GameArg.GfxSkipHiresGFX)

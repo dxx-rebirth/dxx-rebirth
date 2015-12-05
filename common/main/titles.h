@@ -28,7 +28,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 
+inline namespace dcx {
+
 struct d_fname;
+
+}
 
 extern void show_titles(void);
 void do_briefing_screens(const d_fname &filename, int level_num);
