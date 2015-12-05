@@ -1494,9 +1494,8 @@ void GameProcessFrame(void)
 	// Check if we have to close in-game menus for multiplayer
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
-		if ( Endlevel_sequence || ((Control_center_destroyed) && (Countdown_seconds_left <= 1)) || // close menus when end of level...
-			(Automap_active && ((Player_is_dead != player_was_dead) || (get_local_player_shields()<=0 && player_shields>0))) ) // close autmap when dying ...
-			game_leave_menus();
+                if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (get_local_player_shields() < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
+                        game_leave_menus();
 	}
 }
 
