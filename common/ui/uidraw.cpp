@@ -23,6 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 
+inline namespace dcx {
+
 void Hline(short x1, short x2, short y )
 {
 	gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) );
@@ -120,3 +122,4 @@ void ui_draw_line_in( short x1, short y1, short x2, short y2 )
 
 
 
+}

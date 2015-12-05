@@ -33,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "key.h"
 
+inline namespace dcx {
+
 UI_GADGET * selected_gadget;
 
 constexpr tt::integral_constant<uint8_t, 1> UI_GADGET_BUTTON::s_kind;
@@ -366,5 +368,7 @@ void ui_gadget_calc_keys( UI_DIALOG * dlg)
 
 		tmp = tmp->next;
 	} while( tmp != dlg->gadget );
+
+}
 
 }

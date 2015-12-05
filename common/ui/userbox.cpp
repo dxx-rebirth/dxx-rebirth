@@ -29,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
+inline namespace dcx {
+
 void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 {
 #if 0  //ndef OGL
@@ -160,3 +162,4 @@ window_event_result ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox,c
 
 
 
+}

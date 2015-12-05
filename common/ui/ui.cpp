@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "mouse.h"
 
+inline namespace dcx {
+
 static int Initialized = 0;
 
 unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
@@ -82,3 +84,4 @@ void ui_close()
 	return;
 }
 
+}

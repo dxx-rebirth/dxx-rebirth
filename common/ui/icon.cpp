@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
+inline namespace dcx {
+
 #define Middle(x) ((2*(x)+1)/4)
 
 static void ui_draw_box_in1( short x1, short y1, short x2, short y2 )
@@ -172,4 +174,6 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_ev
 		ui_draw_icon( icon );
 
 	return rval;
+}
+
 }

@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "mouse.h"
 
+inline namespace dcx {
+
 void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
 #if 0  //ndef OGL
@@ -167,3 +169,4 @@ void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, const char *text)
 	inputbox->first_time = 1;	// select all
 }
 
+}

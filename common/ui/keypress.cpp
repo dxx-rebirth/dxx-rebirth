@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "window.h"
 
+inline namespace dcx {
+
 static const array<const char *, 256> KeyDesc{{
 "","{Esc}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{0}","{-}",           \
 "{=}","{Backspace}","{Tab}","{Q}","{W}","{E}","{R}","{T}","{Y}","{U}","{I}","{O}",      \
@@ -85,4 +87,6 @@ int DecodeKeyText( const char * text )
 		}
 	}
 	return -1;
+}
+
 }

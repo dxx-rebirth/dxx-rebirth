@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
+inline namespace dcx {
+
 static int file_sort_func(char **e0, char **e1)
 {
 	return d_stricmp(*e0, *e1);
@@ -329,4 +331,6 @@ int ui_get_file( char * filename, const char * Filespec  )
 	if (x > 0)
 		strcpy(filename, list[x - 1]);
 	return (x > 0);
+}
+
 }

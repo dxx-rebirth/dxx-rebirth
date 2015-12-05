@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
+inline namespace dcx {
+
 #define Middle(x) ((2*(x)+1)/4)
 
 void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
@@ -155,4 +157,6 @@ void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)
 	
 	checkbox->flag = check;
 	checkbox->status = 1;	// redraw
+}
+
 }

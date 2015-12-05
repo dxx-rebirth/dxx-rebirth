@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
+inline namespace dcx {
+
 #define Middle(x) ((2*(x)+1)/4)
 
 #define BUTTON_EXTRA_WIDTH  15
@@ -200,4 +202,6 @@ window_event_result ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button,const
 	}
 	
 	return rval;
+}
+
 }

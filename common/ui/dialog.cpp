@@ -40,6 +40,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
+inline namespace dcx {
+
 #define D_X             (dlg->x)
 #define D_Y             (dlg->y)
 #define D_WIDTH         (dlg->width)
@@ -489,4 +491,6 @@ void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * buffer )
 {
 	ui_dialog_set_current_canvas( dlg );
 	gr_string( x, y, buffer );
+}
+
 }

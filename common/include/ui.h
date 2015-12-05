@@ -43,6 +43,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct grs_bitmap;
 struct grs_font;
 
+inline namespace dcx {
+
 struct UI_KEYPAD {
 	typedef array<char, 100> buttontext_element_t;
 	typedef array<buttontext_element_t, 17> buttontext_t;
@@ -406,5 +408,7 @@ void ui_barbox_update( int position );
 void ui_barbox_close();
 
 extern int ui_button_any_drawn;
+
+}
 
 #endif

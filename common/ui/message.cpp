@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-make_unique.h"
 
+inline namespace dcx {
+
 // ts = total span
 // w = width of each item
 // n = number of items
@@ -216,4 +218,6 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	ui_close_dialog(dlg);
 
 	return choice;
+}
+
 }

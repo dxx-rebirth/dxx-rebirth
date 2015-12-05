@@ -29,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "timer.h"
 
+inline namespace dcx {
+
 static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 );
 
 void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
@@ -413,5 +415,7 @@ void ui_listbox_change(UI_DIALOG *, UI_GADGET_LISTBOX *listbox, uint_fast32_t nu
 	scrollbar->moved=0;
 	scrollbar->status=1;
 
+
+}
 
 }

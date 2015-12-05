@@ -29,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "timer.h"
 
+inline namespace dcx {
+
 void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 {
 #if 0  //ndef OGL
@@ -291,3 +293,4 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 	return rval;
 }
 
+}

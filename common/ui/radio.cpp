@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 
+inline namespace dcx {
+
 #define Middle(x) ((2*(x)+1)/4)
 
 void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
@@ -187,4 +189,6 @@ void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 		}
 		tmp = (UI_GADGET_RADIO *) tmp->next;
 	}
+}
+
 }
