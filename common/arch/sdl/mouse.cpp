@@ -23,6 +23,8 @@
 #include "args.h"
 #include "gr.h"
 
+inline namespace dcx {
+
 namespace {
 
 struct flushable_mouseinfo
@@ -250,4 +252,6 @@ void mouse_cursor_autohide()
 		result = SDL_DISABLE;
 	}
 	SDL_ShowCursor(result);
+}
+
 }

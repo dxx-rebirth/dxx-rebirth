@@ -17,6 +17,8 @@
 #include "config.h"
 #include "multi.h"
 
+inline namespace dcx {
+
 static fix64 F64_RunTime = 0;
 
 fix64 timer_update()
@@ -70,4 +72,6 @@ void timer_delay_bound(const unsigned caller_bound)
 			break;
 		}
 	}
+}
+
 }

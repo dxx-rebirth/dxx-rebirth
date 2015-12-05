@@ -26,6 +26,8 @@
 #include "compiler-integer_sequence.h"
 #include "compiler-type_traits.h"
 
+inline namespace dcx {
+
 namespace {
 
 int num_joysticks = 0;
@@ -380,5 +382,7 @@ int event_joystick_get_button(const d_event &event)
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
 	Assert(e.type == EVENT_JOYSTICK_BUTTON_DOWN || e.type == EVENT_JOYSTICK_BUTTON_UP);
 	return e.button;
+}
+
 }
 #endif

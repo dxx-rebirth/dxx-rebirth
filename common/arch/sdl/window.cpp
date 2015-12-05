@@ -20,6 +20,8 @@
 #include "dxxerror.h"
 #include "event.h"
 
+inline namespace dcx {
+
 struct window
 {
 	grs_canvas w_canv;					// the window's canvas to draw to
@@ -220,4 +222,6 @@ void window_set_modal(window &wind, int modal)
 int window_is_modal(window &wind)
 {
 	return wind.w_modal;
+}
+
 }

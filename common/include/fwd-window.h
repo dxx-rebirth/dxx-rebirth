@@ -11,9 +11,11 @@
 #include "fwd-event.h"
 #include "fwd-gr.h"
 
+void arch_init();
+inline namespace dcx {
+
 struct window;
 enum class window_event_result : uint8_t;
-void arch_init();
 
 template <typename T>
 using window_subfunction = window_event_result (*)(window *menu,const d_event &event, T *userdata);
@@ -44,5 +46,7 @@ void window_set_modal(window &wind, int modal);
 int window_is_modal(window &wind);
 
 #define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__, #e))
+
+}
 
 #endif

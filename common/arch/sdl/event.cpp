@@ -25,6 +25,8 @@
 #include "joy.h"
 #include "args.h"
 
+inline namespace dcx {
+
 void event_poll()
 {
 	SDL_Event event;
@@ -200,3 +202,4 @@ fix event_get_idle_seconds()
 	return (timer_query() - last_event)/F1_0;
 }
 
+}

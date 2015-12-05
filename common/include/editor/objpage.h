@@ -23,14 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _OBJPAGE_H
-#define _OBJPAGE_H
+#pragma once
 
 #include "ui.h"
 
 #ifdef __cplusplus
+#include "fwd-event.h"
 
-struct d_event;
 struct vms_angvec;
 
 int objpage_grab_current(int n);
@@ -41,7 +40,5 @@ void objpage_close();
 int objpage_do(const d_event &event);
 
 extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
-
-#endif
 
 #endif

@@ -41,6 +41,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct SDL_KeyboardEvent;
 
+inline namespace dcx {
+
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
 // ASCII mode. key_close simply undoes that.
@@ -55,7 +57,7 @@ extern array<unsigned char, KEY_BUFFER_SIZE> unicode_frame_buffer;
 extern void key_flush();    // Clears the 256 char buffer
 extern int event_key_get(const d_event &event);	// Get the keycode from the EVENT_KEY_COMMAND event
 extern int event_key_get_raw(const d_event &event);	// same as above but without mod states
-extern unsigned char key_ascii();
+unsigned char key_ascii();
 
 class pressed_keys
 {
@@ -223,5 +225,7 @@ struct key_props
 };
 
 extern const array<key_props, 256> key_properties;
+
+}
 
 #endif

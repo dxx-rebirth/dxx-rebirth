@@ -29,8 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 
 #ifdef __cplusplus
-
-struct d_event;
+#include "fwd-event.h"
 
 extern int TextureLights;
 extern int TextureEffects;

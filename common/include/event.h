@@ -12,6 +12,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
+inline namespace dcx {
 
 enum event_type : unsigned
 {
@@ -79,4 +80,5 @@ struct d_select_event : d_event
 
 fix event_get_idle_seconds();
 
+}
 #endif

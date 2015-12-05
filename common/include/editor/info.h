@@ -23,17 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _INFO_H
-#define _INFO_H
+#pragma once
 
 #ifdef __cplusplus
-
-struct window;
+#include "fwd-window.h"
 
 struct window *info_window_create(void);
 
 extern int init_info;
-
-#endif
 
 #endif

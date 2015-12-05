@@ -30,10 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <vector>
+#include "fwd-event.h"
 #include "compiler-array.h"
 #include "compiler-type_traits.h"
-
-struct d_event;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct control_info {

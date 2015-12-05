@@ -25,6 +25,8 @@
 #include "u_mem.h"
 #include "console.h"
 
+inline namespace dcx {
+
 namespace {
 
 class current_music_t
@@ -183,4 +185,6 @@ void mix_pause_resume_music()
 		Mix_ResumeMusic();
 	else if (Mix_PlayingMusic())
 		Mix_PauseMusic();
+}
+
 }

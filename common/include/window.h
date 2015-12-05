@@ -21,6 +21,7 @@
 
 #ifdef __cplusplus
 #include "fwd-window.h"
+inline namespace dcx {
 
 enum class window_event_result : uint8_t
 {
@@ -83,4 +84,5 @@ static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &
 	return window_send_event(w, event);
 }
 
+}
 #endif

@@ -31,6 +31,8 @@
 #include "partial_range.h"
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 #define REDBOOK_VOLUME_SCALE 255
 
 static SDL_CD *s_cd = NULL;
@@ -318,4 +320,6 @@ void RBAList(void)
 
 	range_for (auto &i, partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks)))
 		con_printf(CON_VERBOSE, "RBAudio: CD track %d, type %s, length %d, offset %d", i.id, (i.type == SDL_AUDIO_TRACK) ? "audio" : "data", i.length, i.offset);
+}
+
 }

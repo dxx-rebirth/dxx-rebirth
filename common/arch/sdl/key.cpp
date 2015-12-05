@@ -28,6 +28,8 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 //-------- Variable accessed by outside functions ---------
 static bool keyd_repeat; // 1 = use repeats, 0 no repeats
 pressed_keys keyd_pressed;
@@ -508,4 +510,6 @@ void key_toggle_repeat(int enable)
 		keyd_repeat = 0;
 	}
 	key_flush();
+}
+
 }

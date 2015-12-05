@@ -23,6 +23,8 @@
 struct SDL_MouseButtonEvent;
 struct SDL_MouseMotionEvent;
 
+inline namespace dcx {
+
 #define MOUSE_MAX_BUTTONS       16
 #define Z_SENSITIVITY		100
 #define MBTN_LEFT		0
@@ -85,6 +87,8 @@ static inline void event_mouse_get_delta(const d_event &event, int *dx, int *dy,
 	*dx = e.dx;
 	*dy = e.dy;
 	*dz = e.dz;
+}
+
 }
 
 #endif

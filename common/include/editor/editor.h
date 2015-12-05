@@ -30,10 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "fmtcheck.h"
 
-struct window;
-
 #ifdef __cplusplus
-
+#include "fwd-window.h"
 #include "fwd-segment.h"
 #include "objnum.h"
 
