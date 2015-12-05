@@ -34,8 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "valptridx.tcc"
 
+inline namespace dcx {
+unsigned Num_segments;
 // Global array of vertices, common to one mine.
 array<vertex, MAX_VERTICES> Vertices;
+}
 array<g3s_point, MAX_VERTICES> Segment_points;
 
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
@@ -48,12 +51,12 @@ int d_tick_step = 0;  // true once every 33.33ms
 //lsegment	Lsegments[MAX_SEGMENTS];
 
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
-unsigned Num_vertices;
-unsigned Num_segments;
 
 unsigned Highest_vertex_index;
 
 //	Translate table to get opposite side of a face on a segment.
+inline namespace dcx {
+unsigned Num_vertices;
 const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
 }};
@@ -78,6 +81,7 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 	{{4,5,6,7}},			// back
 	{{3,2,1,0}},			// front
 }};
+}
 
 // Texture map stuff
 
@@ -99,8 +103,8 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 
 inline namespace dsx {
 valptridx<object>::array_managed_type Objects;
-}
 valptridx<segment>::array_managed_type Segments;
+}
 
 template class valptridx<object>;
 template class valptridx<segment>;

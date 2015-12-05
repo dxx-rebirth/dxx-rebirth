@@ -44,6 +44,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwd-segment.h"
 
+inline namespace dcx {
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
@@ -146,7 +148,11 @@ struct side
 	array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 struct segment {
 #ifdef EDITOR
 	segnum_t   segnum;     // segment number, not sure what it means
@@ -171,7 +177,11 @@ struct segment {
 	fix     static_light;
 	array<side, MAX_SIDES_PER_SEGMENT>    sides;       // 6 sides
 };
+
+}
 #endif
+
+inline namespace dcx {
 
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
@@ -188,21 +198,22 @@ struct group
 	}
 };
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define Highest_segment_index Segments.highest
 
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 #endif
 
+inline namespace dcx {
+
 // Globals from mglobal.c
 struct vertex : vms_vector
 {
 	vertex() = default;
 	vertex(const fix &a, const fix &b, const fix &c) :
-		/* gcc 4.7 and later support brace initializing the base class
-		 * gcc 4.6 requires the explicit temporary
-		 */
-		vms_vector(vms_vector{a, b, c})
+		vms_vector{a, b, c}
 	{
 	}
 	explicit vertex(const vms_vector &v) :
@@ -210,6 +221,8 @@ struct vertex : vms_vector
 	{
 	}
 };
+
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct side::illegal_type : std::runtime_error
@@ -242,6 +255,8 @@ void side::set_type(unsigned t)
 	}
 }
 
+inline namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
@@ -260,7 +275,11 @@ struct dl_index {
 	uint16_t index;
 };
 #endif
+
+}
 #endif
+
+inline namespace dcx {
 
 template <typename T, unsigned bits>
 class visited_segment_mask_t
@@ -411,4 +430,6 @@ public:
 		return this->template make_maskproxy<const_bitproxy_t>(this->a, segnum);
 	}
 };
+
+}
 #endif

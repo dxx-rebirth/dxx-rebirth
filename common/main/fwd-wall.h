@@ -13,8 +13,6 @@
 #include "fwd-object.h"
 #include "fwd-segment.h"
 
-struct side;
-
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_WALLS = 175;	// Maximum number of walls
 const std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
@@ -130,6 +128,8 @@ const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | W
 #endif
 #endif
 
+inline namespace dcx {
+
 template <int16_t I>
 struct wall_magic_constant_t
 {
@@ -139,6 +139,8 @@ struct wall_magic_constant_t
 const wall_magic_constant_t<-1> wall_none{};
 
 const std::size_t MAX_STUCK_OBJECTS = 32;
+
+}
 
 struct stuckobj;
 struct v16_wall;

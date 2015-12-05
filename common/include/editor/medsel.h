@@ -27,8 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-vecmat.h"
-
-struct count_segment_array_t;
+#include "fwd-segment.h"
 
 void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos);
 
