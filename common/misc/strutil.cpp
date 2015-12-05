@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 #ifdef macintosh
 void snprintf(char *out_string, int size, char * format, ... )
 {
@@ -229,4 +231,6 @@ void string_array_t::tidy(std::size_t offset, int (*comp)( const char *, const c
 	// Remove duplicates
 	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
 	ptr.erase(std::unique(b, e, [=](const char *sa, const char *sb) { return (*comp)(sa, sb) == 0; }), e);
+}
+
 }

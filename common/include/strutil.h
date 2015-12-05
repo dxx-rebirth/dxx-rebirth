@@ -13,6 +13,8 @@
 #include "dxxsconf.h"
 #include <vector>
 
+inline namespace dcx {
+
 #if defined(macintosh)
 #define snprintf macintosh_snprintf
 extern void snprintf(char *out_string, int size, const char * format, ... );
@@ -79,5 +81,7 @@ public:
 };
 
 int string_array_sort_func(char **e0, char **e1);
+
+}
 
 #endif

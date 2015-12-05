@@ -18,12 +18,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
+#pragma once
 
-#ifndef _HASH_H
-#define _HASH_H
-
-#ifdef __cplusplus
 #include <map>
+
+inline namespace dcx {
 
 struct hashtable
 {
@@ -37,6 +36,4 @@ struct hashtable
 int hashtable_search( hashtable *ht, const char *key );
 void hashtable_insert( hashtable *ht, const char *key, int value );
 
-#endif
-
-#endif
+}

@@ -31,6 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "dxxerror.h"
 
+inline namespace dcx {
+
 #define MAX_MSG_LEN 2048
 
 static void (*ErrorPrintFunc)(const char *);
@@ -147,4 +149,6 @@ int error_init(void (*func)(const char *))
 {
 	ErrorPrintFunc = func;          // Set Error Print Functions
 	return 0;
+}
+
 }

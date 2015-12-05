@@ -36,6 +36,8 @@
  *  \author Ryan C. Gordon.
  */
 
+inline namespace dcx {
+
 /* I'm not screwing around with stricmp vs. strcasecmp... */
 static int caseInsensitiveStringCompare(const char *x, const char *y)
 {
@@ -115,6 +117,7 @@ int PHYSFSEXT_locateCorrectCase(char *buf)
     return a() ? 0 : -1;
 } /* PHYSFSEXT_locateCorrectCase */
 
+}
 
 #ifdef TEST_PHYSFSEXT_LOCATECORRECTCASE
 #define con_printf(A,B,...)	printf(B "\n", ##__VA_ARGS__)

@@ -54,6 +54,8 @@
 
 #ifdef __cplusplus
 
+inline namespace dcx {
+
 /**
  * \fn int PHYSFSEXT_locateCorrectCase(char *buf)
  * \brief Find an existing filename with matching case.
@@ -81,6 +83,8 @@
 int PHYSFSEXT_locateCorrectCase(char *buf);
 
 /* end of ignorecase.h ... */
+
+}
 
 #endif
 

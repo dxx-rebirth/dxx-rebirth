@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "hash.h"
 
+inline namespace dcx {
+
 bool hashtable::compare_t::operator()(const char *l, const char *r) const
 {
 	for (;; ++l, ++r)
@@ -48,4 +50,6 @@ int hashtable_search(hashtable *ht, const char *key)
 void hashtable_insert(hashtable *ht, const char *key, int value)
 {
 	ht->m.insert(std::make_pair(key, value));
+}
+
 }

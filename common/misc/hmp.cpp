@@ -27,6 +27,8 @@
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+inline namespace dcx {
+
 #define MIDIINT(x)	(words_bigendian ? (x) : (SWAPINT(x)))
 #define MIDISHORT(x)	(words_bigendian ? (x) : (SWAPSHORT(x)))
 
@@ -711,4 +713,6 @@ void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 		be_bytebuffer_t bbmi(&midbuf[midtrklenpos]);
 		serial::process_buffer(bbmi, static_cast<int32_t>(size_after - size_before));
 	}
+}
+
 }
