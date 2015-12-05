@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (0)
 #endif
 
+inline namespace dcx {
+
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_init(void);
 
@@ -166,5 +168,7 @@ void CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file
 
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 #define CALLOC( var, type, count )	(CALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
+
+}
 
 #endif

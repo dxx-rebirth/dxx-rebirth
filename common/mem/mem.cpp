@@ -33,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "u_mem.h"
 
+inline namespace dcx {
+
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
 
@@ -390,3 +392,5 @@ void mem_validate_heap()
 
 #endif
 #endif
+
+}
