@@ -183,6 +183,8 @@ public:
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
+inline namespace dcx {
+
 struct grs_main_canvas : grs_canvas
 {
 	~grs_main_canvas();
@@ -215,6 +217,8 @@ public:
 class grs_subbitmap : public grs_bitmap
 {
 };
+
+}
 
 static inline void gr_set_bitmap_flags(grs_bitmap &bm, uint8_t flags)
 {

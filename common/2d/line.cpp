@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+inline namespace dcx {
 
 /*
 Symmetric Double Step Line Algorithm
@@ -299,4 +300,6 @@ void gr_line(fix a1, fix b1, fix a2, fix b2)
 	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return,, FIXSCALE );
 
 	gr_uline( a1, b1, a2, b2 );
+}
+
 }

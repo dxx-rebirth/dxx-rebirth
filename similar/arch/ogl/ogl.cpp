@@ -812,6 +812,8 @@ void g3_draw_sphere(g3s_point &pnt,fix rad)
 	glPopMatrix();
 }
 
+inline namespace dcx {
+
 int gr_ucircle(fix xc1, fix yc1, fix r1)
 {
 	int c, nsides;
@@ -848,6 +850,8 @@ int gr_disk(fix x,fix y,fix r)
 	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va.get());
 	glPopMatrix();
 	return 0;
+}
+
 }
 
 /*

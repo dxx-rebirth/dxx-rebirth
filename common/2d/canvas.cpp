@@ -29,6 +29,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
+inline namespace dcx {
+
 grs_canvas * grd_curcanv;    //active canvas
 std::unique_ptr<grs_screen> grd_curscreen;  //active screen
 
@@ -112,4 +114,6 @@ void gr_settransblend(int fade_level, ubyte blend_func)
 #ifdef OGL
 	ogl_set_blending();
 #endif
+}
+
 }

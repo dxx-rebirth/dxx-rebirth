@@ -3155,6 +3155,30 @@ class DXXArchive(DXXCommon):
 %s
  */
 ''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
+		conf.config_h_text += '''
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+#define dsx d1x
+#else
+#define dsx d2x
+#endif
+inline namespace dsx {
+	class dcx;	/* Force type mismatch on attempted nesting */
+	class dsx;
+}
+#else
+class dsx;
+#endif
+
+inline namespace dcx {
+	class dcx;	/* Force type mismatch on attempted nesting */
+	class dsx;
+}
+namespace {
+	class dcx;
+	class dsx;
+}
+'''
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 

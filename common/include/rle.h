@@ -61,8 +61,8 @@ static inline rle_position_t rle_end(const T1 &src, T2 &dst)
 	return {end(src), end(dst)};
 }
 
+inline namespace dcx {
 rle_position_t gr_rle_decode(rle_position_t b, const rle_position_t e);
-ubyte * gr_rle_find_xth_pixel( ubyte *src, int x,int * count, ubyte color );
 int gr_bitmap_rle_compress(grs_bitmap &bmp);
 void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, int x1, int x2);
 void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, int x1, int x2);
@@ -79,6 +79,7 @@ void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap &bmp);
 void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap);
 void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
+}
 
 #endif
 

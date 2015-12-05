@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+inline namespace dcx {
 
 void gr_urect(int left,int top,int right,int bot)
 {
@@ -55,4 +56,6 @@ void gr_rect(int left,int top,int right,int bot)
 #endif
 	for ( int i=top; i<=bot; i++ )
 		gr_scanline( left, right, i );
+}
+
 }

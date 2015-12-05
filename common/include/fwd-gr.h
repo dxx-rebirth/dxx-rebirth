@@ -86,6 +86,8 @@ union screen_mode;
 
 class grs_screen;
 
+inline namespace dcx {
+
 struct grs_main_canvas;
 typedef std::unique_ptr<grs_main_canvas> grs_canvas_ptr;
 
@@ -96,6 +98,8 @@ typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
 class grs_main_bitmap;
 typedef std::unique_ptr<grs_main_bitmap> grs_bitmap_ptr;
 
+}
+
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
 int gr_set_mode(screen_mode mode);
 
@@ -104,6 +108,8 @@ int gr_init();
 void gr_set_attributes();
 #endif
 void gr_close();
+
+inline namespace dcx {
 
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h);
 
@@ -150,6 +156,7 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 #endif
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
+}
 
 //=========================================================================
 // Color functions:
@@ -161,6 +168,8 @@ void gr_use_palette_table(const char * filename);
 
 //=========================================================================
 // Drawing functions:
+
+inline namespace dcx {
 
 // Sets the color in the current canvas.
 void gr_setcolor(color_t color);
@@ -211,6 +220,7 @@ void gr_scanline(int x1, int x2, int y);
 #ifndef OGL
 void gr_uscanline(int x1, int x2, int y);
 #endif
+}
 
 void gr_close_font(std::unique_ptr<grs_font> font);
 
@@ -246,6 +256,7 @@ void gr_uprintf(int x, int y, const char * format, ...) __attribute_format_print
 #define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_uprintf,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
 
+inline namespace dcx {
 
 // From scale.c
 void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation);
@@ -276,6 +287,7 @@ static inline void gr_set_current_canvas(grs_canvas *canv)
 #endif
 		_gr_set_current_canvas(canv);
 }
+}
 
 //flags for fonts
 #define FT_COLOR        1
@@ -303,7 +315,9 @@ extern uint16_t gr_fade_table_selector;
 
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
+inline namespace dcx {
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color);
+}
 
 void gr_palette_step_up(int r, int g, int b);
 

@@ -39,6 +39,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 const uint8_t RLE_CODE = 0xe0;
 const uint8_t NOT_RLE_CODE = 0x1f;
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
@@ -608,4 +610,6 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 	len = ptr2 - temp.get();
 	memcpy(bmp.get_bitmap_data(), &len, 4);
 	memcpy(&bmp.get_bitmap_data()[4], &temp.get()[4], len - 4);
+}
+
 }

@@ -21,6 +21,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 // John's new stuff below here....
 
 static int scale_error_term;
@@ -426,3 +428,4 @@ void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int 
 	}
 }
 
+}

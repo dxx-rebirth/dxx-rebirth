@@ -39,6 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-exchange.h"
 
+inline namespace dcx {
+
 static int gr_bitblt_dest_step_shift = 0;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
@@ -570,4 +572,6 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 				check(x, y, bm.bm_data[i++]);
 	}
 	Assert (count);
+}
+
 }

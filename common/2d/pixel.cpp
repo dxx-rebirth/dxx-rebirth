@@ -30,6 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+inline namespace dcx {
+
 void gr_upixel(unsigned x, unsigned y)
 {
 	switch (TYPE)
@@ -72,4 +74,6 @@ void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color
 	if (unlikely(x >= bm.bm_w || y >= bm.bm_h))
 		return;
 	gr_bm_upixel (bm, x, y, color);
+}
+
 }

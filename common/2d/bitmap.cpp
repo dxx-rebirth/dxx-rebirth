@@ -38,6 +38,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
+inline namespace dcx {
+
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
 
@@ -181,4 +183,6 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 
 	if (super_transparent_color < freq.size() && freq[super_transparent_color])
 		gr_set_super_transparent(bmp, 1);
+}
+
 }
