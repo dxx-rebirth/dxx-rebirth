@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 struct window_rendered_data
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -43,6 +45,8 @@ struct window_rendered_data
 #endif
 	std::vector<objnum_t> rendered_robots;
 };
+
+}
 #endif
 
 extern int Render_depth; //how many segments deep to render

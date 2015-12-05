@@ -20,16 +20,19 @@ struct bitmap_index;
 
 constexpr std::size_t MAX_OBJECTS = 350;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+enum object_type_t : int;
+
+struct object;
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects, MAX_OBJECTS);
 
 static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
+}
 #endif
 
 const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
-
-enum object_type_t : int;
 
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_OBJECT_TYPES = 15;
@@ -102,6 +105,8 @@ const physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotat
 const physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
 #endif
 
+inline namespace dcx {
+
 typedef unsigned powerup_flag_t;
 const powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player
 
@@ -117,6 +122,7 @@ const unsigned MATRIX_PRECISION = 9;
 struct physics_info;
 struct physics_info_rw;
 
+struct laser_parent;
 struct laser_info;
 struct laser_info_rw;
 
@@ -127,7 +133,6 @@ struct light_info;
 struct light_info_rw;
 
 struct powerup_info;
-struct powerup_info_rw;
 
 struct vclip_info;
 struct vclip_info_rw;
@@ -136,6 +141,9 @@ struct polyobj_info;
 struct polyobj_info_rw;
 
 struct obj_position;
+struct object_rw;
+
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -144,16 +152,18 @@ const unsigned MAX_CONTROLCEN_GUNS = 4;
 const unsigned MAX_CONTROLCEN_GUNS = 8;
 #endif
 
-struct reactor_static;
+inline namespace dsx {
 
-struct object;
-struct object_rw;
-
+struct powerup_info_rw;
 struct window_rendered_data;
+struct reactor_static;
+struct object;
 
 typedef array<uint8_t, MAX_OBJECT_TYPES> collision_inner_array_t;
 typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
 extern const collision_outer_array_t CollisionResult;
+
+}
 #endif
 
 extern int Object_next_signature;   // The next signature for the next newly created object

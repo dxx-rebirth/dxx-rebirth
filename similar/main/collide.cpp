@@ -2517,8 +2517,6 @@ struct collision_result_t : public tt::conditional<(B < A), collision_result_t<B
 
 COLLISION_TABLE(DISABLE, ENABLE);
 
-}
-
 template <std::size_t R, std::size_t... C>
 static inline constexpr collision_inner_array_t collide_init(index_sequence<C...>)
 {
@@ -2535,7 +2533,13 @@ static inline constexpr collision_outer_array_t collide_init(index_sequence<R...
 	return collision_outer_array_t{{collide_init<R>(c)...}};
 }
 
+}
+
+inline namespace dsx {
+
 const collision_outer_array_t CollisionResult = collide_init(make_tree_index_sequence<MAX_OBJECT_TYPES>(), make_tree_index_sequence<MAX_OBJECT_TYPES>());
+
+}
 
 #undef DISABLE_COLLISION
 #undef ENABLE_COLLISION

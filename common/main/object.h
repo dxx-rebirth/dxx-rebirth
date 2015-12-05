@@ -51,6 +51,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poison.h"
 #include "player-flags.h"
 
+inline namespace dsx {
+
 // Object types
 enum object_type_t : int
 {
@@ -103,6 +105,10 @@ struct player_info
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable
 };
+
+}
+
+inline namespace dcx {
 
 // A compressed form for sending crucial data
 struct shortpos
@@ -162,6 +168,10 @@ struct laser_parent
 	}
 };
 
+}
+
+inline namespace dsx {
+
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
 	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
@@ -218,6 +228,10 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	}
 };
 
+}
+
+inline namespace dcx {
+
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
 {
@@ -267,6 +281,10 @@ struct powerup_info : prohibit_void_ptr<powerup_info>
 	fix64   creation_time;  // Absolute time of creation.
 };
 
+}
+
+inline namespace dsx {
+
 struct powerup_info_rw
 {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
@@ -276,6 +294,10 @@ struct powerup_info_rw
 	int     flags;          // spat by player?
 #endif
 } __pack__;
+
+}
+
+inline namespace dcx {
 
 struct vclip_info : prohibit_void_ptr<vclip_info>
 {
@@ -310,6 +332,10 @@ struct polyobj_info_rw
 	int     tmap_override;      // if this is not -1, map all face to this
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__;
+
+}
+
+inline namespace dsx {
 
 struct object {
 	object_signature_t signature;
@@ -373,6 +399,10 @@ struct object {
 	} ctype;
 };
 
+}
+
+inline namespace dcx {
+
 // Same as above but structure Savegames/Multiplayer objects expect
 struct object_rw
 {
@@ -427,9 +457,13 @@ struct obj_position
 	segnum_t       segnum;     // segment number containing object
 };
 
+}
+
 #define Highest_object_index Objects.highest
 
 DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
+
+inline namespace dsx {
 
 static inline uint8_t get_hostage_id(const object &o)
 {
@@ -524,6 +558,8 @@ void check_warn_object_type(const object &, object_type_t, const char *file, uns
 			(check_warn_object_type)(O,T,F,L);	\
 	})
 #endif
+
+}
 #endif
 
 #endif

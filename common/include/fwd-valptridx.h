@@ -114,7 +114,6 @@ public:
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\
 	typedef valptridx<managed_type>::vcprefix##suffix vcprefix##derived_type_prefix##suffix##_t
 #define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array,array_size_value)	\
-	struct managed_type;	\
 	valptridx_specialized_type_parameters<derived_type_prefix##num_t, array_size_value> valptridx_specialized_type(managed_type *);	\
 	extern valptridx<managed_type>::array_managed_type global_array;	\
 	DXX_VALPTRIDX_SUBTYPE(DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF, managed_type, derived_type_prefix)
