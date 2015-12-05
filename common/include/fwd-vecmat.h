@@ -8,6 +8,8 @@
 #include "maths.h"
 #include "dxxsconf.h"
 
+inline namespace dcx {
+
 struct vms_vector;
 class vm_distance_squared;
 
@@ -90,3 +92,5 @@ void vm_extract_angles_vector (vms_angvec &a, const vms_vector &v);
 fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vms_vector &planep) __attribute_warn_unused_result;
 void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);
 void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q);
+
+}

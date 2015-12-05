@@ -32,9 +32,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-partial_range.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-vecmat.h"
 #include "pack.h"
 
-struct vms_vector;
 enum powerup_type_t : uint8_t;
 
 // explosion types

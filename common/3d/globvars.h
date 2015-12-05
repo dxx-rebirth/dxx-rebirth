@@ -13,9 +13,8 @@
 #pragma once
 
 #include "maths.h"
+#include "fwd-vecmat.h"
 
-struct vms_vector;
-struct vms_matrix;
 struct g3s_point;
 
 inline namespace dcx {

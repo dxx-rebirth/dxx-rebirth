@@ -24,12 +24,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifndef _TERRAIN_H
-#define _TERRAIN_H
+#pragma once
 
 #ifdef __cplusplus
-
-struct vms_vector;
+#include "fwd-vecmat.h"
 
 void free_light_table();
 void free_height_array();
@@ -37,5 +35,3 @@ void load_terrain(const char *filename);
 void render_terrain(const vms_vector &org, int org_i, int org_j);
 
 #endif
-
-#endif /* _TERRAIN_H */

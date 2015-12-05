@@ -23,16 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _MEDSEL_H
-#define _MEDSEL_H
+#pragma once
 
 #ifdef __cplusplus
+#include "fwd-vecmat.h"
 
-struct vms_vector;
 struct count_segment_array_t;
 
 void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos);
-
-#endif
 
 #endif

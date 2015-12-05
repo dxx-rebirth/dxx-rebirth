@@ -29,8 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-event.h"
-
-struct vms_angvec;
+#include "fwd-vecmat.h"
 
 int objpage_grab_current(int n);
 int objpage_goto_first();

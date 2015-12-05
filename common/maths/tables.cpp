@@ -13,6 +13,8 @@
 
 #include "maths.h"
 
+inline namespace dcx {
+
 const array<ubyte, 256> guess_table{{
 	1,
 	1,1,1,
@@ -878,3 +880,5 @@ const array<ushort, 258> acos_table{{
 	0,
 	0   // extra for when exactly 1
 }};
+
+}

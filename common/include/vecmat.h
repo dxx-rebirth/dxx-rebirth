@@ -31,6 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <utility>
 #include "fwd-vecmat.h"
 
+inline namespace dcx {
+
 //The basic fixed-point vector.  Access elements by name or position
 struct vms_vector
 {
@@ -402,6 +404,8 @@ static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
 	v->p = p;
 	v->b = b;
 	v->h = h;
+}
+
 }
 
 #endif

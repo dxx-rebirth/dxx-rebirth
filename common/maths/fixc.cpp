@@ -18,6 +18,8 @@
 #include "dxxerror.h"
 #include "maths.h"
 
+inline namespace dcx {
+
 #define EPSILON (F1_0/100)
 
 namespace {
@@ -301,4 +303,6 @@ fixang fix_acos(fix v)
 		aa = 0x8000 - aa;
 
 	return aa;
+}
+
 }

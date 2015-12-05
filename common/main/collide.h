@@ -31,8 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-vecmat.h"
 
-struct vms_vector;
 struct laser_parent;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

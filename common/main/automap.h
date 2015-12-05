@@ -44,8 +44,6 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #include "ntstring.h"
 #include "fwd-window.h"
 
-struct vms_vector;
-
 void DropBuddyMarker(vobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);

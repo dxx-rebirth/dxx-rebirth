@@ -19,6 +19,8 @@
 #include "vecmat.h"
 #include "dxxerror.h"
 
+inline namespace dcx {
+
 //#define USE_ISQRT 1
 
 const vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
@@ -668,4 +670,6 @@ void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q)
 	tmp2 = fixmul(q->x * 2, q->w * 2);
 	m->fvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
 	m->uvec.z = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
+}
+
 }

@@ -27,8 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-segment.h"
-
-struct vms_matrix;
+#include "fwd-vecmat.h"
 
 void GetMouseRotation( int idx, int idy, vms_matrix * RotMat );
 extern int Gameview_lockstep;                         //In medmisc.c

@@ -13,12 +13,10 @@
 #include "objnum.h"
 #include "segnum.h"
 #include "fwd-valptridx.h"
-#include "maths.h"
+#include "fwd-vecmat.h"
 #include "fwd-segment.h"
 
 struct bitmap_index;
-struct vms_vector;
-struct vms_matrix;
 
 constexpr std::size_t MAX_OBJECTS = 350;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)

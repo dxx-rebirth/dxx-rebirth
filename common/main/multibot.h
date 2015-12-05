@@ -29,8 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "fwd-player.h"	// playernum_t
-
-struct vms_vector;
+#include "fwd-vecmat.h"
 
 static const std::size_t MAX_ROBOTS_CONTROLLED = 5;
 static const std::size_t HANDS_OFF_PERIOD = MAX_ROBOTS_CONTROLLED; // i.e. one slow above max

@@ -21,6 +21,8 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 void d_srand (unsigned int seed);
 __attribute_warn_unused_result
 int d_rand ();			// Random number function which returns in the range 0-0x7FFF
@@ -182,12 +184,8 @@ fixang fix_acos (fix v);
 __attribute_warn_unused_result
 fixang fix_atan2 (fix cos, fix sin);
 
-inline namespace dcx {
-
 __attribute_warn_unused_result
 int checkmuldiv(fix *r,fix a,fix b,fix c);
-
-}
 
 extern const array<ubyte, 256> guess_table;
 extern const array<short, 321> sincos_table;
@@ -205,5 +203,7 @@ static inline void clamp_fix_lh(fix& f, const fix& low, const fix& high)
 static inline void clamp_fix_symmetric(fix& f, const fix& bound)
 {
 	clamp_fix_lh(f, -bound, bound);
+}
+
 }
 #endif

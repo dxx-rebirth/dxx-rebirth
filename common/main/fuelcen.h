@@ -29,8 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
-
-struct vms_vector;
+#include "fwd-vecmat.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
