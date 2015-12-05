@@ -17,6 +17,8 @@
 #include "args.h"
 #include "ogl_extensions.h"
 
+inline namespace dcx {
+
 class ogl_sync {
 	class sync_deleter
 	{
@@ -37,3 +39,5 @@ class ogl_sync {
 		void init(SyncGLMethod sync_method, int wait);
 		void deinit();
 };
+
+}

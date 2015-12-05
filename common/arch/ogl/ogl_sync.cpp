@@ -20,6 +20,8 @@
 #include "ogl_sync.h"
 #include "timer.h"
 
+inline namespace dcx {
+
 ogl_sync::ogl_sync()
 {
 	method=SYNC_GL_NONE;
@@ -118,4 +120,6 @@ void ogl_sync::init(SyncGLMethod sync_method, int wait)
 void ogl_sync::deinit()
 {
 	fence.reset();
+}
+
 }

@@ -19,6 +19,8 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 /* GL_ARB_sync */
 bool ogl_have_ARB_sync = false;
 PFNGLFENCESYNCPROC glFenceSyncFunc = NULL;
@@ -92,4 +94,6 @@ void ogl_extensions_init()
 	} else {
 		con_printf(CON_VERBOSE, "GL_ARB_sync not available");
 	}
+}
+
 }
