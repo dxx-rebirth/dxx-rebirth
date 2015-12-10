@@ -354,7 +354,8 @@ static void verify_object(const vobjptr_t obj)
 //reads one object of the given version from the given file
 static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 {
-
+	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
+	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
 	obj->type           = PHYSFSX_readByte(f);
 	obj->id             = PHYSFSX_readByte(f);
 
@@ -878,6 +879,9 @@ static int load_game_data(PHYSFS_file *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
+		const auto &&plr = vobjptr(Players[0].objnum);
+		const auto plr_shields = plr->shields;
+		const auto player_info = plr->ctype.player_info;
 		range_for (auto &i, partial_range(Objects, gs_num_objects))
 		{
 			const auto &&o = vobjptr(&i);
@@ -885,7 +889,8 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			i.signature = obj_get_signature();
 			verify_object(o);
 		}
-
+		plr->shields = plr_shields;
+		plr->ctype.player_info = player_info;
 	}
 
 	//===================== READ WALL INFO ============================
