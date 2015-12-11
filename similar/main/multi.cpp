@@ -2317,6 +2317,9 @@ void multi_reset_object_texture (const vobjptr_t objp)
 {
 	int id,i;
 
+        if (objp->type == OBJ_GHOST)
+                return;
+
 	if (Game_mode & GM_TEAM)
 		id = get_team(get_player_id(objp));
 	else
