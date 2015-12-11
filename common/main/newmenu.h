@@ -33,6 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 #include <tuple>
 #include <utility>
+#ifdef _WIN32
+#include "fwd-window.h"
+#endif
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
@@ -230,7 +233,7 @@ extern const char *Newmenu_allowed_chars;
 extern const char **listbox_get_items(listbox *lb);
 extern int listbox_get_citem(listbox *lb);
 #ifdef _WIN32
-struct window *listbox_get_window(listbox *lb);
+window *listbox_get_window(listbox *lb);
 #endif
 extern void listbox_delete_item(listbox *lb, int item);
 
