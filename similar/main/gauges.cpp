@@ -1185,8 +1185,6 @@ static void hud_set_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_
 
 static void hud_printf_vulcan_ammo(const int x, const int y)
 {
-	if (PlayerCfg.CockpitMode[1]!=CM_FULL_SCREEN)
-		return;
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
 	const auto vulcan_mask = HAS_VULCAN_FLAG;
@@ -1263,9 +1261,19 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			}else
 				x -= w + fspacx3;
 			gr_string(x, y, txtweapon, w, h);
-			if (i == primary_weapon_index_t::VULCAN_INDEX && !vertical)
+			if (i == primary_weapon_index_t::VULCAN_INDEX)
 			{
-				hud_printf_vulcan_ammo(x, y - line_spacing);
+                                if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
+                                {
+                                        if (!vertical)
+                                                hud_printf_vulcan_ammo(x, y - line_spacing);
+#if defined(DXX_BUILD_DESCENT_I)
+                                        else
+                                                hud_printf_vulcan_ammo(x, y);
+#endif
+                                }
+                                else
+                                        hud_printf_vulcan_ammo(x - (w+fspacx3), y - ((h+fspacy2)*2));
 			}
 		}
 	}
@@ -1323,7 +1331,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 				x -= w + fspacx3;
 			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 			{
-				if (vertical)
+				if (vertical && (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN))
 					hud_printf_vulcan_ammo(x, y);
 				continue;
 			}
