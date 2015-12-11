@@ -432,7 +432,13 @@ help:assume C++ compiler works
 		# second line.
 		Display = context.Display
 		Display('%s: checking version of %s %r ... ' % (self.msgprefix, desc, tool))
-		v = StaticSubprocess.get_version_head(tool)
+		try:
+			v = StaticSubprocess.get_version_head(tool)
+		except OSError as e:
+			if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+				Display('error: %s\n' % e.strerror)
+				raise SCons.Errors.StopError('Failed to run %s.' % tool)
+			raise
 		if save_tool_version:
 			self.__tool_versions.append((tool, v))
 		Display('%r\n' % v)
