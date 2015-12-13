@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MAX_NUM_PADS 20
 

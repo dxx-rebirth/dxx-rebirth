@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define __noreturn
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning_puts(const char *str) __attribute_nonnull();

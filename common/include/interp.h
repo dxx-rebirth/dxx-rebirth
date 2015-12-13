@@ -20,7 +20,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 class submodel_angles;
 
 const std::size_t MAX_POLYGON_VECS = 1000;
@@ -63,7 +63,7 @@ int g3_poly_get_color(const uint8_t *model_ptr);
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);

@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "mouse.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static int Initialized = 0;
 

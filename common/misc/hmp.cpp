@@ -27,7 +27,7 @@
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MIDIINT(x)	(words_bigendian ? (x) : (SWAPINT(x)))
 #define MIDISHORT(x)	(words_bigendian ? (x) : (SWAPSHORT(x)))

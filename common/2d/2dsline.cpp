@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const gft_array1 &fade_table) {
 	auto predicate = [&](ubyte c) { return fade_table[darkening_level][c]; };

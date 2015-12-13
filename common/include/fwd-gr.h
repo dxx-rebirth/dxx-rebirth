@@ -88,7 +88,7 @@ union screen_mode;
 
 class grs_screen;
 
-inline namespace dcx {
+namespace dcx {
 
 struct grs_main_canvas;
 typedef std::unique_ptr<grs_main_canvas> grs_canvas_ptr;
@@ -116,7 +116,7 @@ void gr_close();
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h);
 
@@ -182,7 +182,7 @@ void gr_use_palette_table(const char * filename);
 //=========================================================================
 // Drawing functions:
 
-inline namespace dcx {
+namespace dcx {
 
 // Sets the color in the current canvas.
 void gr_setcolor(color_t color);
@@ -264,7 +264,7 @@ void gr_remap_color_fonts();
 #endif
 
 // Writes a string using current font. Returns the next column after last char.
-inline namespace dcx {
+namespace dcx {
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
@@ -277,7 +277,7 @@ void gr_uprintf(int x, int y, const char * format, ...) __attribute_format_print
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // From scale.c
 void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation);
@@ -336,7 +336,7 @@ extern uint16_t gr_fade_table_selector;
 
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
-inline namespace dcx {
+namespace dcx {
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color);
 
 void gr_palette_step_up(int r, int g, int b);
@@ -367,7 +367,7 @@ void gr_toggle_fullscreen();
 
 }
 #endif
-inline namespace dcx {
+namespace dcx {
 void ogl_do_palfx();
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();

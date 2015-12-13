@@ -12,7 +12,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 enum event_type : unsigned
 {

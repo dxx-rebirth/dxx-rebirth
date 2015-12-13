@@ -69,7 +69,7 @@
 	((void)(DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C),	\
 	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C), 0))	\
 
-inline namespace dcx {
+namespace dcx {
 
 template <typename V>
 __attribute_always_inline()

@@ -21,7 +21,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 void d_srand (unsigned int seed);
 __attribute_warn_unused_result

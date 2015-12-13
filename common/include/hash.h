@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <map>
 
-inline namespace dcx {
+namespace dcx {
 
 struct hashtable
 {

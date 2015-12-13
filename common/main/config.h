@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "ntstring.h"
 
-inline namespace dcx {
+namespace dcx {
 struct CCfg : prohibit_void_ptr<CCfg>
 {
 	bool VSync;

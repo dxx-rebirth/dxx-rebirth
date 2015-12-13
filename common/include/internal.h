@@ -21,7 +21,7 @@ void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
-inline namespace dcx {
+namespace dcx {
 extern int linedotscale;
 
 extern int GL_TEXTURE_2D_enabled;
@@ -37,7 +37,7 @@ extern int GL_TEXTURE_2D_enabled;
 //#define OGL_TEXENV(p,m) OGL_SETSTATE(p,m,glTexEnvi(GL_TEXTURE_ENV, p,m));
 //#define OGL_TEXPARAM(p,m) OGL_SETSTATE(p,m,glTexParameteri(GL_TEXTURE_2D,p,m))
 
-inline namespace dcx {
+namespace dcx {
 extern unsigned last_width,last_height;
 static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsigned w, const unsigned h)
 {

@@ -23,7 +23,7 @@
 #include "args.h"
 #include "gr.h"
 
-inline namespace dcx {
+namespace dcx {
 
 namespace {
 

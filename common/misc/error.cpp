@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "dxxerror.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MAX_MSG_LEN 2048
 

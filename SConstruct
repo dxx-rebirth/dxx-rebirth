@@ -3176,10 +3176,11 @@ inline namespace dsx {	/* Force type mismatch on attempted nesting */
 class dsx;	/* dsx declared in common-only code */
 #endif
 
-inline namespace dcx {	/* Force type mismatch on attempted nesting */
+namespace dcx {	/* Force type mismatch on attempted nesting */
 	class dcx;	/* dcx declared inside dcx */
 	class dsx;	/* dsx declared inside dcx */
 }
+using namespace dcx;
 namespace {
 	class dcx;	/* dcx declared inside anonymous */
 	class dsx;	/* dsx declared inside anonymous */

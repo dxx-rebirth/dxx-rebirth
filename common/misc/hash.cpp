@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "hash.h"
 
-inline namespace dcx {
+namespace dcx {
 
 bool hashtable::compare_t::operator()(const char *l, const char *r) const
 {

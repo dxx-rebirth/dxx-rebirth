@@ -19,7 +19,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 /* GL_ARB_sync */
 bool ogl_have_ARB_sync = false;

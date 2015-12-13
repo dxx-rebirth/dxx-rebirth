@@ -14,7 +14,7 @@
 #include "3d.h"
 #include "globvars.h"
 
-inline namespace dcx {
+namespace dcx {
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 ubyte g3_code_point(g3s_point &p)

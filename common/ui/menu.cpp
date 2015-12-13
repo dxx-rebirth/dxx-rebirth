@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-make_unique.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2

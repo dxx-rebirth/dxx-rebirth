@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define Middle(x) ((2*(x)+1)/4)
 

@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 {

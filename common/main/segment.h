@@ -44,7 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwd-segment.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Returns true if segnum references a child, else returns false.
@@ -181,7 +181,7 @@ struct segment {
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 struct count_segment_array_t : public count_array_t<segnum_t, MAX_SEGMENTS> {};
 
@@ -206,7 +206,7 @@ struct group
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 // Globals from mglobal.c
 struct vertex : vms_vector
@@ -279,7 +279,7 @@ struct dl_index {
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 template <typename T, unsigned bits>
 class visited_segment_mask_t

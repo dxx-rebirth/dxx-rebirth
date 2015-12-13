@@ -26,7 +26,7 @@
 #endif
 #include "gr.h"
 
-inline namespace dcx {
+namespace dcx {
 
 //start the frame
 void g3_start_frame(void)

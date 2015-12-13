@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "aistruct.h"
 #endif
 
-inline namespace dcx {
+namespace dcx {
 struct point_seg;
 }
 struct PHYSFS_File;
@@ -267,7 +267,7 @@ void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 extern void special_reactor_stuff(void);
 #endif
 
-inline namespace dcx {
+namespace dcx {
 struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
 extern point_seg_array_t        Point_segs;
 extern point_seg_array_t::iterator        Point_segs_free_ptr;

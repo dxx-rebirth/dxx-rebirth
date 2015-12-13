@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MAXMENUS 30
 #define MAXITEMS 32

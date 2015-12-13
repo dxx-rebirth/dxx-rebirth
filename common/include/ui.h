@@ -43,7 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct grs_bitmap;
 struct grs_font;
 
-inline namespace dcx {
+namespace dcx {
 
 struct UI_KEYPAD {
 	typedef array<char, 100> buttontext_element_t;

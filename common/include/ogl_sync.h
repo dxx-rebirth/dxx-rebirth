@@ -17,7 +17,7 @@
 #include "args.h"
 #include "ogl_extensions.h"
 
-inline namespace dcx {
+namespace dcx {
 
 class ogl_sync {
 	class sync_deleter

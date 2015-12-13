@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 
-inline namespace dcx {
+namespace dcx {
 
 void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 {

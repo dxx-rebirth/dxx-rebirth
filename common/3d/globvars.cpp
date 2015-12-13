@@ -14,7 +14,7 @@
 #include "3d.h"
 #include "globvars.h"
 
-inline namespace dcx {
+namespace dcx {
 
 vms_vector	View_position;
 fix			View_zoom;

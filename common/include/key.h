@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct SDL_KeyboardEvent;
 
-inline namespace dcx {
+namespace dcx {
 
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered

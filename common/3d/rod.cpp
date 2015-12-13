@@ -20,7 +20,7 @@
 
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 namespace {
 

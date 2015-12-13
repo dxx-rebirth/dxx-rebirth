@@ -23,7 +23,7 @@ struct g3s_point;
 #include "globvars.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 struct polygon_clip_points : array<g3s_point *, MAX_POINTS_IN_POLY> {};
 struct temporary_points_t

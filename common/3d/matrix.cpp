@@ -14,7 +14,7 @@
 #include "3d.h"
 #include "globvars.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static void scale_matrix(void);
 

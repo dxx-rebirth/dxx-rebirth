@@ -18,7 +18,7 @@ typedef char file_extension_t[5];
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 class PHYSFS_list_deleter
 {

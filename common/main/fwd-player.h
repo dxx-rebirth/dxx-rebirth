@@ -68,7 +68,7 @@ struct callsign_t;
 
 struct player_ship;
 
-inline namespace dcx {
+namespace dcx {
 typedef unsigned playernum_t;
 typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
 

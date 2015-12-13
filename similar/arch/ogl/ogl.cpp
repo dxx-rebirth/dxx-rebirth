@@ -83,7 +83,7 @@ using std::max;
 #define sinf(a) sin(a)
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 static std::unique_ptr<GLubyte[]> texbuf;
 static palette_array_t *ogl_pal = &gr_palette;
@@ -547,7 +547,7 @@ void ogl_cache_level_textures(void)
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
@@ -785,7 +785,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glLineWidth(linedotscale);
 }
 
-inline namespace dcx {
+namespace dcx {
 
 /*
  * Stars on heaven in exit sequence, automap objects
@@ -1046,7 +1046,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-inline namespace dcx {
+namespace dcx {
 
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages

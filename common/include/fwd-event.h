@@ -7,7 +7,7 @@
 
 #pragma once
 
-inline namespace dcx {
+namespace dcx {
 
 struct d_event;
 struct d_create_event;

@@ -13,7 +13,7 @@
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 temporary_points_t::temporary_points_t() :
 	free_point_num(0)

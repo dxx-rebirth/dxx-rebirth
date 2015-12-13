@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-integer_sequence.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff

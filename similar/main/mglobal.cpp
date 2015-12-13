@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "valptridx.tcc"
 
-inline namespace dcx {
+namespace dcx {
 unsigned Num_segments;
 // Global array of vertices, common to one mine.
 array<vertex, MAX_VERTICES> Vertices;
@@ -55,7 +55,7 @@ int d_tick_step = 0;  // true once every 33.33ms
 unsigned Highest_vertex_index;
 
 //	Translate table to get opposite side of a face on a segment.
-inline namespace dcx {
+namespace dcx {
 unsigned Num_vertices;
 const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK

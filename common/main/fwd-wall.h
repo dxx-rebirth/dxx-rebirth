@@ -128,7 +128,7 @@ const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | W
 #endif
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 template <int16_t I>
 struct wall_magic_constant_t

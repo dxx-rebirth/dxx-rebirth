@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_SEGMENTS_PER_PATH       20
 
-inline namespace dcx {
+namespace dcx {
 
 enum class player_awareness_type_t : uint8_t
 {
@@ -313,7 +313,7 @@ struct ai_cloak_info_rw
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 struct point_seg : prohibit_void_ptr<point_seg> {
 	segnum_t         segnum;

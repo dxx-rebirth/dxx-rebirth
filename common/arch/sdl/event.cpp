@@ -25,7 +25,7 @@
 #include "joy.h"
 #include "args.h"
 
-inline namespace dcx {
+namespace dcx {
 
 void event_poll()
 {

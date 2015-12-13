@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "dxxerror.h"
 
-inline namespace dcx {
+namespace dcx {
 
 tmap_scanline_function_table tmap_scanline_functions;
 

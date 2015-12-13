@@ -108,7 +108,7 @@ struct player_info
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // A compressed form for sending crucial data
 struct shortpos
@@ -230,7 +230,7 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
@@ -297,7 +297,7 @@ struct powerup_info_rw
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 struct vclip_info : prohibit_void_ptr<vclip_info>
 {
@@ -401,7 +401,7 @@ struct object {
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct object_rw

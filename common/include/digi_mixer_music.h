@@ -13,7 +13,7 @@
 #pragma once
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 int mix_play_music(const char *, int);
 int mix_play_file(const char *, int, void (*)());

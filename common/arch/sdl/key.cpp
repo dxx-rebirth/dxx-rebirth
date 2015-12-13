@@ -28,7 +28,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 //-------- Variable accessed by outside functions ---------
 static bool keyd_repeat; // 1 = use repeats, 0 no repeats

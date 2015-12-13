@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 #include "fwd-window.h"
-inline namespace dcx {
+namespace dcx {
 
 enum class window_event_result : uint8_t
 {

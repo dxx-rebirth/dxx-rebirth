@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
@@ -186,7 +186,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 struct PCX_PHYSFS_file
 {

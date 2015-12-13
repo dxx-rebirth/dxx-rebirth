@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #ifndef OGL
 int gr_ucircle(fix xc1,fix yc1,fix r1)

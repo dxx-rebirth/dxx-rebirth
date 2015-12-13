@@ -139,7 +139,7 @@ static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(void);
 
-inline namespace dcx {
+namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
@@ -151,7 +151,7 @@ unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 }
 array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
-inline namespace dcx {
+namespace dcx {
 fix StartingShields=INITIAL_SHIELDS;
 array<obj_position, MAX_PLAYERS> Player_init;
 

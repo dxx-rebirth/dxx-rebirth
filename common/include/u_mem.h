@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DXX_DEBUG_BIAS_MEMORY_ALLOCATION (0)
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 #ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_init(void);

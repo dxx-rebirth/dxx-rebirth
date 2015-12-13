@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
-inline namespace dcx {
+namespace dcx {
 
 grs_canvas * grd_curcanv;    //active canvas
 std::unique_ptr<grs_screen> grd_curscreen;  //active screen

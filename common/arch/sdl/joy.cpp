@@ -26,7 +26,7 @@
 #include "compiler-integer_sequence.h"
 #include "compiler-type_traits.h"
 
-inline namespace dcx {
+namespace dcx {
 
 namespace {
 

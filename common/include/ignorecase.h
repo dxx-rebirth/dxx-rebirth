@@ -54,7 +54,7 @@
 
 #ifdef __cplusplus
 
-inline namespace dcx {
+namespace dcx {
 
 /**
  * \fn int PHYSFSEXT_locateCorrectCase(char *buf)

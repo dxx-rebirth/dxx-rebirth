@@ -27,7 +27,7 @@
 #include "compiler-make_unique.h"
 #include "partial_range.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"

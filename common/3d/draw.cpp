@@ -21,7 +21,7 @@
 #include "gr.h"
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
 #ifndef OGL

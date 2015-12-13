@@ -16,7 +16,7 @@ inline namespace dsx {
 void arch_init();
 }
 #endif
-inline namespace dcx {
+namespace dcx {
 
 struct window;
 enum class window_event_result : uint8_t;

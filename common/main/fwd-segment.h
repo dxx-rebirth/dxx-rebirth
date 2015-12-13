@@ -18,7 +18,7 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 constexpr std::size_t MAX_SEGMENTS = 9000;
 }
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -32,7 +32,7 @@ static constexpr valptridx<segment>::magic_constant<0> segment_first{};
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
 const std::size_t MAX_SIDES_PER_SEGMENT = 6;
 const std::size_t MAX_VERTICES_PER_POLY = 4;
@@ -93,7 +93,7 @@ const segment_type_t SEGMENT_IS_GOAL_RED = 6;
 const std::size_t MAX_CENTER_TYPES = 7;
 #endif
 
-inline namespace dcx {
+namespace dcx {
 struct count_segment_array_t;
 struct group;
 
@@ -142,7 +142,7 @@ void dl_index_write(dl_index *di, PHYSFS_file *fp);
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 template <typename T, unsigned bits>
 class visited_segment_mask_t;

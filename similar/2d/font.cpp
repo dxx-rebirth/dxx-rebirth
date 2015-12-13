@@ -73,7 +73,7 @@ struct openfont
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 //list of open fonts, for use (for now) for palette remapping
 static array<openfont, MAX_OPEN_FONTS> open_font;
@@ -889,7 +889,7 @@ void gr_remap_color_fonts()
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 /*
  * reads a grs_font structure from a PHYSFS_file
@@ -1134,7 +1134,7 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 void gr_set_curfont(const grs_font *n)
 {

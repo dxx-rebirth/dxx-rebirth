@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 extern int Automap_active;
 }
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
@@ -42,7 +42,7 @@ void do_automap();
 extern void automap_clear_visited();
 }
 #endif
-inline namespace dcx {
+namespace dcx {
 extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 }
 

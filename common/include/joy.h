@@ -19,7 +19,7 @@
 #include "maths.h"
 #include <SDL.h>
 
-inline namespace dcx {
+namespace dcx {
 
 struct d_event;
 
@@ -45,7 +45,7 @@ extern int event_joystick_get_button(const d_event &event);
 #define joy_close()
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 #if MAX_BUTTONS_PER_JOYSTICK
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);

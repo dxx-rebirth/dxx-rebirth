@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <string>
 
-inline namespace dcx {
+namespace dcx {
 extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
 extern void c_tmap_scanline_flat();

@@ -17,7 +17,7 @@
 #include "config.h"
 #include "multi.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static fix64 F64_RunTime = 0;
 

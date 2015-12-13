@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 const uint8_t RLE_CODE = 0xe0;
 const uint8_t NOT_RLE_CODE = 0x1f;

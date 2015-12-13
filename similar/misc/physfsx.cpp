@@ -30,7 +30,7 @@
 #include "compiler-range_for.h"
 #include "poison.h"
 
-inline namespace dcx {
+namespace dcx {
 
 const array<file_extension_t, 1> archive_exts{{"dxa"}};
 
@@ -257,7 +257,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // Add a searchpath, but that searchpath is relative to an existing searchpath
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
@@ -349,7 +349,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t outSize)
 {

@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RBA_MEDIA_CHANGED	-1
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 struct RBACHANNELCTL
 {

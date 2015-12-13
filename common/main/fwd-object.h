@@ -105,7 +105,7 @@ const physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotat
 const physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 typedef unsigned powerup_flag_t;
 const powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player

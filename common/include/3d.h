@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct grs_bitmap;
 
 #ifdef EDITOR
-inline namespace dcx {
+namespace dcx {
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
 }
 #endif
@@ -107,7 +107,7 @@ struct g3s_object {
 
 //Frame setup functions:
 
-inline namespace dcx {
+namespace dcx {
 
 #ifdef OGL
 typedef const g3s_point cg3s_point;
@@ -157,7 +157,7 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 //returns codes_and & codes_or of a list of points numbers
 g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
 
-inline namespace dcx {
+namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
 ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);

@@ -16,7 +16,7 @@
 #include "maths.h"
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 fix64 timer_update();
 __attribute_warn_unused_result

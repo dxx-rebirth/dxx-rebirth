@@ -17,7 +17,7 @@
 #include "event.h"
 #include "messagebox.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static void display_win32_alert(const char *message, int error)
 {

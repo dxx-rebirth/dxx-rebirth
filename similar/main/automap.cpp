@@ -98,7 +98,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_NO_FADE  32  // An edge that doesn't fade with distance
 #define EF_TOO_FAR  64  // An edge that is too far away
 
-inline namespace dcx {
+namespace dcx {
 
 namespace {
 
@@ -172,7 +172,7 @@ struct automap : ignore_window_pointer_t
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 
@@ -210,7 +210,7 @@ static void init_automap_colors(automap *am)
 }
 }
 
-inline namespace dcx {
+namespace dcx {
 array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 }
 

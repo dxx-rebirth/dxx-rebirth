@@ -147,7 +147,7 @@ boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
-inline namespace dcx {
+namespace dcx {
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
 }
@@ -4433,7 +4433,7 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_position.z = aic->last_position.z;
 }
 
-inline namespace dcx {
+namespace dcx {
 
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
 DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, serial::pad<2>(), p.point));

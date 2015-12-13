@@ -31,7 +31,7 @@
 #include "partial_range.h"
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define REDBOOK_VOLUME_SCALE 255
 

@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "strutil.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
 

@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "partial_range.h"
 
-inline namespace dcx {
+namespace dcx {
 unsigned N_polygon_models = 0;
 array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
 }
@@ -714,7 +714,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 	g3_end_frame();
 }
 
-inline namespace dcx {
+namespace dcx {
 
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
 DEFINE_SERIAL_UDT_TO_MESSAGE(polymodel, p, (p.n_models, p.model_data_size, serial::pad<4>(), p.submodel_ptrs, p.submodel_offsets, p.submodel_norms, p.submodel_pnts, p.submodel_rads, p.submodel_parents, p.submodel_mins, p.submodel_maxs, p.mins, p.maxs, p.rad, p.n_textures, p.first_texture, p.simpler_model));

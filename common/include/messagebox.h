@@ -15,7 +15,7 @@
 #pragma once
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 // Display a warning in a messagebox
 extern void msgbox_warning(const char *message);

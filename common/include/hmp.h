@@ -16,7 +16,7 @@
 #include "physfsx.h"
 
 #ifdef __cplusplus
-inline namespace dcx {
+namespace dcx {
 
 #define HMP_TRACKS 32
 #ifdef _WIN32

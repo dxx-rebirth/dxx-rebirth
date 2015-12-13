@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 
-inline namespace dcx {
+namespace dcx {
 
 struct _sockaddr
 {
@@ -358,7 +358,7 @@ extern const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames;
 extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 }
 
-inline namespace dcx {
+namespace dcx {
 extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
@@ -515,7 +515,7 @@ void multi_send_player_deres(deres_type_t type);
 void multi_send_reappear();
 void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
-inline namespace dcx {
+namespace dcx {
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 }
@@ -592,7 +592,7 @@ void multi_send_got_flag (playernum_t);
 
 // Exported variables
 
-inline namespace dcx {
+namespace dcx {
 extern int Network_status;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
@@ -638,7 +638,7 @@ extern array<grs_main_bitmap, 2> Orb_icons;
 extern int PhallicLimit,PhallicMan;
 }
 #endif
-inline namespace dcx {
+namespace dcx {
 extern int Bounty_target;
 
 extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
@@ -679,7 +679,7 @@ struct bit_game_flags {
 } __pack__;
 }
 
-inline namespace dcx {
+namespace dcx {
 struct packed_game_flags
 {
 	unsigned char value;

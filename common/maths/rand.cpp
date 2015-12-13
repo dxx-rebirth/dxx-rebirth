@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include "maths.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #ifdef NO_WATCOM_RAND
 

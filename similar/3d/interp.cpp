@@ -23,7 +23,7 @@
 #include "byteutil.h"
 #include "u_mem.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static const unsigned OP_EOF = 0;   //eof
 static const unsigned OP_DEFPOINTS = 1;   //defpoints

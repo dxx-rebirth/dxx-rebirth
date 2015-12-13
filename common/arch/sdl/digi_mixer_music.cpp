@@ -25,7 +25,7 @@
 #include "u_mem.h"
 #include "console.h"
 
-inline namespace dcx {
+namespace dcx {
 
 namespace {
 

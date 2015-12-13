@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct player;
 
-inline namespace dcx {
+namespace dcx {
 template <std::size_t>
 struct PHYSFSX_gets_line_t;
 
@@ -123,7 +123,7 @@ void editor_reset_stuff_on_level();
 // Show endlevel bonus scores
 extern void DoEndLevelScoreGlitz(int network);
 
-inline namespace dcx {
+namespace dcx {
 // stuff for multiplayer
 extern unsigned NumNetPlayerPositions;
 extern fix StartingShields;

@@ -61,7 +61,7 @@ static inline void hostage_init_info(const objnum_t &) {}
 #endif
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 extern unsigned N_hostage_types;
 extern array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of hostage

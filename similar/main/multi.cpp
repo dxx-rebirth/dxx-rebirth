@@ -110,7 +110,7 @@ static void multi_send_ranking(uint8_t);
 static void multi_save_game(ubyte slot, uint id, char *desc);
 static void multi_restore_game(ubyte slot, uint id);
 static void multi_send_gmode_update();
-inline namespace dcx {
+namespace dcx {
 static void multi_send_quit();
 }
 static playernum_t multi_who_is_master();
@@ -125,7 +125,7 @@ static void multi_add_lifetime_kills(int count);
 // Global variables
 //
 
-inline namespace dcx {
+namespace dcx {
 
 int multi_protocol=0; // set and determinate used protocol
 static int imulti_new_game; // to prep stuff for level only when starting new game
@@ -146,7 +146,7 @@ char Multi_is_guided=0;
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 int Bounty_target = 0;
 
@@ -211,7 +211,7 @@ const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // For rejoin object syncing (used here and all protocols - globally)
 
@@ -247,7 +247,7 @@ powerup_cap_state PowerupCaps;
 
 }
 
-inline namespace dcx {
+namespace dcx {
 const array<char[16], 10> RankStrings{{
 	"(unpatched)",
 	"Cadet",
@@ -2090,7 +2090,7 @@ static void multi_do_cloak(const playernum_t pnum)
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 static void multi_do_decloak(const playernum_t pnum)
 {
@@ -2988,7 +2988,7 @@ void multi_send_remobj(const vobjptridx_t objnum)
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 void multi_send_quit()
 {

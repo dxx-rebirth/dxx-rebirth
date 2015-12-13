@@ -8,7 +8,7 @@
 #include "maths.h"
 #include "dxxsconf.h"
 
-inline namespace dcx {
+namespace dcx {
 
 struct vms_vector;
 class vm_distance_squared;

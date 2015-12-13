@@ -59,7 +59,7 @@ typedef enum {
 #include "pack.h"
 #include "compiler-type_traits.h"
 
-inline namespace dcx {
+namespace dcx {
 struct CArg : prohibit_void_ptr<CArg>
 {
 	bool CtlNoCursor;

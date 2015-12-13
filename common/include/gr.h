@@ -183,7 +183,7 @@ public:
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
-inline namespace dcx {
+namespace dcx {
 
 struct grs_main_canvas : grs_canvas
 {
@@ -231,7 +231,7 @@ static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 	gr_set_bitmap_flags(bm, bTransparent ? bm_flags | BM_FLAG_TRANSPARENT : bm_flags & ~BM_FLAG_TRANSPARENT);
 }
 
-inline namespace dcx {
+namespace dcx {
 struct font_delete
 {
 	void operator()(grs_font *p) const

@@ -20,7 +20,7 @@
 #include "ogl_sync.h"
 #include "timer.h"
 
-inline namespace dcx {
+namespace dcx {
 
 ogl_sync::ogl_sync()
 {

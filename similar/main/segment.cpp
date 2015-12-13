@@ -16,7 +16,7 @@
 #include "physfsx.h"
 #include "physfs-serial.h"
 
-inline namespace dcx {
+namespace dcx {
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(wallnum_t, w, (w.value));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wallnum_t, 2);

@@ -78,7 +78,7 @@ void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 
 void ogl_init_shared_palette(void);
 
-inline namespace dcx {
+namespace dcx {
 extern GLfloat ogl_maxanisotropy;
 
 #define OGL_FLAG_MIPMAP (1 << 0)
@@ -120,7 +120,7 @@ static inline void g3_draw_tmap_2(unsigned nv, const array<cg3s_point *, N> &poi
 }
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs);
-inline namespace dcx {
+namespace dcx {
 void ogl_toggle_depth_test(int enable);
 void ogl_set_blending();
 unsigned pow2ize(unsigned x);//from ogl.c

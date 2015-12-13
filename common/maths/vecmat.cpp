@@ -19,7 +19,7 @@
 #include "vecmat.h"
 #include "dxxerror.h"
 
-inline namespace dcx {
+namespace dcx {
 
 //#define USE_ISQRT 1
 

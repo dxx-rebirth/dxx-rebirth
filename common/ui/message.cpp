@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-make_unique.h"
 
-inline namespace dcx {
+namespace dcx {
 
 // ts = total span
 // w = width of each item

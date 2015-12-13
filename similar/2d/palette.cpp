@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define SQUARE(x) ((x)*(x))
 
@@ -182,7 +182,7 @@ void gr_use_palette_table(const char * filename )
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.

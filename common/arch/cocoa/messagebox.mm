@@ -18,7 +18,7 @@
 #include "event.h"
 #include "messagebox.h"
 
-inline namespace dcx {
+namespace dcx {
 
 void display_cocoa_alert(const char *message, int error)
 {

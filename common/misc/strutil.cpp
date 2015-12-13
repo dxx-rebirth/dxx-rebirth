@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #ifdef macintosh
 void snprintf(char *out_string, int size, char * format, ... )

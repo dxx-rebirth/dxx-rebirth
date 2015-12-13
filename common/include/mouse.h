@@ -23,7 +23,7 @@
 struct SDL_MouseButtonEvent;
 struct SDL_MouseMotionEvent;
 
-inline namespace dcx {
+namespace dcx {
 
 #define MOUSE_MAX_BUTTONS       16
 #define Z_SENSITIVITY		100

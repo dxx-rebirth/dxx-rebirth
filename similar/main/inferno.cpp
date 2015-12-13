@@ -236,7 +236,7 @@ int Quitting = 0;
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // Default event handler for everything except the editor
 int standard_handler(const d_event &event)

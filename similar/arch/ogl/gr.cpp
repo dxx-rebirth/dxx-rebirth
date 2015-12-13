@@ -80,7 +80,7 @@
 
 using std::max;
 
-inline namespace dcx {
+namespace dcx {
 
 static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 
@@ -579,7 +579,7 @@ static void ogl_get_verinfo(void)
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
@@ -827,7 +827,7 @@ void gr_close()
 
 }
 
-inline namespace dcx {
+namespace dcx {
 
 void ogl_upixelc(int x, int y, int c)
 {

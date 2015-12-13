@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define Middle(x) ((2*(x)+1)/4)
 

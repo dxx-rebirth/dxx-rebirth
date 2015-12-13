@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "timer.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 );
 

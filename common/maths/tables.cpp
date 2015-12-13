@@ -13,7 +13,7 @@
 
 #include "maths.h"
 
-inline namespace dcx {
+namespace dcx {
 
 const array<ubyte, 256> guess_table{{
 	1,

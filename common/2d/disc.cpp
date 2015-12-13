@@ -14,7 +14,7 @@
 #include "gr.h"
 #include "grdef.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #ifndef OGL
 int gr_disk(fix xc1,fix yc1,fix r1)

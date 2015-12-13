@@ -18,7 +18,7 @@
 #include "dxxerror.h"
 #include "maths.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define EPSILON (F1_0/100)
 

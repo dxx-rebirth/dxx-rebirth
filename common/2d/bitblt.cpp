@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-exchange.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static int gr_bitblt_dest_step_shift = 0;
 

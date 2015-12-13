@@ -20,7 +20,7 @@
 #include "dxxerror.h"
 #include "event.h"
 
-inline namespace dcx {
+namespace dcx {
 
 struct window
 {

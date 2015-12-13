@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-event.h"
 #include "ntstring.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x

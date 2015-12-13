@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-inline namespace dcx {
+namespace dcx {
 template <std::size_t>
 struct PHYSFSX_gets_line_t;
 }

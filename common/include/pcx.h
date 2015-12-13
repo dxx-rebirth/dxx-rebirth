@@ -49,7 +49,7 @@ extern int bald_guy_load( const char * filename, grs_bitmap * bmp,int bitmap_typ
 }
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 // Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL,
 // then bmp->bm_data is allocated and the w,h are filled.

@@ -12,7 +12,7 @@
 #include "palette.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq);
 void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &colormap, array<unsigned, 256> &count);
 }

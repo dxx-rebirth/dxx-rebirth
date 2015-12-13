@@ -47,7 +47,7 @@ typedef void (APIENTRYP PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuin
 #define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
 #define GL_TIMEOUT_EXPIRED                0x911B
 
-inline namespace dcx {
+namespace dcx {
 
 extern bool ogl_have_ARB_sync;
 extern PFNGLFENCESYNCPROC glFenceSyncFunc;

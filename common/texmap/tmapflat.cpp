@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "dxxerror.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert);
 

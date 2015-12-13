@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 
-inline namespace dcx {
+namespace dcx {
 
 void Hline(short x1, short x2, short y )
 {

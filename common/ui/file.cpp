@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
-inline namespace dcx {
+namespace dcx {
 
 static int file_sort_func(char **e0, char **e1)
 {

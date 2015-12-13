@@ -21,7 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-inline namespace dcx {
+namespace dcx {
 typedef struct {
 	const char *  name;
 	int     nparams;

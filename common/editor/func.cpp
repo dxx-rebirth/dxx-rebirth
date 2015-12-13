@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "func.h"
 #include "strutil.h"
 
-inline namespace dcx {
+namespace dcx {
 
 #define MAX_PARAMS 10
 

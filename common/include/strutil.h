@@ -13,7 +13,7 @@
 #include "dxxsconf.h"
 #include <vector>
 
-inline namespace dcx {
+namespace dcx {
 
 #if defined(macintosh)
 #define snprintf macintosh_snprintf

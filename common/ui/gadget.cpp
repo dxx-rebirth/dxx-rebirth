@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "key.h"
 
-inline namespace dcx {
+namespace dcx {
 
 UI_GADGET * selected_gadget;
 

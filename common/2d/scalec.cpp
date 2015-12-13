@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "compiler-array.h"
 
-inline namespace dcx {
+namespace dcx {
 
 // John's new stuff below here....
 

@@ -36,7 +36,7 @@
  *  \author Ryan C. Gordon.
  */
 
-inline namespace dcx {
+namespace dcx {
 
 /* I'm not screwing around with stricmp vs. strcasecmp... */
 static int caseInsensitiveStringCompare(const char *x, const char *y)

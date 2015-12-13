@@ -33,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-inline namespace dcx {
+namespace dcx {
 
 /*
 Symmetric Double Step Line Algorithm
