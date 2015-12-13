@@ -55,9 +55,9 @@ void copy_diminish_palette(palette_array_t &palette, const ubyte *p);
 void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
+void gr_palette_load( palette_array_t &pal );
 }
 #endif
-void gr_palette_load( palette_array_t &pal );
 inline namespace dcx {
 color_t gr_find_closest_color_current( int r, int g, int b );
 }

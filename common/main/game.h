@@ -159,8 +159,14 @@ extern void stop_time(void);
 extern void start_time(void);
 extern void reset_time(void);       // called when starting level
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
+
+}
+#endif
 
 enum cockpit_mode_t
 {

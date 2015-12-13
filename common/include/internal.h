@@ -21,9 +21,11 @@ void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
+inline namespace dcx {
 extern int linedotscale;
 
 extern int GL_TEXTURE_2D_enabled;
+}
 
 #define OGL_SET_FEATURE_STATE(G,V,F)	static_cast<void>(G != V && (G = V, F, 0))
 #define OGL_ENABLE(a)	OGL_SET_FEATURE_STATE(GL_##a##_enabled, 1, glEnable(GL_##a))
@@ -35,6 +37,7 @@ extern int GL_TEXTURE_2D_enabled;
 //#define OGL_TEXENV(p,m) OGL_SETSTATE(p,m,glTexEnvi(GL_TEXTURE_ENV, p,m));
 //#define OGL_TEXPARAM(p,m) OGL_SETSTATE(p,m,glTexParameteri(GL_TEXTURE_2D,p,m))
 
+inline namespace dcx {
 extern unsigned last_width,last_height;
 static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsigned w, const unsigned h)
 {
@@ -45,9 +48,16 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 		last_height=h;
 	}
 }
+}
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 
 //platform specific funcs
 extern void ogl_swap_buffers_internal(void);
+
+}
+#endif
 
 //whee
 #define CPAL2Tr(c) ((gr_current_pal[c].r)/63.0)

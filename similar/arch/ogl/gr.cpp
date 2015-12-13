@@ -80,6 +80,8 @@
 
 using std::max;
 
+inline namespace dcx {
+
 static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 
 #ifdef OGLES
@@ -104,6 +106,8 @@ static int sdl_no_modeswitch;
 enum { sdl_no_modeswitch = 0 };
 #endif
 
+}
+
 #ifdef OGLES
 static EGLDisplay eglDisplay=EGL_NO_DISPLAY;
 static EGLConfig eglConfig;
@@ -127,6 +131,8 @@ static bool TestEGLError(const char* pszLocation)
 	return 1;
 }
 #endif
+
+inline namespace dsx {
 
 void ogl_swap_buffers_internal(void)
 {
@@ -571,6 +577,10 @@ static void ogl_get_verinfo(void)
 #endif
 }
 
+}
+
+inline namespace dcx {
+
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
@@ -613,6 +623,10 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 		return modesnum;
 	}
 }
+
+}
+
+inline namespace dsx {
 
 static int gr_check_mode(const screen_mode mode)
 {
@@ -811,6 +825,10 @@ void gr_close()
 #endif
 }
 
+}
+
+inline namespace dcx {
+
 void ogl_upixelc(int x, int y, int c)
 {
 	GLfloat vertex_array[] = {
@@ -960,8 +978,6 @@ void ogl_do_palfx(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-inline namespace dcx {
-
 static int ogl_brightness_ok;
 static int old_b_r, old_b_g, old_b_b;
 
@@ -990,6 +1006,8 @@ void gr_palette_step_up(int r, int g, int b)
 }
 
 }
+
+inline namespace dsx {
 
 #undef min
 using std::min;
@@ -1092,4 +1110,6 @@ void save_screen_shot(int automap_flag)
 #endif
 
 	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
+}
+
 }

@@ -83,6 +83,8 @@ using std::max;
 #define sinf(a) sin(a)
 #endif
 
+inline namespace dcx {
+
 static std::unique_ptr<GLubyte[]> texbuf;
 static palette_array_t *ogl_pal = &gr_palette;
 
@@ -117,6 +119,8 @@ static void ogl_freetexture(ogl_texture &gltexture);
 static void ogl_loadbmtexture(grs_bitmap &bm)
 {
 	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
+}
+
 }
 
 #ifdef OGLES
@@ -382,6 +386,8 @@ static void ogl_cache_weapon_textures(int weapon_type)
 	}
 }
 
+inline namespace dsx {
+
 void ogl_cache_level_textures(void)
 {
 	int side;
@@ -537,6 +543,8 @@ void ogl_cache_level_textures(void)
 	}
 	glmprintf((0,"finished caching\n"));
 	r_cachedtexcount = r_texcount;
+}
+
 }
 
 inline namespace dcx {
@@ -1125,8 +1133,6 @@ void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-}
-
 }
 
 /*
@@ -1772,4 +1778,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scal
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	return 0;
+}
+
 }

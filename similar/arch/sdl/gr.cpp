@@ -49,6 +49,8 @@ void gr_flip()
 	SDL_Flip(screen);
 }
 
+inline namespace dcx {
+
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
@@ -83,6 +85,8 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 		}
 		return modesnum;
 	}
+}
+
 }
 
 int gr_set_mode(screen_mode mode)

@@ -100,9 +100,12 @@ typedef std::unique_ptr<grs_subcanvas> grs_subcanvas_ptr;
 class grs_main_bitmap;
 typedef std::unique_ptr<grs_main_bitmap> grs_bitmap_ptr;
 
+uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
+
 }
 
-uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 int gr_set_mode(screen_mode mode);
 
 int gr_init();
@@ -110,6 +113,8 @@ int gr_init();
 void gr_set_attributes();
 #endif
 void gr_close();
+}
+#endif
 
 inline namespace dcx {
 
@@ -343,9 +348,11 @@ void gr_palette_step_up(int r, int g, int b);
 // best matches the input.
 color_t gr_find_closest_color(int r, int g, int b);
 int gr_find_closest_color_15bpp(int rgb);
+void gr_flip();
 }
 
-void gr_flip();
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 
 /*
  * must return 0 if windowed, 1 if fullscreen
@@ -357,9 +364,14 @@ int gr_check_fullscreen();
  * check_fullscreen immediatly after)
  */
 void gr_toggle_fullscreen();
+
+}
+#endif
+inline namespace dcx {
 void ogl_do_palfx();
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();
+}
 void ogl_cache_polymodel_textures(int model_num);;
 
 #endif
