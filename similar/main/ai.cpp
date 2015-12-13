@@ -4104,7 +4104,7 @@ _exit_cheat:
 
 }
 
-inline namespace dsx {
+namespace dsx {
 // ----------------------------------------------------------------------------
 void ai_do_cloak_stuff(void)
 {

@@ -61,7 +61,7 @@ enum class player_awareness_type_t : uint8_t
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 enum class ai_behavior : uint8_t
 {
@@ -181,7 +181,7 @@ enum class ai_mode : uint8_t
 
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 // Rather temporal AI stuff.
 struct ai_local : public prohibit_void_ptr<ai_local>
@@ -337,7 +337,7 @@ static const unsigned MAX_POINT_SEGS = 2500;
 //extern vms_vector Last_uncloaked_position;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern void ai_do_cloak_stuff(void);
 }
 #endif

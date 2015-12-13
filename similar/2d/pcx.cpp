@@ -95,7 +95,7 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-inline namespace dsx {
+namespace dsx {
 
 int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
 {

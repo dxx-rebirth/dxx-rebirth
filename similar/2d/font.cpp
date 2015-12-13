@@ -870,7 +870,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 //remap a font, re-reading its data & palette
 static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data );
@@ -1054,7 +1054,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 //remap a font by re-reading its data & palette
 void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )

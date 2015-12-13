@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poison.h"
 #include "player-flags.h"
 
-inline namespace dsx {
+namespace dsx {
 
 // Object types
 enum object_type_t : int
@@ -170,7 +170,7 @@ struct laser_parent
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
@@ -283,7 +283,7 @@ struct powerup_info : prohibit_void_ptr<powerup_info>
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 struct powerup_info_rw
 {
@@ -335,7 +335,7 @@ struct polyobj_info_rw
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 struct object {
 	object_signature_t signature;
@@ -463,7 +463,7 @@ struct obj_position
 
 DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
 
-inline namespace dsx {
+namespace dsx {
 
 static inline uint8_t get_hostage_id(const object &o)
 {

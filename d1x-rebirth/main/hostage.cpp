@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
 
-inline namespace dsx {
+namespace dsx {
 
 array<hostage_data, MAX_HOSTAGES> 		Hostages;						// Data for each hostage in mine
 

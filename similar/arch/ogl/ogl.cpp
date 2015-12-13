@@ -386,7 +386,7 @@ static void ogl_cache_weapon_textures(int weapon_type)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void ogl_cache_level_textures(void)
 {

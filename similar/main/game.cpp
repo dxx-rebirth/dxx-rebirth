@@ -580,7 +580,7 @@ static void do_invulnerable_stuff(void)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void do_afterburner_stuff()
 {
@@ -693,7 +693,7 @@ static void diminish_palette_color_toward_zero(int& palette_color_add, const int
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.

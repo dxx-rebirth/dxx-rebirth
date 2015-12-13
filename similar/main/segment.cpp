@@ -31,7 +31,7 @@ void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 /*
  * reads a segment2 structure from a PHYSFS_file
  */

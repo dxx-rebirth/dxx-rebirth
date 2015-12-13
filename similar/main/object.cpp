@@ -1957,7 +1957,7 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void set_powerup_id(object &o, powerup_type_t id)
 {
@@ -2305,7 +2305,7 @@ void object_rw_swap(object_rw *obj, int swap)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void (check_warn_object_type)(const object &o, object_type_t t, const char *file, unsigned line)
 {

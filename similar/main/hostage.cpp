@@ -46,7 +46,7 @@ unsigned N_hostage_types;		  			// Number of hostage types
 array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;	// vclip num for each tpye of hostage
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //-------------- Renders a hostage --------------------------------------------
 void draw_hostage(const vobjptridx_t obj)

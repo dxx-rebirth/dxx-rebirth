@@ -116,7 +116,7 @@ struct Edge_info
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 namespace {
 
@@ -190,7 +190,7 @@ int Automap_active = 0;
 static int Automap_debug_show_all_segments;
 }
 
-inline namespace dsx {
+namespace dsx {
 static void init_automap_colors(automap *am)
 {
 	am->wall_normal_color = K_WALL_NORMAL_COLOR;
@@ -225,7 +225,7 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 #define ROT_SPEED_DIVISOR		(115000)
 
 // Function Prototypes
-inline namespace dsx {
+namespace dsx {
 static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void draw_all_edges(automap *am);
 static void automap_build_edge_list(automap *am, int add_all_edges);
@@ -237,7 +237,7 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #if defined(DXX_BUILD_DESCENT_II)
 #include "compiler-integer_sequence.h"
 
-inline namespace dsx {
+namespace dsx {
 int HighlightMarker=-1;
 marker_message_text_t Marker_input;
 marker_messages_array_t MarkerMessage;
@@ -257,7 +257,7 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 
 // -------------------------------------------------------------
 
-inline namespace dsx {
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void DrawMarkers (automap *am)
 {

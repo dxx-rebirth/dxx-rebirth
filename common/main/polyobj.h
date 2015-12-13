@@ -39,7 +39,7 @@ struct bitmap_index;
 struct robot_info;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 struct glow_values_t;
 }
 #if defined(DXX_BUILD_DESCENT_I)

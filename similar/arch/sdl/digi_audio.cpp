@@ -26,7 +26,7 @@
 
 #include "compiler-range_for.h"
 
-inline namespace dsx {
+namespace dsx {
 
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32

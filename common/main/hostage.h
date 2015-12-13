@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
 #if defined(DXX_BUILD_DESCENT_I)
-inline namespace dsx {
+namespace dsx {
 
 #define MAX_HOSTAGES				10		//max per any one level
 
@@ -68,7 +68,7 @@ extern array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of h
 
 }
 
-inline namespace dsx {
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void draw_hostage(vobjptridx_t obj);
 #endif

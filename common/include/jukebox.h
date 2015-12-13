@@ -17,7 +17,7 @@ extern const array<file_extension_t, 5> jukebox_exts;
 
 void jukebox_unload();
 }
-inline namespace dsx {
+namespace dsx {
 void jukebox_load();
 int jukebox_play();
 }

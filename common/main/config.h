@@ -46,7 +46,7 @@ extern struct CCfg CGameCfg;
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;

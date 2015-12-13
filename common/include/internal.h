@@ -51,7 +51,7 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 //platform specific funcs
 extern void ogl_swap_buffers_internal(void);

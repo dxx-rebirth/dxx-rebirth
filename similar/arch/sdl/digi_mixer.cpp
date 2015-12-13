@@ -38,7 +38,7 @@
 
 #include "compiler-make_unique.h"
 
-inline namespace dsx {
+namespace dsx {
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16

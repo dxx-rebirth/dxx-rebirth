@@ -37,7 +37,7 @@ namespace dcx {
 extern int Automap_active;
 }
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 void do_automap();
 extern void automap_clear_visited();
 }
@@ -51,7 +51,7 @@ extern array<ubyte, MAX_SEGMENTS> Automap_visited;
 #include "ntstring.h"
 #include "fwd-window.h"
 
-inline namespace dsx {
+namespace dsx {
 void DropBuddyMarker(vobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);

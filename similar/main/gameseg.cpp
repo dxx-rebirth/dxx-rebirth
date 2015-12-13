@@ -91,7 +91,7 @@ public:
 #define PLANE_DIST_TOLERANCE	250
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 array<dl_index, MAX_DL_INDICES> Dl_indices;
 array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 unsigned Num_static_lights;
@@ -1526,7 +1526,7 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 //these constants should match the ones in seguvs
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)

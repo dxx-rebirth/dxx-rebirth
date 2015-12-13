@@ -132,7 +132,7 @@ static bool TestEGLError(const char* pszLocation)
 }
 #endif
 
-inline namespace dsx {
+namespace dsx {
 
 void ogl_swap_buffers_internal(void)
 {
@@ -626,7 +626,7 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static int gr_check_mode(const screen_mode mode)
 {
@@ -1007,7 +1007,7 @@ void gr_palette_step_up(int r, int g, int b)
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #undef min
 using std::min;

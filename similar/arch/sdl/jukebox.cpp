@@ -119,7 +119,7 @@ const array<file_extension_t, 5> jukebox_exts{{
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static int read_m3u(void)
 {

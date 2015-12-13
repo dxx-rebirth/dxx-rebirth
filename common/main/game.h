@@ -139,7 +139,7 @@ extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 #define MAX_PALETTE_ADD 30
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 }
 #endif
@@ -164,7 +164,7 @@ extern void start_time(void);
 extern void reset_time(void);       // called when starting level
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
@@ -344,7 +344,7 @@ extern int	Last_level_path_created;
 extern int force_cockpit_redraw;
 extern ubyte DemoDoingRight,DemoDoingLeft;
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern fix64	Time_flash_last_played;
 }
 #endif

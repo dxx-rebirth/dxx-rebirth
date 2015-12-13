@@ -43,7 +43,7 @@ struct palette_array_t;
 #define PCX_ERROR_MEMORY        7
 
 #if defined(DXX_BUILD_DESCENT_I)
-inline namespace dsx {
+namespace dsx {
 // Load bitmap for little-known 'baldguy' cheat.
 extern int bald_guy_load( const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette );
 }

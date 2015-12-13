@@ -124,7 +124,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
 
-inline namespace dsx {
+namespace dsx {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(int random_flag);
 static void DoEndGame(void);
@@ -133,7 +133,7 @@ PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
 }
 #endif
-inline namespace dsx {
+namespace dsx {
 static void AdvanceLevel(int secret_flag);
 }
 static void StartLevel(int random_flag);
@@ -160,7 +160,7 @@ unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -699,7 +699,7 @@ static ushort netmisc_calc_checksum()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 // load just the hxm file
 void load_level_robots(int level_num)
 {
@@ -1019,7 +1019,7 @@ static void do_screen_message(const char *msg)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
 static void do_screen_message_fmt(const char *fmt, ...)
 {
@@ -1277,7 +1277,7 @@ void PlayerFinishedLevel(int secret_flag)
 #define ENDMOVIE "end"
 #endif
 
-inline namespace dsx {
+namespace dsx {
 
 //called when the player has finished the last level
 static void DoEndGame(void)
@@ -1675,7 +1675,7 @@ void (bash_to_shield)(const vobjptr_t i)
 
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 static void filter_objects_from_level()
  {
@@ -1857,7 +1857,7 @@ public:
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(int random_flag)

@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 CCfg dcx::CGameCfg;
 
-inline namespace dsx {
+namespace dsx {
 Cfg GameCfg;
 
 #define DigiVolumeStr "DigiVolume"

@@ -496,7 +496,7 @@ extern void PHYSFSX_removeArchiveContent();
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 bool PHYSFSX_init(int argc, char *argv[]);
 int PHYSFSX_checkSupportedArchiveTypes();

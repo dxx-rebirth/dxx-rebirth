@@ -33,7 +33,7 @@
 
 dcx::CArg dcx::CGameArg;
 
-inline namespace dsx {
+namespace dsx {
 
 #define MAX_ARGS 1000
 #if defined(DXX_BUILD_DESCENT_I)

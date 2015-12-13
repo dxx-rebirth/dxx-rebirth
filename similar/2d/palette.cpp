@@ -65,7 +65,7 @@ int gr_palette_gamma_param = 0;
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 {

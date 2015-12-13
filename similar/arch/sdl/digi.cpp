@@ -32,7 +32,7 @@
 #include "hmp.h"
 #endif
 
-inline namespace dsx {
+namespace dsx {
 
 #ifndef __PIE__
 /* PIE -> paranoid checks

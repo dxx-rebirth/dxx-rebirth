@@ -87,7 +87,7 @@ int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<c
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
@@ -314,7 +314,7 @@ void PHYSFSX_listSearchPathContent()
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
 int PHYSFSX_checkSupportedArchiveTypes()

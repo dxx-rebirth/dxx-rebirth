@@ -89,7 +89,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 constexpr tt::integral_constant<int8_t, -1> owner_none{};
 
-inline namespace dsx {
+namespace dsx {
 static void multi_reset_object_texture(const vobjptr_t objp);
 static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
@@ -98,7 +98,7 @@ static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
 static void multi_powcap_adjust_remote_cap(const playernum_t pnum);
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 static std::size_t find_goal_texture(ubyte t);
 static tmap_info &find_required_goal_texture(ubyte t);
 static void multi_do_capture_bonus(const playernum_t pnum);
@@ -138,7 +138,7 @@ fix Show_kill_list_timer = 0;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 int PhallicLimit=0;
 int PhallicMan=-1;
 
@@ -174,7 +174,7 @@ int   multi_quit_game = 0;
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames = {{
 	"Anarchy",
@@ -240,7 +240,7 @@ static const int message_length[] = {
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 netgame_info Netgame;
 powerup_cap_state PowerupCaps;
@@ -262,7 +262,7 @@ const array<char[16], 10> RankStrings{{
 }};
 }
 
-inline namespace dsx {
+namespace dsx {
 const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text = {{
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
@@ -467,7 +467,7 @@ int multi_objnum_is_past(objnum_t objnum)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //
 // Part 1 : functions whose main purpose in life is to divert the flow
@@ -578,7 +578,7 @@ multi_new_game(void)
 	game_disable_cheats();
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_make_player_ghost(const playernum_t playernum)
 {
@@ -630,7 +630,7 @@ int multi_get_kill_list(playernum_array_t &plist)
 	return(n);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_sort_kill_list()
 {
@@ -674,7 +674,7 @@ static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSI
 		return static_cast<const char *>(Players[pnum].callsign);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t killed)
 {
@@ -1022,7 +1022,7 @@ static void multi_send_data_direct(ubyte *buf, unsigned len, const playernum_t p
 	_multi_send_data_direct(buf, len, pnum, priority);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_leave_game()
 {
@@ -1283,7 +1283,7 @@ multi_send_message_start()
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void kick_player(player &plr, netplayer_info &nplr)
 {
@@ -1587,7 +1587,7 @@ void multi_do_death(int)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 {
@@ -1688,7 +1688,7 @@ static void multi_do_message(const uint8_t *const cbuf)
 	multi_sending_message[(int)buf[1]] = msgsend_none;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 {
@@ -1730,7 +1730,7 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	create_player_appearance_effect(obj);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 {
@@ -1884,7 +1884,7 @@ static void multi_do_kill(playernum_t, const ubyte *buf)
 		multi_send_bounty();
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
@@ -2070,7 +2070,7 @@ static multi_do_quit(const ubyte *buf)
 	multi_disconnect_player((int)buf[1]);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_cloak(const playernum_t pnum)
 {
@@ -2100,7 +2100,7 @@ static void multi_do_decloak(const playernum_t pnum)
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_door_open(const ubyte *buf)
 {
@@ -2271,7 +2271,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
@@ -2359,7 +2359,7 @@ multi_reset_stuff(void)
 	reset_rear_view();
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_reset_player_object(const vobjptr_t objp)
 {
@@ -2455,7 +2455,7 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 //
 // Part 2 : Functions that send communication messages to inform the other
@@ -2701,7 +2701,7 @@ void powerup_cap_state::recount()
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 // We want to drop something. Kill every Powerup which exceeds the level limit
 void multi_powcap_cap_objects()
@@ -2889,7 +2889,7 @@ multi_send_reappear()
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_send_position(const vobjptridx_t obj)
 {
@@ -3021,7 +3021,7 @@ void multi_send_decloak()
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_send_door_open(segnum_t segnum, int side,ubyte flag)
 {
@@ -3159,7 +3159,7 @@ void multi_digi_play_sample(int soundnum, fix max_volume)
 	digi_play_sample(soundnum, max_volume);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume)
 {
@@ -3214,7 +3214,7 @@ multi_send_trigger(int triggernum)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 {
@@ -3282,7 +3282,7 @@ static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p,
 	return s > 0 ? p.mask >> s : p.mask << -s;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 player_flags map_granted_flags_to_player_flags(const packed_spawn_granted_items p)
 {
@@ -3592,7 +3592,7 @@ int multi_level_sync(void)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
@@ -3707,7 +3707,7 @@ void change_playernum_to( int new_Player_num )
 	Player_num = new_Player_num;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static
@@ -3972,7 +3972,7 @@ void multi_check_for_killgoal_winner ()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 // Sync our seismic time with other players
 void multi_send_seismic(fix duration)
@@ -4082,7 +4082,7 @@ static void multi_do_powcap_update (const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 void multi_send_sound_function (char whichfunc, char sound)
 {
@@ -4507,7 +4507,7 @@ void powerup_cap_state::inc_powerup_max(const powerup_type_t id)
 	modify_counts<which::max, direction::plus, mapped::no>(id);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static const int PowerupAdjustMapping[]={11,19
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4536,7 +4536,7 @@ powerup_type_t powerup_cap_state::map_powerup_type_to_index(const powerup_type_t
 	return id;
 }
 
-inline namespace dsx {
+namespace dsx {
 
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
 {
@@ -4733,7 +4733,7 @@ static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
 		HUD_init_message(HM_MULTI, "%s has been %smoted to %s!",static_cast<const char *>(Players[pnum].callsign), rankstr, RankStrings[rank]);
 }
 
-inline namespace dsx {
+namespace dsx {
 
 // Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
 int multi_maybe_disable_friendly_fire(const cobjptridx_t killer)
@@ -4784,7 +4784,7 @@ static void multi_do_bounty( const ubyte *buf )
 	multi_new_bounty_target( buf[1] );
 }
 
-inline namespace dsx {
+namespace dsx {
 
 void multi_new_bounty_target(const playernum_t pnum )
 {
@@ -5072,7 +5072,7 @@ static void multi_do_gmode_update(const ubyte *buf)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 ///

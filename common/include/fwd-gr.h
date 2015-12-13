@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SHEIGHT (grd_curscreen->get_screen_height())
 
 #if defined(DXX_BUILD_DESCENT_I)
-inline namespace dsx {
+namespace dsx {
 extern int HiresGFXAvailable;
 }
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
@@ -105,7 +105,7 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 int gr_set_mode(screen_mode mode);
 
 int gr_init();
@@ -166,7 +166,7 @@ void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 //=========================================================================
 // Color functions:
@@ -244,7 +244,7 @@ grs_font_ptr gr_init_font(const char * fontfile);
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
@@ -352,7 +352,7 @@ void gr_flip();
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 /*
  * must return 0 if windowed, 1 if fullscreen

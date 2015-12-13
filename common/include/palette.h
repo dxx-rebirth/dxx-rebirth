@@ -49,7 +49,7 @@ struct palette_array_t : public array<rgb_t, 256> {};
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
 #endif
 
-inline namespace dsx {
+namespace dsx {
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s);
 void copy_diminish_palette(palette_array_t &palette, const ubyte *p);
 void diminish_palette(palette_array_t &palette);

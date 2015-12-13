@@ -101,7 +101,7 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 }
 #endif
 
-inline namespace dsx {
+namespace dsx {
 valptridx<object>::array_managed_type Objects;
 valptridx<segment>::array_managed_type Segments;
 }

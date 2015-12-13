@@ -22,7 +22,7 @@ namespace dcx {
 constexpr std::size_t MAX_SEGMENTS = 9000;
 }
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 struct segment;
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments, MAX_SEGMENTS);
 
@@ -114,7 +114,7 @@ void delete_segment_from_group(segnum_t segment_num, int group_num);
 void add_segment_to_group(segnum_t segment_num, int group_num);
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 struct delta_light;
 struct dl_index;
 

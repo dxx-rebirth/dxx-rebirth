@@ -44,7 +44,7 @@ static inline int load_palette(const char *name, int used_for_level, int no_chan
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "inferno.h"
 
-inline namespace dsx {
+namespace dsx {
 #define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 

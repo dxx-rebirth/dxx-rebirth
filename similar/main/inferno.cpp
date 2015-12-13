@@ -111,7 +111,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "dxxsconf.h"
 #include "compiler-begin.h"
 
-inline namespace dsx {
+namespace dsx {
 
 int Screen_mode=-1;					//game screen or editor screen?
 
@@ -336,7 +336,7 @@ int standard_handler(const d_event &event)
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #define PROGNAME argv[0]
 

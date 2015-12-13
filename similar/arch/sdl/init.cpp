@@ -18,7 +18,7 @@
 #include "args.h"
 #include "window.h"
 
-inline namespace dsx {
+namespace dsx {
 
 static void arch_close(void)
 {

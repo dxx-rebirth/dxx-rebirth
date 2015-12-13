@@ -252,7 +252,7 @@ for_each_netgrant_value(define_netflag_bit_mask);
 #undef define_netflag_bit_mask
 #undef define_netflag_powerup_mask
 
-inline namespace dsx {
+namespace dsx {
 
 struct packed_spawn_granted_items
 {
@@ -444,7 +444,7 @@ public:
 	void clear();
 };
 
-inline namespace dsx {
+namespace dsx {
 extern powerup_cap_state PowerupCaps;
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
@@ -494,7 +494,7 @@ void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 void multi_send_endlevel_start(bool);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -527,7 +527,7 @@ void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(uint16_t wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
@@ -551,7 +551,7 @@ int multi_endlevel_poll1(newmenu *menu,const d_event &event, const unused_newmen
 int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void multi_send_endlevel_packet();
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 void multi_prep_level();
 void multi_leave_game(void);
 }
@@ -559,7 +559,7 @@ void multi_leave_game(void);
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
 void multi_do_death(int objnum);
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 int multi_delete_extra_objects();
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
@@ -570,7 +570,7 @@ void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);
 void multi_new_game(void);
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 void multi_sort_kill_list(void);
 }
 #endif
@@ -581,7 +581,7 @@ void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -633,7 +633,7 @@ extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state_t state);
 
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern array<grs_main_bitmap, 2> Orb_icons;
 extern int PhallicLimit,PhallicMan;
 }
@@ -653,7 +653,7 @@ extern fix64 RefuseTimeLimit;
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
@@ -686,7 +686,7 @@ struct packed_game_flags
 };
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static inline bit_game_flags unpack_game_flags(const packed_game_flags *p)
 {
@@ -730,7 +730,7 @@ void change_playernum_to(int new_pnum);
 // Multiplayer powerup capping
 extern void multi_powcap_count_powerups_in_mine(void);
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern void multi_powcap_cap_objects();
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
@@ -741,7 +741,7 @@ extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
 void multi_send_door_open_specific(playernum_t pnum,segnum_t segnum, int side,ubyte flag);
@@ -794,7 +794,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 /*
  * The Network Game structure
  * Contains protocol-specific data with designated prefixes and general game-related data.

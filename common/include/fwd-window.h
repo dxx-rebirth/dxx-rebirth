@@ -12,7 +12,7 @@
 #include "fwd-gr.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 void arch_init();
 }
 #endif

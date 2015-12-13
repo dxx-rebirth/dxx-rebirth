@@ -41,7 +41,7 @@ int g3d_interp_outline;
 
 }
 
-inline namespace dsx {
+namespace dsx {
 
 static int16_t init_model_sub(uint8_t *p, int16_t);
 

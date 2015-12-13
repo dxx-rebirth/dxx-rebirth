@@ -20,7 +20,7 @@ struct bitmap_index;
 
 constexpr std::size_t MAX_OBJECTS = 350;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 enum object_type_t : int;
 
 struct object;
@@ -152,7 +152,7 @@ const unsigned MAX_CONTROLCEN_GUNS = 4;
 const unsigned MAX_CONTROLCEN_GUNS = 8;
 #endif
 
-inline namespace dsx {
+namespace dsx {
 
 struct powerup_info_rw;
 struct window_rendered_data;

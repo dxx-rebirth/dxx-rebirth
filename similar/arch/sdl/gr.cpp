@@ -31,7 +31,7 @@
 
 #include "compiler-make_unique.h"
 
-inline namespace dsx {
+namespace dsx {
 
 using std::min;
 

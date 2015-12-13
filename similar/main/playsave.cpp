@@ -1348,7 +1348,7 @@ static int get_lifetime_checksum (int a,int b)
 }
 #endif
 
-inline namespace dsx {
+namespace dsx {
 
 template <uint_fast32_t shift, uint_fast32_t width>
 static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, const char *value)

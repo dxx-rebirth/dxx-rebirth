@@ -151,7 +151,7 @@ struct side
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-inline namespace dsx {
+namespace dsx {
 
 struct segment {
 #ifdef EDITOR
@@ -255,7 +255,7 @@ void side::set_type(unsigned t)
 	}
 }
 
-inline namespace dsx {
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 // New stuff, 10/14/95: For shooting out lights and monitors.

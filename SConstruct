@@ -3168,10 +3168,11 @@ class DXXArchive(DXXCommon):
 #else
 #define dsx d2x
 #endif
-inline namespace dsx {	/* Force type mismatch on attempted nesting */
+namespace dsx {	/* Force type mismatch on attempted nesting */
 	class dcx;	/* dcx declared inside dsx */
 	class dsx;	/* dsx declared inside dsx */
 }
+using namespace dsx;
 #else
 class dsx;	/* dsx declared in common-only code */
 #endif
