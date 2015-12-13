@@ -773,6 +773,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 
 	if (killer_pnum == killed_pnum)
 	{
+		if (!game_mode_hoard())
 		{
 			if (Game_mode & GM_TEAM)
 			{
@@ -815,6 +816,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	else
 	{
 		short adjust = 1;
+		if (!game_mode_hoard())
 		{
 			if (Game_mode & GM_TEAM)
 			{
