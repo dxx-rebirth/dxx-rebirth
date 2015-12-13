@@ -960,6 +960,8 @@ void ogl_do_palfx(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+inline namespace dcx {
+
 static int ogl_brightness_ok;
 static int old_b_r, old_b_g, old_b_b;
 
@@ -985,6 +987,8 @@ void gr_palette_step_up(int r, int g, int b)
 	{
 		do_pal_step = 0;
 	}
+}
+
 }
 
 #undef min

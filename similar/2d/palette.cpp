@@ -41,6 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-range_for.h"
 
+inline namespace dcx {
+
 #define SQUARE(x) ((x)*(x))
 
 #define	MAX_COMPUTED_COLORS	32
@@ -60,6 +62,10 @@ gft_array1 gr_fade_table;
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
+
+}
+
+inline namespace dsx {
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 {
@@ -174,6 +180,10 @@ void gr_use_palette_table(const char * filename )
 #endif
 }
 
+}
+
+inline namespace dcx {
+
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
 //	If was full, replace a random one.
@@ -284,4 +294,6 @@ color_t gr_find_closest_color_current( int r, int g, int b )
 		}
 	}
 	return best_index;
+}
+
 }

@@ -38,6 +38,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+inline namespace dcx {
+
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
 
@@ -90,7 +92,11 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 	return i;
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
+inline namespace dsx {
+
 int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
 {
 	PCXHeader header;
@@ -176,7 +182,11 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 	copy_diminish_palette(palette, p);
 	return PCX_ERROR_NONE;
 }
+
+}
 #endif
+
+inline namespace dcx {
 
 struct PCX_PHYSFS_file
 {
@@ -434,4 +444,6 @@ const char *pcx_errormsg(int error_number)
 	}
 
 	return p;
+}
+
 }

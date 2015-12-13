@@ -160,6 +160,9 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 }
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 //=========================================================================
 // Color functions:
 
@@ -167,6 +170,9 @@ void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 // the palette stays the same until gr_close is called
 
 void gr_use_palette_table(const char * filename);
+
+}
+#endif
 
 //=========================================================================
 // Drawing functions:
@@ -222,8 +228,6 @@ void gr_scanline(int x1, int x2, int y);
 #ifndef OGL
 void gr_uscanline(int x1, int x2, int y);
 #endif
-}
-
 void gr_close_font(std::unique_ptr<grs_font> font);
 
 struct font_delete;
@@ -231,6 +235,11 @@ typedef std::unique_ptr<grs_font, font_delete> grs_font_ptr;
 
 // Reads in a font file... current font set to this one.
 grs_font_ptr gr_init_font(const char * fontfile);
+
+}
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
@@ -246,7 +255,11 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal);
 void gr_remap_color_fonts();
 #endif
 
+}
+#endif
+
 // Writes a string using current font. Returns the next column after last char.
+inline namespace dcx {
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
@@ -257,6 +270,7 @@ void gr_printf(int x, int y, const char * format, ...) __attribute_format_printf
 void gr_uprintf(int x, int y, const char * format, ...) __attribute_format_printf(3, 4);
 #define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_uprintf,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
+}
 
 inline namespace dcx {
 
@@ -289,7 +303,6 @@ static inline void gr_set_current_canvas(grs_canvas *canv)
 #endif
 		_gr_set_current_canvas(canv);
 }
-}
 
 //flags for fonts
 #define FT_COLOR        1
@@ -299,6 +312,7 @@ static inline void gr_set_current_canvas(grs_canvas *canv)
 extern palette_array_t gr_palette;
 typedef array<array<color_t, 256>, GR_FADE_LEVELS> gft_array1;
 extern gft_array1 gr_fade_table;
+}
 
 extern uint16_t gr_palette_selector;
 extern uint16_t gr_inverse_table_selector;
@@ -319,7 +333,6 @@ extern uint16_t gr_fade_table_selector;
 // 18-bit accurracy instead of 15bit when translating colors.
 inline namespace dcx {
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color);
-}
 
 void gr_palette_step_up(int r, int g, int b);
 
@@ -330,6 +343,7 @@ void gr_palette_step_up(int r, int g, int b);
 // best matches the input.
 color_t gr_find_closest_color(int r, int g, int b);
 int gr_find_closest_color_15bpp(int rgb);
+}
 
 void gr_flip();
 

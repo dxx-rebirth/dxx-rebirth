@@ -231,6 +231,7 @@ static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 	gr_set_bitmap_flags(bm, bTransparent ? bm_flags | BM_FLAG_TRANSPARENT : bm_flags & ~BM_FLAG_TRANSPARENT);
 }
 
+inline namespace dcx {
 struct font_delete
 {
 	void operator()(grs_font *p) const
@@ -238,6 +239,7 @@ struct font_delete
 		gr_close_font(std::unique_ptr<grs_font>(p));
 	}
 };
+}
 
 // Writes a string using current font. Returns the next column after last char.
 static inline void gr_set_curfont(const grs_font_ptr &p)

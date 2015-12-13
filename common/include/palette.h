@@ -44,23 +44,31 @@ static inline bool operator==(const rgb_t &a, const rgb_t &b) { return a.r == b.
 
 struct palette_array_t : public array<rgb_t, 256> {};
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
 #endif
 
+inline namespace dsx {
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s);
 void copy_diminish_palette(palette_array_t &palette, const ubyte *p);
 void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
+}
+#endif
 void gr_palette_load( palette_array_t &pal );
+inline namespace dcx {
 color_t gr_find_closest_color_current( int r, int g, int b );
+}
 #ifndef OGL
 void gr_palette_read(palette_array_t &palette);
 #endif
+inline namespace dcx {
 extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
 extern palette_array_t gr_current_pal;
+}
 
 #endif
 

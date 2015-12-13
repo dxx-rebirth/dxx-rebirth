@@ -73,6 +73,8 @@ struct openfont
 
 }
 
+inline namespace dcx {
+
 //list of open fonts, for use (for now) for palette remapping
 static array<openfont, MAX_OPEN_FONTS> open_font;
 
@@ -783,7 +785,6 @@ void gr_ustring(int x, int y, const char *s )
 	return;
 }
 
-
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
 {
 	float longest_width=0.0,string_width_f=0.0;
@@ -866,7 +867,11 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 	}
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 //remap a font, re-reading its data & palette
 static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data );
 
@@ -880,7 +885,11 @@ void gr_remap_color_fonts()
 			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
 	}
 }
+
+}
 #endif
+
+inline namespace dcx {
 
 /*
  * reads a grs_font structure from a PHYSFS_file
@@ -1042,7 +1051,11 @@ grs_font_ptr gr_init_font( const char * fontname )
 	return grs_font_ptr(font.release());
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 //remap a font by re-reading its data & palette
 void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 {
@@ -1117,7 +1130,11 @@ void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
 	ogl_init_font(font);
 #endif
 }
+
+}
 #endif
+
+inline namespace dcx {
 
 void gr_set_curfont(const grs_font *n)
 {
@@ -1250,4 +1267,6 @@ static int gr_internal_string_clipped_m(int x, int y, const char *s )
 static int gr_internal_string_clipped(int x, int y, const char *s )
 {
 	return gr_internal_string_clipped_template<false>(x, y, s);
+}
+
 }
