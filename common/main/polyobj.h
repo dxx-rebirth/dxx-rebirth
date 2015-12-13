@@ -36,10 +36,12 @@ struct bitmap_index;
 #include <physfs.h>
 #include "pack.h"
 
-struct glow_values_t;
 struct robot_info;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+struct glow_values_t;
+}
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_POLYGON_MODELS 85
 #elif defined(DXX_BUILD_DESCENT_II)

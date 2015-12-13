@@ -23,6 +23,8 @@
 #include "byteutil.h"
 #include "u_mem.h"
 
+inline namespace dcx {
+
 static const unsigned OP_EOF = 0;   //eof
 static const unsigned OP_DEFPOINTS = 1;   //defpoints
 static const unsigned OP_FLATPOLY = 2;   //flat-shaded polygon
@@ -33,11 +35,15 @@ static const unsigned OP_SUBCALL = 6;   //call a subobject
 static const unsigned OP_DEFP_START = 7;   //defpoints with start
 static const unsigned OP_GLOW = 8;   //glow value for next poly
 
-static int16_t init_model_sub(uint8_t *p, int16_t);
-
 #ifdef EDITOR
 int g3d_interp_outline;
 #endif
+
+}
+
+inline namespace dsx {
+
+static int16_t init_model_sub(uint8_t *p, int16_t);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(WORDS_BIGENDIAN)
 static inline int16_t *wp(uint8_t *p)
@@ -781,4 +787,6 @@ int16_t g3_init_polygon_model(void *model_ptr)
 	#endif
 
 	return init_model_sub(reinterpret_cast<uint8_t *>(model_ptr), -1);
+}
+
 }
