@@ -138,7 +138,11 @@ extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 #define MAX_PALETTE_ADD 30
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
+}
+#endif
 
 //sets the rgb values for palette flash
 #define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
@@ -339,7 +343,11 @@ extern fix ThisLevelTime;
 extern int	Last_level_path_created;
 extern int force_cockpit_redraw;
 extern ubyte DemoDoingRight,DemoDoingLeft;
+#if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern fix64	Time_flash_last_played;
+}
+#endif
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 
 #ifdef EDITOR

@@ -28,8 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 
-bool InitArgs(int argc, char **argv);
-
 #ifdef OGL
 // GL Sync methods
 typedef enum {
@@ -61,6 +59,7 @@ typedef enum {
 #include "pack.h"
 #include "compiler-type_traits.h"
 
+inline namespace dcx {
 struct CArg : prohibit_void_ptr<CArg>
 {
 	bool CtlNoCursor;
@@ -88,8 +87,11 @@ struct CArg : prohibit_void_ptr<CArg>
 	int SysMaxFPS;
 	std::string SysMissionDir;
 };
+extern CArg CGameArg;
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
 	std::string SysHogDir;
@@ -152,16 +154,16 @@ struct Arg : prohibit_void_ptr<Arg>
 };
 
 extern struct Arg GameArg;
-#endif
-extern CArg CGameArg;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+bool InitArgs(int argc, char **argv);
+
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
 {
 	return (GameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
 }
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
+}
 #endif
 
 #endif

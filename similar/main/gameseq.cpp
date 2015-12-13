@@ -124,34 +124,43 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
 
+inline namespace dsx {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(int random_flag);
 static void DoEndGame(void);
 static void filter_objects_from_level();
+PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
+int	First_secret_visit = 1;
+}
 #endif
+inline namespace dsx {
 static void AdvanceLevel(int secret_flag);
+}
 static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(void);
 
+inline namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
-PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 
 // Global variables describing the player
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
+}
 array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
-#if defined(DXX_BUILD_DESCENT_II)
-int	First_secret_visit = 1;
-#endif
+inline namespace dcx {
+fix StartingShields=INITIAL_SHIELDS;
 array<obj_position, MAX_PLAYERS> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
 int	Do_appearance_effect=0;
+}
+
+inline namespace dsx {
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -253,8 +262,6 @@ void gameseq_remove_unused_players()
 		}
 	}
 }
-
-fix StartingShields=INITIAL_SHIELDS;
 
 // Setup player for new game
 void init_player_stats_game(ubyte pnum)
@@ -498,6 +505,8 @@ void editor_reset_stuff_on_level()
 }
 #endif
 
+}
+
 //do whatever needs to be done when a player dies in multiplayer
 
 static void DoGameOver()
@@ -690,6 +699,7 @@ static ushort netmisc_calc_checksum()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 // load just the hxm file
 void load_level_robots(int level_num)
 {
@@ -701,6 +711,7 @@ void load_level_robots(int level_num)
 		Robot_replacements_loaded = 0;
 	}
 	load_robot_replacements(level_name);
+}
 }
 #endif
 
@@ -1008,6 +1019,7 @@ static void do_screen_message(const char *msg)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
 static void do_screen_message_fmt(const char *fmt, ...)
 {
@@ -1227,6 +1239,7 @@ void EnterSecretLevel(void)
 		window_set_visible(Game_wind, 1);
 	reset_time();
 }
+}
 #endif
 
 //called when the player has finished a level
@@ -1263,6 +1276,8 @@ void PlayerFinishedLevel(int secret_flag)
 #define MOVIE_REQUIRED 1
 #define ENDMOVIE "end"
 #endif
+
+inline namespace dsx {
 
 //called when the player has finished the last level
 static void DoEndGame(void)
@@ -1649,6 +1664,8 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 		game();
 }
 
+}
+
 void (bash_to_shield)(const vobjptr_t i)
 {
 	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
@@ -1658,6 +1675,8 @@ void (bash_to_shield)(const vobjptr_t i)
 
 
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 static void filter_objects_from_level()
  {
 	range_for (const auto i, highest_valid(Objects))
@@ -1749,6 +1768,7 @@ static void maybe_set_first_secret_visit(int level_num)
 		}
 	}
 }
+}
 #endif
 
 //called when the player is starting a new level for normal game model
@@ -1837,6 +1857,8 @@ public:
 
 }
 
+inline namespace dsx {
+
 //initialize the player object position & orientation (at start of game, or new ship)
 static void InitPlayerPosition(int random_flag)
 {
@@ -1872,6 +1894,8 @@ static void InitPlayerPosition(int random_flag)
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
 	obj_relink(vobjptridx(ConsoleObject), Player_init[NewPlayer].segnum);
 	reset_player_object();
+}
+
 }
 
 //	-----------------------------------------------------------------------------------------------------

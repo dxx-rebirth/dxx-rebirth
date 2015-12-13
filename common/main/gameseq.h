@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct player;
 
+inline namespace dcx {
 template <std::size_t>
 struct PHYSFSX_gets_line_t;
 
@@ -46,6 +47,7 @@ extern array<obj_position, MAX_PLAYERS> Player_init;
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;
+}
 
 //
 // New game sequencing functions
@@ -58,14 +60,18 @@ void StartNewGame(int start_level);
 void StartNewLevel(int level_num);
 
 void InitPlayerObject();            //make sure player's object set up
+inline namespace dsx {
 void init_player_stats_game(ubyte pnum);      //clear all stats
+}
 
 // called when the player has finished a level
 // if secret flag is true, advance to secret level, else next normal level
 void PlayerFinishedLevel(int secret_flag);
 
+inline namespace dsx {
 // called when the player has died
 void DoPlayerDead(void);
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void load_level_robots(int level_num)
@@ -73,16 +79,21 @@ static inline void load_level_robots(int level_num)
 	(void)level_num;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 // load just the hxm file
 void load_level_robots(int level_num);
 extern int	First_secret_visit;
+void ExitSecretLevel();
+}
 #endif
 
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
 void LoadLevel(int level_num, int page_in_textures);
 
+inline namespace dsx {
 extern void gameseq_remove_unused_players();
+}
 
 extern void update_player_stats();
 
@@ -104,22 +115,27 @@ void bash_to_shield(const vobjptr_t i);
 void copy_defaults_to_robot(vobjptr_t objp);
 #endif
 
+inline namespace dsx {
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
+}
 
 // Show endlevel bonus scores
 extern void DoEndLevelScoreGlitz(int network);
 
+inline namespace dcx {
 // stuff for multiplayer
 extern unsigned NumNetPlayerPositions;
 extern fix StartingShields;
 extern int	Do_appearance_effect;
+}
 
 
 int p_secret_level_destroyed(void);
-void ExitSecretLevel(void);
+inline namespace dsx {
 void do_cloak_invul_secret_stuff(fix64 old_gametime);
 void EnterSecretLevel(void);
 void init_player_stats_new_ship(ubyte pnum);
+}
 
 #endif

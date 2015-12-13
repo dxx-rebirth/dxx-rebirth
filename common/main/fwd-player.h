@@ -68,11 +68,13 @@ struct callsign_t;
 
 struct player_ship;
 
+inline namespace dcx {
 typedef unsigned playernum_t;
 typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct player;

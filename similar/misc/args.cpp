@@ -31,6 +31,10 @@
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+dcx::CArg dcx::CGameArg;
+
+inline namespace dsx {
+
 #define MAX_ARGS 1000
 #if defined(DXX_BUILD_DESCENT_I)
 #define INI_FILENAME "d1x.ini"
@@ -98,8 +102,7 @@ class nesting_depth_exceeded
 {
 };
 
-CArg CGameArg;
-struct Arg GameArg;
+Arg GameArg;
 
 static void ReadCmdArgs(Inilist &ini, Arglist &Args);
 
@@ -461,4 +464,6 @@ bool InitArgs( int argc,char **argv )
 		UserError("Nesting depth exceeded%s", ConstructIniStackExplanation(ini).c_str());
 	}
 	return false;
+}
+
 }

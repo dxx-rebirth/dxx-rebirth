@@ -35,13 +35,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "ntstring.h"
 
+inline namespace dcx {
 struct CCfg : prohibit_void_ptr<CCfg>
 {
 	bool VSync;
 	bool Grabinput;
 };
 
+extern struct CCfg CGameCfg;
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int MusicType;
@@ -70,9 +75,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 };
 extern struct Cfg GameCfg;
-#endif
-
-extern struct CCfg CGameCfg;
 
 //#ifdef USE_SDLMIXER
 //#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook || GameCfg.JukeboxOn)
@@ -82,5 +84,7 @@ extern struct CCfg CGameCfg;
 
 extern int ReadConfigFile(void);
 extern int WriteConfigFile(void);
+}
+#endif
 
 #endif

@@ -580,6 +580,7 @@ static void do_invulnerable_stuff(void)
 	}
 }
 
+inline namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void do_afterburner_stuff()
 {
@@ -675,6 +676,8 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 		PaletteBlueAdd = -maxval;
 }
 
+}
+
 static void diminish_palette_color_toward_zero(int& palette_color_add, const int& dec_amount)
 {
 	if (palette_color_add > 0 ) {
@@ -689,6 +692,8 @@ static void diminish_palette_color_toward_zero(int& palette_color_add, const int
 			palette_color_add += dec_amount;
 	}
 }
+
+inline namespace dsx {
 
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
@@ -758,6 +763,8 @@ static void diminish_palette_towards_normal(void)
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
 	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
+}
+
 }
 
 namespace {

@@ -46,8 +46,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
-CCfg CGameCfg;
-struct Cfg GameCfg;
+CCfg dcx::CGameCfg;
+
+inline namespace dsx {
+Cfg GameCfg;
 
 #define DigiVolumeStr "DigiVolume"
 #define MusicVolumeStr "MusicVolume"
@@ -266,4 +268,6 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
 	return 0;
+}
+
 }

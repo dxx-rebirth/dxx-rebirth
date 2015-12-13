@@ -69,6 +69,8 @@
 	((void)(DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C),	\
 	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C), 0))	\
 
+inline namespace dcx {
+
 template <typename V>
 __attribute_always_inline()
 static inline typename tt::enable_if<tt::is_integral<V>::value, PHYSFS_sint64>::type PHYSFSX_check_read(PHYSFS_file *file, V *v, PHYSFS_uint32 S, PHYSFS_uint32 C)
@@ -149,8 +151,6 @@ template <typename V>
 PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_file *file, V **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
 #define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
-
-bool PHYSFSX_init(int argc, char *argv[]);
 
 static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
 {
@@ -319,7 +319,7 @@ public:
 		}
 };
 
-const PHYSFSX_fgets_t PHYSFSX_fgets{};
+constexpr PHYSFSX_fgets_t PHYSFSX_fgets{};
 
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...) __attribute_format_printf(2, 3);
 static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
@@ -470,8 +470,6 @@ extern int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end);
 extern int PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
-extern int PHYSFSX_checkSupportedArchiveTypes();
-
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, std::size_t);
 
 template <std::size_t N>
@@ -495,5 +493,15 @@ RAIIPHYSFS_File PHYSFSX_openReadBuffered(const char *filename);
 RAIIPHYSFS_File PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
+}
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
+bool PHYSFSX_init(int argc, char *argv[]);
+int PHYSFSX_checkSupportedArchiveTypes();
+
+}
+#endif
 
 #endif

@@ -63,12 +63,16 @@ enum class blind_save
 	yes,
 };
 
+inline namespace dsx {
 int state_save_all_sub(const char *filename, const char *desc);
+}
 
 int state_get_save_file(char *fname, char * dsc, blind_save);
 int state_get_restore_file(char *fname, blind_save);
 int state_get_game_id(const char *filename);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename);
 static inline int state_restore_all_sub(const char *filename, secret_restore)
@@ -106,6 +110,8 @@ int state_save_all(secret_save, blind_save);
 int state_restore_all(int in_game, secret_restore, const char *filename_override, blind_save);
 void StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
 void init_player_stats_level(secret_restore);
+#endif
+}
 #endif
 
 #endif

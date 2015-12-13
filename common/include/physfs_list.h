@@ -18,6 +18,8 @@ typedef char file_extension_t[5];
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
+
 class PHYSFS_list_deleter
 {
 public:
@@ -100,5 +102,7 @@ __attribute_warn_unused_result
 static inline PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const array<file_extension_t, count> &exts)
 {
 	return PHYSFSX_findabsoluteFiles(path, realpath, exts.data(), count);
+}
+
 }
 #endif

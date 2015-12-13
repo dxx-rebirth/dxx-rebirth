@@ -738,6 +738,8 @@ int state_get_restore_file(char * fname, blind_save blind_save)
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
 
+inline namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 
@@ -1862,6 +1864,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	reset_time();
 
 	return 1;
+}
+
 }
 
 int state_get_game_id(const char *filename)

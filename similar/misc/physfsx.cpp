@@ -30,6 +30,8 @@
 #include "compiler-range_for.h"
 #include "poison.h"
 
+inline namespace dcx {
+
 const array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_file *const fp)
@@ -82,6 +84,10 @@ int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<c
 	}
 	return 0;
 }
+
+}
+
+inline namespace dsx {
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
@@ -249,6 +255,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 	return true;
 }
 
+}
+
+inline namespace dcx {
+
 // Add a searchpath, but that searchpath is relative to an existing searchpath
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
 int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
@@ -302,6 +312,10 @@ void PHYSFSX_listSearchPathContent()
 		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].", i);
 }
 
+}
+
+inline namespace dsx {
+
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
 int PHYSFSX_checkSupportedArchiveTypes()
 {
@@ -332,6 +346,10 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 	return hog_sup;
 }
+
+}
+
+inline namespace dcx {
 
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, const std::size_t outSize)
 {
@@ -589,4 +607,6 @@ void PHYSFSX_removeArchiveContent()
 		PHYSFSX_getRealPath(demofile,realfile);
 		PHYSFS_removeFromSearchPath(realfile);
 	}
+}
+
 }
