@@ -36,6 +36,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 struct sound_object;
 struct digi_sound
 {
@@ -143,8 +146,6 @@ void digi_end_soundobj(sound_object &);
 void SoundQ_end();
 int verify_sound_channel_free( int channel );
 
-#endif
-
 class RAIIdigi_sound
 {
 	static constexpr auto invalid_channel = tt::integral_constant<int, -1>{};
@@ -173,3 +174,7 @@ public:
 		return channel != invalid_channel;
 	}
 };
+
+}
+#endif
+#endif

@@ -38,6 +38,8 @@
 
 #include "compiler-make_unique.h"
 
+inline namespace dsx {
+
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
@@ -238,4 +240,6 @@ void digi_mixer_stop_all_channels()
 {
 	channels = {};
 	Mix_HaltChannel(-1);
+}
+
 }

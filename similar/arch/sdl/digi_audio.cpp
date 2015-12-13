@@ -26,6 +26,8 @@
 
 #include "compiler-range_for.h"
 
+inline namespace dsx {
+
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
 //end changes by adb
@@ -350,4 +352,6 @@ void digi_audio_end_sound(int channel)
 
 	SoundSlots[channel].soundobj = sound_object_none;
 	SoundSlots[channel].persistent = 0;
+}
+
 }

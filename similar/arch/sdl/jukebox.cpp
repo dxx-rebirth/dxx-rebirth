@@ -27,6 +27,8 @@
 #include "compiler-make_unique.h"
 #include "partial_range.h"
 
+inline namespace dcx {
+
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
@@ -114,6 +116,10 @@ const array<file_extension_t, 5> jukebox_exts{{
 	SONG_EXT_FLAC,
 	SONG_EXT_MP3
 }};
+
+}
+
+inline namespace dsx {
 
 static int read_m3u(void)
 {
@@ -297,4 +303,6 @@ int jukebox_play()
 	HUD_init_message(HM_DEFAULT, "%s %s%s", JUKEBOX_HUDMSG_PLAYING, prefix, music_filename);
 
 	return 1;
+}
+
 }

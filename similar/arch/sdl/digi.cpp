@@ -32,6 +32,8 @@
 #include "hmp.h"
 #endif
 
+inline namespace dsx {
+
 #ifndef __PIE__
 /* PIE -> paranoid checks
  * No PIE -> prefer speed
@@ -267,3 +269,5 @@ void digi_win32_stop_midi_song()
 	hmp_reset();
 }
 #endif
+
+}

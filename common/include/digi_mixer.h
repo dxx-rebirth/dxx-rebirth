@@ -4,13 +4,14 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
-#ifndef __DIGI_MIXER__
-#define __DIGI_MIXER__
+#pragma once
 
 #include "maths.h"
 
 #ifdef __cplusplus
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 struct sound_object;
 int digi_mixer_init();
 void digi_mixer_close();
@@ -23,7 +24,7 @@ int digi_mixer_is_channel_playing(int);
 void digi_mixer_reset();
 void digi_mixer_stop_all_channels();
 void digi_mixer_set_digi_volume(int);
-
+}
 #endif
 
 #endif

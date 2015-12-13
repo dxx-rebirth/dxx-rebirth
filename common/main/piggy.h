@@ -35,7 +35,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 struct digi_sound;
+}
+#endif
 
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
@@ -84,6 +88,7 @@ extern grs_bitmap bogus_bitmap;
 #endif
 extern array<uint8_t, 64 * 64> bogus_data;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 int properties_init();
 void piggy_close();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );
@@ -96,7 +101,6 @@ void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_BITMAP_FILES	1800
 #define MAX_SOUND_FILES     MAX_SOUNDS
@@ -139,7 +143,6 @@ void load_d1_bitmap_replacements();
  */
 bitmap_index read_extra_bitmap_d1_pig(const char *name);
 #endif
-#endif
 
 /*
  * reads a bitmap_index structure from a PHYSFS_file
@@ -156,6 +159,7 @@ extern int Num_bitmap_files;
 extern int Num_sound_files;
 extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
+#endif
 #define space_tab " \t"
 #define equal_space " \t="
 #if defined(DXX_BUILD_DESCENT_I)

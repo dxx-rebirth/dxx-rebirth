@@ -31,6 +31,8 @@
 
 #include "compiler-make_unique.h"
 
+inline namespace dsx {
+
 using std::min;
 
 static int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
@@ -309,4 +311,6 @@ void gr_palette_read(palette_array_t &pal)
 		pal[i].g = palette->colors[i].g / 4;
 		pal[i].b = palette->colors[i].b / 4;
 	}
+}
+
 }

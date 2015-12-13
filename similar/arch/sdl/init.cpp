@@ -18,6 +18,8 @@
 #include "args.h"
 #include "window.h"
 
+inline namespace dsx {
+
 static void arch_close(void)
 {
 	songs_uninit();
@@ -61,3 +63,4 @@ void arch_init(void)
 	atexit(arch_close);
 }
 
+}

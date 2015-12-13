@@ -11,10 +11,16 @@
 
 #ifdef __cplusplus
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dcx {
 extern const array<file_extension_t, 5> jukebox_exts;
 
 void jukebox_unload();
+}
+inline namespace dsx {
 void jukebox_load();
 int jukebox_play();
+}
+#endif
 
 #endif
