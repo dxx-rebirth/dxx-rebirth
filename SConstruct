@@ -3168,21 +3168,21 @@ class DXXArchive(DXXCommon):
 #else
 #define dsx d2x
 #endif
-inline namespace dsx {
-	class dcx;	/* Force type mismatch on attempted nesting */
-	class dsx;
+inline namespace dsx {	/* Force type mismatch on attempted nesting */
+	class dcx;	/* dcx declared inside dsx */
+	class dsx;	/* dsx declared inside dsx */
 }
 #else
-class dsx;
+class dsx;	/* dsx declared in common-only code */
 #endif
 
-inline namespace dcx {
-	class dcx;	/* Force type mismatch on attempted nesting */
-	class dsx;
+inline namespace dcx {	/* Force type mismatch on attempted nesting */
+	class dcx;	/* dcx declared inside dcx */
+	class dsx;	/* dsx declared inside dcx */
 }
 namespace {
-	class dcx;
-	class dsx;
+	class dcx;	/* dcx declared inside anonymous */
+	class dsx;	/* dsx declared inside anonymous */
 }
 '''
 		conf.Finish()
