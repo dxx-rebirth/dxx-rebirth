@@ -816,14 +816,26 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	else
 	{
 		short adjust = 1;
+		/* Dead stores to prevent bogus -Wmaybe-uninitialized warnings
+		 * when the optimization level prevents the compiler from
+		 * recognizing that these are written in a team game and only
+		 * read in a team game.
+		 */
+		unsigned killed_team = 0, killer_team = 0;
+		DXX_MAKE_VAR_UNDEFINED(killed_team);
+		DXX_MAKE_VAR_UNDEFINED(killer_team);
+		const auto is_team_game = Game_mode & GM_TEAM;
+		if (is_team_game)
+		{
+			killed_team = get_team(killed_pnum);
+			killer_team = get_team(killer_pnum);
+			if (killed_team == killer_team)
+				adjust = -1;
+		}
 		if (!game_mode_hoard())
 		{
-			if (Game_mode & GM_TEAM)
+			if (is_team_game)
 			{
-				const auto killed_team = get_team(killed_pnum);
-				const auto killer_team = get_team(killer_pnum);
-				if (killed_team == killer_team)
-					adjust = -1;
 				team_kills[killer_team] += adjust;
 				Players[killer_pnum].net_kills_total += adjust;
 				Players[killer_pnum].KillGoalCount += adjust;
