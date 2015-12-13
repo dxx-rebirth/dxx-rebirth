@@ -1348,6 +1348,8 @@ static int get_lifetime_checksum (int a,int b)
 }
 #endif
 
+inline namespace dsx {
+
 template <uint_fast32_t shift, uint_fast32_t width>
 static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, const char *value)
 {
@@ -1468,4 +1470,6 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
 	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
+}
+
 }

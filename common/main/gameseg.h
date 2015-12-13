@@ -198,7 +198,11 @@ void validate_segment_side(vsegptridx_t sp, int sidenum);
 int check_segment_connections(void);
 void flush_fcd_cache(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
+#if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
+}
+#endif
 
 #endif

@@ -147,8 +147,10 @@ boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
+inline namespace dcx {
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
+}
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
 fix64           Last_teleport_time = 0;
@@ -4102,6 +4104,7 @@ _exit_cheat:
 
 }
 
+inline namespace dsx {
 // ----------------------------------------------------------------------------
 void ai_do_cloak_stuff(void)
 {
@@ -4121,6 +4124,7 @@ void ai_do_cloak_stuff(void)
 	Believed_player_seg = Ai_cloak_info[0].last_segment;
 #endif
 
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -4429,12 +4433,16 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_position.z = aic->last_position.z;
 }
 
+inline namespace dcx {
+
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
 DEFINE_SERIAL_UDT_TO_MESSAGE(point_seg, p, (p.segnum, serial::pad<2>(), p.point));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(point_seg, 16);
 
 DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<point_seg, MAX_POINT_SEGS> &>(p)));
 DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const array<point_seg, MAX_POINT_SEGS> &>(p)));
+
+}
 
 static void ai_save_one_ai_local(PHYSFS_File *fp, const object &i)
 {

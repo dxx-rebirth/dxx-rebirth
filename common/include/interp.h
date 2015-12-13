@@ -20,10 +20,12 @@
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+inline namespace dcx {
 class submodel_angles;
 
 const std::size_t MAX_POLYGON_VECS = 1000;
 struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 inline namespace dsx {
@@ -61,6 +63,7 @@ int g3_poly_get_color(const uint8_t *model_ptr);
 }
 #endif
 
+inline namespace dcx {
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
@@ -91,5 +94,6 @@ struct chunk
  */
 int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no);
 #endif //def WORDS_NEED_ALIGNMENT
+}
 
 #endif

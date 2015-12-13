@@ -41,7 +41,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "aistruct.h"
 #endif
 
+inline namespace dcx {
 struct point_seg;
+}
 struct PHYSFS_File;
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
@@ -265,12 +267,14 @@ void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 extern void special_reactor_stuff(void);
 #endif
 
+inline namespace dcx {
 struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
 extern point_seg_array_t        Point_segs;
 extern point_seg_array_t::iterator        Point_segs_free_ptr;
 static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_array_t &p)
 {
 	return std::distance(p.begin(), i);
+}
 }
 
 int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);

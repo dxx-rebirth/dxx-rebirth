@@ -41,9 +41,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //------------- Globaly used hostage variables --------------------------------
 
+inline namespace dcx {
 unsigned N_hostage_types;		  			// Number of hostage types
 array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;	// vclip num for each tpye of hostage
+}
 
+inline namespace dsx {
 
 //-------------- Renders a hostage --------------------------------------------
 void draw_hostage(const vobjptridx_t obj)
@@ -64,4 +67,6 @@ void hostage_rescue()
 		digi_play_sample(SOUND_HOSTAGE_RESCUED, F1_0);
 
 	HUD_init_message_literal(HM_DEFAULT, TXT_HOSTAGE_RESCUED);
+}
+
 }

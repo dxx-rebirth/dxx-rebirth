@@ -62,6 +62,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 
+inline namespace dcx {
+
 struct _sockaddr
 {
 	union {
@@ -91,6 +93,8 @@ struct _sockaddr
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
+
+}
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
@@ -248,6 +252,8 @@ for_each_netgrant_value(define_netflag_bit_mask);
 #undef define_netflag_bit_mask
 #undef define_netflag_powerup_mask
 
+inline namespace dsx {
+
 struct packed_spawn_granted_items
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -350,10 +356,13 @@ void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 extern const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text;
 extern const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames;
 extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
+}
 
+inline namespace dcx {
 extern ubyte multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
+}
 
 class powerup_cap_state
 {
@@ -435,6 +444,7 @@ public:
 	void clear();
 };
 
+inline namespace dsx {
 extern powerup_cap_state PowerupCaps;
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
@@ -446,6 +456,7 @@ void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
 void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
 void multi_reset_player_object(vobjptr_t objp);
 int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
+}
 #endif
 
 enum msgsend_state_t {
@@ -482,6 +493,8 @@ void multi_init_objects(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 void multi_send_endlevel_start(bool);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -497,11 +510,15 @@ static inline void multi_send_endlevel_start(bool secret)
 }
 #endif
 void multi_send_player_deres(deres_type_t type);
+}
+#endif
 void multi_send_reappear();
 void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
+inline namespace dcx {
 void multi_send_cloak(void);
 void multi_send_decloak(void);
+}
 void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_digi_play_sample(int sndnum, fix max_volume);
@@ -510,6 +527,7 @@ void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(uint16_t wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
@@ -519,6 +537,7 @@ void multi_send_guided_info (vobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
+}
 #ifndef RELEASE
 void multi_add_lifetime_kills(int count);
 #endif
@@ -526,39 +545,55 @@ void multi_add_lifetime_kills(int count);
 void multi_send_bounty( void );
 
 void multi_consistency_error(int reset);
-void multi_prep_level(void);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
 int multi_endlevel_poll1(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void multi_send_endlevel_packet();
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+void multi_prep_level();
 void multi_leave_game(void);
+}
+#endif
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
 void multi_do_death(int objnum);
-int multi_delete_extra_objects(void);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+int multi_delete_extra_objects();
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
+}
+#endif
 void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);
 void multi_new_game(void);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 void multi_sort_kill_list(void);
+}
+#endif
 void multi_reset_stuff(void);
 int get_team(playernum_t pnum);
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_got_flag (playernum_t);
 #endif
+}
+#endif
 
 // Exported variables
 
+inline namespace dcx {
 extern int Network_status;
-extern array<grs_main_bitmap, 2> Orb_icons;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -592,11 +627,18 @@ extern int multi_quit_game;
 
 extern array<msgsend_state_t, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
+}
 window_event_result multi_message_input_sub(int key);
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state_t state);
 
+#if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+extern array<grs_main_bitmap, 2> Orb_icons;
 extern int PhallicLimit,PhallicMan;
+}
+#endif
+inline namespace dcx {
 extern int Bounty_target;
 
 extern array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
@@ -608,8 +650,10 @@ extern const array<char[16], 10> RankStrings;
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
@@ -633,11 +677,16 @@ struct bit_game_flags {
 #define NETGAME_FLAG_REALLY_FORMING     64
 #endif
 } __pack__;
+}
 
+inline namespace dcx {
 struct packed_game_flags
 {
 	unsigned char value;
 };
+}
+
+inline namespace dsx {
 
 static inline bit_game_flags unpack_game_flags(const packed_game_flags *p)
 {
@@ -668,25 +717,31 @@ static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
 		0;
 	return p;
 }
-#endif
 
 #define NETGAME_NAME_LEN                15
 
 extern struct netgame_info Netgame;
+}
+#endif
 
 #define multi_i_am_master()	(Player_num == 0)
 void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
 extern void multi_powcap_count_powerups_in_mine(void);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern void multi_powcap_cap_objects();
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
+uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
+}
+#endif
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 #if defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
 void multi_send_door_open_specific(playernum_t pnum,segnum_t segnum, int side,ubyte flag);
@@ -706,6 +761,7 @@ int HoardEquipped();
 #ifdef EDITOR
 void save_hoard_data(void);
 #endif
+}
 #endif
 
 //how to encode missiles & flares in weapon packets
@@ -738,6 +794,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 /*
  * The Network Game structure
  * Contains protocol-specific data with designated prefixes and general game-related data.
@@ -811,6 +868,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 	ubyte						Tracker;
 #endif
 };
+}
 #endif
 
 namespace multi

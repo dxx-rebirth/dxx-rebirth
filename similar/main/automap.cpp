@@ -98,6 +98,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_NO_FADE  32  // An edge that doesn't fade with distance
 #define EF_TOO_FAR  64  // An edge that is too far away
 
+inline namespace dcx {
+
 namespace {
 
 struct Edge_info
@@ -109,6 +111,14 @@ struct Edge_info
 	color_t color;        // 1  bytes
 	ubyte num_faces;    // 1  bytes  // 31 bytes...
 };
+
+}
+
+}
+
+inline namespace dsx {
+
+namespace {
 
 struct automap : ignore_window_pointer_t
 {
@@ -160,6 +170,10 @@ struct automap : ignore_window_pointer_t
 
 }
 
+}
+
+inline namespace dcx {
+
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 
 #define K_WALL_NORMAL_COLOR     BM_XRGB(29, 29, 29 )
@@ -174,7 +188,9 @@ struct automap : ignore_window_pointer_t
 
 int Automap_active = 0;
 static int Automap_debug_show_all_segments;
+}
 
+inline namespace dsx {
 static void init_automap_colors(automap *am)
 {
 	am->wall_normal_color = K_WALL_NORMAL_COLOR;
@@ -192,8 +208,11 @@ static void init_automap_colors(automap *am)
 	am->blue_48 = gr_find_closest_color_current(0,0,48);
 	am->red_48 = gr_find_closest_color_current(48,0,0);
 }
+}
 
+inline namespace dcx {
 array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
+}
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -206,9 +225,11 @@ array<ubyte, MAX_SEGMENTS> Automap_visited; // Segment visited list
 #define ROT_SPEED_DIVISOR		(115000)
 
 // Function Prototypes
+inline namespace dsx {
 static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void draw_all_edges(automap *am);
 static void automap_build_edge_list(automap *am, int add_all_edges);
+}
 
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
@@ -216,6 +237,7 @@ static void automap_build_edge_list(automap *am, int add_all_edges);
 #if defined(DXX_BUILD_DESCENT_II)
 #include "compiler-integer_sequence.h"
 
+inline namespace dsx {
 int HighlightMarker=-1;
 marker_message_text_t Marker_input;
 marker_messages_array_t MarkerMessage;
@@ -228,12 +250,14 @@ static inline constexpr array<objnum_t, sizeof...(N)> init_MarkerObject(index_se
 }
 
 array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_sequence<NUM_MARKERS>());
+}
 #endif
 
 # define automap_draw_line g3_draw_line
 
 // -------------------------------------------------------------
 
+inline namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void DrawMarkers (automap *am)
 {
@@ -1511,3 +1535,4 @@ window_event_result MarkerInputMessage(int key)
 	return window_event_result::handled;
 }
 #endif
+}

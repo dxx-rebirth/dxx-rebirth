@@ -56,6 +56,8 @@ extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 #endif
 #define MAX_SUBMODELS 10
 
+inline namespace dcx {
+
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
 {
@@ -96,10 +98,12 @@ public:
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // array of pointers to polygon objects
 extern array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
-#endif
 
 // how many polygon objects there are
 extern unsigned N_polygon_models;
+#endif
+
+}
 
 void free_polygon_models();
 void init_polygon_models();
@@ -141,10 +145,12 @@ static const unsigned N_D2_POLYGON_MODELS = 166;
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 #endif
 
+inline namespace dcx {
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
+}
 #if 0
 void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
 #endif

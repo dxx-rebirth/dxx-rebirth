@@ -36,6 +36,10 @@ enum class kmatrix_result
 };
 
 kmatrix_result kmatrix_view(int network); // shows matrix screen. Retruns 0 if aborted (quitting game) and 1 if proceeding to next level if applicable.
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 kmatrix_result multi_endlevel_score();
+}
+#endif
 
 #endif

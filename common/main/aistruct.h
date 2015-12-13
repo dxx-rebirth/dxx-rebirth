@@ -40,6 +40,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_SEGMENTS_PER_PATH       20
 
+inline namespace dcx {
+
 enum class player_awareness_type_t : uint8_t
 {
 	PA_NONE,
@@ -50,8 +52,7 @@ enum class player_awareness_type_t : uint8_t
 	PA_WEAPON_ROBOT_COLLISION	= 4,  // Level of robot awareness after player weapon hits nearby robot
 };
 
-//#define PAE_WEAPON_HIT_WALL         1   // weapon hit wall, create player awareness
-//#define PAE_WEAPON_HIT_ROBOT        2   // weapon hit wall, create player awareness
+}
 
 // Constants indicating currently moving forward or backward through
 // path.  Note that you can add aip->direction to aip_path_index to
@@ -60,6 +61,8 @@ enum class player_awareness_type_t : uint8_t
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 enum class ai_behavior : uint8_t
 {
 // Behaviors
@@ -112,6 +115,8 @@ enum class ai_mode : uint8_t
 	AIM_THIEF_WAIT = 17,
 #endif
 };
+
+}
 #endif
 
 #define AISM_GOHIDE                 0
@@ -176,6 +181,8 @@ enum class ai_mode : uint8_t
 
 // This is the stuff that is permanent for an AI object.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
+
 // Rather temporal AI stuff.
 struct ai_local : public prohibit_void_ptr<ai_local>
 {
@@ -303,7 +310,10 @@ struct ai_cloak_info_rw
 #endif
 	vms_vector  last_position;
 };
+}
 #endif
+
+inline namespace dcx {
 
 struct point_seg : prohibit_void_ptr<point_seg> {
 	segnum_t         segnum;
@@ -317,6 +327,8 @@ struct seg_seg
 
 static const unsigned MAX_POINT_SEGS = 2500;
 
+}
+
 // These are the information for a robot describing the location of
 // the player last time he wasn't cloaked, and the time at which he
 // was uncloaked.  We should store this for each robot, but that's
@@ -324,6 +336,10 @@ static const unsigned MAX_POINT_SEGS = 2500;
 //extern fix        Last_uncloaked_time;
 //extern vms_vector Last_uncloaked_position;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+inline namespace dsx {
 extern void ai_do_cloak_stuff(void);
+}
+#endif
 
 #endif

@@ -39,7 +39,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 
+#include "dxxsconf.h"
 #include "compiler-range_for.h"
+
+inline namespace dsx {
 
 array<hostage_data, MAX_HOSTAGES> 		Hostages;						// Data for each hostage in mine
 
@@ -115,3 +118,4 @@ void hostage_compress_all()	{
 	}
 }
 
+}
