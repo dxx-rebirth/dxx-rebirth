@@ -126,7 +126,7 @@ static void show_framerate()
 
 static void show_netplayerinfo()
 {
-	int x=0, y=0, eff=0;
+	int x=0, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
@@ -227,9 +227,6 @@ static void show_netplayerinfo()
 	gr_set_fontcolor(255,-1);
 
 	// additional information about game - hoard, ranking
-	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
-	if (eff<0)
-		eff=0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (game_mode_hoard())
@@ -243,6 +240,14 @@ static void show_netplayerinfo()
 #endif
 	if (!PlayerCfg.NoRankings)
 	{
+		const int ieff = (PlayerCfg.NetlifeKills + PlayerCfg.NetlifeKilled <= 0)
+			? 0
+			: static_cast<int>(
+				static_cast<float>(PlayerCfg.NetlifeKills) / (
+					static_cast<float>(PlayerCfg.NetlifeKilled) + static_cast<float>(PlayerCfg.NetlifeKills)
+				) * 100.0
+			);
+		const unsigned eff = ieff < 0 ? 0 : static_cast<unsigned>(ieff);
 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y += line_spacing;
 		if (eff<60)

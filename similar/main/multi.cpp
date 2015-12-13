@@ -333,7 +333,7 @@ int GetMyNetRanking()
 {
 	int rank, eff;
 
-	if (PlayerCfg.NetlifeKills+PlayerCfg.NetlifeKilled==0)
+	if (PlayerCfg.NetlifeKills + PlayerCfg.NetlifeKilled <= 0)
 		return (1);
 
 	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
