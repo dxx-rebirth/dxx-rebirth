@@ -1228,7 +1228,7 @@ class input_config_menu_items
 	DXX_##VERB##_TEXT("", opt_label_blank_focus)	\
 	DXX_##VERB##_TEXT("When dead, respawn by pressing:", opt_label_respawn_mode)	\
 	DXX_##VERB##_RADIO("Any key", opt_respawn_any_key, PlayerCfg.RespawnMode == RespawnPress::Any, optgrp_respawn_mode)	\
-	DXX_##VERB##_RADIO("Fire key (primary, secondary, flare)", opt_respawn_fire_key, PlayerCfg.RespawnMode == RespawnPress::Fire, optgrp_respawn_mode)	\
+	DXX_##VERB##_RADIO("Fire keys (pri., sec., flare)", opt_respawn_fire_key, PlayerCfg.RespawnMode == RespawnPress::Fire, optgrp_respawn_mode)	\
 	DXX_##VERB##_TEXT("", opt_label_blank_respawn)	\
 	DXX_##VERB##_MENU("GAME SYSTEM KEYS", opt_ic_help0)	\
 	DXX_##VERB##_MENU("NETGAME SYSTEM KEYS", opt_ic_help1)	\

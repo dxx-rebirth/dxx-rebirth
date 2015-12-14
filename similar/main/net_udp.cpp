@@ -3307,7 +3307,7 @@ class more_game_options_menu_items
 	char portstring[sizeof("65535")];
 	char srinvul[sizeof("Reactor life: 50 min")];
 	char PlayText[sizeof("Max time: 50 min")];
-	char SpawnInvulnerableText[sizeof("Invulnerable Time: 0.0 sec")];
+	char SpawnInvulnerableText[sizeof("Invul. Time: 0.0 sec")];
 	char SecludedSpawnText[sizeof("Use 0 Furthest Sites")];
 	char KillText[sizeof("Kill goal: 000 kills")];
 	char extraPrimary[sizeof("Primaries: 0")];
@@ -3383,7 +3383,7 @@ public:
 	}
 	void update_spawn_invuln_string()
 	{
-		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Invulnerable Time: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
+		snprintf(SpawnInvulnerableText, sizeof(SpawnInvulnerableText), "Invul. Time: %1.1f sec", static_cast<float>(Netgame.InvulAppear) / 2);
 	}
 	void update_secluded_spawn_string()
 	{
