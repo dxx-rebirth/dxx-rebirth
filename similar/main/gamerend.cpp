@@ -375,7 +375,7 @@ static void game_draw_hud_stuff()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
 
-	if ( Player_is_dead )
+	if (Player_dead_state != player_dead_state::no)
 		player_dead_message();
 }
 
@@ -765,7 +765,7 @@ void toggle_cockpit()
 {
 	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view || Player_is_dead)
+	if (Rear_view || Player_dead_state != player_dead_state::no)
 		return;
 
 	switch (PlayerCfg.CockpitMode[1])

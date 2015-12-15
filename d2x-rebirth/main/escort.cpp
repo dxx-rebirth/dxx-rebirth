@@ -624,7 +624,7 @@ static segnum_t find_exit_segment(void)
 //	-----------------------------------------------------------------------------
 static void say_escort_goal(escort_goal_t goal_num)
 {
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		return;
 
 	switch (goal_num) {
@@ -1213,7 +1213,7 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 	if ((dist_to_player > F1_0*500) && (ailp->next_action_time > 0))
 		return;
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 
 	switch (ailp->mode) {

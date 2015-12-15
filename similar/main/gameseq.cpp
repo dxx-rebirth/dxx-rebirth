@@ -359,7 +359,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 			get_local_player_flags() &= ~all_keys;
 	}
 
-	Player_is_dead = 0; // Added by RH
+	Player_dead_state = player_dead_state::no; // Added by RH
 	Dead_player_camera = NULL;
 
 	// properly init these cursed globals
@@ -445,7 +445,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		}
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
-		Player_is_dead = 0;
+		Player_dead_state = player_dead_state::no;
 		Player_exploded = 0;
 		Player_eggs_dropped = 0;
 		Dead_player_camera = 0;
@@ -940,7 +940,7 @@ void DoEndLevelScoreGlitz(int network)
 //called when the player is starting a level (new game or new ship)
 static void StartSecretLevel()
 {
-	Assert(!Player_is_dead);
+	Assert(Player_dead_state == player_dead_state::no);
 
 	InitPlayerPosition(0);
 
@@ -1955,7 +1955,7 @@ static void copy_defaults_to_robot_all(void)
 //called when the player is starting a level (new game or new ship)
 static void StartLevel(int random_flag)
 {
-	Assert(!Player_is_dead);
+	assert(Player_dead_state == player_dead_state::no);
 
 	InitPlayerPosition(random_flag);
 

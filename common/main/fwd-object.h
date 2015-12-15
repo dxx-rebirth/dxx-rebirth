@@ -178,7 +178,13 @@ extern object *Viewer;              // which object we are seeing from
 extern object *Dead_player_camera;
 #endif
 
-extern int Player_is_dead;          // !0 means player is dead!
+enum class player_dead_state : uint8_t
+{
+	no,
+	yes,
+};
+
+extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern int Player_exploded;
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;

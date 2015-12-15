@@ -718,7 +718,7 @@ dump_door_debugging_info()
 //returns 1 if screen changed
 static window_event_result HandleSystemKey(int key)
 {
-	if (!Player_is_dead)
+	if (Player_dead_state == player_dead_state::no)
 		switch (key)
 		{
 
@@ -802,7 +802,7 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			if (!Player_is_dead && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
+			if (Player_dead_state == player_dead_state::no && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
 			{
 				toggle_cockpit();
 			}
@@ -880,13 +880,13 @@ static window_event_result HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_S:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
-			if (!Player_is_dead)
+			if (Player_dead_state == player_dead_state::no)
 				state_save_all(secret_save::none, blind_save::no); // 0 means not between levels.
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
 		case KEY_ALTED+KEY_SHIFTED+KEY_F2:
-			if (!Player_is_dead)
+			if (Player_dead_state == player_dead_state::no)
 				state_save_all(secret_save::none, blind_save::yes);
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_O:)
@@ -1031,7 +1031,7 @@ static window_event_result HandleGameKey(int key)
 
 	}	 //switch (key)
 
-	if (!Player_is_dead)
+	if (Player_dead_state == player_dead_state::no)
 		switch (key)
 		{
 				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
@@ -1256,7 +1256,7 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player_shields() = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: get_local_player().lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
-			if (Player_is_dead)
+			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
 			get_local_player_flags() ^= PLAYER_FLAGS_CLOAKED;
@@ -1294,7 +1294,8 @@ static window_event_result HandleTestKey(int key)
 		}
 #endif
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
-			if (!Player_is_dead && !( Game_mode & GM_MULTI ))
+			if (Player_dead_state == player_dead_state::no &&
+				!(Game_mode & GM_MULTI))
 				move_player_2_segment(Cursegp,Curside);
 			break;   //move eye to curseg
 
@@ -1382,7 +1383,7 @@ static window_event_result HandleTestKey(int key)
 		}
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
-			if (Player_is_dead)
+			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
 			kill_and_so_forth();
@@ -1883,7 +1884,11 @@ window_event_result ReadControls(const d_event &event)
 	} else {
 		exploding_flag=0;
 	}
-	if (Player_is_dead && !( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) ))
+	if (Player_dead_state != player_dead_state::no &&
+		!((Game_mode & GM_MULTI) &&
+			(multi_sending_message[Player_num] || multi_defining_message)
+		)
+	)
 		if (HandleDeathInput(event))
 			return window_event_result::handled;
 
@@ -1947,8 +1952,8 @@ window_event_result ReadControls(const d_event &event)
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		kconfig_read_controls(event, 0);
-		const auto Player_is_dead = ::Player_is_dead;
-		if (Player_is_dead && HandleDeathInput(event))
+		const auto Player_is_dead = Player_dead_state;
+		if (Player_is_dead != player_dead_state::no && HandleDeathInput(event))
 			return window_event_result::handled;
 
 		check_rear_view();
@@ -1957,13 +1962,13 @@ window_event_result ReadControls(const d_event &event)
 		if ( Controls.state.automap )
 		{
 			Controls.state.automap = 0;
-			if (Player_is_dead || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
+			if (Player_is_dead != player_dead_state::no || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
 			{
 				do_automap();
 				return window_event_result::handled;
 			}
 		}
-		if (Player_is_dead)
+		if (Player_is_dead != player_dead_state::no)
 			return window_event_result::ignored;
 		do_weapon_n_item_stuff();
 	}

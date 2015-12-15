@@ -1248,7 +1248,7 @@ void obj_delete(const vobjptridx_t obj)
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
 #define	DEATH_SEQUENCE_EXPLODE_TIME	(F1_0*2)
 
-int		Player_is_dead = 0;			//	If !0, then player is dead, but game continues so he can watch.
+player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
 object	*Viewer_save;
 int		Player_flags_save;
@@ -1261,13 +1261,13 @@ ubyte		Control_type_save, Render_type_save;
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
 {
-	if (!Player_is_dead)
+	if (Player_dead_state == player_dead_state::no)
 		return;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_restore_cockpit();
 
-	Player_is_dead = 0;
+	Player_dead_state = player_dead_state::no;
 	Player_exploded = 0;
 	obj_delete(vobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
@@ -1339,7 +1339,7 @@ void dead_player_frame(void)
 {
 	static fix	time_dead = 0;
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 	{
 		time_dead += FrameTime;
 
@@ -1452,10 +1452,11 @@ void dead_player_frame(void)
 static void start_player_death_sequence(const vobjptr_t player)
 {
 	Assert(player == ConsoleObject);
-	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)))
+	if (Player_dead_state != player_dead_state::no ||
+		Dead_player_camera != NULL ||
+		((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)))
 		return;
 
-	//Assert(Player_is_dead == 0);
 	//Assert(Dead_player_camera == NULL);
 
 	reset_rear_view();
@@ -1497,7 +1498,7 @@ static void start_player_death_sequence(const vobjptr_t player)
 	}
 	
 	PaletteRedAdd = 40;
-	Player_is_dead = 1;
+	Player_dead_state = player_dead_state::yes;
 
 	vm_vec_zero(player->mtype.phys_info.rotthrust);
 	vm_vec_zero(player->mtype.phys_info.thrust);

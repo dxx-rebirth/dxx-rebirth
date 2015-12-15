@@ -518,7 +518,7 @@ void omega_charge_frame(void)
 	if (!player_has_primary_weapon(primary_weapon_index_t::OMEGA_INDEX).has_weapon())
 		return;
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		return;
 
 	//	Don't charge while firing. Wait 1/3 second after firing before recharging
@@ -1751,7 +1751,7 @@ int do_laser_firing_player(void)
 	static int Helix_orientation = 0;
 #endif
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		return 0;
 
 	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
@@ -2233,7 +2233,7 @@ void do_missile_firing(int drop_bomb)
 	}
 #endif
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		return;
 	if (auto &secondary_weapon_ammo = get_local_player_secondary_ammo()[weapon])
 	{

@@ -304,7 +304,8 @@ void start_endlevel_sequence()
 		return;
 	}
 
-	if (Player_is_dead || ConsoleObject->flags&OF_SHOULD_BE_DEAD)
+	if (Player_dead_state != player_dead_state::no ||
+		(ConsoleObject->flags & OF_SHOULD_BE_DEAD))
 		return;				//don't start if dead!
 	con_printf(CON_NORMAL, "You have escaped the mine!");
 

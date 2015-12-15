@@ -366,7 +366,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 	}
 #endif
 
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		controlcen_death_silence += FrameTime;
 	else
 		controlcen_death_silence = 0;

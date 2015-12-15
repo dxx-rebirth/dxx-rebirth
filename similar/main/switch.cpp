@@ -434,7 +434,8 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
-				if ((get_local_player_shields() < 0) || Player_is_dead)
+				if (get_local_player_shields() < 0 ||
+					Player_dead_state != player_dead_state::no)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
 				//             playing a D1 secret level
@@ -461,7 +462,8 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 				break;
 
-			if ((get_local_player_shields() < 0) || Player_is_dead)
+			if (get_local_player_shields() < 0 ||
+				Player_dead_state != player_dead_state::no)
 				break;
 
 			if (is_SHAREWARE || is_MAC_SHARE) {

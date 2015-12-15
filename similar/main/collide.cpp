@@ -1322,9 +1322,10 @@ void do_final_boss_frame(void)
 //	which would ruin the logic of the cut sequence.
 void do_final_boss_hacks(void)
 {
-	if (Player_is_dead) {
+	if (Player_dead_state != player_dead_state::no)
+	{
 		Int3();		//	Uh-oh, player is dead.  Try to rescue him.
-		Player_is_dead = 0;
+		Player_dead_state = player_dead_state::no;
 	}
 
 	if (get_local_player_shields() <= 0)
@@ -1384,7 +1385,7 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 					}
 				else
 				  {	// NOTE LINK TO ABOVE!!!
-					if ((get_local_player_shields() < 0) || Player_is_dead)
+					if ((get_local_player_shields() < 0) || Player_dead_state != player_dead_state::no)
 						robot->shields = 1;		//	Sorry, we can't allow you to kill the final boss after you've died.  Rough luck.
 					else
 						do_final_boss_hacks();
@@ -2053,7 +2054,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer, fix damage, ubyte possibly_friendly)
 {
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		return;
 
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
@@ -2246,7 +2247,10 @@ void collide_robot_and_materialization_center(const vobjptridx_t objp)
 
 void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t powerup, const vms_vector &)
 {
-	if (!Endlevel_sequence && !Player_is_dead && (get_player_id(playerobj) == Player_num )) {
+	if (!Endlevel_sequence &&
+		Player_dead_state == player_dead_state::no &&
+		get_player_id(playerobj) == Player_num)
+	{
 		int powerup_used;
 
 		powerup_used = do_powerup(powerup);

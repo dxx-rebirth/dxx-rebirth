@@ -229,7 +229,9 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
 
-	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (get_local_player_shields() < 0))
+	if (Player_dead_state != player_dead_state::no ||
+		ConsoleObject->type == OBJ_GHOST ||
+		get_local_player_shields() < 0)
 		return 0;
 
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime64<obj->ctype.powerup_info.creation_time+i2f(2))

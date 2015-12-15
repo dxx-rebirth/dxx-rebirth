@@ -1465,7 +1465,9 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 	//	Green guy selects move around/towards/away based on firing time, not distance.
 	if (robptr->attack_type == 1) {
-		if ((!ready_to_fire_weapon1(ailp, robptr->firing_wait[Difficulty_level]/4) && (dist_to_player < F1_0*30)) || Player_is_dead) {
+		if ((!ready_to_fire_weapon1(ailp, robptr->firing_wait[Difficulty_level]/4) && dist_to_player < F1_0*30) ||
+			Player_dead_state != player_dead_state::no)
+		{
 			//	1/4 of time, move around player, 3/4 of time, move away from player
 			if (d_rand() < 8192) {
 				move_around_player(objp, vec_to_player, -1);
@@ -3237,7 +3239,8 @@ _exit_cheat:
 		aip->GOAL_STATE = AIS_REST;                     //new: 12/13/94
 
 
-	if (Player_is_dead && ailp->player_awareness_type == player_awareness_type_t::PA_NONE)
+	if (Player_dead_state != player_dead_state::no &&
+		ailp->player_awareness_type == player_awareness_type_t::PA_NONE)
 		if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/8)) {
 			if ((aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_RUN_FROM)) {
 				if (!ai_multiplayer_awareness(obj, 30))

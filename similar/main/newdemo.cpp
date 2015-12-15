@@ -1550,7 +1550,7 @@ void newdemo_set_new_level(int level_num)
  */
 static void newdemo_record_oneframeevent_update(int wallupdate)
 {
-	if (Player_is_dead)
+	if (Player_dead_state != player_dead_state::no)
 		newdemo_record_letterbox();
 	else
 		newdemo_record_restore_cockpit();

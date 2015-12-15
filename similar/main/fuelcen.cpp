@@ -771,7 +771,7 @@ void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
 {
 	Assert (game_mode_hoard());
 
-   if (Player_is_dead)
+   if (Player_dead_state != player_dead_state::no)
 		return;
 
 	if (segp->special==SEGMENT_IS_GOAL_BLUE || segp->special==SEGMENT_IS_GOAL_RED  )	

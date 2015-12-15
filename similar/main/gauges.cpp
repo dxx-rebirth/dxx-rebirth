@@ -822,7 +822,7 @@ void play_homing_warning(void)
 	fix beep_delay;
 	static fix64 Last_warning_beep_time = 0; // Time we last played homing missile warning beep.
 
-	if (Endlevel_sequence || Player_is_dead)
+	if (Endlevel_sequence || Player_dead_state != player_dead_state::no)
 		return;
 
 	const auto homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;

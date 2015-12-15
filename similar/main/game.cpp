@@ -601,7 +601,7 @@ static void do_afterburner_stuff(void)
 		Afterburner_charge = 0;
 
 	const auto plobj = vcobjptridx(get_local_player().objnum);
-	if (Endlevel_sequence || Player_is_dead)
+	if (Endlevel_sequence || Player_dead_state != player_dead_state::no)
 	{
 		digi_kill_sound_linked_to_object(plobj);
 		if (Game_mode & GM_MULTI && func_play)
@@ -797,7 +797,8 @@ void palette_restore(void)
 //	--------------------------------------------------------------------------------------------------
 int allowed_to_fire_laser(void)
 {
-	if (Player_is_dead) {
+	if (Player_dead_state != player_dead_state::no)
+	{
 		Global_missile_firing_count = 0;
 		return 0;
 	}
@@ -1331,7 +1332,7 @@ void game_leave_menus(void)
 void GameProcessFrame(void)
 {
 	fix player_shields = get_local_player_shields();
-	int player_was_dead = Player_is_dead;
+	const auto player_was_dead = Player_dead_state;
 
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
@@ -1501,7 +1502,7 @@ void GameProcessFrame(void)
 	// Check if we have to close in-game menus for multiplayer
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
-                if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (get_local_player_shields() < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
+		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (get_local_player_shields() < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
                         game_leave_menus();
 	}
 }
