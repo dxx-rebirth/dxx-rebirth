@@ -370,7 +370,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 
 #ifdef OGL
 		else if (!d_stricmp(p, "-gl_oldtexmerge"))
-			GameArg.DbgUseOldTextureMerge 		= 1;
+			CGameArg.DbgUseOldTextureMerge = true;
 		else if (!d_stricmp(p, "-gl_intensity4_ok"))
 			CGameArg.DbgGlIntensity4Ok = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_luminance4_alpha4_ok"))

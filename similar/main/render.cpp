@@ -270,7 +270,8 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 	}
 
 #ifdef OGL
-	if (!GameArg.DbgUseOldTextureMerge){
+	if (!CGameArg.DbgUseOldTextureMerge)
+	{
 		PIGGY_PAGE_IN(Textures[tmap1]);
 		bm = &GameBitmaps[Textures[tmap1].index];
 		if (tmap2){

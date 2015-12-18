@@ -84,6 +84,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	static constexpr tt::true_type CtlNoJoystick{};
 #endif
 #ifdef OGL
+	bool DbgUseOldTextureMerge;
 	bool DbgGlIntensity4Ok;
 	bool DbgGlReadPixelsOk;
 	bool DbgGlGetTexLevelParamOk;
@@ -125,7 +126,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	int SndDigiSampleRate;
 #endif
 #ifdef OGL
-	bool DbgUseOldTextureMerge;
 	bool OglFixedFont;
 	SyncGLMethod OglSyncMethod;
 	int OglSyncWait;
