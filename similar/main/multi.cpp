@@ -338,7 +338,13 @@ int GetMyNetRanking()
 
 	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
 
-	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
+	eff = static_cast<int>(
+		static_cast<float>(
+			static_cast<float>(PlayerCfg.NetlifeKills) / (
+				static_cast<float>(PlayerCfg.NetlifeKilled) + static_cast<float>(PlayerCfg.NetlifeKills)
+			)
+		) * 100.0
+	);
 
 	if (rank>8)
 		rank=8;
@@ -635,7 +641,7 @@ namespace dsx {
 void multi_sort_kill_list()
 {
 	// Sort the kills list each time a new kill is added
-	int kills[MAX_PLAYERS];
+	array<int, MAX_PLAYERS> kills;
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (Game_mode & GM_MULTI_COOP)
@@ -644,10 +650,16 @@ void multi_sort_kill_list()
 		else
 		if (Show_kill_list==2)
 		{
-			if (Players[i].net_killed_total+Players[i].net_kills_total==0)
-				kills[i]=-1;  // always draw the ones without any ratio last
-			else
-				kills[i]=(int)((float)((float)Players[i].net_kills_total/((float)Players[i].net_killed_total+(float)Players[i].net_kills_total))*100.0);
+			auto &p = Players[i];
+			const auto kk = p.net_killed_total + p.net_kills_total;
+			// always draw the ones without any ratio last
+			kills[i] = kk <= 0
+				? kk - 1
+				: static_cast<int>(
+					static_cast<float>(p.net_kills_total) / (
+						static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+					) * 100.0
+				);
 		}
 #endif
 		else
