@@ -2782,10 +2782,15 @@ static void hud_show_kill_list()
 
 		if (Show_kill_list==2)
 		{
-			if (Players[player_num].net_killed_total+Players[player_num].net_kills_total==0)
-				gr_string (x1,y,"NA");
-		else
-			gr_printf (x1,y,"%d%%",(int)((float)((float)Players[player_num].net_kills_total/((float)Players[player_num].net_killed_total+(float)Players[player_num].net_kills_total))*100.0));
+			auto &p = Players[player_num];
+			const int eff = (p.net_killed_total + p.net_kills_total <= 0)
+				? 0
+				: static_cast<int>(
+					static_cast<float>(p.net_kills_total) / (
+						static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+					) * 100.0
+				);
+			gr_printf(x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
 		else if (Show_kill_list == 3)
 			gr_printf(x1,y,"%3d",team_kills[i]);
