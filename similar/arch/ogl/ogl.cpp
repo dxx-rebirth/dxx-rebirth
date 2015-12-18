@@ -1477,7 +1477,8 @@ static void tex_set_size(ogl_texture &tex)
 	GLint w,h;
 	int bi=16,a=0;
 #ifndef OGLES
-	if (GameArg.DbgGlGetTexLevelParamOk){
+	if (CGameArg.DbgGlGetTexLevelParamOk)
+	{
 		GLint t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);

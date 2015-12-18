@@ -177,7 +177,7 @@ static void InitGameArg()
 	GameArg.DbgGlLuminance4Alpha4Ok = 1;
 	GameArg.DbgGlRGBA2Ok 		= 1;
 	CGameArg.DbgGlReadPixelsOk = true;
-	GameArg.DbgGlGetTexLevelParamOk = 1;
+	CGameArg.DbgGlGetTexLevelParamOk = true;
 #endif
 }
 
@@ -380,7 +380,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_readpixels_ok"))
 			CGameArg.DbgGlReadPixelsOk = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_gettexlevelparam_ok"))
-			GameArg.DbgGlGetTexLevelParamOk                        = arg_integer(pp, end);
+			CGameArg.DbgGlGetTexLevelParamOk = arg_integer(pp, end);
 #else
 		else if (!d_stricmp(p, "-hwsurface"))
 			GameArg.DbgSdlHWSurface = 1;
