@@ -164,7 +164,7 @@ void ogl_init_texture(ogl_texture &t, int w, int h, int flags)
 				t.internalformat = GL_INTENSITY4;
 				t.format = GL_LUMINANCE;
 			}
-			else if (GameArg.DbgGlLuminance4Alpha4Ok)
+			else if (CGameArg.DbgGlLuminance4Alpha4Ok)
 			{
 				t.internalformat = GL_LUMINANCE4_ALPHA4;
 				t.format = GL_LUMINANCE_ALPHA;

@@ -87,6 +87,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlIntensity4Ok;
 	bool DbgGlReadPixelsOk;
 	bool DbgGlGetTexLevelParamOk;
+	bool DbgGlLuminance4Alpha4Ok;
 #endif
 	uint8_t DbgBpp;
 	int DbgVerbose;
@@ -147,7 +148,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
 #ifdef OGL
-	int DbgGlLuminance4Alpha4Ok;
 	int DbgGlRGBA2Ok;
 #else
 	int DbgSdlHWSurface;

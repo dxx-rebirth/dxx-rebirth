@@ -174,7 +174,7 @@ static void InitGameArg()
 	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
 	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
 	CGameArg.DbgGlIntensity4Ok 	= true;
-	GameArg.DbgGlLuminance4Alpha4Ok = 1;
+	CGameArg.DbgGlLuminance4Alpha4Ok = true;
 	GameArg.DbgGlRGBA2Ok 		= 1;
 	CGameArg.DbgGlReadPixelsOk = true;
 	CGameArg.DbgGlGetTexLevelParamOk = true;
@@ -374,7 +374,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_intensity4_ok"))
 			CGameArg.DbgGlIntensity4Ok = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_luminance4_alpha4_ok"))
-			GameArg.DbgGlLuminance4Alpha4Ok                        = arg_integer(pp, end);
+			CGameArg.DbgGlLuminance4Alpha4Ok = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_rgba2_ok"))
 			GameArg.DbgGlRGBA2Ok 			                       = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_readpixels_ok"))
