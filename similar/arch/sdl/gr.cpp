@@ -149,9 +149,9 @@ void gr_toggle_fullscreen()
 {
 	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
 	const int WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
+	CGameCfg.WindowMode = WindowMode;
 	gr_remap_color_fonts();
 	SDL_WM_ToggleFullScreen(screen);
-	GameCfg.WindowMode = WindowMode;
 }
 
 int gr_init()
@@ -167,7 +167,7 @@ int gr_init()
 
 	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 
-	if (!GameCfg.WindowMode && !GameArg.SysWindow)
+	if (!CGameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
 	if (GameArg.SysNoBorders)

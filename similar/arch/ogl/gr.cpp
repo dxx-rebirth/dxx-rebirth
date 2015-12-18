@@ -503,7 +503,7 @@ void gr_toggle_fullscreen()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	GameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
+	CGameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 }
 
 static void ogl_init_state(void)
@@ -757,7 +757,7 @@ int gr_init()
 	ogl_init_load_library();
 #endif
 
-	if (!GameCfg.WindowMode && !GameArg.SysWindow)
+	if (!CGameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
 	if (GameArg.SysNoBorders)

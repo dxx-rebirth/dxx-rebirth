@@ -123,7 +123,7 @@ int ReadConfigFile()
 	GameCfg.ResolutionY = 480;
 	GameCfg.AspectX = 3;
 	GameCfg.AspectY = 4;
-	GameCfg.WindowMode = 0;
+	CGameCfg.WindowMode = false;
 	GameCfg.TexFilt = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = 0;
@@ -197,7 +197,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, AspectYStr))
 			convert_integer(GameCfg.AspectY, value);
 		else if (cmp(lb, eq, WindowModeStr))
-			convert_integer(GameCfg.WindowMode, value);
+			convert_integer(CGameCfg.WindowMode, value);
 		else if (cmp(lb, eq, TexFiltStr))
 			convert_integer(GameCfg.TexFilt, value);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -257,7 +257,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
-	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
+	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
 #if defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);

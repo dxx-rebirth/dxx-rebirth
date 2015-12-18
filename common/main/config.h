@@ -40,6 +40,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 {
 	bool VSync;
 	bool Grabinput;
+	bool WindowMode;
 };
 
 extern struct CCfg CGameCfg;
@@ -59,7 +60,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	int TexFilt;
 	uint8_t DigiVolume;
 	uint8_t MusicVolume;
-	bool WindowMode;
 	bool Multisample;
 	bool FPSIndicator;
 	bool ReverseStereo;
