@@ -549,7 +549,7 @@ static void ogl_get_verinfo(void)
 	if ((d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && d_stricmp(gl_version,"1.2 Mesa 3.0")==0)
 	{
 		CGameArg.DbgGlIntensity4Ok = false;	//ignores alpha, always black background instead of transparent.
-		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
+		CGameArg.DbgGlReadPixelsOk = false;	//either just returns all black, or kills the X server entirely
 		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
 	if (d_stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
@@ -565,7 +565,7 @@ static void ogl_get_verinfo(void)
 #endif
 
 #ifndef NDEBUG
-	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
+	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, CGameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
 #endif
 	const auto gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
@@ -1086,7 +1086,8 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 
-	if (!GameArg.DbgGlReadPixelsOk){
+	if (!CGameArg.DbgGlReadPixelsOk)
+	{
 		if (!automap_flag)
 			HUD_init_message_literal(HM_DEFAULT, "glReadPixels not supported on your configuration");
 		return;
