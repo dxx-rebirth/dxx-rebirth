@@ -173,7 +173,7 @@ static void InitGameArg()
 #ifdef OGL
 	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
 	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
-	GameArg.DbgGlIntensity4Ok 	= 1;
+	CGameArg.DbgGlIntensity4Ok 	= true;
 	GameArg.DbgGlLuminance4Alpha4Ok = 1;
 	GameArg.DbgGlRGBA2Ok 		= 1;
 	GameArg.DbgGlReadPixelsOk 	= 1;
@@ -372,7 +372,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_oldtexmerge"))
 			GameArg.DbgUseOldTextureMerge 		= 1;
 		else if (!d_stricmp(p, "-gl_intensity4_ok"))
-			GameArg.DbgGlIntensity4Ok 		                       = arg_integer(pp, end);
+			CGameArg.DbgGlIntensity4Ok = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_luminance4_alpha4_ok"))
 			GameArg.DbgGlLuminance4Alpha4Ok                        = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-gl_rgba2_ok"))

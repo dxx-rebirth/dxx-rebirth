@@ -83,6 +83,9 @@ struct CArg : prohibit_void_ptr<CArg>
 #else
 	static constexpr tt::true_type CtlNoJoystick{};
 #endif
+#ifdef OGL
+	bool DbgGlIntensity4Ok;
+#endif
 	uint8_t DbgBpp;
 	int DbgVerbose;
 	int SysMaxFPS;
@@ -142,7 +145,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
 #ifdef OGL
-	int DbgGlIntensity4Ok;
 	int DbgGlLuminance4Alpha4Ok;
 	int DbgGlRGBA2Ok;
 	int DbgGlReadPixelsOk;
