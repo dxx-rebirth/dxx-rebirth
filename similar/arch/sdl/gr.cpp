@@ -31,9 +31,9 @@
 
 #include "compiler-make_unique.h"
 
-namespace dsx {
-
 using std::min;
+
+namespace dcx {
 
 static int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
@@ -50,8 +50,6 @@ void gr_flip()
 	SDL_BlitSurface(canvas, &src, screen, &dest);
 	SDL_Flip(screen);
 }
-
-namespace dcx {
 
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
@@ -90,6 +88,8 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 }
 
 }
+
+namespace dsx {
 
 int gr_set_mode(screen_mode mode)
 {
@@ -141,6 +141,10 @@ int gr_set_mode(screen_mode mode)
 	return 0;
 }
 
+}
+
+namespace dcx {
+
 int gr_check_fullscreen(void)
 {
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
@@ -154,6 +158,10 @@ void gr_toggle_fullscreen()
 	gr_remap_color_fonts();
 	SDL_WM_ToggleFullScreen(screen);
 }
+
+}
+
+namespace dsx {
 
 int gr_init()
 {
@@ -205,6 +213,10 @@ void gr_close()
 		SDL_FreeSurface(canvas);
 	}
 }
+
+}
+
+namespace dcx {
 
 // Palette functions follow.
 static int last_r=0, last_g=0, last_b=0;
@@ -258,6 +270,10 @@ void gr_palette_step_up( int r, int g, int b )
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 }
 
+}
+
+namespace dsx {
+
 void gr_palette_load( palette_array_t &pal )
 {
 	SDL_Palette *palette;
@@ -296,6 +312,8 @@ void gr_palette_load( palette_array_t &pal )
 	gr_remap_color_fonts();
 }
 
+}
+
 void gr_palette_read(palette_array_t &pal)
 {
 	SDL_Palette *palette;
@@ -312,6 +330,4 @@ void gr_palette_read(palette_array_t &pal)
 		pal[i].g = palette->colors[i].g / 4;
 		pal[i].b = palette->colors[i].b / 4;
 	}
-}
-
 }

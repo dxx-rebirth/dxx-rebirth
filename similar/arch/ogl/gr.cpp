@@ -455,6 +455,10 @@ static int ogl_init_window(int x, int y)
 	return 0;
 }
 
+}
+
+namespace dcx {
+
 int gr_check_fullscreen(void)
 {
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
@@ -528,6 +532,10 @@ static void ogl_init_state(void)
 
 	ogl_init_pixel_buffers(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 }
+
+}
+
+namespace dsx {
 
 static void ogl_get_verinfo(void)
 {

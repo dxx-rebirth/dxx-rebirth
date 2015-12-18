@@ -477,6 +477,8 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 }
 
 #ifndef OGL
+namespace dsx {
+
 void save_screen_shot(int automap_flag)
 {
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
@@ -515,6 +517,7 @@ void save_screen_shot(int automap_flag)
 	gr_set_current_canvas(save_canv);
 }
 
+}
 #endif
 
 //initialize flying

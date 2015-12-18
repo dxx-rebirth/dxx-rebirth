@@ -347,10 +347,6 @@ void gr_palette_step_up(int r, int g, int b);
 color_t gr_find_closest_color(int r, int g, int b);
 int gr_find_closest_color_15bpp(int rgb);
 void gr_flip();
-}
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 
 /*
  * must return 0 if windowed, 1 if fullscreen
@@ -363,9 +359,6 @@ int gr_check_fullscreen();
  */
 void gr_toggle_fullscreen();
 
-}
-#endif
-namespace dcx {
 void ogl_do_palfx();
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();
