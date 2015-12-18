@@ -110,10 +110,17 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 		}
 	}
 
-	if (Players[sorted[i]].net_killed_total+Players[sorted[i]].net_kills_total==0)
-		strcpy (temp,"NA");
-	else
-		snprintf (temp,sizeof(temp),"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
+	{
+		auto &p = Players[sorted[i]];
+		const int eff = (p.net_killed_total + p.net_kills_total <= 0)
+			? 0
+			: static_cast<int>(
+				static_cast<float>(p.net_kills_total) / (
+					static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+				) * 100.0
+			);
+		snprintf(temp, sizeof(temp), "%i%%", eff <= 0 ? 0 : eff);
+	}
 
 	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
