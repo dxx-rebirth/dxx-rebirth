@@ -249,15 +249,10 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d1x-rebirth.bmp"
-
-static inline void gr_remap_color_fonts() {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_SDL_WINDOW_CAPTION	"Descent II"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal);
-
-//remap (by re-reading) all the color fonts
-void gr_remap_color_fonts();
 #endif
 
 }
@@ -265,6 +260,9 @@ void gr_remap_color_fonts();
 
 // Writes a string using current font. Returns the next column after last char.
 namespace dcx {
+
+//remap (by re-reading) all the color fonts
+void gr_remap_color_fonts();
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
