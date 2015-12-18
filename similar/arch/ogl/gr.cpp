@@ -348,7 +348,7 @@ static int ogl_init_window(int x, int y)
 
 	use_x=x;
 	use_y=y;
-	use_bpp=GameArg.DbgBpp;
+	use_bpp = CGameArg.DbgBpp;
 	use_flags=sdl_video_flags;
 	if (sdl_no_modeswitch) {
 		const SDL_VideoInfo *vinfo=SDL_GetVideoInfo();
@@ -366,9 +366,9 @@ static int ogl_init_window(int x, int y)
 	{
 #ifdef RPI
 		con_printf(CON_URGENT, "Could not set %dx%dx%d opengl video mode: %s\n (Ignored for RPI)",
-			    x, y, GameArg.DbgBpp, SDL_GetError());
+			    x, y, CGameArg.DbgBpp, SDL_GetError());
 #else
-		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, CGameArg.DbgBpp, SDL_GetError());
 #endif
 	}
 
@@ -467,16 +467,17 @@ void gr_toggle_fullscreen()
 	{
 		if (sdl_no_modeswitch == 0) {
 			auto gsm = Game_screen_mode;
-			if (!SDL_VideoModeOK(gsm.width, gsm.height, GameArg.DbgBpp, sdl_video_flags))
+			const auto DbgBpp = CGameArg.DbgBpp;
+			if (!SDL_VideoModeOK(gsm.width, gsm.height, DbgBpp, sdl_video_flags))
 			{
 				con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", gsm.width, gsm.height);
 				gsm.width = 640;
 				gsm.height = 480;
 				Game_screen_mode = gsm;
 			}
-			if (!SDL_SetVideoMode(gsm.width, gsm.height, GameArg.DbgBpp, sdl_video_flags))
+			if (!SDL_SetVideoMode(gsm.width, gsm.height, DbgBpp, sdl_video_flags))
 			{
-				Error("Could not set %dx%dx%d opengl video mode: %s\n", gsm.width, gsm.height, GameArg.DbgBpp, SDL_GetError());
+				Error("Could not set %dx%dx%d opengl video mode: %s\n", gsm.width, gsm.height, DbgBpp, SDL_GetError());
 			}
 		}
 #ifdef RPI
@@ -631,7 +632,7 @@ namespace dsx {
 static int gr_check_mode(const screen_mode mode)
 {
 	if (sdl_no_modeswitch == 0) {
-		return SDL_VideoModeOK(SM_W(mode), SM_H(mode), GameArg.DbgBpp, sdl_video_flags);
+		return SDL_VideoModeOK(SM_W(mode), SM_H(mode), CGameArg.DbgBpp, sdl_video_flags);
 	} else {
 		// just tell the caller that any mode is valid...
 		return 32;

@@ -83,6 +83,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #else
 	static constexpr tt::true_type CtlNoJoystick{};
 #endif
+	uint8_t DbgBpp;
 	int DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
@@ -140,7 +141,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string DbgTexMap;
 	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
-	int DbgBpp;
 #ifdef OGL
 	int DbgGlIntensity4Ok;
 	int DbgGlLuminance4Alpha4Ok;

@@ -169,7 +169,7 @@ static void InitGameArg()
 #endif
 #endif
 	CGameArg.DbgVerbose = CON_NORMAL;
-	GameArg.DbgBpp 			= 32;
+	CGameArg.DbgBpp = 32;
 #ifdef OGL
 	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
 	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
@@ -366,7 +366,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-bigpig"))
 			GameArg.DbgNoCompressPigBitmap 		= 1;
 		else if (!d_stricmp(p, "-16bpp"))
-			GameArg.DbgBpp 		= 16;
+			CGameArg.DbgBpp		= 16;
 
 #ifdef OGL
 		else if (!d_stricmp(p, "-gl_oldtexmerge"))

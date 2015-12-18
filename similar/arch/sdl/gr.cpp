@@ -99,7 +99,8 @@ int gr_set_mode(screen_mode mode)
 	SDL_WM_SetIcon( SDL_LoadBMP( DXX_SDL_WINDOW_ICON_BITMAP ), NULL );
 
 	const auto sdl_video_flags = ::sdl_video_flags;
-	if(SDL_VideoModeOK(SM_W(mode), SM_H(mode), GameArg.DbgBpp, sdl_video_flags))
+	const auto DbgBpp = CGameArg.DbgBpp;
+	if(SDL_VideoModeOK(SM_W(mode), SM_H(mode), DbgBpp, sdl_video_flags))
 	{
 	}
 	else
@@ -110,11 +111,11 @@ int gr_set_mode(screen_mode mode)
 		Game_screen_mode = mode;
 	}
 	const unsigned w = SM_W(mode), h = SM_H(mode);
-	screen = SDL_SetVideoMode(w, h, GameArg.DbgBpp, sdl_video_flags);
+	screen = SDL_SetVideoMode(w, h, DbgBpp, sdl_video_flags);
 
 	if (screen == NULL)
 	{
-		Error("Could not set %dx%dx%d video mode\n",w,h,GameArg.DbgBpp);
+		Error("Could not set %dx%dx%d video mode\n", w, h, DbgBpp);
 		exit(1);
 	}
 
