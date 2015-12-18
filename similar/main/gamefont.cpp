@@ -116,7 +116,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 	if (!GameArg.OglFixedFont)
 	{
 		// if there's no texture filtering, scale by int
-		if (!GameCfg.TexFilt)
+		if (!CGameCfg.TexFilt)
 		{
 			FNTScaleX = (int)scrx/font_conf[gf].font[m].x;
 			FNTScaleY = (int)scry/font_conf[gf].font[m].y;

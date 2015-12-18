@@ -572,8 +572,8 @@ static void ogl_get_verinfo(void)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
 		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f",ogl_maxanisotropy);
 	}
-	else if (GameCfg.TexFilt >= 3)
-		GameCfg.TexFilt = 2;
+	else if (CGameCfg.TexFilt >= 3)
+		CGameCfg.TexFilt = 2;
 #endif
 }
 

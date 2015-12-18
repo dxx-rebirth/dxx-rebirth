@@ -118,7 +118,7 @@ static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm)
 {
-	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
+	ogl_loadbmtexture_f(bm, CGameCfg.TexFilt);
 }
 
 }

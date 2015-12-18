@@ -1567,7 +1567,7 @@ void graphics_config()
 	DXX_GRAPHICS_MENU(ADD);
 
 #ifdef OGL
-	m[opt_filter_none+GameCfg.TexFilt].value=1;
+	m[opt_filter_none+CGameCfg.TexFilt].value=1;
 #endif
 
 	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 0);
@@ -1579,7 +1579,7 @@ void graphics_config()
 	for (uint_fast32_t i = 0; i != 4; ++i)
 		if (m[i+opt_filter_none].value)
 		{
-			GameCfg.TexFilt = i;
+			CGameCfg.TexFilt = i;
 			break;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
