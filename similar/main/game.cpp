@@ -1619,31 +1619,31 @@ unsigned Num_flickering_lights;
 
 static void flicker_lights()
 {
-	range_for (auto &rf, partial_range(Flickering_lights, Num_flickering_lights))
+	range_for (auto &f, partial_range(Flickering_lights, Num_flickering_lights))
 	{
-		auto f = &rf;
-		const auto &&segp = vcsegptr(f->segnum);
+		if (static_cast<unsigned>(f.timer) == 0x80000000)		//disabled
+			continue;
+		const auto &&segp = vsegptridx(f.segnum);
+		const auto sidenum = f.sidenum;
+		{
+			auto &side = segp->sides[sidenum];
+			if (!(TmapInfo[side.tmap_num].lighting || TmapInfo[side.tmap_num2 & 0x3fff].lighting))
+				continue;
+		}
 
 		//make sure this is actually a light
-		if (! (WALL_IS_DOORWAY(segp, f->sidenum) & WID_RENDER_FLAG))
-			continue;
-		if (! (TmapInfo[segp->sides[f->sidenum].tmap_num].lighting | TmapInfo[segp->sides[f->sidenum].tmap_num2 & 0x3fff].lighting))
+		if (! (WALL_IS_DOORWAY(segp, sidenum) & WID_RENDER_FLAG))
 			continue;
 
-		if (static_cast<unsigned>(f->timer) == 0x80000000)		//disabled
-			continue;
-
-		if ((f->timer -= FrameTime) < 0) {
-
-			while (f->timer < 0)
-				f->timer += f->delay;
-
-			f->mask = ((f->mask&0x80000000)?1:0) + (f->mask<<1);
-
-			if (f->mask & 1)
-				add_light(f->segnum,f->sidenum);
+		if ((f.timer -= FrameTime) < 0)
+		{
+			while (f.timer < 0)
+				f.timer += f.delay;
+			f.mask = ((f.mask & 0x80000000) ? 1 : 0) + (f.mask << 1);
+			if (f.mask & 1)
+				add_light(segp, sidenum);
 			else
-				subtract_light(f->segnum,f->sidenum);
+				subtract_light(segp, sidenum);
 		}
 	}
 }
