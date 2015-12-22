@@ -95,7 +95,9 @@ static uint16_t s_current_generation;
 
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
+namespace dsx {
 object * Viewer = NULL;
+}
 
 vms_vector Viewer_eye;  //valid during render
 
@@ -1233,6 +1235,8 @@ int Rear_view=0;
 #ifdef JOHN_ZOOM
 fix Zoom_factor=F1_0;
 #endif
+
+namespace dsx {
 //renders onto current canvas
 void render_frame(fix eye_offset, window_rendered_data &window)
 {
@@ -1316,9 +1320,13 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
+}
 
+namespace dcx {
 static unsigned first_terminal_seg;
+}
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
 {
@@ -1763,6 +1771,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
 	#endif
 #endif
+}
+
 }
 #ifdef EDITOR
 //finds what segment is at a given x&y -  seg,side,face are filled in

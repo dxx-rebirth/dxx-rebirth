@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-wall.h"
 #include "pack.h"
 
+namespace dcx {
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct WALL_IS_DOORWAY_mask_t
 {
@@ -110,9 +112,13 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 	int linked_wall;            // number of linked wall
 };
 
+}
+
 //End old wall structures
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 struct wall : public prohibit_void_ptr<wall>
 {
 	segnum_t segnum;
@@ -131,7 +137,11 @@ struct wall : public prohibit_void_ptr<wall>
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
 #endif
 };
+
+}
 #endif
+
+namespace dcx {
 
 struct active_door : public prohibit_void_ptr<active_door>
 {
@@ -141,6 +151,10 @@ struct active_door : public prohibit_void_ptr<active_door>
 	fix     time;               // how long been opening, closing, waiting
 };
 
+}
+
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 {
@@ -152,7 +166,6 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 };
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct wclip : public prohibit_void_ptr<wclip>
 {
 	fix     play_time;
@@ -183,6 +196,7 @@ static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, con
 	if (likely(s.wall_num == wall_none))
 		return WID_NO_WALL;
 	return wall_is_doorway(s);
+}
 }
 #endif
 #endif

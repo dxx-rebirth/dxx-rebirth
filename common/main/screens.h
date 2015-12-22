@@ -39,7 +39,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 //from game.c
-extern int set_screen_mode(int sm);	// True = editor screen
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+int set_screen_mode(int sm);	// True = editor screen
+}
+#endif
 
 //About the screen
 

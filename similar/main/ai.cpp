@@ -89,6 +89,10 @@ using std::min;
 #define	AI_TURN_SCALE	1
 #define	BABY_SPIDER_ID	14
 
+namespace dsx {
+static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
+static void ai_multi_send_robot_position(const vobjptridx_t objnum, int force);
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -118,17 +122,15 @@ static const int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
 
 static const int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
 #endif
+}
 
-static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
-
+namespace dcx {
 enum {
 	Flinch_scale = 4,
 	Attack_scale = 24,
 };
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
-
-static void ai_multi_send_robot_position(const vobjptridx_t objnum, int force);
 
 static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
@@ -147,13 +149,12 @@ boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
-namespace dcx {
 point_seg_array_t       Point_segs;
 point_seg_array_t::iterator       Point_segs_free_ptr;
-}
 static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
 fix64           Last_teleport_time = 0;
+}
 static
 #if defined(DXX_BUILD_DESCENT_I)
 const
@@ -164,10 +165,12 @@ static
 const
 #endif
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
+namespace dcx {
 fix64           Last_gate_time = 0;
+static fix64 Boss_dying_start_time;
 fix             Gate_interval = F1_0*6;
-fix64           Boss_dying_start_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
+}
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -201,6 +204,7 @@ static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18,
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 fix64           Boss_hit_time;
 
 
@@ -220,6 +224,7 @@ const boss_flags_t Boss_invulnerable_matter{{0,0,0,0,1,1, 1,0}}; // Set byte if 
 const boss_flags_t Boss_invulnerable_spot{{0,0,0,0,0,1, 0,1}}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 segnum_t             Believed_player_seg;
+}
 #endif
 
 static const std::size_t MAX_AWARENESS_EVENTS = 64;
@@ -241,7 +246,9 @@ static fvi_info    Hit_data;
 static unsigned             Num_awareness_events;
 static array<awareness_event, MAX_AWARENESS_EVENTS> Awareness_events;
 
+namespace dcx {
 vms_vector      Believed_player_pos;
+}
 
 #define	AIS_MAX	8
 #define	AIE_MAX	4
@@ -367,6 +374,8 @@ static int ready_to_fire_any_weapon(const robot_info *robptr, const ai_local *ai
 {
 	return ready_to_fire_weapon1(ailp, threshold) || ready_to_fire_weapon2(robptr, ailp, threshold);
 }
+
+namespace dsx {
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
@@ -667,7 +676,7 @@ int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix 
 #if defined(DXX_BUILD_DESCENT_I)
 	if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == get_local_player().objnum)))
 #elif defined(DXX_BUILD_DESCENT_II)
-	// -- when we stupidly checked objects -- if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum))) {
+	// -- when we stupidly checked objects -- if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum)))
 	if (Hit_type == HIT_NONE)
 #endif
 	{
@@ -1415,7 +1424,7 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 	//	See if should take avoidance.
 
-	// New way, green guys don't evade:	if ((robptr->attack_type == 0) && (objp->ctype.ai_info.danger_laser_num != -1)) {
+	// New way, green guys don't evade:	if ((robptr->attack_type == 0) && (objp->ctype.ai_info.danger_laser_num != -1))
 	if (objp->ctype.ai_info.danger_laser_num != object_none) {
 		const vobjptridx_t dobjp = vobjptridx(objp->ctype.ai_info.danger_laser_num);
 
@@ -1513,8 +1522,11 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		}
 #endif
 	}
+}
 
 }
+
+namespace dcx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Compute a somewhat random, normalized vector.
@@ -1525,6 +1537,10 @@ void make_random_vector(vms_vector &vec)
 	vec.z = d_rand() - 16384;
 	vm_vec_normalize_quick(vec);
 }
+
+}
+
+namespace dsx {
 
 //	-------------------------------------------------------------------------------------------------------------------
 static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vms_vector &vec_to_player)
@@ -1613,11 +1629,18 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 					break;
 			}
 	}
+}
 
 }
+
+namespace {
 #define	CHASE_TIME_LENGTH		(F1_0*8)
 #define	DEFAULT_ROBOT_SOUND_VOLUME		F1_0
 int		Robot_sound_volume=DEFAULT_ROBOT_SOUND_VOLUME;
+
+}
+
+namespace dsx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Note: This function could be optimized.  Surely player_is_visible_from_object would benefit from the
@@ -2386,12 +2409,17 @@ int ai_multiplayer_awareness(const vobjptridx_t objp, int awareness_level)
 	}
 
 	return rval;
+}
 
 }
 
 #ifndef NDEBUG
+namespace {
 fix	Prev_boss_shields = -1;
+}
 #endif
+
+namespace dsx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
@@ -2753,7 +2781,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 				if (aip->CURRENT_GUN < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
-						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size) {
+						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
@@ -3517,7 +3545,7 @@ _exit_cheat:
 			compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
 			// @mk, 12/27/94, structure here was strange.  Would do both clauses of what are now this if/then/else.  Used to be if/then, if/then.
-			if ((player_visibility < 2) && (previous_visibility == 2)) { // this is redundant: mk, 01/15/95: && (ailp->mode == ai_mode::AIM_CHASE_OBJECT)) {
+			if ((player_visibility < 2) && (previous_visibility == 2)) { // this is redundant: mk, 01/15/95: && (ailp->mode == ai_mode::AIM_CHASE_OBJECT))
 				if (!ai_multiplayer_awareness(obj, 53)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -3902,7 +3930,7 @@ _exit_cheat:
 		default:
 			ailp->mode = ai_mode::AIM_CHASE_OBJECT;
 			break;
-	}       // end: switch (ailp->mode) {
+	}       // end: switch (ailp->mode)
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If the robot can see you, increase his awareness of you.
@@ -4089,7 +4117,7 @@ _exit_cheat:
 				aip->CURRENT_STATE = AIS_REST;
 				break;
 		}
-	} // end of: if (aip->GOAL_STATE != AIS_FLIN) {
+	} // end of: if (aip->GOAL_STATE != AIS_FLIN)
 
 	// Switch to next gun for next fire.
 	if (player_visibility == 0) {
@@ -4107,7 +4135,6 @@ _exit_cheat:
 
 }
 
-namespace dsx {
 // ----------------------------------------------------------------------------
 void ai_do_cloak_stuff(void)
 {
@@ -4126,8 +4153,6 @@ void ai_do_cloak_stuff(void)
 #if defined(DXX_BUILD_DESCENT_II)
 	Believed_player_seg = Ai_cloak_info[0].last_segment;
 #endif
-
-}
 }
 
 // ----------------------------------------------------------------------------
@@ -4247,6 +4272,8 @@ static void set_player_awareness_all(void)
 	}
 }
 
+}
+
 #ifndef NDEBUG
 #if PARALLAX
 int Ai_dump_enable = 0;
@@ -4319,6 +4346,8 @@ static inline void dump_ai_objects_all()
 }
 #endif
 #endif
+
+namespace dsx {
 
 // ----------------------------------------------------------------------------------
 // Do things which need to get done for all AI objects each frame.
@@ -4436,6 +4465,8 @@ static void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak
 	aic_rw->last_position.z = aic->last_position.z;
 }
 
+}
+
 namespace dcx {
 
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
@@ -4446,6 +4477,8 @@ DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<array<po
 DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const array<point_seg, MAX_POINT_SEGS> &>(p)));
 
 }
+
+namespace dsx {
 
 static void ai_save_one_ai_local(PHYSFS_File *fp, const object &i)
 {
@@ -4562,12 +4595,20 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
+}
+
+namespace dcx {
+
 static void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec &v, int swap)
 {
 	v.p = PHYSFSX_readSXE16(file, swap);
 	v.b = PHYSFSX_readSXE16(file, swap);
 	v.h = PHYSFSX_readSXE16(file, swap);
 }
+
+}
+
+namespace dsx {
 
 static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 {
@@ -4618,12 +4659,20 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 	}
 }
 
+}
+
+namespace dcx {
+
 static void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector &v, int swap)
 {
 	v.x = PHYSFSX_readSXE32(file, swap);
 	v.y = PHYSFSX_readSXE32(file, swap);
 	v.z = PHYSFSX_readSXE32(file, swap);
 }
+
+}
+
+namespace dsx {
 
 static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
 {
@@ -4722,4 +4771,6 @@ int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 #endif
 
 	return 1;
+}
+
 }

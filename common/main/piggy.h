@@ -92,12 +92,16 @@ extern array<uint8_t, 64 * 64> bogus_data;
 int properties_init();
 void piggy_close();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );
+namespace dsx {
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
 bitmap_index piggy_find_bitmap(const char *name);
+}
 int piggy_find_sound(const char *name);
 
 void piggy_read_bitmap_data(grs_bitmap * bmp);
+namespace dsx {
 void piggy_read_sound_data(digi_sound *snd);
+}
 
 void piggy_load_level_data();
 
@@ -115,7 +119,9 @@ extern void piggy_bitmap_page_in( bitmap_index bmp );
 extern void piggy_bitmap_page_out_all();
 extern int piggy_page_flushed;
 
+namespace dsx {
 extern array<digi_sound, MAX_SOUND_FILES> GameSounds;
+}
 extern array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
 static inline void _piggy_page_in(bitmap_index bmp) {
@@ -158,7 +164,9 @@ extern void remove_char( char * s, char c );	// in piggy.c
 extern int Num_bitmap_files;
 extern int Num_sound_files;
 extern ubyte bogus_bitmap_initialized;
+namespace dsx {
 extern digi_sound bogus_sound;
+}
 #endif
 #define space_tab " \t"
 #define equal_space " \t="

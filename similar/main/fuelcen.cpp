@@ -62,6 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // The max number of fuel stations per mine.
 
+namespace dcx {
 static const fix Fuelcen_give_amount = i2f(25);
 static const fix Fuelcen_max_amount = i2f(100);
 
@@ -70,10 +71,14 @@ static const fix Fuelcen_max_amount = i2f(100);
 const fix EnergyToCreateOneRobot = i2f(1);
 
 unsigned Num_robot_centers;
+unsigned Num_fuelcenters;
+
+static int Num_extry_robots = 15;
+}
+namespace dsx {
 array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
-unsigned Num_fuelcenters;
 
 #ifdef EDITOR
 const char	Special_names[MAX_CENTER_TYPES][11] = {
@@ -344,7 +349,7 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	return obj;
 }
 
-int Num_extry_robots = 15;
+}
 
 //	----------------------------------------------------------------------------------------------------------
 static void robotmaker_proc( FuelCenter * robotcen )
@@ -538,6 +543,8 @@ void fuelcen_update_all()
 	}
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define FUELCEN_SOUND_DELAY (F1_0/3)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -693,6 +700,8 @@ void init_all_matcens(void)
 
 }
 
+}
+
 struct d1mi_v25
 {
 	matcen_info *m;
@@ -710,6 +719,7 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 struct d1mi_v26
 {
@@ -815,6 +825,7 @@ void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version)
 #endif
 	else
 		PHYSFSX_serialize_write<d1cmi_v25>(fp, mi);
+}
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, serial::pad<2>(), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));

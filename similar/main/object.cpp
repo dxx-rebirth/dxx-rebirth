@@ -87,6 +87,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
+namespace dsx {
 static void obj_detach_all(const vobjptr_t parent);
 static void obj_detach_one(const vobjptr_t sub);
 
@@ -95,7 +96,9 @@ static void obj_detach_one(const vobjptr_t sub);
  */
 
 object *ConsoleObject;					//the object that is the player
+}
 
+namespace dcx {
 static array<objnum_t, MAX_OBJECTS> free_obj_list;
 
 //Data for objects
@@ -105,8 +108,10 @@ static array<objnum_t, MAX_OBJECTS> free_obj_list;
 //info on the various types of objects
 
 int num_objects=0;
-int Highest_ever_object_index=0;
+static int Highest_ever_object_index;
+}
 
+namespace dsx {
 #ifndef RELEASE
 //set viewer object to next object in array
 void object_goto_next_viewer()
@@ -485,6 +490,8 @@ static void draw_polygon_object(const vobjptridx_t obj)
 	}
 }
 
+}
+
 //------------------------------------------------------------------------------
 // These variables are used to keep a list of the 3 closest robots to the viewer.
 // The code works like this: Every time render object is called with a polygon model,
@@ -540,10 +547,13 @@ static void draw_polygon_object(const vobjptridx_t obj)
 //091494: 	}
 //091494: }
 
+namespace dcx {
 objnum_t	Player_fired_laser_this_frame=object_none;
+}
 
 
 
+namespace dsx {
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
@@ -910,9 +920,16 @@ object_signature_t obj_get_signature()
 	}
 }
 
+}
+
+namespace dcx {
+
 static unsigned Debris_object_count;
 static int Unused_object_slots;
 
+}
+
+namespace dsx {
 //returns the number of a free object, updating Highest_object_index.
 //Generally, obj_create() should be called to get an object, since it
 //fills in important fields and does the linking.
@@ -1248,16 +1265,20 @@ void obj_delete(const vobjptridx_t obj)
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
 #define	DEATH_SEQUENCE_EXPLODE_TIME	(F1_0*2)
 
-player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
 object	*Viewer_save;
+}
+namespace dcx {
+player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 int		Player_flags_save;
 int		Player_exploded = 0;
 int		Death_sequence_aborted=0;
 int		Player_eggs_dropped=0;
 fix		Camera_to_player_dist_goal=F1_0*4;
 ubyte		Control_type_save, Render_type_save;
+}
 
+namespace dsx {
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
 {
@@ -1295,7 +1316,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 
 	camera_player_dist = vm_vec_dist_quick(camera_pos, objp->pos);
 
-	if (camera_player_dist < Camera_to_player_dist_goal) { //2*objp->size) {
+	if (camera_player_dist < Camera_to_player_dist_goal) {
 		//	Camera is too close to player object, so move it away.
 		fvi_query	fq;
 		fvi_info		hit_data;
@@ -1958,8 +1979,6 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
-namespace dsx {
-
 void set_powerup_id(object &o, powerup_type_t id)
 {
 	o.id = id;
@@ -1967,8 +1986,6 @@ void set_powerup_id(object &o, powerup_type_t id)
 	const auto vclip_num = Powerup_info[id].vclip_num;
 	o.rtype.vclip_info.vclip_num = vclip_num;
 	o.rtype.vclip_info.frametime = Vclip[vclip_num].frame_time;
-}
-
 }
 
 //go through all objects and make sure they have the correct segment numbers
@@ -2305,8 +2322,6 @@ void object_rw_swap(object_rw *obj, int swap)
 			
 	}
 }
-
-namespace dsx {
 
 void (check_warn_object_type)(const object &o, object_type_t t, const char *file, unsigned line)
 {

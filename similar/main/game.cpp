@@ -121,6 +121,7 @@ fix ThisLevelTime=0;
 
 grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 
+namespace dcx {
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
@@ -131,12 +132,14 @@ int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
 fix64	Next_flare_fire_time = 0;
+}
 
 //	Function prototypes for GAME.C exclusively.
 
+namespace dsx {
 static void GameProcessFrame(void);
-static void FireLaser(void);
-static void powerup_grab_cheat_all(void);
+static void FireLaser();
+static void powerup_grab_cheat_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
 static void slide_textures(void);
@@ -157,6 +160,9 @@ void init_game()
 	Clear_window = 2;		//	do portal only window clear.
 }
 
+}
+
+namespace dcx {
 
 void reset_palette_add()
 {
@@ -166,6 +172,10 @@ void reset_palette_add()
 }
 
 screen_mode Game_screen_mode{640, 480};
+
+}
+
+namespace dsx {
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
@@ -240,6 +250,8 @@ void init_cockpit()
 	gr_set_current_canvas(NULL);
 }
 
+}
+
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(cockpit_mode_t mode)
 {
@@ -248,6 +260,8 @@ void select_cockpit(cockpit_mode_t mode)
 		init_cockpit();
 	}
 }
+
+namespace dcx {
 
 //force cockpit redraw next time. call this if you've trashed the screen
 void reset_cockpit()
@@ -261,6 +275,10 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 	gr_clear_canvas(0);
 	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
 }
+
+}
+
+namespace dsx {
 
 //called to change the screen mode. Parameter sm is the new mode, one of
 //SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
@@ -328,6 +346,10 @@ int set_screen_mode(int sm)
 
 	return 1;
 }
+
+}
+
+namespace dcx {
 
 namespace {
 
@@ -397,11 +419,19 @@ static void game_flush_common_inputs()
 	mouse_flush();
 }
 
+}
+
+namespace dsx {
+
 void game_flush_inputs()
 {
 	Controls = {};
 	game_flush_common_inputs();
 }
+
+}
+
+namespace dcx {
 
 void game_flush_respawn_inputs()
 {
@@ -431,6 +461,8 @@ void calc_d_tick()
 void reset_time()
 {
 	last_timer_value = timer_update();
+}
+
 }
 
 void calc_frame_time()
@@ -467,6 +499,8 @@ void calc_frame_time()
         calc_d_homer_tick();
 }
 
+namespace dsx {
+
 void move_player_2_segment(const vsegptridx_t seg,int side)
 {
 	compute_segment_center(ConsoleObject->pos,seg);
@@ -477,8 +511,6 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 }
 
 #ifndef OGL
-namespace dsx {
-
 void save_screen_shot(int automap_flag)
 {
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
@@ -516,8 +548,6 @@ void save_screen_shot(int automap_flag)
 	gr_ubitmap(temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
 }
-
-}
 #endif
 
 //initialize flying
@@ -554,6 +584,8 @@ static void do_cloak_stuff(void)
 			}
 		}
 	}
+}
+
 }
 
 static int FakingInvul=0;
@@ -1271,6 +1303,7 @@ void close_game()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
@@ -1314,6 +1347,7 @@ static void do_ambient_sounds()
 		digi_play_sample(sound,volume);
 	}
 }
+}
 #endif
 
 void game_leave_menus(void)
@@ -1331,6 +1365,8 @@ void game_leave_menus(void)
 			break;
 	}
 }
+
+namespace dsx {
 
 void GameProcessFrame(void)
 {
@@ -1743,6 +1779,8 @@ void powerup_grab_cheat_all(void)
 			powerup_grab_cheat(console, objnum);
 }
 
+}
+
 int	Last_level_path_created = -1;
 
 #ifdef SHOW_EXIT_PATH
@@ -1816,6 +1854,7 @@ int create_special_path(void)
 
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 /*
  * reads a flickering_light structure from a PHYSFS_file
  */
@@ -1835,5 +1874,6 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
 	PHYSFS_writeULE32(fp, fl->mask);
 	PHYSFSX_writeFix(fp, fl->timer);
 	PHYSFSX_writeFix(fp, fl->delay);
+}
 }
 #endif

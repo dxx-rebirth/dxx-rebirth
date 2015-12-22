@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
+namespace dcx {
 struct segmasks
 {
    short facemask;     //which faces sphere pokes through (12 bits)
@@ -45,9 +46,19 @@ struct segmasks
 struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 
 extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
-extern int	Doing_lighting_hack_flag;
+struct side_vertnum_list_t : array<int, 4> {};
+
+struct vertex_array_list_t : array<int, 6> {};
+struct vertex_vertnum_pair
+{
+	int vertex, vertnum;
+};
+using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+extern int	Doing_lighting_hack_flag;
 void compute_center_point_on_side(vms_vector &vp,vcsegptr_t sp,int side);
 static inline vms_vector compute_center_point_on_side(const vcsegptr_t sp,int side)
 {
@@ -63,8 +74,6 @@ static inline vms_vector compute_segment_center(vcsegptr_t sp)
 }
 int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
 
-struct side_vertnum_list_t : array<int, 4> {};
-
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum,int sidenum);
 static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
@@ -72,13 +81,6 @@ static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
 	side_vertnum_list_t r;
 	return get_side_verts(r, segnum, sidenum), r;
 }
-
-struct vertex_array_list_t : array<int, 6> {};
-struct vertex_vertnum_pair
-{
-	int vertex, vertnum;
-};
-using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 
 #ifdef EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
@@ -131,10 +133,15 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(vcsegptr_t segn
 	vertex_vertnum_array_list r;
 	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
 }
+}
 
+namespace dcx {
 //      Given a side, return the number of faces
 int get_num_faces(const side *sidep);
+struct WALL_IS_DOORWAY_mask_t;
+}
 
+namespace dsx {
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
 segmasks get_seg_masks(const vms_vector &checkp, vcsegptr_t segnum, fix rad);
@@ -155,7 +162,6 @@ segptridx_t find_point_seg(const vms_vector &p,segptridx_t segnum);
 //      set to WID_FLY_FLAG to see if a robot could fly from one to the other.
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
-struct WALL_IS_DOORWAY_mask_t;
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
 
 //create a matrix that describes the orientation of the given segment
@@ -194,14 +200,13 @@ static inline vms_vector pick_random_point_in_seg(vcsegptr_t sp)
 }
 
 void validate_segment_side(vsegptridx_t sp, int sidenum);
-#endif
 int check_segment_connections(void);
 void flush_fcd_cache(void);
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
+#endif
 }
 #endif
 

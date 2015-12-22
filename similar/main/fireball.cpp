@@ -75,6 +75,8 @@ using std::min;
 
 //--unused-- ubyte	Frame_processed[MAX_OBJECTS];
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 fix	Flash_effect=0;
 static const int	PK1=1, PK2=8;
@@ -1248,6 +1250,10 @@ void do_explosion_sequence(const vobjptr_t obj)
 #define EXPL_WALL_FIREBALL_SIZE 		(0x48000*6/10)	//smallest size
 #endif
 
+}
+
+namespace dcx {
+
 array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
 void init_exploding_walls()
@@ -1255,6 +1261,10 @@ void init_exploding_walls()
 	range_for (auto &i, expl_wall_list)
 		i.segnum = segment_none;
 }
+
+}
+
+namespace dsx {
 
 //explode the given wall
 void explode_wall(const vsegptridx_t segnum,int sidenum)
@@ -1346,7 +1356,7 @@ void do_exploding_wall_frame()
 				size = EXPL_WALL_FIREBALL_SIZE + (2*EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
 
 				//fireballs start away from door, with subsequent ones getting closer
-					vm_vec_scale_add2(pos,Segments[segnum].sides[sidenum].normals[0],size*(EXPL_WALL_TOTAL_FIREBALLS-e)/EXPL_WALL_TOTAL_FIREBALLS);
+				vm_vec_scale_add2(pos, vcsegptr(segnum)->sides[sidenum].normals[0], size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
 
 				if (e & 3)		//3 of 4 are normal
 					object_create_explosion(i.segnum,pos,size,VCLIP_SMALL_EXPLOSION);
@@ -1413,3 +1423,4 @@ void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall 
 	}
 }
 #endif
+}

@@ -44,16 +44,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwd-segment.h"
 
-namespace dcx {
-
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
 static inline bool IS_CHILD(segnum_t s)
 {
 	return s != segment_none && s != segment_exit;
 }
+}
 #endif
+
+namespace dcx {
 
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
@@ -203,7 +205,9 @@ struct group
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define Highest_segment_index Segments.highest
 
+namespace dsx {
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
+}
 #endif
 
 namespace dcx {

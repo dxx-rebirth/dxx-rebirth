@@ -38,7 +38,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 
 //----------------- Variables for video clips -------------------
-unsigned 					Num_vclips = 0;
+namespace dcx {
+unsigned 					Num_vclips;
+}
+
+namespace dsx {
 array<vclip, VCLIP_MAXNUM> 				Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
@@ -105,8 +109,11 @@ void draw_weapon_vclip(const vobjptridx_t obj)
 
 }
 
+}
+
 DEFINE_VCLIP_SERIAL_UDT();
 
+namespace dcx {
 void vclip_read(PHYSFS_file *fp, vclip &vc)
 {
 	PHYSFSX_serialize_read(fp, vc);
@@ -118,3 +125,4 @@ void vclip_write(PHYSFS_file *fp, const vclip &vc)
 	PHYSFSX_serialize_write(fp, vc);
 }
 #endif
+}

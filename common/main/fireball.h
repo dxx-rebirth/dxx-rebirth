@@ -37,10 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 enum powerup_type_t : uint8_t;
 
-// explosion types
-#define ET_SPARKS       0   //little sparks, like when laser hits wall
-#define ET_MULTI_START  1   //first part of multi-part explosion
-#define ET_MULTI_SECOND 2   //second part of multi-part explosion
+namespace dcx {
 
 struct expl_wall : prohibit_void_ptr<expl_wall>
 {
@@ -61,7 +58,10 @@ static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 #define MAX_EXPLODING_WALLS     10
 extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
@@ -82,17 +82,21 @@ void do_debris_frame(vobjptridx_t obj);      // deal with debris for this frame
 void draw_fireball(vobjptridx_t obj);
 
 void explode_wall(vsegptridx_t segnum, int sidenum);
-void do_exploding_wall_frame(void);
-void init_exploding_walls(void);
+void do_exploding_wall_frame();
 void maybe_drop_net_powerup(powerup_type_t powerup_type);
 void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
+}
 
+namespace dcx {
+void init_exploding_walls();
 enum class explosion_vclip_stage : int
 {
 	s0,
 	s1,
 };
+}
 
+namespace dsx {
 int get_explosion_vclip(vcobjptr_t obj, explosion_vclip_stage stage);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -109,6 +113,7 @@ extern fix	Flash_effect;
 #endif
 
 segidx_t pick_connected_segment(vcobjptr_t objp, int max_depth);
+}
 #endif
 
 #endif

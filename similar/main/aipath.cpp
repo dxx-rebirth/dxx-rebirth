@@ -60,9 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	PATH_VALIDATION	1
 #endif
 
-#if PATH_VALIDATION
-static void validate_all_paths(void);
-#endif
+namespace dsx {
 static void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, int player_visibility, const vms_vector *vec_to_player
@@ -71,8 +69,10 @@ static void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &g
 static void maybe_ai_path_garbage_collect(void);
 static void ai_path_garbage_collect(void);
 #if PATH_VALIDATION
+static void validate_all_paths();
 static int validate_path(int, point_seg* psegs, uint_fast32_t num_points);
 #endif
+}
 
 //	------------------------------------------------------------------------
 static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
@@ -88,6 +88,8 @@ static void create_random_xlate(array<uint8_t, MAX_SIDES_PER_SEGMENT> &xt)
 		swap(i, xt[j]);
 	}
 }
+
+namespace dsx {
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Insert the point at the center of the side connecting two segments between the two points.
@@ -588,9 +590,7 @@ int validate_path(int, point_seg *psegs, uint_fast32_t num_points)
 	return 1;
 
 }
-#endif
 
-#ifndef NDEBUG
 //	-----------------------------------------------------------------------------------------------------------
 void validate_all_paths(void)
 {
@@ -1209,6 +1209,12 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 
 }
 
+}
+
+namespace {
+
+int	Last_tick_garbage_collected;
+
 struct obj_path {
 	short	path_start;
 	objnum_t objnum;
@@ -1223,6 +1229,10 @@ static int path_index_compare(obj_path *i1, obj_path *i2)
 	else
 		return 1;
 }
+
+}
+
+namespace dsx {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
@@ -1304,11 +1314,9 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 
 }
 
-int	Last_tick_garbage_collected = 0;
-
 //	----------------------------------------------------------------------------------------------------------
 //	Garbage colledion -- Free all unused records in Point_segs and compress all paths.
-void ai_path_garbage_collect(void)
+void ai_path_garbage_collect()
 {
 	int	free_path_index = 0;
 	int	num_path_objects = 0;
@@ -1676,6 +1684,8 @@ void check_create_player_path(void)
 }
 
 #endif
+
+}
 
 //	----------------------------------------------------------------------------------------------------------
 //					DEBUG FUNCTIONS ENDED

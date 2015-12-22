@@ -90,12 +90,16 @@ int toggle_show_only_curside(void);
 // should access Render_viewer_object members.
 extern fix Render_zoom;     // the player's zoom factor
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static const fix Seismic_tremor_magnitude = 0;
 static const ubyte RenderingType = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern fix Seismic_tremor_magnitude;
 extern ubyte RenderingType;
+#endif
+}
 #endif
 
 extern fix flash_scale;
@@ -123,6 +127,7 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 
 void render_mine(segnum_t start_seg_num, fix eye_offset, window_rendered_data &);
@@ -135,6 +140,7 @@ static inline void render_frame(fix eye_offset)
 {
 	window_rendered_data window;
 	render_frame(eye_offset, window);
+}
 }
 #endif
 

@@ -67,8 +67,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-int netplayerinfo_on=0;
+namespace dcx {
+int netplayerinfo_on;
+}
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void game_draw_marker_message()
 {
@@ -84,6 +87,9 @@ static void game_draw_marker_message()
 	}
 }
 #endif
+}
+
+namespace dcx {
 
 static void game_draw_multi_message()
 {
@@ -122,6 +128,8 @@ static void show_framerate()
                 gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)1000/(F1_0/FrameTime)));
         else
                 gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);
+}
+
 }
 
 static void show_netplayerinfo()
@@ -313,7 +321,7 @@ static void draw_window_label()
 
 static void render_countdown_gauge()
 {
-	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))	{
+	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
@@ -378,6 +386,8 @@ static void game_draw_hud_stuff()
 	if (Player_dead_state != player_dead_state::no)
 		player_dead_message();
 }
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 
@@ -666,6 +676,7 @@ static void show_one_extra_view(const int w)
 
 int BigWindowSwitch=0;
 #endif
+
 static void update_cockpits();
 
 //render a frame for the game
@@ -761,6 +772,8 @@ void game_render_frame_mono()
 		show_netplayerinfo();
 }
 
+}
+
 void toggle_cockpit()
 {
 	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
@@ -790,7 +803,11 @@ void toggle_cockpit()
 	write_player_file();
 }
 
+namespace dcx {
 int last_drawn_cockpit = -1;
+}
+
+namespace dsx {
 
 // This actually renders the new cockpit onto the screen.
 static void update_cockpits()
@@ -852,6 +869,8 @@ static void update_cockpits()
 
 	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
 		init_gauges();
+
+}
 
 }
 

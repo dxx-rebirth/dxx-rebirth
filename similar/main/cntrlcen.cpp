@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "highest_valid.h"
 #include "partial_range.h"
 
+namespace dsx {
 array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
@@ -62,13 +63,20 @@ int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 fix64	Last_time_cc_vis_check = 0;
 int Reactor_strength=-1;		//-1 mean not set by designer
 #endif
+}
 
 control_center_triggers ControlCenterTriggers;
+
+namespace dcx {
 
 int	Control_center_been_hit;
 int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
 int	Control_center_present;
+
+}
+
+namespace dsx {
 
 static void do_countdown_frame();
 
@@ -130,9 +138,11 @@ static int calc_best_gun(int num_guns, const vcobjptr_t objreactor, const vms_ve
 		return -1;
 	else
 		return best_gun;
+}
 
 }
 
+namespace dcx {
 objnum_t	Dead_controlcen_object_num=object_none;
 
 int Control_center_destroyed = 0;
@@ -140,13 +150,15 @@ fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
 static const int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+}
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 static const int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 #endif
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
-void do_controlcen_dead_frame(void)
+void do_controlcen_dead_frame()
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
 		return;
@@ -509,7 +521,7 @@ void init_controlcen_for_level(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void special_reactor_stuff(void)
+void special_reactor_stuff()
 {
 	if (Control_center_destroyed) {
 		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL-1-Difficulty_level)*Base_control_center_explosion_time/(NDL-1));
@@ -533,6 +545,7 @@ void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r)
 	}
 }
 #endif
+}
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(control_center_triggers, 42);

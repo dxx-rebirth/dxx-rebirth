@@ -36,7 +36,9 @@ static inline void assign_light_to_side(segment &sp, uint_fast32_t sidenum)
 }
 
 extern void assign_default_lighting_all(void);
+namespace dsx {
 void stretch_uvs_from_curedge(vsegptridx_t segp, int side);
+}
 #endif
 
 #endif

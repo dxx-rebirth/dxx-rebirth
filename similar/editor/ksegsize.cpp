@@ -42,6 +42,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static array<int, MAX_MODIFIED_VERTICES>		Modified_vertices;
 int		Modified_vertex_index = 0;
 
+namespace dsx {
+
 // ------------------------------------------------------------------------------------------
 static void validate_modified_segments(void)
 {
@@ -346,7 +348,6 @@ int DecreaseSegHeightDefault()
 }
 
 
-
 //	---------------------------------------------------------------------------
 int ToggleSegSizeMode(void)
 {
@@ -414,4 +415,6 @@ int	PerturbCursideBig(void)
 	PerturbCursideCommon(F1_0/2);
 
 	return 1;
+}
+
 }

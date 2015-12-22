@@ -46,8 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // * When a mine is loaded call fuelcen_activate(segp) with each
 //   new segment as it loads. Always do this.
 // * When a segment is deleted, always call fuelcen_delete(segp).
-// * Call fuelcen_replentish_all() to fill 'em all up, like when
-//   a new game is started.
 // * When an object that needs to be refueled is in a segment, call
 //   fuelcen_give_fuel(segp) to get fuel. (Call once for any refueling
 //   object once per frame with the object's current segment.) This
@@ -55,10 +53,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   he got.
 
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Makes a segment a fuel center.
 void fuelcen_create( vsegptridx_t segp);
 // Makes a fuel center active... needs to be called when
@@ -67,15 +66,13 @@ void fuelcen_activate( vsegptridx_t segp, int station_type );
 // Deletes a segment as a fuel center.
 void fuelcen_delete(vsegptr_t segp);
 
-// Charges all fuel centers to max capacity.
-void fuelcen_replentish_all();
-
 // Create a matcen robot
 objptridx_t create_morph_robot(vsegptridx_t segp, const vms_vector &object_pos, int object_id);
 
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(vcsegptr_t segp, fix MaxAmountCanTake);
+}
 
 // Call once per frame.
 void fuelcen_update_all();
@@ -83,6 +80,7 @@ void fuelcen_update_all();
 // Called to repair an object
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NUM_FUELCENS	50
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -90,6 +88,7 @@ fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
 #define MAX_NUM_FUELCENS    70
 #endif
 #endif
+}
 
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj);
@@ -125,6 +124,7 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 };
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;
 void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
@@ -141,7 +141,6 @@ void matcen_info_read(PHYSFS_file *fp, matcen_info &ps);
 
 extern const char Special_names[MAX_CENTER_TYPES][11];
 
-extern unsigned Num_robot_centers;
 extern array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
@@ -156,11 +155,7 @@ void trigger_matcen(vsegptridx_t segnum);
 
 extern void disable_matcens(void);
 
-extern unsigned Num_fuelcenters;
-
 extern void init_all_matcens(void);
-
-extern const fix EnergyToCreateOneRobot;
 
 /*
  * reads a matcen_info structure from a PHYSFS_file
@@ -175,6 +170,13 @@ void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi);
 #endif
 
 void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version);
+}
+
+namespace dcx {
+extern unsigned Num_robot_centers;
+extern unsigned Num_fuelcenters;
+extern const fix EnergyToCreateOneRobot;
+}
 #endif
 
 void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);

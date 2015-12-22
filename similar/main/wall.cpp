@@ -40,22 +40,25 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	BOSS_LOCKED_DOOR_SEG		595
 #define	BOSS_LOCKED_DOOR_SIDE	5
 
-array<wall, MAX_WALLS> Walls;					// Master walls array
+namespace dcx {
 unsigned Num_walls;							// Number of walls
-
 unsigned Num_wall_anims;
-array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
-
-array<active_door, MAX_DOORS> ActiveDoors;
 unsigned Num_open_doors;						// Number of open doors
+}
 
+namespace dsx {
+array<wall, MAX_WALLS> Walls;					// Master walls array
+array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
+array<active_door, MAX_DOORS> ActiveDoors;
+}
 #if defined(DXX_BUILD_DESCENT_II)
 #include "collide.h"
+namespace dsx {
 #define CLOAKING_WALL_TIME f1_0
 
 array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
 unsigned Num_cloaking_walls;
-
+}
 #endif
 
 static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const side &side)

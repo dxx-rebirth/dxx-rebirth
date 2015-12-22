@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 struct point_seg;
+extern sbyte Boss_hit_this_frame;
 }
 struct PHYSFS_File;
 
@@ -58,11 +59,11 @@ struct PHYSFS_File;
 #define ROBOT_FIRE_AGITATION 94
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern sbyte Boss_hit_this_frame;
 
 #define BOSS_D1      1
 #define BOSS_SUPER   2
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #define BOSS_D2     21 // Minimum D2 boss value.
 #define BOSS_COOL   21
 #define BOSS_WATER  22
@@ -84,37 +85,48 @@ extern const boss_flags_t Boss_invulnerable_matter;   // Set byte if boss is inv
 extern const boss_flags_t Boss_invulnerable_spot;     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 extern segnum_t Believed_player_seg;
 extern object *Ai_last_missile_camera;
+}
 #endif
 
-void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
-
+namespace dcx {
 struct boss_special_segment_array_t : public count_array_t<segnum_t, MAX_BOSS_TELEPORT_SEGS> {};
 struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
 struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
 extern boss_teleport_segment_array_t Boss_teleport_segs;
+}
+namespace dsx {
+void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
 void init_ai_object(vobjptr_t objp, ai_behavior initial_mode, segnum_t hide_segment);
+}
 
+namespace dcx {
 extern fix64 Boss_cloak_start_time;
 extern fix64 Last_teleport_time;
 constexpr fix Boss_cloak_duration = F1_0*7;
 extern sbyte Boss_dying;
 
 extern vms_vector Believed_player_pos;
+}
 
+namespace dsx {
 void move_towards_segment_center(vobjptr_t objp);
 objptridx_t gate_in_robot(int type, vsegptridx_t segnum);
 void do_ai_frame(vobjptridx_t objp);
-extern void do_ai_frame_all(void);
+void do_ai_frame_all();
+}
 extern void create_all_paths(void);
+namespace dsx {
 void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
 extern void init_ai_objects(void);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
+}
 #endif
+namespace dcx {
 void make_random_vector(vms_vector &vec);
 __attribute_warn_unused_result
 static inline vms_vector make_random_vector()
@@ -122,14 +134,16 @@ static inline vms_vector make_random_vector()
 	vms_vector v;
 	return make_random_vector(v), v;
 }
-extern void init_robots_for_level(void);
+}
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+void init_robots_for_level();
 #if defined(DXX_BUILD_DESCENT_II)
 void create_path_to_segment(vobjptridx_t objp, segnum_t goalseg, int max_length, int safety_flag);
 int polish_path(vobjptridx_t objp, point_seg *psegs, int num_points);
 void move_towards_player(vobjptr_t objp, const vms_vector &vec_to_player);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
 void create_path_to_player(vobjptridx_t objp, int max_length, int safety_flag);
@@ -153,6 +167,7 @@ void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibilit
 void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 #endif
+}
 
 #if PARALLAX
 extern void force_dump_ai_objects_all(const char *msg);
@@ -163,6 +178,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 }
 #endif
 
+namespace dsx {
 void start_boss_death_sequence(vobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
 
@@ -228,11 +244,6 @@ void init_ai_for_ship(void);
 // It is not valid to use FrameTime because robots do not get moved every frame.
 
 // --------- John: These variables must be saved as part of gamesave. ---------
-extern fix64            Last_gate_time;
-extern fix              Gate_interval;
-extern fix64            Boss_dying_start_time;
-extern sbyte            Boss_dying_sound_playing;
-extern fix64            Boss_hit_time;
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
@@ -266,8 +277,12 @@ void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 #define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);
 #endif
+}
 
 namespace dcx {
+extern fix64            Last_gate_time;
+extern sbyte            Boss_dying_sound_playing;
+extern fix              Gate_interval;
 struct point_seg_array_t : public array<point_seg, MAX_POINT_SEGS> {};
 extern point_seg_array_t        Point_segs;
 extern point_seg_array_t::iterator        Point_segs_free_ptr;
@@ -277,6 +292,10 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 }
 }
 
+namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
+extern fix64            Boss_hit_time;
+#endif
 int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, point_seg_array_t::iterator point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, segnum_t avoid_seg);
 
 int ai_save_state(PHYSFS_File * fp);
@@ -284,8 +303,9 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
 #ifdef EDITOR
 void player_follow_path(vobjptr_t objp);
-void check_create_player_path(void);
+void check_create_player_path();
 #endif
+}
 #endif
 
 #endif

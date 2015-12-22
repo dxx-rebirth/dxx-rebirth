@@ -90,12 +90,11 @@ public:
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 array<dl_index, MAX_DL_INDICES> Dl_indices;
 array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
 unsigned Num_static_lights;
-}
 #endif
 
 // ------------------------------------------------------------------------------------------
@@ -138,6 +137,10 @@ int_fast32_t find_connect_side(const vcsegptridx_t base_seg, const vcsegptr_t co
 	return -1;
 }
 
+}
+
+namespace dcx {
+
 // -----------------------------------------------------------------------------------
 //	Given a side, return the number of faces
 int get_num_faces(const side *sidep)
@@ -152,6 +155,10 @@ int get_num_faces(const side *sidep)
 			throw side::illegal_type(sidep);
 	}
 }
+
+}
+
+namespace dsx {
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int sidenum)
@@ -700,10 +707,17 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 //--repair-- 	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
 //--repair-- }
 
+}
+
 #define	MAX_LOC_POINT_SEGS	64
+
+namespace dcx {
 
 int	Connected_segment_distance;
 
+}
+
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
 {
@@ -915,6 +929,10 @@ fcd_done1: ;
 
 }
 
+}
+
+namespace dcx {
+
 static sbyte convert_to_byte(fix f)
 {
 	const uint8_t MATRIX_MAX = 0x7f;    // This is based on MATRIX_PRECISION, 9 => 0x7f
@@ -926,7 +944,11 @@ static sbyte convert_to_byte(fix f)
 		return f >> MATRIX_PRECISION;
 }
 
+}
+
 #define VEL_PRECISION 12
+
+namespace dsx {
 
 //	Create a shortpos struct from an object.
 //	Extract the matrix into byte values.
@@ -1225,6 +1247,9 @@ static void add_side_as_quad(const vsegptr_t sp, int sidenum, const vms_vector &
 
 }
 
+}
+
+namespace dcx {
 
 // -------------------------------------------------------------------------------
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
@@ -1264,6 +1289,10 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 	else
 		*negate_flag = 0;
 }
+
+}
+
+namespace dsx {
 
 // -------------------------------------------------------------------------------
 static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
@@ -1330,6 +1359,10 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 	}
 }
 
+}
+
+namespace dcx {
+
 static int sign(fix v)
 {
 
@@ -1340,6 +1373,10 @@ static int sign(fix v)
 	else
 		return 0;
 }
+
+}
+
+namespace dsx {
 
 // -------------------------------------------------------------------------------
 void create_walls_on_side(const vsegptridx_t sp, int sidenum)
@@ -1526,7 +1563,6 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 //these constants should match the ones in seguvs
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)
@@ -1776,5 +1812,5 @@ void set_ambient_sound_flags()
 		segp->s2_flags = (segp->s2_flags & ~(S2F_AMBIENT_LAVA | S2F_AMBIENT_WATER)) | marked_segs[i];
 	}
 }
-}
 #endif
+}

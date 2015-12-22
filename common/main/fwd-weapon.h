@@ -181,6 +181,7 @@ int pick_up_primary(int weapon_index);
 //called when ammo (for the vulcan cannon) is picked up
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 
+namespace dsx {
 //this function is for when the player intentionally drops a powerup
 objptridx_t spit_powerup(vobjptr_t spitter, int id, int seed);
 
@@ -194,6 +195,7 @@ extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 extern fix64 Seismic_disturbance_end_time;
 #endif
+}
 #endif
 
 void InitWeaponOrdering();
@@ -201,11 +203,17 @@ void CyclePrimary();
 void CycleSecondary();
 void ReorderPrimary();
 void ReorderSecondary();
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 void check_to_use_primary_super_laser();
 void init_seismic_disturbances(void);
 void process_super_mines_frame(void);
+void do_seismic_stuff();
+#endif
 void DropCurrentWeapon();
 void DropSecondaryWeapon();
-void do_seismic_stuff(void);
+}
+#endif
 
 #endif

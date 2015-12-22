@@ -314,6 +314,8 @@ void gr_palette_load( palette_array_t &pal )
 
 }
 
+namespace dcx {
+
 void gr_palette_read(palette_array_t &pal)
 {
 	SDL_Palette *palette;
@@ -330,4 +332,6 @@ void gr_palette_read(palette_array_t &pal)
 		pal[i].g = palette->colors[i].g / 4;
 		pal[i].b = palette->colors[i].b / 4;
 	}
+}
+
 }

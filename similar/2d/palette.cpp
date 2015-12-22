@@ -63,10 +63,6 @@ gft_array1 gr_fade_table;
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
 
-}
-
-namespace dsx {
-
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 {
 	auto a = [](rgb_t c) {
@@ -87,6 +83,10 @@ void copy_diminish_palette(palette_array_t &palette, const ubyte *p)
 		palette[i].b = *p++ >> 2;
 	}
 }
+
+}
+
+namespace dcx {
 
 static void diminish_entry(rgb_t &c)
 {
@@ -118,6 +118,9 @@ int gr_palette_get_gamma()
 	return gr_palette_gamma_param;
 }
 
+}
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)

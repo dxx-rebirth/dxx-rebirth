@@ -113,8 +113,10 @@ array<int, MAX_BITMAP_FILES> GameBitmapOffset;
 int Num_bitmap_files = 0;
 int Num_sound_files = 0;
 
+namespace dsx {
 array<digi_sound, MAX_SOUND_FILES> GameSounds;
 static array<int, MAX_SOUND_FILES> SoundOffset;
+}
 array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -147,7 +149,9 @@ static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_bitmap_initialized=0;
 array<uint8_t, 64 * 64> bogus_data;
+namespace dsx {
 digi_sound bogus_sound;
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 grs_bitmap bogus_bitmap;
@@ -299,6 +303,8 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 	return temp;
 }
 
+namespace dsx {
+
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 {
 	int i;
@@ -372,6 +378,8 @@ bitmap_index piggy_find_bitmap(const char * name)
 
 	bmp.index = i;
 	return bmp;
+}
+
 }
 
 int piggy_find_sound(const char *name)

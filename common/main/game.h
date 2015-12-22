@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern struct window *Game_wind;
 
 // from mglobal.c
+namespace dcx {
 extern fix FrameTime;           // time in seconds since last frame
 extern fix64 GameTime64;            // time in game (sum of FrameTime)
 extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
@@ -59,9 +60,11 @@ extern fix64 Last_laser_fired_time;
 extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.
 extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 class object_signature_t;
+namespace dsx {
 extern struct object *Missile_viewer;
 extern object_signature_t Missile_viewer_sig;
 
@@ -73,6 +76,7 @@ extern object_signature_t Missile_viewer_sig;
 
 extern array<int, 2> Coop_view_player;     // left & right
 extern array<int, 2> Marker_viewer_num;    // left & right
+}
 #endif
 
 // The following bits define the game modes.
@@ -98,8 +102,10 @@ extern array<int, 2> Marker_viewer_num;    // left & right
 
 #define NDL 5       // Number of difficulty levels.
 
+namespace dcx {
 extern int Game_mode;
 extern screen_mode Game_screen_mode;
+}
 
 #ifndef NDEBUG      // if debugging, these are variables
 
@@ -115,18 +121,17 @@ extern int Slew_on;                 // in slew or sim mode?
 
 #define SUSP_ROBOTS     1           // Robot AI doesn't move
 
-extern int Game_suspended;          // if non-zero, nothing moves but player
-
 #define	SHOW_EXIT_PATH	1
 
 
 // from game.c
-void init_game(void);
 void game(void);
 void close_game(void);
-void init_cockpit(void);
 void calc_frame_time(void);
+namespace dcx {
 void calc_d_tick();
+
+extern int Game_suspended;          // if non-zero, nothing moves but player
 
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
@@ -135,11 +140,14 @@ extern fix64 Auto_fire_fusion_cannon_time;
 extern fix Fusion_charge;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
+}
 
 #define MAX_PALETTE_ADD 30
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+void init_game();
+void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 }
 #endif
@@ -147,7 +155,7 @@ extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 //sets the rgb values for palette flash
 #define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
 
-extern void game_flush_inputs();    // clear all inputs
+namespace dcx {
 void game_flush_respawn_inputs();
 
 extern int last_drawn_cockpit;
@@ -159,12 +167,13 @@ public:
 	~pause_game_world_time();
 };
 
-extern void stop_time(void);
-extern void start_time(void);
-extern void reset_time(void);       // called when starting level
+void stop_time();
+void start_time();
+void reset_time();       // called when starting level
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
+namespace dcx {
 
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
@@ -185,18 +194,23 @@ enum cockpit_mode_t
 extern int Rear_view;           // if true, looking back.
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+void game_flush_inputs();    // clear all inputs
 // initalize flying
 void fly_init(vobjptr_t obj);
+}
 #endif
 
 // selects a given cockpit (or lack of one).
 void select_cockpit(cockpit_mode_t mode);
 
 // force cockpit redraw next time. call this if you've trashed the screen
-void reset_cockpit(void);       // called if you've trashed the screen
+namespace dcx {
+void reset_cockpit();       // called if you've trashed the screen
 
 // functions to save, clear, and resture palette flash effects
 void reset_palette_add(void);
+}
 void palette_restore(void);
 #if defined(DXX_BUILD_DESCENT_I)
 void palette_save();
@@ -219,6 +233,7 @@ void show_boxed_message(const char *msg, int RenderFlag);
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
+namespace dcx {
 void game_init_render_sub_buffers(int x, int y, int w, int h);
 // Sets up the canvases we will be rendering to
 static inline void game_init_render_buffers (int render_max_w, int render_max_h)
@@ -227,7 +242,10 @@ static inline void game_init_render_buffers (int render_max_w, int render_max_h)
 }
 
 extern int netplayerinfo_on;
+}
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int game_mode_capture_flag()
 {
@@ -287,10 +305,13 @@ static inline void game_render_frame_mono(int flip)
 	if (flip)
 		gr_flip();
 }
+}
+#endif
 void game_leave_menus(void);
 
 //Cheats
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
 	int enabled;
@@ -326,6 +347,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 extern game_cheats cheats;
 
 void move_player_2_segment(vsegptridx_t seg, int side);
+}
 #endif
 int cheats_enabled();
 void game_disable_cheats();
@@ -341,10 +363,12 @@ void game_render_frame();
 extern fix Show_view_text_timer;
 extern fix ThisLevelTime;
 extern int	Last_level_path_created;
+namespace dcx {
 extern int force_cockpit_redraw;
-extern ubyte DemoDoingRight,DemoDoingLeft;
+}
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
 }
 #endif

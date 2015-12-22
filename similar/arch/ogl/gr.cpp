@@ -1014,10 +1014,6 @@ void gr_palette_step_up(int r, int g, int b)
 	}
 }
 
-}
-
-namespace dsx {
-
 #undef min
 using std::min;
 

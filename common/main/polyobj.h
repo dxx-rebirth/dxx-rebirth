@@ -123,8 +123,12 @@ public:
 	operator const bitmap_index *() const { return p; }
 };
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // draw a polygon model
 void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,submodel_angles anim_angles,int model_num,int flags,g3s_lrgb lrgb,glow_values_t *glow_values, alternate_textures);
+}
+#endif
 
 // draws the given model in the current canvas.  The distance is set to
 // more-or-less fill the canvas.  Note that this routine actually renders

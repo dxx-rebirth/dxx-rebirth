@@ -495,6 +495,8 @@ array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 
 //draw a polygon model
 
+namespace dsx {
+
 void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const submodel_angles anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values, alternate_textures alt_textures)
 {
 	polymodel *po;
@@ -572,6 +574,8 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 	}
 
 	g3_done_instance();
+}
+
 }
 
 void free_polygon_models()

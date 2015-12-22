@@ -166,16 +166,20 @@ extern const collision_outer_array_t CollisionResult;
 }
 #endif
 
+namespace dcx {
 extern int Object_next_signature;   // The next signature for the next newly created object
 
 extern int num_objects;
 
 extern int Num_robot_types;
+}
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 extern object *ConsoleObject;       // pointer to the object that is the player
 extern object *Viewer;              // which object we are seeing from
 extern object *Dead_player_camera;
+}
 #endif
 
 enum class player_dead_state : uint8_t
@@ -184,17 +188,19 @@ enum class player_dead_state : uint8_t
 	yes,
 };
 
+namespace dcx {
 extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern int Player_exploded;
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
 extern objnum_t Player_fired_laser_this_frame;
-extern int Drop_afterburner_blob_flag;		//ugly hack
+}
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // do whatever setup needs to be done
 void init_objects();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
 void obj_relink(vobjptridx_t objnum,vsegptridx_t newsegnum);
@@ -234,9 +240,6 @@ void draw_object_blob(vobjptr_t obj, bitmap_index bitmap);
 
 // draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
-
-// Toggles whether or not lock-boxes draw.
-void object_toggle_lock_targets();
 
 // move all objects for the current frame
 void object_move_all();     // moves all objects
@@ -315,6 +318,7 @@ void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int soun
 void dead_player_frame();
 
 #if defined(DXX_BUILD_DESCENT_II)
+extern int Drop_afterburner_blob_flag;		//ugly hack
 // returns object number
 objptridx_t drop_marker_object(const vms_vector &pos, vsegptridx_t segnum, const vms_matrix &orient, int marker_num);
 
@@ -327,4 +331,5 @@ objptridx_t obj_find_first_of_type(int type);
 void object_rw_swap(struct object_rw *obj_rw, int swap);
 void reset_player_object();
 
+}
 #endif

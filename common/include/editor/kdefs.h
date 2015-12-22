@@ -117,6 +117,8 @@ int SelectLeft();
 int SelectRight();
 
 // In ksegsize.c
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 int IncreaseSegLength();
 int DecreaseSegLength();
 int DecreaseSegWidth();
@@ -140,6 +142,8 @@ int IncreaseSegWidthDefault();
 int DecreaseSegWidthDefault();
 int IncreaseSegHeightDefault();
 int DecreaseSegHeightDefault();
+}
+#endif
 
 //	In ktmap.c
 int AssignTexture();
@@ -209,6 +213,8 @@ int	TexChangeAll2();
 #endif
 
 //	object.c
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 int	ObjectPlaceObject();
 int	ObjectMakeCoop();
 int	ObjectPlaceObjectTmap();
@@ -231,7 +237,8 @@ int	ObjectIncreasePitch();
 int	ObjectDecreaseHeading();
 int	ObjectIncreaseHeading();
 int  	ObjectResetObject();
-
+}
+#endif
 
 //	elight.c
 int	LightSelectNextVertex();
@@ -250,8 +257,12 @@ int	LightSetDefaultAll();
 int	LightAmbientLighting();
 
 // seguvs.c
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 int fix_bogus_uvs_on_side();
 int fix_bogus_uvs_all();
+}
+#endif
 int set_average_light_on_curside(void);
 int set_average_light_on_all(void);
 int set_average_light_on_all_quick(void);

@@ -41,6 +41,7 @@ array<vertex, MAX_VERTICES> Vertices;
 }
 array<g3s_point, MAX_VERTICES> Segment_points;
 
+namespace dcx {
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
 fix64 GameTime64 = 0;			//	Time in game, in seconds
 
@@ -52,10 +53,9 @@ int d_tick_step = 0;  // true once every 33.33ms
 
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
 
+//	Translate table to get opposite side of a face on a segment.
 unsigned Highest_vertex_index;
 
-//	Translate table to get opposite side of a face on a segment.
-namespace dcx {
 unsigned Num_vertices;
 const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite{{
 	WRIGHT, WBOTTOM, WLEFT, WTOP, WFRONT, WBACK
@@ -81,7 +81,6 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 	{{4,5,6,7}},			// back
 	{{3,2,1,0}},			// front
 }};
-}
 
 // Texture map stuff
 
@@ -92,6 +91,7 @@ fix64	Next_missile_fire_time;			//	Time at which player can next fire his select
 #define DEFAULT_DIFFICULTY		1
 
 int	Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
+}
 
 #if DXX_HAVE_POISON_UNDEFINED
 template <typename managed_type>

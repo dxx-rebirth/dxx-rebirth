@@ -847,6 +847,7 @@ int pick_up_primary(int weapon_index)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 void check_to_use_primary_super_laser()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -861,6 +862,7 @@ void check_to_use_primary_super_laser()
 		}
 	}
 	PALETTE_FLASH_ADD(7,14,21);
+}
 }
 #endif
 
@@ -930,6 +932,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	return ammo_count;	//return amount used
 }
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4
@@ -937,7 +940,7 @@ static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;
 
 //	Call this to initialize for a new level.
 //	Sets all super mega missile detonation times to 0 which means there aren't any.
-void init_smega_detonates(void)
+void init_smega_detonates()
 {
 	Smega_detonate_times = {};
 }
@@ -1010,7 +1013,7 @@ void rock_the_mine_frame(void)
 }
 
 fix64 Seismic_disturbance_end_time;
-void init_seismic_disturbances(void)
+void init_seismic_disturbances()
 {
 	Seismic_disturbance_end_time = 0;
 }
@@ -1492,6 +1495,8 @@ void do_seismic_stuff(void)
 
 }
 #endif
+
+}
 
 DEFINE_BITMAP_SERIAL_UDT();
 

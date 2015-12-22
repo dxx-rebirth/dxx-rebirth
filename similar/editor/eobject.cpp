@@ -113,6 +113,8 @@ static objnum_t get_next_object(const vsegptr_t seg,objnum_t id)
 //@@
 //@@}
 
+namespace dsx {
+
 //	------------------------------------------------------------------------------------
 int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
 {
@@ -846,6 +848,8 @@ static void move_object_to_vector(const vms_vector &vec_through_screen, fix delt
 	move_object_to_position(objp, result);
 }
 
+}
+
 static void move_object_to_mouse_click_delta(fix delta_distance)
 {
 	short			xcrd,ycrd;
@@ -869,6 +873,8 @@ void move_object_to_mouse_click(void)
 {
 	move_object_to_mouse_click_delta(0);
 }
+
+namespace dsx {
 
 int	ObjectMoveNearer(void)
 {
@@ -900,3 +906,4 @@ int	ObjectMoveFurther(void)
 	return 1;	
 }
 
+}

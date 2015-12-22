@@ -54,13 +54,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MUZZLE_QUEUE_MAX    8
 
 // Constants & functions governing homing missile behavior.
-extern void calc_d_homer_tick();
 #define HOMING_MAX_TRACKABLE_DOT        (3*F1_0/4) // was (7*F1_0/8) in original Descent 2
 #define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #define HOMING_TURN_TIME                (F1_0/30)
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+void calc_d_homer_tick();
 void Laser_render(vobjptr_t obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
@@ -69,9 +70,10 @@ bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
 extern int do_laser_firing_player(void);
 extern void do_missile_firing(int drop_bomb);
-extern void net_missile_firing(int player, int weapon, int flags);
+}
 extern objnum_t Network_laser_track;
 
+namespace dsx {
 objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, vobjptridx_t parent, weapon_id_type type, int make_sound);
 
 // Fires a laser-type weapon (a Primary weapon)
@@ -107,8 +109,10 @@ void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
 
 void create_weapon_smart_children(vobjptridx_t objp);
 int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_type);
+}
 #endif
 
+namespace dcx {
 extern int Missile_gun;
 extern int Proximity_dropped;
 
@@ -120,12 +124,14 @@ struct muzzle_info
 };
 
 extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
+}
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
 void omega_charge_frame(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 static inline int is_proximity_bomb_or_smart_mine(weapon_id_type id)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -142,6 +148,7 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(weapon_id_type 
 		return 1;
 #endif
 	return id == weapon_id_type::PROXIMITY_ID;
+}
 }
 #endif
 

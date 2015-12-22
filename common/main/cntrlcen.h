@@ -61,6 +61,7 @@ struct reactor {
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
 void read_model_guns(const char *filename, reactor &);
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1
 const unsigned Num_reactors = 1;
@@ -98,28 +99,35 @@ static inline reactor &get_reactor_definition(int id)
 	return Reactors[id];
 #endif
 }
+}
 
+namespace dcx {
 //@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
 extern objnum_t Dead_controlcen_object_num;
+}
 
+namespace dsx {
 // do whatever this thing does in a frame
 void do_controlcen_frame(vobjptridx_t obj);
 
 // Initialize control center for a level.
 // Call when a new level is started.
-extern void init_controlcen_for_level(void);
+void init_controlcen_for_level();
 void calc_controlcen_gun_point(vobjptr_t obj);
 
 void do_controlcen_destroyed_stuff(objptridx_t objp);
+void do_controlcen_dead_frame();
+}
 #endif
-extern void do_controlcen_dead_frame(void);
 
+namespace dcx {
 extern fix Countdown_timer;
 extern int Control_center_destroyed, Countdown_seconds_left, Total_countdown_time;
+}
 
 /*
  * reads n control_center_triggers structs from a PHYSFS_file

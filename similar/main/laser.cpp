@@ -76,6 +76,7 @@ static fix d_homer_tick_count = 0;
 
 static int Muzzle_queue_index;
 
+namespace dsx {
 static objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
 static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx_t tracker);
 
@@ -257,6 +258,10 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 	return 0;
 }
 
+}
+
+namespace dcx {
+
 static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
@@ -266,6 +271,10 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 	if (Muzzle_queue_index >= MUZZLE_QUEUE_MAX)
 		Muzzle_queue_index = 0;
 }
+
+}
+
+namespace dsx {
 
 //creates a weapon object
 static objptridx_t create_weapon_object(int weapon_type,const vsegptridx_t segnum, const vms_vector &position)
@@ -981,7 +990,15 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 	return Laser_create_new( direction, hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
 }
 
+}
+
+namespace dcx {
+
 array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
+
+}
+
+namespace dsx {
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Determine if two objects are on a line of sight.  If so, return true, else return false.
@@ -1724,6 +1741,10 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 	}
 }
 
+}
+
+namespace dcx {
+
 fix64	Last_laser_fired_time = 0;
 
 static inline int sufficient_energy(int energy_used, fix energy)
@@ -1735,6 +1756,10 @@ static inline int sufficient_ammo(int ammo_used, int uses_vulcan_ammo, ushort vu
 {
 	return !ammo_used || (!uses_vulcan_ammo || vulcan_ammo >= ammo_used);
 }
+
+}
+
+namespace dsx {
 
 //	--------------------------------------------------------------------------------------------------
 // Assumption: This is only called by the actual console player, not for network players
@@ -2020,9 +2045,17 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 	return nfires;
 }
 
+}
+
+namespace dcx {
+
 const vm_distance MAX_SMART_DISTANCE(F1_0*150);
 const vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
 #define	MAX_OBJDISTS			30
+
+}
+
+namespace dsx {
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
@@ -2179,8 +2212,16 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
 
+}
+
+namespace dcx {
+
 int Missile_gun = 0;
 int Proximity_dropped = 0;
+
+}
+
+namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 int Smartmines_dropped=0;
@@ -2307,4 +2348,5 @@ void do_missile_firing(int drop_bomb)
 		if (!drop_bomb || Secondary_weapon == bomb)
 			auto_select_secondary_weapon();		//select next missile, if this one out of ammo
 	}
+}
 }

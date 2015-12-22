@@ -39,6 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define VCLIP_PLAYER_APPEARANCE     61
 #define VCLIP_POWERUP_DISAPPEARANCE 62
 #define VCLIP_VOLATILE_WALL_HIT     5
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static const std::size_t VCLIP_MAXNUM = 70;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -48,6 +50,9 @@ static const std::size_t VCLIP_MAXNUM = 70;
 
 static const std::size_t VCLIP_MAXNUM = 110;
 #endif
+}
+
+namespace dcx {
 #define VCLIP_MAX_FRAMES            30
 
 // vclip flags
@@ -67,14 +72,18 @@ struct vclip : public prohibit_void_ptr<vclip>
 const int vclip_none = -1;
 
 extern unsigned Num_vclips;
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+
+}
+
+namespace dsx {
 extern array<vclip, VCLIP_MAXNUM> Vclip;
 
 // draw an object which renders as a vclip.
 void draw_vclip_object(vobjptridx_t obj, fix timeleft, int lighted, int vclip_num);
 void draw_weapon_vclip(vobjptridx_t obj);
-#endif
+}
 
+namespace dcx {
 /*
  * reads n vclip structs from a PHYSFS_file
  */
@@ -82,11 +91,13 @@ void vclip_read(PHYSFS_file *fp, vclip &vc);
 #if 0
 void vclip_write(PHYSFS_file *fp, const vclip &vc);
 #endif
+}
 
 /* Defer expansion to source file so that serial.h not needed here */
 #define DEFINE_VCLIP_SERIAL_UDT()	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, bi, (bi.index));	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(vclip, vc, (vc.play_time, vc.num_frames, vc.frame_time, vc.flags, vc.sound_num, vc.frames, vc.light_value));	\
 	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vclip, 82);
+#endif
 
 #endif

@@ -45,7 +45,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "highest_valid.h"
 
+namespace dcx {
 static void cast_all_light_in_mine(int quick_flag);
+}
 //--rotate_uvs-- vms_vector Rightvec;
 
 #define	MAX_LIGHT_SEGS 16
@@ -425,6 +427,8 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 
 int Vmag = VMAG;
 
+namespace dsx {
+
 // -----------------------------------------------------------------------------------------------------------
 //	Assign default uvs to side.
 //	This means:
@@ -707,6 +711,10 @@ static void propagate_tmaps_to_segment_side(const vsegptridx_t base_seg, int bas
 
 }
 
+}
+
+namespace dcx {
+
 static const sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
 //		left		top		right		bottom	back		front
 	{ {-1,-1}, { 3, 7}, {-1,-1}, { 2, 6}, { 6, 7}, { 2, 3} },	// left
@@ -715,6 +723,10 @@ static const sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGME
 	{ { 2, 6}, {-1,-1}, { 1, 5}, {-1,-1}, { 5, 6}, { 1, 2} },	// bottom
 	{ { 6, 7}, { 4, 7}, { 4, 5}, { 5, 6}, {-1,-1}, {-1,-1} },	// back
 	{ { 2, 3}, { 0, 3}, { 0, 1}, { 1, 2}, {-1,-1}, {-1,-1} }};	// front
+
+}
+
+namespace dsx {
 
 // -----------------------------------------------------------------------------
 //	Propagate texture map u,v coordinates to base_seg:back_side from base_seg:some-other-side
@@ -860,6 +872,10 @@ void copy_uvs_seg_to_seg(const vsegptr_t destseg,const vsegptr_t srcseg)
 	destseg->static_light = srcseg->static_light;
 }
 
+}
+
+namespace dcx {
+
 //	_________________________________________________________________________________________________________________________
 //	Maximum distance between a segment containing light to a segment to receive light.
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
@@ -880,7 +896,7 @@ struct hash_info {
 //	Note: This should be malloced.
 //			Also, the vector should not be 12 bytes, you should only care about some smaller portion of it.
 static array<hash_info, FVI_HASH_SIZE> fvi_cache;
-int	Hash_hits=0, Hash_retries=0, Hash_calcs=0;
+static int Hash_hits=0, Hash_retries=0, Hash_calcs=0;
 
 //	-----------------------------------------------------------------------------------------
 //	Set light from a light source.
@@ -1185,6 +1201,7 @@ static void cast_all_light_in_mine(int quick_flag)
 	calim_zero_light_values();
 
 	calim_process_all_lights(quick_flag);
+}
 
 }
 

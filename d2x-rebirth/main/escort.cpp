@@ -75,6 +75,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+namespace dsx {
+
 static void show_escort_menu(const array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
 
@@ -1799,4 +1801,6 @@ void show_escort_menu(const array<char, 300> &amsg)
 	gr_ustring( x, y, msg );
 
 	reset_cockpit();
+}
+
 }

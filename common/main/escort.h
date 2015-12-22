@@ -17,6 +17,8 @@
 #ifdef __cplusplus
 #include "fwd-object.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)
 {
@@ -37,6 +39,8 @@ void init_buddy_for_level(void);
 void invalidate_escort_goal(void);
 void drop_stolen_items (vcobjptr_t);
 extern fix64	Buddy_sorry_time;
+#endif
+}
 #endif
 
 #endif

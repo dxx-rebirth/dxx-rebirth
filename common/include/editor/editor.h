@@ -183,8 +183,14 @@ extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices,
 
 void init_editor(void);
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+
 //	Initialize all vertices to inactive status.
 extern void init_all_vertices(void);
+
+}
+#endif
 
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 extern int is_free_vertex(int vi);
@@ -195,6 +201,7 @@ int med_set_vertex(int vnum,const vertex &vp);
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.
 // Forms a weld between the two segments by making the new segment fit to the old segment.
@@ -231,6 +238,7 @@ int med_rotate_segment(vsegptridx_t seg, const vms_matrix &rotmat);
 //    Removable walls must be placed between two connected segments.  You should add the removable
 //    wall on both sides.  In fact, you really must.
 void create_removable_wall(vsegptridx_t sp, int side, int tmap_num);
+}
 #endif
 
 // Saves mine contained in Segments[] and Vertices[].
@@ -255,11 +263,11 @@ extern   int medlisp_update_screen();
 extern	int create_new_mine(void);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
 //	It will be created with walls on all sides, ie not connected to anything.
 void med_create_segment(vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp);
-#endif
 
 //	Create New_segment with sizes found in *scale.
 void med_create_new_segment(const vms_vector &scale);
@@ -267,7 +275,6 @@ void med_create_new_segment(const vms_vector &scale);
 //	Create New_segment with sizes found in Cursegp.
 extern void med_create_new_segment_from_cursegp(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //	Create a new segment and use it to form a bridge between two existing segments.
 //	Specify two segment:side pairs.  If either segment:side is not open (ie, segment->children[side] != -1)
 //	then it is not legal to form the brider.
@@ -276,6 +283,7 @@ extern void med_create_new_segment_from_cursegp(void);
 //		1	unable to form bridge because one (or both) of the sides is not open.
 //	Note that no new vertices are created by this process.
 int med_form_bridge_segment(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
+}
 #endif
 
 //	Compress mine at Segments and Vertices by squeezing out all holes.
@@ -315,6 +323,7 @@ extern int generate_curve( fix r1scale, fix r4scale );
 extern void delete_curve();
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 
 //	Assign default u,v coordinates to all sides of a segment.
@@ -344,10 +353,12 @@ extern	void set_vertex_counts(void);
 //		1			unable to form joint because one or more vertices of side2 is not free
 //		2			unable to form joint because side1 is already used
 int med_form_joint(vsegptridx_t seg1, int side1, vsegptridx_t seg2, int side2);
+}
 
 // The current texture... use by saying something=bm_lock_bitmap(CurrentTexture)
 extern int CurrentTexture;
 
+namespace dsx {
 void med_propagate_tmaps_to_segments(vsegptridx_t base_seg,vsegptridx_t con_seg, int uv_only_flag);
 void med_propagate_tmaps_to_back_side(vsegptridx_t base_seg, int back_side, int uv_only_flag);
 
@@ -385,6 +396,7 @@ extern void warn_if_concave_segments(void);
 
 //	Warn if segment s is concave.
 void warn_if_concave_segment(vsegptridx_t s);
+}
 
 //	Add a vertex to the vertex list.
 int med_add_vertex(const vertex &vp);
@@ -393,13 +405,15 @@ int med_add_vertex(const vertex &vp);
 //	Don't scan list, looking for presence of a vertex with same coords, add this one.
 int med_create_duplicate_vertex(const vertex &vp);
 
+namespace dsx {
 //	Create a new segment, duplicating exactly, including vertex ids and children, the passed segment.
 segnum_t med_create_duplicate_segment(vsegptr_t sp);
-#endif
 
 //	Returns the index of a free segment.
 //	Scans the Segments array.
 extern segnum_t get_free_segment_number(void);
+}
+#endif
 
 //      Diagnostic message.
 #define diagnostic_message editor_status
@@ -508,12 +522,14 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 void close_editor_screen(void);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 //    From eobject.c
 int place_object(vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
 void med_extract_up_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
 void med_extract_right_vector_from_segment_side(vsegptr_t sp, int sidenum, vms_vector &vp);
+}
 #endif
 
 //	In medmisc.c

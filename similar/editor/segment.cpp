@@ -310,6 +310,8 @@ int med_add_vertex(const vertex &vp)
 	return free_index;
 }
 
+namespace dsx {
+
 // ------------------------------------------------------------------------------------------
 //	Returns the index of a free segment.
 //	Scans the Segments array.
@@ -341,6 +343,8 @@ segnum_t med_create_duplicate_segment(const vsegptr_t sp)
 	nsp->objects = object_none;
 
 	return segnum;
+}
+
 }
 
 // -------------------------------------------------------------------------------
@@ -392,6 +396,8 @@ int med_set_vertex(int vnum,const vertex &vp)
 
 	return vnum;
 }
+
+namespace dsx {
 
 // -------------------------------------------------------------------------------
 void create_removable_wall(const vsegptridx_t sp, int sidenum, int tmap_num)
@@ -515,6 +521,7 @@ void med_extract_matrix_from_segment(const vcsegptr_t sp,vms_matrix *rotmat)
 
 // *rotmat = rm; // include this line (and remove the call to make_orthogonal) if you don't want the matrix orthogonalized
 #endif
+}
 
 }
 
@@ -733,6 +740,7 @@ void med_compress_mine(void)
 	Update_flags = UF_WORLD_CHANGED;
 }
 
+namespace dsx {
 
 // ------------------------------------------------------------------------------------------
 //	Copy texture map ids for each face in sseg to dseg.
@@ -882,6 +890,8 @@ int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int d
 	return rval;
 }
 
+}
+
 // -------------------------------------------------------------------------------
 //	Delete a vertex, sort of.
 //	Decrement the vertex count.  If the count goes to 0, then the vertex is free (has been deleted).
@@ -907,6 +917,8 @@ static void update_num_vertices(void)
 		if (Vertex_active[v])
 			Num_vertices++;
 }
+
+namespace dsx {
 
 // -------------------------------------------------------------------------------
 //	Set Vertex_active to number of occurrences of each vertex.
@@ -1677,4 +1689,6 @@ int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, se
 		return 1;
 	else
 		return 0;
+}
+
 }
