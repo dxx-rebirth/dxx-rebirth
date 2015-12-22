@@ -333,11 +333,8 @@ struct polyobj_info_rw
 	int     alt_textures;       // if not -1, use these textures instead
 } __pack__;
 
-}
-
-namespace dsx {
-
-struct object {
+struct object_base
+{
 	object_signature_t signature;
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
@@ -381,7 +378,14 @@ struct object {
 			static_assert(sizeof(pobj_info) == sizeof(*this), "insufficient initialization");
 		}
 	} rtype;
+};
 
+}
+
+namespace dsx {
+
+struct object : public ::dcx::object_base
+{
 	// control info, determined by CONTROL_TYPE
 	union control_info {
 		constexpr control_info() :
