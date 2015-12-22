@@ -245,6 +245,8 @@ void player_dead_message(void)
 			int x, y, w, h;
 			gr_set_curfont( HUGE_FONT );
 			gr_get_string_size(TXT_GAME_OVER, &w, &h, nullptr);
+			const int gw = w;
+			const int gh = h;
 			w += 20;
 			h += 8;
 			x = (grd_curcanv->cv_bitmap.bm_w - w ) / 2;
@@ -255,7 +257,7 @@ void player_dead_message(void)
 			gr_rect( x, y, x+w, y+h );
 			gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_string(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER );
+			gr_string(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);
 		}
 	
 		gr_set_curfont( GAME_FONT );
