@@ -783,6 +783,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	if (killed_pnum >= N_players)
 		Int3(); // See rob, tracking down bug with kill HUD messages
 
+	kill_matrix[killer_pnum][killed_pnum] += 1;
 	if (killer_pnum == killed_pnum)
 	{
 		if (!game_mode_hoard())
@@ -799,8 +800,6 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killed_pnum, -1);
 		}
-		kill_matrix[killed_pnum][killed_pnum] += 1; // # of suicides
-
 		if (killer_pnum == Player_num)
 		{
 			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
@@ -876,7 +875,6 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				newdemo_record_multi_kill(killer_pnum, 1);
 		}
 
-		kill_matrix[killer_pnum][killed_pnum] += 1;
 		Players[killed_pnum].net_killed_total += 1;
 		if (killer_pnum == Player_num) {
 			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
