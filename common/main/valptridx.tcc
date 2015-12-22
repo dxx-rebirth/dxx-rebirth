@@ -60,11 +60,11 @@ void valptridx<managed_type>::index_mismatch_exception::report(const array_manag
 }
 
 template <typename managed_type>
-void valptridx<managed_type>::index_range_exception::report(const array_managed_type &array, const long supplied_index)
+void valptridx<managed_type>::index_range_exception::report(const array_managed_type *array, const long supplied_index)
 {
 	using namespace untyped_index_range_exception;
 	char buf[report_buffer_size];
-	prepare_report(buf, &array[0], array.size(), supplied_index);
+	prepare_report(buf, array, array_size, supplied_index);
 	throw index_range_exception(buf);
 }
 

@@ -54,7 +54,7 @@ protected:
 		return get_global_array(p);
 	}
 	static inline void check_index_match(const_reference_type, index_type, const array_managed_type &);
-	static inline index_type check_index_range(index_type, const array_managed_type &);
+	static inline index_type check_index_range(index_type, const array_managed_type *);
 	static inline void check_explicit_index_range_ref(const_reference_type, std::size_t, const array_managed_type &);
 	static inline void check_implicit_index_range_ref(const_reference_type, const array_managed_type &);
 	static inline void check_null_pointer_conversion(const_pointer_type);

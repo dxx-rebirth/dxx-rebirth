@@ -73,7 +73,7 @@ public:
 	__attribute_cold
 	__attribute_noreturn
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(const array_managed_type &, long);
+	static void report(const array_managed_type *, long);
 };
 
 template <typename P>
@@ -100,10 +100,10 @@ void valptridx<managed_type>::check_index_match(const managed_type &r, index_typ
 }
 
 template <typename managed_type>
-typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(index_type i, const array_managed_type &a)
+typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(const index_type i, const array_managed_type *a)
 {
 	const std::size_t ss = i;
-	DXX_VALPTRIDX_CHECK(ss < a.size(), index_range_exception, "invalid index used in array subscript", a, ss);
+	DXX_VALPTRIDX_CHECK(ss < array_size, index_range_exception, "invalid index used in array subscript", a, ss);
 	return i;
 }
 
@@ -129,7 +129,7 @@ template <typename managed_type>
 void valptridx<managed_type>::check_explicit_index_range_ref(const managed_type &r, std::size_t i, const array_managed_type &a)
 {
 	check_index_match(r, i, a);
-	check_index_range(i, a);
+	check_index_range(i, &a);
 }
 
 template <typename managed_type>
@@ -235,11 +235,11 @@ public:
 	index_type get_unchecked_index() const { return m_idx; }
 
 	template <typename rpolicy, unsigned ru>
-		basic_idx(const basic_idx<rpolicy, ru> &rhs, array_managed_type &a = get_array()) :
+		basic_idx(const basic_idx<rpolicy, ru> &rhs) :
 			m_idx(rhs.get_unchecked_index())
 	{
 		if (!(allow_nullptr || !rhs.allow_nullptr))
-			check_index_range(m_idx, a);
+			check_index_range(m_idx, nullptr);
 	}
 	template <typename rpolicy, unsigned ru>
 		basic_idx(basic_idx<rpolicy, ru> &&rhs) :
@@ -252,7 +252,7 @@ public:
 		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
 	basic_idx(index_type i, array_managed_type &a = get_array()) :	// default argument deprecated
-		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(i, a))
+		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(i, &a))
 	{
 	}
 	template <integral_type v>
@@ -348,8 +348,8 @@ public:
 		 */
 		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
-	basic_ptr(index_type i, array_managed_type &a = get_array()) :
-		m_ptr(check_allowed_invalid_index(i) ? nullptr : &a[check_index_range(i, a)])
+	basic_ptr(index_type i, array_managed_type &a = get_array()) :	// default argument deprecated
+		m_ptr(check_allowed_invalid_index(i) ? nullptr : &a[check_index_range(i, &a)])
 	{
 	}
 	basic_ptr(pointer_type p, array_managed_type &a = get_array()) :
