@@ -991,8 +991,17 @@ static int load_game_data(PHYSFS_file *LoadFile)
 	}
 	else
 	{
-		range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+		const auto &&lr = partial_range(Dl_indices, Num_static_lights);
+		range_for (auto &i, lr)
 			dl_index_read(&i, LoadFile);
+		const auto predicate = [](const dl_index &a, const dl_index &b) {
+			if (a.segnum < b.segnum)
+				return true;
+			if (a.segnum > b.segnum)
+				return false;
+			return a.sidenum < b.sidenum;
+		};
+		std::sort(lr.begin(), lr.end(), predicate);
 	}
 
 	//	Indicate that no light has been subtracted from any vertices.

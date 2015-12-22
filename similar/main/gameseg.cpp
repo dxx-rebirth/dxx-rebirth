@@ -1641,9 +1641,14 @@ static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 {
 	const fix ds = dir * DL_SCALE;
-	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
-		if (i.segnum == segnum && i.sidenum == sidenum)
+	range_for (const auto &i, partial_range(Dl_indices, Num_static_lights))
+	{
+		if (i.segnum == segnum)
 		{
+			if (i.sidenum < sidenum)
+				break;
+			if (i.sidenum > sidenum)
+				continue;
 			range_for (auto &j, partial_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
 			{
 				const auto &&segp = vsegptr(j.segnum);
@@ -1657,6 +1662,9 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 				}
 			}
 		}
+		else if (i.segnum < segnum)
+			break;
+	}
 
 	//recompute static light for segment
 	change_segment_light(segnum,sidenum,dir);
