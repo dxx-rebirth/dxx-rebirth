@@ -2715,9 +2715,8 @@ void multi_powcap_count_powerups_in_mine(void)
 void powerup_cap_state::recount()
 {
 	m_powerups = {};
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&obj, highest_valid(vcobjptr))
 	{
-		const auto &&obj = vcobjptr(static_cast<objnum_t>(i));
 		if (obj->type == OBJ_POWERUP)
 		{
 			inc_powerup_current(get_powerup_id(obj));
@@ -3532,9 +3531,8 @@ void multi_prep_level(void)
 	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
 	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
 	update_item_state duplicates;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		const auto o = vobjptridx(i);
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
 			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, o->segnum, o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
@@ -3634,9 +3632,8 @@ static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&seg, highest_valid(vsegptr))
 	{
-		const auto &&seg = vsegptr(static_cast<segnum_t>(i));
 		uint8_t team_mask;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
@@ -3696,9 +3693,8 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto objp = vobjptridx(i);
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;
 		else if ((objp->type==OBJ_ROBOT) && (Game_mode & GM_MULTI_ROBOTS))

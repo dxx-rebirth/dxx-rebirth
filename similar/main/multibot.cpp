@@ -202,9 +202,8 @@ multi_strip_robots(int playernum)
 					multi_delete_controlled_robot(r);
 		}
 
-		range_for (const auto i, highest_valid(Objects, 1))
+		range_for (const auto &&objp, highest_valid(vobjptr, 1))
 		{
-			const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
 			{
 				Assert(objp->control_type == CT_AI || objp->control_type == CT_NONE || objp->control_type == CT_MORPH);
@@ -402,16 +401,15 @@ void multi_send_thief_frame()
         if (!(Game_mode & GM_MULTI_ROBOTS))
                 return;
 
-        range_for (const auto i, highest_valid(Objects))
+        range_for (const auto &&objp, highest_valid(vobjptridx))
         {
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
                 {
 			if (robot_is_thief(&Robot_info[get_robot_id(objp)]))
                         {
 				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
                                 {
-                                        multi_send_robot_position_sub(i,1);
+                                        multi_send_robot_position_sub(objp,1);
                                 }
                                 return;
                         }

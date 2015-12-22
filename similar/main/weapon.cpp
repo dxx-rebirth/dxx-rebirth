@@ -1139,11 +1139,10 @@ void process_super_mines_frame(void)
 			continue;
 		const auto parent_num = io->ctype.laser_info.parent_num;
 		const auto &bombpos = io->pos;
-		range_for (const auto j, highest_valid(Objects))
+		range_for (const auto &&jo, highest_valid(vobjptridx))
 		{
-			if (unlikely(j == parent_num))
+			if (unlikely(jo == parent_num))
 				continue;
-			const auto jo = vobjptridx(j);
 			if (jo->type != OBJ_PLAYER && jo->type != OBJ_ROBOT)
 				continue;
 			const auto dist_squared = vm_vec_dist2(bombpos, jo->pos);

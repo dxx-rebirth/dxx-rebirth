@@ -52,17 +52,16 @@ static void validate_modified_segments(void)
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		range_for (const auto seg, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptridx))
 		{
-			const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
 			if (segp->segnum != segment_none)
 			{
-				if (modified_segments[seg])
+				if (modified_segments[segp])
 					continue;
 				range_for (const auto w, segp->verts)
 					if (w == v0)
 					{
-						modified_segments[seg] = true;
+						modified_segments[segp] = true;
 						validate_segment(segp);
 						for (unsigned s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 							Num_tilings = 1;

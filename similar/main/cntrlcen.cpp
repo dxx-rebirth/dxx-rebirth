@@ -454,18 +454,17 @@ void init_controlcen_for_level(void)
 {
 	objptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto &&objp = vobjptridx(i);
 		if (objp->type == OBJ_CNTRLCEN)
 		{
 			if (cntrlcen_objnum == nullptr)
-				cntrlcen_objnum = i;
+				cntrlcen_objnum = objp;
 		}
-
-		if ((objp->type == OBJ_ROBOT) && (Robot_info[get_robot_id(objp)].boss_flag)) {
+		else if (objp->type == OBJ_ROBOT && (Robot_info[get_robot_id(objp)].boss_flag))
+		{
 			if (boss_objnum == nullptr)
-				boss_objnum = i;
+				boss_objnum = objp;
 		}
 	}
 

@@ -119,7 +119,7 @@ void object_goto_next_viewer()
 	objnum_t start_obj;
 	start_obj = Viewer - Objects;		//get viewer object number
 	
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&i, highest_valid(vcobjptr))
 	{
 		(void)i;
 		start_obj++;
@@ -140,9 +140,8 @@ void object_goto_next_viewer()
 
 objptridx_t obj_find_first_of_type(int type)
 {
-	range_for (const auto o, highest_valid(Objects))
+	range_for (const auto &&i, highest_valid(vobjptridx))
 	{
-		const auto i = vobjptridx(o);
 		if (i->type==type)
 			return i;
 	}
@@ -905,7 +904,7 @@ object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
-	for (const auto &range = highest_valid(Objects);;)
+	for (const auto &&range = highest_valid(vcobjptridx);;)
 	{
 		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
 			lsig = 0;
@@ -950,9 +949,8 @@ objptridx_t obj_allocate()
 
 {
 Unused_object_slots=0;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_NONE)
 		Unused_object_slots++;
 	}
@@ -996,9 +994,8 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->flags & OF_SHOULD_BE_DEAD)
 		{
 			num_already_free++;
@@ -1555,9 +1552,8 @@ static void obj_delete_all_that_should_be_dead()
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		auto objp = vobjptridx(i);
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
 			if (objp->type==OBJ_PLAYER) {
@@ -1588,15 +1584,13 @@ void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 		segp->objects = object_none;
 	}
 	
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&obj, highest_valid(vobjptridx))
 	{
-		auto obj = vobjptridx(objnum);
 		if (obj->type != OBJ_NONE)
 		{
 			auto segnum = exchange(obj->segnum, segment_none);
@@ -1871,9 +1865,8 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto objp = vobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
 		}
@@ -1991,9 +1984,8 @@ void set_powerup_id(object &o, powerup_type_t id)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		const auto o = vobjptridx(i);
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
 				const auto pos = o->pos;
@@ -2053,9 +2045,8 @@ static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&obj, highest_valid(vobjptridx))
 	{
-		auto obj = vobjptridx(objnum);
 		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||

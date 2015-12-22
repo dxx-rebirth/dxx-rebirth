@@ -481,9 +481,8 @@ static bool choose_missile_viewer()
 	/* Find new missile */
 	objptridx_t local_player_missile = object_none, other_player_missile = object_none;
 	const auto game_mode = Game_mode;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		const auto o = vobjptridx(i);
 		if (o->type != OBJ_WEAPON)
 			continue;
 		if (o->ctype.laser_info.parent_type != OBJ_PLAYER)

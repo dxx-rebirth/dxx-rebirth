@@ -619,9 +619,8 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
@@ -1401,9 +1400,8 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
-		range_for (const auto s, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vcsegptridx))
 		{
-			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
 			if (segp->segnum != segment_none)
 #endif
@@ -1413,23 +1411,21 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
-		range_for (const auto s, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vcsegptridx))
 		{
-			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
 			if (segp->segnum != segment_none)
 #endif
-				if (Automap_visited[s]) {
+				if (Automap_visited[segp]) {
 					add_segment_edges(am, segp);
 				}
 		}
-		range_for (const auto s, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vcsegptridx))
 		{
-			const auto &&segp = vcsegptridx(static_cast<segnum_t>(s));
 #ifdef EDITOR
 			if (segp->segnum != segment_none)
 #endif
-				if (!Automap_visited[s]) {
+				if (!Automap_visited[segp]) {
 					add_unknown_segment_edges(am, segp);
 				}
 		}

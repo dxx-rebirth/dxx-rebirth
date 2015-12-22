@@ -305,9 +305,8 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 
 cobjptridx_t newdemo_find_object(object_signature_t signature)
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptridx))
 	{
-		const auto objp = vcobjptridx(i);
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
 			return objp;
 	}
@@ -1891,9 +1890,8 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		range_for (const auto segnum, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
-			const auto segp = vsegptr(static_cast<segnum_t>(segnum));
 			segp->objects = object_none;
 		}
 
@@ -3391,9 +3389,8 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
-			range_for (const auto j, highest_valid(Objects))
+			range_for (const auto &&objp, highest_valid(vobjptr))
 			{
-				const auto &&objp = vobjptr(static_cast<objnum_t>(j));
 				if (i.signature == objp->signature) {
 					sbyte render_type = i.render_type;
 					fix delta_x, delta_y, delta_z;
@@ -3601,9 +3598,8 @@ void newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
-						range_for (const auto j, highest_valid(Objects))
+						range_for (const auto &&objp, highest_valid(vobjptr))
 						{
-							const auto &&objp = vobjptr(static_cast<objnum_t>(j));
 							if (i.signature == objp->signature) {
 								objp->orient = i.orient;
 								objp->pos = i.pos;

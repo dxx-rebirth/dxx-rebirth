@@ -506,9 +506,8 @@ void init_ai_objects(void)
 {
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptr))
 	{
-		const auto &o = vobjptr(static_cast<objnum_t>(i));
 		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
 			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
 	}
@@ -1935,9 +1934,8 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 		return object_none;
 #endif
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			if (objp->matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
@@ -2083,12 +2081,11 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #endif
 
 	//	See if there is a boss.  If not, quick out.
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag)
 		{
-			boss_objnum = i; // if != 1 then there is more than one boss here.
+			boss_objnum = objp; // if != 1 then there is more than one boss here.
 			break;
 		}
 	}
@@ -3074,9 +3071,8 @@ void do_ai_frame(const vobjptridx_t obj)
 				cobjptr_t min_obj = nullptr;
 				fix min_dist = F1_0*200, cur_dist;
 
-				range_for (const auto ii, highest_valid(Objects))
+				range_for (const auto &&objp, highest_valid(vcobjptr))
 				{
-					const auto &&objp = vobjptridx(static_cast<objnum_t>(ii));
 					if (objp->type == OBJ_ROBOT && objp != obj)
 					{
 						cur_dist = vm_vec_dist_quick(obj->pos, objp->pos);
@@ -4253,9 +4249,8 @@ static void set_player_awareness_all(void)
 
 	process_awareness_events(New_awareness);
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
 			auto &ailp = objp->ctype.ai_info.ail;
@@ -4304,9 +4299,8 @@ static void dump_ai_objects_all()
 	if (Ai_error_message[0])
 		fprintf(Ai_dump_file, "Error message: %s\n", Ai_error_message);
 
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptridx))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		ai_static	*aip = &objp->ctype.ai_info;
 		ai_local		*ailp = &objp->ctype.ai_info.ail;
 		fix			dist_to_player;
@@ -4315,7 +4309,7 @@ static void dump_ai_objects_all()
 
 		if (objp->control_type == CT_AI) {
 			fprintf(Ai_dump_file, "%3i: %3i %8.3f %8s %8s [%3i %4i]\n",
-				objnum, objp->segnum, f2fl(dist_to_player), mode_text[ailp->mode], behavior_text[aip->behavior-0x80], aip->hide_index, aip->path_length);
+				static_cast<uint16_t>(objp), objp->segnum, f2fl(dist_to_player), mode_text[ailp->mode], behavior_text[aip->behavior-0x80], aip->hide_index, aip->path_length);
 			if (aip->path_length)
 				total += aip->path_length;
 		}
@@ -4368,9 +4362,8 @@ void do_ai_frame_all(void)
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = nullptr;
-			range_for (const auto i, highest_valid(Objects))
+			range_for (const auto &&objp, highest_valid(vobjptr))
 			{
-				const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 				if (objp->type == OBJ_ROBOT)
 					objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 			}
@@ -4379,9 +4372,8 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
-		range_for (const auto i, highest_valid(Objects))
+		range_for (const auto &&objp, highest_valid(vobjptridx))
 		{
-			const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].boss_flag)
 					do_boss_dying_frame(objp);

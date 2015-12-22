@@ -177,9 +177,8 @@ static int count_number_of_robots()
 {
 	int robot_count;
 	robot_count = 0;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			robot_count++;
 	}
@@ -192,9 +191,8 @@ static int count_number_of_hostages()
 {
 	int count;
 	count = 0;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_HOSTAGE)
 			count++;
 	}
@@ -212,9 +210,8 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		const auto o = vobjptridx(i);
 		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
 		{
 			if ( (!(Game_mode & GM_MULTI_COOP) && ((o->type == OBJ_PLAYER)||(o->type==OBJ_GHOST))) ||
@@ -224,7 +221,7 @@ static void gameseq_init_network_players()
 				Player_init[k].pos = o->pos;
 				Player_init[k].orient = o->orient;
 				Player_init[k].segnum = o->segnum;
-				Players[k].objnum = i;
+				Players[k].objnum = o;
 				set_player_id(o, k);
 				k++;
 			}
@@ -546,9 +543,8 @@ static void set_sound_sources()
 	Dont_start_sound_objects = 1;
 #endif
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&seg, highest_valid(vcsegptridx))
 	{
-		const auto &&seg = vcsegptridx(static_cast<segnum_t>(segnum));
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
 
@@ -569,7 +565,7 @@ static void set_sound_sources()
 						//does travel through wall, add sound for lower-numbered
 						//segment.
 
-						if (IS_CHILD(csegnum) && csegnum < segnum) {
+						if (IS_CHILD(csegnum) && csegnum < seg) {
 							if (wid & (WID_FLY_FLAG|WID_RENDPAST_FLAG)) {
 								const auto &&csegp = vcsegptr(seg->children[sidenum]);
 								auto csidenum = find_connect_side(seg, csegp);
@@ -581,7 +577,7 @@ static void set_sound_sources()
 #endif
 
 						const auto pnt = compute_center_point_on_side(seg,sidenum);
-						digi_link_sound_to_pos(sn,segnum,sidenum,pnt,1, F1_0/2);
+						digi_link_sound_to_pos(sn, seg, sidenum, pnt, 1, F1_0/2);
 					}
 		}
 	}
@@ -1679,9 +1675,8 @@ namespace dsx {
 
 static void filter_objects_from_level()
  {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptridx))
 	{
-		const auto objp = vobjptridx(i);
 		if (objp->type==OBJ_POWERUP)
 		{
 			const auto powerup_id = get_powerup_id(objp);
@@ -1943,9 +1938,8 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			copy_defaults_to_robot(objp);
 	}

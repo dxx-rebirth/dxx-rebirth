@@ -470,9 +470,8 @@ int check_segment_connections(void)
 {
 	int errors=0;
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&seg, highest_valid(vcsegptridx))
 	{
-		auto seg = vcsegptridx(segnum);
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			const auto v = create_abs_vertex_lists(seg, sidenum);
 			const auto &num_faces = v.first;
@@ -625,9 +624,8 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		range_for (const auto newseg, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptridx))
 		{
-			const auto segp = vsegptridx(newseg);
 			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
 		}
@@ -1490,9 +1488,8 @@ void validate_segment(const vsegptridx_t sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	range_for (const auto s, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(static_cast<segnum_t>(s));
 		#ifdef EDITOR
 		if (segp->segnum != segment_none)
 		#endif
@@ -1696,9 +1693,8 @@ int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto segp = vsegptridx(i);
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->light_subtracted & (1 << j))
 				change_light(segp, j, -1);
@@ -1740,9 +1736,8 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
 		segp->light_subtracted = 0;
 	}
 }
@@ -1793,9 +1788,8 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
 		range_for (auto &s, sound_textures)
 		{
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
@@ -1804,12 +1798,12 @@ void set_ambient_sound_flags()
 				if (!(texture_flags & s.texture_flag))
 					continue;
 				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != wall_none)) {
-					ambient_mark_bfs(vsegptridx(i), marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
+					ambient_mark_bfs(segp, marked_segs, AMBIENT_SEGMENT_DEPTH, s.sound_flag);
 					break;
 				}
 			}
 		}
-		segp->s2_flags = (segp->s2_flags & ~(S2F_AMBIENT_LAVA | S2F_AMBIENT_WATER)) | marked_segs[i];
+		segp->s2_flags = (segp->s2_flags & ~(S2F_AMBIENT_LAVA | S2F_AMBIENT_WATER)) | marked_segs[segp];
 	}
 }
 #endif

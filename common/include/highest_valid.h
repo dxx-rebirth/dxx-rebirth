@@ -2,41 +2,39 @@
 #include <cstddef>
 #include <iterator>
 
-template <typename T, typename I = typename T::index_type>
-struct highest_valid_t
+template <typename T>
+struct highest_valid_factory
 {
-	struct iterator : std::iterator<std::forward_iterator_tag, I>
+	using I = typename T::result_type;
+	struct iterator :
+		std::iterator<std::forward_iterator_tag, I>,
+		I
 	{
-		I i;
-		iterator(I pos) : i(pos)
+		iterator(I &&i) :
+			I(static_cast<I &&>(i))
 		{
 		}
 		iterator &operator++()
 		{
-			++ i;
+			I::operator++();
 			return *this;
 		}
 		I operator*() const
 		{
-			return i;
-		}
-		bool operator!=(const iterator &rhs) const
-		{
-			return i != rhs.i;
+			return *this;
 		}
 	};
-	T &m_container;
-	I m_begin;
-	highest_valid_t(T &t, I start) :
-		m_container(t), m_begin(start)
+	const iterator m_begin, m_end;
+	highest_valid_factory(T &factory, const typename T::index_type start) :
+		m_begin(factory(start)), m_end(++iterator(factory(factory.highest())))
 	{
 	}
 	iterator begin() const { return m_begin; }
-	iterator end() const { return m_container.highest + 1; }
+	iterator end() const { return m_end; }
 };
 
 template <typename T>
-highest_valid_t<T> highest_valid(T &t, typename T::index_type start = 0)
+highest_valid_factory<T> highest_valid(T &t, const typename T::index_type start = 0)
 {
 	return {t, start};
 }

@@ -267,9 +267,8 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		range_for (const auto segnum, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
-			const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				const auto sidep = &segp->sides[sidenum];
 				if (sidep->tmap_num == old_tmap_num) {

@@ -662,9 +662,8 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 
 		Num_walls -= 2;
 
-		range_for (const auto s, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
-			const auto &&segp = vsegptr(static_cast<segnum_t>(s));
 			if (segp->segnum != segment_none)
 			for (int w=0;w<MAX_SIDES_PER_SEGMENT;w++)
 				if (segp->sides[w].wall_num > lower_wallnum+1)
@@ -920,26 +919,23 @@ int check_walls()
 	int matcen_num;
 
 	wall_count = 0;
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(seg));
 		if (segp->segnum != segment_none) {
 			// Check fuelcenters
 			matcen_num = segp->matcen_num;
 			if (matcen_num == 0)
-				if (RobotCenters[0].segnum != seg) {
+				if (RobotCenters[0].segnum != segp) {
 				 	segp->matcen_num = -1;
 				}
 	
 			if (matcen_num > -1)
-				if (RobotCenters[matcen_num].segnum != seg) {
-					RobotCenters[matcen_num].segnum = seg;
-				}
+					RobotCenters[matcen_num].segnum = segp;
 	
 			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				if (segp->sides[side].wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = segp->sides[side].wall_num;
-					CountedWalls[wall_count].segnum = seg;
+					CountedWalls[wall_count].segnum = segp;
 					CountedWalls[wall_count].sidenum = side;
 					wall_count++;
 				}
@@ -989,9 +985,8 @@ int delete_all_walls()
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	sprintf( Message, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n");
 	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
-		range_for (const auto seg, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
-			const auto &&segp = vsegptr(static_cast<segnum_t>(seg));
 			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				segp->sides[side].wall_num = wall_none;
 		}
@@ -1095,9 +1090,8 @@ void check_wall_validity(void)
 	for (int i=0; i<MAX_WALLS; i++)
 		wall_flags[i] = 0;
 
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(i));
 		if (segp->segnum != segment_none)
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 				// Check walls
@@ -1114,7 +1108,7 @@ void check_wall_validity(void)
 										//	Then do the usual /eip++;g
 					}
 
-					if ((Walls[wall_num].segnum != i) || (Walls[wall_num].sidenum != j)) {
+					if ((Walls[wall_num].segnum != segp) || (Walls[wall_num].sidenum != j)) {
 						if (!Validate_walls)
 							return;
 						Int3();		//	Error! Your mine has been invalidated!

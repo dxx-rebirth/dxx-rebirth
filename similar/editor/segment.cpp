@@ -571,9 +571,8 @@ static void change_vertex_occurrences(int dest, int src)
 		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	range_for (const auto s, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(s));
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
 				if (v == src)
@@ -933,9 +932,8 @@ void set_vertex_counts(void)
 		Vertex_active[v] = 0;
 
 	// Count number of occurrences of each vertex.
-	range_for (const auto s, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(s));
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
 			{
@@ -1249,19 +1247,18 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validation_list[0] = seg2;
 
 	for (v=0; v<4; v++)
-		range_for (const auto s, highest_valid(Segments))
+		range_for (const auto &&segp, highest_valid(vsegptridx))
 		{
-			const auto &&segp = vsegptr(static_cast<segnum_t>(s));
 			if (segp->segnum != segment_none)
 				range_for (auto &sv, segp->verts)
 					if (sv == lost_vertices[v]) {
 						sv = remap_vertices[v];
 						// Add segment to list of segments to be validated.
 						for (s1=0; s1<nv; s1++)
-							if (validation_list[s1] == s)
+							if (validation_list[s1] == segp)
 								break;
 						if (s1 == nv)
-							validation_list[nv++] = s;
+							validation_list[nv++] = segp;
 						Assert(nv < MAX_VALIDATIONS);
 					}
 		}
@@ -1606,10 +1603,9 @@ int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t 
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
-		if (seg != sp)
+		if (segp != sp)
 		{
 			range_for (auto &v, abs_verts)
 			{												// do for each vertex in abs_verts
@@ -1668,10 +1664,9 @@ int med_find_closest_threshold_segment_side(const vsegptridx_t sp, int side, seg
 	closest_seg_dist = JOINT_THRESHOLD;
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
-		if (seg != sp) 
+		if (segp != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {
 				if (!IS_CHILD(segp->children[s])) {
 					const auto vtc = compute_center_point_on_side(segp, s); 

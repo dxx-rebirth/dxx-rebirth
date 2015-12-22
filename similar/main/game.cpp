@@ -1313,9 +1313,8 @@ array<int, 2> Coop_view_player{{-1,-1}};
 //returns ptr to escort robot, or NULL
 objptridx_t find_escort()
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		auto o = vobjptridx(i);
 		if (o->type == OBJ_ROBOT && Robot_info[get_robot_id(o)].companion)
 			return objptridx_t(o);
 	}
@@ -1549,9 +1548,8 @@ void GameProcessFrame(void)
 #if defined(DXX_BUILD_DESCENT_II)
 void compute_slide_segs()
 {
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &segp = vsegptr(static_cast<segnum_t>(segnum));
 		uint8_t slide_textures = 0;
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			const auto &side = segp->sides[sidenum];
@@ -1587,9 +1585,8 @@ static void update_uv(array<uvl, 4> &uvls, uvl &i, fix a)
 //	-----------------------------------------------------------------------------
 static void slide_textures(void)
 {
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &segp = vsegptr(static_cast<segnum_t>(segnum));
 		if (const auto slide_seg = segp->slide_textures)
 		{
 			for (int sidenum=0;sidenum<6;sidenum++) {
@@ -1625,7 +1622,7 @@ static void flicker_lights()
 	range_for (auto &rf, partial_range(Flickering_lights, Num_flickering_lights))
 	{
 		auto f = &rf;
-		segment *segp = &Segments[f->segnum];
+		const auto &&segp = vcsegptr(f->segnum);
 
 		//make sure this is actually a light
 		if (! (WALL_IS_DOORWAY(segp, f->sidenum) & WID_RENDER_FLAG))
@@ -1837,13 +1834,12 @@ static int mark_player_path_to_segment(segnum_t segnum)
 int create_special_path(void)
 {
 	//	---------- Find exit doors ----------
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->children[j] == segment_exit)
 			{
-				return mark_player_path_to_segment(i);
+				return mark_player_path_to_segment(segp);
 			}
 	}
 

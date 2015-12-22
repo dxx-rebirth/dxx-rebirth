@@ -287,6 +287,11 @@ public:
 	}
 protected:
 	index_type m_idx;
+	basic_idx &operator++()
+	{
+		++ m_idx;
+		return *this;
+	}
 };
 
 template <typename managed_type>
@@ -438,6 +443,11 @@ public:
 		bool operator>=(R) const = delete;
 protected:
 	pointer_type m_ptr;
+	basic_ptr &operator++()
+	{
+		++ m_ptr;
+		return *this;
+	}
 };
 
 template <typename managed_type>
@@ -525,6 +535,13 @@ public:
 		{
 			return !(*this == rhs);
 		}
+protected:
+	basic_ptridx &operator++()
+	{
+		vptr_type::operator++();
+		vidx_type::operator++();
+		return *this;
+	}
 };
 
 template <typename managed_type>
@@ -564,6 +581,8 @@ class valptridx<managed_type>::basic_vptr_global_factory
 {
 	using containing_type = valptridx<managed_type>;
 public:
+	using index_type = typename containing_type::index_type;
+	using result_type = P;
 	basic_vptr_global_factory() = default;
 	basic_vptr_global_factory(const basic_vptr_global_factory &) = delete;
 	basic_vptr_global_factory &operator=(const basic_vptr_global_factory &) = delete;
@@ -578,9 +597,14 @@ public:
 		return P(p, get_array(p));
 	}
 	__attribute_warn_unused_result
-	P operator()(typename containing_type::index_type i) const
+	P operator()(index_type i) const
 	{
 		return P(i, get_array());
+	}
+	__attribute_warn_unused_result
+	index_type highest() const
+	{
+		return get_array().highest;
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result
@@ -604,6 +628,7 @@ class valptridx<managed_type>::basic_ptridx_global_factory
 {
 	using containing_type = valptridx<managed_type>;
 public:
+	using result_type = PI;
 	basic_ptridx_global_factory() = default;
 	basic_ptridx_global_factory(const basic_ptridx_global_factory &) = delete;
 	basic_ptridx_global_factory &operator=(const basic_ptridx_global_factory &) = delete;
@@ -611,6 +636,11 @@ public:
 	PI operator()(typename PI::index_type i) const
 	{
 		return PI(i, get_array());
+	}
+	__attribute_warn_unused_result
+	index_type highest() const
+	{
+		return get_array().highest;
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result

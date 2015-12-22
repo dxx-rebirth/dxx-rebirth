@@ -523,13 +523,12 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&obj, highest_valid(vobjptridx))
 	{
-		const auto &&obj = vobjptridx(static_cast<objnum_t>(objnum));
 		const auto &&obj_light_emission = compute_light_emission(obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(obj_light_emission, obj->segnum, obj->pos, n_render_vertices, render_vertices, vert_segnum_list, objnum);
+			apply_light(obj_light_emission, obj->segnum, obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
 	}
 }
 

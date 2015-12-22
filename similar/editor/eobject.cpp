@@ -277,9 +277,8 @@ static int compute_num_players(void)
 {
 	int	count = 0;
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_PLAYER)
 			count++;
 	}
@@ -459,9 +458,8 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &newpos)
 {
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto segp = vsegptridx(segnum);
 		if (get_seg_masks(obj->pos, segp, 0).centermask == 0) {
 			int	fate;
 			fvi_info	hit_info;
@@ -479,7 +477,7 @@ static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &new
 			fate = find_vector_intersection(fq, hit_info);
 
 			if (fate != HIT_WALL) {
-				if ( segnum != obj->segnum )
+				if (segp != obj->segnum)
 					obj_relink( obj, segp);
 				obj->pos = newpos;
 				return 0;

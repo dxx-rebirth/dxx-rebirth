@@ -564,9 +564,8 @@ static void draw_mine_all(int automap_flag)
 
 	n_used = 0;
 
-	range_for (const auto s, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(s);
 		if (segp->segnum != segment_none)
 		{
 			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
@@ -625,9 +624,8 @@ static void draw_special_segments(void)
 	ubyte color;
 
 	// Highlight matcens, fuelcens, etc.
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptr))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(seg));
 		if (segp->segnum != segment_none)
 			switch(segp->special)
 			{

@@ -322,9 +322,8 @@ void paging_touch_all()
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
 #endif
-	range_for (const auto s, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptr))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(s));
 		paging_touch_segment(segp);
 	}	
 	paging_touch_walls();

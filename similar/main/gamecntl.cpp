@@ -1073,9 +1073,8 @@ static void kill_all_robots(void)
 	//int	boss_index = -1;
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 		{
 			if (!Robot_info[get_robot_id(objp)].companion && !Robot_info[get_robot_id(objp)].boss_flag) {
@@ -1094,9 +1093,8 @@ static void kill_all_robots(void)
 
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
-		range_for (const auto i, highest_valid(Objects))
+		range_for (const auto &&objp, highest_valid(vobjptr))
 		{
-			const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].companion) {
 					objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
@@ -1119,9 +1117,8 @@ static void kill_and_so_forth(void)
 {
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&o, highest_valid(vobjptridx))
 	{
-		const auto o = vobjptridx(i);
 		switch (o->type) {
 			case OBJ_ROBOT:
 				o->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
@@ -1159,9 +1156,8 @@ static void kill_all_snipers(void)
 	int     dead_count=0;
 
 	//	Kill all snipers.
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 			{
@@ -1177,9 +1173,8 @@ static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
 	//	Kill thief.
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].thief)
 			{
@@ -1193,9 +1188,8 @@ static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
 	//	Kill buddy.
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion)
 			{

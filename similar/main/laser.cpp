@@ -1145,11 +1145,10 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 #endif
 
 	objptridx_t	best_objnum = object_none;
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&curobjp, highest_valid(vobjptridx))
 	{
 		int			is_proximity = 0;
 		fix			dot;
-		auto curobjp = vobjptridx(objnum);
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
@@ -1164,7 +1163,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 				continue;
 		}
 
-		if (objnum == tracker->ctype.laser_info.parent_num) // Don't track shooter
+		if (curobjp == tracker->ctype.laser_info.parent_num) // Don't track shooter
 			continue;
 
 		//	Don't track cloaked players.
@@ -2109,11 +2108,9 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
-		range_for (const auto objnum, highest_valid(Objects))
+		range_for (const auto &&curobjp, highest_valid(vcobjptridx))
 		{
-			const auto &curobjp = vcobjptr(static_cast<objnum_t>(objnum));
-
-			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && objnum != parent.num)
+			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && curobjp != parent.num)
 			{
 				if (curobjp->type == OBJ_PLAYER)
 				{
@@ -2146,7 +2143,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 					oovis = object_to_object_visibility(objp, curobjp, FQ_TRANSWALL);
 
 					if (oovis) {
-						objlist[numobjs] = objnum;
+						objlist[numobjs] = curobjp;
 						numobjs++;
 						if (numobjs >= MAX_OBJDISTS) {
 							numobjs = MAX_OBJDISTS;

@@ -311,9 +311,8 @@ void start_endlevel_sequence()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion) {
 				object_create_explosion(objp->segnum, objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
@@ -1533,13 +1532,12 @@ try_again:
 	//children == -2
 
 	exit_segnum = segment_none;
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 		for (int sidenum=0;sidenum<6;sidenum++)
 			if (segp->children[sidenum] == segment_exit)
 			{
-				exit_segnum = segnum;
+				exit_segnum = segp;
 				exit_side = sidenum;
 				break;
 			}

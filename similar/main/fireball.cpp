@@ -104,10 +104,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 		fix damage;
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
-		range_for (const auto i, highest_valid(Objects))
+		range_for (const auto &&obj0p, highest_valid(vobjptridx))
 		{
-			auto obj0p = vobjptridx(i);
-
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94

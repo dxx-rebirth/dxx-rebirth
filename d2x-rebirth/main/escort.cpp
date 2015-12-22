@@ -428,9 +428,8 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_MARKER)
 			if (get_marker_id(objp) == id)
 				return 1;
@@ -512,9 +511,8 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT)
 		{
 			const auto objp_id = get_robot_id(objp);
@@ -571,8 +569,11 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 			return *i;
 	}
 	{
-		auto rh = highest_valid(Segments);
-		if (std::find_if(rh.begin(), rh.end(), predicate) != rh.end())
+		const auto &&rh = highest_valid(vcsegptr);
+		const auto a = [](const vcsegptr_t &s) {
+			return s->special == SEGMENT_IS_FUELCEN;
+		};
+		if (std::find_if(rh.begin(), rh.end(), a) != rh.end())
 			return segment_exit;
 	}
 	return segment_none;
@@ -598,9 +599,9 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segnum, highest_valid(vcsegptridx))
 		{
-			auto objnum = exists_in_mine_2(vsegptridx(segnum), objtype, objid, special);
+			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
@@ -613,12 +614,11 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		range_for (const auto j, segp->children)
 			if (j == segment_exit)
-				return i;
+				return segp;
 	}
 	return segment_none;
 }
@@ -942,9 +942,9 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
-		range_for (const auto i, highest_valid(Objects))
+		const auto &&rh = highest_valid(vobjptridx);
+		range_for (const auto &&objp, rh)
 		{
-			const auto objp = vobjptridx(i);
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_mega(objp)) {
 					Buddy_last_missile_time = GameTime64;
@@ -953,9 +953,8 @@ static void do_buddy_dude_stuff(void)
 		}
 
 		//	See if a robot near enough that buddy should fire smart missile
-		range_for (const auto i, highest_valid(Objects))
+		range_for (const auto &&objp, rh)
 		{
-			const auto objp = vobjptridx(i);
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_smart(objp)) {
 					Buddy_last_missile_time = GameTime64;

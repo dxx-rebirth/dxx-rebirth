@@ -70,14 +70,13 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 	num_occurrences = 0;
 	total_light = 0;
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 		auto e = end(segp->verts);
 		auto relvnum = std::distance(std::find(begin(segp->verts), e, vnum), e);
 		if (relvnum < MAX_VERTICES_PER_SEGMENT) {
 
-			*segs++ = segnum;
+			*segs++ = segp;
 			Assert(segs - original_segs < MAX_LIGHT_SEGS);
 			(void)original_segs;
 
@@ -258,9 +257,8 @@ static void assign_default_lighting(const vsegptr_t segp)
 
 void assign_default_lighting_all(void)
 {
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(seg));
 		if (segp->segnum != segment_none)
 			assign_default_lighting(segp);
 	}
@@ -805,9 +803,8 @@ static void fix_bogus_uvs_seg(const vsegptridx_t segp)
 
 int fix_bogus_uvs_all(void)
 {
-	range_for (const auto seg, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(static_cast<segnum_t>(seg));
 		if (segp->segnum != segment_none)
 			fix_bogus_uvs_seg(segp);
 	}
@@ -939,9 +936,8 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 // -- Old way, before 5/8/95 --		inverse_segment_magnitude = fixdiv(F1_0/5, vm_vec_mag(&vector_to_center));
 // -- Old way, before 5/8/95 --		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, inverse_segment_magnitude);
 
-		range_for (const auto segnum, highest_valid(Segments))
+		range_for (const auto &&rsegp, highest_valid(vsegptr))
 		{
-			const auto &&rsegp = vsegptr(static_cast<segnum_t>(segnum));
 			fix			dist_to_rseg;
 
 			for (i=0; i<FVI_HASH_SIZE; i++)
@@ -1063,9 +1059,8 @@ static void calim_zero_light_values(void)
 {
 	int	sidenum, vertnum;
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			side	*sidep = &segp->sides[sidenum];
 			for (vertnum=0; vertnum<4; vertnum++)
@@ -1090,9 +1085,8 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
 		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);
 
-		range_for (const auto segnum, highest_valid(Segments))
+		range_for (const auto &&rsegp, highest_valid(vsegptr))
 		{
-			const auto &&rsegp = vsegptr(static_cast<segnum_t>(segnum));
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
 //	Int3();
@@ -1159,9 +1153,8 @@ static void calim_process_all_lights(int quick_light)
 {
 	int	sidenum;
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
-		const auto &&segp = vsegptridx(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			// if (!IS_CHILD(segp->children[sidenum])) {
 			if (WALL_IS_DOORWAY(segp, sidenum) != WID_NO_WALL) {

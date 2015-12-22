@@ -225,13 +225,12 @@ static void write_exit_text(PHYSFS_file *my_file)
 
 	//	---------- Find exit doors ----------
 	count = 0;
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->children[j] == segment_exit)
 			{
-				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(i), j);
+				PHYSFSX_printf(my_file, "Segment %3hu, side %i is an exit door.\n", static_cast<uint16_t>(segp), j);
 				count++;
 			}
 	}
@@ -321,22 +320,21 @@ static void write_key_text(PHYSFS_file *my_file)
 	blue_count2 = 0;
 	gold_count2 = 0;
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptridx))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_POWERUP)
 			if (get_powerup_id(objp) == POW_KEY_BLUE) {
-				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
+				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
 				blue_count2++;
 			}
 		if (objp->type == OBJ_POWERUP)
 			if (get_powerup_id(objp) == POW_KEY_RED) {
-				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
+				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
 				red_count2++;
 			}
 		if (objp->type == OBJ_POWERUP)
 			if (get_powerup_id(objp) == POW_KEY_GOLD) {
-				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(i), objp->segnum);
+				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
 				gold_count2++;
 			}
 
@@ -347,15 +345,15 @@ static void write_key_text(PHYSFS_file *my_file)
 				switch (objp->contains_id)
 				{
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
 						blue_count2 += objp->contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
 						gold_count2 += objp->contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(i), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
 						red_count2 += objp->contains_count;
 						break;
 					default:
@@ -396,13 +394,12 @@ static void write_control_center_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "Control Center stuff:\n");
 
 	count = 0;
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		if (segp->special == SEGMENT_IS_CONTROLCEN)
 		{
 			count++;
-			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(i));
+			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(segp));
 			count2 = 0;
 			range_for (const auto objp, objects_in(segp))
 			{
@@ -443,10 +440,9 @@ static void write_segment_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
 
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
-		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
+		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
 		if (segp->special != 0)
 			PHYSFSX_printf(my_file, "special = %3i (%s), value = %3i ", segp->special, Special_names[segp->special], segp->value);
 		if (segp->matcen_num != -1)
@@ -454,12 +450,11 @@ static void write_segment_text(PHYSFS_file *my_file)
 		PHYSFSX_printf(my_file, "\n");
 	}
 
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptridx))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		int	depth;
 
-		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(i));
+		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
 		depth=0;
 			PHYSFSX_printf(my_file, "Objects: ");
 		range_for (const auto objp, objects_in(segp))
@@ -545,9 +540,8 @@ static void write_wall_text(PHYSFS_file *my_file)
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
-	range_for (const auto i, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptr))
 	{
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			const auto sidep = &segp->sides[j];
 			if (sidep->wall_num != wall_none)
@@ -569,13 +563,12 @@ static void write_player_text(PHYSFS_file *my_file)
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Players:\n");
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptridx))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_PLAYER)
 		{
 			num_players++;
-			PHYSFSX_printf(my_file, "Player %2i is object #%3hu in segment #%3i.\n", get_player_id(objp), static_cast<uint16_t>(i), objp->segnum);
+			PHYSFSX_printf(my_file, "Player %2i is object #%3hu in segment #%3i.\n", get_player_id(objp), static_cast<uint16_t>(objp), objp->segnum);
 		}
 	}
 
@@ -739,9 +732,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			load_level(Registered_level_names[level_num]);
 	}
 
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vcsegptr))
          {
-		const auto &&segp = vcsegptr(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
                  {
 			const auto sidep = &segp->sides[sidenum];
@@ -802,9 +794,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 
 	//	Process robots.
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		if (objp->render_type == RT_POLYOBJ) {
 			polymodel *po = &Polygon_models[objp->rtype.pobj_info.model_num];
 
@@ -827,9 +818,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	range_for (const auto segnum, highest_valid(Segments))
+	range_for (const auto &&segp, highest_valid(vsegptr))
 	{
-		const auto &&segp = vsegptr(static_cast<segnum_t>(segnum));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			const auto sidep = &segp->sides[sidenum];
 			if (sidep->wall_num != wall_none) {
@@ -994,14 +984,13 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		min_obj_val = 0x7fff0000;
 		objnum_t min_objnum = object_none;
 
-		range_for (const auto j, highest_valid(Objects))
+		range_for (const auto &&objp, highest_valid(vcobjptridx))
 		{
-			const auto &&objp = vcobjptr(static_cast<objnum_t>(j));
-			if (!used_objects[j] && objp->type != OBJ_NONE)
+			if (!used_objects[objp] && objp->type != OBJ_NONE)
 			{
 				cur_obj_val = objp->type * 1000 + objp->id;
 				if (cur_obj_val < min_obj_val) {
-					min_objnum = j;
+					min_objnum = objp;
 					min_obj_val = cur_obj_val;
 				}
 			}
@@ -1014,17 +1003,16 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 		objtype = Objects[min_objnum].type;
 		objid = Objects[min_objnum].id;
 
-		range_for (const auto i, highest_valid(Objects))
+		range_for (const auto &&objp, highest_valid(vcobjptridx))
 		{
-			const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
-			if (!used_objects[i]) {
+			if (!used_objects[objp]) {
 				if ((objp->type == objtype && objp->id == objid) ||
 						(objp->type == objtype && objtype == OBJ_PLAYER) ||
 						(objp->type == objtype && objtype == OBJ_COOP) ||
 						(objp->type == objtype && objtype == OBJ_HOSTAGE)) {
 					if (objp->type == OBJ_ROBOT)
 						total_robots++;
-					used_objects[i] = true;
+					used_objects[objp] = true;
 					objcount++;
 					objects_processed++;
 				}

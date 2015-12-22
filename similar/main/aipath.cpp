@@ -596,9 +596,8 @@ void validate_all_paths(void)
 {
 
 #if PATH_VALIDATION
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptr(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT) {
 			ai_static	*aip = &objp->ctype.ai_info;
 			if (objp->control_type == CT_AI) {
@@ -1333,9 +1332,8 @@ void ai_path_garbage_collect()
 	validate_all_paths();
 #endif
 	//	Create a list of objects which have paths of length 1 or more.
-	range_for (const auto objnum, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptridx))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(objnum));
 		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
 #if defined(DXX_BUILD_DESCENT_II)
 			|| (objp->control_type == CT_MORPH)
@@ -1344,7 +1342,7 @@ void ai_path_garbage_collect()
 			const auto &aip = objp->ctype.ai_info;
 			if (aip.path_length) {
 				object_list[num_path_objects].path_start = aip.hide_index;
-				object_list[num_path_objects++].objnum = objnum;
+				object_list[num_path_objects++].objnum = objp;
 			}
 		}
 	}
@@ -1373,9 +1371,8 @@ void ai_path_garbage_collect()
 	{
 	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
 
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vcobjptr))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
 		const auto &aip = objp->ctype.ai_info;
 
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
@@ -1418,9 +1415,8 @@ void maybe_ai_path_garbage_collect(void)
 //	Should be called at the start of each level.
 void ai_reset_all_paths(void)
 {
-	range_for (const auto i, highest_valid(Objects))
+	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
-		const auto &&objp = vobjptridx(i);
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
 			objp->ctype.ai_info.hide_index = -1;
@@ -1504,17 +1500,15 @@ static void test_create_all_paths(void)
 
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (const auto start_seg, highest_valid(Segments))
+	range_for (const auto &&segp0, highest_valid(vcsegptridx))
 	{
-		const auto &&segp0 = vcsegptr(static_cast<segnum_t>(start_seg));
 		if (segp0->segnum != segment_none)
 		{
-			range_for (const auto end_seg, highest_valid(Segments, start_seg))
+			range_for (const auto &&segp1, highest_valid(vcsegptridx, segp0))
 			{
-				const auto &&segp1 = vcsegptr(static_cast<segnum_t>(end_seg));
 				if (segp1->segnum != segment_none)
 				{
-					create_path_points(vobjptridx(object_first), start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
+					create_path_points(vobjptridx(object_first), segp0, segp1, Point_segs_free_ptr, &resultant_length, -1, 0, 0, segment_none);
 				}
 			}
 		}
