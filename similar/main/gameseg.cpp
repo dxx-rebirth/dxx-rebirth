@@ -1640,19 +1640,20 @@ static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 //	dir =  0 -> you are dumb
 static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 {
+	const fix ds = dir * DL_SCALE;
 	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
 		if (i.segnum == segnum && i.sidenum == sidenum)
 		{
 			range_for (auto &j, partial_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
 			{
+				const auto &&segp = vsegptr(j.segnum);
+				auto &uvls = segp->sides[j.sidenum].uvls;
 				for (int k=0; k<4; k++) {
-					fix	dl,new_l;
-					dl = dir * j.vert_light[k] * DL_SCALE;
 					Assert(j.sidenum >= 0 && j.sidenum < MAX_SIDES_PER_SEGMENT);
-					const auto &&segp = vsegptr(j.segnum);
-					new_l = (segp->sides[j.sidenum].uvls[k].l += dl);
-					if (new_l < 0)
-						segp->sides[j.sidenum].uvls[k].l = 0;
+					auto &l = uvls[k].l;
+					const fix dl = ds * j.vert_light[k];
+					if ((l += dl) < 0)
+						l = 0;
 				}
 			}
 		}
