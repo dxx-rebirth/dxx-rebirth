@@ -4,6 +4,7 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  *
+ * --
  *  Based on an early version of SDL_Console
  *  Written By: Garrett Banuk <mongoose@mongeese.org>
  *  Code Cleanup and heavily extended by: Clemens Wacha <reflex-2000@gmx.net>
@@ -11,7 +12,11 @@
  *
  *  This is free, just be sure to give us credit when using it
  *  in any of your programs.
+ * --
  *
+ * Rewritten to use C++ utilities by Kp.  Post-Bradley work is under
+ * the standard Rebirth terms, which are less permissive than the
+ * statement above.
  */
 /*
  *
@@ -19,299 +24,400 @@
  *
  */
 
-#include <string.h>
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+#include <deque>
+#include <string>
 
-#include "inferno.h"
-#include "maths.h"
 #include "gr.h"
-#include "timer.h"
-#include "u_mem.h"
-#include "strutil.h"
 #include "gamefont.h"
 #include "console.h"
 #include "cli.h"
+#include "poison.h"
 
-#define CLI_HISTORY_MAX         128
-// Cut the buffer line if it becomes longer than this
-#define CLI_CHARS_PER_LINE      128
-// Cursor blink interval
-#define CLI_BLINK_RATE          (F1_0/2)
-// Border in pixels from the most left to the first letter
-#define CLI_CHAR_BORDER         FSPACX(1)
-// Default prompt used at the commandline
-#define CLI_DEFAULT_PROMPT      "]"
 // Cursor shown if we are in insert mode
 #define CLI_INS_CURSOR          "_"
 // Cursor shown if we are in overwrite mode
 #define CLI_OVR_CURSOR          "|"
 
-CLI_insert_type CLI_insert_mode;                        // Insert or Overwrite characters?
+namespace {
 
-static array<RAIIdmem<char[]>, CLI_HISTORY_MAX> CommandLines; // List of all the past commands
-static int TotalCommands;                   // Number of commands in the Back Commands
-static RAIIdmem<char[]> Prompt;                        // Prompt displayed in command line
-static char Command[CLI_CHARS_PER_LINE];    // current command in command line = lcommand + rcommand
-static char LCommand[CLI_CHARS_PER_LINE];   // right hand side of cursor
-static char RCommand[CLI_CHARS_PER_LINE];   // left hand side of cursor
-static char VCommand[CLI_CHARS_PER_LINE];   // current visible command line
-static uint_fast32_t CursorPos;             // Current cursor position in CurrentCommand
-static uint_fast32_t Offset;                // CommandOffset (first visible char of command) - if command is too long to fit into console
-static int CommandScrollBack;               // How much the users scrolled back in the command lines
+class CLIState
+{
+	static const char g_prompt_mode_cmd = ']';
+	static const char g_prompt_strings[];
+	/* When drawing an underscore as a cursor indicator, shift it down by
+	 * this many pixels, to make it easier to see when the underlined
+	 * character is itself an underscore.
+	 */
+	static const unsigned m_cursor_underline_y_shift = 3;
+	static const unsigned m_maximum_history_lines = 100;
+	unsigned m_history_position, m_line_position;
+	std::string m_line;
+	std::deque<std::string> m_lines;
+	CLI_insert_type m_insert_type;
+	void history_move(unsigned position);
+public:
+	void init();
+	unsigned draw(unsigned, unsigned);
+	void execute_active_line();
+	void insert_completion();
+	void cursor_left();
+	void cursor_right();
+	void cursor_home();
+	void cursor_end();
+	void cursor_del();
+	void cursor_backspace();
+	void add_character(char c);
+	void clear_active_line();
+	void history_prev();
+	void history_next();
+	void toggle_overwrite_mode();
+};
+
+const char CLIState::g_prompt_strings[] = {
+	g_prompt_mode_cmd,
+};
+
+}
+
+static CLIState g_cli;
 
 /* Initializes the cli */
 void cli_init()
 {
-	TotalCommands = 0;
-	CursorPos = 0;
-	CommandScrollBack = 0;
-	Prompt.reset(d_strdup(CLI_DEFAULT_PROMPT));
-
-	CommandLines = {};
-	memset(Command, 0, sizeof(Command));
-	memset(LCommand, 0, sizeof(LCommand));
-	memset(RCommand, 0, sizeof(RCommand));
-	memset(VCommand, 0, sizeof(VCommand));
+	g_cli.init();
 }
-
-
-/* Increments the command lines */
-static void cli_newline(void)
-{
-	std::move(CommandLines.begin(), std::prev(CommandLines.end()), std::next(CommandLines.begin()));
-	if (TotalCommands < CLI_HISTORY_MAX - 1)
-		TotalCommands++;
-}
-
 
 /* Draws the command line the user is typing in to the screen */
-/* completely rewritten by C.Wacha */
-void cli_draw(int y)
+unsigned cli_draw(unsigned y, unsigned line_spacing)
 {
-	int x, w, h, aw;
-	float real_aw;
-	uint_fast32_t commandbuffer;
-	fix cur_time = timer_query();
-	static fix LastBlinkTime = 0;   // Last time the cursor blinked
-	static uint_fast32_t LastCursorPos = 0; // Last cursor position
-	static int Blink = 0;           // Is the cursor currently blinking
-
-	// Concatenate the left and right side to command
-	strcpy(Command, LCommand);
-	strncat(Command, RCommand, sizeof(Command) - strlen(Command) - 1);
-
-	gr_get_string_size(Command, &w, &h, &aw);
-	if (w > 0 && *Command)
-		real_aw = (float)w/(float)strlen(Command);
-	else
-		real_aw = (float)aw;
-	commandbuffer = (GWIDTH - 2*CLI_CHAR_BORDER)/real_aw - strlen(Prompt.get()) - 1; // -1 to make cursor visible
-
-	//calculate display offset from current cursor position
-	if (CursorPos > commandbuffer && Offset < CursorPos - commandbuffer)
-		Offset = CursorPos - commandbuffer;
-	if(Offset > CursorPos)
-		Offset = CursorPos;
-
-	// first add prompt to visible part
-	strcpy(VCommand, Prompt.get());
-
-	// then add the visible part of the command
-	strncat(VCommand, &Command[Offset], sizeof(VCommand) - strlen(VCommand) - 1);
-
-	// now display the result
-	gr_string(CLI_CHAR_BORDER, y-h, VCommand);
-
-	// at last add the cursor
-	// check if the blink period is over
-	if (cur_time > LastBlinkTime) {
-		LastBlinkTime = cur_time + CLI_BLINK_RATE;
-		if(Blink)
-			Blink = 0;
-		else
-			Blink = 1;
-	}
-
-	// check if cursor has moved - if yes display cursor anyway
-	if (CursorPos != LastCursorPos) {
-		LastCursorPos = CursorPos;
-		LastBlinkTime = cur_time + CLI_BLINK_RATE;
-		Blink = 1;
-	}
-
-	if (Blink) {
-		int prompt_width, cmd_width;
-
-		gr_get_string_size(Prompt.get(), &prompt_width, nullptr, nullptr);
-		gr_get_string_size(LCommand + Offset, &cmd_width, &h, nullptr);
-		x = CLI_CHAR_BORDER + prompt_width + cmd_width;
-		gr_string(x, y-h, CLI_insert_mode == CLI_insert_type::insert ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
-	}
+	return g_cli.draw(y, line_spacing);
 }
-
 
 /* Executes the command entered */
-void cli_execute(void)
+void cli_execute()
 {
-	if(strlen(Command) > 0) {
-		cli_newline();
-
-		// copy the input into the past commands strings
-		CommandLines[0].reset(d_strdup(Command));
-
-		// display the command including the prompt
-		con_printf(CON_NORMAL, "%s%s", Prompt.get(), Command);
-
-		cmd_append(Command);
-
-		cli_clear();
-		CommandScrollBack = -1;
-	}
+	g_cli.execute_active_line();
 }
-
 
 void cli_autocomplete(void)
 {
-	uint_fast32_t i, j;
-	const char *command;
-
-	command = cmd_complete(LCommand);
-
-	if (!command)
-		return; // no tab completion took place so return silently
-
-	j = strlen(command);
-	if (j > CLI_CHARS_PER_LINE - 2)
-		j = CLI_CHARS_PER_LINE - 1;
-
-	memset(LCommand, 0, sizeof(LCommand));
-	CursorPos = 0;
-
-	for (i = 0; i < j; i++) {
-		CursorPos++;
-		LCommand[i] = command[i];
-	}
-	// add a trailing space
-	CursorPos++;
-	LCommand[j] = ' ';
-	LCommand[j+1] = '\0';
+	g_cli.insert_completion();
 }
 
-
-void cli_cursor_left(void)
+void cli_cursor_left()
 {
-	char temp[CLI_CHARS_PER_LINE];
-
-	if (CursorPos > 0) {
-		CursorPos--;
-		strcpy(temp, RCommand);
-		strcpy(RCommand, &LCommand[strlen(LCommand)-1]);
-		strcat(RCommand, temp);
-		LCommand[strlen(LCommand)-1] = '\0';
-	}
+	g_cli.cursor_left();
 }
 
-
-void cli_cursor_right(void)
+void cli_cursor_right()
 {
-	char temp[CLI_CHARS_PER_LINE];
-
-	if(CursorPos < strlen(Command)) {
-		CursorPos++;
-		strncat(LCommand, RCommand, 1);
-		strcpy(temp, RCommand);
-		strcpy(RCommand, &temp[1]);
-	}
+	g_cli.cursor_right();
 }
 
-
-void cli_cursor_home(void)
+void cli_cursor_home()
 {
-	char temp[CLI_CHARS_PER_LINE];
-
-	CursorPos = 0;
-	strcpy(temp, RCommand);
-	strcpy(RCommand, LCommand);
-	strncat(RCommand, temp, strlen(temp));
-	memset(LCommand, 0, sizeof(LCommand));
+	g_cli.cursor_home();
 }
 
-
-void cli_cursor_end(void)
+void cli_cursor_end()
 {
-	CursorPos = strlen(Command);
-	strncat(LCommand, RCommand, strlen(RCommand));
-	memset(RCommand, 0, sizeof(RCommand));
+	g_cli.cursor_end();
 }
 
-
-void cli_cursor_del(void)
+void cli_cursor_del()
 {
-	char temp[CLI_CHARS_PER_LINE];
-
-	if (strlen(RCommand) > 0) {
-		strcpy(temp, RCommand);
-		strcpy(RCommand, &temp[1]);
-	}
+	g_cli.cursor_del();
 }
 
-
-void cli_cursor_backspace(void)
+void cli_cursor_backspace()
 {
-	if (CursorPos > 0) {
-		CursorPos--;
-		if (Offset > 0)
-			Offset--;
-		LCommand[strlen(LCommand)-1] = '\0';
-	}
+	g_cli.cursor_backspace();
 }
-
 
 void cli_add_character(char character)
 {
-	if (strlen(Command) < CLI_CHARS_PER_LINE - 1)
+	g_cli.add_character(character);
+}
+
+void cli_clear()
+{
+	g_cli.clear_active_line();
+}
+
+void cli_history_prev()
+{
+	g_cli.history_prev();
+}
+
+void cli_history_next()
+{
+	g_cli.history_next();
+}
+
+void cli_toggle_overwrite_mode()
+{
+	g_cli.toggle_overwrite_mode();
+}
+
+void CLIState::init()
+{
+	m_lines.emplace_front();
+}
+
+unsigned CLIState::draw(unsigned y, unsigned line_spacing)
+{
+	using wrap_result = std::pair<const char *, unsigned>;
+	/* At most this many lines of wrapped input can be shown at once.
+	 * Any excess lines will be hidden.
+	 *
+	 * Use a power of 2 to make the modulus optimize into a fast masking
+	 * operation.
+	 *
+	 * Zero-initialize for safety, but also mark it as initially
+	 * undefined for Valgrind.  Assuming no bugs, any element of wraps[]
+	 * accessed by the second loop will have been initialized by the
+	 * first loop.
+	 */
+	std::array<wrap_result, 8> wraps{};
+	DXX_MAKE_VAR_UNDEFINED(wraps);
+	const auto margin_width = FSPACX(1);
+	const char prompt_string[2] = {g_prompt_strings[0], 0};
+	int prompt_width, h;
+	gr_get_string_size(prompt_string, &prompt_width, &h, nullptr);
+	y -= line_spacing;
+	const auto canvas_width = GWIDTH;
+	const unsigned max_pixels_per_line = canvas_width - (margin_width * 2) - prompt_width;
+	const unsigned unknown_cursor_line = ~0u;
+	const auto line_position = m_line_position;
+	const auto line_begin = m_line.c_str();
+	std::size_t last_wrap_line = 0;
+	unsigned cursor_line = unknown_cursor_line;
+	/* Search the text and initialize wraps[] to record where line
+	 * breaks will appear.  If the wrapped text is more than
+	 * wraps.size() vertical lines, only the most recent wraps.size()
+	 * lines are saved and shown.
+	 */
+	for (const char *p = line_begin;; ++last_wrap_line)
 	{
-		CursorPos++;
-		LCommand[strlen(LCommand)] = character;
-		LCommand[strlen(LCommand)] = '\0';
+		auto &w = wraps[last_wrap_line % wraps.size()];
+		w = gr_get_string_wrap(p, max_pixels_per_line);
+		/* Record the vertical line on which the cursor will appear as
+		 * `cursor_line`.
+		 */
+		if (cursor_line == unknown_cursor_line)
+		{
+			const auto unseen_position = w.first - p;
+			if (line_position < unseen_position)
+				cursor_line = last_wrap_line;
+		}
+		/* If more text exists than can be shown, then stop at
+		 * (wraps.size() / 2) lines past the cursor line.
+		 */
+		else if (last_wrap_line >= wraps.size() && cursor_line + (wraps.size() / 2) < last_wrap_line)
+			break;
+		p = w.first;
+		if (!*p)
+			break;
 	}
-	if (CLI_insert_mode == CLI_insert_type::overwrite)
-		cli_cursor_del();
+	const auto line_left = margin_width + prompt_width + 1;
+	const auto cursor_string = (m_insert_type == CLI_insert_type::insert ? CLI_INS_CURSOR : CLI_OVR_CURSOR);
+	int cursor_width, cursor_height;
+	gr_get_string_size(cursor_string, &cursor_width, &cursor_height, nullptr);
+	if (line_position == m_line.size())
+	{
+		const auto &w = wraps[last_wrap_line % wraps.size()];
+		if (cursor_width + line_left + w.second > max_pixels_per_line)
+		{
+			auto &w2 = wraps[++last_wrap_line % wraps.size()];
+			w2 = {w.first, 0};
+			assert(!*w2.first);
+		}
+		cursor_line = last_wrap_line;
+	}
+	for (unsigned i = std::min(last_wrap_line + 1, wraps.size());; --last_wrap_line)
+	{
+		const auto &w = wraps[last_wrap_line % wraps.size()];
+		const auto p = w.first;
+		if (!p)
+		{
+			assert(p);
+			break;
+		}
+		std::string::const_pointer q;
+		if (last_wrap_line)
+		{
+			q = wraps[(last_wrap_line - 1) % wraps.size()].first;
+			if (!q)
+			{
+				assert(q);
+				break;
+			}
+		}
+		else
+			q = line_begin;
+		std::string::pointer mc;
+		std::string::value_type c;
+		/* If the parsing loop exited by the cursor_line test, then this
+		 * test is true on every pass through this loop.
+		 *
+		 * If the parsing loop exited by !*p, then this test is false on
+		 * the first pass through this loop and true on every other
+		 * pass.
+		 *
+		 * If the input text requires only one vertical line, then the
+		 * parsing loop will have exited through the !*p test and this
+		 * loop will only run iteration.
+		 */
+		if (*p)
+		{
+			/* Temporarily write a null into the text string for the
+			 * benefit of null-terminator based code in the gr_string*
+			 * functions.  The original character is saved in `c` and
+			 * will be restored later.
+			 */
+			mc = &m_line[p - q];
+			c = *mc;
+			*mc = 0;
+		}
+		else
+		{
+			/* No need to write to the std::string because a
+			 * null-terminator is already present.
+			 */
+			mc = nullptr;
+			c = 0;
+		}
+		gr_string(line_left, y, q, w.second, h);
+		if (--i == cursor_line)
+		{
+			unsigned cx = line_left + w.second, cy = y;
+			if (m_insert_type == CLI_insert_type::insert)
+				cy += m_cursor_underline_y_shift;
+			if (line_position != p - line_begin)
+			{
+				int cw;
+				gr_get_string_size(&line_begin[line_position], &cw, nullptr, nullptr);
+				cx -= cw;
+			}
+			gr_string(cx, cy, cursor_string, cursor_width, cursor_height);
+		}
+		/* Restore the original character, if one was overwritten. */
+		if (mc)
+			*mc = c;
+		if (!i)
+			break;
+		y -= h;
+	}
+	gr_string(margin_width, y, prompt_string, prompt_width, h);
+	return y;
 }
 
-
-void cli_clear(void)
+void CLIState::execute_active_line()
 {
-	CursorPos = 0;
-	memset(Command, 0, sizeof(Command));
-	memset(LCommand, 0, sizeof(LCommand));
-	memset(RCommand, 0, sizeof(RCommand));
-	memset(VCommand, 0, sizeof(VCommand));
+	if (m_line.empty())
+		return;
+	const char *p = m_line.c_str();
+	con_printf(CON_NORMAL, "con%c%s", g_prompt_strings[0], p);
+	cmd_append(p);
+	m_lines[0] = move(m_line);
+	m_lines.emplace_front();
+	m_history_position = 0;
+	if (m_lines.size() > m_maximum_history_lines)
+		m_lines.pop_back();
+	clear_active_line();
 }
 
-
-void cli_history_prev(void)
+void CLIState::insert_completion()
 {
-	if(CommandScrollBack < TotalCommands - 1) {
-		/* move back a line in the command strings and copy the command to the current input string */
-		CommandScrollBack++;
-		memset(RCommand, 0, sizeof(RCommand));
-		Offset = 0;
-		strcpy(LCommand, CommandLines[CommandScrollBack].get());
-		CursorPos = strlen(CommandLines[CommandScrollBack].get());
-	}
+	const auto suggestion = cmd_complete(m_line.c_str());
+	if (!suggestion)
+		return;
+	m_line = suggestion;
+	m_line += " ";
+	m_line_position = m_line.size();
 }
 
-
-void cli_history_next(void)
+void CLIState::cursor_left()
 {
-	if(CommandScrollBack > -1) {
-		/* move forward a line in the command strings and copy the command to the current input string */
-		CommandScrollBack--;
-		memset(RCommand, 0, sizeof(RCommand));
-		memset(LCommand, 0, sizeof(LCommand));
-		Offset = 0;
-		if(CommandScrollBack > -1)
-			strcpy(LCommand, CommandLines[CommandScrollBack].get());
-		CursorPos = strlen(LCommand);
-	}
+	if (m_line_position > 0)
+		-- m_line_position;
+}
+
+void CLIState::cursor_right()
+{
+	if (m_line_position < m_line.size())
+		++ m_line_position;
+}
+
+void CLIState::cursor_home()
+{
+	m_line_position = 0;
+}
+
+void CLIState::cursor_end()
+{
+	m_line_position = m_line.size();
+}
+
+void CLIState::cursor_del()
+{
+	const auto l = m_line_position;
+	if (l >= m_line.size())
+		return;
+	m_line.erase(next(m_line.begin(), l));
+}
+
+void CLIState::cursor_backspace()
+{
+	if (m_line_position <= 0)
+		return;
+	m_line.erase(next(m_line.begin(), --m_line_position));
+}
+
+void CLIState::add_character(char c)
+{
+	if (m_insert_type == CLI_insert_type::overwrite && m_line_position < m_line.size())
+		m_line[m_line_position] = c;
+	else
+		m_line.insert(next(m_line.begin(), m_line_position), c);
+	++m_line_position;
+}
+
+void CLIState::clear_active_line()
+{
+	m_line_position = 0;
+	m_line.clear();
+}
+
+void CLIState::history_move(unsigned position)
+{
+	if (position >= m_lines.size())
+		return;
+	m_lines[m_history_position] = move(m_line);
+	auto &l = m_lines[m_history_position = position];
+	m_line_position = l.size();
+	m_line = l;
+}
+
+void CLIState::history_prev()
+{
+	history_move(m_history_position + 1);
+}
+
+void CLIState::history_next()
+{
+	const auto max_lines = m_lines.size();
+	if (m_history_position > max_lines)
+		m_history_position = max_lines;
+	history_move(m_history_position - 1);
+}
+
+void CLIState::toggle_overwrite_mode()
+{
+	m_insert_type = m_insert_type == CLI_insert_type::insert
+		? CLI_insert_type::overwrite
+		: CLI_insert_type::insert;
 }

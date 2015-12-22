@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include "palette.h"
 #include "maths.h"
 
@@ -272,6 +273,7 @@ void gr_printf(int x, int y, const char * format, ...) __attribute_format_printf
 #define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printf,gr_string,(A1,A2),(F),##__VA_ARGS__)
 void gr_uprintf(int x, int y, const char * format, ...) __attribute_format_printf(3, 4);
 #define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_uprintf,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
+std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit);
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
 }
 

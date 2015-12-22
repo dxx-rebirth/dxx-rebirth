@@ -291,7 +291,7 @@ void cmd_enqueuef(int insert, const char *fmt, ...)
 
 
 /* Attempt to autocomplete an input string */
-const char *cmd_complete(char *input)
+const char *cmd_complete(const char *input)
 {
 	uint_fast32_t len = strlen(input);
 

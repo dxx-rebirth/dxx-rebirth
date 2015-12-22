@@ -94,7 +94,7 @@ cvar_t *cvar_find(const char *cvar_name)
 }
 
 
-const char *cvar_complete(char *text)
+const char *cvar_complete(const char *text)
 {
 	uint_fast32_t len = strlen(text);
 	if (!len)

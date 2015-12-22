@@ -164,8 +164,7 @@ static void con_draw(void)
 	i+=con_scroll_offset;
 
 	gr_set_fontcolor(BM_XRGB(255,255,255), -1);
-	cli_draw(y);
-	y -= line_spacing;
+	y = cli_draw(y, line_spacing);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx1 = fspacx(1);
@@ -251,7 +250,7 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 				case KEY_TAB:               cli_autocomplete();     break;
 				case KEY_ENTER:             cli_execute();          break;
 				case KEY_INSERT:
-					CLI_insert_mode = CLI_insert_mode == CLI_insert_type::insert ? CLI_insert_type::overwrite : CLI_insert_type::insert;
+					cli_toggle_overwrite_mode();
 					break;
 				default:
 					int character = key_ascii();

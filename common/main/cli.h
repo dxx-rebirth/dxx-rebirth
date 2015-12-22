@@ -30,7 +30,7 @@ enum class CLI_insert_type : uint8_t
 };
 
 // Insert or Overwrite characters?
-extern CLI_insert_type CLI_insert_mode;
+void cli_toggle_overwrite_mode();
 
 void cli_init(void);
 /* executes the command typed in at the console (called if you press ENTER)*/
@@ -38,7 +38,7 @@ void cli_execute();
 /* Gets called when TAB was pressed */
 void cli_autocomplete(void);
 /* draws the commandline the user is typing in to the screen. called by update? */
-void cli_draw(int y);
+unsigned cli_draw(unsigned y, unsigned line_spacing);
 /* Gets called if you press the LEFT key (move cursor left) */
 void cli_cursor_left(void);
 /* Gets called if you press the RIGHT key (move cursor right) */

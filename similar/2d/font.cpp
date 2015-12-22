@@ -830,6 +830,22 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 	}
 }
 
+std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit)
+{
+	assert(s);
+	float string_width_f=0.0;
+	const float limit_f = limit;
+	const auto &cv_font = *grd_curcanv->cv_font;
+	for (uint8_t c; (c = *s); ++s)
+	{
+		const auto &&spacing = get_char_width<float>(cv_font, c, s[1]).spacing;
+		const float next_string_width = string_width_f + spacing;
+		if (next_string_width >= limit_f)
+			break;
+		string_width_f = next_string_width;
+	}
+	return {s, static_cast<unsigned>(string_width_f)};
+}
 
 void (gr_uprintf)( int x, int y, const char * format, ... )
 {

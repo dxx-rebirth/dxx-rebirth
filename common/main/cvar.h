@@ -66,7 +66,7 @@ void cvar_set(const char *cvar_name, char *value);
 cvar_t *cvar_find(const char *cvar_name);
 
 /* Try to autocomplete a cvar name */
-const char *cvar_complete(char *text);
+const char *cvar_complete(const char *text);
 
 /* Write archive cvars to file */
 void cvar_write(PHYSFS_file *file);

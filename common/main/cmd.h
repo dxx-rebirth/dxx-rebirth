@@ -35,7 +35,7 @@ int cmd_queue_process(void);
 void cmd_queue_flush(void);
 
 /* Attempt to autocomplete an input string */
-const char *cmd_complete(char *input);
+const char *cmd_complete(const char *input);
 
 typedef void (*cmd_handler_t)(unsigned long argc, const char *const *argv);
 
