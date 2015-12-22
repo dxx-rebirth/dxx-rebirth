@@ -3637,15 +3637,19 @@ void multi_apply_goal_textures()
 	range_for (const auto i, highest_valid(Segments))
 	{
 		const auto &&seg = vsegptr(static_cast<segnum_t>(i));
+		uint8_t team_mask;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
-			apply_segment_goal_texture(seg, TMI_GOAL_BLUE);
+			team_mask = TMI_GOAL_BLUE;
 		}
 		else if (seg->special==SEGMENT_IS_GOAL_RED)
 		{
 			// Make both textures the same if Hoard mode
-			apply_segment_goal_texture(seg, TMI_GOAL_RED);
+			team_mask = TMI_GOAL_RED;
 		}
+		else
+			continue;
+		apply_segment_goal_texture(seg, team_mask);
 	}
 }
 
