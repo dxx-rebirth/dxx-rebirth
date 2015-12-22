@@ -2075,7 +2075,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
 #endif
-	objnum_t			boss_objnum=object_none;
+	objptridx_t boss_objnum = object_none;
 
 	segptr.clear();
 #ifdef EDITOR
@@ -2085,7 +2085,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 	//	See if there is a boss.  If not, quick out.
 	range_for (const auto i, highest_valid(Objects))
 	{
-		const auto &&objp = vcobjptr(static_cast<objnum_t>(i));
+		const auto &&objp = vobjptridx(static_cast<objnum_t>(i));
 		if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag)
 		{
 			boss_objnum = i; // if != 1 then there is more than one boss here.
@@ -2093,9 +2093,10 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		}
 	}
 
-	if (boss_objnum != object_none) {
+	if (boss_objnum != object_none)
+	{
 		vms_vector	original_boss_pos;
-		const vobjptridx_t boss_objp = vobjptridx(boss_objnum);
+		const vobjptridx_t boss_objp = boss_objnum;
 		int			head, tail;
 		array<segnum_t, QUEUE_SIZE> seg_queue;
 		fix			boss_size_save;
