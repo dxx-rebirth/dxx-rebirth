@@ -849,7 +849,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		count = 0;
 		while ((count++ < 10) && (highest_parent->type == OBJ_WEAPON)) {
 			auto next_parent = highest_parent->ctype.laser_info.parent_num;
-			const auto &&parent_objp = vobjptridx(next_parent);
+			const auto &&parent_objp = parent.absolute_sibling(next_parent);
 			if (parent_objp->signature != highest_parent->ctype.laser_info.parent_signature)
 				break;	//	Probably means parent was killed.  Just continue.
 

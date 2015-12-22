@@ -195,7 +195,7 @@ static void blast_blastable_wall(const vsegptridx_t seg, int side)
 
 	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
 
-	const auto &&csegp = vsegptridx(seg->children[side]);
+	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
@@ -246,7 +246,7 @@ void wall_damage(const vsegptridx_t seg, int side, fix damage)
 	
 	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
 		{
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -411,7 +411,7 @@ void wall_close_door(int door_num)
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -613,7 +613,7 @@ void wall_close_door_num(int door_num)
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 		cwall_num = csegp->sides[Connectside].wall_num;
@@ -697,7 +697,7 @@ void do_door_close(int door_num)
 		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);		
 
 		// Otherwise, close it.
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -883,7 +883,7 @@ void do_door_open(int door_num)
 			continue;
 		}
 
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -977,7 +977,7 @@ void do_door_close(int door_num)
 //don't assert here, because now we have triggers to close non-auto doors
 
 		// Otherwise, close it.
-		const auto &&csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
 
@@ -1576,7 +1576,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 				const auto pnt = compute_center_point_on_side(segp, sidenum);
 				dist = vm_vec_dist_quick(pnt, objp->pos);
 				if (dist < damage/2) {
-					dist = find_connected_distance(pnt, segp, objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
+					dist = find_connected_distance(pnt, segp, objp->pos, segp.absolute_sibling(objp->segnum), MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))
 						check_effect_blowup(segp, sidenum, pnt, vcobjptr(objp->ctype.laser_info.parent_num)->ctype.laser_info, 1, 0);
 				}
@@ -1591,7 +1591,7 @@ static void bng_process_segment(const vobjptr_t objp, fix damage, const vsegptri
 			if (!visited[segnum]) {
 				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
 					visited[segnum] = true;
-					bng_process_segment(objp, damage, vsegptridx(segnum), depth, visited);
+					bng_process_segment(objp, damage, segp.absolute_sibling(segnum), depth, visited);
 				}
 			}
 		}

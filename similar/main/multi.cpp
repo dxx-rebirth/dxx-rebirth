@@ -1666,7 +1666,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
 			Fusion_charge = flags << 12;
 		}
-		const auto &&objp = vobjptridx(Players[pnum].objnum);
+		auto &objp = obj;
 		if (weapon == weapon_id_type::LASER_ID) {
 			auto &powerup_flags = objp->ctype.player_info.powerup_flags;
 			if (flags & LASER_QUAD)

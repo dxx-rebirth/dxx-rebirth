@@ -1426,7 +1426,7 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 	// New way, green guys don't evade:	if ((robptr->attack_type == 0) && (objp->ctype.ai_info.danger_laser_num != -1))
 	if (objp->ctype.ai_info.danger_laser_num != object_none) {
-		const vobjptridx_t dobjp = vobjptridx(objp->ctype.ai_info.danger_laser_num);
+		const auto &&dobjp = objp.absolute_sibling(objp->ctype.ai_info.danger_laser_num);
 
 		if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == objp->ctype.ai_info.danger_laser_signature)) {
 			fix			dot, field_of_view;

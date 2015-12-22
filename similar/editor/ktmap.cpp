@@ -152,7 +152,7 @@ static void pts_aux(const vsegptridx_t sp, visited_segment_bitarray_t &visited)
 		const auto c = sp->children[side];
 		if (IS_CHILD(c))
 		{
-			const auto &&csegp = vsegptridx(c);
+			const auto &&csegp = sp.absolute_sibling(c);
 			while (!visited[c] && is_selected_segment(c))
 			{
 				med_propagate_tmaps_to_segments(sp, csegp, 0);

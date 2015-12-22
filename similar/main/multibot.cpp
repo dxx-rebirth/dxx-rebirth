@@ -1227,7 +1227,7 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 	}
 	if (robot_controlled[slot] == object_none)
 		return;
-	const auto rcrobot = vobjptridx(robot_controlled[slot]);
+	const auto &&rcrobot = robot.absolute_sibling(robot_controlled[slot]);
 	remote_objnum = objnum_local_to_remote(robot, &dummy);
 	if (remote_objnum < 0)
 		return;

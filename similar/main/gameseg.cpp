@@ -1605,7 +1605,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vs
 	if (recursion_depth < 2)
 		for (int sidenum=0; sidenum<6; sidenum++) {
 			if (WALL_IS_DOORWAY(segp,sidenum) & WID_RENDPAST_FLAG)
-				apply_light_to_segment(visited, vsegptridx(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
+				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
 
 }
@@ -1770,7 +1770,7 @@ static void ambient_mark_bfs(const vsegptridx_t segp, visited_segment_multibit_a
 		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
 		 */
 		if ((WALL_IS_DOORWAY(segp, i) & WID_RENDPAST_FLAG) && !(marked_segs[child] & s2f_bit))
-			ambient_mark_bfs(vsegptridx(child), marked_segs, depth-1, s2f_bit);
+			ambient_mark_bfs(segp.absolute_sibling(child), marked_segs, depth-1, s2f_bit);
 	}
 
 }

@@ -630,7 +630,7 @@ void do_physics_sim(const vobjptridx_t obj)
 				//	Calculcate the hit point between the two objects.
 				{
 					fix			size0, size1;
-					auto hit = vobjptridx(hit_info.hit_object);
+					const auto &&hit = obj.absolute_sibling(hit_info.hit_object);
 					const auto &ppos0 = hit->pos;
 					const auto &ppos1 = obj->pos;
 					size0 = hit->size;

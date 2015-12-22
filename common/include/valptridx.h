@@ -507,6 +507,14 @@ public:
 		vidx_type(i, a)
 	{
 	}
+	basic_ptridx absolute_sibling(const index_type i) const
+	{
+		static_assert(!policy::allow_nullptr, "absolute_sibling not allowed with invalid ptridx");
+		basic_ptridx r(*this);
+		r.m_ptr += check_index_range(i, nullptr) - this->m_idx;
+		r.m_idx = i;
+		return r;
+	}
 	template <typename rpolicy>
 		bool operator==(const basic_ptridx<rpolicy> &rhs) const
 		{

@@ -671,7 +671,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 
 	for (auto n = obj->attached_obj; n != object_none;)
 	{
-		const auto &&o = vobjptridx(n);
+		const auto &&o = obj.absolute_sibling(n);
 		Assert(o->type == OBJ_FIREBALL);
 		Assert(o->control_type == CT_EXPLOSION);
 		Assert(o->flags & OF_ATTACHED);
@@ -1025,14 +1025,14 @@ static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum
 	};
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)
 		throw std::logic_error("invalid edge vert");
-	auto seg0 = vsegptridx(seg->children[s0]);
+	const auto &&seg0 = seg.absolute_sibling(seg->children[s0]);
 	auto edgeside0 = find_seg_side(seg0,edge_verts,find_connect_side(seg,seg0));
 	if (edgeside0 == side_none)
 		return false;
 	auto r0 = compare_child(seg, seg0, edgeside0);
 	if (!r0)
 		return r0;
-	auto seg1 = vsegptridx(seg->children[s1]);
+	const auto &&seg1 = seg.absolute_sibling(seg->children[s1]);
 	auto edgeside1 = find_seg_side(seg1,edge_verts,find_connect_side(seg,seg1));
 	if (edgeside1 == side_none)
 		return false;

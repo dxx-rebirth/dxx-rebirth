@@ -42,7 +42,7 @@ static vsegptridx_t get_any_attached_segment(const vsegptridx_t curseg_num, cons
 			continue;
 		const auto child = curseg_num->children[s];
 		if (IS_CHILD(child))
-			return vsegptridx(child);
+			return curseg_num.absolute_sibling(child);
 	}
 	return curseg_num;
 }
@@ -52,7 +52,7 @@ static vsegptridx_t get_previous_segment(const vsegptridx_t curseg_num, const ui
 {
 	const auto side_child = curseg_num->children[Side_opposite[curside]];
 	if (IS_CHILD(side_child))
-		return vsegptridx(side_child);
+		return curseg_num.absolute_sibling(side_child);
 	// no segment on opposite face, connect to anything
 	return get_any_attached_segment(curseg_num, curside);
 }
@@ -79,7 +79,7 @@ static std::pair<vsegptridx_t, uint_fast32_t> get_next_segment_side(const vsegpt
 	const auto side_child = curseg_num->children[curside];
 	if (IS_CHILD(side_child))
 	{
-		const auto newseg_num = vsegptridx(side_child);
+		const auto &&newseg_num = curseg_num.absolute_sibling(side_child);
 		// Find out what side we came in through and favor side opposite that
 		const auto newside = Side_opposite[find_connect_side(curseg_num, newseg_num)];
 		// If there is nothing attached on the side opposite to what we came in (*newside), pick any other side

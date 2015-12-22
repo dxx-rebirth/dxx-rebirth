@@ -875,7 +875,7 @@ static void bash_buddy_weapon_info(const vobjptridx_t objp)
 //	-----------------------------------------------------------------------------
 static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 {
-	const vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
+	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist, dot;
 	auto vec_to_robot = vm_vec_sub(buddy_objp->pos, objp->pos);
 	dist = vm_vec_normalize_quick(vec_to_robot);
@@ -910,7 +910,7 @@ static int maybe_buddy_fire_mega(const vobjptridx_t objp)
 //-----------------------------------------------------------------------------
 static int maybe_buddy_fire_smart(const vobjptridx_t objp)
 {
-	const vobjptridx_t buddy_objp = vobjptridx(Buddy_objnum);
+	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist;
 
 	dist = vm_vec_dist_quick(buddy_objp->pos, objp->pos);

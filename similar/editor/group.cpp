@@ -415,7 +415,7 @@ static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglis
 
 		range_for (const auto c, segp->children)
 			if (IS_CHILD(c))
-				cgl_aux(vsegptridx(c), seglistp, ignore_list, visited);
+				cgl_aux(segp.absolute_sibling(c), seglistp, ignore_list, visited);
 	}
 }
 
@@ -590,7 +590,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	// Breaking connections between segments in the current group and segments not in the group.
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		const auto &&segp = vsegptridx(gs);
+		const auto &&segp = base_seg.absolute_sibling(gs);
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
@@ -726,11 +726,11 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
 		{
-		const auto &&segp = vsegptridx(gs);
+		const auto &&segp = base_seg.absolute_sibling(gs);
 		for (c=0; c < MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c]))
 				{
-				const auto &&csegp = vsegptridx(segp->children[c]);
+				const auto &&csegp = base_seg.absolute_sibling(segp->children[c]);
 				if (csegp->group != current_group)
 					{
 					for (d=0; d<MAX_SIDES_PER_SEGMENT; d++)

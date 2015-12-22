@@ -779,7 +779,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	upvec = attmat.uvec;
 
 	//	We are pretty confident we can add the segment.
-	const auto &&nsp = vsegptridx(segnum);
+	const auto &&nsp = destseg.absolute_sibling(segnum);
 
 	nsp->segnum = segnum;
 	nsp->objects = object_none;
@@ -994,7 +994,7 @@ int med_delete_segment(const vsegptridx_t sp)
 	// Find out what this segment was connected to and break those connections at the other end.
 	range_for (auto &side, sp->children)
 		if (IS_CHILD(side)) {
-			const auto &&csp = vsegptridx(side);
+			const auto &&csp = sp.absolute_sibling(side);
 			for (int s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 				if (csp->children[s] == segnum) {
 					csp->children[s] = segment_none;				// this is the side of connection, break it
@@ -1095,7 +1095,7 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 	if (count != 1)
 		return 3;
 
-	const auto &&destseg = vsegptridx(seg->children[newside]);
+	const auto &&destseg = seg.absolute_sibling(seg->children[newside]);
 
 	destside = 0;
 	while (destside < MAX_SIDES_PER_SEGMENT && destseg->children[destside] != seg)
@@ -1274,7 +1274,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validate_segment_side(seg1,side1);
 	range_for (auto &s, partial_range(validation_list, nv))
 	{
-		const auto &&segp = vsegptridx(s);
+		const auto &&segp = seg1.absolute_sibling(s);
 		validate_segment(segp);
 		remap_side_uvs(segp, remap_vertices);	// remap uv coordinates on sides which were reshaped (ie, have a vertex in lost_vertices)
 		warn_if_concave_segment(segp);
@@ -1300,7 +1300,7 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
 		return 1;
 
-	auto bs = vsegptridx(get_free_segment_number());
+	const auto &&bs = seg1.absolute_sibling(get_free_segment_number());
 	bs->segnum = bs;
 	bs->objects = object_none;
 
@@ -1596,7 +1596,7 @@ void warn_if_concave_segment(const vsegptridx_t s)
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
+int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side)
 {
 	int			s;
 	array<int, 4> abs_verts;
@@ -1655,7 +1655,7 @@ int med_find_adjacent_segment_side(const vcsegptridx_t sp, int side, segptridx_t
 //	Find segment closest to sp:side.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_closest_threshold_segment_side(const vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold)
+int med_find_closest_threshold_segment_side(const vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold)
 {
 	int			s;
 	fix			current_dist, closest_seg_dist;

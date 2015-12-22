@@ -1758,7 +1758,7 @@ static void object_move_one(const vobjptridx_t obj)
 #endif
 			range_for (const auto i, partial_range(phys_seglist, 1u, n_phys_segs))
 			{
-				const auto seg1 = vsegptridx(i);
+				const auto &&seg1 = seg0.absolute_sibling(i);
 				const auto connect_side = find_connect_side(seg1, seg0);
 				if (connect_side != -1)
 				{

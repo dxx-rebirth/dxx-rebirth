@@ -366,10 +366,10 @@ void med_propagate_tmaps_to_back_side(vsegptridx_t base_seg, int back_side, int 
 //	Adjacent means a segment which shares all four vertices.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-int med_find_adjacent_segment_side(vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side);
+int med_find_adjacent_segment_side(vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side);
 
 // Finds the closest segment and side to sp:side.
-int med_find_closest_threshold_segment_side(vcsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold);
+int med_find_closest_threshold_segment_side(vsegptridx_t sp, int side, segptridx_t &adj_sp, int *adj_side, fix threshold);
 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.

@@ -495,10 +495,12 @@ static void draw_mine_sub(const vsegptridx_t segnum,int depth, visited_segment_b
 
 		if (depth != 0) {
 			for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-				if (IS_CHILD(mine_ptr->children[side])) {
+				const auto child_segnum = mine_ptr->children[side];
+				if (IS_CHILD(child_segnum))
+				{
 					if (mine_ptr->sides[side].wall_num != wall_none)
 						draw_special_wall(mine_ptr, side);
-					draw_mine_sub(mine_ptr->children[side],depth-1, visited);
+					draw_mine_sub(segnum.absolute_sibling(child_segnum), depth-1, visited);
 				}
 			}
 		}

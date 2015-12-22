@@ -686,7 +686,7 @@ static void nd_read_object(const vobjptridx_t obj)
 			Assert(prev_obj!=NULL);
 			if (prev_obj->control_type == CT_EXPLOSION) {
 				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=object_none)
-					obj_attach(vobjptridx(prev_obj->ctype.expl_info.attach_parent),obj);
+					obj_attach(obj.absolute_sibling(prev_obj->ctype.expl_info.attach_parent), obj);
 				else
 					obj->flags &= ~OF_ATTACHED;
 			}

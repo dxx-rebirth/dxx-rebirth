@@ -101,7 +101,7 @@ static int add_wall(const vsegptridx_t seg, short side)
 			Num_walls++;
 			}
 				 
-		auto csegp = vsegptridx(seg->children[side]);
+		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 
 		if (csegp->sides[Connectside].wall_num == wall_none) {
@@ -715,7 +715,7 @@ int wall_remove()
 static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type)
 {
 	if (add_wall(segp, side)) {
-		auto csegp = vsegptridx(segp->children[side]);
+		const auto &&csegp = segp.absolute_sibling(segp->children[side]);
 		auto connectside = find_connect_side(segp, csegp);
 
 		Walls[segp->sides[side].wall_num].segnum = segp;
