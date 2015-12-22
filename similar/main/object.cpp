@@ -924,7 +924,6 @@ object_signature_t obj_get_signature()
 namespace dcx {
 
 static unsigned Debris_object_count;
-static int Unused_object_slots;
 
 }
 
@@ -946,15 +945,6 @@ objptridx_t obj_allocate()
 		if (Highest_object_index > Highest_ever_object_index)
 			Highest_ever_object_index = Highest_object_index;
 	}
-
-{
-Unused_object_slots=0;
-	range_for (const auto &&objp, highest_valid(vcobjptr))
-	{
-		if (objp->type == OBJ_NONE)
-		Unused_object_slots++;
-	}
-}
 	return objptridx(objnum);
 }
 
