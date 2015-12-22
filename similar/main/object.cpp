@@ -1128,16 +1128,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 
 	// Init physics info for this object
 	if (obj->movement_type == MT_PHYSICS) {
-
-		vm_vec_zero(obj->mtype.phys_info.velocity);
-		vm_vec_zero(obj->mtype.phys_info.thrust);
-		vm_vec_zero(obj->mtype.phys_info.rotvel);
-		vm_vec_zero(obj->mtype.phys_info.rotthrust);
-
-		obj->mtype.phys_info.mass		= 0;
-		obj->mtype.phys_info.drag 		= 0;
-		obj->mtype.phys_info.turnroll	= 0;
-		obj->mtype.phys_info.flags		= 0;
+		obj->mtype.phys_info = {};
 	}
 
 	if (obj->render_type == RT_POLYOBJ)
