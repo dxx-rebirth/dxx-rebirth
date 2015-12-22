@@ -1816,21 +1816,31 @@ int do_laser_firing_player(void)
 
 			flags = 0;
 
-			if (Primary_weapon == primary_weapon_index_t::SPREADFIRE_INDEX) {
-				if (Spreadfire_toggle)
-					flags |= LASER_SPREADFIRE_TOGGLED;
-				Spreadfire_toggle = !Spreadfire_toggle;
-			}
-
+			switch (Primary_weapon)
+			{
+				case primary_weapon_index_t::LASER_INDEX:
+					if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
+						flags |= LASER_QUAD;
+					break;
+				case primary_weapon_index_t::SPREADFIRE_INDEX:
+					flags |= (Spreadfire_toggle ^= LASER_SPREADFIRE_TOGGLED) & LASER_SPREADFIRE_TOGGLED;
+					break;
+				case primary_weapon_index_t::VULCAN_INDEX:
+				case primary_weapon_index_t::PLASMA_INDEX:
+				case primary_weapon_index_t::FUSION_INDEX:
+				default:
+					break;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Primary_weapon == primary_weapon_index_t::HELIX_INDEX) {
-				Helix_orientation++;
-				flags |= ((Helix_orientation & LASER_HELIX_MASK) << LASER_HELIX_SHIFT);
-			}
+				case primary_weapon_index_t::HELIX_INDEX:
+					flags |= (Helix_orientation++ & LASER_HELIX_MASK);
+					break;
+				case primary_weapon_index_t::SUPER_LASER_INDEX:
+				case primary_weapon_index_t::GAUSS_INDEX:
+				case primary_weapon_index_t::PHOENIX_INDEX:
+				case primary_weapon_index_t::OMEGA_INDEX:
+					break;
 #endif
-
-			if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
-				flags |= LASER_QUAD;
+			}
 
 			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
 
@@ -1987,7 +1997,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 		case primary_weapon_index_t::HELIX_INDEX: {
 			int helix_orient;
 			fix spreadr,spreadu;
-			helix_orient = (flags >> LASER_HELIX_SHIFT) & LASER_HELIX_MASK;
+			helix_orient = flags & LASER_HELIX_MASK;
 			switch(helix_orient) {
 
 				case 0: spreadr =  F1_0/16; spreadu = 0;       break; // Vertical
