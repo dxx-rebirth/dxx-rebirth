@@ -1632,7 +1632,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	Auto_fire_fusion_cannon_time = 0;
 	Next_laser_fire_time = GameTime64;
 	Next_missile_fire_time = GameTime64;
-	Last_laser_fired_time = GameTime64;
 
 	state_game_id = 0;
 

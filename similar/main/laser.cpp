@@ -1744,8 +1744,6 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 namespace dcx {
 
-fix64	Last_laser_fired_time = 0;
-
 static inline int sufficient_energy(int energy_used, fix energy)
 {
 	return !energy_used || (energy >= energy_used);
@@ -1808,8 +1806,6 @@ int do_laser_firing_player(void)
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
-
-                        Last_laser_fired_time = GameTime64;
 
 			if (!cheats.rapidfire)
 				Next_laser_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
