@@ -510,7 +510,10 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 	obj_relink(vobjptridx(ConsoleObject), seg );
 }
 
+}
+
 #ifndef OGL
+namespace dcx {
 void save_screen_shot(int automap_flag)
 {
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
@@ -548,7 +551,11 @@ void save_screen_shot(int automap_flag)
 	gr_ubitmap(temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
 }
+
+}
 #endif
+
+namespace dsx {
 
 //initialize flying
 void fly_init(const vobjptr_t obj)
