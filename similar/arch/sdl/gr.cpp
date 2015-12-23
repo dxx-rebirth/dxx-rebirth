@@ -270,10 +270,6 @@ void gr_palette_step_up( int r, int g, int b )
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 }
 
-}
-
-namespace dsx {
-
 void gr_palette_load( palette_array_t &pal )
 {
 	SDL_Palette *palette;
@@ -311,10 +307,6 @@ void gr_palette_load( palette_array_t &pal )
 	init_computed_colors();
 	gr_remap_color_fonts();
 }
-
-}
-
-namespace dcx {
 
 void gr_palette_read(palette_array_t &pal)
 {
