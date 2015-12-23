@@ -67,6 +67,8 @@ static inline void UserError_puts(const char (&str)[len])
 	UserError_puts(str, len - 1);
 }
 void UserError(const char *fmt, ...) __noreturn __attribute_format_printf(1, 2);
+
+}
 #define UserError(F,...)	dxx_call_printf_checked(UserError,(UserError_puts),(),(F),##__VA_ARGS__)
 #define Assert assert
 
@@ -104,6 +106,8 @@ void UserError(const char *fmt, ...) __noreturn __attribute_format_printf(1, 2);
 #endif
 
 #endif
+
+namespace dcx {
 
 // Encourage optimizer to treat d_debugbreak paths as unlikely
 __attribute_cold
