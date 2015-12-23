@@ -558,7 +558,11 @@ static P iterate_polymodel(P p, State &state)
 	return p;
 }
 
+}
+
 #ifdef WORDS_BIGENDIAN
+namespace dcx {
+
 static inline fix *fp(uint8_t *p)
 {
 	return reinterpret_cast<fix *>(p);
@@ -677,9 +681,13 @@ void swap_polygon_model_data(ubyte *data)
 	swap_polygon_model_data_state state;
 	iterate_polymodel(data, state);
 }
+
+}
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
+namespace dcx {
+
 static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
 {
@@ -742,7 +750,11 @@ int get_chunks(const uint8_t *data, uint8_t *new_data, chunk *list, int *no)
 	auto p = iterate_polymodel(data, state);
 	return p + 2 - data;
 }
+
+}
 #endif //def WORDS_NEED_ALIGNMENT
+
+namespace dsx {
 
 // check a polymodel for it's color and return it
 int g3_poly_get_color(const uint8_t *p)
