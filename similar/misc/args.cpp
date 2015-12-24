@@ -171,7 +171,7 @@ static void InitGameArg()
 	CGameArg.DbgVerbose = CON_NORMAL;
 	CGameArg.DbgBpp = 32;
 #ifdef OGL
-	GameArg.OglSyncMethod 		= OGL_SYNC_METHOD_DEFAULT;
+	CGameArg.OglSyncMethod = OGL_SYNC_METHOD_DEFAULT;
 	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
 	CGameArg.DbgGlIntensity4Ok 	= true;
 	CGameArg.DbgGlLuminance4Alpha4Ok = true;
@@ -287,7 +287,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_fixedfont"))
 			CGameArg.OglFixedFont = true;
 		else if (!d_stricmp(p, "-gl_syncmethod"))
-			GameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
+			CGameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
 		else if (!d_stricmp(p, "-gl_syncwait"))
 			GameArg.OglSyncWait = arg_integer(pp, end);
 #endif
