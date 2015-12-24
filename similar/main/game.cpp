@@ -471,7 +471,7 @@ void calc_frame_time()
 
 	const auto vsync = CGameCfg.VSync;
 	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
-	const auto may_sleep = !GameArg.SysNoNiceFPS && !vsync;
+	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
 	for (;;)
 	{
 		const auto timer_value = timer_update();

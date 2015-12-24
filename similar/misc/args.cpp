@@ -198,7 +198,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		if (!d_stricmp(p, "-help") || !d_stricmp(p, "-h") || !d_stricmp(p, "-?") || !d_stricmp(p, "?"))
 			CGameArg.SysShowCmdHelp = true;
 		else if (!d_stricmp(p, "-nonicefps"))
-			GameArg.SysNoNiceFPS = 1;
+			CGameArg.SysNoNiceFPS = true;
 		else if (!d_stricmp(p, "-maxfps"))
 			CGameArg.SysMaxFPS = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-hogdir"))

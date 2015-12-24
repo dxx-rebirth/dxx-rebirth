@@ -93,6 +93,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #endif
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
+	bool SysNoNiceFPS;
 	int SysMaxFPS;
 	std::string SysMissionDir;
 };
@@ -106,7 +107,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string SysHogDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
-	bool SysNoNiceFPS;
 	bool SysUsePlayersDir;
 	bool SysLowMem;
 	bool SysAutoRecordDemo;
