@@ -356,7 +356,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-renderstats"))
 			CGameArg.DbgRenderStats = true;
 		else if (!d_stricmp(p, "-text"))
-			GameArg.DbgAltTex = arg_string(pp, end);
+			CGameArg.DbgAltTex = arg_string(pp, end);
 		else if (!d_stricmp(p, "-tmap"))
 			CGameArg.DbgTexMap = arg_string(pp, end);
 		else if (!d_stricmp(p, "-showmeminfo"))

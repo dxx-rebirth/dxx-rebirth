@@ -214,8 +214,8 @@ void load_text()
 	};
 #endif
 
-	if (!GameArg.DbgAltTex.empty())
-		filename = GameArg.DbgAltTex.c_str();
+	if (!CGameArg.DbgAltTex.empty())
+		filename = CGameArg.DbgAltTex.c_str();
 
 	auto tfile = PHYSFSX_openReadBuffered(filename);
 	if (!tfile)

@@ -119,6 +119,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
 	std::string MplUdpHostAddr;
+	std::string DbgAltTex;
 	std::string DbgTexMap;
 };
 extern CArg CGameArg;
@@ -148,7 +149,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool EdiSaveHoardData;
 	bool EdiMacData; // also used for some read routines in non-editor build
 #endif
-	std::string DbgAltTex;
 };
 
 extern struct Arg GameArg;
