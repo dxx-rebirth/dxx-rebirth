@@ -74,6 +74,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysShowCmdHelp;
 	bool GfxSkipHiresFNT;
 	bool SndNoSound;
+	bool SndNoMusic;
 #ifdef USE_SDLMIXER
 	bool SndDisableSdlMixer;
 #else
@@ -115,7 +116,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysNoBorders;
 	bool SysNoTitles;
 	bool SysAutoDemo;
-	bool SndNoMusic;
 #ifdef DXX_BUILD_DESCENT_I
 	bool EdiNoBm;
 #endif

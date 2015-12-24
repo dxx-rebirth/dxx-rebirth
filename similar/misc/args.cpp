@@ -259,7 +259,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-nosound"))
 			CGameArg.SndNoSound		= 1;
 		else if (!d_stricmp(p, "-nomusic"))
-			GameArg.SndNoMusic 		= 1;
+			CGameArg.SndNoMusic = true;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (!d_stricmp(p, "-sound11k"))
 			GameArg.SndDigiSampleRate 		= SAMPLE_RATE_11K;
