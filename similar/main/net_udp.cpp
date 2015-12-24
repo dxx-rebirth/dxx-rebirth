@@ -696,7 +696,7 @@ static int udp_tracker_init()
 	udp_open_socket(UDP_Socket[2], tracker_port );
 	
 	// Fill the address
-	if(udp_dns_filladdr(TrackerSocket, tracker_addr, GameArg.MplTrackerPort) < 0)
+	if (udp_dns_filladdr(TrackerSocket, tracker_addr, CGameArg.MplTrackerPort) < 0)
 		return -1;
 	
 	// Yay
@@ -3422,7 +3422,7 @@ public:
                 }
 		else
                 {
-                        snprintf(tracker_addr_txt, sizeof(tracker_addr_txt), "%s:%u", tracker_addr.c_str(), GameArg.MplTrackerPort);
+			snprintf(tracker_addr_txt, sizeof(tracker_addr_txt), "%s:%u", tracker_addr.c_str(), CGameArg.MplTrackerPort);
                 }
 #endif
 	}
@@ -4759,7 +4759,7 @@ void net_udp_do_frame(int force, int listen)
 			iAttempts = 0;
 			
 			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr.c_str(), GameArg.MplTrackerPort, UDP_MyPort );
+			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr.c_str(), CGameArg.MplTrackerPort, UDP_MyPort );
 		}
 	}
 #endif

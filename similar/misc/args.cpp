@@ -165,7 +165,7 @@ static void InitGameArg()
 	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #ifdef USE_TRACKER
 	GameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
-	GameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
+	CGameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
 #endif
 #endif
 	CGameArg.DbgVerbose = CON_NORMAL;
@@ -320,7 +320,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.MplTrackerAddr = arg_string(pp, end);
 		}
 		else if (!d_stricmp(p, "-tracker_hostport"))
-			arg_port_number(pp, end, GameArg.MplTrackerPort, true);
+			arg_port_number(pp, end, CGameArg.MplTrackerPort, true);
 #endif
 #endif
 

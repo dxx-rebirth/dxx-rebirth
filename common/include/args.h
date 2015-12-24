@@ -116,6 +116,9 @@ struct CArg : prohibit_void_ptr<CArg>
 	int SysMaxFPS;
 	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
+#ifdef USE_TRACKER
+	uint16_t MplTrackerPort;
+#endif
 	std::string SysMissionDir;
 	std::string SysHogDir;
 	std::string SysPilot;
@@ -141,7 +144,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	int SndDigiSampleRate;
 #endif
 #ifdef USE_TRACKER
-	uint16_t MplTrackerPort;
 	std::string MplTrackerAddr;
 #endif
 #ifdef DXX_BUILD_DESCENT_II
