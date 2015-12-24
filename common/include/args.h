@@ -107,6 +107,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgSdlASyncBlit;
 #endif
 	bool DbgNoRun;
+	bool DbgNoDoubleBuffer;
 	bool DbgRenderStats;
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
@@ -147,7 +148,6 @@ struct Arg : prohibit_void_ptr<Arg>
 #endif
 	std::string DbgAltTex;
 	std::string DbgTexMap;
-	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
 };
 
