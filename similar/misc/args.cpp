@@ -172,7 +172,7 @@ static void InitGameArg()
 	CGameArg.DbgBpp = 32;
 #ifdef OGL
 	CGameArg.OglSyncMethod = OGL_SYNC_METHOD_DEFAULT;
-	GameArg.OglSyncWait		= OGL_SYNC_WAIT_DEFAULT;
+	CGameArg.OglSyncWait = OGL_SYNC_WAIT_DEFAULT;
 	CGameArg.DbgGlIntensity4Ok 	= true;
 	CGameArg.DbgGlLuminance4Alpha4Ok = true;
 	CGameArg.DbgGlRGBA2Ok = true;
@@ -289,7 +289,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-gl_syncmethod"))
 			CGameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
 		else if (!d_stricmp(p, "-gl_syncwait"))
-			GameArg.OglSyncWait = arg_integer(pp, end);
+			CGameArg.OglSyncWait = arg_integer(pp, end);
 #endif
 
 	// Multiplayer Options

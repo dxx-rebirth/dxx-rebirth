@@ -674,7 +674,7 @@ int gr_set_mode(screen_mode mode)
 
 #ifndef OGLES
 	ogl_extensions_init();
-	sync_helper.init(CGameArg.OglSyncMethod, GameArg.OglSyncWait);
+	sync_helper.init(CGameArg.OglSyncMethod, CGameArg.OglSyncWait);
 #endif
 
 	OGL_VIEWPORT(0,0,w,h);

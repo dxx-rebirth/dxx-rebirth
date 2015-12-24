@@ -101,6 +101,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlGetTexLevelParamOk;
 	bool DbgGlLuminance4Alpha4Ok;
 	bool DbgGlRGBA2Ok;
+	unsigned OglSyncWait;
 #endif
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
@@ -126,9 +127,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool GfxSkipHiresMovie;
 	bool GfxSkipHiresGFX;
 	int SndDigiSampleRate;
-#endif
-#ifdef OGL
-	int OglSyncWait;
 #endif
 	std::string MplUdpHostAddr;
 	uint16_t MplUdpHostPort;
