@@ -162,7 +162,7 @@ static void InitGameArg()
 	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
 #endif
 #ifdef USE_UDP
-	GameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
+	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #ifdef USE_TRACKER
 	GameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
 	GameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
@@ -296,7 +296,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 
 #ifdef USE_UDP
 		else if (!d_stricmp(p, "-udp_hostaddr"))
-			GameArg.MplUdpHostAddr = arg_string(pp, end);
+			CGameArg.MplUdpHostAddr = arg_string(pp, end);
 		else if (!d_stricmp(p, "-udp_hostport"))
 			/* Peers use -udp_myport to change, so peer cannot set a
 			 * privileged port.

@@ -111,6 +111,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	std::string SysHogDir;
 	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
+	std::string MplUdpHostAddr;
 };
 extern CArg CGameArg;
 }
@@ -128,7 +129,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool GfxSkipHiresGFX;
 	int SndDigiSampleRate;
 #endif
-	std::string MplUdpHostAddr;
 	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER

@@ -987,7 +987,7 @@ void net_udp_manual_join_game()
 	
 	net_udp_init();
 
-	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr.c_str());
+	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", CGameArg.MplUdpHostAddr.c_str());
 	snprintf(dj->hostportbuf, sizeof(dj->hostportbuf), "%hu", GameArg.MplUdpHostPort ? GameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
 
 	reset_UDP_MyPort();
