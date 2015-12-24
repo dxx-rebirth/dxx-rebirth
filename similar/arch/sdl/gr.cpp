@@ -185,7 +185,7 @@ int gr_init()
 	if (CGameArg.DbgSdlHWSurface)
 		sdl_video_flags|=SDL_HWSURFACE;
 
-	if (GameArg.DbgSdlASyncBlit)
+	if (CGameArg.DbgSdlASyncBlit)
 		sdl_video_flags|=SDL_ASYNCBLIT;
 
 	// Set the mode.

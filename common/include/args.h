@@ -104,6 +104,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	unsigned OglSyncWait;
 #else
 	bool DbgSdlHWSurface;
+	bool DbgSdlASyncBlit;
 #endif
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
@@ -148,10 +149,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	std::string DbgTexMap;
 	bool DbgNoDoubleBuffer;
 	bool DbgNoCompressPigBitmap;
-#ifdef OGL
-#else
-	int DbgSdlASyncBlit;
-#endif
 };
 
 extern struct Arg GameArg;

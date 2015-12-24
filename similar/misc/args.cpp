@@ -385,7 +385,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-hwsurface"))
 			CGameArg.DbgSdlHWSurface = true;
 		else if (!d_stricmp(p, "-asyncblit"))
-			GameArg.DbgSdlASyncBlit = 1;
+			CGameArg.DbgSdlASyncBlit = true;
 #endif
 		else if (!d_stricmp(p, "-ini"))
 		{
