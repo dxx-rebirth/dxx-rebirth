@@ -99,6 +99,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	int SysMaxFPS;
 	std::string SysMissionDir;
 	std::string SysHogDir;
+	std::string SysPilot;
 };
 extern CArg CGameArg;
 }
@@ -107,7 +108,6 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-	std::string SysPilot;
 	std::string SysRecordDemoNameTemplate;
 	bool SysUsePlayersDir;
 	bool SysLowMem;

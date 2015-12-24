@@ -515,12 +515,12 @@ static int main(int argc, char *argv[])
 	#endif
 #endif
 	{
-		if (!GameArg.SysPilot.empty())
+		if (!CGameArg.SysPilot.empty())
 		{
 			char filename[32] = "";
 			unsigned j;
 
-			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), GameArg.SysPilot.c_str());
+			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), CGameArg.SysPilot.c_str());
 			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
