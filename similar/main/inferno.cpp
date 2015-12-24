@@ -447,7 +447,7 @@ static int main(int argc, char *argv[])
 
 	arch_init();
 
-	select_tmap(GameArg.DbgTexMap);
+	select_tmap(CGameArg.DbgTexMap);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;

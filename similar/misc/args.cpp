@@ -358,7 +358,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-text"))
 			GameArg.DbgAltTex = arg_string(pp, end);
 		else if (!d_stricmp(p, "-tmap"))
-			GameArg.DbgTexMap = arg_string(pp, end);
+			CGameArg.DbgTexMap = arg_string(pp, end);
 		else if (!d_stricmp(p, "-showmeminfo"))
 			CGameArg.DbgShowMemInfo 		= 1;
 		else if (!d_stricmp(p, "-nodoublebuffer"))
