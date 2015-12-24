@@ -1189,7 +1189,7 @@ window *game_setup(void)
 #endif
 
 	fix_object_segs();
-	if (GameArg.SysAutoRecordDemo && Newdemo_state == ND_STATE_NORMAL)
+	if (CGameArg.SysAutoRecordDemo && Newdemo_state == ND_STATE_NORMAL)
 		newdemo_start_recording();
 	return game_wind;
 }
