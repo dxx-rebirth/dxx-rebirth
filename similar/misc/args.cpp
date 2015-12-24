@@ -231,7 +231,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-noborders"))
 			CGameArg.SysNoBorders = true;
 		else if (!d_stricmp(p, "-notitles"))
-			GameArg.SysNoTitles 		= 1;
+			CGameArg.SysNoTitles = true;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (!d_stricmp(p, "-nomovies"))
 			GameArg.SysNoMovies 		= 1;

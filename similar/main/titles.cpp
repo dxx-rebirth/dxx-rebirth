@@ -207,7 +207,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 
 void show_titles(void)
 {
-	if (GameArg.SysNoTitles)
+	if (CGameArg.SysNoTitles)
 		return;
 #if defined(DXX_BUILD_DESCENT_I)
 	songs_play_song( SONG_TITLE, 1 );
@@ -308,7 +308,7 @@ void show_titles(void)
 
 void show_order_form()
 {
-	if (GameArg.SysNoTitles)
+	if (CGameArg.SysNoTitles)
 		return;
 
 #if defined(DXX_BUILD_DESCENT_I)
