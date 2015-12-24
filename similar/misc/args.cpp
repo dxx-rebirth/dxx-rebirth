@@ -285,7 +285,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// OpenGL Options
 
 		else if (!d_stricmp(p, "-gl_fixedfont"))
-			GameArg.OglFixedFont 		= 1;
+			CGameArg.OglFixedFont = true;
 		else if (!d_stricmp(p, "-gl_syncmethod"))
 			GameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
 		else if (!d_stricmp(p, "-gl_syncwait"))
