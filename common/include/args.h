@@ -72,6 +72,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoHogDir;
 #endif
 	bool SysShowCmdHelp;
+	bool SysUsePlayersDir;
 	bool GfxSkipHiresFNT;
 	bool SndNoSound;
 	bool SndNoMusic;
@@ -109,7 +110,6 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-	bool SysUsePlayersDir;
 	bool SysLowMem;
 	bool SysAutoRecordDemo;
 	bool SysWindow;
@@ -158,14 +158,14 @@ struct Arg : prohibit_void_ptr<Arg>
 extern struct Arg GameArg;
 
 bool InitArgs(int argc, char **argv);
+}
 
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
 {
-	return (GameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
+	return (CGameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
 }
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
-}
 #endif
 
 #endif

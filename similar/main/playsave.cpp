@@ -695,7 +695,7 @@ static int write_player_dxx(const char *filename)
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
 	auto fout = PHYSFSX_openWriteBuffered(tempfile);
-	if (!fout && GameArg.SysUsePlayersDir)
+	if (!fout && CGameArg.SysUsePlayersDir)
 	{
 		PHYSFS_mkdir(PLAYER_DIRECTORY_STRING(""));	//try making directory
 		fout=PHYSFSX_openWriteBuffered(tempfile);

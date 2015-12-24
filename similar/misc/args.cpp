@@ -217,7 +217,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 #endif
 		}
 		else if (!d_stricmp(p, "-use_players_dir"))
-			GameArg.SysUsePlayersDir 	= 1;
+			CGameArg.SysUsePlayersDir 	= 1;
 		else if (!d_stricmp(p, "-lowmem"))
 			GameArg.SysLowMem 		= 1;
 		else if (!d_stricmp(p, "-pilot"))

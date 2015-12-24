@@ -521,7 +521,8 @@ static int main(int argc, char *argv[])
 			unsigned j;
 
 			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), CGameArg.SysPilot.c_str());
-			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
+			for (j = CGameArg.SysUsePlayersDir ? 8 : 0; filename[j] != '\0'; ++j)
+			{
 				switch (filename[j]) {
 					case ' ':
 						filename[j] = '\0';
@@ -535,7 +536,7 @@ static int main(int argc, char *argv[])
 			if(PHYSFSX_exists(filename,0))
 			{
 				filename[j - 4] = 0;
-				char *b = GameArg.SysUsePlayersDir? &filename[8] : filename;
+				char *b = CGameArg.SysUsePlayersDir ? &filename[8] : filename;
 				get_local_player().callsign.copy(b, std::distance(b, end(filename)));
 				read_player_file();
 				WriteConfigFile();
