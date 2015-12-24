@@ -461,13 +461,13 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_DEMO_KEY_DELAY	25
 #endif
-			if ( keyd_time_when_last_pressed+i2f(DXX_DEMO_KEY_DELAY) < timer_query() || GameArg.SysAutoDemo  )
+			if (keyd_time_when_last_pressed + i2f(DXX_DEMO_KEY_DELAY) < timer_query() || CGameArg.SysAutoDemo)
 			{
 				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 
 #if defined(DXX_BUILD_DESCENT_II)
 				int n_demos = newdemo_count_demos();
-				if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
+				if ((d_rand() % (n_demos+1)) == 0 && !CGameArg.SysAutoDemo)
 				{
 #ifdef OGL
 					Screen_mode = -1;

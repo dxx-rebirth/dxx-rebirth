@@ -468,12 +468,12 @@ static int HandleDemoKey(int key)
 			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
 			break;
 		case KEY_ESC:
-			if (GameArg.SysAutoDemo)
+			if (CGameArg.SysAutoDemo)
 			{
 				int choice;
 				choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
 				if (choice == 0)
-					GameArg.SysAutoDemo = 0;
+					CGameArg.SysAutoDemo = false;
 				else
 					break;
 			}

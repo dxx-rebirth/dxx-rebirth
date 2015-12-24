@@ -3903,7 +3903,7 @@ void newdemo_start_playback(const char * filename)
 		NumFiles = newdemo_count_demos();
 
 		if ( NumFiles == 0 ) {
-			GameArg.SysAutoDemo = 0;
+			CGameArg.SysAutoDemo = false;
 			return;     // No files found!
 		}
 		RandFileNum = d_rand() % NumFiles;
@@ -3923,7 +3923,7 @@ void newdemo_start_playback(const char * filename)
 		}
 		if (NumFiles > RandFileNum)
 		{
-			GameArg.SysAutoDemo = 0;
+			CGameArg.SysAutoDemo = false;
 			return;
 		}
 	}

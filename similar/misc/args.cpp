@@ -237,7 +237,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			GameArg.SysNoMovies 		= 1;
 #endif
 		else if (!d_stricmp(p, "-autodemo"))
-			GameArg.SysAutoDemo 		= 1;
+			CGameArg.SysAutoDemo = true;
 
 	// Control Options
 

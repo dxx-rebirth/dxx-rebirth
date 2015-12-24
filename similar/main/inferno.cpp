@@ -258,7 +258,7 @@ int standard_handler(const d_event &event)
 				return 0;
 			else
 			{
-				GameArg.SysAutoDemo = 0;
+				CGameArg.SysAutoDemo = false;
 				Quitting = 1;
 			}
 		}
