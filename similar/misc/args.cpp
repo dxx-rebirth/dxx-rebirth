@@ -364,7 +364,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-nodoublebuffer"))
 			CGameArg.DbgNoDoubleBuffer = true;
 		else if (!d_stricmp(p, "-bigpig"))
-			GameArg.DbgNoCompressPigBitmap 		= 1;
+			CGameArg.DbgNoCompressPigBitmap = true;
 		else if (!d_stricmp(p, "-16bpp"))
 			CGameArg.DbgBpp		= 16;
 

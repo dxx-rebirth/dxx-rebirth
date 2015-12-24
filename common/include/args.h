@@ -108,6 +108,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #endif
 	bool DbgNoRun;
 	bool DbgNoDoubleBuffer;
+	bool DbgNoCompressPigBitmap;
 	bool DbgRenderStats;
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
@@ -148,7 +149,6 @@ struct Arg : prohibit_void_ptr<Arg>
 #endif
 	std::string DbgAltTex;
 	std::string DbgTexMap;
-	bool DbgNoCompressPigBitmap;
 };
 
 extern struct Arg GameArg;
