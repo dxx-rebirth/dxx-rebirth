@@ -118,6 +118,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER
 	uint16_t MplTrackerPort;
+	std::string MplTrackerAddr;
 #endif
 	std::string SysMissionDir;
 	std::string SysHogDir;
@@ -142,11 +143,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool GfxSkipHiresMovie;
 	bool GfxSkipHiresGFX;
 	int SndDigiSampleRate;
-#endif
-#ifdef USE_TRACKER
-	std::string MplTrackerAddr;
-#endif
-#ifdef DXX_BUILD_DESCENT_II
 	std::string EdiAutoLoad;
 	bool EdiSaveHoardData;
 	bool EdiMacData; // also used for some read routines in non-editor build

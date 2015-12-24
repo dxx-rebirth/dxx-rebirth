@@ -684,9 +684,9 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 /* Tracker initialization */
 static int udp_tracker_init()
 {
-	if (GameArg.MplTrackerAddr.empty())
+	if (CGameArg.MplTrackerAddr.empty())
 		return 0;
-	const char *tracker_addr = GameArg.MplTrackerAddr.c_str();
+	const char *tracker_addr = CGameArg.MplTrackerAddr.c_str();
 	int tracker_port = d_rand() % 0xffff;
 
 	while (tracker_port <= 1024)
@@ -3414,7 +3414,7 @@ public:
 		update_extra_secondary_string(secondary);
 		DXX_UDP_MENU_OPTIONS(ADD);
 #ifdef USE_TRACKER
-		const auto &tracker_addr = GameArg.MplTrackerAddr;
+		const auto &tracker_addr = CGameArg.MplTrackerAddr;
 		if (tracker_addr.empty())
                 {
 			nm_set_item_text(m[opt_tracker], "Tracker use disabled");
@@ -3878,7 +3878,7 @@ int net_udp_setup_game()
 	/* Force off _after_ writing profile, so that command line does not
 	 * change ngp file.
 	 */
-	if (GameArg.MplTrackerAddr.empty())
+	if (CGameArg.MplTrackerAddr.empty())
 		Netgame.Tracker = 0;
 #endif
 
@@ -4759,7 +4759,7 @@ void net_udp_do_frame(int force, int listen)
 			iAttempts = 0;
 			
 			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", GameArg.MplTrackerAddr.c_str(), CGameArg.MplTrackerPort, UDP_MyPort );
+			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s:%hu\nGame port: %hu", CGameArg.MplTrackerAddr.c_str(), CGameArg.MplTrackerPort, UDP_MyPort );
 		}
 	}
 #endif

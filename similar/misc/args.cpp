@@ -164,7 +164,7 @@ static void InitGameArg()
 #ifdef USE_UDP
 	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #ifdef USE_TRACKER
-	GameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
+	CGameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
 	CGameArg.MplTrackerPort = TRACKER_PORT_DEFAULT;
 #endif
 #endif
@@ -311,13 +311,13 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			/* Always recognized.  No-op if tracker support compiled
 			 * out. */
 #ifdef USE_TRACKER
-			GameArg.MplTrackerAddr.clear();
+			CGameArg.MplTrackerAddr.clear();
 #endif
 		}
 #ifdef USE_TRACKER
 		else if (!d_stricmp(p, "-tracker_hostaddr"))
 		{
-			GameArg.MplTrackerAddr = arg_string(pp, end);
+			CGameArg.MplTrackerAddr = arg_string(pp, end);
 		}
 		else if (!d_stricmp(p, "-tracker_hostport"))
 			arg_port_number(pp, end, CGameArg.MplTrackerPort, true);
