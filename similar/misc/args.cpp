@@ -229,7 +229,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-window"))
 			CGameArg.SysWindow = true;
 		else if (!d_stricmp(p, "-noborders"))
-			GameArg.SysNoBorders 		= 1;
+			CGameArg.SysNoBorders = true;
 		else if (!d_stricmp(p, "-notitles"))
 			GameArg.SysNoTitles 		= 1;
 #if defined(DXX_BUILD_DESCENT_II)

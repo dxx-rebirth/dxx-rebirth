@@ -79,6 +79,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool GfxSkipHiresFNT;
 	bool SndNoSound;
 	bool SndNoMusic;
+	bool SysNoBorders;
 #ifdef USE_SDLMIXER
 	bool SndDisableSdlMixer;
 #else
@@ -113,7 +114,6 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-	bool SysNoBorders;
 	bool SysNoTitles;
 	bool SysAutoDemo;
 #ifdef DXX_BUILD_DESCENT_I

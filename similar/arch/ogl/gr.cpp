@@ -769,7 +769,7 @@ int gr_init()
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
-	if (GameArg.SysNoBorders)
+	if (CGameArg.SysNoBorders)
 		sdl_video_flags|=SDL_NOFRAME;
 
 	gr_set_attributes();
