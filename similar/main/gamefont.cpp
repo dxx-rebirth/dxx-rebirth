@@ -174,7 +174,7 @@ void gamefont_init()
 	for (int i=0;i<MAX_FONTS;i++){
 		Gamefonts[i]=NULL;
 
-		if (!GameArg.GfxSkipHiresFNT)
+		if (!CGameArg.GfxSkipHiresFNT)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
 #if defined(DXX_BUILD_DESCENT_I)
 		if (MacHog && (i != 0))

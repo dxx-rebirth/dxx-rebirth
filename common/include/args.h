@@ -72,6 +72,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoHogDir;
 #endif
 	bool SysShowCmdHelp;
+	bool GfxSkipHiresFNT;
 	bool SndNoSound;
 #ifdef USE_SDLMIXER
 	bool SndDisableSdlMixer;
@@ -115,7 +116,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysNoTitles;
 	bool SysAutoDemo;
 	bool SndNoMusic;
-	bool GfxSkipHiresFNT;
 #ifdef DXX_BUILD_DESCENT_I
 	bool EdiNoBm;
 #endif

@@ -274,7 +274,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// Graphics Options
 
 		else if (!d_stricmp(p, "-lowresfont"))
-			GameArg.GfxSkipHiresFNT	= 1;
+			CGameArg.GfxSkipHiresFNT = true;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (!d_stricmp(p, "-lowresgraphics"))
 			GameArg.GfxSkipHiresGFX	= 1;
