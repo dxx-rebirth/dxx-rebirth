@@ -107,7 +107,7 @@ int digi_xlat_sound(int soundno)
 	if (soundno < 0)
 		return -1;
 
-	if (GameArg.SysLowMem)
+	if (CGameArg.SysLowMem)
 	{
 		soundno = AltSounds[soundno];
 		if (soundno == 255)
@@ -125,7 +125,7 @@ static int digi_unxlat_sound(int soundno)
 {
 	if ( soundno < 0 ) return -1;
 
-	auto &table = (GameArg.SysLowMem?AltSounds:Sounds);
+	auto &table = (CGameArg.SysLowMem ? AltSounds : Sounds);
 	auto b = begin(table);
 	auto e = end(table);
 	auto i = std::find(b, e, soundno);

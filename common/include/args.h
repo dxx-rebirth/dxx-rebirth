@@ -72,6 +72,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoHogDir;
 #endif
 	bool SysShowCmdHelp;
+	bool SysLowMem;
 	bool SysUsePlayersDir;
 	bool GfxSkipHiresFNT;
 	bool SndNoSound;
@@ -110,7 +111,6 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-	bool SysLowMem;
 	bool SysAutoRecordDemo;
 	bool SysWindow;
 	bool SysNoBorders;

@@ -141,7 +141,7 @@ static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 #define PIGFILE_VERSION         2
 #define PIGGY_BUFFER_SIZE (2400*1024)
 #endif
-#define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
+#define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when CGameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
 
@@ -603,7 +603,7 @@ int properties_init()
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
-	if (GameArg.SysLowMem)
+	if (CGameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
 	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
@@ -695,7 +695,7 @@ void piggy_init_pigfile(const char *filename)
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
-	if (GameArg.SysLowMem)
+	if (CGameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
 	BitmapBits = make_unique<ubyte[]>(Piggy_bitmap_cache_size);
@@ -998,7 +998,7 @@ int read_hamfile()
 		if (shareware) // deal with interactive PC demo
 		{
 			GameArg.GfxSkipHiresGFX = 1;
-			//GameArg.SysLowMem = 1;
+			//CGameArg.SysLowMem = 1;
 		}
 	}
 
@@ -1155,7 +1155,8 @@ static int piggy_is_needed(int soundnum)
 {
 	int i;
 
-	if ( !GameArg.SysLowMem ) return 1;
+	if (!CGameArg.SysLowMem)
+		return 1;
 
 	for (i=0; i<MAX_SOUNDS; i++ )   {
 		if ( (AltSounds[i] < 255) && (Sounds[AltSounds[i]] == soundnum) )
@@ -1293,7 +1294,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	if ( GameBitmapOffset[i] == 0 ) return;		// A read-from-disk bitmap!!!
 
-	if ( GameArg.SysLowMem ) {
+	if (CGameArg.SysLowMem)
+	{
 		org_i = i;
 		i = GameBitmapXlat[i];          // Xlat for low-memory settings!
 	}
@@ -1417,7 +1419,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	}
 
-	if ( GameArg.SysLowMem ) {
+	if (CGameArg.SysLowMem)
+	{
 		if ( org_i != i )
 			GameBitmaps[org_i] = GameBitmaps[i];
 	}

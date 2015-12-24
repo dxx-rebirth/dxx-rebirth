@@ -219,7 +219,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-use_players_dir"))
 			CGameArg.SysUsePlayersDir 	= 1;
 		else if (!d_stricmp(p, "-lowmem"))
-			GameArg.SysLowMem 		= 1;
+			CGameArg.SysLowMem = true;
 		else if (!d_stricmp(p, "-pilot"))
 			CGameArg.SysPilot = arg_string(pp, end);
 		else if (!d_stricmp(p, "-record-demo-format"))
