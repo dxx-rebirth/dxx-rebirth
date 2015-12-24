@@ -301,7 +301,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			/* Peers use -udp_myport to change, so peer cannot set a
 			 * privileged port.
 			 */
-			arg_port_number(pp, end, GameArg.MplUdpHostPort, false);
+			arg_port_number(pp, end, CGameArg.MplUdpHostPort, false);
 		else if (!d_stricmp(p, "-udp_myport"))
 		{
 			arg_port_number(pp, end, GameArg.MplUdpMyPort, false);
