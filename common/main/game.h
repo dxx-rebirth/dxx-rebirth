@@ -297,10 +297,10 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 #endif
 
 void game_render_frame_mono();
-static inline void game_render_frame_mono(int flip)
+static inline void game_render_frame_mono(int skip_flip)
 {
 	game_render_frame_mono();
-	if (flip)
+	if (!skip_flip)
 		gr_flip();
 }
 }
