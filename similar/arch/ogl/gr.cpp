@@ -766,7 +766,7 @@ int gr_init()
 	ogl_init_load_library();
 #endif
 
-	if (!CGameCfg.WindowMode && !GameArg.SysWindow)
+	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
 	if (GameArg.SysNoBorders)

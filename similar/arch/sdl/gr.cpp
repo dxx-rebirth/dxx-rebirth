@@ -176,7 +176,7 @@ int gr_init()
 
 	grd_curscreen = make_unique<grs_screen, grs_screen>({});
 
-	if (!CGameCfg.WindowMode && !GameArg.SysWindow)
+	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
 	if (GameArg.SysNoBorders)

@@ -227,7 +227,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-auto-record-demo"))
 			CGameArg.SysAutoRecordDemo = true;
 		else if (!d_stricmp(p, "-window"))
-			GameArg.SysWindow 		= 1;
+			CGameArg.SysWindow = true;
 		else if (!d_stricmp(p, "-noborders"))
 			GameArg.SysNoBorders 		= 1;
 		else if (!d_stricmp(p, "-notitles"))
