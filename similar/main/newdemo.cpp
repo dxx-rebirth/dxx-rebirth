@@ -3724,7 +3724,7 @@ static void newdemo_write_end()
 static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 {
 	filename[0] = 0;
-	const auto &n = GameArg.SysRecordDemoNameTemplate;
+	const auto &n = CGameArg.SysRecordDemoNameTemplate;
 	if (n.empty())
 		return false;
 	auto p = n.c_str();

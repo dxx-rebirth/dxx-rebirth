@@ -223,7 +223,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-pilot"))
 			CGameArg.SysPilot = arg_string(pp, end);
 		else if (!d_stricmp(p, "-record-demo-format"))
-			GameArg.SysRecordDemoNameTemplate = arg_string(pp, end);
+			CGameArg.SysRecordDemoNameTemplate = arg_string(pp, end);
 		else if (!d_stricmp(p, "-auto-record-demo"))
 			GameArg.SysAutoRecordDemo = 1;
 		else if (!d_stricmp(p, "-window"))
