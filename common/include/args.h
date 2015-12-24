@@ -92,7 +92,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlRGBA2Ok;
 #endif
 	uint8_t DbgBpp;
-	int DbgVerbose;
+	int8_t DbgVerbose;
 	int SysMaxFPS;
 	std::string SysMissionDir;
 };
