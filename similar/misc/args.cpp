@@ -383,7 +383,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.DbgGlGetTexLevelParamOk = arg_integer(pp, end);
 #else
 		else if (!d_stricmp(p, "-hwsurface"))
-			GameArg.DbgSdlHWSurface = 1;
+			CGameArg.DbgSdlHWSurface = true;
 		else if (!d_stricmp(p, "-asyncblit"))
 			GameArg.DbgSdlASyncBlit = 1;
 #endif

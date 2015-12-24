@@ -182,7 +182,7 @@ int gr_init()
 	if (CGameArg.SysNoBorders)
 		sdl_video_flags|=SDL_NOFRAME;
 
-	if (GameArg.DbgSdlHWSurface)
+	if (CGameArg.DbgSdlHWSurface)
 		sdl_video_flags|=SDL_HWSURFACE;
 
 	if (GameArg.DbgSdlASyncBlit)

@@ -102,6 +102,8 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlLuminance4Alpha4Ok;
 	bool DbgGlRGBA2Ok;
 	unsigned OglSyncWait;
+#else
+	bool DbgSdlHWSurface;
 #endif
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
@@ -148,7 +150,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool DbgNoCompressPigBitmap;
 #ifdef OGL
 #else
-	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
 #endif
 };
