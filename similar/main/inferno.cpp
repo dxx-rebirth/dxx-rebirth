@@ -488,7 +488,7 @@ static int main(int argc, char *argv[])
 	#endif
 #endif
 
-	if (GameArg.DbgNoRun)
+	if (CGameArg.DbgNoRun)
 		return(0);
 
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );

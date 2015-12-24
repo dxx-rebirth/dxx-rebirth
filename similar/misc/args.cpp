@@ -352,7 +352,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-safelog"))
 			CGameArg.DbgSafelog = true;
 		else if (!d_stricmp(p, "-norun"))
-			GameArg.DbgNoRun 		= 1;
+			CGameArg.DbgNoRun = true;
 		else if (!d_stricmp(p, "-renderstats"))
 			GameArg.DbgRenderStats 		= 1;
 		else if (!d_stricmp(p, "-text"))

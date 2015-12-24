@@ -106,6 +106,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgSdlHWSurface;
 	bool DbgSdlASyncBlit;
 #endif
+	bool DbgNoRun;
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
 	bool SysNoNiceFPS;
@@ -143,7 +144,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool EdiSaveHoardData;
 	bool EdiMacData; // also used for some read routines in non-editor build
 #endif
-	bool DbgNoRun;
 	bool DbgRenderStats;
 	std::string DbgAltTex;
 	std::string DbgTexMap;
