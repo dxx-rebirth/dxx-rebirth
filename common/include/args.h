@@ -115,6 +115,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoNiceFPS;
 	int SysMaxFPS;
 	uint16_t MplUdpHostPort;
+	uint16_t MplUdpMyPort;
 	std::string SysMissionDir;
 	std::string SysHogDir;
 	std::string SysPilot;
@@ -139,7 +140,6 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool GfxSkipHiresGFX;
 	int SndDigiSampleRate;
 #endif
-	uint16_t MplUdpMyPort;
 #ifdef USE_TRACKER
 	uint16_t MplTrackerPort;
 	std::string MplTrackerAddr;

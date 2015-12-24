@@ -294,7 +294,7 @@ static void net_udp_prepare_request_game_info(array<uint8_t, UPID_GAME_INFO_REQ_
 
 static void reset_UDP_MyPort()
 {
-	UDP_MyPort = GameArg.MplUdpMyPort >= 1024 ? GameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
+	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
 static bool convert_text_portstring(const char *portstring, uint16_t &outport, bool allow_privileged)
@@ -1260,7 +1260,7 @@ void net_udp_list_join_game()
 		return;
 
 	net_udp_init();
-	auto gamemyport = GameArg.MplUdpMyPort;
+	const auto gamemyport = CGameArg.MplUdpMyPort;
 	if (udp_open_socket(UDP_Socket[0], gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
 		return;
 

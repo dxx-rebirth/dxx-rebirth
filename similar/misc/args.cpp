@@ -304,7 +304,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			arg_port_number(pp, end, CGameArg.MplUdpHostPort, false);
 		else if (!d_stricmp(p, "-udp_myport"))
 		{
-			arg_port_number(pp, end, GameArg.MplUdpMyPort, false);
+			arg_port_number(pp, end, CGameArg.MplUdpMyPort, false);
 		}
 		else if (!d_stricmp(p, "-no-tracker"))
 		{
