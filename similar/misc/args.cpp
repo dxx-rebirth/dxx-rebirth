@@ -354,7 +354,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-norun"))
 			CGameArg.DbgNoRun = true;
 		else if (!d_stricmp(p, "-renderstats"))
-			GameArg.DbgRenderStats 		= 1;
+			CGameArg.DbgRenderStats = true;
 		else if (!d_stricmp(p, "-text"))
 			GameArg.DbgAltTex = arg_string(pp, end);
 		else if (!d_stricmp(p, "-tmap"))

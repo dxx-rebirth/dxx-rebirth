@@ -1286,7 +1286,7 @@ void ogl_end_frame(void){
 
 void gr_flip(void)
 {
-	if (GameArg.DbgRenderStats)
+	if (CGameArg.DbgRenderStats)
 		ogl_texture_stats();
 
 	ogl_do_palfx();
