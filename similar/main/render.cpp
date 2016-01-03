@@ -847,8 +847,6 @@ struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
 
 }
 
-int	lcnt_save,scnt_save;
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
 typedef array<int_fast8_t, 2> se_array0;
@@ -1439,9 +1437,6 @@ no_add:
 	}
 done_list:
 
-	lcnt_save = lcnt;
-	scnt_save = scnt;
-
 	first_terminal_seg = scnt;
 	rstate.N_render_segs = lcnt;
 
@@ -1470,8 +1465,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	if (_search_mode)
 #endif
 	{
-		//lcnt = lcnt_save;
-		//scnt = scnt_save;
 		first_terminal_seg = 0;
 	}
 	else
