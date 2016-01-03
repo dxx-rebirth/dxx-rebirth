@@ -442,7 +442,9 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 	const vm_distance_squared sphere_rad_squared{sphere_rad64 * sphere_rad64};
 	if (dist2 < sphere_rad_squared)
 	{
-		const auto shorten = fix_sqrt(static_cast<fix64>(sphere_rad_squared) - static_cast<fix64>(dist2));
+		const fix64 delta_squared = static_cast<fix64>(sphere_rad_squared) - static_cast<fix64>(dist2);
+		const fix delta = static_cast<fix>(delta_squared >> 16);
+		const auto shorten = fix_sqrt(delta);
 		const auto int_dist = w_dist-shorten;
 
 		if (int_dist > mag_d || int_dist < 0) //past one or the other end of vector, which means we're inside
