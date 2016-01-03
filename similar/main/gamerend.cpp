@@ -664,7 +664,7 @@ static void show_one_extra_view(const int w)
 					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}
-				sprintf(label,"Marker %d",Marker_viewer_num[w]+1);
+				snprintf(label, sizeof(label), "Marker %d", Marker_viewer_num[w] + 1);
 				do_cockpit_window_view(w, vobjptr(MarkerObject[Marker_viewer_num[w]]), 0, WBU_MARKER, label);
 				break;
 			}
