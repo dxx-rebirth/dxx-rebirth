@@ -543,7 +543,7 @@ int properties_init()
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
 		if ( bmh.dflags & DBM_FLAG_ABM )
-			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & 63 );
+			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & 63);
 		else
 			strcpy( temp_name, temp_name_read );
 
@@ -675,7 +675,7 @@ void piggy_init_pigfile(const char *filename)
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
 		if ( bmh.dflags & DBM_FLAG_ABM )        
-			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
+			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
 		else
 			strcpy( temp_name, temp_name_read );
 		width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
@@ -775,7 +775,7 @@ void piggy_new_pigfile(char *pigname)
 			temp_name_read[8] = 0;
 	
 			if ( bmh.dflags & DBM_FLAG_ABM )        
-				sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
+				snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
 			else
 				strcpy( temp_name, temp_name_read );
 
@@ -830,7 +830,7 @@ void piggy_new_pigfile(char *pigname)
 				strcpy(basename,AllBitmaps[i].name);
 				basename[p-AllBitmaps[i].name] = 0;  //cut off "#nn" part
 				
-				sprintf( abmname, "%s.abm", basename );
+				snprintf(abmname, sizeof(abmname), "%s.abm", basename);
 
 				array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
@@ -843,7 +843,7 @@ void piggy_new_pigfile(char *pigname)
 					char tempname[20];
 					int SuperX;
 
-					sprintf( tempname, "%s#%u", basename, fnum );
+					snprintf(tempname, sizeof(tempname), "%s#%u", basename, fnum);
 
 					//SuperX = (GameBitmaps[i+fnum].bm_flags&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 					SuperX = (GameBitmapFlags[i+fnum]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
@@ -885,7 +885,7 @@ void piggy_new_pigfile(char *pigname)
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
+				snprintf(bbmname, sizeof(bbmname), "%s.bbm", AllBitmaps[i].name);
 				iff_error = iff_read_bitmap(bbmname,n,BM_LINEAR,&newpal);
 
 				if (iff_error != IFF_NO_ERROR)          {
@@ -1193,7 +1193,7 @@ void piggy_read_sounds(int pc_shareware)
 
 		for (i = 0; i < MAX_SOUND_FILES; i++)
 		{
-			sprintf(soundfile, "SND%04d.raw", i);
+			snprintf(soundfile, sizeof(soundfile), "SND%04d.raw", i);
 			if (ds_load(0, soundfile) == 255)
 				break;
 		}
