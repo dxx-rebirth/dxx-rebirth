@@ -888,13 +888,13 @@ void DoEndLevelScoreGlitz(int network)
 
 	if (!cheats.enabled && (get_local_player().hostages_on_board == get_local_player().hostages_level)) {
 		all_hostage_points = get_local_player().hostages_on_board * 1000 * (Difficulty_level+1);
-		sprintf(all_hostage_text, "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
+		snprintf(all_hostage_text, sizeof(all_hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	} else
 		all_hostage_points = 0;
 
 	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (get_local_player().lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = get_local_player().lives * 10000;
-		sprintf(endgame_text, "%s%i\n", TXT_SHIP_BONUS, endgame_points);
+		snprintf(endgame_text, sizeof(endgame_text), "%s%i\n", TXT_SHIP_BONUS, endgame_points);
 		is_last_level=1;
 	} else
 		endgame_points = is_last_level = 0;
@@ -902,17 +902,17 @@ void DoEndLevelScoreGlitz(int network)
 	add_bonus_points_to_score(skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
 
 	c = 0;
-	sprintf(m_str[c++], "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...
-	sprintf(m_str[c++], "%s%i", TXT_ENERGY_BONUS, energy_points);
-	sprintf(m_str[c++], "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
-	sprintf(m_str[c++], "%s%i", TXT_SKILL_BONUS, skill_points);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_ENERGY_BONUS, energy_points);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SKILL_BONUS, skill_points);
 
-	sprintf(m_str[c++], "%s", all_hostage_text);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s", all_hostage_text);
 	if (!(Game_mode & GM_MULTI) && (get_local_player().lives) && (Current_level_num == Last_level))
-		sprintf(m_str[c++], "%s", endgame_text);
+		snprintf(m_str[c++], sizeof(m_str[0]), "%s", endgame_text);
 
-	sprintf(m_str[c++], "%s%i\n", TXT_TOTAL_BONUS, shield_points+energy_points+hostage_points+skill_points+all_hostage_points+endgame_points);
-	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, get_local_player().score);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, get_local_player().score);
 
 	for (i=0; i<c; i++) {
 		nm_set_item_text(m[i], m_str[i]);
