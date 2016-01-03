@@ -660,11 +660,17 @@ static void hud_show_score()
 
 	gr_set_curfont( GAME_FONT );
 
+	auto &plr = get_local_player();
+	const char *label;
+	int value;
 	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
-		sprintf(score_str, "%s: %5d", TXT_KILLS, get_local_player().net_kills_total);
+		label = TXT_KILLS;
+		value = plr.net_kills_total;
 	} else {
-		sprintf(score_str, "%s: %5d", TXT_SCORE, get_local_player().score);
+		label = TXT_SCORE;
+		value = plr.score;
   	}
+	snprintf(score_str, sizeof(score_str), "%s: %5d", label, value);
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0,31,0);
@@ -677,7 +683,6 @@ static void hud_show_score()
 
 static void hud_show_timer_count()
 {
-	char	score_str[20];
 	int	i;
 	fix timevar=0;
 
@@ -692,13 +697,13 @@ static void hud_show_timer_count()
 
 		if (i>-1 && !Control_center_destroyed)
 		{
-		sprintf(score_str, "T - %5d", i);
-
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
 
 		gr_set_fontcolor(Color_0_31_0, -1);
 
+			char score_str[20];
+			snprintf(score_str, sizeof(score_str), "T - %5d", i);
 			int w, h;
 			gr_get_string_size(score_str, &w, &h, nullptr);
 			gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
@@ -709,7 +714,6 @@ static void hud_show_timer_count()
 static void hud_show_score_added()
 {
 	int	color;
-	char	score_str[20];
 
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) )
 		return;
@@ -728,10 +732,10 @@ static void hud_show_score_added()
 
 		color = color - (color % 4);
 
-		if (cheats.enabled)
-			sprintf(score_str, "%s", TXT_CHEATER);
-		else
-			sprintf(score_str, "%5d", score_display);
+		char score_buf[32];
+		const auto score_str = cheats.enabled
+			? TXT_CHEATER
+			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
 		int w, h;
@@ -775,7 +779,6 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int	color;
-	char	score_str[32];
 	static int x;
 	static	int last_score_display = -1;
 
@@ -797,10 +800,10 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 		if (color < 10) color = 10;
 		if (color > 31) color = 31;
 
-		if (cheats.enabled)
-			sprintf(score_str, "%s", TXT_CHEATER);
-		else
-			sprintf(score_str, "%5d", score_display);
+		char score_buf[32];
+		const auto score_str = cheats.enabled
+			? TXT_CHEATER
+			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
 		int w, h;
 		gr_get_string_size(score_str, &w, &h, nullptr);
@@ -1486,7 +1489,7 @@ static void hud_show_weapons(void)
 				disp_primary_weapon_name = weapon_name;
 				break;
 			case primary_weapon_index_t::OMEGA_INDEX:
-				sprintf(weapon_str, "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -1617,7 +1620,7 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		char killed_str[20];
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
-		sprintf(killed_str, "%5d", get_local_player().net_killed_total);
+		snprintf(killed_str, sizeof(killed_str), "%5d", get_local_player().net_killed_total);
 		int w, h;
 		gr_get_string_size(killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
