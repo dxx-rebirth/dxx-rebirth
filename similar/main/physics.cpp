@@ -709,8 +709,8 @@ void do_physics_sim(const vobjptridx_t obj)
 
 		const auto orig_segp = vcsegptr(orig_segnum);
 		const auto &&sidenum = find_connect_side(vcsegptridx(obj->segnum), orig_segp);
-
-		if (sidenum != -1) {
+		if (sidenum != side_none)
+		{
 
 			if (! (WALL_IS_DOORWAY(orig_segp,sidenum) & WID_FLY_FLAG)) {
 				fix dist;

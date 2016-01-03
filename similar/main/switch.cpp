@@ -214,7 +214,7 @@ static int do_change_walls(uint8_t trigger_num)
 			{
 				csegp = segptridx(segp->children[side]);
 				cside = find_connect_side(segp, csegp);
-				Assert(cside != -1);
+				Assert(cside != side_none);
 			}
 
 			//segp->sides[side].wall_num = -1;
@@ -623,7 +623,7 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 	
 			const auto &&csegp = vcsegptr(seg->children[side]);
 			auto cside = find_connect_side(seg, csegp);
-			Assert(cside != -1);
+			Assert(cside != side_none);
 		
 			wall_num = csegp->sides[cside].wall_num;
 			if ( wall_num == wall_none ) return;

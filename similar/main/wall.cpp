@@ -197,7 +197,7 @@ static void blast_blastable_wall(const vsegptridx_t seg, int side)
 
 	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
+	Assert(Connectside != side_none);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	kill_stuck_objects(seg->sides[side].wall_num);
 	if (cwall_num > -1)
@@ -248,7 +248,7 @@ void wall_damage(const vsegptridx_t seg, int side, fix damage)
 		{
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
+		Assert(Connectside != side_none);
 		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].hps -= damage;
 		if (cwall_num > -1)
@@ -339,7 +339,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
-	if (Connectside >= 0)
+	if (Connectside != side_none)
 	{
 		cwall_num = csegp->sides[Connectside].wall_num;
 		if (cwall_num > -1)
@@ -368,7 +368,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 
 		const auto &&seg2 = vcsegptridx(w2->segnum);
 		Connectside = find_connect_side(seg2, vcsegptr(seg2->children[w2->sidenum]));
-		Assert(Connectside != -1);
+		Assert(Connectside != side_none);
 		if (cwall_num > -1)
 			Walls[cwall_num].state = WALL_DOOR_OPENING;
 
@@ -413,7 +413,7 @@ void wall_close_door(int door_num)
 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
+		Assert(Connectside != side_none);
 
 		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
 		Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSED;
@@ -449,7 +449,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
+	Assert(Connectside != side_none);
 	cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
@@ -569,7 +569,7 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
+	Assert(Connectside != side_none);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	if (cwall_num > -1)
 		Walls[cwall_num].state = WALL_DOOR_DECLOAKING;
@@ -615,7 +615,7 @@ void wall_close_door_num(int door_num)
 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
+		Assert(Connectside != side_none);
 		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
 		if (cwall_num > -1)
@@ -663,10 +663,6 @@ void do_door_close(int door_num)
 			const auto &&seg = vcsegptridx(w->segnum);
 			side = w->sidenum;
 
-			const auto &&csegp = vcsegptr(seg->children[side]);
-			auto Connectside = find_connect_side(seg, csegp);
-			Assert(Connectside != -1);
-
 			//go through each object in each of two segments, and see if
 			//it pokes into the connecting seg
 
@@ -674,6 +670,9 @@ void do_door_close(int door_num)
 				if (check_poke(objnum, seg, side))
 					return;		//abort!
 
+			const auto &&csegp = vcsegptr(seg->children[side]);
+			const auto &&Connectside = find_connect_side(seg, csegp);
+			Assert(Connectside != side_none);
 			range_for (const auto &&objnum, objects_in(csegp))
 				if (check_poke(objnum, csegp, Connectside))
 					return;		//abort!
@@ -698,9 +697,8 @@ void do_door_close(int door_num)
 
 		// Otherwise, close it.
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
-		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
-
+		const auto &&Connectside = find_connect_side(seg, csegp);
+		Assert(Connectside != side_none);
 
 		if ( Newdemo_state != ND_STATE_PLAYBACK )
 			// NOTE THE LINK TO ABOVE!!
@@ -756,8 +754,8 @@ static int is_door_free(const vcsegptridx_t seg,int side)
 	if (!is_door_side_free(seg, side))
 		return 0;
 	const auto &&csegp = vcsegptr(seg->children[side]);
-	auto Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
+	const auto &&Connectside = find_connect_side(seg, csegp);
+	Assert(Connectside != side_none);
 	//go through each object in each of two segments, and see if
 	//it pokes into the connecting seg
 	return is_door_side_free(csegp, Connectside);
@@ -819,8 +817,8 @@ void wall_close_door(const vsegptridx_t seg, int side)
 
 	// So that door can't be shot while opening
 	const auto &&csegp = vcsegptr(seg->children[side]);
-	auto Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
+	const auto &&Connectside = find_connect_side(seg, csegp);
+	Assert(Connectside != side_none);
 	cwall_num = csegp->sides[Connectside].wall_num;
 	if (cwall_num > -1)
 		Walls[cwall_num].state = WALL_DOOR_CLOSING;
@@ -884,8 +882,8 @@ void do_door_open(int door_num)
 		}
 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
-		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
+		const auto &&Connectside = find_connect_side(seg, csegp);
+		Assert(Connectside != side_none);
 
 		d->time += FrameTime;
 
@@ -978,8 +976,8 @@ void do_door_close(int door_num)
 
 		// Otherwise, close it.
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
-		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != -1);
+		const auto &&Connectside = find_connect_side(seg, csegp);
+		Assert(Connectside != side_none);
 
 
 		if ( Newdemo_state != ND_STATE_PLAYBACK )
@@ -1027,14 +1025,13 @@ void do_door_close(int door_num)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_off(const vsegptridx_t seg, int side)
 {
-	const auto &&csegp = vcsegptr(seg->children[side]);
-	auto cside = find_connect_side(seg, csegp);
-	Assert(cside != -1);
-
 	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
+	const auto &&csegp = vcsegptr(seg->children[side]);
+	const auto &&cside = find_connect_side(seg, csegp);
+	Assert(cside != side_none);
 	Walls[seg->sides[side].wall_num].flags |= WALL_ILLUSION_OFF;
 	Walls[csegp->sides[cside].wall_num].flags |= WALL_ILLUSION_OFF;
 
@@ -1049,14 +1046,13 @@ void wall_illusion_off(const vsegptridx_t seg, int side)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_on(const vsegptridx_t seg, int side)
 {
-	const auto &&csegp = vcsegptr(seg->children[side]);
-	auto cside = find_connect_side(seg, csegp);
-	Assert(cside != -1);
-
 	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
+	const auto &&csegp = vcsegptr(seg->children[side]);
+	const auto &&cside = find_connect_side(seg, csegp);
+	Assert(cside != side_none);
 	Walls[seg->sides[side].wall_num].flags &= ~WALL_ILLUSION_OFF;
 	Walls[csegp->sides[cside].wall_num].flags &= ~WALL_ILLUSION_OFF;
 }

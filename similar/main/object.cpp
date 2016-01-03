@@ -1735,7 +1735,7 @@ static void object_move_one(const vobjptridx_t obj)
 			{
 				const auto &&seg1 = seg0.absolute_sibling(i);
 				const auto connect_side = find_connect_side(seg1, seg0);
-				if (connect_side != -1)
+				if (connect_side != side_none)
 				{
 					check_trigger(seg0, connect_side, obj,0);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1785,7 +1785,8 @@ static void object_move_one(const vobjptridx_t obj)
 		if (previous_segment != obj->segnum) {
 			const auto &&psegp = vcsegptr(previous_segment);
 			const auto &&connect_side = find_connect_side(vcsegptridx(obj->segnum), psegp);
-			if (connect_side != -1) {
+			if (connect_side != side_none)
+			{
 				const auto wall_num = psegp->sides[connect_side].wall_num;
 				if ( wall_num != wall_none ) {
 					auto trigger_num = Walls[wall_num].trigger;

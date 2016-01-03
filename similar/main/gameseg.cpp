@@ -134,7 +134,7 @@ int_fast32_t find_connect_side(const vcsegptridx_t base_seg, const vcsegptr_t co
 	if (i != e)
 		return std::distance(b, i);
 	// legal to return -1, used in object_move_one(), mk, 06/08/94: Assert(0);		// Illegal -- there is no connecting side between these two segments
-	return -1;
+	return side_none;
 }
 
 }
@@ -481,7 +481,8 @@ int check_segment_connections(void)
 				auto cseg = vcsegptr(csegnum);
 				auto csidenum = find_connect_side(seg,cseg);
 
-				if (csidenum == -1) {
+				if (csidenum == side_none)
+				{
 					errors = 1;
 					continue;
 				}
@@ -802,7 +803,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		return vm_vec_dist_quick(p0, p1);
 	} else {
 		auto conn_side = find_connect_side(seg0, seg1);
-		if (conn_side != -1) {
+		if (conn_side != side_none)
+		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (WALL_IS_DOORWAY(seg1, conn_side) & wid_flag)
 #endif
