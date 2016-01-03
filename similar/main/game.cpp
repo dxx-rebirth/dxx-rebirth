@@ -536,7 +536,7 @@ void save_screen_shot(int automap_flag)
 
 	do
 	{
-		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
+		snprintf(savename, sizeof(savename), "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
                 if (savenum >= 9999) break; // that's enough I think.
 	} while (PHYSFSX_exists(savename,0));
 
