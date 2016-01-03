@@ -2881,19 +2881,15 @@ class DXXCommon(LazyObjectConstructor):
 				LINKCOMSTR						= "LD  %s $TARGET" % target,
 			)
 
-		# Use -Wundef to catch when a shared source file includes a
-		# shared header that misuses conditional compilation.  Use
-		# -Werror=undef to make this fatal.  Both are needed, since
-		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
-		# produces a warning.  On gcc 4.7, misuse produces an error.
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
 		env.Prepend(CXXFLAGS = [
 			'-Wall',
 			Werror + 'extra',
-			Werror + 'format-security',
+			Werror + 'format=2',
 			Werror + 'missing-braces',
 			Werror + 'missing-include-dirs',
 			Werror + 'unused',
+			Werror + 'uninitialized',
 			Werror + 'undef',
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
