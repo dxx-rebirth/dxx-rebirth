@@ -461,20 +461,17 @@ static const fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 static void render_side(const vcsegptridx_t segp, int sidenum)
 {
-	auto sidep = &segp->sides[sidenum];
 	fix		min_dot, max_dot;
-	vms_vector	normals[2];
 	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
 	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
 
-	normals[0] = segp->sides[sidenum].normals[0];
-	normals[1] = segp->sides[sidenum].normals[1];
 	const auto vertnum_list = get_side_verts(segp,sidenum);
 
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
+	const auto sidep = &segp->sides[sidenum];
 	const unsigned which_vertnum =
 #if defined(DXX_BUILD_DESCENT_II)
 		/* Silly, but consistent with how it was at release */
@@ -484,6 +481,7 @@ static void render_side(const vcsegptridx_t segp, int sidenum)
 			? 1
 			: 0;
 	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, Vertices[vertnum_list[which_vertnum]]));
+	auto &normals = sidep->normals;
 	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
