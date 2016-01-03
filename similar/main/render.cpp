@@ -130,23 +130,13 @@ static const int _search_mode = 0;
 #endif
 
 #ifdef NDEBUG		//if no debug code, set these vars to constants
-
-#ifdef EDITOR
-const int Show_only_curside = 0;
-#endif
-
 #else
 
-int Outline_mode=0,Show_only_curside=0;
+int Outline_mode=0;
 
 int toggle_outline_mode(void)
 {
 	return Outline_mode = !Outline_mode;
-}
-
-int toggle_show_only_curside(void)
-{
-	return Show_only_curside = !Show_only_curside;
 }
 #endif
 
@@ -771,45 +761,6 @@ static void render_segment(const vcsegptridx_t seg)
 }
 #endif
 
-// ----- This used to be called when Show_only_curside was set.
-// ----- It is wholly and superiorly replaced by render_side.
-// -- //render one side of one segment
-// -- void render_seg_side(segment *seg,int _side)
-// -- {
-// -- 	g3s_codes cc;
-// -- 	short vertnum_list[4];
-// -- 
-// -- 	cc=g3_rotate_list(8,&seg->verts);
-// -- 
-// -- 	if (! cc.uand) {		//all off screen?
-// -- 		int fn,pn,i;
-// -- 		side *s;
-// -- 		face *f;
-// -- 		poly *p;
-// -- 
-// -- 		s=&seg->sides[_side];
-// -- 
-// -- 		for (f=s->faces,fn=s->num_faces;fn;fn--,f++)
-// -- 			for (p=f->polys,pn=f->num_polys;pn;pn--,p++) {
-// -- 				grs_bitmap *tmap;
-// -- 	
-// -- 				for (i=0;i<p->num_vertices;i++) vertnum_list[i] = seg->verts[p->verts[i]];
-// -- 	
-// -- 				if (p->tmap_num >= NumTextures) {
-// -- 					Warning("Invalid tmap number %d, NumTextures=%d\n...Changing in poly structure to tmap 0",p->tmap_num,NumTextures);
-// -- 					p->tmap_num = 0;		//change it permanantly
-// -- 				}
-// -- 	
-// -- 				tmap = Textures[p->tmap_num];
-// -- 	
-// -- 				g3_check_and_draw_tmap(p->num_vertices,vertnum_list,(g3s_uvl *) &p->uvls,tmap,&f->normal);
-// -- 	
-// -- 				if (Outline_mode) draw_outline(p->num_vertices,vertnum_list);
-// -- 			}
-// -- 		}
-// -- 
-// -- }
-
 #ifdef EDITOR
 #ifndef NDEBUG
 
@@ -1305,12 +1256,6 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 		gr_clear_canvas(Clear_window_color);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
-	#ifndef NDEBUG
-	if (Show_only_curside)
-		gr_clear_canvas(Clear_window_color);
-	#endif
-#endif
 
 	render_mine(start_seg_num, eye_offset, window);
 
@@ -1516,15 +1461,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	render_start_frame();
 
 	visited_twobit_array_t visited;
-
-	#if defined(EDITOR)
-	if (Show_only_curside) {
-		rotate_list(Cursegp->verts);
-		render_side(Cursegp,Curside);
-		return;
-	}
-	#endif
-
 
 	unsigned first_terminal_seg;
 	#ifdef EDITOR

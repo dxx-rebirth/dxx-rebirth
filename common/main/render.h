@@ -84,7 +84,6 @@ int reset_perspective_depth(void);
 
 // misc toggles
 int toggle_outline_mode(void);
-int toggle_show_only_curside(void);
 
 // When any render function needs to know what's looking at it, it
 // should access Render_viewer_object members.
