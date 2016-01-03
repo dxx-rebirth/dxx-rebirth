@@ -128,13 +128,11 @@ void compute_segment_center(vms_vector &vp,const vcsegptr_t sp)
 //	Optimized by MK on 4/21/94 because it is a 2% load.
 int_fast32_t find_connect_side(const vcsegptridx_t base_seg, const vcsegptr_t con_seg)
 {
-	auto b = begin(con_seg->children);
-	auto e = end(con_seg->children);
-	auto i = std::find(b, e, base_seg);
-	if (i != e)
-		return std::distance(b, i);
+	auto &children = con_seg->children;
+	auto b = begin(children);
+	auto i = std::find(b, end(children), base_seg);
 	// legal to return -1, used in object_move_one(), mk, 06/08/94: Assert(0);		// Illegal -- there is no connecting side between these two segments
-	return side_none;
+	return std::distance(b, i);
 }
 
 }

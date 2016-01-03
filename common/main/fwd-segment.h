@@ -151,7 +151,7 @@ class visited_segment_bitarray_t;
 template <unsigned bits>
 class visited_segment_multibit_array_t;
 
-const int side_none = -1;
+const int side_none = MAX_SIDES_PER_SEGMENT;
 const int edge_none = -1;
 
 }
