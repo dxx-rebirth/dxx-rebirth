@@ -203,7 +203,7 @@ struct DiskSoundHeader
 static void free_bitmap_replacements();
 static void free_d1_tmap_nums();
 #ifdef EDITOR
-static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
 static void piggy_write_pigfile(const char *filename);
 static void write_int(int i,PHYSFS_file *file);
 #endif
@@ -1663,7 +1663,7 @@ static int piggy_is_gauge_bitmap(const char * base_name )
 	return 0;
 }
 
-static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
+static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32])
 {
 	int frame;
 	char * p;
@@ -1676,10 +1676,10 @@ static int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 		*p = 0;
 		strcpy( base_name, subst_name );
 		if ( !piggy_is_gauge_bitmap( base_name )) {
-			sprintf( subst_name, "%s#%d", base_name, frame+1 );
+			snprintf(subst_name, sizeof(subst_name), "%s#%d", base_name, frame + 1);
 			if ( piggy_does_bitmap_exist_slow( subst_name )  ) {
 				if ( frame & 1 ) {
-					sprintf( subst_name, "%s#%d", base_name, frame-1 );
+					snprintf(subst_name, sizeof(subst_name), "%s#%d", base_name, frame - 1);
 					return 1;
 				}
 			}
