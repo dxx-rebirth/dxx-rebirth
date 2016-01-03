@@ -1270,10 +1270,10 @@ static void newmenu_create_structure( newmenu *menu )
 			int w1;
 			char test_text[20];
 			nothers++;
-			sprintf (test_text, "%d", i.max_value);
+			snprintf(test_text, sizeof(test_text), "%d", i.max_value);
 			gr_get_string_size(test_text, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			sprintf (test_text, "%d", i.min_value);
+			snprintf(test_text, sizeof(test_text), "%d", i.min_value);
 			gr_get_string_size(test_text, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
