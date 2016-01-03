@@ -530,12 +530,11 @@ static void name_frame(automap *am)
 	else
 		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i",-Current_level_num);
 
+	const char *const current_level_name = Current_level_name;
 	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
-		sprintf(name_level_right,"%s %d: ",system_name[(Current_level_num-1)/4],((Current_level_num-1)%4)+1);
+		snprintf(name_level_right, sizeof(name_level_right), "%s %d: %s", system_name[(Current_level_num-1)/4], ((Current_level_num - 1) % 4) + 1, current_level_name);
 	else
-		strcpy(name_level_right, " ");
-
-	strcat(name_level_right, Current_level_name);
+		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
 	int wr,h;
