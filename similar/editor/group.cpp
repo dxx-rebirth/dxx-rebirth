@@ -920,18 +920,17 @@ int rotate_segment_new(const vms_angvec &pbh)
 		current_group = current_group_save;
 		return 1;
 	}
-
-	const auto &&baseseg_side = find_connect_side(newseg, vcsegptr(baseseg));
+	const auto &&basesegp = vsegptridx(baseseg);
+	const auto &&baseseg_side = find_connect_side(newseg, basesegp);
 
 	med_extract_matrix_from_segment(newseg, &tm1);
 	tm1 = vmd_identity_matrix;
 	const auto tm2 = vm_angles_2_matrix(pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
-	Segments[baseseg].children[baseseg_side] = segment_none;
+	basesegp->children[baseseg_side] = segment_none;
 	newseg->children[newseg_side] = segment_none;
 
-	const auto &&basesegp = vsegptridx(baseseg);
 	if (!med_move_group(1, basesegp, baseseg_side, newseg, newseg_side, orient_matrix, 0))
 	{
 		Cursegp = newseg;
