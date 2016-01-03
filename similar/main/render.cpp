@@ -1320,13 +1320,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
-}
 
-namespace dcx {
-static unsigned first_terminal_seg;
-}
-
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, int rear_view_flag)
 {
@@ -1338,7 +1332,7 @@ void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, 
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, segnum_t start_seg_num)
+static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, unsigned &first_terminal_seg, segnum_t start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1532,6 +1526,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	#endif
 
 
+	unsigned first_terminal_seg;
 	#ifdef EDITOR
 #if defined(DXX_BUILD_DESCENT_I)
 	if (_search_mode || eye_offset>0)
@@ -1541,11 +1536,12 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	{
 		//lcnt = lcnt_save;
 		//scnt = scnt_save;
+		first_terminal_seg = 0;
 	}
 	else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		build_segment_list(rstate, visited, start_seg_num);		//fills in Render_list & N_render_segs
+		build_segment_list(rstate, visited, first_terminal_seg, start_seg_num);		//fills in Render_list & N_render_segs
 
 	const auto render_range = partial_range(rstate.Render_list, rstate.N_render_segs);
 	const auto &&reversed_render_range = render_range.reversed();
