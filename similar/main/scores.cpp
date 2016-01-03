@@ -99,7 +99,7 @@ static void scores_read(all_scores *scores)
 	if (!fp)
 	{
 	 	// No error message needed, code will work without a scores file
-		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
+		strcpy(scores->cool_saying, TXT_REGISTER_DESCENT);
 		scores->stats[0].name = "Parallax";
 		scores->stats[1].name = "Matt";
 		scores->stats[2].name = "Mike";
@@ -147,15 +147,13 @@ static void scores_write(all_scores *scores)
 
 static void int_to_string( int number, char *dest )
 {
-	int l,c;
+	int c;
 	char buffer[20],*p;
 
-	sprintf( buffer, "%d", number );
-
-	l = strlen(buffer);
+	const auto l = snprintf(buffer, sizeof(buffer), "%d", number);
 	if (l<=3) {
 		// Don't bother with less than 3 digits
-		sprintf( dest, "%d", number );
+		memcpy(dest, buffer, 4);
 		return;
 	}
 
@@ -245,8 +243,8 @@ void scores_maybe_add_player(int abort_flag)
 			}};
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
-			if (strlen(scores.cool_saying)<1)
-				sprintf( scores.cool_saying, "No Comment" );
+			if (!scores.cool_saying[0])
+				strcpy(scores.cool_saying, "No comment");
 		} else {
 			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
