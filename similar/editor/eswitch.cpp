@@ -261,12 +261,13 @@ int remove_trigger_num(int trigger_num)
 
 int remove_trigger(const vsegptr_t seg, short side)
 {    	
-	if (seg->sides[side].wall_num == wall_none)
+	const auto wall_num = seg->sides[side].wall_num;
+	if (wall_num == wall_none)
 	{
 		return 0;
 	}
 
-	return remove_trigger_num(Walls[seg->sides[side].wall_num].trigger);
+	return remove_trigger_num(Walls[wall_num].trigger);
 }
 
 static int trigger_remove()
