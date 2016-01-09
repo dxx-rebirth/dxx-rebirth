@@ -789,10 +789,10 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 		if (current_group > -1)
 		if (Groupsegp[current_group]) {
 			gr_setcolor(GROUPSEG_COLOR);
-			draw_segment(Groupsegp[current_group]);
+			draw_segment(vcsegptr(Groupsegp[current_group]));
 
 			gr_setcolor(GROUPSIDE_COLOR);
-			draw_seg_side(Groupsegp[current_group],Groupside[current_group]);
+			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group]);
 		}
 
 		// Highlight marked segment and side.

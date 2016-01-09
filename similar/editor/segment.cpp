@@ -884,7 +884,7 @@ int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int d
 	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,rotmat);
 	med_propagate_tmaps_to_segments(ocursegp,Cursegp,0);
 	med_propagate_tmaps_to_back_side(Cursegp, Side_opposite[newside],0);
-	copy_uvs_seg_to_seg(&New_segment,Cursegp);
+	copy_uvs_seg_to_seg(vsegptr(&New_segment), Cursegp);
 
 	return rval;
 }
@@ -1001,7 +1001,7 @@ int med_delete_segment(const vsegptridx_t sp)
 				}
 			Cursegp = csp;
 			med_create_new_segment_from_cursegp();
-			copy_uvs_seg_to_seg(&New_segment,Cursegp);
+			copy_uvs_seg_to_seg(vsegptr(&New_segment), Cursegp);
 		}
 
 	sp->segnum = segment_none;										// Mark segment as inactive.
@@ -1100,12 +1100,12 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 		destside++;
 		
 	// Before deleting the segment, copy its texture maps to New_segment
-	copy_tmaps_to_segment(&New_segment,seg);
+	copy_tmaps_to_segment(vsegptr(&New_segment), seg);
 
 	if (Curside == WFRONT)
 		Curside = WBACK;
 
-	med_attach_segment_rotated(destseg,&New_segment,destside,AttachSide,rotmat);
+	med_attach_segment_rotated(destseg, vsegptr(&New_segment), destside, AttachSide, rotmat);
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
@@ -1412,7 +1412,7 @@ void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length
 	sp->static_light = 0;
 	sp->matcen_num = -1;
 
-	copy_tmaps_to_segment(sp, &New_segment);
+	copy_tmaps_to_segment(sp, vcsegptr(&New_segment));
 
 	assign_default_uvs_to_segment(sp);
 }
@@ -1520,7 +1520,7 @@ void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vert
 
 // -----------------------------------------------------------------------------
 //	Determine if a segment is concave. Returns true if concave
-int check_seg_concavity(const vsegptr_t s)
+static int check_seg_concavity(const vcsegptr_t s)
 {
 	int vn;
 	vms_vector n0;
@@ -1548,16 +1548,12 @@ int check_seg_concavity(const vsegptr_t s)
 //	Find all concave segments and add to list
 void find_concave_segs()
 {
-	int i;
-	segment *s;
-
 	Warning_segs.clear();
 
-	for (s=&Segments[0],i=Highest_segment_index;i>=0;s++,i--)
+	range_for (const auto &&s, highest_valid(vcsegptridx))
 		if (s->segnum != segment_none)
-			if (check_seg_concavity(s)) Warning_segs.emplace_back(s - Segments);
-
-
+			if (check_seg_concavity(s))
+				Warning_segs.emplace_back(s);
 }
 
 

@@ -161,7 +161,7 @@ extern void init_all_matcens(void);
  * reads a matcen_info structure from a PHYSFS_file
  */
 #if defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_hoard_goal(vsegptr_t segp);
+void fuelcen_check_for_hoard_goal(vcsegptr_t segp);
 
 /*
  * reads an d1_matcen_info structure from a PHYSFS_file

@@ -382,7 +382,7 @@ void init_editor()
 	//@@	slew_init(Viewer);		//camera is slewing
 	
 	Viewer = ConsoleObject;
-	slew_init(ConsoleObject);
+	slew_init(vobjptr(ConsoleObject));
 	init_player_object();
 	
 	Update_flags = UF_ALL;

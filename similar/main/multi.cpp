@@ -4352,7 +4352,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	auto objnum = spit_powerup(ConsoleObject,POW_HOARD_ORB,seed);
+	const auto &&objnum = spit_powerup(vobjptr(ConsoleObject), POW_HOARD_ORB, seed);
 
 	if (objnum == object_none)
 		return;
@@ -4391,7 +4391,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(ConsoleObject, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	const auto &&objnum = spit_powerup(vobjptr(ConsoleObject), get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");

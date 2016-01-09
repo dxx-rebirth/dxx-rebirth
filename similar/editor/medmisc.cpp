@@ -367,7 +367,7 @@ int ToggleAutosave()
 
 int AttachSegment()
 {
-   if (med_attach_segment(Cursegp, &New_segment, Curside, AttachSide)==4) // Used to be WBACK instead of Curside
+   if (med_attach_segment(Cursegp, vsegptr(&New_segment), Curside, AttachSide)==4) // Used to be WBACK instead of Curside
         diagnostic_message("Cannot attach segment - already a connection on current side.");
    else {
 		if (Lock_view_to_cursegp)

@@ -2244,7 +2244,7 @@ void release_guided_missile(int player_num)
 
 		Missile_viewer = Guided_missile[player_num];
 		if (Game_mode & GM_MULTI)
-		 multi_send_guided_info (Guided_missile[Player_num],1);
+			multi_send_guided_info(vobjptr(Missile_viewer), 1);
 		if (Newdemo_state==ND_STATE_RECORDING)
 		 newdemo_record_guided_end();
 	 }

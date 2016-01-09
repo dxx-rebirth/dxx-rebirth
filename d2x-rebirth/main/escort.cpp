@@ -204,11 +204,8 @@ std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::s
 	visited[start_seg] = true;
 
 	while ((head != tail) && (head < max_segs)) {
-		segment	*cursegp;
-
 		auto curseg = bfs_list[tail++];
-		cursegp = &Segments[curseg];
-
+		const auto &&cursegp = vcsegptr(curseg);
 		for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 			auto connected_seg = cursegp->children[i];
 
@@ -1164,7 +1161,7 @@ static segnum_t choose_thief_recreation_segment()
 	cur_drop_depth = THIEF_DEPTH;
 
 	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
-		segnum = pick_connected_segment(&get_local_plrobj(), cur_drop_depth);
+		segnum = pick_connected_segment(vcobjptr(&get_local_plrobj()), cur_drop_depth);
 		if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 			segnum = segment_none;
 		cur_drop_depth--;

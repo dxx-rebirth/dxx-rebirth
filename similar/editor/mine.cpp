@@ -588,8 +588,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 	
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
-		segment *seg = &Segments[segnum];
-
+		const auto &&seg = vcsegptr(segnum);
 		for (short sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
 		{
  			if (seg->children[sidenum] != segment_none)
@@ -684,8 +683,8 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version > 5)
-		for (short i = 0; i < Num_segments; i++)
-			segment2_write(&Segments[i], SaveFile);
+		for (segnum_t i = 0; i < Num_segments; i++)
+			segment2_write(vcsegptr(i), SaveFile);
 #endif
 
 	return 0;

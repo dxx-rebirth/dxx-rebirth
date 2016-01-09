@@ -538,9 +538,9 @@ static void show_extra_views()
 			DemoDoingLeft=DemoDoLeft;
 
 			if (DemoDoLeft==3)
-				do_cockpit_window_view(0,ConsoleObject,1,WBU_REAR,"REAR");
+				do_cockpit_window_view(0, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
 			else
-				do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
+				do_cockpit_window_view(0, vobjptr(&DemoLeftExtra), DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft]);
 		}
 		else
 			do_cockpit_window_view(0,WBU_WEAPON);
@@ -550,10 +550,10 @@ static void show_extra_views()
 			DemoDoingRight=DemoDoRight;
 			
 			if (DemoDoRight==3)
-				do_cockpit_window_view(1,ConsoleObject,1,WBU_REAR,"REAR");
+				do_cockpit_window_view(1, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
 			else
 			{
-				do_cockpit_window_view(1,&DemoRightExtra,DemoRearCheck[DemoDoRight],DemoWBUType[DemoDoRight],DemoExtraMessage[DemoDoRight]);
+				do_cockpit_window_view(1, vobjptr(&DemoRightExtra), DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight]);
 			}
 		}
 		else
@@ -572,12 +572,12 @@ static void show_extra_views()
 		if (PlayerCfg.GuidedInBigWindow)
 		{
 			RenderingType=6+(1<<4);
-			do_cockpit_window_view(1,Viewer,0,WBU_MISSILE,"SHIP");
+			do_cockpit_window_view(1, vobjptr(Viewer), 0, WBU_MISSILE, "SHIP");
 		}
 		else
 		{
 			RenderingType=1+(1<<4);
-			do_cockpit_window_view(1,Guided_missile[Player_num],0,WBU_GUIDED,"GUIDED");
+			do_cockpit_window_view(1, vobjptr(Guided_missile[Player_num]), 0, WBU_GUIDED, "GUIDED");
 		}
 			
 		did_missile_view=1;
@@ -593,7 +593,7 @@ static void show_extra_views()
 		//do missile view
 			{
   				RenderingType=2+(1<<4);
-				do_cockpit_window_view(1, Missile_viewer, 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
+				do_cockpit_window_view(1, vobjptr(Missile_viewer), 0, WBU_MISSILE, get_missile_name(get_weapon_id(*Missile_viewer)));
 				did_missile_view=1;
 			}
 			else {
@@ -625,11 +625,11 @@ static void show_one_extra_view(const int w)
 			case CV_REAR:
 				if (Rear_view) {		//if big window is rear view, show front here
 					RenderingType=3+(w<<4);				
-					do_cockpit_window_view(w,ConsoleObject,0,WBU_REAR,"FRONT");
+					do_cockpit_window_view(w, vobjptr(ConsoleObject), 0, WBU_REAR, "FRONT");
 				}
 				else {					//show normal rear view
 					RenderingType=3+(w<<4);				
-					do_cockpit_window_view(w,ConsoleObject,1,WBU_REAR,"REAR");
+					do_cockpit_window_view(w, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
 				}
 			 	break;
 			case CV_ESCORT: {
@@ -704,10 +704,10 @@ void game_render_frame_mono()
 		Viewer = Guided_missile[Player_num];
 
 		window_rendered_data window;
-		update_rendered_data(window, Viewer, 0);
+		update_rendered_data(window, vobjptr(Viewer), 0);
 		render_frame(0, window);
 
-		wake_up_rendered_objects(Viewer, window);
+		wake_up_rendered_objects(vobjptr(Viewer), window);
 		show_HUD_names();
 
 		Viewer = viewer_save;
@@ -737,7 +737,7 @@ void game_render_frame_mono()
 #endif
 		window_rendered_data window;
 #if defined(DXX_BUILD_DESCENT_II)
-		update_rendered_data(window, Viewer, Rear_view);
+		update_rendered_data(window, vobjptr(Viewer), Rear_view);
 #endif
 		render_frame(0, window);
 	}

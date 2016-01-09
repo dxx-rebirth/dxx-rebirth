@@ -324,7 +324,7 @@ objptridx_t drop_marker_object(const vms_vector &pos, vsegptridx_t segnum, const
 
 void wake_up_rendered_objects(vobjptr_t gmissp, window_rendered_data &window);
 
-void fuelcen_check_for_goal (vsegptr_t);
+void fuelcen_check_for_goal(vcsegptr_t);
 #endif
 objptridx_t obj_find_first_of_type(int type);
 

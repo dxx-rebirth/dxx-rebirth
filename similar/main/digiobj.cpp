@@ -357,7 +357,7 @@ static void digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms
 
 void digi_link_sound_to_object3( int org_soundnum, const vcobjptridx_t objnum, int forever, fix max_volume, const vm_distance max_distance, int loop_start, int loop_end )
 {
-	const vcobjptr_t viewer{Viewer};
+	const auto &&viewer = vcobjptr(Viewer);
 	int volume,pan;
 	int soundnum;
 
@@ -409,7 +409,7 @@ void digi_link_sound_to_object( int soundnum, const vcobjptridx_t objnum, int fo
 
 static void digi_link_sound_to_pos2(int org_soundnum, const vcsegptridx_t segnum, short sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
-	const vcobjptr_t viewer{Viewer};
+	const auto &&viewer = vcobjptr(Viewer);
 	int volume, pan;
 	int soundnum;
 
@@ -531,7 +531,7 @@ void digi_sync_sounds()
 	SoundQ_process();
 	if (!Viewer)
 		return;
-	const vcobjptr_t viewer{Viewer};
+	const auto &&viewer = vcobjptr(Viewer);
 	range_for (auto &s, SoundObjects)
 	{
 		if (s.flags & SOF_USED)

@@ -577,7 +577,11 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//group_seg = &Segments[GroupList[new_current_group].segments[0]];					// connecting segment in group has been changed, so update group_seg
 
-	group_seg = Groupsegp[new_current_group] = &Segments[GroupList[new_current_group].segments[gs_index]];
+	{
+		const auto &&gs = vsegptr(GroupList[new_current_group].segments[gs_index]);
+		group_seg = gs;
+		Groupsegp[new_current_group] = gs;
+	}
 	Groupside[new_current_group] = Groupside[current_group];
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
@@ -600,7 +604,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			}
 	}
 
-	copy_uvs_seg_to_seg(&New_segment, Groupsegp[new_current_group]);
+	copy_uvs_seg_to_seg(vsegptr(&New_segment), group_seg);
 	
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
@@ -748,7 +752,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 				}
 		}
 
-	copy_uvs_seg_to_seg(&New_segment, Groupsegp[current_group]);
+	copy_uvs_seg_to_seg(vsegptr(&New_segment), vcsegptr(Groupsegp[current_group]));
 
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
@@ -823,7 +827,7 @@ static int AttachSegmentNewAng(const vms_angvec &pbh)
 
 		med_propagate_tmaps_to_segments(Cursegp,nsegp,0);
 		med_propagate_tmaps_to_back_side(nsegp, Side_opposite[AttachSide],0);
-		copy_uvs_seg_to_seg(&New_segment,nsegp);
+		copy_uvs_seg_to_seg(vsegptr(&New_segment),nsegp);
 
 		Cursegp = nsegp;
 		Curside = Side_opposite[AttachSide];
@@ -1595,7 +1599,8 @@ int CopyGroup(void)
 
 	med_compress_mine();
 
-	if (!med_copy_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], vmd_identity_matrix)) {
+	if (!med_copy_group(0, Cursegp, Curside, vcsegptr(Groupsegp[current_group]), Groupside[current_group], vmd_identity_matrix))
+	{
 		autosave_mine(mine_filename);
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;

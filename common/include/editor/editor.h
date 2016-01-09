@@ -380,10 +380,9 @@ int med_find_closest_threshold_segment_side(vsegptridx_t sp, int side, segptridx
 // If there is no connecting segment on the current side, try any segment.
 
 //	Copy texture maps in newseg to nsp.
-void copy_uvs_seg_to_seg(vsegptr_t nsp,vsegptr_t newseg);
+void copy_uvs_seg_to_seg(vsegptr_t nsp, vcsegptr_t newseg);
 
 //	Return true if segment is concave.
-int check_seg_concavity(vsegptr_t s);
 
 //	Return N_found_segs = number of concave segments in mine.
 //	Segment ids stored at Found_segs

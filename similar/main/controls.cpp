@@ -71,9 +71,10 @@ void read_flying_controls(const vobjptr_t obj)
 		return;	//references to player_ship require that this obj be the player
 
 	const auto control_guided_missile = [&] {
-		const auto m = Guided_missile[Player_num];
-		if (!m)
+		const auto gm = Guided_missile[Player_num];
+		if (!gm)
 			return false;
+		const auto &&m = vobjptr(gm);
 		if (m->type != OBJ_WEAPON)
 			return false;
 		if (m->signature != Guided_missile_sig[Player_num])

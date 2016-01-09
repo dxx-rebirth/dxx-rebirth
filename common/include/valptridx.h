@@ -362,7 +362,12 @@ public:
 		m_ptr(check_allowed_invalid_index(i) ? nullptr : &a[check_index_range(i, &a)])
 	{
 	}
-	basic_ptr(pointer_type p, array_managed_type &a = get_array()) :
+	basic_ptr(pointer_type p) = delete;
+	basic_ptr(pointer_type p, array_managed_type &a) :
+		/* No array consistency check here, since some code incorrectly
+		 * defines instances of `object` outside the Objects array, then
+		 * passes pointers to those instances to this function.
+		 */
 		m_ptr(p)
 	{
 		if (!allow_nullptr)

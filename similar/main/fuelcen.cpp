@@ -745,7 +745,7 @@ void matcen_info_read(PHYSFS_file *fp, matcen_info &mi, int version)
 		PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void fuelcen_check_for_goal(const vsegptr_t segp)
+void fuelcen_check_for_goal(const vcsegptr_t segp)
 {
 	Assert (game_mode_capture_flag());
 
@@ -776,7 +776,7 @@ void fuelcen_check_for_goal(const vsegptr_t segp)
 	}
 }
 
-void fuelcen_check_for_hoard_goal(const vsegptr_t segp)
+void fuelcen_check_for_hoard_goal(const vcsegptr_t segp)
 {
 	Assert (game_mode_hoard());
 

@@ -1287,7 +1287,7 @@ void DropCurrentWeapon ()
 	}
 
 	const auto seed = d_rand();
-	const auto objnum = spit_powerup(ConsoleObject, drop_type, seed);
+	const auto objnum = spit_powerup(vobjptr(ConsoleObject), drop_type, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
@@ -1443,7 +1443,7 @@ void DropSecondaryWeapon ()
 
 	seed = d_rand();
 
-	auto objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
+	auto objnum = spit_powerup(vobjptr(ConsoleObject), weapon_drop_id, seed);
 
 	if (objnum == object_none)
 		return;

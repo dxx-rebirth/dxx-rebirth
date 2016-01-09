@@ -59,7 +59,7 @@ void sort_seg_list(count_segment_array_t &segnumlist,const vms_vector &pos)
 {
 	array<fix, MAX_SEGMENTS> dist;
 	range_for (const auto &ss, segnumlist)
-		dist[ss] = compute_dist(&Segments[ss],pos);
+		dist[ss] = compute_dist(vcsegptr(ss), pos);
 	auto predicate = [&dist](count_segment_array_t::const_reference a, count_segment_array_t::const_reference b) {
 		return dist[a] < dist[b];
 	};

@@ -857,7 +857,7 @@ void med_propagate_tmaps_to_segments(const vsegptridx_t base_seg,const vsegptrid
 //	Copy texture map uvs from srcseg to destseg.
 //	If two segments have different face structure (eg, destseg has two faces on side 3, srcseg has only 1)
 //	then assign uvs according to side vertex id, not face vertex id.
-void copy_uvs_seg_to_seg(const vsegptr_t destseg,const vsegptr_t srcseg)
+void copy_uvs_seg_to_seg(const vsegptr_t destseg, const vcsegptr_t srcseg)
 {
 	int	s;
 

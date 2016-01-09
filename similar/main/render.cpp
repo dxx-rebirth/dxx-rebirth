@@ -1202,7 +1202,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
   
    //Here:
 
-	start_lighting_frame(Viewer);		//this is for ugly light-smoothing hack
+	start_lighting_frame(vobjptr(Viewer));		//this is for ugly light-smoothing hack
   
 	g3_start_frame();
 
