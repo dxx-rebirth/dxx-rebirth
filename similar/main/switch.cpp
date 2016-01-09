@@ -235,12 +235,13 @@ static int do_change_walls(uint8_t trigger_num)
 			     Walls[csegp->sides[cside].wall_num].type == new_wall_type))
 				continue;		//already in correct state, so skip
 
-			ret = 1;
+			ret |= 1;
 
 			switch (Triggers[trigger_num].type) {
 
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
+						ret |= 2;
 						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
@@ -253,13 +254,11 @@ static int do_change_walls(uint8_t trigger_num)
 					}
 					else
 						start_wall_cloak(segp,side);
-
-					ret = 1;
-
 					break;
 
 				case TT_CLOSE_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
+						ret |= 2;
 						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
@@ -346,19 +345,6 @@ static void do_il_off(uint8_t trigger_num)
   		}
   	}
 }
-
-#if defined(DXX_BUILD_DESCENT_II)
-static int wall_is_forcefield(trigger *trig)
-{
-	int i;
-
-	for (i=0;i<trig->num_links;i++)
-		if ((TmapInfo[Segments[trig->seg[i]].sides[trig->side[i]].tmap_num].flags & TMI_FORCE_FIELD))
-			break;
-
-	return (i<trig->num_links);
-}
-#endif
 
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
@@ -525,9 +511,9 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 
 		case TT_OPEN_WALL:
-			if (do_change_walls(trigger_num))
+			if (const auto w = do_change_walls(trigger_num))
 			{
-				if (wall_is_forcefield(trig))
+				if (w & 2)
 					print_trigger_message (pnum,trigger_num,shot,"Force field%s deactivated!");
 				else
 					print_trigger_message (pnum,trigger_num,shot,"Wall%s opened!");
@@ -535,9 +521,9 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 
 		case TT_CLOSE_WALL:
-			if (do_change_walls(trigger_num))
+			if (const auto w = do_change_walls(trigger_num))
 			{
-				if (wall_is_forcefield(trig))
+				if (w & 2)
 					print_trigger_message (pnum,trigger_num,shot,"Force field%s activated!");
 				else
 					print_trigger_message (pnum,trigger_num,shot,"Wall%s closed!");
