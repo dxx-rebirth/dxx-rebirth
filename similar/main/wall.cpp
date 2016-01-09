@@ -1019,26 +1019,36 @@ void do_door_close(int door_num)
 }
 #endif
 
+template <typename F>
+static void wall_illusion_op(const vsegptridx_t seg, unsigned side, F op)
+{
+	const auto wall0 = seg->sides[side].wall_num;
+	if (wall0 == wall_none)
+		return;
+	const auto &&csegp = vcsegptr(seg->children[side]);
+	const auto &&cside = find_connect_side(seg, csegp);
+	if (cside == side_none)
+	{
+		assert(cside != side_none);
+		return;
+	}
+	const auto wall1 = csegp->sides[cside].wall_num;
+	op(wall0);
+	op(wall1);
+}
 
 //-----------------------------------------------------------------
 // Turns off an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_off(const vsegptridx_t seg, int side)
 {
-	if (seg->sides[side].wall_num == wall_none) {
-		return;
-	}
-
-	const auto &&csegp = vcsegptr(seg->children[side]);
-	const auto &&cside = find_connect_side(seg, csegp);
-	Assert(cside != side_none);
-	Walls[seg->sides[side].wall_num].flags |= WALL_ILLUSION_OFF;
-	Walls[csegp->sides[cside].wall_num].flags |= WALL_ILLUSION_OFF;
-
+	const auto op = [](const unsigned wall_num) {
+		Walls[wall_num].flags |= WALL_ILLUSION_OFF;
 #if defined(DXX_BUILD_DESCENT_II)
-	kill_stuck_objects(seg->sides[side].wall_num);
-	kill_stuck_objects(csegp->sides[cside].wall_num);
+		kill_stuck_objects(wall_num);
 #endif
+	};
+	wall_illusion_op(seg, side, op);
 }
 
 //-----------------------------------------------------------------
@@ -1046,15 +1056,10 @@ void wall_illusion_off(const vsegptridx_t seg, int side)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_on(const vsegptridx_t seg, int side)
 {
-	if (seg->sides[side].wall_num == wall_none) {
-		return;
-	}
-
-	const auto &&csegp = vcsegptr(seg->children[side]);
-	const auto &&cside = find_connect_side(seg, csegp);
-	Assert(cside != side_none);
-	Walls[seg->sides[side].wall_num].flags &= ~WALL_ILLUSION_OFF;
-	Walls[csegp->sides[cside].wall_num].flags &= ~WALL_ILLUSION_OFF;
+	const auto op = [](const unsigned wall_num) {
+		Walls[wall_num].flags &= ~WALL_ILLUSION_OFF;
+	};
+	wall_illusion_op(seg, side, op);
 }
 
 //	-----------------------------------------------------------------------------
