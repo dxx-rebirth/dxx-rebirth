@@ -776,7 +776,7 @@ void menubar_init( const char * file )
 
 		if (buf1[0] != '-' )
 		{
-			sprintf( buf2, " %s ", buf1 );
+			snprintf(buf2, sizeof(buf2), " %s ", buf1);
 			Menu[menu].Item[item].Text.reset(d_strdup(buf2));
 		} else 
 			Menu[menu].Item[item].Text.reset(d_strdup(buf1));
