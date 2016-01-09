@@ -374,7 +374,6 @@ static int main(int argc, char *argv[])
 {
 	mem_init();
 #ifdef __linux__
-	error_init(NULL);
 #ifdef WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
