@@ -251,7 +251,11 @@ public:
 		 */
 		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
-	basic_idx(index_type i, array_managed_type &a = get_array()) :	// default argument deprecated
+	basic_idx(index_type i) :
+		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(i, nullptr))
+	{
+	}
+	basic_idx(index_type i, array_managed_type &a) :
 		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(i, &a))
 	{
 	}
