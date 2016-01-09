@@ -1386,12 +1386,14 @@ void drop_afterburner_blobs(const vobjptr_t obj, int count, fix size_scale, fix 
 	if (count == 1)
 		vm_vec_avg(pos_left, pos_left, pos_right);
 
-	auto segnum = find_point_seg(pos_left, obj->segnum);
+	{
+	const auto &&segnum = find_point_seg(pos_left, vsegptridx(obj->segnum));
 	if (segnum != segment_none)
 		object_create_explosion(segnum, pos_left, size_scale, VCLIP_AFTERBURNER_BLOB );
+	}
 
 	if (count > 1) {
-		segnum = find_point_seg(pos_right, obj->segnum);
+		const auto &&segnum = find_point_seg(pos_right, vsegptridx(obj->segnum));
 		if (segnum != segment_none) {
 			auto blob_obj = object_create_explosion(segnum, pos_right, size_scale, VCLIP_AFTERBURNER_BLOB );
 			if (lifetime != -1 && blob_obj != object_none)

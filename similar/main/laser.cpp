@@ -594,7 +594,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
-	auto firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
+	const auto &&firing_segnum = find_point_seg(firing_pos, vsegptridx(parent_objp->segnum));
 
 	//	Play sound.
 	{
@@ -902,7 +902,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #endif
 	{
 	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
-		auto end_segnum = find_point_seg(end_pos, obj->segnum);
+		const auto &&end_segnum = find_point_seg(end_pos, vsegptridx(obj->segnum));
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;

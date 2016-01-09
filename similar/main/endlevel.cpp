@@ -609,7 +609,7 @@ void do_endlevel_frame()
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			auto segnum = find_point_seg(tpnt,ConsoleObject->segnum);
+			const auto &&segnum = find_point_seg(tpnt, vsegptridx(ConsoleObject->segnum));
 
 			if (segnum != segment_none) {
 				object_create_explosion(segnum,tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
@@ -1104,7 +1104,7 @@ static void endlevel_render_mine(fix eye_offset)
 		start_seg_num = exit_segnum;
 	}
 	else {
-		start_seg_num = find_point_seg(Viewer_eye,Viewer->segnum);
+		start_seg_num = find_point_seg(Viewer_eye, vsegptridx(Viewer->segnum));
 
 		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;

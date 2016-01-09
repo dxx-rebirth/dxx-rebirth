@@ -467,7 +467,8 @@ void do_physics_sim(const vobjptridx_t obj)
 
 			if ((n=find_object_seg(obj))==segment_none) {
 				//Int3();
-				if (obj->type==OBJ_PLAYER && (n=find_point_seg(obj->last_pos,obj->segnum))!=segment_none) {
+				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vsegptridx(obj->segnum))) != segment_none)
+				{
 					obj->pos = obj->last_pos;
 					obj_relink(obj, n );
 				}

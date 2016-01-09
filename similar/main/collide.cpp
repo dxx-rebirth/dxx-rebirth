@@ -1024,7 +1024,8 @@ static void collide_robot_and_player(const vobjptridx_t robot, const vobjptridx_
 
 	if (check_collision_delayfunc_exec())
 	{
-		auto collision_seg = find_point_seg(collision_point, playerobj->segnum);
+		const auto &&player_segp = vsegptridx(playerobj->segnum);
+		const auto &&collision_seg = find_point_seg(collision_point, player_segp);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		// added this if to remove the bump sound if it's the thief.
@@ -1498,8 +1499,8 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot->pos));
 		dot = vm_vec_dot(tvec1, robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			auto segnum = find_point_seg(collision_point, robot->segnum);
-			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
+			if (const auto &&segp = find_point_seg(collision_point, vsegptridx(robot->segnum)))
+				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
 			if (Buddy_objnum != object_none)
@@ -1557,8 +1558,8 @@ static int do_boss_weapon_collision(const vobjptr_t robot, const vobjptr_t weapo
 	}
 	else if ((Weapon_info[get_weapon_id(weapon)].matter ? Boss_invulnerable_matter : Boss_invulnerable_energy)[d2_boss_index])
 	{
-		auto segnum = find_point_seg(collision_point, robot->segnum);
-		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
+		if (const auto &&segp = find_point_seg(collision_point, vsegptridx(robot->segnum)))
+			digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
 		damage_flag = 0;
 	}
 
@@ -1900,7 +1901,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		{
 			const auto randvec = make_random_vector();
 			const auto tvec = vm_vec_add(playerobj->pos, randvec);
-			auto newseg = find_point_seg(tvec, playerobj->segnum);
+			const auto &&newseg = find_point_seg(tvec, vsegptridx(playerobj->segnum));
 			if (newseg != segment_none)
 			{
 				-- mines;

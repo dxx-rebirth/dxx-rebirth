@@ -1220,7 +1220,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 		Viewer_eye = Viewer->pos;
 	#endif
 
-	auto start_seg_num = find_point_seg(Viewer_eye,Viewer->segnum);
+	auto start_seg_num = find_point_seg(Viewer_eye, vsegptridx(Viewer->segnum));
 
 	if (start_seg_num==segment_none)
 		start_seg_num = Viewer->segnum;

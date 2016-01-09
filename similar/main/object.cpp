@@ -593,7 +593,7 @@ void create_small_fireball_on_object(const vobjptridx_t objp, fix size_scale, in
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	auto segnum = find_point_seg(pos, objp->segnum);
+	const auto &&segnum = find_point_seg(pos, vsegptridx(objp->segnum));
 	if (segnum != segment_none) {
 		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
