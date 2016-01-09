@@ -3262,10 +3262,6 @@ const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
 #define DXX_STRINGIZE_PPS2(X)	#X
 #define DXX_STRINGIZE_PPS(X)	DXX_STRINGIZE_PPS2(X)
 
-enum {
-	DXX_UDP_MENU_OPTIONS(ENUM)
-};
-
 static void net_udp_set_power (void)
 {
 	newmenu_item m[multi_allow_powerup_text.size()];
@@ -3346,6 +3342,7 @@ class more_game_options_menu_items
 				return &text[3][16];
 		}
 	}
+	static int handler(newmenu *, const d_event &event, more_game_options_menu_items *items);
 public:
 	menu_array &get_menu_items()
 	{
@@ -3455,6 +3452,7 @@ public:
 			Netgame.PacketsPerSec = pps;
 		convert_text_portstring(portstring, UDP_MyPort, false);
 	}
+	static void net_udp_more_game_options();
 };
 
 class grant_powerup_menu_items
@@ -3488,14 +3486,13 @@ static void net_udp_set_grant_power()
 	menu.read(Netgame.SpawnGrantedItems);
 }
 
-static int net_udp_more_options_handler(newmenu *menu, const d_event &event, more_game_options_menu_items *);
-static void net_udp_more_game_options ()
+void more_game_options_menu_items::net_udp_more_game_options()
 {
 	int i;
 	more_game_options_menu_items menu;
 	for (;;)
 	{
-		i = newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), net_udp_more_options_handler, &menu);
+		i = newmenu_do(nullptr, "Advanced netgame options", menu.get_menu_items(), handler, &menu);
 		switch (i)
 		{
 			case opt_setpower:
@@ -3525,7 +3522,7 @@ static void net_udp_more_game_options ()
 	Difficulty_level = Netgame.difficulty;
 }
 
-static int net_udp_more_options_handler(newmenu *, const d_event &event, more_game_options_menu_items *items)
+int more_game_options_menu_items::handler(newmenu *, const d_event &event, more_game_options_menu_items *items)
 {
 	switch (event.type)
 	{
@@ -3759,7 +3756,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			{
 				if ( menus[opt->coop].value )
 					Game_mode=GM_MULTI_COOP;
-				net_udp_more_game_options();
+				more_game_options_menu_items::net_udp_more_game_options();
 				Game_mode=0;
 				return 1;
 			}
