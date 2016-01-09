@@ -881,7 +881,8 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	if (weapon_info.flash_sound > -1)
 	{
 		if (make_sound)	{
-			if ( parent == (Viewer-Objects) )	{
+			if (parent == Viewer)
+			{
 				if (weapon_type == weapon_id_type::VULCAN_ID)	// Make your own vulcan gun  1/2 as loud.
 					volume = F1_0 / 2;
 				digi_play_sample(weapon_info.flash_sound, volume);
