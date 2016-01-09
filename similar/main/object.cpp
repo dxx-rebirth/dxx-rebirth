@@ -1933,7 +1933,7 @@ void reset_objects(int n_objs)
 }
 
 //Tries to find a segment for an object, using find_point_seg()
-segnum_t find_object_seg(const vobjptr_t obj)
+segptridx_t find_object_seg(const vobjptr_t obj)
 {
 	return find_point_seg(obj->pos, vsegptridx(obj->segnum));
 }
@@ -1949,7 +1949,7 @@ int update_object_seg(const vobjptridx_t obj)
 		return 0;
 
 	if ( newseg != obj->segnum )
-		obj_relink(obj, vsegptridx(newseg));
+		obj_relink(obj, newseg);
 
 	return 1;
 }

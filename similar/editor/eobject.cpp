@@ -828,8 +828,9 @@ static void move_object_to_position(const vobjptridx_t objp, const vms_vector &n
 			if (fate == HIT_WALL) {
 
 				objp->pos = hit_info.hit_pnt;
-				auto new_segnum = find_object_seg(objp);
-				obj_relink(objp, vsegptridx(new_segnum));
+				const auto &&segp = find_object_seg(objp);
+				if (segp != segment_none)
+					obj_relink(objp, segp);
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
 			}

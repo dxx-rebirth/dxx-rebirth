@@ -261,7 +261,7 @@ int update_object_seg(vobjptridx_t obj);
 // any segment, returns -1.  Note: This function is defined in
 // gameseg.h, but object.h depends on gameseg.h, and object.h is where
 // object is defined...get it?
-segnum_t find_object_seg(vobjptr_t obj);
+segptridx_t find_object_seg(vobjptr_t obj);
 
 // go through all objects and make sure they have the correct segment
 // numbers used when debugging is on
