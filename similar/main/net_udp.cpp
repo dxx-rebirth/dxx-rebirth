@@ -253,6 +253,22 @@ public:
 typedef basic_show_rule<basic_show_rule_label> show_rule_label;
 typedef basic_show_rule<basic_show_rule_value> show_rule_value;
 
+class start_poll_menu_items
+{
+	/* The host must play */
+	unsigned playercount = 1;
+public:
+	array<newmenu_item, MAX_PLAYERS + 4> m;
+	unsigned get_player_count() const
+	{
+		return playercount;
+	}
+	void set_player_count(const unsigned c)
+	{
+		playercount = c;
+	}
+};
+
 }
 
 static array<RAIIsocket, 2 + require_tracker_socket> UDP_Socket;
@@ -3100,41 +3116,22 @@ static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newme
 	return rval;
 }
 
-struct start_poll_data
+static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_items *const items)
 {
-	int playercount;
-};
-
-static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_data *spd)
-{
-	newmenu_item *menus = newmenu_get_items(menu);
-	int nitems = newmenu_get_nitems(menu);
-	int nm;
-
 	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
 	Assert(Network_status == NETSTAT_STARTING);
 
-	if (!menus[0].value)
-		menus[0].value = 1;
+	auto &menus = items->m;
+	const unsigned nitems = menus.size();
+	menus[0].value = 1;
+	range_for (auto &i, partial_range(menus, N_players, nitems))
+		i.value = 0;
 
-	for (int i=1; i<nitems; i++ ) {
-		
-		if ( (i>= N_players) && (menus[i].value) ) {
-			menus[i].value = 0;
-		}
-	}
-
-	nm = 0;
-	for (int i=0; i<nitems; i++ ) {
-		if ( menus[i].value ) {
-			nm++;
-			if ( nm > N_players ) {
-				menus[i].value = 0;
-			}
-		}
-	}
-
+	const auto predicate = [](const newmenu_item &i) {
+		return i.value;
+	};
+	const auto nm = std::count_if(menus.begin(), std::next(menus.begin(), nitems), predicate);
 	if ( nm > Netgame.max_numplayers ) {
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN );
 		// Turn off the last player highlighted
@@ -3154,31 +3151,44 @@ static int net_udp_start_poll( newmenu *menu,const d_event &event, start_poll_da
 		snprintf(menus[i].text, 45, "%d. %s%s%-20s", i+1, rankstr.first, rankstr.second, static_cast<const char *>(Netgame.players[i].callsign));
 	}
 
-	if (spd->playercount < Netgame.numplayers ) // A new player
+	const unsigned players_last_poll = items->get_player_count();
+	if (players_last_poll == Netgame.numplayers)
+		return 0;
+	items->set_player_count(Netgame.numplayers);
+	// A new player
+	if (players_last_poll < Netgame.numplayers)
 	{
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
 		if (N_players <= Netgame.max_numplayers)
 			menus[N_players-1].value = 1;
 	} 
-	else if ( spd->playercount > Netgame.numplayers ) // One got removed...
+	else	// One got removed...
 	{
 		digi_play_sample (SOUND_HUD_KILL,F1_0);
   
-		for (int i=0; i<N_players; i++ )
+		const auto j = std::min(N_players, static_cast<unsigned>(Netgame.max_numplayers));
+		/* Reset all the user's choices, since there is insufficient
+		 * integration to move the checks based on the position of the
+		 * departed player(s).  Without this reset, names would move up
+		 * one line, but checkboxes would not.
+		 */
+		range_for (auto &i, partial_range(menus, j))
+			i.value = 1;
+		range_for (auto &i, partial_range(menus, j, N_players))
+			i.value = 0;
+		range_for (auto &i, partial_range(menus, N_players, players_last_poll))
 		{
-			if (i < Netgame.max_numplayers)
-				menus[i].value = 1;
-			else
-				menus[i].value = 0;
-		}
-		for (int i=N_players; i<spd->playercount; i++ )
-		{
-			sprintf( menus[i].text, "%d. ", i+1 );          // Clear out the deleted entries...
-			menus[i].value = 0;
+			/* The default format string is "%d. "
+			 * For single digit numbers, [3] is the first character
+			 * after the space.  For double digit numbers, [3] is the
+			 * space.  Users cannot see the trailing space or its
+			 * absence, so always overwrite [3].  This would break if
+			 * the menu allowed more than 99 players.
+			 */
+			i.text[3] = 0;
+			i.value = 0;
 		}
 	}
-	spd->playercount = Netgame.numplayers;
-
 	return 0;
 }
 
@@ -4143,8 +4153,7 @@ menu:
 		}
 #endif
 		Netgame.team_vector = team_vector;
-		Netgame.team_name[0] = team_names[0];
-		Netgame.team_name[1] = team_names[1];
+		Netgame.team_name = team_names;
 		return 1;
 	}
 
@@ -4163,28 +4172,24 @@ int
 static net_udp_select_players(void)
 {
 	int j;
-	newmenu_item m[MAX_PLAYERS+4];
 	char text[MAX_PLAYERS+4][45];
 	char title[50];
 	unsigned save_nplayers;              //how may people would like to join
 
 	net_udp_add_player( &UDP_Seq );
-	std::unique_ptr<start_poll_data> spd(new start_poll_data{});
-	if (!spd)
-		return 0;
-	spd->playercount=1;
+	start_poll_menu_items spd;
 		
 	for (int i=0; i< MAX_PLAYERS+4; i++ ) {
-		sprintf( text[i], "%d.  %-20s", i+1, "" );
-		nm_set_item_checkbox(m[i], text[i], 0);
+		snprintf(text[i], sizeof(text[i]), "%d. ", i + 1);
+		nm_set_item_checkbox(spd.m[i], text[i], 0);
 	}
 
-	m[0].value = 1;                         // Assume server will play...
+	spd.m[0].value = 1;                         // Assume server will play...
 
 	const auto &&rankstr = GetRankStringWithSpace(Netgame.players[Player_num].rank);
 	snprintf( text[0], sizeof(text[0]), "%d. %s%s%-20s", 1, rankstr.first, rankstr.second, static_cast<const char *>(get_local_player().callsign));
 
-	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER );
+	snprintf(title, sizeof(title), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
 
 GetPlayersAgain:
 #ifdef USE_TRACKER
@@ -4192,7 +4197,7 @@ GetPlayersAgain:
 		udp_tracker_register();
 #endif
 
-	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_udp_start_poll, spd.get(), 1 );
+	j = newmenu_do1(nullptr, title, spd.m.size(), spd.m.data(), net_udp_start_poll, &spd, 1);
 
 	save_nplayers = N_players;
 
@@ -4224,7 +4229,7 @@ abort:
 	// Count number of players chosen
 
 	N_players = 0;
-	range_for (auto &i, partial_range(m, save_nplayers))
+	range_for (auto &i, partial_range(spd.m, save_nplayers))
 	{
 		if (i.value)
 			N_players++;
@@ -4258,7 +4263,7 @@ abort:
 	N_players = 0;
 	for (int i=0; i<save_nplayers; i++ )
 	{
-		if (m[i].value) 
+		if (spd.m[i].value) 
 		{
 			if (i > N_players)
 			{
@@ -5835,12 +5840,10 @@ int net_udp_show_game_info()
 	netgame_info *netgame = &Netgame;
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_DEFAULT_MISSION_TITLE	"Descent: First Strike"
 #define DXX_SECRET_LEVEL_FORMAT	"%s"
 #define DXX_SECRET_LEVEL_PARAMETER	(netgame->levelnum >= 0 ? "" : "S"), \
 	netgame->levelnum < 0 ? -netgame->levelnum :	/* else portion provided by invoker */
 #elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_DEFAULT_MISSION_TITLE	"Descent2: CounterStrike"
 #define DXX_SECRET_LEVEL_FORMAT
 #define DXX_SECRET_LEVEL_PARAMETER
 #endif
