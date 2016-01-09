@@ -1249,7 +1249,6 @@ object	*Viewer_save;
 namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
 int		Player_flags_save;
-int		Player_exploded = 0;
 int		Death_sequence_aborted=0;
 int		Player_eggs_dropped=0;
 fix		Camera_to_player_dist_goal=F1_0*4;
@@ -1267,7 +1266,6 @@ void dead_player_end(void)
 		newdemo_record_restore_cockpit();
 
 	Player_dead_state = player_dead_state::no;
-	Player_exploded = 0;
 	obj_delete(vobjptridx(Dead_player_camera));
 	Dead_player_camera = NULL;
 	select_cockpit(PlayerCfg.CockpitMode[0]);
@@ -1393,7 +1391,7 @@ void dead_player_frame(void)
 				else
 					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? TXT_SHIP_DESTROYED_1 : TXT_SHIP_DESTROYED_0);
 
-				Player_exploded = 1;
+				Player_dead_state = player_dead_state::exploded;
 				if (Game_mode & GM_NETWORK)
 					multi_powcap_cap_objects();
 				

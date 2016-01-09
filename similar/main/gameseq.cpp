@@ -443,7 +443,6 @@ void init_player_stats_new_ship(ubyte pnum)
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
-		Player_exploded = 0;
 		Player_eggs_dropped = 0;
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
