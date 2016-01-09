@@ -68,13 +68,16 @@ constexpr tt::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
 
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
+namespace dsx {
 const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, weapon_id_type::VULCAN_ID, 12, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID}};
 const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID}};
 
 //for each Secondary weapon, which gun it fires out of
 const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
+namespace dsx {
 const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
 	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID,
 	weapon_id_type::SUPER_LASER_ID, weapon_id_type::GAUSS_ID, weapon_id_type::HELIX_ID, weapon_id_type::PHOENIX_ID, weapon_id_type::OMEGA_ID
@@ -86,8 +89,10 @@ const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_in
 
 //for each Secondary weapon, which gun it fires out of
 const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7,4,4,7,4,7}};
+}
 #endif
 
+namespace dsx {
 const array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_ammo_max{{20, 10, 10, 5, 5,
 #if defined(DXX_BUILD_DESCENT_II)
 	20, 20, 15, 10, 10
@@ -109,7 +114,10 @@ const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup{{
 }};
 
 weapon_info_array Weapon_info;
+}
+namespace dcx {
 unsigned N_weapon_types;
+}
 primary_weapon_index_t Primary_weapon;
 sbyte Secondary_weapon;
 static primary_weapon_index_t Delayed_primary;
@@ -117,6 +125,7 @@ static sbyte Delayed_secondary;
 
 // autoselect ordering
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static const array<ubyte, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{ 4, 3, 2, 1, 0, 255 }};
 static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{ 4, 3, 1, 0, 255, 2 }};
@@ -128,6 +137,7 @@ static const array<ubyte, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8
 array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
+}
 
 static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 {
@@ -1528,6 +1538,7 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
 /*
  * reads n weapon_info structs from a PHYSFS_File
  */
+namespace dsx {
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {
 	auto r = partial_range(wi, offset, count);
@@ -1551,4 +1562,5 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 	{
 		PHYSFSX_serialize_read(fp, w);
 	}
+}
 }

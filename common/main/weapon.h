@@ -40,7 +40,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void delayed_autoselect();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
+namespace dsx {
+
 enum laser_level_t : uint8_t
 {
 	LASER_LEVEL_1,
@@ -231,6 +233,8 @@ enum secondary_weapon_index_t : uint8_t
 #endif
 };
 
+}
+
 class has_weapon_result
 {
 	uint8_t m_result;
@@ -263,17 +267,6 @@ public:
 		return m_result == (has_weapon_flag | has_energy_flag | has_ammo_flag);
 	}
 };
-
-//-----------------------------------------------------------------------------
-// Return:
-// Bits set:
-//      HAS_WEAPON_FLAG
-//      HAS_ENERGY_FLAG
-//      HAS_AMMO_FLAG
-static inline has_weapon_result player_has_weapon(int weapon_num, int secondary_flag)
-{
-	return secondary_flag ? player_has_secondary_weapon(weapon_num) : player_has_primary_weapon(weapon_num);
-}
 #endif
 
 //return which bomb will be dropped next time the bomb key is pressed

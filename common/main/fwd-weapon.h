@@ -36,21 +36,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 enum powerup_type_t : uint8_t;
 
-enum laser_level_t : uint8_t;
-class stored_laser_level;
-
 #if defined(DXX_BUILD_DESCENT_II)
 #define LASER_HELIX_MASK        7   // must match number of bits in flags
 #define MAX_SUPER_LASER_LEVEL   LASER_LEVEL_6   // Note, laser levels are numbered from 0.
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct weapon_info;
 
 struct PHYSFS_File;
 #if 0
 void weapon_info_write(PHYSFS_File *, const weapon_info &);
 #endif
+
+namespace dsx {
+enum laser_level_t : uint8_t;
+class stored_laser_level;
+struct weapon_info;
 
 #define REARM_TIME                  (F1_0)
 
@@ -107,15 +108,6 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #define HAS_PLASMA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX)
 #define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX)
 
-#define HAS_CONCUSSION_FLAG HAS_SECONDARY_FLAG(CONCUSSION_INDEX)
-#define HAS_HOMING_FLAG HAS_SECONDARY_FLAG(HOMING_INDEX)
-#define HAS_PROXIMITY_BOMB_FLAG HAS_SECONDARY_FLAG(PROXIMITY_INDEX)
-#define HAS_SMART_FLAG      HAS_SECONDARY_FLAG(SMART_INDEX)
-#define HAS_MEGA_FLAG       HAS_SECONDARY_FLAG(MEGA_INDEX)
-
-#define CLASS_PRIMARY       0
-#define CLASS_SECONDARY     1
-
 enum primary_weapon_index_t : uint8_t;
 enum secondary_weapon_index_t : uint8_t;
 
@@ -131,19 +123,17 @@ enum secondary_weapon_index_t : uint8_t;
 #define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)
 #define SUPER_WEAPON        5
 #define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
-#define HAS_FLASH_FLAG	HAS_SECONDARY_FLAG(SMISSILE1_INDEX)
-#define HAS_GUIDED_FLAG	HAS_SECONDARY_FLAG(GUIDED_INDEX)
-#define HAS_SMART_BOMB_FLAG	HAS_SECONDARY_FLAG(SMART_MINE_INDEX)
-#define HAS_MERCURY_FLAG	HAS_SECONDARY_FLAG(SMISSILE4_INDEX)
-#define HAS_EARTHSHAKER_FLAG	HAS_SECONDARY_FLAG(SMISSILE5_INDEX)
 //flags whether the last time we use this weapon, it was the 'super' version
 extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 //for each Secondary weapon, which gun it fires out of
 extern const array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
+}
 
+namespace dcx {
 extern unsigned N_weapon_types;
+}
 void do_primary_weapon_select(uint_fast32_t weapon_num);
 void do_secondary_weapon_select(uint_fast32_t weapon_num);
 
