@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "compiler-array.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct digi_sound;
 }
@@ -88,7 +88,7 @@ extern grs_bitmap bogus_bitmap;
 #endif
 extern array<uint8_t, 64 * 64> bogus_data;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 int properties_init();
 void piggy_close();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );

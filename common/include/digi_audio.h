@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct sound_object;
 const int digi_max_channels = 16;

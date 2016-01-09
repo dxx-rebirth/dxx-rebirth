@@ -65,7 +65,7 @@ struct d_fname : ntstring<FILENAME_LEN - 1>
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 /**

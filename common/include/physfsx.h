@@ -495,7 +495,7 @@ extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 bool PHYSFSX_init(int argc, char *argv[]);

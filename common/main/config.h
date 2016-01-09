@@ -47,7 +47,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 extern struct CCfg CGameCfg;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {

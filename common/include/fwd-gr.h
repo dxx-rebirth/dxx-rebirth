@@ -105,7 +105,7 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &modes);
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 int gr_set_mode(screen_mode mode);
 
@@ -166,7 +166,7 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 //=========================================================================
@@ -244,7 +244,7 @@ grs_font_ptr gr_init_font(const char * fontfile);
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)

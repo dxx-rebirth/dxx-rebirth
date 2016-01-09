@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #define HOMING_TURN_TIME                (F1_0/30)
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void calc_d_homer_tick();
 void Laser_render(vobjptr_t obj);
@@ -126,7 +126,7 @@ struct muzzle_info
 extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw

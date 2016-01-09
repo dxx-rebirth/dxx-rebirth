@@ -117,7 +117,7 @@ int SelectLeft();
 int SelectRight();
 
 // In ksegsize.c
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 int IncreaseSegLength();
 int DecreaseSegLength();
@@ -213,7 +213,7 @@ int	TexChangeAll2();
 #endif
 
 //	object.c
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 int	ObjectPlaceObject();
 int	ObjectMakeCoop();
@@ -271,7 +271,7 @@ int	LightSetDefaultAll();
 int	LightAmbientLighting();
 
 // seguvs.c
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 int fix_bogus_uvs_on_side();
 int fix_bogus_uvs_all();

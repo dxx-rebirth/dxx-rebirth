@@ -11,7 +11,7 @@
 #include "fwd-event.h"
 #include "fwd-gr.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void arch_init();
 }

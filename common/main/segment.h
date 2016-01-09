@@ -44,7 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "fwd-segment.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
@@ -152,7 +152,7 @@ struct side
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 struct segment {
@@ -202,7 +202,7 @@ struct group
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 #define Highest_segment_index (Segments.get_count() - 1)
 
 namespace dsx {
@@ -228,7 +228,7 @@ struct vertex : vms_vector
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 struct side::illegal_type : std::runtime_error
 {
 	csegptr_t m_segment;

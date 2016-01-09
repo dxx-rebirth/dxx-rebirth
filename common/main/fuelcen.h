@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   he got.
 
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
@@ -123,7 +123,7 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 	short   fuelcen_num;    // Index in fuelcen array.
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;

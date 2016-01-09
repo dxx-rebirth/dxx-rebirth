@@ -191,7 +191,7 @@ enum cockpit_mode_t
 
 extern int Rear_view;           // if true, looking back.
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void game_flush_inputs();    // clear all inputs
 // initalize flying
@@ -242,7 +242,7 @@ static inline void game_init_render_buffers (int render_max_w, int render_max_h)
 extern int netplayerinfo_on;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int game_mode_capture_flag()
@@ -308,7 +308,7 @@ static inline void game_render_frame_mono(int skip_flip)
 void game_leave_menus(void);
 
 //Cheats
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {

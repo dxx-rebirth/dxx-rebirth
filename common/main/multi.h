@@ -493,7 +493,7 @@ void multi_init_objects(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 void multi_send_endlevel_start(bool);
@@ -550,7 +550,7 @@ int multi_endlevel(int *secret);
 int multi_endlevel_poll1(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void multi_send_endlevel_packet();
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void multi_prep_level();
 void multi_leave_game(void);
@@ -558,7 +558,7 @@ void multi_leave_game(void);
 #endif
 void multi_process_bigdata(playernum_t pnum, const ubyte *buf, uint_fast32_t len);
 void multi_do_death(int objnum);
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 int multi_delete_extra_objects();
 void multi_make_ghost_player(playernum_t);
@@ -569,7 +569,7 @@ void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);
 void multi_new_game(void);
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void multi_sort_kill_list(void);
 }
@@ -580,7 +580,7 @@ void multi_initiate_save_game();
 void multi_initiate_restore_game();
 void multi_disconnect_player(playernum_t);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
@@ -652,7 +652,7 @@ extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct bit_game_flags {
 	unsigned closed : 1;
@@ -729,7 +729,7 @@ void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
 extern void multi_powcap_count_powerups_in_mine(void);
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 extern void multi_powcap_cap_objects();
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
@@ -793,7 +793,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 	fix64							LastPacketTime;
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 /*
  * The Network Game structure

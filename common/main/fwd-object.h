@@ -19,7 +19,7 @@
 struct bitmap_index;
 
 constexpr std::size_t MAX_OBJECTS = 350;
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 enum object_type_t : int;
 
@@ -145,14 +145,14 @@ struct object_rw;
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_CONTROLCEN_GUNS = 4;
 #elif defined(DXX_BUILD_DESCENT_II)
 const unsigned MAX_CONTROLCEN_GUNS = 8;
 #endif
-
-namespace dsx {
 
 struct powerup_info_rw;
 struct window_rendered_data;
@@ -174,7 +174,7 @@ extern int num_objects;
 extern int Num_robot_types;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 extern object *ConsoleObject;       // pointer to the object that is the player
 extern object *Viewer;              // which object we are seeing from
@@ -196,7 +196,7 @@ extern int Death_sequence_aborted;
 extern objnum_t Player_fired_laser_this_frame;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 // do whatever setup needs to be done
 void init_objects();

@@ -116,7 +116,7 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 
 //End old wall structures
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 struct wall : public prohibit_void_ptr<wall>
@@ -153,7 +153,7 @@ struct active_door : public prohibit_void_ptr<active_door>
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>

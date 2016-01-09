@@ -27,7 +27,7 @@ const std::size_t MAX_POLYGON_VECS = 1000;
 struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static const size_t glow_array_size = 1;
@@ -53,7 +53,7 @@ static inline void g3_uninit_polygon_model(void *model_ptr)
 	(void)model_ptr;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 //alternate interpreter for morphing object
 void g3_draw_morphing_model(const uint8_t *model_ptr,grs_bitmap **model_bitmaps,submodel_angles anim_angles,g3s_lrgb light,const vms_vector *new_points, polygon_model_points &Interp_point_list);

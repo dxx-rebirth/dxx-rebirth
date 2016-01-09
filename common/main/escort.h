@@ -17,7 +17,7 @@
 #ifdef __cplusplus
 #include "fwd-object.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void invalidate_escort_goal(void)

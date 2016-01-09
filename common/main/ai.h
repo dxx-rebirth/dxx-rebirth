@@ -58,7 +58,7 @@ struct PHYSFS_File;
 
 #define ROBOT_FIRE_AGITATION 94
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 
 #define BOSS_D1      1
 #define BOSS_SUPER   2
@@ -135,7 +135,7 @@ static inline vms_vector make_random_vector()
 	return make_random_vector(v), v;
 }
 }
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void init_robots_for_level();
 #if defined(DXX_BUILD_DESCENT_II)

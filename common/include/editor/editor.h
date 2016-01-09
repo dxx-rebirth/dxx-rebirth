@@ -183,7 +183,7 @@ extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices,
 
 void init_editor(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 //	Initialize all vertices to inactive status.
@@ -200,7 +200,7 @@ int med_set_vertex(int vnum,const vertex &vp);
 
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.
@@ -262,7 +262,7 @@ extern   int medlisp_update_screen();
 //    Cursegp = pointer to only segment.
 extern	int create_new_mine(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
@@ -322,7 +322,7 @@ extern int generate_curve( fix r1scale, fix r4scale );
 // Deletes existing curve generated in generate_curve().
 extern void delete_curve();
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 
@@ -520,7 +520,7 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
 //shutdown ui on the editor screen
 void close_editor_screen(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 //    From eobject.c
 int place_object(vsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);

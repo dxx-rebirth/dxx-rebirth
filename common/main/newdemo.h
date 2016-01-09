@@ -73,7 +73,7 @@ struct morph_data;
 // Functions called during recording process...
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 void newdemo_record_render_object(vobjptridx_t  obj);
 void newdemo_record_viewer_object(vobjptridx_t  obj);
 cobjptridx_t newdemo_find_object(object_signature_t signature);

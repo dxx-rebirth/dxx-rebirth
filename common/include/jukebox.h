@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dcx {
 extern const array<file_extension_t, 5> jukebox_exts;
 

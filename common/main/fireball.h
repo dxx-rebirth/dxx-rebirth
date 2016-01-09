@@ -60,7 +60,7 @@ extern array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 objptridx_t object_create_explosion(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);

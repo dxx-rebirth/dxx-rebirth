@@ -56,7 +56,7 @@ struct vertex_vertnum_pair
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 extern int	Doing_lighting_hack_flag;
 void compute_center_point_on_side(vms_vector &vp,vcsegptr_t sp,int side);

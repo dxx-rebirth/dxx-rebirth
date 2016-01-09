@@ -10,7 +10,7 @@
 
 #ifdef __cplusplus
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct sound_object;
 int digi_mixer_init();

@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwd-object.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 struct window_rendered_data
@@ -89,7 +89,7 @@ int toggle_outline_mode(void);
 // should access Render_viewer_object members.
 extern fix Render_zoom;     // the player's zoom factor
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static const fix Seismic_tremor_magnitude = 0;
@@ -125,7 +125,7 @@ static inline g3s_codes rotate_list(const array<T, N> &a)
 	return rotate_list(a.size(), &a[0]);
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 

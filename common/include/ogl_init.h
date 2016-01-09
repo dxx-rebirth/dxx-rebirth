@@ -99,7 +99,7 @@ void ogl_upixelc(int x, int y, int c);
 unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 }
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 void ogl_cache_level_textures();
 }

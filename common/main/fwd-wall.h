@@ -13,7 +13,7 @@
 #include "fwd-object.h"
 #include "fwd-segment.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 const unsigned MAX_WALLS = 175;	// Maximum number of walls
@@ -86,7 +86,7 @@ const fix DOOR_OPEN_TIME = i2f(2);      // How long takes to open
 const fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 const std::size_t MAX_CLIP_FRAMES = 20;
@@ -173,7 +173,7 @@ const wall_clip_flag_t WCF_TMAP1 = 4;       //this uses primary tmap, not tmap2
 const wall_clip_flag_t WCF_HIDDEN = 8;       //this uses primary tmap, not tmap2
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 struct wall;
 struct wclip;

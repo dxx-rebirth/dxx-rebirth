@@ -45,7 +45,7 @@ struct control_center_triggers : public prohibit_void_ptr<control_center_trigger
 
 extern control_center_triggers ControlCenterTriggers;
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 #include "vecmat.h"
 struct reactor {
 #if defined(DXX_BUILD_DESCENT_II)

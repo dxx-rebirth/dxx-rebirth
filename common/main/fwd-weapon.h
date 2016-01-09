@@ -199,7 +199,7 @@ void CyclePrimary();
 void CycleSecondary();
 void ReorderPrimary();
 void ReorderSecondary();
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void check_to_use_primary_super_laser();
