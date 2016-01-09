@@ -42,8 +42,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "object.h"
 
-#define MINESAVE_CRIPPLED	0
-
 char mine_filename[PATH_MAX] = "*.MIN";
 static char sit_filename[PATH_MAX] = "*.SIT";
 
@@ -95,18 +93,6 @@ static void set_extension( char * f, const char *ext )
 	}
 }
 
-#if MINESAVE_CRIPPLED
-int SaveMine()
-{
-	char  ErrorMessage[200];
-
-	sprintf( ErrorMessage, "Save Mine not available in demo version.\n");
-	ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
-	return 1;
-}
-#endif
-
-#if !MINESAVE_CRIPPLED
 int SaveMine()
 {
 	// Save mine
@@ -121,7 +107,6 @@ int SaveMine()
 	
 	return 1;
 }
-#endif
 
 int CreateNewMine()
 {
