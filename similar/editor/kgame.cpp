@@ -91,11 +91,8 @@ int SetPlayerPosition()
 //	returns 0 if unsuccessful
 int SaveGameData()
 {
-	char Message[200];
-
 	if (gamestate_not_restored) {
-		sprintf( Message, "Game State has not been restored...\nContinue?\n");
-		if (ui_messagebox( -2, -2, 2, Message, "NO", "Yes" )==1) 
+		if (ui_messagebox(-2, -2, 2, "Game State has not been restored...\nContinue?\n", "NO", "Yes") == 1)
 			return 0;
 		}
 		
