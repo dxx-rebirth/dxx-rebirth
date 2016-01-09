@@ -370,12 +370,7 @@ void rle_cache_close(void)
 
 static void rle_cache_init()
 {
-	range_for (auto &i, rle_cache)
-	{
-		i.rle_bitmap = NULL;
-		i.expanded_bitmap = NULL;
-		i.last_used = 0;
-	}
+	rle_cache = {};
 	rle_cache_initialized = 1;
 }
 
