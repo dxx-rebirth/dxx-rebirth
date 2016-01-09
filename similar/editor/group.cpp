@@ -990,7 +990,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
-		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
@@ -1119,7 +1119,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
 	{
-		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
@@ -1153,7 +1153,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	// Check version number
 	if (group_top_fileinfo.fileinfo_version < COMPATIBLE_VERSION )
 	{
-		sprintf( ErrorMessage, "ErrorMessage: You are trying to load %s\n" \
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "You are trying to load %s\n" \
 						  "a version %d group, which is known to be incompatible\n" \
 						  "with the current expected version %d groups.", \
 						  filename, group_top_fileinfo.fileinfo_version, MINE_VERSION );
@@ -1378,13 +1378,11 @@ int SaveGroup()
 {
 	// Save group
 	int i, v;
-	char  ErrorMessage[200];
 	sbyte	vertex_list[MAX_VERTICES];
 
 	if (current_group == -1)
 		{
-		sprintf( ErrorMessage, "ERROR: No current group." );
-		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
+		ui_messagebox(-2, -2, 1, "ERROR: No current group.", "Ok");
  		return 0;
 		}
 
