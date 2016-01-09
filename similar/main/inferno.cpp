@@ -595,7 +595,6 @@ static int main(int argc, char *argv[])
 	texmerge_close();
 	gamedata_close();
 	gamefont_close();
-	newmenu_free_background();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();
 

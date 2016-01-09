@@ -107,17 +107,16 @@ struct newmenu : embed_window_pointer_t
 	}
 };
 
-grs_bitmap nm_background, nm_background1;
+static grs_main_bitmap nm_background, nm_background1;
 static grs_subbitmap_ptr nm_background_sub;
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
 	{
 		nm_background_sub.reset();
-		gr_free_bitmap_data(nm_background);
 	}
-	if (nm_background1.bm_data)
-		gr_free_bitmap_data(nm_background1);
+	nm_background.reset();
+	nm_background1.reset();
 }
 
 // Draws the custom menu background pcx, if available
