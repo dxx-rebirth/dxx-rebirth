@@ -360,10 +360,10 @@ static void DropMarker (int player_marker_num)
 	int marker_num = (Player_num*2)+player_marker_num;
 
 	if (MarkerObject[marker_num] != object_none)
-		obj_delete(MarkerObject[marker_num]);
+		obj_delete(vobjptridx(MarkerObject[marker_num]));
 
 	const auto &playerp = get_local_plrobj();
-	MarkerObject[marker_num] = drop_marker_object(playerp.pos, playerp.segnum, playerp.orient, marker_num);
+	MarkerObject[marker_num] = drop_marker_object(playerp.pos, vsegptridx(playerp.segnum), playerp.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker(Player_num, playerp.pos, player_marker_num, MarkerMessage[marker_num]);
@@ -382,10 +382,9 @@ void DropBuddyMarker(const vobjptr_t objp)
 	snprintf(&MarkerMessage[marker_num][0], MarkerMessage[marker_num].size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	if (MarkerObject[marker_num] != object_none)
-		obj_delete(MarkerObject[marker_num]);
+		obj_delete(vobjptridx(MarkerObject[marker_num]));
 
-	MarkerObject[marker_num] = drop_marker_object(objp->pos, objp->segnum, objp->orient, marker_num);
-
+	MarkerObject[marker_num] = drop_marker_object(objp->pos, vsegptridx(objp->segnum), objp->orient, marker_num);
 }
 
 #define MARKER_SPHERE_SIZE 0x58000
@@ -777,8 +776,10 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != object_none) {
 				gr_set_current_canvas(NULL);
 				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
-					obj_delete(MarkerObject[HighlightMarker]);
-					MarkerObject[HighlightMarker]=object_none;
+					/* FIXME: this event should be sent to other players
+					 * so that they remove the marker.
+					 */
+					obj_delete(vobjptridx(exchange(MarkerObject[HighlightMarker], object_none)));
 					MarkerMessage[HighlightMarker][0]=0;
 					HighlightMarker = -1;
 				}

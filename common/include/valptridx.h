@@ -501,7 +501,8 @@ public:
 			vidx_type(m)
 	{
 	}
-	basic_ptridx(index_type i, array_managed_type &a = get_array()) :	// default argument deprecated
+	basic_ptridx(index_type i) = delete;
+	basic_ptridx(index_type i, array_managed_type &a) :
 		vptr_type(i, a),
 		vidx_type(i, a)
 	{

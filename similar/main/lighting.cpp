@@ -163,7 +163,7 @@ static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg
 
 				if (use_fcd_lighting && abs(obji_64) > F1_0*32)
 				{
-					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegnum, n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
+					dist = find_connected_distance(obj_pos, obj_seg, vertpos, vsegptridx(vsegnum), n_render_vertices, WID_RENDPAST_FLAG|WID_FLY_FLAG);
 					if (dist >= 0)
 						apply_light = 1;
 				}
@@ -234,7 +234,7 @@ static void cast_muzzle_flash_light(int n_render_vertices, array<int, MAX_VERTIC
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
-				apply_light(ml, i.segnum, i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
+				apply_light(ml, vsegptridx(i.segnum), i.pos, n_render_vertices, render_vertices, vert_segnum_list, object_none);
 			}
 			else
 			{
@@ -528,7 +528,7 @@ void set_dynamic_light(render_state_t &rstate)
 		const auto &&obj_light_emission = compute_light_emission(obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
-			apply_light(obj_light_emission, obj->segnum, obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
+			apply_light(obj_light_emission, vsegptridx(obj->segnum), obj->pos, n_render_vertices, render_vertices, vert_segnum_list, obj);
 	}
 }
 

@@ -597,7 +597,7 @@ void create_player_appearance_effect(const vobjptridx_t player_obj)
 		? vm_vec_scale_add(player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist))
 		: player_obj->pos;
 
-	const objptridx_t effect_obj = object_create_explosion(player_obj->segnum, pos, player_obj->size, VCLIP_PLAYER_APPEARANCE );
+	const objptridx_t effect_obj = object_create_explosion(vsegptridx(player_obj->segnum), pos, player_obj->size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj->orient;
@@ -1804,6 +1804,7 @@ public:
 		const auto player_num = Player_num;
 		const auto find_closest_player = [player_num](const obj_position &candidate) {
 			fix closest_dist = 0x7fffffff;
+			const auto &&candidate_segp = vcsegptridx(candidate.segnum);
 			for (uint_fast32_t i = N_players; i--;)
 			{
 				if (i == player_num)
@@ -1811,7 +1812,7 @@ public:
 				const auto &&objp = vobjptr(Players[i].objnum);
 				if (objp->type != OBJ_PLAYER)
 					continue;
-				const auto dist = find_connected_distance(objp->pos, objp->segnum, candidate.pos, candidate.segnum, -1, WALL_IS_DOORWAY_FLAG<0>());
+				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG<0>());
 				if (dist >= 0 && closest_dist > dist)
 					closest_dist = dist;
 			}
@@ -1886,7 +1887,7 @@ static void InitPlayerPosition(int random_flag)
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-	obj_relink(vobjptridx(ConsoleObject), Player_init[NewPlayer].segnum);
+	obj_relink(vobjptridx(ConsoleObject), vsegptridx(Player_init[NewPlayer].segnum));
 	reset_player_object();
 }
 

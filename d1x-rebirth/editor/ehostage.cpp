@@ -158,11 +158,13 @@ static int PlaceHostage()	{
 		return 1;
 	}
 
-	if (hostage_object_is_valid( Cur_object_index ) )	{
-		CurrentHostageIndex	= get_hostage_id(vcobjptr(Cur_object_index));
+	const auto &&objp = vobjptridx(Cur_object_index);
+	if (hostage_object_is_valid(objp))
+	{
+		CurrentHostageIndex	= get_hostage_id(objp);
 	} else {
 		Int3();		// Get John! (Object should be valid)
-		i=hostage_object_is_valid( Cur_object_index );	// For debugging only
+		hostage_object_is_valid(objp);	// For debugging only
 	}
 
 	return 0;

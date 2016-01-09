@@ -684,7 +684,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	hit_seg2 = fvi_hit_seg2 = segment_none;
 
-	hit_type = fvi_sub(hit_pnt,hit_seg2,*fq.p0,fq.startseg,*fq.p1,fq.rad,fq.thisobjnum,fq.ignore_obj_list,fq.flags,hit_data.seglist,segment_exit,visited);
+	hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, objptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && !get_seg_masks(hit_pnt, vcsegptr(hit_seg2), 0).centermask)
 		hit_seg = hit_seg2;
@@ -704,7 +704,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		new_hit_type = fvi_sub(new_hit_pnt,new_hit_seg2,*fq.p0,fq.startseg,*fq.p1,0,fq.thisobjnum,fq.ignore_obj_list,fq.flags,hit_data.seglist,segment_exit,visited);
+		new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, 0, objptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {
@@ -970,7 +970,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 									goto quit_looking;		//we've looked a long time, so give up
 
 								fvi_info::segment_array_t temp_seglist;
-								sub_hit_type = fvi_sub(sub_hit_point,sub_hit_seg,p0,newsegnum,p1,rad,thisobjnum,ignore_obj_list,flags,temp_seglist,startseg,visited);
+								sub_hit_type = fvi_sub(sub_hit_point, sub_hit_seg, p0, vcsegptridx(newsegnum), p1, rad, thisobjnum, ignore_obj_list, flags, temp_seglist, startseg, visited);
 
 								if (sub_hit_type != HIT_NONE) {
 
@@ -1257,7 +1257,7 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 							return 1;
 						}
 						else if (!visited[child]) {                //haven't visited here yet
-							if (sphere_intersects_wall(pnt, child, rad, hresult, visited))
+							if (sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, hresult, visited))
 								return 1;
 						}
 					}
@@ -1273,11 +1273,11 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 int object_intersects_wall(const vcobjptr_t objp)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(objp->pos, objp->segnum, objp->size, nullptr, visited);
+	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, nullptr, visited);
 }
 
 int object_intersects_wall_d(const vcobjptr_t objp, object_intersects_wall_result_t &result)
 {
 	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(objp->pos, objp->segnum, objp->size, &result, visited);
+	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, &result, visited);
 }

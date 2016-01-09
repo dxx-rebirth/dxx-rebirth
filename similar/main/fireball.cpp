@@ -316,7 +316,7 @@ void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 #endif
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0);
 
-	object_create_badass_explosion(obj, obj->segnum, pos,
+	object_create_badass_explosion(obj, vsegptridx(obj->segnum), pos,
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],
@@ -327,7 +327,7 @@ void explode_badass_weapon(const vobjptridx_t obj,const vms_vector &pos)
 
 static void explode_badass_object(const vobjptridx_t objp, fix damage, fix distance, fix force)
 {
-	const objptridx_t rval = object_create_badass_explosion(objp, objp->segnum, objp->pos, objp->size,
+	const auto &&rval = object_create_badass_explosion(objp, vsegptridx(objp->segnum), objp->pos, objp->size,
 					get_explosion_vclip(objp, explosion_vclip_stage::s0),
 					damage, distance, force,
 					objp);
@@ -349,7 +349,7 @@ static void object_create_debris(const vobjptr_t parent, int subobj_num)
 {
 	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
 
-	auto obj = obj_create(OBJ_DEBRIS,0,parent->segnum,parent->pos,
+	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vsegptridx(parent->segnum), parent->pos,
 				&parent->orient,Polygon_models[parent->rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
@@ -522,7 +522,7 @@ segidx_t pick_connected_segment(const vcobjptr_t objp, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static segnum_t choose_drop_segment()
+static vsegptridx_t choose_drop_segment()
 {
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
@@ -578,8 +578,10 @@ static segnum_t choose_drop_segment()
 
 		//bail if not far enough from original position
 		if (segnum != segment_none) {
-			const auto &&tempv = compute_segment_center(vcsegptr(segnum));
-			if (find_connected_distance(*player_pos,player_seg,tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
+			const auto &&segp = vcsegptridx(segnum);
+			const auto &&tempv = compute_segment_center(segp);
+			if (find_connected_distance(*player_pos, vcsegptridx(player_seg), tempv, segp, -1, WID_FLY_FLAG) < i2f(20) * cur_drop_depth)
+			{
 				segnum = segment_none;
 			}
 		}
@@ -595,9 +597,10 @@ static segnum_t choose_drop_segment()
 			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
-		return ((segnum == segment_none)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
-	} else
-		return segnum;
+		if (segnum == segment_none) // basically it should be impossible segnum == -1 now... but oh well...
+			return vsegptridx(static_cast<segnum_t>((d_rand() * Highest_segment_index) >> 15));
+	}
+	return vsegptridx(segnum);
 
 }
 
@@ -629,7 +632,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 			return;
 
 		const auto &&segnum = choose_drop_segment();
-		const auto &&new_pos = pick_random_point_in_seg(vcsegptr(segnum));
+		const auto &&new_pos = pick_random_point_in_seg(segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;
 		vm_vec_zero(objnum->mtype.phys_info.velocity);
@@ -1009,7 +1012,7 @@ objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector 
 
 objptridx_t object_create_robot_egg(const vobjptr_t objp)
 {
-	return object_create_robot_egg(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
+	return object_create_robot_egg(objp->contains_type, objp->contains_id, objp->contains_count, objp->mtype.phys_info.velocity, objp->pos, vsegptridx(objp->segnum));
 }
 
 // -- extern int Items_destroyed;
@@ -1020,7 +1023,7 @@ objptridx_t object_create_robot_egg(const vobjptr_t objp)
 objptridx_t call_object_create_egg(const vobjptr_t objp, int count, int type, int id)
 {
 	if (count > 0) {
-		return object_create_player_egg(type, id, count, objp->mtype.phys_info.velocity, objp->pos, objp->segnum);
+		return object_create_player_egg(type, id, count, objp->mtype.phys_info.velocity, objp->pos, vsegptridx(objp->segnum));
 	}
 
 	return object_none;
@@ -1089,7 +1092,7 @@ void explode_object(const vobjptridx_t hitobj,fix delay_time)
 
 	if (delay_time) {		//wait a little while before creating explosion
 		//create a placeholder object to do the delay, with id==-1
-		auto obj = obj_create( OBJ_FIREBALL,-1,hitobj->segnum,hitobj->pos,&vmd_identity_matrix,0,
+		auto obj = obj_create(OBJ_FIREBALL, -1, vsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
 						CT_EXPLOSION,MT_NONE,RT_NONE);
 		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
@@ -1109,7 +1112,7 @@ void explode_object(const vobjptridx_t hitobj,fix delay_time)
 
 		vclip_num = get_explosion_vclip(hitobj, explosion_vclip_stage::s0);
 
-		auto expl_obj = object_create_explosion(hitobj->segnum, hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num );
+		auto expl_obj = object_create_explosion(vsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num);
 	
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
@@ -1171,10 +1174,10 @@ void do_explosion_sequence(const vobjptr_t obj)
 			{
 				const auto &ri = Robot_info[get_robot_id(del_obj)];
 				if (ri.badass)
-					return object_create_badass_explosion(object_none, del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0 * ri.badass, i2f(4) * ri.badass, i2f(35) * ri.badass, object_none);
+					return object_create_badass_explosion(object_none, vsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0 * ri.badass, i2f(4) * ri.badass, i2f(35) * ri.badass, object_none);
 			}
 #endif
-			return object_create_explosion(del_obj->segnum, spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num);
+			return object_create_explosion(vsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num);
 		}();
 
 		if ((del_obj->contains_count > 0) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
@@ -1205,7 +1208,7 @@ void do_explosion_sequence(const vobjptr_t obj)
 
 		const robot_info *robptr = &Robot_info[get_robot_id(del_obj)];
 		if ( robptr->exp2_sound_num > -1 )
-			digi_link_sound_to_pos( robptr->exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
+			digi_link_sound_to_pos(robptr->exp2_sound_num, vsegptridx(del_obj->segnum), 0, spawn_pos, 0, F1_0);
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj->ctype.expl_info.spawn_time = -1;
@@ -1356,10 +1359,11 @@ void do_exploding_wall_frame()
 				//fireballs start away from door, with subsequent ones getting closer
 				vm_vec_scale_add2(pos, vcsegptr(segnum)->sides[sidenum].normals[0], size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
 
+				const auto &&is = vsegptridx(i.segnum);
 				if (e & 3)		//3 of 4 are normal
-					object_create_explosion(i.segnum,pos,size,VCLIP_SMALL_EXPLOSION);
+					object_create_explosion(is, pos, size, VCLIP_SMALL_EXPLOSION);
 				else
-					object_create_badass_explosion( object_none, i.segnum, pos,
+					object_create_badass_explosion(object_none, is, pos,
 					size,
 					VCLIP_SMALL_EXPLOSION,
 					i2f(4),		// damage strength

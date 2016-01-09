@@ -1034,7 +1034,7 @@ static int load_game_data(PHYSFS_file *LoadFile)
 			}
 			else {
 				i.segnum = segment_none;			//avoid Assert()
-				obj_link(vobjptridx(&i),objsegnum);
+				obj_link(vobjptridx(&i), vsegptridx(objsegnum));
 			}
 		}
 	}

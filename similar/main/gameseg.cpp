@@ -593,7 +593,7 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 
 			side_dists[biggest_side] = 0;
 			// trace into adjacent segment:
-			auto check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1, visited);
+			auto check = trace_segs(p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
 			if (check != segment_none)		//we've found a segment
 				return check;
 	}
@@ -1012,9 +1012,9 @@ void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	auto segnum = INTEL_SHORT(spp->segment);
+	auto segnum = static_cast<segnum_t>(INTEL_SHORT(spp->segment));
 
-	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
+	Assert(segnum <= Highest_segment_index);
 
 	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
 	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
@@ -1024,8 +1024,7 @@ void extract_shortpos_little(const vobjptridx_t objp, const shortpos *spp)
 	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
 	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
 
-	obj_relink(objp, segnum);
-
+	obj_relink(objp, vsegptridx(segnum));
 }
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
@@ -1081,9 +1080,9 @@ void extract_quaternionpos(const vobjptridx_t objp, quaternionpos *qpp, int swap
 	objp->mtype.phys_info.velocity = qpp->vel;
 	objp->mtype.phys_info.rotvel = qpp->rotvel;
         
-	auto segnum = qpp->segment;
-	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-	obj_relink(objp, segnum);
+	auto segnum = static_cast<segnum_t>(qpp->segment);
+	Assert(segnum <= Highest_segment_index);
+	obj_relink(objp, vsegptridx(segnum));
 }
 
 

@@ -2854,7 +2854,7 @@ void show_HUD_names()
 		else
 			objnum = Players[pnum].objnum;
 
-		const auto &&objp = vcobjptr(objnum);
+		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
 		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
 		const auto show_friend_name = Show_reticle_name;
@@ -2870,7 +2870,7 @@ void show_HUD_names()
 			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
-		if ((show_name || show_typing || show_indi) && see_object(objnum))
+		if ((show_name || show_typing || show_indi) && see_object(objp))
 		{
 			const auto &&objp = vcobjptr(objnum);
 			auto player_point = g3_rotate_point(objp->pos);

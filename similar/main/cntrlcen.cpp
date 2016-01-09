@@ -279,7 +279,7 @@ void do_controlcen_destroyed_stuff(const objptridx_t objp)
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
-		wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
+		wall_toggle(vsegptridx(ControlCenterTriggers.seg[i]), ControlCenterTriggers.side[i]);
 
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;

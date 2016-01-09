@@ -1977,7 +1977,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link(vobjptridx(Viewer), segnum);
+				obj_link(vobjptridx(Viewer), vsegptridx(segnum));
 			}
 			}
 		}
@@ -2006,7 +2006,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (segnum > Highest_segment_index)
 					break;
 
-				obj_link(obj,segnum);
+				obj_link(obj, vsegptridx(segnum));
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -2199,12 +2199,12 @@ static int newdemo_read_frame_information(int rewrite)
                                                 break;
                                         }
                                         if (!truth)
-                                                check_trigger(segp, side, objnum,shot);
+						check_trigger(segp, side, vobjptridx(objnum), shot);
                                 } else if (!rewrite)
 #endif
                                 {
                                         if (Newdemo_vcr_state != ND_STATE_PAUSED)
-                                                check_trigger(segp, side, objnum,shot);
+						check_trigger(segp, side, vobjptridx(objnum), shot);
                                 }
                         }
 		}
@@ -2250,7 +2250,7 @@ static int newdemo_read_frame_information(int rewrite)
 					auto segnum = obj->segnum;
 					obj->next = obj->prev = object_none;
 					obj->segnum = segment_none;
-					obj_link(obj,segnum);
+					obj_link(obj, vsegptridx(segnum));
 				}
 			}
 			break;
@@ -2270,7 +2270,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_toggle(segnum, side);
+				wall_toggle(vsegptridx(segnum), side);
 		}
 			break;
 

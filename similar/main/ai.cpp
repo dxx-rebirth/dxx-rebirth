@@ -1674,7 +1674,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 			if ((ailp->next_misc_sound_time < GameTime64) && (ready_to_fire_any_weapon(robptr, ailp, F1_0)) && (dist < F1_0*20))
 			{
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
-				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos(robptr->see_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 			}
 		} else {
 			//	Compute expensive stuff -- vec_to_player and player_visibility
@@ -1702,19 +1702,19 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 			{
 				if (ailp->previous_visibility == 0) {
 					if (ailp->time_player_seen + F1_0/2 < GameTime64) {
-						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+						digi_link_sound_to_pos(robptr->see_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime64;
 						ailp->next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
 				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime64) {
-					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+					digi_link_sound_to_pos(robptr->attack_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 					ailp->time_player_sound_attacked = GameTime64;
 				}
 			} 
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime64)) {
 				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
-				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos(robptr->attack_sound, vsegptridx(objp->segnum), 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
 		}
@@ -2017,7 +2017,7 @@ objptridx_t gate_in_robot(int type, const vsegptridx_t segnum)
 static objptridx_t gate_in_robot(int type)
 {
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.count()) >> 15];
-	return gate_in_robot(type, segnum);
+	return gate_in_robot(type, vsegptridx(segnum));
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -2147,7 +2147,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if ((!size_check) || boss_fits_in_seg(boss_objp, segp->children[sidenum])) {
+						if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(segp->children[sidenum]))) {
 							segptr.emplace_back(segp->children[sidenum]);
 							#ifdef EDITOR
 							Selected_segs.emplace_back(segp->children[sidenum]);
@@ -2166,7 +2166,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 
 		boss_objp->size = boss_size_save;
 		boss_objp->pos = original_boss_pos;
-		obj_relink(boss_objp, original_boss_seg);
+		obj_relink(boss_objp, vsegptridx(original_boss_seg));
 
 	}
 
@@ -2187,8 +2187,9 @@ static void teleport_boss(const vobjptridx_t objp)
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
 
-	compute_segment_center(objp->pos, vcsegptr(rand_segnum));
-	obj_relink(objp, rand_segnum);
+	const auto &&rand_segp = vsegptridx(rand_segnum);
+	compute_segment_center(objp->pos, rand_segp);
+	obj_relink(objp, rand_segp);
 
 	Last_teleport_time = GameTime64;
 
@@ -2196,7 +2197,7 @@ static void teleport_boss(const vobjptridx_t objp)
 	const auto boss_dir = vm_vec_sub(get_local_plrobj().pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, objp->pos, 0 , F1_0);
+	digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segp, 0, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);
 
 	//	After a teleport, boss can fire right away.

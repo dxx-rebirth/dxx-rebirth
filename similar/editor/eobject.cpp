@@ -698,7 +698,7 @@ static void reset_object(const vobjptridx_t obj)
 
 int ObjectResetObject()
 {
-	reset_object(Cur_object_index);
+	reset_object(vobjptridx(Cur_object_index));
 
 	Update_flags |= UF_WORLD_CHANGED;
 

@@ -458,19 +458,19 @@ void do_physics_sim(const vobjptridx_t obj)
 		obj->pos = ipos;
 
 		if ( iseg != obj->segnum )
-			obj_relink(obj, iseg );
+			obj_relink(obj, vsegptridx(iseg));
 
 		//if start point not in segment, move object to center of segment
 		if (get_seg_masks(obj->pos, vcsegptr(obj->segnum), 0).centermask !=0 )
 		{
-			segnum_t n;
-
-			if ((n=find_object_seg(obj))==segment_none) {
+			auto n = find_object_seg(obj);
+			if (n == segment_none)
+			{
 				//Int3();
 				if (obj->type == OBJ_PLAYER && (n = find_point_seg(obj->last_pos, vsegptridx(obj->segnum))) != segment_none)
 				{
 					obj->pos = obj->last_pos;
-					obj_relink(obj, n );
+					obj_relink(obj, n);
 				}
 				else {
 					compute_segment_center(obj->pos, vcsegptr(obj->segnum));
@@ -498,7 +498,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		
 				//iseg = obj->segnum;		//don't change segment
 
-				obj_relink(obj, save_seg );
+				obj_relink(obj, vsegptridx(save_seg));
 
 				moved_time = 0;
 			}
@@ -535,9 +535,9 @@ void do_physics_sim(const vobjptridx_t obj)
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, hit_info.hit_pnt );
+					collide_object_with_wall(obj, hit_speed, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				if (obj->type == OBJ_PLAYER)
-					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, hit_info.hit_pnt );
+					scrape_player_on_wall(obj, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );

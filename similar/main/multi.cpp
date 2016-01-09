@@ -1902,7 +1902,7 @@ static void multi_do_kill(playernum_t, const ubyte *buf)
 		Bounty_target = buf[6];
 	}
 
-	multi_compute_kill(killer, killed);
+	multi_compute_kill(objptridx(killer), vobjptridx(killed));
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
@@ -2632,7 +2632,7 @@ void multi_send_player_deres(deres_type_t type)
 		Network_send_objnum = -1;
 	}
 
-	multi_send_position(get_local_player().objnum);
+	multi_send_position(vobjptridx(get_local_player().objnum));
 
 	count++;
 	multibuf[count++] = Player_num;
@@ -2906,7 +2906,7 @@ multi_send_message(void)
 void
 multi_send_reappear()
 {
-	multi_send_position(get_local_player().objnum);
+	multi_send_position(vobjptridx(get_local_player().objnum));
 	multibuf[1] = (char)Player_num;
 	PUT_INTEL_SHORT(multibuf+2, get_local_player().objnum);
 
@@ -2972,7 +2972,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 	{
 		multibuf[count] = Netgame.team_vector;	count += 1;
 		multibuf[count] = Bounty_target;	count += 1;
-		multi_compute_kill(killer_objnum, objnum);
+		multi_compute_kill(objptridx(killer_objnum), objnum);
 		multi_send_data<MULTI_KILL_HOST>(multibuf, count, 2);
 	}
 	else
@@ -3131,7 +3131,7 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 
 	int count = 0;
 
-	multi_send_position(get_local_player().objnum);
+	multi_send_position(vobjptridx(get_local_player().objnum));
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -3445,10 +3445,11 @@ void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_typ
 		return;
 	const auto &vc = Vclip[o->rtype.vclip_info.vclip_num];
 	const auto vc_num_frames = vc.num_frames;
-	const auto &seg_verts = vsegptr(o->segnum)->verts;
+	const auto &&segp = vsegptridx(o->segnum);
+	const auto &seg_verts = segp->verts;
 	for (uint_fast32_t i = count++; i; --i)
 	{
-		const auto no = obj_create(OBJ_POWERUP, id, o->segnum, vm_vec_avg(o->pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+		const auto no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o->pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o->size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
@@ -3536,7 +3537,7 @@ void multi_prep_level(void)
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, o->segnum, o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+			const auto objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 			obj_delete(o);
 			if (objnum != object_none)
 			{
@@ -3754,7 +3755,7 @@ void multi_send_drop_weapon(const vobjptridx_t objnum, int seed)
 	int count=0;
 	int ammo_count;
 
-	multi_send_position(get_local_player().objnum);
+	multi_send_position(vobjptridx(get_local_player().objnum));
 	const auto &objp = objnum;
 	ammo_count = objp->ctype.powerup_info.count;
 
@@ -4039,12 +4040,13 @@ static void multi_do_light (const ubyte *buf)
 
 	segnum_t seg;
 	seg = GET_INTEL_INT(buf + 1);
-	auto &side_array = vsegptr(seg)->sides;
+	const auto &&segp = vsegptridx(seg);
+	auto &side_array = segp->sides;
 	for (i=0;i<6;i++)
 	{
 		if ((sides & (1<<i)))
 		{
-			subtract_light (seg,i);
+			subtract_light(segp, i);
 			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[6 + (2 * i)]);
 		}
 	}

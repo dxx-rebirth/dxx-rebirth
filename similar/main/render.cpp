@@ -1223,7 +1223,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 	auto start_seg_num = find_point_seg(Viewer_eye, vsegptridx(Viewer->segnum));
 
 	if (start_seg_num==segment_none)
-		start_seg_num = Viewer->segnum;
+		start_seg_num = segptridx(Viewer->segnum);
 
 	if (Rear_view && (Viewer==ConsoleObject)) {
 		vms_angvec Player_head_angles;
@@ -1679,7 +1679,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 			{
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, window);	// note link to above else
+					do_render_object(vobjptridx(v.objnum), window);	// note link to above else
 				}
 			}
 		}

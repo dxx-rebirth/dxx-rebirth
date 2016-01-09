@@ -172,15 +172,16 @@ multi_check_robot_timeout(void)
 		{
 			if (robot_controlled[i] != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
 			{
-				if (vcobjptr(robot_controlled[i])->ctype.ai_info.REMOTE_OWNER != Player_num)
+				const auto &&robot_objp = vobjptridx(robot_controlled[i]);
+				if (robot_objp->ctype.ai_info.REMOTE_OWNER != Player_num)
 				{		
 					robot_controlled[i] = object_none;
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					return;
 				}
 				if (robot_send_pending[i])
-					multi_send_robot_position(robot_controlled[i], 1);
-				multi_send_release_robot(robot_controlled[i]);
+					multi_send_robot_position(robot_objp, 1);
+				multi_send_release_robot(robot_objp);
 //				multi_delete_controlled_robot(robot_controlled[i]);
 //				robot_controlled[i] = -1;
 			}
@@ -199,7 +200,7 @@ multi_strip_robots(int playernum)
 		{
 			range_for (const auto r, robot_controlled)
 				if (r != object_none)
-					multi_delete_controlled_robot(r);
+					multi_delete_controlled_robot(vobjptridx(r));
 		}
 
 		range_for (const auto &&objp, highest_valid(vobjptr, 1))
@@ -248,9 +249,10 @@ int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 		}
 
 		if (robot_last_message_time[i] + ROBOT_TIMEOUT < GameTime64) {
+			const auto &&robot_objp = vobjptridx(robot_controlled[i]);
 			if (robot_send_pending[i])
-				multi_send_robot_position(robot_controlled[i], 1);
-			multi_send_release_robot(robot_controlled[i]);
+				multi_send_robot_position(robot_objp, 1);
+			multi_send_release_robot(robot_objp);
 			first_free_robot = i;
 			break;
 		}
@@ -271,9 +273,10 @@ int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 #endif
 	) // Replace some old robot with a more agitated one
 	{
+		const auto &&robot_objp = vobjptridx(robot_controlled[lowest_agitated_bot]);
 		if (robot_send_pending[lowest_agitated_bot])
-			multi_send_robot_position(robot_controlled[lowest_agitated_bot], 1);
-		multi_send_release_robot(robot_controlled[lowest_agitated_bot]);
+			multi_send_robot_position(robot_objp, 1);
+		multi_send_release_robot(robot_objp);
 
 		i = lowest_agitated_bot;
 	}
@@ -369,8 +372,7 @@ multi_send_robot_frame(int sent)
 		{
 			if (robot_send_pending[sending])
 			{
-				multi_send_robot_position_sub(robot_controlled[sending], (robot_send_pending[sending]>1)?1:0);
-				robot_send_pending[sending] = 0;
+				multi_send_robot_position_sub(vobjptridx(robot_controlled[sending]), (exchange(robot_send_pending[sending], 0) > 1));
 			}
 
 			if (robot_fired[sending])
@@ -690,7 +692,7 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 
-	const auto &&botp = vobjptr(botnum);
+	const auto &&botp = vobjptridx(botnum);
 	if (botp->type != OBJ_ROBOT)
 	{
 		return;
@@ -706,7 +708,7 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 
 	if (botp->ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
-		multi_delete_controlled_robot(botnum);
+		multi_delete_controlled_robot(botp);
 	}
 
 	botp->ctype.ai_info.REMOTE_OWNER = pnum;
@@ -962,12 +964,12 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 
 	// Play effect and sound
 
-	const auto &&cur_object_loc = compute_segment_center(vcsegptr(robotcen->segnum));
-	objptridx_t obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
-	if (obj)
-		extract_orient_from_segment(&obj->orient, vcsegptr(robotcen->segnum));
+	const auto &&robotcen_segp = vsegptridx(robotcen->segnum);
+	const auto &&cur_object_loc = compute_segment_center(robotcen_segp);
+	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
+		extract_orient_from_segment(&obj->orient, robotcen_segp);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
-		digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
+		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, 0, cur_object_loc, 0, F1_0);
 
 	// Set robot center flags, in case we become the master for the next one
 
@@ -975,7 +977,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	robotcen->Capacity -= EnergyToCreateOneRobot;
 	robotcen->Timer = 0;
 
-	obj = create_morph_robot(vsegptridx(robotcen->segnum), cur_object_loc, type);
+	const auto &&obj = create_morph_robot(vsegptridx(robotcen->segnum), cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	
@@ -1112,7 +1114,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	const auto egg_objnum = object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, segnum);
+	const auto &&egg_objnum = object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, vsegptridx(segnum));
 
 	if (egg_objnum == object_none)
 		return; // Object buffer full

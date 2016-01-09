@@ -1339,7 +1339,7 @@ void dead_player_frame(void)
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
 			const auto &player = get_local_plrobj();
-			auto objnum = obj_create(OBJ_CAMERA, 0, player.segnum, player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = objnum;
@@ -1497,7 +1497,7 @@ static void start_player_death_sequence(const vobjptr_t player)
 	vm_vec_zero(player->mtype.phys_info.rotthrust);
 	vm_vec_zero(player->mtype.phys_info.thrust);
 
-	auto objnum = obj_create(OBJ_CAMERA, 0, player->segnum, player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player->segnum), player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -1573,7 +1573,7 @@ void obj_relink_all(void)
 			obj->next = obj->prev = object_none;
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link(obj, segnum);
+			obj_link(obj, vsegptridx(segnum));
 		}
 	}
 }

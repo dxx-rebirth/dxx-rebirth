@@ -315,7 +315,7 @@ void start_endlevel_sequence()
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion) {
-				object_create_explosion(objp->segnum, objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
+				object_create_explosion(vsegptridx(objp->segnum), objp->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				objp->flags |= OF_SHOULD_BE_DEAD;
 			}
 	}
@@ -582,7 +582,8 @@ void do_endlevel_frame()
 
 				outside_mine = 1;
 
-				auto tobj = object_create_explosion(exit_segnum,mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
+				const auto &&exit_segp = vsegptridx(exit_segnum);
+				const auto &&tobj = object_create_explosion(exit_segp, mine_side_exit_point, i2f(50), VCLIP_BIG_PLAYER_EXPLOSION);
 
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
@@ -597,7 +598,7 @@ void do_endlevel_frame()
 					ext_expl_playing = 1;
 				}
 
-				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, mine_side_exit_point, 0, i2f(3)/4 );
+				digi_link_sound_to_pos(SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segp, 0, mine_side_exit_point, 0, i2f(3)/4);
 			}
 		}
 
@@ -654,7 +655,7 @@ void do_endlevel_frame()
 			find_vector_intersection(fq, hit_data);
 
 			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
-				object_create_explosion(hit_data.hit_seg,hit_data.hit_pnt,i2f(3)+d_rand()*6,VCLIP_SMALL_EXPLOSION);
+				object_create_explosion(vsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
 		}
@@ -681,7 +682,7 @@ void do_endlevel_frame()
 					Endlevel_sequence = EL_LOOKBACK;
 
 					auto objnum = obj_create(OBJ_CAMERA, 0,
-					                    ConsoleObject->segnum,ConsoleObject->pos,&ConsoleObject->orient,0,
+					                    vsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort

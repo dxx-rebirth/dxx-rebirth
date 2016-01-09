@@ -602,7 +602,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 	if ( parent_objp == Viewer )
 		digi_play_sample(flash_sound, F1_0);
 	else
-		digi_link_sound_to_pos(flash_sound, weapon_objp->segnum, 0, weapon_objp->pos, 0, F1_0);
+		digi_link_sound_to_pos(flash_sound, vsegptridx(weapon_objp->segnum), 0, weapon_objp->pos, 0, F1_0);
 	}
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
@@ -770,7 +770,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
 			if (weapon_info.flash_vclip > -1 )
-				object_create_muzzle_flash(obj->segnum, obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+				object_create_muzzle_flash(vsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 		}
 
 		do_omega_stuff(parent, position, obj);
@@ -874,7 +874,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash
 		if (weapon_info.flash_vclip > -1 )
-			object_create_muzzle_flash(obj->segnum, obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+			object_create_muzzle_flash(segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 	}
 
 	volume = F1_0;
@@ -886,7 +886,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 					volume = F1_0 / 2;
 				digi_play_sample(weapon_info.flash_sound, volume);
 			} else {
-				digi_link_sound_to_pos(weapon_info.flash_sound, obj->segnum, 0, obj->pos, 0, volume);
+				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), 0, obj->pos, 0, volume);
 			}
 		}
 	}
@@ -987,7 +987,7 @@ objptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector 
 		return object_none;
 	}
 
-	return Laser_create_new( direction, hit_data.hit_pnt, hit_data.hit_seg, parent, weapon_type, make_sound );
+	return Laser_create_new(direction, hit_data.hit_pnt, vsegptridx(hit_data.hit_seg), parent, weapon_type, make_sound);
 }
 
 }
@@ -1375,7 +1375,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon
 		vm_vec_scale_add2(LaserDir, obj->orient.uvec, spreadu);
 	}
 
-	auto objnum = Laser_create_new( LaserDir, LaserPos, LaserSeg, obj, laser_type, make_sound );
+	const auto &&objnum = Laser_create_new(LaserDir, LaserPos, vsegptridx(LaserSeg), obj, laser_type, make_sound);
 
 	if (objnum == object_none)
 		return objnum;
@@ -1607,8 +1607,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 #ifdef NEWHOMER
                         if (d_homer_tick_step)
                         {
-                                objptridx_t obj_track_goal = obj->ctype.laser_info.track_goal;
-                                auto track_goal = track_track_goal(obj_track_goal, obj, &dot, d_homer_tick_count);
+                                const auto &&track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
 
                                 if (track_goal == get_local_player().objnum) {
                                         fix	dist_to_player;
@@ -2079,7 +2078,7 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 	}
 
 	//	Create a vector towards the goal, then add some noise to it.
-	auto objnum = Laser_create_new(vector_to_goal, objp->pos, objp->segnum, objp, objtype, make_sound);
+	const auto &&objnum = Laser_create_new(vector_to_goal, objp->pos, vsegptridx(objp->segnum), objp, objtype, make_sound);
 	if (objnum == object_none)
 		return objnum;
 

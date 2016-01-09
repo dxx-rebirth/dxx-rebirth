@@ -130,7 +130,7 @@ int SaveGameData()
 			const auto &&save_segp = vsegptridx(save_segnum);
 			auto found_save_segnum = find_point_seg(save_pos, save_segp);
 			if (found_save_segnum == segment_none) {
-				found_save_segnum = save_segnum;
+				found_save_segnum = save_segp;
 				compute_segment_center(save_pos, save_segp);
 			}
 

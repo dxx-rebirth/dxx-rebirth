@@ -456,14 +456,15 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			}
 
 			const auto &&cur_object_loc = compute_segment_center(csegp);
+			const auto &&robotcen_segp = vsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion(robotcen->segnum, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
+			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 
 			if (obj != object_none)
-				extract_orient_from_segment(&obj->orient, vsegptr(robotcen->segnum));
+				extract_orient_from_segment(&obj->orient, robotcen_segp);
 
 			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
-				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, cur_object_loc, 0, F1_0 );
+				digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, 0, cur_object_loc, 0, F1_0);
 			}
 			robotcen->Flag	= 1;
 			robotcen->Timer = 0;
