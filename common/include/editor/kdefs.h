@@ -230,12 +230,26 @@ int	ObjectMoveNearer();
 int	ObjectMoveFurther();
 int	ObjectSelectNextinSegment();
 int	ObjectSelectNextType();
-int	ObjectDecreaseBank(); 
-int	ObjectIncreaseBank(); 
-int	ObjectDecreasePitch();
-int	ObjectIncreasePitch();
-int	ObjectDecreaseHeading();
-int	ObjectIncreaseHeading();
+
+template <int p, int b, int h>
+int ObjectChangeRotation();
+
+#define ROTATION_UNIT (4096/4)
+
+#define ObjectDecreaseBank ObjectChangeRotation<0, -ROTATION_UNIT, 0>
+#define ObjectIncreaseBank ObjectChangeRotation<0, ROTATION_UNIT, 0>
+#define ObjectDecreasePitch ObjectChangeRotation<-ROTATION_UNIT, 0, 0>
+#define ObjectIncreasePitch ObjectChangeRotation<ROTATION_UNIT, 0, 0>
+#define ObjectDecreaseHeading ObjectChangeRotation<0, 0, -ROTATION_UNIT>
+#define ObjectIncreaseHeading ObjectChangeRotation<0, 0, ROTATION_UNIT>
+
+#define ObjectDecreaseBankBig ObjectChangeRotation<0, -(ROTATION_UNIT*4), 0>
+#define ObjectIncreaseBankBig ObjectChangeRotation<0, (ROTATION_UNIT*4), 0>
+#define ObjectDecreasePitchBig ObjectChangeRotation<-(ROTATION_UNIT*4), 0, 0>
+#define ObjectIncreasePitchBig ObjectChangeRotation<(ROTATION_UNIT*4), 0, 0>
+#define ObjectDecreaseHeadingBig ObjectChangeRotation<0, 0, -(ROTATION_UNIT*4)>
+#define ObjectIncreaseHeadingBig ObjectChangeRotation<0, 0, (ROTATION_UNIT*4)>
+
 int  	ObjectResetObject();
 }
 #endif

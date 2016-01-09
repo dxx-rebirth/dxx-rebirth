@@ -33,12 +33,6 @@ namespace dsx {
 int ObjectSelectNextInMine(void);
 int ObjectSelectPrevInMine(void);
 
-int   ObjectDecreaseBankBig(); 
-int   ObjectIncreaseBankBig(); 
-int   ObjectDecreasePitchBig();
-int   ObjectIncreasePitchBig();
-int   ObjectDecreaseHeadingBig();
-int   ObjectIncreaseHeadingBig();
 int   ObjectFlipObject();
 }
 #endif

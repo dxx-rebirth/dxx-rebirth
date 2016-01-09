@@ -62,8 +62,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	OBJ_SCALE		(F1_0/2)
 #define	OBJ_DEL_SIZE	(F1_0/2)
 
-#define ROTATION_UNIT (4096/4)
-
 static void show_objects_in_segment(const vcsegptr_t sp)
 {
 	range_for (const auto i, objects_in(sp))
@@ -720,19 +718,25 @@ int ObjectFlipObject()
 	return 1;
 }
 
-int ObjectDecreaseBank()		{return rotate_object(Cur_object_index, 0, -ROTATION_UNIT, 0);}
-int ObjectIncreaseBank()		{return rotate_object(Cur_object_index, 0, ROTATION_UNIT, 0);}
-int ObjectDecreasePitch()		{return rotate_object(Cur_object_index, -ROTATION_UNIT, 0, 0);}
-int ObjectIncreasePitch()		{return rotate_object(Cur_object_index, ROTATION_UNIT, 0, 0);}
-int ObjectDecreaseHeading()	{return rotate_object(Cur_object_index, 0, 0, -ROTATION_UNIT);}
-int ObjectIncreaseHeading()	{return rotate_object(Cur_object_index, 0, 0, ROTATION_UNIT);}
+template <int p, int b, int h>
+int ObjectChangeRotation()
+{
+	return rotate_object(vobjptridx(Cur_object_index), p, b, h);
+}
 
-int ObjectDecreaseBankBig()		{return rotate_object(Cur_object_index, 0, -(ROTATION_UNIT*4), 0);}
-int ObjectIncreaseBankBig()		{return rotate_object(Cur_object_index, 0, (ROTATION_UNIT*4), 0);}
-int ObjectDecreasePitchBig()		{return rotate_object(Cur_object_index, -(ROTATION_UNIT*4), 0, 0);}
-int ObjectIncreasePitchBig()		{return rotate_object(Cur_object_index, (ROTATION_UNIT*4), 0, 0);}
-int ObjectDecreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, -(ROTATION_UNIT*4));}
-int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (ROTATION_UNIT*4));}
+template int ObjectDecreaseBank();
+template int ObjectIncreaseBank();
+template int ObjectDecreasePitch();
+template int ObjectIncreasePitch();
+template int ObjectDecreaseHeading();
+template int ObjectIncreaseHeading();
+
+template int ObjectDecreaseBankBig();
+template int ObjectIncreaseBankBig();
+template int ObjectDecreasePitchBig();
+template int ObjectIncreasePitchBig();
+template int ObjectDecreaseHeadingBig();
+template int ObjectIncreaseHeadingBig();
 
 //	-----------------------------------------------------------------------------------------------------
 //	Move object around based on clicks in 2d screen.
