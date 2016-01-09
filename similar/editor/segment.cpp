@@ -321,7 +321,7 @@ segnum_t get_free_segment_number(void)
 		if (Segments[segnum].segnum == segment_none) {
 			Num_segments++;
 			if (segnum > Highest_segment_index)
-				Highest_segment_index = segnum;
+				Segments.set_count(segnum + 1);
 			return segnum;
 		}
 
@@ -689,7 +689,7 @@ static void compress_segments(void)
 			}	// end if (seg > hole)
 		}	// end if
 
-	Highest_segment_index = Num_segments-1;
+	Segments.set_count(Num_segments);
 	med_create_new_segment_from_cursegp();
 
 }

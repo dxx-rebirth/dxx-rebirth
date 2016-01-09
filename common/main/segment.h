@@ -203,7 +203,7 @@ struct group
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#define Highest_segment_index Segments.highest
+#define Highest_segment_index static_cast<const unsigned &>(Segments.highest)
 
 namespace dsx {
 DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);

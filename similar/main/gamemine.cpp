@@ -617,7 +617,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 			Error( "Error seeking to segment_offset in gamemine.c" );
 
-		Highest_segment_index = mine_fileinfo.segment_howmany-1;
+		Segments.set_count(mine_fileinfo.segment_howmany);
 
 		for (segnum_t ii = 0; ii < mine_fileinfo.segment_howmany; ++ii)
 		{
@@ -772,16 +772,16 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	Num_vertices = mine_fileinfo.vertex_howmany;
 	Num_segments = mine_fileinfo.segment_howmany;
 	Highest_vertex_index = Num_vertices-1;
-	Highest_segment_index = Num_segments-1;
+	Segments.set_count(Num_segments);
 
 	reset_objects(1);		//one object, the player
 
 	#ifdef EDITOR
 	Highest_vertex_index = MAX_SEGMENT_VERTICES-1;
-	Highest_segment_index = MAX_SEGMENTS-1;
+	Segments.set_count(MAX_SEGMENTS);
 	set_vertex_counts();
 	Highest_vertex_index = Num_vertices-1;
-	Highest_segment_index = Num_segments-1;
+	Segments.set_count(Num_segments);
 
 	warn_if_concave_segments();
 	#endif
@@ -1012,7 +1012,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	}
 
 	Highest_vertex_index = Num_vertices-1;
-	Highest_segment_index = Num_segments-1;
+	Segments.set_count(Num_segments);
 
 	validate_segment_all();			// Fill in side type and normals.
 
