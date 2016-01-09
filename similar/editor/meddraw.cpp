@@ -584,37 +584,39 @@ static void draw_mine_all(int automap_flag)
 
 }
 
+static void draw_listed_segments(count_segment_array_t &s)
+{
+	range_for (const auto &ss, s)
+	{
+		const auto &&segp = vcsegptr(ss);
+		if (segp->segnum != segment_none)
+			draw_segment(segp);
+	}
+}
+
 static void draw_selected_segments(void)
 {
 	gr_setcolor(SELECT_COLOR);
-	range_for (const auto &ss, Selected_segs)
-		if (Segments[ss].segnum != segment_none)
-			draw_segment(&Segments[ss]);
+	draw_listed_segments(Selected_segs);
 }
 
 static void draw_found_segments(void)
 {
 	gr_setcolor(FOUND_COLOR);
-	range_for (const auto &fs, Found_segs)
-		if (Segments[fs].segnum != segment_none)
-			draw_segment(&Segments[fs]);
+	draw_listed_segments(Found_segs);
 }
 
 static void draw_warning_segments(void)
 {
 	gr_setcolor(WARNING_COLOR);
-	range_for (const auto &ws, Warning_segs)
-		if (Segments[ws].segnum != segment_none)
-			draw_segment(&Segments[ws]);
+	draw_listed_segments(Warning_segs);
 }
 
 static void draw_group_segments(void)
 {
 	if (current_group > -1) {
 		gr_setcolor(GROUP_COLOR);
-		range_for (const auto &gs, GroupList[current_group].segments)
-			if (Segments[gs].segnum != segment_none)
-				draw_segment(&Segments[gs]);
+		draw_listed_segments(GroupList[current_group].segments);
 		}
 }
 
