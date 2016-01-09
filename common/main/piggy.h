@@ -151,10 +151,10 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name);
 #endif
 
 /*
- * reads a bitmap_index structure from a PHYSFS_file
+ * reads a bitmap_index structure from a PHYSFS_File
  */
-void bitmap_index_read(PHYSFS_file *fp, bitmap_index &bi);
-void bitmap_index_read_n(PHYSFS_file *fp, partial_range_t<bitmap_index *> r);
+void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi);
+void bitmap_index_read_n(PHYSFS_File *fp, partial_range_t<bitmap_index *> r);
 
 extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')

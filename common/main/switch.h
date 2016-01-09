@@ -160,38 +160,38 @@ static inline int trigger_is_matcen(const trigger &t)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-void v25_trigger_read(PHYSFS_file *fp, trigger *);
-void v26_trigger_read(PHYSFS_file *fp, trigger &);
+void v25_trigger_read(PHYSFS_File *fp, trigger *);
+void v26_trigger_read(PHYSFS_File *fp, trigger &);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 /*
- * reads a v29_trigger structure from a PHYSFS_file
+ * reads a v29_trigger structure from a PHYSFS_File
  */
-extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp);
+extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp);
 
 /*
- * reads a v30_trigger structure from a PHYSFS_file
+ * reads a v30_trigger structure from a PHYSFS_File
  */
-extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp);
+extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp);
 #endif
 
 /*
- * reads a trigger structure from a PHYSFS_file
+ * reads a trigger structure from a PHYSFS_File
  */
-extern void trigger_read(trigger *t, PHYSFS_file *fp);
+extern void trigger_read(trigger *t, PHYSFS_File *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 
 /*
- * reads n trigger structs from a PHYSFS_file and swaps if specified
+ * reads n trigger structs from a PHYSFS_File and swaps if specified
  */
-void trigger_read(PHYSFS_file *fp, trigger &t);
-void trigger_write(PHYSFS_file *fp, const trigger &t);
+void trigger_read(PHYSFS_File *fp, trigger &t);
+void trigger_write(PHYSFS_File *fp, const trigger &t);
 
-void v29_trigger_write(PHYSFS_file *fp, const trigger &t);
-void v30_trigger_write(PHYSFS_file *fp, const trigger &t);
-void v31_trigger_write(PHYSFS_file *fp, const trigger &t);
+void v29_trigger_write(PHYSFS_File *fp, const trigger &t);
+void v30_trigger_write(PHYSFS_File *fp, const trigger &t);
+void v31_trigger_write(PHYSFS_File *fp, const trigger &t);
 #endif
 
 #endif

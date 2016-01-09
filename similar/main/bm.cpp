@@ -114,9 +114,9 @@ array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
 /*
- * reads n bitmap_index structs from a PHYSFS_file
+ * reads n bitmap_index structs from a PHYSFS_File
  */
-static inline void bitmap_index_read_n(partial_range_t<bitmap_index *> r, uint_fast32_t n, PHYSFS_file *fp)
+static inline void bitmap_index_read_n(partial_range_t<bitmap_index *> r, uint_fast32_t n, PHYSFS_File *fp)
 {
 	bitmap_index_read_n(fp, partial_range(r, n));
 }
@@ -133,10 +133,10 @@ void gamedata_close()
 }
 
 /*
- * reads n tmap_info structs from a PHYSFS_file
+ * reads n tmap_info structs from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_I)
-static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
+static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, ti.filename, 13, 1);
 	ti.flags = PHYSFSX_readByte(fp);
@@ -163,7 +163,7 @@ int gamedata_init()
 }
 
 // Read compiled properties data from descent.pig
-void properties_read_cmp(PHYSFS_file * fp)
+void properties_read_cmp(PHYSFS_File * fp)
 {
 	//  bitmap_index is a short
 	
@@ -252,7 +252,7 @@ void properties_read_cmp(PHYSFS_file * fp)
         #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void tmap_info_read(tmap_info &ti, PHYSFS_file *fp)
+static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 {
 	ti.flags = PHYSFSX_readByte(fp);
 	PHYSFSX_readByte(fp);
@@ -286,7 +286,7 @@ int gamedata_init()
 	return 0;
 }
 
-void bm_read_all(PHYSFS_file * fp)
+void bm_read_all(PHYSFS_File * fp)
 {
 	int i,t;
 

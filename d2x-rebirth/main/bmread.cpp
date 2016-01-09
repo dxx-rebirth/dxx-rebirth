@@ -2078,14 +2078,14 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lightin
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
 
 #if 0
-static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
+static void tmap_info_write(PHYSFS_File *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
 }
 
 static void bm_write_extra_robots();
 
-void bm_write_all(PHYSFS_file *fp)
+void bm_write_all(PHYSFS_File *fp)
 {
 	unsigned i,t;
 	int s=0;

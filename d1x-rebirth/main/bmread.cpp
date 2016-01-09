@@ -1737,12 +1737,12 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const array<char, 13> &>
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
 
 #if 0
-static void tmap_info_write(PHYSFS_file *fp, const tmap_info &ti)
+static void tmap_info_write(PHYSFS_File *fp, const tmap_info &ti)
 {
 	PHYSFSX_serialize_write(fp, ti);
 }
 
-void bm_write_all(PHYSFS_file *fp)
+void bm_write_all(PHYSFS_File *fp)
 {
 	PHYSFS_write( fp, &NumTextures, sizeof(int), 1);
 	range_for (const bitmap_index &bi, Textures)

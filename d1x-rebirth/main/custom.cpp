@@ -85,7 +85,7 @@ struct custom_info
 static array<grs_bitmap, MAX_BITMAP_FILES> BitmapOriginal;
 static array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
-static int load_pig1(PHYSFS_file *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
+static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int i;
@@ -156,7 +156,7 @@ static int load_pig1(PHYSFS_file *f, unsigned num_bitmaps, unsigned num_sounds, 
 	return 0;
 }
 
-static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
+static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int num_bitmaps;
@@ -167,7 +167,7 @@ static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, unsigned &num_cust
 #ifdef D2TMAP_CONV
 	int x, j, N_d2tmap;
 	int *d2tmap = NULL;
-	PHYSFS_file *f2 = NULL;
+	PHYSFS_File *f2 = NULL;
 	if ((f2 = PHYSFSX_openReadBuffered("d2tmap.bin")))
 	{
 		N_d2tmap = PHYSFSX_readInt(f2);
@@ -359,7 +359,7 @@ static int load_pigpog(const d_fname &pogname)
 	return rc;
 }
 
-static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
+static int read_d2_robot_info(PHYSFS_File *fp, robot_info *ri)
 {
 	int j, k;
 

@@ -74,9 +74,9 @@ extern int Base_control_center_explosion_time;      // how long to blow up on in
 extern int Reactor_strength;
 
 /*
- * reads n reactor structs from a PHYSFS_file
+ * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r);
+void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r);
 #endif
 
 extern array<reactor, MAX_REACTORS> Reactors;
@@ -130,9 +130,9 @@ extern int Control_center_destroyed, Countdown_seconds_left, Total_countdown_tim
 }
 
 /*
- * reads n control_center_triggers structs from a PHYSFS_file
+ * reads n control_center_triggers structs from a PHYSFS_File
  */
-void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp);
-void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp);
+void control_center_triggers_read(control_center_triggers *cct, PHYSFS_File *fp);
+void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_File *fp);
 
 #endif

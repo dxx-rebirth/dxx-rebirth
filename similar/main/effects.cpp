@@ -173,15 +173,15 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 130);
 
 /*
- * reads n eclip structs from a PHYSFS_file
+ * reads n eclip structs from a PHYSFS_File
  */
-void eclip_read(PHYSFS_file *fp, eclip &ec)
+void eclip_read(PHYSFS_File *fp, eclip &ec)
 {
 	PHYSFSX_serialize_read(fp, ec);
 }
 
 #if 0
-void eclip_write(PHYSFS_file *fp, const eclip &ec)
+void eclip_write(PHYSFS_File *fp, const eclip &ec)
 {
 	PHYSFSX_serialize_write(fp, ec);
 }

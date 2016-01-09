@@ -529,9 +529,9 @@ void special_reactor_stuff()
 }
 
 /*
- * reads n reactor structs from a PHYSFS_file
+ * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_file *fp, partial_range_t<reactor *> r)
+void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r)
 {
 	range_for (auto &i, r)
 	{
@@ -550,14 +550,14 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(control_center_triggers, cct, (cct.num_links, cct.s
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(control_center_triggers, 42);
 
 /*
- * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
+ * reads n control_center_triggers structs from a PHYSFS_File and swaps if specified
  */
-void control_center_triggers_read(control_center_triggers *cct, PHYSFS_file *fp)
+void control_center_triggers_read(control_center_triggers *cct, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_read(fp, *cct);
 }
 
-void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_file *fp)
+void control_center_triggers_write(const control_center_triggers *cct, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_write(fp, *cct);
 }

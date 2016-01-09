@@ -85,11 +85,11 @@ void draw_weapon_vclip(vobjptridx_t obj);
 
 namespace dcx {
 /*
- * reads n vclip structs from a PHYSFS_file
+ * reads n vclip structs from a PHYSFS_File
  */
-void vclip_read(PHYSFS_file *fp, vclip &vc);
+void vclip_read(PHYSFS_File *fp, vclip &vc);
 #if 0
-void vclip_write(PHYSFS_file *fp, const vclip &vc);
+void vclip_write(PHYSFS_File *fp, const vclip &vc);
 #endif
 }
 

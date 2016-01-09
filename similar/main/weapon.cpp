@@ -1526,7 +1526,7 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
 #endif
 
 /*
- * reads n weapon_info structs from a PHYSFS_file
+ * reads n weapon_info structs from a PHYSFS_File
  */
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
 {

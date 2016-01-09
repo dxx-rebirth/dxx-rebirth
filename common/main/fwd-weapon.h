@@ -90,7 +90,7 @@ extern const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_we
 extern const array<powerup_type_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_powerup;
 extern const array<uint8_t, MAX_SECONDARY_WEAPONS>    Secondary_ammo_max;
 /*
- * reads n weapon_info structs from a PHYSFS_file
+ * reads n weapon_info structs from a PHYSFS_File
  */
 typedef array<weapon_info, MAX_WEAPON_TYPES> weapon_info_array;
 extern weapon_info_array Weapon_info;

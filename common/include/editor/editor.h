@@ -448,7 +448,7 @@ extern editor_view FrontView;
 extern editor_view RightView;
 
 extern int SafetyCheck();
-int save_mine_data_compiled(PHYSFS_file *SaveFile);
+int save_mine_data_compiled(PHYSFS_File *SaveFile);
 
 void editor_status( const char *text);
 

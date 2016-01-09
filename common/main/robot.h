@@ -218,16 +218,16 @@ void calc_gun_point(vms_vector &gun_point,vcobjptr_t obj,int gun_num);
 extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
 
 /*
- * reads n robot_info structs from a PHYSFS_file
+ * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &r);
 
 /*
- * reads n jointpos structs from a PHYSFS_file
+ * reads n jointpos structs from a PHYSFS_File
  */
-void jointpos_read(PHYSFS_file *fp, jointpos &jp);
+void jointpos_read(PHYSFS_File *fp, jointpos &jp);
 #if 0
-void jointpos_write(PHYSFS_file *fp, const jointpos &jp);
+void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);

@@ -551,14 +551,14 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->hours_total               = pl_rw->hours_total;
 }
 
-static void state_write_player(PHYSFS_file *fp, const player &pl, const fix pl_shields, const player_info &pl_info)
+static void state_write_player(PHYSFS_File *fp, const player &pl, const fix pl_shields, const player_info &pl_info)
 {
 	player_rw pl_rw;
 	state_player_to_player_rw(pl_shields, &pl, &pl_rw, pl_info);
 	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
 }
 
-static void state_read_player(PHYSFS_file *fp, player &pl, int swap, player_info &pl_info, fix &pl_shields)
+static void state_read_player(PHYSFS_File *fp, player &pl, int swap, player_info &pl_info, fix &pl_shields)
 {
 	player_rw pl_rw;
 	PHYSFS_read(fp, &pl_rw, sizeof(pl_rw), 1);

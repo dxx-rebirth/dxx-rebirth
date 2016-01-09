@@ -69,4 +69,4 @@ cvar_t *cvar_find(const char *cvar_name);
 const char *cvar_complete(const char *text);
 
 /* Write archive cvars to file */
-void cvar_write(PHYSFS_file *file);
+void cvar_write(PHYSFS_File *file);

@@ -136,8 +136,8 @@ extern struct me mine_editor;
 
 // loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
-int load_mine_data(PHYSFS_file *LoadFile);
-int load_mine_data_compiled(PHYSFS_file *LoadFile);
+int load_mine_data(PHYSFS_File *LoadFile);
+int load_mine_data_compiled(PHYSFS_File *LoadFile);
 
 #define TMAP_NUM_MASK 0x3FFF
 

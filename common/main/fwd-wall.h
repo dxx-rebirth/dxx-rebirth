@@ -270,25 +270,25 @@ void kill_stuck_objects(int wallnum);
 void start_wall_cloak(vsegptridx_t seg, int side);
 void start_wall_decloak(vsegptridx_t seg, int side);
 
-void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp);
-void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_file *fp);
+void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
+void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);
 #endif
 void blast_nearby_glass(vobjptr_t objp, fix damage);
 #endif
 
-void wclip_read(PHYSFS_file *, wclip &wc);
+void wclip_read(PHYSFS_File *, wclip &wc);
 #if 0
-void wclip_write(PHYSFS_file *, const wclip &);
+void wclip_write(PHYSFS_File *, const wclip &);
 #endif
 
-void v16_wall_read(PHYSFS_file *fp, v16_wall &w);
-void v19_wall_read(PHYSFS_file *fp, v19_wall &w);
-void wall_read(PHYSFS_file *fp, wall &w);
+void v16_wall_read(PHYSFS_File *fp, v16_wall &w);
+void v19_wall_read(PHYSFS_File *fp, v19_wall &w);
+void wall_read(PHYSFS_File *fp, wall &w);
 
-void active_door_read(PHYSFS_file *fp, active_door &ad);
-void active_door_write(PHYSFS_file *fp, const active_door &ad);
+void active_door_read(PHYSFS_File *fp, active_door &ad);
+void active_door_write(PHYSFS_File *fp, const active_door &ad);
 
-void wall_write(PHYSFS_file *fp, const wall &w, short version);
+void wall_write(PHYSFS_File *fp, const wall &w, short version);
 void wall_close_door_num(int door_num);
 void init_stuck_objects();
 void clear_stuck_objects();

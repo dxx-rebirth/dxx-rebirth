@@ -106,9 +106,9 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 void drop_afterburner_blobs(vobjptr_t obj, int count, fix size_scale, fix lifetime);
 
 /*
- * reads n expl_wall structs from a PHYSFS_file and swaps if specified
+ * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall *>);
+void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall *>);
 extern fix	Flash_effect;
 #endif
 

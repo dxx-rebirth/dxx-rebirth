@@ -389,7 +389,7 @@ struct me mine_editor;
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
-int load_mine_data(PHYSFS_file *LoadFile)
+int load_mine_data(PHYSFS_File *LoadFile)
 {
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
 	short tmap_xlate;
@@ -804,7 +804,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-static void read_children(const vsegptr_t segp,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_children(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
 {
 	for (int bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
 		if (bit_mask & (1 << bit)) {
@@ -814,14 +814,14 @@ static void read_children(const vsegptr_t segp,ubyte bit_mask,PHYSFS_file *LoadF
 	}
 }
 
-static void read_verts(const vsegptr_t segp,PHYSFS_file *LoadFile)
+static void read_verts(const vsegptr_t segp,PHYSFS_File *LoadFile)
 {
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	range_for (auto &i, segp->verts)
 		i = PHYSFSX_readShort(LoadFile);
 }
 
-static void read_special(const vsegptr_t segp,ubyte bit_mask,PHYSFS_file *LoadFile)
+static void read_special(const vsegptr_t segp,ubyte bit_mask,PHYSFS_File *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
@@ -839,9 +839,9 @@ static void read_special(const vsegptr_t segp,ubyte bit_mask,PHYSFS_file *LoadFi
 
 #if defined(DXX_BUILD_DESCENT_I)
 /*
- * reads a segment2 structure from a PHYSFS_file
+ * reads a segment2 structure from a PHYSFS_File
  */
-static void segment2_read(const vsegptr_t s2, PHYSFS_file *fp)
+static void segment2_read(const vsegptr_t s2, PHYSFS_File *fp)
 {
 	s2->special = PHYSFSX_readByte(fp);
 	if (s2->special >= MAX_CENTER_TYPES)
@@ -853,7 +853,7 @@ static void segment2_read(const vsegptr_t s2, PHYSFS_file *fp)
 }
 #endif
 
-int load_mine_data_compiled(PHYSFS_file *LoadFile)
+int load_mine_data_compiled(PHYSFS_File *LoadFile)
 {
 	ubyte   compiled_version;
 	short   temp_short;

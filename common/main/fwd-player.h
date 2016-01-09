@@ -92,7 +92,7 @@ extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*
- * reads a player_ship structure from a PHYSFS_file
+ * reads a player_ship structure from a PHYSFS_File
  */
 void player_ship_read(player_ship *ps, PHYSFS_File *fp);
 

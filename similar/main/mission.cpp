@@ -322,7 +322,7 @@ static char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *parm,PHYSFS_file *f)
+static char *get_parm_value(PHYSFSX_gets_line_t<80> &buf, const char *parm,PHYSFS_File *f)
 {
 	if (!PHYSFSX_fgets(buf,f))
 		return NULL;

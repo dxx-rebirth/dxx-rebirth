@@ -642,7 +642,7 @@ dump_door_debugging_info()
 	fvi_query fq;
 	fvi_info hit_info;
 	int fate;
-	PHYSFS_file *dfile;
+	PHYSFS_File *dfile;
 	obj = &get_local_plrobj();
 	vm_vec_scale_add(&new_pos,&obj->pos,&obj->orient.fvec,i2f(100));
 

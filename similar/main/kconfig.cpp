@@ -759,7 +759,7 @@ static const char btype_text[][13] = {
 };
 
 template <std::size_t N>
-static void print_create_table_items(PHYSFS_file *fp, const char *type, const char *litems, const kc_item (&items)[N])
+static void print_create_table_items(PHYSFS_File *fp, const char *type, const char *litems, const kc_item (&items)[N])
 {
 	PHYSFSX_printf( fp, "\nstatic const kc_item kc_%s[] = {\n", type );
 	const grs_bitmap &cv_bitmap = grd_curcanv->cv_bitmap;

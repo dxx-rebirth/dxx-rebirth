@@ -1624,15 +1624,15 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames,
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES));
 
 /*
- * reads a wclip structure from a PHYSFS_file
+ * reads a wclip structure from a PHYSFS_File
  */
-void wclip_read(PHYSFS_file *fp, wclip &wc)
+void wclip_read(PHYSFS_File *fp, wclip &wc)
 {
 	PHYSFSX_serialize_read(fp, wc);
 }
 
 #if 0
-void wclip_write(PHYSFS_file *fp, const wclip &wc)
+void wclip_write(PHYSFS_File *fp, const wclip &wc)
 {
 	PHYSFSX_serialize_write(fp, wc);
 }
@@ -1651,9 +1651,9 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(wrap_v16_wall, w, _SERIAL_UDT_WALL_V16_MEMBERS(w.w-
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v16_wall, 9);
 
 /*
- * reads a v16_wall structure from a PHYSFS_file
+ * reads a v16_wall structure from a PHYSFS_File
  */
-void v16_wall_read(PHYSFS_file *fp, v16_wall &w)
+void v16_wall_read(PHYSFS_File *fp, v16_wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 }
@@ -1670,9 +1670,9 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(v19_wall, 21);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);
 
 /*
- * reads a v19_wall structure from a PHYSFS_file
+ * reads a v19_wall structure from a PHYSFS_File
  */
-void v19_wall_read(PHYSFS_file *fp, v19_wall &w)
+void v19_wall_read(PHYSFS_File *fp, v19_wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 }
@@ -1686,9 +1686,9 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (w.segnum, serial::pad<2>(), w.sidenum, se
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wall, 24);
 
 /*
- * reads a wall structure from a PHYSFS_file
+ * reads a wall structure from a PHYSFS_File
  */
-void wall_read(PHYSFS_file *fp, wall &w)
+void wall_read(PHYSFS_File *fp, wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 }
@@ -1697,19 +1697,19 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(active_door, d, (d.n_parts, d.front_wallnum, d.back
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(active_door, 16);
 
 /*
- * reads an active_door structure from a PHYSFS_file
+ * reads an active_door structure from a PHYSFS_File
  */
-void active_door_read(PHYSFS_file *fp, active_door &ad)
+void active_door_read(PHYSFS_File *fp, active_door &ad)
 {
 	PHYSFSX_serialize_read(fp, ad);
 }
 
-void active_door_write(PHYSFS_file *fp, const active_door &ad)
+void active_door_write(PHYSFS_File *fp, const active_door &ad)
 {
 	PHYSFSX_serialize_write(fp, ad);
 }
 
-void wall_write(PHYSFS_file *fp, const wall &w, short version)
+void wall_write(PHYSFS_File *fp, const wall &w, short version)
 {
 	if (version <= 16)
 		PHYSFSX_serialize_write<wrap_v16_wall>(fp, w);
@@ -1723,12 +1723,12 @@ void wall_write(PHYSFS_file *fp, const wall &w, short version)
 DEFINE_SERIAL_UDT_TO_MESSAGE(cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(cloaking_wall, 40);
 
-void cloaking_wall_read(cloaking_wall &cw, PHYSFS_file *fp)
+void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_read(fp, cw);
 }
 
-void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_file *fp)
+void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp)
 {
 	PHYSFSX_serialize_write(fp, cw);
 }

@@ -143,11 +143,11 @@ void load_robot_replacements(const d_fname &level_name);
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware);
 
-extern void bm_read_all(PHYSFS_file * fp);
+extern void bm_read_all(PHYSFS_File * fp);
 
 int load_exit_models();
 #if defined(DXX_BUILD_DESCENT_I)
-void properties_read_cmp(PHYSFS_file * fp);
+void properties_read_cmp(PHYSFS_File * fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);

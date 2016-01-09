@@ -151,7 +151,7 @@ extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 
 namespace dcx {
 /*
- * reads a polymodel structure from a PHYSFS_file
+ * reads a polymodel structure from a PHYSFS_File
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
 }

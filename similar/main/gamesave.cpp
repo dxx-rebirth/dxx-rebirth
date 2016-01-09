@@ -345,14 +345,14 @@ static void verify_object(const vobjptr_t obj)
 
 }
 
-//static gs_skip(int len,PHYSFS_file *file)
+//static gs_skip(int len,PHYSFS_File *file)
 //{
 //
 //	PHYSFSX_fseek(file,len,SEEK_CUR);
 //}
 
 //reads one object of the given version from the given file
-static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
+static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
 	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
@@ -582,7 +582,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_file *f,int version)
 }
 
 #ifdef EDITOR
-static int PHYSFSX_writeMatrix(PHYSFS_file *file, const vms_matrix &m)
+static int PHYSFSX_writeMatrix(PHYSFS_File *file, const vms_matrix &m)
 {
 	if (PHYSFSX_writeVector(file, m.rvec) < 1 ||
 		PHYSFSX_writeVector(file, m.uvec) < 1 ||
@@ -591,7 +591,7 @@ static int PHYSFSX_writeMatrix(PHYSFS_file *file, const vms_matrix &m)
 	return 1;
 }
 
-static int PHYSFSX_writeAngleVec(PHYSFS_file *file, const vms_angvec &v)
+static int PHYSFSX_writeAngleVec(PHYSFS_File *file, const vms_angvec &v)
 {
 	if (PHYSFSX_writeFixAng(file, v.p) < 1 ||
 		PHYSFSX_writeFixAng(file, v.b) < 1 ||
@@ -601,7 +601,7 @@ static int PHYSFSX_writeAngleVec(PHYSFS_file *file, const vms_angvec &v)
 }
 
 //writes one object to the given file
-static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
+static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
@@ -785,7 +785,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_file *f)
 // If level != -1, it loads the filename with extension changed to .min
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
-static int load_game_data(PHYSFS_file *LoadFile)
+static int load_game_data(PHYSFS_File *LoadFile)
 {
 	short game_top_fileinfo_version;
 	int object_offset;
@@ -1515,7 +1515,7 @@ static int compute_num_delta_light_records(void)
 
 // -----------------------------------------------------------------------------
 // Save game
-static int save_game_data(PHYSFS_file *SaveFile)
+static int save_game_data(PHYSFS_File *SaveFile)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;

@@ -40,8 +40,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
-static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp);
+static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid);
+static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp);
 
 /* PCX Header data type */
 struct PCXHeader
@@ -66,9 +66,9 @@ struct PCXHeader
 #define PCXHEADER_SIZE 128
 
 /*
- * reads n PCXHeader structs from a PHYSFS_file
+ * reads n PCXHeader structs from a PHYSFS_File
  */
-static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
+static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_File *fp)
 {
 	int i;
 
@@ -351,7 +351,7 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 }
 
 // returns number of bytes written into outBuff, 0 if failed
-int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_file *fp)
+int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp)
 {
 	ubyte last;
 	int i;
@@ -400,7 +400,7 @@ static inline int PHYSFSX_putc(PHYSFS_File *file, uint8_t ch)
 
 // subroutine for writing an encoded byte pair
 // returns count of bytes written, 0 if error
-int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid)
+int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid)
 {
 	if (cnt) {
 		if ( (cnt==1) && (0xc0 != (0xc0 & byt)) )	{

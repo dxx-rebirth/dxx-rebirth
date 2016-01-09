@@ -4491,7 +4491,7 @@ static void ai_save_one_ai_local(PHYSFS_File *fp, const object &i)
 	PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
 }
 
-int ai_save_state(PHYSFS_file *fp)
+int ai_save_state(PHYSFS_File *fp)
 {
 	fix tmptime32 = 0;
 
@@ -4600,7 +4600,7 @@ int ai_save_state(PHYSFS_file *fp)
 
 namespace dcx {
 
-static void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec &v, int swap)
+static void PHYSFSX_readAngleVecX(PHYSFS_File *file, vms_angvec &v, int swap)
 {
 	v.p = PHYSFSX_readSXE16(file, swap);
 	v.b = PHYSFSX_readSXE16(file, swap);
@@ -4611,7 +4611,7 @@ static void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec &v, int swap)
 
 namespace dsx {
 
-static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
+static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 {
 	{
 		fix tmptime32 = 0;
@@ -4664,7 +4664,7 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_file *fp)
 
 namespace dcx {
 
-static void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector &v, int swap)
+static void PHYSFSX_readVectorX(PHYSFS_File *file, vms_vector &v, int swap)
 {
 	v.x = PHYSFSX_readSXE32(file, swap);
 	v.y = PHYSFSX_readSXE32(file, swap);
@@ -4675,7 +4675,7 @@ static void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector &v, int swap)
 
 namespace dsx {
 
-static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
+static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_File *fp)
 {
 	int i;
 	fix tmptime32 = 0;
@@ -4691,7 +4691,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 	}
 }
 
-int ai_restore_state(PHYSFS_file *fp, int version, int swap)
+int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 {
 	fix tmptime32 = 0;
 

@@ -293,14 +293,14 @@ static int convert_pattern_array(const char (&name)[namelen], array<int, arrayle
 	return convert_pattern_array(name, namelen, &array[0], arraylen, word, line);
 }
 
-static void print_pattern_array(PHYSFS_file *fout, const char *name, const int *array, std::size_t arraylen)
+static void print_pattern_array(PHYSFS_File *fout, const char *name, const int *array, std::size_t arraylen)
 {
 	for (std::size_t i = 0; i < arraylen; ++i)
 		PHYSFSX_printf(fout,"%s%u=%d\n", name, static_cast<unsigned>(i), array[i]);
 }
 
 template <std::size_t arraylen>
-static void print_pattern_array(PHYSFS_file *fout, const char *name, const array<int, arraylen> &array)
+static void print_pattern_array(PHYSFS_File *fout, const char *name, const array<int, arraylen> &array)
 {
 	print_pattern_array(fout, name, &array[0], arraylen);
 }

@@ -121,8 +121,8 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 extern unsigned N_powerup_types;
 extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
-void powerup_type_info_read(PHYSFS_file *fp, powerup_type_info &pti);
-void powerup_type_info_write(PHYSFS_file *fp, const powerup_type_info &pti);
+void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
+void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
 void draw_powerup(vobjptridx_t obj);
 

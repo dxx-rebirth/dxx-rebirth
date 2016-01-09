@@ -54,9 +54,9 @@ void player_rw_swap(player_rw *p, int swap)
 }
 
 /*
- * reads a player_ship structure from a PHYSFS_file
+ * reads a player_ship structure from a PHYSFS_File
  */
-void player_ship_read(player_ship *ps, PHYSFS_file *fp)
+void player_ship_read(player_ship *ps, PHYSFS_File *fp)
 {
 	ps->model_num = PHYSFSX_readInt(fp);
 	ps->expl_vclip_num = PHYSFSX_readInt(fp);

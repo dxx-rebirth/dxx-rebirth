@@ -13,7 +13,7 @@
 class PHYSFSX_short_read : public std::runtime_error
 {
 public:
-	PHYSFSX_short_read(PHYSFS_file *) :
+	PHYSFSX_short_read(PHYSFS_File *) :
 		runtime_error("short read in PHYSFS file")
 	{
 	}
@@ -22,14 +22,14 @@ public:
 class PHYSFSX_short_write : public std::runtime_error
 {
 public:
-	PHYSFSX_short_write(PHYSFS_file *) :
+	PHYSFSX_short_write(PHYSFS_File *) :
 		runtime_error("short write in PHYSFS file")
 	{
 	}
 };
 
 template <typename T, typename E = PHYSFSX_short_read>
-void PHYSFSX_serialize_read(PHYSFS_file *fp, T &t)
+void PHYSFSX_serialize_read(PHYSFS_File *fp, T &t)
 {
 	const size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
@@ -40,7 +40,7 @@ void PHYSFSX_serialize_read(PHYSFS_file *fp, T &t)
 }
 
 template <typename T, typename E = PHYSFSX_short_write>
-void PHYSFSX_serialize_write(PHYSFS_file *fp, const T &t)
+void PHYSFSX_serialize_write(PHYSFS_File *fp, const T &t)
 {
 	const size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];

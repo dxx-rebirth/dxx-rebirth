@@ -738,7 +738,7 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
 
-void matcen_info_read(PHYSFS_file *fp, matcen_info &mi, int version)
+void matcen_info_read(PHYSFS_File *fp, matcen_info &mi, int version)
 {
 	if (version > 25)
 		PHYSFSX_serialize_read<const d1mi_v26>(fp, mi);
@@ -798,9 +798,9 @@ void fuelcen_check_for_hoard_goal(const vcsegptr_t segp)
 
 
 /*
- * reads an d1_matcen_info structure from a PHYSFS_file
+ * reads an d1_matcen_info structure from a PHYSFS_File
  */
-void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
+void d1_matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
 {
 	PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 	mi.robot_flags[1] = 0;
@@ -809,13 +809,13 @@ void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
 DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, serial::pad<sizeof(fix) * 2>(), m.segnum, m.fuelcen_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(matcen_info, 20);
 
-void matcen_info_read(PHYSFS_file *fp, matcen_info &mi)
+void matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
 {
 	PHYSFSX_serialize_read(fp, mi);
 }
 #endif
 
-void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version)
+void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 {
 	if (version >= 27)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -831,12 +831,12 @@ void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version)
 DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, fc.segnum, serial::pad<2>(), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, fc.MaxCapacity, fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
 
-void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc)
+void fuelcen_read(PHYSFS_File *fp, FuelCenter &fc)
 {
 	PHYSFSX_serialize_read(fp, fc);
 }
 
-void fuelcen_write(PHYSFS_file *fp, const FuelCenter &fc)
+void fuelcen_write(PHYSFS_File *fp, const FuelCenter &fc)
 {
 	PHYSFSX_serialize_write(fp, fc);
 }

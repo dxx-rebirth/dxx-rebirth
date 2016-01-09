@@ -108,7 +108,7 @@ extern const array<array<uint8_t, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts;     
 extern const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
-void segment_side_wall_tmap_write(PHYSFS_file *fp, const side &side);
+void segment_side_wall_tmap_write(PHYSFS_File *fp, const side &side);
 }
 void delete_segment_from_group(segnum_t segment_num, int group_num);
 void add_segment_to_group(segnum_t segment_num, int group_num);
@@ -131,14 +131,14 @@ int subtract_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
 int add_light(vsegptridx_t segnum, sidenum_fast_t sidenum);
 void clear_light_subtracted();
 
-void segment2_read(vsegptr_t s2, PHYSFS_file *fp);
-void segment2_write(vcsegptr_t s2, PHYSFS_file *fp);
+void segment2_read(vsegptr_t s2, PHYSFS_File *fp);
+void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
 
-void delta_light_read(delta_light *dl, PHYSFS_file *fp);
-void delta_light_write(delta_light *dl, PHYSFS_file *fp);
+void delta_light_read(delta_light *dl, PHYSFS_File *fp);
+void delta_light_write(delta_light *dl, PHYSFS_File *fp);
 
-void dl_index_read(dl_index *di, PHYSFS_file *fp);
-void dl_index_write(dl_index *di, PHYSFS_file *fp);
+void dl_index_read(dl_index *di, PHYSFS_File *fp);
+void dl_index_write(dl_index *di, PHYSFS_File *fp);
 }
 #endif
 

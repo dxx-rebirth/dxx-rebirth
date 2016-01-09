@@ -555,7 +555,7 @@ void triggers_frame_process()
 }
 
 /*
- * reads a v29_trigger structure from a PHYSFS_file
+ * reads a v29_trigger structure from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_I)
 void v26_trigger_read(PHYSFS_File *fp, trigger &t)
@@ -597,9 +597,9 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 		t.side[i] = PHYSFSX_readShort(fp);
 }
 
-void v25_trigger_read(PHYSFS_file *fp, trigger *t)
+void v25_trigger_read(PHYSFS_File *fp, trigger *t)
 #elif defined(DXX_BUILD_DESCENT_II)
-extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
+extern void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 #endif
 {
 	int i;
@@ -622,9 +622,9 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
 
 #if defined(DXX_BUILD_DESCENT_II)
 /*
- * reads a v30_trigger structure from a PHYSFS_file
+ * reads a v30_trigger structure from a PHYSFS_File
  */
-extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp)
+extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 {
 	int i;
 
@@ -640,9 +640,9 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp)
 }
 
 /*
- * reads a trigger structure from a PHYSFS_file
+ * reads a trigger structure from a PHYSFS_File
  */
-extern void trigger_read(trigger *t, PHYSFS_file *fp)
+extern void trigger_read(trigger *t, PHYSFS_File *fp)
 {
 	int i;
 
@@ -735,19 +735,19 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
 
 /*
- * reads n trigger structs from a PHYSFS_file and swaps if specified
+ * reads n trigger structs from a PHYSFS_File and swaps if specified
  */
-void trigger_read(PHYSFS_file *fp, trigger &t)
+void trigger_read(PHYSFS_File *fp, trigger &t)
 {
 	PHYSFSX_serialize_read(fp, t);
 }
 
-void trigger_write(PHYSFS_file *fp, const trigger &t)
+void trigger_write(PHYSFS_File *fp, const trigger &t)
 {
 	PHYSFSX_serialize_write(fp, t);
 }
 
-void v29_trigger_write(PHYSFS_file *fp, const trigger &rt)
+void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 	PHYSFSX_writeU8(fp, 0);		// unused 'type'
@@ -819,7 +819,7 @@ void v29_trigger_write(PHYSFS_file *fp, const trigger &rt)
 		PHYSFS_writeSLE16(fp, t->side[i]);
 }
 
-void v30_trigger_write(PHYSFS_file *fp, const trigger &rt)
+void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -903,7 +903,7 @@ void v30_trigger_write(PHYSFS_file *fp, const trigger &rt)
 		PHYSFS_writeSLE16(fp, t->side[i]);
 }
 
-void v31_trigger_write(PHYSFS_file *fp, const trigger &rt)
+void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 #if defined(DXX_BUILD_DESCENT_I)

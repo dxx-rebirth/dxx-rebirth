@@ -43,7 +43,7 @@ array<robot_info, MAX_ROBOT_TYPES> Robot_info;
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 
-static inline void PHYSFSX_writeAngleVec(PHYSFS_file *fp, const vms_angvec &v)
+static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 {
 	PHYSFS_writeSLE16(fp, v.p);
 	PHYSFS_writeSLE16(fp, v.b);
@@ -178,7 +178,7 @@ void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SU
 }
 
 /*
- * reads n jointlist structs from a PHYSFS_file
+ * reads n jointlist structs from a PHYSFS_File
  */
 static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 {
@@ -190,7 +190,7 @@ static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 }
 
 /*
- * reads n robot_info structs from a PHYSFS_file
+ * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 {
@@ -299,16 +299,16 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 }
 
 /*
- * reads n jointpos structs from a PHYSFS_file
+ * reads n jointpos structs from a PHYSFS_File
  */
-void jointpos_read(PHYSFS_file *fp, jointpos &jp)
+void jointpos_read(PHYSFS_File *fp, jointpos &jp)
 {
 	jp.jointnum = PHYSFSX_readShort(fp);
 	PHYSFSX_readAngleVec(&jp.angles, fp);
 }
 
 #if 0
-void jointpos_write(PHYSFS_file *fp, const jointpos &jp)
+void jointpos_write(PHYSFS_File *fp, const jointpos &jp)
 {
 	PHYSFS_writeSLE16(fp, jp.jointnum);
 	PHYSFSX_writeAngleVec(fp, jp.angles);

@@ -114,13 +114,13 @@ void draw_weapon_vclip(const vobjptridx_t obj)
 DEFINE_VCLIP_SERIAL_UDT();
 
 namespace dcx {
-void vclip_read(PHYSFS_file *fp, vclip &vc)
+void vclip_read(PHYSFS_File *fp, vclip &vc)
 {
 	PHYSFSX_serialize_read(fp, vc);
 }
 
 #if 0
-void vclip_write(PHYSFS_file *fp, const vclip &vc)
+void vclip_write(PHYSFS_File *fp, const vclip &vc)
 {
 	PHYSFSX_serialize_write(fp, vc);
 }

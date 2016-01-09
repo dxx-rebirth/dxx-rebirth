@@ -725,9 +725,9 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(polymodel, p, (p.n_models, p.model_data_size, seria
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_vector)) + (10 * sizeof(fix)) + 10 + (10 * 2 * sizeof(vms_vector)) + (2 * sizeof(vms_vector)) + 8);
 
 /*
- * reads a polymodel structure from a PHYSFS_file
+ * reads a polymodel structure from a PHYSFS_File
  */
-void polymodel_read(polymodel *pm, PHYSFS_file *fp)
+void polymodel_read(polymodel *pm, PHYSFS_File *fp)
 {
 	pm->model_data.reset();
 	PHYSFSX_serialize_read(fp, *pm);
@@ -736,7 +736,7 @@ void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 }
 
 #if 0
-void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
+void polymodel_write(PHYSFS_File *fp, const polymodel &pm)
 {
 	PHYSFSX_serialize_write(fp, pm);
 }
@@ -745,7 +745,7 @@ void polymodel_write(PHYSFS_file *fp, const polymodel &pm)
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
+void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);

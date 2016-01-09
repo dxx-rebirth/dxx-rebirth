@@ -54,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
-static int save_mine_data(PHYSFS_file * SaveFile);
+static int save_mine_data(PHYSFS_File * SaveFile);
 
 static array<d_fname, MAX_TEXTURES> current_tmap_list;
 
@@ -358,7 +358,7 @@ int med_save_mine(const char * filename)
 
 // -----------------------------------------------------------------------------
 // saves to an already-open file
-static int save_mine_data(PHYSFS_file * SaveFile)
+static int save_mine_data(PHYSFS_File * SaveFile)
 {
 	int  header_offset, editor_offset, vertex_offset, segment_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;
@@ -484,7 +484,7 @@ static int save_mine_data(PHYSFS_file * SaveFile)
 
 #define COMPILED_MINE_VERSION 0
 
-static void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
+static void dump_fix_as_short( fix value, int nbits, PHYSFS_File *SaveFile )
 {
         int int_value=0; 
 	short short_value;
@@ -503,7 +503,7 @@ static void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
 }
 
 //version of dump for unsigned values
-static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
+static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_File *SaveFile )
 {
         uint int_value=0;
 	ushort short_value;
@@ -524,7 +524,7 @@ static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 	PHYSFS_writeULE16(SaveFile, short_value);
 }
 
-static void write_children(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_file *SaveFile)
+static void write_children(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *SaveFile)
 {
 	for (int bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
 	{
@@ -533,13 +533,13 @@ static void write_children(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_file *Sa
 	}
 }
 
-static void write_verts(const vcsegptr_t seg, PHYSFS_file *SaveFile)
+static void write_verts(const vcsegptr_t seg, PHYSFS_File *SaveFile)
 {
 	for (int i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
 		PHYSFS_writeSLE16(SaveFile, seg->verts[i]);
 }
 
-static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_file *SaveFile)
+static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *SaveFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
 	{
@@ -550,7 +550,7 @@ static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_file *Sav
 }
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
-int save_mine_data_compiled(PHYSFS_file *SaveFile)
+int save_mine_data_compiled(PHYSFS_File *SaveFile)
 {
 	ubyte 	version = COMPILED_MINE_VERSION;
 	ubyte		bit_mask = 0;

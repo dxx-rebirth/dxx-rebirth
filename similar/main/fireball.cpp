@@ -1407,9 +1407,9 @@ void drop_afterburner_blobs(const vobjptr_t obj, int count, fix size_scale, fix 
 }
 
 /*
- * reads n expl_wall structs from a PHYSFS_file and swaps if specified
+ * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(PHYSFS_file *fp, int swap, partial_range_t<expl_wall *> r)
+void expl_wall_read_n_swap(PHYSFS_File *fp, int swap, partial_range_t<expl_wall *> r)
 {
 	range_for (auto &e, r)
 	{

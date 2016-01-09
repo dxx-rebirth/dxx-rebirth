@@ -91,11 +91,11 @@ void stop_effect(int effect_num);
 void restart_effect(int effect_num);
 
 /*
- * reads n eclip structs from a PHYSFS_file
+ * reads n eclip structs from a PHYSFS_File
  */
-void eclip_read(PHYSFS_file *fp, eclip &ec);
+void eclip_read(PHYSFS_File *fp, eclip &ec);
 #if 0
-void eclip_write(PHYSFS_file *fp, const eclip &ec);
+void eclip_write(PHYSFS_File *fp, const eclip &ec);
 #endif
 
 #endif

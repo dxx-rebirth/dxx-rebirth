@@ -127,7 +127,7 @@ struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 typedef d1_matcen_info matcen_info;
-void matcen_info_read(PHYSFS_file *fp, matcen_info &ps, int version);
+void matcen_info_read(PHYSFS_File *fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
 struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
@@ -136,7 +136,7 @@ struct matcen_info : public prohibit_void_ptr<matcen_info>
 	short   fuelcen_num;    // Index in fuelcen array.
 };
 
-void matcen_info_read(PHYSFS_file *fp, matcen_info &ps);
+void matcen_info_read(PHYSFS_File *fp, matcen_info &ps);
 #endif
 
 extern const char Special_names[MAX_CENTER_TYPES][11];
@@ -158,18 +158,18 @@ extern void disable_matcens(void);
 extern void init_all_matcens(void);
 
 /*
- * reads a matcen_info structure from a PHYSFS_file
+ * reads a matcen_info structure from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_hoard_goal(vcsegptr_t segp);
 
 /*
- * reads an d1_matcen_info structure from a PHYSFS_file
+ * reads an d1_matcen_info structure from a PHYSFS_File
  */
-void d1_matcen_info_read(PHYSFS_file *fp, matcen_info &mi);
+void d1_matcen_info_read(PHYSFS_File *fp, matcen_info &mi);
 #endif
 
-void matcen_info_write(PHYSFS_file *fp, const matcen_info &mi, short version);
+void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version);
 }
 
 namespace dcx {
@@ -179,7 +179,7 @@ extern const fix EnergyToCreateOneRobot;
 }
 #endif
 
-void fuelcen_read(PHYSFS_file *fp, FuelCenter &fc);
-void fuelcen_write(PHYSFS_file *fp, const FuelCenter &fc);
+void fuelcen_read(PHYSFS_File *fp, FuelCenter &fc);
+void fuelcen_write(PHYSFS_File *fp, const FuelCenter &fc);
 
 #endif

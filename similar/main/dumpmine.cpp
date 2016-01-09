@@ -79,8 +79,8 @@ const array<char[10], 7> Wall_names{{
 	"EXTERNAL "
 }};
 
-static void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
-static void say_totals(PHYSFS_file *my_file, const char *level_name);
+static void dump_used_textures_level(PHYSFS_File *my_file, int level_num);
+static void say_totals(PHYSFS_File *my_file, const char *level_name);
 
 const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",
@@ -124,8 +124,8 @@ static const char *object_ids(const vcobjptr_t objp)
 	return	NULL;
 }
 
-static void err_puts(PHYSFS_file *f, const char *str, size_t len) __attribute_nonnull();
-static void err_puts(PHYSFS_file *f, const char *str, size_t len)
+static void err_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();
+static void err_puts(PHYSFS_File *f, const char *str, size_t len)
 #define err_puts(A1,S,...)	(err_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 {
 	con_puts(CON_CRITICAL, str, len);
@@ -134,15 +134,15 @@ static void err_puts(PHYSFS_file *f, const char *str, size_t len)
 }
 
 template <size_t len>
-static void err_puts_literal(PHYSFS_file *f, const char (&str)[len]) __attribute_nonnull();
+static void err_puts_literal(PHYSFS_File *f, const char (&str)[len]) __attribute_nonnull();
 template <size_t len>
-static void err_puts_literal(PHYSFS_file *f, const char (&str)[len])
+static void err_puts_literal(PHYSFS_File *f, const char (&str)[len])
 {
 	err_puts(f, str, len);
 }
 
-static void err_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
-static void err_printf(PHYSFS_file *my_file, const char * format, ... )
+static void err_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 #define err_printf(A1,F,...)	dxx_call_printf_checked(err_printf,err_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
@@ -154,8 +154,8 @@ static void err_printf(PHYSFS_file *my_file, const char * format, ... )
 	err_puts(my_file, message, len);
 }
 
-static void warning_puts(PHYSFS_file *f, const char *str, size_t len) __attribute_nonnull();
-static void warning_puts(PHYSFS_file *f, const char *str, size_t len)
+static void warning_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();
+static void warning_puts(PHYSFS_File *f, const char *str, size_t len)
 #define warning_puts(A1,S,...)	(warning_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 {
 	con_puts(CON_URGENT, str, len);
@@ -163,15 +163,15 @@ static void warning_puts(PHYSFS_file *f, const char *str, size_t len)
 }
 
 template <size_t len>
-static void warning_puts_literal(PHYSFS_file *f, const char (&str)[len]) __attribute_nonnull();
+static void warning_puts_literal(PHYSFS_File *f, const char (&str)[len]) __attribute_nonnull();
 template <size_t len>
-static void warning_puts_literal(PHYSFS_file *f, const char (&str)[len])
+static void warning_puts_literal(PHYSFS_File *f, const char (&str)[len])
 {
 	warning_puts(f, str, len);
 }
 
-static void warning_printf(PHYSFS_file *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
-static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
+static void warning_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 #define warning_printf(A1,F,...)	dxx_call_printf_checked(warning_printf,warning_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
@@ -184,7 +184,7 @@ static void warning_printf(PHYSFS_file *my_file, const char * format, ... )
 }
 
 // ----------------------------------------------------------------------------
-static void write_exit_text(PHYSFS_file *my_file)
+static void write_exit_text(PHYSFS_File *my_file)
 {
 	int	i, j, count;
 
@@ -247,7 +247,7 @@ static void write_exit_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_key_text(PHYSFS_file *my_file)
+static void write_key_text(PHYSFS_File *my_file)
 {
 	int	i;
 	int	red_count, blue_count, gold_count;
@@ -386,7 +386,7 @@ static void write_key_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_control_center_text(PHYSFS_file *my_file)
+static void write_control_center_text(PHYSFS_File *my_file)
 {
 	int	count, count2;
 
@@ -420,7 +420,7 @@ static void write_control_center_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_fuelcen_text(PHYSFS_file *my_file)
+static void write_fuelcen_text(PHYSFS_File *my_file)
 {
 	int	i;
 
@@ -435,7 +435,7 @@ static void write_fuelcen_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_segment_text(PHYSFS_file *my_file)
+static void write_segment_text(PHYSFS_File *my_file)
 {
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
@@ -473,7 +473,7 @@ static void write_segment_text(PHYSFS_file *my_file)
 // ----------------------------------------------------------------------------
 // This routine is bogus.  It assumes that all centers are matcens,
 // which is not true.  The setting of segnum is bogus.
-static void write_matcen_text(PHYSFS_file *my_file)
+static void write_matcen_text(PHYSFS_File *my_file)
 {
 	int	i, j;
 
@@ -512,7 +512,7 @@ static void write_matcen_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_wall_text(PHYSFS_file *my_file)
+static void write_wall_text(PHYSFS_File *my_file)
 {
 	int	i, j;
 	sbyte wall_flags[MAX_WALLS];
@@ -557,7 +557,7 @@ static void write_wall_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_player_text(PHYSFS_file *my_file)
+static void write_player_text(PHYSFS_File *my_file)
 {
 	int	num_players=0;
 
@@ -581,7 +581,7 @@ static void write_player_text(PHYSFS_file *my_file)
 }
 
 // ----------------------------------------------------------------------------
-static void write_trigger_text(PHYSFS_file *my_file)
+static void write_trigger_text(PHYSFS_File *my_file)
 {
 	int	i, j, w;
 
@@ -884,7 +884,7 @@ static void merge_buffers(int *dest, int *src, int num)
 }
 
 // ----------------------------------------------------------------------------
-static void say_used_tmaps(PHYSFS_file *my_file, int *tb)
+static void say_used_tmaps(PHYSFS_File *my_file, int *tb)
 {
 	int	i;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -908,7 +908,7 @@ static void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 
 #if defined(DXX_BUILD_DESCENT_I)
 //	-----------------------------------------------------------------------------
-static void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
+static void say_used_once_tmaps(PHYSFS_File *my_file, int *tb, sbyte *tb_lnum)
 {
 	int	i;
 	const char	*level_name;
@@ -930,7 +930,7 @@ static void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
 #endif
 
 // ----------------------------------------------------------------------------
-static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
+static void say_unused_tmaps(PHYSFS_File *my_file, int *tb)
 {
 	int	i;
 	int	count = 0;
@@ -961,7 +961,7 @@ static void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 
 #if defined(DXX_BUILD_DESCENT_I)
 // ----------------------------------------------------------------------------
-static void say_unused_walls(PHYSFS_file *my_file, int *tb)
+static void say_unused_walls(PHYSFS_File *my_file, int *tb)
 {
 	int	i;
 	for (i=0; i<Num_wall_anims; i++)
@@ -970,7 +970,7 @@ static void say_unused_walls(PHYSFS_file *my_file, int *tb)
 }
 #endif
 
-static void say_totals(PHYSFS_file *my_file, const char *level_name)
+static void say_totals(PHYSFS_File *my_file, const char *level_name)
 {
 	int	total_robots = 0;
 	int	objects_processed = 0;
@@ -1063,7 +1063,7 @@ static void say_totals_all(void)
 #endif
 }
 
-static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
+static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	int	temp_tmap_buf[MAX_TEXTURES];

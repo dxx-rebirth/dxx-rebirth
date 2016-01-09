@@ -1867,9 +1867,9 @@ int create_special_path(void)
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 /*
- * reads a flickering_light structure from a PHYSFS_file
+ * reads a flickering_light structure from a PHYSFS_File
  */
-void flickering_light_read(flickering_light *fl, PHYSFS_file *fp)
+void flickering_light_read(flickering_light *fl, PHYSFS_File *fp)
 {
 	fl->segnum = PHYSFSX_readShort(fp);
 	fl->sidenum = PHYSFSX_readShort(fp);
@@ -1878,7 +1878,7 @@ void flickering_light_read(flickering_light *fl, PHYSFS_file *fp)
 	fl->delay = PHYSFSX_readFix(fp);
 }
 
-void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
+void flickering_light_write(flickering_light *fl, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, fl->segnum);
 	PHYSFS_writeSLE16(fp, fl->sidenum);

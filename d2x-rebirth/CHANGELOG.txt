@@ -2907,7 +2907,7 @@ d2x.ini, main/inferno.c, main/laser.c: added Alex' patch to add FPS independent 
 
 20070214
 --------
-Makefile, SConstruct, arch/sdl/mixdigi.c, arch/sdl/mixmusic.c, include/hmp2mid.h, misc/hmp2mid.c: Going back to PHYSFS_file type (lower-case 'f') for compatibility; Turning off sound debug flags; Optional micro versions (see SConstruct); Makefile emulation for SCons
+Makefile, SConstruct, arch/sdl/mixdigi.c, arch/sdl/mixmusic.c, include/hmp2mid.h, misc/hmp2mid.c: Going back to PHYSFS_File type (lower-case 'f') for compatibility; Turning off sound debug flags; Optional micro versions (see SConstruct); Makefile emulation for SCons
 
 20070211
 --------

@@ -205,15 +205,15 @@ static void free_d1_tmap_nums();
 #ifdef EDITOR
 static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
 static void piggy_write_pigfile(const char *filename);
-static void write_int(int i,PHYSFS_file *file);
+static void write_int(int i,PHYSFS_File *file);
 #endif
 static int piggy_is_needed(int soundnum);
 #endif
 
 /*
- * reads a DiskBitmapHeader structure from a PHYSFS_file
+ * reads a DiskBitmapHeader structure from a PHYSFS_File
  */
-static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
+static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -228,9 +228,9 @@ static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 }
 
 /*
- * reads a DiskSoundHeader structure from a PHYSFS_file
+ * reads a DiskSoundHeader structure from a PHYSFS_File
  */
-static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
+static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, dsh->name, 8, 1);
 	dsh->length = PHYSFSX_readInt(fp);
@@ -240,9 +240,9 @@ static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 
 #if defined(DXX_BUILD_DESCENT_II)
 /*
- * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_file
+ * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_File
  */
-static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
+static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -1572,7 +1572,7 @@ static void piggy_write_pigfile(const char *filename)
 	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
 }
 
-static void write_int(int i, PHYSFS_file *file)
+static void write_int(int i, PHYSFS_File *file)
 {
 	if (PHYSFS_write( file, &i, sizeof(i), 1) != 1)
 		Error( "Error reading int in gamesave.c" );
@@ -1783,7 +1783,7 @@ static int get_d1_colormap( palette_array_t &d1_palette, array<color_t, 256> &co
 
 #define JUST_IN_CASE 132 /* is enough for d1 pc registered */
 static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
-                     PHYSFS_file *d1_Piggy_fp, /* read from this file */
+                     PHYSFS_File *d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      ubyte **next_bitmap, /* where to write it (if 0, use malloc) */
@@ -1856,7 +1856,7 @@ static void free_d1_tmap_nums() {
 	d1_tmap_nums.reset();
 }
 
-static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
+static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 {
 	int i, d1_index;
 
@@ -1874,7 +1874,7 @@ static void bm_read_d1_tmap_nums(PHYSFS_file *d1pig)
 
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c
-static int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
+static int get_d1_bm_index(char *filename, PHYSFS_File *d1_pig) {
 	int i, N_bitmaps;
 	DiskBitmapHeader bmh;
 	if (strchr (filename, '.'))
@@ -1891,7 +1891,7 @@ static int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
 }
 
 // imitate the algorithm of gamedata_read_tbl in main/bmread.c
-static void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
+static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 {
 #define LINEBUF_SIZE 600
 	int reading_textures = 0;
@@ -2168,17 +2168,17 @@ bitmap_index read_extra_bitmap_d1_pig(const char *name)
 #endif
 
 /*
- * reads a bitmap_index structure from a PHYSFS_file
+ * reads a bitmap_index structure from a PHYSFS_File
  */
-void bitmap_index_read(PHYSFS_file *fp, bitmap_index &bi)
+void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi)
 {
 	bi.index = PHYSFSX_readShort(fp);
 }
 
 /*
- * reads n bitmap_index structs from a PHYSFS_file
+ * reads n bitmap_index structs from a PHYSFS_File
  */
-void bitmap_index_read_n(PHYSFS_file *fp, const partial_range_t<bitmap_index *> r)
+void bitmap_index_read_n(PHYSFS_File *fp, const partial_range_t<bitmap_index *> r)
 {
 	range_for (auto &i, r)
 		i.index = PHYSFSX_readShort(fp);

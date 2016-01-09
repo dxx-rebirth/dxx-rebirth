@@ -178,7 +178,7 @@ void cvar_set(const char *cvar_name, char *value)
 
 
 /* Write archive cvars to file */
-void cvar_write(PHYSFS_file *file)
+void cvar_write(PHYSFS_File *file)
 {
 	range_for (const auto &i, cvar_list)
 		if (i.second.get().flags & CVAR_ARCHIVE)
