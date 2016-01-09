@@ -3599,14 +3599,35 @@ static int net_udp_more_options_handler(newmenu *, const d_event &event, more_ga
 	return 0;
 }
 
+namespace {
+
 struct param_opt
 {
-	int start_game, name, level, mode, mode_end, moreopts;
+	enum {
+		name = 2,
+		label_level,
+		level,
+	};
+	int start_game, mode, mode_end, moreopts;
 	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, bounty;
 #if defined(DXX_BUILD_DESCENT_II)
 	int capture, hoard, team_hoard;
 #endif
+	char slevel[sizeof("S100")] = "1";
+	char srmaxnet[sizeof("Maximum players: 99")];
+	array<newmenu_item, 22> m;
+	void update_netgame_max_players()
+	{
+		Netgame.max_numplayers = m[maxnet].value + 2;
+		update_max_players_string();
+	}
+	void update_max_players_string()
+	{
+		snprintf(srmaxnet, sizeof(srmaxnet), "Maximum players: %u", Netgame.max_numplayers);
+	}
 };
+
+}
 
 static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param_opt *opt )
 {
@@ -3643,8 +3664,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				{
 					menus[opt->maxnet].max_value=2;
 				}
-				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-				Netgame.max_numplayers = menus[opt->maxnet].value+2;
+				opt->update_netgame_max_players();
 				
 				Netgame.game_flag.show_on_map = 1;
 
@@ -3661,14 +3681,13 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				{
 					menus[opt->maxnet].value=6;
 					menus[opt->maxnet].max_value=6;
-					sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-					Netgame.max_numplayers = menus[opt->maxnet].value+2;
+					opt->update_netgame_max_players();
 				}
 			}
 			
 			if (citem == opt->level)
 			{
-				char *slevel = menus[opt->level].text;
+				auto &slevel = opt->slevel;
 #if defined(DXX_BUILD_DESCENT_I)
 				if (tolower(static_cast<unsigned>(*slevel)) == 's')
 					Netgame.levelnum = -atoi(slevel+1);
@@ -3679,8 +3698,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			
 			if (citem == opt->maxnet)
 			{
-				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-				Netgame.max_numplayers = menus[opt->maxnet].value+2;
+				opt->update_netgame_max_players();
 			}
 
 			if ((citem >= opt->mode) && (citem <= opt->mode_end))
@@ -3731,9 +3749,9 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
 #endif
 			{
-				char *slevel = menus[opt->level].text;
+				auto &slevel = opt->slevel;
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
-				sprintf(slevel, "1");
+				strcpy(slevel, "1");
 				return 1;
 			}
 
@@ -3761,10 +3779,8 @@ int net_udp_setup_game()
 	int i;
 	int optnum;
 	param_opt opt;
-	newmenu_item m[22];
-	char slevel[5];
+	auto &m = opt.m;
 	char level_text[32];
-	char srmaxnet[50];
 
 	net_udp_init();
 
@@ -3814,31 +3830,34 @@ int net_udp_setup_game()
 	Netgame.mission_name.copy_if(Current_mission_filename, Netgame.mission_name.size());
 	Netgame.mission_title = Current_mission_longname;
 
-	sprintf( slevel, "1" ); Netgame.levelnum = 1;
+	Netgame.levelnum = 1;
 
 	optnum = 0;
 	opt.start_game=optnum;
 	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
 	nm_set_item_text(m[optnum], TXT_DESCRIPTION); optnum++;
 
-	opt.name = optnum;
 	nm_set_item_input(m[optnum], Netgame.game_name); optnum++;
 
+#define DXX_LEVEL_FORMAT_LEADER	"%s (1-%d"
+#define DXX_LEVEL_FORMAT_TRAILER	")"
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_SECRET_LEVEL_FORMAT_STRING	", S1-S%d)"
-#define DXX_SECRET_LEVEL_FORMAT_ARGUMENT	, -Last_secret_level
-#elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_SECRET_LEVEL_FORMAT_STRING
-#define DXX_SECRET_LEVEL_FORMAT_ARGUMENT
+	if (Last_secret_level == -1)
+		/* Exactly one secret level */
+		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level);
+	else if (Last_secret_level)
+		/* More than one secret level */
+		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1-S%d" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level, -Last_secret_level);
+	else
+		/* No secret levels */
 #endif
-	snprintf(level_text, sizeof(level_text), "%s (1-%d)" DXX_SECRET_LEVEL_FORMAT_STRING, TXT_LEVEL_, Last_level DXX_SECRET_LEVEL_FORMAT_ARGUMENT);
-
-	Assert(strlen(level_text) < 32);
+		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Last_level);
+#undef DXX_LEVEL_FORMAT_TRAILER
+#undef DXX_LEVEL_FORMAT_LEADER
 
 	nm_set_item_text(m[optnum], level_text); optnum++;
 
-	opt.level = optnum;
-	nm_set_item_input(m[optnum], slevel); optnum++;
+	nm_set_item_input(m[optnum], opt.slevel); optnum++;
 	nm_set_item_text(m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
@@ -3870,15 +3889,15 @@ int net_udp_setup_game()
 	nm_set_item_radio(m[optnum], "Restricted Game              ",Netgame.RefusePlayers,1); optnum++;
 
 	opt.maxnet = optnum;
-	sprintf( srmaxnet, "Maximum players: %d", Netgame.max_numplayers);
-	nm_set_item_slider(m[optnum], srmaxnet,Netgame.max_numplayers-2,0,Netgame.max_numplayers-2); optnum++;
+	opt.update_max_players_string();
+	nm_set_item_slider(m[optnum], opt.srmaxnet, Netgame.max_numplayers - 2, 0, Netgame.max_numplayers - 2); optnum++;
 	
 	opt.moreopts=optnum;
 	nm_set_item_menu(  m[optnum], "Advanced Options"); optnum++;
 
 	Assert(optnum <= 20);
 
-	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, net_udp_game_param_handler, &opt, opt.start_game );
+	i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
 		net_udp_close();
