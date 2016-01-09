@@ -54,12 +54,6 @@ static std::unique_ptr<char[]> overwritten_text;
 
 array<const char *, N_TEXT_STRINGS> Text_string;
 
-void free_text()
-{
-	overwritten_text.reset();
-	text.reset();
-}
-
 // rotates a byte left one bit, preserving the bit falling off the right
 static void encode_rotate_left(char *c)
 {

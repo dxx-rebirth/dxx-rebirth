@@ -372,15 +372,6 @@ namespace dsx {
 
 static int main(int argc, char *argv[])
 {
-	mem_init();
-#ifdef __linux__
-#ifdef WORDS_NEED_ALIGNMENT
-	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
-#endif
-#else
-	error_init(msgbox_error);
-	set_warn_func(msgbox_warning);
-#endif
 	if (!PHYSFSX_init(argc, argv))
 		return 1;
 	con_init();  // Initialise the console
@@ -604,7 +595,6 @@ static int main(int argc, char *argv[])
 	texmerge_close();
 	gamedata_close();
 	gamefont_close();
-	free_text();
 	newmenu_free_background();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();
@@ -616,5 +606,14 @@ static int main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+	mem_init();
+#ifdef __linux__
+#ifdef WORDS_NEED_ALIGNMENT
+	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
+#endif
+#else
+	error_init(msgbox_error);
+	set_warn_func(msgbox_warning);
+#endif
 	return dsx::main(argc, argv);
 }
