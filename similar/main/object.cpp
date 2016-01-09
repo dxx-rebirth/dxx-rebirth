@@ -821,14 +821,13 @@ void init_objects()
 		free_obj_list[i] = i;
 		const auto &&objp = vobjptr(i);
 		objp->type = OBJ_NONE;
-		objp->segnum = segment_none;
-		objp->signature = obj_get_signature();
 	}
 
 	range_for (auto &j, Segments)
 		j.objects = object_none;
 
 	ConsoleObject = Viewer = &Objects[0];
+	ConsoleObject->segnum = segment_none;
 
 	init_player_object();
 	obj_link(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
