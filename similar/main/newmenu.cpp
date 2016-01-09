@@ -393,17 +393,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			break;
 		case NM_TYPE_CHECK:
 			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			if (item->value)
-				nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), CHECKED_CHECK_BOX);
-			else
-				nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), NORMAL_CHECK_BOX);
+			nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
 		case NM_TYPE_RADIO:
 			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
-			if (item->value)
-				nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), CHECKED_RADIO_BOX);
-			else
-				nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), NORMAL_RADIO_BOX);
+			nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
 		case NM_TYPE_NUMBER:
 		{
@@ -957,11 +951,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 		case KEY_UP:
 		case KEY_PAGEUP:
 		case KEY_PAD8:
-			if (k == KEY_PAGEUP)
-				newmenu_scroll(menu, -10);
-			else
-				newmenu_scroll(menu, -1);
-
+			newmenu_scroll(menu, k == KEY_PAGEUP ? -10 : -1);
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
 			if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
@@ -974,11 +964,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 		case KEY_DOWN:
 		case KEY_PAGEDOWN:
 		case KEY_PAD2:
-			if (k == KEY_PAGEDOWN)
-				newmenu_scroll(menu, 10);
-			else
-				newmenu_scroll(menu, 1);
-
+			newmenu_scroll(menu, k == KEY_PAGEDOWN ? 10 : 1);
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
 			if ( (old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
@@ -1940,8 +1926,8 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
+		gr_setcolor(BM_XRGB(5,5,5));
 		if ( i >= lb->nitems )	{
-			gr_setcolor( BM_XRGB(5,5,5));
 			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing);
 			gr_setcolor( BM_XRGB(2,2,2));
 			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing);
@@ -1949,17 +1935,18 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing);
 		} else {
 			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
-			gr_setcolor( BM_XRGB(5,5,5));
 			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing);
 			gr_setcolor( BM_XRGB(2,2,2));
 			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing);
 			gr_setcolor( BM_XRGB(0,0,0));
 			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing);
 
+			RAIIdmem<char[]> shrtstr;
+			const char *showstr;
 			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
 			{
-				RAIIdmem<char[]> shrtstr;
 				CALLOC(shrtstr, char[], lb->marquee_maxchars+1);
+				showstr = shrtstr.get();
 				static int prev_citem = -1;
 				
 				if (prev_citem != lb->citem)
@@ -1969,6 +1956,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 					prev_citem = lb->citem;
 				}
 
+				unsigned srcoffset = 0;
 				if (i == lb->citem)
 				{
 					if (lb->marquee_lasttime + (F1_0/3) < timer_query())
@@ -1986,18 +1974,15 @@ static window_event_result listbox_draw(window *, listbox *lb)
 						lb->marquee_charpos = strlen(lb->item[i]) - lb->marquee_maxchars + 1;
 						lb->marquee_scrollback = 1;
 					}
-					snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i]+lb->marquee_charpos);
+					srcoffset = lb->marquee_charpos;
 				}
-				else
-				{
-					snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i]);
-				}
-				gr_string(lb->box_x + fspacx(5), y, shrtstr.get());
+				snprintf(shrtstr.get(), lb->marquee_maxchars, "%s", lb->item[i] + srcoffset);
 			}
 			else
 			{
-				gr_string(lb->box_x + fspacx(5), y, lb->item[i]);
+				showstr = lb->item[i];
 			}
+			gr_string(lb->box_x + fspacx(5), y, showstr);
 		}
 	}
 
