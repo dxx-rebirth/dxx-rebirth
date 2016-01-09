@@ -1383,7 +1383,8 @@ void dead_player_frame(void)
 		// end addition by WX
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
-			if (!Player_exploded) {
+			if (Player_dead_state != player_dead_state::exploded)
+			{
 				const auto hostages_lost = exchange(get_local_player().hostages_on_board, 0);
 
 				if (hostages_lost > 1)

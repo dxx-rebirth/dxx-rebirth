@@ -1076,7 +1076,7 @@ static void ai_fire_laser_at_player(const vobjptridx_t obj, const vms_vector &fi
 		return;
 
 	//	If player is exploded, stop firing.
-	if (Player_exploded)
+	if (Player_dead_state == player_dead_state::exploded)
 		return;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1696,7 +1696,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 			}
 
 #if defined(DXX_BUILD_DESCENT_I)
-			if (!Player_exploded)
+			if (Player_dead_state != player_dead_state::exploded)
 #endif
 			if ((ailp->previous_visibility != *player_visibility) && (*player_visibility == 2))
 			{
@@ -2604,7 +2604,9 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 				if (aip->CURRENT_GUN < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
-						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
+						if (Player_dead_state != player_dead_state::exploded &&
+							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
+						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
@@ -2686,7 +2688,9 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 				if (gun_num < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
-						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
+						if (Player_dead_state != player_dead_state::exploded &&
+							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
+						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);
@@ -2780,7 +2784,9 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 				if (aip->CURRENT_GUN < robptr->n_guns) {
 					if (robptr->attack_type == 1) {
-						if (!Player_exploded && (dist_to_player < obj->size + ConsoleObject->size + F1_0*2)) {		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
+						if (Player_dead_state != player_dead_state::exploded &&
+							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
+						{		// robptr->circle_distance[Difficulty_level] + ConsoleObject->size)
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION-2))
 								return;
 							do_ai_robot_hit_attack(obj, vobjptridx(ConsoleObject), obj->pos);

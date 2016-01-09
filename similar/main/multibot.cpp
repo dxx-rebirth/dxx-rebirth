@@ -111,7 +111,7 @@ int multi_can_move_robot(const vobjptridx_t objnum, int agitation)
 
 	// Claim robot if necessary.
 
-	if (Player_exploded)
+	if (Player_dead_state == player_dead_state::exploded)
 		return 0;
 
 #ifndef NDEBUG

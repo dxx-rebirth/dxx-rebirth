@@ -427,12 +427,12 @@ static int HandleDeathInput(const d_event &event)
 	{
 		int key = event_key_get(event);
 
-		if ((PlayerCfg.RespawnMode == RespawnPress::Any && Player_exploded && !key_isfunc(key) && key != KEY_PAUSE && key) ||
+		if ((PlayerCfg.RespawnMode == RespawnPress::Any && Player_dead_state == player_dead_state::exploded && !key_isfunc(key) && key != KEY_PAUSE && key) ||
 			(key == KEY_ESC && ConsoleObject->flags & OF_EXPLODING))
 				Death_sequence_aborted = 1;
 	}
 
-	if (Player_exploded)
+	if (Player_dead_state == player_dead_state::exploded)
 	{
 		if (PlayerCfg.RespawnMode == RespawnPress::Any
 			? (event.type == EVENT_JOYSTICK_BUTTON_UP || event.type == EVENT_MOUSE_BUTTON_UP)
@@ -1870,7 +1870,8 @@ window_event_result ReadControls(const d_event &event)
 
 	Player_fired_laser_this_frame=object_none;
 
-	if (Player_exploded) {
+	if (Player_dead_state == player_dead_state::exploded)
+	{
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
 			game_flush_inputs();

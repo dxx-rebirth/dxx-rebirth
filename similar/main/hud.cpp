@@ -240,7 +240,8 @@ int HUD_init_message_literal(int class_flag, const char *str)
 
 void player_dead_message(void)
 {
-	if (Player_exploded) {
+	if (Player_dead_state == player_dead_state::exploded)
+	{
 		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h;
 			gr_set_curfont( HUGE_FONT );
