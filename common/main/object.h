@@ -463,7 +463,7 @@ struct obj_position
 
 }
 
-#define Highest_object_index static_cast<const unsigned &>(Objects.highest)
+#define Highest_object_index (Objects.get_count() - 1)
 
 DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
 

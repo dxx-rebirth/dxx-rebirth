@@ -52,6 +52,16 @@
 #define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 #endif
 
+namespace detail {
+
+class valptridx_array_type_count
+{
+protected:
+	unsigned count;
+};
+
+}
+
 template <typename P>
 class valptridx<P>::index_mismatch_exception :
 	public std::logic_error
@@ -538,7 +548,9 @@ protected:
 };
 
 template <typename managed_type>
-class valptridx<managed_type>::array_managed_type : public array<managed_type, array_size>
+class valptridx<managed_type>::array_managed_type :
+	protected detail::valptridx_array_type_count,
+	public array<managed_type, array_size>
 {
 	using containing_type = valptridx<managed_type>;
 	using array_type = array<managed_type, array_size>;
@@ -546,7 +558,6 @@ public:
 	using typename array_type::reference;
 	using typename array_type::const_reference;
 	using index_type = typename containing_type::index_type;
-	unsigned highest;
 	template <typename T>
 		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
 		{
@@ -568,12 +579,11 @@ public:
 	array_managed_type &operator=(const array_managed_type &) = delete;
 	unsigned get_count() const
 	{
-		return highest + 1;
+		return count;
 	}
 	void set_count(const unsigned c)
 	{
-		DXX_VALPTRIDX_STATIC_CHECK(c != 0, dxx_trap_count_underflow, "count must not be zero");
-		highest = c - 1;
+		count = c;
 	}
 };
 
@@ -606,7 +616,7 @@ public:
 	__attribute_warn_unused_result
 	index_type highest() const
 	{
-		return get_array().highest;
+		return get_array().get_count() - 1;
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result
@@ -638,11 +648,6 @@ public:
 	PI operator()(typename PI::index_type i) const
 	{
 		return PI(i, get_array());
-	}
-	__attribute_warn_unused_result
-	index_type highest() const
-	{
-		return get_array().highest;
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result
