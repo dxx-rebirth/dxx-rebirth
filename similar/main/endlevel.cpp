@@ -241,8 +241,8 @@ static int start_endlevel_movie()
 
 void free_endlevel_data()
 {
-	gr_free_bitmap_data(terrain_bm_instance);
-	gr_free_bitmap_data(satellite_bm_instance);
+	terrain_bm_instance.reset();
+	satellite_bm_instance.reset();
 
 	free_light_table();
 	free_height_array();
