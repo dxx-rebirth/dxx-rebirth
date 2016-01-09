@@ -1617,13 +1617,10 @@ static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 		fix	light_intensity;
 
 		light_intensity = TmapInfo[sidep->tmap_num].lighting + TmapInfo[sidep->tmap_num2 & 0x3fff].lighting;
-
-		light_intensity *= dir;
-
 		if (light_intensity) {
 			const auto segment_center = compute_segment_center(segp);
 			visited_segment_bitarray_t visited;
-			apply_light_to_segment(visited, segp,segment_center,light_intensity,0);
+			apply_light_to_segment(visited, segp, segment_center, light_intensity * dir, 0);
 		}
 	}
 
