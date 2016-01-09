@@ -901,13 +901,11 @@ static void add_found_segments_to_selected_list(void) {
 
 void gamestate_restore_check()
 {
-	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	obj_position Save_position;
 
 	if (gamestate_not_restored) {
-		sprintf( Message, "Do you wish to restore game state?\n");
-	
-		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox(-2, -2, 2, "Do you wish to restore game state?\n", "Yes", "No") == 1)
+		{
 
 			// Save current position
 			Save_position.pos = ConsoleObject->pos;
