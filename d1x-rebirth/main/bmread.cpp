@@ -218,7 +218,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	removeext( filename, fname );
 	
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
-		sprintf( tempname, "%s#%d", fname, i );
+		snprintf(tempname, sizeof(tempname), "%s#%d", fname, i);
 		bi = piggy_find_bitmap( tempname );
 		if ( !bi.index )	
 			break;
@@ -260,7 +260,7 @@ int ds_load(int skip, const char * filename )	{
 	}
 
 	removeext(filename, fname);
-	sprintf( rawname, "Sounds/%s.raw", fname );
+	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname);
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{
