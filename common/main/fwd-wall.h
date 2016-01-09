@@ -69,7 +69,6 @@ const wall_state_t WALL_DOOR_CLOAKING = 5;       // Wall is going from closed ->
 const wall_state_t WALL_DOOR_DECLOAKING = 6;       // Wall is going from open -> closed
 }
 #endif
-#endif
 
 namespace dcx {
 enum wall_key_t : uint8_t
@@ -293,3 +292,4 @@ void wall_write(PHYSFS_file *fp, const wall &w, short version);
 void wall_close_door_num(int door_num);
 void init_stuck_objects();
 void clear_stuck_objects();
+#endif

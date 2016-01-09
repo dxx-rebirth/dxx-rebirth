@@ -68,11 +68,11 @@ extern array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of h
 
 }
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 void draw_hostage(vobjptridx_t obj);
-#endif
 void hostage_rescue();
 }
+#endif
 
 #endif

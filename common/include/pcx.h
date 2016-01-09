@@ -22,13 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _PCX_H
-#define _PCX_H
+#pragma once
 
 #include "pstypes.h"
-
-#ifdef __cplusplus
+#include "dxxsconf.h"
 
 struct grs_bitmap;
 namespace dcx {
@@ -66,7 +63,3 @@ extern int pcx_write_bitmap( const char * filename, grs_bitmap * bmp, palette_ar
 extern const char *pcx_errormsg(int error_number);
 
 }
-
-#endif
-
-#endif

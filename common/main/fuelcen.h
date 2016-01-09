@@ -87,8 +87,8 @@ namespace dsx {
 fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
 #define MAX_NUM_FUELCENS    70
 #endif
-#endif
 }
+#endif
 
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj);

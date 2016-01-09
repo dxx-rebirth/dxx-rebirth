@@ -25,11 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cstddef>
 #include "fwd-player.h"
-
-#ifdef __cplusplus
 #include "fwd-object.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct player;
 
 namespace dcx {
@@ -91,10 +91,6 @@ void ExitSecretLevel();
 // Secret levels are -1,-2,-3
 void LoadLevel(int level_num, int page_in_textures);
 
-namespace dsx {
-extern void gameseq_remove_unused_players();
-}
-
 extern void update_player_stats();
 
 // from scores.c
@@ -108,14 +104,13 @@ extern int reset_high_scores();
 void open_message_window(void);
 void close_message_window(void);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // create flash for player appearance
 void create_player_appearance_effect(vobjptridx_t player_obj);
 void bash_to_shield(const vobjptr_t i);
 void copy_defaults_to_robot(vobjptr_t objp);
-#endif
 
 namespace dsx {
+void gameseq_remove_unused_players();
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
 }
@@ -137,5 +132,4 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime);
 void EnterSecretLevel(void);
 void init_player_stats_new_ship(ubyte pnum);
 }
-
 #endif
