@@ -75,7 +75,7 @@ void close_autosave(void) {
 	if ( !strcmp(delname, "*.MIN") ) strcpy(delname, "TEMP.MIN");
 
         ext = strstr(delname, ".MIN");
-        sprintf( ext, ".M%d", i );
+        snprintf(ext + 2, 3, "%d", i);
 
         remove( delname );
     }
@@ -94,7 +94,7 @@ void autosave_mine(const char *name) {
 	    if ( !strcmp(savename, "*.MIN") ) strcpy(savename, "TEMP.MIN");
 	
 	    ext = strstr(savename, ".MIN");
-	    sprintf( ext, ".M%d", Autosave_count );
+	    snprintf(ext + 2, 3, "%d", Autosave_count);
 	
 	    med_save_mine( savename );
 	    Autosave_count++;
