@@ -181,7 +181,7 @@ static int med_save_situation(char * filename)
 	if (!SaveFile)	{
 		char  ErrorMessage[200];
 
-		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
