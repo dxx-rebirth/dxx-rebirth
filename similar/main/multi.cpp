@@ -2336,15 +2336,16 @@ static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
 	position.y = GET_INTEL_INT(buf + 7);
 	position.z = GET_INTEL_INT(buf + 11);
 
+	const unsigned mnum = (pnum * 2) + mesnum;
 	for (i=0;i<40;i++)
-		MarkerMessage[(pnum*2)+mesnum][i]=buf[15+i];
+		MarkerMessage[mnum][i]=buf[15+i];
 
-	if (MarkerObject[(pnum*2)+mesnum] != object_none &&
-		vcobjptr(MarkerObject[(pnum*2)+mesnum])->type != OBJ_NONE)
-		obj_delete(MarkerObject[(pnum*2)+mesnum]);
+	auto &mo = MarkerObject[mnum];
+	if (mo != object_none)
+		obj_delete(vobjptridx(mo));
 
 	const auto &&plr_objp = vcobjptr(Players[pnum].objnum);
-	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(position, plr_objp->segnum, plr_objp->orient, (pnum*2) + mesnum);
+	mo = drop_marker_object(position, vsegptridx(plr_objp->segnum), plr_objp->orient, mnum);
 }
 
 }
