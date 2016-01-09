@@ -11,6 +11,7 @@
  */
 
 #include <stdexcept>
+#include <tuple>
 #ifdef _WIN32
 #include <windows.h>
 #include <stddef.h>
@@ -77,6 +78,26 @@ using std::max;
 #ifndef M_PI
 #define M_PI 3.14159
 #endif
+
+namespace {
+
+template <unsigned G>
+struct enable_ogl_client_state
+{
+	enable_ogl_client_state() noexcept
+	{
+		glEnableClientState(G);
+	}
+	~enable_ogl_client_state() noexcept
+	{
+		glDisableClientState(G);
+	}
+};
+
+template <typename T, unsigned... Gs>
+using ogl_client_states = std::tuple<T, enable_ogl_client_state<Gs>...>;
+
+}
 
 #if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
 #define cosf(a) cos(a)
@@ -550,7 +571,6 @@ namespace dcx {
 
 void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 {
-	int c;
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = {
@@ -558,9 +578,9 @@ void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 		static_cast<GLfloat>(f2glf(p1.p3_vec.x)), static_cast<GLfloat>(f2glf(p1.p3_vec.y)), static_cast<GLfloat>(-f2glf(p1.p3_vec.z))
 	};
   
+	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
+	auto &c = std::get<0>(cs);
 	c=grd_curcanv->cv_color;
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
 	OGL_DISABLE(TEXTURE_2D);
 	color_r = PAL2Tr(c);
 	color_g = PAL2Tg(c);
@@ -572,8 +592,6 @@ void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glDrawArrays(GL_LINES, 0, 2);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 }
@@ -868,7 +886,7 @@ int gr_disk(fix x,fix y,fix r)
  */
 void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 {
-	int c, index3, index4;
+	int index3, index4;
 	float color_r, color_g, color_b, color_a;
 	RAIIdmem<GLfloat[]> vertex_array, color_array;
 
@@ -876,8 +894,8 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	MALLOC(color_array, GLfloat[], nv*4);
 
 	r_polyc++;
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
+	auto &c = std::get<0>(cs);
 	c = grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
 	color_r = PAL2Tr(c);
@@ -904,8 +922,6 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	glVertexPointer(3, GL_FLOAT, 0, vertex_array.get());
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 /*
@@ -913,11 +929,11 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
  */ 
 void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
 {
-	int c, index2, index3, index4;
+	int index2, index3, index4;
 	GLfloat color_alpha = 1.0;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
+	auto &c = std::get<0>(cs);
 	
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -984,7 +1000,7 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
  */
 void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-	int c, index2, index3, index4;
+	int index2, index3, index4;
 
 	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
 	MALLOC(vertex_array, GLfloat[], nv*3);
@@ -993,9 +1009,8 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 
 	_g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,*bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
+	auto &c = std::get<0>(cs);
 	
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
@@ -1040,9 +1055,6 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	glColorPointer(4, GL_FLOAT, 0, color_array.get());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.get());  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 namespace dcx {
@@ -1052,13 +1064,10 @@ namespace dcx {
  */
 void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, grs_bitmap &bm)
 {
-	int i;
-
 	r_bitmapc++;
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
+	auto &i = std::get<0>(cs);
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
@@ -1129,9 +1138,6 @@ void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, 
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 /*
@@ -1144,12 +1150,17 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	ogl_texture tex;
+	struct bitblt_free_ogl_texture
+	{
+		ogl_texture t;
+		~bitblt_free_ogl_texture()
+		{
+			ogl_freetexture(t);
+		}
+	};
+	ogl_client_states<bitblt_free_ogl_texture, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
+	ogl_texture &tex = std::get<0>(cs).t;
 	r_ubitbltc++;
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	ogl_init_texture(tex, sw, sh, OGL_FLAG_ALPHA);
 	tex.prio = 0.0;
@@ -1195,11 +1206,6 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	ogl_freetexture(tex);
 	return 0;
 }
 
@@ -1679,21 +1685,18 @@ void ogl_freebmtexture(grs_bitmap &bm)
  */
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
 {
-	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
+	GLfloat yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	
+	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
+	auto &xo = std::get<0>(cs);
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
 	xo=x/(float)last_width;
 	xf=(bm.bm_w+x)/(float)last_width;
 	yo=1.0-y/(float)last_height;
 	yf=1.0-(bm.bm_h+y)/(float)last_height;
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	if (dw < 0)
 		dw = grd_curcanv->cv_bitmap.bm_w;
@@ -1773,10 +1776,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scal
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
 	return 0;
 }
 
