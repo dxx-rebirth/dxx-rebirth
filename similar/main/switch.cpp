@@ -167,7 +167,7 @@ static void do_lock_doors(const trigger &t)
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
-static int do_change_walls(const trigger &t)
+static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 {
 	int ret=0;
 
@@ -177,7 +177,6 @@ static int do_change_walls(const trigger &t)
 		const auto &&segp = vsegptridx(t.seg[i]);
 		const auto side = t.side[i];
 			segptridx_t csegp = segment_none;
-			int new_wall_type;
 
 			if (!IS_CHILD(segp->children[side]))
 			{
@@ -188,16 +187,6 @@ static int do_change_walls(const trigger &t)
 				csegp = segptridx(segp->children[side]);
 				cside = find_connect_side(segp, csegp);
 				Assert(cside != side_none);
-			}
-
-			switch (t.type) {
-				case TT_OPEN_WALL:		new_wall_type = WALL_OPEN; break;
-				case TT_CLOSE_WALL:		new_wall_type = WALL_CLOSED; break;
-				case TT_ILLUSORY_WALL:	new_wall_type = WALL_ILLUSION; break;
-			        default:
-					Assert(0); /* new_wall_type unset */
-					return(0);
-					break;
 			}
 
 			auto &wall0 = Walls[segp->sides[side].wall_num];
@@ -231,8 +220,11 @@ static int do_change_walls(const trigger &t)
 				case TT_CLOSE_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
+						{
 						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
+						}
+					case TT_ILLUSORY_WALL:
 						wall0.type = new_wall_type;
 						if (wall1)
 							wall1->type = new_wall_type;
@@ -240,11 +232,8 @@ static int do_change_walls(const trigger &t)
 					else
 						start_wall_decloak(segp,side);
 					break;
-				case TT_ILLUSORY_WALL:
-					wall0.type = new_wall_type;
-					if (wall1)
-						wall1->type = new_wall_type;
-					break;
+				default:
+					return 0;
 			}
 
 			kill_stuck_objects(segp->sides[side].wall_num);
@@ -455,18 +444,18 @@ int check_trigger_sub(const unsigned trigger_num, int pnum,int shot)
 			break;
 
 		case TT_OPEN_WALL:
-			if (const auto w = do_change_walls(trigger))
+			if (const auto w = do_change_walls(trigger, WALL_OPEN))
 				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s deactivated!" : "Wall%s opened!");
 			break;
 
 		case TT_CLOSE_WALL:
-			if (const auto w = do_change_walls(trigger))
+			if (const auto w = do_change_walls(trigger, WALL_CLOSED))
 				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s activated!" : "Wall%s closed!");
 			break;
 
 		case TT_ILLUSORY_WALL:
 			//don't know what to say, so say nothing
-			do_change_walls(trigger);
+			do_change_walls(trigger, WALL_ILLUSION);
 			break;
 
 		case TT_MATCEN:
