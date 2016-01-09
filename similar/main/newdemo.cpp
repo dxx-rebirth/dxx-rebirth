@@ -3885,6 +3885,8 @@ int newdemo_count_demos()
 	return NumFiles;
 }
 
+namespace dsx {
+
 void newdemo_start_playback(const char * filename)
 {
 	enum purpose_type rnd_demo = PURPOSE_CHOSE_PLAY;
@@ -3967,6 +3969,8 @@ void newdemo_start_playback(const char * filename)
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
 	if (!Game_wind)
 		Game_wind = game_setup();							// create game environment
+}
+
 }
 
 void newdemo_stop_playback()

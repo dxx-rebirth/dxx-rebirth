@@ -78,6 +78,9 @@ void newdemo_record_render_object(vobjptridx_t  obj);
 void newdemo_record_viewer_object(vobjptridx_t  obj);
 cobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
+namespace dsx {
+void newdemo_start_playback(const char *filename);
+}
 #endif
 extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
@@ -130,7 +133,6 @@ extern void newdemo_goto_end(int to_rewrite);
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
-extern void newdemo_start_playback( const char * filename );
 extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();

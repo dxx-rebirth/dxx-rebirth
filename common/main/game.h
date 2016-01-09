@@ -123,7 +123,6 @@ extern int Slew_on;                 // in slew or sim mode?
 
 
 // from game.c
-void game(void);
 void close_game(void);
 void calc_frame_time(void);
 namespace dcx {
@@ -144,6 +143,7 @@ extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+void game();
 void init_game();
 void init_cockpit();
 extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
@@ -345,6 +345,9 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 extern game_cheats cheats;
 
 void move_player_2_segment(vsegptridx_t seg, int side);
+window *game_setup();
+window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
+window_event_result ReadControls(const d_event &event);
 }
 #endif
 int cheats_enabled();
@@ -353,7 +356,6 @@ int allowed_to_fire_laser(void);
 int allowed_to_fire_flare(void);
 int allowed_to_fire_missile(void);
 void	check_rear_view(void);
-window *game_setup(void);
 int create_special_path(void);
 window_event_result ReadControls(const d_event &event);
 void toggle_cockpit(void);
@@ -370,7 +372,6 @@ extern ubyte DemoDoingRight,DemoDoingLeft;
 extern fix64	Time_flash_last_played;
 }
 #endif
-window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 
 #ifdef EDITOR
 void dump_used_textures_all();

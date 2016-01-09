@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <cstdint>
+#include "dxxsconf.h"
 
 namespace dcx {
 
@@ -35,8 +36,12 @@ struct d_fname;
 }
 
 extern void show_titles(void);
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 void do_briefing_screens(const d_fname &filename, int level_num);
 void do_end_briefing_screens(const d_fname &filename);
+}
+#endif
 extern char * get_briefing_screen( int level_num );
 #if defined(DXX_BUILD_DESCENT_II)
 void show_loading_screen(uint8_t *title_pal);

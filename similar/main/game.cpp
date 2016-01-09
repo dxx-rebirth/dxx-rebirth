@@ -1144,6 +1144,8 @@ void game_disable_cheats()
 //	game_setup()
 // ----------------------------------------------------------------------------
 
+namespace dsx {
+
 window *game_setup(void)
 {
 	window *game_wind;
@@ -1194,7 +1196,11 @@ window *game_setup(void)
 	return game_wind;
 }
 
+}
+
 window *Game_wind = NULL;
+
+namespace dsx {
 
 // Event handler for the game
 window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
@@ -1300,6 +1306,8 @@ void game()
 {
 	hide_menus();
 	Game_wind = game_setup();
+}
+
 }
 
 //called at the end of the program

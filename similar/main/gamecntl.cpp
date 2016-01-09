@@ -1863,6 +1863,8 @@ static void play_test_sound()
 }
 #endif  //ifndef NDEBUG
 
+namespace dsx {
+
 window_event_result ReadControls(const d_event &event)
 {
 	int key;
@@ -1968,4 +1970,6 @@ window_event_result ReadControls(const d_event &event)
 		do_weapon_n_item_stuff();
 	}
 	return window_event_result::ignored;
+}
+
 }

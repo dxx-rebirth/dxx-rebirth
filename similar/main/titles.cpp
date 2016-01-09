@@ -1526,6 +1526,8 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 	return window_event_result::ignored;
 }
 
+namespace dsx {
+
 void do_briefing_screens(const d_fname &filename, int level_num)
 {
 	window *wind;
@@ -1635,4 +1637,6 @@ void do_end_briefing_screens(const d_fname &filename)
 	do_briefing_screens(filename, level_num_screen);
 	if (showorder)
 		show_order_form();
+}
+
 }
