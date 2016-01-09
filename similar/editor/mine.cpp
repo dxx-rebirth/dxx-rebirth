@@ -337,15 +337,7 @@ int med_save_mine(const char * filename)
 	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
 	if (!SaveFile)
 	{
-#if 0 //ndef __linux__
-		char fname[20];
-		d_splitpath( filename, NULL, NULL, fname, NULL );
-
-		sprintf( ErrorMessage, \
-			"ERROR: Cannot write to '%s'.\nYou probably need to check out a locked\nversion of the file. You should save\nthis under a different filename, and then\ncheck out a locked copy by typing\n\'co -l %s.lvl'\nat the DOS prompt.\n" 
-                        , filename, fname);
-#endif
-		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
+		snprintf(ErrorMessage, sizeof(ErrorMessage), "ERROR: Unable to open %s\n", filename);
 		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
@@ -560,13 +552,13 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 
 	if (Highest_segment_index >= MAX_SEGMENTS) {
 		char	message[128];
-		sprintf(message, "Error: Too many segments (%i > %" PRIuFAST32 ") for game (not editor)", Highest_segment_index+1, static_cast<uint_fast32_t>(MAX_SEGMENTS));
+		snprintf(message, sizeof(message), "Error: Too many segments (%i > %" PRIuFAST32 ") for game (not editor)", Highest_segment_index+1, static_cast<uint_fast32_t>(MAX_SEGMENTS));
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
 	if (Highest_vertex_index >= MAX_VERTICES) {
 		char	message[128];
-		sprintf(message, "Error: Too many vertices (%i > %" PRIuFAST32 ") for game (not editor)", Highest_vertex_index+1, static_cast<uint_fast32_t>(MAX_VERTICES));
+		snprintf(message, sizeof(message), "Error: Too many vertices (%i > %" PRIuFAST32 ") for game (not editor)", Highest_vertex_index+1, static_cast<uint_fast32_t>(MAX_VERTICES));
 		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
