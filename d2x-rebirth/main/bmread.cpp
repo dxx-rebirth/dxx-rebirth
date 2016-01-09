@@ -282,7 +282,7 @@ int ds_load(int skip, const char * filename )	{
 	}
 
 	removeext(filename, fname);
-	sprintf(rawname, "Sounds/%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
+	snprintf(rawname, sizeof(rawname), "Sounds/%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{
