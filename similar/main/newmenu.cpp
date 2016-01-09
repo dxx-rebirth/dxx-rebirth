@@ -1520,12 +1520,7 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 
 		case EVENT_WINDOW_DEACTIVATED:
 			//event_toggle_focus(1);	// No cursor recentering
-#if defined(DXX_BUILD_DESCENT_I)
-#define DXX_KEY_TOGGLE_REPEAT_VALUE	0
-#elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_KEY_TOGGLE_REPEAT_VALUE	1
-#endif
-			key_toggle_repeat(DXX_KEY_TOGGLE_REPEAT_VALUE);
+			key_toggle_repeat(1);
 			menu->mouse_state = 0;
 			break;
 

@@ -497,18 +497,17 @@ int event_key_get_raw(const d_event &event)
 	return event_key_get(event) & ~(KEY_SHIFTED | KEY_ALTED | KEY_CTRLED | KEY_DEBUGGED | KEY_METAED);
 }
 
-void key_toggle_repeat(int enable)
+void key_toggle_repeat1()
 {
-	if (enable)
-	{
-		if (SDL_EnableKeyRepeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL) == 0)
-			keyd_repeat = 1;
-	}
-	else
-	{
-		SDL_EnableKeyRepeat(0, 0);
-		keyd_repeat = 0;
-	}
+	if (SDL_EnableKeyRepeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL) == 0)
+		keyd_repeat = 1;
+	key_flush();
+}
+
+void key_toggle_repeat0()
+{
+	SDL_EnableKeyRepeat(0, 0);
+	keyd_repeat = 0;
 	key_flush();
 }
 
