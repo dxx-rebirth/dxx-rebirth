@@ -625,7 +625,7 @@ segnum_t fvi_hit_seg2;		// what segment the hit point is in
 
 }
 
-static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited);
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
 
@@ -794,7 +794,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 
-static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vcsegptridx_t startseg,const vms_vector &p1,fix rad,objnum_t thisobjnum,const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list,int flags,fvi_info::segment_array_t &seglist,segnum_t entry_seg, fvi_segments_visited_t &visited)
+static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited)
 {
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
@@ -820,7 +820,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 	//first, see if vector hit any objects in this segment
 	if (flags & FQ_CHECK_OBJS)
 	{
-		const auto &collision = CollisionResult[likely(thisobjnum != object_none) ? vcobjptr(thisobjnum)->type : 0];
+		const auto &collision = CollisionResult[likely(thisobjnum != object_none) ? thisobjnum->type : 0];
 		range_for (const auto objnum, objects_in(*seg))
 		{
 			if (objnum->flags & OF_SHOULD_BE_DEAD)
@@ -846,7 +846,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 #endif
 
 				//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-				const auto &&thisobjp = vcobjptr(thisobjnum);
+				const auto &thisobjp = thisobjnum;
 				if (thisobjp->type == OBJ_ROBOT)
 					if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -878,7 +878,7 @@ static int fvi_sub(vms_vector &intp,segnum_t &ints,const vms_vector &p0,const vc
 		}
 	}
 
-	if (	(thisobjnum != object_none ) && (CollisionResult[vcobjptr(thisobjnum)->type][OBJ_WALL] == RESULT_NOTHING ) )
+	if (thisobjnum != object_none && CollisionResult[thisobjnum->type][OBJ_WALL] == RESULT_NOTHING)
 		rad = 0;		//HACK - ignore when edges hit walls
 
 	//now, check segment walls

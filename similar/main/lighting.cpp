@@ -88,7 +88,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 }
 
 // ----------------------------------------------------------------------------------------------
-static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, objnum_t objnum)
+static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, objnum_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -103,7 +103,7 @@ static void apply_light(g3s_lrgb obj_light_emission, segnum_t obj_seg, const vms
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
 		if ((abs(obji_64) <= F1_0*8) || is_marker) {
-			auto &vp = vcsegptr(obj_seg)->verts;
+			auto &vp = obj_seg->verts;
 
 			range_for (const auto vertnum, vp)
 			{

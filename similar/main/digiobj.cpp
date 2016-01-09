@@ -134,7 +134,7 @@ static int digi_unxlat_sound(int soundno)
 	throw std::invalid_argument("sound not loaded");
 }
 
-static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, const vcsegptridx_t listener_seg, const vms_vector &sound_pos, segnum_t sound_seg, fix max_volume, int *volume, int *pan, vm_distance max_distance)
+static void digi_get_sound_loc(const vms_matrix &listener, const vms_vector &listener_pos, const vcsegptridx_t listener_seg, const vms_vector &sound_pos, const vcsegptridx_t sound_seg, fix max_volume, int *volume, int *pan, vm_distance max_distance)
 {
 
 	vms_vector	vector_to_sound;
@@ -324,7 +324,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static void digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const segnum_t segnum)
+static void digi_link_sound_common(cobjptr_t viewer, sound_object &so, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance, int soundnum, const vcsegptridx_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )

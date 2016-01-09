@@ -1170,7 +1170,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 
 #ifdef EDITOR
 //create a copy of an object. returns new object number
-objptridx_t obj_create_copy(objnum_t objnum, const vms_vector &new_pos, segnum_t newsegnum)
+objptridx_t obj_create_copy(const vobjptridx_t objnum, const vms_vector &new_pos, const vsegptridx_t newsegnum)
 {
 	// Find next free object
 	const objptridx_t obj = obj_allocate();
@@ -1178,7 +1178,7 @@ objptridx_t obj_create_copy(objnum_t objnum, const vms_vector &new_pos, segnum_t
 	if (obj == object_none)
 		return obj;
 
-	*obj = Objects[objnum];
+	*obj = *objnum;
 
 	obj->pos = obj->last_pos = new_pos;
 

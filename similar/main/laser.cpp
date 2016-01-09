@@ -658,7 +658,7 @@ static inline int is_laser_weapon_type(weapon_id_type weapon_type)
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
+objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vsegptridx_t segnum, const vobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
 {
 	fix parent_speed, weapon_speed;
 	fix volume;

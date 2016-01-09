@@ -74,7 +74,7 @@ extern void do_missile_firing(int drop_bomb);
 extern objnum_t Network_laser_track;
 
 namespace dsx {
-objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, segnum_t segnum, vobjptridx_t parent, weapon_id_type type, int make_sound);
+objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, vsegptridx_t segnum, vobjptridx_t parent, weapon_id_type type, int make_sound);
 
 // Fires a laser-type weapon (a Primary weapon)
 // Fires from object objnum, weapon type weapon_id.
