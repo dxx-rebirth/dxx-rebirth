@@ -565,18 +565,18 @@ namespace {
 struct step_down
 {
 	template <typename T>
-		T operator()(T &t, int i) const
+		T operator()(T &t) const
 		{
-			return i > 0 ? ++t : --t;
+			return ++t;
 		}
 };
 
 struct step_up
 {
 	template <typename T>
-		T operator()(T &t, int i) const
+		T operator()(T &t) const
 		{
-			return i > 0 ? --t : ++t;
+			return --t;
 		}
 };
 
@@ -591,12 +591,12 @@ static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fa
 	{
 		if (pcitem == stop)
 			break;
-		step(icitem, 1);
-		step(pcitem, 1);
+		step(icitem);
+		step(pcitem);
 		if (menu.is_scroll_box) // update scroll_offset as we go
 		{
 			if (overflow(icitem))
-				step(menu.scroll_offset, 1);
+				step(menu.scroll_offset);
 		}
 	} while (-- amount > 0 || pcitem->type == NM_TYPE_TEXT);
 	menu.citem = icitem;
