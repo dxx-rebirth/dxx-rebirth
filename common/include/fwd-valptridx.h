@@ -2,9 +2,11 @@
 
 #include <cstddef>
 #include "dxxsconf.h"
-#include "objnum.h"
-#include "segnum.h"
 
+/* valptridx_specialized_type is never defined, but is declared to
+ * return a type-specific class suitable for use as a base of
+ * valptridx<T>.
+ */
 template <typename managed_type>
 using valptridx_specialized_types = decltype(valptridx_specialized_type(static_cast<managed_type *>(nullptr)));
 
@@ -18,9 +20,7 @@ class valptridx :
 	public:
 		class require_valid;
 		class allow_invalid;
-		class const_policy;
-		class mutable_policy;
-		template <typename policy>
+		template <template <typename> class policy>
 			class apply_cv_policy;
 	};
 	class vc;	/* require_valid + const_policy */
@@ -34,10 +34,20 @@ protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
 	using mutable_pointer_type = managed_type *;
+	/* integral_type must be a primitive integer type capable of holding
+	 * all legal values used with managed_type.  Legal values are valid
+	 * indexes in array_managed_type and any magic out-of-range values.
+	 */
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
 	using specialized_types::array_size;
 
+	/* basic_ptridx<policy> publicly inherits from basic_idx<policy> and
+	 * basic_ptr<policy>, but should not be implicitly sliced to one of
+	 * the base types.  To prevent slicing, basic_idx and basic_ptr take
+	 * a dummy parameter that is set to 0 for freestanding use and 1
+	 * when used as a base class.
+	 */
 	template <typename policy, unsigned>
 		class basic_idx;
 	template <typename policy, unsigned>

@@ -158,28 +158,11 @@ template <typename managed_type>
 constexpr tt::true_type valptridx<managed_type>::partial_policy::allow_invalid::allow_nullptr;
 
 template <typename managed_type>
-class valptridx<managed_type>::partial_policy::const_policy
-{
-protected:
-	template <typename T>
-		using apply_cv_qualifier = const T;
-};
-
-template <typename managed_type>
-class valptridx<managed_type>::partial_policy::mutable_policy
-{
-protected:
-	template <typename T>
-		using apply_cv_qualifier = T;
-};
-
-template <typename managed_type>
-template <typename policy>
-class valptridx<managed_type>::partial_policy::apply_cv_policy :
-	policy
+template <template <typename> class policy>
+class valptridx<managed_type>::partial_policy::apply_cv_policy
 {
 	template <typename T>
-		using apply_cv_qualifier = typename policy::template apply_cv_qualifier<T>;
+		using apply_cv_qualifier = typename policy<T>::type;
 public:
 	using array_managed_type = apply_cv_qualifier<valptridx<managed_type>::array_managed_type>;
 	using pointer_type = apply_cv_qualifier<managed_type> *;
@@ -189,28 +172,28 @@ public:
 template <typename managed_type>
 class valptridx<managed_type>::vc :
 	public partial_policy::require_valid,
-	public partial_policy::template apply_cv_policy<typename partial_policy::const_policy>
+	public partial_policy::template apply_cv_policy<tt::add_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::vm :
 	public partial_policy::require_valid,
-	public partial_policy::template apply_cv_policy<typename partial_policy::mutable_policy>
+	public partial_policy::template apply_cv_policy<tt::remove_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::ic :
 	public partial_policy::allow_invalid,
-	public partial_policy::template apply_cv_policy<typename partial_policy::const_policy>
+	public partial_policy::template apply_cv_policy<tt::add_const>
 {
 };
 
 template <typename managed_type>
 class valptridx<managed_type>::im :
 	public partial_policy::allow_invalid,
-	public partial_policy::template apply_cv_policy<typename partial_policy::mutable_policy>
+	public partial_policy::template apply_cv_policy<tt::remove_const>
 {
 };
 
