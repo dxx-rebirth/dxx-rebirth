@@ -27,7 +27,7 @@ namespace {
 class fix_sincos_input
 {
 public:
-	const unsigned m_idx;
+	const uint8_t m_idx;
 	const signed m_mul;
 	fix_sincos_input(fix a) :
 		m_idx(static_cast<uint8_t>(a >> 8)),
@@ -217,17 +217,23 @@ fix fix_sqrt(fix a)
 	return static_cast<fix>(long_sqrt(a)) << 8;
 }
 
+static fix fix_sincos(const uint8_t idx0, const signed mul)
+{
+	const fix t0 = sincos_table[idx0];
+	const uint8_t idx1 = idx0 + 1;
+	const fix t1 = sincos_table[idx1];
+	return (t0 + (((t1 - t0) * mul) >> 8)) << 2;
+}
+
 static fix fix_sin(const fix_sincos_input sci)
 {
-	fix ss = sincos_table[sci.m_idx];
-	return (ss + (((sincos_table[sci.m_idx + 1] - ss) * sci.m_mul) >> 8)) << 2;
+	return fix_sincos(sci.m_idx, sci.m_mul);
 }
 
 __attribute_warn_unused_result
 static fix fix_cos(const fix_sincos_input sci)
 {
-	fix cc = sincos_table[sci.m_idx + 64];
-	return (cc + (((sincos_table[sci.m_idx + 64 + 1] - cc) * sci.m_mul) >> 8)) << 2;
+	return fix_sincos(static_cast<uint8_t>(sci.m_idx + 64), sci.m_mul);
 }
 
 //compute sine and cosine of an angle, filling in the variables
@@ -254,8 +260,7 @@ fix fix_cos(fix a)
 //no interpolation
 fix fix_fastsin(fix a)
 {
-	int i;
-	i = (a>>8)&0xff;
+	const uint8_t i = static_cast<uint8_t>(a >> 8);
 	return sincos_table[i] << 2;
 }
 
