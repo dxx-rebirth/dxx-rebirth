@@ -915,7 +915,6 @@ int check_walls()
 {
 	int wall_count, trigger_count;
 	count_wall CountedWalls[MAX_WALLS];
-	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	int matcen_num;
 
 	wall_count = 0;
@@ -943,8 +942,8 @@ int check_walls()
 	}
 
 	if (wall_count != Num_walls) {
-		sprintf( Message, "Num_walls is bogus\nDo you wish to correct it?\n");
-		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox(-2, -2, 2, "Num_walls is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
+		{
 			Num_walls = wall_count;
 			editor_status_fmt("Num_walls set to %d\n", Num_walls);
 		}
@@ -954,8 +953,8 @@ int check_walls()
 	for (int w=0; w<Num_walls; w++) {
 		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
 			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
-			sprintf( Message, "Unmatched wall detected\nDo you wish to correct it?\n");
-			if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
+			if (ui_messagebox( -2, -2, 2, "Unmatched wall detected\nDo you wish to correct it?\n", "Yes", "No") == 1)
+			{
 				Walls[CountedWalls[w].wallnum].segnum = CountedWalls[w].segnum;
 				Walls[CountedWalls[w].wallnum].sidenum = CountedWalls[w].sidenum;
 			}
@@ -968,8 +967,8 @@ int check_walls()
 	}
 
 	if (trigger_count != Num_triggers) {
-		sprintf( Message, "Num_triggers is bogus\nDo you wish to correct it?\n");
-		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox(-2, -2, 2, "Num_triggers is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
+		{
 			Num_triggers = trigger_count;
 			editor_status_fmt("Num_triggers set to %d\n", Num_triggers);
 		}
@@ -982,9 +981,8 @@ int check_walls()
 
 int delete_all_walls() 
 {
-	char Message[DIAGNOSTIC_MESSAGE_MAX];
-	sprintf( Message, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n");
-	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
+	if (ui_messagebox(-2, -2, 2, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n", "YES!", "No") == 1)
+	{
 		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
 			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
