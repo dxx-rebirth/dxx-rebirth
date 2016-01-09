@@ -64,7 +64,7 @@ class StaticSubprocess:
 			return _call_cache[a]
 		except KeyError:
 			pass
-		p = subprocess.Popen(args, executable=args[0], stdout=subprocess.PIPE, stderr=stderr)
+		p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr)
 		(o, e) = p.communicate()
 		_call_cache[a] = c = _CachedCall(o, e, p.wait())
 		return c
