@@ -94,7 +94,7 @@ struct newmenu : embed_window_pointer_t
 	const char			*filename;
 	int				tiny_mode;
 	int			tabs_flag;
-	int				scroll_offset, last_scroll_check, max_displayable;
+	int				scroll_offset, max_displayable;
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
@@ -595,7 +595,6 @@ static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fa
 		step(pcitem, 1);
 		if (menu.is_scroll_box) // update scroll_offset as we go
 		{
-			menu.last_scroll_check = -1;
 			if (overflow(icitem))
 				step(menu.scroll_offset, 1);
 		}
@@ -694,7 +693,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 									citem.value = 1;
 
 								if (menu->is_scroll_box)
-									menu->last_scroll_check=-1;
 								changed = 1;
 								break;
 							case NM_TYPE_RADIO:
@@ -990,7 +988,6 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 						{
 							if (menu->citem==(menu->max_on_menu+menu->scroll_offset-1) || menu->citem==menu->scroll_offset)
 							{
-								menu->last_scroll_check=-1;
 							}
 						}
 
@@ -1441,7 +1438,6 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->is_scroll_box)
 	{
-		menu->last_scroll_check=menu->scroll_offset;
 		gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
 
 		const int line_spacing = static_cast<int>(LINE_SPACING);
@@ -1539,7 +1535,6 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t n
 	newmenu *menu = new newmenu{};
 	menu->citem = citem;
 	menu->scroll_offset = 0;
-	menu->last_scroll_check = -1;
 	menu->all_text = 0;
 	menu->is_scroll_box = 0;
 	menu->max_on_menu = TinyMode?MAXDISPLAYABLEITEMSTINY:MAXDISPLAYABLEITEMS;
