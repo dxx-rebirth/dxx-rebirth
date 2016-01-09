@@ -138,7 +138,7 @@ extern array<trigger, MAX_TRIGGERS> Triggers;
 
 extern void trigger_init();
 void check_trigger(vcsegptridx_t seg, short side, vcobjptridx_t objnum, int shot);
-extern int check_trigger_sub(int trigger_num, int player_num,int shot);
+int check_trigger_sub(unsigned trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
 static inline int trigger_is_exit(const trigger *t)

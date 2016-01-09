@@ -90,42 +90,30 @@ void trigger_init()
 // Executes a link, attached to a trigger.
 // Toggles all walls linked to the switch.
 // Opens doors, Blasts blast walls, turns off illusions.
-static void do_link(uint8_t trigger_num)
+static void do_link(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
-	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_toggle(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
-  		}
-  	}
+	for (unsigned i = 0; i < t.num_links; ++i)
+		wall_toggle(vsegptridx(t.seg[i]), t.side[i]);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 //close a door
-static void do_close_door(uint8_t trigger_num)
+static void do_close_door(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
-	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++)
-			wall_close_door(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
-  	}
+	for (unsigned i = 0; i < t.num_links; ++i)
+		wall_close_door(vsegptridx(t.seg[i]), t.side[i]);
 }
 
 //turns lighting on.  returns true if lights were actually turned on. (they
 //would not be if they had previously been shot out).
-static int do_light_on(uint8_t trigger_num)
+static int do_light_on(const trigger &t)
 {
-	int i,ret=0;
+	int ret=0;
 
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			const auto &&segnum = vsegptridx(Triggers[trigger_num].seg[i]);
-			auto sidenum = Triggers[trigger_num].side[i];
+		const auto &&segnum = vsegptridx(t.seg[i]);
+		const auto sidenum = t.side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
@@ -133,7 +121,6 @@ static int do_light_on(uint8_t trigger_num)
 				ret |= add_light(segnum, sidenum); 		//any light sets flag
 				enable_flicker(segnum, sidenum);
 			}
-		}
 	}
 
 	return ret;
@@ -141,16 +128,14 @@ static int do_light_on(uint8_t trigger_num)
 
 //turns lighting off.  returns true if lights were actually turned off. (they
 //would not be if they had previously been shot out).
-static int do_light_off(uint8_t trigger_num)
+static int do_light_off(const trigger &t)
 {
-	int i,ret=0;
+	int ret=0;
 
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			int sidenum;
-			const auto &&segnum = vsegptridx(Triggers[trigger_num].seg[i]);
-			sidenum = Triggers[trigger_num].side[i];
+		const auto &&segnum = vsegptridx(t.seg[i]);
+		const auto sidenum = t.side[i];
 
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
@@ -158,57 +143,52 @@ static int do_light_off(uint8_t trigger_num)
 				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
 				disable_flicker(segnum, sidenum);
 			}
-  		}
   	}
 
 	return ret;
 }
 
 // Unlocks all doors linked to the switch.
-static void do_unlock_doors(uint8_t trigger_num)
+static void do_unlock_doors(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].keys = KEY_NONE;
-  		}
+		const auto &&segp = vsegptr(t.seg[i]);
+		const auto wall_num = segp->sides[t.side[i]].wall_num;
+		auto &w = Walls[wall_num];
+		w.flags &= ~WALL_DOOR_LOCKED;
+		w.keys = KEY_NONE;
   	}
 }
 
 // Locks all doors linked to the switch.
-static void do_lock_doors(uint8_t trigger_num)
+static void do_lock_doors(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
-  		}
-  	}
+		const auto &&segp = vsegptr(t.seg[i]);
+		const auto wall_num = segp->sides[t.side[i]].wall_num;
+		auto &w = Walls[wall_num];
+		w.flags |= WALL_DOOR_LOCKED;
+	}
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
-static int do_change_walls(uint8_t trigger_num)
+static int do_change_walls(const trigger &t)
 {
-	int i,ret=0;
+	int ret=0;
 
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
+		uint8_t cside;
+		const auto &&segp = vsegptridx(t.seg[i]);
+		const auto side = t.side[i];
 			segptridx_t csegp = segment_none;
-			short cside;
 			int new_wall_type;
-
-			auto segp = vsegptridx(Triggers[trigger_num].seg[i]);
-			auto side = Triggers[trigger_num].side[i];
 
 			if (!IS_CHILD(segp->children[side]))
 			{
-				cside = -1;
+				cside = side_none;
 			}
 			else
 			{
@@ -217,10 +197,7 @@ static int do_change_walls(uint8_t trigger_num)
 				Assert(cside != side_none);
 			}
 
-			//segp->sides[side].wall_num = -1;
-			//csegp->sides[cside].wall_num = -1;
-
-			switch (Triggers[trigger_num].type) {
+			switch (t.type) {
 				case TT_OPEN_WALL:		new_wall_type = WALL_OPEN; break;
 				case TT_CLOSE_WALL:		new_wall_type = WALL_CLOSED; break;
 				case TT_ILLUSORY_WALL:	new_wall_type = WALL_ILLUSION; break;
@@ -230,25 +207,27 @@ static int do_change_walls(uint8_t trigger_num)
 					break;
 			}
 
-			if (Walls[segp->sides[side].wall_num].type == new_wall_type &&
-			    (cside < 0 || csegp->sides[cside].wall_num == wall_none ||
-			     Walls[csegp->sides[cside].wall_num].type == new_wall_type))
+			auto &wall0 = Walls[segp->sides[side].wall_num];
+			wall *wall1 = nullptr;
+			if (wall0.type == new_wall_type &&
+			    (cside != side_none || csegp->sides[cside].wall_num == wall_none ||
+				(wall1 = &Walls[csegp->sides[cside].wall_num])->type == new_wall_type))
 				continue;		//already in correct state, so skip
 
 			ret |= 1;
 
-			switch (Triggers[trigger_num].type) {
-
+			switch (t.type)
+			{
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						ret |= 2;
 						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
-						Walls[segp->sides[side].wall_num].type = new_wall_type;
 						digi_kill_sound_linked_to_segment(segp,side,SOUND_FORCEFIELD_HUM);
-						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
+						wall0.type = new_wall_type;
+						if (wall1)
 						{
-							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+							wall1->type = new_wall_type;
 							digi_kill_sound_linked_to_segment(csegp, cside, SOUND_FORCEFIELD_HUM);
 						}
 					}
@@ -261,80 +240,59 @@ static int do_change_walls(uint8_t trigger_num)
 						ret |= 2;
 						const auto pos = compute_center_point_on_side(segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
-						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
-							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+						wall0.type = new_wall_type;
+						if (wall1)
+							wall1->type = new_wall_type;
 					}
 					else
 						start_wall_decloak(segp,side);
 					break;
-
 				case TT_ILLUSORY_WALL:
-					Walls[segp->sides[side].wall_num].type = new_wall_type;
-					if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
-						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+					wall0.type = new_wall_type;
+					if (wall1)
+						wall1->type = new_wall_type;
 					break;
 			}
 
-
 			kill_stuck_objects(segp->sides[side].wall_num);
-			if (cside > -1 && csegp->sides[cside].wall_num != wall_none)
+			if (wall1)
 				kill_stuck_objects(csegp->sides[cside].wall_num);
-
-  		}
   	}
 
 	return ret;
 }
 
 #define print_trigger_message(pnum,trig,shot,message)	\
-	((void)((__print_trigger_message(pnum,trig,shot)) &&		\
-		(HUD_init_message(HM_DEFAULT, message, &"s"[((Triggers[trig].num_links>1)?0:1)]))))
+	((void)((print_trigger_message(pnum,trig,shot)) &&		\
+		HUD_init_message(HM_DEFAULT, message, &"s"[trig.num_links <= 1])))
 
-static int __print_trigger_message(int pnum,int trig,int shot)
+static int (print_trigger_message)(int pnum, const trigger &t, int shot)
  {
-   if (pnum!=Player_num)
-		return 0;
-    if (!(Triggers[trig].flags & TF_NO_MESSAGE) && shot)
+	if (shot && pnum == Player_num && !(t.flags & TF_NO_MESSAGE))
 		return 1;
 	return 0;
  }
 #endif
 
-static void do_matcen(uint8_t trigger_num)
+static void do_matcen(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
-	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			trigger_matcen(vsegptridx(Triggers[trigger_num].seg[i]));
-  		}
-  	}
+	range_for (const auto &i, partial_range(t.seg, t.num_links))
+		trigger_matcen(vsegptridx(i));
 }
 
 
-static void do_il_on(uint8_t trigger_num)
+static void do_il_on(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
-	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_illusion_on(vsegptridx(Triggers[trigger_num].seg[i]), Triggers[trigger_num].side[i]);
-  		}
-  	}
+	for (unsigned i = 0; i < t.num_links; ++i)
+		wall_illusion_on(vsegptridx(t.seg[i]), t.side[i]);
 }
 
-static void do_il_off(uint8_t trigger_num)
+static void do_il_off(const trigger &t)
 {
-	int i;
-
-	if (trigger_num != trigger_none)
+	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			const auto &&seg = vsegptridx(Triggers[trigger_num].seg[i]);
-			auto side = Triggers[trigger_num].side[i];
+		const auto &&seg = vsegptridx(t.seg[i]);
+		auto side = t.side[i];
 
 			wall_illusion_off(seg, side);
 
@@ -342,29 +300,29 @@ static void do_il_off(uint8_t trigger_num)
 			const auto cp = compute_center_point_on_side(seg, side );
 			digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
 #endif
-  		}
-  	}
+	}
 }
 
-int check_trigger_sub(int trigger_num, int pnum,int shot)
+int check_trigger_sub(const unsigned trigger_num, int pnum,int shot)
 {
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return 1;
+	auto &trigger = Triggers[trigger_num];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
 	if (pnum == Player_num) {
-		if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE) {
-			get_local_player_shields() -= Triggers[trigger_num].value;
+		if (trigger.flags & TRIGGER_SHIELD_DAMAGE) {
+			get_local_player_shields() -= trigger.value;
 		}
 
-		if (Triggers[trigger_num].flags & TRIGGER_EXIT) {
+		if (trigger.flags & TRIGGER_EXIT) {
 			start_endlevel_sequence();
 		}
 
-		if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT) {
+		if (trigger.flags & TRIGGER_SECRET_EXIT) {
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
@@ -377,40 +335,37 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			return 1;
 		}
 
-		if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN) {
-			get_local_player_energy() -= Triggers[trigger_num].value;
+		if (trigger.flags & TRIGGER_ENERGY_DRAIN) {
+			get_local_player_energy() -= trigger.value;
 		}
 	}
 
-	if (Triggers[trigger_num].flags & TRIGGER_CONTROL_DOORS) {
-		do_link(trigger_num);
+	if (trigger.flags & TRIGGER_CONTROL_DOORS) {
+		do_link(trigger);
 	}
 
-	if (Triggers[trigger_num].flags & TRIGGER_MATCEN) {
+	if (trigger.flags & TRIGGER_MATCEN) {
 		if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
-			do_matcen(trigger_num);
+			do_matcen(trigger);
 	}
 
-	if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_ON) {
-		do_il_on(trigger_num);
+	if (trigger.flags & TRIGGER_ILLUSION_ON) {
+		do_il_on(trigger);
 	}
 
-	if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_OFF) {
-		do_il_off(trigger_num);
+	if (trigger.flags & TRIGGER_ILLUSION_OFF) {
+		do_il_off(trigger);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	trigger *trig = &Triggers[trigger_num];
-
-	if (trig->flags & TF_DISABLED)
+	if (trigger.flags & TF_DISABLED)
 		return 1;		//1 means don't send trigger hit to other players
 
-	if (trig->flags & TF_ONE_SHOT)		//if this is a one-shot...
-		trig->flags |= TF_DISABLED;		//..then don't let it happen again
+	if (trigger.flags & TF_ONE_SHOT)		//if this is a one-shot...
+		trigger.flags |= TF_DISABLED;		//..then don't let it happen again
 
-	switch (trig->type) {
-
+	switch (trigger.type)
+	{
 		case TT_EXIT:
-
 			if (pnum!=Player_num)
 			  break;
 
@@ -488,76 +443,66 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		}
 
 		case TT_OPEN_DOOR:
-			do_link(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s opened!");
+			do_link(trigger);
+			print_trigger_message(pnum, trigger, shot, "Door%s opened!");
 
 			break;
 
 		case TT_CLOSE_DOOR:
-			do_close_door(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s closed!");
+			do_close_door(trigger);
+			print_trigger_message(pnum, trigger, shot, "Door%s closed!");
 			break;
 
 		case TT_UNLOCK_DOOR:
-			do_unlock_doors(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s unlocked!");
+			do_unlock_doors(trigger);
+			print_trigger_message(pnum, trigger, shot, "Door%s unlocked!");
 
 			break;
 
 		case TT_LOCK_DOOR:
-			do_lock_doors(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s locked!");
+			do_lock_doors(trigger);
+			print_trigger_message(pnum, trigger, shot, "Door%s locked!");
 
 			break;
 
 		case TT_OPEN_WALL:
-			if (const auto w = do_change_walls(trigger_num))
-			{
-				if (w & 2)
-					print_trigger_message (pnum,trigger_num,shot,"Force field%s deactivated!");
-				else
-					print_trigger_message (pnum,trigger_num,shot,"Wall%s opened!");
-			}
+			if (const auto w = do_change_walls(trigger))
+				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s deactivated!" : "Wall%s opened!");
 			break;
 
 		case TT_CLOSE_WALL:
-			if (const auto w = do_change_walls(trigger_num))
-			{
-				if (w & 2)
-					print_trigger_message (pnum,trigger_num,shot,"Force field%s activated!");
-				else
-					print_trigger_message (pnum,trigger_num,shot,"Wall%s closed!");
-			}
+			if (const auto w = do_change_walls(trigger))
+				print_trigger_message(pnum, trigger, shot, (w & 2) ? "Force field%s activated!" : "Wall%s closed!");
 			break;
 
 		case TT_ILLUSORY_WALL:
 			//don't know what to say, so say nothing
-			do_change_walls(trigger_num);
+			do_change_walls(trigger);
 			break;
 
 		case TT_MATCEN:
 			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
-				do_matcen(trigger_num);
+				do_matcen(trigger);
 			break;
 
 		case TT_ILLUSION_ON:
-			do_il_on(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Illusion%s on!");
+			do_il_on(trigger);
+			print_trigger_message(pnum, trigger, shot, "Illusion%s on!");
 			break;
 
 		case TT_ILLUSION_OFF:
-			do_il_off(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Illusion%s off!");
+			do_il_off(trigger);
+			print_trigger_message(pnum, trigger, shot, "Illusion%s off!");
 			break;
 
 		case TT_LIGHT_OFF:
-			if (do_light_off(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Light%s off!");
+			if (do_light_off(trigger))
+				print_trigger_message(pnum, trigger, shot, "Light%s off!");
 			break;
 
 		case TT_LIGHT_ON:
-			if (do_light_on(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Light%s on!");
+			if (do_light_on(trigger))
+				print_trigger_message(pnum, trigger, shot, "Light%s on!");
 
 			break;
 
