@@ -1845,12 +1845,8 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	return newmenu_listbox1(title, pb->list.pointer().size(), &pb->list.pointer().front(), 1, 0, select_file_handler, std::move(b)) != NULL;
 }
 
-#define BROWSE_TXT " (browse...)"
-static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
-{
-	nm_set_item_menu(*ni, text);
-}
-
+#define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
+	DXX_##VERB##_MENU(TXT " (browse...)", OPT)
 #else
 
 int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
@@ -1858,15 +1854,12 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 	return 0;
 }
 
-#define BROWSE_TXT
-static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
-{
-	nm_set_item_text(*ni, text);
-}
-
+	/* Include blank string to force a compile error if TXT cannot be
+	 * string-pasted
+	 */
+#define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
+	DXX_##VERB##_TEXT(TXT "", OPT)
 #endif
-
-int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
 #ifdef USE_SDLMIXER
 static int get_absolute_path(char *full_path, const char *rel_path)
@@ -1878,9 +1871,120 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 #define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s].data())
 #endif
 
-static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *)
+namespace {
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
+#elif defined(DXX_BUILD_DESCENT_II)
+#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
+#endif
+
+#if defined(USE_SDLMIXER) || defined(_WIN32)
+#define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
+	DXX_##VERB##_RADIO("Built-in/Addon music", opt_sm_mtype1, GameCfg.MusicType == MUSIC_TYPE_BUILTIN, optgrp_music_type)	\
+
+#else
+#define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)
+#endif
+
+#if SDL_MAJOR_VERSION == 1
+#define DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
+	DXX_##VERB##_RADIO("CD music", opt_sm_mtype2, GameCfg.MusicType == MUSIC_TYPE_REDBOOK, optgrp_music_type)	\
+
+#define DXX_MUSIC_OPTIONS_CD_LABEL "CD music"
+#else
+#define DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)
+#define DXX_MUSIC_OPTIONS_CD_LABEL ""
+#endif
+
+#ifdef USE_SDLMIXER
+#define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
+	DXX_##VERB##_RADIO("Jukebox", opt_sm_mtype3, GameCfg.MusicType == MUSIC_TYPE_CUSTOM, optgrp_music_type)	\
+
+#define DXX_MUSIC_OPTIONS_JUKEBOX_LABEL "Jukebox"
+#define DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
+	DXX_##VERB##_TEXT("", opt_label_blank2)	\
+	DXX_##VERB##_TEXT("Jukebox options:", opt_label_jukebox_options)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Path for level music", opt_sm_mtype3_lmpath)	\
+	DXX_##VERB##_INPUT(GameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
+	DXX_##VERB##_TEXT("", opt_label_blank3)	\
+	DXX_##VERB##_TEXT("Level music play order:", opt_label_lm_order)	\
+	DXX_##VERB##_RADIO("continuous", opt_sm_mtype3_lmplayorder1, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT, optgrp_music_order)	\
+	DXX_##VERB##_RADIO("one track per level", opt_sm_mtype3_lmplayorder2, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL, optgrp_music_order)	\
+	DXX_##VERB##_RADIO("random", opt_sm_mtype3_lmplayorder3, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND, optgrp_music_order)	\
+	DXX_##VERB##_TEXT("", opt_label_blank4)	\
+	DXX_##VERB##_TEXT("Non-level music:", opt_label_nonlevel_music)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Main menu", opt_sm_cm_mtype3_file1_b)	\
+	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Briefing", opt_sm_cm_mtype3_file2_b)	\
+	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Credits", opt_sm_cm_mtype3_file3_b)	\
+	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Escape sequence", opt_sm_cm_mtype3_file4_b)	\
+	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
+	DXX_MENU_ITEM_BROWSE(VERB, "Game ending", opt_sm_cm_mtype3_file5_b)	\
+	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
+
+#else
+#define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)
+#define DXX_MUSIC_OPTIONS_JUKEBOX_LABEL ""
+#define DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)
+#endif
+
+#if SDL_MAJOR_VERSION == 1 && defined(USE_SDLMIXER)
+#define DXX_MUSIC_OPTIONS_SEPARATOR_TEXT " / "
+#else
+#define DXX_MUSIC_OPTIONS_SEPARATOR_TEXT ""
+#endif
+
+#define DXX_SOUND_MENU(VERB)	\
+	DXX_##VERB##_SLIDER(TXT_FX_VOLUME, opt_sm_digivol, GameCfg.DigiVolume, 0, 8)	\
+	DXX_##VERB##_SLIDER("Music volume", opt_sm_musicvol, GameCfg.MusicVolume, 0, 8)	\
+	DXX_##VERB##_CHECK(TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
+	DXX_##VERB##_TEXT("", opt_label_blank0)	\
+	DXX_##VERB##_TEXT("Music type:", opt_label_music_type)	\
+	DXX_##VERB##_RADIO("No music", opt_sm_mtype0, GameCfg.MusicType == MUSIC_TYPE_NONE, optgrp_music_type)	\
+	DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
+	DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
+	DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
+	DXX_##VERB##_TEXT("", opt_label_blank1)	\
+	DXX_##VERB##_TEXT(DXX_MUSIC_OPTIONS_CD_LABEL DXX_MUSIC_OPTIONS_SEPARATOR_TEXT DXX_MUSIC_OPTIONS_JUKEBOX_LABEL " options:", opt_label_music_options)	\
+	DXX_##VERB##_CHECK(REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
+	DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
+
+class sound_menu_items
 {
-	newmenu_item *items = newmenu_get_items(menu);
+public:
+	enum
+	{
+		optgrp_music_type,
+#ifdef USE_SDLMIXER
+		optgrp_music_order,
+#endif
+	};
+	enum
+	{
+		DXX_SOUND_MENU(ENUM)
+	};
+	array<newmenu_item, DXX_SOUND_MENU(COUNT)> m;
+	sound_menu_items()
+	{
+		DXX_SOUND_MENU(ADD);
+	}
+	void read()
+	{
+		DXX_SOUND_MENU(READ);
+	}
+	static int menuset(newmenu *, const d_event &event, sound_menu_items *pitems);
+};
+
+#undef DXX_SOUND_MENU
+
+}
+
+int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items *pitems)
+{
+	const auto &items = pitems->m;
 	int replay = 0;
 	int rval = 0;
 	switch (event.type)
@@ -1981,7 +2085,6 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
-			d_free(items);
 			break;
 
 		default:
@@ -2001,135 +2104,16 @@ static int sound_menuset(newmenu *menu,const d_event &event, const unused_newmen
 	return rval;
 }
 
-#ifdef USE_SDLMIXER
-#define SOUND_MENU_NITEMS 33
-#else
-#ifdef _WIN32
-#define SOUND_MENU_NITEMS 11
-#else
-#define SOUND_MENU_NITEMS 10
-#endif
-#endif
-
 void do_sound_menu()
 {
-	newmenu_item *m;
-	int nitems = 0;
+
 #ifdef USE_SDLMIXER
 	const auto old_CMLevelMusicPath = GameCfg.CMLevelMusicPath;
 	const auto old_CMMiscMusic0 = GameCfg.CMMiscMusic[SONG_TITLE];
 #endif
 
-	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);
-	if (!m)
-		return;
-
-	opt_sm_digivol = nitems;
-	nm_set_item_slider(m[nitems++], TXT_FX_VOLUME, GameCfg.DigiVolume, 0, 8);
-
-	opt_sm_musicvol = nitems;
-	nm_set_item_slider(m[nitems++], "music volume", GameCfg.MusicVolume, 0, 8);
-
-	opt_sm_revstereo = nitems;
-	nm_set_item_checkbox(m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
-
-	nm_set_item_text(m[nitems++], "");
-
-	nm_set_item_text(m[nitems++], "music type:");
-
-	opt_sm_mtype0 = nitems;
-	nm_set_item_radio(m[nitems], "no music", (GameCfg.MusicType == MUSIC_TYPE_NONE), 0); nitems++;
-
-#if defined(USE_SDLMIXER) || defined(_WIN32)
-	opt_sm_mtype1 = nitems;
-	nm_set_item_radio(m[nitems], "built-in/addon music", (GameCfg.MusicType == MUSIC_TYPE_BUILTIN), 0); nitems++;
-#endif
-
-	opt_sm_mtype2 = nitems;
-	nm_set_item_radio(m[nitems], "cd music", (GameCfg.MusicType == MUSIC_TYPE_REDBOOK), 0); nitems++;
-
-#ifdef USE_SDLMIXER
-	opt_sm_mtype3 = nitems;
-	nm_set_item_radio(m[nitems], "jukebox", (GameCfg.MusicType == MUSIC_TYPE_CUSTOM), 0); nitems++;
-
-#endif
-
-	nm_set_item_text(m[nitems++], "");
-#ifdef USE_SDLMIXER
-	nm_set_item_text(m[nitems++], "cd music / jukebox options:");
-#else
-	nm_set_item_text(m[nitems++], "cd music options:");
-#endif
-
-	opt_sm_redbook_playorder = nitems;
-#if defined(DXX_BUILD_DESCENT_I)
-#define REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
-#elif defined(DXX_BUILD_DESCENT_II)
-#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
-#endif
-	nm_set_item_checkbox(m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
-
-#ifdef USE_SDLMIXER
-	nm_set_item_text(m[nitems++], "");
-
-	nm_set_item_text(m[nitems++], "jukebox options:");
-
-	opt_sm_mtype3_lmpath = nitems;
-	nm_set_item_browse(&m[nitems++], "path for level music" BROWSE_TXT);
-
-	nm_set_item_input(m[nitems++], GameCfg.CMLevelMusicPath);
-
-	nm_set_item_text(m[nitems++], "");
-
-	nm_set_item_text(m[nitems++], "level music play order:");
-
-	opt_sm_mtype3_lmplayorder1 = nitems;
-	nm_set_item_radio(m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
-
-	opt_sm_mtype3_lmplayorder2 = nitems;
-	nm_set_item_radio(m[nitems], "one track per level", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL), 1); nitems++;
-
-	opt_sm_mtype3_lmplayorder3 = nitems;
-	nm_set_item_radio(m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
-
-	nm_set_item_text(m[nitems++], "");
-
-	nm_set_item_text(m[nitems++], "non-level music:");
-
-	opt_sm_cm_mtype3_file1_b = nitems;
-	nm_set_item_browse(&m[nitems++], "main menu" BROWSE_TXT);
-
-	opt_sm_cm_mtype3_file1 = nitems;
-	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_TITLE]);
-
-	opt_sm_cm_mtype3_file2_b = nitems;
-	nm_set_item_browse(&m[nitems++], "briefing" BROWSE_TXT);
-
-	opt_sm_cm_mtype3_file2 = nitems;
-	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_BRIEFING]);
-
-	opt_sm_cm_mtype3_file3_b = nitems;
-	nm_set_item_browse(&m[nitems++], "credits" BROWSE_TXT);
-
-	opt_sm_cm_mtype3_file3 = nitems;
-	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_CREDITS]);
-
-	opt_sm_cm_mtype3_file4_b = nitems;
-	nm_set_item_browse(&m[nitems++], "escape sequence" BROWSE_TXT);
-
-	opt_sm_cm_mtype3_file4 = nitems;
-	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
-
-	opt_sm_cm_mtype3_file5_b = nitems;
-	nm_set_item_browse(&m[nitems++], "game ending" BROWSE_TXT);
-
-	opt_sm_cm_mtype3_file5 = nitems;
-	nm_set_item_input(m[nitems++], GameCfg.CMMiscMusic[SONG_ENDGAME]);
-#endif
-
-	Assert(nitems == SOUND_MENU_NITEMS);
-
-	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, unused_newmenu_userdata, 0 );
+	sound_menu_items items;
+	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
 
 #ifdef USE_SDLMIXER
 	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), GameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0.data(), GameCfg.CMMiscMusic[SONG_TITLE].data())) )
