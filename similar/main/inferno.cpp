@@ -123,113 +123,138 @@ int MacHog = 0;	// using a Mac hogfile?
 //read help from a file & print to screen
 static void print_commandline_help()
 {
-	printf( "\n System Options:\n\n");
-	printf( "  -nonicefps                    Don't free CPU-cycles\n");
-	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, available: %i-%i)\n", MAXIMUM_FPS, MINIMUM_FPS, MAXIMUM_FPS);
-	printf( "  -hogdir <s>                   set shared data directory to <s>\n");
-#if defined(__unix__)
-	printf( "  -nohogdir                     don't try to use shared data directory\n");
-#endif
-	printf( "  -add-missions-dir <s>         Add contents of location <s> to the missions directory\n");
-	printf( "  -use_players_dir              Put player files and saved games in Players subdirectory\n");
-	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
-	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
-	printf( "  -auto-record-demo             Start recording on level entry\n");
-	printf( "  -record-demo-format           Set demo name automatically\n");
-	printf( "  -autodemo                     Start in demo mode\n");
-	printf( "  -window                       Run the game in a window\n");
-	printf( "  -noborders                    Don't show borders in window mode\n");
-#if defined(DXX_BUILD_DESCENT_I)
-	printf( "  -notitles                     Skip title screens\n");
-#elif defined(DXX_BUILD_DESCENT_II)
-	printf( "  -nomovies                     Don't play movies\n");
-#endif
+#define DXX_COMMAND_LINE_HELP_FMT(FMT,...)	FMT
+#define DXX_COMMAND_LINE_HELP_ARG(FMT,...)	, ## __VA_ARGS__
 
-	printf( "\n Controls:\n\n");
-	printf( "  -nocursor                     Hide mouse cursor\n");
-	printf( "  -nomouse                      Deactivate mouse\n");
-	printf( "  -nojoystick                   Deactivate joystick\n");
-	printf( "  -nostickykeys                 Make CapsLock and NumLock non-sticky\n");
+#define DXX_if_defined_placeholder1	,
+#define DXX_if_defined_unwrap(A,...)	A, ## __VA_ARGS__
+#define DXX_if_defined(V,F)	DXX_if_defined2(V,F)
+#define DXX_if_defined2(V,F)	DXX_if_defined3(DXX_if_defined_placeholder##V, F)
+#define DXX_if_defined3(V,F)	DXX_if_defined4(F, V 1, 0)
+#define DXX_if_defined4(F,_,V,...)	DXX_if_defined5_##V(F)
+#define DXX_if_defined5_0(F)
+#define DXX_if_defined5_1(F)	DXX_if_defined_unwrap F
 
-	printf( "\n Sound:\n\n");
-	printf( "  -nosound                      Disables sound output\n");
-	printf( "  -nomusic                      Disables music output\n");
-#if defined(DXX_BUILD_DESCENT_II)
-	printf( "  -sound11k                     Use 11KHz sounds\n");
-#endif
-#ifdef    USE_SDLMIXER
-	printf( "  -nosdlmixer                   Disable Sound output via SDL_mixer\n");
-#endif // USE SDLMIXER
+#define DXX_COMMAND_LINE_HELP_unix(V)	DXX_if_defined(__unix__, (V))
+#define DXX_COMMAND_LINE_HELP_D1(V)	DXX_if_defined(DXX_BUILD_DESCENT_I, (V))
+#define DXX_COMMAND_LINE_HELP_D2(V)	DXX_if_defined(DXX_BUILD_DESCENT_II, (V))
+#define DXX_STRINGIZE2(X)	#X
+#define DXX_STRINGIZE(X)	DXX_STRINGIZE2(X)
 
-	printf( "\n Graphics:\n\n");
-	printf( "  -lowresfont                   Force use of low resolution fonts\n");
-#if defined(DXX_BUILD_DESCENT_II)
-	printf( "  -lowresgraphics               Force use of low resolution graphics\n");
-	printf( "  -lowresmovies                 Play low resolution movies if available (for slow machines)\n");
-#endif
-#ifdef    OGL
-	printf( "  -gl_fixedfont                 Don't scale fonts to current resolution\n");
-	printf( "  -gl_syncmethod <n>            OpenGL sync method (default: %i)\n", OGL_SYNC_METHOD_DEFAULT);
-	printf( "                                    0: Disabled\n");
-	printf( "                                    1: Fence syncs, limit GPU latency to at most one frame\n");
-	printf( "                                    2: Like 1, but sleep during sync to reduce CPU load\n");
-	printf( "                                    3: Immediately sync after buffer swap\n");
-	printf( "                                    4: Immediately sync after buffer swap\n");
-	printf( "                                    5: Auto. use mode 2 if available, 0 otherwise\n");
-	printf( "  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: %i)\n", OGL_SYNC_WAIT_DEFAULT);
-#endif // OGL
-
-#if defined(USE_UDP)
-	printf( "\n Multiplayer:\n\n");
-	printf( "  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT);
-	printf( "  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT);
-	printf( "  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT);
-	printf( "  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n");
-#ifdef USE_TRACKER
-	printf( "  -tracker_hostaddr <n>         Address of tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT);
-	printf( "  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT);
-#endif // USE_TRACKER
-#endif // defined(USE_UDP)
-
-#ifdef    EDITOR
-	printf( "\n Editor:\n\n");
-#if defined(DXX_BUILD_DESCENT_I)
-	printf( "  -nobm                         Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data\n");
-#elif defined(DXX_BUILD_DESCENT_II)
-	printf( "  -autoload <s>                 Autoload level <s> in the editor\n");
-	printf( "  -macdata                      Read and write Mac data files in editor (swap colors)\n");
-	printf( "  -hoarddata                    Make the Hoard ham file from some files, then exit\n");
-#endif
-#endif // EDITOR
-
-	printf( "\n Debug (use only if you know what you're doing):\n\n");
-	printf( "  -debug                        Enable debugging output.\n");
-	printf( "  -verbose                      Enable verbose output.\n");
-	printf( "  -safelog                      Write gamelog.txt unbuffered.\n\t\t\t\tUse to keep helpful output to trace program crashes.\n");
-	printf( "  -norun                        Bail out after initialization\n");
-	printf( "  -no-grab                      Never grab keyboard/mouse\n");
-	printf( "  -renderstats                  Enable renderstats info by default\n");
-	printf( "  -text <s>                     Specify alternate .tex file\n");
-	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad)\n");
-	printf( "  -showmeminfo                  Show memory statistics\n");
-	printf( "  -nodoublebuffer               Disable Doublebuffering\n");
-	printf( "  -bigpig                       Use uncompressed RLE bitmaps\n");
-	printf( "  -16bpp                        Use 16Bpp instead of 32Bpp\n");
-#ifdef    OGL
-	printf( "  -gl_oldtexmerge               Use old texmerge, uses more ram, but might be faster\n");
-	printf( "  -gl_intensity4_ok <n>         Override DbgGlIntensity4Ok (default: 1)\n");
-	printf( "  -gl_luminance4_alpha4_ok <n>  Override DbgGlLuminance4Alpha4Ok (default: 1)\n");
-	printf( "  -gl_rgba2_ok <n>              Override DbgGlRGBA2Ok (default: 1)\n");
-	printf( "  -gl_readpixels_ok <n>         Override DbgGlReadPixelsOk (default: 1)\n");
-	printf( "  -gl_gettexlevelparam_ok <n>   Override DbgGlGetTexLevelParamOk (default: 1)\n");
+#ifdef OGL
+#define DXX_COMMAND_LINE_HELP_OGL(V)	V
+#define DXX_COMMAND_LINE_HELP_SDL(V)
 #else
-	printf( "  -hwsurface                    Use SDL HW Surface\n");
-	printf( "  -asyncblit                    Use queued blits over SDL. Can speed up rendering\n");
-#endif // OGL
+#define DXX_COMMAND_LINE_HELP_OGL(V)
+#define DXX_COMMAND_LINE_HELP_SDL(V)	V
+#endif
 
-	printf( "\n Help:\n\n");
-	printf( "  -help, -h, -?, ?             View this help screen\n");
-	printf( "\n\n");
+#define DXX_COMMAND_LINE_HELP(VERB)	\
+	VERB("\n System Options:\n\n")	\
+	VERB("  -nonicefps                    Don't free CPU-cycles\n")	\
+	VERB("  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: " DXX_STRINGIZE(MAXIMUM_FPS) ", available: " DXX_STRINGIZE(MINIMUM_FPS) "-" DXX_STRINGIZE(MAXIMUM_FPS) ")\n")	\
+	VERB("  -hogdir <s>                   set shared data directory to <s>\n")	\
+	DXX_COMMAND_LINE_HELP_unix(	\
+		VERB("  -nohogdir                     don't try to use shared data directory\n")	\
+	)	\
+	VERB("  -add-missions-dir <s>         Add contents of location <s> to the missions directory\n")	\
+	VERB("  -use_players_dir              Put player files and saved games in Players subdirectory\n")	\
+	VERB("  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n")	\
+	VERB("  -pilot <s>                    Select pilot <s> automatically\n")	\
+	VERB("  -auto-record-demo             Start recording on level entry\n")	\
+	VERB("  -record-demo-format           Set demo name automatically\n")	\
+	VERB("  -autodemo                     Start in demo mode\n")	\
+	VERB("  -window                       Run the game in a window\n")	\
+	VERB("  -noborders                    Don't show borders in window mode\n")	\
+	DXX_COMMAND_LINE_HELP_D1(	\
+		VERB("  -notitles                     Skip title screens\n")	\
+	)	\
+	DXX_COMMAND_LINE_HELP_D2(	\
+		VERB("  -nomovies                     Don't play movies\n")	\
+	)	\
+	VERB("\n Controls:\n\n")	\
+	VERB("  -nocursor                     Hide mouse cursor\n")	\
+	VERB("  -nomouse                      Deactivate mouse\n")	\
+	VERB("  -nojoystick                   Deactivate joystick\n")	\
+	VERB("  -nostickykeys                 Make CapsLock and NumLock non-sticky\n")	\
+	VERB("\n Sound:\n\n")	\
+	VERB("  -nosound                      Disables sound output\n")	\
+	VERB("  -nomusic                      Disables music output\n")	\
+	DXX_COMMAND_LINE_HELP_D2(	\
+		VERB("  -sound11k                     Use 11KHz sounds\n")	\
+	)	\
+	DXX_if_defined(USE_SDLMIXER, (	\
+		VERB("  -nosdlmixer                   Disable Sound output via SDL_mixer\n")	\
+	))	\
+	VERB("\n Graphics:\n\n")	\
+	VERB("  -lowresfont                   Force use of low resolution fonts\n")	\
+	DXX_COMMAND_LINE_HELP_D2(	\
+		VERB("  -lowresgraphics               Force use of low resolution graphics\n")	\
+		VERB("  -lowresmovies                 Play low resolution movies if available (for slow machines)\n")	\
+	)	\
+	DXX_COMMAND_LINE_HELP_OGL(	\
+		VERB("  -gl_fixedfont                 Don't scale fonts to current resolution\n")	\
+		VERB("  -gl_syncmethod <n>            OpenGL sync method (default: %i)\n", OGL_SYNC_METHOD_DEFAULT)	\
+		VERB("                                    0: Disabled\n")	\
+		VERB("                                    1: Fence syncs, limit GPU latency to at most one frame\n")	\
+		VERB("                                    2: Like 1, but sleep during sync to reduce CPU load\n")	\
+		VERB("                                    3: Immediately sync after buffer swap\n")	\
+		VERB("                                    4: Immediately sync after buffer swap\n")	\
+		VERB("                                    5: Auto. use mode 2 if available, 0 otherwise\n")	\
+		VERB("  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: " DXX_STRINGIZE(OGL_SYNC_WAIT_DEFAULT) ")\n")	\
+	)	\
+	DXX_if_defined(USE_UDP, (	\
+		VERB("\n Multiplayer:\n\n")	\
+		VERB("  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT)	\
+		VERB("  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT)	\
+		VERB("  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT)	\
+		VERB("  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n")	\
+		DXX_if_defined(USE_TRACKER, (	\
+			VERB("  -tracker_hostaddr <n>         Address of tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT)	\
+			VERB("  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: " DXX_STRINGIZE(TRACKER_PORT_DEFAULT) ")\n")	\
+		))	\
+	))	\
+	DXX_if_defined(EDITOR, (	\
+		VERB("\n Editor:\n\n")	\
+		DXX_COMMAND_LINE_HELP_D1(	\
+			VERB("  -nobm                         Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data\n")	\
+		)	\
+		DXX_COMMAND_LINE_HELP_D2(	\
+			VERB("  -autoload <s>                 Autoload level <s> in the editor\n")	\
+			VERB("  -macdata                      Read and write Mac data files in editor (swap colors)\n")	\
+			VERB("  -hoarddata                    Make the Hoard ham file from some files, then exit\n")	\
+		)	\
+	))	\
+	VERB("\n Debug (use only if you know what you're doing):\n\n")	\
+	VERB("  -debug                        Enable debugging output.\n")	\
+	VERB("  -verbose                      Enable verbose output.\n")	\
+	VERB("  -safelog                      Write gamelog.txt unbuffered.\n\t\t\t\tUse to keep helpful output to trace program crashes.\n")	\
+	VERB("  -norun                        Bail out after initialization\n")	\
+	VERB("  -no-grab                      Never grab keyboard/mouse\n")	\
+	VERB("  -renderstats                  Enable renderstats info by default\n")	\
+	VERB("  -text <s>                     Specify alternate .tex file\n")	\
+	VERB("  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad)\n")	\
+	VERB("  -showmeminfo                  Show memory statistics\n")	\
+	VERB("  -nodoublebuffer               Disable Doublebuffering\n")	\
+	VERB("  -bigpig                       Use uncompressed RLE bitmaps\n")	\
+	VERB("  -16bpp                        Use 16Bpp instead of 32Bpp\n")	\
+	DXX_COMMAND_LINE_HELP_OGL(	\
+		VERB("  -gl_oldtexmerge               Use old texmerge, uses more ram, but might be faster\n")	\
+		VERB("  -gl_intensity4_ok <n>         Override DbgGlIntensity4Ok (default: 1)\n")	\
+		VERB("  -gl_luminance4_alpha4_ok <n>  Override DbgGlLuminance4Alpha4Ok (default: 1)\n")	\
+		VERB("  -gl_rgba2_ok <n>              Override DbgGlRGBA2Ok (default: 1)\n")	\
+		VERB("  -gl_readpixels_ok <n>         Override DbgGlReadPixelsOk (default: 1)\n")	\
+		VERB("  -gl_gettexlevelparam_ok <n>   Override DbgGlGetTexLevelParamOk (default: 1)\n")	\
+	)	\
+	DXX_COMMAND_LINE_HELP_SDL(	\
+		VERB("  -hwsurface                    Use SDL HW Surface\n")	\
+		VERB("  -asyncblit                    Use queued blits over SDL. Can speed up rendering\n")	\
+	)	\
+	VERB("\n Help:\n\n")	\
+	VERB("  -help, -h, -?, ?             View this help screen\n")	\
+	VERB("\n\n")	\
+
+	printf(DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_FMT) DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_ARG));
 }
 
 int Quitting = 0;
