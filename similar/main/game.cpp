@@ -503,11 +503,12 @@ namespace dsx {
 
 void move_player_2_segment(const vsegptridx_t seg,int side)
 {
-	compute_segment_center(ConsoleObject->pos,seg);
+	const auto &&console = vobjptridx(ConsoleObject);
+	compute_segment_center(console->pos,seg);
 	auto vp = compute_center_point_on_side(seg,side);
-	vm_vec_sub2(vp,ConsoleObject->pos);
-	vm_vector_2_matrix(ConsoleObject->orient,vp,nullptr,nullptr);
-	obj_relink(vobjptridx(ConsoleObject), seg );
+	vm_vec_sub2(vp, console->pos);
+	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);
+	obj_relink(console, seg );
 }
 
 }
