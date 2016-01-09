@@ -114,6 +114,9 @@ public:
 #if defined(DXX_BUILD_DESCENT_II)
 	enum class descent_version_type : uint8_t
 	{
+		descent2a,	// !name
+		descent2z,	// zname
+		descent2x,	// xname
 		descent2,
 		descent1,
 	};
@@ -137,7 +140,6 @@ struct Mission : Mission_path
 	ubyte	n_secret_levels;
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;	// descent 1 or descent 2?
-	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
 	std::unique_ptr<d_fname> alternate_ham_file;
 #endif
 	~Mission();
@@ -189,6 +191,7 @@ extern Mission_ptr Current_mission; // current mission
 #define BIMD2_ENDING_FILE_SHARE		"ending2.txb"
 
 int load_mission_ham();
+void bm_read_extra_robots(const char *fname, Mission::descent_version_type type);
 #endif
 
 //loads the named mission if it exists.

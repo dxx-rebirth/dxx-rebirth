@@ -146,7 +146,6 @@ int gamedata_read_tbl(int pc_shareware);
 extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
-void bm_read_extra_robots(const char *fname,int type);
 #if defined(DXX_BUILD_DESCENT_I)
 void properties_read_cmp(PHYSFS_file * fp);
 #endif

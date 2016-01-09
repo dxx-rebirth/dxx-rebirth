@@ -402,7 +402,7 @@ static void bm_free_extra_models()
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
-void bm_read_extra_robots(const char *fname,int type)
+void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 {
 	int t,i,version;
 
@@ -413,7 +413,8 @@ void bm_read_extra_robots(const char *fname,int type)
 		return;
 	}
 
-	if (type == 2) {
+	if (type == Mission::descent_version_type::descent2z)
+	{
 		int sig;
 
 		sig = PHYSFSX_readInt(fp);
