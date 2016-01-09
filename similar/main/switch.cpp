@@ -86,22 +86,27 @@ void trigger_init()
 }
 #endif
 
+template <typename T1, typename T2>
+static inline void trigger_wall_op(const trigger &t, const T1 &segment_factory, const T2 &op)
+{
+	for (unsigned i = 0, num_links = t.num_links; i != num_links; ++i)
+		op(segment_factory(t.seg[i]), t.side[i]);
+}
+
 //-----------------------------------------------------------------
 // Executes a link, attached to a trigger.
 // Toggles all walls linked to the switch.
 // Opens doors, Blasts blast walls, turns off illusions.
 static void do_link(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-		wall_toggle(vsegptridx(t.seg[i]), t.side[i]);
+	trigger_wall_op(t, vsegptridx, wall_toggle);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
 //close a door
 static void do_close_door(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-		wall_close_door(vsegptridx(t.seg[i]), t.side[i]);
+	trigger_wall_op(t, vsegptridx, wall_close_door);
 }
 
 //turns lighting on.  returns true if lights were actually turned on. (they
@@ -109,20 +114,15 @@ static void do_close_door(const trigger &t)
 static int do_light_on(const trigger &t)
 {
 	int ret=0;
-
-	for (unsigned i = 0; i < t.num_links; ++i)
-	{
-		const auto &&segnum = vsegptridx(t.seg[i]);
-		const auto sidenum = t.side[i];
-
+	const auto op = [&ret](const vsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= add_light(segnum, sidenum); 		//any light sets flag
 				enable_flicker(segnum, sidenum);
 			}
-	}
-
+	};
+	trigger_wall_op(t, vsegptridx, op);
 	return ret;
 }
 
@@ -131,46 +131,39 @@ static int do_light_on(const trigger &t)
 static int do_light_off(const trigger &t)
 {
 	int ret=0;
-
-	for (unsigned i = 0; i < t.num_links; ++i)
-	{
-		const auto &&segnum = vsegptridx(t.seg[i]);
-		const auto sidenum = t.side[i];
-
+	const auto op = [&ret](const vsegptridx_t segnum, const unsigned sidenum) {
 			//check if tmap2 casts light before turning the light off.  This
 			//is to keep us from turning off blown-out lights
 			if (TmapInfo[segnum->sides[sidenum].tmap_num2 & 0x3fff].lighting) {
 				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
 				disable_flicker(segnum, sidenum);
 			}
-  	}
-
+	};
+	trigger_wall_op(t, vsegptridx, op);
 	return ret;
 }
 
 // Unlocks all doors linked to the switch.
 static void do_unlock_doors(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-	{
-		const auto &&segp = vsegptr(t.seg[i]);
-		const auto wall_num = segp->sides[t.side[i]].wall_num;
+	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
+		const auto wall_num = segp->sides[sidenum].wall_num;
 		auto &w = Walls[wall_num];
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = KEY_NONE;
-  	}
+	};
+	trigger_wall_op(t, vsegptr, op);
 }
 
 // Locks all doors linked to the switch.
 static void do_lock_doors(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-	{
-		const auto &&segp = vsegptr(t.seg[i]);
-		const auto wall_num = segp->sides[t.side[i]].wall_num;
+	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
+		const auto wall_num = segp->sides[sidenum].wall_num;
 		auto &w = Walls[wall_num];
 		w.flags |= WALL_DOOR_LOCKED;
-	}
+	};
+	trigger_wall_op(t, vsegptr, op);
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
@@ -280,27 +273,23 @@ static void do_matcen(const trigger &t)
 		trigger_matcen(vsegptridx(i));
 }
 
-
 static void do_il_on(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-		wall_illusion_on(vsegptridx(t.seg[i]), t.side[i]);
+	trigger_wall_op(t, vsegptridx, wall_illusion_on);
 }
 
 static void do_il_off(const trigger &t)
 {
-	for (unsigned i = 0; i < t.num_links; ++i)
-	{
-		const auto &&seg = vsegptridx(t.seg[i]);
-		auto side = t.side[i];
-
-			wall_illusion_off(seg, side);
-
-#if defined(DXX_BUILD_DESCENT_II)
-			const auto cp = compute_center_point_on_side(seg, side );
-			digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
+#if defined(DXX_BUILD_DESCENT_I)
+	auto &op = wall_illusion_off;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const auto op = [](const vsegptridx_t &seg, unsigned side) {
+		wall_illusion_off(seg, side);
+		const auto &&cp = compute_center_point_on_side(seg, side);
+		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
+	};
 #endif
-	}
+	trigger_wall_op(t, vsegptridx, op);
 }
 
 int check_trigger_sub(const unsigned trigger_num, int pnum,int shot)
