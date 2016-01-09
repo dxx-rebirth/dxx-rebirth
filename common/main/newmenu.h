@@ -403,50 +403,39 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 #define BORDERY (15*(SHEIGHT/200))
 
 #define DXX_NEWMENU_VARIABLE	m
-#define DXX_ENUM_CHECK(S,OPT,V)	OPT,
-#define DXX_ENUM_RADIO(S,OPT,C,G)	OPT,
-#define DXX_ENUM_NUMBER DXX_ENUM_SLIDER
-#define DXX_ENUM_SLIDER(S,OPT,V,MIN,MAX)	OPT,
-#define DXX_ENUM_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	OPT,
-#define DXX_ENUM_MENU(S,OPT)	OPT,
-#define DXX_ENUM_TEXT(S,OPT)	OPT,
-#define DXX_ENUM_INPUT(S,OPT)	OPT,
-#define DXX_COUNT_CHECK(S,OPT,V)	+1
-#define DXX_COUNT_RADIO(S,OPT,C,G)	+1
-#define DXX_COUNT_NUMBER DXX_COUNT_SLIDER
-#define DXX_COUNT_SLIDER(S,OPT,V,MIN,MAX)	+1
-#define DXX_COUNT_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	+1
-#define DXX_COUNT_MENU(S,OPT)	+1
-#define DXX_COUNT_TEXT(S,OPT)	+1
-#define DXX_COUNT_INPUT(S,OPT)	+1
-#define DXX_ADD_CHECK(S,OPT,V)	\
+#define DXX_MENUITEM(VERB, TYPE, ...)	DXX_MENUITEM_V_##VERB(TYPE, ## __VA_ARGS__)
+#define DXX_MENUITEM_V_ENUM(TYPE,S,OPT,...)	OPT,
+#define DXX_MENUITEM_V_COUNT(TYPE,...)	+1
+#define DXX_MENUITEM_V_ADD(TYPE,S,OPT,...)	DXX_MENUITEM_V_ADD_T_##TYPE(S, OPT, ## __VA_ARGS__)
+#define DXX_MENUITEM_V_READ(TYPE,S,OPT,...)	DXX_MENUITEM_V_READ_T_##TYPE(S, OPT, ## __VA_ARGS__)
+#define DXX_MENUITEM_V_ADD_T_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
-#define DXX_ADD_RADIO(S,OPT,C,G)	\
+#define DXX_MENUITEM_V_ADD_T_RADIO(S,OPT,C,G)	\
 	nm_set_item_radio(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (C), (G));
-#define DXX_ADD_NUMBER(S,OPT,V,MIN,MAX)	\
+#define DXX_MENUITEM_V_ADD_T_NUMBER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_number(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
-#define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
+#define DXX_MENUITEM_V_ADD_T_SLIDER(S,OPT,V,MIN,MAX)	\
 	nm_set_item_slider(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
-#define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
-	DXX_ADD_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
-#define DXX_ADD_MENU(S,OPT)	\
+#define DXX_MENUITEM_V_ADD_T_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
+	DXX_MENUITEM_V_ADD_T_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
+#define DXX_MENUITEM_V_ADD_T_MENU(S,OPT)	\
 	nm_set_item_menu(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
-#define DXX_ADD_TEXT(S,OPT)	\
+#define DXX_MENUITEM_V_ADD_T_TEXT(S,OPT)	\
 	nm_set_item_text(((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
-#define DXX_ADD_INPUT(S,OPT)	\
+#define DXX_MENUITEM_V_ADD_T_INPUT(S,OPT)	\
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
-#define DXX_READ_CHECK(S,OPT,V)	\
+#define DXX_MENUITEM_V_READ_T_CHECK(S,OPT,V)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
-#define DXX_READ_RADIO(S,OPT,C,G)	/* handled specially */
-#define DXX_READ_NUMBER(S,OPT,V,MIN,MAX)	\
+#define DXX_MENUITEM_V_READ_T_RADIO(S,OPT,C,G)	/* handled specially */
+#define DXX_MENUITEM_V_READ_T_NUMBER(S,OPT,V,MIN,MAX)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
-#define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\
+#define DXX_MENUITEM_V_READ_T_SLIDER(S,OPT,V,MIN,MAX)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
-#define DXX_READ_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
+#define DXX_MENUITEM_V_READ_T_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
 	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value * (SCALE);
-#define DXX_READ_MENU(S,OPT)	/* handled specially */
-#define DXX_READ_TEXT(S,OPT)	/* handled specially */
-#define DXX_READ_INPUT(S,OPT)	/* handled specially */
+#define DXX_MENUITEM_V_READ_T_MENU(S,OPT)	/* handled specially */
+#define DXX_MENUITEM_V_READ_T_TEXT(S,OPT)	/* handled specially */
+#define DXX_MENUITEM_V_READ_T_INPUT(S,OPT)	/* handled specially */
 
 template <typename T, typename B>
 class menu_bit_wrapper_t

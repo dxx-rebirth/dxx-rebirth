@@ -1804,23 +1804,23 @@ public:
  * a cheat.  The player can change his energy up if he needs more.
  */
 #define WIMP_MENU_DXX(VERB)	\
-	DXX_##VERB##_CHECK(TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_AFTERBURNER, opt_afterburner, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER))	\
 
 #endif
 
 #define DXX_WIMP_MENU(VERB)	\
-	DXX_##VERB##_CHECK(TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plr))	\
-	DXX_##VERB##_CHECK(TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plr))	\
-	DXX_##VERB##_CHECK("BLUE KEY", opt_key_blue, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
-	DXX_##VERB##_CHECK("GOLD KEY", opt_key_gold, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
-	DXX_##VERB##_CHECK("RED KEY", opt_key_red, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_INVULNERABILITY, opt_invul, cheat_menu_bit_invulnerability(plr))	\
+	DXX_MENUITEM(VERB, CHECK, TXT_CLOAKED, opt_cloak, cheat_menu_bit_cloak(plr))	\
+	DXX_MENUITEM(VERB, CHECK, "BLUE KEY", opt_key_blue, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, "GOLD KEY", opt_key_gold, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY))	\
+	DXX_MENUITEM(VERB, CHECK, "RED KEY", opt_key_red, menu_bit_wrapper(player_info.powerup_flags, PLAYER_FLAGS_RED_KEY))	\
 	WIMP_MENU_DXX(VERB)	\
-	DXX_##VERB##_NUMBER(TXT_ENERGY, opt_energy, menu_fix_wrapper(plrobj.ctype.player_info.energy), 0, 200)	\
-	DXX_##VERB##_NUMBER("Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
-	DXX_##VERB##_TEXT(TXT_SCORE, opt_txt_score)	\
-	DXX_##VERB##_INPUT(score_text, opt_score)	\
-	DXX_##VERB##_NUMBER("Laser Level", opt_laser_level, menu_number_bias_wrapper(plr_laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
-	DXX_##VERB##_NUMBER("Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+	DXX_MENUITEM(VERB, NUMBER, TXT_ENERGY, opt_energy, menu_fix_wrapper(plrobj.ctype.player_info.energy), 0, 200)	\
+	DXX_MENUITEM(VERB, NUMBER, "Shields", opt_shields, menu_fix_wrapper(plrobj.shields), 0, 200)	\
+	DXX_MENUITEM(VERB, TEXT, TXT_SCORE, opt_txt_score)	\
+	DXX_MENUITEM(VERB, INPUT, score_text, opt_score)	\
+	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper(plr_laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, plrobj.ctype.player_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
 
 static void do_cheat_menu()
 {

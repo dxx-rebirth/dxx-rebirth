@@ -857,10 +857,10 @@ static void graphics_config();
 static void gameplay_config();
 
 #define DXX_OPTIONS_MENU(VERB)	\
-	DXX_##VERB##_MENU("Sound & music...", sfx)	\
-	DXX_##VERB##_MENU(TXT_CONTROLS_, controls)	\
-	DXX_##VERB##_MENU("Graphics...", graphics)	\
-	DXX_##VERB##_MENU("Gameplay...", misc)	\
+	DXX_MENUITEM(VERB, MENU, "Sound & music...", sfx)	\
+	DXX_MENUITEM(VERB, MENU, TXT_CONTROLS_, controls)	\
+	DXX_MENUITEM(VERB, MENU, "Graphics...", graphics)	\
+	DXX_MENUITEM(VERB, MENU, "Gameplay...", misc)	\
 
 namespace {
 
@@ -1048,14 +1048,14 @@ void change_res()
 static void input_config_keyboard()
 {
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	\
-	DXX_##VERB##_TEXT("Keyboard Sensitivity:", opt_label_kb)	\
+	DXX_MENUITEM(VERB, TEXT, "Keyboard Sensitivity:", opt_label_kb)	\
 	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	             \
 
 
@@ -1088,25 +1088,25 @@ static void input_config_keyboard()
 static void input_config_mouse()
 {
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
-	DXX_##VERB##_SLIDER(TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_##VERB##_SLIDER(TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
 
 #define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
 	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_##VERB##_SLIDER(TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
-	DXX_##VERB##_TEXT("Mouse Sensitivity:", opt_label_ms)	             \
+	DXX_MENUITEM(VERB, TEXT, "Mouse Sensitivity:", opt_label_ms)	             \
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_ms)	\
-	DXX_##VERB##_TEXT("Mouse Overrun Buffer:", opt_label_mo)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_ms)	\
+	DXX_MENUITEM(VERB, TEXT, "Mouse Overrun Buffer:", opt_label_mo)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,mo,PlayerCfg.MouseOverrun)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_mo)	\
-	DXX_##VERB##_TEXT("Mouse FlightSim Deadzone:", opt_label_mfsd)	\
-	DXX_##VERB##_SLIDER("X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mo)	\
+	DXX_MENUITEM(VERB, TEXT, "Mouse FlightSim Deadzone:", opt_label_mfsd)	\
+	DXX_MENUITEM(VERB, SLIDER, "X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
 
 	class menu_items
 	{
@@ -1143,16 +1143,16 @@ static void input_config_mouse()
 static void input_config_joystick()
 {
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
-	DXX_##VERB##_TEXT("Joystick Sensitivity:", opt_label_js)	          \
+	DXX_MENUITEM(VERB, TEXT, "Joystick Sensitivity:", opt_label_js)	          \
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_js)	\
-	DXX_##VERB##_TEXT("Joystick Linearity:", opt_label_jl)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_js)	\
+	DXX_MENUITEM(VERB, TEXT, "Joystick Linearity:", opt_label_jl)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
-	DXX_##VERB##_TEXT("", opt_label_blank_jl)	\
-	DXX_##VERB##_TEXT("Joystick Linear Speed:", opt_label_jp)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_jl)	\
+	DXX_MENUITEM(VERB, TEXT, "Joystick Linear Speed:", opt_label_jp)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
-	DXX_##VERB##_TEXT("", opt_label_blank_jp)	\
-	DXX_##VERB##_TEXT("Joystick Deadzone:", opt_label_jd)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_jp)	\
+	DXX_MENUITEM(VERB, TEXT, "Joystick Deadzone:", opt_label_jd)	\
 	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	    \
 
 	class menu_items
@@ -1207,32 +1207,32 @@ class input_config_menu_items
 #endif
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	\
-	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_##VERB##_CHECK("Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))	\
-	DXX_##VERB##_CHECK("Use mouse", opt_ic_usemouse, PlayerCfg.ControlType & CONTROL_USING_MOUSE)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_use)	\
-	DXX_##VERB##_MENU(TXT_CUST_KEYBOARD, opt_ic_confkey)	\
-	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_##VERB##_MENU("Customize Joystick", opt_ic_confjoy))	\
-	DXX_##VERB##_MENU("Customize Mouse", opt_ic_confmouse)	\
-	DXX_##VERB##_MENU("Customize Weapon Keys", opt_ic_confweap)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_customize)	\
-	DXX_##VERB##_TEXT("Mouse Control Type:", opt_label_mouse_control_type)	\
-	DXX_##VERB##_RADIO("Normal", opt_mouse_control_normal, PlayerCfg.MouseFlightSim == 0, optgrp_mouse_control_type)	\
-	DXX_##VERB##_RADIO("FlightSim", opt_mouse_control_flightsim, PlayerCfg.MouseFlightSim == 1, optgrp_mouse_control_type)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_mouse_control_type)	\
-	DXX_##VERB##_MENU("Keyboard Calibration", opt_ic_keyboard)	        \
-	DXX_##VERB##_MENU("Mouse Calibration", opt_ic_mouse)	              \
-	DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(DXX_##VERB##_MENU("Joystick Calibration", opt_ic_joystick))	         \
-	DXX_##VERB##_TEXT("", opt_label_blank_sensitivity_deadzone)	\
-	DXX_##VERB##_CHECK("Keep Keyboard/Mouse focus", opt_ic_grabinput, CGameCfg.Grabinput)	\
-	DXX_##VERB##_CHECK("Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_focus)	\
-	DXX_##VERB##_TEXT("When dead, respawn by pressing:", opt_label_respawn_mode)	\
-	DXX_##VERB##_RADIO("Any key", opt_respawn_any_key, PlayerCfg.RespawnMode == RespawnPress::Any, optgrp_respawn_mode)	\
-	DXX_##VERB##_RADIO("Fire keys (pri., sec., flare)", opt_respawn_fire_key, PlayerCfg.RespawnMode == RespawnPress::Fire, optgrp_respawn_mode)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_respawn)	\
-	DXX_##VERB##_MENU("GAME SYSTEM KEYS", opt_ic_help0)	\
-	DXX_##VERB##_MENU("NETGAME SYSTEM KEYS", opt_ic_help1)	\
-	DXX_##VERB##_MENU("DEMO SYSTEM KEYS", opt_ic_help2)	\
+	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_MENUITEM(VERB, CHECK, "Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))	\
+	DXX_MENUITEM(VERB, CHECK, "Use mouse", opt_ic_usemouse, PlayerCfg.ControlType & CONTROL_USING_MOUSE)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_use)	\
+	DXX_MENUITEM(VERB, MENU, TXT_CUST_KEYBOARD, opt_ic_confkey)	\
+	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_MENUITEM(VERB, MENU, "Customize Joystick", opt_ic_confjoy))	\
+	DXX_MENUITEM(VERB, MENU, "Customize Mouse", opt_ic_confmouse)	\
+	DXX_MENUITEM(VERB, MENU, "Customize Weapon Keys", opt_ic_confweap)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_customize)	\
+	DXX_MENUITEM(VERB, TEXT, "Mouse Control Type:", opt_label_mouse_control_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Normal", opt_mouse_control_normal, PlayerCfg.MouseFlightSim == 0, optgrp_mouse_control_type)	\
+	DXX_MENUITEM(VERB, RADIO, "FlightSim", opt_mouse_control_flightsim, PlayerCfg.MouseFlightSim == 1, optgrp_mouse_control_type)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mouse_control_type)	\
+	DXX_MENUITEM(VERB, MENU, "Keyboard Calibration", opt_ic_keyboard)	        \
+	DXX_MENUITEM(VERB, MENU, "Mouse Calibration", opt_ic_mouse)	              \
+	DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(DXX_MENUITEM(VERB, MENU, "Joystick Calibration", opt_ic_joystick))	         \
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_sensitivity_deadzone)	\
+	DXX_MENUITEM(VERB, CHECK, "Keep Keyboard/Mouse focus", opt_ic_grabinput, CGameCfg.Grabinput)	\
+	DXX_MENUITEM(VERB, CHECK, "Mouse FlightSim Indicator", opt_ic_mousefsgauge, PlayerCfg.MouseFSIndicator)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_focus)	\
+	DXX_MENUITEM(VERB, TEXT, "When dead, respawn by pressing:", opt_label_respawn_mode)	\
+	DXX_MENUITEM(VERB, RADIO, "Any key", opt_respawn_any_key, PlayerCfg.RespawnMode == RespawnPress::Any, optgrp_respawn_mode)	\
+	DXX_MENUITEM(VERB, RADIO, "Fire keys (pri., sec., flare)", opt_respawn_fire_key, PlayerCfg.RespawnMode == RespawnPress::Fire, optgrp_respawn_mode)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_respawn)	\
+	DXX_MENUITEM(VERB, MENU, "GAME SYSTEM KEYS", opt_ic_help0)	\
+	DXX_MENUITEM(VERB, MENU, "NETGAME SYSTEM KEYS", opt_ic_help1)	\
+	DXX_MENUITEM(VERB, MENU, "DEMO SYSTEM KEYS", opt_ic_help2)	\
 
 public:
 	enum
@@ -1344,29 +1344,29 @@ static void reticle_config()
 {
 #ifdef OGL
 #define DXX_RETICLE_TYPE_OGL(VERB)	\
-	DXX_##VERB##_RADIO("Classic Reboot", opt_reticle_classic_reboot, 0, optgrp_reticle)
+	DXX_MENUITEM(VERB, RADIO, "Classic Reboot", opt_reticle_classic_reboot, 0, optgrp_reticle)
 #else
 #define DXX_RETICLE_TYPE_OGL(VERB)
 #endif
 #define DXX_RETICLE_CONFIG_MENU(VERB)	\
-	DXX_##VERB##_TEXT("Reticle Type:", opt_label_reticle_type)	\
-	DXX_##VERB##_RADIO("Classic", opt_reticle_classic, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, TEXT, "Reticle Type:", opt_label_reticle_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Classic", opt_reticle_classic, 0, optgrp_reticle)	\
 	DXX_RETICLE_TYPE_OGL(VERB)	\
-	DXX_##VERB##_RADIO("None", opt_reticle_none, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("X", opt_reticle_x, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("Dot", opt_reticle_dot, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("Circle", opt_reticle_circle, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("Cross V1", opt_reticle_cross1, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("Cross V2", opt_reticle_cross2, 0, optgrp_reticle)	\
-	DXX_##VERB##_RADIO("Angle", opt_reticle_angle, 0, optgrp_reticle)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_reticle_type)	\
-	DXX_##VERB##_TEXT("Reticle Color:", opt_label_reticle_color)	\
-	DXX_##VERB##_SCALE_SLIDER("Red", opt_reticle_color_red, PlayerCfg.ReticleRGBA[0], 0, 16, 2)	\
-	DXX_##VERB##_SCALE_SLIDER("Green", opt_reticle_color_green, PlayerCfg.ReticleRGBA[1], 0, 16, 2)	\
-	DXX_##VERB##_SCALE_SLIDER("Blue", opt_reticle_color_blue, PlayerCfg.ReticleRGBA[2], 0, 16, 2)	\
-	DXX_##VERB##_SCALE_SLIDER("Alpha", opt_reticle_color_alpha, PlayerCfg.ReticleRGBA[3], 0, 16, 2)	\
-	DXX_##VERB##_TEXT("", opt_label_blank_reticle_color)	\
-	DXX_##VERB##_SLIDER("Reticle Size:", opt_label_reticle_size, PlayerCfg.ReticleSize, 0, 4)	\
+	DXX_MENUITEM(VERB, RADIO, "None", opt_reticle_none, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "X", opt_reticle_x, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "Dot", opt_reticle_dot, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "Circle", opt_reticle_circle, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "Cross V1", opt_reticle_cross1, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "Cross V2", opt_reticle_cross2, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, RADIO, "Angle", opt_reticle_angle, 0, optgrp_reticle)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_reticle_type)	\
+	DXX_MENUITEM(VERB, TEXT, "Reticle Color:", opt_label_reticle_color)	\
+	DXX_MENUITEM(VERB, SCALE_SLIDER, "Red", opt_reticle_color_red, PlayerCfg.ReticleRGBA[0], 0, 16, 2)	\
+	DXX_MENUITEM(VERB, SCALE_SLIDER, "Green", opt_reticle_color_green, PlayerCfg.ReticleRGBA[1], 0, 16, 2)	\
+	DXX_MENUITEM(VERB, SCALE_SLIDER, "Blue", opt_reticle_color_blue, PlayerCfg.ReticleRGBA[2], 0, 16, 2)	\
+	DXX_MENUITEM(VERB, SCALE_SLIDER, "Alpha", opt_reticle_color_alpha, PlayerCfg.ReticleRGBA[3], 0, 16, 2)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_reticle_color)	\
+	DXX_MENUITEM(VERB, SLIDER, "Reticle Size:", opt_label_reticle_size, PlayerCfg.ReticleSize, 0, 4)	\
 
 	class menu_items
 	{
@@ -1415,26 +1415,26 @@ static void reticle_config()
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
+	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
 enum {
 	optgrp_missileview,
 };
 #define DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
-	DXX_##VERB##_TEXT("Missile view:", opt_missileview_label)	\
-	DXX_##VERB##_RADIO("Disabled", opt_missileview_none, PlayerCfg.MissileViewEnabled == MissileViewMode::None, optgrp_missileview)	\
-	DXX_##VERB##_RADIO("Only own missiles", opt_missileview_selfonly, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfOnly, optgrp_missileview)	\
-	DXX_##VERB##_RADIO("Friendly missiles, preferring self", opt_missileview_selfandallies, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfAndAllies, optgrp_missileview)	\
-	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
+	DXX_MENUITEM(VERB, TEXT, "Missile view:", opt_missileview_label)	\
+	DXX_MENUITEM(VERB, RADIO, "Disabled", opt_missileview_none, PlayerCfg.MissileViewEnabled == MissileViewMode::None, optgrp_missileview)	\
+	DXX_MENUITEM(VERB, RADIO, "Only own missiles", opt_missileview_selfonly, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfOnly, optgrp_missileview)	\
+	DXX_MENUITEM(VERB, RADIO, "Friendly missiles, preferring self", opt_missileview_selfandallies, PlayerCfg.MissileViewEnabled == MissileViewMode::EnabledSelfAndAllies, optgrp_missileview)	\
+	DXX_MENUITEM(VERB, CHECK, "Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
 
 #endif
 #define DXX_HUD_MENU_OPTIONS(VERB)	\
-        DXX_##VERB##_MENU("Reticle Customization...", opt_hud_reticlemenu)	\
-	DXX_##VERB##_CHECK("Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
-	DXX_##VERB##_CHECK("No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
-	DXX_##VERB##_CHECK("Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
-	DXX_##VERB##_CHECK("Cloak/Invulnerability Timers",opt_cloakinvultimer,PlayerCfg.CloakInvulTimer)	\
+        DXX_MENUITEM(VERB, MENU, "Reticle Customization...", opt_hud_reticlemenu)	\
+	DXX_MENUITEM(VERB, CHECK, "Screenshots without HUD",opt_screenshot,PlayerCfg.PRShot)	\
+	DXX_MENUITEM(VERB, CHECK, "No redundant pickup messages",opt_redundant,PlayerCfg.NoRedundancy)	\
+	DXX_MENUITEM(VERB, CHECK, "Show Player chat only (Multi)",opt_playerchat,PlayerCfg.MultiMessages)	\
+	DXX_MENUITEM(VERB, CHECK, "Cloak/Invulnerability Timers",opt_cloakinvultimer,PlayerCfg.CloakInvulTimer)	\
 	DXX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 
 enum {
@@ -1481,38 +1481,38 @@ void hud_config()
 }
 
 #define DXX_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_MENU("Screen resolution...", opt_gr_screenres)	\
-	DXX_##VERB##_MENU("HUD Options...", opt_gr_hudmenu)	\
-	DXX_##VERB##_SLIDER(TXT_BRIGHTNESS, opt_gr_brightness, gr_palette_get_gamma(), 0, 16)	\
-	DXX_##VERB##_TEXT("", blank1)	\
+	DXX_MENUITEM(VERB, MENU, "Screen resolution...", opt_gr_screenres)	\
+	DXX_MENUITEM(VERB, MENU, "HUD Options...", opt_gr_hudmenu)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_BRIGHTNESS, opt_gr_brightness, gr_palette_get_gamma(), 0, 16)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank1)	\
 	DXX_OGL0_GRAPHICS_MENU(VERB)	\
 	DXX_OGL1_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_CHECK("FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
+	DXX_MENUITEM(VERB, CHECK, "FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
 
 #ifdef OGL
 enum {
 	optgrp_texfilt,
 };
 #define DXX_OGL0_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_TEXT("Texture Filtering:", opt_gr_texfilt)	\
-	DXX_##VERB##_RADIO("None (Classical)", opt_filter_none, 0, optgrp_texfilt)	\
-	DXX_##VERB##_RADIO("Bilinear", opt_filter_bilinear, 0, optgrp_texfilt)	\
-	DXX_##VERB##_RADIO("Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
-	DXX_##VERB##_RADIO("Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, TEXT, "Texture Filtering:", opt_gr_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "None (Classical)", opt_filter_none, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Bilinear", opt_filter_bilinear, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
 	D2X_OGL_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_TEXT("", blank2)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank2)	\
 
 #define DXX_OGL1_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_CHECK("Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
-	DXX_##VERB##_CHECK("Colored Dynamic Light", opt_gr_dynlightcolor, PlayerCfg.DynLightColor)	\
-	DXX_##VERB##_CHECK("VSync", opt_gr_vsync, CGameCfg.VSync)	\
-	DXX_##VERB##_CHECK("4x multisampling", opt_gr_multisample, GameCfg.Multisample)	\
+	DXX_MENUITEM(VERB, CHECK, "Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
+	DXX_MENUITEM(VERB, CHECK, "Colored Dynamic Light", opt_gr_dynlightcolor, PlayerCfg.DynLightColor)	\
+	DXX_MENUITEM(VERB, CHECK, "VSync", opt_gr_vsync, CGameCfg.VSync)	\
+	DXX_MENUITEM(VERB, CHECK, "4x multisampling", opt_gr_multisample, GameCfg.Multisample)	\
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_OGL_GRAPHICS_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_OGL_GRAPHICS_MENU(VERB)	\
-	DXX_##VERB##_CHECK("Movie Filter", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
+	DXX_MENUITEM(VERB, CHECK, "Movie Filter", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
 #endif
 
 #else
@@ -1846,7 +1846,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 }
 
 #define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
-	DXX_##VERB##_MENU(TXT " (browse...)", OPT)
+	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
 #else
 
 int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
@@ -1858,7 +1858,7 @@ int select_file_recursive(const char *title, const char *orig_path, const file_e
 	 * string-pasted
 	 */
 #define DXX_MENU_ITEM_BROWSE(VERB, TXT, OPT)	\
-	DXX_##VERB##_TEXT(TXT "", OPT)
+	DXX_MENUITEM(VERB, TEXT, TXT "", OPT)
 #endif
 
 #ifdef USE_SDLMIXER
@@ -1881,7 +1881,7 @@ namespace {
 
 #if defined(USE_SDLMIXER) || defined(_WIN32)
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
-	DXX_##VERB##_RADIO("Built-in/Addon music", opt_sm_mtype1, GameCfg.MusicType == MUSIC_TYPE_BUILTIN, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Built-in/Addon music", opt_sm_mtype1, GameCfg.MusicType == MUSIC_TYPE_BUILTIN, optgrp_music_type)	\
 
 #else
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)
@@ -1889,7 +1889,7 @@ namespace {
 
 #if SDL_MAJOR_VERSION == 1
 #define DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
-	DXX_##VERB##_RADIO("CD music", opt_sm_mtype2, GameCfg.MusicType == MUSIC_TYPE_REDBOOK, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "CD music", opt_sm_mtype2, GameCfg.MusicType == MUSIC_TYPE_REDBOOK, optgrp_music_type)	\
 
 #define DXX_MUSIC_OPTIONS_CD_LABEL "CD music"
 #else
@@ -1899,31 +1899,31 @@ namespace {
 
 #ifdef USE_SDLMIXER
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
-	DXX_##VERB##_RADIO("Jukebox", opt_sm_mtype3, GameCfg.MusicType == MUSIC_TYPE_CUSTOM, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Jukebox", opt_sm_mtype3, GameCfg.MusicType == MUSIC_TYPE_CUSTOM, optgrp_music_type)	\
 
 #define DXX_MUSIC_OPTIONS_JUKEBOX_LABEL "Jukebox"
 #define DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
-	DXX_##VERB##_TEXT("", opt_label_blank2)	\
-	DXX_##VERB##_TEXT("Jukebox options:", opt_label_jukebox_options)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank2)	\
+	DXX_MENUITEM(VERB, TEXT, "Jukebox options:", opt_label_jukebox_options)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Path for level music", opt_sm_mtype3_lmpath)	\
-	DXX_##VERB##_INPUT(GameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
-	DXX_##VERB##_TEXT("", opt_label_blank3)	\
-	DXX_##VERB##_TEXT("Level music play order:", opt_label_lm_order)	\
-	DXX_##VERB##_RADIO("continuous", opt_sm_mtype3_lmplayorder1, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT, optgrp_music_order)	\
-	DXX_##VERB##_RADIO("one track per level", opt_sm_mtype3_lmplayorder2, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL, optgrp_music_order)	\
-	DXX_##VERB##_RADIO("random", opt_sm_mtype3_lmplayorder3, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND, optgrp_music_order)	\
-	DXX_##VERB##_TEXT("", opt_label_blank4)	\
-	DXX_##VERB##_TEXT("Non-level music:", opt_label_nonlevel_music)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank3)	\
+	DXX_MENUITEM(VERB, TEXT, "Level music play order:", opt_label_lm_order)	\
+	DXX_MENUITEM(VERB, RADIO, "continuous", opt_sm_mtype3_lmplayorder1, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, RADIO, "one track per level", opt_sm_mtype3_lmplayorder2, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, RADIO, "random", opt_sm_mtype3_lmplayorder3, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND, optgrp_music_order)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank4)	\
+	DXX_MENUITEM(VERB, TEXT, "Non-level music:", opt_label_nonlevel_music)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Main menu", opt_sm_cm_mtype3_file1_b)	\
-	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Briefing", opt_sm_cm_mtype3_file2_b)	\
-	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Credits", opt_sm_cm_mtype3_file3_b)	\
-	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Escape sequence", opt_sm_cm_mtype3_file4_b)	\
-	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Game ending", opt_sm_cm_mtype3_file5_b)	\
-	DXX_##VERB##_INPUT(GameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
+	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
 
 #else
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)
@@ -1938,18 +1938,18 @@ namespace {
 #endif
 
 #define DXX_SOUND_MENU(VERB)	\
-	DXX_##VERB##_SLIDER(TXT_FX_VOLUME, opt_sm_digivol, GameCfg.DigiVolume, 0, 8)	\
-	DXX_##VERB##_SLIDER("Music volume", opt_sm_musicvol, GameCfg.MusicVolume, 0, 8)	\
-	DXX_##VERB##_CHECK(TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
-	DXX_##VERB##_TEXT("", opt_label_blank0)	\
-	DXX_##VERB##_TEXT("Music type:", opt_label_music_type)	\
-	DXX_##VERB##_RADIO("No music", opt_sm_mtype0, GameCfg.MusicType == MUSIC_TYPE_NONE, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_FX_VOLUME, opt_sm_digivol, GameCfg.DigiVolume, 0, 8)	\
+	DXX_MENUITEM(VERB, SLIDER, "Music volume", opt_sm_musicvol, GameCfg.MusicVolume, 0, 8)	\
+	DXX_MENUITEM(VERB, CHECK, TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank0)	\
+	DXX_MENUITEM(VERB, TEXT, "Music type:", opt_label_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "No music", opt_sm_mtype0, GameCfg.MusicType == MUSIC_TYPE_NONE, optgrp_music_type)	\
 	DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
 	DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
 	DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
-	DXX_##VERB##_TEXT("", opt_label_blank1)	\
-	DXX_##VERB##_TEXT(DXX_MUSIC_OPTIONS_CD_LABEL DXX_MUSIC_OPTIONS_SEPARATOR_TEXT DXX_MUSIC_OPTIONS_JUKEBOX_LABEL " options:", opt_label_music_options)	\
-	DXX_##VERB##_CHECK(REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank1)	\
+	DXX_MENUITEM(VERB, TEXT, DXX_MUSIC_OPTIONS_CD_LABEL DXX_MUSIC_OPTIONS_SEPARATOR_TEXT DXX_MUSIC_OPTIONS_JUKEBOX_LABEL " options:", opt_label_music_options)	\
+	DXX_MENUITEM(VERB, CHECK, REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
 	DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
 
 class sound_menu_items
@@ -2133,9 +2133,9 @@ void do_sound_menu()
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
-	DXX_##VERB##_CHECK("Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
-	DXX_##VERB##_CHECK("Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
+	DXX_MENUITEM(VERB, CHECK, "Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
+	DXX_MENUITEM(VERB, CHECK, "Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
+	DXX_MENUITEM(VERB, CHECK, "Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
 
 #endif
 
@@ -2144,20 +2144,20 @@ enum {
 };
 
 #define DXX_GAMEPLAY_MENU_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
-	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
-	DXX_##VERB##_CHECK("No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
-	DXX_##VERB##_CHECK("Free Flight in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
+	DXX_MENUITEM(VERB, CHECK, "Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
+	DXX_MENUITEM(VERB, CHECK, "Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
+	DXX_MENUITEM(VERB, CHECK, "No Rankings (Multi)",opt_noranking,PlayerCfg.NoRankings)	\
+	DXX_MENUITEM(VERB, CHECK, "Free Flight in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
 	DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
-	DXX_##VERB##_TEXT("", opt_label_blank)	\
-        DXX_##VERB##_TEXT("Weapon Autoselect options:", opt_label_autoselect)	\
-	DXX_##VERB##_MENU("Primary ordering...", opt_gameplay_reorderprimary_menu)	\
-	DXX_##VERB##_MENU("Secondary ordering...", opt_gameplay_reordersecondary_menu)	\
-	DXX_##VERB##_TEXT("Autoselect while firing:", opt_autoselect_firing_label)	\
-	DXX_##VERB##_RADIO("Immediately", opt_autoselect_firing_immediate, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Immediate, optgrp_autoselect_firing)	\
-	DXX_##VERB##_RADIO("Never", opt_autoselect_firing_never, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Never, optgrp_autoselect_firing)	\
-	DXX_##VERB##_RADIO("When firing stops", opt_autoselect_firing_delayed, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed, optgrp_autoselect_firing)	\
-	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank)	\
+        DXX_MENUITEM(VERB, TEXT, "Weapon Autoselect options:", opt_label_autoselect)	\
+	DXX_MENUITEM(VERB, MENU, "Primary ordering...", opt_gameplay_reorderprimary_menu)	\
+	DXX_MENUITEM(VERB, MENU, "Secondary ordering...", opt_gameplay_reordersecondary_menu)	\
+	DXX_MENUITEM(VERB, TEXT, "Autoselect while firing:", opt_autoselect_firing_label)	\
+	DXX_MENUITEM(VERB, RADIO, "Immediately", opt_autoselect_firing_immediate, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Immediate, optgrp_autoselect_firing)	\
+	DXX_MENUITEM(VERB, RADIO, "Never", opt_autoselect_firing_never, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Never, optgrp_autoselect_firing)	\
+	DXX_MENUITEM(VERB, RADIO, "When firing stops", opt_autoselect_firing_delayed, PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed, optgrp_autoselect_firing)	\
+	DXX_MENUITEM(VERB, CHECK, "Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
 
 enum {
         DXX_GAMEPLAY_MENU_OPTIONS(ENUM)
@@ -2436,8 +2436,8 @@ static void gamebitmaps_viewer()
 }
 
 #define DXX_SANDBOX_MENU(VERB)	\
-	DXX_##VERB##_MENU("Polygon_models viewer", polygon_models)	\
-	DXX_##VERB##_MENU("GameBitmaps viewer", bitmaps)	\
+	DXX_MENUITEM(VERB, MENU, "Polygon_models viewer", polygon_models)	\
+	DXX_MENUITEM(VERB, MENU, "GameBitmaps viewer", bitmaps)	\
 
 namespace {
 

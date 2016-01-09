@@ -3194,8 +3194,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 #ifdef USE_TRACKER
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
-	DXX_##VERB##_CHECK("Track this game on", opt_tracker, Netgame.Tracker) \
-	DXX_##VERB##_TEXT(tracker_addr_txt, opt_tracker_addr)
+	DXX_MENUITEM(VERB, CHECK, "Track this game on", opt_tracker, Netgame.Tracker) \
+	DXX_MENUITEM(VERB, TEXT, tracker_addr_txt, opt_tracker_addr)
 #else
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
@@ -3205,8 +3205,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_UDP_MENU_OPTIONS(VERB)	\
-	DXX_##VERB##_CHECK("Allow Marker camera views", opt_marker_view, Netgame.Allow_marker_view)	\
-	DXX_##VERB##_CHECK("Indestructible lights", opt_light, Netgame.AlwaysLighting)	\
+	DXX_MENUITEM(VERB, CHECK, "Allow Marker camera views", opt_marker_view, Netgame.Allow_marker_view)	\
+	DXX_MENUITEM(VERB, CHECK, "Indestructible lights", opt_light, Netgame.AlwaysLighting)	\
 
 #endif
 
@@ -3218,45 +3218,45 @@ const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
-	DXX_##VERB##_SLIDER(extraAccessory, opt_extra_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
+	DXX_MENUITEM(VERB, SLIDER, extraAccessory, opt_extra_accessory, accessory, 0, (1 << packed_netduplicate_items::accessory_width) - 1)	\
 
 #endif
 
 #define DXX_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
-	DXX_##VERB##_SLIDER(extraPrimary, opt_extra_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
-	DXX_##VERB##_SLIDER(extraSecondary, opt_extra_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
+	DXX_MENUITEM(VERB, SLIDER, extraPrimary, opt_extra_primary, primary, 0, (1 << packed_netduplicate_items::primary_width) - 1)	\
+	DXX_MENUITEM(VERB, SLIDER, extraSecondary, opt_extra_secondary, secondary, 0, (1 << packed_netduplicate_items::secondary_width) - 1)	\
 	D2X_DUPLICATE_POWERUP_OPTIONS(VERB)                                
 
 #define DXX_UDP_MENU_OPTIONS(VERB)	                                    \
-	DXX_##VERB##_TEXT("Game Options", game_label)	                     \
-	DXX_##VERB##_SLIDER(get_annotated_difficulty_string(), opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
-	DXX_##VERB##_SCALE_SLIDER(srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
-	DXX_##VERB##_SLIDER(PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
-	DXX_##VERB##_SLIDER(KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
-	DXX_##VERB##_TEXT("", blank_1)                                     \
-	DXX_##VERB##_TEXT("Duplicate Powerups", duplicate_label)	          \
+	DXX_MENUITEM(VERB, TEXT, "Game Options", game_label)	                     \
+	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(), opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
+	DXX_MENUITEM(VERB, SCALE_SLIDER, srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
+	DXX_MENUITEM(VERB, SLIDER, PlayText, opt_playtime, Netgame.PlayTimeAllowed, 0, 10)	\
+	DXX_MENUITEM(VERB, SLIDER, KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_1)                                     \
+	DXX_MENUITEM(VERB, TEXT, "Duplicate Powerups", duplicate_label)	          \
 	DXX_DUPLICATE_POWERUP_OPTIONS(VERB)		                              \
-	DXX_##VERB##_TEXT("", blank_5)                                     \
-	DXX_##VERB##_TEXT("Spawn Options", spawn_label)	                   \
-	DXX_##VERB##_SLIDER(SecludedSpawnText, opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
-	DXX_##VERB##_SLIDER(SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
-	DXX_##VERB##_TEXT("", blank_2)                                     \
-	DXX_##VERB##_TEXT("Object Options", powerup_label)	                \
-	DXX_##VERB##_MENU("Set Objects allowed...", opt_setpower)	         \
-	DXX_##VERB##_MENU("Set Objects granted at spawn...", opt_setgrant)	\
-	DXX_##VERB##_TEXT("", blank_3)                                     \
-	DXX_##VERB##_TEXT("Misc. Options", misc_label)	                    \
-	DXX_##VERB##_CHECK(TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_5)                                     \
+	DXX_MENUITEM(VERB, TEXT, "Spawn Options", spawn_label)	                   \
+	DXX_MENUITEM(VERB, SLIDER, SecludedSpawnText, opt_secluded_spawns, Netgame.SecludedSpawns, 0, MAX_PLAYERS - 1)	\
+	DXX_MENUITEM(VERB, SLIDER, SpawnInvulnerableText, opt_start_invul, Netgame.InvulAppear, 0, 8)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_2)                                     \
+	DXX_MENUITEM(VERB, TEXT, "Object Options", powerup_label)	                \
+	DXX_MENUITEM(VERB, MENU, "Set Objects allowed...", opt_setpower)	         \
+	DXX_MENUITEM(VERB, MENU, "Set Objects granted at spawn...", opt_setgrant)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_3)                                     \
+	DXX_MENUITEM(VERB, TEXT, "Misc. Options", misc_label)	                    \
+	DXX_MENUITEM(VERB, CHECK, TXT_SHOW_ON_MAP, opt_show_on_map, Netgame.game_flag.show_on_map)	\
 	D2X_UDP_MENU_OPTIONS(VERB)	                                        \
-	DXX_##VERB##_CHECK("Bright player ships", opt_bright, Netgame.BrightPlayers)	\
-	DXX_##VERB##_CHECK("Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
-	DXX_##VERB##_CHECK("No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
-	DXX_##VERB##_TEXT("", blank_4)                                     \
-	DXX_##VERB##_TEXT("Network Options", network_label)	               \
-	DXX_##VERB##_TEXT("Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
-	DXX_##VERB##_INPUT(packstring, opt_packets)	\
-	DXX_##VERB##_TEXT("Network port", opt_label_port)	\
-	DXX_##VERB##_INPUT(portstring, opt_port)	\
+	DXX_MENUITEM(VERB, CHECK, "Bright player ships", opt_bright, Netgame.BrightPlayers)	\
+	DXX_MENUITEM(VERB, CHECK, "Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
+	DXX_MENUITEM(VERB, CHECK, "No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
+	DXX_MENUITEM(VERB, TEXT, "", blank_4)                                     \
+	DXX_MENUITEM(VERB, TEXT, "Network Options", network_label)	               \
+	DXX_MENUITEM(VERB, TEXT, "Packets per second (" DXX_STRINGIZE_PPS(MIN_PPS) " - " DXX_STRINGIZE_PPS(MAX_PPS) ")", opt_label_pps)	\
+	DXX_MENUITEM(VERB, INPUT, packstring, opt_packets)	\
+	DXX_MENUITEM(VERB, TEXT, "Network port", opt_label_port)	\
+	DXX_MENUITEM(VERB, INPUT, portstring, opt_port)	\
 	DXX_UDP_MENU_TRACKER_OPTION(VERB)
 
 #define DXX_STRINGIZE_PPS2(X)	#X
@@ -3282,24 +3282,24 @@ static void net_udp_set_power (void)
 #define D2X_GRANT_POWERUP_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_GRANT_POWERUP_MENU(VERB)	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_GAUSS, opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_HELIX, opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_PHOENIX, opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_OMEGA, opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_AFTERBURNER, opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_AMMORACK, opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_CONVERTER, opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_HEADLIGHT, opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_GAUSS, opt_gauss, menu_bit_wrapper(flags, NETGRANT_GAUSS))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_HELIX, opt_helix, menu_bit_wrapper(flags, NETGRANT_HELIX))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_PHOENIX, opt_phoenix, menu_bit_wrapper(flags, NETGRANT_PHOENIX))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_OMEGA, opt_omega, menu_bit_wrapper(flags, NETGRANT_OMEGA))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_AFTERBURNER, opt_afterburner, menu_bit_wrapper(flags, NETGRANT_AFTERBURNER))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_AMMORACK, opt_ammo_rack, menu_bit_wrapper(flags, NETGRANT_AMMORACK))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_CONVERTER, opt_converter, menu_bit_wrapper(flags, NETGRANT_CONVERTER))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_HEADLIGHT, opt_headlight, menu_bit_wrapper(flags, NETGRANT_HEADLIGHT))	\
 
 #endif
 
 #define DXX_GRANT_POWERUP_MENU(VERB)	\
-	DXX_##VERB##_NUMBER("Laser level", opt_laser_level, menu_number_bias_wrapper(laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_QUAD, opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_VULCAN, opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_SPREAD, opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_PLASMA, opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
-	DXX_##VERB##_CHECK(NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
+	DXX_MENUITEM(VERB, NUMBER, "Laser level", opt_laser_level, menu_number_bias_wrapper(laser_level, 1), LASER_LEVEL_1 + 1, DXX_MAXIMUM_LASER_LEVEL + 1)	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_QUAD, opt_quad_lasers, menu_bit_wrapper(flags, NETGRANT_QUAD))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_VULCAN, opt_vulcan, menu_bit_wrapper(flags, NETGRANT_VULCAN))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_SPREAD, opt_spreadfire, menu_bit_wrapper(flags, NETGRANT_SPREAD))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_PLASMA, opt_plasma, menu_bit_wrapper(flags, NETGRANT_PLASMA))	\
+	DXX_MENUITEM(VERB, CHECK, NETFLAG_LABEL_FUSION, opt_fusion, menu_bit_wrapper(flags, NETGRANT_FUSION))	\
 	D2X_GRANT_POWERUP_MENU(VERB)
 
 namespace {
