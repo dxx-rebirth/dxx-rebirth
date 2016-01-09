@@ -831,9 +831,9 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	memset(&desc, '\0', DESC_LENGTH+1);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (secret == secret_save::b) {
-		sprintf(filename, SECRETB_FILENAME);
+		strcpy(filename, SECRETB_FILENAME);
 	} else if (secret == secret_save::c) {
-		sprintf(filename, SECRETC_FILENAME);
+		strcpy(filename, SECRETC_FILENAME);
 	} else
 #endif
 	{
