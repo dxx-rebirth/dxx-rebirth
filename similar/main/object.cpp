@@ -108,7 +108,6 @@ static array<objnum_t, MAX_OBJECTS> free_obj_list;
 //info on the various types of objects
 
 int num_objects=0;
-static int Highest_ever_object_index;
 }
 
 namespace dsx {
@@ -942,8 +941,6 @@ objptridx_t obj_allocate()
 
 	if (objnum > Highest_object_index) {
 		Highest_object_index = objnum;
-		if (Highest_object_index > Highest_ever_object_index)
-			Highest_ever_object_index = Highest_object_index;
 	}
 	return objptridx(objnum);
 }
