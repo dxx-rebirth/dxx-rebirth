@@ -3363,7 +3363,6 @@ static void newdemo_back_frames(int frames)
 
 static void interpolate_frame(fix d_play, fix d_recorded)
 {
-	unsigned num_cur_objs;
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
@@ -3374,8 +3373,8 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	if (factor > F1_0)
 		factor = F1_0;
 
-	num_cur_objs = Highest_object_index;
-	std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_cur_objs + 1);
+	const auto num_cur_objs = Objects.get_count();
+	std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_cur_objs);
 
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information(0) == -1) {
@@ -3388,7 +3387,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
 	if (InterpolStep <= 0)
 	{
-		range_for (auto &i, partial_range(cur_objs, 1 + num_cur_objs)) {
+		range_for (auto &i, partial_range(cur_objs, num_cur_objs)) {
 			range_for (const auto &&objp, highest_valid(vobjptr))
 			{
 				if (i.signature == objp->signature) {
@@ -3451,8 +3450,8 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 		newdemo_stop_playback();
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 
-	std::copy(cur_objs.begin(), cur_objs.begin() + num_cur_objs + 1, Objects.begin());
-	Highest_object_index = num_cur_objs;
+	std::copy(cur_objs.begin(), cur_objs.begin() + num_cur_objs, Objects.begin());
+	Objects.set_count(num_cur_objs);
 }
 
 void newdemo_playback_one_frame()

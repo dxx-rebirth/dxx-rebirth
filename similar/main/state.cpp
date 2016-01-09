@@ -1482,8 +1482,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//Read objects, and pop 'em into their respective segments.
 	i = PHYSFSX_readSXE32(fp, swap);
-	Highest_object_index = i-1;
-	//object_read_n_swap(Objects, i, swap, fp);
+	Objects.set_count(i);
 	range_for (const auto &&objp, highest_valid(vobjptr))
 	{
 		object_rw obj_rw;

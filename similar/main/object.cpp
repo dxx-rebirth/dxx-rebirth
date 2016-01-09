@@ -833,7 +833,7 @@ void init_objects()
 	init_player_object();
 	obj_link(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
 	num_objects = 1;						//just the player
-	Highest_object_index = 0;
+	Objects.set_count(1);
 }
 
 //after calling init_object(), the network code has grabbed specific
@@ -843,7 +843,7 @@ void special_reset_objects(void)
 {
 	num_objects=MAX_OBJECTS;
 
-	Highest_object_index = 0;
+	Objects.set_count(1);
 	Assert(Objects[0].type != OBJ_NONE);		//0 should be used
 
 	DXX_MAKE_MEM_UNDEFINED(free_obj_list.begin(), free_obj_list.end());
@@ -852,7 +852,7 @@ void special_reset_objects(void)
 			free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)
-				Highest_object_index = i;
+				Objects.set_count(i + 1);
 }
 
 //link the object into the list for its segment
@@ -940,7 +940,7 @@ objptridx_t obj_allocate()
 	auto objnum = free_obj_list[num_objects++];
 
 	if (objnum > Highest_object_index) {
-		Highest_object_index = objnum;
+		Objects.set_count(objnum + 1);
 	}
 	return objptridx(objnum);
 }
@@ -964,7 +964,7 @@ static void obj_free(objnum_t objnum)
 			if (o == 0)
 				break;
 		}
-		Highest_object_index = o;
+		Objects.set_count(o + 1);
 	}
 }
 
@@ -1879,7 +1879,8 @@ void compress_objects(void)
 	{
 		const auto &&start_objp = vobjptridx(start_i);
 		if (start_objp->type == OBJ_NONE) {
-			const auto &&h = vobjptr(static_cast<objnum_t>(Highest_object_index));
+			auto highest = Highest_object_index;
+			const auto &&h = vobjptr(static_cast<objnum_t>(highest));
 			auto segnum_copy = h->segnum;
 
 			obj_unlink(h);
@@ -1895,7 +1896,10 @@ void compress_objects(void)
 
 			obj_link(start_objp, vsegptridx(segnum_copy));
 
-			while (Objects[--Highest_object_index].type == OBJ_NONE);
+			while (vobjptr(static_cast<objnum_t>(--highest))->type == OBJ_NONE)
+			{
+			}
+			Objects.set_count(highest + 1);
 
 			//last_i = find_last_obj(last_i);
 			
@@ -1923,7 +1927,7 @@ void reset_objects(int n_objs)
 		objp->segnum = segment_none;
 	}
 
-	Highest_object_index = num_objects-1;
+	Objects.set_count(num_objects);
 
 	Debris_object_count = 0;
 }

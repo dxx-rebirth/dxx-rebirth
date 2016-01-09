@@ -573,6 +573,15 @@ public:
 #endif
 	array_managed_type(const array_managed_type &) = delete;
 	array_managed_type &operator=(const array_managed_type &) = delete;
+	unsigned get_count() const
+	{
+		return highest + 1;
+	}
+	void set_count(const unsigned c)
+	{
+		DXX_VALPTRIDX_STATIC_CHECK(c != 0, dxx_trap_count_underflow, "count must not be zero");
+		highest = c - 1;
+	}
 };
 
 template <typename managed_type>
