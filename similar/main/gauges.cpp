@@ -2085,26 +2085,29 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 			info_index = weapon_id_type::SUPER_LASER_ID;
 #endif
 
+		const gauge_box *box;
+		int pic_x, pic_y, text_x, text_y;
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			draw_weapon_info_sub(info_index,
-				&gauge_boxes[SB_PRIMARY_BOX],
-				SB_PRIMARY_W_PIC_X,SB_PRIMARY_W_PIC_Y,
-				PRIMARY_WEAPON_NAMES_SHORT(weapon_num),
-				SB_PRIMARY_W_TEXT_X,SB_PRIMARY_W_TEXT_Y, multires_gauge_graphic);
+			box = &gauge_boxes[SB_PRIMARY_BOX];
+			pic_x = SB_PRIMARY_W_PIC_X;
+			pic_y = SB_PRIMARY_W_PIC_Y;
+			text_x = SB_PRIMARY_W_TEXT_X;
+			text_y = SB_PRIMARY_W_TEXT_Y;
 			x=SB_PRIMARY_AMMO_X;
 			y=SB_PRIMARY_AMMO_Y;
 		}
 		else
 		{
-			draw_weapon_info_sub(info_index,
-				&gauge_boxes[COCKPIT_PRIMARY_BOX],
-				PRIMARY_W_PIC_X,PRIMARY_W_PIC_Y,
-				PRIMARY_WEAPON_NAMES_SHORT(weapon_num),
-				PRIMARY_W_TEXT_X,PRIMARY_W_TEXT_Y, multires_gauge_graphic);
+			box = &gauge_boxes[COCKPIT_PRIMARY_BOX];
+			pic_x = PRIMARY_W_PIC_X;
+			pic_y = PRIMARY_W_PIC_Y;
+			text_x = PRIMARY_W_TEXT_X;
+			text_y = PRIMARY_W_TEXT_Y;
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
+		draw_weapon_info_sub(info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2122,26 +2125,29 @@ static void draw_secondary_weapon_info(int weapon_num, const local_multires_gaug
 
 	{
 		info_index = Secondary_weapon_to_weapon_info[weapon_num];
+		const gauge_box *box;
+		int pic_x, pic_y, text_x, text_y;
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			draw_weapon_info_sub(info_index,
-				&gauge_boxes[SB_SECONDARY_BOX],
-				SB_SECONDARY_W_PIC_X,SB_SECONDARY_W_PIC_Y,
-				SECONDARY_WEAPON_NAMES_SHORT(weapon_num),
-				SB_SECONDARY_W_TEXT_X,SB_SECONDARY_W_TEXT_Y, multires_gauge_graphic);
+			box = &gauge_boxes[SB_SECONDARY_BOX];
+			pic_x = SB_SECONDARY_W_PIC_X;
+			pic_y = SB_SECONDARY_W_PIC_Y;
+			text_x = SB_SECONDARY_W_TEXT_X;
+			text_y = SB_SECONDARY_W_TEXT_Y;
 			x=SB_SECONDARY_AMMO_X;
 			y=SB_SECONDARY_AMMO_Y;
 		}
 		else
 		{
-			draw_weapon_info_sub(info_index,
-				&gauge_boxes[COCKPIT_SECONDARY_BOX],
-				SECONDARY_W_PIC_X,SECONDARY_W_PIC_Y,
-				SECONDARY_WEAPON_NAMES_SHORT(weapon_num),
-				SECONDARY_W_TEXT_X,SECONDARY_W_TEXT_Y, multires_gauge_graphic);
+			box = &gauge_boxes[COCKPIT_SECONDARY_BOX];
+			pic_x = SECONDARY_W_PIC_X;
+			pic_y = SECONDARY_W_PIC_Y;
+			text_x = SECONDARY_W_TEXT_X;
+			text_y = SECONDARY_W_TEXT_Y;
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
+		draw_weapon_info_sub(info_index, box, pic_x,pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
