@@ -45,7 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "console.h"
 #include "config.h"
-#include "inferno.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -66,7 +65,6 @@ const uint8_t kerndata_terminator = 255;
 
 struct openfont
 {
-	array<char, FILENAME_LEN> filename;
 	// Unowned
 	grs_font *ptr;
 };
@@ -880,7 +878,7 @@ void gr_remap_color_fonts()
 	{
 		auto font = i.ptr;
 		if (font && (font->ft_flags & FT_COLOR))
-			gr_remap_font(font, &i.filename[0], i.ptr->ft_allocdata.get());
+			gr_remap_font(font, &font->ft_filename[0], font->ft_allocdata.get());
 	}
 }
 
@@ -916,8 +914,6 @@ grs_font_ptr gr_init_font( const char * fontname )
 	if (i == e)
 		throw std::logic_error("too many open fonts");
 	auto &f = *i;
-
-	strncpy(&f.filename[0], fontname, FILENAME_LEN);
 
 	auto fontfile = PHYSFSX_openReadBuffered(fontname);
 
@@ -1039,8 +1035,10 @@ grs_font_ptr gr_init_font( const char * fontname )
 	ogl_init_font(font.get());
 #endif
 
+	auto &ft_filename = font->ft_filename;
+	font->ft_allocdata = move(font_data);
+	strncpy(&ft_filename[0], fontname, ft_filename.size());
 	f.ptr = font.get();
-	f.ptr->ft_allocdata = move(font_data);
 	return grs_font_ptr(font.release());
 }
 

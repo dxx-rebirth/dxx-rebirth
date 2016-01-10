@@ -84,6 +84,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	short       ft_baseline;    //
 	ubyte       ft_minchar;     // First char defined by this font
 	ubyte       ft_maxchar;     // Last char defined by this font
+	array<char, 13> ft_filename;
 	ubyte     * ft_data;        // Ptr to raw data.
 	std::unique_ptr<ubyte *[]>    ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
