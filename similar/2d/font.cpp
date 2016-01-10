@@ -854,7 +854,7 @@ void (gr_printt)(int x, int y, const char *format, ...)
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 	F(x, y, buffer);
 }
