@@ -700,55 +700,56 @@ void gr_string(const int x, const int y, const char *const s)
 	gr_string(x, y, s, w, h);
 }
 
+static void gr_ustring_mono(int x, int y, const char *s)
+{
+	switch(TYPE)
+	{
+		case BM_LINEAR:
+			if (grd_curcanv->cv_font_bg_color == -1)
+				gr_internal_string0m(x, y, s);
+			else
+				gr_internal_string0(x, y, s);
+	}
+}
+
 void gr_string(const int x, const int y, const char *const s, const int w, const int h)
 {
-	int clipped=0;
-
 	Assert(grd_curcanv->cv_font != NULL);
 
 	const auto bm_h = grd_curcanv->cv_bitmap.bm_h;
 	if (y > bm_h)
 		return;
 	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
+	int xw = w;
 	if ( x == 0x8000 )	{
 		if (y + h < 0)
 			return;
 		// for x, since this will be centered, only look at
 		// width.
-		if (w > bm_w)
-			clipped = 1;
 	} else {
 		if (x > bm_w)
 			return;
 		if (x + w < 0 ||
 			y + h < 0)
 			return;
-		if (x < 0 ||
-			x + w > bm_w)
-			clipped = 1;
+		xw += x;
 	}
-	if (y < 0 ||
-		y + h > bm_h)
-		clipped = 1;
-
-	if ( !clipped )
-	{
-		gr_ustring(x, y, s );
-		return;
-	}
-
-	// Partially clipped...
+	if (
 #ifdef OGL
-	if (TYPE==BM_OGL)
+		TYPE == BM_OGL ||
+#endif
+		grd_curcanv->cv_font->ft_flags & FT_COLOR)
 	{
-		ogl_internal_string(x,y,s);
+		gr_internal_color_string(x, y, s);
 		return;
 	}
-#endif
-
-	if (grd_curcanv->cv_font->ft_flags & FT_COLOR)
+	// Partially clipped...
+	if (!(y < 0 ||
+		x < 0 ||
+		xw > bm_w ||
+		y + h > bm_h))
 	{
-		gr_internal_color_string( x, y, s);
+		gr_ustring_mono(x, y, s);
 		return;
 	}
 
@@ -772,20 +773,10 @@ void gr_ustring(int x, int y, const char *s )
 #endif
 	
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) {
-
 		gr_internal_color_string(x,y,s);
-
 	}
 	else
-		switch( TYPE )
-		{
-		case BM_LINEAR:
-			if ( grd_curcanv->cv_font_bg_color == -1)
-				gr_internal_string0m(x,y,s);
-			else
-				gr_internal_string0(x,y,s);
-		}
-	return;
+		gr_ustring_mono(x, y, s);
 }
 
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
