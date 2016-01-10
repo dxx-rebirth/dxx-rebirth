@@ -269,15 +269,14 @@ void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
 void gr_string(int x, int y, const char *s, int w, int h);
 void gr_ustring(int x, int y, const char *s);
-void gr_printf(int x, int y, const char * format, ...) __attribute_format_printf(3, 4);
-#define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printf,gr_string,(A1,A2),(F),##__VA_ARGS__)
-void gr_uprintf(int x, int y, const char * format, ...) __attribute_format_printf(3, 4);
-#define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_uprintf,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
+template <void (&)(int, int, const char *)>
+void gr_printt(int x, int y, const char *format, ...) __attribute_format_printf(3, 4);
+#define gr_printfs(...)	gr_printt<gr_string>(__VA_ARGS__)
+#define gr_printfus(...)	gr_printt<gr_ustring>(__VA_ARGS__)
+#define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2),(F),##__VA_ARGS__)
+#define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
 std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit);
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
-}
-
-namespace dcx {
 
 // From scale.c
 void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation);

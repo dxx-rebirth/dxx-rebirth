@@ -847,7 +847,8 @@ std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned lim
 	return {s, static_cast<unsigned>(string_width_f)};
 }
 
-void (gr_uprintf)( int x, int y, const char * format, ... )
+template <void (&F)(int, int, const char *)>
+void (gr_printt)(int x, int y, const char *format, ...)
 {
 	char buffer[1000];
 	va_list args;
@@ -855,19 +856,11 @@ void (gr_uprintf)( int x, int y, const char * format, ... )
 	va_start(args, format );
 	vsprintf(buffer,format,args);
 	va_end(args);
-	gr_ustring( x, y, buffer );
+	F(x, y, buffer);
 }
 
-void (gr_printf)( int x, int y, const char * format, ... )
-{
-	char buffer[1000];
-	va_list args;
-
-	va_start(args, format );
-	vsprintf(buffer,format,args);
-	va_end(args);
-	gr_string( x, y, buffer );
-}
+template void gr_printt<gr_string>(int, int, const char *, ...);
+template void gr_printt<gr_ustring>(int, int, const char *, ...);
 
 void gr_close_font(std::unique_ptr<grs_font> font)
 {
