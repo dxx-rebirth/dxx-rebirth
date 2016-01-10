@@ -63,18 +63,12 @@ namespace {
 
 const uint8_t kerndata_terminator = 255;
 
-struct openfont
-{
-	// Unowned
-	grs_font *ptr;
-};
-
 }
 
 namespace dcx {
 
 //list of open fonts, for use (for now) for palette remapping
-static array<openfont, MAX_OPEN_FONTS> open_font;
+static array<grs_font *, MAX_OPEN_FONTS> open_font;
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
@@ -855,16 +849,17 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 {
 	if (font)
 	{
-		//find font in list
-		auto e = end(open_font);
-		auto i = std::find_if(begin(open_font), e, [&font](const openfont &o) { return o.ptr == font.get(); });
-		if (i == e)
-			throw std::logic_error("closing non-open font");
 #ifdef OGL
 		gr_free_bitmap_data(font->ft_parent_bitmap);
 #endif
-		auto &f = *i;
-		f.ptr = nullptr;
+		//find font in list
+		if (!(font->ft_flags & FT_COLOR))
+			return;
+		auto e = end(open_font);
+		auto i = std::find(begin(open_font), e, font.get());
+		if (i == e)
+			throw std::logic_error("closing non-open font");
+		*i = nullptr;
 	}
 }
 
@@ -874,10 +869,9 @@ static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
 {
-	range_for (auto &i, open_font)
+	range_for (auto font, open_font)
 	{
-		auto font = i.ptr;
-		if (font && (font->ft_flags & FT_COLOR))
+		if (font)
 			gr_remap_font(font, &font->ft_filename[0], font->ft_allocdata.get());
 	}
 }
@@ -907,13 +901,6 @@ grs_font_ptr gr_init_font( const char * fontname )
 		array<char, 4> magic;
 		unsigned datasize;	//size up to (but not including) palette
 	} file_header;
-
-	//find free font slot
-	auto e = end(open_font);
-	auto i = std::find_if(begin(open_font), e, [](const openfont &o) { return o.ptr == NULL; });
-	if (i == e)
-		throw std::logic_error("too many open fonts");
-	auto &f = *i;
 
 	auto fontfile = PHYSFSX_openReadBuffered(fontname);
 
@@ -1038,7 +1025,14 @@ grs_font_ptr gr_init_font( const char * fontname )
 	auto &ft_filename = font->ft_filename;
 	font->ft_allocdata = move(font_data);
 	strncpy(&ft_filename[0], fontname, ft_filename.size());
-	f.ptr = font.get();
+	if (font->ft_flags & FT_COLOR)
+	{
+		auto e = end(open_font);
+		auto i = std::find(begin(open_font), e, static_cast<grs_font *>(nullptr));
+		if (i == e)
+			throw std::logic_error("too many open fonts");
+		*i = font.get();
+	}
 	return grs_font_ptr(font.release());
 }
 
