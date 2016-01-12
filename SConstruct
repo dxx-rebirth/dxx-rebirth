@@ -179,12 +179,13 @@ class ConfigureTests:
 			# Restore potential quiet build options
 			env.Replace(**self.cc_env_strings)
 	class pkgconfig:
-		def _get_pkg_config_exec_path(context,message,pkgconfig):
+		def _get_pkg_config_exec_path(context,msgprefix,pkgconfig):
+			Display = context.Display
 			if not pkgconfig:
-				message("pkg-config is disabled by user settings")
+				Display("%s: pkg-config disabled by user settings\n" % msgprefix)
 				return pkgconfig
 			if os.sep in pkgconfig:
-				message("using pkg-config at user specified path %s" % pkgconfig)
+				Display("%s: using pkg-config at user specified path %s\n" % (msgprefix, pkgconfig))
 				return pkgconfig
 			join = os.path.join
 			# No path specified, search in $PATH
@@ -199,9 +200,9 @@ class ConfigureTests:
 					if e.errno == errno.ENOENT or e.errno == errno.EACCES:
 						continue
 					raise
-				message("using pkg-config at discovered path %s" % fp)
+				Display("%s: using pkg-config at discovered path %s\n" % (msgprefix, fp))
 				return fp
-			message("no usable pkg-config %r found in $PATH" % pkgconfig)
+			Display("%s: no usable pkg-config %r found in $PATH\n" % (msgprefix, pkgconfig))
 		def __get_pkg_config_path(context,message,user_settings,display_name,
 				_get_pkg_config_exec_path=_get_pkg_config_exec_path,
 				_cache={}):
@@ -218,25 +219,27 @@ class ConfigureTests:
 		def merge(context,message,user_settings,pkgconfig_name,display_name,
 				__get_pkg_config_path=__get_pkg_config_path,
 				_cache={}):
-			message("checking %s pkg-config %s" % (display_name, pkgconfig_name))
+			Display = context.Display
+			Display("%s: checking %s pkg-config %s\n" % (message, display_name, pkgconfig_name))
 			pkgconfig = __get_pkg_config_path(context, message, user_settings, display_name)
 			if not pkgconfig:
-				message("skipping %s pkg-config" % display_name)
+				Display("%s: skipping %s pkg-config; user must add required flags via environment for `%s`\n" % (message, display_name))
 				return {}
 			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
 			try:
 				flags = _cache[cmd]
-				message("reusing %s settings from `%s`" % (display_name, cmd))
+				Display("%s: reusing %s settings from `%s`: %r\n" % (message, display_name, cmd, flags))
 				return flags
 			except KeyError as e:
-				message("reading %s settings from `%s`" % (display_name, cmd))
+				Display("%s: reading %s settings from `%s`\n" % (message, display_name, cmd))
 				try:
 					flags = {
 						k:v for k,v in context.env.ParseFlags('!' + cmd).items()
 							if v and (k[0] == 'C' or k[0] == 'L')
 					}
+					Display("%s: %s settings: %r\n" % (message, display_name, flags))
 				except OSError as o:
-					message("%s pkg-config failed; user must add required flags via environment for `%s`" % (display_name, cmd))
+					Display("%s: %s pkg-config failed; user must add required flags via environment for `%s`\n" % (message, display_name, cmd))
 					flags = {}
 				_cache[cmd] = flags
 				return flags
@@ -323,8 +326,6 @@ struct %(N)s_derived : %(N)s_base {
 		self.successful_flags = defaultdict(list)
 		self._sconf_results = []
 		self.__tool_versions = []
-	def message(self,msg):
-		print "%s: %s" % (self.msgprefix, msg)
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -721,6 +722,16 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if e:
 			raise SCons.Errors.StopError(e[1])
 	@_custom_test
+	def check_opengles(self,context):
+		user_settings = self.user_settings
+		Result = context.Result
+		if user_settings.opengles:
+			Result('%s: building with OpenGL ES' % self.msgprefix)
+		elif user_settings.opengl:
+			Result('%s: building with OpenGL' % self.msgprefix)
+		else:
+			Result('%s: building with software renderer' % self.msgprefix)
+	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
 	PHYSFS_File *f;
@@ -741,7 +752,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if not e:
 			return
 		if e[0] == 0:
-			self.message("physfs header usable; adding zlib and retesting library")
+			context.Display("%s: physfs header usable; adding zlib and retesting library\n" % self.msgprefix)
 			l.append('z')
 			e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if e:
@@ -762,7 +773,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._check_libSDL(context, '2')
 	def _check_libSDL(self,context,sdl2):
 		user_settings = self.user_settings
-		successflags = self.pkgconfig.merge(context, self.message, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2).copy()
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2).copy()
 		if user_settings.max_joysticks:
 			# If joysticks are enabled, but all possible inputs are
 			# disabled, then disable joystick support.
@@ -808,13 +819,14 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._check_SDL_mixer(context, '2')
 	def _check_SDL_mixer(self,context,sdl2):
 		mixer = 'SDL%s_mixer' % sdl2
-		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if self.user_settings.sdlmixer else 'no'))
+		user_settings = self.user_settings
+		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
-		if not self.user_settings.sdlmixer:
+		if not user_settings.sdlmixer:
 			return
 		self.successful_flags['CPPDEFINES'].append('USE_SDLMIXER')
-		successflags = self.pkgconfig.merge(context, self.message, self.user_settings, mixer, mixer)
-		if self.user_settings.host_platform == 'darwin':
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer)
+		if user_settings.host_platform == 'darwin':
 			successflags = successflags.copy()
 			successflags['FRAMEWORKS'] = [mixer]
 			relative_headers = 'Library/Frameworks/%s.framework/Headers' % mixer
@@ -2956,10 +2968,7 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 		if user_settings.opengl or user_settings.opengles:
 			if user_settings.opengles:
-				message(self, "building with OpenGL ES")
 				add_cpp_define('OGLES')
-			else:
-				message(self, "building with OpenGL")
 			add_cpp_define('OGL')
 
 		# debug?
@@ -3486,7 +3495,6 @@ class DXXProgram(DXXCommon):
 			objects.extend(static_archive_construction.objects_arch_ogl)
 			objects.extend(self.objects_similar_arch_ogl)
 		else:
-			message(self, "building with Software Renderer")
 			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
 		if self.user_settings.editor:
