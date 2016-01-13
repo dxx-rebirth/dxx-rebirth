@@ -210,6 +210,8 @@ class ConfigureTests:
 			if pkgconfig is None:
 				CHOST = user_settings.CHOST
 				pkgconfig = ('%s-pkg-config' % CHOST) if CHOST else 'pkg-config'
+				if sys.platform == 'win32':
+					pkgconfig += '.exe'
 			try:
 				return _cache[pkgconfig]
 			except KeyError:
@@ -217,14 +219,15 @@ class ConfigureTests:
 			return path
 		@staticmethod
 		def merge(context,message,user_settings,pkgconfig_name,display_name,
+				guess_flags,
 				__get_pkg_config_path=__get_pkg_config_path,
 				_cache={}):
 			Display = context.Display
 			Display("%s: checking %s pkg-config %s\n" % (message, display_name, pkgconfig_name))
 			pkgconfig = __get_pkg_config_path(context, message, user_settings, display_name)
 			if not pkgconfig:
-				Display("%s: skipping %s pkg-config; user must add required flags via environment for `%s`\n" % (message, display_name))
-				return {}
+				Display("%s: skipping %s pkg-config; using default flags %r\n" % (message, display_name, guess_flags))
+				return guess_flags
 			cmd = '%s --cflags --libs %s' % (pkgconfig, pkgconfig_name)
 			try:
 				flags = _cache[cmd]
@@ -239,8 +242,8 @@ class ConfigureTests:
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
 				except OSError as o:
-					Display("%s: %s pkg-config failed; user must add required flags via environment for `%s`\n" % (message, display_name, cmd))
-					flags = {}
+					Display("%s: %s pkg-config failed; using default flags for `%s`: %r\n" % (message, display_name, cmd, guess_flags))
+					flags = guess_flags
 				_cache[cmd] = flags
 				return flags
 	# Force test to report failure
@@ -766,14 +769,20 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			self.check_libSDL(context)
 			self.check_SDL_mixer(context)
 	@_implicit_test
-	def check_libSDL(self,context):
-		self._check_libSDL(context, '')
+	def check_libSDL(self,context,_guess_flags={
+			'CPPFLAGS' : ['-I/usr/include/SDL'],
+			'LIBS' : ['SDL'],
+		}):
+		self._check_libSDL(context, '', _guess_flags)
 	@_implicit_test
-	def check_libSDL2(self,context):
-		self._check_libSDL(context, '2')
-	def _check_libSDL(self,context,sdl2):
+	def check_libSDL2(self,context,_guess_flags={
+			'CPPFLAGS' : ['-I/usr/include/SDL2'],
+			'LIBS' : ['SDL2'],
+		}):
+		self._check_libSDL(context, '2', _guess_flags)
+	def _check_libSDL(self,context,sdl2,guess_flags):
 		user_settings = self.user_settings
-		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2).copy()
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2, guess_flags).copy()
 		if user_settings.max_joysticks:
 			# If joysticks are enabled, but all possible inputs are
 			# disabled, then disable joystick support.
@@ -811,13 +820,18 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 ''' % init_cdrom,
 			lib='SDL', successflags=successflags
 		)
+	# SDL_mixer/SDL2_mixer use the same -I line as SDL/SDL2
 	@_implicit_test
-	def check_SDL_mixer(self,context):
-		self._check_SDL_mixer(context, '')
+	def check_SDL_mixer(self,context,_guess_flags={
+			'LIBS' : ['SDL_mixer'],
+		}):
+		self._check_SDL_mixer(context, '', _guess_flags)
 	@_implicit_test
-	def check_SDL2_mixer(self,context):
-		self._check_SDL_mixer(context, '2')
-	def _check_SDL_mixer(self,context,sdl2):
+	def check_SDL2_mixer(self,context,_guess_flags={
+			'LIBS' : ['SDL2_mixer'],
+		}):
+		self._check_SDL_mixer(context, '2', _guess_flags)
+	def _check_SDL_mixer(self,context,sdl2,guess_flags):
 		mixer = 'SDL%s_mixer' % sdl2
 		user_settings = self.user_settings
 		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
@@ -825,7 +839,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		if not user_settings.sdlmixer:
 			return
 		self.successful_flags['CPPDEFINES'].append('USE_SDLMIXER')
-		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer)
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer, guess_flags)
 		if user_settings.host_platform == 'darwin':
 			successflags = successflags.copy()
 			successflags['FRAMEWORKS'] = [mixer]
