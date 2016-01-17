@@ -375,16 +375,16 @@ void ogl_cache_polymodel_textures(int model_num)
 }
 
 static void ogl_cache_vclip_textures(vclip *vc){
-	int i;
-	for (i=0;i<vc->num_frames;i++){
-		PIGGY_PAGE_IN(vc->frames[i]);
-		ogl_loadbmtexture(GameBitmaps[vc->frames[i].index]);
+	range_for (auto &i, partial_range(vc->frames, vc->num_frames))
+	{
+		PIGGY_PAGE_IN(i);
+		ogl_loadbmtexture(GameBitmaps[i.index]);
 	}
 }
 
-static void ogl_cache_vclipn_textures(int i)
+static void ogl_cache_vclipn_textures(unsigned i)
 {
-	if (i >= 0 && i < VCLIP_MAXNUM)
+	if (i < Vclip.size())
 		ogl_cache_vclip_textures(&Vclip[i]);
 }
 
@@ -479,80 +479,40 @@ void ogl_cache_level_textures(void)
 			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
 			{
 				ogl_cache_vclipn_textures(objp->rtype.vclip_info.vclip_num);
-				switch (get_powerup_id(objp)){
-					case POW_VULCAN_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::VULCAN_INDEX]);
-						break;
-					case POW_SPREADFIRE_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::SPREADFIRE_INDEX]);
-						break;
-					case POW_PLASMA_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::PLASMA_INDEX]);
-						break;
-					case POW_FUSION_WEAPON:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[primary_weapon_index_t::FUSION_INDEX]);
-						break;
-					case POW_PROXIMITY_WEAPON:
-						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[PROXIMITY_INDEX]);
-						break;
-					case POW_HOMING_AMMO_1:
-					case POW_HOMING_AMMO_4:
-						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[HOMING_INDEX]);
-						break;
-					case POW_SMARTBOMB_WEAPON:
-						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[SMART_INDEX]);
-						break;
-					case POW_MEGA_WEAPON:
-						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[MEGA_INDEX]);
-						break;
-					case POW_EXTRA_LIFE:
-					case POW_ENERGY:
-					case POW_SHIELD_BOOST:
-					case POW_LASER:
-					case POW_KEY_BLUE:
-					case POW_KEY_RED:
-					case POW_KEY_GOLD:
-					case POW_MISSILE_1:
-					case POW_MISSILE_4:
-					case POW_QUAD_FIRE:
-					case POW_VULCAN_AMMO:
-					case POW_CLOAK:
-					case POW_TURBO:
-					case POW_INVULNERABILITY:
-					case POW_MEGAWOW:
-#if defined(DXX_BUILD_DESCENT_II)
-					case POW_FULL_MAP:
-					case POW_HEADLIGHT:
-					case POW_HOARD_ORB:
-					case POW_GAUSS_WEAPON:
-					case POW_HELIX_WEAPON:
-					case POW_PHOENIX_WEAPON:
-					case POW_OMEGA_WEAPON:
-					case POW_SUPER_LASER:
-					case POW_CONVERTER:
-					case POW_AMMO_RACK:
-					case POW_AFTERBURNER:
-					case POW_SMISSILE1_1:
-					case POW_SMISSILE1_4:
-					case POW_GUIDED_MISSILE_1:
-					case POW_GUIDED_MISSILE_4:
-					case POW_SMART_MINE:
-					case POW_MERCURY_MISSILE_1:
-					case POW_MERCURY_MISSILE_4:
-					case POW_EARTHSHAKER_MISSILE:
-					case POW_FLAG_BLUE:
-					case POW_FLAG_RED:
-#endif
-						break;
+				const auto id = get_powerup_id(objp);
+				primary_weapon_index_t p;
+				secondary_weapon_index_t s;
+				int w;
+				if (
+					(
+						(
+							(id == POW_VULCAN_WEAPON && (p = primary_weapon_index_t::VULCAN_INDEX, true)) ||
+							(id == POW_SPREADFIRE_WEAPON && (p = primary_weapon_index_t::SPREADFIRE_INDEX, true)) ||
+							(id == POW_PLASMA_WEAPON && (p = primary_weapon_index_t::PLASMA_INDEX, true)) ||
+							(id == POW_FUSION_WEAPON && (p = primary_weapon_index_t::FUSION_INDEX, true))
+						) && (w = Primary_weapon_to_weapon_info[p], true)
+					) ||
+					(
+						(
+							(id == POW_PROXIMITY_WEAPON && (s = secondary_weapon_index_t::PROXIMITY_INDEX, true)) ||
+							((id == POW_HOMING_AMMO_1 || id == POW_HOMING_AMMO_4) && (s = secondary_weapon_index_t::HOMING_INDEX, true)) ||
+							(id == POW_SMARTBOMB_WEAPON && (s = secondary_weapon_index_t::SMART_INDEX, true)) ||
+							(id == POW_MEGA_WEAPON && (s = secondary_weapon_index_t::MEGA_INDEX, true))
+						) && (w = Secondary_weapon_to_weapon_info[s], true)
+					)
+				)
+				{
+					ogl_cache_weapon_textures(w);
 				}
 			}
 			else if (objp->type != OBJ_NONE && objp->render_type==RT_POLYOBJ)
 			{
 				if (objp->type == OBJ_ROBOT)
 				{
-					ogl_cache_vclipn_textures(Robot_info[get_robot_id(objp)].exp1_vclip_num);
-					ogl_cache_vclipn_textures(Robot_info[get_robot_id(objp)].exp2_vclip_num);
-					ogl_cache_weapon_textures(Robot_info[get_robot_id(objp)].weapon_type);
+					auto &ri = Robot_info[get_robot_id(objp)];
+					ogl_cache_vclipn_textures(ri.exp1_vclip_num);
+					ogl_cache_vclipn_textures(ri.exp2_vclip_num);
+					ogl_cache_weapon_textures(ri.weapon_type);
 				}
 				if (objp->rtype.pobj_info.tmap_override != -1)
 					ogl_loadbmtexture(GameBitmaps[Textures[objp->rtype.pobj_info.tmap_override].index]);
