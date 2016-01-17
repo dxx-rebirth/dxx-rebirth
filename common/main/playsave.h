@@ -101,8 +101,10 @@ struct player_config : prohibit_void_ptr<player_config>
 	ubyte ControlType;
 	HudType HudMode;
 	RespawnPress RespawnMode;
-	array<ubyte, MAX_PRIMARY_WEAPONS + 1> PrimaryOrder;
-	array<ubyte, MAX_SECONDARY_WEAPONS + 1> SecondaryOrder;
+	using primary_weapon_order = array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
+	using secondary_weapon_order = array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
+	primary_weapon_order PrimaryOrder;
+	secondary_weapon_order SecondaryOrder;
 	array<array<ubyte, MAX_CONTROLS>, 3> KeySettings;
 	array<ubyte, MAX_DXX_REBIRTH_CONTROLS> KeySettingsRebirth;
 	int DefaultDifficulty;

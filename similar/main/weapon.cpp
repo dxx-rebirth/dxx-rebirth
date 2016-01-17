@@ -259,6 +259,10 @@ class cycle_weapon_state
 {
 public:
 	static constexpr tt::integral_constant<uint8_t, 255> cycle_never_autoselect_below{};
+	static constexpr char DXX_WEAPON_TEXT_NEVER_AUTOSELECT[] = "--- Never autoselect below ---";
+	__attribute_cold
+	__attribute_noreturn
+	static void report_runtime_error(const char *);
 };
 
 class cycle_primary_state : public cycle_weapon_state
@@ -268,11 +272,13 @@ class cycle_primary_state : public cycle_weapon_state
 #endif
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
+	static constexpr char reorder_title[] = "Reorder Primary";
+	static constexpr char error_weapon_list_corrupt[] = "primary weapon list corrupt";
 	static uint_fast32_t get_cycle_position(uint_fast32_t i)
 	{
 		return POrderList(i);
 	}
-	static uint_fast32_t get_weapon_by_order_slot(uint_fast32_t cur_order_slot)
+	static player_config::primary_weapon_order::reference get_weapon_by_order_slot(player_config::primary_weapon_order::size_type cur_order_slot)
 	{
 		return PlayerCfg.PrimaryOrder[cur_order_slot];
 	}
@@ -304,17 +310,23 @@ public:
 		HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
 		select_primary_weapon(nullptr, 0, 1);
 	}
+	static const char *get_weapon_name(uint8_t i)
+	{
+		return i == cycle_never_autoselect_below ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(i);
+	}
 };
 
 class cycle_secondary_state : public cycle_weapon_state
 {
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
+	static constexpr char reorder_title[] = "Reorder Secondary";
+	static constexpr char error_weapon_list_corrupt[] = "secondary weapon list corrupt";
 	static uint_fast32_t get_cycle_position(uint_fast32_t i)
 	{
 		return SOrderList(i);
 	}
-	static uint_fast32_t get_weapon_by_order_slot(uint_fast32_t cur_order_slot)
+	static player_config::secondary_weapon_order::reference get_weapon_by_order_slot(player_config::secondary_weapon_order::size_type cur_order_slot)
 	{
 		return PlayerCfg.SecondaryOrder[cur_order_slot];
 	}
@@ -333,11 +345,25 @@ public:
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapons available!");
 	}
+	static const char *get_weapon_name(uint8_t i)
+	{
+		return i == cycle_never_autoselect_below ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(i);
+	}
 };
 
 constexpr tt::integral_constant<uint8_t, 255> cycle_weapon_state::cycle_never_autoselect_below;
+constexpr char cycle_weapon_state::DXX_WEAPON_TEXT_NEVER_AUTOSELECT[];
 constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> cycle_primary_state::max_weapons;
+constexpr char cycle_primary_state::reorder_title[];
+constexpr char cycle_primary_state::error_weapon_list_corrupt[];
 constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> cycle_secondary_state::max_weapons;
+constexpr char cycle_secondary_state::reorder_title[];
+constexpr char cycle_secondary_state::error_weapon_list_corrupt[];
+
+void cycle_weapon_state::report_runtime_error(const char *const p)
+{
+	throw std::runtime_error(p);
+}
 
 template <typename T>
 void CycleWeapon(T t, const uint_fast32_t effective_weapon)
@@ -771,64 +797,49 @@ int pick_up_secondary(int weapon_index,int count)
 	return 1;
 }
 
-#define DXX_WEAPON_TEXT_NEVER_AUTOSELECT	"--- Never Autoselect below ---"
+template <typename T>
+static void ReorderWeapon()
+{
+	array<newmenu_item, T::max_weapons + 1> m;
+	for (unsigned i = 0; i != m.size(); ++i)
+	{
+		const auto o = T::get_weapon_by_order_slot(i);
+		m[i].value = o;
+		nm_set_item_menu(m[i], T::get_weapon_name(o));
+	}
+	newmenu_doreorder(T::reorder_title, "Shift+Up/Down arrow to move item", m.size(), m.data());
+	for (unsigned i = 0; i != m.size(); ++i)
+		T::get_weapon_by_order_slot(i) = m[i].value;
+}
+
 void ReorderPrimary ()
 {
-	newmenu_item m[MAX_PRIMARY_WEAPONS+1];
-	int i;
-
-	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-	{
-		ubyte order = PlayerCfg.PrimaryOrder[i];
-		nm_set_item_menu(m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(order));
-		m[i].value=order;
-	}
-	newmenu_doreorder("Reorder Primary","Shift+Up/Down arrow to move item", i, m);
-
-	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-		PlayerCfg.PrimaryOrder[i]=m[i].value;
+	ReorderWeapon<cycle_primary_state>();
 }
 
 void ReorderSecondary ()
 {
-	newmenu_item m[MAX_SECONDARY_WEAPONS+1];
-	int i;
+	ReorderWeapon<cycle_secondary_state>();
+}
 
-	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-	{
-		ubyte order = PlayerCfg.SecondaryOrder[i];
-		nm_set_item_menu(m[i], (order==255) ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(order));
-		m[i].value=order;
-	}
-	newmenu_doreorder("Reorder Secondary","Shift+Up/Down arrow to move item", i, m);
-	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-		PlayerCfg.SecondaryOrder[i]=m[i].value;
+template <typename T>
+static uint_fast32_t search_weapon_order_list(uint8_t goal)
+{
+	for (uint_fast32_t i = 0; i != T::max_weapons + 1; ++i)
+		if (T::get_weapon_by_order_slot(i) == goal)
+			return i;
+	T::report_runtime_error(T::error_weapon_list_corrupt);
 }
 
 uint_fast32_t POrderList (uint_fast32_t num)
 {
-	int i;
-
-	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-	if (PlayerCfg.PrimaryOrder[i]==num)
-	{
-		return (i);
-	}
-	throw std::runtime_error("primary weapon list corrupt");
+	return search_weapon_order_list<cycle_primary_state>(num);
 }
 
 uint_fast32_t SOrderList (uint_fast32_t num)
 {
-	int i;
-
-	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-		if (PlayerCfg.SecondaryOrder[i]==num)
-		{
-			return (i);
-		}
-	throw std::runtime_error("secondary weapon list corrupt");
+	return search_weapon_order_list<cycle_secondary_state>(num);
 }
-
 
 //called when a primary weapon is picked up
 //returns true if actually picked up
