@@ -3536,7 +3536,7 @@ class DXXProgram(DXXCommon):
 		versid_build_environ.append('git_status')
 		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
 		versid_build_environ.append('git_diffstat')
-		versid_cppdefines.append(('DXX_RBE"(A)"', "'%s'" % ''.join(['A(%s)' % k for k in versid_build_environ])))
+		versid_cppdefines.append(('DXX_RBE"(A)"', '"%s"' % ''.join(['A(%s)' % k for k in versid_build_environ])))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
