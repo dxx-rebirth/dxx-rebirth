@@ -2676,7 +2676,7 @@ class DXXCommon(LazyObjectConstructor):
 			return DXXCommon.UserBuildSettings._options(self) + DXXCommon.UserInstallSettings._options(self)
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
-		tools = ['g++', 'gnulink']
+		tools = ('g++', 'gnulink')
 		ogllibs = ''
 		platform_objects = []
 		def __init__(self,program,user_settings):
@@ -2688,7 +2688,7 @@ class DXXCommon(LazyObjectConstructor):
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		ogllibs = ('opengl32',)
-		tools = ['mingw']
+		tools = ('mingw',)
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
@@ -2702,6 +2702,10 @@ class DXXCommon(LazyObjectConstructor):
 			)
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
+	# Darwin targets include Objective-C (not Objective-C++) code to
+	# access Apple-specific functionality.  Add 'gcc' to the target
+	# list to support this.
+	DarwinPlatformSettings.tools += ('gcc',)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		@property
@@ -2970,7 +2974,7 @@ class DXXCommon(LazyObjectConstructor):
 	def env(self):
 		platform_settings = self.platform_settings
 		# Acquire environment object...
-		env = Environment(ENV = os.environ, tools = platform_settings.tools + ['textfile'])
+		env = Environment(ENV = os.environ, tools = platform_settings.tools + ('textfile',))
 		platform_settings.adjust_environment(self, env)
 		return env
 
