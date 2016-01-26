@@ -755,6 +755,9 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_editor(self,context,_CPPDEFINES=(('EDITOR',),)):
 		self._result_check_user_setting(context, self.user_settings.editor, _CPPDEFINES, 'level editor')
 	@_custom_test
+	def _check_user_settings_ipv6(self,context,_CPPDEFINES=(('IPv6',),)):
+		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
+	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
 	PHYSFS_File *f;
@@ -3005,10 +3008,6 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
-		# IPv6 compability?
-		if user_settings.ipv6:
-			add_cpp_define('IPv6')
-
 		# UDP support?
 		if user_settings.use_udp:
 			add_cpp_define('USE_UDP')
