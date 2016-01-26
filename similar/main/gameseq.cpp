@@ -923,7 +923,7 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	newmenu_do2(nullptr, title, c, m, network && (Game_mode & GM_NETWORK) ? multi_endlevel_poll1 : unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
+	newmenu_do2(nullptr, title, c, m, network && (Game_mode & GM_NETWORK) ? get_multi_endlevel_poll1() : unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

@@ -292,7 +292,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 							nm_item_menu(TXT_YES),
 							nm_item_menu(TXT_NO),
 						}};
-						choice = newmenu_do( NULL, TXT_ABORT_GAME, nm_message_items, km->network ? multi_endlevel_poll2 : unused_newmenu_subfunction, unused_newmenu_userdata );
+						choice = newmenu_do(nullptr, TXT_ABORT_GAME, nm_message_items, km->network ? get_multi_endlevel_poll2() : unused_newmenu_subfunction, unused_newmenu_userdata);
 					}
 					
 					if (choice==0)
@@ -357,8 +357,6 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 						
 						multi_leave_game();
                                                 km->aborted = 1;
-
-						return window_event_result::close;
 					}
 				}
 #endif

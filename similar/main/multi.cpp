@@ -1124,38 +1124,30 @@ multi_endlevel(int *secret)
 	return(result);
 }
 
-int multi_endlevel_poll1( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
+multi_endlevel_poll *get_multi_endlevel_poll1()
 {
 	switch (multi_protocol)
 	{
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			return net_udp_kmatrix_poll1( menu, event, userdata );
-			break;
+			return net_udp_kmatrix_poll1;
 #endif
 		default:
-			Error("Protocol handling missing in multi_endlevel_poll1\n");
-			break;
+			throw std::logic_error("Protocol handling missing in multi_endlevel_poll1");
 	}
-	
-	return 0;	// kill warning
 }
 
-int multi_endlevel_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *userdata)
+multi_endlevel_poll *get_multi_endlevel_poll2()
 {
 	switch (multi_protocol)
 	{
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			return net_udp_kmatrix_poll2( menu, event, userdata );
-			break;
+			return net_udp_kmatrix_poll2;
 #endif
 		default:
-			Error("Protocol handling missing in multi_endlevel_poll2\n");
-			break;
+			throw std::logic_error("Protocol handling missing in multi_endlevel_poll2");
 	}
-	
-	return 0;
 }
 
 void multi_send_endlevel_packet()
