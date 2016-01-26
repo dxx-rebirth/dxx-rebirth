@@ -1204,7 +1204,6 @@ static void multi_message_feedback(void)
 {
 	char *colon;
 	int found = 0;
-	int i;
 	char feedback_result[200];
 
 	if (!(!(colon = strstr(Network_message.data(), ": ")) || colon == Network_message.data() || colon - Network_message.data() > CALLSIGN_LEN))
@@ -1217,15 +1216,15 @@ static void multi_message_feedback(void)
 		}
 		if (Game_mode & GM_TEAM)
 		{
-			for (i = 0; i < N_players; i++)
+			range_for (auto &i, Netgame.team_name)
 			{
-				if (!d_strnicmp(Netgame.team_name[i], Network_message.data(), colon - Network_message.data()))
+				if (!d_strnicmp(i, Network_message.data(), colon - Network_message.data()))
 				{
 					const char *comma = found ? ", " : "";
 					found++;
 					const char *newline = (!(found % 4)) ? "\n" : "";
 					size_t l = strlen(feedback_result);
-					snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s '%s'", comma, newline, TXT_TEAM, static_cast<const char *>(Netgame.team_name[i]));
+					snprintf(feedback_result + l, sizeof(feedback_result) - l, "%s%s%s '%s'", comma, newline, TXT_TEAM, static_cast<const char *>(i));
 				}
 			}
 		}
