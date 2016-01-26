@@ -635,6 +635,8 @@ static int state_default_item = 0;
 //Since state_default_item should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal state_default_item, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
 int state_quick_item = -1;
 
+namespace dsx {
+
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
  * savegame description will be stored.
@@ -737,8 +739,6 @@ int state_get_restore_file(char * fname, blind_save blind_save)
 {
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", blind_save);
 }
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)

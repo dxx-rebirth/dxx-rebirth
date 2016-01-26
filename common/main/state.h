@@ -57,9 +57,9 @@ enum class secret_restore
 	died,
 #endif
 };
-#endif
 
 }
+#endif
 
 namespace dcx {
 
@@ -73,10 +73,10 @@ enum class blind_save
 
 namespace dsx {
 int state_save_all_sub(const char *filename, const char *desc);
-}
 
 int state_get_save_file(char *fname, char * dsc, blind_save);
 int state_get_restore_file(char *fname, blind_save);
+}
 int state_get_game_id(const char *filename);
 
 #ifdef dsx
