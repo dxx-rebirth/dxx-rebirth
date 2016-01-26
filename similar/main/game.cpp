@@ -1668,37 +1668,31 @@ static void flicker_lights()
 static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(segnum_t segnum, int sidenum)
 {
 	//see if there's already an entry for this seg/side
-	auto pr = partial_range(Flickering_lights, Num_flickering_lights);
+	const auto &&pr = partial_range(Flickering_lights, Num_flickering_lights);
 	auto predicate = [segnum, sidenum](const flickering_light &f) {
 		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
 	};
 	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
 }
 
-template <typename F>
-static inline void update_flicker(segnum_t segnum, int sidenum, F f)
+template <fix timer>
+static inline void update_flicker(segnum_t segnum, int sidenum)
 {
 	auto i = find_flicker(segnum, sidenum);
 	if (i.first != i.second)
-		f(*i.first);
+		i.first->timer = timer;
 }
 
 //turn flickering off (because light has been turned off)
 void disable_flicker(segnum_t segnum,int sidenum)
 {
-	auto F = [](flickering_light &f) {
-		f.timer = 0x80000000;
-	};
-	update_flicker(segnum, sidenum, F);
+	update_flicker<0x80000000>(segnum, sidenum);
 }
 
 //turn flickering off (because light has been turned on)
 void enable_flicker(segnum_t segnum,int sidenum)
 {
-	auto F = [](flickering_light &f) {
-		f.timer = 0;
-	};
-	update_flicker(segnum, sidenum, F);
+	update_flicker<0>(segnum, sidenum);
 }
 #endif
 
