@@ -752,6 +752,9 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_memdebug(self,context,_CPPDEFINES=(('DEBUG_MEMORY_ALLOCATIONS',),)):
 		self._result_check_user_setting(context, self.user_settings.memdebug, _CPPDEFINES, 'memory allocation tracking')
 	@_custom_test
+	def _check_user_settings_editor(self,context,_CPPDEFINES=(('EDITOR',),)):
+		self._result_check_user_setting(context, self.user_settings.editor, _CPPDEFINES, 'level editor')
+	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
 	PHYSFS_File *f;
@@ -3002,10 +3005,6 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
-		#editor build?
-		if user_settings.editor:
-			add_cpp_define('EDITOR')
-
 		# IPv6 compability?
 		if user_settings.ipv6:
 			add_cpp_define('IPv6')
