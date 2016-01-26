@@ -876,8 +876,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		}
 
 		Players[killed_pnum].net_killed_total += 1;
+		const char *name0, *name1;
 		if (killer_pnum == Player_num) {
-			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
 			if (Game_mode & GM_MULTI_COOP)
 			{
 				const auto local_player_score = get_local_player().score;
@@ -885,14 +885,17 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			}
 			else
 				multi_add_lifetime_kills(adjust);
+			name0 = TXT_YOU;
+			name1 = killed_name;
 		}
-		else if (killed_pnum == Player_num)
+		else if (name0 = killer_name, killed_pnum == Player_num)
 		{
-			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
 			multi_add_lifetime_killed();
+			name1 = TXT_YOU;
 		}
 		else
-			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, killed_name);
+			name1 = killed_name;
+		HUD_init_message(HM_MULTI, "%s %s %s!", name0, TXT_KILLED, name1);
 	}
 
 	if (Netgame.KillGoal>0)
