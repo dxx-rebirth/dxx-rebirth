@@ -909,15 +909,12 @@ int wall_unlink_door()
 
 }
 
-#define	DIAGNOSTIC_MESSAGE_MAX				150
-
 int check_walls() 
 {
-	int wall_count, trigger_count;
 	count_wall CountedWalls[MAX_WALLS];
 	int matcen_num;
 
-	wall_count = 0;
+	unsigned wall_count = 0;
 	range_for (const auto &&segp, highest_valid(vsegptridx))
 	{
 		if (segp->segnum != segment_none) {
@@ -950,21 +947,23 @@ int check_walls()
 	}
 
 	// Check validity of Walls array.
-	for (int w=0; w<Num_walls; w++) {
-		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
-			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
+	range_for (auto &cw, partial_range(CountedWalls, Num_walls))
+	{
+		if (Walls[cw.wallnum].segnum != cw.segnum || Walls[cw.wallnum].sidenum != cw.sidenum)
+		{
 			if (ui_messagebox( -2, -2, 2, "Unmatched wall detected\nDo you wish to correct it?\n", "Yes", "No") == 1)
 			{
-				Walls[CountedWalls[w].wallnum].segnum = CountedWalls[w].segnum;
-				Walls[CountedWalls[w].wallnum].sidenum = CountedWalls[w].sidenum;
+				Walls[cw.wallnum].segnum = cw.segnum;
+				Walls[cw.wallnum].sidenum = cw.sidenum;
 			}
 		}
 	}
 
-	trigger_count = 0;
-	for (int w1=0; w1<wall_count; w1++) {
-		if (Walls[w1].trigger != trigger_none) trigger_count++;
-	}
+	const auto &&used_walls = partial_range(Walls, wall_count);
+	const auto predicate = [](const wall &w) {
+		return w.trigger != trigger_none;
+	};
+	unsigned trigger_count = std::count_if(used_walls.begin(), used_walls.end(), predicate);
 
 	if (trigger_count != Num_triggers) {
 		if (ui_messagebox(-2, -2, 2, "Num_triggers is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
@@ -985,8 +984,8 @@ int delete_all_walls()
 	{
 		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
-			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-				segp->sides[side].wall_num = wall_none;
+			range_for (auto &side, segp->sides)
+				side.wall_num = wall_none;
 		}
 		Num_walls=0;
 		Num_triggers=0;
