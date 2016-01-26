@@ -12,6 +12,7 @@
  */
 
 #pragma once
+#include "dxxsconf.h"
 
 void cmd_init(void);
 
@@ -22,6 +23,7 @@ void cmd_init(void);
 
 /* Add some commands to the queue to be executed */
 void cmd_enqueue(int insert, const char *input);
+__attribute_format_printf(2, 3)
 void cmd_enqueuef(int insert, const char *fmt, ...);
 #define cmd_append(input) cmd_enqueue(0, (input))
 #define cmd_appendf(...) cmd_enqueuef(0, __VA_ARGS__)
