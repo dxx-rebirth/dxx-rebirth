@@ -443,38 +443,38 @@ static void draw_wall_side(const vcsegptr_t seg,int side)
 #define	WALL_ILLUSION_COLOR				BM_XRGB( 63/2 ,  0/2 , 63/2)	// PURPLE
 
 #define	TRIGGER_COLOR						BM_XRGB( 63/2 , 63/2 ,  0/2)	// YELLOW
-#define	TRIGGER_DAMAGE_COLOR				BM_XRGB( 63/2 , 63/2 ,  0/2)	// YELLOW
 
 // ----------------------------------------------------------------------------------------------------------------
 // Draws special walls (for now these are just removable walls.)
 static void draw_special_wall(const vcsegptr_t seg, int side )
 {
-	gr_setcolor(PLAINSEG_COLOR);
+	const auto get_color = [=]() {
+		const auto type = Walls[seg->sides[side].wall_num].type;
+		if (type != WALL_OPEN)
+		{
+			const auto flags = Walls[seg->sides[side].wall_num].flags;
+			if (flags & WALL_DOOR_LOCKED)
+				return (flags & WALL_DOOR_AUTO) ? WALL_AUTO_DOOR_LOCKED_COLOR : WALL_DOOR_LOCKED_COLOR;
+			if (flags & WALL_DOOR_AUTO)
+				return WALL_AUTO_DOOR_COLOR;
+			if (type == WALL_BLASTABLE)
+				return WALL_BLASTABLE_COLOR;
+			if (type == WALL_DOOR)
+				return WALL_DOOR_COLOR;
+			if (type == WALL_ILLUSION)
+				return WALL_ILLUSION_COLOR;
+		}
+		return PLAINSEG_COLOR;
+	};
+	const auto color = get_color();
+	gr_setcolor(color);
 
-	if (Walls[seg->sides[side].wall_num].type == WALL_BLASTABLE)
-		gr_setcolor(WALL_BLASTABLE_COLOR);	
-	if (Walls[seg->sides[side].wall_num].type == WALL_DOOR)
-		gr_setcolor(WALL_DOOR_COLOR);
-	if (Walls[seg->sides[side].wall_num].type == WALL_ILLUSION)
-		gr_setcolor(GROUPSIDE_COLOR);	
-	if (Walls[seg->sides[side].wall_num].flags & WALL_DOOR_LOCKED)
-		gr_setcolor(WALL_DOOR_LOCKED_COLOR);
-	if (Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO)
-		gr_setcolor(WALL_AUTO_DOOR_COLOR);
-	if (Walls[seg->sides[side].wall_num].flags & WALL_DOOR_LOCKED)
-	if (Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO)
-		gr_setcolor(WALL_AUTO_DOOR_LOCKED_COLOR);
-	if (Walls[seg->sides[side].wall_num].type == WALL_OPEN)
-		gr_setcolor(PLAINSEG_COLOR);
-	
 	draw_wall_side(seg,side);
 
 	if (Walls[seg->sides[side].wall_num].trigger != trigger_none) {
 		gr_setcolor(TRIGGER_COLOR);
 		draw_trigger_side(seg,side);
 	}
-
-	gr_setcolor(PLAINSEG_COLOR);
 }
 
 
