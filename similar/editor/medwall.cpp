@@ -606,24 +606,21 @@ int wall_restore_all()
 	{
 		if (w.flags & WALL_BLASTED) {
 			w.hps = WALL_HPS;
-			w.flags &= ~WALL_BLASTED;
 		}
-		if (w.flags & WALL_DOOR_OPENED)
-			w.flags &= ~WALL_DOOR_OPENED;
-		if (w.flags & WALL_DOOR_OPENING)
-			w.flags &= ~WALL_DOOR_OPENING;
+		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING);
 	}
 
 	for (int i=0;i<Num_open_doors;i++)
 		wall_close_door_num(i);
 
 	for (int i=0;i<Num_segments;i++)
-		for (int j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
-			auto wall_num = Segments[i].sides[j].wall_num;
+		range_for (auto &j, Segments[i].sides)
+		{
+			const auto wall_num = j.wall_num;
 			if (wall_num != wall_none)
 				if ((Walls[wall_num].type == WALL_BLASTABLE) ||
 					 (Walls[wall_num].type == WALL_DOOR))
-					Segments[i].sides[j].tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
+					j.tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
  		}
 
 	range_for (auto &i, partial_range(Triggers, Num_triggers))
