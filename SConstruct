@@ -741,6 +741,13 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			return
 		self.successful_flags['CPPDEFINES'].append(CPPDEFINES)
 		Result(s % self.msgprefix)
+	def _result_check_user_setting(self,context,condition,CPPDEFINES,label):
+		if condition:
+			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
+		context.Result('%s: checking whether to enable %s...%s' % (self.msgprefix, label, 'yes' if condition else 'no'))
+	@_custom_test
+	def _check_user_settings_debug(self,context,_CPPDEFINES=(('NDEBUG',), ('RELEASE',))):
+		self._result_check_user_setting(context, not self.user_settings.debug, _CPPDEFINES, 'release options')
 	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
@@ -2991,9 +2998,6 @@ class DXXCommon(LazyObjectConstructor):
 		add_cpp_define = CPPDEFINES.append
 		user_settings = self.user_settings
 
-		# debug?
-		if not user_settings.debug:
-			CPPDEFINES.extend(['NDEBUG', 'RELEASE'])
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
 		if user_settings.memdebug:
 			message(self, "including: MEMDEBUG")
