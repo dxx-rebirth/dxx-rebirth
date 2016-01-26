@@ -1002,11 +1002,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 			} else {
 				segp->sides[sidenum].tmap_num = 0;
 				segp->sides[sidenum].tmap_num2 = 0;
-				range_for (auto &i, segp->sides[sidenum].uvls) {
-					i.u = 0;
-					i.v = 0;
-					i.l = 0;
-				}
+				segp->sides[sidenum].uvls = {};
 			}
 		}
 	}
