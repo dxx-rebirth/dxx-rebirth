@@ -724,16 +724,23 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		e = self._soft_check_system_library(*args, **kwargs)
 		if e:
 			raise SCons.Errors.StopError(e[1])
+	# User settings tests are hidden because they do not respect sconf_*
+	# overrides, so the user should not be offered an override.
 	@_custom_test
-	def check_opengles(self,context):
+	def _check_user_settings_opengl(self,context,_CPPDEFINES_OGLES=('OGL', 'OGLES'),_CPPDEFINES_OGL=('OGL',)):
 		user_settings = self.user_settings
 		Result = context.Result
 		if user_settings.opengles:
-			Result('%s: building with OpenGL ES' % self.msgprefix)
+			s = '%s: building with OpenGL ES'
+			CPPDEFINES = _CPPDEFINES_OGLES
 		elif user_settings.opengl:
-			Result('%s: building with OpenGL' % self.msgprefix)
+			s = '%s: building with OpenGL'
+			CPPDEFINES = _CPPDEFINES_OGL
 		else:
 			Result('%s: building with software renderer' % self.msgprefix)
+			return
+		self.successful_flags['CPPDEFINES'].append(CPPDEFINES)
+		Result(s % self.msgprefix)
 	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
@@ -2980,14 +2987,9 @@ class DXXCommon(LazyObjectConstructor):
 
 	def process_user_settings(self):
 		env = self.env
-		# opengl or software renderer?
 		CPPDEFINES = []
 		add_cpp_define = CPPDEFINES.append
 		user_settings = self.user_settings
-		if user_settings.opengl or user_settings.opengles:
-			if user_settings.opengles:
-				add_cpp_define('OGLES')
-			add_cpp_define('OGL')
 
 		# debug?
 		if not user_settings.debug:
@@ -3212,6 +3214,7 @@ namespace {
 '''
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
+		self.env.MergeFlags(self.configure_added_environment_flags)
 
 class DXXProgram(DXXCommon):
 	# version number
