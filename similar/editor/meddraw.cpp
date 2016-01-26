@@ -435,12 +435,12 @@ static void draw_wall_side(const vcsegptr_t seg,int side)
 	}
 }
 
-#define	WALL_BLASTABLE_COLOR				BM_XRGB( 31/2 ,  0/2 ,  0/2)  // RED
-#define	WALL_DOOR_COLOR					BM_XRGB(  0/2 ,  0/2 , 31/2)	// DARK BLUE
-#define	WALL_DOOR_LOCKED_COLOR			BM_XRGB(  0/2 ,  0/2 , 63/2)	// BLUE
-#define	WALL_AUTO_DOOR_COLOR				BM_XRGB(  0/2 , 31/2 ,  0/2)	//	DARK GREEN
-#define	WALL_AUTO_DOOR_LOCKED_COLOR	BM_XRGB(  0/2 , 63/2 ,  0/2)	// GREEN
-#define	WALL_ILLUSION_COLOR				BM_XRGB( 63/2 ,  0/2 , 63/2)	// PURPLE
+#define	WALL_BLASTABLE_COLOR		rgb_t{31, 0, 0}  // RED
+#define	WALL_DOOR_COLOR				rgb_t{0, 0, 31}	// DARK BLUE
+#define	WALL_DOOR_LOCKED_COLOR		rgb_t{0, 0, 63}	// BLUE
+#define	WALL_AUTO_DOOR_COLOR		rgb_t{0, 31, 0}	//	DARK GREEN
+#define	WALL_AUTO_DOOR_LOCKED_COLOR	rgb_t{0, 63, 0}	// GREEN
+#define	WALL_ILLUSION_COLOR			rgb_t{63, 0, 63}	// PURPLE
 
 #define	TRIGGER_COLOR						BM_XRGB( 63/2 , 63/2 ,  0/2)	// YELLOW
 
@@ -464,10 +464,10 @@ static void draw_special_wall(const vcsegptr_t seg, int side )
 			if (type == WALL_ILLUSION)
 				return WALL_ILLUSION_COLOR;
 		}
-		return PLAINSEG_COLOR;
+		return rgb_t{45, 45, 45};
 	};
 	const auto color = get_color();
-	gr_setcolor(color);
+	gr_setcolor(gr_find_closest_color(color.r, color.g, color.b));
 
 	draw_wall_side(seg,side);
 
