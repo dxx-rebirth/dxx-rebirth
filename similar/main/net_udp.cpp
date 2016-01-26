@@ -68,6 +68,12 @@
 #include "highest_valid.h"
 #include "partial_range.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define UDP_REQ_ID "D1XR" // ID string for a request packet
+#elif defined(DXX_BUILD_DESCENT_II)
+#define UDP_REQ_ID "D2XR" // ID string for a request packet
+#endif
+
 // player position packet structure
 struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 {
@@ -122,7 +128,9 @@ static unsigned num_active_udp_games;
 static int num_active_udp_changed;
 static uint16_t UDP_MyPort;
 static sockaddr_in GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
+#define UDP_BCAST_ADDR "255.255.255.255"
 #ifdef IPv6
+#define UDP_MCASTv6_ADDR "ff02::1"
 static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #define dispatch_sockaddr_from	from.sin6
 #else

@@ -37,10 +37,6 @@ void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int pr
 void net_udp_send_netgame_update();
 
 // Some defines
-#ifdef IPv6
-#define UDP_MCASTv6_ADDR "ff02::1"
-#endif
-#define UDP_BCAST_ADDR "255.255.255.255"
 // Our default port - easy to remember: D = 4, X = 24, X = 24
 const uint16_t UDP_PORT_DEFAULT = 42424;
 #define UDP_MANUAL_ADDR_DEFAULT "localhost"
@@ -50,11 +46,6 @@ const uint16_t UDP_PORT_DEFAULT = 42424;
 #define TRACKER_ADDR_DEFAULT "dxxtracker.reenigne.net"
 #endif
 const uint16_t TRACKER_PORT_DEFAULT = 42420;
-#endif
-#if defined(DXX_BUILD_DESCENT_I)
-#define UDP_REQ_ID "D1XR" // ID string for a request packet
-#elif defined(DXX_BUILD_DESCENT_II)
-#define UDP_REQ_ID "D2XR" // ID string for a request packet
 #endif
 #define UDP_MAX_NETGAMES 900
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
