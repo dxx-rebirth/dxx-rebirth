@@ -1562,7 +1562,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				const auto save_linear_depth = exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(v.objnum, window);	// note link to above else
+					do_render_object(vobjptridx(v.objnum), window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
