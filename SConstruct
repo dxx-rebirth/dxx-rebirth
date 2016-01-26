@@ -3427,29 +3427,30 @@ class DXXProgram(DXXCommon):
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
 		print('===== %s v%s.%s.%s =====' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO))
-		self.user_settings = self.UserSettings(program=self)
-		self.user_settings.register_variables(prefix=prefix, variables=self.variables)
+		self.user_settings = user_settings = self.UserSettings(program=self)
+		user_settings.register_variables(prefix=prefix, variables=variables)
 
 	def init(self,substenv):
 		self.user_settings.read_variables(self.variables, substenv)
-		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
-			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings)
+		archive = DXXProgram.static_archive_construction.get(self.user_settings.builddir, None)
+		if archive is None:
+			DXXProgram.static_archive_construction[self.user_settings.builddir] = archive = DXXArchive(self.user_settings)
 		if self.user_settings.register_compile_target:
-			self.prepare_environment()
+			self.prepare_environment(archive)
 			self.process_user_settings()
 		self.register_program()
 
-	def prepare_environment(self,
+	def prepare_environment(self,archive,
 			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
 		):
 		self.check_endian()
 		DXXCommon.prepare_environment(self)
-		archive = DXXProgram.static_archive_construction[self.user_settings.builddir]
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_special_target_nodes(archive)
 		env.Append(
 			CPPDEFINES = [
+				self.env_CPPDEFINES,
 				_DXX_VERSION_SEQ,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
@@ -3581,10 +3582,7 @@ class D1XProgram(DXXProgram):
 	target = 'd1x-rebirth'
 	srcdir = 'd1x-rebirth'
 	shortname = 'd1x'
-	def prepare_environment(self):
-		DXXProgram.prepare_environment(self)
-		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_I'])
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',)
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
@@ -3621,10 +3619,7 @@ class D2XProgram(DXXProgram):
 	target = 'd2x-rebirth'
 	srcdir = 'd2x-rebirth'
 	shortname = 'd2x'
-	def prepare_environment(self):
-		DXXProgram.prepare_environment(self)
-		# Flags and stuff for all platforms...
-		self.env.Append(CPPDEFINES = ['DXX_BUILD_DESCENT_II'])
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',)
 
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
