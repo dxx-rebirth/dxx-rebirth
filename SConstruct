@@ -758,6 +758,12 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_ipv6(self,context,_CPPDEFINES=(('IPv6',),)):
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
 	@_custom_test
+	def _check_user_settings_udp(self,context,_CPPDEFINES=(('USE_UDP',),)):
+		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
+	@_custom_test
+	def _check_user_settings_tracker(self,context,_CPPDEFINES=(('USE_TRACKER',),)):
+		self._result_check_user_setting(context, self.user_settings.use_tracker, _CPPDEFINES, 'UDP game tracker')
+	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):
 		main = '''
 	PHYSFS_File *f;
@@ -3008,13 +3014,6 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
-		# UDP support?
-		if user_settings.use_udp:
-			add_cpp_define('USE_UDP')
-			# Tracker support?  (Relies on UDP)
-			if user_settings.use_tracker:
-				add_cpp_define('USE_TRACKER')
-
 		# Raspberry Pi?
 		if user_settings.raspberrypi:
 			rpi_vc_path = user_settings.rpi_vc_path
