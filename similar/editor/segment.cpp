@@ -1213,7 +1213,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 {
 	int		bfi,v,s1;
 	array<int, 4> lost_vertices, remap_vertices;
-	segnum_t validation_list[MAX_VALIDATIONS];
+	array<segnum_t, MAX_VALIDATIONS> validation_list;
 	uint_fast32_t nv;
 
 	//	Make sure that neither side is connected.

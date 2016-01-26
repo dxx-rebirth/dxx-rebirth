@@ -911,7 +911,7 @@ int wall_unlink_door()
 
 int check_walls() 
 {
-	count_wall CountedWalls[MAX_WALLS];
+	array<count_wall, MAX_WALLS> CountedWalls;
 	int matcen_num;
 
 	unsigned wall_count = 0;
