@@ -88,11 +88,15 @@ public:
 	{
 		return d < rhs.d;
 	}
+	/* Clang chokes using a template operator> to swap the arguments.
+	 * Use a non-template operator> for the one needed type.
+	 */
+	constexpr bool operator>(const fix &f) const
+	{
+		return d > f;
+	}
 	template <typename T>
-		constexpr bool operator>(const T &t) const
-		{
-			return t < *this;
-		}
+		bool operator>(const T &t) const = delete;
 	constexpr explicit operator bool() const { return d; }
 	template <typename T>
 		operator T() const = delete;
