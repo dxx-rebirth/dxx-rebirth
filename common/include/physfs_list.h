@@ -82,27 +82,11 @@ typedef PHYSFSX_counted_list_template<PHYSFS_list_deleter> PHYSFSX_counted_list;
 
 __attribute_nonnull()
 __attribute_warn_unused_result
-PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count);
-
-template <std::size_t count>
-__attribute_nonnull()
-__attribute_warn_unused_result
-static inline PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const array<file_extension_t, count> &exts)
-{
-	return PHYSFSX_findFiles(path, exts.data(), count);
-}
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, partial_range_t<const file_extension_t *> exts);
 
 __attribute_nonnull()
 __attribute_warn_unused_result
-PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count);
-
-template <std::size_t count>
-__attribute_nonnull()
-__attribute_warn_unused_result
-static inline PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const array<file_extension_t, count> &exts)
-{
-	return PHYSFSX_findabsoluteFiles(path, realpath, exts.data(), count);
-}
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const partial_range_t<const file_extension_t *> exts);
 
 }
 #endif

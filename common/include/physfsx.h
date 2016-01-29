@@ -451,13 +451,6 @@ __attribute_nonnull()
 __attribute_warn_unused_result
 int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *>);
 
-__attribute_nonnull()
-__attribute_warn_unused_result
-static inline int PHYSFSX_checkMatchingExtension(const char *filename, const file_extension_t *exts, const uint_fast32_t count)
-{
-	return PHYSFSX_checkMatchingExtension(filename, unchecked_partial_range(exts, count));
-}
-
 template <std::size_t count>
 __attribute_nonnull()
 __attribute_warn_unused_result

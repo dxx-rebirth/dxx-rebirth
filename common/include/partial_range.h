@@ -42,6 +42,7 @@ public:
 	}
 	partial_range_t(const partial_range_t &) = default;
 	partial_range_t(partial_range_t &&) = default;
+	partial_range_t &operator=(const partial_range_t &) = default;
 	template <typename T>
 		partial_range_t(T &t) :
 			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))

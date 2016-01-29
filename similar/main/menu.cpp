@@ -150,13 +150,13 @@ public:
 };
 
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata);
+static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata);
 
 template <typename T, std::size_t count>
 __attribute_nonnull()
 static int select_file_recursive(const char *title, const char *orig_path, const array<file_extension_t, count> &ext_list, int select_dir, typename select_file_subfunction_t<T>::type when_selected, T *userdata)
 {
-	return select_file_recursive(title, orig_path, ext_list.data(), count, select_dir, reinterpret_cast<select_file_subfunction_t<void>::type>(when_selected), reinterpret_cast<void *>(userdata));
+	return select_file_recursive(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction_t<void>::type>(when_selected), reinterpret_cast<void *>(userdata));
 }
 
 // Hide all menus
@@ -1603,12 +1603,16 @@ namespace {
 
 struct browser
 {
+	browser(const partial_range_t<const file_extension_t *> &r) :
+		ext_range(r)
+	{
+	}
 	const char	*title;			// The title - needed for making another listbox when changing directory
 	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
 	void	*userdata;		// Whatever you want passed to when_selected
 	string_array_t list;
-	const file_extension_t *ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
-	uint32_t ext_count;
+	// List of file extensions we're looking for (if looking for a music file many types are possible)
+	const partial_range_t<const file_extension_t *> ext_range;
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
@@ -1622,7 +1626,7 @@ static void list_dir_el(void *vb, const char *, const char *fname)
 	const char *r = PHYSFS_getRealDir(fname);
 	if (!r)
 		r = "";
-	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_list, b->ext_count))
+	if (!strcmp(r, b->view_path) && (PHYSFS_isDirectory(fname) || PHYSFSX_checkMatchingExtension(fname, b->ext_range))
 #if defined(__APPLE__) && defined(__MACH__)
 		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
@@ -1675,7 +1679,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
 				if (!rval && text[0])
 				{
-					select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
+					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
 					window_close(listbox_get_window(menu));
 				}
@@ -1740,7 +1744,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
-				return !select_file_recursive(b->title, newpath, b->ext_list, b->ext_count, b->select_dir, b->when_selected, b->userdata);
+				return !select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
 			}
 			return !(*b->when_selected)(b->userdata, list[citem]);
 		}
@@ -1758,18 +1762,16 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 	return 0;
 }
 
-static int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
+static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction_t<void>::type when_selected, void *userdata)
 {
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
 	char new_path[PATH_MAX];
 	
-	auto b = make_unique<browser>();
+	auto b = make_unique<browser>(ext_range);
 	b->title = title;
 	b->when_selected = when_selected;
 	b->userdata = userdata;
-	b->ext_list = ext_list;
-	b->ext_count = ext_count;
 	b->select_dir = select_dir;
 	b->view_path[0] = '\0';
 	b->new_path = 1;
@@ -1849,7 +1851,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
 #else
 
-int select_file_recursive(const char *title, const char *orig_path, const file_extension_t *ext_list, uint32_t ext_count, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }

@@ -472,20 +472,20 @@ static inline PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const file_extension_t *exts, uint_fast32_t count)
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const partial_range_t<const file_extension_t *> exts)
 {
 	const auto predicate = [&](const char *i) {
-		return PHYSFSX_checkMatchingExtension(i, exts, count);
+		return PHYSFSX_checkMatchingExtension(i, exts);
 	};
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
 
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
-PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const file_extension_t *exts, uint_fast32_t count)
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const partial_range_t<const file_extension_t *> exts)
 {
 	const auto predicate = [&](const char *i) {
-		return PHYSFSX_checkMatchingExtension(i, exts, count) && (!strcmp(PHYSFS_getRealDir(i), realpath));
+		return PHYSFSX_checkMatchingExtension(i, exts) && (!strcmp(PHYSFS_getRealDir(i), realpath));
 	};
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
