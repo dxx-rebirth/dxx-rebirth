@@ -287,10 +287,9 @@ static inline partial_range_t<I> (partial_const_range)(const char (&file)[NF], u
 	return partial_range<const T, UL, NF, NE, I>(file, line, estr, t, l);
 }
 
-template <typename T, std::size_t NF, std::size_t NE, typename I>
+template <typename T, typename I>
 __attribute_warn_unused_result
-static inline partial_range_t<I> (make_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t)
+static inline partial_range_t<I> (make_range)(T &t)
 {
-	auto range_begin = begin(t);
-	return unchecked_partial_range<I, std::size_t, std::size_t>(file, line, estr, range_begin, 0, partial_range_detail::get_range_size(t));
+	return t;
 }
