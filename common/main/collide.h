@@ -64,7 +64,13 @@ void drop_player_eggs(vobjptridx_t playerobj);
 #if defined(DXX_BUILD_DESCENT_II)
 void do_final_boss_frame(void);
 void do_final_boss_hacks(void);
-int check_volatile_wall(vobjptridx_t obj,vcsegptr_t seg,int sidenum);
+enum class volatile_wall_result : int8_t
+{
+	none = -1,
+	lava,
+	water,
+};
+volatile_wall_result check_volatile_wall(vobjptridx_t obj,vcsegptr_t seg,int sidenum);
 extern int	Final_boss_is_dead;
 #endif
 #endif

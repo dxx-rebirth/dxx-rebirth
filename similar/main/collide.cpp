@@ -448,7 +448,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-int check_volatile_wall(const vobjptridx_t obj, const vcsegptr_t seg, int sidenum)
+volatile_wall_result check_volatile_wall(const vobjptridx_t obj, const vcsegptr_t seg, int sidenum)
 {
 	Assert(obj->type==OBJ_PLAYER);
 
@@ -474,30 +474,28 @@ int check_volatile_wall(const vobjptridx_t obj, const vcsegptr_t seg, int sidenu
 			obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
 		}
 
-		return (d>0)?1:2;
+		return (d > 0) ? volatile_wall_result::lava : volatile_wall_result::water;
 	}
 	else
 	 {
-		return 0;
+		return volatile_wall_result::none;
 	 }
 }
 
 //this gets called when an object is scraping along the wall
 void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
 {
-	int type;
-
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return;
 
-	if ((type=check_volatile_wall(obj,hitseg,hitside))!=0) {
+	const auto type = check_volatile_wall(obj, hitseg, hitside);
+	if (type != volatile_wall_result::none)
+	{
 		vms_vector	hit_dir;
 
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
-			int sound = (type==1)?SOUND_VOLATILE_WALL_HISS:SOUND_SHIP_IN_WATER;
-
 			Last_volatile_scrape_sound_time = GameTime64;
-
+			const auto sound = (type == volatile_wall_result::lava) ? SOUND_VOLATILE_WALL_HISS : SOUND_SHIP_IN_WATER;
 			multi_digi_link_sound_to_pos(sound, hitseg, 0, hitpt, 0, F1_0);
 		}
 

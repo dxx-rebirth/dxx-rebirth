@@ -1745,30 +1745,39 @@ static void object_move_one(const vobjptridx_t obj)
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		{
-			int sidemask,under_lavafall=0;
-			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
+			bool under_lavafall = false;
+			static array<bool, MAX_PLAYERS> lavafall_hiss_playing;
 
-			sidemask = get_seg_masks(obj->pos, vcsegptr(obj->segnum), obj->size).sidemask;
-			if (sidemask) {
-				int sidenum,bit,wall_num;
-	
-				for (sidenum=0,bit=1;sidenum<6;bit<<=1,sidenum++)
-					if ((sidemask & bit) && ((wall_num=Segments[obj->segnum].sides[sidenum].wall_num)!=-1) && Walls[wall_num].type==WALL_ILLUSION) {
-						int type;
-						if ((type=check_volatile_wall(obj,vsegptridx(obj->segnum),sidenum))!=0) {
-							int sound = (type==1)?SOUND_LAVAFALL_HISS:SOUND_SHIP_IN_WATERFALL;
+			auto &playing = lavafall_hiss_playing[get_player_id(obj)];
+			const auto &&segp = vcsegptr(obj->segnum);
+			if (const auto sidemask = get_seg_masks(obj->pos, segp, obj->size).sidemask)
+			{
+				for (unsigned sidenum = 0; sidenum != MAX_SIDES_PER_SEGMENT; ++sidenum)
+				{
+					if (!(sidemask & (1 << sidenum)))
+						continue;
+					const auto wall_num = segp->sides[sidenum].wall_num;
+					if (wall_num != wall_none && Walls[wall_num].type == WALL_ILLUSION)
+					{
+						const auto type = check_volatile_wall(obj, segp, sidenum);
+						if (type != volatile_wall_result::none)
+						{
 							under_lavafall = 1;
-							if (!lavafall_hiss_playing[get_player_id(obj)])
+							if (!playing)
 							{
-								lavafall_hiss_playing[get_player_id(obj)] = 1;
+								playing = 1;
+								const auto sound = (type == volatile_wall_result::lava) ? SOUND_LAVAFALL_HISS : SOUND_SHIP_IN_WATERFALL;
 								digi_link_sound_to_object3( sound, obj, 1, F1_0, vm_distance{i2f(256)}, -1, -1);
+								break;
 							}
 						}
 					}
+				}
 			}
 	
-			if (!under_lavafall && lavafall_hiss_playing[get_player_id(obj)]) {
-				lavafall_hiss_playing[get_player_id(obj)] = 0;
+			if (!under_lavafall && playing)
+			{
+				playing = 0;
 				digi_kill_sound_linked_to_object( obj);
 			}
 		}
