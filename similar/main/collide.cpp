@@ -448,19 +448,14 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
-int check_volatile_wall(const vobjptridx_t obj,const vsegptridx_t seg,int sidenum)
+int check_volatile_wall(const vobjptridx_t obj, const vcsegptr_t seg, int sidenum)
 {
-	fix tmap_num,d,water;
-
 	Assert(obj->type==OBJ_PLAYER);
 
-	tmap_num = seg->sides[sidenum].tmap_num;
-
-	d = TmapInfo[tmap_num].damage;
-	water = (TmapInfo[tmap_num].flags & TMI_WATER);
-
-	if (d > 0 || water) {
-
+	const auto &ti = TmapInfo[seg->sides[sidenum].tmap_num];
+	const fix d = ti.damage;
+	if (d > 0 || (ti.flags & TMI_WATER))
+	{
 		if (get_player_id(obj) == Player_num) {
 
 			if (d > 0) {
@@ -469,7 +464,7 @@ int check_volatile_wall(const vobjptridx_t obj,const vsegptridx_t seg,int sidenu
 				if (Difficulty_level == 0)
 					damage /= 2;
 
-				if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
+				if (!(obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 					apply_damage_to_player( obj, obj, damage, 0 );
 
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
