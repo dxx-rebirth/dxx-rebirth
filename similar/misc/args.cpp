@@ -31,7 +31,9 @@
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-dcx::CArg dcx::CGameArg;
+namespace dcx {
+CArg CGameArg;
+}
 
 namespace dsx {
 
