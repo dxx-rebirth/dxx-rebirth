@@ -55,7 +55,6 @@ void gr_init_canvas(grs_canvas &canv, unsigned char * pixdata, uint8_t pixtype, 
 	canv.cv_color = 0;
 	canv.cv_fade_level = GR_FADE_OFF;
 	canv.cv_blend_func = GR_BLEND_NORMAL;
-	canv.cv_drawmode = 0;
 	canv.cv_font = NULL;
 	canv.cv_font_fg_color = 0;
 	canv.cv_font_bg_color = 0;
@@ -68,7 +67,6 @@ void gr_init_sub_canvas(grs_canvas &n, grs_canvas &src, uint16_t x, uint16_t y, 
 	n.cv_color = src.cv_color;
 	n.cv_fade_level = src.cv_fade_level;
 	n.cv_blend_func = src.cv_blend_func;
-	n.cv_drawmode = src.cv_drawmode;
 	n.cv_font = src.cv_font;
 	n.cv_font_fg_color = src.cv_font_fg_color;
 	n.cv_font_bg_color = src.cv_font_bg_color;
