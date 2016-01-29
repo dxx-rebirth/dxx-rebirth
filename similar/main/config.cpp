@@ -46,7 +46,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 
-CCfg dcx::CGameCfg;
+namespace dcx {
+CCfg CGameCfg;
+}
 
 namespace dsx {
 Cfg GameCfg;
