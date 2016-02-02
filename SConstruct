@@ -2555,7 +2555,7 @@ class DXXCommon(LazyObjectConstructor):
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
 					('sdl2', False, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
-					('ipv6', False, 'enable IPv6 compability'),
+					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
