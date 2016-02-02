@@ -43,12 +43,14 @@ array<robot_info, MAX_ROBOT_TYPES> Robot_info;
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 
+#if 0
 static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 {
 	PHYSFS_writeSLE16(fp, v.p);
 	PHYSFS_writeSLE16(fp, v.b);
 	PHYSFS_writeSLE16(fp, v.h);
 }
+#endif
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
