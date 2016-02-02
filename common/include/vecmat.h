@@ -98,8 +98,15 @@ public:
 	template <typename T>
 		bool operator>(const T &t) const = delete;
 	constexpr explicit operator bool() const { return d; }
+#ifndef __clang__
+	/* When this catch-all overload is defined, clang becomes confused
+	 * and treats all arithmetic operations as ambiguous because it
+	 * cannot choose between the deleted template function and the
+	 * non-deleted operator fix().
+	 */
 	template <typename T>
 		operator T() const = delete;
+#endif
 	constexpr operator fix() const
 	{
 		return d;
