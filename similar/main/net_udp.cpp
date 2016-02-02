@@ -3323,7 +3323,9 @@ class more_game_options_menu_items
 	char KillText[sizeof("Kill goal: 000 kills")];
 	char extraPrimary[sizeof("Primaries: 0")];
 	char extraSecondary[sizeof("Secondaries: 0")];
+#if defined(DXX_BUILD_DESCENT_II)
 	char extraAccessory[sizeof("Accessories: 0")];
+#endif
 #ifdef USE_TRACKER
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
