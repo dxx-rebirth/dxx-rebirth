@@ -727,7 +727,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# User settings tests are hidden because they do not respect sconf_*
 	# overrides, so the user should not be offered an override.
 	@_custom_test
-	def _check_user_settings_opengl(self,context,_CPPDEFINES_OGLES=('OGL', 'OGLES'),_CPPDEFINES_OGL=('OGL',)):
+	def _check_user_settings_opengl(self,context,
+		_CPPDEFINES_OGLES=(('OGLES',), ('OGL',)),
+		_CPPDEFINES_OGL=(('OGL',),)
+	):
 		user_settings = self.user_settings
 		Result = context.Result
 		if user_settings.opengles:
@@ -739,7 +742,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		else:
 			Result('%s: building with software renderer' % self.msgprefix)
 			return
-		self.successful_flags['CPPDEFINES'].append(CPPDEFINES)
+		self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
 		Result(s % self.msgprefix)
 	def _result_check_user_setting(self,context,condition,CPPDEFINES,label):
 		if condition:
