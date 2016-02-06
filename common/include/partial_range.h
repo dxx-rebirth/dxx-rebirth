@@ -186,6 +186,25 @@ static inline void check_partial_range(const char *file, unsigned line, const ch
 	check_range_bounds<I, N>(file, line, estr, addressof(t), o, l, get_range_size(t));
 }
 
+#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+template <typename I, std::size_t required_buffer_size, typename P>
+static inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t o, const std::size_t l)
+{
+	const auto ptr = addressof(ref);
+	const std::size_t bos = __builtin_object_size(ptr, 1);
+	if (bos != static_cast<std::size_t>(-1))
+		check_range_bounds<I, required_buffer_size>(file, line, estr, ptr, o, l, bos / sizeof(P));
+}
+
+/* When P refers to a temporary, this overload is picked.  Temporaries
+ * have no useful address, so they cannot be checked.  A temporary would
+ * be present if iterator.operator*() returns a proxy object, rather
+ * than a reference to an element in the container.
+ */
+template <typename I, std::size_t required_buffer_size, typename P>
+static inline void check_range_object_size(const char *, unsigned, const char *, const P &&, const std::size_t, const std::size_t) {}
+#endif
+
 }
 
 template <typename I, std::size_t required_buffer_size>
@@ -205,10 +224,7 @@ static inline partial_range_t<I> (unchecked_partial_range)(const char *file, uns
 	/* Avoid iterator dereference if range is empty */
 	if (l)
 	{
-		const auto ptr = addressof(*range_begin);
-		const std::size_t bos = __builtin_object_size(ptr, 1);
-		if (bos != static_cast<std::size_t>(-1))
-			partial_range_detail::check_range_bounds<I, required_buffer_size>(file, line, estr, ptr, o, l, bos / sizeof(*range_begin));
+		partial_range_detail::check_range_object_size<I, required_buffer_size>(file, line, estr, *range_begin, o, l);
 	}
 #else
 	(void)file;
