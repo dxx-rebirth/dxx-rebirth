@@ -203,7 +203,7 @@ multi_strip_robots(int playernum)
 					multi_delete_controlled_robot(vobjptridx(r));
 		}
 
-		range_for (const auto &&objp, highest_valid(vobjptr, 1))
+		range_for (const auto &&objp, partial_range(vobjptr, 1u, vobjptr.count()))
 		{
 			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
 			{

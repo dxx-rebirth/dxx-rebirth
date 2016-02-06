@@ -646,9 +646,14 @@ public:
 		return P(i, get_array());
 	}
 	__attribute_warn_unused_result
-	index_type highest() const
+	typename array_managed_type::size_type count() const
 	{
-		return get_array().get_count() - 1;
+		return get_array().get_count();
+	}
+	__attribute_warn_unused_result
+	typename array_managed_type::size_type size() const
+	{
+		return get_array().size();
 	}
 	__attribute_warn_unused_result
 	iterator begin() const

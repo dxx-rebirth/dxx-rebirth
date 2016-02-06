@@ -1505,7 +1505,7 @@ static void test_create_all_paths(void)
 	{
 		if (segp0->segnum != segment_none)
 		{
-			range_for (const auto &&segp1, highest_valid(vcsegptridx, segp0))
+			range_for (const auto &&segp1, partial_range(vcsegptridx, static_cast<segnum_t>(segp0), vcsegptridx.count()))
 			{
 				if (segp1->segnum != segment_none)
 				{
