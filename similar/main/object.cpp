@@ -902,7 +902,7 @@ object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
-	for (const auto &&range = highest_valid(vcobjptridx);;)
+	for (const auto &range = highest_valid(vcobjptridx);;)
 	{
 		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
 			lsig = 0;

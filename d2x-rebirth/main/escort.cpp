@@ -566,7 +566,7 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 			return *i;
 	}
 	{
-		const auto &&rh = highest_valid(vcsegptr);
+		const auto &rh = vcsegptr;
 		const auto a = [](const vcsegptr_t &s) {
 			return s->special == SEGMENT_IS_FUELCEN;
 		};
@@ -939,7 +939,7 @@ static void do_buddy_dude_stuff(void)
 
 	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
-		const auto &&rh = highest_valid(vobjptridx);
+		const auto &rh = vobjptridx;
 		range_for (const auto &&objp, rh)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)

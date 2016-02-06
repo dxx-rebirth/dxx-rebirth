@@ -34,7 +34,13 @@ struct highest_valid_factory
 };
 
 template <typename T>
-highest_valid_factory<T> highest_valid(T &t, const typename T::index_type start = 0)
+T &highest_valid(T &t)
+{
+	return t;
+}
+
+template <typename T>
+highest_valid_factory<T> highest_valid(T &t, const typename T::index_type start)
 {
 	return {t, start};
 }

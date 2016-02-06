@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <cstddef>
 #include "dxxsconf.h"
 
@@ -54,6 +55,7 @@ protected:
 		class basic_ptr;
 	template <typename policy>
 		class basic_ptridx;
+	class allow_end_construction;
 
 	static constexpr const array_managed_type &get_array(const_pointer_type p)
 	{
@@ -64,6 +66,7 @@ protected:
 		return get_global_array(p);
 	}
 	static inline void check_index_match(const_reference_type, index_type, const array_managed_type &);
+	template <template <typename> class Compare = std::less>
 	static inline index_type check_index_range(index_type, const array_managed_type *);
 	static inline void check_explicit_index_range_ref(const_reference_type, std::size_t, const array_managed_type &);
 	static inline void check_implicit_index_range_ref(const_reference_type, const array_managed_type &);

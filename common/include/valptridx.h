@@ -62,6 +62,9 @@ protected:
 
 }
 
+template <typename INTEGRAL_TYPE, std::size_t array_size_value>
+constexpr std::size_t valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value>::array_size;
+
 template <typename P>
 class valptridx<P>::index_mismatch_exception :
 	public std::logic_error
@@ -110,10 +113,11 @@ void valptridx<managed_type>::check_index_match(const managed_type &r, index_typ
 }
 
 template <typename managed_type>
+template <template <typename> class Compare>
 typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(const index_type i, const array_managed_type *a)
 {
 	const std::size_t ss = i;
-	DXX_VALPTRIDX_CHECK(ss < array_size, index_range_exception, "invalid index used in array subscript", a, ss);
+	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(ss, array_size), index_range_exception, "invalid index used in array subscript", a, ss);
 	return i;
 }
 
@@ -252,6 +256,10 @@ public:
 		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(i, &a))
 	{
 	}
+	basic_idx(index_type i, array_managed_type &a, const allow_end_construction *) :
+		m_idx(check_index_range<std::less_equal>(i, &a))
+	{
+	}
 	template <integral_type v>
 		basic_idx(const magic_constant<v> &) :
 			m_idx(v)
@@ -353,6 +361,10 @@ public:
 	basic_ptr(index_type i) = delete;
 	basic_ptr(index_type i, array_managed_type &a) :
 		m_ptr(check_allowed_invalid_index(i) ? nullptr : &a[check_index_range(i, &a)])
+	{
+	}
+	basic_ptr(index_type i, array_managed_type &a, const allow_end_construction *) :
+		m_ptr(&a[check_index_range<std::less_equal>(i, &a)])
 	{
 	}
 	basic_ptr(pointer_type p) = delete;
@@ -507,6 +519,11 @@ public:
 		vidx_type(i, a)
 	{
 	}
+	basic_ptridx(index_type i, array_managed_type &a, const allow_end_construction *e) :
+		vptr_type(i, a, e),
+		vidx_type(i, a, e)
+	{
+	}
 	basic_ptridx(pointer_type p, array_managed_type &a) :
 		/* Null pointer is never allowed when an index must be computed.
 		 * Check for null, then use the reference constructor for
@@ -593,6 +610,20 @@ template <typename P>
 class valptridx<managed_type>::basic_vptr_global_factory
 {
 	using containing_type = valptridx<managed_type>;
+	struct iterator :
+		std::iterator<std::forward_iterator_tag, P>,
+		P
+	{
+		using P::operator++;
+		iterator(P &&i) :
+			P(static_cast<P &&>(i))
+		{
+		}
+		P operator*() const
+		{
+			return *this;
+		}
+	};
 public:
 	using index_type = typename containing_type::index_type;
 	using result_type = P;
@@ -618,6 +649,17 @@ public:
 	index_type highest() const
 	{
 		return get_array().get_count() - 1;
+	}
+	__attribute_warn_unused_result
+	iterator begin() const
+	{
+		return P(containing_type::magic_constant<0>(), get_array());
+	}
+	__attribute_warn_unused_result
+	iterator end() const
+	{
+		auto &a = get_array();
+		return P(static_cast<index_type>(a.get_count()), a, static_cast<const allow_end_construction *>(nullptr));
 	}
 	template <containing_type::integral_type v>
 		__attribute_warn_unused_result
