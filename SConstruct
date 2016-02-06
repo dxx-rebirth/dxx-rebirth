@@ -1343,6 +1343,20 @@ void f(A a)
 }
 '''
 		how = self.check_cxx11_static_assert(context,f) or self.check_boost_static_assert(context,f) or self.check_c_typedef_static_assert(context,f)
+	@_custom_test
+	def check_namespace_disambiguate(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE']}):
+		self.Compile(context, text='''
+namespace A
+{
+	int a;
+}
+using namespace A;
+namespace B
+{
+	class A;
+}
+using namespace B;
+''', main='return A::a;', msg='whether compiler handles classes from "using namespace"', successflags=_successflags)
 	@_implicit_test
 	def check_boost_type_traits(self,context,f):
 		"""
@@ -3197,8 +3211,10 @@ class DXXArchive(DXXCommon):
 #define dsx d2x
 #endif
 namespace dsx {	/* Force type mismatch on attempted nesting */
+#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
 	class dcx;	/* dcx declared inside dsx */
 	class dsx;	/* dsx declared inside dsx */
+#endif
 }
 using namespace dsx;
 #else
@@ -3206,14 +3222,18 @@ class dsx;	/* dsx declared in common-only code */
 #endif
 
 namespace dcx {	/* Force type mismatch on attempted nesting */
+#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
 	class dcx;	/* dcx declared inside dcx */
 	class dsx;	/* dsx declared inside dcx */
+#endif
 }
 using namespace dcx;
+#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
 namespace {
 	class dcx;	/* dcx declared inside anonymous */
 	class dsx;	/* dsx declared inside anonymous */
 }
+#endif
 '''
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
