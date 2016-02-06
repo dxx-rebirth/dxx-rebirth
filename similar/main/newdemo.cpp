@@ -3055,7 +3055,9 @@ static int newdemo_read_frame_information(int rewrite)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (nd_playback_v_juststarted)
 			{
-				nd_read_int (&Num_walls);
+				unsigned num_walls;
+				nd_read_int (&num_walls);
+				Walls.set_count(num_walls);
 				if (rewrite)
 					nd_write_int (Num_walls);
 				range_for (auto &w, partial_range(Walls, Num_walls))

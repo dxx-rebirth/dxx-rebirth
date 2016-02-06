@@ -68,10 +68,10 @@ const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
 struct uvl;
 enum side_type : uint8_t;
 
-template <int16_t I>
+using wallnum_t = uint16_t;
+template <wallnum_t I>
 struct wall_magic_constant_t;
 
-struct wallnum_t;
 struct side;
 
 }

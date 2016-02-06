@@ -18,8 +18,10 @@
 
 namespace dcx {
 
+#if 0
 DEFINE_SERIAL_UDT_TO_MESSAGE(wallnum_t, w, (w.value));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wallnum_t, 2);
+#endif
 DEFINE_SERIAL_UDT_TO_MESSAGE(side, s, (s.wall_num, s.tmap_num, s.tmap_num2));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(side, 6);
 

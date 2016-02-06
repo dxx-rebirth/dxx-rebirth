@@ -810,7 +810,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	gs_num_objects = PHYSFSX_readInt(LoadFile);
 	PHYSFSX_fseek(LoadFile, 8, SEEK_CUR);
 
-	Num_walls = PHYSFSX_readInt(LoadFile);
+	Walls.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 
 	Triggers.set_count(PHYSFSX_readInt(LoadFile));
@@ -1118,24 +1118,25 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//fix old wall structs
 	if (game_top_fileinfo_version < 17) {
-		int wallnum;
-
 		range_for (const auto &&segp, highest_valid(vcsegptridx))
 		{
 			for (int sidenum=0;sidenum<6;sidenum++)
-				if ((wallnum = segp->sides[sidenum].wall_num) != -1)
+			{
+				const auto wallnum = segp->sides[sidenum].wall_num;
+				if (wallnum != wall_none)
 				{
 					Walls[wallnum].segnum = segp;
 					Walls[wallnum].sidenum = sidenum;
 				}
+			}
 		}
 	}
 
 	#ifndef NDEBUG
 	{
 		for (int sidenum=0; sidenum<6; sidenum++) {
-			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
-			if (wallnum != -1)
+			const auto wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
+			if (wallnum != wall_none)
 				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
 					Int3();	//	Error.  Bogus walls in this segment.
 								// Consult Yuan or Mike.

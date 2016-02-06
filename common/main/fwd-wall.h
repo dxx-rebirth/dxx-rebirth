@@ -12,6 +12,7 @@
 #include "maths.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-valptridx.h"
 
 #ifdef dsx
 namespace dsx {
@@ -151,13 +152,13 @@ const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | W
 
 namespace dcx {
 
-template <int16_t I>
+template <wallnum_t I>
 struct wall_magic_constant_t
 {
-	constexpr operator int16_t() const { return I; }
+	constexpr operator wallnum_t() const { return I; }
 };
 
-const wall_magic_constant_t<-1> wall_none{};
+const wall_magic_constant_t<0xffff> wall_none{};
 
 const std::size_t MAX_STUCK_OBJECTS = 32;
 
@@ -186,13 +187,13 @@ extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
 extern unsigned Num_cloaking_walls;
 #endif
 
-extern array<wall, MAX_WALLS> Walls;           // Master walls array
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls, MAX_WALLS);
 extern array<active_door, MAX_DOORS> ActiveDoors;  //  Master doors array
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 }
 
 namespace dcx {
-extern unsigned Num_walls;                   // Number of walls
+#define Num_walls Walls.get_count()
 extern unsigned Num_open_doors;              // Number of open doors
 extern unsigned Num_wall_anims;
 }

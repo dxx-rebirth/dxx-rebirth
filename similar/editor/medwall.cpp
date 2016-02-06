@@ -98,7 +98,7 @@ static int add_wall(const vsegptridx_t seg, short side)
   	if (IS_CHILD(seg->children[side])) {
 		if (seg->sides[side].wall_num == wall_none) {
  			seg->sides[side].wall_num = Num_walls;
-			Num_walls++;
+			Walls.set_count(Num_walls + 1);
 			}
 				 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
@@ -106,7 +106,7 @@ static int add_wall(const vsegptridx_t seg, short side)
 
 		if (csegp->sides[Connectside].wall_num == wall_none) {
 			csegp->sides[Connectside].wall_num = Num_walls;
-			Num_walls++;
+			Walls.set_count(Num_walls + 1);
 			}
 		
 		create_removable_wall( seg, side, CurrentTexture );
@@ -657,7 +657,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 		for (int w=lower_wallnum;w<Num_walls-2;w++)
 			Walls[w] = Walls[w+2];
 
-		Num_walls -= 2;
+		Walls.set_count(Num_walls - 2);
 
 		range_for (const auto &&segp, highest_valid(vsegptr))
 		{
@@ -938,7 +938,7 @@ int check_walls()
 	if (wall_count != Num_walls) {
 		if (ui_messagebox(-2, -2, 2, "Num_walls is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
 		{
-			Num_walls = wall_count;
+			Walls.set_count(wall_count);
 			editor_status_fmt("Num_walls set to %d\n", Num_walls);
 		}
 	}
@@ -984,7 +984,7 @@ int delete_all_walls()
 			range_for (auto &side, segp->sides)
 				side.wall_num = wall_none;
 		}
-		Num_walls=0;
+		Walls.set_count(0);
 		Triggers.set_count(0);
 
 		return 1;
@@ -1042,7 +1042,7 @@ void copy_group_walls(int old_group, int new_group)
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
 				Walls[Num_walls].segnum = new_seg;
 				Walls[Num_walls].sidenum = j;
-				Num_walls++;
+				Walls.set_count(Num_walls + 1);
 				Assert(Num_walls < MAX_WALLS);
 			}
 		}

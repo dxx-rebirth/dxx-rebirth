@@ -1532,7 +1532,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 
 	//Restore wall info
-	Num_walls = PHYSFSX_readSXE32(fp, swap);
+	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
 	range_for (auto &w, partial_range(Walls, Num_walls))
 		wall_read(fp, w);
 

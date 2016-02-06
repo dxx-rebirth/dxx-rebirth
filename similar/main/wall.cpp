@@ -41,13 +41,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	BOSS_LOCKED_DOOR_SIDE	5
 
 namespace dcx {
-unsigned Num_walls;							// Number of walls
 unsigned Num_wall_anims;
 unsigned Num_open_doors;						// Number of open doors
 }
 
 namespace dsx {
-array<wall, MAX_WALLS> Walls;					// Master walls array
 array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
 array<active_door, MAX_DOORS> ActiveDoors;
 }
@@ -138,7 +136,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 // Initializes all the walls (in other words, no special walls)
 void wall_init()
 {
-	Num_walls = 0;
+	Walls.set_count(0);
 	range_for (auto &w, Walls)
 	{
 		w.segnum = segment_none;

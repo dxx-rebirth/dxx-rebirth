@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "textures.h"
 #include "valptridx.tcc"
+#include "wall.h"
 
 namespace dcx {
 unsigned Num_segments;
@@ -106,8 +107,10 @@ namespace dsx {
 valptridx<object>::array_managed_type Objects;
 valptridx<segment>::array_managed_type Segments;
 valptridx<trigger>::array_managed_type Triggers;
+valptridx<wall>::array_managed_type Walls;
 }
 
 template class valptridx<object>;
 template class valptridx<segment>;
 template class valptridx<trigger>;
+template class valptridx<wall>;

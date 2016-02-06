@@ -71,6 +71,7 @@ enum side_type : uint8_t
 	SIDE_IS_TRI_13 = 3,	 // render side as two triangles, triangulated along edge from 1 to 3
 };
 
+#if 0
 struct wallnum_t : prohibit_void_ptr<wallnum_t>
 {
 	typedef int16_t integral_type;
@@ -135,6 +136,7 @@ struct wallnum_t : prohibit_void_ptr<wallnum_t>
 	constexpr operator integral_type() const { return value; }
 	operator integral_type &() { return value; }
 };
+#endif
 
 struct side
 {
