@@ -708,23 +708,22 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 {
 	Assert(grd_curcanv->cv_font != NULL);
 
+	if (y + h < 0)
+		return;
 	const auto bm_h = grd_curcanv->cv_bitmap.bm_h;
 	if (y > bm_h)
 		return;
 	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
 	int xw = w;
 	if ( x == 0x8000 )	{
-		if (y + h < 0)
-			return;
 		// for x, since this will be centered, only look at
 		// width.
 	} else {
 		if (x > bm_w)
 			return;
-		if (x + w < 0 ||
-			y + h < 0)
-			return;
 		xw += x;
+		if (xw < 0)
+			return;
 	}
 	if (
 #ifdef OGL
