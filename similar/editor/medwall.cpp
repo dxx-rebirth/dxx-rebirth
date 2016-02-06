@@ -81,7 +81,7 @@ static int Current_door_type=1;
 
 struct count_wall
 {
-	short wallnum;
+	wallnum_t wallnum;
 	segnum_t	segnum;
 	short sidenum;
 };
@@ -192,7 +192,7 @@ int wall_add_illusion()
 }
 
 static int GotoPrevWall() {
-	int current_wall;
+	wallnum_t current_wall;
 
 	if (Cursegp->sides[Curside].wall_num == wall_none)
 		current_wall = Num_walls;
@@ -200,7 +200,6 @@ static int GotoPrevWall() {
 		current_wall = Cursegp->sides[Curside].wall_num;
 
 	current_wall--;
-	if (current_wall < 0) current_wall = Num_walls-1;
 	if (current_wall >= Num_walls) current_wall = Num_walls-1;
 
 	if (Walls[current_wall].segnum == segment_none) {
@@ -219,14 +218,11 @@ static int GotoPrevWall() {
 
 
 static int GotoNextWall() {
-	int current_wall;
-
-	current_wall = Cursegp->sides[Curside].wall_num; // It's ok to be -1 because it will immediately become 0
+	auto current_wall = Cursegp->sides[Curside].wall_num; // It's ok to be -1 because it will immediately become 0
 
 	current_wall++;
 
 	if (current_wall >= Num_walls) current_wall = 0;
-	if (current_wall < 0) current_wall = 0;
 
 	if (Walls[current_wall].segnum == segment_none) {
 		return 0;
@@ -635,7 +631,6 @@ int wall_restore_all()
 //	Remove a specific side.
 int wall_remove_side(const vsegptridx_t seg, short side)
 {
-	int lower_wallnum;
 	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
 		const auto &&csegp = vsegptr(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
@@ -645,7 +640,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 
 		// Remove walls 'wall_num' and connecting side 'wall_num'
 		//  from Walls array.  
-	 	lower_wallnum = seg->sides[side].wall_num;
+		auto lower_wallnum = seg->sides[side].wall_num;
 		if (csegp->sides[Connectside].wall_num < lower_wallnum)
 			 lower_wallnum = csegp->sides[Connectside].wall_num;
 

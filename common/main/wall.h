@@ -83,7 +83,7 @@ struct WALL_IS_DOORWAY_result_t
 struct stuckobj : public prohibit_void_ptr<stuckobj>
 {
 	objnum_t objnum;
-	short   wallnum;
+	wallnum_t wallnum;
 	object_signature_t signature;
 };
 
@@ -125,7 +125,7 @@ struct wall : public prohibit_void_ptr<wall>
 	int8_t  sidenum;     // Seg & side for this wall
 	uint8_t type;               // What kind of special wall.
 	fix     hps;                // "Hit points" of the wall.
-	int16_t linked_wall;        // number of linked wall
+	wallnum_t linked_wall;        // number of linked wall
 	ubyte   flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
 	uint8_t   trigger;            // Which trigger is associated with the wall.
@@ -146,8 +146,8 @@ namespace dcx {
 struct active_door : public prohibit_void_ptr<active_door>
 {
 	int     n_parts;            // for linked walls
-	array<short, 2>   front_wallnum;   // front wall numbers for this door
-	array<short, 2>   back_wallnum;    // back wall numbers for this door
+	array<wallnum_t, 2>   front_wallnum;   // front wall numbers for this door
+	array<wallnum_t, 2>   back_wallnum;    // back wall numbers for this door
 	fix     time;               // how long been opening, closing, waiting
 };
 
@@ -158,8 +158,8 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 {
-	short       front_wallnum;  // front wall numbers for this door
-	short       back_wallnum;   // back wall numbers for this door
+	wallnum_t       front_wallnum;  // front wall numbers for this door
+	wallnum_t       back_wallnum;   // back wall numbers for this door
 	array<fix, 4> front_ls;     // front wall saved light values
 	array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking

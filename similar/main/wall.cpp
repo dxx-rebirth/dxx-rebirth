@@ -354,7 +354,8 @@ void wall_open_door(const vsegptridx_t seg, int side)
 		newdemo_record_door_opening(seg, side);
 	}
 
-	if (w->linked_wall != -1) {
+	if (w->linked_wall != wall_none)
+	{
 		wall *w2;
 
 		w2		= &Walls[w->linked_wall];
@@ -493,7 +494,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = cwall_num;
-	Assert(w->linked_wall == -1);
+	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		const auto cp = compute_center_point_on_side(seg, side );
@@ -574,7 +575,7 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = csegp->sides[Connectside].wall_num;
-	Assert(w->linked_wall == -1);
+	Assert(w->linked_wall == wall_none);
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		const auto cp = compute_center_point_on_side(seg, side );
@@ -827,7 +828,8 @@ void wall_close_door(const vsegptridx_t seg, int side)
 		newdemo_record_door_opening(seg, side);
 	}
 
-	if (w->linked_wall != -1) {
+	if (w->linked_wall != wall_none)
+	{
 		Int3();		//don't think we ever used linked walls
 	}
 	else
@@ -1223,7 +1225,7 @@ static void do_cloaking_wall_frame(int cloaking_wall_num)
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
 	wback = NULL;
-	if (d->back_wallnum > -1)
+	if (d->back_wallnum != wall_none)
 		wback = &Walls[d->back_wallnum];
 
 	old_cloak = wfront->cloak_value;
@@ -1296,7 +1298,7 @@ static void do_decloaking_wall_frame(int cloaking_wall_num)
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
 	wback = NULL;
-	if (d->back_wallnum > -1)
+	if (d->back_wallnum != wall_none)
 		wback = &Walls[d->back_wallnum];
 
 	old_cloak = wfront->cloak_value;
@@ -1371,7 +1373,7 @@ void wall_frame_process()
 
 			// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
 			w->flags |= WALL_DOOR_OPENED;
-			if (d->back_wallnum[0] > -1)
+			if (d->back_wallnum[0] != wall_none)
 				Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
 
 			if (d->time > DOOR_WAIT_TIME)
@@ -1431,7 +1433,8 @@ void add_stuck_object(const vobjptridx_t objp, const vsegptr_t segp, int sidenum
 			objp->flags |= OF_SHOULD_BE_DEAD;
 		range_for (auto &i, Stuck_objects)
 		{
-			if (i.wallnum == -1) {
+			if (i.wallnum == wall_none)
+			{
 				i.wallnum = wallnum;
 				i.objnum = objp;
 				i.signature = objp->signature;
@@ -1452,11 +1455,11 @@ void remove_obsolete_stuck_objects(void)
 
 	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
-	if (Stuck_objects[objnum].wallnum != -1)
+	if (Stuck_objects[objnum].wallnum != wall_none)
 		if ((Stuck_objects[objnum].wallnum == 0) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature))
 		{
 			Num_stuck_objects--;
-			Stuck_objects[objnum].wallnum = -1;
+			Stuck_objects[objnum].wallnum = wall_none;
 		}
 }
 #endif
@@ -1475,11 +1478,11 @@ void remove_obsolete_stuck_objects(void)
 
 	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
-	if (Stuck_objects[objnum].wallnum != -1)
+	if (Stuck_objects[objnum].wallnum != wall_none)
 		if ((Walls[Stuck_objects[objnum].wallnum].state != WALL_DOOR_CLOSED) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)) {
 			Num_stuck_objects--;
 			vobjptr(Stuck_objects[objnum].objnum)->lifeleft = F1_0/8;
-			Stuck_objects[objnum].wallnum = -1;
+			Stuck_objects[objnum].wallnum = wall_none;
 		}
 
 }
@@ -1508,8 +1511,10 @@ void kill_stuck_objects(int wallnum)
 #endif
 				objp->lifeleft = DXX_WEAPON_LIFELEFT;
 			}
-			Stuck_objects[i].wallnum = -1;
-		} else if (Stuck_objects[i].wallnum != -1) {
+			Stuck_objects[i].wallnum = wall_none;
+		}
+		else if (Stuck_objects[i].wallnum != wall_none)
+		{
 			Num_stuck_objects++;
 		}
 	//	Ok, this is awful, but we need to do things whenever a door opens/closes/disappears, etc.
@@ -1525,7 +1530,7 @@ void kill_stuck_objects(int wallnum)
 void init_stuck_objects(void)
 {
 	range_for (auto &i, Stuck_objects)
-		i.wallnum = -1;
+		i.wallnum = wall_none;
 	Num_stuck_objects = 0;
 }
 
@@ -1535,12 +1540,13 @@ void clear_stuck_objects(void)
 {
 	range_for (auto &i, Stuck_objects)
 	{
-		if (i.wallnum != -1) {
+		if (i.wallnum != wall_none)
+		{
 			const auto &&objp = vobjptr(i.objnum);
 			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::FLARE_ID)
 				objp->lifeleft = F1_0/8;
 
-			i.wallnum = -1;
+			i.wallnum = wall_none;
 			Num_stuck_objects--;
 		}
 	}
