@@ -3,7 +3,7 @@
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 
-template <typename T>
+template <typename T, typename Trc = typename tt::remove_const<T>::type>
 class exact_type
 {
 	T *p;
@@ -14,15 +14,21 @@ public:
 	operator volatile void *() const = delete;
 	operator const void *() const = delete;
 	operator const volatile void *() const = delete;
-	bool operator<(exact_type<T>) const = delete;
-	bool operator<=(exact_type<T>) const = delete;
-	bool operator>(exact_type<T>) const = delete;
-	bool operator>=(exact_type<T>) const = delete;
+	template <typename U>
+		bool operator<(U &&) const = delete;
+	template <typename U>
+		bool operator<=(U &&) const = delete;
+	template <typename U>
+		bool operator>(U &&) const = delete;
+	template <typename U>
+		bool operator>=(U &&) const = delete;
+	template <typename U>
+		bool operator!=(U &&rhs) const { return !operator==(static_cast<U &&>(rhs)); }
 	exact_type(T *t) : p(t) {}
 	// Conversion to the exact type is permitted
-	operator T *() const { return p; }
-	bool operator==(exact_type<T> rhs) const { return p == rhs.p; }
-	bool operator!=(exact_type<T> rhs) const { return p != rhs.p; }
+	operator const T *() const { return p; }
+	operator Trc *() const { return p; }
+	bool operator==(const T *rhs) const { return p == rhs; }
 };
 
 template <typename T>
@@ -31,7 +37,7 @@ class prohibit_void_ptr
 public:
 	// Return a proxy when the address is taken
 	exact_type<T> operator&() { return static_cast<T*>(this); }
-	exact_type<T const> operator&() const { return static_cast<T const*>(this); }
+	exact_type<T const, T> operator&() const { return static_cast<T const*>(this); }
 };
 
 struct allow_void_ptr {};
