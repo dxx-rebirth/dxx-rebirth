@@ -4679,9 +4679,10 @@ void multi_send_trigger_specific (const playernum_t pnum,char trig)
 
 	multi_send_data_direct<MULTI_START_TRIGGER>(multibuf, 2, pnum, 2);
 }
+
 static void multi_do_start_trigger (const ubyte *buf)
 {
-	Triggers[(int)buf[1]].flags |=TF_DISABLED;
+	vtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= TF_DISABLED;
 }
 #endif
 

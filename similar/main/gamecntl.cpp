@@ -1131,8 +1131,11 @@ static void kill_and_so_forth(void)
 
 	do_controlcen_destroyed_stuff(object_none);
 
-	for (uint_fast32_t i = 0; i < Num_triggers; i++) {
-		if (trigger_is_exit(&Triggers[i])) {
+	for (trgnum_t i = 0; i < Num_triggers; i++)
+	{
+		const auto &&t = vctrgptr(i);
+		if (trigger_is_exit(t))
+		{
 			range_for (auto &w, partial_range(Walls, Num_walls))
 			{
 				if (w.trigger == i) {

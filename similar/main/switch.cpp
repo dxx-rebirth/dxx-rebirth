@@ -65,21 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Initializes all the switches.
 void trigger_init()
 {
-	int i;
-
 	Triggers.set_count(0);
-
-	for (i=0;i<MAX_TRIGGERS;i++)
-		{
-		Triggers[i].flags = 0;
-#if defined(DXX_BUILD_DESCENT_I)
-		Triggers[i].link_num = -1;
-#elif defined(DXX_BUILD_DESCENT_II)
-		Triggers[i].num_links = 0;
-#endif
-		Triggers[i].value = 0;
-		Triggers[i].time = -1;
-		}
 }
 #endif
 
@@ -278,13 +264,13 @@ static void do_il_off(const trigger &t)
 	trigger_wall_op(t, vsegptridx, op);
 }
 
-int check_trigger_sub(const unsigned trigger_num, int pnum,int shot)
+int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 {
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return 1;
-	auto &trigger = Triggers[trigger_num];
+	auto &trigger = *vtrgptr(trigger_num);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
@@ -523,9 +509,10 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 			return;
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {
-			int ctrigger_num;
-			Triggers[trigger_num].flags &= ~TRIGGER_ON;
+		auto &t = *vtrgptr(trigger_num);
+		if (t.flags & TRIGGER_ONE_SHOT)
+		{
+			t.flags &= ~TRIGGER_ON;
 	
 			const auto &&csegp = vcsegptr(seg->children[side]);
 			auto cside = find_connect_side(seg, csegp);
@@ -534,9 +521,9 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 			wall_num = csegp->sides[cside].wall_num;
 			if ( wall_num == wall_none ) return;
 			
-			ctrigger_num = Walls[wall_num].trigger;
-	
-			Triggers[ctrigger_num].flags &= ~TRIGGER_ON;
+			auto ctrigger_num = Walls[wall_num].trigger;
+			const auto &&ct = vtrgptr(ctrigger_num);
+			ct->flags &= ~TRIGGER_ON;
 		}
 #endif
 		if (Game_mode & GM_MULTI)

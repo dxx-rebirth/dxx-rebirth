@@ -1088,21 +1088,24 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			w.controlling_trigger = -1;
 #endif
 
-		for (uint_fast32_t t = 0; t < Num_triggers; t++) {
-			int	l;
-			for (l=0; l<Triggers[t].num_links; l++) {
+		for (trgnum_t t = 0; t < Num_triggers; t++)
+		{
+			auto &tr = *vctrgptr(t);
+			for (unsigned l = 0; l < tr.num_links; ++l)
+			{
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
-				const auto seg_num = Triggers[t].seg[l];
-				if (trigger_is_matcen(Triggers[t]))
+				const auto seg_num = tr.seg[l];
+				if (trigger_is_matcen(tr))
 				{
 					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 						throw std::runtime_error("matcen triggers non-matcen segment");
 				}
 #if defined(DXX_BUILD_DESCENT_II)
-				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-					int side_num = Triggers[t].side[l];
-					auto wall_num = Segments[seg_num].sides[side_num].wall_num;
+				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
+				{	//light triggers don't require walls
+					const auto side_num = tr.side[l];
+					auto wall_num = vsegptr(seg_num)->sides[side_num].wall_num;
 					if (wall_num == wall_none)
 						Int3();	//	This is illegal.  This trigger requires a wall
 					else

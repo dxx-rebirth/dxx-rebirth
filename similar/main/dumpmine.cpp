@@ -186,21 +186,24 @@ static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 // ----------------------------------------------------------------------------
 static void write_exit_text(PHYSFS_File *my_file)
 {
-	int	i, j, count;
+	int	j, count;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Exit stuff\n");
 
 	//	---------- Find exit triggers ----------
 	count=0;
-	for (i=0; i<Num_triggers; i++)
-		if (trigger_is_exit(&Triggers[i])) {
+	for (trgnum_t i=0; i<Num_triggers; i++)
+	{
+		const auto &&t = vctrgptr(i);
+		if (trigger_is_exit(t))
+		{
 			int	count2;
 
-			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, Triggers[i].num_links);
+			PHYSFSX_printf(my_file, "Trigger %2i, is an exit trigger with %i links.\n", i, t->num_links);
 			count++;
-			if (Triggers[i].num_links != 0)
-				err_printf(my_file, "Error: Exit triggers must have 0 links, this one has %i links.", Triggers[i].num_links);
+			if (t->num_links != 0)
+				err_printf(my_file, "Error: Exit triggers must have 0 links, this one has %i links.", t->num_links);
 
 			//	Find wall pointing to this trigger.
 			count2 = 0;
@@ -215,6 +218,7 @@ static void write_exit_text(PHYSFS_File *my_file)
 				err_printf(my_file, "Error: Trigger %i is bound to %i walls.", i, count2);
 
 		}
+	}
 
 	if (count == 0)
 		err_printf(my_file, "Error: No exit trigger in this mine.");
@@ -475,7 +479,7 @@ static void write_segment_text(PHYSFS_File *my_file)
 // which is not true.  The setting of segnum is bogus.
 static void write_matcen_text(PHYSFS_File *my_file)
 {
-	int	i, j;
+	int	i;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Materialization centers:\n");
@@ -492,10 +496,12 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		auto segnum = Station[fuelcen_num].segnum;
 
 		//	Find trigger for this materialization center.
-		for (j=0; j<Num_triggers; j++) {
-			if (trigger_is_matcen(Triggers[j]))
+		for (trgnum_t j=0; j < Num_triggers; j++)
+		{
+			const auto &&t = vctrgptr(j);
+			if (trigger_is_matcen(t))
 			{
-				range_for (auto &k, partial_range(Triggers[j].seg, Triggers[j].num_links))
+				range_for (auto &k, partial_range(t->seg, t->num_links))
 					if (k == segnum)
 					{
 						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );
@@ -583,21 +589,23 @@ static void write_player_text(PHYSFS_File *my_file)
 // ----------------------------------------------------------------------------
 static void write_trigger_text(PHYSFS_File *my_file)
 {
-	int	i, j, w;
+	int	w;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Triggers:\n");
-	for (i=0; i<Num_triggers; i++) {
+	for (trgnum_t i = 0; i < Num_triggers; i++)
+	{
+		const auto &&t = vctrgptr(i);
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
-                        Triggers[i].flags, (unsigned int) (Triggers[i].value), (unsigned int) (Triggers[i].time), Triggers[i].link_num, Triggers[i].num_links);
+                        t->flags, static_cast<unsigned>(t->value), static_cast<unsigned>(t->time), t->link_num, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
-			Triggers[i].type, Triggers[i].flags, Triggers[i].value, Triggers[i].time, Triggers[i].num_links);
+			t->type, t->flags, t->value, t->time, t->num_links);
 #endif
 
-		for (j=0; j<Triggers[i].num_links; j++)
-			PHYSFSX_printf(my_file, "[%03i:%i] ", Triggers[i].seg[j], Triggers[i].side[j]);
+		for (unsigned j = 0; j < t->num_links; ++j)
+			PHYSFSX_printf(my_file, "[%03i:%i] ", t->seg[j], t->side[j]);
 
 		//	Find which wall this trigger is connected to.
 		for (w=0; w<Num_walls; w++)

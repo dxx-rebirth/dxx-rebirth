@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "fwd-valptridx.h"
+#include "valptridx.h"
 #include "compiler-array.h"
 
 #define MAX_TRIGGERS        100
@@ -137,6 +138,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 };
 
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(trigger, trg, Triggers, MAX_TRIGGERS);
+DEFINE_VALPTRIDX_SUBTYPE(trg, trigger, trgnum_t, Triggers);
 
 }
 
@@ -146,7 +148,7 @@ const uint8_t trigger_none = 0xff;
 
 extern void trigger_init();
 void check_trigger(vcsegptridx_t seg, short side, vcobjptridx_t objnum, int shot);
-int check_trigger_sub(unsigned trigger_num, int player_num,int shot);
+int check_trigger_sub(trgnum_t trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
 static inline int trigger_is_exit(const trigger *t)

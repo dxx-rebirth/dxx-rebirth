@@ -2184,7 +2184,9 @@ static int newdemo_read_frame_information(int rewrite)
                         if (segp->sides[side].wall_num != wall_none)
                         {
 #if defined(DXX_BUILD_DESCENT_II)
-                                if (Triggers[Walls[segp->sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
+							const auto &&t = vctrgptr(Walls[segp->sides[side].wall_num].trigger);
+							if (t->type == TT_SECRET_EXIT)
+							{
                                         int truth;
 
                                         nd_read_byte(&c);

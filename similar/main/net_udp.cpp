@@ -5417,9 +5417,12 @@ static void net_udp_send_smash_lights (const playernum_t pnum)
 static void net_udp_send_fly_thru_triggers (const playernum_t pnum)
  {
   // send the fly thru triggers that have been disabled
-  for (int i=0;i<Num_triggers;i++)
-   if (Triggers[i].flags & TF_DISABLED)
+	for (trgnum_t i = 0; i < Num_triggers; ++i)
+	{
+		const auto &&t = vctrgptr(i);
+		if (t->flags & TF_DISABLED)
     multi_send_trigger_specific(pnum,i);
+	}
  }
 
 static void net_udp_send_player_flags()

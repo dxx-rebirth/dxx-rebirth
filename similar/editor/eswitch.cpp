@@ -77,9 +77,9 @@ struct trigger_dialog
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
-static int add_trigger(const vsegptr_t seg, short side)
+static trgnum_t add_trigger(const vsegptr_t seg, short side)
 {
-	int trigger_num = Num_triggers;
+	trgnum_t trigger_num = Num_triggers;
 
 	Assert(trigger_num < MAX_TRIGGERS);
 	if (trigger_num>=MAX_TRIGGERS) return trigger_none;
@@ -91,23 +91,18 @@ static int add_trigger(const vsegptr_t seg, short side)
 		Walls[wall_num].trigger = trigger_num;
 		
 		// Set default values first time trigger is added
-		Triggers[trigger_num].flags = 0;
-		Triggers[trigger_num].value = F1_0*5;
-		Triggers[trigger_num].num_links = 0;
-		Triggers[trigger_num].flags &= TRIGGER_ON;		
 	} else {
 		if (Walls[wall_num].trigger != trigger_none)
 			return Walls[wall_num].trigger;
 
 		// Create new trigger.
 		Walls[wall_num].trigger = trigger_num;
-
-		// Set default values first time trigger is added
-		Triggers[trigger_num].flags = 0;
-		Triggers[trigger_num].value = F1_0*5;
-		Triggers[trigger_num].num_links = 0;
-		Triggers[trigger_num].flags &= TRIGGER_ON;
 	}
+	const auto &&t = vtrgptr(trigger_num);
+	t->flags = 0;
+	t->value = F1_0*5;
+	t->num_links = 0;
+	t->flags &= TRIGGER_ON;
 	Triggers.set_count(trigger_num + 1);
 	return trigger_num;
 }		
@@ -137,10 +132,11 @@ static int trigger_flag_Markedside(short flag, int value)
 		return 0;
 	}
 
+	auto &flags = vtrgptr(trigger_num)->flags;
  	if (value)
-		Triggers[trigger_num].flags |= flag;
+		flags |= flag;
 	else
-		Triggers[trigger_num].flags &= ~flag;
+		flags &= ~flag;
 
 	return 1;
 }
@@ -169,16 +165,18 @@ static int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	auto link_num = Triggers[trigger_num].num_links;
+	const auto &&t = vtrgptr(trigger_num);
+	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
-		if (Cursegp == Triggers[trigger_num].seg[i]) {
+		if (Cursegp == t->seg[i])
+		{
 			editor_status("Matcen already bound to Markedside.");
 			return 0;
 		}
 
 	// Error checking completed, actual binding begins
-	Triggers[trigger_num].seg[link_num] = Cursegp;
-	Triggers[trigger_num].num_links++;
+	t->seg[link_num] = Cursegp;
+	t->num_links++;
 
 	editor_status("Matcen linked to trigger");
 
@@ -214,18 +212,19 @@ int bind_wall_to_trigger() {
 		return 0;
 	}
 
-	auto link_num = Triggers[trigger_num].num_links;
+	const auto &&t = vtrgptr(trigger_num);
+	const auto link_num = t->num_links;
 	for (int i=0;i<link_num;i++)
-		if (Cursegp == Triggers[trigger_num].seg[i] && Curside == Triggers[trigger_num].side[i])
+		if (Cursegp == t->seg[i] && Curside == t->side[i])
 		{
 			editor_status("Curside already bound to Markedside.");
 			return 0;
 		}
 
 	// Error checking completed, actual binding begins
-	Triggers[trigger_num].seg[link_num] = Cursegp;
-	Triggers[trigger_num].side[link_num] = Curside;
-	Triggers[trigger_num].num_links++;
+	t->seg[link_num] = Cursegp;
+	t->side[link_num] = Curside;
+	t->num_links++;
 
 	editor_status("Wall linked to trigger");
 
@@ -388,7 +387,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	{
 		if (trigger_num != trigger_none)
 		{
-			trigger *trig = &Triggers[trigger_num];
+			const auto &&trig = vctrgptr(trigger_num);
 
   			ui_checkbox_check(t->triggerFlag[0].get(), trig->flags & TRIGGER_CONTROL_DOORS);
  			ui_checkbox_check(t->triggerFlag[1].get(), trig->flags & TRIGGER_SHIELD_DAMAGE);

@@ -1796,8 +1796,11 @@ static void object_move_one(const vobjptridx_t obj)
 				if ( wall_num != wall_none ) {
 					auto trigger_num = Walls[wall_num].trigger;
 					if (trigger_num != trigger_none)
-						if (Triggers[trigger_num].type == TT_EXIT)
+					{
+						const auto &&t = vctrgptr(trigger_num);
+						if (t->type == TT_EXIT)
 							Guided_missile[Player_num]->lifeleft = 0;
+					}
 				}
 			}
 		}
