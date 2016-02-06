@@ -93,22 +93,42 @@ struct v30_trigger
 } __pack__;
 #endif
 
+enum TRIGGER_FLAG : uint16_t
+{
 //flags for V30 & below triggers
-#define TRIGGER_CONTROL_DOORS      1    // Control Trigger
-#define TRIGGER_SHIELD_DAMAGE      2    // Shield Damage Trigger
-#define TRIGGER_ENERGY_DRAIN       4    // Energy Drain Trigger
-#define TRIGGER_EXIT               8    // End of level Trigger
-#define TRIGGER_ON                16    // Whether Trigger is active
-#define TRIGGER_ONE_SHOT          32    // If Trigger can only be triggered once
-#define TRIGGER_MATCEN            64    // Trigger for materialization centers
-#define TRIGGER_ILLUSION_OFF     128    // Switch Illusion OFF trigger
-#define TRIGGER_SECRET_EXIT      256    // Exit to secret level
-#define TRIGGER_ILLUSION_ON      512    // Switch Illusion ON trigger
+	CONTROL_DOORS =      1,    // Control Trigger
+	SHIELD_DAMAGE =      2,    // Shield Damage Trigger
+	ENERGY_DRAIN =       4,    // Energy Drain Trigger
+	EXIT =               8,    // End of level Trigger
+	ON =                16,    // Whether Trigger is active
+	ONE_SHOT =          32,    // If Trigger can only be triggered once
+	MATCEN =            64,    // Trigger for materialization centers
+	ILLUSION_OFF =     128,    // Switch Illusion OFF trigger
+	SECRET_EXIT =      256,    // Exit to secret level
+	ILLUSION_ON =      512,    // Switch Illusion ON trigger
 #if defined(DXX_BUILD_DESCENT_II)
-#define TRIGGER_UNLOCK_DOORS    1024    // Unlocks a door
-#define TRIGGER_OPEN_WALL       2048    // Makes a wall open
-#define TRIGGER_CLOSE_WALL      4096    // Makes a wall closed
-#define TRIGGER_ILLUSORY_WALL   8192    // Makes a wall illusory
+	UNLOCK_DOORS =    1024,    // Unlocks a door
+	OPEN_WALL =       2048,    // Makes a wall open
+	CLOSE_WALL =      4096,    // Makes a wall closed
+	ILLUSORY_WALL =   8192,    // Makes a wall illusory
+#endif
+};
+
+#define TRIGGER_CONTROL_DOORS TRIGGER_FLAG::CONTROL_DOORS
+#define TRIGGER_SHIELD_DAMAGE TRIGGER_FLAG::SHIELD_DAMAGE
+#define TRIGGER_ENERGY_DRAIN TRIGGER_FLAG::ENERGY_DRAIN
+#define TRIGGER_EXIT TRIGGER_FLAG::EXIT
+#define TRIGGER_ON TRIGGER_FLAG::ON
+#define TRIGGER_ONE_SHOT TRIGGER_FLAG::ONE_SHOT
+#define TRIGGER_MATCEN TRIGGER_FLAG::MATCEN
+#define TRIGGER_ILLUSION_OFF TRIGGER_FLAG::ILLUSION_OFF
+#define TRIGGER_SECRET_EXIT TRIGGER_FLAG::SECRET_EXIT
+#define TRIGGER_ILLUSION_ON TRIGGER_FLAG::ILLUSION_ON
+#if defined(DXX_BUILD_DESCENT_II)
+#define TRIGGER_UNLOCK_DOORS TRIGGER_FLAG::UNLOCK_DOORS
+#define TRIGGER_OPEN_WALL TRIGGER_FLAG::OPEN_WALL
+#define TRIGGER_CLOSE_WALL TRIGGER_FLAG::CLOSE_WALL
+#define TRIGGER_ILLUSORY_WALL TRIGGER_FLAG::ILLUSORY_WALL
 #endif
 
 //the trigger really should have both a type & a flags, since most of the
@@ -121,7 +141,7 @@ namespace dsx {
 struct trigger : public prohibit_void_ptr<trigger>
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	short		flags;
+	uint16_t flags;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused

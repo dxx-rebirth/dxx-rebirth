@@ -99,7 +99,7 @@ static trgnum_t add_trigger(const vsegptr_t seg, short side)
 		Walls[wall_num].trigger = trigger_num;
 	}
 	const auto &&t = vtrgptr(trigger_num);
-	t->flags = 0;
+	t->flags = {};
 	t->value = F1_0*5;
 	t->num_links = 0;
 	t->flags &= TRIGGER_ON;
@@ -112,7 +112,7 @@ static trgnum_t add_trigger(const vsegptr_t seg, short side)
 // Automatically adds flag to Connectside if possible unless it is a control trigger.
 // Returns 1 if trigger flag added.
 // Returns 0 if trigger flag cannot be added.
-static int trigger_flag_Markedside(short flag, int value)
+static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 {
 	if (!Markedsegp) {
 		editor_status("No Markedside.");

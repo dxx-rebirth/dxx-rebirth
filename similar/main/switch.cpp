@@ -569,9 +569,8 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 			con_printf(CON_URGENT,"Warning: unsupported trigger type %d", type);
 			throw std::runtime_error("unsupported trigger type");
 	}
-	t.flags = (PHYSFSX_readByte(fp) & 2) ? // one shot
-		TRIGGER_ONE_SHOT :
-		0;
+	if (PHYSFSX_readByte(fp) & 2)	// one shot
+		t.flags |= TRIGGER_ONE_SHOT;
 	t.num_links = PHYSFSX_readShort(fp);
 	t.value = PHYSFSX_readInt(fp);
 	t.time = PHYSFSX_readInt(fp);
@@ -710,6 +709,7 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 }
 #endif
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, t.time, t.link_num, t.num_links, t.seg, t.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
@@ -717,6 +717,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, t.time, t.seg, t.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
+}
 
 /*
  * reads n trigger structs from a PHYSFS_File and swaps if specified
