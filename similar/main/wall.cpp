@@ -639,111 +639,19 @@ static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side
 	return get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-//-----------------------------------------------------------------
-// Animates and processes the closing of a door.
-// Called from the game loop.
-void do_door_close(int door_num)
-{
-	int p;
-	active_door *d;
-	wall *w;
-
-	Assert(door_num != -1);		//Trying to do_door_open on illegal door
-
-	d = &ActiveDoors[door_num];
-
-	w = &Walls[d->front_wallnum[0]];
-
-	//check for objects in doorway before closing
-	if (w->flags & WALL_DOOR_AUTO)
-		for (p=0;p<d->n_parts;p++) {
-			int side;
-			const auto &&seg = vcsegptridx(w->segnum);
-			side = w->sidenum;
-
-			//go through each object in each of two segments, and see if
-			//it pokes into the connecting seg
-
-			range_for (const auto &&objnum, objects_in(seg))
-				if (check_poke(objnum, seg, side))
-					return;		//abort!
-
-			const auto &&csegp = vcsegptr(seg->children[side]);
-			const auto &&Connectside = find_connect_side(seg, csegp);
-			Assert(Connectside != side_none);
-			range_for (const auto &&objnum, objects_in(csegp))
-				if (check_poke(objnum, csegp, Connectside))
-					return;		//abort!
-		}
-
-	for (p=0;p<d->n_parts;p++) {
-		int side;
-		fix time_elapsed, time_total, one_frame;
-		int i, n;
-
-		w = &Walls[d->front_wallnum[p]];
-
-		const auto &&seg = vsegptridx(w->segnum);
-		side = w->sidenum;
-
-		if (seg->sides[side].wall_num == wall_none) {
-			return;
-		}
-
-		//if here, must be auto door
-		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);		
-
-		// Otherwise, close it.
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
-		const auto &&Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != side_none);
-
-		if ( Newdemo_state != ND_STATE_PLAYBACK )
-			// NOTE THE LINK TO ABOVE!!
-			if (p==0)	//only play one sound for linked doors
-				if ( d->time==0 )	{		//first time
-					const auto cp = compute_center_point_on_side(seg, side );
-					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg, side, cp, 0, F1_0 );
-				}
-
-		d->time += FrameTime;
-
-		time_elapsed = d->time;
-		n = WallAnims[w->clip_num].num_frames;
-		time_total = WallAnims[w->clip_num].play_time;
-
-		one_frame = time_total/n;	
-
-		i = n-time_elapsed/one_frame-1;
-
-		if (i < n/2) {
-			Walls[seg->sides[side].wall_num].flags &= ~WALL_DOOR_OPENED;
-			Walls[csegp->sides[Connectside].wall_num].flags &= ~WALL_DOOR_OPENED;
-		}
-
-		// Animate door.
-		if (i > 0) {
-			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,i);
-
-			Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSING;
-			Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSING;
-
-			ActiveDoors[Num_open_doors].time = 0;		//counts up
-
-		} else
-			wall_close_door(door_num);
-	}
-}
-#endif
-
-#if defined(DXX_BUILD_DESCENT_II)
 static int is_door_side_free(const vcsegptr_t seg, int side)
 {
 	range_for (const auto &&obj, objects_in(seg))
-		if (obj->type!=OBJ_WEAPON && obj->type!=OBJ_FIREBALL && check_poke(obj,seg,side))
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		if (obj->type == OBJ_WEAPON)
+			continue;
+		if (obj->type == OBJ_FIREBALL)
+			continue;
+#endif
+		if (check_poke(obj,seg,side))
 			return 0;	//not free
+	}
 	return 1;
 }
 
@@ -760,6 +668,7 @@ static int is_door_free(const vcsegptridx_t seg,int side)
 	return is_door_side_free(csegp, Connectside);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // Closes a door
 void wall_close_door(const vsegptridx_t seg, int side)
@@ -929,7 +838,6 @@ void do_door_open(int door_num)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // Animates and processes the closing of a door.
 // Called from the game loop.
@@ -950,8 +858,10 @@ void do_door_close(int door_num)
 	//check for objects in doorway before closing
 	if (w->flags & WALL_DOOR_AUTO)
 		if (!is_door_free(wsegp, w->sidenum)) {
+#if defined(DXX_BUILD_DESCENT_II)
 			digi_kill_sound_linked_to_segment(w->segnum,w->sidenum,-1);
 			wall_open_door(wsegp, w->sidenum);		//re-open door
+#endif
 			return;
 		}
 
@@ -970,9 +880,11 @@ void do_door_close(int door_num)
 			return;
 		}
 
+#if defined(DXX_BUILD_DESCENT_I)
 		//if here, must be auto door
-//		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);		
 //don't assert here, because now we have triggers to close non-auto doors
+		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);
+#endif
 
 		// Otherwise, close it.
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
@@ -1017,7 +929,6 @@ void do_door_close(int door_num)
 			wall_close_door_num(door_num);
 	}
 }
-#endif
 
 template <typename F>
 static void wall_illusion_op(const vsegptridx_t seg, unsigned side, F op)
