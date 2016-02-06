@@ -598,10 +598,10 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		const auto &&t = vctrgptr(i);
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
-                        t->flags, static_cast<unsigned>(t->value), static_cast<unsigned>(t->time), t->link_num, t->num_links);
+                        t->flags, static_cast<unsigned>(t->value), 0, t->link_num, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
-			t->type, t->flags, t->value, t->time, t->num_links);
+			t->type, t->flags, t->value, 0, t->num_links);
 #endif
 
 		for (unsigned j = 0; j < t->num_links; ++j)

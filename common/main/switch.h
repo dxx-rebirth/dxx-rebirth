@@ -142,16 +142,15 @@ struct trigger : public prohibit_void_ptr<trigger>
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	uint16_t flags;
+	uint16_t num_links;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused
 	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
 	fix     value;
-	fix     time;
 #if defined(DXX_BUILD_DESCENT_I)
 	int8_t		link_num;
-	uint16_t 	num_links;
 #endif
 	array<segnum_t, MAX_WALLS_PER_LINK>   seg;
 	array<short, MAX_WALLS_PER_LINK>   side;
