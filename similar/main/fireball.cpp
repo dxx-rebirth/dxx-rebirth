@@ -779,9 +779,10 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
+#define drop_powerup(type, id, num, init_vel, pos, segnum, player)	(drop_powerup)(type, id, num, init_vel, pos, segnum)
 static
 #endif
-objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
+objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum, bool player)
 {
 	objptridx_t	objnum = object_none;
 	vms_vector	new_pos;
@@ -893,16 +894,21 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 //				new_pos.z += (d_rand()-16384)*6;
 
 #if defined(DXX_BUILD_DESCENT_I)
-				auto obj = obj_create(OBJ_ROBOT, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[ObjId[type]].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				const auto robot_id = ObjId[type];
 #elif defined(DXX_BUILD_DESCENT_II)
-				auto obj = obj_create(OBJ_ROBOT, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				const auto robot_id = id;
 #endif
+				const auto &&obj = obj_create(OBJ_ROBOT, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 				objnum = obj;
 				if ( objnum == object_none ) {
 					Int3();
 					return objnum;
 				}
+#if defined(DXX_BUILD_DESCENT_II)
+				if (player)
+					obj->flags |= OF_PLAYER_DROPPED;
+#endif
 
 				if (Game_mode & GM_MULTI)
 				{
@@ -937,7 +943,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 			// At JasenW's request, robots which contain robots
 			// sometimes drop shields.
 			if (d_rand() > 16384)
-				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum);
+				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
 #endif
 			break;
 
@@ -974,12 +980,7 @@ static bool skip_create_egg_powerup(powerup_type_t powerup)
 // If object dropped by player, set flag.
 static objptridx_t object_create_player_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
 {
-	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum);
-#if defined(DXX_BUILD_DESCENT_II)
-	if (rval != object_none)
-		rval->flags |= OF_PLAYER_DROPPED;
-#endif
-	return rval;
+	return drop_powerup(type, id, num, init_vel, pos, segnum, true);
 }
 
 objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, const vsegptridx_t segnum)
@@ -994,7 +995,7 @@ objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector 
 		}
 	}
 #endif
-	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum);
+	const auto rval = drop_powerup(type, id, num, init_vel, pos, segnum, false);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (rval != object_none)
 	{
