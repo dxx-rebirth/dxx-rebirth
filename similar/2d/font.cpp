@@ -863,7 +863,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 }
 
 //remap a font, re-reading its data & palette
-static void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data );
+static void gr_remap_font(grs_font *font, const char *fontname);
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
@@ -871,7 +871,7 @@ void gr_remap_color_fonts()
 	range_for (auto font, open_font)
 	{
 		if (font)
-			gr_remap_font(font, &font->ft_filename[0], font->ft_allocdata.get());
+			gr_remap_font(font, &font->ft_filename[0]);
 	}
 }
 
@@ -893,7 +893,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 }
 
-grs_font_ptr gr_init_font( const char * fontname )
+static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 {
 	unsigned char * ptr;
 	struct {
@@ -930,8 +930,7 @@ grs_font_ptr gr_init_font( const char * fontname )
 		return {};
 	}
 
-	unsigned nchars;
-	nchars = font->ft_maxchar - font->ft_minchar + 1;
+	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
 		const auto offset_widths = reinterpret_cast<uintptr_t>(font->ft_widths);
@@ -1013,17 +1012,21 @@ grs_font_ptr gr_init_font( const char * fontname )
 	fontfile.reset();
 	//set curcanv vars
 
-	grd_curcanv->cv_font        = font.get();
-	grd_curcanv->cv_font_fg_color    = 0;
-	grd_curcanv->cv_font_bg_color    = 0;
-
-#ifdef OGL
-	ogl_init_font(font.get());
-#endif
-
 	auto &ft_filename = font->ft_filename;
 	font->ft_allocdata = move(font_data);
 	strncpy(&ft_filename[0], fontname, ft_filename.size());
+	return font;
+}
+
+grs_font_ptr gr_init_font(const char *fontname)
+{
+	auto font = gr_internal_init_font(fontname);
+	if (!font)
+		return {};
+
+	grd_curcanv->cv_font        = font.get();
+	grd_curcanv->cv_font_fg_color    = 0;
+	grd_curcanv->cv_font_bg_color    = 0;
 	if (font->ft_flags & FT_COLOR)
 	{
 		auto e = end(open_font);
@@ -1032,80 +1035,25 @@ grs_font_ptr gr_init_font( const char * fontname )
 			throw std::logic_error("too many open fonts");
 		*i = font.get();
 	}
+#ifdef OGL
+	ogl_init_font(font.get());
+#endif
 	return grs_font_ptr(font.release());
 }
 
 //remap a font by re-reading its data & palette
-void gr_remap_font( grs_font *font, const char * fontname, uint8_t *font_data )
+void gr_remap_font(grs_font *font, const char *fontname)
 {
-	int nchars;
-	char file_id[4];
-	int datasize;        //size up to (but not including) palette
-	unsigned char *ptr;
-
-	auto fontfile = PHYSFSX_openReadBuffered(fontname);
-
-	if (!fontfile)
-		Error( "Can't open font file %s", fontname );
-
-	PHYSFS_read(fontfile, file_id, 4, 1);
-	if ( !strncmp( file_id, "NFSP", 4 ) )
-		Error( "File %s is not a font file", fontname );
-
-	datasize = PHYSFSX_readInt(fontfile);
-	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
-
-	font->ft_chars.reset();
-	grs_font_read(font, fontfile); // have to reread in case mission hogfile overrides font.
-
-	PHYSFS_read(fontfile, font_data, 1, datasize);  //read raw data
-
-	nchars = font->ft_maxchar - font->ft_minchar + 1;
-
-	if (font->ft_flags & FT_PROPORTIONAL) {
-
-		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
-		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
-		font->ft_chars = make_unique<uint8_t *[]>(nchars);
-
-		ptr = font->ft_data;
-
-		for (int i=0; i< nchars; i++ ) {
-			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
-			font->ft_chars[i] = ptr;
-			if (font->ft_flags & FT_COLOR)
-				ptr += font->ft_widths[i] * font->ft_h;
-			else
-				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
-
-	} else  {
-
-		font->ft_data   = (unsigned char *) font_data;
-		font->ft_chars.reset();
-		font->ft_widths = NULL;
-
-		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
-	}
-
-	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
-
-	if (font->ft_flags & FT_COLOR) {		//remap palette
-		palette_array_t palette;
-		array<uint8_t, 256> colormap;
-		array<unsigned, 256> freq;
-
-		PHYSFS_read(fontfile,&palette[0],sizeof(palette[0]),palette.size());		//read the palette
-		build_colormap_good( palette, colormap, freq );
-
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
-
-		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
-
-	}
+	auto n = gr_internal_init_font(fontname);
+	if (!n)
+		return;
+	if (!(n->ft_flags & FT_COLOR))
+		return;
 #ifdef OGL
 	gr_free_bitmap_data(font->ft_parent_bitmap);
+#endif
+	*font = std::move(*n.get());
+#ifdef OGL
 	ogl_init_font(font);
 #endif
 }
