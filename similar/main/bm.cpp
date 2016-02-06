@@ -87,7 +87,7 @@ fix	ObjStrength[MAX_OBJTYPE];
 #elif defined(DXX_BUILD_DESCENT_II)
 //the polygon model number to use for the marker
 int	Marker_model_num = -1;
-int             N_ObjBitmaps;
+unsigned N_ObjBitmaps;
 static void bm_free_extra_objbitmaps();
 #endif
 
@@ -112,14 +112,6 @@ int             First_multi_bitmap_num=-1;
 
 array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
-
-/*
- * reads n bitmap_index structs from a PHYSFS_File
- */
-static inline void bitmap_index_read_n(partial_range_t<bitmap_index *> r, uint_fast32_t n, PHYSFS_File *fp)
-{
-	bitmap_index_read_n(fp, partial_range(r, n));
-}
 
 void gamedata_close()
 {
@@ -203,27 +195,30 @@ void properties_read_cmp(PHYSFS_File * fp)
 		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
-	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+	{
+		const auto &&r = partial_range(Polygon_models, N_polygon_models);
+	range_for (auto &p, r)
 		polymodel_read(&p, fp);
 
-	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
+	}
 
-	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
+	bitmap_index_read_n(fp, partial_range(Gauges, MAX_GAUGE_BMS));
 	
 	range_for (auto &i, Dying_modelnums)
 		i = PHYSFSX_readInt(fp);
 	range_for (auto &i, Dead_modelnums)
 		i = PHYSFSX_readInt(fp);
 
-	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
+	bitmap_index_read_n(fp, ObjBitmaps);
 	range_for (auto &i, ObjBitmapPtrs)
 		i = PHYSFSX_readShort(fp);
 
 	player_ship_read(&only_player_ship, fp);
 
 	Num_cockpits = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(cockpit_bitmap, N_COCKPIT_BITMAPS, fp);
+	bitmap_index_read_n(fp, cockpit_bitmap);
 
 	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
@@ -288,7 +283,7 @@ int gamedata_init()
 
 void bm_read_all(PHYSFS_File * fp)
 {
-	int i,t;
+	unsigned t;
 
 	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(fp, partial_range(Textures, NumTextures));
@@ -327,30 +322,33 @@ void bm_read_all(PHYSFS_File * fp)
 		powerup_type_info_read(fp, p);
 
 	N_polygon_models = PHYSFSX_readInt(fp);
-	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+	{
+		const auto &&r = partial_range(Polygon_models, N_polygon_models);
+	range_for (auto &p, r)
 		polymodel_read(&p, fp);
 
-	range_for (auto &p, partial_range(Polygon_models, N_polygon_models))
+	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
+	}
 
-	for (i = 0; i < N_polygon_models; i++)
-		Dying_modelnums[i] = PHYSFSX_readInt(fp);
-	for (i = 0; i < N_polygon_models; i++)
-		Dead_modelnums[i] = PHYSFSX_readInt(fp);
+	range_for (auto &i, partial_range(Dying_modelnums, N_polygon_models))
+		i = PHYSFSX_readInt(fp);
+	range_for (auto &i, partial_range(Dead_modelnums, N_polygon_models))
+		i = PHYSFSX_readInt(fp);
 
 	t = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(Gauges, t, fp);
-	bitmap_index_read_n(Gauges_hires, t, fp);
+	bitmap_index_read_n(fp, partial_range(Gauges, t));
+	bitmap_index_read_n(fp, partial_range(Gauges_hires, t));
 
 	N_ObjBitmaps = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(ObjBitmaps, N_ObjBitmaps, fp);
-	for (i = 0; i < N_ObjBitmaps; i++)
-		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
+	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_ObjBitmaps));
+	range_for (auto &i, partial_range(ObjBitmapPtrs, N_ObjBitmaps))
+		i = PHYSFSX_readShort(fp);
 
 	player_ship_read(&only_player_ship, fp);
 
 	Num_cockpits = PHYSFSX_readInt(fp);
-	bitmap_index_read_n(cockpit_bitmap, Num_cockpits, fp);
+	bitmap_index_read_n(fp, partial_range(cockpit_bitmap, Num_cockpits));
 
 //@@	PHYSFS_read( fp, &Num_total_object_types, sizeof(int), 1 );
 //@@	PHYSFS_read( fp, ObjType, sizeof(byte), Num_total_object_types );
@@ -404,7 +402,7 @@ static void bm_free_extra_models()
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 {
-	int t,i,version;
+	int t,version;
 
 	auto fp = PHYSFSX_openReadBuffered(fname);
 	if (!fp)
@@ -455,16 +453,19 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	N_polygon_models = N_D2_POLYGON_MODELS+u;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
-	range_for (auto &p, partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models))
+	{
+		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models);
+		range_for (auto &p, r)
 		polymodel_read(&p, fp);
 
-	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )
-		polygon_model_data_read(&Polygon_models[i], fp);
+		range_for (auto &p, r)
+			polygon_model_data_read(&p, fp);
+	}
 
-	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		Dying_modelnums[i] = PHYSFSX_readInt(fp);
-	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		Dead_modelnums[i] = PHYSFSX_readInt(fp);
+	range_for (auto &i, partial_range(Dying_modelnums, N_D2_POLYGON_MODELS, N_polygon_models))
+		i = PHYSFSX_readInt(fp);
+	range_for (auto &i, partial_range(Dead_modelnums, N_D2_POLYGON_MODELS, N_polygon_models))
+		i = PHYSFSX_readInt(fp);
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= MAX_OBJ_BITMAPS)
@@ -474,8 +475,8 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= MAX_OBJ_BITMAPS)
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPPTRS);
-	for (i = N_D2_OBJBITMAPPTRS; i < (N_D2_OBJBITMAPPTRS + t); i++)
-		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
+	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS, N_D2_OBJBITMAPPTRS + t))
+		i = PHYSFSX_readShort(fp);
 }
 
 int Robot_replacements_loaded = 0;

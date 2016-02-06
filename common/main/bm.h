@@ -127,7 +127,7 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 extern int Marker_model_num;
 extern int Robot_replacements_loaded;
 #define MAX_OBJ_BITMAPS     610
-extern int N_ObjBitmaps;
+extern unsigned N_ObjBitmaps;
 extern int extra_bitmap_num;
 #endif
 
