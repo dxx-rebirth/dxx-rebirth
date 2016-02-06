@@ -1064,7 +1064,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Save trigger info
-	PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
+	{
+		unsigned num_triggers = Triggers.get_count();
+		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
+	}
 	range_for (auto &t, partial_range(Triggers, Num_triggers))
 		trigger_write(fp, t);
 
@@ -1563,7 +1566,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 
 	//Restore trigger info
-	Num_triggers = PHYSFSX_readSXE32(fp, swap);
+	Triggers.set_count(PHYSFSX_readSXE32(fp, swap));
 	range_for (auto &t, partial_range(Triggers, Num_triggers))
 		trigger_read(fp, t);
 

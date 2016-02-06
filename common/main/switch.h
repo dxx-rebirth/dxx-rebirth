@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-valptridx.h"
 #include "compiler-array.h"
 
 #define MAX_TRIGGERS        100
@@ -112,6 +113,10 @@ struct v30_trigger
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+typedef uint8_t trgnum_t;
+
+namespace dsx {
+
 struct trigger : public prohibit_void_ptr<trigger>
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -131,10 +136,13 @@ struct trigger : public prohibit_void_ptr<trigger>
 	array<short, MAX_WALLS_PER_LINK>   side;
 };
 
-const uint8_t trigger_none = -1;
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(trigger, trg, Triggers, MAX_TRIGGERS);
 
-extern unsigned Num_triggers;
-extern array<trigger, MAX_TRIGGERS> Triggers;
+}
+
+const uint8_t trigger_none = 0xff;
+
+#define Num_triggers	Triggers.get_count()
 
 extern void trigger_init();
 void check_trigger(vcsegptridx_t seg, short side, vcobjptridx_t objnum, int shot);

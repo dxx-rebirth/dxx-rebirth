@@ -95,9 +95,6 @@ static int add_trigger(const vsegptr_t seg, short side)
 		Triggers[trigger_num].value = F1_0*5;
 		Triggers[trigger_num].num_links = 0;
 		Triggers[trigger_num].flags &= TRIGGER_ON;		
-
-		Num_triggers++;
-		return trigger_num;
 	} else {
 		if (Walls[wall_num].trigger != trigger_none)
 			return Walls[wall_num].trigger;
@@ -110,10 +107,9 @@ static int add_trigger(const vsegptr_t seg, short side)
 		Triggers[trigger_num].value = F1_0*5;
 		Triggers[trigger_num].num_links = 0;
 		Triggers[trigger_num].flags &= TRIGGER_ON;
-
-		Num_triggers++;
-		return trigger_num;
 	}
+	Triggers.set_count(trigger_num + 1);
+	return trigger_num;
 }		
 
 //-----------------------------------------------------------------
@@ -241,7 +237,7 @@ int remove_trigger_num(int trigger_num)
 	if (trigger_num != trigger_none)
 	{
 		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Num_triggers);
-		Num_triggers--;
+		Triggers.set_count(Num_triggers - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
 		range_for (auto &w, partial_range(Walls, Num_walls))

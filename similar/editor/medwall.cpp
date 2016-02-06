@@ -965,7 +965,7 @@ int check_walls()
 	if (trigger_count != Num_triggers) {
 		if (ui_messagebox(-2, -2, 2, "Num_triggers is bogus\nDo you wish to correct it?\n", "Yes", "No") == 1)
 		{
-			Num_triggers = trigger_count;
+			Triggers.set_count(trigger_count);
 			editor_status_fmt("Num_triggers set to %d\n", Num_triggers);
 		}
 	}
@@ -985,7 +985,7 @@ int delete_all_walls()
 				side.wall_num = wall_none;
 		}
 		Num_walls=0;
-		Num_triggers=0;
+		Triggers.set_count(0);
 
 		return 1;
 	}

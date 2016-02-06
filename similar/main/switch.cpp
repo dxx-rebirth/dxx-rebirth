@@ -60,9 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-unsigned Num_triggers;
-array<trigger, MAX_TRIGGERS> Triggers;
-
 #ifdef EDITOR
 //-----------------------------------------------------------------
 // Initializes all the switches.
@@ -70,7 +67,7 @@ void trigger_init()
 {
 	int i;
 
-	Num_triggers = 0;
+	Triggers.set_count(0);
 
 	for (i=0;i<MAX_TRIGGERS;i++)
 		{

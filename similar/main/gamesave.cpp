@@ -813,7 +813,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	Num_walls = PHYSFSX_readInt(LoadFile);
 	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 
-	Num_triggers = PHYSFSX_readInt(LoadFile);
+	Triggers.set_count(PHYSFSX_readInt(LoadFile));
 	PHYSFSX_fseek(LoadFile, 24, SEEK_CUR);
 
 	trig_size = PHYSFSX_readInt(LoadFile);

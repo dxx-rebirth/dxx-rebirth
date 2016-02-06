@@ -56,7 +56,7 @@ void valptridx<managed_type>::index_mismatch_exception::report(const array_manag
 {
 	using namespace untyped_index_mismatch_exception;
 	char buf[report_buffer_size];
-	prepare_report(buf, &array[0], array.size(), supplied_index, expected_pointer, actual_pointer);
+	prepare_report(buf, static_cast<const managed_type *>(&array[0]), array.size(), supplied_index, expected_pointer, actual_pointer);
 	throw index_mismatch_exception(buf);
 }
 
@@ -80,6 +80,6 @@ void valptridx<managed_type>::null_pointer_exception::report(const array_managed
 {
 	using namespace untyped_null_pointer_exception;
 	char buf[report_buffer_size];
-	prepare_report(buf, &array[0], array.size());
+	prepare_report(buf, static_cast<const managed_type *>(&array[0]), array.size());
 	throw null_pointer_exception(buf);
 }

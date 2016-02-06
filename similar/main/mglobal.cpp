@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "inferno.h"
 #include "segment.h"
+#include "switch.h"
 #include "object.h"
 #include "bm.h"
 #include "3d.h"
@@ -104,7 +105,9 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 namespace dsx {
 valptridx<object>::array_managed_type Objects;
 valptridx<segment>::array_managed_type Segments;
+valptridx<trigger>::array_managed_type Triggers;
 }
 
 template class valptridx<object>;
 template class valptridx<segment>;
+template class valptridx<trigger>;
