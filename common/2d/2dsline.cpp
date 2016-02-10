@@ -39,66 +39,44 @@ static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsi
 
 #define gr_linear_stosd(D,C,N)	memset(D,C,N)
 
-#ifndef OGL
-void gr_uscanline( int x1, int x2, int y )
+#ifdef OGL
+static
+#endif
+void gr_uscanline(unsigned x1, unsigned x2, unsigned y)
 {
-	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF) {
 		switch(TYPE)
 		{
 		case BM_LINEAR:
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_stosd(&DATA[ROWSIZE*y + x1], static_cast<uint8_t>(COLOR), x2-x1+1);
+			{
+				const auto data = &DATA[ROWSIZE * y + x1];
+				const auto cv_fade_level = grd_curcanv->cv_fade_level;
+				const auto count = x2 - x1 + 1;
+				if (cv_fade_level >= gr_fade_table.size())
+					gr_linear_stosd(data, static_cast<uint8_t>(COLOR), count);
+				else
+					gr_linear_darken(data, cv_fade_level, count, gr_fade_table);
+			}
 			break;
 		}
-	} else {
-		switch(TYPE)
-		{
-		case BM_LINEAR:
-#ifdef OGL
-		case BM_OGL:
-#endif
-			gr_linear_darken(&DATA[ROWSIZE*y + x1], grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
-			break;
-		}
-	}
 }
-#endif
 
-void gr_scanline( int x1, int x2, int y )
+void gr_scanline(int x1, int x2, unsigned y)
 {
-	if ((y<0)||(y>MAXY)) return;
+	if (y >= MAXY)
+		return;
 
-	if (x2 < x1 ) x2 ^= x1 ^= x2;
+	if (x2 < x1)
+		std::swap(x1, x2);
 
 	if (x1 > MAXX) return;
 	if (x2 < MINX) return;
 
 	if (x1 < MINX) x1 = MINX;
 	if (x2 > MAXX) x2 = MAXX;
-
-	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF) {
-		switch(TYPE)
-		{
-		case BM_LINEAR:
-#ifdef OGL
-		case BM_OGL:
-#endif
-			gr_linear_stosd(&DATA[ROWSIZE*y + x1], static_cast<uint8_t>(COLOR), x2-x1+1);
-			break;
-		}
-	} else {
-		switch(TYPE)
-		{
-		case BM_LINEAR:
-#ifdef OGL
-		case BM_OGL:
-#endif
-			gr_linear_darken(&DATA[ROWSIZE*y + x1], grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
-			break;
-		}
-	}
+	gr_uscanline(x1, x2, y);
 }
 
 }
