@@ -56,8 +56,16 @@ namespace detail {
 
 class valptridx_array_type_count
 {
-protected:
 	unsigned count;
+public:
+	unsigned get_count() const
+	{
+		return count;
+	}
+	void set_count(const unsigned c)
+	{
+		count = c;
+	}
 };
 
 }
@@ -567,7 +575,7 @@ protected:
 
 template <typename managed_type>
 class valptridx<managed_type>::array_managed_type :
-	protected detail::valptridx_array_type_count,
+	public detail::valptridx_array_type_count,
 	public array<managed_type, array_size>
 {
 	using containing_type = valptridx<managed_type>;
@@ -595,14 +603,6 @@ public:
 #endif
 	array_managed_type(const array_managed_type &) = delete;
 	array_managed_type &operator=(const array_managed_type &) = delete;
-	unsigned get_count() const
-	{
-		return count;
-	}
-	void set_count(const unsigned c)
-	{
-		count = c;
-	}
 };
 
 template <typename managed_type>
