@@ -623,7 +623,6 @@ static int ogl_internal_string(int x, int y, const char *s )
 
 		while (*text_ptr)
 		{
-			int ft_w;
 
 			if (*text_ptr == '\n' )
 			{
@@ -657,25 +656,16 @@ static int ogl_internal_string(int x, int y, const char *s )
 				continue;
 			}
 			
-			if (cv_font.ft_flags & FT_PROPORTIONAL)
-				ft_w = cv_font.ft_widths[letter];
-			else
-				ft_w = cv_font.ft_w;
+			const auto ft_w = (cv_font.ft_flags & FT_PROPORTIONAL)
+				? cv_font.ft_widths[letter]
+				: cv_font.ft_w;
 
-			if (cv_font.ft_flags & FT_COLOR)
-				ogl_ubitmapm_cs(xx, yy, FONTSCALE_X(ft_w), FONTSCALE_Y(cv_font.ft_h), cv_font.ft_bitmaps[letter], -1, F1_0);
-			else{
-				if (grd_curcanv->cv_bitmap.get_type() == BM_OGL)
-					ogl_ubitmapm_cs(xx, yy, ft_w*(FONTSCALE_X(cv_font.ft_w)/cv_font.ft_w), FONTSCALE_Y(cv_font.ft_h), cv_font.ft_bitmaps[letter], grd_curcanv->cv_font_fg_color, F1_0);
-				else
-					Error("ogl_internal_string: non-color string to non-ogl dest\n");
-			}
+			ogl_ubitmapm_cs(xx, yy, FONTSCALE_X(ft_w), FONTSCALE_Y(cv_font.ft_h), cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? -1 : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? grd_curcanv->cv_font_fg_color : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
 			xx += spacing;
 
 			text_ptr++;
 		}
-
 	}
 	return 0;
 }
