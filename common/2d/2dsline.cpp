@@ -30,8 +30,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static void gr_linear_darken(ubyte * dest, int darkening_level, int count, const gft_array1 &fade_table) {
-	auto predicate = [&](ubyte c) { return fade_table[darkening_level][c]; };
+static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsigned count, const gft_array1 &fade_table)
+{
+	auto &t = fade_table[darkening_level];
+	const auto predicate = [&](const uint8_t c) { return t[c]; };
 	std::transform(dest, dest + count, dest, predicate);
 }
 
