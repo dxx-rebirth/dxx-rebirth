@@ -54,8 +54,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "partial_range.h"
 
-#define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
-#define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
+static font_scale_float FONTSCALE_X()
+{
+	return FNTScaleX;
+}
+
+static float FONTSCALE_Y(const int &y)
+{
+	return FNTScaleY * y;
+}
 
 #define MAX_OPEN_FONTS	50
 
@@ -125,10 +132,11 @@ static get_char_width_result<T> get_char_width(const grs_font &cv_font, const ui
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
 
+	const auto &&fontscale_x = FONTSCALE_X();
 	if (!INFONT(letter)) {				//not in font, draw as space
-		return {0, static_cast<T>(proportional ? FONTSCALE_X(cv_font.ft_w) / 2 : cv_font.ft_w)};
+		return {0, static_cast<T>(proportional ? fontscale_x(cv_font.ft_w) / 2 : cv_font.ft_w)};
 	}
-	const T width = proportional ? FONTSCALE_X(cv_font.ft_widths[letter]) : cv_font.ft_w;
+	const T width = proportional ? fontscale_x(cv_font.ft_widths[letter]) : cv_font.ft_w;
 	if (ft_flags & FT_KERNED) 
 	{
 		if (!(c2==0 || c2=='\n')) {
@@ -137,7 +145,7 @@ static get_char_width_result<T> get_char_width(const grs_font &cv_font, const ui
 			if (INFONT(letter2)) {
 				const auto p = find_kern_entry(cv_font, letter, letter2);
 				if (p)
-					return {width, static_cast<T>(FONTSCALE_X(p[2]))};
+					return {width, static_cast<T>(fontscale_x(p[2]))};
 			}
 		}
 	}
@@ -349,7 +357,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 
 	yy = y;
 
-	const auto &&fspacy = FSPACY();
+	const auto &&fspacy1 = FSPACY(1);
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -367,7 +375,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += cv_font.ft_h + fspacy(1);
+				yy += cv_font.ft_h + fspacy1;
 				break;
 			}
 
@@ -607,8 +615,10 @@ static int ogl_internal_string(int x, int y, const char *s )
 
 	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != BM_OGL)
 		Error("carp.\n");
-	const auto &&fspacy = FSPACY();
+	const auto &&fspacy1 = FSPACY(1);
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &&fontscale_x = FONTSCALE_X();
+	const auto &&FONTSCALE_Y_ft_h = FONTSCALE_Y(cv_font.ft_h);
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -627,7 +637,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += FONTSCALE_Y(cv_font.ft_h) + fspacy(1);
+				yy += FONTSCALE_Y_ft_h + fspacy1;
 				break;
 			}
 
@@ -660,7 +670,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(xx, yy, FONTSCALE_X(ft_w), FONTSCALE_Y(cv_font.ft_h), cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? -1 : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? grd_curcanv->cv_font_fg_color : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? -1 : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? grd_curcanv->cv_font_fg_color : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
 			xx += spacing;
 
