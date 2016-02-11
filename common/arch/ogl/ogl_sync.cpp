@@ -11,8 +11,7 @@
  */
 
 #include <stdlib.h>
-
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "args.h"
 #include "console.h"
