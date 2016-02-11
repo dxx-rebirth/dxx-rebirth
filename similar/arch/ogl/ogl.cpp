@@ -1646,9 +1646,6 @@ void ogl_freebmtexture(grs_bitmap &bm)
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
 {
 	GLfloat yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
-	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &xo = std::get<0>(cs);
 	x+=grd_curcanv->cv_bitmap.bm_x;
@@ -1709,32 +1706,27 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scal
 		color_b = CPAL2Tb(c);
 	}  
 
-	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
-	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
-	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
-	color_array[3] = color_array[7] = color_array[11] = color_array[15] = 1.0;
-
-	vertex_array[0] = xo;
-	vertex_array[1] = yo;
-	vertex_array[2] = xf;
-	vertex_array[3] = yo;
-	vertex_array[4] = xf;
-	vertex_array[5] = yf;
-	vertex_array[6] = xo;
-	vertex_array[7] = yf;
-
-	texcoord_array[0] = u1;
-	texcoord_array[1] = v1;
-	texcoord_array[2] = u2;
-	texcoord_array[3] = v1;
-	texcoord_array[4] = u2;
-	texcoord_array[5] = v2;
-	texcoord_array[6] = u1;
-	texcoord_array[7] = v2;
-
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	const array<GLfloat, 8> vertex_array{{
+		xo, yo,
+		xf, yo,
+		xf, yf,
+		xo, yf,
+	}};
+	const array<GLfloat, 16> color_array{{
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+	}};
+	const array<GLfloat, 8> texcoord_array{{
+		u1, v1,
+		u2, v1,
+		u2, v2,
+		u1, v2,
+	}};
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.data());
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
 	return 0;
 }
