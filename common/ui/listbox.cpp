@@ -111,14 +111,12 @@ static void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 {
 	const uint8_t cgrey = CGREY;
 	const uint8_t cbright = CBRIGHT;
-	gr_setcolor( CGREY );
 	Hline(x1-1, x2+1, y1-1, cgrey);
-	Vline( y1-1, y2+1, x1-1);
+	Vline( y1-1, y2+1, x1-1, cgrey);
 
 	gr_setcolor( CBRIGHT );
 	Hline(x1-1, x2+1, y2+1, cbright);
-	Vline( y1, y2+1, x2+1);
-
+	Vline( y1, y2+1, x2+1, cbright);
 }
 
 
