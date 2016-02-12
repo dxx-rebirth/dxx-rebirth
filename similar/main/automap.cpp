@@ -331,7 +331,8 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 	}};
 	static const array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
 
-	gr_setcolor(num==HighlightMarker ? am->white_63: am->blue_48);
+	const auto color = (num == HighlightMarker ? am->white_63 : am->blue_48);
+	gr_setcolor(color);
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
 	range_for (const auto &i, unchecked_partial_range(&sArray[num][0], NumOfPoints[num]))
@@ -350,7 +351,7 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 		g3_code_point(ToPoint);
 		g3_project_point(FromPoint);
 		g3_project_point(ToPoint);
-		automap_draw_line(FromPoint, ToPoint);
+		automap_draw_line(FromPoint, ToPoint, color);
 	}
 }
 
@@ -464,32 +465,33 @@ static void draw_player(const vcobjptr_t obj)
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj->pos);
 	const auto obj_size = obj->size;
+	const auto color = grd_curcanv->cv_color;
 	g3_draw_sphere(sphere_point, obj_size);
 
 	// Draw shaft of arrow
 	const auto &&head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj_size * 2);
 	auto &&arrow_point = g3_rotate_point(vm_vec_scale_add(obj->pos, obj->orient.fvec, obj_size * 3));
-	automap_draw_line(sphere_point, arrow_point);
+	automap_draw_line(sphere_point, arrow_point, color);
 
 	// Draw right head of arrow
 	{
 		const auto &&rhead_pos = vm_vec_scale_add(head_pos, obj->orient.rvec, obj_size);
 		auto head_point = g3_rotate_point(rhead_pos);
-	automap_draw_line(arrow_point, head_point);
+		automap_draw_line(arrow_point, head_point, color);
 	}
 
 	// Draw left head of arrow
 	{
 		const auto &&lhead_pos = vm_vec_scale_add(head_pos, obj->orient.rvec, -obj_size);
 		auto head_point = g3_rotate_point(lhead_pos);
-	automap_draw_line(arrow_point, head_point);
+		automap_draw_line(arrow_point, head_point, color);
 	}
 
 	// Draw player's up vector
 	{
 		const auto &&arrow_pos = vm_vec_scale_add(obj->pos, obj->orient.uvec, obj_size * 2);
 	auto arrow_point = g3_rotate_point(arrow_pos);
-	automap_draw_line(sphere_point, arrow_point);
+		automap_draw_line(sphere_point, arrow_point, color);
 	}
 }
 
@@ -1093,11 +1095,10 @@ void draw_all_edges(automap *am)
 				am->drawingListBright[nbright++] = e;
 			} else if ( e->flags&(EF_DEFINING|EF_GRATE) )	{
 				if ( nfacing == 0 )	{
-					if ( e->flags & EF_NO_FADE )
-						gr_setcolor( e->color );
-					else
-						gr_setcolor( gr_fade_table[8][e->color] );
-					g3_draw_line( Segment_points[e->verts[0]], Segment_points[e->verts[1]] );
+					const uint8_t color = (e->flags & EF_NO_FADE)
+						? e->color
+						: gr_fade_table[8][e->color];
+					g3_draw_line(Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
 				} 	else {
 					am->drawingListBright[nbright++] = e;
 				}
@@ -1119,21 +1120,16 @@ void draw_all_edges(automap *am)
 	{
 		const auto p1 = &Segment_points[e->verts[0]];
 		const auto p2 = &Segment_points[e->verts[1]];
-		int color;
 		fix dist;
 		dist = p1->p3_z - min_distance;
 		// Make distance be 1.0 to 0.0, where 0.0 is 10 segments away;
 		if ( dist < 0 ) dist=0;
 		if ( dist >= am->farthest_dist ) continue;
 
-		if ( e->flags & EF_NO_FADE )	{
-			gr_setcolor( e->color );
-		} else {
-			dist = F1_0 - fixdiv( dist, am->farthest_dist );
-			color = f2i( dist*31 );
-			gr_setcolor( gr_fade_table[color][e->color] );	
-		}
-		g3_draw_line(*p1, *p2);
+		const auto color = (e->flags & EF_NO_FADE)
+			? e->color
+			: gr_fade_table[f2i((F1_0 - fixdiv(dist, am->farthest_dist)) * 31)][e->color];	
+		g3_draw_line(*p1, *p2, color);
 	}
 }
 

@@ -90,9 +90,10 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
-		gr_setcolor(BM_XRGB(31,0,0));
-		g3_draw_line(*pointlist[0],*pointlist[1]);
-		g3_draw_line(*pointlist[2],*pointlist[0]);
+		const uint8_t color = BM_XRGB(31, 0, 0);
+		gr_setcolor(color);
+		g3_draw_line(*pointlist[0],*pointlist[1], color);
+		g3_draw_line(*pointlist[2],*pointlist[0], color);
 		Lighting_on=lsave;
 	}
 
@@ -112,10 +113,11 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
-		gr_setcolor(BM_XRGB(31,0,0));
-		g3_draw_line(*pointlist[0],*pointlist[1]);
-		g3_draw_line(*pointlist[1],*pointlist[2]);
-		g3_draw_line(*pointlist[2],*pointlist[0]);
+		const uint8_t color = BM_XRGB(31, 0, 0);
+		gr_setcolor(color);
+		g3_draw_line(*pointlist[0],*pointlist[1], color);
+		g3_draw_line(*pointlist[1],*pointlist[2], color);
+		g3_draw_line(*pointlist[2],*pointlist[0], color);
 		Lighting_on=lsave;
 	}
 

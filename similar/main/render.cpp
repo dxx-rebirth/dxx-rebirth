@@ -145,13 +145,12 @@ static void draw_outline(int nverts,cg3s_point *const *const pointlist)
 {
 	int i;
 
-	gr_setcolor(BM_XRGB(63,63,63));
+	const uint8_t color = BM_XRGB(63, 63, 63);
+	gr_setcolor(color);
 
 	for (i=0;i<nverts-1;i++)
-		g3_draw_line(*pointlist[i],*pointlist[i+1]);
-
-	g3_draw_line(*pointlist[i],*pointlist[0]);
-
+		g3_draw_line(*pointlist[i], *pointlist[i+1], color);
+	g3_draw_line(*pointlist[i],*pointlist[0], color);
 }
 #endif
 
@@ -781,8 +780,10 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 
 		//render curedge of curside of curseg in green
 
-		gr_setcolor(BM_XRGB(0,63,0));
-		g3_draw_line(Segment_points[seg->verts[Side_to_verts[_side][edge]]],Segment_points[seg->verts[Side_to_verts[_side][(edge+1)%4]]]);
+		const uint8_t color = BM_XRGB(0, 63, 0);
+		gr_setcolor(color);
+		auto &sv = Side_to_verts[_side];
+		g3_draw_line(Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge+1)%4]]], color);
 
 		//draw a little cross at the current vert
 
@@ -794,7 +795,6 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 //		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);
 //		gr_line(pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT,pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT);
 
-		const auto color = grd_curcanv->cv_color;
 		gr_line(pnt->p3_sx - CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, color);
 		gr_line(pnt->p3_sx, pnt->p3_sy - CROSS_HEIGHT, pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, color);
 		gr_line(pnt->p3_sx + CROSS_WIDTH, pnt->p3_sy, pnt->p3_sx, pnt->p3_sy + CROSS_HEIGHT, color);

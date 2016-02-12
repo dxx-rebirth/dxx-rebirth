@@ -98,7 +98,8 @@ static void draw_seg_objects(const vcsegptr_t seg)
 
 static void draw_line(int pnum0,int pnum1)
 {
-	g3_draw_line(Segment_points[pnum0],Segment_points[pnum1]);
+	const auto color = grd_curcanv->cv_color;
+	g3_draw_line(Segment_points[pnum0], Segment_points[pnum1], color);
 }
 
 // ----------------------------------------------------------------------------

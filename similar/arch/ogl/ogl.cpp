@@ -528,7 +528,7 @@ void ogl_cache_level_textures(void)
 
 namespace dcx {
 
-void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
+void g3_draw_line(const g3s_point &p0,const g3s_point &p1, const uint8_t c)
 {
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -538,8 +538,6 @@ void g3_draw_line(const g3s_point &p0,const g3s_point &p1)
 	};
   
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
-	auto &c = std::get<0>(cs);
-	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
 	color_r = PAL2Tr(c);
 	color_g = PAL2Tg(c);
