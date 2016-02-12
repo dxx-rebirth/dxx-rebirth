@@ -501,7 +501,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 			const auto &&t = vctrgptr(j);
 			if (trigger_is_matcen(t))
 			{
-				range_for (auto &k, partial_range(t->seg, t->num_links))
+				range_for (auto &k, partial_const_range(t->seg, t->num_links))
 					if (k == segnum)
 					{
 						PHYSFSX_printf(my_file, "Trigger = %2i  ", j );

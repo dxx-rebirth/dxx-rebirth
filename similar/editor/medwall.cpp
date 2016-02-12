@@ -475,7 +475,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			}
 		}
 	} else {
-		range_for (auto &i, partial_range(wd->doorFlag, 2u))
+		range_for (auto &i, partial_const_range(wd->doorFlag, 2u))
 			ui_checkbox_check(i.get(), 0);
 		range_for (auto &i, wd->keyFlag)
 			ui_radio_set_value(i.get(), 0);
@@ -939,7 +939,7 @@ int check_walls()
 	}
 
 	// Check validity of Walls array.
-	range_for (auto &cw, partial_range(CountedWalls, Num_walls))
+	range_for (auto &cw, partial_const_range(CountedWalls, Num_walls))
 	{
 		if (Walls[cw.wallnum].segnum != cw.segnum || Walls[cw.wallnum].sidenum != cw.sidenum)
 		{
@@ -951,7 +951,7 @@ int check_walls()
 		}
 	}
 
-	const auto &&used_walls = partial_range(Walls, wall_count);
+	const auto &&used_walls = partial_const_range(Walls, wall_count);
 	const auto predicate = [](const wall &w) {
 		return w.trigger != trigger_none;
 	};
@@ -1057,7 +1057,7 @@ void check_wall_validity(void)
 	if (!Validate_walls)
 		return;
 
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (auto &w, partial_const_range(Walls, Num_walls))
 	{
 		segnum_t	segnum;
 		segnum = w.segnum;

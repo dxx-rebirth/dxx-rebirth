@@ -1781,10 +1781,10 @@ void bm_write_all(PHYSFS_File *fp)
 		powerup_type_info_write(fp, p);
 
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
-	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
+	range_for (const auto &p, partial_const_range(Polygon_models, N_polygon_models))
 		polymodel_write(fp, p);
 
-	range_for (const auto &p, partial_range(Polygon_models, N_polygon_models))
+	range_for (const auto &p, partial_const_range(Polygon_models, N_polygon_models))
 		PHYSFS_write( fp, p.model_data, sizeof(ubyte), p.model_data_size);
 
 	PHYSFS_write( fp, Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS);

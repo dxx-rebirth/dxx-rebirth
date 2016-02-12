@@ -1024,7 +1024,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	}
 
 	// Capture before num_to_free modified
-	const auto r = partial_range(obj_list, num_to_free);
+	const auto &&r = partial_const_range(obj_list, num_to_free);
 	auto l = [&r, &num_to_free](bool (*predicate)(const vcobjptr_t)) -> bool {
 		range_for (const auto i, r)
 		{
@@ -1727,7 +1727,7 @@ static void object_move_one(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
-			range_for (const auto i, partial_range(phys_seglist, 1u, n_phys_segs))
+			range_for (const auto i, partial_const_range(phys_seglist, 1u, n_phys_segs))
 			{
 				const auto &&seg1 = seg0.absolute_sibling(i);
 				const auto connect_side = find_connect_side(seg1, seg0);

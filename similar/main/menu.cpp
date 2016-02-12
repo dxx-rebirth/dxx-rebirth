@@ -939,7 +939,7 @@ void change_res()
 	newmenu_item m[50+8];
 	char restext[50][12], crestext[12], casptext[12];
 
-	range_for (const auto &i, partial_range(modes, num_presets))
+	range_for (auto &i, partial_const_range(modes, num_presets))
 	{
 		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(i), SM_H(i));
 

@@ -670,7 +670,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	{
 		Int3(); // See Rob
 	}
-	range_for (const auto i, partial_range(Net_create_objnums, Net_create_loc))
+	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
 		PUT_INTEL_SHORT(multibuf+loc, i);
 		loc += 2;
@@ -1122,7 +1122,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 //	Assert(egg_objnum > -1);
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
 
-	range_for (const auto i, partial_range(Net_create_objnums, Net_create_loc))
+	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
 		short s;
 		

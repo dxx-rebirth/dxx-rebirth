@@ -2094,9 +2094,9 @@ void bm_write_all(PHYSFS_File *fp)
 
 	t = NumTextures-1;	//don't save bogus texture
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	range_for (const bitmap_index &bi, partial_range(Textures, t))
+	range_for (const bitmap_index &bi, partial_const_range(Textures, t))
 		PHYSFS_write( fp, &bi, sizeof(bi), 1 );
-	range_for (const tmap_info &ti, partial_range(TmapInfo, t))
+	range_for (const tmap_info &ti, partial_const_range(TmapInfo, t))
 		tmap_info_write(fp, ti);
 	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
 
@@ -2107,17 +2107,17 @@ void bm_write_all(PHYSFS_File *fp)
 	PHYSFSX_printf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
 
 	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1 );
-	range_for (const vclip &vc, partial_range(Vclip, Num_vclips))
+	range_for (const vclip &vc, partial_const_range(Vclip, Num_vclips))
 		vclip_write(fp, vc);
 	PHYSFSX_printf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1 );
-	range_for (const eclip &ec, partial_range(Effects, Num_effects))
+	range_for (const eclip &ec, partial_const_range(Effects, Num_effects))
 		eclip_write(fp, ec);
 	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1 );
-	range_for (const auto &w, partial_range(WallAnims, Num_wall_anims))
+	range_for (const auto &w, partial_const_range(WallAnims, Num_wall_anims))
 		wclip_write(fp, w);
 	PHYSFSX_printf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
 
@@ -2128,24 +2128,24 @@ void bm_write_all(PHYSFS_File *fp)
 
 	t = N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	range_for (auto &r, partial_range(Robot_joints, t))
+	range_for (auto &r, partial_const_range(Robot_joints, t))
 		jointpos_write(fp, r);
 	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	range_for (const auto &w, partial_range(Weapon_info, N_D2_WEAPON_TYPES))
+	range_for (const auto &w, partial_const_range(Weapon_info, N_D2_WEAPON_TYPES))
 		weapon_info_write(fp, w);
 	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
-	range_for (const auto &p, partial_range(Powerup_info, N_powerup_types))
+	range_for (const auto &p, partial_const_range(Powerup_info, N_powerup_types))
 		powerup_type_info_write(fp, p);
 	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
-	range_for (const auto &p, partial_range(Polygon_models, t))
+	range_for (const auto &p, partial_const_range(Polygon_models, t))
 		polymodel_write(fp, p);
 	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
@@ -2203,7 +2203,7 @@ void bm_write_extra_robots()
 	//write weapon info
 	t = N_weapon_types - N_D2_WEAPON_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	range_for (auto &w, partial_range(Weapon_info, N_D2_WEAPON_TYPES, N_weapon_types))
+	range_for (auto &w, partial_const_range(Weapon_info, N_D2_WEAPON_TYPES, N_weapon_types))
 		weapon_info_write(fp, w);
 
 	//now write robot info
@@ -2214,12 +2214,12 @@ void bm_write_extra_robots()
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	range_for (auto &r, partial_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
+	range_for (auto &r, partial_const_range(Robot_joints, N_D2_ROBOT_JOINTS, N_robot_joints))
 		jointpos_write(fp, r);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1);
-	range_for (auto &p, partial_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models))
+	range_for (auto &p, partial_const_range(Polygon_models, N_D2_POLYGON_MODELS, N_polygon_models))
 		polymodel_write(fp, p);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	{

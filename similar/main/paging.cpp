@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static void paging_touch_vclip(const vclip &vc)
 {
-	range_for (const auto &i, partial_range(vc.frames, vc.num_frames))
+	range_for (auto &i, partial_const_range(vc.frames, vc.num_frames))
 	{
 		PIGGY_PAGE_IN(i);
 	}
@@ -72,7 +72,7 @@ static void paging_touch_vclip(const vclip &vc)
 
 static void paging_touch_wall_effects( int tmap_num )
 {
-	range_for (auto &i, partial_range(Effects, Num_effects))
+	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
 		if ( i.changing_wall_texture == tmap_num )	{
 			paging_touch_vclip(i.vc);
@@ -94,7 +94,7 @@ static void paging_touch_wall_effects( int tmap_num )
 
 static void paging_touch_object_effects( int tmap_num )
 {
-	range_for (auto &i, partial_range(Effects, Num_effects))
+	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
 		if ( i.changing_object_texture == tmap_num )	{
 			paging_touch_vclip(i.vc);
@@ -303,7 +303,7 @@ static void paging_touch_walls()
 {
 	wclip *anim;
 
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (auto &w, partial_const_range(Walls, Num_walls))
 	{
 //		paging_draw_orb();
 		if ( w.clip_num > -1 )	{
@@ -328,18 +328,18 @@ void paging_touch_all()
 	}	
 	paging_touch_walls();
 
-	range_for (auto &s, partial_range(Powerup_info, N_powerup_types))
+	range_for (auto &s, partial_const_range(Powerup_info, N_powerup_types))
 	{
 		if ( s.vclip_num > -1 )	
 			paging_touch_vclip(Vclip[s.vclip_num]);
 	}
 
-	range_for (const auto &w, partial_range(Weapon_info, N_weapon_types))
+	range_for (auto &w, partial_const_range(Weapon_info, N_weapon_types))
 	{
 		paging_touch_weapon(w);
 	}
 
-	range_for (auto &s, partial_range(Powerup_info, N_powerup_types))
+	range_for (auto &s, partial_const_range(Powerup_info, N_powerup_types))
 	{
 		if ( s.vclip_num > -1 )	
 			paging_touch_vclip(Vclip[s.vclip_num]);

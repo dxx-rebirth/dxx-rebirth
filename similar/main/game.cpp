@@ -1873,7 +1873,7 @@ void flickering_light_read(flickering_light *fl, PHYSFS_File *fp)
 	fl->delay = PHYSFSX_readFix(fp);
 }
 
-void flickering_light_write(flickering_light *fl, PHYSFS_File *fp)
+void flickering_light_write(const flickering_light *fl, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, fl->segnum);
 	PHYSFS_writeSLE16(fp, fl->sidenum);

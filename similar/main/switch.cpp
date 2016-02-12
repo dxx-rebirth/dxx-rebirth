@@ -241,7 +241,7 @@ static int (print_trigger_message)(int pnum, const trigger &t, int shot)
 
 static void do_matcen(const trigger &t)
 {
-	range_for (const auto &i, partial_range(t.seg, t.num_links))
+	range_for (auto &i, partial_const_range(t.seg, t.num_links))
 		trigger_matcen(vsegptridx(i));
 }
 

@@ -185,7 +185,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 
 	mindelta = INT_MAX;
 	fndtrk = NULL;
-	range_for (auto &rtrk, partial_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
+	range_for (auto &rtrk, partial_const_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
 	{
 		const auto trk = &rtrk;
 		if (!trk->left || (hmp->loop_start && hmp->looping && !trk->loop_set))

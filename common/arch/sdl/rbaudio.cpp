@@ -76,7 +76,7 @@ void RBAInit()
 		
 		if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
 		{
-			auto r = partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks));
+			const auto &&r = partial_const_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks));
 			if (std::find_if(r.begin(), r.end(), [](const SDL_CDtrack &t){ return t.type == SDL_AUDIO_TRACK; }) != r.end())
 			{
 				initialised = 1;
@@ -318,7 +318,7 @@ void RBAList(void)
 	if (!s_cd)
 		return;
 
-	range_for (auto &i, partial_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks)))
+	range_for (auto &i, partial_const_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks)))
 		con_printf(CON_VERBOSE, "RBAudio: CD track %d, type %s, length %d, offset %d", i.id, (i.type == SDL_AUDIO_TRACK) ? "audio" : "data", i.length, i.offset);
 }
 

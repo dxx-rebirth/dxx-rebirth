@@ -441,7 +441,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (texture_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	range_for (auto &i, partial_range(current_tmap_list, NumTextures))
+	range_for (auto &i, partial_const_range(current_tmap_list, NumTextures))
 		PHYSFS_write(SaveFile, i.data(), i.size(), 1);
 	
 	//===================== SAVE VERTEX INFO ==========================

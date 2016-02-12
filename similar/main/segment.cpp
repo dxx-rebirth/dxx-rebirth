@@ -81,7 +81,7 @@ void segment2_write(const vcsegptr_t s2, PHYSFS_File *fp)
 	PHYSFSX_writeFix(fp, s2->static_light);
 }
 
-void delta_light_write(delta_light *dl, PHYSFS_File *fp)
+void delta_light_write(const delta_light *dl, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, dl->segnum);
 	PHYSFSX_writeU8(fp, dl->sidenum);
@@ -92,7 +92,7 @@ void delta_light_write(delta_light *dl, PHYSFS_File *fp)
 	PHYSFSX_writeU8(fp, dl->vert_light[3]);
 }
 
-void dl_index_write(dl_index *di, PHYSFS_File *fp)
+void dl_index_write(const dl_index *di, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, di->segnum);
 	PHYSFSX_writeU8(fp, di->sidenum);

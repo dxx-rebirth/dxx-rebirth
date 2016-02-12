@@ -293,7 +293,7 @@ void enable_flicker(segnum_t segnum, int sidenum);
  */
 void flickering_light_read(flickering_light *fl, PHYSFS_File *fp);
 
-void flickering_light_write(flickering_light *fl, PHYSFS_File *fp);
+void flickering_light_write(const flickering_light *fl, PHYSFS_File *fp);
 #endif
 
 void game_render_frame_mono();

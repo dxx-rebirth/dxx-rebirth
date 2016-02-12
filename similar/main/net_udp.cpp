@@ -1661,7 +1661,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 			Assert(N_players == Netgame.max_numplayers);
 
-			range_for (auto &i, partial_range(Netgame.players, Netgame.numplayers))
+			range_for (auto &i, partial_const_range(Netgame.players, Netgame.numplayers))
 				if (i.connected)
 					activeplayers++;
 
@@ -1854,7 +1854,7 @@ static int net_udp_create_monitor_vector(void)
 	int monitor_num = 0;
 	int vector = 0;
 	blown_bitmap_array blown_bitmaps;
-	range_for (auto &i, partial_range(Effects, Num_effects))
+	range_for (auto &i, partial_const_range(Effects, Num_effects))
 	{
 		if (i.dest_bm_num > 0) {
 			blown_bitmaps.insert_unique(i.dest_bm_num);
@@ -2296,7 +2296,7 @@ void net_udp_update_netgame(void)
 {
 	// Update the netgame struct with current game variables
 	Netgame.numconnected=0;
-	range_for (auto &i, partial_range(Players, N_players))
+	range_for (auto &i, partial_const_range(Players, N_players))
 		if (i.connected)
 			Netgame.numconnected++;
 
@@ -4087,7 +4087,7 @@ static int net_udp_send_sync(void)
 			do 
 			{
 				np = d_rand() % NumNetPlayerPositions;
-				range_for (auto &j, partial_range(Netgame.locations, i)) 
+				range_for (auto &j, partial_const_range(Netgame.locations, i)) 
 				{
 					if (j==np)   
 					{
@@ -4255,7 +4255,7 @@ abort:
 	// Count number of players chosen
 
 	N_players = 0;
-	range_for (auto &i, partial_range(spd.m, save_nplayers))
+	range_for (auto &i, partial_const_range(spd.m, save_nplayers))
 	{
 		if (i.value)
 			N_players++;
@@ -4415,7 +4415,7 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 	net_udp_listen();
 	net_udp_timeout_check(timer_query());
 
-	range_for (auto &i, partial_range(Players, N_players))
+	range_for (auto &i, partial_const_range(Players, N_players))
 	{
 		if ((i.connected == CONNECT_PLAYING) || (i.connected == CONNECT_DISCONNECTED))
 			num_ready++;
@@ -4902,7 +4902,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
         // Make sure this is the packet we are expecting!
         if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
         {
-                range_for (auto &i, partial_range(UDP_mdata_trace[sender_pnum].pkt_num, (uint32_t)UDP_MDATA_STOR_QUEUE_SIZE))
+                range_for (auto &i, partial_const_range(UDP_mdata_trace[sender_pnum].pkt_num, (uint32_t)UDP_MDATA_STOR_QUEUE_SIZE))
                 {
                         if (pkt_num == i) // We got this packet already - need to REsend ACK
                         {
@@ -5445,7 +5445,7 @@ void net_udp_ping_frame(fix64 time)
 		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
 		buf[len] = UPID_PING;							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
-		range_for (auto &i, partial_range(Netgame.players, 1u, MAX_PLAYERS))
+		range_for (auto &i, partial_const_range(Netgame.players, 1u, MAX_PLAYERS))
 		{
 			PUT_INTEL_INT(&buf[len], i.ping);		len += 4;
 		}

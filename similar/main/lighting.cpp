@@ -498,7 +498,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	uint_fast32_t n_render_vertices = 0;
-	range_for (const auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {
 			auto &vp = Segments[segnum].verts;
@@ -560,7 +560,7 @@ static fix compute_headlight_light_on_object(const vobjptr_t objp)
 
 	light = 0;
 
-	range_for (const auto light_objp, partial_range(Headlights, Num_headlights))
+	range_for (const auto light_objp, partial_const_range(Headlights, Num_headlights))
 	{
 		fix			dot, dist;
 		auto vec_to_obj = vm_vec_sub(objp->pos, light_objp->pos);

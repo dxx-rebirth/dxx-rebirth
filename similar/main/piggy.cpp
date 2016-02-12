@@ -357,7 +357,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 		namelen = strlen(name);
 
 	char temp[FILENAME_LEN];
-	range_for (auto &i, partial_range(alias_list, Num_aliases))
+	range_for (auto &i, partial_const_range(alias_list, Num_aliases))
 		if (i.alias_name[namelen] == 0 && d_strnicmp(name, i.alias_name,namelen)==0) {
 			if (t) {                //extra stuff for ABMs
 				struct splitpath_t path;

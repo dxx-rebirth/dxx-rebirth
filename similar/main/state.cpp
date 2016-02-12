@@ -1032,7 +1032,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save wall info
 	i = Num_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (auto &w, partial_const_range(Walls, Num_walls))
 		wall_write(fp, w, 0x7fff);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1052,14 +1052,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save door info
 	i = Num_open_doors;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	range_for (auto &ad, partial_range(ActiveDoors, Num_open_doors))
+	range_for (auto &ad, partial_const_range(ActiveDoors, Num_open_doors))
 		active_door_write(fp, ad);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
 	i = Num_cloaking_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	range_for (const auto &w, partial_range(CloakingWalls, Num_cloaking_walls))
+	range_for (auto &w, partial_const_range(CloakingWalls, Num_cloaking_walls))
 		cloaking_wall_write(w, fp);
 #endif
 
@@ -1068,7 +1068,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		unsigned num_triggers = Triggers.get_count();
 		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
 	}
-	range_for (auto &t, partial_range(Triggers, Num_triggers))
+	range_for (auto &t, partial_const_range(Triggers, Num_triggers))
 		trigger_write(fp, t);
 
 //Save tmap info
@@ -1086,7 +1086,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
 #endif
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
-	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
+	range_for (auto &r, partial_const_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_write(fp, r, STATE_MATCEN_VERSION);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1539,7 +1539,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to
 	//walls that are now open
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (auto &w, partial_const_range(Walls, Num_walls))
 	{
 		if (w.type == WALL_OPEN)
 			digi_kill_sound_linked_to_segment(w.segnum,w.sidenum,-1);	//-1 means kill any sound

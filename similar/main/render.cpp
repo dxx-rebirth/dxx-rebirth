@@ -1167,7 +1167,7 @@ static void build_object_lists(render_state_t &rstate)
 	}
 
 	//now that there's a list for each segment, sort the items in those lists
-	range_for (const auto segnum, partial_range(rstate.Render_list, rstate.N_render_segs))
+	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {
 			sort_segment_object_list(rstate.render_seg_map[segnum]);
@@ -1346,7 +1346,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 				continue;
 
 			//now order the sides in some magical way
-			const auto child_range = partial_range(child_list, n_children);
+			const auto &&child_range = partial_range(child_list, n_children);
 			sort_seg_children(seg, child_range);
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)
@@ -1470,7 +1470,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 		//NOTE LINK TO ABOVE!!
 		build_segment_list(rstate, visited, first_terminal_seg, start_seg_num);		//fills in Render_list & N_render_segs
 
-	const auto render_range = partial_range(rstate.Render_list, rstate.N_render_segs);
+	const auto &&render_range = partial_const_range(rstate.Render_list, rstate.N_render_segs);
 	const auto &&reversed_render_range = render_range.reversed();
 	//render away
 	#ifndef NDEBUG
@@ -1512,7 +1512,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	
 			gr_setcolor(Clear_window_color);
 	
-			range_for (const auto segnum, partial_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
+			range_for (const auto segnum, partial_const_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
 			{
 				if (segnum != segment_none) {
 					const auto &rw = rstate.render_seg_map[segnum].render_window;

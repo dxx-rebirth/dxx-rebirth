@@ -560,7 +560,7 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 	const auto length = create_bfs_list(start_seg, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
-		auto rb = partial_range(bfs_list, length);
+		const auto &&rb = partial_const_range(bfs_list, length);
 		auto i = std::find_if(rb.begin(), rb.end(), predicate);
 		if (i != rb.end())
 			return *i;
@@ -585,7 +585,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto length = create_bfs_list(start_seg, bfs_list);
 
-	range_for (const auto segnum, partial_range(bfs_list, length))
+	range_for (const auto segnum, partial_const_range(bfs_list, length))
 	{
 		auto objnum = exists_in_mine_2(vcsegptridx(segnum), objtype, objid, special);
 			if (objnum != object_none)

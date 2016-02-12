@@ -1269,7 +1269,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 
 	// validate all segments
 	validate_segment_side(seg1,side1);
-	range_for (auto &s, partial_range(validation_list, nv))
+	range_for (auto &s, partial_const_range(validation_list, nv))
 	{
 		const auto &&segp = seg1.absolute_sibling(s);
 		validate_segment(segp);

@@ -135,10 +135,10 @@ void segment2_read(vsegptr_t s2, PHYSFS_File *fp);
 void segment2_write(vcsegptr_t s2, PHYSFS_File *fp);
 
 void delta_light_read(delta_light *dl, PHYSFS_File *fp);
-void delta_light_write(delta_light *dl, PHYSFS_File *fp);
+void delta_light_write(const delta_light *dl, PHYSFS_File *fp);
 
 void dl_index_read(dl_index *di, PHYSFS_File *fp);
-void dl_index_write(dl_index *di, PHYSFS_File *fp);
+void dl_index_write(const dl_index *di, PHYSFS_File *fp);
 }
 #endif
 

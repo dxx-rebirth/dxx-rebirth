@@ -39,10 +39,10 @@ static inline partial_range_t<I> partial_const_range(const char (&file)[NF], uns
  * will outlive the rvalue.
  */
 template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(std::declval<T &&>()))>
-static inline partial_range_t<I> partial_const_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &&t, const UO &o, const UL &l) = delete;
+static inline partial_range_t<I> partial_const_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &&t, const UO &o, const UL &l) = delete;
 
 template <typename T, typename UL, std::size_t NF, std::size_t NE, typename I = decltype(begin(std::declval<T &&>()))>
-static inline partial_range_t<I> partial_const_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &&t, const UL &l) = delete;
+static inline partial_range_t<I> partial_const_range(const char (&file)[NF], unsigned line, const char (&estr)[NE], const T &&t, const UL &l) = delete;
 
 template <typename T, typename I = decltype(begin(std::declval<T>()))>
 __attribute_warn_unused_result

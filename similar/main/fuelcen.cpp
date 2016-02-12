@@ -269,7 +269,7 @@ Restart: ;
 				Num_robot_centers--;
 
 				std::move(std::next(range.begin()), range.end(), range.begin());
-				range_for (auto &fj, partial_range(Station, Num_fuelcenters))
+				range_for (auto &fj, partial_const_range(Station, Num_fuelcenters))
 				{
 					if ( fj.Type == SEGMENT_IS_ROBOTMAKER )
 						if ( Segments[fj.segnum].matcen_num > segp->matcen_num )
@@ -670,7 +670,7 @@ void disable_matcens(void)
 void init_all_matcens(void)
 {
 #ifndef NDEBUG
-	const auto &&robot_range = partial_range(RobotCenters, Num_robot_centers);
+	const auto &&robot_range = partial_const_range(RobotCenters, Num_robot_centers);
 #endif
 	for (uint_fast32_t i = 0; i < Num_fuelcenters; i++)
 		if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {

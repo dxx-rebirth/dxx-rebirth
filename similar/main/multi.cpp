@@ -516,13 +516,13 @@ kmatrix_result multi_endlevel_score()
 
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		range_for (auto &i, partial_range(Players, Netgame.max_numplayers))
+		range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
 			// Reset keys
 			vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	range_for (auto &i, partial_range(Players, Netgame.max_numplayers))
+	range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
 		vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 #endif
 
@@ -624,7 +624,7 @@ int multi_get_kill_list(playernum_array_t &plist)
 	// sorted order of kills
 	int n = 0;
 
-	range_for (const auto i, partial_range(sorted_kills, N_players))
+	range_for (const auto i, partial_const_range(sorted_kills, N_players))
 		//if (Players[sorted_kills[i]].connected)
 		plist[n++] = i;
 
@@ -1231,9 +1231,10 @@ static void multi_message_feedback(void)
 				}
 			}
 		}
-		range_for (auto &i, partial_range(Players, N_players))
+		const player *const local_player = &get_local_player();
+		range_for (auto &i, partial_const_range(Players, N_players))
 		{
-			if (&i != &get_local_player() && i.connected && !d_strnicmp(static_cast<const char *>(i.callsign), Network_message.data(), colon - Network_message.data()))
+			if (&i != local_player && i.connected && !d_strnicmp(static_cast<const char *>(i.callsign), Network_message.data(), colon - Network_message.data()))
 			{
 				const char *comma = found ? ", " : "";
 				found++;
@@ -1391,7 +1392,7 @@ static void multi_send_message_end()
 					else
 						Netgame.team_vector|=(1<<i);
 
-					range_for (auto &t, partial_range(Players, N_players))
+					range_for (auto &t, partial_const_range(Players, N_players))
 						if (t.connected)
 							multi_reset_object_texture(vobjptr(t.objnum));
 					reset_cockpit();
@@ -1818,7 +1819,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	//      if (Net_create_loc != remote_created)
 	//              Int3(); // Probably out of object array space, see Rob
 
-	range_for (const auto i, partial_range(Net_create_objnums, std::min(Net_create_loc, static_cast<unsigned>(remote_created))))
+	range_for (const auto i, partial_const_range(Net_create_objnums, std::min(Net_create_loc, static_cast<unsigned>(remote_created))))
 	{
 		short s;
 
@@ -1828,7 +1829,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 			map_objnum_local_to_remote((short)i, s, pnum);
 		count += 2;
 	}
-	range_for (const auto i, partial_range(Net_create_objnums, remote_created, Net_create_loc))
+	range_for (const auto i, partial_const_range(Net_create_objnums, remote_created, Net_create_loc))
 	{
 		vobjptr(i)->flags |= OF_SHOULD_BE_DEAD;
 	}
@@ -2069,7 +2070,7 @@ void multi_disconnect_player(const playernum_t pnum)
 		return;
 	}
 
-	range_for (auto &i, partial_range(Players, N_players))
+	range_for (auto &i, partial_const_range(Players, N_players))
 		if (i.connected)
 			if (++n > 1)
 				break;
@@ -2667,7 +2668,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	memset(multibuf+count, -1, MAX_NET_CREATE_OBJECTS*sizeof(short));
 
-	range_for (const auto i, partial_range(Net_create_objnums, Net_create_loc))
+	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
 		if (i <= 0) {
 			Int3(); // Illegal value in created egg object numbers
@@ -3648,7 +3649,7 @@ void multi_apply_goal_textures()
 
 std::size_t find_goal_texture (ubyte t)
 {
-	auto r = partial_range(TmapInfo, NumTextures);
+	const auto &&r = partial_const_range(TmapInfo, NumTextures);
 	return std::distance(r.begin(), std::find_if(r.begin(), r.end(), [t](const tmap_info &i) { return (i.flags & t); }));
 }
 
@@ -3734,7 +3735,7 @@ static
 #endif
 int multi_all_players_alive()
 {
-	range_for (auto &i, partial_range(Players, N_players))
+	range_for (auto &i, partial_const_range(Players, N_players))
 	{
 		if (i.connected == CONNECT_PLAYING && vcobjptr(i.objnum)->type == OBJ_GHOST) // player alive?
 			return (0);
@@ -4901,7 +4902,7 @@ void multi_initiate_save_game()
 		return;
 	}
 	{
-		auto range = partial_range(Players, N_players);
+		const auto &&range = partial_const_range(Players, N_players);
 	for (auto i = range.begin(); i != range.end(); ++i)
 	{
 		for (auto j = i + 1; j != range.end(); ++j)
@@ -4925,7 +4926,7 @@ void multi_initiate_save_game()
 	// Make a unique game id
 	game_id = ((fix)timer_query());
 	game_id ^= N_players<<4;
-	range_for (auto &i, partial_range(Players, N_players))
+	range_for (auto &i, partial_const_range(Players, N_players))
 	{
 		fix call2i;
 		memcpy(&call2i, static_cast<const char *>(i.callsign), sizeof(fix));
@@ -4941,7 +4942,7 @@ void multi_initiate_save_game()
 		return;
 	}
 	{
-		auto range = partial_range(Players, N_players);
+		const auto &&range = partial_const_range(Players, N_players);
 	for (auto i = range.begin(); i != range.end(); ++i)
 	{
 		for (auto j = i + 1; j != range.end(); ++j)
@@ -4979,7 +4980,7 @@ void multi_initiate_restore_game()
 		return;
 	}
 	{
-		auto range = partial_range(Players, N_players);
+		const auto &&range = partial_const_range(Players, N_players);
 	for (auto i = range.begin(); i != range.end(); ++i)
 	{
 		for (auto j = i + 1; j != range.end(); ++j)
@@ -5082,7 +5083,7 @@ static void multi_do_gmode_update(const ubyte *buf)
 		if (buf[1] != Netgame.team_vector)
 		{
 			Netgame.team_vector = buf[1];
-			range_for (auto &t, partial_range(Players, N_players))
+			range_for (auto &t, partial_const_range(Players, N_players))
 				if (t.connected)
 					multi_reset_object_texture (vobjptr(t.objnum));
 			reset_cockpit();
@@ -5230,7 +5231,7 @@ void init_hoard_data()
 
 	//Load and remap bitmap data for orb
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-	range_for (auto &i, partial_range(Vclip[orb_vclip].frames, n_orb_frames))
+	range_for (auto &i, partial_const_range(Vclip[orb_vclip].frames, n_orb_frames))
 	{
 		grs_bitmap *bm = &GameBitmaps[i.index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
@@ -5240,7 +5241,7 @@ void init_hoard_data()
 	//Load and remap bitmap data for goal texture
 	PHYSFSX_readShort(ifile);        //skip frame count
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))
+	range_for (auto &i, partial_const_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
 		grs_bitmap *bm = &GameBitmaps[i.index];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
@@ -5309,7 +5310,7 @@ void save_hoard_data(void)
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_h);
 	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
-	range_for (auto &i, partial_range(bm, nframes))
+	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 
 	iff_error = iff_read_animbrush("orbgoal.abm",bm,&nframes,palette);
@@ -5317,7 +5318,7 @@ void save_hoard_data(void)
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
-	range_for (auto &i, partial_range(bm, nframes))
+	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 
 	for (i=0;i<2;i++)

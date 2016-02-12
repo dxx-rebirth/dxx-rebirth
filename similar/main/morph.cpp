@@ -385,7 +385,7 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
-			range_for (auto &i, partial_range(texture_list_index, pm->n_textures))
+			range_for (auto &i, partial_const_range(texture_list_index, pm->n_textures))
 				PIGGY_PAGE_IN(i);
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.

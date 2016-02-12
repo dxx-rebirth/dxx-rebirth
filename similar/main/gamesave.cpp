@@ -975,7 +975,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			matcen_info_read(LoadFile, RobotCenters[i]);
 #endif
 			//	Set links in RobotCenters to Station array
-		range_for (segment &seg, partial_range(Segments, Highest_segment_index + 1))
+		range_for (auto &seg, partial_const_range(Segments, Highest_segment_index + 1))
 			if (seg.special == SEGMENT_IS_ROBOTMAKER)
 				if (seg.matcen_num == i)
 					RobotCenters[i].fuelcen_num = seg.value;
@@ -1510,7 +1510,7 @@ int	Errors_in_mine;
 static int compute_num_delta_light_records(void)
 {
 	int	total = 0;
-	range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+	range_for (auto &i, partial_const_range(Dl_indices, Num_static_lights))
 		total += i.count;
 	return total;
 
@@ -1570,7 +1570,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 #endif
 	{
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
-		range_for (const auto &i, partial_range(Pof_names, N_polygon_models))
+		range_for (auto &i, partial_const_range(Pof_names, N_polygon_models))
 			PHYSFS_write(SaveFile, &i, sizeof(i), 1);
 	}
 
@@ -1589,13 +1589,13 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = PHYSFS_tell(SaveFile);
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (auto &w, partial_const_range(Walls, Num_walls))
 		wall_write(SaveFile, w, game_top_fileinfo_version);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
-	range_for (auto &t, partial_range(Triggers, Num_triggers))
+	range_for (auto &t, partial_const_range(Triggers, Num_triggers))
 		if (game_top_fileinfo_version <= 29)
 			v29_trigger_write(SaveFile, t);
 		else if (game_top_fileinfo_version <= 30)
@@ -1612,7 +1612,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
 	matcen_offset = PHYSFS_tell(SaveFile);
-	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
+	range_for (auto &r, partial_const_range(RobotCenters, Num_robot_centers))
 		matcen_info_write(SaveFile, r, game_top_fileinfo_version);
 
 	//================ SAVE DELTA LIGHT INFO ===============
@@ -1620,11 +1620,11 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
-		range_for (auto &i, partial_range(Dl_indices, Num_static_lights))
+		range_for (auto &i, partial_const_range(Dl_indices, Num_static_lights))
 			dl_index_write(&i, SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
-		range_for (auto &i, partial_range(Delta_lights, num_delta_lights))
+		range_for (auto &i, partial_const_range(Delta_lights, num_delta_lights))
 			delta_light_write(&i, SaveFile);
 	}
 #endif
@@ -1756,7 +1756,7 @@ static int save_level_sub(const char * filename)
 	if (Gamesave_current_version >= 7)
 	{
 		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
-		range_for (auto &i, partial_range(Flickering_lights, Num_flickering_lights))
+		range_for (auto &i, partial_const_range(Flickering_lights, Num_flickering_lights))
 			flickering_light_write(&i, SaveFile);
 	}
 

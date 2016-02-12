@@ -242,7 +242,7 @@ void properties_read_cmp(PHYSFS_File * fp)
 
         #ifdef EDITOR
         //Build tmaplist
-	auto &&effect_range = partial_range(Effects, Num_effects);
+	auto &&effect_range = partial_const_range(Effects, Num_effects);
 	Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }

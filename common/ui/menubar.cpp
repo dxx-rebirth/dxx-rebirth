@@ -306,8 +306,8 @@ static window_event_result do_state_0(const d_event &event)
 		}
 	}
 	
-	range_for (auto &i, partial_range(Menu, num_menus))
-		range_for (auto &j, partial_range(i.Item, i.NumItems))
+	range_for (auto &i, partial_const_range(Menu, num_menus))
+		range_for (auto &j, partial_const_range(i.Item, i.NumItems))
 		{
 			if ( j.Hotkey == keypress )
 			{

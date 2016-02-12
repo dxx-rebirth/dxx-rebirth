@@ -906,7 +906,7 @@ static void nd_write_object(const vcobjptr_t obj)
 			range_for (auto &i, obj->pobj_info.anim_angles)
 				nd_write_angvec(&i);
 #endif
-		range_for (auto &i, partial_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
+		range_for (auto &i, partial_const_range(obj->rtype.pobj_info.anim_angles, Polygon_models[obj->rtype.pobj_info.model_num].n_models))
 			nd_write_angvec(i);
 
 		nd_write_int(obj->rtype.pobj_info.tmap_override);
@@ -1011,7 +1011,7 @@ void newdemo_record_start_demo()
 
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
-		range_for (auto &i, partial_range(Players, N_players)) {
+		range_for (auto &i, partial_const_range(Players, N_players)) {
 			nd_write_string(static_cast<const char *>(i.callsign));
 			nd_write_byte(i.connected);
 
@@ -1525,7 +1525,7 @@ void newdemo_set_new_level(int level_num)
 	if (nd_record_v_juststarted==1)
 	{
 		nd_write_int(Num_walls);
-		range_for (auto &w, partial_range(Walls, Num_walls))
+		range_for (auto &w, partial_const_range(Walls, Num_walls))
 		{
 			nd_write_byte (w.type);
 			nd_write_byte (w.flags);
@@ -1563,7 +1563,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
-		range_for (auto &w, partial_range(Walls, Num_walls))
+		range_for (auto &w, partial_const_range(Walls, Num_walls))
 		{
 			int side;
 			auto seg = &Segments[w.segnum];
@@ -3600,7 +3600,7 @@ void newdemo_playback_one_frame()
 					//  copy that interpolated object to the new Objects array so that the
 					//  interpolated position and orientation can be preserved.
 
-					range_for (auto &i, partial_range(cur_objs, 1 + num_objs)) {
+					range_for (auto &i, partial_const_range(cur_objs, 1 + num_objs)) {
 						range_for (const auto &&objp, highest_valid(vobjptr))
 						{
 							if (i.signature == objp->signature) {
@@ -3700,7 +3700,7 @@ static void newdemo_write_end()
 	if (Game_mode & GM_MULTI) {
 		nd_write_byte((sbyte)N_players);
 		byte_count++;
-		range_for (auto &i, partial_range(Players, N_players)) {
+		range_for (auto &i, partial_const_range(Players, N_players)) {
 			nd_write_string(static_cast<const char *>(i.callsign));
 			byte_count += (strlen(static_cast<const char *>(i.callsign)) + 2);
 			nd_write_byte(i.connected);

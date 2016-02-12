@@ -375,7 +375,7 @@ void ogl_cache_polymodel_textures(int model_num)
 }
 
 static void ogl_cache_vclip_textures(vclip *vc){
-	range_for (auto &i, partial_range(vc->frames, vc->num_frames))
+	range_for (auto &i, partial_const_range(vc->frames, vc->num_frames))
 	{
 		PIGGY_PAGE_IN(i);
 		ogl_loadbmtexture(GameBitmaps[i.index]);
@@ -418,7 +418,7 @@ void ogl_cache_level_textures(void)
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
-	range_for (eclip &ec, partial_range(Effects, Num_effects))
+	range_for (auto &ec, partial_const_range(Effects, Num_effects))
 	{
 		ogl_cache_vclipn_textures(ec.dest_vclip);
 		if ((ec.changing_wall_texture == -1) && (ec.changing_object_texture==-1) )

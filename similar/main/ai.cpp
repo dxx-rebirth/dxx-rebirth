@@ -2867,7 +2867,7 @@ static void make_nearby_robot_snipe(void)
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, bfs_list);
 
-	range_for (auto &i, partial_range(bfs_list, bfs_length)) {
+	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
 		range_for (const auto objp, objects_in(vsegptr(i)))
 		{
 			robot_info *robptr = &Robot_info[get_robot_id(objp)];
@@ -4243,7 +4243,7 @@ static void process_awareness_events(awareness_t &New_awareness)
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		New_awareness.fill(player_awareness_type_t::PA_NONE);
-		range_for (auto &i, partial_range(Awareness_events, Num_awareness_events))
+		range_for (auto &i, partial_const_range(Awareness_events, Num_awareness_events))
 			pae_aux(i.segnum, i.type, 1, New_awareness);
 	}
 

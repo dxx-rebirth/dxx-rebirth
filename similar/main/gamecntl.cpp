@@ -687,7 +687,7 @@ dump_door_debugging_info()
 			PHYSFSX_printf(dfile,"\n");
 
 
-			range_for (auto &i, partial_range(ActiveDoors, Num_open_doors)) {		//find door
+			range_for (auto &i, partial_const_range(ActiveDoors, Num_open_doors)) {		//find door
 				d = &i;
 				if (d->front_wallnum[0]==wall-Walls || d->back_wallnum[0]==wall-Walls || (d->n_parts==2 && (d->front_wallnum[1]==wall-Walls || d->back_wallnum[1]==wall-Walls)))
 					break;
@@ -1136,7 +1136,7 @@ static void kill_and_so_forth(void)
 		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))
 		{
-			range_for (auto &w, partial_range(Walls, Num_walls))
+			range_for (auto &w, partial_const_range(Walls, Num_walls))
 			{
 				if (w.trigger == i) {
 					const auto &&segp = vsegptridx(w.segnum);

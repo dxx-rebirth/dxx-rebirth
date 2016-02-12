@@ -128,7 +128,7 @@ void do_special_effects()
 
 void restore_effect_bitmap_icons()
 {
-	range_for (eclip &ec, partial_range(Effects, Num_effects))
+	range_for (auto &ec, partial_const_range(Effects, Num_effects))
 	{
 		if (! (ec.flags & EF_CRITICAL))	{
 			if (ec.changing_wall_texture != -1)
