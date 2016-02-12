@@ -594,9 +594,8 @@ static void draw_mine_all(int automap_flag)
 
 }
 
-static void draw_listed_segments(count_segment_array_t &s)
+static void draw_listed_segments(count_segment_array_t &s, const uint8_t color)
 {
-	const auto color = grd_curcanv->cv_color;
 	range_for (const auto &ss, s)
 	{
 		const auto &&segp = vcsegptr(ss);
@@ -607,27 +606,23 @@ static void draw_listed_segments(count_segment_array_t &s)
 
 static void draw_selected_segments(void)
 {
-	gr_setcolor(SELECT_COLOR);
-	draw_listed_segments(Selected_segs);
+	draw_listed_segments(Selected_segs, SELECT_COLOR);
 }
 
 static void draw_found_segments(void)
 {
-	gr_setcolor(FOUND_COLOR);
-	draw_listed_segments(Found_segs);
+	draw_listed_segments(Found_segs, FOUND_COLOR);
 }
 
 static void draw_warning_segments(void)
 {
-	gr_setcolor(WARNING_COLOR);
-	draw_listed_segments(Warning_segs);
+	draw_listed_segments(Warning_segs, WARNING_COLOR);
 }
 
 static void draw_group_segments(void)
 {
 	if (current_group > -1) {
-		gr_setcolor(GROUP_COLOR);
-		draw_listed_segments(GroupList[current_group].segments);
+		draw_listed_segments(GroupList[current_group].segments, GROUP_COLOR);
 		}
 }
 
