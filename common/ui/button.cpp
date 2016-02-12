@@ -63,7 +63,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 	{
 		ui_button_any_drawn = 1;
 		gr_set_current_canvas( button->canvas );
-		color_t color = button->canvas->cv_color;
+		color_t color = 0;
 
 		if (dlg->keyboard_focus_gadget == button)
 			gr_set_fontcolor( CRED, -1 );
@@ -95,7 +95,6 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				gr_rect( 2, 2, button->width, button->height, color);
 			}			
 		}
-		button->canvas->cv_color = color;
 	}
 }
 

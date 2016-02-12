@@ -1981,7 +1981,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
 	gr_settransblend(cloak_fade_value, GR_BLEND_NORMAL);
-	gr_rect(HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), grd_curcanv->cv_color);
+	gr_rect(HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), 0);
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
 
@@ -2251,7 +2251,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(fade_value, GR_BLEND_NORMAL);
-		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot), grd_curcanv->cv_color);
+		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot), 0);
 
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}

@@ -238,7 +238,7 @@ void init_cockpit()
 			const unsigned x = 0;
 			const unsigned y = (gsm_height - h) / 2;
 
-			const auto color = grd_curcanv->cv_color;
+			const uint8_t color = 0;
 			gr_rect(x, 0, w, gsm_height - h, color);
 			gr_rect(x, gsm_height - h, w, gsm_height, color);
 
