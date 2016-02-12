@@ -740,7 +740,7 @@ static void hud_show_score_added()
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
 		int w, h;
 		gr_get_string_size(score_str, &w, &h, nullptr);
-		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
+		gr_string(grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING + FSPACY(1), score_str, w, h);
 	} else {
 		score_time = 0;
 		score_display = 0;
