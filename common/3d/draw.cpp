@@ -26,7 +26,6 @@ namespace dcx {
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
 #ifndef OGL
 static const flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
-static const line_drawer_type line_drawer_ptr = gr_line;
 #endif
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
@@ -77,7 +76,8 @@ void g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
 		(static_cast<void>((p1.p3_flags & PF_PROJECTED) || (g3_project_point(p1), 0)), p1.p3_flags & PF_OVERFLOW)
 	)
 		return must_clip_line(&p0,&p1,codes_or,tp);
-	(*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
+	const auto color = grd_curcanv->cv_color;
+	gr_line(p0.p3_sx, p0.p3_sy, p1.p3_sx, p1.p3_sy, color);
 }
 #endif
 

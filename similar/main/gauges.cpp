@@ -2959,7 +2959,6 @@ void show_HUD_names()
 						w = dx/4;
 						h = dy/4;
 
-						{
 							struct {
 								int r, g, b;
 							} c{};
@@ -2979,17 +2978,17 @@ void show_HUD_names()
 								auto &color = player_rgb[get_player_color(pnum)];
 								c = {color.r, color.g, color.b};
 							}
-							gr_setcolor(BM_XRGB(c.r, c.g, c.b));
-						};
+						const uint8_t color = BM_XRGB(c.r, c.g, c.b);
+						gr_setcolor(color);
 
-						gr_line(x+dx-w,y-dy,x+dx,y-dy);
-						gr_line(x+dx,y-dy,x+dx,y-dy+h);
-						gr_line(x-dx,y-dy,x-dx+w,y-dy);
-						gr_line(x-dx,y-dy,x-dx,y-dy+h);
-						gr_line(x+dx-w,y+dy,x+dx,y+dy);
-						gr_line(x+dx,y+dy,x+dx,y+dy-h);
-						gr_line(x-dx,y+dy,x-dx+w,y+dy);
-						gr_line(x-dx,y+dy,x-dx,y+dy-h);
+						gr_line(x + dx - w, y - dy, x + dx, y - dy, color);
+						gr_line(x + dx, y - dy, x + dx, y - dy + h, color);
+						gr_line(x - dx, y - dy, x - dx + w, y - dy, color);
+						gr_line(x - dx, y - dy, x - dx, y - dy + h, color);
+						gr_line(x + dx - w, y + dy, x + dx, y + dy, color);
+						gr_line(x + dx, y + dy, x + dx, y + dy - h, color);
+						gr_line(x - dx, y + dy, x - dx + w, y + dy, color);
+						gr_line(x - dx, y + dy, x - dx, y + dy - h, color);
 					}
 				}
 			}

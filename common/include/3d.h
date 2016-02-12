@@ -311,7 +311,6 @@ constexpr std::size_t MAX_POINTS_IN_POLY = 100;
 
 typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
 typedef void (*flat_drawer_type)(uint_fast32_t nv,const array<fix, MAX_POINTS_IN_POLY*2> &vertlist);
-typedef void (*line_drawer_type)(fix x0,fix y0,fix x1,fix y1);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
