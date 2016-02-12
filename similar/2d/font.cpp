@@ -614,6 +614,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 	const auto &cv_font = *grd_curcanv->cv_font;
 	const auto &&fontscale_x = FONTSCALE_X();
 	const auto &&FONTSCALE_Y_ft_h = FONTSCALE_Y(cv_font.ft_h);
+	ogl_colors colors;
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -665,7 +666,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? -1 : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? grd_curcanv->cv_font_fg_color : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? colors.init(grd_curcanv->cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
 			xx += spacing;
 

@@ -605,7 +605,7 @@ const array<dspan, 107> weapon_windows_hires = {{
 static inline void hud_bitblt_free (unsigned x, unsigned y, unsigned w, unsigned h, grs_bitmap &bm)
 {
 #ifdef OGL
-	ogl_ubitmapm_cs (x, y, w, h, bm, -1, F1_0);
+	ogl_ubitmapm_cs (x, y, w, h, bm, ogl_colors::white, F1_0);
 #else
 	gr_ubitmapm(x, y, bm);
 #endif
