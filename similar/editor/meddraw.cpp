@@ -105,7 +105,7 @@ static void draw_line(unsigned pnum0, unsigned pnum1, const uint8_t color)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(const vcsegptr_t seg)
+static void draw_segment(const vcsegptr_t seg, const uint8_t color)
 {
 	if (seg->segnum == segment_none)		//this segment doesn't exitst
 		return;
@@ -115,7 +115,6 @@ static void draw_segment(const vcsegptr_t seg)
 	{		//all off screen?
 		int i;
 
-		const auto color = grd_curcanv->cv_color;
 		for (unsigned i = 0; i < 4; ++i)
 			draw_line(svp[i], svp[i+4], color);
 
@@ -604,11 +603,12 @@ static void draw_mine_all(int automap_flag)
 
 static void draw_listed_segments(count_segment_array_t &s)
 {
+	const auto color = grd_curcanv->cv_color;
 	range_for (const auto &ss, s)
 	{
 		const auto &&segp = vcsegptr(ss);
 		if (segp->segnum != segment_none)
-			draw_segment(segp);
+			draw_segment(segp, color);
 	}
 }
 
@@ -663,7 +663,7 @@ static void draw_special_segments(void)
 			}
 			const auto color = gr_find_closest_color(r, g, b);
 			gr_setcolor(color);
-			draw_segment(segp);
+			draw_segment(segp, color);
 		}
 	}
 }
@@ -807,25 +807,20 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 		// Highlight group segment and side.
 		if (current_group > -1)
 		if (Groupsegp[current_group]) {
-			gr_setcolor(GROUPSEG_COLOR);
-			draw_segment(vcsegptr(Groupsegp[current_group]));
-
+			draw_segment(vcsegptr(Groupsegp[current_group]), GROUPSEG_COLOR);
 			gr_setcolor(GROUPSIDE_COLOR);
 			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group]);
 		}
 
 		// Highlight marked segment and side.
 		if (Markedsegp) {
-			gr_setcolor(MARKEDSEG_COLOR);
-			draw_segment(Markedsegp);
-
+			draw_segment(Markedsegp, MARKEDSEG_COLOR);
 			gr_setcolor(MARKEDSIDE_COLOR);
 			draw_seg_side(Markedsegp,Markedside);
 		}
 
 		// Highlight current segment and current side.
-		gr_setcolor(CURSEG_COLOR);
-		draw_segment(Cursegp);
+		draw_segment(Cursegp, CURSEG_COLOR);
 
 		gr_setcolor(CURSIDE_COLOR);
 		draw_seg_side(Cursegp,Curside);
