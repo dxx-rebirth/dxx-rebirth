@@ -184,12 +184,11 @@ static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
 	}
 }
 
-static void draw_side_edge(const vcsegptr_t seg,int side,int edge)
+static void draw_side_edge(const vcsegptr_t seg,int side,int edge, const uint8_t color)
 {
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)		//on screen?
 	{
-		const auto color = grd_curcanv->cv_color;
 		auto &stv = Side_to_verts[side];
 		draw_line(svp[stv[edge]], svp[stv[(edge + 1) % 4]], color);
 	}
@@ -820,9 +819,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 		draw_segment(Cursegp, CURSEG_COLOR);
 
 		draw_seg_side(Cursegp,Curside, CURSIDE_COLOR);
-
-		gr_setcolor(CUREDGE_COLOR);
-		draw_side_edge(Cursegp,Curside,Curedge);
+		draw_side_edge(Cursegp,Curside,Curedge, CUREDGE_COLOR);
 
 		// Draw coordinate axes if we are rendering the large view.
 		if (Show_axes_flag)
