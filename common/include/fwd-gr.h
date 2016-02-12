@@ -139,7 +139,7 @@ void gr_clear_canvas(color_t color);
 // Bitmap functions:
 
 // these are the two workhorses, the others just use these
-void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data);
+void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t* data);
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 void gr_init_bitmap_alloc(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);
@@ -164,7 +164,7 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 #define gr_settransblend(A,B)	gr_settransblend(A)
 #endif
-void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
+void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
 }
 
 #ifdef dsx

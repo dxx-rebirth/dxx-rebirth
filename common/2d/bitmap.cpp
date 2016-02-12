@@ -43,7 +43,7 @@ namespace dcx {
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data);
 
-void gr_set_bitmap_data (grs_bitmap &bm, unsigned char *data)
+void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 {
 #ifdef OGL
 	ogl_freebmtexture(bm);
@@ -65,7 +65,7 @@ grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_
 	return n;
 }
 
-void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, unsigned char * data ) // TODO: virtualize
+void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t *data) // TODO: virtualize
 {
 	bm.bm_x = x;
 	bm.bm_y = y;

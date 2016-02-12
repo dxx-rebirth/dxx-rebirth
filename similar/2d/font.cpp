@@ -345,7 +345,6 @@ static int gr_internal_color_string(int x, int y, const char *s )
 	grs_bitmap char_bm = {};
 	char_bm.set_type(BM_LINEAR);
 	char_bm.bm_flags = BM_FLAG_TRANSPARENT;
-	unsigned char * fp;
 	const char *text_ptr, *next_row, *text_ptr1;
 	int letter;
 	int xx,yy;
@@ -391,10 +390,9 @@ static int gr_internal_color_string(int x, int y, const char *s )
 				continue;
 			}
 
-			if (cv_font.ft_flags & FT_PROPORTIONAL)
-				fp = cv_font.ft_chars[letter];
-			else
-				fp = &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
+			const auto fp = (cv_font.ft_flags & FT_PROPORTIONAL)
+				? cv_font.ft_chars[letter]
+				: &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 
 			gr_init_bitmap(char_bm, BM_LINEAR, 0, 0, width, cv_font.ft_h, width, fp);
 			gr_bitmapm(xx,yy,char_bm);
@@ -499,7 +497,6 @@ static void ogl_init_font(grs_font * font)
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int w,h,tw,th,curx=0,cury=0;
-	unsigned char *fp;
 	ubyte *data;
 	int gap=1; // x/y offset between the chars so we can filter
 
@@ -539,10 +536,9 @@ static void ogl_init_font(grs_font * font)
 
 		if (font->ft_flags & FT_COLOR)
 		{
-			if (font->ft_flags & FT_PROPORTIONAL)
-				fp = font->ft_chars[i];
-			else
-				fp = font->ft_data + i * w*h;
+			const auto fp = (font->ft_flags & FT_PROPORTIONAL)
+				? font->ft_chars[i]
+				: font->ft_data + i * w*h;
 			for (int y=0;y<h;y++)
 			{
 				for (int x=0;x<w;x++)
@@ -574,10 +570,9 @@ static void ogl_init_font(grs_font * font)
 		else
 		{
 			int BitMask,bits=0,white=gr_find_closest_color(63,63,63);
-			if (font->ft_flags & FT_PROPORTIONAL)
-				fp = font->ft_chars[i];
-			else
-				fp = font->ft_data + i * BITS_TO_BYTES(w)*h;
+			auto fp = (font->ft_flags & FT_PROPORTIONAL)
+				? font->ft_chars[i]
+				: font->ft_data + i * BITS_TO_BYTES(w)*h;
 			for (int y=0;y<h;y++){
 				BitMask=0;
 				for (int x=0; x< w; x++ )
@@ -895,7 +890,8 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 
 static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 {
-	unsigned char * ptr;
+	const uint8_t *ptr;
+	uint8_t *ft_data;
 	struct {
 		array<char, 4> magic;
 		unsigned datasize;	//size up to (but not including) palette
@@ -923,14 +919,18 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	auto font = make_unique<grs_font>();
 	grs_font_read(font.get(), fontfile);
 
-	auto font_data = make_unique<uint8_t[]>(datasize);
+	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
+	std::size_t ft_chars_storage = (font->ft_flags & FT_PROPORTIONAL)
+		? sizeof(uint8_t *) * nchars
+		: 0;
+
+	auto ft_allocdata = make_unique<uint8_t[]>(datasize + ft_chars_storage);
+	const auto font_data = &ft_allocdata[ft_chars_storage];
 	if (PHYSFS_read(fontfile, font_data, 1, datasize) != datasize)
 	{
 		con_printf(CON_URGENT, "Insufficient data in font file %s", fontname);
 		return {};
 	}
-
-	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
 		const auto offset_widths = reinterpret_cast<uintptr_t>(font->ft_widths);
@@ -947,14 +947,13 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 			con_printf(CON_URGENT, "Missing data in font file %s", fontname);
 			return {};
 		}
-		font->ft_data = reinterpret_cast<unsigned char *>(&font_data[offset_data]);
-		font->ft_chars = make_unique<uint8_t *[]>(nchars);
-
-		ptr = font->ft_data;
+		font->ft_data = ptr = ft_data = reinterpret_cast<unsigned char *>(&font_data[offset_data]);
+		const auto ft_chars = reinterpret_cast<const uint8_t **>(ft_allocdata.get());
+		font->ft_chars = reinterpret_cast<const uint8_t *const *>(ft_chars);
 
 		const unsigned is_color = font->ft_flags & FT_COLOR;
 		const unsigned ft_h = font->ft_h;
-		std::generate_n(font->ft_chars.get(), nchars, [is_color, ft_h, &w, &ptr]{
+		std::generate_n(ft_chars, nchars, [is_color, ft_h, &w, &ptr]{
 			const unsigned s = INTEL_SHORT(*w);
 			if (words_bigendian)
 				*w = static_cast<uint16_t>(s);
@@ -965,7 +964,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		});
 	} else  {
 
-		font->ft_data   = font_data.get();
+		font->ft_data   = ft_data = font_data;
 		font->ft_widths = NULL;
 
 		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
@@ -1007,13 +1006,13 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 
-		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
+		decode_data(ft_data, ptr - font->ft_data, colormap, freq );
 	}
 	fontfile.reset();
 	//set curcanv vars
 
 	auto &ft_filename = font->ft_filename;
-	font->ft_allocdata = move(font_data);
+	font->ft_allocdata = move(ft_allocdata);
 	strncpy(&ft_filename[0], fontname, ft_filename.size());
 	return font;
 }
