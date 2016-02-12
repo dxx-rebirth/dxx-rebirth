@@ -460,12 +460,11 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player(const vcobjptr_t obj)
+static void draw_player(const vcobjptr_t obj, const uint8_t color)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj->pos);
 	const auto obj_size = obj->size;
-	const auto color = grd_curcanv->cv_color;
 	g3_draw_sphere(sphere_point, obj_size, color);
 
 	// Draw shaft of arrow
@@ -596,9 +595,10 @@ static void draw_automap(automap *am)
 	draw_all_edges(am);
 
 	// Draw player...
-	const auto color = get_player_or_team_color(Player_num);
-	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-	draw_player(vcobjptr(get_local_player().objnum));
+	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
+	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
+	gr_setcolor(closest_color);
+	draw_player(vcobjptr(get_local_player().objnum), closest_color);
 
 	DrawMarkers(am);
 	
@@ -609,10 +609,10 @@ static void draw_automap(automap *am)
 				const auto &&objp = vcobjptr(Players[i].objnum);
 				if (objp->type == OBJ_PLAYER)
 				{
-					const auto color = get_player_or_team_color(i);
-					const auto &rgb = player_rgb[color];
-					gr_setcolor(BM_XRGB(rgb.r, rgb.g, rgb.b));
-					draw_player(objp);
+					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
+					const auto closest_color = BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b);
+					gr_setcolor(closest_color);
+					draw_player(objp, closest_color);
 				}
 			}
 		}
@@ -642,7 +642,8 @@ static void draw_automap(automap *am)
 				else
 					break;
 				{
-					gr_setcolor(gr_find_closest_color(r, g, b));
+					const auto color = gr_find_closest_color(r, g, b);
+					gr_setcolor(color);
 				auto sphere_point = g3_rotate_point(objp->pos);
 				g3_draw_sphere(sphere_point,objp->size*4, color);
 				}
