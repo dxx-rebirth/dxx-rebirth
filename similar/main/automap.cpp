@@ -630,15 +630,17 @@ static void draw_automap(automap *am)
 			if (Automap_visited[objp->segnum] || Automap_debug_show_all_segments)
 			{
 				ubyte id = get_powerup_id(objp);
+				unsigned r, g, b;
 				if (id==POW_KEY_RED)
-					gr_setcolor(BM_XRGB(63, 5, 5));
+					r = 63 * 2, g = 5 * 2, b = 5 * 2;
 				else if (id==POW_KEY_BLUE)
-					gr_setcolor(BM_XRGB(5, 5, 63));
+					r = 5 * 2, g = 5 * 2, b = 63 * 2;
 				else if (id==POW_KEY_GOLD)
-					gr_setcolor(BM_XRGB(63, 63, 10));
+					r = 63 * 2, g = 63 * 2, b = 10 * 2;
 				else
 					break;
 				{
+					gr_setcolor(gr_find_closest_color(r, g, b));
 				auto sphere_point = g3_rotate_point(objp->pos);
 				g3_draw_sphere(sphere_point,objp->size*4);	
 				}
