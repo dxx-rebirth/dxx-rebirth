@@ -73,10 +73,11 @@ static void gr_ubox12(int left,int top,int right,int bot)
 		gr_upixel( i, bot );
 	}
 #endif
-	gr_uline(i2f(left), i2f(top), i2f(right), i2f(top));
-	gr_uline(i2f(right), i2f(top), i2f(right), i2f(bot));
-	gr_uline(i2f(left), i2f(top), i2f(left), i2f(bot));
-	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot));
+	const auto color = COLOR;
+	gr_uline(i2f(left), i2f(top), i2f(right), i2f(top), color);
+	gr_uline(i2f(right), i2f(top), i2f(right), i2f(bot), color);
+	gr_uline(i2f(left), i2f(top), i2f(left), i2f(bot), color);
+	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot), color);
 }
 
 static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot)

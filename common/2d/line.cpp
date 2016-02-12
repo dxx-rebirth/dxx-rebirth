@@ -266,7 +266,7 @@ static void gr_universal_uline(int a1, int b1, int a2, int b2, const uint8_t col
 
 
 //unclipped version just calls clipping version for now
-void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
+void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
@@ -274,11 +274,11 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 	{
 #ifdef OGL
 	case BM_OGL:
-		ogl_ulinec(a1,b1,a2,b2,COLOR);
+		ogl_ulinec(a1, b1, a2, b2, color);
 		return;
 #endif
 	case BM_LINEAR:
-		gr_universal_uline(a1, b1, a2, b2, COLOR);
+		gr_universal_uline(a1, b1, a2, b2, color);
 		return;
 	}
 	return;
@@ -297,7 +297,8 @@ void gr_line(fix a1, fix b1, fix a2, fix b2)
 
 	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return,, FIXSCALE );
 
-	gr_uline( a1, b1, a2, b2 );
+	const auto color = COLOR;
+	gr_uline(a1, b1, a2, b2, color);
 }
 
 }
