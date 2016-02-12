@@ -42,48 +42,44 @@ from "Graphics Gems", Academic Press, 1990
 */
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
-static void plot(int x,int y,int flag)
+static void plot(int x,int y,int flag, const uint8_t color)
+#define plot(x,y,f)	plot(x,y,f,color)
 {
 	if (flag)
 		std::swap(x, y);
-	const auto color = COLOR;
 	gr_upixel(x, y, color);
 }
 
-static int gr_hline(int x1, int x2, int y)
+static void gr_hline(int x1, int x2, int y, const uint8_t color)
 {
 	using std::swap;
 	if (x1 > x2)
 		swap(x1,x2);
-	const auto color = COLOR;
 	for (int i=x1; i<=x2; i++ )
 		gr_upixel(i, y, color);
-	return 0;
 }
 
-static int gr_vline(int y1, int y2, int x)
+static void gr_vline(int y1, int y2, int x, const uint8_t color)
 {
 	using std::swap;
 	if (y1 > y2) swap(y1,y2);
-	const auto color = COLOR;
 	for (int i=y1; i<=y2; i++ )
 		gr_upixel(x, i, color);
-	return 0;
 }
 
-static void gr_universal_uline(int a1, int b1, int a2, int b2)
+static void gr_universal_uline(int a1, int b1, int a2, int b2, const uint8_t color)
 {
 	int dx, dy, incr1, incr2, D, x, y, xend, c, pixels_left;
 	int x1, y1;
 	int sign_x = 1, sign_y = 1, step, reverse;
 
 	if (a1==a2) {
-		gr_vline(b1,b2,a1);
+		gr_vline(b1, b2, a1, color);
 		return;
 	}
 
 	if (b1==b2) {
-		gr_hline(a1,a2,b1);
+		gr_hline(a1, a2, b1, color);
 		return;
 	}
 
@@ -282,7 +278,7 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 		return;
 #endif
 	case BM_LINEAR:
-		gr_universal_uline( a1,b1,a2,b2);
+		gr_universal_uline(a1, b1, a2, b2, COLOR);
 		return;
 	}
 	return;
