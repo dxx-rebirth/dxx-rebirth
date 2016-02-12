@@ -162,6 +162,7 @@ void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color
 #ifndef OGL
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
+#define gr_settransblend(A,B)	gr_settransblend(A)
 #endif
 void gr_set_bitmap_data(grs_bitmap &bm, unsigned char *data);
 }

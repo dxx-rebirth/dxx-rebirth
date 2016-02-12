@@ -1187,9 +1187,9 @@ void ogl_toggle_depth_test(int enable)
 /* 
  * set blending function
  */
-void ogl_set_blending()
+void ogl_set_blending(uint8_t cv_blend_func)
 {
-	switch ( grd_curcanv->cv_blend_func )
+	switch (cv_blend_func)
 	{
 		case GR_BLEND_ADDITIVE_A:
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE );
