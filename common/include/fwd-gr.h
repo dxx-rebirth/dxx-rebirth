@@ -228,7 +228,9 @@ int gr_disk(fix x,fix y,fix r);
 int gr_ucircle(fix x,fix y,fix r);
 
 // Draw an unfilled rectangle into the current canvas
-void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot);
+#ifdef EDITOR
+void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, uint8_t color);
+#endif
 void gr_ubox(int left,int top,int right,int bot, uint8_t color);
 
 void gr_scanline(int x1, int x2, unsigned y, uint8_t color);
