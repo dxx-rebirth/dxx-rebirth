@@ -162,9 +162,8 @@ static get_char_width_result<T> get_char_width(const grs_font &cv_font, const ui
 	return {width, width};
 }
 
-static int get_centered_x(const char *s)
+static int get_centered_x(const grs_font &cv_font, const char *s)
 {
-	const auto &cv_font = *grd_curcanv->cv_font;
 	float w;
 	for (w=0;*s!=0 && *s!='\n';s++) {
 		if (*s<=0x06) {
@@ -224,7 +223,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 		next_row = NULL;
 
 		if (x==0x8000) {			//centered
-			int xx = get_centered_x(text_ptr1);
+			int xx = get_centered_x(cv_font, text_ptr1);
 			VideoOffset1 = y * ROWSIZE + xx;
 		}
 
@@ -377,7 +376,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 		xx = x;
 
 		if (xx==0x8000)			//centered
-			xx = get_centered_x(text_ptr);
+			xx = get_centered_x(cv_font, text_ptr);
 
 		while (*text_ptr)
 		{
@@ -636,7 +635,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 		xx = x;
 
 		if (xx==0x8000)			//centered
-			xx = get_centered_x(text_ptr);
+			xx = get_centered_x(cv_font, text_ptr);
 
 		while (*text_ptr)
 		{
@@ -1099,7 +1098,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 
 		x = x1;
 		if (x==0x8000)			//centered
-			x = get_centered_x(text_ptr1);
+			x = get_centered_x(cv_font, text_ptr1);
 
 		last_x = x;
 
