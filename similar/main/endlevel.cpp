@@ -1036,10 +1036,11 @@ void draw_stars()
 	int intensity=31;
 	g3s_point p;
 
+	uint8_t color = 0;
 	for (int i=0;i<MAX_STARS;i++) {
 
 		if ((i&63) == 0) {
-			gr_setcolor(BM_XRGB(intensity,intensity,intensity));
+			gr_setcolor(color = BM_XRGB(intensity,intensity,intensity));
 			intensity-=3;
 		}
 
@@ -1053,7 +1054,7 @@ void draw_stars()
 
 			g3_project_point(p);
 #ifndef OGL
-			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy));
+			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy), color);
 #else
 			g3_draw_sphere(p,F1_0*3);
 #endif

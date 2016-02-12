@@ -47,11 +47,10 @@ void gr_upixel(unsigned x, unsigned y, const uint8_t color)
 	}
 }
 
-void gr_pixel(unsigned x, unsigned y)
+void gr_pixel(unsigned x, unsigned y, const uint8_t color)
 {
 	if (unlikely(x >= GWIDTH || y >= GHEIGHT))
 		return;
-	const auto color = COLOR;
 	gr_upixel(x, y, color);
 }
 

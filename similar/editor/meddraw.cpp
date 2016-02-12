@@ -135,7 +135,8 @@ static void check_segment(const vsegptridx_t seg)
 #ifdef OGL
 		g3_end_frame();
 #endif
-		gr_pixel(Search_x,Search_y);	//set our search pixel to color zero
+		uint8_t color = 0;
+		gr_pixel(Search_x,Search_y, color);	//set our search pixel to color zero
 #ifdef OGL
 		g3_start_frame();
 #endif
@@ -872,7 +873,8 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 #ifdef OGL
 	g3_end_frame();
 #endif
-	gr_pixel(x,y);	//set our search pixel to color zero
+	uint8_t color = 0;
+	gr_pixel(x,y, color);	//set our search pixel to color zero
 #ifdef OGL
 	g3_start_frame();
 #endif

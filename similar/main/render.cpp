@@ -393,7 +393,8 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #ifdef OGL
 		ogl_end_frame();
 #endif
-		gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
+		uint8_t color = 0;
+		gr_pixel(_search_x,_search_y, color);	//set our search pixel to color zero
 #ifdef OGL
 		ogl_start_frame();
 #endif
@@ -556,7 +557,9 @@ static void render_object_search(const vobjptridx_t obj)
 	//what color the object draws in, so we try color 0, then color 1,
 	//in case the object itself is rendering color 0
 
-	gr_setcolor(0);	//set our search pixel to color zero
+	{
+	const uint8_t color = 0;
+	gr_setcolor(color);	//set our search pixel to color zero
 #ifdef OGL
 	ogl_end_frame();
 
@@ -570,20 +573,24 @@ static void render_object_search(const vobjptridx_t obj)
 
 	ogl_start_frame();
 #else
-	gr_pixel(_search_x,_search_y);
+	gr_pixel(_search_x,_search_y, color);
 #endif
+	}
 	render_object(obj);
 	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
-	gr_setcolor(1);
+	{
+		const uint8_t color = 1;
+	gr_setcolor(color);
 #ifdef OGL
 	ogl_end_frame();
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
 	ogl_start_frame();
 #else
-	gr_pixel(_search_x,_search_y);
+	gr_pixel(_search_x,_search_y, color);
 #endif
+	}
 	render_object(obj);
 	if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;

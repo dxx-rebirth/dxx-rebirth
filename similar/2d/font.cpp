@@ -1133,13 +1133,14 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					continue;
 				}
 				const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
+				auto color = cv_font_fg_color;
 				gr_setcolor(cv_font_fg_color);
 				if (width)
 				{
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
-						gr_pixel( x++, y );
+						gr_pixel(x++, y, color);
 					}
 				} else {
 					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
@@ -1163,13 +1164,13 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 						const auto bit_enabled = (bits & 0x80);
 						bits <<= 1;
 						if (masked_draws_background)
-							gr_setcolor(bit_enabled ? cv_font_fg_color : cv_font_bg_color);
+							gr_setcolor(color = bit_enabled ? cv_font_fg_color : cv_font_bg_color);
 						else
 						{
 							if (!bit_enabled)
 								continue;
 						}
-						gr_pixel(x, y);
+						gr_pixel(x, y, color);
 					}
 				}
 				}
