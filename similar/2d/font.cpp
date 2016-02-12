@@ -94,13 +94,22 @@ static const uint8_t *find_kern_entry(const grs_font &font, const uint8_t first,
 }
 
 //takes the character AFTER being offset into font
-static inline bool INFONT(const unsigned c)
-{
-	const auto &cv_font = *grd_curcanv->cv_font;
-	return c <= cv_font.ft_maxchar - cv_font.ft_minchar;
-}
 
 namespace {
+
+class font_character_extent
+{
+	const unsigned r;
+public:
+	font_character_extent(const grs_font &cv_font) :
+		r(cv_font.ft_maxchar - cv_font.ft_minchar)
+	{
+	}
+	bool operator()(const unsigned c) const
+	{
+		return c <= r;
+	}
+};
 
 template <typename T>
 struct get_char_width_result
@@ -133,6 +142,7 @@ static get_char_width_result<T> get_char_width(const grs_font &cv_font, const ui
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
 
 	const auto &&fontscale_x = FONTSCALE_X();
+	const auto &&INFONT = font_character_extent(cv_font);
 	if (!INFONT(letter)) {				//not in font, draw as space
 		return {0, static_cast<T>(proportional ? fontscale_x(cv_font.ft_w) / 2 : cv_font.ft_w)};
 	}
@@ -196,6 +206,7 @@ template <bool masked_draws_background>
 static int gr_internal_string0_template(int x, int y, const char *s)
 {
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &&INFONT = font_character_extent(cv_font);
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
 	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
@@ -348,6 +359,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 	int xx,yy;
 
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &&INFONT = font_character_extent(cv_font);
 	char_bm.bm_h = cv_font.ft_h;		//set height for chars of this font
 
 	next_row = s;
@@ -610,6 +622,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 		Error("carp.\n");
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &&INFONT = font_character_extent(cv_font);
 	const auto &&fontscale_x = FONTSCALE_X();
 	const auto &&FONTSCALE_Y_ft_h = FONTSCALE_Y(cv_font.ft_h);
 	ogl_colors colors;
@@ -1074,6 +1087,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 	next_row = s;
 
 	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &&INFONT = font_character_extent(cv_font);
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
 	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
