@@ -169,14 +169,13 @@ static void check_segment(const vsegptridx_t seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_seg_side(const vcsegptr_t seg,int side)
+static void draw_seg_side(const vcsegptr_t seg, int side, const uint8_t color)
 {
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		int i;
 
-		const auto color = grd_curcanv->cv_color;
 		auto &stv = Side_to_verts[side];
 		for (i=0;i<3;i++)
 			draw_line(svp[stv[i]], svp[stv[i+1]], color);
@@ -808,22 +807,19 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 		if (current_group > -1)
 		if (Groupsegp[current_group]) {
 			draw_segment(vcsegptr(Groupsegp[current_group]), GROUPSEG_COLOR);
-			gr_setcolor(GROUPSIDE_COLOR);
-			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group]);
+			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group], GROUPSIDE_COLOR);
 		}
 
 		// Highlight marked segment and side.
 		if (Markedsegp) {
 			draw_segment(Markedsegp, MARKEDSEG_COLOR);
-			gr_setcolor(MARKEDSIDE_COLOR);
-			draw_seg_side(Markedsegp,Markedside);
+			draw_seg_side(Markedsegp,Markedside, MARKEDSIDE_COLOR);
 		}
 
 		// Highlight current segment and current side.
 		draw_segment(Cursegp, CURSEG_COLOR);
 
-		gr_setcolor(CURSIDE_COLOR);
-		draw_seg_side(Cursegp,Curside);
+		draw_seg_side(Cursegp,Curside, CURSIDE_COLOR);
 
 		gr_setcolor(CUREDGE_COLOR);
 		draw_side_edge(Cursegp,Curside,Curedge);
