@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 #ifndef OGL
-int gr_ucircle(fix xc1,fix yc1,fix r1)
+int gr_ucircle(fix xc1,fix yc1,fix r1, const uint8_t color)
 {
 	int p,x, y, xc, yc, r;
 
@@ -37,7 +37,6 @@ int gr_ucircle(fix xc1,fix yc1,fix r1)
 	x=0;
 	y=r;
 
-	const auto color = COLOR;
 	while(x<y)
 	{
 		// Draw the first octant

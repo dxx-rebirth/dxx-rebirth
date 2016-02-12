@@ -225,7 +225,7 @@ void gr_urect(int left,int top,int right,int bot, uint8_t color);
 int gr_disk(fix x,fix y,fix r);
 
 // Draw an outline circle
-int gr_ucircle(fix x,fix y,fix r);
+int gr_ucircle(fix x,fix y,fix r, uint8_t color);
 
 // Draw an unfilled rectangle into the current canvas
 #ifdef EDITOR

@@ -802,10 +802,9 @@ void g3_draw_sphere(g3s_point &pnt,fix rad)
 	glPopMatrix();
 }
 
-int gr_ucircle(fix xc1, fix yc1, fix r1)
+int gr_ucircle(fix xc1, fix yc1, fix r1, const uint8_t c)
 {
-	int c, nsides;
-	c=grd_curcanv->cv_color;
+	int nsides;
 	OGL_DISABLE(TEXTURE_2D);
 	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
