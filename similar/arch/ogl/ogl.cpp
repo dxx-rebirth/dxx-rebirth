@@ -62,7 +62,6 @@
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #include <algorithm>
@@ -474,7 +473,7 @@ void ogl_cache_level_textures(void)
 		ogl_cache_polymodel_textures(Player_ship->model_num);
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
-		range_for (const auto &&objp, highest_valid(vcobjptridx))
+		range_for (const auto &&objp, vcobjptridx)
 		{
 			if (objp->type == OBJ_POWERUP && objp->render_type==RT_POWERUP)
 			{

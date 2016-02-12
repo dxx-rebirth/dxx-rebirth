@@ -43,7 +43,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "seguvs.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 
 namespace dcx {
 static void cast_all_light_in_mine(int quick_flag);
@@ -70,7 +69,7 @@ static fix get_average_light_at_vertex(int vnum, segnum_t *segs)
 	num_occurrences = 0;
 	total_light = 0;
 
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		auto e = end(segp->verts);
 		auto relvnum = std::distance(std::find(begin(segp->verts), e, vnum), e);
@@ -257,7 +256,7 @@ static void assign_default_lighting(const vsegptr_t segp)
 
 void assign_default_lighting_all(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		if (segp->segnum != segment_none)
 			assign_default_lighting(segp);
@@ -803,7 +802,7 @@ static void fix_bogus_uvs_seg(const vsegptridx_t segp)
 
 int fix_bogus_uvs_all(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp->segnum != segment_none)
 			fix_bogus_uvs_seg(segp);
@@ -936,7 +935,7 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 // -- Old way, before 5/8/95 --		inverse_segment_magnitude = fixdiv(F1_0/5, vm_vec_mag(&vector_to_center));
 // -- Old way, before 5/8/95 --		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, inverse_segment_magnitude);
 
-		range_for (const auto &&rsegp, highest_valid(vsegptr))
+		range_for (const auto &&rsegp, vsegptr)
 		{
 			fix			dist_to_rseg;
 
@@ -1059,7 +1058,7 @@ static void calim_zero_light_values(void)
 {
 	int	sidenum, vertnum;
 
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			side	*sidep = &segp->sides[sidenum];
@@ -1085,7 +1084,7 @@ static void cast_light_from_side_to_center(const vsegptridx_t segp, int light_si
 		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
 		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);
 
-		range_for (const auto &&rsegp, highest_valid(vsegptr))
+		range_for (const auto &&rsegp, vsegptr)
 		{
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
@@ -1153,7 +1152,7 @@ static void calim_process_all_lights(int quick_light)
 {
 	int	sidenum;
 
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			// if (!IS_CHILD(segp->children[sidenum])) {

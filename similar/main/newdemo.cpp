@@ -96,7 +96,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #define ND_EVENT_EOF				0	// EOF
@@ -305,7 +304,7 @@ static typename tt::enable_if<tt::is_integral<T>::value, int>::type newdemo_read
 
 cobjptridx_t newdemo_find_object(object_signature_t signature)
 {
-	range_for (const auto &&objp, highest_valid(vcobjptridx))
+	range_for (const auto &&objp, vcobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
 			return objp;
@@ -1890,7 +1889,7 @@ static int newdemo_read_frame_information(int rewrite)
 	done = 0;
 
 	if (Newdemo_vcr_state != ND_STATE_PAUSED)
-		range_for (const auto &&segp, highest_valid(vsegptr))
+		range_for (const auto &&segp, vsegptr)
 		{
 			segp->objects = object_none;
 		}
@@ -3392,7 +3391,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		range_for (auto &i, partial_range(cur_objs, num_cur_objs)) {
-			range_for (const auto &&objp, highest_valid(vobjptr))
+			range_for (const auto &&objp, vobjptr)
 			{
 				if (i.signature == objp->signature) {
 					sbyte render_type = i.render_type;
@@ -3601,7 +3600,7 @@ void newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					range_for (auto &i, partial_const_range(cur_objs, 1 + num_objs)) {
-						range_for (const auto &&objp, highest_valid(vobjptr))
+						range_for (const auto &&objp, vobjptr)
 						{
 							if (i.signature == objp->signature) {
 								objp->orient = i.orient;

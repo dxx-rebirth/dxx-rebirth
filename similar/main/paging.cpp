@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -322,7 +321,7 @@ void paging_touch_all()
 #if defined(DXX_BUILD_DESCENT_I)
 	show_boxed_message(TXT_LOADING, 0);
 #endif
-	range_for (const auto &&segp, highest_valid(vcsegptr))
+	range_for (const auto &&segp, vcsegptr)
 	{
 		paging_touch_segment(segp);
 	}	

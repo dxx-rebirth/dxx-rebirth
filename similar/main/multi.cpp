@@ -85,7 +85,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-begin.h"
 #include "compiler-exchange.h"
 #include "partial_range.h"
-#include "highest_valid.h"
 
 constexpr tt::integral_constant<int8_t, -1> owner_none{};
 
@@ -2711,7 +2710,7 @@ void multi_powcap_count_powerups_in_mine(void)
 void powerup_cap_state::recount()
 {
 	m_powerups = {};
-	range_for (const auto &&obj, highest_valid(vcobjptr))
+	range_for (const auto &&obj, vcobjptr)
 	{
 		if (obj->type == OBJ_POWERUP)
 		{
@@ -3528,7 +3527,7 @@ void multi_prep_level(void)
 	unsigned inv_remaining = (AllowedItems & NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
 	unsigned cloak_remaining = (AllowedItems & NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
 	update_item_state duplicates;
-	range_for (const auto &&o, highest_valid(vobjptridx))
+	range_for (const auto &&o, vobjptridx)
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
@@ -3629,7 +3628,7 @@ static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
-	range_for (const auto &&seg, highest_valid(vsegptr))
+	range_for (const auto &&seg, vsegptr)
 	{
 		uint8_t team_mask;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
@@ -3690,7 +3689,7 @@ int multi_delete_extra_objects()
 	// This function also prints the total number of available multiplayer
 	// positions in this level, even though this should always be 8 or more!
 
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if ((objp->type==OBJ_PLAYER) || (objp->type==OBJ_GHOST))
 			nnp++;

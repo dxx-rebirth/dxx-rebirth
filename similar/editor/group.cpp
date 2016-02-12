@@ -46,7 +46,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -691,7 +690,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			in_vertex_list[Segments[gs].verts[v]] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (!GroupList[current_group].segments.contains(segp))
 			{

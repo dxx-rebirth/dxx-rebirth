@@ -80,7 +80,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //end addition -MM
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "segiter.h"
 #include "partial_range.h"
 
@@ -506,7 +505,7 @@ void init_ai_objects(void)
 {
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (const auto &&o, highest_valid(vobjptr))
+	range_for (const auto &&o, vobjptr)
 	{
 		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
 			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
@@ -1935,7 +1934,7 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 		return object_none;
 #endif
 
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (objp->matcen_creator == BOSS_GATE_MATCEN_NUM)
@@ -2082,7 +2081,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 #endif
 
 	//	See if there is a boss.  If not, quick out.
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag)
 		{
@@ -3079,7 +3078,7 @@ void do_ai_frame(const vobjptridx_t obj)
 				cobjptr_t min_obj = nullptr;
 				fix min_dist = F1_0*200, cur_dist;
 
-				range_for (const auto &&objp, highest_valid(vcobjptr))
+				range_for (const auto &&objp, vcobjptr)
 				{
 					if (objp->type == OBJ_ROBOT && objp != obj)
 					{
@@ -4257,7 +4256,7 @@ static void set_player_awareness_all(void)
 
 	process_awareness_events(New_awareness);
 
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
@@ -4307,7 +4306,7 @@ static void dump_ai_objects_all()
 	if (Ai_error_message[0])
 		fprintf(Ai_dump_file, "Error message: %s\n", Ai_error_message);
 
-	range_for (const auto &&objp, highest_valid(vcobjptridx))
+	range_for (const auto &&objp, vcobjptridx)
 	{
 		ai_static	*aip = &objp->ctype.ai_info;
 		ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -4370,7 +4369,7 @@ void do_ai_frame_all(void)
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = nullptr;
-			range_for (const auto &&objp, highest_valid(vobjptr))
+			range_for (const auto &&objp, vobjptr)
 			{
 				if (objp->type == OBJ_ROBOT)
 					objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
@@ -4380,7 +4379,7 @@ void do_ai_frame_all(void)
 
 	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
 	if (Boss_dying) {
-		range_for (const auto &&objp, highest_valid(vobjptridx))
+		range_for (const auto &&objp, vobjptridx)
 		{
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].boss_flag)

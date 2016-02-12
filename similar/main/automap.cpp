@@ -85,7 +85,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #define LEAVE_TIME 0x4000
@@ -617,7 +616,7 @@ static void draw_automap(automap *am)
 		}
 	}
 
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
@@ -1400,7 +1399,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
-		range_for (const auto &&segp, highest_valid(vcsegptridx))
+		range_for (const auto &&segp, vcsegptridx)
 		{
 #ifdef EDITOR
 			if (segp->segnum != segment_none)
@@ -1411,7 +1410,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
-		range_for (const auto &&segp, highest_valid(vcsegptridx))
+		range_for (const auto &&segp, vcsegptridx)
 		{
 #ifdef EDITOR
 			if (segp->segnum != segment_none)
@@ -1420,7 +1419,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 					add_segment_edges(am, segp);
 				}
 		}
-		range_for (const auto &&segp, highest_valid(vcsegptridx))
+		range_for (const auto &&segp, vcsegptridx)
 		{
 #ifdef EDITOR
 			if (segp->segnum != segment_none)

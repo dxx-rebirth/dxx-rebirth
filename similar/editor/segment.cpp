@@ -50,7 +50,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -571,7 +570,7 @@ static void change_vertex_occurrences(int dest, int src)
 		g.vertices.replace(src, dest);
 
 	// now scan all segments, changing occurrences of src to dest
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
@@ -932,7 +931,7 @@ void set_vertex_counts(void)
 		Vertex_active[v] = 0;
 
 	// Count number of occurrences of each vertex.
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		if (segp->segnum != segment_none)
 			range_for (auto &v, segp->verts)
@@ -1247,7 +1246,7 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	validation_list[0] = seg2;
 
 	for (v=0; v<4; v++)
-		range_for (const auto &&segp, highest_valid(vsegptridx))
+		range_for (const auto &&segp, vsegptridx)
 		{
 			if (segp->segnum != segment_none)
 				range_for (auto &sv, segp->verts)
@@ -1550,7 +1549,7 @@ void find_concave_segs()
 {
 	Warning_segs.clear();
 
-	range_for (const auto &&s, highest_valid(vcsegptridx))
+	range_for (const auto &&s, vcsegptridx)
 		if (s->segnum != segment_none)
 			if (check_seg_concavity(s))
 				Warning_segs.emplace_back(s);
@@ -1599,7 +1598,7 @@ int med_find_adjacent_segment_side(const vsegptridx_t sp, int side, segptridx_t 
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp != sp)
 		{
@@ -1660,7 +1659,7 @@ int med_find_closest_threshold_segment_side(const vsegptridx_t sp, int side, seg
 	closest_seg_dist = JOINT_THRESHOLD;
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp != sp) 
 			for (s=0;s<MAX_SIDES_PER_SEGMENT;s++) {

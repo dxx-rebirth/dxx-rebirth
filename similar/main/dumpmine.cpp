@@ -64,7 +64,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -229,7 +228,7 @@ static void write_exit_text(PHYSFS_File *my_file)
 
 	//	---------- Find exit doors ----------
 	count = 0;
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->children[j] == segment_exit)
@@ -324,7 +323,7 @@ static void write_key_text(PHYSFS_File *my_file)
 	blue_count2 = 0;
 	gold_count2 = 0;
 
-	range_for (const auto &&objp, highest_valid(vcobjptridx))
+	range_for (const auto &&objp, vcobjptridx)
 	{
 		if (objp->type == OBJ_POWERUP)
 			if (get_powerup_id(objp) == POW_KEY_BLUE) {
@@ -398,7 +397,7 @@ static void write_control_center_text(PHYSFS_File *my_file)
 	PHYSFSX_printf(my_file, "Control Center stuff:\n");
 
 	count = 0;
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		if (segp->special == SEGMENT_IS_CONTROLCEN)
 		{
@@ -444,7 +443,7 @@ static void write_segment_text(PHYSFS_File *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Segment stuff:\n");
 
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
 		if (segp->special != 0)
@@ -454,7 +453,7 @@ static void write_segment_text(PHYSFS_File *my_file)
 		PHYSFSX_printf(my_file, "\n");
 	}
 
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		int	depth;
 
@@ -546,7 +545,7 @@ static void write_wall_text(PHYSFS_File *my_file)
 	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
-	range_for (const auto &&segp, highest_valid(vcsegptr))
+	range_for (const auto &&segp, vcsegptr)
 	{
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			const auto sidep = &segp->sides[j];
@@ -569,7 +568,7 @@ static void write_player_text(PHYSFS_File *my_file)
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Players:\n");
-	range_for (const auto &&objp, highest_valid(vcobjptridx))
+	range_for (const auto &&objp, vcobjptridx)
 	{
 		if (objp->type == OBJ_PLAYER)
 		{
@@ -740,7 +739,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			load_level(Registered_level_names[level_num]);
 	}
 
-	range_for (const auto &&segp, highest_valid(vcsegptr))
+	range_for (const auto &&segp, vcsegptr)
          {
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
                  {
@@ -802,7 +801,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 
 	//	Process robots.
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->render_type == RT_POLYOBJ) {
 			polymodel *po = &Polygon_models[objp->rtype.pobj_info.model_num];
@@ -826,7 +825,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	Ignore_tmap_num2_error = 0;
 
 	//	Process walls and segment sides.
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			const auto sidep = &segp->sides[sidenum];
@@ -992,7 +991,7 @@ static void say_totals(PHYSFS_File *my_file, const char *level_name)
 		min_obj_val = 0x7fff0000;
 		objnum_t min_objnum = object_none;
 
-		range_for (const auto &&objp, highest_valid(vcobjptridx))
+		range_for (const auto &&objp, vcobjptridx)
 		{
 			if (!used_objects[objp] && objp->type != OBJ_NONE)
 			{
@@ -1011,7 +1010,7 @@ static void say_totals(PHYSFS_File *my_file, const char *level_name)
 		objtype = Objects[min_objnum].type;
 		objid = Objects[min_objnum].id;
 
-		range_for (const auto &&objp, highest_valid(vcobjptridx))
+		range_for (const auto &&objp, vcobjptridx)
 		{
 			if (!used_objects[objp]) {
 				if ((objp->type == objtype && objp->id == objid) ||

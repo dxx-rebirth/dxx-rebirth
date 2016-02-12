@@ -110,7 +110,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #include <SDL.h>
@@ -1073,7 +1072,7 @@ static void kill_all_robots(void)
 	//int	boss_index = -1;
 
 	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 		{
@@ -1093,7 +1092,7 @@ static void kill_all_robots(void)
 
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
-		range_for (const auto &&objp, highest_valid(vobjptr))
+		range_for (const auto &&objp, vobjptr)
 		{
 			if (objp->type == OBJ_ROBOT)
 				if (Robot_info[get_robot_id(objp)].companion) {
@@ -1117,7 +1116,7 @@ static void kill_and_so_forth(void)
 {
 	HUD_init_message_literal(HM_DEFAULT, "Killing, awarding, etc.!");
 
-	range_for (const auto &&o, highest_valid(vobjptridx))
+	range_for (const auto &&o, vobjptridx)
 	{
 		switch (o->type) {
 			case OBJ_ROBOT:
@@ -1160,7 +1159,7 @@ static void kill_all_snipers(void)
 	int     dead_count=0;
 
 	//	Kill all snipers.
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
@@ -1177,7 +1176,7 @@ static void kill_thief(void) __attribute_used;
 static void kill_thief(void)
 {
 	//	Kill thief.
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].thief)
@@ -1192,7 +1191,7 @@ static void kill_buddy(void) __attribute_used;
 static void kill_buddy(void)
 {
 	//	Kill buddy.
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion)

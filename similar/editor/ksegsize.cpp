@@ -32,7 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kdefs.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 
 #define XDIM	0
 #define YDIM	1
@@ -52,7 +51,7 @@ static void validate_modified_segments(void)
 	for (int v=0; v<Modified_vertex_index; v++) {
 		v0 = Modified_vertices[v];
 
-		range_for (const auto &&segp, highest_valid(vsegptridx))
+		range_for (const auto &&segp, vsegptridx)
 		{
 			if (segp->segnum != segment_none)
 			{

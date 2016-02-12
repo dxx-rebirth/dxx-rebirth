@@ -113,7 +113,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -177,7 +176,7 @@ static int count_number_of_robots()
 {
 	int robot_count;
 	robot_count = 0;
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			robot_count++;
@@ -191,7 +190,7 @@ static int count_number_of_hostages()
 {
 	int count;
 	count = 0;
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_HOSTAGE)
 			count++;
@@ -210,7 +209,7 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
-	range_for (const auto &&o, highest_valid(vobjptridx))
+	range_for (const auto &&o, vobjptridx)
 	{
 		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
 		{
@@ -542,7 +541,7 @@ static void set_sound_sources()
 	Dont_start_sound_objects = 1;
 #endif
 
-	range_for (const auto &&seg, highest_valid(vcsegptridx))
+	range_for (const auto &&seg, vcsegptridx)
 	{
 		for (sidenum=0;sidenum<MAX_SIDES_PER_SEGMENT;sidenum++) {
 			int tm,ec,sn;
@@ -1670,7 +1669,7 @@ namespace dsx {
 
 static void filter_objects_from_level()
  {
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if (objp->type==OBJ_POWERUP)
 		{
@@ -1934,7 +1933,7 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 //	This function should be called at level load time.
 static void copy_defaults_to_robot_all(void)
 {
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			copy_defaults_to_robot(objp);

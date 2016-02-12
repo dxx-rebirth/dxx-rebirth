@@ -56,7 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poison.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -422,7 +421,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 			int	my_station_num = robotcen-Station;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			range_for (const auto &&objp, highest_valid(vcobjptr))
+			range_for (const auto &&objp, vcobjptr)
 			{
 				if (objp->type == OBJ_ROBOT)
 					if ((objp->matcen_creator ^ 0x80) == my_station_num)

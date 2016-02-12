@@ -86,7 +86,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-begin.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 
 using std::min;
 using std::max;
@@ -311,7 +310,7 @@ void start_endlevel_sequence()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion) {
@@ -1533,7 +1532,7 @@ try_again:
 	//children == -2
 
 	exit_segnum = segment_none;
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		for (int sidenum=0;sidenum<6;sidenum++)
 			if (segp->children[sidenum] == segment_exit)

@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 //	Length in segments of avoidance path
@@ -597,7 +596,7 @@ void validate_all_paths(void)
 {
 
 #if PATH_VALIDATION
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT) {
 			ai_static	*aip = &objp->ctype.ai_info;
@@ -1333,7 +1332,7 @@ void ai_path_garbage_collect()
 	validate_all_paths();
 #endif
 	//	Create a list of objects which have paths of length 1 or more.
-	range_for (const auto &&objp, highest_valid(vcobjptridx))
+	range_for (const auto &&objp, vcobjptridx)
 	{
 		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1372,7 +1371,7 @@ void ai_path_garbage_collect()
 	{
 	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
 
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		const auto &aip = objp->ctype.ai_info;
 
@@ -1416,7 +1415,7 @@ void maybe_ai_path_garbage_collect(void)
 //	Should be called at the start of each level.
 void ai_reset_all_paths(void)
 {
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 		{
@@ -1501,7 +1500,7 @@ static void test_create_all_paths(void)
 
 	Point_segs_free_ptr = Point_segs.begin();
 
-	range_for (const auto &&segp0, highest_valid(vcsegptridx))
+	range_for (const auto &&segp0, vcsegptridx)
 	{
 		if (segp0->segnum != segment_none)
 		{

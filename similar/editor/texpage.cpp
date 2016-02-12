@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 
 #define TMAPS_PER_PAGE 12
 
@@ -267,7 +266,7 @@ void do_replacements(void)
 		Assert(old_tmap_num >= 0);
 		Assert(new_tmap_num >= 0);
 
-		range_for (const auto &&segp, highest_valid(vsegptr))
+		range_for (const auto &&segp, vsegptr)
 		{
 			for (int sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 				const auto sidep = &segp->sides[sidenum];

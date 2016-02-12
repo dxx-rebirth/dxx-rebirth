@@ -59,7 +59,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 using std::min;
@@ -523,7 +522,7 @@ void set_dynamic_light(render_state_t &rstate)
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
 
-	range_for (const auto &&obj, highest_valid(vobjptridx))
+	range_for (const auto &&obj, vobjptridx)
 	{
 		const auto &&obj_light_emission = compute_light_emission(obj);
 

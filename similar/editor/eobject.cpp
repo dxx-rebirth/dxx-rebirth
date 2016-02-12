@@ -56,7 +56,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "segiter.h"
 
 #define	OBJ_SCALE		(F1_0/2)
@@ -275,7 +274,7 @@ static int compute_num_players(void)
 {
 	int	count = 0;
 
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_PLAYER)
 			count++;
@@ -456,7 +455,7 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(const vobjptridx_t obj, const vms_vector &newpos)
 {
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (get_seg_masks(obj->pos, segp, 0).centermask == 0) {
 			int	fate;

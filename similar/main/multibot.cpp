@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "compiler-type_traits.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 static int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation);
@@ -403,7 +402,7 @@ void multi_send_thief_frame()
         if (!(Game_mode & GM_MULTI_ROBOTS))
                 return;
 
-        range_for (const auto &&objp, highest_valid(vobjptridx))
+        range_for (const auto &&objp, vobjptridx)
         {
 		if (objp->type == OBJ_ROBOT)
                 {

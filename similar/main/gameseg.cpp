@@ -51,7 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
-#include "highest_valid.h"
 
 using std::min;
 
@@ -468,7 +467,7 @@ int check_segment_connections(void)
 {
 	int errors=0;
 
-	range_for (const auto &&seg, highest_valid(vcsegptridx))
+	range_for (const auto &&seg, vcsegptridx)
 	{
 		for (int sidenum=0;sidenum<6;sidenum++) {
 			const auto v = create_abs_vertex_lists(seg, sidenum);
@@ -623,7 +622,7 @@ segptridx_t find_point_seg(const vms_vector &p,const segptridx_t segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		range_for (const auto &&segp, highest_valid(vsegptridx))
+		range_for (const auto &&segp, vsegptridx)
 		{
 			if (get_seg_masks(p, segp, 0).centermask == 0)
 				return segp;
@@ -1487,7 +1486,7 @@ void validate_segment(const vsegptridx_t sp)
 //	For all used segments (number <= Highest_segment_index), segnum field must be != -1.
 void validate_segment_all(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		#ifdef EDITOR
 		if (segp->segnum != segment_none)
@@ -1698,7 +1697,7 @@ int add_light(const vsegptridx_t segnum, sidenum_fast_t sidenum)
 //	Parse the Light_subtracted array, turning on or off all lights.
 void apply_all_changed_light(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (segp->light_subtracted & (1 << j))
@@ -1741,7 +1740,7 @@ void apply_all_changed_light(void)
 //	to change the status of static light in the mine.
 void clear_light_subtracted(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		segp->light_subtracted = 0;
 	}
@@ -1793,7 +1792,7 @@ void set_ambient_sound_flags()
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		range_for (auto &s, sound_textures)
 		{

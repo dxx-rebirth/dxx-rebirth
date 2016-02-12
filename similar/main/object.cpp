@@ -81,7 +81,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 using std::min;
@@ -118,7 +117,7 @@ void object_goto_next_viewer()
 	objnum_t start_obj;
 	start_obj = Viewer - Objects;		//get viewer object number
 	
-	range_for (const auto &&i, highest_valid(vcobjptr))
+	range_for (const auto &&i, vcobjptr)
 	{
 		(void)i;
 		start_obj++;
@@ -139,7 +138,7 @@ void object_goto_next_viewer()
 
 objptridx_t obj_find_first_of_type(int type)
 {
-	range_for (const auto &&i, highest_valid(vobjptridx))
+	range_for (const auto &&i, vobjptridx)
 	{
 		if (i->type==type)
 			return i;
@@ -902,7 +901,7 @@ object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
-	for (const auto &range = highest_valid(vcobjptridx);;)
+	for (const auto &&range = make_range(vcobjptridx);;)
 	{
 		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
 			lsig = 0;
@@ -980,7 +979,7 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	range_for (const auto &&objp, highest_valid(vobjptr))
+	range_for (const auto &&objp, vobjptr)
 	{
 		if (objp->flags & OF_SHOULD_BE_DEAD)
 		{
@@ -1528,7 +1527,7 @@ static void obj_delete_all_that_should_be_dead()
 	objnum_t		local_dead_player_object=object_none;
 
 	// Move all objects
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if ((objp->type!=OBJ_NONE) && (objp->flags&OF_SHOULD_BE_DEAD) )	{
 			Assert(!(objp->type==OBJ_FIREBALL && objp->ctype.expl_info.delete_time!=-1));
@@ -1560,12 +1559,12 @@ void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 // for getting out of messed up linking situations (i.e. caused by demo playback)
 void obj_relink_all(void)
 {
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		segp->objects = object_none;
 	}
 	
-	range_for (const auto &&obj, highest_valid(vobjptridx))
+	range_for (const auto &&obj, vobjptridx)
 	{
 		if (obj->type != OBJ_NONE)
 		{
@@ -1855,7 +1854,7 @@ void object_move_all()
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;
 
 	// Move all objects
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
@@ -1978,7 +1977,7 @@ void set_powerup_id(object &o, powerup_type_t id)
 //go through all objects and make sure they have the correct segment numbers
 void fix_object_segs()
 {
-	range_for (const auto &&o, highest_valid(vobjptridx))
+	range_for (const auto &&o, vobjptridx)
 	{
 		if (o->type != OBJ_NONE)
 			if (update_object_seg(o) == 0) {
@@ -2039,7 +2038,7 @@ static int object_is_clearable_weapon(const vcobjptr_t obj, int clear_all)
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {
-	range_for (const auto &&obj, highest_valid(vobjptridx))
+	range_for (const auto &&obj, vobjptridx)
 	{
 		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||

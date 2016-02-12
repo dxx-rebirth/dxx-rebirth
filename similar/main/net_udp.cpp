@@ -65,7 +65,6 @@
 #include "compiler-range_for.h"
 #include "compiler-lengthof.h"
 #include "compiler-static_assert.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1792,7 +1791,7 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 {
 	if (!vector)
 		return;
-	range_for (const auto &&seg, highest_valid(vsegptr))
+	range_for (const auto &&seg, vsegptr)
 	{
 		int tm, ec, bm;
 		range_for (auto &j, seg->sides)
@@ -1861,7 +1860,7 @@ static int net_udp_create_monitor_vector(void)
 		}
 	}
 		
-	range_for (const auto &&seg, highest_valid(vcsegptr))
+	range_for (const auto &&seg, vcsegptr)
 	{
 		int tm, ec;
 		range_for (auto &j, seg->sides)
@@ -2036,7 +2035,7 @@ static int net_udp_verify_objects(int remote, int local)
 	if ((remote-local) > 10)
 		return(2);
 
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_PLAYER || objp->type == OBJ_GHOST)
 			nplayers++;
@@ -5407,7 +5406,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp->light_subtracted)
 			multi_send_light_specific(pnum, segp, segp->light_subtracted);

@@ -68,7 +68,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #ifdef EDITOR
@@ -425,7 +424,7 @@ static void thief_message(const char * format, ... )
 //	Return true if marker #id has been placed.
 static int marker_exists_in_mine(int id)
 {
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_MARKER)
 			if (get_marker_id(objp) == id)
@@ -508,7 +507,7 @@ void set_escort_special_goal(int special_key)
 //	Return id of boss.
 static int get_boss_id(void)
 {
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
 		{
@@ -596,7 +595,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	range_for (const auto &&segnum, highest_valid(vcsegptridx))
+	range_for (const auto &&segnum, vcsegptridx)
 		{
 			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
@@ -611,7 +610,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 static segnum_t find_exit_segment(void)
 {
 	//	---------- Find exit doors ----------
-	range_for (const auto &&segp, highest_valid(vcsegptridx))
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		range_for (const auto j, segp->children)
 			if (j == segment_exit)

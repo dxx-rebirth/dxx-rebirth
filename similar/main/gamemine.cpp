@@ -53,7 +53,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "poison.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
@@ -704,7 +703,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
-			range_for (const auto &&segp, highest_valid(vsegptridx))
+			range_for (const auto &&segp, vsegptridx)
 			{
 				segment2_read(segp, LoadFile);
 				fuelcen_activate(segp, segp->special);

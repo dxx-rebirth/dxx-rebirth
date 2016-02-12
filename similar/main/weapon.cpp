@@ -52,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "compiler-type_traits.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 static uint_fast32_t POrderList (uint_fast32_t num);
@@ -1160,7 +1159,7 @@ void process_super_mines_frame(void)
 			continue;
 		const auto parent_num = io->ctype.laser_info.parent_num;
 		const auto &bombpos = io->pos;
-		range_for (const auto &&jo, highest_valid(vobjptridx))
+		range_for (const auto &&jo, vobjptridx)
 		{
 			if (unlikely(jo == parent_num))
 				continue;

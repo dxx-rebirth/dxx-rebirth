@@ -61,7 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #define NEWHOMER
@@ -1145,7 +1144,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 #endif
 
 	objptridx_t	best_objnum = object_none;
-	range_for (const auto &&curobjp, highest_valid(vobjptridx))
+	range_for (const auto &&curobjp, vobjptridx)
 	{
 		int			is_proximity = 0;
 		fix			dot;
@@ -2113,7 +2112,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 		if (Game_mode & GM_MULTI)
 			d_srand(8321L);
 
-		range_for (const auto &&curobjp, highest_valid(vcobjptridx))
+		range_for (const auto &&curobjp, vcobjptridx)
 		{
 			if (((curobjp->type == OBJ_ROBOT && !curobjp->ctype.ai_info.CLOAKED) || curobjp->type == OBJ_PLAYER) && curobjp != parent.num)
 			{

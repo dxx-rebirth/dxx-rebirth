@@ -51,7 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 namespace dsx {
@@ -454,7 +453,7 @@ void init_controlcen_for_level(void)
 {
 	objptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
-	range_for (const auto &&objp, highest_valid(vobjptridx))
+	range_for (const auto &&objp, vobjptridx)
 	{
 		if (objp->type == OBJ_CNTRLCEN)
 		{

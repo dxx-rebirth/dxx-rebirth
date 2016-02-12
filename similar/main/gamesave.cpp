@@ -73,7 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1118,7 +1117,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//fix old wall structs
 	if (game_top_fileinfo_version < 17) {
-		range_for (const auto &&segp, highest_valid(vcsegptridx))
+		range_for (const auto &&segp, vcsegptridx)
 		{
 			for (int sidenum=0;sidenum<6;sidenum++)
 			{
@@ -1581,7 +1580,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = PHYSFS_tell(SaveFile);
-	range_for (const auto &&objp, highest_valid(vcobjptr))
+	range_for (const auto &&objp, vcobjptr)
 	{
 		write_object(objp, game_top_fileinfo_version, SaveFile);
 	}

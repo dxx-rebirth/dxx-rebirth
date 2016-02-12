@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "meddraw.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "segiter.h"
 
 #ifdef OGL
@@ -564,7 +563,7 @@ static void draw_mine_all(int automap_flag)
 
 	n_used = 0;
 
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp->segnum != segment_none)
 		{
@@ -624,7 +623,7 @@ static void draw_group_segments(void)
 static void draw_special_segments(void)
 {
 	// Highlight matcens, fuelcens, etc.
-	range_for (const auto &&segp, highest_valid(vcsegptr))
+	range_for (const auto &&segp, vcsegptr)
 	{
 		if (segp->segnum != segment_none)
 		{

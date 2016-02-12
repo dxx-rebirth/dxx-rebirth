@@ -65,7 +65,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -104,7 +103,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 		fix damage;
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
-		range_for (const auto &&obj0p, highest_valid(vobjptridx))
+		range_for (const auto &&obj0p, vobjptridx)
 		{
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will

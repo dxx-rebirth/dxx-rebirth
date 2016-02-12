@@ -38,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
@@ -160,7 +159,7 @@ static void propagate_light_intensity(const vsegptr_t segp, int sidenum)
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	range_for (const auto &&segp, highest_valid(vsegptr))
+	range_for (const auto &&segp, vsegptr)
 	{
 		for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			propagate_light_intensity(segp, side);

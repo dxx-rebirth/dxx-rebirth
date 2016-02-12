@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
-#include "highest_valid.h"
 #include "partial_range.h"
 
 static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type);
@@ -654,7 +653,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 
 		Walls.set_count(Num_walls - 2);
 
-		range_for (const auto &&segp, highest_valid(vsegptr))
+		range_for (const auto &&segp, vsegptr)
 		{
 			if (segp->segnum != segment_none)
 			for (int w=0;w<MAX_SIDES_PER_SEGMENT;w++)
@@ -907,7 +906,7 @@ int check_walls()
 	int matcen_num;
 
 	unsigned wall_count = 0;
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp->segnum != segment_none) {
 			// Check fuelcenters
@@ -974,7 +973,7 @@ int delete_all_walls()
 {
 	if (ui_messagebox(-2, -2, 2, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n", "YES!", "No") == 1)
 	{
-		range_for (const auto &&segp, highest_valid(vsegptr))
+		range_for (const auto &&segp, vsegptr)
 		{
 			range_for (auto &side, segp->sides)
 				side.wall_num = wall_none;
@@ -1079,7 +1078,7 @@ void check_wall_validity(void)
 	for (int i=0; i<MAX_WALLS; i++)
 		wall_flags[i] = 0;
 
-	range_for (const auto &&segp, highest_valid(vsegptridx))
+	range_for (const auto &&segp, vsegptridx)
 	{
 		if (segp->segnum != segment_none)
 			for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
