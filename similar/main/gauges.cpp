@@ -2569,7 +2569,8 @@ void show_reticle(int reticle_type, int secondary_display)
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
 
-	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
+	const auto color = BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]);
+	gr_setcolor(color);
 	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 
 	switch (reticle_type)
@@ -2602,7 +2603,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_X:
 			{
-			const auto color = grd_curcanv->cv_color;
 			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
 			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
 			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)), color); // bottom-left
@@ -2617,7 +2617,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_DOT:
 			{
-			const auto color = grd_curcanv->cv_color;
 				gr_disk(i2f(x), i2f(y), i2f(size/5), color);
 			if (secondary_display && secondary_bm_num == 1)
 				gr_uline(i2f(x-(size/2)-(size/5)), i2f(y-(size/2)), i2f(x-(size/5)-(size/5)), i2f(y-(size/5)), color);
@@ -2629,7 +2628,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_CIRCLE:
 			{
-			const auto color = grd_curcanv->cv_color;
 				gr_ucircle(i2f(x), i2f(y), i2f(size/4), color);
 			if (secondary_display && secondary_bm_num == 1)
 				gr_uline(i2f(x-(size/2)-(size/5)), i2f(y-(size/2)), i2f(x-(size/5)-(size/5)), i2f(y-(size/5)), color);
@@ -2641,7 +2639,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_CROSS_V1:
 			{
-				const auto color = grd_curcanv->cv_color;
 			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
 			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
 			if (secondary_display && secondary_bm_num == 1)
@@ -2654,7 +2651,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_CROSS_V2:
 			{
-				const auto color = grd_curcanv->cv_color;
 			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
 			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
 			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y), color); // horiz-left
@@ -2669,7 +2665,6 @@ void show_reticle(int reticle_type, int secondary_display)
 			break;
 		case RET_TYPE_ANGLE:
 			{
-				const auto color = grd_curcanv->cv_color;
 			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
 			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
 			if (secondary_display && secondary_bm_num == 1)
