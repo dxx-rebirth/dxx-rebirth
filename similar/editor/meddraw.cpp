@@ -99,9 +99,8 @@ static void draw_seg_objects(const vcsegptr_t seg)
 	}
 }
 
-static void draw_line(int pnum0,int pnum1)
+static void draw_line(unsigned pnum0, unsigned pnum1, const uint8_t color)
 {
-	const auto color = grd_curcanv->cv_color;
 	g3_draw_line(Segment_points[pnum0], Segment_points[pnum1], color);
 }
 
@@ -116,16 +115,17 @@ static void draw_segment(const vcsegptr_t seg)
 	{		//all off screen?
 		int i;
 
-		for (i=0;i<4;i++) draw_line(svp[i],svp[i+4]);
+		const auto color = grd_curcanv->cv_color;
+		for (unsigned i = 0; i < 4; ++i)
+			draw_line(svp[i], svp[i+4], color);
 
 		for (i=0;i<3;i++) {
-			draw_line(svp[i]  ,svp[i+1]);
-			draw_line(svp[i+4],svp[i+4+1]);
+			draw_line(svp[i], svp[i+1], color);
+			draw_line(svp[i+4], svp[i+4+1], color);
 		}
 
-		draw_line(svp[0],svp[3]);
-		draw_line(svp[0+4],svp[3+4]);
-
+		draw_line(svp[0], svp[3], color);
+		draw_line(svp[4], svp[3+4], color);
 	}
 }
 
@@ -177,11 +177,12 @@ static void draw_seg_side(const vcsegptr_t seg,int side)
 	{		//all off screen?
 		int i;
 
+		const auto color = grd_curcanv->cv_color;
+		auto &stv = Side_to_verts[side];
 		for (i=0;i<3;i++)
-			draw_line(svp[Side_to_verts[side][i]],svp[Side_to_verts[side][i+1]]);
+			draw_line(svp[stv[i]], svp[stv[i+1]], color);
 
-		draw_line(svp[Side_to_verts[side][i]],svp[Side_to_verts[side][0]]);
-
+		draw_line(svp[stv[i]], svp[stv[0]], color);
 	}
 }
 
@@ -189,7 +190,11 @@ static void draw_side_edge(const vcsegptr_t seg,int side,int edge)
 {
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)		//on screen?
-		draw_line(svp[Side_to_verts[side][edge]],svp[Side_to_verts[side][(edge+1)%4]]);
+	{
+		const auto color = grd_curcanv->cv_color;
+		auto &stv = Side_to_verts[side];
+		draw_line(svp[stv[edge]], svp[stv[(edge + 1) % 4]], color);
+	}
 }
 
 int Show_triangulations=0;
@@ -425,7 +430,9 @@ static void draw_trigger_side(const vcsegptr_t seg,int side)
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		// Draw diagonals
-		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
+		auto &stv = Side_to_verts[side];
+		const auto color = grd_curcanv->cv_color;
+		draw_line(svp[stv[0]], svp[stv[2]], color);
 	}
 }
 
@@ -436,8 +443,10 @@ static void draw_wall_side(const vcsegptr_t seg,int side)
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		// Draw diagonals
-		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
-		draw_line(svp[Side_to_verts[side][1]],svp[Side_to_verts[side][3]]);
+		auto &stv = Side_to_verts[side];
+		const auto color = grd_curcanv->cv_color;
+		draw_line(svp[stv[0]], svp[stv[2]], color);
+		draw_line(svp[stv[1]], svp[stv[3]], color);
 	}
 }
 
@@ -521,12 +530,13 @@ static void draw_mine_edges(int automap_flag)
 	seg_edge *e;
 
 	for (type=ET_NOTUSED;type>=ET_FACING;type--) {
-		gr_setcolor(edge_colors[type]);
+		const auto color = edge_colors[type];
+		gr_setcolor(color);
 		for (i=0;i<n_used;i++) {
 			e = &edge_list[used_list[i]];
 			if (e->type == type)
 				if ((!automap_flag) || (e->face_count == 1))
-					draw_line(e->v.n.v0,e->v.n.v1);
+					draw_line(e->v.n.v0, e->v.n.v1, color);
 		}
 	}
 }
@@ -733,25 +743,26 @@ static void draw_coordinate_axes(void)
 
 	rotate_list(Axes_verts);
 
-	gr_setcolor(AXIS_COLOR);
+	const uint8_t color = AXIS_COLOR;
+	gr_setcolor(color);
 
-	draw_line(Axes_verts[0],Axes_verts[1]);
-	draw_line(Axes_verts[0],Axes_verts[2]);
-	draw_line(Axes_verts[0],Axes_verts[3]);
+	draw_line(Axes_verts[0], Axes_verts[1], color);
+	draw_line(Axes_verts[0], Axes_verts[2], color);
+	draw_line(Axes_verts[0], Axes_verts[3], color);
 
 	// draw the letter X
-	draw_line(Axes_verts[4],Axes_verts[5]);
-	draw_line(Axes_verts[6],Axes_verts[7]);
+	draw_line(Axes_verts[4], Axes_verts[5], color);
+	draw_line(Axes_verts[6], Axes_verts[7], color);
 
 	// draw the letter Y
-	draw_line(Axes_verts[8],Axes_verts[9]);
-	draw_line(Axes_verts[8],Axes_verts[10]);
-	draw_line(Axes_verts[8],Axes_verts[11]);
+	draw_line(Axes_verts[8], Axes_verts[9], color);
+	draw_line(Axes_verts[8], Axes_verts[10], color);
+	draw_line(Axes_verts[8], Axes_verts[11], color);
 
 	// draw the letter Z
-	draw_line(Axes_verts[12],Axes_verts[13]);
-	draw_line(Axes_verts[13],Axes_verts[14]);
-	draw_line(Axes_verts[14],Axes_verts[15]);
+	draw_line(Axes_verts[12], Axes_verts[13], color);
+	draw_line(Axes_verts[13], Axes_verts[14], color);
+	draw_line(Axes_verts[14], Axes_verts[15], color);
 
 	for (i=0; i<16; i++)
 		free_vert(Axes_verts[i]);
