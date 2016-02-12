@@ -421,14 +421,13 @@ static void add_edges(const vcsegptridx_t seg)
 }
 
 // ----------------------------------------------------------------------------
-static void draw_trigger_side(const vcsegptr_t seg,int side)
+static void draw_trigger_side(const vcsegptr_t seg,int side, const uint8_t color)
 {
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
-		const auto color = grd_curcanv->cv_color;
 		draw_line(svp[stv[0]], svp[stv[2]], color);
 	}
 }
@@ -486,8 +485,7 @@ static void draw_special_wall(const vcsegptr_t seg, int side )
 
 	if (w.trigger != trigger_none)
 	{
-		gr_setcolor(TRIGGER_COLOR);
-		draw_trigger_side(seg,side);
+		draw_trigger_side(seg,side, TRIGGER_COLOR);
 	}
 }
 
