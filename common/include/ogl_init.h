@@ -37,10 +37,12 @@
 # endif
 #endif
 
+#include "dxxsconf.h"
 #include "fwd-gr.h"
 #include "palette.h"
 #include "pstypes.h"
 #include "3d.h"
+#include "compiler-array.h"
 
 #ifndef GL_VERSION_1_1
 #ifdef GL_EXT_texture
@@ -91,8 +93,31 @@ void ogl_start_frame(void);
 void ogl_end_frame(void);
 void ogl_set_screen_mode(void);
 
+struct ogl_colors
+{
+	using array_type = array<GLfloat, 16>;
+	static const array_type white;
+	const array_type &init(int c)
+	{
+		return
+#ifdef DXX_CONSTANT_TRUE
+			DXX_CONSTANT_TRUE(c == -1)
+			? white
+			: DXX_CONSTANT_TRUE(c != -1)
+				? init_palette(c)
+				:
+#endif
+		init_maybe_white(c);
+	}
+	const array_type &init_maybe_white(int c);
+	const array_type &init_palette(unsigned c);
+private:
+	array_type a;
+};
+
 void ogl_urect(int left, int top, int right, int bot);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale);
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &c, int scale);
 bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt);
 bool ogl_ubitblt(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 void ogl_upixelc(int x, int y, int c);

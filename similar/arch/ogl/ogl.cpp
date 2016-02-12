@@ -1644,12 +1644,43 @@ void ogl_freebmtexture(grs_bitmap &bm)
 		ogl_freetexture(*exchange(gltexture, nullptr));
 }
 
+const ogl_colors::array_type ogl_colors::white = {{
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+}};
+
+const ogl_colors::array_type &ogl_colors::init_maybe_white(int c)
+{
+	return c == -1 ? white : init_palette(c);
+}
+
+const ogl_colors::array_type &ogl_colors::init_palette(unsigned c)
+{
+	const auto &rgb = gr_current_pal[c];
+	const GLfloat r = rgb.r / 63.0, g = rgb.g / 63.0, b = rgb.b / 63.0;
+	a = {{
+		r, g, b, 1.0,
+		r, g, b, 1.0,
+		r, g, b, 1.0,
+		r, g, b, 1.0,
+	}};
+	return a;
+}
+
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
+{
+	ogl_colors color;
+	return ogl_ubitmapm_cs(x, y, dw, dh, bm, color.init(c), scale);
+}
+
 /*
  * Menu / gauges 
  */
-bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &color_array, int scale) // to scale bitmaps
 {
-	GLfloat yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
+	GLfloat yo,xf,yf,u1,u2,v1,v2,h;
 	ogl_client_states<GLfloat, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &xo = std::get<0>(cs);
 	x+=grd_curcanv->cv_bitmap.bm_x;
@@ -1700,27 +1731,11 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scal
 		v2=(bm.bm_h+bm.bm_y)/(float)bm.gltexture->th;
 	}
 
-	if (c < 0) {
-		color_r = 1.0;
-		color_g = 1.0;
-		color_b = 1.0;
-	} else {
-		color_r = CPAL2Tr(c);
-		color_g = CPAL2Tg(c);
-		color_b = CPAL2Tb(c);
-	}  
-
 	const array<GLfloat, 8> vertex_array{{
 		xo, yo,
 		xf, yo,
 		xf, yf,
 		xo, yf,
-	}};
-	const array<GLfloat, 16> color_array{{
-		color_r, color_g, color_b, 1.0,
-		color_r, color_g, color_b, 1.0,
-		color_r, color_g, color_b, 1.0,
-		color_r, color_g, color_b, 1.0,
 	}};
 	const array<GLfloat, 8> texcoord_array{{
 		u1, v1,
