@@ -25,9 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void Hline(short x1, short x2, short y )
+void Hline(short x1, short x2, short y, const uint8_t color)
 {
-	const auto color = grd_curcanv->cv_color;
 	gr_uline(i2f(x1), i2f(y), i2f(x2), i2f(y), color);
 }
 
@@ -54,11 +53,11 @@ void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 )
 {
 	gr_setcolor( c1 );
 
-	Hline( x1+0, x2-1, y1+0 );
+	Hline(x1+0, x2-1, y1+0, c1);
 	Vline( y1+1, y2+0, x1+0 );
 
 	gr_setcolor( c2 );
-	Hline( x1+1, x2, y2-0 );
+	Hline(x1+1, x2, y2-0, c2);
 	Vline( y1+0, y2-1, x2-0 );
 }
 
@@ -77,10 +76,6 @@ void ui_draw_frame( short x1, short y1, short x2, short y2 )
 	ui_draw_shad( x1+7, y1+7, x2-7, y2-7, CGREY, CBRIGHT );
 
 }
-
-
-
-
 
 void ui_draw_box_out( short x1, short y1, short x2, short y2 )
 {
@@ -103,25 +98,22 @@ void ui_draw_box_in( short x1, short y1, short x2, short y2 )
 	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CGREY, CBRIGHT );
 }
 
-
 void ui_draw_line_in( short x1, short y1, short x2, short y2 )
 {
+	const uint8_t cgrey = CGREY;
+	const uint8_t cbright = CBRIGHT;
 	gr_setcolor( CGREY );
-	Hline( x1, x2, y1 );
-	Hline( x1, x2-1, y2-1 );
+	Hline(x1, x2, y1, cgrey);
+	Hline(x1, x2-1, y2-1, cgrey);
 	Vline( y1+1, y2-2, x1 );
 	Vline( y1+1, y2-2, x2-1 );
 
 	gr_setcolor( CBRIGHT );
-	Hline( x1+1, x2-1, y1+1 );
-	Hline( x1, x2, y2 );
+	Hline(x1+1, x2-1, y1+1, cbright);
+	Hline(x1, x2, y2, cbright);
 	Vline( y1+2, y2-2, x1+1 );
 	Vline( y1+1, y2-1, x2 );
 
 }
-
-
-
-
 
 }

@@ -232,9 +232,9 @@ extern grs_font_ptr ui_small_font;
 extern unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 extern UI_GADGET * selected_gadget;
 
-#define Hline(x1,x2,y)	Hline(x1,y,x2)
+#define Hline(x1,x2,y,c)	Hline(x1,y,x2,c)
 #define Vline(y1,y2,x)	Vline(x,y1,y2)
-extern void Hline(short x1, short x2, short y );
+void Hline(short x1, short x2, short y, uint8_t color);
 extern void Vline(short y1, short y2, short x );
 extern void ui_string_centered( short x, short y, const char * s );
 extern void ui_draw_box_out( short x1, short y1, short x2, short y2 );

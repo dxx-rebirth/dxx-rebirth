@@ -77,10 +77,10 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 		ui_string_centered( m->width/2, m->text_y, m->text );
 		
 		gr_setcolor( CGREY );
-		Hline(1, m->width-2, m->line_y+1 );
+		Hline(1, m->width-2, m->line_y+1, CGREY);
 		
 		gr_setcolor( CBRIGHT );
-		Hline(2, m->width-2, m->line_y+2 );
+		Hline(2, m->width-2, m->line_y+2, CBRIGHT);
 
 		grd_curscreen->sc_canvas.cv_font = temp_font;
 		
