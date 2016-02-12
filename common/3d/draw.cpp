@@ -123,7 +123,7 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
+void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const uint8_t color)
 {
 	g3s_codes cc;
 
@@ -141,7 +141,6 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 	if (cc.uand)
 		return;	//all points off screen
 
-	const auto color = grd_curcanv->cv_color;
 	if (cc.uor)
 	{
 		must_clip_flat_face(nv,cc,Vbuf0,Vbuf1, color);

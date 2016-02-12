@@ -189,17 +189,17 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist);
+void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *pointlist, uint8_t color);
 template <std::size_t N>
-static inline void g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
-	_g3_draw_poly(nv, &pointlist[0]);
+	_g3_draw_poly(nv, &pointlist[0], color);
 }
 
 template <std::size_t N>
-static inline void g3_draw_poly(const array<cg3s_point *, N> &pointlist)
+static inline void g3_draw_poly(const array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
-	g3_draw_poly(N, pointlist);
+	g3_draw_poly(N, pointlist, color);
 }
 
 static const std::size_t MAX_POINTS_PER_POLY = 25;
@@ -246,10 +246,10 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlist)
+static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlist, const uint8_t color)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_poly(pointlist);
+		g3_draw_poly(pointlist, color);
 }
 
 template <std::size_t N>

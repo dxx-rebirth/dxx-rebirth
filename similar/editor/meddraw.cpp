@@ -141,7 +141,9 @@ static void check_segment(const vsegptridx_t seg)
 #ifdef OGL
 		g3_start_frame();
 #endif
-		gr_setcolor(1);					//and render in color one
+		{
+		const uint8_t color = 1;
+		gr_setcolor(color);					//and render in color one
 
 		range_for (auto &fn, Side_to_verts)
 		{
@@ -149,12 +151,12 @@ static void check_segment(const vsegptridx_t seg)
 			vert_list[0] = &Segment_points[seg->verts[fn[0]]];
 			vert_list[1] = &Segment_points[seg->verts[fn[1]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[2]]];
-			g3_check_and_draw_poly(vert_list);
+			g3_check_and_draw_poly(vert_list, color);
 
 			vert_list[1] = &Segment_points[seg->verts[fn[2]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[3]]];
-			g3_check_and_draw_poly(vert_list);
-
+			g3_check_and_draw_poly(vert_list, color);
+		}
 		}
 
 		if (gr_ugpixel(grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)

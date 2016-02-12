@@ -235,7 +235,7 @@ public:
 					: gr_find_closest_color_15bpp(w(p + 28));
 #endif
 				gr_setcolor(color);
-				g3_draw_poly(nv,point_list);
+				g3_draw_poly(nv,point_list, color);
 			}
 		}
 	}
@@ -366,7 +366,7 @@ public:
 			point_list[i] = &Interp_point_list[wp(p+30)[i]];
 		for (ntris=nv-2;ntris;ntris--) {
 			point_list[2] = &Interp_point_list[wp(p+30)[i++]];
-			g3_check_and_draw_poly(point_list);
+			g3_check_and_draw_poly(point_list, color);
 			point_list[1] = point_list[2];
 		}
 	}

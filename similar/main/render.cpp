@@ -245,10 +245,10 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		auto wall_num = segp->sides[sidenum].wall_num;
 		Assert(wall_num != wall_none);
 		gr_settransblend(vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
-		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
+		const uint8_t color = BM_XRGB(0, 0, 0);
+		gr_setcolor(color);  // set to black (matters for s3)
 
-		g3_draw_poly(nv, pointlist);    // draw as flat poly
-
+		g3_draw_poly(nv, pointlist, color);    // draw as flat poly
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
@@ -397,14 +397,17 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #ifdef OGL
 		ogl_start_frame();
 #endif
-		gr_setcolor(1);					//and render in color one
+		{
+			const uint8_t color = 1;
+			gr_setcolor(color);					//and render in color one
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 #ifdef OGL
-		g3_draw_poly(nv,pointlist);
+		g3_draw_poly(nv,pointlist, color);
 #else
 		g3_draw_tmap(nv,pointlist, uvl_copy, dyn_light, *bm);
 #endif
+		}
 		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {

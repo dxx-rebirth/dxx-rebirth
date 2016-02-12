@@ -839,7 +839,7 @@ int gr_disk(fix x,fix y,fix r, const uint8_t c)
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
+void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist, const uint8_t c)
 {
 	int index3, index4;
 	float color_r, color_g, color_b, color_a;
@@ -850,8 +850,6 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 
 	r_polyc++;
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
-	auto &c = std::get<0>(cs);
-	c = grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
 	color_r = PAL2Tr(c);
 	color_g = PAL2Tg(c);
@@ -862,7 +860,8 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist)
 	else
 		color_a = 1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
 
-	for (c=0; c<nv; c++){
+	for (unsigned c=0; c < nv; ++c)
+	{
 		index3 = c * 3;
 		index4 = c * 4;
 		color_array[index4]    = color_r;
