@@ -1189,19 +1189,24 @@ void ogl_toggle_depth_test(int enable)
  */
 void ogl_set_blending(uint8_t cv_blend_func)
 {
+	GLenum s, d;
 	switch (cv_blend_func)
 	{
 		case GR_BLEND_ADDITIVE_A:
-			glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+			s = GL_SRC_ALPHA;
+			d = GL_ONE;
 			break;
 		case GR_BLEND_ADDITIVE_C:
-			glBlendFunc( GL_ONE, GL_ONE );
+			s = GL_ONE;
+			d = GL_ONE;
 			break;
 		case GR_BLEND_NORMAL:
 		default:
-			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+			s = GL_SRC_ALPHA;
+			d = GL_ONE_MINUS_SRC_ALPHA;
 			break;
 	}
+	glBlendFunc(s, d);
 }
 
 void ogl_start_frame(void){
