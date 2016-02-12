@@ -35,13 +35,13 @@ namespace dcx {
 
 void gr_urect(int left,int top,int right,int bot)
 {
+	const auto color = COLOR;
 #ifdef OGL
 	if (TYPE == BM_OGL) {
-		ogl_urect(left,top,right,bot);
+		ogl_urect(left,top,right,bot, color);
 		return;
 	}
 #else
-	const auto color = COLOR;
 	for ( int i=top; i<=bot; i++ )
 		gr_uscanline(left, right, i, color);
 #endif
@@ -49,13 +49,13 @@ void gr_urect(int left,int top,int right,int bot)
 
 void gr_rect(int left,int top,int right,int bot)
 {
+	const auto color = COLOR;
 #ifdef OGL
 	if (TYPE == BM_OGL) {
-		ogl_urect(left,top,right,bot);
+		ogl_urect(left,top,right,bot, color);
 		return;
 	}
 #endif
-	const auto color = COLOR;
 	for ( int i=top; i<=bot; i++ )
 		gr_scanline(left, right, i, color);
 }

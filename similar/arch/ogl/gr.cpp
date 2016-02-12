@@ -875,12 +875,11 @@ unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
 }
 
-void ogl_urect(int left,int top,int right,int bot)
+void ogl_urect(int left,int top,int right,int bot, const int c)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	int c=COLOR;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
