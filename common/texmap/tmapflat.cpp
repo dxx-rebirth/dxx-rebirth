@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert);
+static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert, uint8_t color);
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline.
@@ -181,7 +181,8 @@ static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert)
 {
-	gr_upoly_tmap_ylr(nverts, vert.data());
+	const auto color = COLOR;
+	gr_upoly_tmap_ylr(nverts, vert.data(), color);
 }
 
 struct pnt2d {
@@ -219,13 +220,13 @@ void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *c
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
-	gr_upoly_tmap_ylr(nverts, ipoints.data());
+	gr_upoly_tmap_ylr(nverts, ipoints.data(), color);
 }
 
 //	-----------------------------------------------------------------------------------------
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
 //function with ylr values
-static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert)
+static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert, const uint8_t color)
 {
 	auto &ylr_func = tmap_scanline_flat;
 	g3ds_tmap	my_tmap;
@@ -236,7 +237,7 @@ static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert)
 		i.x2d = *vert++;
 		i.y2d = *vert++;
 	}
-	texture_map_flat(my_tmap, COLOR, ylr_func);
+	texture_map_flat(my_tmap, color, ylr_func);
 }
 
 }
