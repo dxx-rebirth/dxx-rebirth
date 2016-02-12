@@ -276,18 +276,17 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 				if (width)
 				{
+					auto data = &DATA[VideoOffset];
+					const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
 				if (underline)
 				{
-					std::fill_n(&DATA[VideoOffset], width, grd_curcanv->cv_font_fg_color);
-					VideoOffset += width;
+					std::fill_n(data, width, cv_font_fg_color);
 				}
 				else
 				{
 					auto fp = proportional ? cv_font.ft_chars[letter] : &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 					fp += BITS_TO_BYTES(width)*r;
 
-					const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
-					auto data = &DATA[VideoOffset];
 					/* Setting bits=0 is a dead store, but is necessary to
 					 * prevent -Og -Wuninitialized from issuing a bogus
 					 * warning.  -Og does not see that bits_remaining=0
@@ -312,10 +311,9 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 						}
 						*data = bit_enabled ? cv_font_fg_color : cv_font_bg_color;
 					}
-					VideoOffset += width;
 				}
 				}
-				VideoOffset += spacing-width;
+				VideoOffset += spacing;
 			}
 			VideoOffset1 += ROWSIZE;
 			y++;
