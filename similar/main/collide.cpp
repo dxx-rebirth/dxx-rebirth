@@ -134,24 +134,29 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 	{
 		auto	wall_num = hitseg->sides[hitwall].wall_num;
 		if (wall_num != wall_none) {
-			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
+			auto &w = *vcwallptr(wall_num);
+			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
+			{
 				wall_open_door(hitseg, hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
 			//-- } else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys != KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 			}
 #if defined(DXX_BUILD_DESCENT_II)
-			else if ((robot_is_companion(robptr) == 1) && (Walls[wall_num].type == WALL_DOOR)) {
+			else if (robot_is_companion(robptr) && w.type == WALL_DOOR)
+			{
 				ai_local		*ailp = &robot->ctype.ai_info.ail;
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
-					if (Walls[wall_num].keys != KEY_NONE) {
-						if (get_local_player_flags() & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
+					if (w.keys != KEY_NONE)
+					{
+						if (get_local_player_flags() & static_cast<PLAYER_FLAG>(w.keys))
 							wall_open_door(hitseg, hitwall);
-					} else if (!(Walls[wall_num].flags & WALL_DOOR_LOCKED))
+					}
+					else if (!(w.flags & WALL_DOOR_LOCKED))
 						wall_open_door(hitseg, hitwall);
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
-				if (Walls[wall_num].keys != KEY_NONE)
-					if (get_local_player_flags() & static_cast<PLAYER_FLAG>(Walls[wall_num].keys))
+				if (w.keys != KEY_NONE)
+					if (get_local_player_flags() & static_cast<PLAYER_FLAG>(w.keys))
 						wall_open_door(hitseg, hitwall);
 			}
 #endif
@@ -543,7 +548,7 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 	if (Game_mode & GM_MULTI)
 		trigger_check = (!(blower.parent_type == OBJ_PLAYER && (blower.parent_num == get_local_player().objnum || remote)));
 	if ( wall_num != wall_none )
-		if (Walls[wall_num].trigger != trigger_none)
+		if (vcwallptr(wall_num)->trigger != trigger_none)
 			is_trigger = 1;
 	if (trigger_check && is_trigger)
 		return(0);

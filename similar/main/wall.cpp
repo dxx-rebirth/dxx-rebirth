@@ -90,7 +90,7 @@ static uint_fast32_t check_transparency(const side &side)
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
 WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 {
-	const auto &w = Walls[side.wall_num];
+	auto &w = *vcwallptr(side.wall_num);
 	const auto type = w.type;
 	if (type == WALL_OPEN)
 		return WID_NO_WALL;
@@ -187,31 +187,29 @@ void wall_set_tmap_num(const vsegptridx_t seg,int side,const vsegptridx_t csegp,
 //when the wall has used all its hitpoints, this will destroy it
 static void blast_blastable_wall(const vsegptridx_t seg, int side)
 {
-	int a, n, cwall_num;
-
-	Assert(seg->sides[side].wall_num != wall_none);
-
-	Walls[seg->sides[side].wall_num].hps = -1;	//say it's blasted
+	auto &w0 = *vwallptr(seg->sides[side].wall_num);
+	w0.hps = -1;	//say it's blasted
 
 	const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	cwall_num = csegp->sides[Connectside].wall_num;
+	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	const auto &&w1 = wallptr(cwall_num);
 	kill_stuck_objects(seg->sides[side].wall_num);
-	if (cwall_num > -1)
+	if (w1)
 		kill_stuck_objects(cwall_num);
 
+	const auto a = w0.clip_num;
 	//if this is an exploding wall, explode it
-	if (WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES)
+	if (WallAnims[a].flags & WCF_EXPLODES)
 		explode_wall(seg,side);
 	else {
 		//if not exploding, set final frame, and make door passable
-		a = Walls[seg->sides[side].wall_num].clip_num;
-		n = WallAnims[a].num_frames;
+		const auto n = WallAnims[a].num_frames;
+		w0.flags |= WALL_BLASTED;
+		if (w1)
+			w1->flags |= WALL_BLASTED;
 		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
-		Walls[seg->sides[side].wall_num].flags |= WALL_BLASTED;
-		if (cwall_num > -1)
-			Walls[cwall_num].flags |= WALL_BLASTED;
 	}
 
 }
@@ -221,9 +219,8 @@ static void blast_blastable_wall(const vsegptridx_t seg, int side)
 // Destroys a blastable wall.
 void wall_destroy(const vsegptridx_t seg, int side)
 {
-	Assert(seg->sides[side].wall_num != wall_none);
-
-	if (Walls[seg->sides[side].wall_num].type == WALL_BLASTABLE)
+	auto &w = *vwallptr(seg->sides[side].wall_num);
+	if (w.type == WALL_BLASTABLE)
 		blast_blastable_wall( seg, side );
 	else
 		Error("Hey bub, you are trying to destroy an indestructable wall.");
@@ -233,36 +230,38 @@ void wall_destroy(const vsegptridx_t seg, int side)
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(const vsegptridx_t seg, int side, fix damage)
 {
-	int a, i, n, cwall_num;
+	int i;
 
 	if (seg->sides[side].wall_num == wall_none) {
 		return;
 	}
 
-	if (Walls[seg->sides[side].wall_num].type != WALL_BLASTABLE)
+	auto &w0 = *vwallptr(seg->sides[side].wall_num);
+	if (w0.type != WALL_BLASTABLE)
 		return;
 	
-	if (!(Walls[seg->sides[side].wall_num].flags & WALL_BLASTED) && Walls[seg->sides[side].wall_num].hps >= 0)
+	if (!(w0.flags & WALL_BLASTED) && w0.hps >= 0)
 		{
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
-		cwall_num = csegp->sides[Connectside].wall_num;
-		Walls[seg->sides[side].wall_num].hps -= damage;
-		if (cwall_num > -1)
-			Walls[cwall_num].hps -= damage;
-			
-		a = Walls[seg->sides[side].wall_num].clip_num;
-		n = WallAnims[a].num_frames;
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		if (const auto &&w1 = wallptr(cwall_num))
+			w1->hps -= damage;
+		w0.hps -= damage;
+
+		const auto a = w0.clip_num;
+		const auto n = WallAnims[a].num_frames;
 		
-		if (Walls[seg->sides[side].wall_num].hps < WALL_HPS*1/n) {
+		if (w0.hps < WALL_HPS*1/n) {
 			blast_blastable_wall( seg, side );			
 			if (Game_mode & GM_MULTI)
-				multi_send_door_open(seg, side,Walls[seg->sides[side].wall_num].flags);
+				multi_send_door_open(seg, side, w0.flags);
 		}
 		else
 			for (i=0;i<n;i++)
-				if (Walls[seg->sides[side].wall_num].hps < WALL_HPS*(n-i)/n) {
+				if (w0.hps < WALL_HPS*(n-i)/n)
+				{
 					wall_set_tmap_num(seg,side,csegp,Connectside,a,i);
 				}
 		}
@@ -273,13 +272,10 @@ void wall_damage(const vsegptridx_t seg, int side, fix damage)
 // Opens a door
 void wall_open_door(const vsegptridx_t seg, int side)
 {
-	wall *w;
 	active_door *d;
-	int cwall_num = -1;
-	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
-	auto wall_num = seg->sides[side].wall_num;
-	w = &Walls[wall_num];
+	const auto wall_num = seg->sides[side].wall_num;
+	wall *const w = vwallptr(wall_num);
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
@@ -339,10 +335,10 @@ void wall_open_door(const vsegptridx_t seg, int side)
 	auto Connectside = find_connect_side(seg, csegp);
 	if (Connectside != side_none)
 	{
-		cwall_num = csegp->sides[Connectside].wall_num;
-		if (cwall_num > -1)
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		if (const auto &&w1 = wallptr(cwall_num))
 		{
-			Walls[cwall_num].state = WALL_DOOR_OPENING;
+			w1->state = WALL_DOOR_OPENING;
 			d->back_wallnum[0] = cwall_num;
 		}
 		d->front_wallnum[0] = seg->sides[side].wall_num;
@@ -356,9 +352,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 
 	if (w->linked_wall != wall_none)
 	{
-		wall *w2;
-
-		w2		= &Walls[w->linked_wall];
+		wall *const w2 = vwallptr(w->linked_wall);
 
 		Assert(w2->linked_wall == seg->sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
@@ -368,8 +362,9 @@ void wall_open_door(const vsegptridx_t seg, int side)
 		const auto &&seg2 = vcsegptridx(w2->segnum);
 		Connectside = find_connect_side(seg2, vcsegptr(seg2->children[w2->sidenum]));
 		Assert(Connectside != side_none);
-		if (cwall_num > -1)
-			Walls[cwall_num].state = WALL_DOOR_OPENING;
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		if (const auto &&w3 = wallptr(cwall_num))
+			w3->state = WALL_DOOR_OPENING;
 
 		d->n_parts = 2;
 		d->front_wallnum[1] = w->linked_wall;
@@ -394,16 +389,15 @@ void wall_open_door(const vsegptridx_t seg, int side)
 //  door texture.  This is called when the animation is done
 void wall_close_door(int door_num)
 {
-	int p;
 	active_door *d;
 	int i;
 
 	d = &ActiveDoors[door_num];
 
-	for (p=0;p<d->n_parts;p++) {
-		wall *w;
+	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
+	{
+		wall *const w = vwallptr(p);
 		int side;
-		w = &Walls[d->front_wallnum[p]];
 
 		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
@@ -414,8 +408,8 @@ void wall_close_door(int door_num)
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 
-		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
-		Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSED;
+		w->state = WALL_DOOR_CLOSED;
+		vwallptr(csegp->sides[Connectside].wall_num)->state = WALL_DOOR_CLOSED;
 
 		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
 
@@ -433,15 +427,12 @@ void wall_close_door(int door_num)
 // start the transition from closed -> open wall
 void start_wall_cloak(const vsegptridx_t seg, int side)
 {
-	wall *w;
 	cloaking_wall *d;
-	int i, cwall_num;
+	int i;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
-
-	w = &Walls[seg->sides[side].wall_num];
+	const auto &&w = vwallptridx(seg->sides[side].wall_num);
 
 	if (w->type == WALL_OPEN || w->state == WALL_DOOR_CLOAKING)		//already open or cloaking
 		return;
@@ -449,7 +440,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	cwall_num = csegp->sides[Connectside].wall_num;
+	const auto cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
 
@@ -460,16 +451,15 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 		for (i=0;i<Num_cloaking_walls;i++) {		//find door
 
 			d = &CloakingWalls[i];
-	
-			if (d->front_wallnum==w-Walls || d->back_wallnum==w-Walls )
+			if (d->front_wallnum == w || d->back_wallnum == w)
+			{
+				d->time = CLOAKING_WALL_TIME - d->time;
 				break;
+			}
 		}
 
 		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
-
-		d->time = CLOAKING_WALL_TIME - d->time;
-
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
 		d = &CloakingWalls[Num_cloaking_walls];
@@ -477,8 +467,8 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 		if (Num_cloaking_walls >= MAX_CLOAKING_WALLS) {		//no more!
 			Int3();		//ran out of cloaking wall slots
 			w->type = WALL_OPEN;
-			if (cwall_num > -1)
-				Walls[cwall_num].type = WALL_OPEN;
+			if (const auto &&w1 = wallptr(cwall_num))
+				w1->type = WALL_OPEN;
 			return;
 		}
 		Num_cloaking_walls++;
@@ -489,8 +479,8 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	}
 
 	w->state = WALL_DOOR_CLOAKING;
-	if (cwall_num > -1)
-		Walls[cwall_num].state = WALL_DOOR_CLOAKING;
+	if (const auto &&w1 = wallptr(cwall_num))
+		w1->state = WALL_DOOR_CLOAKING;
 
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = cwall_num;
@@ -503,7 +493,6 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 
 	for (i=0;i<4;i++) {
 		d->front_ls[i] = seg->sides[side].uvls[i].l;
-		if (cwall_num > -1)
 			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
 	}
 }
@@ -512,15 +501,14 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 // start the transition from open -> closed wall
 void start_wall_decloak(const vsegptridx_t seg, int side)
 {
-	wall *w;
 	cloaking_wall *d;
-	int i, cwall_num;
+	int i;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
 
-	w = &Walls[seg->sides[side].wall_num];
+	const auto &&w = vwallptridx(seg->sides[side].wall_num);
 
 	if (w->type == WALL_CLOSED || w->state == WALL_DOOR_DECLOAKING)		//already closed or decloaking
 		return;
@@ -535,15 +523,15 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 
 			d = &CloakingWalls[i];
 	
-			if (d->front_wallnum==w-Walls || d->back_wallnum==w-Walls )
+			if (d->front_wallnum == w || d->back_wallnum == w)
+			{
+				d->time = CLOAKING_WALL_TIME - d->time;
 				break;
+			}
 		}
 
 		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
-
-		d->time = CLOAKING_WALL_TIME - d->time;
-
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
 		d = &CloakingWalls[Num_cloaking_walls];
@@ -569,9 +557,9 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	auto Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	cwall_num = csegp->sides[Connectside].wall_num;
-	if (cwall_num > -1)
-		Walls[cwall_num].state = WALL_DOOR_DECLOAKING;
+	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	if (const auto &&w1 = wallptr(cwall_num))
+		w1->state = WALL_DOOR_DECLOAKING;
 
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = csegp->sides[Connectside].wall_num;
@@ -584,7 +572,6 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 
 	for (i=0;i<4;i++) {
 		d->front_ls[i] = seg->sides[side].uvls[i].l;
-		if (cwall_num > -1)
 			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
 	}
 }
@@ -595,33 +582,31 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 //  door texture.  This is called when the animation is done
 void wall_close_door_num(int door_num)
 {
-	int p;
 	active_door *d;
-	int i, cwall_num;
+	int i;
 
 	d = &ActiveDoors[door_num];
 
-	for (p=0;p<d->n_parts;p++) {
-		wall *w;
+	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
+	{
 		int side;
 
-		w = &Walls[d->front_wallnum[p]];
+		wall *const w = vwallptr(p);
 
 		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
+		w->state = WALL_DOOR_CLOSED;
 
 		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
 
 		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
 		auto Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
-		cwall_num = csegp->sides[Connectside].wall_num;
-		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
-		if (cwall_num > -1)
-			Walls[cwall_num].state = WALL_DOOR_CLOSED;
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		if (const auto &&w1 = wallptr(cwall_num))
+			w1->state = WALL_DOOR_CLOSED;
 
 		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
-
 	}
 	
 	for (i=door_num;i<Num_open_doors;i++)
@@ -673,14 +658,10 @@ static int is_door_free(const vcsegptridx_t seg,int side)
 // Closes a door
 void wall_close_door(const vsegptridx_t seg, int side)
 {
-	wall *w;
 	active_door *d;
-	int wall_num, cwall_num;
 
-	Assert(seg->sides[side].wall_num != wall_none); 	//Opening door on illegal wall
-
-	w = &Walls[seg->sides[side].wall_num];
-	wall_num = w - Walls;
+	const auto wall_num = seg->sides[side].wall_num;
+	wall *const w = vwallptr(wall_num);
 	if ((w->state == WALL_DOOR_CLOSING) ||		//already closing
 		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
 		 (w->state == WALL_DOOR_CLOSED))			//closed
@@ -727,9 +708,9 @@ void wall_close_door(const vsegptridx_t seg, int side)
 	const auto &&csegp = vcsegptr(seg->children[side]);
 	const auto &&Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != side_none);
-	cwall_num = csegp->sides[Connectside].wall_num;
-	if (cwall_num > -1)
-		Walls[cwall_num].state = WALL_DOOR_CLOSING;
+	const auto cwall_num = csegp->sides[Connectside].wall_num;
+	if (const auto &&w1 = wallptr(cwall_num))
+		w1->state = WALL_DOOR_CLOSING;
 
 	d->front_wallnum[0] = seg->sides[side].wall_num;
 	d->back_wallnum[0] = cwall_num;
@@ -771,12 +752,11 @@ void do_door_open(int door_num)
 	d = &ActiveDoors[door_num];
 
 	for (p=0;p<d->n_parts;p++) {
-		wall *w;
 		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
 
-		w = &Walls[d->front_wallnum[p]];
+		wall *const w = vwallptr(d->front_wallnum[p]);
 		kill_stuck_objects(d->front_wallnum[p]);
 		kill_stuck_objects(d->back_wallnum[p]);
 
@@ -807,28 +787,30 @@ void do_door_open(int door_num)
 		if (i < n)
 			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,i);
 
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto &&w1 = vwallptr(cwall_num);
 		if (i> n/2) {
-			Walls[seg->sides[side].wall_num].flags |= WALL_DOOR_OPENED;
-			Walls[csegp->sides[Connectside].wall_num].flags |= WALL_DOOR_OPENED;
+			w->flags |= WALL_DOOR_OPENED;
+			w1->flags |= WALL_DOOR_OPENED;
 		}
 
 		if (i >= n-1) {
 			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,n-1);
 
 			// If our door is not automatic just remove it from the list.
-			if (!(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO)) {
+			if (!(w->flags & WALL_DOOR_AUTO)) {
 				for (i=door_num;i<Num_open_doors;i++)
 					ActiveDoors[i] = ActiveDoors[i+1];
 				Num_open_doors--;
 #if defined(DXX_BUILD_DESCENT_II)
-				Walls[seg->sides[side].wall_num].state = WALL_DOOR_OPEN;
-				Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_OPEN;
+				w->state = WALL_DOOR_OPEN;
+				w1->state = WALL_DOOR_OPEN;
 #endif
 			}
 			else {
 
-				Walls[seg->sides[side].wall_num].state = WALL_DOOR_WAITING;
-				Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_WAITING;
+				w->state = WALL_DOOR_WAITING;
+				w1->state = WALL_DOOR_WAITING;
 
 				ActiveDoors[Num_open_doors].time = 0;	//counts up
 			}
@@ -845,13 +827,12 @@ void do_door_close(int door_num)
 {
 	int p;
 	active_door *d;
-	wall *w;
 
 	Assert(door_num != -1);		//Trying to do_door_open on illegal door
 
 	d = &ActiveDoors[door_num];
 
-	w = &Walls[d->front_wallnum[0]];
+	wall *const w = vwallptr(d->front_wallnum[0]);
 
 	const auto &&wsegp = vsegptridx(w->segnum);
 
@@ -866,12 +847,11 @@ void do_door_close(int door_num)
 		}
 
 	for (p=0;p<d->n_parts;p++) {
-		wall *w;
 		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
 
-		w = &Walls[d->front_wallnum[p]];
+		wall *const w = vwallptr(d->front_wallnum[p]);
 
 		const auto &seg = wsegp;
 		side = w->sidenum;
@@ -883,7 +863,7 @@ void do_door_close(int door_num)
 #if defined(DXX_BUILD_DESCENT_I)
 		//if here, must be auto door
 //don't assert here, because now we have triggers to close non-auto doors
-		Assert(Walls[seg->sides[side].wall_num].flags & WALL_DOOR_AUTO);
+		Assert(w->flags & WALL_DOOR_AUTO);
 #endif
 
 		// Otherwise, close it.
@@ -898,7 +878,7 @@ void do_door_close(int door_num)
 				if ( d->time==0 )	{		//first time
 					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[Walls[seg->sides[side].wall_num].clip_num].close_sound, seg, side, cp, 0, F1_0 );
+						digi_link_sound_to_pos( WallAnims[w->clip_num].close_sound, seg, side, cp, 0, F1_0 );
 				}
 
 		d->time += FrameTime;
@@ -911,17 +891,19 @@ void do_door_close(int door_num)
 
 		i = n-time_elapsed/one_frame-1;
 
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		const auto &&w1 = vwallptr(cwall_num);
 		if (i < n/2) {
-			Walls[seg->sides[side].wall_num].flags &= ~WALL_DOOR_OPENED;
-			Walls[csegp->sides[Connectside].wall_num].flags &= ~WALL_DOOR_OPENED;
+			w->flags &= ~WALL_DOOR_OPENED;
+			w1->flags &= ~WALL_DOOR_OPENED;
 		}
 
 		// Animate door.
 		if (i > 0) {
 			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,i);
 
-			Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSING;
-			Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSING;
+			w->state = WALL_DOOR_CLOSING;
+			w1->state = WALL_DOOR_CLOSING;
 
 			ActiveDoors[Num_open_doors].time = 0;		//counts up
 
@@ -953,8 +935,8 @@ static void wall_illusion_op(const vsegptridx_t seg, unsigned side, F op)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_off(const vsegptridx_t seg, int side)
 {
-	const auto op = [](const unsigned wall_num) {
-		Walls[wall_num].flags |= WALL_ILLUSION_OFF;
+	const auto op = [](const wallnum_t wall_num) {
+		vwallptr(wall_num)->flags |= WALL_ILLUSION_OFF;
 #if defined(DXX_BUILD_DESCENT_II)
 		kill_stuck_objects(wall_num);
 #endif
@@ -967,8 +949,8 @@ void wall_illusion_off(const vsegptridx_t seg, int side)
 //  wall switches or triggers that can turn on/off illusionary walls.)
 void wall_illusion_on(const vsegptridx_t seg, int side)
 {
-	const auto op = [](const unsigned wall_num) {
-		Walls[wall_num].flags &= ~WALL_ILLUSION_OFF;
+	const auto op = [](const wallnum_t wall_num) {
+		vwallptr(wall_num)->flags &= ~WALL_ILLUSION_OFF;
 	};
 	wall_illusion_op(seg, side, op);
 }
@@ -991,14 +973,13 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //or -1 if a robot fired the weapon
 wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
 {
-	wall	*w;
 	fix	show_message;
 
 	// If it is not a "wall" then just return.
 	if ( seg->sides[side].wall_num == wall_none )
 		return wall_hit_process_t::WHP_NOT_SPECIAL;
 
-	w = &Walls[seg->sides[side].wall_num];
+	wall *const w = vwallptr(seg->sides[side].wall_num);
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_wall_hit_process( seg, side, damage, playernum );
@@ -1102,10 +1083,11 @@ void wall_toggle(const vsegptridx_t segp, unsigned side)
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_wall_toggle(segp, side);
 
-	if (Walls[wall_num].type == WALL_BLASTABLE)
+	wall *const w = vwallptr(wall_num);
+	if (w->type == WALL_BLASTABLE)
 		wall_destroy(segp, side);
 
-	if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].state == WALL_DOOR_CLOSED))
+	if (w->type == WALL_DOOR && w->state == WALL_DOOR_CLOSED)
 		wall_open_door(segp, side);
 }
 
@@ -1128,16 +1110,13 @@ void reset_walls()
 static void do_cloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
-	wall *wfront,*wback;
 	sbyte old_cloak; // for demo recording
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	d = &CloakingWalls[cloaking_wall_num];
-	wfront = &Walls[d->front_wallnum];
-	wback = NULL;
-	if (d->back_wallnum != wall_none)
-		wback = &Walls[d->back_wallnum];
+	wall *const wfront = vwallptr(d->front_wallnum);
+	wall *const wback = wallptr(d->back_wallnum);
 
 	old_cloak = wfront->cloak_value;
 
@@ -1201,16 +1180,13 @@ static void do_cloaking_wall_frame(int cloaking_wall_num)
 static void do_decloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
-	wall *wfront,*wback;
 	sbyte old_cloak; // for demo recording
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	d = &CloakingWalls[cloaking_wall_num];
-	wfront = &Walls[d->front_wallnum];
-	wback = NULL;
-	if (d->back_wallnum != wall_none)
-		wback = &Walls[d->back_wallnum];
+	wall *const wfront = vwallptr(d->front_wallnum);
+	wall *const wback = wallptr(d->back_wallnum);
 
 	old_cloak = wfront->cloak_value;
 
@@ -1270,10 +1246,8 @@ void wall_frame_process()
 
 	for (i=0;i<Num_open_doors;i++) {
 		active_door *d;
-		wall *w;
-
 		d = &ActiveDoors[i];
-		w = &Walls[d->front_wallnum[0]];
+		wall *const w = vwallptr(d->front_wallnum[0]);
 
 		if (w->state == WALL_DOOR_OPENING)
 			do_door_open(i);
@@ -1284,8 +1258,8 @@ void wall_frame_process()
 
 			// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
 			w->flags |= WALL_DOOR_OPENED;
-			if (d->back_wallnum[0] != wall_none)
-				Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
+			if (wall *const w1 = wallptr(d->back_wallnum[0]))
+				w1->flags |= WALL_DOOR_OPENED;
 
 			if (d->time > DOOR_WAIT_TIME)
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1313,10 +1287,9 @@ void wall_frame_process()
 #if defined(DXX_BUILD_DESCENT_II)
 	for (i=0;i<Num_cloaking_walls;i++) {
 		cloaking_wall *d;
-		wall *w;
 
 		d = &CloakingWalls[i];
-		w = &Walls[d->front_wallnum];
+		wall *const w = vwallptr(d->front_wallnum);
 
 		if (w->state == WALL_DOOR_CLOAKING)
 			do_cloaking_wall_frame(i);
@@ -1340,7 +1313,7 @@ void add_stuck_object(const vobjptridx_t objp, const vsegptr_t segp, int sidenum
 	const auto wallnum = segp->sides[sidenum].wall_num;
 	if (wallnum != wall_none)
 	{
-		if (Walls[wallnum].flags & WALL_BLASTED)
+		if (vwallptr(wallnum)->flags & WALL_BLASTED)
 			objp->flags |= OF_SHOULD_BE_DEAD;
 		range_for (auto &i, Stuck_objects)
 		{
@@ -1390,7 +1363,9 @@ void remove_obsolete_stuck_objects(void)
 	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
 	if (Stuck_objects[objnum].wallnum != wall_none)
-		if ((Walls[Stuck_objects[objnum].wallnum].state != WALL_DOOR_CLOSED) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)) {
+		if (vcwallptr(Stuck_objects[objnum].wallnum)->state != WALL_DOOR_CLOSED ||
+			vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)
+		{
 			Num_stuck_objects--;
 			vobjptr(Stuck_objects[objnum].objnum)->lifeleft = F1_0/8;
 			Stuck_objects[objnum].wallnum = wall_none;

@@ -206,11 +206,14 @@ static void write_exit_text(PHYSFS_File *my_file)
 
 			//	Find wall pointing to this trigger.
 			count2 = 0;
-			for (j=0; j<Num_walls; j++)
-				if (Walls[j].trigger == i) {
+			range_for (const auto &&w, vcwallptridx)
+			{
+				if (w->trigger == i)
+				{
 					count2++;
-					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %i\n", i, Walls[j].segnum, Walls[j].sidenum, j);
+					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %i\n", i, w->segnum, w->sidenum, static_cast<wallnum_t>(w));
 				}
+			}
 			if (count2 == 0)
 				err_printf(my_file, "Error: Trigger %i is not bound to any wall.", i);
 			else if (count2 > 1)

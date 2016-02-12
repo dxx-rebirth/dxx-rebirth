@@ -145,7 +145,7 @@ namespace dcx {
 
 struct active_door : public prohibit_void_ptr<active_door>
 {
-	int     n_parts;            // for linked walls
+	unsigned n_parts;            // for linked walls
 	array<wallnum_t, 2>   front_wallnum;   // front wall numbers for this door
 	array<wallnum_t, 2>   back_wallnum;    // back wall numbers for this door
 	fix     time;               // how long been opening, closing, waiting
@@ -165,6 +165,8 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 	fix     time;               // how long been cloaking or decloaking
 };
 #endif
+
+DEFINE_VALPTRIDX_SUBTYPE(wall, wall, wallnum_t, Walls);
 
 struct wclip : public prohibit_void_ptr<wclip>
 {

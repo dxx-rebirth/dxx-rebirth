@@ -248,7 +248,8 @@ static int ok_for_buddy_to_talk(void)
 		auto	wall_num = segp->sides[i].wall_num;
 
 		if (wall_num != wall_none) {
-			if ((Walls[wall_num].type == WALL_BLASTABLE) && !(Walls[wall_num].flags & WALL_BLASTED))
+			auto &w = *vcwallptr(wall_num);
+			if (w.type == WALL_BLASTABLE && !(w.flags & WALL_BLASTED))
 				return 0;
 		}
 
@@ -260,7 +261,8 @@ static int ok_for_buddy_to_talk(void)
 			{
 				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
-					if ((Walls[wall2].type == WALL_BLASTABLE) && !(Walls[wall2].flags & WALL_BLASTED))
+					auto &w = *vcwallptr(wall2);
+					if (w.type == WALL_BLASTABLE && !(w.flags & WALL_BLASTED))
 						return 0;
 				}
 			}

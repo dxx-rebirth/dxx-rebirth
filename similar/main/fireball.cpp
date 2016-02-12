@@ -404,16 +404,15 @@ void draw_fireball(const vobjptridx_t obj)
 //	It is assumed that the player has all keys.
 static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 {
-	int	wall_type;
-
-	auto wall_num = segp->sides[sidenum].wall_num;
-	wall_type = Walls[wall_num].type;
+	const auto wall_num = segp->sides[sidenum].wall_num;
 
 	if (wall_num == wall_none)
 		return 0;						//	no wall here.
 
+	auto &w = *vcwallptr(wall_num);
+	const auto wall_type = w.type;
 	//	Can't open locked doors.
-	if (((wall_type == WALL_DOOR) && (Walls[wall_num].flags & WALL_DOOR_LOCKED)) || (wall_type == WALL_CLOSED))
+	if ((wall_type == WALL_DOOR && (w.flags & WALL_DOOR_LOCKED)) || wall_type == WALL_CLOSED)
 		return 0;
 
 	return 1;
@@ -1314,18 +1313,17 @@ void do_exploding_wall_frame()
 
 			const auto seg = vsegptridx(segnum);
 			if (i.time>(EXPL_WALL_TIME*3)/4) {
-				int a,n;
-				a = Walls[seg->sides[sidenum].wall_num].clip_num;
-				n = WallAnims[a].num_frames;
+				auto &w1 = *vwallptr(seg->sides[sidenum].wall_num);
+				const auto a = w1.clip_num;
+				const auto n = WallAnims[a].num_frames;
 
 				const auto &&csegp = seg.absolute_sibling(seg->children[sidenum]);
 				auto cside = find_connect_side(seg, csegp);
 
 				wall_set_tmap_num(seg,sidenum,csegp,cside,a,n-1);
 
-				Walls[seg->sides[sidenum].wall_num].flags |= WALL_BLASTED;
-				Walls[csegp->sides[cside].wall_num].flags |= WALL_BLASTED;
-
+				w1.flags |= WALL_BLASTED;
+				vwallptr(csegp->sides[cside].wall_num)->flags |= WALL_BLASTED;
 			}
 
 			newfrac = fixdiv(i.time,EXPL_WALL_TIME);

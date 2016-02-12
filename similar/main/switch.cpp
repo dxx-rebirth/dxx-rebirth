@@ -131,7 +131,7 @@ static void do_unlock_doors(const trigger &t)
 {
 	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
 		const auto wall_num = segp->sides[sidenum].wall_num;
-		auto &w = Walls[wall_num];
+		auto &w = *vwallptr(wall_num);
 		w.flags &= ~WALL_DOOR_LOCKED;
 		w.keys = KEY_NONE;
 	};
@@ -143,7 +143,7 @@ static void do_lock_doors(const trigger &t)
 {
 	const auto op = [](const vsegptr_t segp, const unsigned sidenum) {
 		const auto wall_num = segp->sides[sidenum].wall_num;
-		auto &w = Walls[wall_num];
+		auto &w = *vwallptr(wall_num);
 		w.flags |= WALL_DOOR_LOCKED;
 	};
 	trigger_wall_op(t, vsegptr, op);
@@ -172,11 +172,11 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				Assert(cside != side_none);
 			}
 
-			auto &wall0 = Walls[segp->sides[side].wall_num];
-			wall *wall1 = nullptr;
+			auto &wall0 = *vwallptr(segp->sides[side].wall_num);
+			wallptr_t wall1 = nullptr;
 			if (wall0.type == new_wall_type &&
-			    (cside != side_none || csegp->sides[cside].wall_num == wall_none ||
-				(wall1 = &Walls[csegp->sides[cside].wall_num])->type == new_wall_type))
+			    (cside == side_none || csegp->sides[cside].wall_num == wall_none ||
+				(wall1 = vwallptr(csegp->sides[cside].wall_num))->type == new_wall_type))
 				continue;		//already in correct state, so skip
 
 			ret |= 1;
@@ -498,10 +498,10 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 			newdemo_record_trigger( seg, side, objnum,shot);
 #endif
 
-		auto wall_num = seg->sides[side].wall_num;
+		const auto wall_num = seg->sides[side].wall_num;
 		if ( wall_num == wall_none ) return;
 
-		auto trigger_num = Walls[wall_num].trigger;
+		const auto trigger_num = vwallptr(wall_num)->trigger;
 		if (trigger_num == trigger_none)
 			return;
 
@@ -518,10 +518,11 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 			auto cside = find_connect_side(seg, csegp);
 			Assert(cside != side_none);
 		
-			wall_num = csegp->sides[cside].wall_num;
-			if ( wall_num == wall_none ) return;
+			const auto cwall_num = csegp->sides[cside].wall_num;
+			if (cwall_num == wall_none)
+				return;
 			
-			auto ctrigger_num = Walls[wall_num].trigger;
+			const auto ctrigger_num = vwallptr(cwall_num)->trigger;
 			const auto &&ct = vtrgptr(ctrigger_num);
 			ct->flags &= ~TRIGGER_ON;
 		}

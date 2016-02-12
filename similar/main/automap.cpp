@@ -1281,8 +1281,9 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 
 		if (seg->sides[sn].wall_num != wall_none)	{
 		
+			auto &w = *vcwallptr(seg->sides[sn].wall_num);
 #if defined(DXX_BUILD_DESCENT_II)
-			auto trigger_num = Walls[seg->sides[sn].wall_num].trigger;
+			auto trigger_num = w.trigger;
 			if (trigger_num != trigger_none && vtrgptr(trigger_num)->type == TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
@@ -1291,23 +1292,24 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 				} 	
 #endif
 
-			switch( Walls[seg->sides[sn].wall_num].type )	{
+			switch(w.type)
+			{
 			case WALL_DOOR:
-				if (Walls[seg->sides[sn].wall_num].keys == KEY_BLUE) {
+				if (w.keys == KEY_BLUE) {
 					no_fade = 1;
 					color = am->wall_door_blue;
-				} else if (Walls[seg->sides[sn].wall_num].keys == KEY_GOLD) {
+				} else if (w.keys == KEY_GOLD) {
 					no_fade = 1;
 					color = am->wall_door_gold;
-				} else if (Walls[seg->sides[sn].wall_num].keys == KEY_RED) {
+				} else if (w.keys == KEY_RED) {
 					no_fade = 1;
 					color = am->wall_door_red;
-				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
+				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
 						const auto &vcseg = vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
-						switch (Walls[vcseg->sides[connected_side].wall_num].keys)
+						switch (vcwallptr(vcseg->sides[connected_side].wall_num)->keys)
 						{
 								case KEY_BLUE:	color = am->wall_door_blue;	no_fade = 1; break;
 								case KEY_GOLD:	color = am->wall_door_gold;	no_fade = 1; break;

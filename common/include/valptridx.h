@@ -316,6 +316,7 @@ class valptridx<managed_type>::basic_ptr :
 public:
 	using policy::allow_nullptr;
 	using policy::check_allowed_invalid_index;
+	using index_type = typename containing_type::index_type;
 	using const_pointer_type = typename containing_type::const_pointer_type;
 	using mutable_pointer_type = typename containing_type::mutable_pointer_type;
 	using typename policy::array_managed_type;
@@ -484,7 +485,7 @@ public:
 	typedef basic_ptr<policy, 1> vptr_type;
 	typedef basic_idx<policy, 1> vidx_type;
 	using typename vidx_type::array_managed_type;
-	using typename vidx_type::index_type;
+	using index_type = typename vidx_type::index_type;
 	using typename vidx_type::integral_type;
 	using typename vptr_type::pointer_type;
 	using vidx_type::operator==;
@@ -709,6 +710,7 @@ public:
 };
 
 #define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
+	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptr_t> prefix##ptr{};	\
 	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptr_t> v##prefix##ptr{};	\
 	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptridx_t> prefix##ptridx{};	\
 	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\

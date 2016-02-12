@@ -894,8 +894,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//===================== READ WALL INFO ============================
 
-	range_for (auto &nw, partial_range(Walls, Num_walls))
+	range_for (const auto &&w, vwallptr)
 	{
+		auto &nw = *w;
 		if (game_top_fileinfo_version >= 20)
 			wall_read(LoadFile, nw); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
@@ -1044,10 +1045,15 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	range_for (auto &i, partial_range(Segments, Num_segments))
 		range_for (auto &side, i.sides)
 		{
+			if (side.wall_num == wall_none)
+				continue;
 			const auto sidep = &side;
-			if ((sidep->wall_num != wall_none) && (Walls[sidep->wall_num].clip_num != -1)) {
-				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
-					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
+			auto &w = *vwallptr(side.wall_num);
+			if (w.clip_num != -1)
+			{
+				if (WallAnims[w.clip_num].flags & WCF_TMAP1)
+				{
+					sidep->tmap_num = WallAnims[w.clip_num].frames[0];
 					sidep->tmap_num2 = 0;
 				}
 			}
@@ -1059,23 +1065,29 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	Num_open_doors = 0;
 
 	//go through all walls, killing references to invalid triggers
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (const auto &&p, vwallptr)
+	{
+		auto &w = *p;
 		if (w.trigger >= Num_triggers) {
 			w.trigger = -1;	//kill trigger
 		}
+	}
 
 #ifdef EDITOR
 	//go through all triggers, killing unused ones
+	{
+		const auto &&wr = make_range(vwallptr);
 	for (uint_fast32_t i = 0;i < Num_triggers;) {
 		auto a = [i](const wall &w) { return w.trigger == i; };
 		//	Find which wall this trigger is connected to.
-		auto w = std::find_if(Walls.begin(), Walls.end(), a);
-		if (w == Walls.end())
+		auto w = std::find_if(wr.begin(), wr.end(), a);
+		if (w == wr.end())
 		{
 			remove_trigger_num(i);
 		}
 		else
 			i++;
+	}
 	}
 #endif
 
@@ -1083,8 +1095,8 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		range_for (auto &w, partial_range(Walls, Num_walls))
-			w.controlling_trigger = -1;
+		range_for (const auto &&w, vwallptr)
+			w->controlling_trigger = -1;
 #endif
 
 		for (trgnum_t t = 0; t < Num_triggers; t++)
@@ -1108,7 +1120,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 					if (wall_num == wall_none)
 						Int3();	//	This is illegal.  This trigger requires a wall
 					else
-						Walls[wall_num].controlling_trigger = t;
+						vwallptr(wall_num)->controlling_trigger = t;
 				}
 #endif
 			}
@@ -1124,8 +1136,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				const auto wallnum = segp->sides[sidenum].wall_num;
 				if (wallnum != wall_none)
 				{
-					Walls[wallnum].segnum = segp;
-					Walls[wallnum].sidenum = sidenum;
+					auto &w = *vwallptr(wallnum);
+					w.segnum = segp;
+					w.sidenum = sidenum;
 				}
 			}
 		}
@@ -1588,8 +1601,8 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = PHYSFS_tell(SaveFile);
-	range_for (auto &w, partial_const_range(Walls, Num_walls))
-		wall_write(SaveFile, w, game_top_fileinfo_version);
+	range_for (const auto &&w, vcwallptr)
+		wall_write(SaveFile, *w, game_top_fileinfo_version);
 
 	//==================== SAVE TRIGGER INFO =============================
 

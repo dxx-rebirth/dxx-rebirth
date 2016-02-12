@@ -124,7 +124,9 @@ static int wall_assign_door(int door_type)
 		return 0;
 	}
 
-	if (Walls[Cursegp->sides[Curside].wall_num].type != WALL_DOOR  &&  Walls[Cursegp->sides[Curside].wall_num].type != WALL_BLASTABLE) {
+	auto &wall0 = *vwallptr(Cursegp->sides[Curside].wall_num);
+	if (wall0.type != WALL_DOOR && wall0.type != WALL_BLASTABLE)
+	{
 		editor_status("Cannot assign door. No door at Curside.");
 		return 0;
 	}
@@ -134,8 +136,8 @@ static int wall_assign_door(int door_type)
 	const auto &&csegp = vsegptr(Cursegp->children[Curside]);
 	auto Connectside = find_connect_side(Cursegp, csegp);
 	
- 	Walls[Cursegp->sides[Curside].wall_num].clip_num = door_type;
-  	Walls[csegp->sides[Connectside].wall_num].clip_num = door_type;
+ 	wall0.clip_num = door_type;
+	vwallptr(csegp->sides[Connectside].wall_num)->clip_num = door_type;
 
 	if (WallAnims[door_type].flags & WCF_TMAP1) {
 		Cursegp->sides[Curside].tmap_num = WallAnims[door_type].frames[0];
@@ -201,16 +203,19 @@ static int GotoPrevWall() {
 	current_wall--;
 	if (current_wall >= Num_walls) current_wall = Num_walls-1;
 
-	if (Walls[current_wall].segnum == segment_none) {
+	auto &w = *vcwallptr(current_wall);
+	if (w.segnum == segment_none)
+	{
 		return 0;
 	}
 
-	if (Walls[current_wall].sidenum == side_none) {
+	if (w.sidenum == side_none)
+	{
 		return 0;
 	}
 
-	Cursegp = segptridx(Walls[current_wall].segnum);
-	Curside = Walls[current_wall].sidenum;
+	Cursegp = segptridx(w.segnum);
+	Curside = w.sidenum;
 
 	return 1;
 }
@@ -223,16 +228,19 @@ static int GotoNextWall() {
 
 	if (current_wall >= Num_walls) current_wall = 0;
 
-	if (Walls[current_wall].segnum == segment_none) {
+	auto &w = *vcwallptr(current_wall);
+	if (w.segnum == segment_none)
+	{
 		return 0;
 	}
 
-	if (Walls[current_wall].sidenum == side_none) {
+	if (w.sidenum == side_none)
+	{
 		return 0;
 	}
 
-	Cursegp = segptridx(Walls[current_wall].segnum);
-	Curside = Walls[current_wall].sidenum;	
+	Cursegp = segptridx(w.segnum);
+	Curside = w.sidenum;
 
 	return 1;
 }
@@ -246,38 +254,28 @@ static int PrevWall() {
 		return 0;
 	}
 
-	wall_type = Walls[Cursegp->sides[Curside].wall_num].clip_num;
+	auto &w = *vcwallptr(Cursegp->sides[Curside].wall_num);
+	wall_type = w.clip_num;
 
-	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
-
+	if (w.type == WALL_DOOR)
+	{
 	 	do {
-
 			wall_type--;
-
 			if (wall_type < 0)
 				wall_type = Num_wall_anims-1;
-
-			if (wall_type == Walls[Cursegp->sides[Curside].wall_num].clip_num)
+			if (wall_type == w.clip_num)
 				Error("Cannot find clip for door."); 
-
 		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
-
 	}
-
-	else if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_BLASTABLE) {
-
+	else if (w.type == WALL_BLASTABLE)
+	{
 	 	do {
-
 			wall_type--;
-
 			if (wall_type < 0)
 				wall_type = Num_wall_anims-1;
-
-			if (wall_type == Walls[Cursegp->sides[Curside].wall_num].clip_num)
+			if (wall_type == w.clip_num)
 				Error("Cannot find clip for blastable wall."); 
-
 		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
-
 	}
 
 	wall_assign_door(wall_type);
@@ -294,37 +292,30 @@ static int NextWall() {
 		return 0;
 	}
 
-	wall_type = Walls[Cursegp->sides[Curside].wall_num].clip_num;
+	auto &w = *vcwallptr(Cursegp->sides[Curside].wall_num);
+	wall_type = w.clip_num;
 
-	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
-
+	if (w.type == WALL_DOOR)
+	{
 	 	do {
-
 			wall_type++;
-
 			if (wall_type >= Num_wall_anims) {
 				wall_type = 0;
-				if (Walls[Cursegp->sides[Curside].wall_num].clip_num==-1)
+				if (w.clip_num==-1)
 					Error("Cannot find clip for door."); 
 			}
-
 		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
-
 	}
-	else if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_BLASTABLE) {
-
+	else if (w.type == WALL_BLASTABLE)
+	{
 	 	do {
-
 			wall_type++;
-
 			if (wall_type >= Num_wall_anims) {
 				wall_type = 0;
-				if (Walls[Cursegp->sides[Curside].wall_num].clip_num==-1)
+				if (w.clip_num==-1)
 					Error("Cannot find clip for blastable wall."); 
 			}
-
 		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
-
 	}
 
 	wall_assign_door(wall_type);	
@@ -418,6 +409,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
 
+	const auto &&w = vwallptr(Cursegp->sides[Curside].wall_num);
 	//------------------------------------------------------------
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
@@ -426,8 +418,6 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	{
 		if ( Cursegp->sides[Curside].wall_num != wall_none)
 		{
-			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
-
 			ui_checkbox_check(wd->doorFlag[0].get(), w->flags & WALL_DOOR_LOCKED);
 			ui_checkbox_check(wd->doorFlag[1].get(), w->flags & WALL_DOOR_AUTO);
 			ui_checkbox_check(wd->doorFlag[2].get(), w->flags & WALL_ILLUSION_OFF);
@@ -444,21 +434,22 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	// update the corresponding wall flag.
 	//------------------------------------------------------------
 
-	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
+	if (w->type == WALL_DOOR)
+	{
 		if (GADGET_PRESSED(wd->doorFlag[0].get()))
 		{
 			if ( wd->doorFlag[0]->flag == 1 )	
-				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_LOCKED;
+				w->flags |= WALL_DOOR_LOCKED;
 			else
-				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_LOCKED;
+				w->flags &= ~WALL_DOOR_LOCKED;
 			rval = 1;
 		}
 		else if (GADGET_PRESSED(wd->doorFlag[1].get()))
 		{
 			if ( wd->doorFlag[1]->flag == 1 )	
-				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_AUTO;
+				w->flags |= WALL_DOOR_AUTO;
 			else
-				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_AUTO;
+				w->flags &= ~WALL_DOOR_AUTO;
 			rval = 1;
 		}
 
@@ -469,7 +460,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 		for (	int i=0; i < 4; i++ ) {
 			if (GADGET_PRESSED(wd->keyFlag[i].get()))
 			{
-				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
+				w->keys = 1<<i;		// Set the ai_state to the cooresponding radio button
 				rval = 1;
 			}
 		}
@@ -480,13 +471,13 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			ui_radio_set_value(i.get(), 0);
 	}
 
-	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {
+	if (w->type == WALL_ILLUSION) {
 		if (GADGET_PRESSED(wd->doorFlag[2].get()))
 		{
 			if ( wd->doorFlag[2]->flag == 1 )	
-				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_ILLUSION_OFF;
+				w->flags |= WALL_ILLUSION_OFF;
 			else
-				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_ILLUSION_OFF;
+				w->flags &= ~WALL_ILLUSION_OFF;
 			rval = 1;
 		}
 	} else 
@@ -507,16 +498,16 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 
 		gr_set_current_canvas( wd->wallViewBox->canvas );
 		if (Cursegp->sides[Curside].wall_num != wall_none) {
-			type = Walls[Cursegp->sides[Curside].wall_num].type;
+			type = w->type;
 			if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
 				if (DeltaTime > ((F1_0*200)/1000)) {
 					wd->framenum++;
 					wd->time = Temp;
 				}
-				if (wd->framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
+				if (wd->framenum >= WallAnims[w->clip_num].num_frames)
 					wd->framenum=0;
-				PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]]);
-				gr_ubitmap(GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
+				PIGGY_PAGE_IN(Textures[WallAnims[w->clip_num].frames[wd->framenum]]);
+				gr_ubitmap(GameBitmaps[Textures[WallAnims[w->clip_num].frames[wd->framenum]].index]);
 			} else {
 				if (type == WALL_OPEN)
 					gr_clear_canvas( CBLACK );
@@ -541,7 +532,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	{
 		if ( Cursegp->sides[Curside].wall_num != wall_none )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hi    ", static_cast<int16_t>(Cursegp->sides[Curside].wall_num));
-			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
+			switch (w->type) {
 				case WALL_NORMAL:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );
 					break;
@@ -550,7 +541,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 					break;
 				case WALL_DOOR:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Door     " );
-					ui_dputs_at( MainWindow, 223, 6, &WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].filename[0]);
+					ui_dputs_at( MainWindow, 223, 6, &WallAnims[w->clip_num].filename[0]);
 					break;
 				case WALL_ILLUSION:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Illusion " );
@@ -565,11 +556,11 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Unknown  " );
 					break;
 			}			
-			if (Walls[Cursegp->sides[Curside].wall_num].type != WALL_DOOR)
+			if (w->type != WALL_DOOR)
 					ui_dprintf_at( MainWindow, 223, 6, "            " );
 
-			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", Walls[Cursegp->sides[Curside].wall_num].clip_num );
-			ui_dprintf_at( MainWindow, 12, 57, " Trigger: %d  ", Walls[Cursegp->sides[Curside].wall_num].trigger );
+			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", w->clip_num );
+			ui_dprintf_at( MainWindow, 12, 57, " Trigger: %d  ", w->trigger );
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: none ");
 			ui_dprintf_at( MainWindow, 12, 23, " Type: none ");
@@ -597,8 +588,9 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 // Restore all walls to original status (closed doors, repaired walls)
 int wall_restore_all()
 {
-	range_for (auto &w, partial_range(Walls, Num_walls))
+	range_for (const auto &&wp, vwallptr)
 	{
+		auto &w = *wp;
 		if (w.flags & WALL_BLASTED) {
 			w.hps = WALL_HPS;
 		}
@@ -613,9 +605,11 @@ int wall_restore_all()
 		{
 			const auto wall_num = j.wall_num;
 			if (wall_num != wall_none)
-				if ((Walls[wall_num].type == WALL_BLASTABLE) ||
-					 (Walls[wall_num].type == WALL_DOOR))
-					j.tmap_num2 = WallAnims[Walls[wall_num].clip_num].frames[0];
+			{
+				auto &w = *vcwallptr(wall_num);
+				if (w.type == WALL_BLASTABLE || w.type == WALL_DOOR)
+					j.tmap_num2 = WallAnims[w.clip_num].frames[0];
+			}
  		}
 
 	range_for (auto &i, partial_range(Triggers, Num_triggers))
@@ -643,10 +637,17 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 		if (csegp->sides[Connectside].wall_num < lower_wallnum)
 			 lower_wallnum = csegp->sides[Connectside].wall_num;
 
-		if (Walls[lower_wallnum].linked_wall != wall_none)
-			Walls[Walls[lower_wallnum].linked_wall].linked_wall = wall_none;
-		if (Walls[lower_wallnum+1].linked_wall != wall_none)
-			Walls[Walls[lower_wallnum+1].linked_wall].linked_wall = wall_none;
+		{
+			const auto linked_wall = vcwallptr(lower_wallnum)->linked_wall;
+			if (linked_wall != wall_none)
+				vwallptr(linked_wall)->linked_wall = wall_none;
+		}
+		{
+			const wallnum_t upper_wallnum = lower_wallnum + 1;
+			const auto linked_wall = vcwallptr(upper_wallnum)->linked_wall;
+			if (linked_wall != wall_none)
+				vwallptr(linked_wall)->linked_wall = wall_none;
+		}
 
 		for (int w=lower_wallnum;w<Num_walls-2;w++)
 			Walls[w] = Walls[w+2];
@@ -708,33 +709,29 @@ static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type)
 		const auto &&csegp = segp.absolute_sibling(segp->children[side]);
 		auto connectside = find_connect_side(segp, csegp);
 
-		Walls[segp->sides[side].wall_num].segnum = segp;
-		Walls[csegp->sides[connectside].wall_num].segnum = csegp;
+		auto &w0 = *vwallptr(segp->sides[side].wall_num);
+		auto &w1 = *vwallptr(csegp->sides[connectside].wall_num);
+		w0.segnum = segp;
+		w1.segnum = csegp;
 
-		Walls[segp->sides[side].wall_num].sidenum = side;
-		Walls[csegp->sides[connectside].wall_num].sidenum = connectside;
+		w0.sidenum = side;
+		w1.sidenum = connectside;
 
-  		Walls[segp->sides[side].wall_num].flags = 0;
-		Walls[csegp->sides[connectside].wall_num].flags = 0;
+  		w0.flags = 0;
+		w1.flags = 0;
 
-  		Walls[segp->sides[side].wall_num].type = type;
-		Walls[csegp->sides[connectside].wall_num].type = type;
+  		w0.type = type;
+		w1.type = type;
 
-//		Walls[segp->sides[side].wall_num].trigger = -1;
-//		Walls[csegp->sides[connectside].wall_num].trigger = -1;
+		w0.clip_num = -1;
+		w1.clip_num = -1;
 
-		Walls[segp->sides[side].wall_num].clip_num = -1;
-		Walls[csegp->sides[connectside].wall_num].clip_num = -1;
-
-		Walls[segp->sides[side].wall_num].keys = KEY_NONE;
-		Walls[csegp->sides[connectside].wall_num].keys = KEY_NONE;
+		w0.keys = KEY_NONE;
+		w1.keys = KEY_NONE;
 
 		if (type == WALL_BLASTABLE) {
-	  		Walls[segp->sides[side].wall_num].hps = WALL_HPS;
-			Walls[csegp->sides[connectside].wall_num].hps = WALL_HPS;
-			
-	  		//Walls[segp->sides[side].wall_num].clip_num = 0;
-			//Walls[csegp->sides[connectside].wall_num].clip_num = 0;
+	  		w0.hps = WALL_HPS;
+			w1.hps = WALL_HPS;
 			}	
 
 		if (type != WALL_DOOR) {
@@ -743,11 +740,11 @@ static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type)
 			}
 
 		if (type == WALL_DOOR) {
-	  		Walls[segp->sides[side].wall_num].flags |= WALL_DOOR_AUTO;
-			Walls[csegp->sides[connectside].wall_num].flags |= WALL_DOOR_AUTO;
+	  		w0.flags |= WALL_DOOR_AUTO;
+			w1.flags |= WALL_DOOR_AUTO;
 
-			Walls[segp->sides[side].wall_num].clip_num = Current_door_type;
-			Walls[csegp->sides[connectside].wall_num].clip_num = Current_door_type;
+			w0.clip_num = Current_door_type;
+			w1.clip_num = Current_door_type;
 		}
 
 		//Update_flags |= UF_WORLD_CHANGED;
@@ -768,40 +765,41 @@ static int wall_add_to_side(const vsegptridx_t segp, int side, sbyte type)
 int wall_add_to_markedside(sbyte type)
 {
 	if (add_wall(Markedsegp, Markedside)) {
-		int	wall_num, cwall_num;
 		const auto &&csegp = vsegptridx(Markedsegp->children[Markedside]);
 		auto Connectside = find_connect_side(Markedsegp, csegp);
 
-		wall_num = Markedsegp->sides[Markedside].wall_num;
-		cwall_num = csegp->sides[Connectside].wall_num;
+		const auto wall_num = Markedsegp->sides[Markedside].wall_num;
+		const auto cwall_num = csegp->sides[Connectside].wall_num;
+		auto &w0 = *vwallptr(wall_num);
+		auto &w1 = *vwallptr(cwall_num);
 
-		Walls[wall_num].segnum = Markedsegp;
-		Walls[cwall_num].segnum = csegp;
+		w0.segnum = Markedsegp;
+		w1.segnum = csegp;
 
-		Walls[wall_num].sidenum = Markedside;
-		Walls[cwall_num].sidenum = Connectside;
+		w0.sidenum = Markedside;
+		w1.sidenum = Connectside;
 
-  		Walls[wall_num].flags = 0;
-		Walls[cwall_num].flags = 0;
+  		w0.flags = 0;
+		w1.flags = 0;
 
-  		Walls[wall_num].type = type;
-		Walls[cwall_num].type = type;
+  		w0.type = type;
+		w1.type = type;
 
-		Walls[wall_num].trigger = trigger_none;
-		Walls[cwall_num].trigger = trigger_none;
+		w0.trigger = trigger_none;
+		w1.trigger = trigger_none;
 
-		Walls[wall_num].clip_num = -1;
-		Walls[cwall_num].clip_num = -1;
+		w0.clip_num = -1;
+		w1.clip_num = -1;
 
-		Walls[wall_num].keys = KEY_NONE;
-		Walls[cwall_num].keys = KEY_NONE;
+		w0.keys = KEY_NONE;
+		w1.keys = KEY_NONE;
 
 		if (type == WALL_BLASTABLE) {
-	  		Walls[wall_num].hps = WALL_HPS;
-			Walls[cwall_num].hps = WALL_HPS;
+	  		w0.hps = WALL_HPS;
+			w1.hps = WALL_HPS;
 			
-	  		Walls[wall_num].clip_num = 0;
-			Walls[cwall_num].clip_num = 0;
+	  		w0.clip_num = 0;
+			w1.clip_num = 0;
 			}	
 
 		if (type != WALL_DOOR) {
@@ -846,18 +844,16 @@ int bind_wall_to_control_center() {
 //link two doors, curseg/curside and markedseg/markedside
 int wall_link_doors()
 {
-	wall *w1=NULL,*w2=NULL;
-
-	if (Cursegp->sides[Curside].wall_num != wall_none)
-		w1 = &Walls[Cursegp->sides[Curside].wall_num];
-
-	if (Markedsegp->sides[Markedside].wall_num != wall_none)
-		w2 = &Walls[Markedsegp->sides[Markedside].wall_num];
+	const auto cwall_num = Cursegp->sides[Curside].wall_num;
+	const auto &&w1 = wallptr(cwall_num);
 
 	if (!w1 || w1->type != WALL_DOOR) {
 		editor_status("Curseg/curside is not a door");
 		return 0;
 	}
+
+	const auto mwall_num = Markedsegp->sides[Markedside].wall_num;
+	const auto &&w2 = wallptr(mwall_num);
 
 	if (!w2 || w2->type != WALL_DOOR) {
 		editor_status("Markedseg/markedside is not a door");
@@ -878,10 +874,8 @@ int wall_link_doors()
 
 int wall_unlink_door()
 {
-	wall *w1=NULL;
-
-	if (Cursegp->sides[Curside].wall_num != wall_none)
-		w1 = &Walls[Cursegp->sides[Curside].wall_num];
+	const auto cwall_num = Cursegp->sides[Curside].wall_num;
+	const auto &&w1 = wallptr(cwall_num);
 
 	if (!w1 || w1->type != WALL_DOOR) {
 		editor_status("Curseg/curside is not a door");
@@ -891,9 +885,10 @@ int wall_unlink_door()
 	if (w1->linked_wall == wall_none)
 		editor_status("Curseg/curside is not linked");
 
-	Assert(Walls[w1->linked_wall].linked_wall == w1-Walls);
+	auto &w2 = *vwallptr(w1->linked_wall);
+	Assert(w2.linked_wall == cwall_num);
 
-	Walls[w1->linked_wall].linked_wall = wall_none;
+	w2.linked_wall = wall_none;
 	w1->linked_wall = wall_none;
 
 	return 1;
@@ -940,12 +935,13 @@ int check_walls()
 	// Check validity of Walls array.
 	range_for (auto &cw, partial_const_range(CountedWalls, Num_walls))
 	{
-		if (Walls[cw.wallnum].segnum != cw.segnum || Walls[cw.wallnum].sidenum != cw.sidenum)
+		auto &w = *vwallptr(cw.wallnum);
+		if (w.segnum != cw.segnum || w.sidenum != cw.sidenum)
 		{
 			if (ui_messagebox( -2, -2, 2, "Unmatched wall detected\nDo you wish to correct it?\n", "Yes", "No") == 1)
 			{
-				Walls[cw.wallnum].segnum = cw.segnum;
-				Walls[cw.wallnum].sidenum = cw.sidenum;
+				w.segnum = cw.segnum;
+				w.sidenum = cw.sidenum;
 			}
 		}
 	}
@@ -988,19 +984,21 @@ int delete_all_walls()
 }
 
 // ------------------------------------------------------------------------------------------------
-static void copy_old_wall_data_to_new(int owall, int nwall)
+static void copy_old_wall_data_to_new(wallnum_t owall, wallnum_t nwall)
 {
-	Walls[nwall].flags = Walls[owall].flags;
-	Walls[nwall].type = Walls[owall].type;
-	Walls[nwall].clip_num = Walls[owall].clip_num;
-	Walls[nwall].keys = Walls[owall].keys;
-	Walls[nwall].hps = Walls[owall].hps;
-	Walls[nwall].state = Walls[owall].state;
-	Walls[nwall].linked_wall = wall_none;
+	auto &o = *vcwallptr(owall);
+	auto &n = *vwallptr(nwall);
+	n.flags = o.flags;
+	n.type = o.type;
+	n.clip_num = o.clip_num;
+	n.keys = o.keys;
+	n.hps = o.hps;
+	n.state = o.state;
+	n.linked_wall = wall_none;
 
-	Walls[nwall].trigger = trigger_none;
-
-	if (Walls[owall].trigger != trigger_none) {
+	n.trigger = trigger_none;
+	if (o.trigger != trigger_none)
+	{
 		editor_status("Warning: Trigger not copied in group copy.");
 	}
 }
@@ -1034,8 +1032,9 @@ void copy_group_walls(int old_group, int new_group)
 			if (Segments[old_seg].sides[j].wall_num != wall_none) {
 				Segments[new_seg].sides[j].wall_num = Num_walls;
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
-				Walls[Num_walls].segnum = new_seg;
-				Walls[Num_walls].sidenum = j;
+				auto &w = *vwallptr(static_cast<wallnum_t>(Num_walls));
+				w.segnum = new_seg;
+				w.sidenum = j;
 				Walls.set_count(Num_walls + 1);
 				Assert(Num_walls < MAX_WALLS);
 			}
@@ -1051,18 +1050,17 @@ int	Validate_walls=1;
 void check_wall_validity(void)
 {
 	int sidenum;
-	sbyte	wall_flags[MAX_WALLS];
 
 	if (!Validate_walls)
 		return;
 
-	range_for (auto &w, partial_const_range(Walls, Num_walls))
+	range_for (const auto &&w, vcwallptr)
 	{
 		segnum_t	segnum;
-		segnum = w.segnum;
-		sidenum = w.sidenum;
+		segnum = w->segnum;
+		sidenum = w->sidenum;
 
-		if (&Walls[Segments[segnum].sides[sidenum].wall_num] != &w) {
+		if (vcwallptr(vcsegptr(segnum)->sides[sidenum].wall_num) != w) {
 			if (!Validate_walls)
 				return;
 			Int3();		//	Error! Your mine has been invalidated!
@@ -1075,8 +1073,7 @@ void check_wall_validity(void)
 		}
 	}
 
-	for (int i=0; i<MAX_WALLS; i++)
-		wall_flags[i] = 0;
+	array<bool, MAX_WALLS> wall_flags{};
 
 	range_for (const auto &&segp, vsegptridx)
 	{
@@ -1096,7 +1093,9 @@ void check_wall_validity(void)
 										//	Then do the usual /eip++;g
 					}
 
-					if ((Walls[wall_num].segnum != segp) || (Walls[wall_num].sidenum != j)) {
+					auto &w = *vcwallptr(wall_num);
+					if (w.segnum != segp || w.sidenum != j)
+					{
 						if (!Validate_walls)
 							return;
 						Int3();		//	Error! Your mine has been invalidated!

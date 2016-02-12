@@ -669,8 +669,7 @@ dump_door_debugging_info()
 		PHYSFSX_printf(dfile,"wall_num = %d\n",wall_num);
 
 		if (wall_num != wall_none) {
-			wall *wall = &Walls[wall_num];
-			active_door *d;
+			const auto &&wall = vcwallptr(wall_num);
 			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);
 			PHYSFSX_printf(dfile,"    sidenum = %d\n",wall->sidenum);
 			PHYSFSX_printf(dfile,"    hps = %x\n",wall->hps);
@@ -687,8 +686,7 @@ dump_door_debugging_info()
 
 
 			range_for (auto &i, partial_const_range(ActiveDoors, Num_open_doors)) {		//find door
-				d = &i;
-				if (d->front_wallnum[0]==wall-Walls || d->back_wallnum[0]==wall-Walls || (d->n_parts==2 && (d->front_wallnum[1]==wall-Walls || d->back_wallnum[1]==wall-Walls)))
+				if (i.front_wallnum[0] == wall_num || i.back_wallnum[0] == wall_num || (i.n_parts == 2 && (i.front_wallnum[1] == wall_num || i.back_wallnum[1] == wall_num)))
 					break;
 			}
 
@@ -1135,10 +1133,11 @@ static void kill_and_so_forth(void)
 		const auto &&t = vctrgptr(i);
 		if (trigger_is_exit(t))
 		{
-			range_for (auto &w, partial_const_range(Walls, Num_walls))
+			range_for (const auto &&w, vcwallptr)
 			{
-				if (w.trigger == i) {
-					const auto &&segp = vsegptridx(w.segnum);
+				if (w->trigger == i)
+				{
+					const auto &&segp = vsegptridx(w->segnum);
 					compute_segment_center(ConsoleObject->pos, segp);
 					obj_relink(vobjptridx(ConsoleObject), segp);
 					goto kasf_done;

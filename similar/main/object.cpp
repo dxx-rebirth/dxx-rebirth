@@ -1756,7 +1756,7 @@ static void object_move_one(const vobjptridx_t obj)
 					if (!(sidemask & (1 << sidenum)))
 						continue;
 					const auto wall_num = segp->sides[sidenum].wall_num;
-					if (wall_num != wall_none && Walls[wall_num].type == WALL_ILLUSION)
+					if (wall_num != wall_none && vcwallptr(wall_num)->type == WALL_ILLUSION)
 					{
 						const auto type = check_volatile_wall(obj, segp, sidenum);
 						if (type != volatile_wall_result::none)
@@ -1793,7 +1793,7 @@ static void object_move_one(const vobjptridx_t obj)
 			{
 				const auto wall_num = psegp->sides[connect_side].wall_num;
 				if ( wall_num != wall_none ) {
-					auto trigger_num = Walls[wall_num].trigger;
+					auto trigger_num = vcwallptr(wall_num)->trigger;
 					if (trigger_num != trigger_none)
 					{
 						const auto &&t = vctrgptr(trigger_num);

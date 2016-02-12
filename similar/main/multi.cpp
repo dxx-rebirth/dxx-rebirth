@@ -2124,8 +2124,6 @@ static void multi_do_door_open(const ubyte *buf)
 {
 	segnum_t segnum;
 	ubyte side;
-	wall *w;
-
 	segnum = GET_INTEL_SHORT(buf + 1);
 	side = buf[3];
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2145,7 +2143,7 @@ static void multi_do_door_open(const ubyte *buf)
 		return;
 	}
 
-	w = &Walls[seg->sides[side].wall_num];
+	const auto &&w = vwallptr(seg->sides[side].wall_num);
 
 	if (w->type == WALL_BLASTABLE)
 	{
@@ -2350,20 +2348,20 @@ static void multi_do_hostage_door_status(const ubyte *buf)
 	// Update hit point status of a door
 
 	int count = 1;
-	int wallnum;
 	fix hps;
 
-	wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
+	wallnum_t wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
 	hps = GET_INTEL_INT(buf + count);           count += 4;
 
-	if ((wallnum < 0) || (wallnum > Num_walls) || (hps < 0) || (Walls[wallnum].type != WALL_BLASTABLE))
+	auto &w = *vwallptr(wallnum);
+	if (wallnum >= Num_walls || hps < 0 || w.type != WALL_BLASTABLE)
 	{
 		Int3(); // Non-terminal, see Rob
 		return;
 	}
 
-	if (hps < Walls[wallnum].hps)
-		wall_damage(vsegptridx(Walls[wallnum].segnum), Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
+	if (hps < w.hps)
+		wall_damage(vsegptridx(w.segnum), w.sidenum, w.hps - hps);
 }
 
 void
@@ -3265,11 +3263,12 @@ void multi_send_hostage_door_status(uint16_t wallnum)
 
 	int count = 0;
 
-	Assert(Walls[wallnum].type == WALL_BLASTABLE);
+	const auto &&w = vwallptr(wallnum);
+	assert(w->type == WALL_BLASTABLE);
 
 	count += 1;
 	PUT_INTEL_SHORT(multibuf+count, wallnum );           count += 2;
-	PUT_INTEL_INT(multibuf+count, Walls[wallnum].hps );  count += 4;
+	PUT_INTEL_INT(multibuf+count, w->hps);  count += 4;
 
 	multi_send_data<MULTI_HOSTAGE_DOOR>(multibuf, count, 0);
 }
@@ -3896,23 +3895,22 @@ void multi_send_wall_status_specific(const playernum_t pnum,uint16_t wallnum,uby
 
 static void multi_do_wall_status (const ubyte *buf)
 {
-	short wallnum;
 	ubyte flag,type,state;
 
-	wallnum = GET_INTEL_SHORT(buf + 1);
+	wallnum_t wallnum = GET_INTEL_SHORT(buf + 1);
 	type=buf[3];
 	flag=buf[4];
 	state=buf[5];
 
-	Assert (wallnum>=0);
-	Walls[wallnum].type=type;
-	Walls[wallnum].flags=flag;
+	auto &w = *vwallptr(wallnum);
+	w.type = type;
+	w.flags = flag;
 	//Assert(state <= 4);
-	Walls[wallnum].state=state;
+	w.state = state;
 
-	if (Walls[wallnum].type==WALL_OPEN)
+	if (w.type == WALL_OPEN)
 	{
-		digi_kill_sound_linked_to_segment(Walls[wallnum].segnum,Walls[wallnum].sidenum,SOUND_FORCEFIELD_HUM);
+		digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, SOUND_FORCEFIELD_HUM);
 		//digi_kill_sound_linked_to_segment(csegp-Segments,cside,SOUND_FORCEFIELD_HUM);
 	}
 }

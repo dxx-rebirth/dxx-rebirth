@@ -245,7 +245,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		auto wall_num = segp->sides[sidenum].wall_num;
 		Assert(wall_num != wall_none);
-		gr_settransblend(Walls[wall_num].cloak_value, GR_BLEND_NORMAL);
+		gr_settransblend(vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
 
 		g3_draw_poly(nv, pointlist);    // draw as flat poly

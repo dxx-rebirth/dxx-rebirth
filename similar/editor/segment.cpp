@@ -642,9 +642,9 @@ static void compress_segments(void)
 					g.segments.replace(seg, hole);
 
 				// Fix walls
-				range_for (auto &w, partial_range(Walls, Num_walls))
-					if (w.segnum == seg)
-						w.segnum = hole;
+				range_for (const auto &&w, vwallptr)
+					if (w->segnum == seg)
+						w->segnum = hole;
 
 				// Fix fuelcenters, robotcens, and triggers... added 2/1/95 -Yuan
 				range_for (auto &f, partial_range(Station, Num_fuelcenters))

@@ -302,9 +302,9 @@ static void paging_touch_walls()
 {
 	wclip *anim;
 
-	range_for (auto &w, partial_const_range(Walls, Num_walls))
+	range_for (const auto &&wp, vcwallptr)
 	{
-//		paging_draw_orb();
+		auto &w = *wp;
 		if ( w.clip_num > -1 )	{
 			anim = &WallAnims[w.clip_num];
 			for (int j=0; j < anim->num_frames; j++ ) {

@@ -1524,8 +1524,9 @@ void newdemo_set_new_level(int level_num)
 	if (nd_record_v_juststarted==1)
 	{
 		nd_write_int(Num_walls);
-		range_for (auto &w, partial_const_range(Walls, Num_walls))
+		range_for (const auto &&wp, vcwallptr)
 		{
+			auto &w = *wp;
 			nd_write_byte (w.type);
 			nd_write_byte (w.flags);
 			nd_write_byte (w.state);
@@ -1562,8 +1563,9 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
-		range_for (auto &w, partial_const_range(Walls, Num_walls))
+		range_for (const auto &&wp, vcwallptr)
 		{
+			auto &w = *wp;
 			int side;
 			auto seg = &Segments[w.segnum];
 			side = w.sidenum;
@@ -1865,13 +1867,13 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 static void newdemo_pop_ctrlcen_triggers()
 {
-	int anim_num, n;
+	int n;
 	for (int i = 0; i < ControlCenterTriggers.num_links; i++) {
 		const auto &&seg = vsegptridx(ControlCenterTriggers.seg[i]);
 		const auto side = ControlCenterTriggers.side[i];
 		const auto &&csegp = vsegptr(seg->children[side]);
 		auto cside = find_connect_side(seg, csegp);
-		anim_num = Walls[seg->sides[side].wall_num].clip_num;
+		const auto anim_num = vcwallptr(seg->sides[side].wall_num)->clip_num;
 		n = WallAnims[anim_num].num_frames;
 		if (WallAnims[anim_num].flags & WCF_TMAP1)	{
 		seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = WallAnims[anim_num].frames[n-1];
@@ -2183,7 +2185,7 @@ static int newdemo_read_frame_information(int rewrite)
                         if (segp->sides[side].wall_num != wall_none)
                         {
 #if defined(DXX_BUILD_DESCENT_II)
-							const auto &&t = vctrgptr(Walls[segp->sides[side].wall_num].trigger);
+							const auto &&t = vctrgptr(vcwallptr(segp->sides[side].wall_num)->trigger);
 							if (t->type == TT_SECRET_EXIT)
 							{
                                         int truth;
@@ -2915,11 +2917,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				int anim_num;
 				const auto &&segp = vsegptridx(segnum);
 				const auto &&csegp = vsegptr(segp->children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
-				anim_num = Walls[segp->sides[side].wall_num].clip_num;
+				const auto anim_num = vwallptr(segp->sides[side].wall_num)->clip_num;
 
 				if (WallAnims[anim_num].flags & WCF_TMAP1) {
 					segp->sides[side].tmap_num = csegp->sides[cside].tmap_num = WallAnims[anim_num].frames[0];
@@ -2955,9 +2956,8 @@ static int newdemo_read_frame_information(int rewrite)
 #if defined(DXX_BUILD_DESCENT_II)
 		case ND_EVENT_CLOAKING_WALL: {
 			sbyte type,state,cloak_value;
-			ubyte back_wall_num,front_wall_num;
+			wallnum_t back_wall_num, front_wall_num;
 			short l0,l1,l2,l3;
-			int sidenum;
 
 			nd_read_byte((sbyte*)&front_wall_num);
 			nd_read_byte((sbyte*)&back_wall_num);
@@ -2982,26 +2982,28 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 
-			Walls[front_wall_num].type = type;
-			Walls[front_wall_num].state = state;
-			Walls[front_wall_num].cloak_value = cloak_value;
-			auto segp = &Segments[Walls[front_wall_num].segnum];
-			sidenum = Walls[front_wall_num].sidenum;
-			segp->sides[sidenum].uvls[0].l = ((int) l0) << 8;
-			segp->sides[sidenum].uvls[1].l = ((int) l1) << 8;
-			segp->sides[sidenum].uvls[2].l = ((int) l2) << 8;
-			segp->sides[sidenum].uvls[3].l = ((int) l3) << 8;
-
-			Walls[back_wall_num].type = type;
-			Walls[back_wall_num].state = state;
-			Walls[back_wall_num].cloak_value = cloak_value;
-			segp = &Segments[Walls[back_wall_num].segnum];
-			sidenum = Walls[back_wall_num].sidenum;
-			segp->sides[sidenum].uvls[0].l = ((int) l0) << 8;
-			segp->sides[sidenum].uvls[1].l = ((int) l1) << 8;
-			segp->sides[sidenum].uvls[2].l = ((int) l2) << 8;
-			segp->sides[sidenum].uvls[3].l = ((int) l3) << 8;
-
+			{
+				auto &w = *vwallptr(front_wall_num);
+				w.type = type;
+				w.state = state;
+				w.cloak_value = cloak_value;
+				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
+				uvl[0].l = ((int) l0) << 8;
+				uvl[1].l = ((int) l1) << 8;
+				uvl[2].l = ((int) l2) << 8;
+				uvl[3].l = ((int) l3) << 8;
+			}
+			{
+				auto &w = *vwallptr(back_wall_num);
+				w.type = type;
+				w.state = state;
+				w.cloak_value = cloak_value;
+				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
+				uvl[0].l = ((int) l0) << 8;
+				uvl[1].l = ((int) l1) << 8;
+				uvl[2].l = ((int) l2) << 8;
+				uvl[3].l = ((int) l3) << 8;
+			}
 			break;
 		}
 #endif
@@ -3059,9 +3061,10 @@ static int newdemo_read_frame_information(int rewrite)
 				Walls.set_count(num_walls);
 				if (rewrite)
 					nd_write_int (Num_walls);
-				range_for (auto &w, partial_range(Walls, Num_walls))
+				range_for (const auto &&wp, vwallptr)
 				// restore the walls
 				{
+					auto &w = *wp;
 					nd_read_byte ((signed char *)&w.type);
 					nd_read_byte ((signed char *)&w.flags);
 					nd_read_byte ((signed char *)&w.state);

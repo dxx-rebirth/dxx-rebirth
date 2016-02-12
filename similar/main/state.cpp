@@ -1031,8 +1031,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save wall info
 	i = Num_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
-	range_for (auto &w, partial_const_range(Walls, Num_walls))
-		wall_write(fp, w, 0x7fff);
+	range_for (const auto &&w, vcwallptr)
+		wall_write(fp, *w, 0x7fff);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
@@ -1532,14 +1532,15 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//Restore wall info
 	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (auto &w, partial_range(Walls, Num_walls))
-		wall_read(fp, w);
+	range_for (const auto &&w, vwallptr)
+		wall_read(fp, *w);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to
 	//walls that are now open
-	range_for (auto &w, partial_const_range(Walls, Num_walls))
+	range_for (const auto &&wp, vcwallptr)
 	{
+		auto &w = *wp;
 		if (w.type == WALL_OPEN)
 			digi_kill_sound_linked_to_segment(w.segnum,w.sidenum,-1);	//-1 means kill any sound
 	}

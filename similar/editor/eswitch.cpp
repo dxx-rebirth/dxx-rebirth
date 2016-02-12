@@ -85,19 +85,21 @@ static trgnum_t add_trigger(const vsegptr_t seg, short side)
 	if (trigger_num>=MAX_TRIGGERS) return trigger_none;
 
 	auto wall_num = seg->sides[side].wall_num;
+	trgnum_t *wt;
 	if (wall_num == wall_none) {
 		wall_add_to_markedside(WALL_OPEN);
 		wall_num = seg->sides[side].wall_num;
-		Walls[wall_num].trigger = trigger_num;
-		
+		wt = &vwallptr(wall_num)->trigger;
 		// Set default values first time trigger is added
 	} else {
-		if (Walls[wall_num].trigger != trigger_none)
-			return Walls[wall_num].trigger;
+		auto &w = *vwallptr(wall_num);
+		if (w.trigger != trigger_none)
+			return w.trigger;
 
 		// Create new trigger.
-		Walls[wall_num].trigger = trigger_num;
+		wt = &w.trigger;
 	}
+	*wt = trigger_num;
 	const auto &&t = vtrgptr(trigger_num);
 	t->flags = {};
 	t->value = F1_0*5;
@@ -125,7 +127,7 @@ static int trigger_flag_Markedside(const TRIGGER_FLAG flag, const int value)
 	// If no wall just return
 	auto wall_num = Markedsegp->sides[Markedside].wall_num;
 	if (!value && wall_num == wall_none) return 0;
-	auto trigger_num = value ? add_trigger(Markedsegp, Markedside) : Walls[wall_num].trigger;
+	const auto trigger_num = value ? add_trigger(Markedsegp, Markedside) : vcwallptr(wall_num)->trigger;
 
 	if (trigger_num == trigger_none) {
 		editor_status(value ? "Cannot add trigger at Markedside." : "No trigger at Markedside.");
@@ -153,7 +155,7 @@ static int bind_matcen_to_trigger() {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
-	auto trigger_num = Walls[wall_num].trigger;
+	const auto trigger_num = vcwallptr(wall_num)->trigger;
 	if (trigger_num == trigger_none) {
 		editor_status("No trigger at Markedside.");
 		return 0;
@@ -196,7 +198,7 @@ int bind_wall_to_trigger() {
 		editor_status("No wall at Markedside.");
 		return 0;
 	}
-	auto trigger_num = Walls[wall_num].trigger;
+	const auto trigger_num = vcwallptr(wall_num)->trigger;
 	if (trigger_num == trigger_none) {
 		editor_status("No trigger at Markedside.");
 		return 0;
@@ -239,12 +241,13 @@ int remove_trigger_num(int trigger_num)
 		Triggers.set_count(Num_triggers - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
 	
-		range_for (auto &w, partial_range(Walls, Num_walls))
+		range_for (const auto &&w, vwallptr)
 		{
-			if (w.trigger == trigger_num)
-				w.trigger = trigger_none;	// a trigger can be shared by multiple walls
-			else if (w.trigger > trigger_num) 
-				w.trigger--;
+			auto &trigger = w->trigger;
+			if (trigger == trigger_num)
+				trigger = trigger_none;	// a trigger can be shared by multiple walls
+			else if (trigger > trigger_num) 
+				--trigger;
 		}
 
 		return 1;
@@ -262,7 +265,7 @@ int remove_trigger(const vsegptr_t seg, short side)
 		return 0;
 	}
 
-	return remove_trigger_num(Walls[wall_num].trigger);
+	return remove_trigger_num(vcwallptr(wall_num)->trigger);
 }
 
 static int trigger_remove()
@@ -380,7 +383,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
 	const auto Markedwall = Markedsegp->sides[Markedside].wall_num;
-	auto trigger_num = (Markedwall != wall_none) ? Walls[Markedwall].trigger : trigger_none;
+	const auto trigger_num = (Markedwall != wall_none) ? vcwallptr(Markedwall)->trigger : trigger_none;
 
 	if (t->old_trigger_num != trigger_num)
 	{
@@ -443,7 +446,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	{
 		gr_set_current_canvas( t->wallViewBox->canvas );
 
-		if (Markedsegp->sides[Markedside].wall_num == wall_none || Walls[Markedsegp->sides[Markedside].wall_num].trigger == trigger_none)
+		if (Markedsegp->sides[Markedside].wall_num == wall_none || vcwallptr(Markedsegp->sides[Markedside].wall_num)->trigger == trigger_none)
 			gr_clear_canvas( CBLACK );
 		else {
 			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {

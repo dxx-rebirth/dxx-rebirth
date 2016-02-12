@@ -1766,10 +1766,11 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 	if (wall_num == wall_none)		//if there's no door at all...
 		return 0;				//..then say it can't be opened
 
+	const auto &&wallp = vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
 	if (objp == ConsoleObject) {
 
-		if (Walls[wall_num].type == WALL_DOOR)
+		if (wallp->type == WALL_DOOR)
 			return 1;
 	}
 
@@ -1778,13 +1779,10 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 	{
 
 		if (wall_num != wall_none)
-			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED))
+			if (wallp->type == WALL_DOOR && wallp->keys == KEY_NONE && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	wall	*wallp;
-	wallp = &Walls[wall_num];
-
 	if (objp == nullptr || Robot_info[get_robot_id(objp)].companion == 1)
 	{
 
@@ -1887,11 +1885,12 @@ static int openable_doors_in_segment(const vcsegptr_t segp)
 	int	i;
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		if (segp->sides[i].wall_num != wall_none) {
-			int	wall_num = segp->sides[i].wall_num;
+			const auto wall_num = segp->sides[i].wall_num;
+			auto &w = *vcwallptr(wall_num);
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED))
+			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED) && !(WallAnims[Walls[wall_num].clip_num].flags & WCF_HIDDEN))
+			if (w.type == WALL_DOOR && w.keys == KEY_NONE && w.state == WALL_DOOR_CLOSED && !(w.flags & WALL_DOOR_LOCKED) && !(WallAnims[w.clip_num].flags & WCF_HIDDEN))
 #endif
 				return i;
 		}

@@ -447,11 +447,12 @@ static void draw_wall_side(const vcsegptr_t seg,int side)
 // Draws special walls (for now these are just removable walls.)
 static void draw_special_wall(const vcsegptr_t seg, int side )
 {
+	auto &w = *vcwallptr(seg->sides[side].wall_num);
 	const auto get_color = [=]() {
-		const auto type = Walls[seg->sides[side].wall_num].type;
+		const auto type = w.type;
 		if (type != WALL_OPEN)
 		{
-			const auto flags = Walls[seg->sides[side].wall_num].flags;
+			const auto flags = w.flags;
 			if (flags & WALL_DOOR_LOCKED)
 				return (flags & WALL_DOOR_AUTO) ? WALL_AUTO_DOOR_LOCKED_COLOR : WALL_DOOR_LOCKED_COLOR;
 			if (flags & WALL_DOOR_AUTO)
@@ -470,7 +471,8 @@ static void draw_special_wall(const vcsegptr_t seg, int side )
 
 	draw_wall_side(seg,side);
 
-	if (Walls[seg->sides[side].wall_num].trigger != trigger_none) {
+	if (w.trigger != trigger_none)
+	{
 		gr_setcolor(TRIGGER_COLOR);
 		draw_trigger_side(seg,side);
 	}
