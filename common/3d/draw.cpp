@@ -24,9 +24,6 @@
 namespace dcx {
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
-#ifndef OGL
-static const flat_drawer_type flat_drawer_ptr = gr_upoly_tmap;
-#endif
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
@@ -118,7 +115,8 @@ static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 			Vertex_list[i*2]   = p->p3_sx;
 			Vertex_list[i*2+1] = p->p3_sy;
 		}
-		(*flat_drawer_ptr)(nv,Vertex_list);
+		const auto color = grd_curcanv->cv_color;
+		gr_upoly_tmap(nv, Vertex_list, color);
 	}
 	//free temp points
 free_points:
@@ -168,7 +166,8 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-	(*flat_drawer_ptr)(nv,Vertex_list);
+	const auto color = grd_curcanv->cv_color;
+	gr_upoly_tmap(nv, Vertex_list, color);
 	//say it drew
 }
 

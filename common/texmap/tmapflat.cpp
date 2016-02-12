@@ -179,9 +179,8 @@ static void texture_map_flat(const g3ds_tmap &t, int color, void (*scanline_func
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert)
+void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert, const uint8_t color)
 {
-	const auto color = COLOR;
 	gr_upoly_tmap_ylr(nverts, vert.data(), color);
 }
 
