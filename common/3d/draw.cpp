@@ -94,7 +94,7 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist)
 
 #ifndef OGL
 //deal with face that must be clipped
-static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
+static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
@@ -114,7 +114,6 @@ static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 			Vertex_list[i*2]   = p->p3_sx;
 			Vertex_list[i*2+1] = p->p3_sy;
 		}
-		const auto color = grd_curcanv->cv_color;
 		gr_upoly_tmap(nv, Vertex_list, color);
 	}
 	//free temp points
@@ -142,9 +141,10 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 	if (cc.uand)
 		return;	//all points off screen
 
+	const auto color = grd_curcanv->cv_color;
 	if (cc.uor)
 	{
-		must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+		must_clip_flat_face(nv,cc,Vbuf0,Vbuf1, color);
 		return;
 	}
 
@@ -158,14 +158,13 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist)
 
 		if (p->p3_flags&PF_OVERFLOW)
 		{
-			must_clip_flat_face(nv,cc,Vbuf0,Vbuf1);
+			must_clip_flat_face(nv,cc,Vbuf0,Vbuf1, color);
 			return;
 		}
 
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-	const auto color = grd_curcanv->cv_color;
 	gr_upoly_tmap(nv, Vertex_list, color);
 	//say it drew
 }
