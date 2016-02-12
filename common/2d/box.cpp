@@ -58,7 +58,7 @@ static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uin
 }
 
 
-static void gr_ubox12(int left,int top,int right,int bot)
+static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
 {
 #if 0	// the following shifts the box up 1 unit in OpenGL
 	for (int i=top; i<=bot; i++ )
@@ -73,7 +73,6 @@ static void gr_ubox12(int left,int top,int right,int bot)
 		gr_upixel( i, bot );
 	}
 #endif
-	const auto color = COLOR;
 	gr_uline(i2f(left), i2f(top), i2f(right), i2f(top), color);
 	gr_uline(i2f(right), i2f(top), i2f(right), i2f(bot), color);
 	gr_uline(i2f(left), i2f(top), i2f(left), i2f(bot), color);
@@ -87,8 +86,9 @@ static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,ui
     
     if (bot > MAXY ) bot = MAXY;
     if (right > MAXX ) right = MAXX;
-        
-	gr_ubox12(left, top, right, bot );
+
+	const auto color = COLOR;
+	gr_ubox12(left, top, right, bot, color);
     
 }
 
@@ -97,7 +97,7 @@ void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 	if (TYPE==BM_LINEAR)
 		gr_ubox0(left, top, right, bot, color);
     else
-		gr_ubox12( left, top, right, bot );
+		gr_ubox12(left, top, right, bot, color);
 }
 
 void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot)
