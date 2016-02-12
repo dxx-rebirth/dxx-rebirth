@@ -778,7 +778,6 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 
 static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	int	color;
 	static int x;
 	static	int last_score_display = -1;
 
@@ -795,6 +794,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 		if (score_display != last_score_display)
 			last_score_display = score_display;
 
+		int	color;
 		color = f2i(score_time * 20) + 10;
 
 		if (color < 10) color = 10;
@@ -1606,8 +1606,7 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 
 static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	int x,y;
-	x = SB_LIVES_X;
+	int y;
 	y = SB_LIVES_Y;
 
 	gr_set_curfont( GAME_FONT );
@@ -1630,6 +1629,7 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		return;
 	}
 
+	const int x = SB_LIVES_X;
 	//erase old icons
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h), color);
@@ -2247,7 +2247,6 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
 	{
 		int fade_value = f2i(weapon_box_fade_values[weapon_type]);
-		const local_multires_gauge_graphic multires_gauge_graphic{};
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(fade_value, GR_BLEND_NORMAL);
@@ -2894,7 +2893,6 @@ void show_HUD_names()
 
 		if ((show_name || show_typing || show_indi) && see_object(objp))
 		{
-			const auto &&objp = vcobjptr(objnum);
 			auto player_point = g3_rotate_point(objp->pos);
 			if (player_point.p3_codes == 0) //on screen
 			{

@@ -428,7 +428,6 @@ void wall_close_door(int door_num)
 void start_wall_cloak(const vsegptridx_t seg, int side)
 {
 	cloaking_wall *d;
-	int i;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
@@ -443,12 +442,10 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	const auto cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
-
-		int i;
-
 		d = NULL;
 
-		for (i=0;i<Num_cloaking_walls;i++) {		//find door
+		for (unsigned i = 0; i < Num_cloaking_walls; ++i)
+		{		//find door
 
 			d = &CloakingWalls[i];
 			if (d->front_wallnum == w || d->back_wallnum == w)
@@ -457,8 +454,6 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 				break;
 			}
 		}
-
-		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
@@ -491,9 +486,14 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
 	}
 
-	for (i=0;i<4;i++) {
-		d->front_ls[i] = seg->sides[side].uvls[i].l;
-			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
+	auto &df = d->front_ls;
+	auto &db = d->back_ls;
+	auto &s0_uvls = seg->sides[side].uvls;
+	auto &s1_uvls = csegp->sides[Connectside].uvls;
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		df[i] = s0_uvls[i].l;
+		db[i] = s1_uvls[i].l;
 	}
 }
 
@@ -502,7 +502,6 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 void start_wall_decloak(const vsegptridx_t seg, int side)
 {
 	cloaking_wall *d;
-	int i;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
@@ -514,12 +513,10 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 		return;
 
 	if (w->state == WALL_DOOR_CLOAKING) {	//cloaking, so reuse door
-
-		int i;
-
 		d = NULL;
 
-		for (i=0;i<Num_cloaking_walls;i++) {		//find door
+		for (unsigned i = 0; i < Num_cloaking_walls; ++i)
+		{		//find door
 
 			d = &CloakingWalls[i];
 	
@@ -529,8 +526,6 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 				break;
 			}
 		}
-
-		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
@@ -570,9 +565,14 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
 	}
 
-	for (i=0;i<4;i++) {
-		d->front_ls[i] = seg->sides[side].uvls[i].l;
-			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
+	auto &df = d->front_ls;
+	auto &db = d->back_ls;
+	auto &s0_uvls = seg->sides[side].uvls;
+	auto &s1_uvls = csegp->sides[Connectside].uvls;
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		df[i] = s0_uvls[i].l;
+		db[i] = s1_uvls[i].l;
 	}
 }
 #endif

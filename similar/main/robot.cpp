@@ -141,16 +141,16 @@ static void set_robot_state(const vobjptr_t obj,int state)
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs)
 {
-	int m,g,state;
+	int g,state;
 	array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 
-	range_for (auto &m, partial_range(gun_nums, pm->n_models))
+	range_for (auto &m, partial_range(gun_nums, 1u, pm->n_models))
 		m = r->n_guns;		//assume part of body...
 
 	gun_nums[0] = -1;		//body never animates, at least for now
 
 	for (g=0;g<r->n_guns;g++) {
-		m = r->gun_submodels[g];
+		auto m = r->gun_submodels[g];
 
 		while (m != 0) {
 			gun_nums[m] = g;				//...unless we find it in a gun
@@ -165,7 +165,8 @@ void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SU
 			r->anim_states[g][state].n_joints = 0;
 			r->anim_states[g][state].offset = N_robot_joints;
 
-			for (m=0;m<pm->n_models;m++) {
+			for (unsigned m = 0; m < pm->n_models; ++m)
+			{
 				if (gun_nums[m] == g) {
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];

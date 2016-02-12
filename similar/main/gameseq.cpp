@@ -236,13 +236,11 @@ static void gameseq_init_network_players()
 
 void gameseq_remove_unused_players()
 {
-	int i;
-
 	// 'Remove' the unused players
 
 	if (Game_mode & GM_MULTI)
 	{
-		for (i=0; i < NumNetPlayerPositions; i++)
+		for (unsigned i = 0; i < NumNetPlayerPositions; ++i)
 		{
 			if ((!Players[i].connected) || (i >= N_players))
 			{
@@ -1824,13 +1822,13 @@ public:
 		if (max_spawn_sites > SecludedSpawns)
 		{
 			max_usable_spawn_sites = SecludedSpawns;
-			const auto a = [](const site &a, const site &b) {
+			const auto &&predicate = [](const site &a, const site &b) {
 				return a.second > b.second;
 			};
 			const auto b = sites.begin();
 			const auto m = std::next(b, SecludedSpawns);
 			const auto e = std::next(b, max_spawn_sites);
-			std::partial_sort(b, m, e, a);
+			std::partial_sort(b, m, e, predicate);
 		}
 		else
 			max_usable_spawn_sites = max_spawn_sites;

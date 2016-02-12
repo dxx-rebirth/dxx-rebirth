@@ -878,7 +878,6 @@ static void kconfig_draw(kc_menu *menu)
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		const uint8_t color = BM_XRGB(31,27,6);
-		const auto &&fspacx = FSPACX();
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
 		const auto &&fspacy42 = fspacy(42);
@@ -890,7 +889,6 @@ static void kconfig_draw(kc_menu *menu)
 
 		const auto &&fspacx253 = fspacx(253);
 		const auto &&fspacx283 = fspacx(283);
-		const auto &&fspacy = FSPACY();
 		gr_rect(fspacx253, fspacy42, fspacx(261), fspacy42, color); // horiz/left
 		gr_rect(fspacx(275), fspacy42, fspacx283, fspacy42, color); // horiz/right
 		gr_rect(fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left

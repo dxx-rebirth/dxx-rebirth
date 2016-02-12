@@ -932,7 +932,7 @@ static int gcd(int a, int b)
 void change_res()
 {
 	array<screen_mode, 50> modes;
-	int i = 0, mc = 0, citem = -1;
+	int mc = 0, citem = -1;
 
 	const auto num_presets = gr_list_modes(modes);
 
@@ -973,6 +973,7 @@ void change_res()
 	// menu is done, now do what we need to do
 
 	// check which resolution field was selected
+	unsigned i;
 	for (i = 0; i <= mc; i++)
 		if ((m[i].type == NM_TYPE_RADIO) && (m[i].group==0) && (m[i].value == 1))
 			break;
@@ -1020,7 +1021,7 @@ void change_res()
 		GameCfg.AspectX = SM_H(casp) / g;
 		new_mode = cmode;
 	}
-	else if (i >= 0 && i < num_presets) // set preset resolution
+	else if (i < num_presets) // set preset resolution
 	{
 		new_mode = modes[i];
 		const auto g = gcd(SM_W(new_mode), SM_H(new_mode));
@@ -1392,11 +1393,13 @@ static void reticle_config()
 #undef DXX_RETICLE_CONFIG_MENU
 #undef DXX_RETICLE_TYPE_OGL
 	menu_items items;
+	{
 	auto i = PlayerCfg.ReticleType;
 #ifndef OGL
 	if (i > 1) i--;
 #endif
 	items.m[items.opt_reticle_classic + i].value = 1;
+	}
 
 	newmenu_do1(nullptr, "Reticle Customization", items.m.size(), items.m.data(), unused_newmenu_subfunction, unused_newmenu_userdata, 1);
 

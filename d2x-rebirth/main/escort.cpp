@@ -1282,7 +1282,6 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				if (d_rand() > 8192) {
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
-					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 					ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				}
@@ -1299,7 +1298,6 @@ void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 						fix	dot = vm_vec_dot(vec_to_player, ConsoleObject->orient.fvec);
 						if (dot < -F1_0/2) {	//	Looking at least towards thief, so thief will run!
 							create_n_segment_path(objp, 10, ConsoleObject->segnum);
-							ai_local		*ailp = &objp->ctype.ai_info.ail;
 							ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 							ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 						}

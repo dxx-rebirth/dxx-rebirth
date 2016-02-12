@@ -1166,8 +1166,8 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, co
 	for (i=0;i<3;i++)
 		uvls[i] = side->uvls[vn[facenum*3+i].vertnum];
 
-	auto p = [&uvls, k0, k1](fix uvl::*p) {
-		return uvls[1].*p + fixmul(k0,uvls[0].*p - uvls[1].*p) + fixmul(k1,uvls[2].*p - uvls[1].*p);
+	auto p = [&uvls, k0, k1](fix uvl::*pmf) {
+		return uvls[1].*pmf + fixmul(k0,uvls[0].*pmf - uvls[1].*pmf) + fixmul(k1,uvls[2].*pmf - uvls[1].*pmf);
 	};
 	return {
 		p(&uvl::u),

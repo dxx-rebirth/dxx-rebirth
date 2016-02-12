@@ -344,7 +344,6 @@ int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 bitmap_index piggy_find_bitmap(const char * name)
 {
 	bitmap_index bmp;
-	int i;
 
 	bmp.index = 0;
 
@@ -371,6 +370,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 		}
 #endif
 
+	int i;
 	i = hashtable_search( &AllBitmapsNames, name );
 	Assert( i != 0 );
 	if ( i < 0 )
@@ -415,11 +415,12 @@ int properties_init()
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	int header_size, N_bitmaps, N_sounds;
-	int i,size;
+	int size;
 	int Pigdata_start;
 	int pigsize;
 	int retval;
-	for (i=0; i<MAX_SOUND_FILES; i++ )	{
+	for (unsigned i = 0; i < MAX_SOUND_FILES; ++i)
+	{
 #ifdef ALLEGRO
 		GameSounds[i].len = 0;
 #else
@@ -434,20 +435,21 @@ int properties_init()
 //end this section addition - VR
 	}
 
-	for (i=0; i<MAX_BITMAP_FILES; i++ )		{
+	for (unsigned i = 0; i < MAX_BITMAP_FILES; ++i)
+	{
 		GameBitmapXlat[i] = i;
 		GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
 	}
 
 	if ( !bogus_bitmap_initialized )	{
-		int i;
 		ubyte c;
 		bogus_bitmap_initialized = 1;
 		c = gr_find_closest_color( 0, 0, 63 );
 		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
-		for (i=0; i<64; i++ )	{
+		for (unsigned i = 0; i < 64; ++i)
+		{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
@@ -506,9 +508,9 @@ int properties_init()
 	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
 	{
 		properties_read_cmp( Piggy_fp );	// Note connection to above if!!!
-		for (i = 0; i < MAX_BITMAP_FILES; i++)
+		range_for (auto &i, GameBitmapXlat)
 		{
-			GameBitmapXlat[i] = PHYSFSX_readShort(Piggy_fp);
+			i = PHYSFSX_readShort(Piggy_fp);
 			if (PHYSFS_eof(Piggy_fp))
 				break;
 		}
@@ -527,7 +529,8 @@ int properties_init()
 
 	header_size = (N_bitmaps*sizeof(DiskBitmapHeader)) + (N_sounds*sizeof(DiskSoundHeader));
 
-	for (i=0; i<N_bitmaps; i++ ) {
+	for (unsigned i = 0; i < N_bitmaps; ++i)
+	{
 		DiskBitmapHeader_read(&bmh, Piggy_fp);
 		
 		GameBitmapFlags[i+1] = 0;
@@ -569,7 +572,10 @@ int properties_init()
 		piggy_register_bitmap( &temp_bitmap, temp_name, 1 );
 	}
 
-	for (i=0; !MacPig && i<N_sounds; i++ ) {
+	if (!MacPig)
+	{
+	for (unsigned i = 0; i < N_sounds; ++i)
+	{
 		DiskSoundHeader_read(&sndh, Piggy_fp);
 		
 		//size -= sizeof(DiskSoundHeader);
@@ -593,8 +599,6 @@ int properties_init()
                 sbytes += sndh.length;
 	}
 
-	if (!MacPig)
-	{
 		SoundBits = make_unique<ubyte[]>(sbytes + 16);
 	}
 
@@ -1107,19 +1111,19 @@ static int read_sndfile()
 int properties_init(void)
 {
 	int ham_ok=0,snd_ok=0;
-	int i;
-	for (i=0; i<MAX_SOUND_FILES; i++ )	{
+	for (unsigned i = 0; i < MAX_SOUND_FILES; ++i)
+	{
 		GameSounds[i].length = 0;
 		GameSounds[i].data = NULL;
 		SoundOffset[i] = 0;
 	}
 
-	for (i=0; i<MAX_BITMAP_FILES; i++ ) {
+	for (unsigned i = 0; i < MAX_BITMAP_FILES; ++i)
+	{
 		GameBitmapXlat[i] = i;
 	}
 
 	if ( !bogus_bitmap_initialized )        {
-		int i;
 		ubyte c;
 
 		bogus_bitmap_initialized = 1;
@@ -1127,7 +1131,8 @@ int properties_init(void)
 		bogus_data.fill(c);
 		c = gr_find_closest_color( 63, 0, 0 );
 		// Make a big red X !
-		for (i=0; i<64; i++ )   {
+		for (unsigned i = 0; i < 64; ++i)
+		{
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}

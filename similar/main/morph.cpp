@@ -317,11 +317,10 @@ void morph_start(const vobjptr_t obj)
 	box_size.y = max(-pmmin.y,pmmax.y) / 2;
 	box_size.z = max(-pmmin.z,pmmax.z) / 2;
 
-	range_for (auto &i, md->morph_times)		//clear all points
-		i = 0;
-
-	range_for (auto &i, md->submodel_active)		//clear all parts
-		i = 0;
+	//clear all points
+	md->morph_times = {};
+	//clear all parts
+	md->submodel_active = {};
 
 	md->submodel_active[0] = 1;		//1 means visible & animating
 
@@ -375,18 +374,17 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 		mn = sort_list[i];
 
 		if (mn == submodel_num) {
- 			int i;
-
 			array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
-			for (i=0;i<pm->n_textures;i++)		{
+			for (unsigned i = 0; i < pm->n_textures; ++i)
+			{
 				texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]];
 				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
 			}
 
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
-			range_for (auto &i, partial_const_range(texture_list_index, pm->n_textures))
-				PIGGY_PAGE_IN(i);
+			range_for (auto &j, partial_const_range(texture_list_index, pm->n_textures))
+				PIGGY_PAGE_IN(j);
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
 			if (piggy_page_flushed)	{
