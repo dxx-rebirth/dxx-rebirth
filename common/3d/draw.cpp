@@ -71,19 +71,11 @@ void g3_draw_line(g3s_point &p0,g3s_point &p1,temporary_points_t &tp)
 
 	codes_or = p0.p3_codes | p1.p3_codes;
 
-	if (codes_or & CC_BEHIND)
-		return must_clip_line(&p0,&p1,codes_or,tp);
-
-	if (!(p0.p3_flags&PF_PROJECTED))
-		g3_project_point(p0);
-
-	if (p0.p3_flags&PF_OVERFLOW)
-		return must_clip_line(&p0,&p1,codes_or,tp);
-
-	if (!(p1.p3_flags&PF_PROJECTED))
-		g3_project_point(p1);
-
-	if (p1.p3_flags&PF_OVERFLOW)
+	if (
+		(codes_or & CC_BEHIND) ||
+		(static_cast<void>((p0.p3_flags & PF_PROJECTED) || (g3_project_point(p0), 0)), p0.p3_flags & PF_OVERFLOW) ||
+		(static_cast<void>((p1.p3_flags & PF_PROJECTED) || (g3_project_point(p1), 0)), p1.p3_flags & PF_OVERFLOW)
+	)
 		return must_clip_line(&p0,&p1,codes_or,tp);
 	(*line_drawer_ptr)(p0.p3_sx,p0.p3_sy,p1.p3_sx,p1.p3_sy);
 }
