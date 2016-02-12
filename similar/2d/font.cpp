@@ -654,8 +654,9 @@ static int ogl_internal_string(int x, int y, const char *s )
 				{
 					ubyte save_c = (unsigned char) COLOR;
 					
-					gr_setcolor(grd_curcanv->cv_font_fg_color);
-					gr_rect(xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3);
+					const uint8_t color = grd_curcanv->cv_font_fg_color;
+					gr_setcolor(color);
+					gr_rect(xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
 					gr_setcolor(save_c);
 				}
 

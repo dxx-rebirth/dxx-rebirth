@@ -95,7 +95,7 @@ void _gr_set_current_canvas(grs_canvas *canv)
 void gr_clear_canvas(color_t color)
 {
 	gr_setcolor(color);
-	gr_rect(0,0,GWIDTH-1,GHEIGHT-1);
+	gr_rect(0,0,GWIDTH-1,GHEIGHT-1, color);
 }
 
 void gr_setcolor(color_t color)

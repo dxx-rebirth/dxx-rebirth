@@ -300,14 +300,23 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 
 	if (w1 == 0) w1 = w;
 
-	gr_setcolor( BM_XRGB(5,5,5));
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
-	gr_rect(x - fspacx(2), y - fspacy(1), x + w1, y + h);
-	gr_setcolor( BM_XRGB(2,2,2));
-	gr_rect(x - fspacx(2), y - fspacy(1), x, y + h);
-	gr_setcolor( BM_XRGB(0,0,0));
-	gr_rect(x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h);
+	{
+		const uint8_t color = BM_XRGB(5, 5, 5);
+		gr_setcolor(color);
+		gr_rect(x - fspacx(2), y - fspacy(1), x + w1, y + h, color);
+	}
+	{
+		const uint8_t color = BM_XRGB(2, 2, 2);
+		gr_setcolor(color);
+		gr_rect(x - fspacx(2), y - fspacy(1), x, y + h, color);
+	}
+	{
+		const uint8_t color = BM_XRGB(0, 0, 0);
+		gr_setcolor(color);
+		gr_rect(x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h, color);
+	}
 
 	gr_string(x, y, s, w, h);
 }
@@ -1927,20 +1936,23 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
-		gr_setcolor(BM_XRGB(5,5,5));
+		const uint8_t color5 = BM_XRGB(5, 5, 5);
+		const uint8_t color2 = BM_XRGB(2, 2, 2);
+		const uint8_t color0 = BM_XRGB(0, 0, 0);
+		gr_setcolor(color5);
 		if ( i >= lb->nitems )	{
-			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing);
-			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing);
-			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
+			gr_setcolor(color2);
+			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
+			gr_setcolor(color0);
+			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 		} else {
 			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
-			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing);
-			gr_setcolor( BM_XRGB(2,2,2));
-			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing);
-			gr_setcolor( BM_XRGB(0,0,0));
-			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing);
+			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
+			gr_setcolor(color2);
+			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
+			gr_setcolor(color0);
+			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 
 			RAIIdmem<char[]> shrtstr;
 			const char *showstr;

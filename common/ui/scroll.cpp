@@ -41,13 +41,13 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 	scrollbar->status = 0;
 	gr_set_current_canvas( scrollbar->canvas );
 
-	if (dlg->keyboard_focus_gadget == scrollbar)
-		gr_setcolor( CRED );
-	else
-		gr_setcolor( CGREY );
+	uint8_t color = (dlg->keyboard_focus_gadget == scrollbar)
+		? CRED
+		: CGREY;
+	gr_setcolor(color);
 
-	gr_rect( 0, 0, scrollbar->width-1, scrollbar->fake_position-1 );
-	gr_rect( 0, scrollbar->fake_position+scrollbar->fake_size, scrollbar->width-1, scrollbar->height-1);
+	gr_rect(0, 0, scrollbar->width-1, scrollbar->fake_position-1, color);
+	gr_rect(0, scrollbar->fake_position+scrollbar->fake_size, scrollbar->width-1, scrollbar->height-1, color);
 
 	ui_draw_box_out(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
 }

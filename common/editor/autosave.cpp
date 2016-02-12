@@ -121,7 +121,8 @@ static void print_clock()
 		message[0] = 0;
 	gr_setcolor( CGREY );
 	gr_get_string_size(message.data(), &w, &h, nullptr);
-	gr_rect( 700, 0, 799, h+1 );
+	const uint8_t color = CGREY;
+	gr_rect( 700, 0, 799, h+1, color);
 	gr_string(700, 0, message.data());
 	gr_set_fontcolor( CBLACK, CWHITE );
 }

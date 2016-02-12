@@ -46,9 +46,8 @@ void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 #endif
 }
 
-void gr_rect(int left,int top,int right,int bot)
+void gr_rect(int left,int top,int right,int bot, const uint8_t color)
 {
-	const auto color = COLOR;
 #ifdef OGL
 	if (TYPE == BM_OGL) {
 		ogl_urect(left,top,right,bot, color);

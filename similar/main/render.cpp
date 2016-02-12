@@ -569,7 +569,7 @@ static void render_object_search(const vobjptridx_t obj)
 	// Point smoothing would change the pixel to dark grey, but it MUST be black.
 	// Making a 3x3 rectangle wouldn't matter
 	// (but it only seems to draw a single pixel anyway)
-	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
+	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
 
 	ogl_start_frame();
 #else
@@ -585,7 +585,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_setcolor(color);
 #ifdef OGL
 	ogl_end_frame();
-	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
+	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
 	ogl_start_frame();
 #else
 	gr_pixel(_search_x,_search_y, color);
@@ -1517,6 +1517,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 			if (Clear_window_color == -1)
 				Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 	
+			const uint8_t color = Clear_window_color;
 			gr_setcolor(Clear_window_color);
 	
 			range_for (const auto segnum, partial_const_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
@@ -1529,7 +1530,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 					else
 					#endif
 						//NOTE LINK TO ABOVE!
-						gr_rect(rw.left, rw.top, rw.right, rw.bot);
+						gr_rect(rw.left, rw.top, rw.right, rw.bot, color);
 				}
 			}
 		}

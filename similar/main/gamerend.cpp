@@ -147,8 +147,9 @@ static void show_netplayerinfo()
 	y = (SHEIGHT / 2) - fspacy84;
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
-	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect((SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84);
+	const uint8_t color = BM_XRGB(0, 0, 0);
+	gr_setcolor(color);
+	gr_rect((SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color);
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information

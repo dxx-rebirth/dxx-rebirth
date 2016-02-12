@@ -254,8 +254,9 @@ void player_dead_message(void)
 			y = (grd_curcanv->cv_bitmap.bm_h - h ) / 2;
 		
 			gr_settransblend(14, GR_BLEND_NORMAL);
-			gr_setcolor( BM_XRGB(0,0,0) );
-			gr_rect( x, y, x+w, y+h );
+			const uint8_t color = BM_XRGB(0, 0, 0);
+			gr_setcolor(color);
+			gr_rect(x, y, x + w, y + h, color);
 			gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		
 			gr_string(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);

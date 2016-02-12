@@ -160,7 +160,7 @@ static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_string(4, 583, message, w, h);
 	gr_set_fontcolor( CBLACK, CWHITE );
 	gr_setcolor( CGREY );
-	gr_rect( 4+w, 583, 799, 599 );
+	gr_rect(4+w, 583, 799, 599, CGREY);
 }
 
 static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
@@ -967,7 +967,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 		// Draw status box
 		gr_set_current_canvas( NULL );
 		gr_setcolor( CGREY );
-		gr_rect(STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1);			//0, 582, 799, 599 );
+		gr_rect(STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1, CGREY);
 		
 		medlisp_update_screen();
 		calc_frame_time();
@@ -1180,7 +1180,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 
 		gr_set_current_canvas( GameViewBox->canvas );
 		gr_setcolor( 15 );
-		gr_rect( x-1, y-1, x+1, y+1 );
+		gr_rect( x-1, y-1, x+1, y+1, 15);
 	}
 	
 	// Set current segment and side by clicking on a polygon in game window.

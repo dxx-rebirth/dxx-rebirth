@@ -84,9 +84,9 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				ui_string_centered(Middle(button->width), Middle(button->height), button->text.c_str());
 			} else	{
 				gr_setcolor( CBLACK );
-				gr_rect( 0, 0, button->width, button->height );
+				gr_rect( 0, 0, button->width, button->height, CBLACK);
 				gr_setcolor( color );
-				gr_rect( 1, 1, button->width-1, button->height-1 );
+				gr_rect( 1, 1, button->width-1, button->height-1, color);
 			}				
 		} else {
 			if (!button->text.empty())	{
@@ -94,9 +94,9 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				ui_string_centered(Middle(button->width)+1, Middle(button->height)+1, button->text.c_str());
 			} else	{
 				gr_setcolor( CBLACK );
-				gr_rect( 0, 0, button->width, button->height );
+				gr_rect( 0, 0, button->width, button->height, CBLACK);
 				gr_setcolor( color );
-				gr_rect( 2, 2, button->width, button->height );
+				gr_rect( 2, 2, button->width, button->height, color);
 			}			
 		}
 		button->canvas->cv_color = color;
