@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static void gr_ubox0(int left,int top,int right,int bot)
+static void gr_ubox0(int left,int top,int right,int bot, const uint8_t color)
 {
 	int d;
 	unsigned char * ptr2;
@@ -34,7 +34,6 @@ static void gr_ubox0(int left,int top,int right,int bot)
 	ptr2 = ptr1;
 	d = right - left;
 
-	const auto color = COLOR;
 	std::fill_n(ptr1 + 1, (right - left) - 1, color);
 	for (uint_fast32_t i = bot - top + 1; i--;)
 	{
@@ -53,7 +52,8 @@ static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uin
     if (bot > MAXY ) bot = MAXY;
     if (right > MAXX ) right = MAXX;
 
-	gr_ubox0(left,top,right,bot);
+	const auto color = COLOR;
+	gr_ubox0(left,top,right,bot, color);
 
 }
 
@@ -92,10 +92,10 @@ static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,ui
     
 }
 
-void gr_ubox(int left,int top,int right,int bot)
+void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 {
 	if (TYPE==BM_LINEAR)
-		gr_ubox0( left, top, right, bot );
+		gr_ubox0(left, top, right, bot, color);
     else
 		gr_ubox12( left, top, right, bot );
 }

@@ -136,7 +136,7 @@ static void menu_draw(MENU *menu)
 	if ( menu != &Menu[0] )
 	{
 		gr_setcolor( CBLACK );
-		gr_ubox( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
+		gr_ubox(menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CBLACK);
 	}
 	
 	// Draw the items
