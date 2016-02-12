@@ -272,7 +272,8 @@ void g3_draw_sphere(g3s_point &pnt,fix rad)
 				return;
 			const fix t = fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_z)));
 #endif
-			gr_disk(pnt.p3_sx, pnt.p3_sy, t);
+			const auto color = grd_curcanv->cv_color;
+			gr_disk(pnt.p3_sx, pnt.p3_sy, t, color);
 		}
 	}
 }

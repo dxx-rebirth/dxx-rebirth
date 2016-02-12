@@ -17,7 +17,7 @@
 namespace dcx {
 
 #ifndef OGL
-int gr_disk(fix xc1,fix yc1,fix r1)
+int gr_disk(fix xc1,fix yc1,fix r1, const uint8_t color)
 {
 	int p,x, y, xc, yc, r;
 
@@ -34,7 +34,6 @@ int gr_disk(fix xc1,fix yc1,fix r1)
 	if ( (yc+r) < 0 ) return 1;
 	if ( (yc-r) > GHEIGHT ) return 1;
 
-	const auto color = COLOR;
 	while(x<y)
 	{
 		// Draw the first octant
