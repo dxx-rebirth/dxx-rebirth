@@ -146,7 +146,6 @@ static void draw_outline(int nverts,cg3s_point *const *const pointlist)
 	int i;
 
 	const uint8_t color = BM_XRGB(63, 63, 63);
-	gr_setcolor(color);
 
 	for (i=0;i<nverts-1;i++)
 		g3_draw_line(*pointlist[i], *pointlist[i+1], color);
@@ -246,7 +245,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		Assert(wall_num != wall_none);
 		gr_settransblend(vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_setcolor(color);  // set to black (matters for s3)
+		// set to black (matters for s3)
 
 		g3_draw_poly(nv, pointlist, color);    // draw as flat poly
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -388,7 +387,6 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
-		gr_setcolor(0);
 #ifdef OGL
 		ogl_end_frame();
 #endif
@@ -399,12 +397,12 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #endif
 		{
 			const uint8_t color = 1;
-			gr_setcolor(color);					//and render in color one
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 #ifdef OGL
 		g3_draw_poly(nv,pointlist, color);
 #else
+		(void)color;
 		g3_draw_tmap(nv,pointlist, uvl_copy, dyn_light, *bm);
 #endif
 		}
@@ -561,7 +559,7 @@ static void render_object_search(const vobjptridx_t obj)
 
 	{
 	const uint8_t color = 0;
-	gr_setcolor(color);	//set our search pixel to color zero
+	//set our search pixel to color zero
 #ifdef OGL
 	ogl_end_frame();
 
@@ -584,7 +582,6 @@ static void render_object_search(const vobjptridx_t obj)
 
 	{
 		const uint8_t color = 1;
-	gr_setcolor(color);
 #ifdef OGL
 	ogl_end_frame();
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
@@ -784,7 +781,6 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 		//render curedge of curside of curseg in green
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
-		gr_setcolor(color);
 		auto &sv = Side_to_verts[_side];
 		g3_draw_line(Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge+1)%4]]], color);
 
@@ -794,7 +790,6 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 
 		g3_project_point(*pnt);		//make sure projected
 
-//		gr_setcolor(BM_XRGB(0,0,63));
 //		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);
 //		gr_line(pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT,pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT);
 
@@ -1522,7 +1517,6 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 	
 			const uint8_t color = Clear_window_color;
-			gr_setcolor(Clear_window_color);
 	
 			range_for (const auto segnum, partial_const_range(rstate.Render_list, first_terminal_seg, rstate.N_render_segs))
 			{

@@ -53,7 +53,6 @@ void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 )
 	Hline(x1+0, x2-1, y1+0, c1);
 	Vline(y1+1, y2+0, x1+0, c1);
 
-	gr_setcolor( c2 );
 	Hline(x1+1, x2, y2-0, c2);
 	Vline(y1+0, y2-1, x2-0, c2);
 }
@@ -76,9 +75,7 @@ void ui_draw_frame( short x1, short y1, short x2, short y2 )
 
 void ui_draw_box_out( short x1, short y1, short x2, short y2 )
 {
-
 	const uint8_t color = CWHITE;
-	gr_setcolor( CWHITE );
 	gr_urect( x1+2, y1+2, x2-2, y2-2, color);
 
 	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CBRIGHT, CGREY );
@@ -88,9 +85,6 @@ void ui_draw_box_out( short x1, short y1, short x2, short y2 )
 
 void ui_draw_box_in( short x1, short y1, short x2, short y2 )
 {
-
-	gr_setcolor( CWHITE );
-
 	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CGREY, CBRIGHT );
 	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CGREY, CBRIGHT );
 }
@@ -104,7 +98,6 @@ void ui_draw_line_in( short x1, short y1, short x2, short y2 )
 	Vline(y1+1, y2-2, x1, cgrey);
 	Vline(y1+1, y2-2, x2-1, cgrey);
 
-	gr_setcolor( CBRIGHT );
 	Hline(x1+1, x2-1, y1+1, cbright);
 	Hline(x1, x2, y2, cbright);
 	Vline(y1+2, y2-2, x1+1, cbright);

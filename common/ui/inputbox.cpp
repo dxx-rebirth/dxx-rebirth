@@ -40,7 +40,6 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	{
 		gr_set_current_canvas( inputbox->canvas );
 
-		gr_setcolor( CBLACK );
 		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
 		
 		int w, h;
@@ -50,7 +49,6 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 			if (inputbox->first_time)
 			{
 				gr_set_fontcolor( CBLACK, -1 );
-				gr_setcolor( CRED );
 				gr_rect(2, 2, 2 + w, 2 + h, CRED);
 			}
 			else
@@ -66,7 +64,6 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
 		{
 			const uint8_t cred = CRED;
-			gr_setcolor(CRED);
 			Vline(2,inputbox->height-3, 2+w+1, cred);
 			Vline(2,inputbox->height-3, 2+w+2, cred);
 		}

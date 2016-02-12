@@ -119,7 +119,6 @@ static void print_clock()
 	array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
-	gr_setcolor( CGREY );
 	gr_get_string_size(message.data(), &w, &h, nullptr);
 	const uint8_t color = CGREY;
 	gr_rect( 700, 0, 799, h+1, color);

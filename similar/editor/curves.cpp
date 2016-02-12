@@ -109,7 +109,6 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
     vms_vector coord, dcoord;
     fix t, dt;
 
-    gr_setcolor(15);
 	const uint8_t color = 15;
 	gr_box( 75,  40, 325, 290, color);
 	gr_box( 75, 310, 325, 560, color);

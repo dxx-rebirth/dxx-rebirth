@@ -658,7 +658,6 @@ static void draw_subtitles(int frame_num)
 
 	//erase old subtitles if necessary
 	if (must_erase) {
-		gr_setcolor(0);
 		gr_rect(0,y,grd_curcanv->cv_bitmap.bm_w-1,grd_curcanv->cv_bitmap.bm_h-1, 0);
 	}
 

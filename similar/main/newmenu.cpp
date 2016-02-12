@@ -196,13 +196,11 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_settransblend(14, GR_BLEND_NORMAL);
 	{
 		const uint8_t color = BM_XRGB(1, 1, 1);
-	gr_setcolor(color);
 	for (w=5*BGScaleX;w>0;w--)
 		gr_urect( x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX), color);//right edge
 	}
 	{
 		const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 	for (h=5*BGScaleY;h>0;h--)
 		gr_urect( x1+h*(BGScaleX/BGScaleY), y2-h, x2-h*(BGScaleX/BGScaleY), y2-h, color);//bottom edge
 	}
@@ -304,17 +302,14 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 	const auto &&fspacy = FSPACY();
 	{
 		const uint8_t color = BM_XRGB(5, 5, 5);
-		gr_setcolor(color);
 		gr_rect(x - fspacx(2), y - fspacy(1), x + w1, y + h, color);
 	}
 	{
 		const uint8_t color = BM_XRGB(2, 2, 2);
-		gr_setcolor(color);
 		gr_rect(x - fspacx(2), y - fspacy(1), x, y + h, color);
 	}
 	{
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_setcolor(color);
 		gr_rect(x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h, color);
 	}
 
@@ -1930,7 +1925,6 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_set_curfont(MEDIUM3_FONT);
 	gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );
 
-	gr_setcolor( BM_XRGB( 0,0,0)  );
 	const auto &&line_spacing = LINE_SPACING;
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
@@ -1939,19 +1933,14 @@ static window_event_result listbox_draw(window *, listbox *lb)
 		const uint8_t color5 = BM_XRGB(5, 5, 5);
 		const uint8_t color2 = BM_XRGB(2, 2, 2);
 		const uint8_t color0 = BM_XRGB(0, 0, 0);
-		gr_setcolor(color5);
 		if ( i >= lb->nitems )	{
 			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
-			gr_setcolor(color2);
 			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
-			gr_setcolor(color0);
 			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 		} else {
 			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
 			gr_rect(lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
-			gr_setcolor(color2);
 			gr_rect(lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
-			gr_setcolor(color0);
 			gr_rect(lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 
 			RAIIdmem<char[]> shrtstr;

@@ -186,8 +186,6 @@ void gr_use_palette_table(const char * filename);
 
 namespace dcx {
 
-// Sets the color in the current canvas.
-void gr_setcolor(color_t color);
 // Sets transparency and blending function
 void gr_settransblend(int fade_level, uint8_t blend_func);
 

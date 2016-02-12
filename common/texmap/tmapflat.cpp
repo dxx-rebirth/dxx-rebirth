@@ -213,7 +213,6 @@ void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *c
 		average_light = NUM_LIGHTING_LEVELS-1;
 
 	color_t color = gr_fade_table[average_light][bp.avg_color];
-	gr_setcolor(color);
 
 	for (int i=0;i<nverts;i++) {
 		points[i].x = vertbuf[i]->p3_sx;

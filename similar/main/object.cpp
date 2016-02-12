@@ -303,7 +303,6 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 	}
 	else {
 		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
-		gr_setcolor(BM_XRGB(0,0,0));	//set to black (matters for s3)
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
 		draw_polygon_model(obj->pos,
 				   &obj->orient,

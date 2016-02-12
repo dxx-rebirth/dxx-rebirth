@@ -44,7 +44,6 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 	uint8_t color = (dlg->keyboard_focus_gadget == scrollbar)
 		? CRED
 		: CGREY;
-	gr_setcolor(color);
 
 	gr_rect(0, 0, scrollbar->width-1, scrollbar->fake_position-1, color);
 	gr_rect(0, scrollbar->fake_position+scrollbar->fake_size, scrollbar->width-1, scrollbar->height-1, color);

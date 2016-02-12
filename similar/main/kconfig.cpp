@@ -878,8 +878,6 @@ static void kconfig_draw(kc_menu *menu)
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		const uint8_t color = BM_XRGB(31,27,6);
-		gr_setcolor(color);
-		
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
@@ -906,7 +904,6 @@ static void kconfig_draw(kc_menu *menu)
 	else if ( menu->items == kc_joystick )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 		gr_string(0x8000, fspacy(30), TXT_BUTTONS);
 #endif
@@ -922,7 +919,6 @@ static void kconfig_draw(kc_menu *menu)
 
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
-		gr_setcolor(color);
 		gr_rect(fspacx(115), fspacy(40), fspacx(123), fspacy(40), color); // horiz/left
 		gr_rect(fspacx(137), fspacy(40), fspacx(145), fspacy(40), color); // horiz/right
 		gr_rect(fspacx(115), fspacy(40), fspacx(115), fspacy(42), color); // vert/left
@@ -942,7 +938,6 @@ static void kconfig_draw(kc_menu *menu)
 	else if ( menu->items == kc_mouse )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
 		gr_string(0x8000, fspacy(35), TXT_BUTTONS);
 		gr_string(0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -954,7 +949,6 @@ static void kconfig_draw(kc_menu *menu)
 	else if ( menu->items == kc_rebirth )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
 
 		gr_string(fspacx(152), fspacy(60), "KEYBOARD");
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
@@ -1341,7 +1335,6 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		else
 			r = 16 * 2, g = 0, b = 19 * 2;
 		const uint8_t color = BM_XRGB(r, g, b);
-		gr_setcolor(color);
 
 		int x, w, h;
 		gr_get_string_size(btext, &w, &h, nullptr);
@@ -1365,7 +1358,6 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 #elif defined(DXX_BUILD_DESCENT_II)
 	const uint8_t color = BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31);
 #endif
-	gr_setcolor(color);
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 

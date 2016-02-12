@@ -771,7 +771,6 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 
 	//erase old score
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 	gr_rect(x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING, color);
 
 	gr_string(x, y, score_str, w, h);
@@ -814,7 +813,6 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 	} else {
 		//erase old score
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_setcolor(color);
 		gr_rect(x,HUD_SCALE_Y(SB_SCORE_ADDED_Y),HUD_SCALE_X(SB_SCORE_ADDED_RIGHT),HUD_SCALE_Y(SB_SCORE_ADDED_Y)+LINE_SPACING, color);
 		score_time = 0;
 		score_display = 0;
@@ -1617,7 +1615,6 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 	gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X), HUD_SCALE_Y(y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
-	gr_setcolor(color);
 	if (Game_mode & GM_MULTI)
 	{
 		char killed_str[20];
@@ -1841,7 +1838,6 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 	hud_gauge_bitblt(LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT, multires_gauge_graphic);
 
 	const auto color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 
 	if (energy < 100)
 		for (y=0; y < HUD_SCALE_Y(LEFT_ENERGY_GAUGE_H); y++) {
@@ -1891,7 +1887,6 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 	// Draw afterburner bar
 	hud_gauge_bitblt(AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, GAUGE_AFTERBURNER, multires_gauge_graphic);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
 
 	for (y = 0; y < not_afterburner; y++) {
@@ -2042,7 +2037,6 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 {
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1), color);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2183,7 +2177,6 @@ static void draw_ammo_info(int x,int y,int ammo_count)
 {
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
-		gr_setcolor(BM_XRGB(0,0,0));
 		gr_set_fontcolor(BM_XRGB(20,0,0),-1 );
 		gr_printf(x,y,"%03d",ammo_count);
 	}
@@ -2383,7 +2376,6 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
 	const auto color = 0;
-	gr_setcolor(color);
 	for (i=0;i<erase_height;i++)
 		gr_uline(i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), color);
 
@@ -2410,7 +2402,6 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 
 	erase_height = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H-1));
 	const auto color = 0;
-	gr_setcolor(color);
 	for (i=0;i<erase_height;i++)
 		gr_uline(i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W))), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i), color);
 
@@ -2570,7 +2561,6 @@ void show_reticle(int reticle_type, int secondary_display)
 	Assert(cross_bm_num <= 1);
 
 	const auto color = BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]);
-	gr_setcolor(color);
 	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 
 	switch (reticle_type)
@@ -2690,7 +2680,6 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 	auto &rgba = PlayerCfg.ReticleRGBA;
 	const auto color = BM_XRGB(rgba[0], rgba[1], rgba[2]);
-	gr_setcolor(color);
 	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
 	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)), color);
 	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
@@ -2974,7 +2963,6 @@ void show_HUD_names()
 								c = {color.r, color.g, color.b};
 							}
 						const uint8_t color = BM_XRGB(c.r, c.g, c.b);
-						gr_setcolor(color);
 
 						gr_line(x + dx - w, y - dy, x + dx, y - dy, color);
 						gr_line(x + dx, y - dy, x + dx, y - dy + h, color);

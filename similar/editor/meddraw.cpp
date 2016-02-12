@@ -94,7 +94,6 @@ static void draw_seg_objects(const vcsegptr_t seg)
 				? PLAYER_COLOR
 				: ROBOT_COLOR
 			);
-		gr_setcolor(color);
 		g3_draw_sphere(sphere_point,obj->size, color);
 	}
 }
@@ -134,7 +133,6 @@ static void check_segment(const vsegptridx_t seg)
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
-		gr_setcolor(0);
 #ifdef OGL
 		g3_end_frame();
 #endif
@@ -145,7 +143,7 @@ static void check_segment(const vsegptridx_t seg)
 #endif
 		{
 		const uint8_t color = 1;
-		gr_setcolor(color);					//and render in color one
+		//and render in color one
 
 		range_for (auto &fn, Side_to_verts)
 		{
@@ -523,7 +521,6 @@ static void draw_mine_edges(int automap_flag)
 
 	for (type=ET_NOTUSED;type>=ET_FACING;type--) {
 		const auto color = edge_colors[type];
-		gr_setcolor(color);
 		for (i=0;i<n_used;i++) {
 			e = &edge_list[used_list[i]];
 			if (e->type == type)
@@ -650,7 +647,6 @@ static void draw_special_segments(void)
 					continue;
 			}
 			const auto color = gr_find_closest_color(r, g, b);
-			gr_setcolor(color);
 			draw_segment(segp, color);
 		}
 	}
@@ -732,7 +728,6 @@ static void draw_coordinate_axes(void)
 	rotate_list(Axes_verts);
 
 	const uint8_t color = AXIS_COLOR;
-	gr_setcolor(color);
 
 	draw_line(Axes_verts[0], Axes_verts[1], color);
 	draw_line(Axes_verts[0], Axes_verts[2], color);
@@ -774,8 +769,6 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 
 	render_start_frame();
-
-	gr_setcolor(PLAINSEG_COLOR);
 
 	// Draw all segments or only connected segments.
 	// We might want to draw all segments if we have broken the mine into pieces.
@@ -864,7 +857,6 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 
 	render_start_frame();
 
-	gr_setcolor(0);
 #ifdef OGL
 	g3_end_frame();
 #endif
@@ -873,7 +865,6 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 #ifdef OGL
 	g3_start_frame();
 #endif
-	gr_setcolor(1);
 
 	Search_mode = -1;
 	Found_segs.clear();

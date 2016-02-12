@@ -332,7 +332,6 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 	static const array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
 
 	const auto color = (num == HighlightMarker ? am->white_63 : am->blue_48);
-	gr_setcolor(color);
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
 	range_for (const auto &i, unchecked_partial_range(&sArray[num][0], NumOfPoints[num]))
@@ -413,11 +412,8 @@ static void DrawMarkers (automap *am)
 		if (*iter != object_none)
 		{
 			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
-			gr_setcolor(colors[0]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE, colors[0]);
-			gr_setcolor(colors[1]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2, colors[1]);
-			gr_setcolor(colors[2]);
 			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4, colors[2]);
 			DrawMarkerNumber(am, i, sphere_point);
 		}
@@ -597,7 +593,6 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
-	gr_setcolor(closest_color);
 	draw_player(vcobjptr(get_local_player().objnum), closest_color);
 
 	DrawMarkers(am);
@@ -611,7 +606,6 @@ static void draw_automap(automap *am)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
 					const auto closest_color = BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b);
-					gr_setcolor(closest_color);
 					draw_player(objp, closest_color);
 				}
 			}
@@ -622,7 +616,6 @@ static void draw_automap(automap *am)
 	{
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
-			gr_setcolor(am->hostage_color);
 			{
 			auto sphere_point = g3_rotate_point(objp->pos);
 			g3_draw_sphere(sphere_point,objp->size, am->hostage_color);
@@ -643,7 +636,6 @@ static void draw_automap(automap *am)
 					break;
 				{
 					const auto color = gr_find_closest_color(r, g, b);
-					gr_setcolor(color);
 				auto sphere_point = g3_rotate_point(objp->pos);
 				g3_draw_sphere(sphere_point,objp->size*4, color);
 				}

@@ -652,12 +652,8 @@ static int ogl_internal_string(int x, int y, const char *s )
 				
 				if (underline)
 				{
-					ubyte save_c = (unsigned char) COLOR;
-					
 					const uint8_t color = grd_curcanv->cv_font_fg_color;
-					gr_setcolor(color);
 					gr_rect(xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
-					gr_setcolor(save_c);
 				}
 
 				continue;
@@ -1135,7 +1131,6 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 				}
 				const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
 				auto color = cv_font_fg_color;
-				gr_setcolor(cv_font_fg_color);
 				if (width)
 				{
 				if (underline)	{
@@ -1165,7 +1160,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 						const auto bit_enabled = (bits & 0x80);
 						bits <<= 1;
 						if (masked_draws_background)
-							gr_setcolor(color = bit_enabled ? cv_font_fg_color : cv_font_bg_color);
+							color = bit_enabled ? cv_font_fg_color : cv_font_bg_color;
 						else
 						{
 							if (!bit_enabled)

@@ -32,4 +32,3 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define XOFFSET grd_curcanv->cv_bitmap.bm_x
 #define YOFFSET grd_curcanv->cv_bitmap.bm_y
 #define ROWSIZE grd_curcanv->cv_bitmap.bm_rowsize
-#define COLOR   grd_curcanv->cv_color

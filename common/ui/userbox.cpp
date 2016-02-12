@@ -44,7 +44,6 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 		const uint8_t color = (dlg->keyboard_focus_gadget == userbox)
 			? CRED
 			: CBRIGHT;
-		gr_setcolor(color);
 		gr_ubox(-1, -1, userbox->width, userbox->height, color);
 	}
 }

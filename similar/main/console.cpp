@@ -155,7 +155,6 @@ static void con_draw(void)
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_setcolor(color);
 	gr_settransblend(7, GR_BLEND_NORMAL);
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &&line_spacing = LINE_SPACING;
@@ -182,7 +181,6 @@ static void con_draw(void)
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
 			break;
 	}
-	gr_setcolor(color);
 	gr_rect(0, 0, SWIDTH, line_spacing, color);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 	gr_printf(fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);

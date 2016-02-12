@@ -1040,7 +1040,7 @@ void draw_stars()
 	for (int i=0;i<MAX_STARS;i++) {
 
 		if ((i&63) == 0) {
-			gr_setcolor(color = BM_XRGB(intensity,intensity,intensity));
+			color = BM_XRGB(intensity,intensity,intensity);
 			intensity-=3;
 		}
 
