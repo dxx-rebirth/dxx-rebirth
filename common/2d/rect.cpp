@@ -41,8 +41,9 @@ void gr_urect(int left,int top,int right,int bot)
 		return;
 	}
 #else
+	const auto color = COLOR;
 	for ( int i=top; i<=bot; i++ )
-		gr_uscanline( left, right, i );
+		gr_uscanline(left, right, i, color);
 #endif
 }
 
@@ -54,8 +55,9 @@ void gr_rect(int left,int top,int right,int bot)
 		return;
 	}
 #endif
+	const auto color = COLOR;
 	for ( int i=top; i<=bot; i++ )
-		gr_scanline( left, right, i );
+		gr_scanline(left, right, i, color);
 }
 
 }

@@ -42,7 +42,7 @@ static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsi
 #ifdef OGL
 static
 #endif
-void gr_uscanline(unsigned x1, unsigned x2, unsigned y)
+void gr_uscanline(const unsigned x1, const unsigned x2, const unsigned y, const uint8_t color)
 {
 		switch(TYPE)
 		{
@@ -55,7 +55,7 @@ void gr_uscanline(unsigned x1, unsigned x2, unsigned y)
 				const auto cv_fade_level = grd_curcanv->cv_fade_level;
 				const auto count = x2 - x1 + 1;
 				if (cv_fade_level >= gr_fade_table.size())
-					gr_linear_stosd(data, static_cast<uint8_t>(COLOR), count);
+					gr_linear_stosd(data, static_cast<uint8_t>(color), count);
 				else
 					gr_linear_darken(data, cv_fade_level, count, gr_fade_table);
 			}
@@ -63,7 +63,7 @@ void gr_uscanline(unsigned x1, unsigned x2, unsigned y)
 		}
 }
 
-void gr_scanline(int x1, int x2, unsigned y)
+void gr_scanline(int x1, int x2, const unsigned y, const uint8_t color)
 {
 	if (y >= MAXY)
 		return;
@@ -76,7 +76,7 @@ void gr_scanline(int x1, int x2, unsigned y)
 
 	if (x1 < MINX) x1 = MINX;
 	if (x2 > MAXX) x2 = MAXX;
-	gr_uscanline(x1, x2, y);
+	gr_uscanline(x1, x2, y, color);
 }
 
 }
