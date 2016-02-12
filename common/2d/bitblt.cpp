@@ -110,8 +110,9 @@ static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fa
 static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
+		const auto color = *src;
 		gr_setcolor(*src);
-		gr_upixel(px, py);
+		gr_upixel(px, py, color);
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
@@ -124,7 +125,7 @@ static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 		if (c != 255)
 		{
 			gr_setcolor(c);
-			gr_upixel(px, py);
+			gr_upixel(px, py, c);
 		}
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
@@ -139,8 +140,9 @@ static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 	{
 		for (uint_fast32_t x1 = 0; x1 != bm_w; ++x1)
 		{
-			gr_setcolor( gr_gpixel(bm,x1,y1) );
-			gr_upixel( x+x1, y+y1 );
+			const auto color = gr_gpixel(bm, x1, y1);
+			gr_setcolor(color);
+			gr_upixel(x+x1, y+y1, color);
 		}
 	}
 }
@@ -148,18 +150,16 @@ static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 #ifndef OGL
 static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	ubyte c;
-
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
 	for (uint_fast32_t y1 = 0; y1 != bm_h; ++y1)
 	{
 		for (uint_fast32_t x1 = 0; x1 != bm_w; ++x1)
 		{
-			c = gr_gpixel(bm,x1,y1);
+			const auto c = gr_gpixel(bm,x1,y1);
 			if ( c != 255 )	{
 				gr_setcolor( c );
-				gr_upixel( x+x1, y+y1 );
+				gr_upixel(x+x1, y+y1, c);
 			}
 		}
 	}

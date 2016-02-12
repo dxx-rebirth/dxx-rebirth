@@ -45,9 +45,9 @@ from "Graphics Gems", Academic Press, 1990
 static void plot(int x,int y,int flag)
 {
 	if (flag)
-		gr_upixel(y, x);
-	else
-		gr_upixel(x, y);
+		std::swap(x, y);
+	const auto color = COLOR;
+	gr_upixel(x, y, color);
 }
 
 static int gr_hline(int x1, int x2, int y)
@@ -55,8 +55,9 @@ static int gr_hline(int x1, int x2, int y)
 	using std::swap;
 	if (x1 > x2)
 		swap(x1,x2);
+	const auto color = COLOR;
 	for (int i=x1; i<=x2; i++ )
-		gr_upixel( i, y );
+		gr_upixel(i, y, color);
 	return 0;
 }
 
@@ -64,8 +65,9 @@ static int gr_vline(int y1, int y2, int x)
 {
 	using std::swap;
 	if (y1 > y2) swap(y1,y2);
+	const auto color = COLOR;
 	for (int i=y1; i<=y2; i++ )
-		gr_upixel( x, i );
+		gr_upixel(x, i, color);
 	return 0;
 }
 
