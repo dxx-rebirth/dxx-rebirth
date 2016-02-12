@@ -228,15 +228,13 @@ public:
 			{
 				//					DPH: Now we treat this color as 15bpp
 #if defined(DXX_BUILD_DESCENT_I)
-				gr_setcolor(w(p+28));
+				const uint8_t color = w(p + 28);
 #elif defined(DXX_BUILD_DESCENT_II)
-				if (glow_values && glow_num < glow_values->size() && (*glow_values)[glow_num] == -2)
-					gr_setcolor(255);
-				else
-				{
-					gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
-				}
+				const uint8_t color = (glow_values && glow_num < glow_values->size() && (*glow_values)[glow_num] == -2)
+					? 255
+					: gr_find_closest_color_15bpp(w(p + 28));
 #endif
+				gr_setcolor(color);
 				g3_draw_poly(nv,point_list);
 			}
 		}
@@ -358,10 +356,11 @@ public:
 	{
 		int i,ntris;
 #if defined(DXX_BUILD_DESCENT_I)
-		gr_setcolor(55/*w(p+28)*/);
+		const uint8_t color = 55/*w(p+28)*/;
 #elif defined(DXX_BUILD_DESCENT_II)
-		gr_setcolor(w(p+28));
+		const uint8_t color = w(p+28);
 #endif
+		gr_setcolor(color);
 		array<cg3s_point *, 3> point_list;
 		for (i=0;i<2;i++)
 			point_list[i] = &Interp_point_list[wp(p+30)[i]];
