@@ -414,11 +414,11 @@ static void DrawMarkers (automap *am)
 		{
 			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
 			gr_setcolor(colors[0]);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE, colors[0]);
 			gr_setcolor(colors[1]);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2, colors[1]);
 			gr_setcolor(colors[2]);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4);
+			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4, colors[2]);
 			DrawMarkerNumber(am, i, sphere_point);
 		}
 
@@ -466,7 +466,7 @@ static void draw_player(const vcobjptr_t obj)
 	auto sphere_point = g3_rotate_point(obj->pos);
 	const auto obj_size = obj->size;
 	const auto color = grd_curcanv->cv_color;
-	g3_draw_sphere(sphere_point, obj_size);
+	g3_draw_sphere(sphere_point, obj_size, color);
 
 	// Draw shaft of arrow
 	const auto &&head_pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, obj_size * 2);
@@ -625,7 +625,7 @@ static void draw_automap(automap *am)
 			gr_setcolor(am->hostage_color);
 			{
 			auto sphere_point = g3_rotate_point(objp->pos);
-			g3_draw_sphere(sphere_point,objp->size);	
+			g3_draw_sphere(sphere_point,objp->size, am->hostage_color);
 			}
 			break;
 		case OBJ_POWERUP:
@@ -644,7 +644,7 @@ static void draw_automap(automap *am)
 				{
 					gr_setcolor(gr_find_closest_color(r, g, b));
 				auto sphere_point = g3_rotate_point(objp->pos);
-				g3_draw_sphere(sphere_point,objp->size*4);	
+				g3_draw_sphere(sphere_point,objp->size*4, color);
 				}
 			}
 			break;
