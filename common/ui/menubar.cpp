@@ -85,8 +85,9 @@ static void item_show( MENU * menu, int n )
 	// If this is a seperator, then draw it.
 	if ( item->Text[0] == '-'  )
 	{
+		const uint8_t color = CBLACK;
 		gr_setcolor( CBLACK );
-		gr_urect( item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2 );
+		gr_urect( item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
 		return;
 	}	
 
@@ -94,15 +95,17 @@ static void item_show( MENU * menu, int n )
 	{
 		if ( menu != &Menu[0] )
 		{
+			const uint8_t color = CBLACK;
 			gr_setcolor( CBLACK );
-			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2 );
+			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 	 	gr_set_fontcolor( CWHITE, CBLACK );
 	}else {
 		if ( menu != &Menu[0] )
 		{
+			const uint8_t color = CGREY;
 			gr_setcolor( CGREY );
-			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2 );
+			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 		gr_set_fontcolor( CBLACK, CGREY );
 	}
@@ -129,7 +132,7 @@ static void menu_draw(MENU *menu)
 
 	// Draw the menu background
 	gr_setcolor( CGREY );
-	gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
+	gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
 	if ( menu != &Menu[0] )
 	{
 		gr_setcolor( CBLACK );

@@ -1323,6 +1323,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	const char *btext;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
+	unsigned r, g, b;
 	if (label)
 	{
 		gr_set_fontcolor(is_current ? BM_XRGB(20, 20, 29) : BM_XRGB(15, 15, 24), -1 );
@@ -1333,11 +1334,16 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	if (!btext)
 		return;
 	{
-		gr_setcolor(is_current ? BM_XRGB(21, 0, 24) : BM_XRGB(16, 0, 19));
+		if (is_current)
+			r = 21 * 2, g = 0, b = 24 * 2;
+		else
+			r = 16 * 2, g = 0, b = 19 * 2;
+		const uint8_t color = BM_XRGB(r, g, b);
+		gr_setcolor(color);
 
 		int x, w, h;
 		gr_get_string_size(btext, &w, &h, nullptr);
-		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h);
+		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h, color);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
@@ -1353,12 +1359,11 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	int x;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	int c = BM_XRGB(21,0,24);
-
-	gr_setcolor( gr_fade_table[fades[menu->q_fade_i]][c] );
+	const uint8_t color = gr_fade_table[fades[menu->q_fade_i]][BM_XRGB(21,0,24)];
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_setcolor(BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31));
+	const uint8_t color = BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31);
 #endif
+	gr_setcolor(color);
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
@@ -1367,7 +1372,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	int w, h;
 	gr_get_string_size("?", &w, &h, nullptr);
 
-	gr_urect(fspacx(item->xinput), fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy(item->y) + h);
+	gr_urect(fspacx(item->xinput), fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy(item->y) + h, color);
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 

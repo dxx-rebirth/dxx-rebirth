@@ -85,8 +85,9 @@ void ui_draw_frame( short x1, short y1, short x2, short y2 )
 void ui_draw_box_out( short x1, short y1, short x2, short y2 )
 {
 
+	const uint8_t color = CWHITE;
 	gr_setcolor( CWHITE );
-	gr_urect( x1+2, y1+2, x2-2, y2-2 );
+	gr_urect( x1+2, y1+2, x2-2, y2-2, color);
 
 	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CBRIGHT, CGREY );
 	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CBRIGHT, CGREY );
@@ -97,7 +98,6 @@ void ui_draw_box_in( short x1, short y1, short x2, short y2 )
 {
 
 	gr_setcolor( CWHITE );
-//	gr_urect( x1+2, y1+2, x2-2, y2-2 );
 
 	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CGREY, CBRIGHT );
 	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CGREY, CBRIGHT );
