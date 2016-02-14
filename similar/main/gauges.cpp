@@ -2393,10 +2393,10 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 	hud_gauge_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
 
 	const auto color = 0;
-	const int erase_x0 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X - 1));
+	const int erase_x0 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X));
 	const int erase_x1 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W)));
 	const int erase_y_base = HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y);
-	for (int i = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H - 1)); i-- > 0;)
+	for (int i = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H)); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
 		gr_uline(erase_x0, erase_y, erase_x1, erase_y, color);
