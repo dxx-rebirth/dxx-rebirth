@@ -2959,8 +2959,10 @@ static int newdemo_read_frame_information(int rewrite)
 			wallnum_t back_wall_num, front_wall_num;
 			short l0,l1,l2,l3;
 
-			nd_read_byte((sbyte*)&front_wall_num);
-			nd_read_byte((sbyte*)&back_wall_num);
+			nd_read_byte(&type);
+			front_wall_num = type;
+			nd_read_byte(&type);
+			back_wall_num = type;
 			nd_read_byte(&type);
 			nd_read_byte(&state);
 			nd_read_byte(&cloak_value);
