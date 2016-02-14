@@ -2144,7 +2144,7 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	{
 		const auto obj2weapon = vm_vec_sub(collision_point, playerobj->pos);
 		const auto mag = vm_vec_mag(obj2weapon);
-		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+		if(mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
 			weapon->pos = collision_point;
