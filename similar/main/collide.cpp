@@ -1821,9 +1821,17 @@ static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int 
 static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
 {
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
-		int	max_count;
+		int	max_count = count;
 
-		max_count = min(count, 3);
+                // Question is: does this cap ever apply? count is rounded down - so if anything we drop less bombs than we have...
+#if defined(DXX_BUILD_DESCENT_I)
+                if(weapon_index == PROXIMITY_INDEX)
+                        max_count = min(count, 3);
+#elif defined(DXX_BUILD_DESCENT_II)
+		if(weapon_index == PROXIMITY_INDEX || weapon_index == SMART_MINE_INDEX)
+                        max_count = min(count, 5); // Ammo rack doubles the max limit (20/4)
+#endif
+
 		for (int i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 }
