@@ -2181,12 +2181,16 @@ static int newdemo_read_frame_information(int rewrite)
                         /* Demo recording is buggy.  Descent records
                             * ND_EVENT_TRIGGER for every segment transition, even
                             * if there is no wall.
+							*
+							* Likewise, ND_EVENT_TRIGGER can be recorded
+							* when the wall is valid, but there is no
+							* trigger on the wall.
                             */
                         if (segp->sides[side].wall_num != wall_none)
                         {
 #if defined(DXX_BUILD_DESCENT_II)
-							const auto &&t = vctrgptr(vcwallptr(segp->sides[side].wall_num)->trigger);
-							if (t->type == TT_SECRET_EXIT)
+							auto &w = *vcwallptr(segp->sides[side].wall_num);
+							if (w.trigger != trigger_none && vctrgptr(w.trigger)->type == TT_SECRET_EXIT)
 							{
                                         int truth;
 
