@@ -1823,14 +1823,10 @@ static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapo
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 		int	max_count = count;
 
-                // Question is: does this cap ever apply? count is rounded down - so if anything we drop less bombs than we have...
-#if defined(DXX_BUILD_DESCENT_I)
-                if(weapon_index == PROXIMITY_INDEX)
+                // I assume this limit was only intended for Proximity bombs but applied to all secondaries (Comment in drop_player_eggs).
+                // Compromise: Keep the limit for Singleplayer (balance, death punishment) but remove for Multiplayer to keep powerup loss at bay.
+                if (!(Game_mode & GM_MULTI))
                         max_count = min(count, 3);
-#elif defined(DXX_BUILD_DESCENT_II)
-		if(weapon_index == PROXIMITY_INDEX || weapon_index == SMART_MINE_INDEX)
-                        max_count = min(count, 5); // Ammo rack doubles the max limit (20/4)
-#endif
 
 		for (int i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
