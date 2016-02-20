@@ -1440,6 +1440,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 }
 
+#if 0
 void piggy_bitmap_page_out_all()
 {
 	int i;
@@ -1463,6 +1464,7 @@ void piggy_bitmap_page_out_all()
 	}
 
 }
+#endif
 
 void piggy_load_level_data()
 {

@@ -116,7 +116,7 @@ void piggy_load_level_data();
 
 
 extern void piggy_bitmap_page_in( bitmap_index bmp );
-extern void piggy_bitmap_page_out_all();
+#define piggy_bitmap_page_out_all()
 extern int piggy_page_flushed;
 
 namespace dsx {
