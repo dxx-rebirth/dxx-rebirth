@@ -1189,7 +1189,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto gauss_mask = HAS_GAUSS_FLAG;
 #endif
-	const int fmt_vulcan_ammo = f2i(static_cast<unsigned int>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE);
+	const auto fmt_vulcan_ammo = vulcan_ammo_scale(player_info.vulcan_ammo);
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
@@ -1204,7 +1204,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 			? 'V'
 			: 'A'
 	;
-	gr_printf(x,y,"%c:%i", c, fmt_vulcan_ammo);
+	gr_printf(x, y, "%c:%u", c, fmt_vulcan_ammo);
 }
 
 static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
@@ -1466,7 +1466,7 @@ static void hud_show_weapons(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			case primary_weapon_index_t::GAUSS_INDEX:
 #endif
-				snprintf(weapon_str, sizeof(weapon_str), "%s: %i", weapon_name, f2i(static_cast<unsigned>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE));
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %u", weapon_name, vulcan_ammo_scale(get_local_player_vulcan_ammo()));
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2307,7 +2307,7 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
 			{
 				nd_ammo = get_local_player_vulcan_ammo();
-				ammo_count = f2i(static_cast<unsigned>(get_local_player_vulcan_ammo()) * VULCAN_AMMO_SCALE);
+				ammo_count = vulcan_ammo_scale(nd_ammo);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)

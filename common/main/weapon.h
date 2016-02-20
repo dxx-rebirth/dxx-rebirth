@@ -285,6 +285,12 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 {
 	return id == PROXIMITY_INDEX;
 }
+
+//multiply ammo by this before displaying
+static inline unsigned vulcan_ammo_scale(unsigned v)
+{
+	return (v * 0xcc180u) >> 16;
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 int which_bomb(void);
 
@@ -296,6 +302,12 @@ static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 static inline int weapon_index_is_player_bomb(unsigned id)
 {
 	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
+}
+
+//multiply ammo by this before displaying
+static inline unsigned vulcan_ammo_scale(unsigned v)
+{
+	return (v * 0xcc163u) >> 16;
 }
 #endif
 

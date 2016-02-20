@@ -96,10 +96,10 @@ enum powerup_type_t : uint8_t
 };
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define VULCAN_AMMO_MAX             (392*2)
+#define VULCAN_AMMO_MAX             (392u*2)
 #define MAX_POWERUP_TYPES			29
 #elif defined(DXX_BUILD_DESCENT_II)
-#define VULCAN_AMMO_MAX             (392*4)
+#define VULCAN_AMMO_MAX             (392u*4)
 #define GAUSS_WEAPON_AMMO_AMOUNT    392
 
 #define MAX_POWERUP_TYPES   50

@@ -214,7 +214,7 @@ static int pick_up_vulcan_ammo(void)
 		used = 1;
 	} else {
 		const auto max = PLAYER_MAX_AMMO(get_local_plrobj(), VULCAN_AMMO_MAX);
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %d %s!",TXT_ALREADY_HAVE,f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) max),TXT_VULCAN_ROUNDS);
+		HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %d %s!", TXT_ALREADY_HAVE, vulcan_ammo_scale(max), TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
 	return used;

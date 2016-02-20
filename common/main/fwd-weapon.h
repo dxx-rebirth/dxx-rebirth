@@ -114,7 +114,6 @@ enum secondary_weapon_index_t : uint8_t;
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
-#define	VULCAN_AMMO_SCALE		(0x198300/2)		//multiply ammo by this before displaying
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(primary_weapon_index_t::SUPER_LASER_INDEX)
 #define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX)
@@ -122,7 +121,6 @@ enum secondary_weapon_index_t : uint8_t;
 #define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX)
 #define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)
 #define SUPER_WEAPON        5
-#define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
 //flags whether the last time we use this weapon, it was the 'super' version
 extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
