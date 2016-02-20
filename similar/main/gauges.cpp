@@ -95,6 +95,11 @@ public:
 		}
 };
 
+static bool show_cloak_invul_timer()
+{
+	return PlayerCfg.CloakInvulTimer && Newdemo_state != ND_STATE_PLAYBACK;
+}
+
 }
 
 //bitmap numbers for gauges
@@ -1523,8 +1528,9 @@ static void hud_show_cloak_invuln(void)
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
 
+	const auto cloak_invul_timer = show_cloak_invul_timer();
 	const auto a = [&](const fix64 effect_end, int y, const char *txt) {
-		if (PlayerCfg.CloakInvulTimer)
+		if (cloak_invul_timer)
 			gr_printf(fspacx1, y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
 		else
 			gr_string(fspacx1, y, txt);
@@ -1974,7 +1980,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	gr_set_current_canvas( NULL );
 
         // Show Cloak Timer if enabled
-        if (cloak_fade_value < GR_FADE_LEVELS/2 && PlayerCfg.CloakInvulTimer)
+	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
 		show_cockpit_cloak_invul_timer(get_local_player_cloak_time() + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(y + (bm.bm_h / 2)));
 }
 
@@ -2476,7 +2482,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 		hud_gauge_bitblt(x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
 
                 // Show Invulnerability Timer if enabled
-                if (PlayerCfg.CloakInvulTimer)
+		if (show_cloak_invul_timer())
                 {
 			show_cockpit_cloak_invul_timer(get_local_player_invulnerable_time() + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
                 }
