@@ -1873,23 +1873,132 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 #if defined(DXX_BUILD_DESCENT_II)
 static void draw_afterburner_bar(int afterburner, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	int not_afterburner;
-	int i, j, y;
-	static const ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
-	static const ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
-	const ubyte *pabt = (multires_gauge_graphic.is_hires() ? afterburner_bar_table_hires : afterburner_bar_table);
+	struct lr
+	{
+		uint8_t l, r;
+	};
+	static const array<lr, AFTERBURNER_GAUGE_H_L> afterburner_bar_table = {{
+		{3, 11},
+		{3, 11},
+		{3, 11},
+		{3, 11},
+		{3, 11},
+		{3, 11},
+		{2, 11},
+		{2, 10},
+		{2, 10},
+		{2, 10},
+		{2, 10},
+		{2, 10},
+		{2, 10},
+		{1, 10},
+		{1, 10},
+		{1, 10},
+		{1, 9},
+		{1, 9},
+		{1, 9},
+		{1, 9},
+		{0, 9},
+		{0, 9},
+		{0, 8},
+		{0, 8},
+		{0, 8},
+		{0, 8},
+		{1, 8},
+		{2, 8},
+		{3, 8},
+		{4, 8},
+		{5, 8},
+		{6, 7}
+	}};
+	static const array<lr, AFTERBURNER_GAUGE_H_H> afterburner_bar_table_hires = {{
+		{5, 20},
+		{5, 20},
+		{5, 19},
+		{5, 19},
+		{5, 19},
+		{5, 19},
+		{4, 19},
+		{4, 19},
+		{4, 19},
+		{4, 19},
+		{4, 19},
+		{4, 18},
+		{4, 18},
+		{4, 18},
+		{4, 18},
+		{3, 18},
+		{3, 18},
+		{3, 18},
+		{3, 18},
+		{3, 18},
+		{3, 18},
+		{3, 17},
+		{3, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 17},
+		{2, 16},
+		{2, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 16},
+		{1, 15},
+		{1, 15},
+		{1, 15},
+		{0, 15},
+		{0, 15},
+		{0, 15},
+		{0, 15},
+		{0, 15},
+		{0, 15},
+		{0, 14},
+		{0, 14},
+		{0, 14},
+		{1, 14},
+		{2, 14},
+		{3, 14},
+		{4, 14},
+		{5, 14},
+		{6, 13},
+		{7, 13},
+		{8, 13},
+		{9, 13},
+		{10, 13},
+		{11, 13},
+		{12, 13}
+	}};
 
 	// Draw afterburner bar
-	hud_gauge_bitblt(AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, GAUGE_AFTERBURNER, multires_gauge_graphic);
+	const auto afterburner_gauge_x = AFTERBURNER_GAUGE_X;
+	const auto afterburner_gauge_y = AFTERBURNER_GAUGE_Y;
+	const auto &&table = multires_gauge_graphic.is_hires()
+		? std::make_pair(afterburner_bar_table_hires.data(), afterburner_bar_table_hires.size())
+		: std::make_pair(afterburner_bar_table.data(), afterburner_bar_table.size());
+	hud_gauge_bitblt(afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER, multires_gauge_graphic);
+	const unsigned not_afterburner = fixmul(f1_0 - afterburner, table.second);
+	if (not_afterburner > table.second)
+		return;
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
-
-	for (y = 0; y < not_afterburner; y++) {
-		const int left = HUD_SCALE_X(AFTERBURNER_GAUGE_X + pabt[y * 2]);
-		const int right = HUD_SCALE_X(AFTERBURNER_GAUGE_X + pabt[y * 2 + 1] + 1);
-		const int base_top = HUD_SCALE_Y(AFTERBURNER_GAUGE_Y - 1);
-		const int base_bottom = HUD_SCALE_Y(AFTERBURNER_GAUGE_Y);
-		for (i = HUD_SCALE_Y (y), j = HUD_SCALE_Y (y + 1); i < j; i++) {
+	const int base_top = HUD_SCALE_Y(afterburner_gauge_y - 1);
+	const int base_bottom = HUD_SCALE_Y(afterburner_gauge_y);
+	int y = 0;
+	range_for (auto &ab, unchecked_partial_range(table.first, not_afterburner))
+	{
+		const int left = HUD_SCALE_X(afterburner_gauge_x + ab.l);
+		const int right = HUD_SCALE_X(afterburner_gauge_x + ab.r + 1);
+		for (int i = HUD_SCALE_Y(y), j = HUD_SCALE_Y(++y); i < j; ++i)
+		{
 			gr_rect (left, base_top + i, right, base_bottom + i, color);
 		}
 	}
