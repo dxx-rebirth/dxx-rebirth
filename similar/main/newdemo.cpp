@@ -1875,11 +1875,10 @@ static void newdemo_pop_ctrlcen_triggers()
 		auto cside = find_connect_side(seg, csegp);
 		const auto anim_num = vcwallptr(seg->sides[side].wall_num)->clip_num;
 		n = WallAnims[anim_num].num_frames;
-		if (WallAnims[anim_num].flags & WCF_TMAP1)	{
-		seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = WallAnims[anim_num].frames[n-1];
-		} else {
-			seg->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = WallAnims[anim_num].frames[n-1];
-		}
+		const auto t = WallAnims[anim_num].flags & WCF_TMAP1
+			? &side::tmap_num
+			: &side::tmap_num2;
+		seg->sides[side].*t = csegp->sides[cside].*t = WallAnims[anim_num].frames[n-1];
 	}
 }
 
@@ -2925,12 +2924,10 @@ static int newdemo_read_frame_information(int rewrite)
 				const auto &&csegp = vsegptr(segp->children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
 				const auto anim_num = vwallptr(segp->sides[side].wall_num)->clip_num;
-
-				if (WallAnims[anim_num].flags & WCF_TMAP1) {
-					segp->sides[side].tmap_num = csegp->sides[cside].tmap_num = WallAnims[anim_num].frames[0];
-				} else {
-					segp->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = WallAnims[anim_num].frames[0];
-				}
+				const auto t = WallAnims[anim_num].flags & WCF_TMAP1
+					? &side::tmap_num
+					: &side::tmap_num2;
+				segp->sides[side].*t = csegp->sides[cside].*t = WallAnims[anim_num].frames[0];
 			}
 			break;
 		}
