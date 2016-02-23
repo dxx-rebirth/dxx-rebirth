@@ -795,21 +795,21 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	@_custom_test
 	def _check_SDL(self,context):
 		if self.user_settings.sdl2:
-			self.check_libSDL2(context)
-			self.check_SDL2_mixer(context)
+			check_libSDL = self.check_libSDL2
+			check_SDL_mixer = self.check_SDL2_mixer
 		else:
-			self.check_libSDL(context)
-			self.check_SDL_mixer(context)
+			check_libSDL = self.check_libSDL
+			check_SDL_mixer = self.check_SDL_mixer
+		check_libSDL(context)
+		check_SDL_mixer(context)
 	@_implicit_test
 	def check_libSDL(self,context,_guess_flags={
-			'CPPFLAGS' : ['-I/usr/include/SDL'],
-			'LIBS' : ['SDL'],
+			'LIBS' : ['SDL'] if sys.platform != 'darwin' else [],
 		}):
 		self._check_libSDL(context, '', _guess_flags)
 	@_implicit_test
 	def check_libSDL2(self,context,_guess_flags={
-			'CPPFLAGS' : ['-I/usr/include/SDL2'],
-			'LIBS' : ['SDL2'],
+			'LIBS' : ['SDL2'] if sys.platform != 'darwin' else [],
 		}):
 		self._check_libSDL(context, '2', _guess_flags)
 	def _check_libSDL(self,context,sdl2,guess_flags):
@@ -855,12 +855,12 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# SDL_mixer/SDL2_mixer use the same -I line as SDL/SDL2
 	@_implicit_test
 	def check_SDL_mixer(self,context,_guess_flags={
-			'LIBS' : ['SDL_mixer'],
+			'LIBS' : ['SDL_mixer'] if sys.platform != 'darwin' else [],
 		}):
 		self._check_SDL_mixer(context, '', _guess_flags)
 	@_implicit_test
 	def check_SDL2_mixer(self,context,_guess_flags={
-			'LIBS' : ['SDL2_mixer'],
+			'LIBS' : ['SDL2_mixer'] if sys.platform != 'darwin' else [],
 		}):
 		self._check_SDL_mixer(context, '2', _guess_flags)
 	def _check_SDL_mixer(self,context,sdl2,guess_flags):
