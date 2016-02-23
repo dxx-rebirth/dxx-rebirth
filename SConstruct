@@ -2738,6 +2738,17 @@ class DXXCommon(LazyObjectConstructor):
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
 	class DarwinPlatformSettings(_PlatformSettings):
+		# Darwin targets include Objective-C (not Objective-C++) code to
+		# access Apple-specific functionality.  Add 'gcc' to the target
+		# list to support this.
+		#
+		# Darwin targets need a special linker, because OS X uses
+		# frameworks instead of standard libraries.  Using `gnulink`
+		# omits framework-related arguments, causing the linker to skip
+		# including required libraries.  SCons's `applelink` target
+		# understands these quirks and ensures that framework-related
+		# arguments are included.
+		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
 			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
 			env.Append(
@@ -2748,10 +2759,6 @@ class DXXCommon(LazyObjectConstructor):
 			)
 			if self.user_settings.opengl or self.user_settings.opengles:
 				env.Append(FRAMEWORKS = ['OpenGL'])
-	# Darwin targets include Objective-C (not Objective-C++) code to
-	# access Apple-specific functionality.  Add 'gcc' to the target
-	# list to support this.
-	DarwinPlatformSettings.tools += ('gcc',)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		@property
