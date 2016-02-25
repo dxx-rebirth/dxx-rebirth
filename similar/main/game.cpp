@@ -1633,11 +1633,13 @@ static void slide_textures(void)
 Flickering_light_array_t Flickering_lights;
 unsigned Num_flickering_lights;
 
+constexpr fix flicker_timer_disabled = 0x80000000;
+
 static void flicker_lights()
 {
 	range_for (auto &f, partial_range(Flickering_lights, Num_flickering_lights))
 	{
-		if (static_cast<unsigned>(f.timer) == 0x80000000)		//disabled
+		if (f.timer == flicker_timer_disabled)		//disabled
 			continue;
 		const auto &&segp = vsegptridx(f.segnum);
 		const auto sidenum = f.sidenum;
@@ -1675,8 +1677,7 @@ static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::i
 	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
 }
 
-template <fix timer>
-static inline void update_flicker(segnum_t segnum, int sidenum)
+static void update_flicker(const segnum_t segnum, const unsigned sidenum, const fix timer)
 {
 	auto i = find_flicker(segnum, sidenum);
 	if (i.first != i.second)
@@ -1686,13 +1687,13 @@ static inline void update_flicker(segnum_t segnum, int sidenum)
 //turn flickering off (because light has been turned off)
 void disable_flicker(segnum_t segnum,int sidenum)
 {
-	update_flicker<0x80000000>(segnum, sidenum);
+	update_flicker(segnum, sidenum, flicker_timer_disabled);
 }
 
 //turn flickering off (because light has been turned on)
 void enable_flicker(segnum_t segnum,int sidenum)
 {
-	update_flicker<0>(segnum, sidenum);
+	update_flicker(segnum, sidenum, 0);
 }
 #endif
 
