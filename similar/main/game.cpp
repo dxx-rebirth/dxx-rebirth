@@ -585,7 +585,7 @@ static void do_cloak_stuff(void)
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
-					maybe_drop_net_powerup(POW_CLOAK);
+					maybe_drop_net_powerup(POW_CLOAK, 1, 0);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
 				}
@@ -617,7 +617,7 @@ static void do_invulnerable_stuff(void)
 				multi_digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 				if (Game_mode & GM_MULTI)
 				{
-					maybe_drop_net_powerup(POW_INVULNERABILITY);
+					maybe_drop_net_powerup(POW_INVULNERABILITY, 1, 0);
 				}
 		}
 	}

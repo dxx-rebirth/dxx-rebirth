@@ -1558,6 +1558,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 	if (Game_mode & GM_NETWORK)
 	{
+                multi_prep_level_objects();
 		if(multi_level_sync()) // After calling this, Player_num is set
 		{
 			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
@@ -1590,7 +1591,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 	if (Game_mode & GM_MULTI)
 	{
-		multi_prep_level(); // Removes robots from level if necessary
+		multi_prep_level_player();
 	}
 
 	gameseq_remove_unused_players();
@@ -1656,8 +1657,6 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 void (bash_to_shield)(const vobjptr_t i)
 {
-	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(i);
-	PowerupCaps.reset_powerup_both(type);
 	set_powerup_id(i, POW_SHIELD_BOOST);
 }
 

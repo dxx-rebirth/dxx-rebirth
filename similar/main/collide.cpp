@@ -1821,13 +1821,7 @@ static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int 
 static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
 {
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
-		int	max_count = count;
-
-                // I assume this limit was only intended for Proximity bombs but applied to all secondaries (Comment in drop_player_eggs).
-                // Compromise: Keep the limit for Singleplayer (balance, death punishment) but remove for Multiplayer to keep powerup loss at bay.
-                if (!(Game_mode & GM_MULTI))
-                        max_count = min(count, 3);
-
+		int max_count = min(count, 3);
 		for (int i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 }

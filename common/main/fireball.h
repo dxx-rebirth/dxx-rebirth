@@ -83,7 +83,7 @@ void draw_fireball(vobjptridx_t obj);
 
 void explode_wall(vsegptridx_t segnum, int sidenum);
 void do_exploding_wall_frame();
-void maybe_drop_net_powerup(powerup_type_t powerup_type);
+void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
 void maybe_replace_powerup_with_energy(vobjptr_t del_obj);
 }
 

@@ -772,7 +772,7 @@ void fuelcen_check_for_goal(const vcsegptr_t segp)
 	{
 		player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
 				multi_send_capture_bonus (Player_num);
-		maybe_drop_net_powerup(powerup_to_drop);
+		maybe_drop_net_powerup(powerup_to_drop, 1, 0);
 	}
 }
 

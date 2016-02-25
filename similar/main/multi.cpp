@@ -95,7 +95,6 @@ static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t
 }
 static void multi_add_lifetime_killed();
 static void multi_send_heartbeat();
-static void multi_powcap_adjust_remote_cap(const playernum_t pnum);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 static std::size_t find_goal_texture(ubyte t);
@@ -242,7 +241,7 @@ static const int message_length[] = {
 namespace dsx {
 
 netgame_info Netgame;
-powerup_cap_state PowerupCaps;
+multi_level_inv MultiLevelInv;
 
 }
 
@@ -528,8 +527,6 @@ kmatrix_result multi_endlevel_score()
 	range_for (auto &i, Players)
 		i.KillGoalCount=0;
 
-	PowerupCaps.clear();
-
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
 		window_set_visible(Game_wind, 0);
@@ -573,8 +570,6 @@ multi_new_game(void)
 		robot_agitation[i] = 0;
 		robot_fired[i] = 0;
 	}
-
-	PowerupCaps.clear();
 
 	team_kills = {};
 	imulti_new_game=1;
@@ -949,7 +944,7 @@ void multi_do_protocol_frame(int force, int listen)
 void multi_do_frame(void)
 {
 	static int lasttime=0;
-	static fix64 last_update_time = 0;
+	static fix64 last_gmode_time = 0, last_inventory_time = 0, last_repo_time = 0;
 	int i;
 
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
@@ -973,11 +968,23 @@ void multi_do_frame(void)
 	}
 
 	// Send update about our game mode-specific variables every 2 secs (to keep in sync since delayed kills can invalidate these infos on Clients)
-	if (multi_i_am_master() && timer_query() >= last_update_time + (F1_0*2))
+	if (multi_i_am_master() && timer_query() >= last_gmode_time + (F1_0*2))
 	{
 		multi_send_gmode_update();
-		last_update_time = timer_query();
+		last_gmode_time = timer_query();
 	}
+	// Send out inventory three times per second
+	if (timer_query() >= last_inventory_time + (F1_0/3))
+	{
+		multi_send_player_inventory(0);
+		last_inventory_time = timer_query();
+	}
+	// Repopulate the level if necessary
+	if (timer_query() >= last_repo_time + (F1_0/2))
+        {
+                MultiLevelInv_Repopulate((F1_0/2));
+                last_repo_time = timer_query();
+        }
 
 	multi_send_message(); // Send any waiting messages
 
@@ -1061,7 +1068,6 @@ void multi_leave_game()
 		Net_create_loc = 0;
 		const auto cobjp = vobjptridx(get_local_player().objnum);
 		multi_send_position(cobjp);
-		multi_powcap_cap_objects();
 		if (!Player_eggs_dropped)
 		{
 			drop_player_eggs(cobjp);
@@ -1802,8 +1808,6 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
-	multi_powcap_adjust_remote_cap (pnum);
-
 	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
 	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
 
@@ -1985,11 +1989,7 @@ static void multi_do_remobj(const ubyte *buf)
 	{
 		Network_send_objnum = -1;
 	}
-	if (obj->type == OBJ_POWERUP)
-		if (Game_mode & GM_NETWORK)
-		{
-			PowerupCaps.dec_powerup_current(get_powerup_id(obj));
-		}
+
 	obj->flags |= OF_SHOULD_BE_DEAD; // quick and painless
 }
 
@@ -2232,11 +2232,6 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
 	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
-
-	if (Game_mode & GM_NETWORK)
-	{
-		PowerupCaps.inc_powerup_current(get_powerup_id(my_objnum));
-	}
 }
 
 static void multi_do_play_sound(const playernum_t pnum, const ubyte *buf)
@@ -2694,192 +2689,6 @@ void multi_send_player_deres(deres_type_t type)
 
 }
 
-/*
- * Powerup capping: Keep track of how many powerups are in level and kill these which would exceed initial limit.
- * NOTE: code encapsuled by OLDPOWCAP define is original and buggy Descent2 code. 
- */
-
-// Count the initial amount of Powerups in the level
-void multi_powcap_count_powerups_in_mine(void)
-{
-	PowerupCaps.recount();
-}
-
-void powerup_cap_state::recount()
-{
-	m_powerups = {};
-	range_for (const auto &&obj, vcobjptr)
-	{
-		if (obj->type == OBJ_POWERUP)
-		{
-			inc_powerup_current(get_powerup_id(obj));
-		}
-	}
-}
-
-namespace dsx {
-
-// We want to drop something. Kill every Powerup which exceeds the level limit
-void multi_powcap_cap_objects()
-{
-	int index;
-
-	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
-		return;
-
-	auto &secondary_ammo = get_local_player_secondary_ammo();
-	if (!game_mode_hoard())
-	  	secondary_ammo[PROXIMITY_INDEX] += Proximity_dropped;
-	Proximity_dropped=0;
-#if defined(DXX_BUILD_DESCENT_II)
-	secondary_ammo[SMART_MINE_INDEX] += Smartmines_dropped;
-	Smartmines_dropped=0;
-#endif
-
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
-	{
-		const auto type = Primary_weapon_to_powerup[index];
-		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
-				if (!PowerupCaps.can_add_powerup(type))
-			{
-				con_printf(CON_VERBOSE, "Removing primary %u due to powerup cap: current=%u max=%u", index, PowerupCaps.get_current(type), PowerupCaps.get_max(type));
-				player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(index);
-			}
-	}
-
-
-	// Don't do the adjustment stuff for Hoard mode
-	if (!game_mode_hoard())
-		secondary_ammo[PROXIMITY_INDEX] /= 4;
-
-#if defined(DXX_BUILD_DESCENT_II)
-	secondary_ammo[SMART_MINE_INDEX] /= 4;
-#endif
-
-	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
-	{
-		if (game_mode_hoard() && index==PROXIMITY_INDEX)
-			continue;
-
-		const auto type = Secondary_weapon_to_powerup[index];
-
-		PowerupCaps.cap_secondary_ammo(type, secondary_ammo[index]);
-	}
-
-	if (!game_mode_hoard())
-		get_local_player_secondary_ammo()[2]*=4;
-#if defined(DXX_BUILD_DESCENT_II)
-	get_local_player_secondary_ammo()[7]*=4;
-#endif
-	PowerupCaps.cap_laser_level(player_info.laser_level);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
-#if defined(DXX_BUILD_DESCENT_II)
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-	PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
-	if (game_mode_capture_flag())
-	{
-		PowerupCaps.cap_flag(player_info.powerup_flags, PLAYER_FLAGS_FLAG, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
-	}
-#endif
-
-}
-
-// Adds players inventory to multi cap
-static void multi_powcap_adjust_cap_for_player(const playernum_t pnum)
-{
-	int index;
-
-	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
-		return;
-
-	auto &plr = Players[pnum];
-	const auto &&objp = vobjptridx(plr.objnum);
-	auto &player_info = objp->ctype.player_info;
-	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
-	{
-		const auto type = Primary_weapon_to_powerup[index];
-		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
-			PowerupCaps.inc_mapped_powerup_max(type);
-	}
-
-	auto &secondary_ammo = objp->ctype.player_info.secondary_ammo;
-	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
-	{
-		const auto type = Secondary_weapon_to_powerup[index];
-		PowerupCaps.add_mapped_powerup_max(type, secondary_ammo[index]);
-	}
-
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
-#if defined(DXX_BUILD_DESCENT_II)
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-	PowerupCaps.inc_flag_max(player_info.powerup_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
-	if (player_info.laser_level > MAX_LASER_LEVEL)
-		PowerupCaps.add_mapped_powerup_max(POW_SUPER_LASER, player_info.laser_level - MAX_LASER_LEVEL);
-	else
-#endif
-		PowerupCaps.add_mapped_powerup_max(POW_LASER, player_info.laser_level);
-}
-
-}
-
-void multi_powcap_adjust_remote_cap(const playernum_t pnum)
-{
-	int index;
-
-	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
-		return;
-
-	const auto &&objp = vobjptridx(Players[pnum].objnum);
-	auto &player_info = objp->ctype.player_info;
-	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
-	{
-		const auto type = Primary_weapon_to_powerup[index];
-		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(index))
-			PowerupCaps.inc_mapped_powerup_current(type);
-	}
-
-	const auto &plr_secondary_ammo = objp->ctype.player_info.secondary_ammo;
-	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
-	{
-		const auto type = Secondary_weapon_to_powerup[index];
-
-		if (game_mode_hoard() && index==2)
-			continue;
-
-		const auto is_always_4pack = (index == secondary_weapon_index_t::PROXIMITY_INDEX // PROX? Those bastards...
-#if defined(DXX_BUILD_DESCENT_II)
-			|| index == secondary_weapon_index_t::SMART_MINE_INDEX // PROX or SMARTMINES? Those bastards...
-#endif
-		);
-		const auto secondary_ammo = plr_secondary_ammo[index];
-		PowerupCaps.add_mapped_powerup_current(type, is_always_4pack ? secondary_ammo / 4 : secondary_ammo);
-	}
-
-	const auto player_flags = player_info.powerup_flags;
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CLOAKED, POW_CLOAK);
-#if defined(DXX_BUILD_DESCENT_II)
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-	PowerupCaps.inc_flag_current(player_flags, PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
-	if (player_info.laser_level > MAX_LASER_LEVEL)
-		PowerupCaps.add_mapped_powerup_current(POW_SUPER_LASER, player_info.laser_level - MAX_LASER_LEVEL);
-	else
-#endif
-		PowerupCaps.add_mapped_powerup_current(POW_LASER, player_info.laser_level);
-}
-
 void
 multi_send_message(void)
 {
@@ -2982,11 +2791,6 @@ void multi_send_remobj(const vobjptridx_t objnum)
 
 	sbyte obj_owner;
 	short remote_objnum;
-
-	if (objnum->type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
-	{
-		PowerupCaps.dec_powerup_current(get_powerup_id(objnum));
-	}
 
 	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
@@ -3124,11 +2928,6 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	int count = 0;
 
 	multi_send_position(vobjptridx(get_local_player().objnum));
-
-	if (Game_mode & GM_NETWORK)
-	{
-		PowerupCaps.inc_powerup_current(powerup_type);
-	}
 
 	count += 1;
 	multibuf[count] = Player_num;                                      count += 1;
@@ -3381,9 +3180,6 @@ public:
 
 void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_type_t id)
 {
-        if (Network_rejoined) // if we come late to this game, we'll get duplicated objects from host during multi_level_sync(), triggered before multi_prep_level() in StartNewLevelSub()
-                return;
-
 	uint_fast32_t count;
 	switch (id)
 	{
@@ -3446,7 +3242,6 @@ void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_typ
 		if (no == object_none)
 			return;
 		m_modified.set(no);
-		PowerupCaps.inc_powerup_both(id);
 		no->mtype.phys_info = o->mtype.phys_info;
 		no->rtype.vclip_info = o->rtype.vclip_info;
 		no->rtype.vclip_info.framenum = (o->rtype.vclip_info.framenum + (i * vc_num_frames) / count) % vc_num_frames;
@@ -3456,68 +3251,15 @@ void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_typ
 
 }
 
-void multi_prep_level(void)
+/*
+ * The place to do objects operations such as:
+ * Robot deletion for non-robot games, Powerup duplication, AllowedItems, Initial powerup counting.
+ * MUST be done before multi_level_sync() in case we join a running game and get updated objects there. We want the initial powerup setup for a level here!
+ */
+void multi_prep_level_objects()
 {
-	// Do any special stuff to the level required for games
-	// before we begin playing in it.
-
-	// Player_num MUST be set before calling this procedure.
-
-	// This function must be called before checksuming the Object array,
-	// since the resulting checksum with depend on the value of Player_num
-	// at the time this is called.
-
-	int i;
-
-	Assert(Game_mode & GM_MULTI);
-
-	Assert(NumNetPlayerPositions > 0);
-
-#if defined(DXX_BUILD_DESCENT_II)
-	PhallicLimit=0;
-	PhallicMan=-1;
-	Drop_afterburner_blob_flag=0;
-#endif
-	Bounty_target = 0;
-
-	multi_consistency_error(1);
-
-	for (i=0;i<MAX_PLAYERS;i++)
-	{
-		multi_sending_message[i] = msgsend_none;
-		if (imulti_new_game)
-			init_player_stats_new_ship(i);
-	}
-
-	for (i = 0; i < NumNetPlayerPositions; i++)
-	{
-		const auto objp = vobjptridx(Players[i].objnum);
-		if (i != Player_num)
-			objp->control_type = CT_REMOTE;
-		objp->movement_type = MT_PHYSICS;
-		multi_reset_player_object(objp);
-		Netgame.players[i].LastPacketTime = 0;
-	}
-
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
-	{
-		robot_controlled[i] = -1;
-		robot_agitation[i] = 0;
-		robot_fired[i] = 0;
-	}
-
-	Viewer = ConsoleObject = &get_local_plrobj();
-
-	if (!(Game_mode & GM_MULTI_COOP))
-	{
-		multi_delete_extra_objects(); // Removes monsters from level
-	}
-
-	if ((Game_mode & GM_NETWORK) && !(Game_mode & GM_MULTI_COOP))
-	{
-		multi_powcap_adjust_cap_for_player(Player_num);
-		multi_send_powcap_update();
-	}
+        if (!(Game_mode & GM_MULTI_COOP))
+                multi_delete_extra_objects(); // Removes monsters from level
 
 	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
@@ -3572,6 +3314,62 @@ void multi_prep_level(void)
 			}
 		}
 	}
+
+	// After everything is done, count initial level inventory.
+	MultiLevelInv_Count(1);
+}
+
+void multi_prep_level_player(void)
+{
+	// Do any special stuff to the level required for games
+	// before we begin playing in it.
+
+	// Player_num MUST be set before calling this procedure.
+
+	// This function must be called before checksuming the Object array,
+	// since the resulting checksum with depend on the value of Player_num
+	// at the time this is called.
+
+	int i;
+
+	Assert(Game_mode & GM_MULTI);
+
+	Assert(NumNetPlayerPositions > 0);
+
+#if defined(DXX_BUILD_DESCENT_II)
+	PhallicLimit=0;
+	PhallicMan=-1;
+	Drop_afterburner_blob_flag=0;
+#endif
+	Bounty_target = 0;
+
+	multi_consistency_error(1);
+
+	for (i=0;i<MAX_PLAYERS;i++)
+	{
+		multi_sending_message[i] = msgsend_none;
+		if (imulti_new_game)
+			init_player_stats_new_ship(i);
+	}
+
+	for (i = 0; i < NumNetPlayerPositions; i++)
+	{
+		const auto objp = vobjptridx(Players[i].objnum);
+		if (i != Player_num)
+			objp->control_type = CT_REMOTE;
+		objp->movement_type = MT_PHYSICS;
+		multi_reset_player_object(objp);
+		Netgame.players[i].LastPacketTime = 0;
+	}
+
+	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	{
+		robot_controlled[i] = -1;
+		robot_agitation[i] = 0;
+		robot_fired[i] = 0;
+	}
+
+	Viewer = ConsoleObject = &get_local_plrobj();
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (game_mode_hoard())
@@ -3768,10 +3566,6 @@ void multi_send_drop_weapon(const vobjptridx_t objnum, int seed)
 
 	map_objnum_local_to_local(objnum);
 
-	if (Game_mode & GM_NETWORK)
-	{
-		PowerupCaps.inc_powerup_current(get_powerup_id(objp));
-	}
 	multi_send_data<MULTI_DROP_WEAPON>(multibuf, count, 2);
 }
 
@@ -3788,11 +3582,6 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 
 	if (objnum!=object_none)
 		objnum->ctype.powerup_info.count = ammo;
-
-	if (Game_mode & GM_NETWORK)
-	{
-		PowerupCaps.inc_powerup_current(powerup_id);
-	}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -4075,30 +3864,6 @@ static void multi_do_drop_blob (const playernum_t pnum)
 
 }
 #endif
-
-void multi_send_powcap_update ()
-{
-	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
-		return;
-
-	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
-		multibuf[i+1] = PowerupCaps.get_max(static_cast<powerup_type_t>(i));
-
-	multi_send_data<MULTI_POWCAP_UPDATE>(multibuf, MAX_POWERUP_TYPES+1, 2);
-}
-
-static void multi_do_powcap_update (const ubyte *buf)
-{
-	if (!(Game_mode & GM_NETWORK) || (Game_mode & GM_MULTI_COOP))
-		return;
-
-	for (unsigned i=0;i<MAX_POWERUP_TYPES;i++)
-	{
-		const auto p = static_cast<powerup_type_t>(i);
-		if (PowerupCaps.get_max(p) < buf[i+1])
-			PowerupCaps.set_max(p, buf[i+1]);
-	}
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -4415,10 +4180,6 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 
 	map_objnum_local_to_local(objnum);
 
-	if (!game_mode_hoard())
-		if (Game_mode & GM_NETWORK)
-			PowerupCaps.inc_mapped_powerup_current(get_powerup_id(objp));
-
 	multi_send_data<MULTI_DROP_FLAG>(multibuf, 8, 2);
 }
 
@@ -4435,96 +4196,11 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 	if (!game_mode_hoard())
-	{
-		if (Game_mode & GM_NETWORK)
-			PowerupCaps.inc_mapped_powerup_current(powerup_id);
 		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
-	}
 }
 
 }
 #endif
-
-template <powerup_cap_state::direction d>
-void powerup_cap_state::modify_count(powerup_count_type &c, const powerup_count_type amount)
-{
-	if (d == direction::plus)
-	{
-		const unsigned n = c + amount;
-		const auto cn = static_cast<powerup_count_type>(n);
-		c = likely(cn == n) ? cn : ~0;
-	}
-	else
-		c = likely(c >= amount) ? c - amount : 0;
-}
-
-template <powerup_cap_state::which w, powerup_cap_state::direction d>
-void powerup_cap_state::modify_counts(const powerup_type_t id, const powerup_count_type amount)
-{
-	if (w != which::max)
-		modify_count<d>(m_powerups[id], amount);
-	if (w != which::current)
-		modify_count<d>(m_max[id], amount);
-}
-
-template <powerup_cap_state::which w, powerup_cap_state::direction d, powerup_cap_state::mapped m>
-void powerup_cap_state::modify_counts(const powerup_type_t id)
-{
-	if (m == mapped::yes || !powerup_is_4pack(id))
-		modify_counts<w, d>(id, 1);
-	else
-		modify_counts<w, d>(map_powerup_4pack(id), 4);
-}
-
-void powerup_cap_state::add_mapped_powerup_current(const powerup_type_t id, const uint_fast32_t amount)
-{
-	modify_counts<which::current, direction::plus>(id, amount);
-}
-
-void powerup_cap_state::inc_powerup_current(const powerup_type_t id)
-{
-	modify_counts<which::current, direction::plus, mapped::no>(id);
-}
-
-void powerup_cap_state::dec_powerup_current(const powerup_type_t id)
-{
-	modify_counts<which::current, direction::minus, mapped::no>(id);
-}
-
-void powerup_cap_state::add_mapped_powerup_both(const powerup_type_t id, uint_fast32_t amount)
-{
-	modify_counts<which::both, direction::plus>(id, amount);
-}
-
-void powerup_cap_state::add_mapped_powerup_max(const powerup_type_t id, uint_fast32_t amount)
-{
-	modify_counts<which::max, direction::plus>(id, amount);
-}
-
-void powerup_cap_state::inc_mapped_powerup_current(const powerup_type_t id)
-{
-	modify_counts<which::current, direction::plus, mapped::yes>(id);
-}
-
-void powerup_cap_state::inc_mapped_powerup_max(const powerup_type_t id)
-{
-	modify_counts<which::max, direction::plus, mapped::yes>(id);
-}
-
-void powerup_cap_state::inc_mapped_powerup_both(const powerup_type_t id)
-{
-	modify_counts<which::both, direction::plus, mapped::yes>(id);
-}
-
-void powerup_cap_state::inc_powerup_both(const powerup_type_t id)
-{
-	modify_counts<which::both, direction::plus, mapped::no>(id);
-}
-
-void powerup_cap_state::inc_powerup_max(const powerup_type_t id)
-{
-	modify_counts<which::max, direction::plus, mapped::no>(id);
-}
 
 namespace dsx {
 
@@ -5092,6 +4768,337 @@ static void multi_do_gmode_update(const ubyte *buf)
 	}
 }
 
+/*
+ * Send player inventory to all other players. Intended to be used for the host to repopulate the level with new powerups.
+ * Could also be used to let host decide which powerups a client is allowed to collect and/or drop, anti-cheat functions (needs shield/energy update then and more frequent updates/triggers).
+ */
+void multi_send_player_inventory(int priority)
+{
+	int count = 0;
+
+	count++;
+	multibuf[count++] = Player_num;
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(buf+count, value)), count+=sizeof(uint16_t))
+#endif
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
+	multibuf[count++] = (char)player_info.laser_level;
+
+	auto &secondary_ammo = get_local_player_secondary_ammo();
+	multibuf[count++] = secondary_ammo[HOMING_INDEX];
+	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
+	multibuf[count++] = secondary_ammo[SMART_INDEX];
+	multibuf[count++] = secondary_ammo[MEGA_INDEX];
+	multibuf[count++] = secondary_ammo[PROXIMITY_INDEX];
+
+#if defined(DXX_BUILD_DESCENT_II)
+	multibuf[count++] = secondary_ammo[SMISSILE1_INDEX];
+	multibuf[count++] = secondary_ammo[GUIDED_INDEX];
+	multibuf[count++] = secondary_ammo[SMART_MINE_INDEX];
+	multibuf[count++] = secondary_ammo[SMISSILE4_INDEX];
+	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
+#endif
+
+	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
+	count += 2;
+	PUT_INTEL_INT(multibuf+count, get_local_player_flags().get_player_flags());
+	count += 4;
+
+	multi_send_data<MULTI_PLAYER_INV>(multibuf, command_length<MULTI_PLAYER_INV>::value, priority);
+}
+
+static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
+{
+	int count;
+
+#ifdef NDEBUG
+	if (pnum >= N_players || pnum == Player_num)
+		return;
+#else
+	Assert(pnum < N_players);
+        Assert(pnum != Player_num);
+#endif
+
+	count = 2;
+#if defined(DXX_BUILD_DESCENT_I)
+#define GET_WEAPON_FLAGS(buf,count)	buf[count++]
+#elif defined(DXX_BUILD_DESCENT_II)
+#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
+#endif
+	const auto &&objp = vobjptridx(Players[pnum].objnum);
+	auto &player_info = objp->ctype.player_info;
+	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
+	player_info.laser_level = stored_laser_level(buf[count]);                           count++;
+
+	auto &secondary_ammo = player_info.secondary_ammo;
+	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
+	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
+	secondary_ammo[SMART_INDEX] = buf[count];         count++;
+	secondary_ammo[MEGA_INDEX] = buf[count];          count++;
+	secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
+
+#if defined(DXX_BUILD_DESCENT_II)
+	secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
+	secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
+	secondary_ammo[SMART_MINE_INDEX]= buf[count]; count++;
+	secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
+	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
+#endif
+
+	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
+	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
+}
+
+/*
+ * Count the inventory of the level. Initial (start) or current (now).
+ * In 'current', also consider player inventories (and the thief bot).
+ * NOTE: We add actual ammo amount - we do not want to count in 'amount of powerups'. Makes it easier to keep track of overhead (proximities, vulcan ammo)
+ */
+void MultiLevelInv_Count(bool initial)
+{
+        if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
+                return;
+        if (initial)
+                MultiLevelInv = {};
+        MultiLevelInv.Current = {};
+
+        for (objnum_t i = 0; i <= Highest_object_index; i++)
+        {
+                const auto &&objp = vobjptridx(i);
+
+                if (objp->type == OBJ_WEAPON) // keep live bombs in inventory so they will respawn after they're gone
+                {
+                        auto wid = get_weapon_id(objp);
+                        if (wid == weapon_id_type::PROXIMITY_ID)
+                                MultiLevelInv.Current[POW_PROXIMITY_WEAPON]++;
+#if defined(DXX_BUILD_DESCENT_II)
+                        if (wid == weapon_id_type::SUPERPROX_ID)
+                                MultiLevelInv.Current[POW_SMART_MINE]++;
+#endif
+                }
+                if (objp->type != OBJ_POWERUP)
+                        continue;
+                auto pid = get_powerup_id(objp);
+                switch (pid)
+                {
+                        case POW_LASER:
+                        case POW_QUAD_FIRE:
+                        case POW_SPREADFIRE_WEAPON:
+                        case POW_PLASMA_WEAPON:
+                        case POW_FUSION_WEAPON:
+                        case POW_MISSILE_1:
+                        case POW_HOMING_AMMO_1:
+                        case POW_SMARTBOMB_WEAPON:
+                        case POW_MEGA_WEAPON:
+                        case POW_CLOAK:
+                        case POW_INVULNERABILITY:
+#if defined(DXX_BUILD_DESCENT_II)
+                        case POW_SUPER_LASER:
+                        case POW_HELIX_WEAPON:
+                        case POW_PHOENIX_WEAPON:
+                        case POW_OMEGA_WEAPON:
+                        case POW_SMISSILE1_1:
+                        case POW_GUIDED_MISSILE_1:
+                        case POW_MERCURY_MISSILE_1:
+                        case POW_EARTHSHAKER_MISSILE:
+                        case POW_FULL_MAP:
+                        case POW_CONVERTER:
+                        case POW_AMMO_RACK:
+                        case POW_AFTERBURNER:
+                        case POW_HEADLIGHT:
+                        case POW_FLAG_BLUE:
+                        case POW_FLAG_RED:
+#endif
+                                MultiLevelInv.Current[pid]++;
+                                break;
+                        case POW_VULCAN_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+                        case POW_GAUSS_WEAPON:
+#endif
+                                MultiLevelInv.Current[pid]++;
+                                MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
+                                break;
+                        case POW_MISSILE_4:
+                        case POW_HOMING_AMMO_4:
+#if defined(DXX_BUILD_DESCENT_II)
+                        case POW_SMISSILE1_4:
+                        case POW_GUIDED_MISSILE_4:
+                        case POW_MERCURY_MISSILE_4:
+#endif
+                                MultiLevelInv.Current[pid] = 0;
+                                MultiLevelInv.Current[pid-1] += 4;
+                                break;
+                        case POW_PROXIMITY_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+                        case POW_SMART_MINE:
+#endif
+                                MultiLevelInv.Current[pid] += 4; // count the actual bombs
+                                break;
+                        case POW_VULCAN_AMMO:
+                                MultiLevelInv.Current[pid] += VULCAN_AMMO_AMOUNT; // count the actual ammo
+                                break;
+                        default:
+                                MultiLevelInv.Current[pid] = 0; // All other items either do not exist or we NEVER want to have them respawn. So set those to 0.
+                                break;
+                }
+        }
+
+        if (initial) // Copy current to initial
+                MultiLevelInv.Initial = MultiLevelInv.Current;
+        else // Add player inventories to current
+        {
+                for (playernum_t i = 0; i < MAX_PLAYERS; i++)
+                {
+                        if (Players[i].connected != CONNECT_PLAYING)
+                                continue;
+                        const auto &&objp = vobjptridx(Players[i].objnum);
+                        if (objp->type == OBJ_GHOST) // Player is dead. Their items are dropped now.
+                                continue;
+                        auto &player_info = objp->ctype.player_info;
+                        // NOTE: We do not need to consider Granted Spawn Items here. These are replaced with shields and even if not, the repopulation function will take care of it.
+#if defined(DXX_BUILD_DESCENT_II)
+                        if (player_info.laser_level > MAX_LASER_LEVEL)
+                        {
+                                /*
+                                 * We do not know exactly how many normal lasers the player collected before going super so assume they have all.
+                                 * This loss possible is insignificant since we have super lasers and normal ones may respawn some time after this player dies.
+                                 */
+                                MultiLevelInv.Current[POW_LASER] += 4;
+                                MultiLevelInv.Current[POW_SUPER_LASER] += player_info.laser_level-MAX_LASER_LEVEL+1; // Laser levels start at 0!
+                        }
+                        else
+#endif
+                        {
+                                MultiLevelInv.Current[POW_LASER] += player_info.laser_level+1; // Laser levels start at 0!
+                        }
+                        // NOTE: The following can probably be simplified.
+                        if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
+                                MultiLevelInv.Current[POW_QUAD_FIRE]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(VULCAN_INDEX))
+                                MultiLevelInv.Current[POW_VULCAN_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(SPREADFIRE_INDEX))
+                                MultiLevelInv.Current[POW_SPREADFIRE_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PLASMA_INDEX))
+                                MultiLevelInv.Current[POW_PLASMA_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(FUSION_INDEX))
+                                MultiLevelInv.Current[POW_FUSION_WEAPON]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
+                                MultiLevelInv.Current[POW_CLOAK]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
+                                MultiLevelInv.Current[POW_INVULNERABILITY]++;
+#if defined(DXX_BUILD_DESCENT_II)
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(GAUSS_INDEX))
+                                MultiLevelInv.Current[POW_GAUSS_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(HELIX_INDEX))
+                                MultiLevelInv.Current[POW_HELIX_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PHOENIX_INDEX))
+                                MultiLevelInv.Current[POW_PHOENIX_WEAPON]++;
+                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(OMEGA_INDEX))
+                                MultiLevelInv.Current[POW_OMEGA_WEAPON]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
+                                MultiLevelInv.Current[POW_FULL_MAP]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
+                                MultiLevelInv.Current[POW_AFTERBURNER]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
+                                MultiLevelInv.Current[POW_AMMO_RACK]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
+                                MultiLevelInv.Current[POW_CONVERTER]++;
+                        if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
+                                MultiLevelInv.Current[POW_HEADLIGHT]++;
+                        if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
+                        {
+                                if ((get_team(i)==TEAM_RED))
+                                        MultiLevelInv.Current[POW_FLAG_BLUE]++;
+                                else
+                                        MultiLevelInv.Current[POW_FLAG_RED]++;
+                        }
+#endif
+                        MultiLevelInv.Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
+                        MultiLevelInv.Current[POW_MISSILE_1] += player_info.secondary_ammo[CONCUSSION_INDEX];
+                        MultiLevelInv.Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[HOMING_INDEX];
+#if defined(DXX_BUILD_DESCENT_II)
+                        if (!(Game_mode & GM_HOARD))
+#endif
+                                MultiLevelInv.Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
+                        MultiLevelInv.Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[SMART_INDEX];
+                        MultiLevelInv.Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[MEGA_INDEX];
+#if defined(DXX_BUILD_DESCENT_II)
+                        MultiLevelInv.Current[POW_SMISSILE1_1] += player_info.secondary_ammo[SMISSILE1_INDEX];
+                        MultiLevelInv.Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[GUIDED_INDEX];
+                        MultiLevelInv.Current[POW_SMART_MINE] += player_info.secondary_ammo[SMART_MINE_INDEX];
+                        MultiLevelInv.Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[SMISSILE4_INDEX];
+                        MultiLevelInv.Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[SMISSILE5_INDEX];
+#endif
+                }
+#if defined(DXX_BUILD_DESCENT_II)
+                if (Game_mode & GM_MULTI_ROBOTS) // Add (possible) thief inventory
+                {
+                        for (int i = 0; i < MAX_STOLEN_ITEMS; i++)
+                        {
+                                if (Stolen_items[i] >= MAX_POWERUP_TYPES || Stolen_items[i] == POW_ENERGY || Stolen_items[i] == POW_SHIELD_BOOST)
+                                        continue;
+                                // NOTE: We don't need to consider vulcan ammo or 4pack items as the thief should not steal those items.
+                                if (Stolen_items[i] == POW_PROXIMITY_WEAPON || Stolen_items[i] == POW_SMART_MINE)
+                                        MultiLevelInv.Current[Stolen_items[i]] += 4;
+                                else
+                                        MultiLevelInv.Current[Stolen_items[i]]++;
+                        }
+                }
+#endif
+        }
+}
+
+// Takes a powerup type and checks if we are allowed to spawn it.
+bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
+{
+        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+                return 0;
+
+        int req_amount = 1; // required amount of item to drop a powerup.
+
+        if (powerup_type == POW_VULCAN_AMMO)
+                req_amount = VULCAN_AMMO_AMOUNT;
+        else if (powerup_type == POW_PROXIMITY_WEAPON
+#if defined(DXX_BUILD_DESCENT_II)
+                || powerup_type == POW_SMART_MINE
+#endif
+        )
+                req_amount = 4;
+
+        if (MultiLevelInv.Initial[powerup_type] == 0 || MultiLevelInv.Current[powerup_type] > MultiLevelInv.Initial[powerup_type]) // Item does not exist in level or we have too many.
+                return 0;
+        else if (MultiLevelInv.Initial[powerup_type] - MultiLevelInv.Current[powerup_type] >= req_amount)
+                return 1;
+        return 0;
+}
+
+// Repopulate the level with missing items.
+void MultiLevelInv_Repopulate(fix frequency)
+{
+        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+                return;
+
+        MultiLevelInv_Count(0); // recount current items
+        for (unsigned i = 0; i < MAX_POWERUP_TYPES; i++)
+        {
+                if (MultiLevelInv_AllowSpawn((powerup_type_t)i))
+                        MultiLevelInv.RespawnTimer[i] += frequency;
+                else
+                        MultiLevelInv.RespawnTimer[i] = 0;
+
+                if (MultiLevelInv.RespawnTimer[i] >= F1_0*2)
+                {
+                        con_printf(CON_VERBOSE, "MultiLevelInv_Repopulate type: %i - Init: %i Cur: %i", i, MultiLevelInv.Initial[i], MultiLevelInv.Current[i]);
+                        maybe_drop_net_powerup((powerup_type_t)i, 0, 1);
+                        MultiLevelInv.RespawnTimer[i] = 0;
+                }
+        }
+}
+
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5468,8 +5475,6 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_heartbeat (buf); break;
 		case MULTI_KILLGOALS:
 			multi_do_kill_goal_counts (buf); break;
-		case MULTI_POWCAP_UPDATE:
-			multi_do_powcap_update(buf); break;
 		case MULTI_DO_BOUNTY:
 			multi_do_bounty( buf ); break;
 		case MULTI_TYPING_STATE:
@@ -5480,6 +5485,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_kill(pnum, buf); break;
 		case MULTI_KILL_CLIENT:
 			multi_do_kill(pnum, buf); break;
+		case MULTI_PLAYER_INV:
+			multi_do_player_inventory( pnum, buf ); break;
 		default:
 			throw std::runtime_error("invalid message type");
 	}

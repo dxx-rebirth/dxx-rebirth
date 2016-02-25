@@ -4488,8 +4488,6 @@ net_udp_level_sync(void)
 	else
 		result = net_udp_wait_for_sync();
 
-	multi_powcap_count_powerups_in_mine();
-
 	if (result)
 	{
 		get_local_player().connected = CONNECT_DISCONNECTED;
@@ -5667,7 +5665,7 @@ void net_udp_send_extras ()
 		net_udp_send_player_flags();    
 #endif
 	if (Network_sending_extras==2)
-		multi_send_powcap_update();
+		multi_send_player_inventory(1);
 	if (Network_sending_extras==1 && Game_mode & GM_BOUNTY)
 		multi_send_bounty();
 

@@ -520,28 +520,29 @@ segidx_t pick_connected_segment(const vcobjptr_t objp, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-static vsegptridx_t choose_drop_segment()
+static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 {
 	playernum_t	pnum = 0;
 	int	cur_drop_depth;
 	int	count;
 	vms_vector *player_pos;
+        auto drop_playerobj = *vobjptr(Players[drop_pnum].objnum);
 
 	d_srand((fix)timer_query());
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
-	player_pos = &get_local_plrobj().pos;
-	const auto player_seg = get_local_plrobj().segnum;
+	player_pos = &drop_playerobj.pos;
+	const auto player_seg = drop_playerobj.segnum;
 
 	segnum_t	segnum = segment_none;
 	while ((segnum == segment_none) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num)))
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==drop_pnum)))
 #elif defined(DXX_BUILD_DESCENT_II)
-		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num) || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(Player_num)))))
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==drop_pnum) || ((Game_mode & (GM_TEAM|GM_CAPTURE)) && (get_team(pnum)==get_team(drop_pnum)))))
 #endif
 		{
 			pnum = (pnum+1)%N_players;
@@ -550,7 +551,7 @@ static vsegptridx_t choose_drop_segment()
 
 		if (count == N_players) {
 			//if can't valid non-player person, use the player
-			pnum = Player_num;
+			pnum = drop_pnum;
 		}
 
 		segnum = pick_connected_segment(vcobjptr(Players[pnum].objnum), cur_drop_depth);
@@ -591,7 +592,7 @@ static vsegptridx_t choose_drop_segment()
 		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
-			segnum = pick_connected_segment(vcobjptr(get_local_player().objnum), --cur_drop_depth);
+			segnum = pick_connected_segment(vcobjptr(Players[drop_pnum].objnum), --cur_drop_depth);
 			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
@@ -603,18 +604,27 @@ static vsegptridx_t choose_drop_segment()
 }
 
 //	------------------------------------------------------------------------------------------------------
-//	Drop cloak powerup if in a network game.
-void maybe_drop_net_powerup(powerup_type_t powerup_type)
+//	(Re)spawns powerup if in a network game.
+void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player)
 {
+        playernum_t pnum = Player_num;
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
-		if (Game_mode & GM_NETWORK)
+		if ((Game_mode & GM_NETWORK) && adjust_cap)
 		{
-			if (!PowerupCaps.can_add_powerup(powerup_type))
+                        MultiLevelInv_Count(0); // recount current items
+			if (!MultiLevelInv_AllowSpawn(powerup_type))
 				return;
 		}
 
 		if (Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
 			return;
+
+                if (random_player)
+                {
+                        pnum = d_rand() % MAX_PLAYERS;
+                        while( Players[pnum].connected != CONNECT_PLAYING )
+                                pnum = d_rand() % MAX_PLAYERS;
+                }
 
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
 //--old-- 		Assert((segnum >= 0) && (segnum <= Highest_segment_index));
@@ -624,12 +634,12 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type)
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const auto &&objnum = call_object_create_egg(vobjptr(get_local_player().objnum), 1, OBJ_POWERUP, powerup_type);
+		const auto &&objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, OBJ_POWERUP, powerup_type);
 
 		if (objnum == object_none)
 			return;
 
-		const auto &&segnum = choose_drop_segment();
+		const auto &&segnum = choose_drop_segment(pnum);
 		const auto &&new_pos = pick_random_point_in_seg(segnum);
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
 		objnum->pos = new_pos;

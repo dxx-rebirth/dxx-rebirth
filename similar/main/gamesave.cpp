@@ -260,11 +260,6 @@ static void verify_object(const vobjptr_t obj)
 		obj->control_type = CT_POWERUP;
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		obj->ctype.powerup_info.creation_time = 0;
-
-		if (Game_mode & GM_NETWORK)
-		{
-			PowerupCaps.inc_powerup_both(get_powerup_id(obj));
-		}
 	}
 
 	if ( obj->type == OBJ_WEAPON )	{
@@ -1203,12 +1198,6 @@ int load_level(const char * filename_passed)
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
-
-   if (Game_mode & GM_NETWORK)
-	 {
-		 PowerupCaps.clear();
-	 }
-
 
 	#ifndef RELEASE
 	Level_being_loaded = filename_passed;

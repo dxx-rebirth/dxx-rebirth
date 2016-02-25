@@ -1852,6 +1852,7 @@ int do_laser_firing_player(void)
 					v = 0;
 				else
 					v -= ammo_used;
+                                maybe_drop_net_powerup(POW_VULCAN_AMMO, 1, 0);
 			}
 
 			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
@@ -2218,14 +2219,12 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 namespace dcx {
 
 int Missile_gun = 0;
-int Proximity_dropped = 0;
 
 }
 
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-int Smartmines_dropped=0;
 
 void create_robot_smart_children(const vobjptridx_t objp, const uint_fast32_t num_smart_children)
 {
@@ -2300,22 +2299,8 @@ void do_missile_firing(int drop_bomb)
 
 		const auto &&objnum = Laser_player_fire(vobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec);
 
-		if (weapon == PROXIMITY_INDEX) {
-			if (++Proximity_dropped == 4) {
-				Proximity_dropped = 0;
-				maybe_drop_net_powerup(POW_PROXIMITY_WEAPON);
-			}
-		}
-#if defined(DXX_BUILD_DESCENT_II)
-		else if (weapon == SMART_MINE_INDEX) {
-			if (++Smartmines_dropped == 4) {
-				Smartmines_dropped = 0;
-				maybe_drop_net_powerup(POW_SMART_MINE);
-			}
-		}
-#endif
-		else if (weapon != CONCUSSION_INDEX)
-			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon]);
+                if (weapon != CONCUSSION_INDEX)
+			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if (weapon == MEGA_INDEX)

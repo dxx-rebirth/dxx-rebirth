@@ -98,7 +98,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(24)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(25)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -445,7 +445,6 @@ public:
 };
 
 namespace dsx {
-extern powerup_cap_state PowerupCaps;
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, int player);
@@ -553,7 +552,8 @@ multi_endlevel_poll *get_multi_endlevel_poll2();
 void multi_send_endlevel_packet();
 #ifdef dsx
 namespace dsx {
-void multi_prep_level();
+void multi_prep_level_objects();
+void multi_prep_level_player();
 void multi_leave_game(void);
 }
 #endif
@@ -729,16 +729,16 @@ extern struct netgame_info Netgame;
 void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
-extern void multi_powcap_count_powerups_in_mine(void);
+extern void MultiLevelInv_Count(bool initial);
+extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
+extern void MultiLevelInv_Repopulate(fix frequency);
 #ifdef dsx
 namespace dsx {
-extern void multi_powcap_cap_objects();
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 }
 #endif
-extern void multi_do_powcap_update();
-extern void multi_send_powcap_update();
+extern void multi_send_player_inventory(int priority);
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -868,6 +868,19 @@ struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif
+};
+
+
+/*
+ * Structure holding all powerup types we want to keep track of. Used to cap or respawn powerups and keep the level inventory steady.
+ * Using uint32_t because we don't count powerup units but what the powerup contains (1 or 4 missiles, vulcam amount, etc) so we can keep track of overhead.
+ * I'm sorry if this isn't very optimized but I found this easier to handle than a single variable per powerup.
+ */
+struct multi_level_inv
+{
+        array<uint32_t, MAX_POWERUP_TYPES> Initial; // initial (level start) count of this powerup type
+        array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
+        array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds
 };
 }
 #endif

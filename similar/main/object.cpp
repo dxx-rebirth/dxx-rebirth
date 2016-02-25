@@ -1387,8 +1387,6 @@ void dead_player_frame(void)
 					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? TXT_SHIP_DESTROYED_1 : TXT_SHIP_DESTROYED_0);
 
 				Player_dead_state = player_dead_state::exploded;
-				if (Game_mode & GM_NETWORK)
-					multi_powcap_cap_objects();
 				
 				const auto cobjp = vobjptridx(ConsoleObject);
 				drop_player_eggs(cobjp);
@@ -1421,10 +1419,6 @@ void dead_player_frame(void)
 		if (Death_sequence_aborted)
 		{
 			if (!Player_eggs_dropped) {
-			
-				if (Game_mode & GM_NETWORK)
-					multi_powcap_cap_objects();
-				
 				drop_player_eggs(vobjptridx(ConsoleObject));
 				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
