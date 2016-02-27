@@ -596,8 +596,6 @@ static void do_cloak_stuff(void)
 
 }
 
-static int FakingInvul=0;
-
 //	------------------------------------------------------------------------------------
 static void do_invulnerable_stuff(void)
 {
@@ -609,7 +607,7 @@ static void do_invulnerable_stuff(void)
 		if (GameTime64 > player_info.invulnerable_time + INVULNERABLE_TIME_MAX)
 		{
 			pl_flags &= ~PLAYER_FLAGS_INVULNERABLE;
-			if (FakingInvul)
+			if (auto &FakingInvul = player_info.FakingInvul)
 			{
 				FakingInvul = 0;
 				return;
@@ -1528,14 +1526,8 @@ void GameProcessFrame(void)
 	}
 
 	if (Do_appearance_effect) {
-		create_player_appearance_effect(vobjptridx(ConsoleObject));
 		Do_appearance_effect = 0;
-		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
-		{
-			get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
-			get_local_player_invulnerable_time() = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
-			FakingInvul=1;
-		}
+		create_player_appearance_effect(vobjptridx(ConsoleObject));
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

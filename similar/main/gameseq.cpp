@@ -388,8 +388,21 @@ void init_player_stats_new_ship(ubyte pnum)
 	player_info.laser_level = granted_laser_level;
 	const auto granted_primary_weapon_flags = HAS_LASER_FLAG | map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	player_info.primary_weapon_flags = granted_primary_weapon_flags;
+	player_info.powerup_flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+#if defined(DXX_BUILD_DESCENT_II)
+	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
+#endif
+	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
+	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
+	DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 	if (pnum == Player_num)
 	{
+		if (Netgame.InvulAppear)
+		{
+			player_info.powerup_flags |= PLAYER_FLAGS_INVULNERABLE;
+			player_info.invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
+			player_info.FakingInvul = 1;
+		}
 		Primary_weapon = [=]{
 			range_for (auto i, PlayerCfg.PrimaryOrder)
 			{
@@ -453,13 +466,6 @@ void init_player_stats_new_ship(ubyte pnum)
 #endif
 	}
 	Players[pnum].hostages_on_board = 0;
-	player_info.powerup_flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-#if defined(DXX_BUILD_DESCENT_II)
-	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
-#endif
-	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
-	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
-	DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 	player_info.homing_object_dist = -F1_0; // Added by RH
 	digi_kill_sound_linked_to_object(plrobj);
 }

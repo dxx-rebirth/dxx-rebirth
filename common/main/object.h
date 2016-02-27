@@ -100,6 +100,7 @@ struct player_info
 	using primary_weapon_flag_type = uint16_t;
 #endif
 	primary_weapon_flag_type primary_weapon_flags;
+	bool FakingInvul;
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 	fix64   cloak_time;             // Time cloaked
