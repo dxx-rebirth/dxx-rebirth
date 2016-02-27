@@ -1495,40 +1495,35 @@ void GameProcessFrame(void)
 		if (allowed_to_fire_laser())
 			FireLaser();				// Fire Laser!
 
+		auto laser_firing_count = Global_laser_firing_count;
 		if (Auto_fire_fusion_cannon_time) {
 			if (Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
-			else if (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
+			else if ((laser_firing_count = (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time)))
+			{
 				Auto_fire_fusion_cannon_time = 0;
-				Global_laser_firing_count = 1;
 			} else if (d_tick_step) {
-				fix			bump_amount;
-
-				Global_laser_firing_count = 0;
-
-				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
-				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
+				const auto rx = (d_rand() - 16384) / 8;
+				const auto rz = (d_rand() - 16384) / 8;
+				const auto &&console = vobjptr(ConsoleObject);
+				auto &rotvel = console->mtype.phys_info.rotvel;
+				rotvel.x += rx;
+				rotvel.z += rz;
 
 				const auto rand_vec = make_random_vector();
 
-				bump_amount = F1_0*4;
-
-				if (Fusion_charge > F1_0*2)
-					bump_amount = Fusion_charge*4;
-
-				bump_one_object(vobjptr(ConsoleObject), rand_vec, bump_amount);
-			}
-			else
-			{
-				Global_laser_firing_count = 0;
+				const auto bump_amount = Fusion_charge > F1_0*2 ? Fusion_charge*4 : F1_0*4;
+				bump_one_object(console, rand_vec, bump_amount);
 			}
 		}
 
-		if (Global_laser_firing_count)
-			Global_laser_firing_count -= do_laser_firing_player();
-
-		if (Global_laser_firing_count < 0)
-			Global_laser_firing_count = 0;
+		if (laser_firing_count)
+		{
+			laser_firing_count -= do_laser_firing_player();
+			if (laser_firing_count < 0)
+				laser_firing_count = 0;
+		}
+		Global_laser_firing_count = laser_firing_count;
 		delayed_autoselect();
 	}
 
