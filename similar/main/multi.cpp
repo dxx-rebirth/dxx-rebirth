@@ -3330,8 +3330,6 @@ void multi_prep_level_player(void)
 	// since the resulting checksum with depend on the value of Player_num
 	// at the time this is called.
 
-	int i;
-
 	Assert(Game_mode & GM_MULTI);
 
 	Assert(NumNetPlayerPositions > 0);
@@ -3345,14 +3343,14 @@ void multi_prep_level_player(void)
 
 	multi_consistency_error(1);
 
-	for (i=0;i<MAX_PLAYERS;i++)
+	for (uint_fast32_t i = 0; i<MAX_PLAYERS; i++)
 	{
 		multi_sending_message[i] = msgsend_none;
 		if (imulti_new_game)
 			init_player_stats_new_ship(i);
 	}
 
-	for (i = 0; i < NumNetPlayerPositions; i++)
+	for (unsigned i = 0; i < NumNetPlayerPositions; i++)
 	{
 		const auto objp = vobjptridx(Players[i].objnum);
 		if (i != Player_num)
@@ -3362,7 +3360,7 @@ void multi_prep_level_player(void)
 		Netgame.players[i].LastPacketTime = 0;
 	}
 
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	for (uint_fast32_t i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		robot_controlled[i] = -1;
 		robot_agitation[i] = 0;
