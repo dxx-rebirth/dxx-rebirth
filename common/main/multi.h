@@ -880,7 +880,7 @@ struct multi_level_inv
 {
         array<uint32_t, MAX_POWERUP_TYPES> Initial; // initial (level start) count of this powerup type
         array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
-        array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds
+        array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
 };
 }
 #endif
