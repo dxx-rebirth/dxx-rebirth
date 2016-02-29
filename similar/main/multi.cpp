@@ -4864,10 +4864,8 @@ void MultiLevelInv_Count(bool initial)
                 MultiLevelInv = {};
         MultiLevelInv.Current = {};
 
-        for (objnum_t i = 0; i <= Highest_object_index; i++)
+        range_for (const auto &&objp, vobjptridx)
         {
-                const auto &&objp = vobjptridx(i);
-
                 if (objp->type == OBJ_WEAPON) // keep live bombs in inventory so they will respawn after they're gone
                 {
                         auto wid = get_weapon_id(objp);
@@ -4927,7 +4925,6 @@ void MultiLevelInv_Count(bool initial)
                         case POW_GUIDED_MISSILE_4:
                         case POW_MERCURY_MISSILE_4:
 #endif
-                                MultiLevelInv.Current[pid] = 0;
                                 MultiLevelInv.Current[pid-1] += 4;
                                 break;
                         case POW_PROXIMITY_WEAPON:
@@ -4940,8 +4937,7 @@ void MultiLevelInv_Count(bool initial)
                                 MultiLevelInv.Current[pid] += VULCAN_AMMO_AMOUNT; // count the actual ammo
                                 break;
                         default:
-                                MultiLevelInv.Current[pid] = 0; // All other items either do not exist or we NEVER want to have them respawn. So set those to 0.
-                                break;
+                                break; // All other items either do not exist or we NEVER want to have them respawn.
                 }
         }
 
@@ -5035,7 +5031,7 @@ void MultiLevelInv_Count(bool initial)
 #if defined(DXX_BUILD_DESCENT_II)
                 if (Game_mode & GM_MULTI_ROBOTS) // Add (possible) thief inventory
                 {
-                        for (int i = 0; i < MAX_STOLEN_ITEMS; i++)
+                        range_for (auto &i, Stolen_items)
                         {
                                 if (Stolen_items[i] >= MAX_POWERUP_TYPES || Stolen_items[i] == POW_ENERGY || Stolen_items[i] == POW_SHIELD_BOOST)
                                         continue;
