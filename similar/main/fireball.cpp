@@ -526,7 +526,7 @@ static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 	int	cur_drop_depth;
 	int	count;
 	vms_vector *player_pos;
-        auto drop_playerobj = *vobjptr(Players[drop_pnum].objnum);
+        auto &drop_playerobj = *vobjptr(Players[drop_pnum].objnum);
 
 	d_srand((fix)timer_query());
 
