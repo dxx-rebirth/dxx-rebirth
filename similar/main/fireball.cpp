@@ -621,9 +621,16 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 
                 if (random_player)
                 {
-                        pnum = d_rand() % MAX_PLAYERS;
-                        while( Players[pnum].connected != CONNECT_PLAYING )
+                        uint_fast32_t failsafe_count = 0;
+                        do {
                                 pnum = d_rand() % MAX_PLAYERS;
+                                if (failsafe_count > MAX_PLAYERS*4) // that was plenty of tries to find a good player...
+                                {
+                                        pnum = Player_num; // ... go with Player_num instead
+                                        break;
+                                }
+                                failsafe_count++;
+                        } while (Players[pnum].connected != CONNECT_PLAYING);
                 }
 
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;
