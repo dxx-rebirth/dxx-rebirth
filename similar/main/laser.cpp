@@ -1612,9 +1612,9 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                                         fix	dist_to_player;
 
                                         dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
-									auto &homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
-									if (dist_to_player < homing_object_dist || homing_object_dist < 0)
-										homing_object_dist = dist_to_player;
+                                        auto &homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+                                        if (dist_to_player < homing_object_dist || homing_object_dist < 0)
+                                                homing_object_dist = dist_to_player;
                                 }
 
 
@@ -1660,15 +1660,16 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 			//	Make sure the object we are tracking is still trackable.
 			objptridx_t obj_track_goal = object_none;
 			if (obj->ctype.laser_info.track_goal != object_none)
-				obj_track_goal = obj->ctype.laser_info.track_goal;
-			auto track_goal = track_track_goal(obj_track_goal, obj, &dot, d_tick_count);
+				obj_track_goal = objptridx(obj->ctype.laser_info.track_goal);
+			auto track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
 
 			if (track_goal == get_local_player().objnum) {
 				fix	dist_to_player;
 
 				dist_to_player = vm_vec_dist_quick(obj->pos, track_goal->pos);
-				if ((dist_to_player < get_local_player().homing_object_dist) || (get_local_player().homing_object_dist < 0))
-					get_local_player().homing_object_dist = dist_to_player;
+                                auto &homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+                                if (dist_to_player < homing_object_dist || homing_object_dist < 0)
+                                        homing_object_dist = dist_to_player;
 
 			}
 
