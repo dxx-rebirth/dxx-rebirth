@@ -2966,6 +2966,7 @@ class DXXCommon(LazyObjectConstructor):
 
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
 		env.Prepend(CXXFLAGS = [
+			'-ftabstop=4',
 			'-Wall',
 			Werror + 'extra',
 			Werror + 'format=2',
