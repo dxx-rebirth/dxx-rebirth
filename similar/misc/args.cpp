@@ -33,17 +33,7 @@
 
 namespace dcx {
 CArg CGameArg;
-}
-
-namespace dsx {
-
-#define MAX_ARGS 1000
-#if defined(DXX_BUILD_DESCENT_I)
-#define INI_FILENAME "d1x.ini"
-#elif defined(DXX_BUILD_DESCENT_II)
-#define INI_FILENAME "d2x.ini"
-#endif
-
+constexpr std::size_t MAX_ARGS = 1000;
 typedef std::vector<std::string> Arglist;
 
 class ini_entry
@@ -104,10 +94,6 @@ class nesting_depth_exceeded
 {
 };
 
-Arg GameArg;
-
-static void ReadCmdArgs(Inilist &ini, Arglist &Args);
-
 static void AppendIniArgs(const char *filename, Arglist &Args)
 {
 	if (auto f = PHYSFSX_openReadBuffered(filename))
@@ -115,7 +101,7 @@ static void AppendIniArgs(const char *filename, Arglist &Args)
 		PHYSFSX_gets_line_t<1024> line;
 		while (Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
-			static const char separator[] = " ";
+			const auto separator = " ";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
 			{
 				if (*token == ';')
@@ -182,6 +168,14 @@ static void InitGameArg()
 	CGameArg.DbgGlGetTexLevelParamOk = true;
 #endif
 }
+
+}
+
+namespace dsx {
+
+Arg GameArg;
+
+static void ReadCmdArgs(Inilist &ini, Arglist &Args);
 
 static void ReadIniArgs(Inilist &ini)
 {
@@ -402,6 +396,10 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	}
 }
 
+}
+
+namespace dcx {
+
 static void PostProcessGameArg()
 {
 	if (CGameArg.SysMaxFPS < MINIMUM_FPS)
@@ -436,6 +434,10 @@ static std::string ConstructIniStackExplanation(const Inilist &ini)
 	}
 }
 
+}
+
+namespace dsx {
+
 bool InitArgs( int argc,char **argv )
 {
 	InitGameArg();
@@ -451,6 +453,11 @@ bool InitArgs( int argc,char **argv )
 		}
 		{
 			assert(ini.empty());
+#if defined(DXX_BUILD_DESCENT_I)
+			const auto INI_FILENAME = "d1x.ini";
+#elif defined(DXX_BUILD_DESCENT_II)
+			const auto INI_FILENAME = "d2x.ini";
+#endif
 			ini.emplace_back(INI_FILENAME);
 			ReadIniArgs(ini);
 		}
