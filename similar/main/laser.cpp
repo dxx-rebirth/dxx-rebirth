@@ -1627,7 +1627,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                                         speed = vm_vec_normalize_quick(temp_vec);
                                         max_speed = Weapon_info[get_weapon_id(obj)].speed[Difficulty_level];
                                         if (speed+F1_0 < max_speed) {
-                                                speed += fixmul(max_speed, HOMING_TURN_TIME);
+                                                speed += fixmul(max_speed, HOMING_TURN_TIME/2);
                                                 if (speed > max_speed)
                                                         speed = max_speed;
                                         }
