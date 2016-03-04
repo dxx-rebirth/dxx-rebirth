@@ -232,6 +232,8 @@ static void do_timer_wait(void)
  *************************/
 #define TOTAL_AUDIO_BUFFERS 64
 
+namespace {
+
 class MVE_audio_deleter
 {
 public:
@@ -240,6 +242,8 @@ public:
 		mve_free(p);
 	}
 };
+
+}
 
 static int audiobuf_created = 0;
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);

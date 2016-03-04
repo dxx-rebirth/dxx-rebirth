@@ -36,6 +36,8 @@ CArg CGameArg;
 constexpr std::size_t MAX_ARGS = 1000;
 typedef std::vector<std::string> Arglist;
 
+namespace {
+
 class ini_entry
 {
 	std::string m_filename;
@@ -93,6 +95,8 @@ public:
 class nesting_depth_exceeded
 {
 };
+
+}
 
 static void AppendIniArgs(const char *filename, Arglist &Args)
 {
