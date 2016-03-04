@@ -313,19 +313,8 @@ public:
 	}
 };
 
-/* Morphing models always ignored light.  Now ignore it more
- * efficiently.
- */
-class glow_num_stub : public tt::integral_constant<unsigned, ~0u>
-{
-public:
-	const glow_num_stub &operator=(unsigned) const
-	{
-		return *this;
-	}
-};
-
 class g3_draw_morphing_model_state :
+	public interpreter_ignore_op_glow,
 	public interpreter_base
 {
 	grs_bitmap **const model_bitmaps;
@@ -334,7 +323,6 @@ class g3_draw_morphing_model_state :
 	static constexpr const glow_values_t *glow_values = nullptr;
 	const vms_vector *const new_points;
 	polygon_model_points &Interp_point_list;
-	static constexpr auto glow_num = glow_num_stub{};
 public:
 	g3_draw_morphing_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, g3s_lrgb mlight, const vms_vector *npoints, polygon_model_points &plist) :
 		model_bitmaps(mbitmaps), anim_angles(aangles),
@@ -373,7 +361,6 @@ public:
 		g3s_lrgb light;
 		int ntris;
 		//calculate light from surface normal
-		if (!glow_values || !(glow_num < glow_values->size())) //no glow
 		{
 			light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
 			light.r = f1_0/4 + (light.r*3)/4;
@@ -382,11 +369,6 @@ public:
 			light.g = fixmul(light.g,model_light.g);
 			light.b = f1_0/4 + (light.b*3)/4;
 			light.b = fixmul(light.b,model_light.b);
-		}
-		else //yes glow
-		{
-			light.r = light.g = light.b = (*glow_values)[glow_num];
-			glow_num = -1;
 		}
 		//now poke light into l values
 		array<g3s_uvl, 3> uvl_list;
@@ -440,10 +422,6 @@ public:
 		g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 		g3_done_instance();
 	}
-	void op_glow(const uint8_t *const p)
-	{
-		glow_num = w(p+2);
-	}
 };
 
 class init_model_sub_state :
@@ -487,7 +465,6 @@ public:
 	}
 };
 
-constexpr glow_num_stub g3_draw_morphing_model_state::glow_num;
 constexpr const glow_values_t *g3_draw_morphing_model_state::glow_values;
 
 }
