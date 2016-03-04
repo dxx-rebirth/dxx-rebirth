@@ -5033,13 +5033,14 @@ void MultiLevelInv_Count(bool initial)
                 {
                         range_for (auto &i, Stolen_items)
                         {
-                                if (Stolen_items[i] >= MAX_POWERUP_TYPES || Stolen_items[i] == POW_ENERGY || Stolen_items[i] == POW_SHIELD_BOOST)
+							if (i >= MultiLevelInv.Current.size() || i == POW_ENERGY || i == POW_SHIELD_BOOST)
                                         continue;
+							auto &c = MultiLevelInv.Current[i];
                                 // NOTE: We don't need to consider vulcan ammo or 4pack items as the thief should not steal those items.
-                                if (Stolen_items[i] == POW_PROXIMITY_WEAPON || Stolen_items[i] == POW_SMART_MINE)
-                                        MultiLevelInv.Current[Stolen_items[i]] += 4;
+							if (i == POW_PROXIMITY_WEAPON || i == POW_SMART_MINE)
+								c += 4;
                                 else
-                                        MultiLevelInv.Current[Stolen_items[i]]++;
+								++c;
                         }
                 }
 #endif
