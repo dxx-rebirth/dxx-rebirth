@@ -1487,8 +1487,7 @@ void med_create_new_segment_from_cursegp(void)
 //	Initialize all vertices to inactive status.
 void init_all_vertices(void)
 {
-	range_for (auto &v, Vertex_active)
-		v = 0;
+	Vertex_active = {};
 	range_for (auto &s, Segments)
 		s.segnum = segment_none;
 }
