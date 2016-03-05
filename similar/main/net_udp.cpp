@@ -5324,7 +5324,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 		{
 			for (int i = 1; i < MAX_PLAYERS; i++)
 			{
-				if (i != pd.Player_num && Players[i].connected != CONNECT_DISCONNECTED) // not to sender or disconnected players - right.
+				if (i != pd.Player_num && (Players[i].connected != CONNECT_DISCONNECTED || Players[i].connected != CONNECT_WAITING)) // not to sender or disconnected/waiting players - right.
 					dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], data, data_len, 0);
 			}
 		}
@@ -5390,8 +5390,9 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	const auto TheirObj = vobjptridx(TheirObjnum);
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_query();
 
+        if (Players[Player_num].connected == CONNECT_DISCONNECTED || Players[Player_num].connected == CONNECT_WAITING) // do not read the packet unless the level is loaded.
+                return;
 	//------------ Read the player's ship's object info ----------------------
-
 	extract_quaternionpos(TheirObj, &pd->qpp, 0);
 	if (TheirObj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(TheirObj);
