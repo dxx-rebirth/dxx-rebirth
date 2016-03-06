@@ -150,13 +150,13 @@ using select_file_subfunction = int (*)(T *, const char *);
 }
 
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
+static int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<void> when_selected, void *userdata);
 
-template <typename T, std::size_t count>
+template <typename T>
 __attribute_nonnull()
-static int select_file_recursive(const char *title, const char *orig_path, const array<file_extension_t, count> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
+static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_list, int select_dir, select_file_subfunction<T> when_selected, T *userdata)
 {
-	return select_file_recursive(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
+	return select_file_recursive2(title, orig_path, ext_list, select_dir, reinterpret_cast<select_file_subfunction<void>>(when_selected), reinterpret_cast<void *>(userdata));
 }
 
 // Hide all menus
@@ -1765,7 +1765,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 	return 0;
 }
 
-static int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
+static int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
 {
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
@@ -1854,7 +1854,7 @@ static int select_file_recursive(const char *title, const char *orig_path, const
 	DXX_MENUITEM(VERB, MENU, TXT " (browse...)", OPT)
 #else
 
-int select_file_recursive(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }
