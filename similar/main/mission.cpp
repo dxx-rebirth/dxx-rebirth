@@ -216,7 +216,7 @@ static int load_mission_d1(void)
 static int load_mission_shareware(void)
 {
     Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
-    Current_mission->descent_version = Current_mission->descent_version_type::descent2;
+    Current_mission->descent_version = Mission::descent_version_type::descent2;
     Current_mission->anarchy_only_flag = 0;
     
     switch (Current_mission->builtin_hogsize)
@@ -269,7 +269,7 @@ static int load_mission_shareware(void)
 static int load_mission_oem(void)
 {
     Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
-    Current_mission->descent_version = Current_mission->descent_version_type::descent2;
+    Current_mission->descent_version = Mission::descent_version_type::descent2;
     Current_mission->anarchy_only_flag = 0;
     
 	N_secret_levels = 2;
@@ -356,8 +356,8 @@ static int read_mission_file(mission_list &mission_list, mission_candidate_searc
 #if defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
 		mission->descent_version = (ext[3] == MISSION_EXTENSION_DESCENT_II[3])
-			? mission->descent_version_type::descent2
-			: mission->descent_version_type::descent1;
+			? Mission::descent_version_type::descent2
+			: Mission::descent_version_type::descent1;
 #endif
 		mission->anarchy_only_flag = 0;
 		mission->filename = next(begin(mission->path), mission->path.find_last_of('/') + 1);
@@ -457,7 +457,7 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 #if defined(DXX_BUILD_DESCENT_I)
 	mission->builtin_hogsize = size;
 #elif defined(DXX_BUILD_DESCENT_II)
-	mission->descent_version = mission->descent_version_type::descent1;
+	mission->descent_version = Mission::descent_version_type::descent1;
 	mission->builtin_hogsize = 0;
 #endif
 	mission->filename = begin(mission->path);
@@ -506,7 +506,7 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 	mle *mission = &mission_list.back();
 	name.copy_if(mission->path.c_str(), FILENAME_LEN);
     mission->builtin_hogsize = size;
-	mission->descent_version = mission->descent_version_type::descent2;
+	mission->descent_version = Mission::descent_version_type::descent2;
 	mission->anarchy_only_flag = 0;
 }
 #endif
@@ -644,7 +644,7 @@ static mission_list build_mission_list(int anarchy_mode)
 int load_mission_ham()
 {
 	read_hamfile();
-	if (Current_mission->descent_version == Current_mission->descent_version_type::descent2a &&
+	if (Current_mission->descent_version == Mission::descent_version_type::descent2a &&
 		Current_mission->alternate_ham_file)
 	{
 		/*
@@ -664,14 +664,14 @@ int load_mission_ham()
 		if (!exists) {
 			exists = PHYSFSX_contfile_init(p = althog, 0);
 		}
-		bm_read_extra_robots(*altham, Current_mission->descent_version_type::descent2z);
+		bm_read_extra_robots(*altham, Mission::descent_version_type::descent2z);
 		if (exists)
 			PHYSFSX_contfile_close(p);
 		return 1;
 	}
-	else if (Current_mission->descent_version == Current_mission->descent_version_type::descent2a ||
-				Current_mission->descent_version == Current_mission->descent_version_type::descent2z ||
-				Current_mission->descent_version == Current_mission->descent_version_type::descent2x)
+	else if (Current_mission->descent_version == Mission::descent_version_type::descent2a ||
+				Current_mission->descent_version == Mission::descent_version_type::descent2z ||
+				Current_mission->descent_version == Mission::descent_version_type::descent2x)
 	{
 		char t[50];
 		snprintf(t,sizeof(t), "%s.ham", Current_mission_filename);
@@ -792,7 +792,7 @@ static int load_mission(const mle *mission)
 
 	auto &msn_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-	(mission->descent_version == mission->descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
+	(mission->descent_version == Mission::descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
 	snprintf(buf, sizeof(buf), "%s%s", mission->path.c_str(), msn_extension);
@@ -824,25 +824,25 @@ static int load_mission(const mle *mission)
 		{
 			if (istok(buf,"name"))
 			{
-				Current_mission->descent_version = Current_mission->descent_version_type::descent2;
+				Current_mission->descent_version = Mission::descent_version_type::descent2;
 				have_mn2_version = true;
 			continue;						//already have name, go to next line
 			}
 			if (istok(buf,"xname"))
 			{
-				Current_mission->descent_version = Current_mission->descent_version_type::descent2x;
+				Current_mission->descent_version = Mission::descent_version_type::descent2x;
 				have_mn2_version = true;
 			continue;						//already have name, go to next line
 			}
 			if (istok(buf,"zname"))
 			{
-				Current_mission->descent_version = Current_mission->descent_version_type::descent2z;
+				Current_mission->descent_version = Mission::descent_version_type::descent2z;
 				have_mn2_version = true;
 			continue;						//already have name, go to next line
 			}
 			if (istok(buf,"!name"))
 			{
-				Current_mission->descent_version = Current_mission->descent_version_type::descent2a;
+				Current_mission->descent_version = Mission::descent_version_type::descent2a;
 				have_mn2_version = true;
 			continue;						//already have name, go to next line
 			}
@@ -919,7 +919,7 @@ static int load_mission(const mle *mission)
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (Current_mission->descent_version == Current_mission->descent_version_type::descent2a && buf[0] == '!') {
+		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
 				Current_mission->alternate_ham_file = make_unique<d_fname>();
 				if ((v=get_value(buf))!=NULL) {
