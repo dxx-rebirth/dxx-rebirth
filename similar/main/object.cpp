@@ -1382,7 +1382,7 @@ void dead_player_frame(void)
 				const auto hostages_lost = exchange(get_local_player().hostages_on_board, 0);
 
 				if (hostages_lost > 1)
-					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, get_local_player().hostages_on_board);
+					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages_lost);
 				else
 					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? TXT_SHIP_DESTROYED_1 : TXT_SHIP_DESTROYED_0);
 
