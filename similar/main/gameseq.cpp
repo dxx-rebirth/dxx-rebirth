@@ -172,32 +172,17 @@ static void verify_console_object()
 	Assert(get_player_id(console) == Player_num);
 }
 
-static int count_number_of_robots()
+template <object_type_t type>
+static unsigned count_number_of_objects_of_type()
 {
-	int robot_count;
-	robot_count = 0;
-	range_for (const auto &&objp, vcobjptr)
-	{
-		if (objp->type == OBJ_ROBOT)
-			robot_count++;
-	}
-
-	return robot_count;
+	const auto predicate = [](const object &o) {
+		return o.type == type;
+	};
+	return std::count_if(vcobjptr.begin(), vcobjptr.end(), predicate);
 }
 
-
-static int count_number_of_hostages()
-{
-	int count;
-	count = 0;
-	range_for (const auto &&objp, vcobjptr)
-	{
-		if (objp->type == OBJ_HOSTAGE)
-			count++;
-	}
-
-	return count;
-}
+#define count_number_of_robots	count_number_of_objects_of_type<OBJ_ROBOT>
+#define count_number_of_hostages	count_number_of_objects_of_type<OBJ_HOSTAGE>
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 static void gameseq_init_network_players()
@@ -343,9 +328,10 @@ void init_player_stats_level(const secret_restore secret_flag)
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
-		get_local_player_flags() &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
+		auto &powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 #if defined(DXX_BUILD_DESCENT_II)
-		get_local_player_flags() &= ~(PLAYER_FLAGS_MAP_ALL);
+		powerup_flags &= ~(PLAYER_FLAGS_MAP_ALL);
 #endif
 
 		DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
@@ -353,9 +339,9 @@ void init_player_stats_level(const secret_restore secret_flag)
 
 		const auto all_keys = PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY;
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-			get_local_player_flags() |= all_keys;
+			powerup_flags |= all_keys;
 		else
-			get_local_player_flags() &= ~all_keys;
+			powerup_flags &= ~all_keys;
 	}
 
 	Player_dead_state = player_dead_state::no; // Added by RH
