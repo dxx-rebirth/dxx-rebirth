@@ -209,12 +209,17 @@ static void gameseq_init_network_players()
 	ConsoleObject = &Objects[0];
 	k = 0;
 	j = 0;
+	const auto multiplayer = Game_mode & GM_MULTI;
+	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 	range_for (const auto &&o, vobjptridx)
 	{
-		if (( o->type==OBJ_PLAYER )	|| (o->type == OBJ_GHOST) || (o->type == OBJ_COOP))
+		const auto type = o->type;
+		if (type == OBJ_PLAYER || type == OBJ_GHOST || type == OBJ_COOP)
 		{
-			if ( (!(Game_mode & GM_MULTI_COOP) && ((o->type == OBJ_PLAYER)||(o->type==OBJ_GHOST))) ||
-	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( o->type==OBJ_COOP ))) )
+			if (multiplayer_coop
+				? (j == 0 || type == OBJ_COOP)
+				: (type == OBJ_PLAYER || type == OBJ_GHOST)
+			)
 			{
 				o->type=OBJ_PLAYER;
 				Player_init[k].pos = o->pos;
@@ -228,7 +233,7 @@ static void gameseq_init_network_players()
 				obj_delete(o);
 			j++;
 		}
-		if ((o->type==OBJ_ROBOT) && robot_is_companion(&Robot_info[get_robot_id(o)]) && (Game_mode & GM_MULTI))
+		else if (type == OBJ_ROBOT && multiplayer && robot_is_companion(&Robot_info[get_robot_id(o)]))
 			obj_delete(o);		//kill the buddy in netgames
 	}
 	NumNetPlayerPositions = k;
