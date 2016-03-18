@@ -523,6 +523,7 @@ public:
 // Resolve address
 int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port)
 {
+#ifdef DXX_HAVE_GETADDRINFO
 	// Variables
 	addrinfo hints{};
 	char sPort[6];
@@ -568,6 +569,23 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	 */
 	
 	// Free memory
+#else
+	sockaddr_in &sai = reinterpret_cast<sockaddr_in &>(addr);
+	if (addrlen < sizeof(sai))
+		return -1;
+	const auto he = gethostbyname(host);
+	if (!he)
+	{
+		con_printf(CON_URGENT, "udp_dns_filladdr (gethostbyname) failed for host %s", host);
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Could not resolve IPv4 address\n%s", host);
+		addr.sa_family = AF_UNSPEC;
+		return -1;
+	}
+	sai = {};
+	sai.sin_family = ai_family;
+	sai.sin_port = htons(port);
+	sai.sin_addr = *reinterpret_cast<const in_addr *>(he->h_addr);
+#endif
 	return 0;
 }
 

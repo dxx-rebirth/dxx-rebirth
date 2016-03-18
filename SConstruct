@@ -1743,6 +1743,28 @@ help:always wipe certain freed memory
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);
 '''
 		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags=_successflags)
+	@_custom_test
+	def check_getaddrinfo_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_GETADDRINFO']}):
+		self.Compile(context, text='''
+#ifdef WIN32
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#endif
+''', main='''
+	addrinfo *res = nullptr;
+	const addrinfo *hints = nullptr;
+	int i = getaddrinfo("", "", hints, &res);
+	(void)i;
+	freeaddrinfo(res);
+	return 0;
+''', msg='for getaddrinfo', successflags=_successflags)
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wsuggest-attribute=noreturn',
