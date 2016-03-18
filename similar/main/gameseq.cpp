@@ -305,25 +305,26 @@ void init_player_stats_level(const secret_restore secret_flag)
 #endif
 	// int	i;
 
-	get_local_player().last_score = get_local_player().score;
+	auto &plr = get_local_player();
+	plr.last_score = plr.score;
 
-	get_local_player().level = Current_level_num;
+	plr.level = Current_level_num;
 
 	if (!Network_rejoined) {
-		get_local_player().time_level = 0;
-		get_local_player().hours_level = 0;
+		plr.time_level = 0;
+		plr.hours_level = 0;
 	}
 
 	get_local_plrobj().ctype.player_info.homing_object_dist = -F1_0; // Added by RH
 	get_local_plrobj().ctype.player_info.killer_objnum = object_none;
 
-	get_local_player().num_kills_level = 0;
-	get_local_player().num_robots_level = count_number_of_robots();
-	get_local_player().num_robots_total += get_local_player().num_robots_level;
+	plr.num_kills_level = 0;
+	plr.num_robots_level = count_number_of_robots();
+	plr.num_robots_total += plr.num_robots_level;
 
-	get_local_player().hostages_level = count_number_of_hostages();
-	get_local_player().hostages_total += get_local_player().hostages_level;
-	get_local_player().hostages_on_board = 0;
+	plr.hostages_level = count_number_of_hostages();
+	plr.hostages_total += plr.hostages_level;
+	plr.hostages_on_board = 0;
 
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
@@ -353,7 +354,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
-	digi_kill_sound_linked_to_object(vcobjptridx(get_local_player().objnum));
+	digi_kill_sound_linked_to_object(vcobjptridx(plr.objnum));
 #endif
 	init_gauges();
 #if defined(DXX_BUILD_DESCENT_II)
