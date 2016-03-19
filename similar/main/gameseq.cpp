@@ -768,6 +768,8 @@ void LoadLevel(int level_num,int page_in_textures)
 	if ( page_in_textures )
 		piggy_load_level_data();
 #endif
+
+	gameseq_init_network_players();
 }
 
 //sets up Player_num & ConsoleObject
@@ -1054,8 +1056,6 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	LoadLevel(level_num,page_in_textures);
 
 	Assert(Current_level_num == level_num); // make sure level set right
-
-	gameseq_init_network_players(); // Initialize the Players array for this level
 
 	HUD_clear_messages();
 
@@ -1545,9 +1545,6 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	LoadLevel(level_num,page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
-
-	gameseq_init_network_players(); // Initialize the Players array for
-											  // this level
 
 	Viewer = &get_local_plrobj();
 
