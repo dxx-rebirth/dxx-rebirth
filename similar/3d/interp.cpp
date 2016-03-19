@@ -189,31 +189,91 @@ public:
 	}
 };
 
-class g3_draw_polygon_model_state :
-	public interpreter_base
+class g3_interpreter_draw_base
 {
+protected:
 	grs_bitmap **const model_bitmaps;
-	const submodel_angles anim_angles;
-	const g3s_lrgb &model_light;
-	const glow_values_t *const glow_values;
 	polygon_model_points &Interp_point_list;
+	const submodel_angles anim_angles;
+	const g3s_lrgb model_light;
+private:
+	void rotate(uint_fast32_t i, const vms_vector *const src, const uint_fast32_t n)
+	{
+		rotate_point_list(&Interp_point_list[i], src, n);
+	}
+	void set_color_by_model_light(fix g3s_lrgb::*const c, g3s_lrgb &o, const fix negdot) const
+	{
+		const auto color = (f1_0 / 4) + ((negdot * 3) / 4);
+		o.*c = fixmul(color, model_light.*c);
+	}
+protected:
+	g3s_lrgb get_noglow_light(const uint8_t *const p) const
+	{
+		g3s_lrgb light;
+		const auto negdot = -vm_vec_dot(View_matrix.fvec, *vp(p + 16));
+		set_color_by_model_light(&g3s_lrgb::r, light, negdot);
+		set_color_by_model_light(&g3s_lrgb::g, light, negdot);
+		set_color_by_model_light(&g3s_lrgb::b, light, negdot);
+		return light;
+	}
+	g3_interpreter_draw_base(grs_bitmap **mbitmaps, const submodel_angles aangles, polygon_model_points &plist, const g3s_lrgb &mlight) :
+		model_bitmaps(mbitmaps), Interp_point_list(plist),
+		anim_angles(aangles), model_light(mlight)
+	{
+	}
+	void op_defpoints(const vms_vector *const src, const uint_fast32_t n)
+	{
+		rotate(0, src, n);
+	}
+	void op_defp_start(const uint8_t *const p, const vms_vector *const src, const uint_fast32_t n)
+	{
+		rotate(static_cast<int>(w(p + 4)), src, n);
+	}
+	static std::pair<uint16_t, uint16_t> get_sortnorm_offsets(const uint8_t *const p)
+	{
+		const uint16_t a = w(p + 30), b = w(p + 28);
+		return (g3_check_normal_facing(*vp(p + 16), *vp(p + 4)) > 0)
+			? std::make_pair(a, b)	//draw back then front
+			: std::make_pair(b, a)	//not facing.  draw front then back
+		;
+	}
+	void op_rodbm(const uint8_t *const p)
+	{
+		const auto &&rod_bot_p = g3_rotate_point(*vp(p + 20));
+		const auto &&rod_top_p = g3_rotate_point(*vp(p + 4));
+		const g3s_lrgb rodbm_light{
+			f1_0, f1_0, f1_0
+		};
+		g3_draw_rod_tmap(*model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light);
+	}
+	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
+	{
+		g3_start_instance_angles(*vp(p+4), anim_angles ? &anim_angles[w(p+2)] : &zero_angles);
+		g3_draw_polygon_model(p+w(p+16), model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
+		g3_done_instance();
+	}
+};
+
+class g3_draw_polygon_model_state :
+	public interpreter_base,
+	g3_interpreter_draw_base
+{
+	const glow_values_t *const glow_values;
 	unsigned glow_num;
 public:
 	g3_draw_polygon_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *glvalues, polygon_model_points &plist) :
-		model_bitmaps(mbitmaps), anim_angles(aangles),
-		model_light(mlight), glow_values(glvalues),
-		Interp_point_list(plist),
+		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
+		glow_values(glvalues),
 		glow_num(~0u)		//glow off by default
 	{
 	}
 	void op_defpoints(const uint8_t *const p, const uint_fast32_t n)
 	{
-		rotate_point_list(&Interp_point_list[0],vp(p+4),n);
+		g3_interpreter_draw_base::op_defpoints(vp(p + 4), n);
 	}
 	void op_defp_start(const uint8_t *const p, const uint_fast32_t n)
 	{
-		int s = w(p+4);
-		rotate_point_list(&Interp_point_list[s],vp(p+8),n);
+		g3_interpreter_draw_base::op_defp_start(p, vp(p + 8), n);
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
@@ -239,36 +299,28 @@ public:
 			}
 		}
 	}
+	static g3s_lrgb get_glow_light(const fix c)
+	{
+		return {c, c, c};
+	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
 		Assert( nv < MAX_POINTS_PER_POLY );
 		if (!(g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0))
 			return;
-		g3s_lrgb light;
 		//calculate light from surface normal
-		if (!glow_values || !(glow_num < glow_values->size())) //no glow
-		{
-			light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
-			light.r = f1_0/4 + (light.r*3)/4;
-			light.r = fixmul(light.r,model_light.r);
-			light.g = f1_0/4 + (light.g*3)/4;
-			light.g = fixmul(light.g,model_light.g);
-			light.b = f1_0/4 + (light.b*3)/4;
-			light.b = fixmul(light.b,model_light.b);
-		}
-		else //yes glow
-		{
-			light.r = light.g = light.b = (*glow_values)[glow_num];
-			glow_num = -1;
-		}
+		const auto &&light = (glow_values && glow_num < glow_values->size())
+			? get_glow_light((*glow_values)[exchange(glow_num, -1)]) //yes glow
+			: get_noglow_light(p); //no glow
 		//now poke light into l values
 		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
 		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
+		const fix average_light = (light.r + light.g + light.b) / 3;
 		for (uint_fast32_t i = 0; i != nv; i++)
 		{
 			lrgb_list[i] = light;
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
-			uvl_list[i].l = (light.r+light.g+light.b)/3;
+			uvl_list[i].l = average_light;
 		}
 		array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
 		for (uint_fast32_t i = 0; i != nv; i++)
@@ -277,36 +329,16 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;		//facing
-		uint16_t a = w(p+30), b = w(p+28);
-		if (facing) {
-			//draw back then front
-		}
-		else {			//not facing.  draw front then back
-			std::swap(a, b);
-		}
+		const auto &&offsets = get_sortnorm_offsets(p);
+		auto &a = offsets.first;
+		auto &b = offsets.second;
 		g3_draw_polygon_model(p + a,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 		g3_draw_polygon_model(p + b,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
 	}
-	void op_rodbm(const uint8_t *const p)
-	{
-		const g3s_lrgb rodbm_light{
-			f1_0, f1_0, f1_0
-		};
-		const auto rod_bot_p = g3_rotate_point(*vp(p+20));
-		const auto rod_top_p = g3_rotate_point(*vp(p+4));
-		g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
-	}
+	using g3_interpreter_draw_base::op_rodbm;
 	void op_subcall(const uint8_t *const p)
 	{
-		const vms_angvec *a;
-		if (anim_angles)
-			a = &anim_angles[w(p+2)];
-		else
-			a = &zero_angles;
-		g3_start_instance_angles(*vp(p+4),a);
-		g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-		g3_done_instance();
+		g3_interpreter_draw_base::op_subcall(p, glow_values);
 	}
 	void op_glow(const uint8_t *const p)
 	{
@@ -316,29 +348,24 @@ public:
 
 class g3_draw_morphing_model_state :
 	public interpreter_ignore_op_glow,
-	public interpreter_base
+	public interpreter_base,
+	g3_interpreter_draw_base
 {
-	grs_bitmap **const model_bitmaps;
-	const submodel_angles anim_angles;
-	const g3s_lrgb model_light;
-	static constexpr const glow_values_t *glow_values = nullptr;
 	const vms_vector *const new_points;
-	polygon_model_points &Interp_point_list;
+	static constexpr const glow_values_t *glow_values = nullptr;
 public:
 	g3_draw_morphing_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, g3s_lrgb mlight, const vms_vector *npoints, polygon_model_points &plist) :
-		model_bitmaps(mbitmaps), anim_angles(aangles),
-		model_light(mlight), new_points(npoints),
-		Interp_point_list(plist)
+		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
+		new_points(npoints)
 	{
 	}
 	void op_defpoints(const uint8_t *, const uint_fast32_t n)
 	{
-		rotate_point_list(&Interp_point_list[0],new_points,n);
+		g3_interpreter_draw_base::op_defpoints(new_points, n);
 	}
 	void op_defp_start(const uint8_t *const p, const uint_fast32_t n)
 	{
-		int s = w(p+4);
-		rotate_point_list(&Interp_point_list[s],new_points,n);
+		g3_interpreter_draw_base::op_defp_start(p, new_points, n);
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
@@ -359,24 +386,14 @@ public:
 	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		g3s_lrgb light;
 		int ntris;
 		//calculate light from surface normal
-		{
-			light.r = light.g = light.b = -vm_vec_dot(View_matrix.fvec,*vp(p+16));
-			light.r = f1_0/4 + (light.r*3)/4;
-			light.r = fixmul(light.r,model_light.r);
-			light.g = f1_0/4 + (light.g*3)/4;
-			light.g = fixmul(light.g,model_light.g);
-			light.b = f1_0/4 + (light.b*3)/4;
-			light.b = fixmul(light.b,model_light.b);
-		}
 		//now poke light into l values
 		array<g3s_uvl, 3> uvl_list;
 		array<g3s_lrgb, 3> lrgb_list;
+		lrgb_list.fill(get_noglow_light(p));
 		for (unsigned i = 0; i < 3; ++i)
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
-		lrgb_list.fill(light);
 		array<cg3s_point *, 3> point_list;
 		unsigned i;
 		for (i = 0; i < 2; ++i)
@@ -392,36 +409,16 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		const bool facing = g3_check_normal_facing(*vp(p+16),*vp(p+4)) > 0;		//facing
-		uint16_t a = w(p+30), b = w(p+28);
-		if (facing) {
-			//draw back then front
-		}
-		else {			//not facing.  draw front then back
-			std::swap(a, b);
-		}
+		const auto &&offsets = get_sortnorm_offsets(p);
+		auto &a = offsets.first;
+		auto &b = offsets.second;
 		g3_draw_morphing_model(p + a,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 		g3_draw_morphing_model(p + b,model_bitmaps,anim_angles,model_light,new_points, Interp_point_list);
 	}
-	void op_rodbm(const uint8_t *const p)
-	{
-		const g3s_lrgb rodbm_light{
-			f1_0, f1_0, f1_0
-		};
-		const auto rod_bot_p = g3_rotate_point(*vp(p+20));
-		const auto rod_top_p = g3_rotate_point(*vp(p+4));
-		g3_draw_rod_tmap(*model_bitmaps[w(p+2)],rod_bot_p,w(p+16),rod_top_p,w(p+32),rodbm_light);
-	}
+	using g3_interpreter_draw_base::op_rodbm;
 	void op_subcall(const uint8_t *const p)
 	{
-		const vms_angvec *a;
-		if (anim_angles)
-			a = &anim_angles[w(p+2)];
-		else
-			a = &zero_angles;
-		g3_start_instance_angles(*vp(p+4),a);
-		g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-		g3_done_instance();
+		g3_interpreter_draw_base::op_subcall(p, glow_values);
 	}
 };
 
