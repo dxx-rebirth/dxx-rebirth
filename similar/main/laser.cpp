@@ -1658,10 +1658,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
                         }
 #else // old FPS-dependent homers
 			//	Make sure the object we are tracking is still trackable.
-			objptridx_t obj_track_goal = object_none;
-			if (obj->ctype.laser_info.track_goal != object_none)
-				obj_track_goal = objptridx(obj->ctype.laser_info.track_goal);
-			auto track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
+			const auto &&track_goal = track_track_goal(objptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_tick_count);
 
 			if (track_goal == get_local_player().objnum) {
 				fix	dist_to_player;
