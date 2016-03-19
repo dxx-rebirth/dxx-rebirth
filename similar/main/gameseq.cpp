@@ -132,6 +132,36 @@ PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
 }
 #endif
+
+namespace {
+
+class preserve_player_object_info
+{
+	player_info plr_info;
+	fix plr_shields;
+	/* Cache the reference, not the value.  This class is designed
+	 * to be alive across a call to LoadLevel, which may change the
+	 * value of the object number.
+	 */
+	const objnum_t &objnum;
+public:
+	preserve_player_object_info(const objnum_t &o) :
+		objnum(o)
+	{
+		const auto &&plr = vobjptr(objnum);
+		plr_shields = plr->shields;
+		plr_info = plr->ctype.player_info;
+	}
+	void restore() const
+	{
+		const auto &&plr = vobjptr(objnum);
+		plr->shields = plr_shields;
+		plr->ctype.player_info = plr_info;
+	}
+};
+
+}
+
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
 }
@@ -708,6 +738,7 @@ void load_level_robots(int level_num)
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num,int page_in_textures)
 {
+	preserve_player_object_info p(Players[Player_num].objnum);
 	player save_player;
 
 	save_player = get_local_player();
@@ -770,6 +801,7 @@ void LoadLevel(int level_num,int page_in_textures)
 #endif
 
 	gameseq_init_network_players();
+	p.restore();
 }
 
 //sets up Player_num & ConsoleObject

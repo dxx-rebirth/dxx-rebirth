@@ -873,9 +873,6 @@ static int load_game_data(PHYSFS_File *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
-		const auto &&plr = vobjptr(Players[0].objnum);
-		const auto plr_shields = plr->shields;
-		const auto player_info = plr->ctype.player_info;
 		range_for (auto &i, partial_range(Objects, gs_num_objects))
 		{
 			const auto &&o = vobjptr(&i);
@@ -883,8 +880,6 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			i.signature = obj_get_signature();
 			verify_object(o);
 		}
-		plr->shields = plr_shields;
-		plr->ctype.player_info = player_info;
 	}
 
 	//===================== READ WALL INFO ============================
