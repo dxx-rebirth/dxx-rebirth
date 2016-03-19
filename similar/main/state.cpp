@@ -1167,10 +1167,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 	else
 	{
-		for (i = 0; i < MAX_SEGMENTS_ORIGINAL; ++i)
+		range_for (auto &i, partial_const_range(Segments, MAX_SEGMENTS_ORIGINAL))
 		{
-			const auto &&segp = vcsegptr(static_cast<segnum_t>(i));
-			PHYSFSX_writeU8(fp, segp->light_subtracted);
+			PHYSFSX_writeU8(fp, i.light_subtracted);
 		}
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
@@ -1186,9 +1185,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 */
 		const auto shields = get_local_player_shields();
 		const auto &pl_info = get_local_plrobj().ctype.player_info;
-		for (i = 0; i < MAX_PLAYERS; i++) // I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
+		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
+		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))
 		{
-			state_write_player(fp, Players[i], shields, pl_info);
+			state_write_player(fp, i, shields, pl_info);
 		}
 		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
 		PHYSFS_write(fp, Netgame.mission_name.data(), Netgame.mission_name.size(), 1);
@@ -1600,11 +1600,11 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		fuelcen_read(fp, s);
 #if defined(DXX_BUILD_DESCENT_I)
 	Countdown_timer = 0;
-	for (i = 0; i < Num_fuelcenters; i++)
+	range_for (auto &i, partial_range(Station, Num_fuelcenters))
 	{
 		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
-		if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
-			Countdown_timer = Station[i].Timer;
+		if (i.Type == SEGMENT_IS_CONTROLCEN)
+			Countdown_timer = i.Timer;
 	}
 #endif
 
@@ -1650,8 +1650,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 17) {
-		for (i = 0; i < NUM_MARKERS; i++)
-			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
+		range_for (auto &i, MarkerObject)
+			i = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
 		range_for (auto &i, MarkerMessage)
 		{
@@ -1670,8 +1670,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
-		for (num=0;num<NUM_MARKERS;num++)
-			MarkerObject[num] = object_none;
+		range_for (auto &i, MarkerObject)
+			i = object_none;
 	}
 
 	if (version>=11) {
@@ -1713,10 +1713,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 		else
 		{
-			for (i = 0; i < MAX_SEGMENTS_ORIGINAL; ++i)
+			range_for (auto &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
 			{
-				const auto &&segp = vsegptr(static_cast<segnum_t>(i));
-				PHYSFS_read(fp, &segp->light_subtracted, sizeof(segp->light_subtracted), 1);
+				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
 			}
 		}
 		apply_all_changed_light();
