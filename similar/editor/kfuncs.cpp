@@ -39,6 +39,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #include "editor/ehostage.h"
 #include "kfuncs.h"
+#include "dxxsconf.h"
+
+namespace dsx {
 
 static int Test1() 
 {
@@ -384,4 +387,4 @@ void init_med_functions()
 	func_init(med_functions, (sizeof(med_functions)/sizeof(FUNCTION))-1 );
 }
 
-
+}

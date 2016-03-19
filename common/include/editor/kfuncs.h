@@ -27,8 +27,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KFUNCS_H
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
+#ifdef dsx
+namespace dsx {
 void init_med_functions(void);
+}
+#endif
 
 #endif
 

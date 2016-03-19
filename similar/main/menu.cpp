@@ -426,6 +426,8 @@ static void draw_copyright()
 	gr_string(0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
+namespace dsx {
+
 // ------------------------------------------------------------------------
 static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choice )
 {
@@ -572,6 +574,8 @@ int DoMenu()
 	newmenu_do3( "", NULL, num_options, m, main_menu_handler, menu_choice, 0, Menu_pcx_name);
 
 	return 0;
+}
+
 }
 
 //returns flag, true means quit menu

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MENU_H
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
 extern int hide_menus(void);
 extern void show_menus(void);
@@ -34,8 +35,12 @@ extern void show_menus(void);
 // called once at program startup to get the player's name
 extern int RegisterPlayer();
 
+#ifdef dsx
+namespace dsx {
 // returns number of item chosen
 extern int DoMenu();
+}
+#endif
 extern void do_options_menu();
 extern int select_demo(void);
 
