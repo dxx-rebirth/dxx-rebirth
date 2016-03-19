@@ -16,6 +16,7 @@
 #include "segnum.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 
 namespace dcx {

@@ -77,6 +77,7 @@ extern int HiresGFXAvailable;
 
 #ifdef __cplusplus
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 
 struct grs_bitmap;

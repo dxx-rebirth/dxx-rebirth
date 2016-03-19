@@ -13,6 +13,7 @@
 #pragma once
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 
 #if MAX_JOYSTICKS
 #include "pstypes.h"

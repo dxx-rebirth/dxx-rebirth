@@ -9,6 +9,7 @@
 #pragma once
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 #include "objnum.h"
 #include "segnum.h"

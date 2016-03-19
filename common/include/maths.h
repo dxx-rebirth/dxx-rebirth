@@ -19,6 +19,7 @@
 #ifdef __cplusplus
 #include <cstddef>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 
 namespace dcx {

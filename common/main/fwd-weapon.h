@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "maths.h"
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 #include "weapon_id.h"
 

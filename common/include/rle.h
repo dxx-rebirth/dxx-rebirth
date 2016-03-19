@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-begin.h"
 
 struct rle_position_t

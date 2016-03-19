@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-integer_sequence.h"
 
 namespace dcx {

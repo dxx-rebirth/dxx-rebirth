@@ -23,6 +23,7 @@
 #include "serial.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"

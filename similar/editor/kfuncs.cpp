@@ -39,7 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 #include "editor/ehostage.h"
 #include "kfuncs.h"
-#include "dxxsconf.h"
+#include "dsx-ns.h"
 
 namespace dsx {
 

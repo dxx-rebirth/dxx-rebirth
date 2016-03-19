@@ -30,6 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string>
 #include "pstypes.h"
 #include "inferno.h"
+#include "dxxsconf.h"
+#include "dsx-ns.h"
 
 #ifdef __cplusplus
 #include "ntstring.h"

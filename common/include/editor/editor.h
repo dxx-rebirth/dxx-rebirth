@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "vecmat.h"
 #include "ui.h"
 #include "fmtcheck.h"

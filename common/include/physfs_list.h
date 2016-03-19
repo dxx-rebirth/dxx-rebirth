@@ -16,6 +16,7 @@ typedef char file_extension_t[5];
 #include "null_sentinel_iterator.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 
 namespace dcx {

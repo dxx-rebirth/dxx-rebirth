@@ -38,6 +38,7 @@
 #endif
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "fwd-gr.h"
 #include "palette.h"
 #include "pstypes.h"

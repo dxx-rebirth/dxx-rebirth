@@ -38,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 #include "compiler-range_for.h"
 

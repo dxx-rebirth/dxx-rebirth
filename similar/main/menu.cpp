@@ -90,6 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs_list.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstdint>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "maths.h"
 #include "vecmat.h" //the vector/matrix library
 

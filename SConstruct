@@ -3233,38 +3233,6 @@ class DXXArchive(DXXCommon):
 %s
  */
 ''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
-		conf.config_h_text += '''
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
-#define dsx d1x
-#else
-#define dsx d2x
-#endif
-namespace dsx {	/* Force type mismatch on attempted nesting */
-#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
-	class dcx;	/* dcx declared inside dsx */
-	class dsx;	/* dsx declared inside dsx */
-#endif
-}
-using namespace dsx;
-#else
-class dsx;	/* dsx declared in common-only code */
-#endif
-
-namespace dcx {	/* Force type mismatch on attempted nesting */
-#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
-	class dcx;	/* dcx declared inside dcx */
-	class dsx;	/* dsx declared inside dcx */
-#endif
-}
-using namespace dcx;
-#ifdef DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE
-namespace {
-	class dcx;	/* dcx declared inside anonymous */
-	class dsx;	/* dsx declared inside anonymous */
-}
-#endif
-'''
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 		self.env.MergeFlags(self.configure_added_environment_flags)

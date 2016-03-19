@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MENU_H
 
 #ifdef __cplusplus
-#include "dxxsconf.h"
+#include "dsx-ns.h"
 
 extern int hide_menus(void);
 extern void show_menus(void);

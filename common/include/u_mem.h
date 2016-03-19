@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <memory>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 

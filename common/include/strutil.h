@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstring>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include <vector>
 
 namespace dcx {

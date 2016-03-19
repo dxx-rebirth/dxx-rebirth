@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef __cplusplus
-#include "dxxsconf.h"
+#include "dsx-ns.h"
 
 // In khelp.c
 int DoHelp();

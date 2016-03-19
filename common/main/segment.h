@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 
 #ifdef __cplusplus
 #include <cassert>

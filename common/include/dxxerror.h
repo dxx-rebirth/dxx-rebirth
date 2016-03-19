@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include <stdio.h>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include <assert.h>
 #include "fmtcheck.h"
 

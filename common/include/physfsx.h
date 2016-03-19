@@ -28,6 +28,7 @@
 
 #include "fmtcheck.h"
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "dxxerror.h"
 #include "vecmat.h"
 #include "byteutil.h"

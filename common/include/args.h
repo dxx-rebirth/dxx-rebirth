@@ -56,6 +56,7 @@ enum SyncGLMethod : uint8_t {
 //   Dbg - Debugging/Undocumented Options
 #include <string>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "pack.h"
 #include "compiler-type_traits.h"
 

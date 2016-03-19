@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-make_unique.h"
 
 namespace dcx {

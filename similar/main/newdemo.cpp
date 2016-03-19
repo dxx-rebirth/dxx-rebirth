@@ -93,6 +93,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-exchange.h"
 #include "compiler-type_traits.h"
 #include "compiler-range_for.h"

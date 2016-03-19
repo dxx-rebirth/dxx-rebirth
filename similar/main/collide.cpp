@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "compiler-integer_sequence.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"

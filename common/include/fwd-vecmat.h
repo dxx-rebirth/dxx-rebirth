@@ -7,6 +7,7 @@
 
 #include "maths.h"
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 
 namespace dcx {
 
