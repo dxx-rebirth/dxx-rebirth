@@ -1747,10 +1747,10 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	const objnum_t objnum = GET_INTEL_SHORT(buf + 2);
 
 	const auto obj = vobjptridx(objnum);
-	if (pnum != get_player_id(obj))
+	if (pnum != get_ghost_id(obj))
 		return;
 
-	multi_make_ghost_player(get_player_id(obj));
+	multi_make_ghost_player(pnum);
 	create_player_appearance_effect(obj);
 }
 
