@@ -228,6 +228,10 @@ const FUNCTION med_functions[] = {
 {   "med-segment-exchange",             0,      ExchangeMarkandCurseg },
 {   "med-segment-mark",                 0,      CopySegToMarked },
 {	 "med-about",								 0,      ShowAbout },
+#ifndef NDEBUG
+{	 "med-mark-start",						 0,		MarkStart },
+{	 "med-mark-end",						 	 0,		MarkEnd },
+#endif
 
 //	In group.c
 {	 "med-group-load",						 0, 		LoadGroup },

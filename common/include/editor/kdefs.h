@@ -181,7 +181,10 @@ int med_keypad_goto();
 int med_increase_tilings();
 int med_decrease_tilings();
 int ToggleAutosave();
+#ifndef NDEBUG
+int MarkStart();
 int MarkEnd();
+#endif
 
 //	Texture.c
 int	TexFlipX();

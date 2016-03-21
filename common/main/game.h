@@ -375,6 +375,9 @@ extern fix64	Time_flash_last_played;
 
 #ifdef EDITOR
 void dump_used_textures_all();
+#ifndef NDEBUG
+extern int Mark_count;      // number of debugging marks set
+#endif
 #endif
 
 #endif
