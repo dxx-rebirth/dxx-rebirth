@@ -23,7 +23,7 @@ http://www.dxx-rebirth.com
 
    For example:
    * Plays Descent and Descent 2 and all their AddOns and third-party levels.
-   * DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIX), Mac OS X 10.4+ and Windows (2000, XP, Vista, 7). Still the code can be compiled on many other systems as well.
+   * DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIX), Mac OS X 10.4+ and Windows (7, 8, 8.1, 10). Still the code can be compiled on many other systems as well.
    * OpenGL provides a fast and smooth rendering - even on low-end systems.
    * Optionally you can enbale several effects like Transparency, Colored lighting, Texture Filtering, FSAA, etc.
    * Thanks to SDL, a wide palette of Joysticks are supported. Also you can use more Joysticks, buttons and axes than you can ever operate in your state of evolution.
