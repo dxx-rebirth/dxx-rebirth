@@ -2822,7 +2822,7 @@ static void hud_show_kill_list()
 {
 	playernum_t n_players;
 	playernum_array_t player_list;
-	int n_left,i,x0,x1,y,save_y;
+	int n_left,i,x0,x1,x2,y,save_y;
 
 	if (Show_kill_list_timer > 0)
 	{
@@ -2835,7 +2835,7 @@ static void hud_show_kill_list()
 
 	n_players = multi_get_kill_list(player_list);
 
-	if (Show_kill_list == 4)
+	if (Show_kill_list == 3)
 		n_players = 2;
 
 	if (n_players <= 4)
@@ -2869,6 +2869,8 @@ static void hud_show_kill_list()
 	const auto &&fspacx1 = fspacx(1);
 	const auto &&fspacx2 = fspacx(2);
 	const auto &&fspacx18 = fspacx(18);
+        const auto &&fspacx35 = fspacx(35);
+        const auto &&fspacx64 = fspacx(64);
 	x0 = fspacx1;
 	for (i=0;i<n_players;i++) {
 		playernum_t player_num;
@@ -2877,6 +2879,11 @@ static void hud_show_kill_list()
 		if (i>=n_left) {
 			x0 = bmw_x0_cockpit;
 			x1 = bmw_x1_multi;
+                        if (PlayerCfg.MultiPingHud)
+                        {
+                                x0 -= fspacx35;
+                                x1 -= fspacx35;
+                        }
 			if (i==n_left)
 				y = save_y;
 
@@ -2889,14 +2896,14 @@ static void hud_show_kill_list()
 			x1 -= fspacx18;
 		}
 
-		if (Show_kill_list == 4)
+		if (Show_kill_list == 3)
 			player_num = i;
 		else
 			player_num = player_list[i];
 
 		color_t fontcolor;
 		rgb color;
-		if (Show_kill_list == 1 || Show_kill_list==2 || Show_kill_list==3)
+		if (Show_kill_list == 1 || Show_kill_list==2)
 		{
 			if (Players[player_num].connected != CONNECT_PLAYING)
 				color.r = color.g = color.b = 12;
@@ -2911,7 +2918,7 @@ static void hud_show_kill_list()
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
 		gr_set_fontcolor(fontcolor, -1);
 
-		if (Show_kill_list == 4)
+		if (Show_kill_list == 3)
 			name = Netgame.team_name[i];
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 		{
@@ -2946,9 +2953,7 @@ static void hud_show_kill_list()
 				);
 			gr_printf(x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
-                else if (Show_kill_list == 3)
-                        gr_printf(x1,y,"%4dms",Netgame.players[i].ping);
-		else if (Show_kill_list == 4)
+		else if (Show_kill_list == 3)
 			gr_printf(x1,y,"%3d",team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x1,y,"%-6d",Players[player_num].score);
@@ -2956,6 +2961,15 @@ static void hud_show_kill_list()
 			gr_printf(x1,y,"%3d(%d)",Players[player_num].net_kills_total,Players[player_num].KillGoalCount);
 		else
 			gr_printf(x1,y,"%3d",Players[player_num].net_kills_total);
+
+                if (PlayerCfg.MultiPingHud && Show_kill_list != 3)
+                {
+                        if (Game_mode & GM_MULTI_COOP)
+                                x2 = SWIDTH - (fspacx64/2);
+                        else
+                                x2 = x0 + fspacx64;
+                        gr_printf(x2,y,"%4dms",Netgame.players[player_num].ping*44);
+                }
 
 		y += line_spacing;
 	}

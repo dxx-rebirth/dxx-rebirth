@@ -159,6 +159,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_PRSHOT_NAME_TEXT "prshot"
 #define TOGGLES_NOREDUNDANCY_NAME_TEXT "noredundancy"
 #define TOGGLES_MULTIMESSAGES_NAME_TEXT "multimessages"
+#define TOGGLES_MULTIPINGHUD_NAME_TEXT "multipinghud"
 #define TOGGLES_NORANKINGS_NAME_TEXT "norankings"
 #define TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "automapfreeflight"
 #define TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "nofireautoselect"
@@ -250,6 +251,7 @@ int new_player_config()
 	PlayerCfg.PRShot = 0;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
+        PlayerCfg.MultiPingHud = 0;
 	PlayerCfg.NoRankings = 0;
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.NoFireAutoselect = FiringAutoselectMode::Immediate;
@@ -456,6 +458,8 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.NoRedundancy = atoi(value);
 				if(!strcmp(line,TOGGLES_MULTIMESSAGES_NAME_TEXT))
 					PlayerCfg.MultiMessages = atoi(value);
+				if(!strcmp(line,TOGGLES_MULTIPINGHUD_NAME_TEXT))
+					PlayerCfg.MultiPingHud = atoi(value);
 				if(!strcmp(line,TOGGLES_NORANKINGS_NAME_TEXT))
 					PlayerCfg.NoRankings = atoi(value);
 				if(!strcmp(line,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT))
@@ -757,6 +761,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,TOGGLES_PRSHOT_NAME_TEXT "=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,TOGGLES_NOREDUNDANCY_NAME_TEXT "=%i\n",PlayerCfg.NoRedundancy);
 		PHYSFSX_printf(fout,TOGGLES_MULTIMESSAGES_NAME_TEXT "=%i\n",PlayerCfg.MultiMessages);
+		PHYSFSX_printf(fout,TOGGLES_MULTIPINGHUD_NAME_TEXT "=%i\n",PlayerCfg.MultiPingHud);
 		PHYSFSX_printf(fout,TOGGLES_NORANKINGS_NAME_TEXT "=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,TOGGLES_AUTOMAPFREEFLIGHT_NAME_TEXT "=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,TOGGLES_NOFIREAUTOSELECT_NAME_TEXT "=%i\n",static_cast<unsigned>(PlayerCfg.NoFireAutoselect));

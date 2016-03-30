@@ -144,6 +144,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	int PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
+        ubyte MultiPingHud;
 	ubyte NoRankings;
 #if defined(DXX_BUILD_DESCENT_I)
 	ubyte BombGauge;
