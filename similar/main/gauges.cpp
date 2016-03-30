@@ -2835,7 +2835,7 @@ static void hud_show_kill_list()
 
 	n_players = multi_get_kill_list(player_list);
 
-	if (Show_kill_list == 3)
+	if (Show_kill_list == 4)
 		n_players = 2;
 
 	if (n_players <= 4)
@@ -2889,14 +2889,14 @@ static void hud_show_kill_list()
 			x1 -= fspacx18;
 		}
 
-		if (Show_kill_list == 3)
+		if (Show_kill_list == 4)
 			player_num = i;
 		else
 			player_num = player_list[i];
 
 		color_t fontcolor;
 		rgb color;
-		if (Show_kill_list == 1 || Show_kill_list==2)
+		if (Show_kill_list == 1 || Show_kill_list==2 || Show_kill_list==3)
 		{
 			if (Players[player_num].connected != CONNECT_PLAYING)
 				color.r = color.g = color.b = 12;
@@ -2911,7 +2911,7 @@ static void hud_show_kill_list()
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
 		gr_set_fontcolor(fontcolor, -1);
 
-		if (Show_kill_list == 3)
+		if (Show_kill_list == 4)
 			name = Netgame.team_name[i];
 		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 		{
@@ -2946,7 +2946,9 @@ static void hud_show_kill_list()
 				);
 			gr_printf(x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
-		else if (Show_kill_list == 3)
+                else if (Show_kill_list == 3)
+                        gr_printf(x1,y,"%4dms",Netgame.players[i].ping);
+		else if (Show_kill_list == 4)
 			gr_printf(x1,y,"%3d",team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x1,y,"%-6d",Players[player_num].score);
