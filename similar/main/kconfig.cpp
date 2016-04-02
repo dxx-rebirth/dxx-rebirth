@@ -1332,10 +1332,10 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			r = 21 * 2, g = 0, b = 24 * 2;
 		else
 			r = 16 * 2, g = 0, b = 19 * 2;
-		const uint8_t color = BM_XRGB(r, g, b);
 
 		int x, w, h;
 		gr_get_string_size(btext, &w, &h, nullptr);
+		const uint8_t color = gr_find_closest_color(r, g, b);
 		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h, color);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
