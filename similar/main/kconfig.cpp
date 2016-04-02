@@ -1320,7 +1320,11 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 	unsigned r, g, b;
 	if (label)
 	{
-		gr_set_fontcolor(is_current ? BM_XRGB(20, 20, 29) : BM_XRGB(15, 15, 24), -1 );
+		if (is_current)
+			r = 20 * 2, g = 20 * 2, b = 29 * 2;
+		else
+			r = 15 * 2, g = 15 * 2, b = 24 * 2;
+		gr_set_fontcolor(gr_find_closest_color(r, g, b), -1);
 		gr_string(fspacx(item.x), fspacy(item.y), label);
 	}
 
