@@ -906,30 +906,37 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(0x8000, fspacy(30), TXT_BUTTONS);
 #endif
 #if MAX_AXES_PER_JOYSTICK
+		const auto &&fspacy145 = fspacy(145);
 		gr_string(0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string(fspacx( 81), fspacy(145), TXT_AXIS);
-		gr_string(fspacx(230), fspacy(145), TXT_AXIS);
-		gr_string(fspacx(111), fspacy(145), TXT_INVERT);
-		gr_string(fspacx(260), fspacy(145), TXT_INVERT);
+		gr_string(fspacx( 81), fspacy145, TXT_AXIS);
+		gr_string(fspacx(230), fspacy145, TXT_AXIS);
+		gr_string(fspacx(111), fspacy145, TXT_INVERT);
+		gr_string(fspacx(260), fspacy145, TXT_INVERT);
 #endif
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
-		gr_rect(fspacx(115), fspacy(40), fspacx(123), fspacy(40), color); // horiz/left
-		gr_rect(fspacx(137), fspacy(40), fspacx(145), fspacy(40), color); // horiz/right
-		gr_rect(fspacx(115), fspacy(40), fspacx(115), fspacy(42), color); // vert/left
-		gr_rect(fspacx(145), fspacy(40), fspacx(145), fspacy(42), color); // vert/right
+		const auto &&fspacx115 = fspacx(115);
+		const auto &&fspacy40 = fspacy(40);
+		gr_rect(fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
+		const auto &&fspacx145 = fspacx(145);
+		gr_rect(fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
+		const auto &&fspacx261 = fspacx(261);
+		gr_rect(fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
+		const auto &&fspacx291 = fspacx(291);
+		gr_rect(fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
 
-		gr_string(fspacx(126), fspacy(38), "OR");
+		const auto &&fspacy42 = fspacy(42);
+		gr_rect(fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
+		gr_rect(fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
+		gr_rect(fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
+		gr_rect(fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
 
-		gr_rect(fspacx(261), fspacy(40), fspacx(269), fspacy(40), color); // horiz/left
-		gr_rect(fspacx(283), fspacy(40), fspacx(291), fspacy(40), color); // horiz/right
-		gr_rect(fspacx(261), fspacy(40), fspacx(261), fspacy(42), color); // vert/left
-		gr_rect(fspacx(291), fspacy(40), fspacx(291), fspacy(42), color); // vert/right
-
-		gr_string(fspacx(272), fspacy(38), "OR");
+		const auto &&fspacy38 = fspacy(38);
+		gr_string(fspacx(126), fspacy38, "OR");
+		gr_string(fspacx(272), fspacy38, "OR");
 #endif
 	}
 #endif
@@ -939,20 +946,22 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(0x8000, fspacy(35), TXT_BUTTONS);
 		gr_string(0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string(fspacx( 87), fspacy(145), TXT_AXIS);
-		gr_string(fspacx(242), fspacy(145), TXT_AXIS);
-		gr_string(fspacx(120), fspacy(145), TXT_INVERT);
-		gr_string(fspacx(274), fspacy(145), TXT_INVERT);
+		const auto &&fspacy145 = fspacy(145);
+		gr_string(fspacx( 87), fspacy145, TXT_AXIS);
+		gr_string(fspacx(242), fspacy145, TXT_AXIS);
+		gr_string(fspacx(120), fspacy145, TXT_INVERT);
+		gr_string(fspacx(274), fspacy145, TXT_INVERT);
 	}
 	else if ( menu->items == kc_rebirth )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 
-		gr_string(fspacx(152), fspacy(60), "KEYBOARD");
+		const auto &&fspacy60 = fspacy(60);
+		gr_string(fspacx(152), fspacy60, "KEYBOARD");
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-		gr_string(fspacx(210), fspacy(60), "JOYSTICK");
+		gr_string(fspacx(210), fspacy60, "JOYSTICK");
 #endif
-		gr_string(fspacx(273), fspacy(60), "MOUSE");
+		gr_string(fspacx(273), fspacy60, "MOUSE");
 	}
 	
 	unsigned citem = menu->citem;
@@ -971,18 +980,34 @@ static void kconfig_draw(kc_menu *menu)
 	
 	if (menu->changing)
 	{
+		const char *s;
 		switch( menu->items[menu->citem].type )
 		{
-			case BT_KEY:          gr_string(0x8000, fspacy(INFO_Y), TXT_PRESS_NEW_KEY); break;
-			case BT_MOUSE_BUTTON: gr_string(0x8000, fspacy(INFO_Y), TXT_PRESS_NEW_MBUTTON); break;
-			case BT_MOUSE_AXIS:   gr_string(0x8000, fspacy(INFO_Y), TXT_MOVE_NEW_MSE_AXIS); break;
+			case BT_KEY:
+				s = TXT_PRESS_NEW_KEY;
+				break;
+			case BT_MOUSE_BUTTON:
+				s = TXT_PRESS_NEW_MBUTTON;
+				break;
+			case BT_MOUSE_AXIS:
+				s = TXT_MOVE_NEW_MSE_AXIS;
+				break;
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-			case BT_JOY_BUTTON:   gr_string(0x8000, fspacy(INFO_Y), TXT_PRESS_NEW_JBUTTON); break;
+			case BT_JOY_BUTTON:
+				s = TXT_PRESS_NEW_JBUTTON;
+				break;
 #endif
 #if MAX_AXES_PER_JOYSTICK
-			case BT_JOY_AXIS:     gr_string(0x8000, fspacy(INFO_Y), TXT_MOVE_NEW_JOY_AXIS); break;
+			case BT_JOY_AXIS:
+				s = TXT_MOVE_NEW_JOY_AXIS;
+				break;
 #endif
+			default:
+				s = nullptr;
+				break;
 		}
+		if (s)
+			gr_string(0x8000, fspacy(INFO_Y), s);
 		kc_drawquestion( menu, &menu->items[menu->citem] );
 	}
 	
@@ -1340,13 +1365,15 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		int x, w, h;
 		gr_get_string_size(btext, &w, &h, nullptr);
 		const uint8_t color = gr_find_closest_color(r, g, b);
-		gr_urect(fspacx(item.xinput), fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy(item.y) + h, color);
+		const auto &&fspacx_item_xinput = fspacx(item.xinput);
+		const auto &&fspacy_item_y = fspacy(item.y);
+		gr_urect(fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-		x = fspacx(item.xinput) + ((fspacx(item.w2) - w) / 2);
+		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
-		gr_string(x, fspacy(item.y), btext, w, h);
+		gr_string(x, fspacy_item_y, btext, w, h);
 	}
 }
 
@@ -1363,18 +1390,20 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
-	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
 	int w, h;
 	gr_get_string_size("?", &w, &h, nullptr);
 
-	gr_urect(fspacx(item->xinput), fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy(item->y) + h, color);
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
+	const auto &&fspacx_item_xinput = fspacx(item->xinput);
+	const auto &&fspacy_item_y = fspacy(item->y);
+	gr_urect(fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-	x = fspacx(item->xinput) + ((fspacx(item->w2) - w) / 2);
+	x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 
-	gr_string(x, fspacy(item->y), "?", w, h);
+	gr_string(x, fspacy_item_y, "?", w, h);
 }
 
 static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, unsigned type, unsigned value)
