@@ -62,31 +62,32 @@ void mouse_close(void)
 
 static void maybe_send_z_move(const unsigned button)
 {
-	d_event_mouse_moved event{};
-	event.type = EVENT_MOUSE_MOVED;
-
+	short dz;
 	if (button == MBTN_Z_UP)
 	{
 		Mouse.delta_z += Z_SENSITIVITY;
 		Mouse.z += Z_SENSITIVITY;
-		event.dz = Z_SENSITIVITY;
+		dz = Z_SENSITIVITY;
 	}
 	else if (button == MBTN_Z_DOWN)
 	{
 		Mouse.delta_z -= Z_SENSITIVITY;
 		Mouse.z -= Z_SENSITIVITY;
-		event.dz = -1*Z_SENSITIVITY;
+		dz = -1*Z_SENSITIVITY;
 	}
 	else
 		return;
+	d_event_mouse_moved event{};
+	event.type = EVENT_MOUSE_MOVED;
+	event.dz = dz;
 	event_send(event);
 }
 
 static void send_singleclick(const bool pressed, const unsigned button)
 {
 	const d_event_mousebutton event{pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP, button};
-	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d",
-			   pressed ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_BUTTON_%s, button %d, coords %d,%d,%d",
+			   pressed ? "DOWN" : "UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	event_send(event);
 }
 
