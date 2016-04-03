@@ -115,6 +115,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
+#ifndef NDEBUG
+int	Mark_count = 0;                 // number of debugging marks set
+#endif
+
 static fix64 last_timer_value=0;
 fix ThisLevelTime=0;
 

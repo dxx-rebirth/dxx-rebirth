@@ -126,7 +126,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-// Global Variables -----------------------------------------------------------
+// External Variables -----------------------------------------------------------
+
+#ifndef NDEBUG
+extern int	Mark_count;
+#endif
 
 //	Function prototypes --------------------------------------------------------
 #ifndef RELEASE
