@@ -740,7 +740,6 @@ void menubar_init( const char * file )
 	int np;
 	char buf1[200];
 	char buf2[200];
-	int menu, item;
 		
 	num_menus = state = 0;
 
@@ -760,109 +759,114 @@ void menubar_init( const char * file )
 		if ( buffer[0] == ';' ) continue;
 		
 		CommaParse( 0, buf1, buffer );
-		menu = atoi( buf1 );
-		if (menu >= MAXMENUS)
-			UserError("Too many menus (%d).",menu);
+		char *p;
+		const auto mi = strtoul(buf1, &p, 10);
+		if (mi >= MAXMENUS)
+		{
+			con_printf(CON_URGENT, "%s:%u: too many menus defined: max=%u, requested=%lu in \"%s\"", __FILE__, __LINE__, MAXMENUS, mi, file);
+			break;
+		}
 
 		CommaParse( 1, buf1, buffer );
-		item = atoi(buf1 );
-		if (item >= MAXITEMS)
-			UserError("Too many items (%d) in menu %d.",item+1,menu);
+		const auto ii = strtoul(buf1, &p, 10);
+		if (ii >= MAXITEMS)
+		{
+			con_printf(CON_URGENT, "%s:%u: too many items defined: max=%u, requested=%lu in \"%s\"", __FILE__, __LINE__, MAXITEMS, ii, file);
+			break;
+		}
+		auto &menu = Menu[mi];
+		auto &item = menu.Item[ii];
 
 		CommaParse( 2, buf1, buffer );
 		ul_xlate(buf1);
 
-		if (buf1[0] != '-' )
-		{
-			snprintf(buf2, sizeof(buf2), " %s ", buf1);
-			Menu[menu].Item[item].Text.reset(d_strdup(buf2));
-		} else 
-			Menu[menu].Item[item].Text.reset(d_strdup(buf1));
+		item.Text.reset(d_strdup(buf1[0] == '-' ? buf1 : (snprintf(buf2, sizeof(buf2), " %s ", buf1), buf2)));
 		
-		Menu[menu].Item[item].InactiveText.reset(d_strdup(Menu[menu].Item[item].Text.get()));
+		item.InactiveText.reset(d_strdup(item.Text.get()));
 		
 		for (int i = 0, j = 0;; i++ )
 		{
-			np = Menu[menu].Item[item].Text[i];
+			np = item.Text[i];
 			if (np != CC_UNDERLINE) 
-				Menu[menu].Item[item].InactiveText[j++] = np;
+				item.InactiveText[j++] = np;
 			if (!np)
 				break;
 		}
 
 		CommaParse( 3, buf1, buffer );
 		if (buf1[0]=='{' && buf1[1] =='}')
-			Menu[menu].Item[item].Hotkey = -1;
+			item.Hotkey = -1;
 		else			{
 			const auto i = DecodeKeyText(buf1);
 			if (i<1) {
 				UserError("Unknown key, %s, in %s\n", buf1, file );
 			} else {
-				Menu[menu].Item[item].Hotkey = i;
+				item.Hotkey = i;
 			}
 		}
 		CommaParse( 4, buf1, buffer );
 
 		if (buf1[0])
 		{
-			Menu[menu].Item[item].user_function = func_get(buf1, &np);
+			item.user_function = func_get(buf1, &np);
 
-			if (Menu[menu].Item[item].user_function==NULL)
+			if (!item.user_function)
 			{
-				UserError( "Unknown function, %s, in %s\n", buf1, file );
-				//ui_messagebox( -2, -2, 1, buffer, "Ok" );
+				con_printf(CON_URGENT, "%s:%u: unknown function \"%s\" in \"%s\"", __FILE__, __LINE__, buf1, file);
+				break;
 			}
 		}
 				
-		Menu[menu].Item[item].x = Menu[menu].x;
-		Menu[menu].Item[item].y = Menu[menu].y;
+		item.x = menu.x;
+		item.y = menu.y;
 
 		int w, h;
-		if ( Menu[menu].Item[item].Text[0] == '-' )
+		if (item.Text[0] == '-')
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size(Menu[menu].Item[item].Text.get(), &w, &h, nullptr);
+			gr_get_string_size(item.Text.get(), &w, &h, nullptr);
 			w += 2;
 			h += 2;
 		}
 								
-		if (menu==0)	{
-			Menu[0].h = h;
+		if (mi == 0)
+		{
+			menu.h = h;
 
-			Menu[0].Item[item].x = Menu[0].x + Menu[0].w;
+			item.x = menu.x + menu.w;
 
-			Menu[0].Item[item].y = Menu[0].y;
+			item.y = menu.y;
 			
-			Menu[item+1].x = Menu[0].x + Menu[0].w;
-			Menu[item+1].y = Menu[0].h - 2;
+			Menu[ii+1].x = menu.x + menu.w;
+			Menu[ii+1].y = menu.h - 2;
 
-			Menu[0].Item[item].w = w;
-			Menu[0].Item[item].h = h;
+			item.w = w;
+			item.h = h;
 
-			Menu[0].w += w;
+			menu.w += w;
 
 		}else	{
-			if ( w > Menu[menu].w )
+			if (w > menu.w)
 			{
-				Menu[menu].w = w;
-				range_for (auto &i, partial_range(Menu[menu].Item, Menu[menu].NumItems))
-					i.w = Menu[menu].w;
+				menu.w = w;
+				range_for (auto &i, partial_range(menu.Item, menu.NumItems))
+					i.w = w;
 			}
-			Menu[menu].Item[item].w = Menu[menu].w;
-			Menu[menu].Item[item].x = Menu[menu].x;
-			Menu[menu].Item[item].y = Menu[menu].y+Menu[menu].h;
-			Menu[menu].Item[item].h = h;
-			Menu[menu].h += h;
+			item.w = menu.w;
+			item.x = menu.x;
+			item.y = menu.y+menu.h;
+			item.h = h;
+			menu.h += h;
 		}
 	
-		if ( item >= Menu[menu].NumItems )
+		if (ii >= menu.NumItems)
 		{
-			Menu[menu].NumItems = item+1;
+			menu.NumItems = ii + 1;
 		}
 
-		if ( menu >= num_menus )
-			num_menus = menu+1;
+		if (mi >= num_menus)
+			num_menus = mi + 1;
 
 	}
 	Menu[0].w = 700;
