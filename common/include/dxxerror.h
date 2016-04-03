@@ -70,7 +70,9 @@ static inline void UserError_puts(const char (&str)[len])
 void UserError(const char *fmt, ...) __noreturn __attribute_format_printf(1, 2);
 
 }
-#define UserError(F,...)	dxx_call_printf_checked(UserError,(UserError_puts),(),(F),##__VA_ARGS__)
+#define DXX_STRINGIZE_FL2(F,L,S)	F ":" #L ": " S
+#define DXX_STRINGIZE_FL(F,L,S)	DXX_STRINGIZE_FL2(F, L, S)
+#define UserError(F,...)	dxx_call_printf_checked(UserError,(UserError_puts),(),DXX_STRINGIZE_FL(__FILE__, __LINE__, F),##__VA_ARGS__)
 #define Assert assert
 
 /* Compatibility with x86-specific name */
