@@ -620,15 +620,23 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
 
+	{
+		float gl1, gl2, gl3;
 	if (scale >= 1)
 	{
 		size/=scale;
-		glScalef(f2glf(size),f2glf(size*scale),f2glf(size));
+		gl2 = f2glf(size*scale);
+		gl1 = f2glf(size);
+		gl3 = gl1;
 	}
 	else
 	{
 		size*=scale;
-		glScalef(f2glf(size/scale),f2glf(size),f2glf(size));
+		gl1 = f2glf(size/scale);
+		gl2 = f2glf(size);
+		gl3 = gl2;
+	}
+		glScalef(gl1, gl2, gl3);
 	}
 
 	glLineWidth(linedotscale*2);
@@ -638,9 +646,11 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	//cross
-	if(cross)
 	{
 		array<GLfloat, 8 * 4> cross_lca;
+		GLfloat *cross_lca_ptr;
+	if (cross)
+	{
 		for (uint_fast32_t i = 0; i != cross_lca.size(); i += 8)
 		{
 			cross_lca[i] = ret_dark_rgba[0];
@@ -652,10 +662,12 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 			cross_lca[i+6] = ret_rgba[2];
 			cross_lca[i+7] = ret_rgba[3];
 		}
-		glColorPointer(4, GL_FLOAT, 0, cross_lca.data());
+		cross_lca_ptr = cross_lca.data();
 	}
 	else
-		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
+		cross_lca_ptr = dark_lca.data();
+		glColorPointer(4, GL_FLOAT, 0, cross_lca_ptr);
+	}
 	static const array<GLfloat, 8 * 2> cross_lva{{
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	}};
@@ -663,9 +675,10 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glDrawArrays(GL_LINES, 0, 8);
 	
 	array<GLfloat, 4 * 4> primary_lca0;
+	GLfloat *lca0_data;
 	//left primary bar
 	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
+		lca0_data = dark_lca.data();
 	else
 	{
 		primary_lca0[0] = primary_lca0[4] = ret_rgba[0];
@@ -676,8 +689,9 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		primary_lca0[9] = primary_lca0[13] = ret_dark_rgba[1];
 		primary_lca0[10] = primary_lca0[14] = ret_dark_rgba[2];
 		primary_lca0[11] = primary_lca0[15] = ret_dark_rgba[3];
-		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
+		lca0_data = primary_lca0.data();
 	}
+	glColorPointer(4, GL_FLOAT, 0, lca0_data);
 	static const array<GLfloat, 4 * 2> primary_lva0{{
 		-5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7
 	}};
@@ -694,8 +708,9 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 	array<GLfloat, 4 * 4> primary_lca1;
+	GLfloat *lca1_data;
 	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
+		lca1_data = dark_lca.data();
 	else
 	{
 		primary_lca1[8] = primary_lca1[12] = ret_rgba[0];
@@ -706,52 +721,40 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		primary_lca1[1] = primary_lca1[5] = ret_dark_rgba[1];
 		primary_lca1[2] = primary_lca1[6] = ret_dark_rgba[2];
 		primary_lca1[3] = primary_lca1[7] = ret_dark_rgba[3];
-		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
+		lca1_data = primary_lca1.data();
 	}
+	glColorPointer(4, GL_FLOAT, 0, lca1_data);
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva1.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	//right primary bar
-	if(primary == 0)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
-	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca0.data());
+	glColorPointer(4, GL_FLOAT, 0, lca0_data);
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva2.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	if(primary != 2)
-		glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
-	else
-		glColorPointer(4, GL_FLOAT, 0, primary_lca1.data());
+	glColorPointer(4, GL_FLOAT, 0, lca1_data);
 	glVertexPointer(2, GL_FLOAT, 0, primary_lva3.data());
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
+	GLfloat *secondary_lva_ptr;
 	if (secondary<=2){
 		//left secondary
-		if (secondary != 1)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
-		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
+		glColorPointer(4, GL_FLOAT, 0, (secondary != 1 ? dark_lca : bright_lca).data());
 		if(!secondary_lva[0])
 			secondary_lva[0] = circle_array_init_2(16, 2.0, -10.0, 2.0, -2.0);
 		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0].get());
 		//right secondary
-		if (secondary != 2)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
-		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
+		glColorPointer(4, GL_FLOAT, 0, (secondary != 2 ? dark_lca : bright_lca).data());
 		if(!secondary_lva[1])
 			secondary_lva[1] = circle_array_init_2(16, 2.0, 10.0, 2.0, -2.0);
-		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1].get());
+		secondary_lva_ptr = secondary_lva[1].get();
 	}
 	else {
 		//bottom/middle secondary
-		if (secondary != 4)
-			glColorPointer(4, GL_FLOAT, 0, dark_lca.data());
-		else
-			glColorPointer(4, GL_FLOAT, 0, bright_lca.data());
+		glColorPointer(4, GL_FLOAT, 0, (secondary != 4 ? dark_lca : bright_lca).data());
 		if(!secondary_lva[2])
 			secondary_lva[2] = circle_array_init_2(16, 2.0, 0.0, 2.0, -8.0);
-		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2].get());
+		secondary_lva_ptr = secondary_lva[2].get();
 	}
+	ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva_ptr);
 	
 	//glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
