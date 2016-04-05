@@ -174,9 +174,9 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 
 			auto &wall0 = *vwallptr(segp->sides[side].wall_num);
 			wallptr_t wall1 = nullptr;
-			if (wall0.type == new_wall_type &&
-			    (cside == side_none || csegp->sides[cside].wall_num == wall_none ||
-				(wall1 = vwallptr(csegp->sides[cside].wall_num))->type == new_wall_type))
+			if ((cside == side_none || csegp->sides[cside].wall_num == wall_none ||
+				(wall1 = vwallptr(csegp->sides[cside].wall_num))->type == new_wall_type) &&
+				wall0.type == new_wall_type)
 				continue;		//already in correct state, so skip
 
 			ret |= 1;
