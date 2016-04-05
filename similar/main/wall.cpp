@@ -1378,17 +1378,18 @@ void remove_obsolete_stuck_objects(void)
 //	Door with wall index wallnum is opening, kill all objects stuck in it.
 void kill_stuck_objects(int wallnum)
 {
-	int	i;
-
 	if (wallnum < 0 || Num_stuck_objects == 0) {
 		return;
 	}
 
-	Num_stuck_objects=0;
+	unsigned n = 0;
 
-	for (i=0; i<MAX_STUCK_OBJECTS; i++)
-		if (Stuck_objects[i].wallnum == wallnum) {
-			const auto &&objp = vobjptr(Stuck_objects[i].objnum);
+	range_for (auto &i, Stuck_objects)
+	{
+		if (i.wallnum == wallnum)
+		{
+			i.wallnum = wall_none;
+			const auto &&objp = vobjptr(i.objnum);
 			if (objp->type == OBJ_WEAPON) {
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_WEAPON_LIFELEFT	F1_0/4
@@ -1397,12 +1398,13 @@ void kill_stuck_objects(int wallnum)
 #endif
 				objp->lifeleft = DXX_WEAPON_LIFELEFT;
 			}
-			Stuck_objects[i].wallnum = wall_none;
 		}
-		else if (Stuck_objects[i].wallnum != wall_none)
+		else if (i.wallnum != wall_none)
 		{
-			Num_stuck_objects++;
+			++n;
 		}
+	}
+	Num_stuck_objects = n;
 	//	Ok, this is awful, but we need to do things whenever a door opens/closes/disappears, etc.
 #if defined(DXX_BUILD_DESCENT_II)
 	flush_fcd_cache();
