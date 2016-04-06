@@ -117,9 +117,14 @@ void do_powerup_frame(const vobjptridx_t obj)
 	}
 }
 
-void draw_powerup(const vobjptridx_t obj)
+namespace dcx {
+
+void draw_powerup(const object_base &obj)
 {
-	draw_object_blob(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
+	auto &vci = obj.rtype.vclip_info;
+	draw_object_blob(obj, Vclip[vci.vclip_num].frames[vci.framenum]);
+}
+
 }
 
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)

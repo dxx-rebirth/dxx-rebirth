@@ -196,6 +196,9 @@ extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
 extern objnum_t Player_fired_laser_this_frame;
+
+// Draw a blob-type object, like a fireball
+void draw_object_blob(const object_base &obj, bitmap_index bitmap);
 }
 
 #ifdef dsx
@@ -236,9 +239,6 @@ void compress_objects();
 
 // Render an object.  Calls one of several routines based on type
 void render_object(vobjptridx_t obj);
-
-// Draw a blob-type object, like a fireball
-void draw_object_blob(vobjptr_t obj, bitmap_index bitmap);
 
 // draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
