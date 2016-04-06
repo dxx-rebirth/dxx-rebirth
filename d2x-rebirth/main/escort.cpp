@@ -865,7 +865,7 @@ fix64	Buddy_last_missile_time;
 //	-----------------------------------------------------------------------------
 static void bash_buddy_weapon_info(const vobjptridx_t objp)
 {
-	objp->ctype.laser_info.parent_num = ConsoleObject-Objects;
+	objp->ctype.laser_info.parent_num = vobjptridx(ConsoleObject);
 	objp->ctype.laser_info.parent_type = OBJ_PLAYER;
 	objp->ctype.laser_info.parent_signature = ConsoleObject->signature;
 }

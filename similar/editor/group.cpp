@@ -982,7 +982,6 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int i, j;
-	segnum_t segnum;
 	segment tseg;
    vms_vector tvert;
 
@@ -1030,8 +1029,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	// Next 3 vars added 10/07 by JAS
 	group_editor.Groupsegp =   0;
 	if (Groupsegp[current_group]) {
-		segnum = Groupsegp[current_group]-Segments;
-		group::segment_array_type_t::const_iterator i = segment_ids.find(segnum);
+		const auto i = segment_ids.find(vsegptridx(Groupsegp[current_group]));
 		if (i != segment_ids.end())
 			group_editor.Groupsegp = std::distance(segment_ids.begin(), i);
 	} 

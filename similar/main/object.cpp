@@ -115,7 +115,7 @@ namespace dsx {
 void object_goto_next_viewer()
 {
 	objnum_t start_obj;
-	start_obj = Viewer - Objects;		//get viewer object number
+	start_obj = vcobjptridx(Viewer);		//get viewer object number
 	
 	range_for (const auto &&i, vcobjptr)
 	{

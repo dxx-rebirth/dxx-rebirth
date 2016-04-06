@@ -2987,7 +2987,7 @@ static int see_object(const vcobjptridx_t objnum)
 	fq.p0 					= &Viewer->pos;
 	fq.p1 					= &objnum->pos;
 	fq.rad 					= 0;
-	fq.thisobjnum			= Viewer - Objects;
+	fq.thisobjnum			= vcobjptridx(Viewer);
 	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS | FQ_GET_SEGLIST;
 	fq.startseg				= Viewer->segnum;
 	fq.ignore_obj_list.first = nullptr;

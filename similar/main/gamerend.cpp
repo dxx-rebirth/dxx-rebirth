@@ -312,7 +312,7 @@ static void draw_window_label()
 
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(31,0,0),-1);
-		gr_printf(0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(Viewer - Objects), viewer_name, viewer_id, control_name);
+		gr_printf(0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
 	}
 }
