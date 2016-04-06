@@ -778,8 +778,6 @@ void phys_apply_force(object_base &obj, const vms_vector &force_vec)
 	vm_vec_scale_add2(obj.mtype.phys_info.velocity, force_vec, fixdiv(f1_0, obj.mtype.phys_info.mass));
 }
 
-}
-
 //	----------------------------------------------------------------
 //	Do *dest = *delta unless:
 //				*delta is pretty small
@@ -805,7 +803,7 @@ static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
 //	------------------------------------------------------------------------------------------------------
 //	Note: This is the old ai_turn_towards_vector code.
 //	phys_apply_rot used to call ai_turn_towards_vector until I fixed it, which broke phys_apply_rot.
-void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t obj, fix rate)
+void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj, fix rate)
 {
 	fix			delta_p, delta_h;
 
@@ -817,11 +815,11 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 		return;
 
 	//	Make morph objects turn more slowly.
-	if (obj->control_type == CT_MORPH)
+	if (obj.control_type == CT_MORPH)
 		rate *= 2;
 
 	const auto dest_angles = vm_extract_angles_vector(goal_vector);
-	const auto cur_angles = vm_extract_angles_vector(obj->orient.fvec);
+	const auto cur_angles = vm_extract_angles_vector(obj.orient.fvec);
 
 	delta_p = (dest_angles.p - cur_angles.p);
 	delta_h = (dest_angles.h - cur_angles.h);
@@ -837,10 +835,12 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t 
 	if (abs(delta_p) < F1_0/16) delta_p *= 4;
 	if (abs(delta_h) < F1_0/16) delta_h *= 4;
 
-	auto &rotvel_ptr = obj->mtype.phys_info.rotvel;
+	auto &rotvel_ptr = obj.mtype.phys_info.rotvel;
 	physics_set_rotvel_and_saturate(rotvel_ptr.x, delta_p);
 	physics_set_rotvel_and_saturate(rotvel_ptr.y, delta_h);
 	rotvel_ptr.z = 0;
+}
+
 }
 
 //	-----------------------------------------------------------------------------
