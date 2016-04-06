@@ -189,26 +189,39 @@ void do_megawow_powerup(int quantity)
 }
 //#endif
 
+namespace dsx {
+
 static int pick_up_energy(void)
 {
 	int	used=0;
 
-	if (get_local_player_energy() < MAX_ENERGY) {
+	auto &energy = get_local_player_energy();
+	if (energy < MAX_ENERGY) {
 		fix boost;
 		boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Difficulty_level == 0)
 			boost += boost/2;
 #endif
-		get_local_player_energy() += boost;
-		if (get_local_player_energy() > MAX_ENERGY)
-			get_local_player_energy() = MAX_ENERGY;
-		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(get_local_player_energy()));
+		energy += boost;
+		if (energy > MAX_ENERGY)
+			energy = MAX_ENERGY;
+		powerup_basic(15, 15, 7, ENERGY_SCORE, "%s %s %d", TXT_ENERGY, TXT_BOOSTED_TO, f2ir(energy));
 		used=1;
 	} else
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_ENERGY);
 
 	return used;
+}
+
+static int pick_up_primary_or_energy(int weapon_index)
+{
+	const auto used = pick_up_primary(weapon_index);
+	if (used || (Game_mode & GM_MULTI))
+		return used;
+	return pick_up_energy();
+}
+
 }
 
 static int pick_up_vulcan_ammo(void)
@@ -424,32 +437,22 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 
 		case	POW_SPREADFIRE_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::SPREADFIRE_INDEX);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = pick_up_primary_or_energy(primary_weapon_index_t::SPREADFIRE_INDEX);
 			break;
 		case	POW_PLASMA_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::PLASMA_INDEX);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = pick_up_primary_or_energy(primary_weapon_index_t::PLASMA_INDEX);
 			break;
 		case	POW_FUSION_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::FUSION_INDEX);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = pick_up_primary_or_energy(primary_weapon_index_t::FUSION_INDEX);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case	POW_HELIX_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::HELIX_INDEX);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = pick_up_primary_or_energy(primary_weapon_index_t::HELIX_INDEX);
 			break;
 
 		case	POW_PHOENIX_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::PHOENIX_INDEX);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = pick_up_primary_or_energy(primary_weapon_index_t::PHOENIX_INDEX);
 			break;
 
 		case	POW_OMEGA_WEAPON:
