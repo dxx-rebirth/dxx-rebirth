@@ -238,6 +238,17 @@ static int pick_up_vulcan_ammo(void)
 	return used;
 }
 
+static int pick_up_key(const int r, const int g, const int b, player_flags &player_flags, const PLAYER_FLAG key_flag, const char *const key_name, const powerup_type_t id)
+{
+	if (player_flags & key_flag)
+		return 0;
+	player_flags |= key_flag;
+	powerup_basic(r, g, b, KEY_SCORE, "%s %s", key_name, TXT_ACCESS_GRANTED);
+	multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
+	invalidate_escort_goal();
+	return (Game_mode & GM_MULTI) ? 0 : 1;
+}
+
 //	returns true if powerup consumed
 int do_powerup(const vobjptridx_t obj)
 {
@@ -278,8 +289,9 @@ int do_powerup(const vobjptridx_t obj)
 	}
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	int id=get_powerup_id(obj);
-	switch (get_powerup_id(obj)) {
+	auto id = get_powerup_id(obj);
+	switch (id)
+	{
 		case POW_EXTRA_LIFE:
 			get_local_player().lives++;
 			powerup_basic_str(15, 15, 15, 0, TXT_EXTRA_LIFE);
@@ -329,40 +341,13 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_KEY_BLUE:
-			if (get_local_player_flags() & PLAYER_FLAGS_BLUE_KEY)
-				break;
-			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player_flags() |= PLAYER_FLAGS_BLUE_KEY;
-			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
-			if (Game_mode & GM_MULTI)
-				used=0;
-			else
-				used=1;
-			invalidate_escort_goal();
+			used = pick_up_key(0, 0, 15, player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY, TXT_BLUE, id);
 			break;
 		case POW_KEY_RED:
-			if (get_local_player_flags() & PLAYER_FLAGS_RED_KEY)
-				break;
-			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player_flags() |= PLAYER_FLAGS_RED_KEY;
-			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
-			if (Game_mode & GM_MULTI)
-				used=0;
-			else
-				used=1;
-			invalidate_escort_goal();
+			used = pick_up_key(15, 0, 0, player_info.powerup_flags, PLAYER_FLAGS_RED_KEY, TXT_RED, id);
 			break;
 		case POW_KEY_GOLD:
-			if (get_local_player_flags() & PLAYER_FLAGS_GOLD_KEY)
-				break;
-			multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-			get_local_player_flags() |= PLAYER_FLAGS_GOLD_KEY;
-			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
-			if (Game_mode & GM_MULTI)
-				used=0;
-			else
-				used=1;
-			invalidate_escort_goal();
+			used = pick_up_key(15, 15, 7, player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY, TXT_YELLOW, id);
 			break;
 		case POW_QUAD_FIRE:
 			if (!(get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)) {
