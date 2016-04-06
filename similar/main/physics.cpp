@@ -760,20 +760,24 @@ void do_physics_sim(const vobjptridx_t obj)
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#endif
 }
 
+namespace dcx {
+
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
-void phys_apply_force(const vobjptr_t obj,const vms_vector &force_vec)
+void phys_apply_force(object_base &obj, const vms_vector &force_vec)
 {
-	if (obj->movement_type != MT_PHYSICS)
+	if (obj.movement_type != MT_PHYSICS)
 		return;
 
 	//	Put in by MK on 2/13/96 for force getting applied to Omega blobs, which have 0 mass,
 	//	in collision with crazy reactor robot thing on d2levf-s.
-	if (obj->mtype.phys_info.mass == 0)
+	if (obj.mtype.phys_info.mass == 0)
 		return;
 
 	//Add in acceleration due to force
-	vm_vec_scale_add2(obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
+	vm_vec_scale_add2(obj.mtype.phys_info.velocity, force_vec, fixdiv(f1_0, obj.mtype.phys_info.mass));
+}
+
 }
 
 //	----------------------------------------------------------------

@@ -46,9 +46,13 @@ extern array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void do_physics_sim(vobjptridx_t obj);
 
+namespace dcx {
+
 // Applies an instantaneous force on an object, resulting in an instantaneous
 // change in velocity.
-void phys_apply_force(vobjptr_t obj, const vms_vector &force_vec);
+void phys_apply_force(object_base &obj, const vms_vector &force_vec);
+
+}
 void phys_apply_rot(vobjptr_t obj, const vms_vector &force_vec);
 
 // this routine will set the thrust for an object to a value that will
