@@ -53,7 +53,9 @@ namespace dcx {
 void phys_apply_force(object_base &obj, const vms_vector &force_vec);
 
 }
-void phys_apply_rot(vobjptr_t obj, const vms_vector &force_vec);
+namespace dsx {
+void phys_apply_rot(object &obj, const vms_vector &force_vec);
+}
 
 // this routine will set the thrust for an object to a value that will
 // (hopefully) maintain the object's current velocity

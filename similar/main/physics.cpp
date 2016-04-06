@@ -843,32 +843,34 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj
 
 }
 
+namespace dsx {
+
 //	-----------------------------------------------------------------------------
 //	Applies an instantaneous whack on an object, resulting in an instantaneous
 //	change in orientation.
-void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
+void phys_apply_rot(object &obj, const vms_vector &force_vec)
 {
 	fix	rate;
 
-	if (obj->movement_type != MT_PHYSICS)
+	if (obj.movement_type != MT_PHYSICS)
 		return;
 
 	auto vecmag = vm_vec_mag(force_vec);
 	if (vecmag < F1_0/32)
 		rate = 4*F1_0;
-	else if (vecmag < obj->mtype.phys_info.mass >> 11)
+	else if (vecmag < obj.mtype.phys_info.mass >> 11)
 		rate = 4*F1_0;
 	else {
-		rate = fixdiv(obj->mtype.phys_info.mass, vecmag / 8);
-		if (obj->type == OBJ_ROBOT) {
+		rate = fixdiv(obj.mtype.phys_info.mass, vecmag / 8);
+		if (obj.type == OBJ_ROBOT) {
 			if (rate < F1_0/4)
 				rate = F1_0/4;
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->ctype.ai_info.SKIP_AI_COUNT = 2;
+			obj.ctype.ai_info.SKIP_AI_COUNT = 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!
 			if (!Robot_info[get_robot_id(obj)].thief && !Robot_info[get_robot_id(obj)].attack_type) {
-				if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {
+				if (obj.ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {
 					fix	tval = fixdiv(F1_0, 8*FrameTime);
 					int	addval;
 
@@ -876,7 +878,7 @@ void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
 
 					if ( (d_rand() * 2) < (tval & 0xffff))
 						addval++;
-					obj->ctype.ai_info.SKIP_AI_COUNT += addval;
+					obj.ctype.ai_info.SKIP_AI_COUNT += addval;
 				}
 			}
 #endif
@@ -888,7 +890,7 @@ void phys_apply_rot(const vobjptr_t obj,const vms_vector &force_vec)
 
 	//	Turn amount inversely proportional to mass.  Third parameter is seconds to do 360 turn.
 	physics_turn_towards_vector(force_vec, obj, rate);
-
+}
 
 }
 
