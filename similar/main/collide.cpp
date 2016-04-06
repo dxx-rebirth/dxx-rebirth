@@ -303,17 +303,13 @@ static void bump_this_object(const vobjptridx_t objp, const vobjptridx_t other_o
 //the collision.
 static void bump_two_objects(const vobjptridx_t obj0,const vobjptridx_t obj1,int damage_flag)
 {
-	const vobjptridx_t *pt = nullptr;
-	if (obj0->movement_type != MT_PHYSICS)
-		pt = &obj1;
-	else if (obj1->movement_type != MT_PHYSICS)
-		pt = &obj0;
-
-	if (pt)
+	const vobjptridx_t *pt;
+	if ((obj0->movement_type != MT_PHYSICS && (pt = &obj1, true)) ||
+		(obj1->movement_type != MT_PHYSICS && (pt = &obj0, true)))
 	{
-		const vobjptridx_t &t = *pt;
-		Assert(t->movement_type == MT_PHYSICS);
-		const auto force = vm_vec_copy_scale(t->mtype.phys_info.velocity,-t->mtype.phys_info.mass);
+		object_base &t = *pt;
+		Assert(t.movement_type == MT_PHYSICS);
+		const auto force = vm_vec_copy_scale(t.mtype.phys_info.velocity, -t.mtype.phys_info.mass);
 		phys_apply_force(t,force);
 		return;
 	}
