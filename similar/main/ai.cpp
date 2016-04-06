@@ -2569,10 +2569,7 @@ static void ai_multi_send_robot_position(const vobjptridx_t obj, int force)
 {
 	if (Game_mode & GM_MULTI) 
 	{
-		if (force != -1)
-			multi_send_robot_position(obj, 1);
-		else
-			multi_send_robot_position(obj, 0);
+		multi_send_robot_position(obj, force != -1);
 	}
 	return;
 }
