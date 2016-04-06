@@ -22,7 +22,6 @@ struct bitmap_index;
 constexpr std::size_t MAX_OBJECTS = 350;
 #ifdef dsx
 namespace dsx {
-enum object_type_t : int;
 
 struct object;
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects, MAX_OBJECTS);
@@ -107,6 +106,8 @@ const physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, t
 #endif
 
 namespace dcx {
+enum object_type_t : int;
+struct object_base;
 
 typedef unsigned powerup_flag_t;
 const powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player

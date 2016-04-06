@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poison.h"
 #include "player-flags.h"
 
-namespace dsx {
+namespace dcx {
 
 // Object types
 enum object_type_t : int
@@ -72,10 +72,12 @@ enum object_type_t : int
 	OBJ_GHOST	= 12,  // what the player turns into when dead
 	OBJ_LIGHT	= 13,  // a light source, & not much else
 	OBJ_COOP	= 14,  // a cooperative player object.
-#if defined(DXX_BUILD_DESCENT_II)
 	OBJ_MARKER	= 15,  // a map marker
-#endif
 };
+
+}
+
+namespace dsx {
 
 /*
  * STRUCTURES
@@ -471,74 +473,80 @@ namespace dsx {
 
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj);
 
-static inline uint8_t get_hostage_id(const object &o)
+static inline powerup_type_t get_powerup_id(const object_base &o)
 {
-	return o.id;
+	return static_cast<powerup_type_t>(o.id);
 }
 
-static inline uint8_t get_player_id(const object &o)
-{
-	return o.id;
-}
-
-static inline powerup_type_t get_powerup_id(const vcobjptr_t o)
-{
-	return static_cast<powerup_type_t>(o->id);
-}
-
-static inline uint8_t get_reactor_id(const object &o)
-{
-	return o.id;
-}
-
-static inline uint8_t get_fireball_id(const object &o)
-{
-	return o.id;
-}
-
-static inline uint8_t get_robot_id(const object &o)
-{
-	return o.id;
-}
-
-static inline uint8_t get_marker_id(const object &o)
-{
-	return o.id;
-}
-
-static inline weapon_id_type get_weapon_id(const object &o)
+static inline weapon_id_type get_weapon_id(const object_base &o)
 {
 	return static_cast<weapon_id_type>(o.id);
 }
 
-static inline void set_hostage_id(object &o, ubyte id)
+#if defined(DXX_BUILD_DESCENT_II)
+static inline uint8_t get_marker_id(const object_base &o)
 {
-	o.id = id;
+	return o.id;
 }
+#endif
 
-static inline void set_player_id(object &o, ubyte id)
-{
-	o.id = id;
-}
+void set_powerup_id(object_base &o, powerup_type_t id);
 
-void set_powerup_id(object &o, powerup_type_t id);
-
-static inline void set_reactor_id(object &o, uint8_t id)
-{
-	o.id = id;
-}
-
-static inline void set_robot_id(object &o, ubyte id)
-{
-	o.id = id;
-}
-
-static inline void set_weapon_id(object &o, weapon_id_type id)
+static inline void set_weapon_id(object_base &o, weapon_id_type id)
 {
 	o.id = static_cast<uint8_t>(id);
 }
 
-void check_warn_object_type(const object &, object_type_t, const char *file, unsigned line);
+}
+
+namespace dcx {
+
+static inline uint8_t get_hostage_id(const object_base &o)
+{
+	return o.id;
+}
+
+static inline uint8_t get_player_id(const object_base &o)
+{
+	return o.id;
+}
+
+static inline uint8_t get_reactor_id(const object_base &o)
+{
+	return o.id;
+}
+
+static inline uint8_t get_fireball_id(const object_base &o)
+{
+	return o.id;
+}
+
+static inline uint8_t get_robot_id(const object_base &o)
+{
+	return o.id;
+}
+
+static inline void set_hostage_id(object_base &o, const uint8_t id)
+{
+	o.id = id;
+}
+
+static inline void set_player_id(object_base &o, const uint8_t id)
+{
+	o.id = id;
+}
+
+static inline void set_reactor_id(object_base &o, const uint8_t id)
+{
+	o.id = id;
+}
+
+static inline void set_robot_id(object_base &o, const uint8_t id)
+{
+	o.id = id;
+}
+
+void check_warn_object_type(const object_base &, object_type_t, const char *file, unsigned line);
 #define get_hostage_id(O)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), get_hostage_id(O))
 #define get_player_id(O)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), get_player_id(O))
 #define get_powerup_id(O)	(check_warn_object_type(O, OBJ_POWERUP, __FILE__, __LINE__), get_powerup_id(O))
@@ -547,7 +555,9 @@ void check_warn_object_type(const object &, object_type_t, const char *file, uns
 #define get_fireball_id(O)	(check_warn_object_type(O, OBJ_FIREBALL, __FILE__, __LINE__), get_fireball_id(O))
 #define get_robot_id(O)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), get_robot_id(O))
 #define get_weapon_id(O)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), get_weapon_id(O))
+#if defined(DXX_BUILD_DESCENT_II)
 #define get_marker_id(O)	(check_warn_object_type(O, OBJ_MARKER, __FILE__, __LINE__), get_marker_id(O))
+#endif
 #define set_hostage_id(O,I)	(check_warn_object_type(O, OBJ_HOSTAGE, __FILE__, __LINE__), set_hostage_id(O, I))
 #define set_player_id(O,I)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), set_player_id(O, I))
 #define set_reactor_id(O,I)	(check_warn_object_type(O, OBJ_CNTRLCEN, __FILE__, __LINE__), set_reactor_id(O, I))
@@ -556,7 +566,7 @@ void check_warn_object_type(const object &, object_type_t, const char *file, uns
 #ifdef DXX_CONSTANT_TRUE
 #define check_warn_object_type(O,T,F,L)	\
 	( DXX_BEGIN_COMPOUND_STATEMENT {	\
-		const object &dxx_check_warn_o = (O);	\
+		const object_base &dxx_check_warn_o = (O);	\
 		const auto type = dxx_check_warn_o.type;	\
 		/* If the type is always right, omit the runtime check. */	\
 		DXX_CONSTANT_TRUE(type == T) || (	\

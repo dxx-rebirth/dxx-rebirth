@@ -1962,7 +1962,7 @@ int update_object_seg(const vobjptridx_t obj)
 	return 1;
 }
 
-void set_powerup_id(object &o, powerup_type_t id)
+void set_powerup_id(object_base &o, powerup_type_t id)
 {
 	o.id = id;
 	o.size = Powerup_info[id].size;
@@ -2304,7 +2304,11 @@ void object_rw_swap(object_rw *obj, int swap)
 	}
 }
 
-void (check_warn_object_type)(const object &o, object_type_t t, const char *file, unsigned line)
+}
+
+namespace dcx {
+
+void (check_warn_object_type)(const object_base &o, object_type_t t, const char *file, unsigned line)
 {
 	if (o.type != t)
 		con_printf(CON_URGENT, "%s:%u: BUG: object %p has type %u, expected %u", file, line, &o, o.type, t);
