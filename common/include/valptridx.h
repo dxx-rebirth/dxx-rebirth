@@ -714,13 +714,15 @@ public:
 	void *operator &() const = delete;
 };
 
-#define _DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,prefix,Pconst)	\
-	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptr_t> prefix##ptr{};	\
-	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptr_t> v##prefix##ptr{};	\
-	constexpr valptridx<P>::basic_ptridx_global_factory<prefix##ptridx_t> prefix##ptridx{};	\
-	constexpr valptridx<P>::basic_vptr_global_factory<v##prefix##ptridx_t> v##prefix##ptridx{};	\
+#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,FACTORY)	\
+	constexpr valptridx<MANAGED_TYPE>::basic_vptr_global_factory<v##FACTORY##_t> v##FACTORY{};	\
+	constexpr valptridx<MANAGED_TYPE>::basic_ptridx_global_factory<FACTORY##_t> FACTORY{}	\
 
-#define DEFINE_VALPTRIDX_SUBTYPE(N,P,I,A)	\
-	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,N,);	\
-	_DEFINE_VALPTRIDX_SUBTYPE_USERTYPE(N,P,I,A,c##N,const)	\
+#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(MANAGED_TYPE,PREFIX)	\
+	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,PREFIX##ptr);	\
+	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,PREFIX##ptridx)	\
+
+#define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(P,N)	\
+	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(P,N);	\
+	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(P,c##N)	\
 

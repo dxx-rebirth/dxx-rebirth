@@ -157,7 +157,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 };
 
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(trigger, trg, Triggers, MAX_TRIGGERS);
-DEFINE_VALPTRIDX_SUBTYPE(trg, trigger, trgnum_t, Triggers);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg);
 
 }
 

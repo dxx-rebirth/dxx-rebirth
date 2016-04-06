@@ -166,7 +166,7 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 };
 #endif
 
-DEFINE_VALPTRIDX_SUBTYPE(wall, wall, wallnum_t, Walls);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall);
 
 struct wclip : public prohibit_void_ptr<wclip>
 {

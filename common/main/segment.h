@@ -209,7 +209,7 @@ struct group
 #define Highest_segment_index (Segments.get_count() - 1)
 
 namespace dsx {
-DEFINE_VALPTRIDX_SUBTYPE(seg, segment, segnum_t, Segments);
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(segment, seg);
 }
 #endif
 

@@ -467,9 +467,9 @@ struct obj_position
 
 #define Highest_object_index (Objects.get_count() - 1)
 
-DEFINE_VALPTRIDX_SUBTYPE(obj, object, objnum_t, Objects);
-
 namespace dsx {
+
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(object, obj);
 
 static inline uint8_t get_hostage_id(const object &o)
 {
