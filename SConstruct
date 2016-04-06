@@ -1033,6 +1033,14 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 			context.sconf.Define('likely(A)', macro_value)
 			context.sconf.Define('unlikely(A)',  macro_value)
 	@_custom_test
+	def check_builtin_file(self,context):
+		if self.Compile(context, text='''
+static void f(const char * = __builtin_FILE(), unsigned = __builtin_LINE())
+{
+}
+''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'):
+			context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE')
+	@_custom_test
 	def check_builtin_object_size(self,context):
 		"""
 Test whether the compiler accepts and optimizes gcc's intrinsic
