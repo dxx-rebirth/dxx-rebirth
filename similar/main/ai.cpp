@@ -2303,12 +2303,12 @@ void init_ai_for_ship(void)
 }
 
 //	----------------------------------------------------------------------
-void start_robot_death_sequence(const vobjptr_t objp)
+void start_robot_death_sequence(object &obj)
 {
-	objp->ctype.ai_info.dying_start_time = GameTime64;
-	objp->ctype.ai_info.dying_sound_playing = 0;
-	objp->ctype.ai_info.SKIP_AI_COUNT = 0;
-
+	auto &ai_info = obj.ctype.ai_info;
+	ai_info.dying_start_time = GameTime64;
+	ai_info.dying_sound_playing = 0;
+	ai_info.SKIP_AI_COUNT = 0;
 }
 
 //	----------------------------------------------------------------------

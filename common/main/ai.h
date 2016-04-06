@@ -270,7 +270,7 @@ extern void init_thief_for_level();
 extern objnum_t Buddy_objnum;
 extern int Buddy_allowed_to_talk;
 
-void start_robot_death_sequence(vobjptr_t objp);
+void start_robot_death_sequence(object &objp);
 void buddy_message_str(const char * str) __attribute_nonnull();
 void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 #define buddy_message(F,...)	dxx_call_printf_checked(buddy_message,buddy_message_str,(),(F),##__VA_ARGS__)
