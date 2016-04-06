@@ -2050,7 +2050,9 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 	}
 }
 
-void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer, fix damage, ubyte possibly_friendly)
+namespace dsx {
+
+void apply_damage_to_player(object &playerobj, const cobjptridx_t killer, fix damage, ubyte possibly_friendly)
 {
 	if (Player_dead_state != player_dead_state::no)
 		return;
@@ -2071,13 +2073,12 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 
 	if (get_player_id(playerobj) == Player_num) {		//is this the local player?
 		PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
-		const auto shields = (playerobj->shields -= damage);
+		const auto shields = (playerobj.shields -= damage);
 
 		if (shields < 0)
 		{
-
-			get_local_plrobj().ctype.player_info.killer_objnum = killer;
-			playerobj->flags |= OF_SHOULD_BE_DEAD;
+			playerobj.ctype.player_info.killer_objnum = killer;
+			playerobj.flags |= OF_SHOULD_BE_DEAD;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Buddy_objnum != object_none)
@@ -2086,6 +2087,8 @@ void apply_damage_to_player(const vobjptr_t playerobj, const cobjptridx_t killer
 #endif
 		}
 	}
+}
+
 }
 
 static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjptridx_t weapon, vms_vector &collision_point)
