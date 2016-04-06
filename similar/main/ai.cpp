@@ -3617,12 +3617,7 @@ _exit_cheat:
 #endif
 				}
 
-				if (ai_evaded) {
-					ai_multi_send_robot_position(obj, 1);
-					ai_evaded = 0;
-				}
-				else
-					ai_multi_send_robot_position(obj, -1);
+				ai_multi_send_robot_position(obj, ai_evaded ? (ai_evaded = 0, 1) : -1);
 
 				do_firing_stuff(obj, player_visibility, vec_to_player);
 			}
@@ -3856,12 +3851,7 @@ _exit_cheat:
 							return;
 						}
 						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility);
-						if (ai_evaded) {
-							ai_multi_send_robot_position(obj, 1);
-							ai_evaded = 0;
-						}
-						else
-							ai_multi_send_robot_position(obj, -1);
+						ai_multi_send_robot_position(obj, ai_evaded ? (ai_evaded = 0, 1) : -1);
 					} else {
 						// Robots in hover mode are allowed to evade at half normal speed.
 						if (!ai_multiplayer_awareness(obj, 81)) {
