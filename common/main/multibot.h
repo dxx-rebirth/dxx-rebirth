@@ -39,7 +39,7 @@ extern array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 int multi_can_move_robot(vobjptridx_t objnum, int agitation);
-void multi_send_robot_position(vobjptridx_t objnum, int fired);
+void multi_send_robot_position(object &objnum, int fired);
 void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, const vms_vector &fire);
 void multi_send_claim_robot(vobjptridx_t objnum);
 void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);

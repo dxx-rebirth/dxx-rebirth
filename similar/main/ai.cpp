@@ -90,7 +90,7 @@ using std::min;
 
 namespace dsx {
 static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
-static void ai_multi_send_robot_position(const vobjptridx_t objnum, int force);
+static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
@@ -2569,7 +2569,7 @@ static void do_boss_stuff(const vobjptridx_t objp, int player_visibility)
 #endif
 
 
-static void ai_multi_send_robot_position(const vobjptridx_t obj, int force)
+static void ai_multi_send_robot_position(object &obj, int force)
 {
 	if (Game_mode & GM_MULTI) 
 	{

@@ -449,7 +449,7 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, loc, now?1:0);
 }
 
-void multi_send_robot_position(const vobjptridx_t objnum, int force)
+void multi_send_robot_position(object &obj, int force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -457,19 +457,20 @@ void multi_send_robot_position(const vobjptridx_t objnum, int force)
 	if (!(Game_mode & GM_MULTI))
 		return;
 
-	if (objnum->type != OBJ_ROBOT)
+	if (obj.type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
 		return;
 	}
 
-	if (objnum->ctype.ai_info.REMOTE_OWNER != Player_num)
+	if (obj.ctype.ai_info.REMOTE_OWNER != Player_num)
 		return;
 
 //	Objects[objnum].phys_info.drag = Robot_info[Objects[objnum].id].drag; // Set drag to normal
 
-	robot_last_send_time[objnum->ctype.ai_info.REMOTE_SLOT_NUM] = GameTime64;
-	robot_send_pending[objnum->ctype.ai_info.REMOTE_SLOT_NUM] = 1+force;
+	const auto slot = obj.ctype.ai_info.REMOTE_SLOT_NUM;
+	robot_last_send_time[slot] = GameTime64;
+	robot_send_pending[slot] = 1+force;
 	return;
 }
 
