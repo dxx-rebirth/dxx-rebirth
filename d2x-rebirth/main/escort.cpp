@@ -1178,14 +1178,13 @@ static segnum_t choose_thief_recreation_segment()
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
-void recreate_thief(const vobjptr_t objp)
+void recreate_thief(const uint8_t thief_id)
 {
-	segnum_t			segnum;
-	segnum = choose_thief_recreation_segment();
+	const auto segnum = choose_thief_recreation_segment();
 	const auto &&segp = vsegptridx(segnum);
 	const auto &&center_point = compute_segment_center(segp);
 
-	const auto &&new_obj = create_morph_robot(segp, center_point, get_robot_id(objp));
+	const auto &&new_obj = create_morph_robot(segp, center_point, thief_id);
 	if (new_obj == object_none)
 		return;
 	init_ai_object(new_obj, ai_behavior::AIB_SNIPE, segment_none);

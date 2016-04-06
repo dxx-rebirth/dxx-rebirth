@@ -2375,8 +2375,12 @@ static int do_any_robot_dying_frame(const vobjptridx_t objp)
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, vm_distance{F1_0*512});
-			if ((Current_level_num < 0) && (Robot_info[get_robot_id(objp)].thief))
-				recreate_thief(objp);
+			if (Current_level_num < 0)
+			{
+				const auto id = get_robot_id(objp);
+				if (Robot_info[id].thief)
+					recreate_thief(id);
+			}
 		}
 
 		return 1;

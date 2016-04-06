@@ -34,7 +34,7 @@ extern void do_escort_menu(void);
 void detect_escort_goal_accomplished(vobjptridx_t index);
 void detect_escort_goal_fuelcen_accomplished();
 extern void set_escort_special_goal(int key);
-void recreate_thief(vobjptr_t objp);
+void recreate_thief(uint8_t thief_id);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(void);
 void drop_stolen_items (vcobjptr_t);
