@@ -95,7 +95,7 @@ extern array<int, 2> Marker_viewer_num;    // left & right
 #define GM_BOUNTY	2048	/* New bounty mode by Matt1360 */
 #endif
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
-#define GM_MULTI        38      // You are in some type of multiplayer game
+#define GM_MULTI        GM_NETWORK     // You are in some type of multiplayer game	(GM_NETWORK /* | GM_SERIAL | GM_MODEM */)
 
 
 #define NDL 5       // Number of difficulty levels.
