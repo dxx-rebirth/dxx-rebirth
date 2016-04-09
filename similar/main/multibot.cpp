@@ -820,8 +820,6 @@ multi_do_robot_fire(const ubyte *buf)
 	short remote_botnum;
 	int gun_num;
 	vms_vector fire;
-	robot_info *robptr;
-
                                                                                         loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
@@ -838,28 +836,21 @@ multi_do_robot_fire(const ubyte *buf)
 	if (botp->type != OBJ_ROBOT || botp->flags & OF_EXPLODING)
 		return;
 
+	using pt_weapon = std::pair<vms_vector, weapon_id_type>;
+	const pt_weapon pw =
 	// Do the firing
-	if (gun_num == -1
+		(gun_num == -1
 #if defined(DXX_BUILD_DESCENT_II)
 		|| gun_num==-2
 #endif
 		)
-	{
-		// Drop proximity bombs
-		const auto gun_point = vm_vec_add(botp->pos, fire);
-		const auto weapon_id =
+		? pt_weapon(vm_vec_add(botp->pos, fire), 
 #if defined(DXX_BUILD_DESCENT_II)
 			gun_num != -1 ? weapon_id_type::SUPERPROX_ID :
 #endif
-			weapon_id_type::PROXIMITY_ID;
-			Laser_create_new_easy( fire, gun_point, botp, weapon_id, 1);
-	}
-	else
-	{
-		const auto gun_point = calc_gun_point(botp, gun_num);
-		robptr = &Robot_info[get_robot_id(botp)];
-		Laser_create_new_easy( fire, gun_point, botp, get_robot_weapon(*robptr, 1), 1);
-	}
+			weapon_id_type::PROXIMITY_ID)
+		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
+	Laser_create_new_easy(fire, pw.first, botp, pw.second, 1);
 }
 
 int multi_explode_robot_sub(const vobjptridx_t robot)
