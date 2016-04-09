@@ -806,7 +806,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
         extract_quaternionpos(robot, &qpp, 0);
 }
 
-static inline vms_vector calc_gun_point(const vcobjptr_t obj,int gun_num)
+static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num)
 {
 	vms_vector v;
 	return calc_gun_point(v, obj, gun_num), v;

@@ -3123,12 +3123,14 @@ _exit_cheat:
 	{
 		// Since we passed ready_to_fire_any_weapon(), either next_fire or next_fire2 <= 0.  calc_gun_point from relevant one.
 		// If both are <= 0, we will deal with the mess in ai_do_actual_firing_stuff
+		const auto gun_num =
 #if defined(DXX_BUILD_DESCENT_II)
-		if (!ready_to_fire_weapon1(ailp, 0))
-			calc_gun_point(gun_point, obj, 0);
-		else
+			(!ready_to_fire_weapon1(ailp, 0))
+			? 0
+			:
 #endif
-			calc_gun_point(gun_point, obj, aip->CURRENT_GUN);
+			aip->CURRENT_GUN;
+			calc_gun_point(gun_point, obj, gun_num);
 		vis_vec_pos = gun_point;
 	} else {
 		vis_vec_pos = obj->pos;

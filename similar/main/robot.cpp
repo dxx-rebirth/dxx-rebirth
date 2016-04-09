@@ -54,43 +54,36 @@ static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector &gun_point,const vcobjptr_t obj,int gun_num)
+void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num)
 {
-	polymodel *pm;
-	robot_info *r;
-	vms_vector pnt;
-	int mn;				//submodel number
-
-	Assert(obj->render_type==RT_POLYOBJ || obj->render_type==RT_MORPH);
+	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
 	Assert(get_robot_id(obj) < N_robot_types);
 
-	r = &Robot_info[get_robot_id(obj)];
-	pm =&Polygon_models[r->model_num];
+	const auto &r = Robot_info[get_robot_id(obj)];
+	const auto &pm = Polygon_models[r.model_num];
 
-	if (gun_num >= r->n_guns)
+	if (gun_num >= r.n_guns)
 	{
 		gun_num = 0;
 	}
 
-	pnt = r->gun_points[gun_num];
-	mn = r->gun_submodels[gun_num];
+	auto pnt = r.gun_points[gun_num];
 
 	//instance up the tree for this gun
-	while (mn != 0) {
-		const auto m = vm_transposed_matrix(vm_angles_2_matrix(obj->rtype.pobj_info.anim_angles[mn]));
+	auto &anim_angles = obj.rtype.pobj_info.anim_angles;
+	for (unsigned mn = r.gun_submodels[gun_num]; mn != 0; mn = pm.submodel_parents[mn])
+	{
+		const auto &&m = vm_transposed_matrix(vm_angles_2_matrix(anim_angles[mn]));
 		const auto tpnt = vm_vec_rotate(pnt,m);
 
-		vm_vec_add(pnt,tpnt,pm->submodel_offsets[mn]);
-
-		mn = pm->submodel_parents[mn];
+		vm_vec_add(pnt, tpnt, pm.submodel_offsets[mn]);
 	}
 
 	//now instance for the entire object
 
-	const auto m = vm_transposed_matrix(obj->orient);
+	const auto &&m = vm_transposed_matrix(obj.orient);
 	vm_vec_rotate(gun_point,pnt,m);
-	vm_vec_add2(gun_point,obj->pos);
-
+	vm_vec_add2(gun_point, obj.pos);
 }
 
 //fills in ptr to list of joints, and returns the number of joints in list

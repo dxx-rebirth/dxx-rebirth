@@ -193,7 +193,7 @@ extern unsigned N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector &gun_point,vcobjptr_t obj,int gun_num);
+void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num);
 #endif
 
 //  Tells joint positions for a gun to be in a specified state.
