@@ -586,7 +586,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_turn_randomly(const vms_vector &vec_to_player, const vobjptr_t obj, fix rate, int previous_visibility)
+static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, fix rate, int previous_visibility)
 {
 	vms_vector	curvec;
 
@@ -599,7 +599,7 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, const vobjptr_t ob
 //--debug--     if (d_rand() > 0x6000)
 //--debug-- 		Prevented_turns++;
 
-	curvec = obj->mtype.phys_info.rotvel;
+	curvec = obj.mtype.phys_info.rotvel;
 
 	curvec.y += F1_0/64;
 
@@ -611,7 +611,7 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, const vobjptr_t ob
 	if (abs(curvec.y) > F1_0/8) curvec.y /= 4;
 	if (abs(curvec.z) > F1_0/8) curvec.z /= 4;
 
-	obj->mtype.phys_info.rotvel = curvec;
+	obj.mtype.phys_info.rotvel = curvec;
 
 }
 #endif

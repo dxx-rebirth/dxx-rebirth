@@ -1294,6 +1294,7 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 	vm_vec_scale(norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 
+	fix rate;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
 #if defined(DXX_BUILD_DESCENT_II)
 		|| robot_is_companion(robptr) == 1 || objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
@@ -1307,10 +1308,10 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
-		ai_turn_towards_vector(norm_vec_to_goal, objp, robptr->turn_time[NDL-1]/2);
+		rate = robptr->turn_time[NDL - 1] / 2;
 	} else
-		ai_turn_towards_vector(norm_vec_to_goal, objp, robptr->turn_time[Difficulty_level]);
-
+		rate = robptr->turn_time[Difficulty_level];
+	ai_turn_towards_vector(norm_vec_to_goal, objp, rate);
 }
 
 //	----------------------------------------------------------------------------------------------------------
