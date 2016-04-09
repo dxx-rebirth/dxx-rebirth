@@ -105,21 +105,19 @@ static void ai_multi_send_robot_position(object &objnum, int force);
 #define	MAX_LEAD_DISTANCE	(F1_0*200)
 #define	LEAD_RANGE			(F1_0/2)
 
-#define	MAX_SPEW_BOT		3
+constexpr array<array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
+	{{38, 40, -1}},
+	{{37, -1, -1}},
+	{{43, 57, -1}},
+	{{26, 27, 58}},
+	{{59, 58, 54}},
+	{{60, 61, 54}},
 
-static const int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
-	{38, 40, -1},
-	{37, -1, -1},
-	{43, 57, -1},
-	{26, 27, 58},
-	{59, 58, 54},
-	{60, 61, 54},
+	{{69, 29, 24}},
+	{{72, 60, 73}} 
+}};
 
-	{69, 29, 24},
-	{72, 60, 73} 
-};
-
-static const int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
+constexpr array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
 #endif
 }
 
@@ -131,7 +129,9 @@ enum {
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
+constexpr array<int8_t, 8> Mike_to_matt_xlate{{
+	AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST
+}};
 
 #define	OVERALL_AGITATION_MAX	100
 
@@ -144,7 +144,7 @@ static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT,
 
 boss_teleport_segment_array_t	Boss_teleport_segs;
 
-boss_gate_segment_array_t Boss_gate_segs;
+static boss_gate_segment_array_t Boss_gate_segs;
 
 // ---------- John: These variables must be saved as part of gamesave. --------
 static int             Overall_agitation;
@@ -154,6 +154,7 @@ static array<ai_cloak_info, MAX_AI_CLOAK_INFO>   Ai_cloak_info;
 fix64           Boss_cloak_start_time = 0;
 fix64           Last_teleport_time = 0;
 }
+namespace dsx {
 static
 #if defined(DXX_BUILD_DESCENT_I)
 const
@@ -164,12 +165,12 @@ static
 const
 #endif
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
+}
 namespace dcx {
 fix64           Last_gate_time = 0;
 static fix64 Boss_dying_start_time;
 fix             Gate_interval = F1_0*6;
 sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
-}
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
@@ -199,8 +200,11 @@ sbyte           Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
-static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
-#define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
+constexpr array<int8_t, 21> Super_boss_gate_list{{
+	0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8
+}};
+}
+#define	MAX_GATE_INDEX	(Super_boss_gate_list.size())
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -335,6 +339,8 @@ static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE]
 	}
 };
 
+namespace dsx {
+
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -344,6 +350,8 @@ weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
 		return ri.weapon_type2;
 #endif
 	return ri.weapon_type;
+}
+
 }
 
 static int ready_to_fire_weapon1(const ai_local *ailp, fix threshold)
@@ -987,8 +995,6 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
 	vms_vector	player_movement_dir;
 	weapon_info	*wptr;
-	robot_info	*robptr;
-
 	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		return 0;
 
@@ -1009,8 +1015,7 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 		return 0;
 
 	//	Looks like it might be worth trying to lead the player.
-	robptr = &Robot_info[get_robot_id(objp)];
-	const auto weapon_type = get_robot_weapon(*robptr, gun_num);
+	const auto weapon_type = get_robot_weapon(Robot_info[get_robot_id(objp)], gun_num);
 
 	wptr = &Weapon_info[weapon_type];
 	max_weapon_speed = wptr->speed[Difficulty_level];
@@ -1920,19 +1925,15 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 //	If pos == NULL, pick random spot in segment.
 static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, const vms_vector *pos)
 {
-	const robot_info	*robptr = &Robot_info[object_id];
-	int		count=0;
-	fix		objsize = Polygon_models[robptr->model_num].rad;
 #if defined(DXX_BUILD_DESCENT_I)
-	const int maximum_gated_robots = 2*Difficulty_level + 3;
+	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
-	const int maximum_gated_robots = 2*Difficulty_level + 6;
-#endif
-#if defined(DXX_BUILD_DESCENT_II)
 	if (GameTime64 - Last_gate_time < Gate_interval)
 		return object_none;
+	const unsigned maximum_gated_robots = 2*Difficulty_level + 6;
 #endif
 
+	unsigned count = 0;
 	range_for (const auto &&objp, vcobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
@@ -1949,6 +1950,8 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	const auto object_pos = pos ? *pos : pick_random_point_in_seg(segp);
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
+	const robot_info *const robptr = &Robot_info[object_id];
+	const fix objsize = Polygon_models[robptr->model_num].rad;
 	if (check_object_object_intersection(object_pos, objsize, segp)) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return object_none;
@@ -1978,14 +1981,13 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	objp->shields = robptr->strength;
 	objp->matcen_creator = BOSS_GATE_MATCEN_NUM;	//	flag this robot as having been created by the boss.
 
-	ai_behavior default_behavior;
 #if defined(DXX_BUILD_DESCENT_I)
-	default_behavior = ai_behavior::AIB_NORMAL;
-	if (object_id == 10)						//	This is a toaster guy!
-		default_behavior = ai_behavior::AIB_RUN_FROM;
+	const ai_behavior default_behavior = (object_id == 10) //	This is a toaster guy!
+		? ai_behavior::AIB_RUN_FROM
+		: ai_behavior::AIB_NORMAL;
 #elif defined(DXX_BUILD_DESCENT_II)
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
-	default_behavior = Robot_info[get_robot_id(objp)].behavior;
+	const ai_behavior default_behavior = robptr->behavior;
 #endif
 	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 

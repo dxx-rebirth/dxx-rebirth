@@ -230,6 +230,8 @@ void jointpos_read(PHYSFS_File *fp, jointpos &jp);
 void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
+namespace dsx {
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
+}
 
 #endif
