@@ -3663,13 +3663,15 @@ _exit_cheat:
 
 #if defined(DXX_BUILD_DESCENT_I)
 				ailp->next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
+				const auto weapon_id =
 #elif defined(DXX_BUILD_DESCENT_II)
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
-				if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-					Laser_create_new_easy( fire_vec, fire_pos, obj, weapon_id_type::ROBOT_SUPERPROX_ID, 1);
-				else
+				const auto weapon_id = (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
+					? weapon_id_type::ROBOT_SUPERPROX_ID
+					:
 #endif
-					Laser_create_new_easy( fire_vec, fire_pos, obj, weapon_id_type::PROXIMITY_ID, 1);
+					weapon_id_type::PROXIMITY_ID;
+				Laser_create_new_easy(fire_vec, fire_pos, obj, weapon_id, 1);
 
 				if (Game_mode & GM_MULTI)
 				{
