@@ -118,6 +118,7 @@ constexpr array<array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
 }};
 
 constexpr array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
+static fix Dist_to_last_fired_upon_player_pos;
 #endif
 }
 
@@ -549,28 +550,25 @@ void init_ai_objects(void)
 }
 
 //-------------------------------------------------------------------------------------------
-void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp, fix rate)
+void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fix rate)
 {
-	vms_vector	new_fvec;
-	fix			dot;
-
 	//	Not all robots can turn, eg, SPECIAL_REACTOR_ROBOT
 	if (rate == 0)
 		return;
 
-	if ((objp->type == OBJ_ROBOT) && (get_robot_id(objp) == BABY_SPIDER_ID)) {
+	if (objp.type == OBJ_ROBOT && (get_robot_id(objp) == BABY_SPIDER_ID)) {
 		physics_turn_towards_vector(goal_vector, objp, rate);
 		return;
 	}
 
-	new_fvec = goal_vector;
+	auto new_fvec = goal_vector;
 
-	dot = vm_vec_dot(goal_vector, objp->orient.fvec);
+	const fix dot = vm_vec_dot(goal_vector, objp.orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
 		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
 		vm_vec_scale(new_fvec, new_scale);
-		vm_vec_add2(new_fvec, objp->orient.fvec);
+		vm_vec_add2(new_fvec, objp.orient.fvec);
 		auto mag = vm_vec_normalize_quick(new_fvec);
 		if (mag < F1_0/256) {
 			new_fvec = goal_vector;		//	if degenerate vector, go right to goal
@@ -579,12 +577,12 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, const vobjptr_t objp,
 
 	if (Seismic_tremor_magnitude) {
 		fix			scale;
-		const auto rand_vec = make_random_vector();
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
+		const auto &&rand_vec = make_random_vector();
 		vm_vec_scale_add2(new_fvec, rand_vec, scale);
 	}
 
-	vm_vector_2_matrix(objp->orient, new_fvec, nullptr, &objp->orient.rvec);
+	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, &objp.orient.rvec);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -616,9 +614,6 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, const vobjptr_t ob
 	obj->mtype.phys_info.rotvel = curvec;
 
 }
-
-#elif defined(DXX_BUILD_DESCENT_II)
-fix Dist_to_last_fired_upon_player_pos = 0;
 #endif
 
 //	Overall_agitation affects:

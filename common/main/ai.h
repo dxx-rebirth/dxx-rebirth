@@ -121,7 +121,7 @@ extern void create_all_paths(void);
 namespace dsx {
 void create_path_to_station(vobjptridx_t objp, int max_length);
 void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *vec_to_player);
-void ai_turn_towards_vector(const vms_vector &vec_to_player, vobjptr_t obj, fix rate);
+void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
 void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
@@ -184,7 +184,6 @@ void start_boss_death_sequence(vobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern fix Dist_to_last_fired_upon_player_pos;
 extern vms_vector Last_fired_upon_player_pos;
 
 enum escort_goal_t
