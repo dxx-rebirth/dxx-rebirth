@@ -982,6 +982,11 @@ static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel,
 	return fixdiv(player_pos - robot_pos, elapsed_time) + player_vel;
 }
 
+static void compute_lead_component(fix vms_vector::*const m, vms_vector &out, const vms_vector &believed_player_pos, const vms_vector &fire_point, const vms_vector &velocity, const fix projected_time)
+{
+	out.*m = compute_lead_component(believed_player_pos.*m, fire_point.*m, velocity.*m, projected_time);
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 //	Lead the player, returning point to fire at in fire_point.
 //	Rules:
@@ -992,24 +997,22 @@ static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel,
 //		if firing a matter weapon, less leading, based on skill level.
 static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
 {
-	fix			dot, player_speed, dist_to_player, max_weapon_speed, projected_time;
-	vms_vector	player_movement_dir;
-	weapon_info	*wptr;
 	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		return 0;
 
-	player_movement_dir = ConsoleObject->mtype.phys_info.velocity;
-	player_speed = vm_vec_normalize_quick(player_movement_dir);
+	const auto &velocity = ConsoleObject->mtype.phys_info.velocity;
+	vms_vector player_movement_dir = ConsoleObject->mtype.phys_info.velocity;
+	const fix player_speed = vm_vec_normalize_quick(player_movement_dir);
 
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
 	auto vec_to_player = vm_vec_sub(believed_player_pos, fire_point);
-	dist_to_player = vm_vec_normalize_quick(vec_to_player);
+	const fix dist_to_player = vm_vec_normalize_quick(vec_to_player);
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 
-	dot = vm_vec_dot(vec_to_player, player_movement_dir);
+	const fix dot = vm_vec_dot(vec_to_player, player_movement_dir);
 
 	if ((dot < -LEAD_RANGE) || (dot > LEAD_RANGE))
 		return 0;
@@ -1017,8 +1020,8 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 	//	Looks like it might be worth trying to lead the player.
 	const auto weapon_type = get_robot_weapon(Robot_info[get_robot_id(objp)], gun_num);
 
-	wptr = &Weapon_info[weapon_type];
-	max_weapon_speed = wptr->speed[Difficulty_level];
+	const weapon_info *const wptr = &Weapon_info[weapon_type];
+	fix max_weapon_speed = wptr->speed[Difficulty_level];
 	if (max_weapon_speed < F1_0)
 		return 0;
 
@@ -1033,11 +1036,11 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 			max_weapon_speed *= (NDL-Difficulty_level);
 	}
 
-	projected_time = fixdiv(dist_to_player, max_weapon_speed);
+	const fix projected_time = fixdiv(dist_to_player, max_weapon_speed);
 
-	fire_vec.x = compute_lead_component(believed_player_pos.x, fire_point.x, ConsoleObject->mtype.phys_info.velocity.x, projected_time);
-	fire_vec.y = compute_lead_component(believed_player_pos.y, fire_point.y, ConsoleObject->mtype.phys_info.velocity.y, projected_time);
-	fire_vec.z = compute_lead_component(believed_player_pos.z, fire_point.z, ConsoleObject->mtype.phys_info.velocity.z, projected_time);
+	compute_lead_component(&vms_vector::x, fire_vec, believed_player_pos, fire_point, velocity, projected_time);
+	compute_lead_component(&vms_vector::y, fire_vec, believed_player_pos, fire_point, velocity, projected_time);
+	compute_lead_component(&vms_vector::z, fire_vec, believed_player_pos, fire_point, velocity, projected_time);
 
 	vm_vec_normalize_quick(fire_vec);
 
