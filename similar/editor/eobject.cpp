@@ -497,104 +497,91 @@ static int verify_object_seg(const vobjptridx_t objp, const vms_vector &newpos)
 		return move_object_within_mine(objp, newpos);
 }
 
+namespace {
+
+class extract_fvec_from_segment
+{
+public:
+	static vms_vector get(vcsegptr_t segp)
+	{
+		vms_vector v;
+		extract_forward_vector_from_segment(segp, v);
+		return v;
+	}
+};
+
+class extract_rvec_from_segment
+{
+public:
+	static vms_vector get(vcsegptr_t segp)
+	{
+		vms_vector v;
+		extract_right_vector_from_segment(segp, v);
+		return v;
+	}
+};
+
+class extract_uvec_from_segment
+{
+public:
+	static vms_vector get(vcsegptr_t segp)
+	{
+		vms_vector v;
+		extract_up_vector_from_segment(segp, v);
+		return v;
+	}
+};
+
+static int ObjectMoveFailed()
+{
+	editor_status("No current object, cannot move.");
+	return 1;
+}
+
+static int ObjectMovePos(const vobjptridx_t obj, vms_vector &&vec, int scale)
+{
+	vm_vec_normalize(vec);
+	const auto &&newpos = vm_vec_add(obj->pos, vm_vec_scale(vec, scale));
+	if (!verify_object_seg(obj, newpos))
+		obj->pos = newpos;
+	Update_flags |= UF_WORLD_CHANGED;
+	return 1;
+}
+
+template <typename extract_type, int direction>
+static int ObjectMove()
+{
+	const auto i = Cur_object_index;
+	if (i == object_none)
+		return ObjectMoveFailed();
+	const auto &&obj = vobjptridx(i);
+	return ObjectMovePos(obj, extract_type::get(vcsegptr(obj->segnum)), direction * OBJ_SCALE);
+}
+
+}
+
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveForward(void)
 {
-	vms_vector	fvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	auto obj = vobjptridx(Cur_object_index);
-
-	extract_forward_vector_from_segment(vcsegptr(obj->segnum), fvec);
-	vm_vec_normalize(fvec);
-
-	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_fvec_from_segment, 1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveBack(void)
 {
-	vms_vector	fvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	auto obj = vobjptridx(Cur_object_index);
-
-	extract_forward_vector_from_segment(vcsegptr(obj->segnum), fvec);
-	vm_vec_normalize(fvec);
-
-	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(fvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_fvec_from_segment, -1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveLeft(void)
 {
-	vms_vector	rvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	auto obj = vobjptridx(Cur_object_index);
-
-	extract_right_vector_from_segment(vcsegptr(obj->segnum), rvec);
-	vm_vec_normalize(rvec);
-
-	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_rvec_from_segment, -1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveRight(void)
 {
-	vms_vector	rvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	auto obj = vobjptridx(Cur_object_index);
-
-	extract_right_vector_from_segment(vcsegptr(obj->segnum), rvec);
-	vm_vec_normalize(rvec);
-
-	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(rvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_rvec_from_segment, 1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -619,51 +606,13 @@ int	ObjectSetDefault(void)
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveUp(void)
 {
-	vms_vector	uvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	auto obj = vobjptridx(Cur_object_index);
-
-	extract_up_vector_from_segment(vcsegptr(obj->segnum), uvec);
-	vm_vec_normalize(uvec);
-
-	const auto newpos = vm_vec_add(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_uvec_from_segment, 1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
 int	ObjectMoveDown(void)
 {
-	vms_vector	uvec;
-
-	if (Cur_object_index == object_none) {
-		editor_status("No current object, cannot move.");
-		return 1;
-	}
-
-	const auto &&obj = vobjptridx(Cur_object_index);
-
-	extract_up_vector_from_segment(vcsegptr(obj->segnum), uvec);
-	vm_vec_normalize(uvec);
-
-	const auto newpos = vm_vec_sub(obj->pos, vm_vec_scale(uvec, OBJ_SCALE));
-
-	if (!verify_object_seg(obj, newpos))
-		obj->pos = newpos;
-
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
+	return ObjectMove<extract_uvec_from_segment, -1>();
 }
 
 //	------------------------------------------------------------------------------------------------------
