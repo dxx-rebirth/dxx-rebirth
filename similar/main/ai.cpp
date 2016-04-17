@@ -2800,17 +2800,15 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
+							if (ready_to_fire_weapon1(ailp, 0))
+								ai_fire_laser_at_player(obj, gun_point, gun_num, Last_fired_upon_player_pos);
 							if (gun_num != 0) {
-								if (ready_to_fire_weapon1(ailp, 0))
-									ai_fire_laser_at_player(obj, gun_point, gun_num, Last_fired_upon_player_pos);
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
 									ai_fire_laser_at_player(obj, gun_point, 0, Last_fired_upon_player_pos);
 								}
-
-							} else if (ready_to_fire_weapon1(ailp, 0))
-								ai_fire_laser_at_player(obj, gun_point, gun_num, Last_fired_upon_player_pos);
+							}
 						}
 					}
 
