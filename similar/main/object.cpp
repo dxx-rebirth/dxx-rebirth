@@ -1444,9 +1444,9 @@ void dead_player_frame(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-static void start_player_death_sequence(const vobjptr_t player)
+static void start_player_death_sequence(object_base &player)
 {
-	Assert(player == ConsoleObject);
+	assert(&player == ConsoleObject);
 	if (Player_dead_state != player_dead_state::no ||
 		Dead_player_camera != NULL ||
 		((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)))
@@ -1495,10 +1495,10 @@ static void start_player_death_sequence(const vobjptr_t player)
 	PaletteRedAdd = 40;
 	Player_dead_state = player_dead_state::yes;
 
-	vm_vec_zero(player->mtype.phys_info.rotthrust);
-	vm_vec_zero(player->mtype.phys_info.thrust);
+	vm_vec_zero(player.mtype.phys_info.rotthrust);
+	vm_vec_zero(player.mtype.phys_info.thrust);
 
-	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player->segnum), player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vsegptridx(player.segnum), player.pos, &player.orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -1511,14 +1511,13 @@ static void start_player_death_sequence(const vobjptr_t player)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_letterbox();
 
-	Player_flags_save = player->flags;
-	Control_type_save = player->control_type;
-	Render_type_save = player->render_type;
+	Player_flags_save = player.flags;
+	Control_type_save = player.control_type;
+	Render_type_save = player.render_type;
 
-	player->flags &= ~OF_SHOULD_BE_DEAD;
+	player.flags &= ~OF_SHOULD_BE_DEAD;
 //	Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-	player->control_type = CT_NONE;
-	player->shields = F1_0*1000;
+	player.control_type = CT_NONE;
 
 	PALETTE_FLASH_SET(0,0,0);
 }
