@@ -4626,16 +4626,23 @@ void net_udp_leave_game()
 	net_udp_close();
 }
 
+static void net_udp_flush(RAIIsocket &s)
+{
+	if (!s)
+		return;
+	unsigned i = 0;
+	struct _sockaddr sender_addr;
+	std::array<uint8_t, UPID_MAX_SIZE> packet;
+	while (udp_receive_packet(s, packet.data(), packet.size(), &sender_addr) > 0)
+		++i;
+	if (i)
+		con_printf(CON_VERBOSE, "Flushed %u UDP packets from socket %i", i, static_cast<int>(s));
+}
+
 void net_udp_flush()
 {
-	ubyte packet[UPID_MAX_SIZE];
-	struct _sockaddr sender_addr; 
-
-	if (UDP_Socket[0])
-		while (udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr) > 0);
-
-	if (UDP_Socket[1])
-		while (udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr) > 0);
+	net_udp_flush(UDP_Socket[0]);
+	net_udp_flush(UDP_Socket[1]);
 }
 
 void net_udp_listen()
