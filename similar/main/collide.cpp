@@ -123,14 +123,14 @@ static int check_collision_delayfunc_exec()
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
-static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hitseg, short hitwall, const vms_vector &)
+static void collide_robot_and_wall(object &robot, const vsegptridx_t hitseg, short hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM))
+	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 #elif defined(DXX_BUILD_DESCENT_II)
 	const robot_info *robptr = &Robot_info[robot_id];
-	if ((robot_id == ROBOT_BRAIN) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (robot_is_companion(robptr) == 1) || (robot->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE))
+	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || robot_is_companion(robptr) == 1 || robot.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 #endif
 	{
 		auto	wall_num = hitseg->sides[hitwall].wall_num;
@@ -145,7 +145,7 @@ static void collide_robot_and_wall(const vobjptr_t robot, const vsegptridx_t hit
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (robot_is_companion(robptr) && w.type == WALL_DOOR)
 			{
-				ai_local		*ailp = &robot->ctype.ai_info.ail;
+				ai_local *const ailp = &robot.ctype.ai_info.ail;
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (w.keys != KEY_NONE)
 					{
