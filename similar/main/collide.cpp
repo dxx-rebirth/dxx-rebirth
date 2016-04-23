@@ -963,11 +963,11 @@ static void collide_robot_and_robot(const vobjptridx_t robot1, const vobjptridx_
 	return;
 }
 
-static void collide_robot_and_controlcen(vobjptr_t obj_robot, vobjptr_t obj_cc, const vms_vector &)
+static void collide_robot_and_controlcen(object_base &obj_robot, const object_base &obj_cc, const vms_vector &)
 {
-	assert(obj_cc->type == OBJ_CNTRLCEN);
-	assert(obj_robot->type == OBJ_ROBOT);
-	const auto &&hitvec = vm_vec_normalized(vm_vec_sub(obj_cc->pos, obj_robot->pos));
+	assert(obj_cc.type == OBJ_CNTRLCEN);
+	assert(obj_robot.type == OBJ_ROBOT);
+	const auto &&hitvec = vm_vec_normalized(vm_vec_sub(obj_cc.pos, obj_robot.pos));
 	bump_one_object(obj_robot, hitvec, 0);
 }
 
