@@ -81,25 +81,22 @@ static void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
-static void calc_controlcen_gun_point(reactor &r, const vobjptr_t obj, const uint_fast32_t gun_num)
+static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32_t gun_num)
 {
-	Assert(obj->type == OBJ_CNTRLCEN);
-	Assert(obj->render_type==RT_POLYOBJ);
-
-	assert(gun_num < r.n_guns);
-
 	//instance gun position & orientation
 
-	auto &gun_point = obj->ctype.reactor_info.gun_pos[gun_num];
-	auto &gun_dir = obj->ctype.reactor_info.gun_dir[gun_num];
-	const auto &&m = vm_transposed_matrix(obj->orient);
+	auto &gun_point = obj.ctype.reactor_info.gun_pos[gun_num];
+	auto &gun_dir = obj.ctype.reactor_info.gun_dir[gun_num];
+	const auto &&m = vm_transposed_matrix(obj.orient);
 	vm_vec_rotate(gun_point, r.gun_points[gun_num], m);
-	vm_vec_add2(gun_point, obj->pos);
+	vm_vec_add2(gun_point, obj.pos);
 	vm_vec_rotate(gun_dir, r.gun_dirs[gun_num], m);
 }
 
-void calc_controlcen_gun_point(const vobjptr_t obj)
+void calc_controlcen_gun_point(object &obj)
 {
+	assert(obj.type == OBJ_CNTRLCEN);
+	assert(obj.render_type == RT_POLYOBJ);
 	auto &reactor = get_reactor_definition(get_reactor_id(obj));
 	for (uint_fast32_t i = reactor.n_guns; i--;)
 		calc_controlcen_gun_point(reactor, obj, i);

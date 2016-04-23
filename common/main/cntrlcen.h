@@ -117,7 +117,7 @@ void do_controlcen_frame(vobjptridx_t obj);
 // Initialize control center for a level.
 // Call when a new level is started.
 void init_controlcen_for_level();
-void calc_controlcen_gun_point(vobjptr_t obj);
+void calc_controlcen_gun_point(object &obj);
 
 void do_controlcen_destroyed_stuff(objptridx_t objp);
 void do_controlcen_dead_frame();
