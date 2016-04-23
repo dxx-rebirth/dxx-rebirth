@@ -87,7 +87,7 @@ using std::min;
 using std::max;
 
 namespace dsx {
-static void obj_detach_all(const vobjptr_t parent);
+static void obj_detach_all(object_base &parent);
 static void obj_detach_one(const vobjptr_t sub);
 
 /*
@@ -2115,10 +2115,10 @@ void obj_detach_one(const vobjptr_t sub)
 }
 
 //dettaches all objects from this object
-void obj_detach_all(const vobjptr_t parent)
+static void obj_detach_all(object_base &parent)
 {
-	while (parent->attached_obj != object_none)
-		obj_detach_one(vobjptr(parent->attached_obj));
+	while (parent.attached_obj != object_none)
+		obj_detach_one(vobjptr(parent.attached_obj));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
