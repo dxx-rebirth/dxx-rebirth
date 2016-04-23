@@ -321,7 +321,7 @@ static void bump_two_objects(const vobjptridx_t obj0,const vobjptridx_t obj1,int
 	bump_this_object(obj0, obj1, vm_vec_negated(force), damage_flag);
 }
 
-void bump_one_object(const vobjptr_t obj0, const vms_vector &hit_dir, fix damage)
+void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage)
 {
 	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
 	phys_apply_force(obj0,hit_vec);

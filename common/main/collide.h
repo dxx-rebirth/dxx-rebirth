@@ -60,7 +60,7 @@ void collide_player_and_powerup(vobjptr_t player, vobjptridx_t powerup, const vm
 #endif
 int check_effect_blowup(vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
 void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, vcobjptr_t who);
-void bump_one_object(vobjptr_t obj0, const vms_vector &hit_dir, fix damage);
+void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
 void drop_player_eggs(vobjptridx_t playerobj);
 
 #if defined(DXX_BUILD_DESCENT_II)
