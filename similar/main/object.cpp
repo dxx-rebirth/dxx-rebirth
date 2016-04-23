@@ -88,7 +88,7 @@ using std::max;
 
 namespace dsx {
 static void obj_detach_all(object_base &parent);
-static void obj_detach_one(const vobjptr_t sub);
+static void obj_detach_one(object &sub);
 
 /*
  *  Global variables
@@ -2080,37 +2080,39 @@ void obj_attach(const vobjptridx_t parent,const vobjptridx_t sub)
 }
 
 //dettaches one object
-void obj_detach_one(const vobjptr_t sub)
+void obj_detach_one(object &sub)
 {
-	Assert(sub->flags & OF_ATTACHED);
-	Assert(sub->ctype.expl_info.attach_parent != object_none);
+	Assert(sub.flags & OF_ATTACHED);
+	Assert(sub.ctype.expl_info.attach_parent != object_none);
 
-	const auto &&parent_objp = vcobjptr(sub->ctype.expl_info.attach_parent);
+	const auto &&parent_objp = vcobjptr(sub.ctype.expl_info.attach_parent);
 	if (parent_objp->type == OBJ_NONE || parent_objp->attached_obj == object_none)
 	{
-		sub->flags &= ~OF_ATTACHED;
+		sub.flags &= ~OF_ATTACHED;
 		return;
 	}
 
-	if (sub->ctype.expl_info.next_attach != object_none) {
-		const auto &&o = vobjptr(sub->ctype.expl_info.next_attach);
-		Assert(vobjptr(o->ctype.expl_info.prev_attach) == sub);
-		o->ctype.expl_info.prev_attach = sub->ctype.expl_info.prev_attach;
+	if (sub.ctype.expl_info.next_attach != object_none)
+	{
+		const auto &&o = vobjptr(sub.ctype.expl_info.next_attach);
+		assert(vobjptr(o->ctype.expl_info.prev_attach) == &sub);
+		o->ctype.expl_info.prev_attach = sub.ctype.expl_info.prev_attach;
 	}
 
-	if (sub->ctype.expl_info.prev_attach != object_none) {
-		const auto &&o = vobjptr(sub->ctype.expl_info.prev_attach);
-		Assert(vobjptr(o->ctype.expl_info.next_attach) == sub);
-		o->ctype.expl_info.next_attach = sub->ctype.expl_info.next_attach;
+	if (sub.ctype.expl_info.prev_attach != object_none)
+	{
+		const auto &&o = vobjptr(sub.ctype.expl_info.prev_attach);
+		assert(vobjptr(o->ctype.expl_info.next_attach) == &sub);
+		o->ctype.expl_info.next_attach = sub.ctype.expl_info.next_attach;
 	}
 	else {
-		const auto &&o = vobjptr(sub->ctype.expl_info.attach_parent);
-		Assert(vobjptr(o->attached_obj) == sub);
-		o->attached_obj = sub->ctype.expl_info.next_attach;
+		const auto &&o = vobjptr(sub.ctype.expl_info.attach_parent);
+		assert(vobjptr(o->attached_obj) == &sub);
+		o->attached_obj = sub.ctype.expl_info.next_attach;
 	}
 
-	sub->ctype.expl_info.next_attach = sub->ctype.expl_info.prev_attach = object_none;
-	sub->flags &= ~OF_ATTACHED;
+	sub.ctype.expl_info.next_attach = sub.ctype.expl_info.prev_attach = object_none;
+	sub.flags &= ~OF_ATTACHED;
 
 }
 
