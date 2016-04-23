@@ -1153,35 +1153,35 @@ static void collide_player_and_marker(const vobjptr_t playerobj, const vobjptrid
 
 //	If a persistent weapon and other object is not a weapon, weaken it, else kill it.
 //	If both objects are weapons, weaken the weapon.
-static void maybe_kill_weapon(const vobjptr_t weapon, const vobjptr_t other_obj)
+static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 {
 	if (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(weapon))) {
-		weapon->flags |= OF_SHOULD_BE_DEAD;
+		weapon.flags |= OF_SHOULD_BE_DEAD;
 		return;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((weapon->mtype.phys_info.flags & PF_PERSISTENT) || (other_obj->type == OBJ_WEAPON))
+	if (weapon.mtype.phys_info.flags & PF_PERSISTENT || other_obj.type == OBJ_WEAPON)
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	Changed, 10/12/95, MK: Make weapon-weapon collisions always kill both weapons if not persistent.
 	//	Reason: Otherwise you can't use proxbombs to detonate incoming homing missiles (or mega missiles).
-	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
+	if (weapon.mtype.phys_info.flags & PF_PERSISTENT)
 #endif
 	{
 		//	Weapons do a lot of damage to weapons, other objects do much less.
-		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT)) {
-			if (other_obj->type == OBJ_WEAPON)
-				weapon->shields -= other_obj->shields/2;
+		if (!(weapon.mtype.phys_info.flags & PF_PERSISTENT)) {
+			if (other_obj.type == OBJ_WEAPON)
+				weapon.shields -= other_obj.shields/2;
 			else
-				weapon->shields -= other_obj->shields/4;
+				weapon.shields -= other_obj.shields/4;
 
-			if (weapon->shields <= 0) {
-				weapon->shields = 0;
-				weapon->flags |= OF_SHOULD_BE_DEAD;
+			if (weapon.shields <= 0) {
+				weapon.shields = 0;
+				weapon.flags |= OF_SHOULD_BE_DEAD;
 			}
 		}
 	} else
-		weapon->flags |= OF_SHOULD_BE_DEAD;
+		weapon.flags |= OF_SHOULD_BE_DEAD;
 
 // -- 	if ((weapon->mtype.phys_info.flags & PF_PERSISTENT) || (other_obj->type == OBJ_WEAPON)) {
 // -- 		//	Weapons do a lot of damage to weapons, other objects do much less.
