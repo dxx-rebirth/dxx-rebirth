@@ -1806,18 +1806,18 @@ static void collide_player_and_player(const vobjptridx_t player1, const vobjptri
 	return;
 }
 
-static objptridx_t maybe_drop_primary_weapon_egg(const vobjptr_t playerobj, int weapon_index)
+static objptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, int weapon_index)
 {
 	int weapon_flag = HAS_PRIMARY_FLAG(weapon_index);
 	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
-	auto &player_info = playerobj->ctype.player_info;
+	auto &player_info = playerobj.ctype.player_info;
 	if (player_info.primary_weapon_flags & weapon_flag)
 		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	else
 		return object_none;
 }
 
-static void maybe_drop_secondary_weapon_egg(const vobjptr_t playerobj, int weapon_index, int count)
+static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, int weapon_index, int count)
 {
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 		int max_count = min(count, 3);
