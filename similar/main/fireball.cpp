@@ -1036,10 +1036,10 @@ objptridx_t object_create_robot_egg(const vobjptr_t objp)
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-objptridx_t call_object_create_egg(const vobjptr_t objp, int count, int type, int id)
+objptridx_t call_object_create_egg(const object_base &objp, int count, int type, int id)
 {
 	if (count > 0) {
-		return object_create_player_egg(type, id, count, objp->mtype.phys_info.velocity, objp->pos, vsegptridx(objp->segnum));
+		return object_create_player_egg(type, id, count, objp.mtype.phys_info.velocity, objp.pos, vsegptridx(objp.segnum));
 	}
 
 	return object_none;
