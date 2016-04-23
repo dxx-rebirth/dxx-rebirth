@@ -1503,7 +1503,7 @@ void make_random_vector(vms_vector &vec)
 namespace dsx {
 
 //	-------------------------------------------------------------------------------------------------------------------
-static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vms_vector &vec_to_player)
+static void do_firing_stuff(object &obj, int player_visibility, const vms_vector &vec_to_player)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (player_visibility >= 1)
@@ -1512,10 +1512,10 @@ static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vm
 #endif
 	{
 		//	Now, if in robot's field of view, lock onto player
-		fix	dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
+		fix	dot = vm_vec_dot(obj.orient.fvec, vec_to_player);
 		if ((dot >= 7*F1_0/8) || (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)) {
-			ai_static	*aip = &obj->ctype.ai_info;
-			ai_local		*ailp = &obj->ctype.ai_info.ail;
+			ai_static *const aip = &obj.ctype.ai_info;
+			ai_local *const ailp = &obj.ctype.ai_info.ail;
 
 			switch (aip->GOAL_STATE) {
 				case AIS_NONE:
@@ -1530,7 +1530,7 @@ static void do_firing_stuff(const vobjptr_t obj, int player_visibility, const vm
 					break;
 			}
 		} else if (dot >= F1_0/2) {
-			ai_static	*aip = &obj->ctype.ai_info;
+			ai_static *const aip = &obj.ctype.ai_info;
 			switch (aip->GOAL_STATE) {
 				case AIS_NONE:
 				case AIS_REST:
