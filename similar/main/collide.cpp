@@ -1477,7 +1477,10 @@ static int do_boss_weapon_collision(const object_base &robot, const object &weap
 
 	//	See if should spew a bot.
 	if (weapon.ctype.laser_info.parent_type == OBJ_PLAYER)
-		if ((Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_matter[d2_boss_index]) || (!Weapon_info[get_weapon_id(weapon)].matter && Boss_spews_bots_energy[d2_boss_index])) {
+		if ((Weapon_info[get_weapon_id(weapon)].matter
+			? Boss_spews_bots_matter
+			: Boss_spews_bots_energy)[d2_boss_index])
+		{
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
 					if (boss_spew_robot(robot, collision_point) != object_none)
