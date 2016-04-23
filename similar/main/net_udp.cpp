@@ -138,9 +138,9 @@ static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #ifdef USE_TRACKER
 static _sockaddr TrackerSocket;
 static int iTrackerVerified;
-static const int require_tracker_socket = 1;
+constexpr int require_tracker_socket = 1;
 #else
-static const int require_tracker_socket = 0;
+constexpr int require_tracker_socket = 0;
 #endif
 
 static fix64 StartAbortMenuTime;
@@ -180,9 +180,8 @@ struct RAIIsocket
 	}
 	void reset()
 	{
-		SOCKET c = exchange(s, INVALID_SOCKET);
-		if (c != INVALID_SOCKET)
-			closesocket(c);
+		if (s != INVALID_SOCKET)
+			closesocket(exchange(s, INVALID_SOCKET));
 	}
 	explicit operator bool() const { return s != INVALID_SOCKET; }
 	explicit operator bool() { return static_cast<bool>(*const_cast<const RAIIsocket *>(this)); }
@@ -195,6 +194,7 @@ struct RAIIsocket
 	template <typename T> bool operator!=(T) const = delete;
 };
 
+#ifdef DXX_HAVE_GETADDRINFO
 class RAIIaddrinfo
 {
 	struct deleter
@@ -216,6 +216,7 @@ public:
 	addrinfo *get() { return result.get(); }
 	addrinfo *operator->() { return result.operator->(); }
 };
+#endif
 
 class basic_show_rule_label
 {
