@@ -1086,17 +1086,19 @@ static void explode_model(const vobjptr_t obj)
 }
 
 //if the object has a destroyed model, switch to it.  Otherwise, delete it.
-static void maybe_delete_object(const vobjptr_t del_obj)
+static void maybe_delete_object(object_base &del_obj)
 {
-	if (Dead_modelnums[del_obj->rtype.pobj_info.model_num] != -1) {
-		del_obj->rtype.pobj_info.model_num = Dead_modelnums[del_obj->rtype.pobj_info.model_num];
-		del_obj->flags |= OF_DESTROYED;
+	const auto dead_modelnum = Dead_modelnums[del_obj.rtype.pobj_info.model_num];
+	if (dead_modelnum != -1)
+	{
+		del_obj.rtype.pobj_info.model_num = dead_modelnum;
+		del_obj.flags |= OF_DESTROYED;
 	}
 	else {		//normal, multi-stage explosion
-		if (del_obj->type == OBJ_PLAYER)
-			del_obj->render_type = RT_NONE;
+		if (del_obj.type == OBJ_PLAYER)
+			del_obj.render_type = RT_NONE;
 		else
-			del_obj->flags |= OF_SHOULD_BE_DEAD;
+			del_obj.flags |= OF_SHOULD_BE_DEAD;
 	}
 }
 
