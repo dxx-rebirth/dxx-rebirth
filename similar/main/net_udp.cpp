@@ -4645,40 +4645,25 @@ void net_udp_flush()
 	net_udp_flush(UDP_Socket[1]);
 }
 
+static void net_udp_listen(RAIIsocket &sock)
+{
+	if (!sock)
+		return;
+	struct _sockaddr sender_addr;
+	std::array<uint8_t, UPID_MAX_SIZE> packet;
+	for (;;)
+	{
+		const int size = udp_receive_packet(sock, packet.data(), packet.size(), &sender_addr);
+		if (!(size > 0))
+			break;
+		net_udp_process_packet(packet.data(), sender_addr, size);
+	}
+}
+
 void net_udp_listen()
 {
-	int size;
-	ubyte packet[UPID_MAX_SIZE];
-	struct _sockaddr sender_addr;
-
-	if (UDP_Socket[0])
-	{
-		size = udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr );
-		while ( size > 0 )	{
-			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet(UDP_Socket[0], packet, UPID_MAX_SIZE, &sender_addr );
-		}
-	}
-
-	if (UDP_Socket[1])
-	{
-		size = udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr );
-		while ( size > 0 )	{
-			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet(UDP_Socket[1], packet, UPID_MAX_SIZE, &sender_addr );
-		}
-	}
-	
-#ifdef USE_TRACKER
-	if (UDP_Socket[2])
-	{
-		size = udp_receive_packet(UDP_Socket[2], packet, UPID_MAX_SIZE, &sender_addr );
-		while ( size > 0 )	{
-			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet(UDP_Socket[2], packet, UPID_MAX_SIZE, &sender_addr );
-		}
-	}
-#endif
+	range_for (auto &s, UDP_Socket)
+		net_udp_listen(s);
 }
 
 void net_udp_send_data(const ubyte * ptr, int len, int priority )
