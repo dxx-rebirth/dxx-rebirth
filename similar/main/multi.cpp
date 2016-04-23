@@ -89,7 +89,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 constexpr tt::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
-static void multi_reset_object_texture(const vobjptr_t objp);
+static void multi_reset_object_texture(object_base &objp);
 static void multi_new_bounty_target(playernum_t pnum);
 static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 }
@@ -2407,31 +2407,31 @@ void multi_reset_player_object(const vobjptr_t objp)
 	multi_reset_object_texture (objp);
 }
 
-void multi_reset_object_texture (const vobjptr_t objp)
+static void multi_reset_object_texture(object_base &objp)
 {
-	int id,i;
-
-        if (objp->type == OBJ_GHOST)
+	if (objp.type == OBJ_GHOST)
                 return;
 
-	if (Game_mode & GM_TEAM)
-		id = get_team(get_player_id(objp));
-	else
-		id = get_player_id(objp);
+	const auto player_id = get_player_id(objp);
+	const auto id = (Game_mode & GM_TEAM)
+		? get_team(player_id)
+		: player_id;
 
-	if (id == 0)
-		objp->rtype.pobj_info.alt_textures=0;
-	else {
-		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
+	auto &pobj_info = objp.rtype.pobj_info;
+	pobj_info.alt_textures = id;
+	if (id)
+	{
+		auto &model = Polygon_models[pobj_info.model_num];
+		const unsigned n_textures = model.n_textures;
+		if (N_PLAYER_SHIP_TEXTURES < n_textures)
 			Error("Too many player ship textures!\n");
 
-		for (i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++)
-			multi_player_textures[id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
+		const unsigned first_texture = model.first_texture;
+		for (unsigned i = 0; i < n_textures; ++i)
+			multi_player_textures[id - 1][i] = ObjBitmaps[ObjBitmapPtrs[first_texture + i]];
 
 		multi_player_textures[id-1][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(id-1)*2]];
 		multi_player_textures[id-1][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(id-1)*2+1]];
-
-		objp->rtype.pobj_info.alt_textures = id;
 	}
 }
 
