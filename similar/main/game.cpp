@@ -1742,7 +1742,7 @@ void FireLaser()
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
 //	This could easily be made difficulty level dependent.
-static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t powerup)
+static void powerup_grab_cheat(object &player, const vobjptridx_t powerup)
 {
 	fix	powerup_size;
 	fix	player_size;
@@ -1750,12 +1750,12 @@ static void powerup_grab_cheat(const vobjptr_t player, const vobjptridx_t poweru
 	Assert(powerup->type == OBJ_POWERUP);
 
 	powerup_size = powerup->size;
-	player_size = player->size;
+	player_size = player.size;
 
-	const auto dist = vm_vec_dist_quick(powerup->pos, player->pos);
+	const auto dist = vm_vec_dist_quick(powerup->pos, player.pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
-		const auto collision_point = vm_vec_avg(powerup->pos, player->pos);
+		const auto collision_point = vm_vec_avg(powerup->pos, player.pos);
 		collide_player_and_powerup(player, powerup, collision_point);
 	}
 }
