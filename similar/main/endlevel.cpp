@@ -135,7 +135,7 @@ static object *endlevel_camera;
 
 static void do_endlevel_flythrough(flythrough_data *flydata);
 static void draw_stars();
-static int find_exit_side(const vobjptr_t obj);
+static int find_exit_side(const object_base &obj);
 static void generate_starfield();
 static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
 
@@ -890,7 +890,7 @@ void do_endlevel_frame()
 #define MIN_D 0x100
 
 //find which side to fly out of
-int find_exit_side(const vobjptr_t obj)
+static int find_exit_side(const object_base &obj)
 {
 	vms_vector prefvec;
 	fix best_val=-f2_0;
@@ -898,9 +898,9 @@ int find_exit_side(const vobjptr_t obj)
 
 	//find exit side
 
-	vm_vec_normalized_dir_quick(prefvec,obj->pos,obj->last_pos);
+	vm_vec_normalized_dir_quick(prefvec, obj.pos, obj.last_pos);
 
-	const auto &&pseg = vcsegptr(obj->segnum);
+	const auto &&pseg = vcsegptr(obj.segnum);
 	const auto segcenter = compute_segment_center(pseg);
 
 	best_side=-1;
