@@ -1062,25 +1062,25 @@ int get_explosion_vclip(const vcobjptr_t obj, explosion_vclip_stage stage)
 }
 
 //blow up a polygon model
-static void explode_model(const vobjptr_t obj)
+static void explode_model(object_base &obj)
 {
-	Assert(obj->render_type == RT_POLYOBJ);
+	Assert(obj.render_type == RT_POLYOBJ);
 
-	const auto poly_model_num = obj->rtype.pobj_info.model_num;
+	const auto poly_model_num = obj.rtype.pobj_info.model_num;
 	const auto dying_model_num = Dying_modelnums[poly_model_num];
 	const auto model_num = (dying_model_num != -1)
-		? (obj->rtype.pobj_info.model_num = dying_model_num)
+		? (obj.rtype.pobj_info.model_num = dying_model_num)
 		: poly_model_num;
 	const auto n_models = Polygon_models[model_num].n_models;
 	if (n_models > 1) {
 		for (unsigned i = 1; i < n_models; ++i)
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(i == 5 && obj->type == OBJ_ROBOT && get_robot_id(obj) == 44))	//energy sucker energy part
+			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == 44))	//energy sucker energy part
 #endif
 				object_create_debris(obj,i);
 
 		//make parent object only draw center part
-		obj->rtype.pobj_info.subobj_flags=1;
+		obj.rtype.pobj_info.subobj_flags = 1;
 	}
 }
 
