@@ -508,14 +508,15 @@ static void nd_read_angvec(vms_angvec &v)
 	nd_read_fixang(&v.h);
 }
 
-static void nd_read_shortpos(const vobjptr_t obj)
+static void nd_read_shortpos(object_base &obj)
 {
 	ubyte render_type;
 
 	shortpos sp{};
 
-	render_type = obj->render_type;
-	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
+	render_type = obj.render_type;
+	if ((render_type == RT_POLYOBJ || render_type == RT_HOSTAGE || render_type == RT_MORPH) || obj.type == OBJ_CAMERA)
+	{
 		range_for (auto &i, sp.bytemat)
 			nd_read_byte(&(i));
 	}
@@ -529,8 +530,8 @@ static void nd_read_shortpos(const vobjptr_t obj)
 	nd_read_short(&(sp.velz));
 
 	my_extract_shortpos(obj, &sp);
-	if (obj->type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj->control_type == CT_EXPLOSION)
-		extract_orient_from_segment(&obj->orient, vcsegptr(obj->segnum));
+	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_type == CT_EXPLOSION)
+		extract_orient_from_segment(&obj.orient, vcsegptr(obj.segnum));
 
 }
 
