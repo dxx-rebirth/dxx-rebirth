@@ -85,7 +85,7 @@ struct robot_dialog
 
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
-static void call_init_ai_object(const vobjptr_t objp, ai_behavior behavior)
+static void call_init_ai_object(object &objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
 

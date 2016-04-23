@@ -176,10 +176,7 @@ int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short ob
 			else
 				hide_segment = segment_none;
 			//	robots which lunge forward to attack cannot have behavior type still.
-			if (Robot_info[get_robot_id(obj)].attack_type)
-				init_ai_object(obj, ai_behavior::AIB_NORMAL, hide_segment);
-			else
-				init_ai_object(obj, ai_behavior::AIB_STILL, hide_segment);
+				init_ai_object(obj, Robot_info[get_robot_id(obj)].attack_type ? ai_behavior::AIB_NORMAL : ai_behavior::AIB_STILL, hide_segment);
 			}
 			break;
 		}

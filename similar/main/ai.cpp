@@ -428,10 +428,10 @@ void ai_init_boss_for_ship(void)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(const vobjptr_t objp, ai_behavior behavior, segnum_t hide_segment)
+void init_ai_object(object &objp, ai_behavior behavior, segnum_t hide_segment)
 {
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	ai_static	*const aip = &objp.ctype.ai_info;
+	ai_local		*const ailp = &aip->ail;
 
 	*ailp = {};
 
@@ -470,7 +470,7 @@ void init_ai_object(const vobjptr_t objp, ai_behavior behavior, segnum_t hide_se
 
 	// This is astonishingly stupid!  This routine gets called by matcens! KILL KILL KILL!!! Point_segs_free_ptr = Point_segs;
 
-	vm_vec_zero(objp->mtype.phys_info.velocity);
+	objp.mtype.phys_info.velocity = {};
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 	aip->GOAL_STATE = AIS_SRCH;
@@ -498,7 +498,7 @@ void init_ai_object(const vobjptr_t objp, ai_behavior behavior, segnum_t hide_se
 	else
 		aip->CLOAKED = 0;
 
-	objp->mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
+	objp.mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
 	
 	aip->REMOTE_OWNER = -1;
 
