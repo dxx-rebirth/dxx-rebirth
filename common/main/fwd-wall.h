@@ -274,7 +274,7 @@ void start_wall_decloak(vsegptridx_t seg, int side);
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);
 #endif
-void blast_nearby_glass(vobjptr_t objp, fix damage);
+void blast_nearby_glass(const object &objp, fix damage);
 #endif
 
 void wclip_read(PHYSFS_File *, wclip &wc);

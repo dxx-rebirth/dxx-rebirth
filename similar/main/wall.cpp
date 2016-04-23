@@ -1448,6 +1448,7 @@ void clear_stuck_objects(void)
 
 static void bng_process_segment(const object &objp, fix damage, const vsegptridx_t segp, int depth, visited_segment_bitarray_t &visited)
 {
+	visited[segp] = true;
 	int	i, sidenum;
 
 	if (depth > MAX_BLAST_GLASS_DEPTH)
@@ -1483,7 +1484,6 @@ static void bng_process_segment(const object &objp, fix damage, const vsegptridx
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
 				if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
-					visited[segnum] = true;
 					bng_process_segment(objp, damage, segp.absolute_sibling(segnum), depth, visited);
 				}
 			}
@@ -1494,12 +1494,10 @@ static void bng_process_segment(const object &objp, fix damage, const vsegptridx
 // -----------------------------------------------------------------------------------
 //	objp is going to detonate
 //	blast nearby monitors, lights, maybe other things
-void blast_nearby_glass(const vobjptr_t objp, fix damage)
+void blast_nearby_glass(const object &objp, fix damage)
 {
 	visited_segment_bitarray_t visited;
-
-	visited[objp->segnum] = true;
-	bng_process_segment(objp, damage, vsegptridx(objp->segnum), 0, visited);
+	bng_process_segment(objp, damage, vsegptridx(objp.segnum), 0, visited);
 }
 
 struct d1wclip
