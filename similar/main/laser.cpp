@@ -1530,17 +1530,17 @@ static bool is_any_guided_missile(const vcobjptr_t obj)
 
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
-static void homing_missile_turn_towards_velocity(const vobjptr_t objp, const vms_vector &norm_vel)
+static void homing_missile_turn_towards_velocity(object_base &objp, const vms_vector &norm_vel)
 {
 	auto new_fvec = norm_vel;
 	vm_vec_scale(new_fvec, FrameTime * HOMING_MISSILE_SCALE);
-	vm_vec_add2(new_fvec, objp->orient.fvec);
+	vm_vec_add2(new_fvec, objp.orient.fvec);
 	vm_vec_normalize_quick(new_fvec);
 
 //	if ((norm_vel->x == 0) && (norm_vel->y == 0) && (norm_vel->z == 0))
 //		return;
 
-	vm_vector_2_matrix(objp->orient, new_fvec, nullptr, nullptr);
+	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, nullptr);
 }
 
 
