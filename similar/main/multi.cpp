@@ -3459,16 +3459,16 @@ tmap_info &find_required_goal_texture(ubyte t)
 }
 #endif
 
-static inline int object_allowed_in_anarchy(const vobjptr_t objp)
+static int object_allowed_in_anarchy(const object_base &objp)
 {
-	if ((objp->type==OBJ_NONE) ||
-		(objp->type==OBJ_PLAYER) ||
-		(objp->type==OBJ_POWERUP) ||
-		(objp->type==OBJ_CNTRLCEN) ||
-		(objp->type==OBJ_HOSTAGE))
+	if (objp.type == OBJ_NONE ||
+		objp.type == OBJ_PLAYER ||
+		objp.type == OBJ_POWERUP ||
+		objp.type == OBJ_CNTRLCEN ||
+		objp.type == OBJ_HOSTAGE)
 		return 1;
 #if defined(DXX_BUILD_DESCENT_II)
-	if (objp->type==OBJ_WEAPON && get_weapon_id(objp)==weapon_id_type::PMINE_ID)
+	if (objp.type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::PMINE_ID)
 		return 1;
 #endif
 	return 0;
