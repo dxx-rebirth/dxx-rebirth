@@ -811,12 +811,12 @@ static int do_silly_animation(object &objp)
 //	Current orientation of object is at:	pobj_info.anim_angles
 //	Goal orientation of object is at:		ai_info.goal_angles
 //	Delta orientation of object is at:		ai_info.delta_angles
-static void ai_frame_animation(const vobjptr_t objp)
+static void ai_frame_animation(object &objp)
 {
 	int	joint;
-	auto &pobj_info = objp->rtype.pobj_info;
+	auto &pobj_info = objp.rtype.pobj_info;
 	const auto num_joints = Polygon_models[pobj_info.model_num].n_models;
-	const auto &ail = objp->ctype.ai_info.ail;
+	const auto &ail = objp.ctype.ai_info.ail;
 	for (joint=1; joint<num_joints; joint++) {
 		auto &curang = pobj_info.anim_angles[joint];
 		auto &goalang = ail.goal_angles[joint];
