@@ -963,13 +963,12 @@ static void collide_robot_and_robot(const vobjptridx_t robot1, const vobjptridx_
 	return;
 }
 
-static void collide_robot_and_controlcen(vobjptr_t obj1, vobjptr_t obj2, const vms_vector &)
+static void collide_robot_and_controlcen(vobjptr_t obj_robot, vobjptr_t obj_cc, const vms_vector &)
 {
-	if (obj1->type == OBJ_ROBOT) {
-		std::swap(obj1, obj2);
-	}
-	const auto hitvec = vm_vec_normalized(vm_vec_sub(obj1->pos, obj2->pos));
-	bump_one_object(obj2, hitvec, 0);
+	assert(obj_cc->type == OBJ_CNTRLCEN);
+	assert(obj_robot->type == OBJ_ROBOT);
+	const auto &&hitvec = vm_vec_normalized(vm_vec_sub(obj_cc->pos, obj_robot->pos));
+	bump_one_object(obj_robot, hitvec, 0);
 }
 
 static void collide_robot_and_player(const vobjptridx_t robot, const vobjptridx_t playerobj, const vms_vector &collision_point)
