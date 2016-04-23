@@ -1107,7 +1107,7 @@ void apply_damage_to_controlcen(const vobjptridx_t controlcen, fix damage, const
 	}
 }
 
-static void collide_player_and_controlcen(const vobjptridx_t controlcen, const vobjptridx_t playerobj, const vms_vector &collision_point)
+static void collide_player_and_controlcen(const vobjptridx_t playerobj, const vobjptridx_t controlcen, const vms_vector &collision_point)
 {
 	if (get_player_id(playerobj) == Player_num) {
 		Control_center_been_hit = 1;
