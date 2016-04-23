@@ -2211,7 +2211,7 @@ static int do_any_robot_dying_frame(const vobjptridx_t)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
-objnum_t boss_spew_robot(const vobjptr_t objp, const vms_vector &pos)
+objptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos)
 {
 	int		boss_index;
 
@@ -2219,12 +2219,12 @@ objnum_t boss_spew_robot(const vobjptr_t objp, const vms_vector &pos)
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
-	const auto &&segnum = find_point_seg(pos, vsegptridx(objp->segnum));
+	const auto &&segnum = find_point_seg(pos, vsegptridx(objp.segnum));
 	if (segnum == segment_none) {
 		return object_none;
 	}	
 
-	const objptridx_t newobjp = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], &pos);
+	const auto &&newobjp = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], &pos);
  
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
 	if (newobjp != object_none) {
@@ -2240,7 +2240,7 @@ objnum_t boss_spew_robot(const vobjptr_t objp, const vms_vector &pos)
 			newobjp->mtype.phys_info.flags |= PF_USES_THRUST;
 
 			//	Now, give a big initial velocity to get moving away from boss.
-			vm_vec_sub(newobjp->mtype.phys_info.velocity, pos, objp->pos);
+			vm_vec_sub(newobjp->mtype.phys_info.velocity, pos, objp.pos);
 			vm_vec_normalize_quick(newobjp->mtype.phys_info.velocity);
 			vm_vec_scale(newobjp->mtype.phys_info.velocity, F1_0*128);
 		}
