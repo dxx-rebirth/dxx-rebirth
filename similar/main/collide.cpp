@@ -1269,14 +1269,14 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 
 }
 
-static void collide_weapon_and_clutter(const vobjptr_t weapon, const vobjptridx_t clutter, const vms_vector &collision_point)
+static void collide_weapon_and_clutter(object_base &weapon, const vobjptridx_t clutter, const vms_vector &collision_point)
 {
 	short exp_vclip = VCLIP_SMALL_EXPLOSION;
 
 	if ( clutter->shields >= 0 )
-		clutter->shields -= weapon->shields;
+		clutter->shields -= weapon.shields;
 
-	digi_link_sound_to_pos(SOUND_LASER_HIT_CLUTTER, vsegptridx(weapon->segnum), 0, collision_point, 0, F1_0);
+	digi_link_sound_to_pos(SOUND_LASER_HIT_CLUTTER, vsegptridx(weapon.segnum), 0, collision_point, 0, F1_0);
 
 	object_create_explosion(vsegptridx(clutter->segnum), collision_point, ((clutter->size/3)*3)/4, exp_vclip);
 
