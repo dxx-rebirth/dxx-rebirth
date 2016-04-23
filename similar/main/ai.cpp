@@ -252,6 +252,28 @@ static array<awareness_event, MAX_AWARENESS_EVENTS> Awareness_events;
 
 namespace dcx {
 vms_vector      Believed_player_pos;
+
+static bool silly_animation_angle(fixang vms_angvec::*const a, const vms_angvec &jp, const vms_angvec &pobjp, const int flinch_attack_scale, vms_angvec &goal_angles, vms_angvec &delta_angles)
+{
+	const fix delta_angle = jp.*a - pobjp.*a;
+	if (!delta_angle)
+		return false;
+	goal_angles.*a = jp.*a;
+	const fix delta_anim_rate = (delta_angle >= F1_0/2)
+		? -ANIM_RATE
+		: (delta_angle >= 0)
+			? ANIM_RATE
+			: (delta_angle >= -F1_0/2)
+				? -ANIM_RATE
+				: ANIM_RATE
+	;
+	const fix delta_2 = (flinch_attack_scale != 1)
+		? delta_anim_rate * flinch_attack_scale
+		: delta_anim_rate;
+	delta_angles.*a = delta_2 / DELTA_ANG_SCALE;		// complete revolutions per second
+	return true;
+}
+
 }
 
 #define	AIS_MAX	8
@@ -729,7 +751,6 @@ static int do_silly_animation(const vobjptr_t objp)
 		num_joint_positions = robot_get_anim_state(&jp_list, robot_type, gun_num, robot_state);
 
 		for (joint=0; joint<num_joint_positions; joint++) {
-			fix			delta_angle, delta_2;
 			unsigned jointnum = jp_list[joint].jointnum;
 			const vms_angvec	*jp = &jp_list[joint].angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
@@ -738,70 +759,16 @@ static int do_silly_animation(const vobjptr_t objp)
 				Int3();		// Contact Mike: incompatible data, illegal jointnum, problem in pof file?
 				continue;
 			}
-			if (jp->p != pobjp->p) {
-				if (gun_num == 0)
+			auto &ail = objp->ctype.ai_info.ail;
+			auto &goal_angles = ail.goal_angles[jointnum];
+			auto &delta_angles = ail.delta_angles[jointnum];
+			const auto animate_p = silly_animation_angle(&vms_angvec::p, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			const auto animate_b = silly_animation_angle(&vms_angvec::b, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			const auto animate_h = silly_animation_angle(&vms_angvec::h, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
+			if (gun_num == 0)
+			{
+				if (animate_p || animate_b || animate_h)
 					at_goal = 0;
-				ai_local		*ailp = &objp->ctype.ai_info.ail;
-				ailp->goal_angles[jointnum].p = jp->p;
-
-				delta_angle = jp->p - pobjp->p;
-				if (delta_angle >= F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else if (delta_angle >= 0)
-					delta_2 = ANIM_RATE;
-				else if (delta_angle >= -F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else
-					delta_2 = ANIM_RATE;
-
-				if (flinch_attack_scale != 1)
-					delta_2 *= flinch_attack_scale;
-
-				ailp->delta_angles[jointnum].p = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
-			}
-
-			if (jp->b != pobjp->b) {
-				if (gun_num == 0)
-					at_goal = 0;
-				ai_local		*ailp = &objp->ctype.ai_info.ail;
-				ailp->goal_angles[jointnum].b = jp->b;
-
-				delta_angle = jp->b - pobjp->b;
-				if (delta_angle >= F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else if (delta_angle >= 0)
-					delta_2 = ANIM_RATE;
-				else if (delta_angle >= -F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else
-					delta_2 = ANIM_RATE;
-
-				if (flinch_attack_scale != 1)
-					delta_2 *= flinch_attack_scale;
-
-				ailp->delta_angles[jointnum].b = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
-			}
-
-			if (jp->h != pobjp->h) {
-				if (gun_num == 0)
-					at_goal = 0;
-				ai_local		*ailp = &objp->ctype.ai_info.ail;
-				ailp->goal_angles[jointnum].h = jp->h;
-
-				delta_angle = jp->h - pobjp->h;
-				if (delta_angle >= F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else if (delta_angle >= 0)
-					delta_2 = ANIM_RATE;
-				else if (delta_angle >= -F1_0/2)
-					delta_2 = -ANIM_RATE;
-				else
-					delta_2 = ANIM_RATE;
-
-				if (flinch_attack_scale != 1)
-					delta_2 *= flinch_attack_scale;
-
-				ailp->delta_angles[jointnum].h = delta_2/DELTA_ANG_SCALE;		// complete revolutions per second
 			}
 		}
 
