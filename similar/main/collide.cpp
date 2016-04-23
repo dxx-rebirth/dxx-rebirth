@@ -208,18 +208,12 @@ static void apply_force_damage(const vobjptridx_t obj,fix force,const vobjptridx
 		case OBJ_ROBOT:
 		{
 			const robot_info *robptr = &Robot_info[get_robot_id(obj)];
-			if (robptr->attack_type == 1) {
-				if (other_obj->type == OBJ_WEAPON)
-					result = apply_damage_to_robot(obj,damage/4, other_obj->ctype.laser_info.parent_num);
-				else
-					result = apply_damage_to_robot(obj,damage/4, other_obj);
-			}
-			else {
-				if (other_obj->type == OBJ_WEAPON)
-					result = apply_damage_to_robot(obj,damage/2, other_obj->ctype.laser_info.parent_num);
-				else
-					result = apply_damage_to_robot(obj,damage/2, other_obj);
-			}
+			result = apply_damage_to_robot(obj, (robptr->attack_type == 1)
+				? damage / 4
+				: damage / 2,
+				(other_obj->type == OBJ_WEAPON)
+				? other_obj->ctype.laser_info.parent_num
+				: static_cast<objnum_t>(other_obj));
 
 			if (result && (other_obj->ctype.laser_info.parent_signature == ConsoleObject->signature))
 				add_points_to_score(robptr->score_value);
