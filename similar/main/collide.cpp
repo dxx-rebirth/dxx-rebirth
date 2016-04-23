@@ -1825,9 +1825,9 @@ static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, int we
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 }
 
-static void drop_missile_1_or_4(const vobjptr_t playerobj,int missile_index)
+static void drop_missile_1_or_4(const object &playerobj,int missile_index)
 {
-	unsigned num_missiles = playerobj->ctype.player_info.secondary_ammo[missile_index];
+	unsigned num_missiles = playerobj.ctype.player_info.secondary_ammo[missile_index];
 	const auto powerup_id = Secondary_weapon_to_powerup[missile_index];
 
 	if (num_missiles > 10)
