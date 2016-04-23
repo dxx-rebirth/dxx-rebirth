@@ -257,34 +257,32 @@ int newdemo_get_percent_done()	{
 
 #define VEL_PRECISION 12
 
-static void my_extract_shortpos(const vobjptr_t objp, shortpos *spp)
+static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 {
-	segnum_t segnum;
-	sbyte *sp;
+	auto sp = spp->bytemat;
+	objp.orient.rvec.x = *sp++ << MATRIX_PRECISION;
+	objp.orient.uvec.x = *sp++ << MATRIX_PRECISION;
+	objp.orient.fvec.x = *sp++ << MATRIX_PRECISION;
 
-	sp = spp->bytemat;
-	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.x = *sp++ << MATRIX_PRECISION;
+	objp.orient.rvec.y = *sp++ << MATRIX_PRECISION;
+	objp.orient.uvec.y = *sp++ << MATRIX_PRECISION;
+	objp.orient.fvec.y = *sp++ << MATRIX_PRECISION;
 
-	objp->orient.rvec.y = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.y = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.y = *sp++ << MATRIX_PRECISION;
+	objp.orient.rvec.z = *sp++ << MATRIX_PRECISION;
+	objp.orient.uvec.z = *sp++ << MATRIX_PRECISION;
+	objp.orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	objp->orient.rvec.z = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
+	segnum_t segnum = spp->segment;
+	objp.segnum = segnum;
 
-	segnum = spp->segment;
-	objp->segnum = segnum;
+	auto &v = Vertices[vsegptr(segnum)->verts[0]];
+	objp.pos.x = (spp->xo << RELPOS_PRECISION) + v.x;
+	objp.pos.y = (spp->yo << RELPOS_PRECISION) + v.y;
+	objp.pos.z = (spp->zo << RELPOS_PRECISION) + v.z;
 
-	objp->pos.x = (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
-	objp->pos.y = (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
-	objp->pos.z = (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
-
-	objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
+	objp.mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
+	objp.mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
+	objp.mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
 }
 
 static int _newdemo_read( void *buffer, int elsize, int nelem )
