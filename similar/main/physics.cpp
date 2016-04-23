@@ -166,7 +166,7 @@ int	Dont_move_ai_objects=0;
 
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
-static void do_physics_sim_rot(const vobjptr_t obj)
+static void do_physics_sim_rot(object_base &obj)
 {
 	vms_angvec	tangles;
 	//fix		rotdrag_scale;
@@ -174,12 +174,13 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 
 	Assert(FrameTime > 0);	//Get MATT if hit this!
 
-	pi = &obj->mtype.phys_info;
+	pi = &obj.mtype.phys_info;
 
 	if (!(pi->rotvel.x || pi->rotvel.y || pi->rotvel.z || pi->rotthrust.x || pi->rotthrust.y || pi->rotthrust.z))
 		return;
 
-	if (obj->mtype.phys_info.drag) {
+	if (obj.mtype.phys_info.drag)
+	{
 		int count;
 		fix drag,r,k;
 
@@ -187,27 +188,24 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 		r = FrameTime % FT;
 		k = fixdiv(r,FT);
 
-		drag = (obj->mtype.phys_info.drag*5)/2;
+		drag = (obj.mtype.phys_info.drag * 5) / 2;
 
-		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
-
-			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.rotthrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
-
+		if (obj.mtype.phys_info.flags & PF_USES_THRUST)
+		{
+			const auto accel = vm_vec_copy_scale(obj.mtype.phys_info.rotthrust, fixdiv(f1_0, obj.mtype.phys_info.mass));
 			while (count--) {
-
-				vm_vec_add2(obj->mtype.phys_info.rotvel,accel);
-
-				vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-drag);
+				vm_vec_add2(obj.mtype.phys_info.rotvel, accel);
+				vm_vec_scale(obj.mtype.phys_info.rotvel, f1_0 - drag);
 			}
 
 			//do linear scale on remaining bit of time
 
-			vm_vec_scale_add2(obj->mtype.phys_info.rotvel,accel,k);
-			vm_vec_scale(obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
+			vm_vec_scale_add2(obj.mtype.phys_info.rotvel, accel, k);
+			vm_vec_scale(obj.mtype.phys_info.rotvel, f1_0 - fixmul(k, drag));
 		}
 		else
 #if defined(DXX_BUILD_DESCENT_II)
-			if (! (obj->mtype.phys_info.flags & PF_FREE_SPINNING))
+			if (! (obj.mtype.phys_info.flags & PF_FREE_SPINNING))
 #endif
 		{
 			fix total_drag=f1_0;
@@ -219,7 +217,7 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 
 			total_drag = fixmul(total_drag,f1_0-fixmul(k,drag));
 
-			vm_vec_scale(obj->mtype.phys_info.rotvel,total_drag);
+			vm_vec_scale(obj.mtype.phys_info.rotvel, total_drag);
 		}
 
 	}
@@ -227,30 +225,33 @@ static void do_physics_sim_rot(const vobjptr_t obj)
 	//now rotate object
 
 	//unrotate object for bank caused by turn
-	if (obj->mtype.phys_info.turnroll) {
+	if (obj.mtype.phys_info.turnroll)
+	{
 		tangles.p = tangles.h = 0;
-		tangles.b = -obj->mtype.phys_info.turnroll;
+		tangles.b = -obj.mtype.phys_info.turnroll;
 		const auto &&rotmat = vm_angles_2_matrix(tangles);
-		obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
+		obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 	}
 
-	tangles.p = fixmul(obj->mtype.phys_info.rotvel.x,FrameTime);
-	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
-	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
+	const auto frametime = FrameTime;
+	tangles.p = fixmul(obj.mtype.phys_info.rotvel.x, frametime);
+	tangles.h = fixmul(obj.mtype.phys_info.rotvel.y, frametime);
+	tangles.b = fixmul(obj.mtype.phys_info.rotvel.z, frametime);
 
-	obj->orient = vm_matrix_x_matrix(obj->orient, vm_angles_2_matrix(tangles));
+	obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(tangles));
 
-	if (obj->mtype.phys_info.flags & PF_TURNROLL)
+	if (obj.mtype.phys_info.flags & PF_TURNROLL)
 		set_object_turnroll(obj);
 
 	//re-rotate object for bank caused by turn
-	if (obj->mtype.phys_info.turnroll) {
+	if (obj.mtype.phys_info.turnroll)
+	{
 		tangles.p = tangles.h = 0;
-		tangles.b = obj->mtype.phys_info.turnroll;
-		obj->orient = vm_matrix_x_matrix(obj->orient, vm_angles_2_matrix(tangles));
+		tangles.b = obj.mtype.phys_info.turnroll;
+		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(tangles));
 	}
 
-	check_and_fix_matrix(obj->orient);
+	check_and_fix_matrix(obj.orient);
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
