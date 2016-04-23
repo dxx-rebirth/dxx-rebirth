@@ -935,7 +935,7 @@ static void compute_lead_component(fix vms_vector::*const m, vms_vector &out, co
 //		Player not farther away than MAX_LEAD_DISTANCE
 //		dot(vector_to_player, player_direction) must be in -LEAD_RANGE..LEAD_RANGE
 //		if firing a matter weapon, less leading, based on skill level.
-static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
+static int lead_player(const object_base &objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
 {
 	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
 		return 0;
@@ -984,13 +984,13 @@ static int lead_player(const vobjptr_t objp, const vms_vector &fire_point, const
 
 	vm_vec_normalize_quick(fire_vec);
 
-	Assert(vm_vec_dot(fire_vec, objp->orient.fvec) < 3*F1_0/2);
+	Assert(vm_vec_dot(fire_vec, objp.orient.fvec) < 3*F1_0/2);
 
 	//	Make sure not firing at especially strange angle.  If so, try to correct.  If still bad, give up after one try.
-	if (vm_vec_dot(fire_vec, objp->orient.fvec) < F1_0/2) {
+	if (vm_vec_dot(fire_vec, objp.orient.fvec) < F1_0/2) {
 		vm_vec_add2(fire_vec, vec_to_player);
 		vm_vec_scale(fire_vec, F1_0/2);
-		if (vm_vec_dot(fire_vec, objp->orient.fvec) < F1_0/2) {
+		if (vm_vec_dot(fire_vec, objp.orient.fvec) < F1_0/2) {
 			return 0;
 		}
 	}
