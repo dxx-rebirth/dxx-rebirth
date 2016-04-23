@@ -292,6 +292,16 @@ static void frame_animation_angle(fixang vms_angvec::*const a, const fix frameti
 	}
 }
 
+static void move_toward_vector_component_assign(fix vms_vector::*const p, const vms_vector &vec_goal, const fix frametime32, vms_vector &velocity)
+{
+	velocity.*p = (velocity.*p / 2) + fixmul(vec_goal.*p, frametime32);
+}
+
+static void move_toward_vector_component_add(fix vms_vector::*const p, const vms_vector &vec_goal, const fix frametime64, const fix difficulty_scale, vms_vector &velocity)
+{
+	velocity.*p += fixmul(vec_goal.*p, frametime64) * difficulty_scale;
+}
+
 }
 
 #define	AIS_MAX	8
@@ -1179,17 +1189,17 @@ player_led: ;
 // --------------------------------------------------------------------------------------------------------------------
 //	vec_goal must be normalized, or close to it.
 //	if dot_based set, then speed is based on direction of movement relative to heading
-static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal, int dot_based)
+static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, int dot_based)
 {
-	physics_info	*pptr = &objp->mtype.phys_info;
+	auto &velocity = objp.mtype.phys_info.velocity;
 	fix				dot, max_speed;
 	robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
 	//	bash velocity vector twice as much towards player as usual.
 
-	const auto vel = vm_vec_normalized_quick(pptr->velocity);
-	dot = vm_vec_dot(vel, objp->orient.fvec);
+	const auto vel = vm_vec_normalized_quick(velocity);
+	dot = vm_vec_dot(vel, objp.orient.fvec);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	dot_based = 1;
@@ -1201,16 +1211,19 @@ static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal
 	if (dot_based && (dot < 3*F1_0/4)) {
 		//	This funny code is supposed to slow down the robot and move his velocity towards his direction
 		//	more quickly than the general code
-		pptr->velocity.x = pptr->velocity.x/2 + fixmul(vec_goal.x, FrameTime*32);
-		pptr->velocity.y = pptr->velocity.y/2 + fixmul(vec_goal.y, FrameTime*32);
-		pptr->velocity.z = pptr->velocity.z/2 + fixmul(vec_goal.z, FrameTime*32);
+		const fix frametime32 = FrameTime * 32;
+		move_toward_vector_component_assign(&vms_vector::x, vec_goal, frametime32, velocity);
+		move_toward_vector_component_assign(&vms_vector::y, vec_goal, frametime32, velocity);
+		move_toward_vector_component_assign(&vms_vector::z, vec_goal, frametime32, velocity);
 	} else {
-		pptr->velocity.x += fixmul(vec_goal.x, FrameTime*64) * (Difficulty_level+5)/4;
-		pptr->velocity.y += fixmul(vec_goal.y, FrameTime*64) * (Difficulty_level+5)/4;
-		pptr->velocity.z += fixmul(vec_goal.z, FrameTime*64) * (Difficulty_level+5)/4;
+		const fix frametime64 = FrameTime * 64;
+		const fix difficulty_scale = (Difficulty_level+5)/4;
+		move_toward_vector_component_add(&vms_vector::x, vec_goal, frametime64, difficulty_scale, velocity);
+		move_toward_vector_component_add(&vms_vector::y, vec_goal, frametime64, difficulty_scale, velocity);
+		move_toward_vector_component_add(&vms_vector::z, vec_goal, frametime64, difficulty_scale, velocity);
 	}
 
-	auto speed = vm_vec_mag_quick(pptr->velocity);
+	auto speed = vm_vec_mag_quick(velocity);
 	max_speed = robptr->max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
@@ -1222,9 +1235,9 @@ static void move_towards_vector(const vobjptr_t objp, const vms_vector &vec_goal
 		max_speed *= 2;
 
 	if (speed > max_speed) {
-		pptr->velocity.x = (pptr->velocity.x*3)/4;
-		pptr->velocity.y = (pptr->velocity.y*3)/4;
-		pptr->velocity.z = (pptr->velocity.z*3)/4;
+		velocity.x = (velocity.x * 3) / 4;
+		velocity.y = (velocity.y * 3) / 4;
+		velocity.z = (velocity.z * 3) / 4;
 	}
 }
 
