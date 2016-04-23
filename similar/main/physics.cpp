@@ -125,18 +125,19 @@ static void do_physics_align_object(object_base &obj)
 
 }
 
-static void set_object_turnroll(const vobjptr_t obj)
+static void set_object_turnroll(object_base &obj)
 {
 	fixang desired_bank;
 
-	desired_bank = -fixmul(obj->mtype.phys_info.rotvel.y,TURNROLL_SCALE);
+	desired_bank = -fixmul(obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
 
-	if (obj->mtype.phys_info.turnroll != desired_bank) {
+	if (obj.mtype.phys_info.turnroll != desired_bank)
+	{
 		fixang delta_ang,max_roll;
 
 		max_roll = fixmul(ROLL_RATE,FrameTime);
 
-		delta_ang = desired_bank - obj->mtype.phys_info.turnroll;
+		delta_ang = desired_bank - obj.mtype.phys_info.turnroll;
 
 		if (labs(delta_ang) < max_roll)
 			max_roll = delta_ang;
@@ -144,7 +145,7 @@ static void set_object_turnroll(const vobjptr_t obj)
 			if (delta_ang < 0)
 				max_roll = -max_roll;
 
-		obj->mtype.phys_info.turnroll += max_roll;
+		obj.mtype.phys_info.turnroll += max_roll;
 	}
 
 }
