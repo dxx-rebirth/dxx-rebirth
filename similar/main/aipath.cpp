@@ -1523,27 +1523,27 @@ int	Player_following_path_flag=0;
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-static void player_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_point)
+static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_point)
 {
-	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
-	vms_vector	cur_pos = objp->pos;
+	const auto &cur_vel = objp.mtype.phys_info.velocity;
+	const auto &cur_pos = objp.pos;
 	fix			speed_scale;
 	fix			dot;
-	fix			max_speed;
 
+	const fix max_speed =
 #if defined(DXX_BUILD_DESCENT_I)
-	max_speed = F1_0*50;
+	F1_0*50;
 #elif defined(DXX_BUILD_DESCENT_II)
-	max_speed = Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
+	Robot_info[get_robot_id(objp)].max_speed[Difficulty_level];
 #endif
 
 	const auto norm_vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, cur_pos));
 	auto norm_cur_vel = vm_vec_normalized_quick(cur_vel);
-	const auto norm_fvec = vm_vec_normalized_quick(objp->orient.fvec);
+	const auto &&norm_fvec = vm_vec_normalized_quick(objp.orient.fvec);
 
 	dot = vm_vec_dot(norm_vec_to_goal, norm_fvec);
 #if defined(DXX_BUILD_DESCENT_II)
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	ai_local *const ailp = &objp.ctype.ai_info.ail;
 	if (ailp->mode == ai_mode::AIM_SNIPE_RETREAT_BACKWARDS) {
 		dot = -dot;
 	}
@@ -1570,7 +1570,7 @@ static void player_path_set_orient_and_vel(const vobjptr_t objp, const vms_vecto
 
 	speed_scale = fixmul(max_speed, dot);
 	vm_vec_scale(norm_cur_vel, speed_scale);
-	objp->mtype.phys_info.velocity = norm_cur_vel;
+	objp.mtype.phys_info.velocity = norm_cur_vel;
 	ai_turn_towards_vector(norm_vec_to_goal, objp, F1_0);
 }
 
