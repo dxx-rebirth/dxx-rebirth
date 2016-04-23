@@ -274,6 +274,24 @@ static bool silly_animation_angle(fixang vms_angvec::*const a, const vms_angvec 
 	return true;
 }
 
+static void frame_animation_angle(fixang vms_angvec::*const a, const fix frametime, const vms_angvec &deltaang, const vms_angvec &goalang, vms_angvec &curang)
+{
+	fix delta_to_goal = goalang.*a - curang.*a;
+	if (delta_to_goal > 32767)
+		delta_to_goal = delta_to_goal - 65536;
+	else if (delta_to_goal < -32767)
+		delta_to_goal = 65536 + delta_to_goal;
+	if (delta_to_goal)
+	{
+		const fix scaled_delta_angle = fixmul(deltaang.*a, frametime) * DELTA_ANG_SCALE;
+		auto &ca = curang.*a;
+		if (abs(delta_to_goal) < abs(scaled_delta_angle))
+			ca = goalang.*a;
+		else
+			ca += scaled_delta_angle;
+	}
+}
+
 }
 
 #define	AIS_MAX	8
@@ -796,56 +814,19 @@ static int do_silly_animation(object &objp)
 static void ai_frame_animation(const vobjptr_t objp)
 {
 	int	joint;
-	auto num_joints = Polygon_models[objp->rtype.pobj_info.model_num].n_models;
+	auto &pobj_info = objp->rtype.pobj_info;
+	const auto num_joints = Polygon_models[pobj_info.model_num].n_models;
+	const auto &ail = objp->ctype.ai_info.ail;
 	for (joint=1; joint<num_joints; joint++) {
-		fix			delta_to_goal;
-		fix			scaled_delta_angle;
-		vms_angvec	*curangp = &objp->rtype.pobj_info.anim_angles[joint];
-		ai_local		*ailp = &objp->ctype.ai_info.ail;
-		vms_angvec	*goalangp = &ailp->goal_angles[joint];
-		vms_angvec	*deltaangp = &ailp->delta_angles[joint];
+		auto &curang = pobj_info.anim_angles[joint];
+		auto &goalang = ail.goal_angles[joint];
+		auto &deltaang = ail.delta_angles[joint];
 
-		delta_to_goal = goalangp->p - curangp->p;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->p, FrameTime) * DELTA_ANG_SCALE;
-			curangp->p += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->p = goalangp->p;
-		}
-
-		delta_to_goal = goalangp->b - curangp->b;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->b, FrameTime) * DELTA_ANG_SCALE;
-			curangp->b += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->b = goalangp->b;
-		}
-
-		delta_to_goal = goalangp->h - curangp->h;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->h, FrameTime) * DELTA_ANG_SCALE;
-			curangp->h += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->h = goalangp->h;
-		}
-
+		const fix frametime = FrameTime;
+		frame_animation_angle(&vms_angvec::p, frametime, deltaang, goalang, curang);
+		frame_animation_angle(&vms_angvec::b, frametime, deltaang, goalang, curang);
+		frame_animation_angle(&vms_angvec::h, frametime, deltaang, goalang, curang);
 	}
-
 }
 
 // ----------------------------------------------------------------------------------
