@@ -1579,18 +1579,19 @@ void obj_relink_all(void)
 }
 
 //process a continuously-spinning object
-static void spin_object(const vobjptr_t obj)
+static void spin_object(object_base &obj)
 {
 	vms_angvec rotangs;
-	Assert(obj->movement_type == MT_SPINNING);
+	assert(obj.movement_type == MT_SPINNING);
 
-	rotangs.p = fixmul(obj->mtype.spin_rate.x,FrameTime);
-	rotangs.h = fixmul(obj->mtype.spin_rate.y,FrameTime);
-	rotangs.b = fixmul(obj->mtype.spin_rate.z,FrameTime);
+	const fix frametime = FrameTime;
+	rotangs.p = fixmul(obj.mtype.spin_rate.x, frametime);
+	rotangs.h = fixmul(obj.mtype.spin_rate.y, frametime);
+	rotangs.b = fixmul(obj.mtype.spin_rate.z, frametime);
 
 	const auto &&rotmat = vm_angles_2_matrix(rotangs);
-	obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
-	check_and_fix_matrix(obj->orient);
+	obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
+	check_and_fix_matrix(obj.orient);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
