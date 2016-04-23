@@ -685,9 +685,9 @@ static csegptr_t powerup_nearby_aux(const vcsegptr_t segnum, powerup_type_t obje
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if some powerup is nearby (within 3 segments).
-static csegptr_t weapon_nearby(const vobjptr_t objp, powerup_type_t weapon_id)
+static csegptr_t weapon_nearby(const object_base &objp, powerup_type_t weapon_id)
 {
-	return powerup_nearby_aux(vcsegptr(objp->segnum), weapon_id, 2);
+	return powerup_nearby_aux(vcsegptr(objp.segnum), weapon_id, 2);
 }
 
 //	------------------------------------------------------------------------------------------------------
