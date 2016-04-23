@@ -1124,7 +1124,7 @@ static void collide_player_and_controlcen(const vobjptridx_t controlcen, const v
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void collide_player_and_marker(const vobjptr_t playerobj, const vobjptridx_t marker, const vms_vector &)
+static void collide_player_and_marker(const object_base &playerobj, const vobjptridx_t marker, const vms_vector &)
 {
 	if (get_player_id(playerobj)==Player_num) {
 		int drawn;
