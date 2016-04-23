@@ -70,7 +70,7 @@ void check_and_fix_matrix(vms_matrix &m)
 }
 
 
-static void do_physics_align_object(const vobjptr_t obj)
+static void do_physics_align_object(object_base &obj)
 {
 	vms_vector desired_upvec;
 	fixang delta_ang,roll_ang;
@@ -81,9 +81,9 @@ static void do_physics_align_object(const vobjptr_t obj)
 
 	//find side of segment that player is most alligned with
 
-	range_for (auto &i, Segments[obj->segnum].sides)
+	range_for (auto &i, vcsegptr(obj.segnum)->sides)
 	{
-		const auto d = vm_vec_dot(i.normals[0], obj->orient.uvec);
+		const auto d = vm_vec_dot(i.normals[0], obj.orient.uvec);
 
 		if (largest_d < d)
 		{
@@ -101,14 +101,15 @@ static void do_physics_align_object(const vobjptr_t obj)
 		else
 		desired_upvec = best_side->normals[0];
 
-	if (labs(vm_vec_dot(desired_upvec,obj->orient.fvec)) < f1_0/2) {
+	if (labs(vm_vec_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
+	{
 		vms_angvec tangles;
 		
-		const auto temp_matrix = vm_vector_2_matrix(obj->orient.fvec,&desired_upvec,nullptr);
+		const auto temp_matrix = vm_vector_2_matrix(obj.orient.fvec, &desired_upvec, nullptr);
 
-		delta_ang = vm_vec_delta_ang(obj->orient.uvec,temp_matrix.uvec,obj->orient.fvec);
+		delta_ang = vm_vec_delta_ang(obj.orient.uvec, temp_matrix.uvec, obj.orient.fvec);
 
-		delta_ang += obj->mtype.phys_info.turnroll;
+		delta_ang += obj.mtype.phys_info.turnroll;
 
 		if (abs(delta_ang) > DAMP_ANG) {
 			roll_ang = fixmul(FrameTime,ROLL_RATE);
@@ -118,7 +119,7 @@ static void do_physics_align_object(const vobjptr_t obj)
 
 			tangles.p = tangles.h = 0;  tangles.b = roll_ang;
 			const auto &&rotmat = vm_angles_2_matrix(tangles);
-			obj->orient = vm_matrix_x_matrix(obj->orient,rotmat);
+			obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 		}
 	}
 
