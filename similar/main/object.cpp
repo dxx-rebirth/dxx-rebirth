@@ -564,10 +564,10 @@ namespace dsx {
 // -----------------------------------------------------------------------------
 //this routine checks to see if an robot rendered near the middle of
 //the screen, and if so and the player had fired, "warns" the robot
-static void set_robot_location_info(const vobjptr_t objp)
+static void set_robot_location_info(object &objp)
 {
 	if (Player_fired_laser_this_frame != object_none) {
-		const auto temp = g3_rotate_point(objp->pos);
+		const auto &&temp = g3_rotate_point(objp.pos);
 		if (temp.p3_codes & CC_BEHIND)		//robot behind the screen
 			return;
 
@@ -575,12 +575,10 @@ static void set_robot_location_info(const vobjptr_t objp)
 		//completely ignores z, which may not be good
 
 		if ((abs(temp.p3_x) < F1_0*4) && (abs(temp.p3_y) < F1_0*4)) {
-			objp->ctype.ai_info.danger_laser_num = Player_fired_laser_this_frame;
-			objp->ctype.ai_info.danger_laser_signature = vcobjptr(Player_fired_laser_this_frame)->signature;
+			objp.ctype.ai_info.danger_laser_num = Player_fired_laser_this_frame;
+			objp.ctype.ai_info.danger_laser_signature = vcobjptr(Player_fired_laser_this_frame)->signature;
 		}
 	}
-
-
 }
 
 //	------------------------------------------------------------------------------------------------------------------
