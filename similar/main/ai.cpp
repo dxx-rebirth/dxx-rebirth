@@ -716,12 +716,12 @@ int player_is_visible_from_object(const vobjptridx_t objp, vms_vector &pos, fix 
 
 // ------------------------------------------------------------------------------------------------------------------
 //	Return 1 if animates, else return 0
-static int do_silly_animation(const vobjptr_t objp)
+static int do_silly_animation(object &objp)
 {
 	const jointpos 		*jp_list;
 	int				robot_type, gun_num, robot_state, num_joint_positions;
-	polyobj_info	*pobj_info = &objp->rtype.pobj_info;
-	ai_static		*aip = &objp->ctype.ai_info;
+	polyobj_info	*const pobj_info = &objp.rtype.pobj_info;
+	auto &aip = objp.ctype.ai_info;
 	int				num_guns, at_goal;
 	int				attack_type;
 	int				flinch_attack_scale = 1;
@@ -736,7 +736,7 @@ static int do_silly_animation(const vobjptr_t objp)
 	}
 
 	//	This is a hack.  All positions should be based on goal_state, not GOAL_STATE.
-	robot_state = Mike_to_matt_xlate[aip->GOAL_STATE];
+	robot_state = Mike_to_matt_xlate[aip.GOAL_STATE];
 	// previous_robot_state = Mike_to_matt_xlate[aip->CURRENT_STATE];
 
 	if (attack_type) // && ((robot_state == AS_FIRE) || (robot_state == AS_RECOIL)))
@@ -750,16 +750,16 @@ static int do_silly_animation(const vobjptr_t objp)
 
 		num_joint_positions = robot_get_anim_state(&jp_list, robot_type, gun_num, robot_state);
 
+		auto &ail = aip.ail;
 		for (joint=0; joint<num_joint_positions; joint++) {
 			unsigned jointnum = jp_list[joint].jointnum;
 			const vms_angvec	*jp = &jp_list[joint].angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
 
-			if (jointnum >= Polygon_models[objp->rtype.pobj_info.model_num].n_models) {
+			if (jointnum >= Polygon_models[objp.rtype.pobj_info.model_num].n_models) {
 				Int3();		// Contact Mike: incompatible data, illegal jointnum, problem in pof file?
 				continue;
 			}
-			auto &ail = objp->ctype.ai_info.ail;
 			auto &goal_angles = ail.goal_angles[jointnum];
 			auto &delta_angles = ail.delta_angles[jointnum];
 			const auto animate_p = silly_animation_angle(&vms_angvec::p, *jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
@@ -774,19 +774,16 @@ static int do_silly_animation(const vobjptr_t objp)
 
 		if (at_goal) {
 			//ai_static	*aip = &objp->ctype.ai_info;
-			ai_local		*ailp = &objp->ctype.ai_info.ail;
-			ailp->achieved_state[gun_num] = ailp->goal_state[gun_num];
-			if (ailp->achieved_state[gun_num] == AIS_RECO)
-				ailp->goal_state[gun_num] = AIS_FIRE;
-
-			if (ailp->achieved_state[gun_num] == AIS_FLIN)
-				ailp->goal_state[gun_num] = AIS_LOCK;
-
+			ail.achieved_state[gun_num] = ail.goal_state[gun_num];
+			if (ail.achieved_state[gun_num] == AIS_RECO)
+				ail.goal_state[gun_num] = AIS_FIRE;
+			else if (ail.achieved_state[gun_num] == AIS_FLIN)
+				ail.goal_state[gun_num] = AIS_LOCK;
 		}
 	}
 
 	if (at_goal == 1) //num_guns)
-		aip->CURRENT_STATE = aip->GOAL_STATE;
+		aip.CURRENT_STATE = aip.GOAL_STATE;
 
 	return 1;
 }
