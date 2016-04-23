@@ -549,12 +549,12 @@ void toggle_headlight_active()
 #define MAX_DIST_LOG	6							//log(MAX_DIST-expressed-as-integer)
 #define MAX_DIST		(f1_0<<MAX_DIST_LOG)	//no light beyond this dist
 
-static fix compute_headlight_light_on_object(const vobjptr_t objp)
+static fix compute_headlight_light_on_object(const object_base &objp)
 {
 	fix	light;
 
 	//	Let's just illuminate players and robots for speed reasons, ok?
-	if ((objp->type != OBJ_ROBOT) && (objp->type	!= OBJ_PLAYER))
+	if (objp.type != OBJ_ROBOT && objp.type != OBJ_PLAYER)
 		return 0;
 
 	light = 0;
@@ -562,7 +562,7 @@ static fix compute_headlight_light_on_object(const vobjptr_t objp)
 	range_for (const auto light_objp, partial_const_range(Headlights, Num_headlights))
 	{
 		fix			dot, dist;
-		auto vec_to_obj = vm_vec_sub(objp->pos, light_objp->pos);
+		auto vec_to_obj = vm_vec_sub(objp.pos, light_objp->pos);
 		dist = vm_vec_normalize_quick(vec_to_obj);
 		if (dist > 0) {
 			dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
