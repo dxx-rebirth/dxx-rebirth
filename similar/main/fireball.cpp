@@ -344,12 +344,11 @@ void explode_badass_player(const vobjptridx_t objp)
 
 #define DEBRIS_LIFE (f1_0 * (PERSISTENT_DEBRIS?60:2))		//lifespan in seconds
 
-static void object_create_debris(const vobjptr_t parent, int subobj_num)
+static void object_create_debris(const object_base &parent, int subobj_num)
 {
-	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
+	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
-	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vsegptridx(parent->segnum), parent->pos,
-				&parent->orient,Polygon_models[parent->rtype.pobj_info.model_num].submodel_rads[subobj_num],
+	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
 	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
@@ -363,9 +362,9 @@ static void object_create_debris(const vobjptr_t parent, int subobj_num)
 
 	//Set polygon-object-specific data
 
-	obj->rtype.pobj_info.model_num = parent->rtype.pobj_info.model_num;
+	obj->rtype.pobj_info.model_num = parent.rtype.pobj_info.model_num;
 	obj->rtype.pobj_info.subobj_flags = 1<<subobj_num;
-	obj->rtype.pobj_info.tmap_override = parent->rtype.pobj_info.tmap_override;
+	obj->rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
 
@@ -375,7 +374,7 @@ static void object_create_debris(const vobjptr_t parent, int subobj_num)
 	vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
 	vm_vec_scale(obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
 
-	vm_vec_add2(obj->mtype.phys_info.velocity,parent->mtype.phys_info.velocity);
+	vm_vec_add2(obj->mtype.phys_info.velocity, parent.mtype.phys_info.velocity);
 
 	// -- used to be: Notice, not random! vm_vec_make(&obj->mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
 	obj->mtype.phys_info.rotvel = {d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000};
@@ -383,7 +382,7 @@ static void object_create_debris(const vobjptr_t parent, int subobj_num)
 
 	obj->lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
 
-	obj->mtype.phys_info.mass = fixmuldiv(parent->mtype.phys_info.mass,obj->size,parent->size);
+	obj->mtype.phys_info.mass = fixmuldiv(parent.mtype.phys_info.mass, obj->size, parent.size);
 	obj->mtype.phys_info.drag = 0; //fl2f(0.2);		//parent->mtype.phys_info.drag;
 
 	if (PERSISTENT_DEBRIS)
