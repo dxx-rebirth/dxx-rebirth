@@ -4111,7 +4111,7 @@ void ai_do_cloak_stuff(void)
 
 // ----------------------------------------------------------------------------
 // Returns false if awareness is considered too puny to add, else returns true.
-static int add_awareness_event(const vobjptr_t objp, player_awareness_type_t type)
+static int add_awareness_event(const object_base &objp, player_awareness_type_t type)
 {
 	// If player cloaked and hit a robot, then increase awareness
 	if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION ||
@@ -4122,14 +4122,14 @@ static int add_awareness_event(const vobjptr_t objp, player_awareness_type_t typ
 	if (Num_awareness_events < MAX_AWARENESS_EVENTS) {
 		if (type == player_awareness_type_t::PA_WEAPON_WALL_COLLISION ||
 			type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
-			if (objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::VULCAN_ID)
+			if (objp.type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::VULCAN_ID)
 				if (d_rand() > 3276)
 					return 0;       // For vulcan cannon, only about 1/10 actually cause awareness
 
-		Awareness_events[Num_awareness_events].segnum = objp->segnum;
-		Awareness_events[Num_awareness_events].pos = objp->pos;
-		Awareness_events[Num_awareness_events].type = type;
-		Num_awareness_events++;
+		auto &e = Awareness_events[Num_awareness_events++];
+		e.segnum = objp.segnum;
+		e.pos = objp.pos;
+		e.type = type;
 	} else {
 		//Int3();   // Hey -- Overflowed Awareness_events, make more or something
 		// This just gets ignored, so you can just
