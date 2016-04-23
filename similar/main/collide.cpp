@@ -2246,17 +2246,15 @@ void collide_robot_and_materialization_center(const vobjptridx_t objp)
 
 }
 
-void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t powerup, const vms_vector &)
+void collide_player_and_powerup(object &playerobj, const vobjptridx_t powerup, const vms_vector &)
 {
 	if (!Endlevel_sequence &&
 		Player_dead_state == player_dead_state::no &&
 		get_player_id(playerobj) == Player_num)
 	{
-		int powerup_used;
-
-		powerup_used = do_powerup(powerup);
-
-		if (powerup_used)	{
+		const auto powerup_used = do_powerup(powerup);
+		if (powerup_used)
+		{
 			powerup->flags |= OF_SHOULD_BE_DEAD;
 			if (Game_mode & GM_MULTI)
 				multi_send_remobj(powerup);
@@ -2266,13 +2264,13 @@ void collide_player_and_powerup(const vobjptr_t playerobj, const vobjptridx_t po
 	{
 		switch (get_powerup_id(powerup)) {
 			case POW_KEY_BLUE:
-				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY;
+				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY;
 				break;
 			case POW_KEY_RED:
-				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_RED_KEY;
+				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_RED_KEY;
 				break;
 			case POW_KEY_GOLD:
-				playerobj->ctype.player_info.powerup_flags |= PLAYER_FLAGS_GOLD_KEY;
+				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_GOLD_KEY;
 				break;
 			default:
 				break;
