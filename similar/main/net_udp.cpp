@@ -3826,7 +3826,7 @@ int net_udp_setup_game()
 	Netgame.Allow_marker_view=1;
 #endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
-	Netgame.PacketsPerSec=10;
+	Netgame.PacketsPerSec=DEFAULT_PPS;
 	snprintf(Netgame.game_name.data(), Netgame.game_name.size(), "%s%s", static_cast<const char *>(get_local_player().callsign), TXT_S_GAME );
 	reset_UDP_MyPort();
 	Netgame.BrightPlayers = 1;

@@ -102,6 +102,7 @@ extern int multi_protocol; // set and determinate used protocol
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
+#define DEFAULT_PPS 30
 #define MIN_PPS 5
 #define MAX_PPS 40
 
