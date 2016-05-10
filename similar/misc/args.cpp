@@ -105,7 +105,7 @@ static void AppendIniArgs(const char *filename, Arglist &Args)
 		PHYSFSX_gets_line_t<1024> line;
 		while (Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
-			const auto separator = " ";
+			const auto separator = " \t\n\v\f\r";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
 			{
 				if (*token == ';')
@@ -449,13 +449,6 @@ bool InitArgs( int argc,char **argv )
 	Inilist ini;
 	try {
 		{
-			Arglist Args;
-			Args.reserve(argc);
-			range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
-				Args.push_back(i);
-			ReadCmdArgs(ini, Args);
-		}
-		{
 			assert(ini.empty());
 #if defined(DXX_BUILD_DESCENT_I)
 			const auto INI_FILENAME = "d1x.ini";
@@ -464,6 +457,13 @@ bool InitArgs( int argc,char **argv )
 #endif
 			ini.emplace_back(INI_FILENAME);
 			ReadIniArgs(ini);
+		}
+		{
+			Arglist Args;
+			Args.reserve(argc);
+			range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
+				Args.push_back(i);
+			ReadCmdArgs(ini, Args);
 		}
 		PostProcessGameArg();
 		return true;
