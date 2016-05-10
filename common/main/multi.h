@@ -765,6 +765,8 @@ void save_hoard_data(void);
 }
 #endif
 
+extern void show_netgame_info(struct netgame_info *netgame);
+
 //how to encode missiles & flares in weapon packets
 #define MISSILE_ADJUST  100
 #define FLARE_ADJUST    127

@@ -758,6 +758,11 @@ static window_event_result HandleSystemKey(int key)
 
 	switch (key)
 	{
+                KEY_MAC( case KEY_COMMAND+KEY_PAUSE+KEY_SHIFTED: )
+                case KEY_PAUSE+KEY_SHIFTED:
+                        if (Game_mode & GM_MULTI)
+                                show_netgame_info(&Netgame);
+                        break;
 		KEY_MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE:
 			do_game_pause();	break;
