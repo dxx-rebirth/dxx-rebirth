@@ -3859,7 +3859,7 @@ int net_udp_setup_game()
 	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
 	nm_set_item_text(m[optnum], TXT_DESCRIPTION); optnum++;
 
-	nm_set_item_input(m[optnum], Netgame.game_name); optnum++;
+	nm_set_item_input(m[optnum], NETGAME_NAME_LEN, Netgame.game_name.data()); optnum++;
 
 #define DXX_LEVEL_FORMAT_LEADER	"%s (1-%d"
 #define DXX_LEVEL_FORMAT_TRAILER	")"
