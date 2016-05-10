@@ -1554,7 +1554,7 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 					objp->ctype.ai_info.SUBMODE = AISM_GOHIDE;
 					break;
 				case ai_behavior::AIB_STILL:
-					objp->ctype.ai_info.ail.mode = ai_mode::AIM_CHASE_OBJECT;
+                                        // objp->ctype.ai_info.ail.mode = ai_mode::AIM_CHASE_OBJECT; // NOTE: Should be triggered but causes unwanted movements with bosses. I leave this here for future reference.
 					break;
 				case ai_behavior::AIB_FOLLOW_PATH:
 #elif defined(DXX_BUILD_DESCENT_II)
