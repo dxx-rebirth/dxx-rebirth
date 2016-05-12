@@ -105,7 +105,7 @@ static void AppendIniArgs(const char *filename, Arglist &Args)
 		PHYSFSX_gets_line_t<1024> line;
 		while (Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f))
 		{
-			const auto separator = " \t\n\v\f\r";
+			const auto separator = " \t";
 			for(char *token = strtok(line, separator); token != NULL; token = strtok(NULL, separator))
 			{
 				if (*token == ';')
