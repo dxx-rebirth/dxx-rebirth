@@ -4079,8 +4079,8 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
 	short last_frame_length;
 
-	auto outfile = PHYSFSX_openWriteBuffered(outname);
-	if (!outfile) {
+	const auto &&outfp = PHYSFSX_openWriteBuffered(outname);
+	if (!outfp) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
 		newdemo_stop_playback();
 		return;
@@ -4112,16 +4112,16 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 		else
 			bytes_to_read = BUF_SIZE;
 		read_elems = PHYSFS_read(infile, buf, 1, bytes_to_read);
-		PHYSFS_write(outfile, buf, 1, read_elems);
+		PHYSFS_write(outfp, buf, 1, read_elems);
 		stop_loc -= read_elems;
 	}
-	stop_loc = PHYSFS_tell(outfile);
+	stop_loc = PHYSFS_tell(outfp);
 	PHYSFS_seek(infile, trailer_start);
 	while ((read_elems = PHYSFS_read(infile, buf, 1, BUF_SIZE)) != 0)
-		PHYSFS_write(outfile, buf, 1, read_elems);
-	PHYSFS_seek(outfile, stop_loc);
-	PHYSFS_seek(outfile, PHYSFS_tell(infile) + 1);
-	PHYSFS_write(outfile, &last_frame_length, 2, 1);
+		PHYSFS_write(outfp, buf, 1, read_elems);
+	PHYSFS_seek(outfp, stop_loc);
+	PHYSFS_seek(outfp, PHYSFS_tell(infile) + 1);
+	PHYSFS_write(outfp, &last_frame_length, 2, 1);
 	newdemo_stop_playback();
 
 }
