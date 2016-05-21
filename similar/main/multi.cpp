@@ -4693,7 +4693,6 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 void multi_restore_game(ubyte slot, uint id)
 {
 	char filename[PATH_MAX];
-	int i;
 	int thisid;
 
 	if ((Network_status == NETSTAT_ENDLEVEL) || (Control_center_destroyed))
@@ -4701,7 +4700,7 @@ void multi_restore_game(ubyte slot, uint id)
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%d"), static_cast<const char *>(get_local_player().callsign), slot);
    
-	for (i = 0; i < N_players; i++)
+	for (unsigned i = 0, n = N_players; i < n; ++i)
 		multi_strip_robots(i);
 	if (multi_i_am_master()) // put all players to wait-state again so we can sync up properly
 		range_for (auto &i, Players)
