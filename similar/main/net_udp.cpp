@@ -3798,7 +3798,6 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 
 int net_udp_setup_game()
 {
-	int i;
 	int optnum;
 	param_opt opt;
 	auto &m = opt.m;
@@ -3919,6 +3918,7 @@ int net_udp_setup_game()
 
 	Assert(optnum <= 20);
 
+	int i;
 	i = newmenu_do1(nullptr, TXT_NETGAME_SETUP, optnum, m.data(), net_udp_game_param_handler, &opt, opt.start_game);
 
 	if (i < 0)
