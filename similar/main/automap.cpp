@@ -605,8 +605,7 @@ static void draw_automap(automap *am)
 				if (objp->type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
-					const auto closest_color = BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b);
-					draw_player(objp, closest_color);
+					draw_player(objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
 				}
 			}
 		}
