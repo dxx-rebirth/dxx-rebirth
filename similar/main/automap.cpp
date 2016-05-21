@@ -1050,13 +1050,12 @@ void draw_all_edges(automap *am)
 	int i,j;
 	unsigned nbright = 0;
 	ubyte nfacing,nnfacing;
-	Edge_info *e;
 	fix distance;
 	fix min_distance = 0x7fffffff;
 
 	for (i=0; i<=am->highest_edge_index; i++ )	{
 		//e = &am->edges[Edge_used_list[i]];
-		e = &am->edges[i];
+		const auto e = &am->edges[i];
 		if (!(e->flags & EF_USED)) continue;
 
 		if ( e->flags & EF_TOO_FAR) continue;
