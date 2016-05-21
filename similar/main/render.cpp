@@ -1030,10 +1030,10 @@ class render_compare_context_t
 #endif
 	};
 	typedef array<element, MAX_OBJECTS> array_t;
-	array_t a;
+	array_t m_array;
 public:
-	array_t::reference operator[](std::size_t i) { return a[i]; }
-	array_t::const_reference operator[](std::size_t i) const { return a[i]; }
+	array_t::reference operator[](std::size_t i) { return m_array[i]; }
+	array_t::const_reference operator[](std::size_t i) const { return m_array[i]; }
 	render_compare_context_t(const render_state_t::per_segment_state_t &segstate)
 	{
 		range_for (const auto t, segstate.objects)
