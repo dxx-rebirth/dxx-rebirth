@@ -832,16 +832,16 @@ void do_door_close(int door_num)
 
 	d = &ActiveDoors[door_num];
 
-	wall *const w = vwallptr(d->front_wallnum[0]);
+	auto &w0 = *vwallptr(d->front_wallnum[0]);
 
-	const auto &&wsegp = vsegptridx(w->segnum);
+	const auto &&wsegp = vsegptridx(w0.segnum);
 
 	//check for objects in doorway before closing
-	if (w->flags & WALL_DOOR_AUTO)
-		if (!is_door_free(wsegp, w->sidenum)) {
+	if (w0.flags & WALL_DOOR_AUTO)
+		if (!is_door_free(wsegp, w0.sidenum)) {
 #if defined(DXX_BUILD_DESCENT_II)
-			digi_kill_sound_linked_to_segment(w->segnum,w->sidenum,-1);
-			wall_open_door(wsegp, w->sidenum);		//re-open door
+			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
+			wall_open_door(wsegp, w0.sidenum);		//re-open door
 #endif
 			return;
 		}
@@ -851,10 +851,10 @@ void do_door_close(int door_num)
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
 
-		wall *const w = vwallptr(d->front_wallnum[p]);
+		auto &wp = *vwallptr(d->front_wallnum[p]);
 
 		const auto &seg = wsegp;
-		side = w->sidenum;
+		side = wp.sidenum;
 
 		if (seg->sides[side].wall_num == wall_none) {
 			return;
@@ -863,7 +863,7 @@ void do_door_close(int door_num)
 #if defined(DXX_BUILD_DESCENT_I)
 		//if here, must be auto door
 //don't assert here, because now we have triggers to close non-auto doors
-		Assert(w->flags & WALL_DOOR_AUTO);
+		Assert(wp.flags & WALL_DOOR_AUTO);
 #endif
 
 		// Otherwise, close it.
@@ -877,33 +877,33 @@ void do_door_close(int door_num)
 			if (p==0)	//only play one sound for linked doors
 				if ( d->time==0 )	{		//first time
 					const auto cp = compute_center_point_on_side(seg, side );
-					if (WallAnims[w->clip_num].close_sound  > -1 )
-						digi_link_sound_to_pos( WallAnims[w->clip_num].close_sound, seg, side, cp, 0, F1_0 );
+					if (WallAnims[wp.clip_num].close_sound > -1 )
+						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, cp, 0, F1_0);
 				}
 
 		d->time += FrameTime;
 
 		time_elapsed = d->time;
-		n = WallAnims[w->clip_num].num_frames;
-		time_total = WallAnims[w->clip_num].play_time;
+		n = WallAnims[wp.clip_num].num_frames;
+		time_total = WallAnims[wp.clip_num].play_time;
 
 		one_frame = time_total/n;	
 
 		i = n-time_elapsed/one_frame-1;
 
 		const auto cwall_num = csegp->sides[Connectside].wall_num;
-		const auto &&w1 = vwallptr(cwall_num);
+		auto &w1 = *vwallptr(cwall_num);
 		if (i < n/2) {
-			w->flags &= ~WALL_DOOR_OPENED;
-			w1->flags &= ~WALL_DOOR_OPENED;
+			wp.flags &= ~WALL_DOOR_OPENED;
+			w1.flags &= ~WALL_DOOR_OPENED;
 		}
 
 		// Animate door.
 		if (i > 0) {
-			wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,i);
+			wall_set_tmap_num(seg, side, csegp, Connectside, wp.clip_num, i);
 
-			w->state = WALL_DOOR_CLOSING;
-			w1->state = WALL_DOOR_CLOSING;
+			wp.state = WALL_DOOR_CLOSING;
+			w1.state = WALL_DOOR_CLOSING;
 
 			ActiveDoors[Num_open_doors].time = 0;		//counts up
 
