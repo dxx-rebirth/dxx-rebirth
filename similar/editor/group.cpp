@@ -981,7 +981,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 {
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
-	int i, j;
+	int j;
 	segment tseg;
    vms_vector tvert;
 
@@ -1075,7 +1075,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 
 	texture_offset = PHYSFS_tell(SaveFile);
 
-	for (i=0;i<NumTextures;i++)
+	for (unsigned i = 0, n = NumTextures; i < n; ++i)
 	{
 		current_tmap_list[i] = TmapInfo[i].filename;
 		PHYSFS_write(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size(), 1);
