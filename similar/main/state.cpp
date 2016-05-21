@@ -887,7 +887,6 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 int state_save_all_sub(const char *filename, const char *desc)
 {
-	int i;
 	char mission_filename[9];
 	fix tmptime32 = 0;
 
@@ -908,8 +907,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
 
 //Save version
-	i = STATE_VERSION;
+	{
+		const int i = STATE_VERSION;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 
 // Save Coop state_game_id and this Player's callsign. Oh the redundancy... we have this one later on but Coop games want to read this before loading a state so for easy access save this here, too
 	if (Game_mode & GM_MULTI_COOP)
@@ -932,6 +933,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		render_frame(0);
 
+		{
 #if defined(OGL)
 		RAIIdmem<uint8_t[]> buf;
 		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
@@ -943,7 +945,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf.get());
 		int k;
 		k = THUMBNAIL_H;
-		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+		for (unsigned i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++)
+		{
 			int j;
 			if (!(j = i % THUMBNAIL_W))
 				k--;
@@ -951,6 +954,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
 #endif
+		}
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
@@ -961,8 +965,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 // Save the Between levels flag...
-	i = 0;
+	{
+		const int i = 0;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 
 // Save the mission info...
 	memset(&mission_filename, '\0', 9);
@@ -1018,8 +1024,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 //Save object info
-	i = Highest_object_index+1;
+	{
+		const int i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 	//PHYSFS_write(fp, Objects, sizeof(object), i);
 	range_for (const auto &&objp, vcobjptr)
 	{
@@ -1029,15 +1037,19 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 	
 //Save wall info
-	i = Num_walls;
+	{
+		const int i = Num_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 	range_for (const auto &&w, vcwallptr)
 		wall_write(fp, *w, 0x7fff);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
-	i = expl_wall_list.size();
+	{
+		const int i = expl_wall_list.size();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 	range_for (auto &e, expl_wall_list)
 	{
 		disk_expl_wall d;
@@ -1049,15 +1061,19 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Save door info
-	i = Num_open_doors;
+	{
+		const int i = Num_open_doors;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 	range_for (auto &ad, partial_const_range(ActiveDoors, Num_open_doors))
 		active_door_write(fp, ad);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
-	i = Num_cloaking_walls;
+	{
+		const int i = Num_cloaking_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
+	}
 	range_for (auto &w, partial_const_range(CloakingWalls, Num_cloaking_walls))
 		cloaking_wall_write(w, fp);
 #endif
@@ -1123,7 +1139,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFS_write(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
-	i = 0;
+	{
+		const int i = 0;
 	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
 #if defined(DXX_BUILD_DESCENT_I)
 	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_cheat
@@ -1139,8 +1156,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 	range_for (int m, MarkerObject)
 		PHYSFS_write(fp, &m, sizeof(m), 1);
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
-	range_for (auto &i, MarkerMessage)
-		PHYSFS_write(fp, i.data(), i.size(), 1);
+	range_for (const auto &m, MarkerMessage)
+		PHYSFS_write(fp, m.data(), m.size(), 1);
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
@@ -1167,14 +1184,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 	else
 	{
-		range_for (auto &i, partial_const_range(Segments, MAX_SEGMENTS_ORIGINAL))
+		range_for (auto &s, partial_const_range(Segments, MAX_SEGMENTS_ORIGINAL))
 		{
-			PHYSFSX_writeU8(fp, i.light_subtracted);
+			PHYSFSX_writeU8(fp, s.light_subtracted);
 		}
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 #endif
+	}
 
 // Save Coop Info
 	if (Game_mode & GM_MULTI_COOP)
