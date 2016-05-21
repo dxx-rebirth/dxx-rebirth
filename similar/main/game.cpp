@@ -1811,10 +1811,9 @@ static int mark_player_path_to_segment(segnum_t segnum)
 	for (int i=1; i<player_path_length; i++) {
 		vms_vector	seg_center;
 
-		const auto &&segnum = vsegptridx(Point_segs[player_hide_index+i].segnum);
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		auto obj = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
+		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;
