@@ -156,7 +156,6 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 		default:
 			break;
 	}
-	int i;
 //	int robot_flags;
 	int keypress = 0;
 	int rval = 0;
@@ -184,7 +183,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 		ui_radio_set_value(c->centerFlag[Cursegp->special].get(), 1);
 
 		//	Read materialization center robot bit flags
-		for (i = 0; i < N_robot_types; i++)
+		for (unsigned i = 0, n = N_robot_types; i < n; ++i)
 			ui_checkbox_check(c->robotMatFlag[i].get(), RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
 	}
 
@@ -193,7 +192,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	// update the corresponding center.
 	//------------------------------------------------------------
 
-	for (	i=0; i < MAX_CENTER_TYPES; i++ )
+	for (unsigned i = 0; i < MAX_CENTER_TYPES; ++i)
 	{
 		if (GADGET_PRESSED(c->centerFlag[i].get()))
 		{
@@ -209,14 +208,16 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 		}
 	}
 
-	for (i = 0; i < N_robot_types; i++)
+	for (unsigned i = 0, n = N_robot_types; i < n; ++i)
 	{
 		if (GADGET_PRESSED(c->robotMatFlag[i].get()))
 		{
+			auto &f = RobotCenters[Cursegp->matcen_num].robot_flags[i / 32];
+			const auto mask = 1 << (i % 32);
 			if (c->robotMatFlag[i]->flag)
-				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] |= (1 << (i % 32));
+				f |= mask;
 			else
-				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] &= ~(1 << (i % 32));
+				f &= ~mask;
 			rval = 1;
 		}
 	}
