@@ -663,7 +663,7 @@ static void newmenu_scroll(newmenu *menu, int amount)
 
 static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
 {
-	int old_choice, i, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
+	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas *menu_canvas = &window_get_canvas(*wind), *save_canvas = grd_curcanv;
 
 	switch (button)
@@ -679,7 +679,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const int line_spacing = static_cast<int>(LINE_SPACING);
-				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
+				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
+				{
 					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
 					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
@@ -702,11 +703,11 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 								changed = 1;
 								break;
 							case NM_TYPE_RADIO:
-								range_for (auto &i, menu->item_range())
+								range_for (auto &r, menu->item_range())
 								{
-									if (&i != &citem && i.type == NM_TYPE_RADIO && i.group == citem.group && i.value)
+									if (&r != &citem && r.type == NM_TYPE_RADIO && r.group == citem.group && r.value)
 									{
-										i.value = 0;
+										r.value = 0;
 										changed = 1;
 									}
 								}
@@ -760,7 +761,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				}
 
 				const int line_spacing = static_cast<int>(LINE_SPACING);
-				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
+				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
+				{
 					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
 					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
@@ -823,7 +825,8 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const int line_spacing = static_cast<int>(LINE_SPACING);
-				for (i=menu->scroll_offset; i<menu->max_on_menu+menu->scroll_offset; i++ )	{
+				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
+				{
 					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
 					x2 = x1 + menu->items[i].w + fspacx(13);
 					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
@@ -880,8 +883,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 			if (changed && menu->subfunction)
 			{
-				const d_change_event changed{menu->citem};
-				(*menu->subfunction)(menu, changed, menu->userdata);
+				(*menu->subfunction)(menu, d_change_event{menu->citem}, menu->userdata);
 			}
 			break;
 		}
@@ -1155,8 +1157,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 	if (changed && menu->subfunction)
 	{
-		const d_change_event changed{menu->citem};
-		(*menu->subfunction)(menu, changed, menu->userdata);
+		(*menu->subfunction)(menu, d_change_event{menu->citem}, menu->userdata);
 	}
 
 	return rval;
