@@ -402,17 +402,17 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 			vv1v0,
 			vv3v0
 		};
-		const auto assign_uvl = [&](const vms_vector &tvec, const uvl &uvb) {
+		const auto assign_uvl = [&](const vms_vector &tvec, const uvl &uvi) {
 			const auto drt = vm_vec_dot(fr.rvec, tvec);
 			const auto dft = vm_vec_dot(fr.fvec, tvec);
 			return uvl{
-				uvb.u + 
+				uvi.u +
 					fixdiv(fixmul(ruvmag.u, drt), mag01) +
 					fixdiv(fixmul(fuvmag.u, dft), mag01),
-				uvb.v + 
+				uvi.v +
 					fixdiv(fixmul(ruvmag.v, drt), mag01) +
 					fixdiv(fixmul(fuvmag.v, dft), mag01),
-				uvb.l
+				uvi.l
 			};
 		};
 		uvls[(vhi+1)%4] = assign_uvl(vm_vec_sub(Vertices[v2],Vertices[v1]), uvhi);
