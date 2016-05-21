@@ -5294,7 +5294,6 @@ void save_hoard_data(void)
 	unsigned nframes;
 	palette_array_t palette;
 	int iff_error;
-	unsigned i;
 	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
@@ -5320,7 +5319,7 @@ void save_hoard_data(void)
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 
-	for (i=0;i<2;i++)
+	for (unsigned i = 0; i < 2; ++i)
 	{
 		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",icon,BM_LINEAR,&palette);
 		Assert(iff_error == IFF_NO_ERROR);
