@@ -125,6 +125,7 @@ static int read_m3u(void)
 {
 	FILE *fp;
 	std::size_t length;
+	{
 	char *buf;
 	array<char, PATH_MAX> absbuf;
 	if (PHYSFSX_exists(GameCfg.CMLevelMusicPath.data(), 0)) // it's a child of Sharepath, build full path
@@ -134,6 +135,7 @@ static int read_m3u(void)
 	fp = fopen(buf, "rb");
 	if (!fp)
 		return 0;
+	}
 	
 	fseek( fp, -1, SEEK_END );
 	length = ftell(fp) + 1;
