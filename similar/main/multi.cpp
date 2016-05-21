@@ -1998,8 +1998,6 @@ static void multi_do_remobj(const ubyte *buf)
 
 void multi_disconnect_player(const playernum_t pnum)
 {
-	int n = 0;
-
 	if (!(Game_mode & GM_NETWORK))
 		return;
 	if (Players[pnum].connected == CONNECT_DISCONNECTED)
@@ -2070,6 +2068,7 @@ void multi_disconnect_player(const playernum_t pnum)
 		return;
 	}
 
+	int n = 0;
 	range_for (auto &i, partial_const_range(Players, N_players))
 		if (i.connected)
 			if (++n > 1)
