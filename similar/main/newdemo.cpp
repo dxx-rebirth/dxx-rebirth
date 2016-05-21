@@ -3467,7 +3467,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 
 void newdemo_playback_one_frame()
 {
-	int frames_back,level;
+	int frames_back;
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
 
@@ -3491,7 +3491,7 @@ void newdemo_playback_one_frame()
 
 	if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 	{
-		level = Current_level_num;
+		const int level = Current_level_num;
 		if (nd_playback_v_framecount == 0)
 			return;
 		else if ((Newdemo_vcr_state == ND_STATE_REWINDING) && (nd_playback_v_framecount < 10)) {
@@ -3536,7 +3536,7 @@ void newdemo_playback_one_frame()
 	}
 	else if (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD) {
 		if (!nd_playback_v_at_eof) {
-			level = Current_level_num;
+			const int level = Current_level_num;
 			if (newdemo_read_frame_information(0) == -1) {
 				if (!nd_playback_v_at_eof)
 					newdemo_stop_playback();
@@ -3585,13 +3585,12 @@ void newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					int level;
 					unsigned num_objs;
 
 					num_objs = Highest_object_index;
 					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
 
-					level = Current_level_num;
+					const int level = Current_level_num;
 					if (newdemo_read_frame_information(0) == -1) {
 						newdemo_stop_playback();
 						return;
