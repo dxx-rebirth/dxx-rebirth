@@ -884,9 +884,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//===================== READ WALL INFO ============================
 
-	range_for (const auto &&w, vwallptr)
+	range_for (const auto &&vw, vwallptr)
 	{
-		auto &nw = *w;
+		auto &nw = *vw;
 		if (game_top_fileinfo_version >= 20)
 			wall_read(LoadFile, nw); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
