@@ -390,8 +390,10 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 #ifdef OGL
 		ogl_end_frame();
 #endif
+		{
 		uint8_t color = 0;
 		gr_pixel(_search_x,_search_y, color);	//set our search pixel to color zero
+		}
 #ifdef OGL
 		ogl_start_frame();
 #endif
