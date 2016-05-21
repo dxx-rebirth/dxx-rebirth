@@ -136,8 +136,10 @@ static void check_segment(const vsegptridx_t seg)
 #ifdef OGL
 		g3_end_frame();
 #endif
+		{
 		uint8_t color = 0;
 		gr_pixel(Search_x,Search_y, color);	//set our search pixel to color zero
+		}
 #ifdef OGL
 		g3_start_frame();
 #endif
