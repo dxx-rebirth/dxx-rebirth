@@ -210,7 +210,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 // Draw a left justfied string
 static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 {
-	int t=0,i;
+	int t = 0;
 	char *p,*s1,measure[2];
 	int XTabs[]={18,90,127,165,231,256};
 
@@ -234,7 +234,8 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 	}
 
 	if (tabs_flag) {
-		for (i=0;s2[i];i++) {
+		for (unsigned i = 0; s2[i]; ++i)
+		{
 			if (s2[i]=='\t' && tabs_flag) {
 				x=XTabs[t];
 				t++;
