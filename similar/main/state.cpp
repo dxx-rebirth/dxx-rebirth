@@ -1327,7 +1327,7 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 {
-	int version,i, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
+	int version, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
@@ -1392,8 +1392,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
 #endif
 // Read the Between levels flag...
-	i = PHYSFSX_readSXE32(fp, swap);
-	i = 0;
+	PHYSFSX_readSXE32(fp, swap);
 
 // Read the mission info...
 	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
@@ -1501,8 +1500,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	reset_objects(1);
 
 	//Read objects, and pop 'em into their respective segments.
-	i = PHYSFSX_readSXE32(fp, swap);
+	{
+		const int i = PHYSFSX_readSXE32(fp, swap);
 	Objects.set_count(i);
+	}
 	range_for (const auto &&objp, vobjptr)
 	{
 		object_rw obj_rw;
@@ -1784,7 +1785,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			coop_player_got[i] = 0;
 
 			// read the stored players
-			player_info pl_info;
 			fix shields;
 			state_read_player(fp, restore_players[i], swap, pl_info, shields);
 			
