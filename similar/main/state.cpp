@@ -791,7 +791,7 @@ int state_save_all(const blind_save blind_save)
 int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
-	int	rval, filenum = -1;
+	int	filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -847,7 +847,6 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
 	//	If it doesn't exist, then delete Nsecret.sgc
 	if (secret == secret_save::none && !(Game_mode & GM_MULTI_COOP)) {
-		int	rval;
 		char	temp_fname[PATH_MAX], fc;
 
 		if (filenum != -1) {
@@ -867,7 +866,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 
 			if (PHYSFSX_exists(SECRETC_FILENAME,0))
 			{
-				rval = copy_file(SECRETC_FILENAME, temp_fname);
+				const int rval = copy_file(SECRETC_FILENAME, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
 				(void)rval;
 			}
@@ -876,7 +875,7 @@ int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 	}
 
-	rval = state_save_all_sub(filename, desc);
+	const int rval = state_save_all_sub(filename, desc);
 
 	if (rval && secret == secret_save::none)
 		HUD_init_message_literal(HM_DEFAULT, "Game saved");
