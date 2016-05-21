@@ -2925,7 +2925,6 @@ void do_ai_frame(const vobjptridx_t obj)
 	ai_static	*aip = &obj->ctype.ai_info;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	vms_vector	vec_to_player;
-	fix			dot;
 	int			player_visibility=-1;
 	int			obj_ref;
 	int			object_animates;
@@ -3951,10 +3950,12 @@ _exit_cheat:
 			case AIS_NONE:
 				compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
-				dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
+				{
+				const fix dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
 				if (dot >= F1_0/2)
 					if (aip->GOAL_STATE == AIS_REST)
 						aip->GOAL_STATE = AIS_SRCH;
+				}
 				break;
 			case AIS_REST:
 				if (aip->GOAL_STATE == AIS_REST) {
