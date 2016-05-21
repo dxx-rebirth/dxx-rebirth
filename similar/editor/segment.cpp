@@ -965,7 +965,6 @@ static void delete_vertices_in_segment(const vsegptr_t sp)
 //		1	unable to delete.
 int med_delete_segment(const vsegptridx_t sp)
 {
-	int		side;
 	segnum_t segnum = sp;
 	// Cannot delete segment if only segment.
 	if (Num_segments == 1)
@@ -984,7 +983,7 @@ int med_delete_segment(const vsegptridx_t sp)
 	Num_segments--;
 
 	// If deleted segment has walls on any side, wipe out the wall.
-	for (side=0; side < MAX_SIDES_PER_SEGMENT; side++)
+	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
 		if (sp->sides[side].wall_num != wall_none) 
 			wall_remove_side(sp, side);
 
