@@ -567,14 +567,15 @@ void check_warn_object_type(const object_base &, object_type_t, const char *file
 #define check_warn_object_type(O,T,F,L)	\
 	( DXX_BEGIN_COMPOUND_STATEMENT {	\
 		const object_base &dxx_check_warn_o = (O);	\
-		const auto type = dxx_check_warn_o.type;	\
+		const auto dxx_check_warn_actual_type = dxx_check_warn_o.type;	\
+		const auto dxx_check_warn_expected_type = (T);	\
 		/* If the type is always right, omit the runtime check. */	\
-		DXX_CONSTANT_TRUE(type == T) || (	\
+		DXX_CONSTANT_TRUE(dxx_check_warn_actual_type == dxx_check_warn_expected_type) || (	\
 			/* If the type is always wrong, force a compile-time error. */	\
-			DXX_CONSTANT_TRUE(type != T)	\
+			DXX_CONSTANT_TRUE(dxx_check_warn_actual_type != dxx_check_warn_expected_type)	\
 			? DXX_ALWAYS_ERROR_FUNCTION(dxx_error_object_type_mismatch, "object type mismatch")	\
-			: static_cast<void>(	\
-				check_warn_object_type(dxx_check_warn_o,T,F,L), 0	\
+			: (	\
+				check_warn_object_type(dxx_check_warn_o, dxx_check_warn_expected_type, F, L)	\
 			)	\
 		, 0);	\
 	} DXX_END_COMPOUND_STATEMENT )
