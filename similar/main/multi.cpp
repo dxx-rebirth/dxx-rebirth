@@ -5163,7 +5163,7 @@ void init_hoard_data()
 	int icon_w,icon_h;
 	palette_array_t palette;
 	ubyte *bitmap_data1;
-	int i,save_pos;
+	int save_pos;
 	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
 
 	auto ifile = PHYSFSX_openReadBuffered("hoard.ham");
@@ -5262,7 +5262,8 @@ void init_hoard_data()
 
 	//Load sounds for orb game
 	hoard_resources.snd_idx = Num_sound_files;
-	for (i=0;i<4;i++) {
+	for (unsigned i = 0; i < 4; ++i)
+	{
 		int len;
 
 		len = PHYSFSX_readInt(ifile);        //get 11k len
