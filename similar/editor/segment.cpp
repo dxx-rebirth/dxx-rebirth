@@ -923,12 +923,9 @@ namespace dsx {
 //	Set Num_vertices.
 void set_vertex_counts(void)
 {
-	int	v;
-
 	Num_vertices = 0;
 
-	for (v=0; v<=Highest_vertex_index; v++)
-		Vertex_active[v] = 0;
+	Vertex_active = {};
 
 	// Count number of occurrences of each vertex.
 	range_for (const auto &&segp, vsegptr)
