@@ -155,9 +155,9 @@ struct RAIIsocket
 {
 #ifndef _WIN32
 	typedef int SOCKET;
-	int closesocket(SOCKET s)
+	int closesocket(SOCKET fd)
 	{
-		return close(s);
+		return close(fd);
 	}
 #endif
 	SOCKET s;
