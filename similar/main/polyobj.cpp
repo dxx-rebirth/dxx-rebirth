@@ -428,7 +428,7 @@ void read_model_guns(const char *filename, reactor &r)
 	auto &gun_points = r.gun_points;
 	auto &gun_dirs = r.gun_dirs;
 	short version;
-	int id,len;
+	int len;
 	int n_guns=0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
@@ -442,9 +442,9 @@ void read_model_guns(const char *filename, reactor &r)
 	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
 	ifile.reset();
 
-	id = pof_read_int(model_buf);
+	const int model_id = pof_read_int(model_buf);
 
-	if (id!=0x4f505350) /* 'OPSP' */
+	if (model_id != 0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
@@ -454,24 +454,26 @@ void read_model_guns(const char *filename, reactor &r)
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
-	while (new_pof_read_int(id,model_buf) == 1) {
-		id = INTEL_INT(id);
+	int pof_id;
+	while (new_pof_read_int(pof_id,model_buf) == 1)
+	{
+		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 
-		if (id == ID_GUNS) {		//List of guns on this object
+		if (pof_id == ID_GUNS)
+		{		//List of guns on this object
 			n_guns = pof_read_int(model_buf);
 
 			for (int i=0;i<n_guns;i++) {
-				int id,sm;
+				int sm;
 
-				id = pof_read_short(model_buf);
+				const int gun_id = pof_read_short(model_buf);
 				sm = pof_read_short(model_buf);
 				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vecs(&gun_points[id],1,model_buf);
-
-				pof_read_vecs(&gun_dirs[id],1,model_buf);
+				pof_read_vecs(&gun_points[gun_id], 1, model_buf);
+				pof_read_vecs(&gun_dirs[gun_id], 1, model_buf);
 			}
 
 		}
