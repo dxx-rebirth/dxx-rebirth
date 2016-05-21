@@ -147,8 +147,8 @@ static void show_netplayerinfo()
 	y = (SHEIGHT / 2) - fspacy84;
 
 	gr_settransblend(14, GR_BLEND_NORMAL);
-	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_rect((SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color);
+	const uint8_t color000 = BM_XRGB(0, 0, 0);
+	gr_rect((SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color000);
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
@@ -195,7 +195,8 @@ static void show_netplayerinfo()
 		y += line_spacing;
 
 		const auto color = get_player_or_team_color(i);
-		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		auto &prgb = player_rgb[color];
+		gr_set_fontcolor(BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x + fspacx8 * 7, y, "%-6d", Players[i].score);
