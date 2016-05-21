@@ -656,7 +656,7 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if (auto exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE))
+	else if ((exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE)))
 	{
 		int offset, offset2;
 		int hamsize;
