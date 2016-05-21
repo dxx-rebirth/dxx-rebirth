@@ -263,7 +263,7 @@ static void align_polygon_model_data(polymodel *pm)
 static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info *r)
 {
 	short version;
-	int id,len, next_chunk;
+	int len, next_chunk;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	auto ifile = PHYSFSX_openReadBuffered(filename);
@@ -275,9 +275,9 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	Pof_addr = 0;
 	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
 	ifile.reset();
-	id = pof_read_int(model_buf);
+	const int model_id = pof_read_int(model_buf);
 
-	if (id!=0x4f505350) /* 'OPSP' */
+	if (model_id != 0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
@@ -285,14 +285,16 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
-	while (new_pof_read_int(id,model_buf) == 1) {
-		id = INTEL_INT(id);
+	int pof_id;
+	while (new_pof_read_int(pof_id, model_buf) == 1)
+	{
+		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 		next_chunk = Pof_addr + len;
 
-		switch (id) {
-
+		switch (pof_id)
+		{
 			case ID_OHDR: {		//Object header
 				vms_vector pmmin,pmmax;
 
@@ -339,18 +341,17 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 					Assert(r->n_guns <= MAX_GUNS);
 
 					for (int i=0;i<r->n_guns;i++) {
-						uint_fast32_t id;
-
-						id = pof_read_short(model_buf);
+						const uint_fast32_t gun_id = pof_read_short(model_buf);
 						/*
 						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.
 						 * Relax the assert to check only for memory
 						 * corruption.
 						 */
-						Assert(id < sizeof(r->gun_submodels) / sizeof(r->gun_submodels[0]));
-						r->gun_submodels[id] = pof_read_short(model_buf);
-						Assert(r->gun_submodels[id] != 0xff);
-						pof_read_vecs(&r->gun_points[id],1,model_buf);
+						Assert(gun_id < sizeof(r->gun_submodels) / sizeof(r->gun_submodels[0]));
+						auto &submodel = r->gun_submodels[gun_id];
+						submodel = pof_read_short(model_buf);
+						Assert(submodel != 0xff);
+						pof_read_vecs(&r->gun_points[gun_id], 1, model_buf);
 
 						if (version >= 7)
 							pof_read_vecs(&gun_dir,1,model_buf);
