@@ -3292,6 +3292,7 @@ void newdemo_goto_end(int to_rewrite)
 	}
 	range_for (auto &i, get_local_player_secondary_ammo())
 		nd_read_short((short *)&(i));
+	{
 	int8_t i;
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
@@ -3300,6 +3301,7 @@ void newdemo_goto_end(int to_rewrite)
 		player_info.laser_level = laser_level;
 		if (!to_rewrite)
 			update_laser_weapon_info();
+	}
 	}
 
 	if (Newdemo_game_mode & GM_MULTI) {
