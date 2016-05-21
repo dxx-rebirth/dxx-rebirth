@@ -1111,7 +1111,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	short tmap_xlate;
         int     translate=0;
 	char 	*temptr;
-	int i, j; 
+	int j; 
 	segment tseg;
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
@@ -1213,7 +1213,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			Error( "Error seeking to vertex_offset in group.c" );
 
 		vertex_ids.clear();
-			for (i=0;i<group_header.num_vertices;i++) {
+			for (unsigned i = 0; i< group_header.num_vertices; ++i)
+			{
 				vertex tvert;
 				if (PHYSFS_read( LoadFile, &tvert, sizeof(tvert),1 )!=1)
 					Error( "Error reading tvert in group.c" );
@@ -1230,7 +1231,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			Error( "Error seeking to segment_offset in group.c" );
 
 		segment_ids.clear();
-		for (i=0;i<group_header.num_segments;i++) {
+		for (unsigned i = 0; i < group_header.num_segments; ++i)
+		{
 			if (PHYSFS_read( LoadFile, &tseg, sizeof(segment),1 )!=1)
 				Error( "Error reading tseg in group.c" );
 				
@@ -1298,7 +1300,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	hashtable ht;
 	// Remove all the file extensions in the textures list
 
-	for (i=0;i<NumTextures;i++)	{
+	for (unsigned i = 0; i < NumTextures; ++i)
+	{
 		temptr = strchr(&TmapInfo[i].filename[0u], '.');
 		if (temptr) *temptr = '\0';
 		hashtable_insert( &ht, &TmapInfo[i].filename[0u], i );
