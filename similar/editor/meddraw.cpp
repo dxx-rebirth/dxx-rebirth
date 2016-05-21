@@ -112,12 +112,11 @@ static void draw_segment(const vcsegptr_t seg, const uint8_t color)
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
-		int i;
-
 		for (unsigned i = 0; i < 4; ++i)
 			draw_line(svp[i], svp[i+4], color);
 
-		for (i=0;i<3;i++) {
+		for (unsigned i = 0; i < 3; ++i)
+		{
 			draw_line(svp[i], svp[i+1], color);
 			draw_line(svp[i+4], svp[i+4+1], color);
 		}
