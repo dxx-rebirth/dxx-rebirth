@@ -1358,13 +1358,14 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 //	It will be created with walls on all sides, ie not connected to anything.
 void med_create_segment(const vsegptridx_t sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, const vms_matrix &mp)
 {
-	int			i,f;
+	int			f;
 	Num_segments++;
 
 	sp->segnum = 1;						// What to put here?  I don't know.
 
 	// Form connections to children, of which it has none.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
+	for (unsigned i = 0; i < MAX_SIDES_PER_SEGMENT; ++i)
+	{
 		sp->children[i] = segment_none;
 //		sp->sides[i].render_flag = 0;
 		sp->sides[i].wall_num  = wall_none;
