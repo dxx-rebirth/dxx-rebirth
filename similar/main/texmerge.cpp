@@ -144,17 +144,9 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 	cache_misses++;
 
 	// Make sure the bitmaps are paged in...
-	piggy_page_flushed = 0;
 
 	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
 	PIGGY_PAGE_IN(Textures[tmap_bottom]);
-	if (piggy_page_flushed)	{
-		// If cache got flushed, re-read 'em.
-		piggy_page_flushed = 0;
-		PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
-		PIGGY_PAGE_IN(Textures[tmap_bottom]);
-	}
-	Assert( piggy_page_flushed == 0 );
 	if (bitmap_bottom->bm_w != bitmap_bottom->bm_h || bitmap_top->bm_w != bitmap_top->bm_h)
 		Error("Texture width != texture height!\n");
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)

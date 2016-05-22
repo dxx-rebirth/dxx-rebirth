@@ -539,18 +539,11 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
    }
 
 	// Make sure the textures for this object are paged in...
-	piggy_page_flushed = 0;
 	for (int i=0;i<po->n_textures;i++) 
 		PIGGY_PAGE_IN( texture_list_index[i] );
 	// Hmmm... cache got flushed in the middle of paging all these in,
 	// so we need to reread them all in.
-	if (piggy_page_flushed)	{
-		piggy_page_flushed = 0;
-		for (int i=0;i<po->n_textures;i++) 
-			PIGGY_PAGE_IN( texture_list_index[i] );
-	}
 	// Make sure that they can all fit in memory.
-	Assert( piggy_page_flushed == 0 );
 
 	g3_start_instance_matrix(pos,orient);
 

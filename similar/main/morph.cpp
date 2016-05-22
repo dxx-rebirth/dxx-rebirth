@@ -382,18 +382,11 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 			}
 
 			// Make sure the textures for this object are paged in...
-			piggy_page_flushed = 0;
 			range_for (auto &j, partial_const_range(texture_list_index, pm->n_textures))
 				PIGGY_PAGE_IN(j);
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
-			if (piggy_page_flushed)	{
-				piggy_page_flushed = 0;
-				range_for (auto &i, partial_range(texture_list_index, pm->n_textures))
-					PIGGY_PAGE_IN(i);
-			}
 			// Make sure that they can all fit in memory.
-			Assert( piggy_page_flushed == 0 );
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],&texture_list[0],anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {

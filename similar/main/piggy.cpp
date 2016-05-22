@@ -143,8 +143,6 @@ static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 #endif
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when CGameArg.SysLowMem is set
 
-int piggy_page_flushed = 0;
-
 static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_bitmap_initialized=0;
