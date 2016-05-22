@@ -542,7 +542,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 static void write_wall_text(PHYSFS_File *my_file)
 {
 	int	i, j;
-	sbyte wall_flags[MAX_WALLS];
+	array<int8_t, MAX_WALLS> wall_flags;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
@@ -564,8 +564,7 @@ static void write_wall_text(PHYSFS_File *my_file)
 			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].sides[sidenum].wall_num));
 	}
 
-	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
-		wall_flags[i] = 0;
+	wall_flags = {};
 
 	range_for (const auto &&segp, vcsegptr)
 	{
