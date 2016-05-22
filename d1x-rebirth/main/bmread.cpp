@@ -201,7 +201,6 @@ static bitmap_index bm_load_sub(int skip, const char * filename)
 static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
 	bitmap_index bi;
-	int i;
 	int iff_error;		//reference parm to avoid warning message
 	palette_array_t newpal;
 	char fname[20];
@@ -217,6 +216,8 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 	removeext( filename, fname );
 	
+	{
+	unsigned i;
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
 		snprintf(tempname, sizeof(tempname), "%s#%d", fname, i);
 		bi = piggy_find_bitmap( tempname );
@@ -228,6 +229,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	if (i) {
 		*nframes = i;
 		return;
+	}
 	}
 
 	array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
