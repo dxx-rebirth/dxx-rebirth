@@ -320,33 +320,35 @@ static int get_int()
 int gamedata_read_tbl(int pc_shareware)
 {
 	std::string dest_bm;
-	int	i, have_bin_tbl;
+	int	have_bin_tbl;
 
 	ObjType[0] = OL_PLAYER;
 	ObjId[0] = 0;
 	Num_total_object_types = 1;
 
-	for (i=0; i<MAX_SOUNDS; i++ )	{
+	for (unsigned i = 0; i < MAX_SOUNDS; ++i)
+	{
 		Sounds[i] = 255;
 		AltSounds[i] = 255;
 	}
 
-	for (i=0; i<MAX_TEXTURES; i++ ) {
-		TmapInfo[i].eclip_num = eclip_none;
-		TmapInfo[i].flags = 0;
+	range_for (auto &ti, TmapInfo)
+	{
+		ti.eclip_num = eclip_none;
+		ti.flags = 0;
 	}
 
 	Num_effects = 0;
-	for (i=0; i<MAX_EFFECTS; i++ ) {
+	range_for (auto &ec, Effects)
+	{
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
-		eclip &ec = Effects[i];
 		ec.changing_wall_texture = -1;
 		ec.changing_object_texture = -1;
 		ec.segnum = segment_none;
 		ec.vc.num_frames = -1;		//another mark of being unused
 	}
 
-	for (i=0;i<MAX_POLYGON_MODELS;i++)
+	for (unsigned i = 0; i < MAX_POLYGON_MODELS; ++i)
 		Dying_modelnums[i] = Dead_modelnums[i] = -1;
 
 	Num_vclips = 0;
@@ -541,7 +543,7 @@ int gamedata_read_tbl(int pc_shareware)
 	verify_textures();
 
 	//check for refereced but unused clip count
-	for (i=0; i<MAX_EFFECTS; i++ )
+	for (unsigned i = 0; i < MAX_EFFECTS; ++i)
 		if (	(
 				  (Effects[i].changing_wall_texture!=-1) ||
 				  (Effects[i].changing_object_texture!=-1)
