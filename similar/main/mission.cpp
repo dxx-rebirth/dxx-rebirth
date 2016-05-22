@@ -82,9 +82,9 @@ struct mle : Mission_path
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 };
 
-}
+using mission_list_type = std::vector<mle>;
 
-typedef std::vector<mle> mission_list;
+}
 
 Mission_ptr Current_mission; // currently loaded mission
 
@@ -339,7 +339,7 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 }
 
 //returns 1 if file read ok, else 0
-static int read_mission_file(mission_list &mission_list, mission_candidate_search_path &pathname)
+static int read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname)
 {
 	if (auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
 	{
@@ -415,7 +415,7 @@ static int read_mission_file(mission_list &mission_list, mission_candidate_searc
 	return 0;
 }
 
-static void add_d1_builtin_mission_to_list(mission_list &mission_list)
+static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 {
     int size;
     
@@ -465,7 +465,7 @@ static void add_d1_builtin_mission_to_list(mission_list &mission_list)
 
 #if defined(DXX_BUILD_DESCENT_II)
 template <std::size_t N1, std::size_t N2>
-static void set_hardcoded_mission(mission_list &mission_list, const char (&path)[N1], const char (&mission_name)[N2])
+static void set_hardcoded_mission(mission_list_type &mission_list, const char (&path)[N1], const char (&mission_name)[N2])
 {
 	mission_list.emplace_back();
 	mle *mission = &mission_list.back();
@@ -475,7 +475,7 @@ static void set_hardcoded_mission(mission_list &mission_list, const char (&path)
 	mission->anarchy_only_flag = 0;
 }
 
-static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &name)
+static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname &name)
 {
     int size = PHYSFSX_fsize("descent2.hog");
     
@@ -511,7 +511,7 @@ static void add_builtin_mission_to_list(mission_list &mission_list, d_fname &nam
 }
 #endif
 
-static void add_missions_to_list(mission_list &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, int anarchy_mode)
+static void add_missions_to_list(mission_list_type &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, int anarchy_mode)
 {
 	/* rel_path must point within the array `path`.
 	 * rel_path must point to the null that follows a possibly empty
@@ -570,7 +570,7 @@ static void add_missions_to_list(mission_list &mission_list, mission_candidate_s
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-static void promote (mission_list &mission_list, const char *const name, std::size_t &top_place)
+static void promote (mission_list_type &mission_list, const char *const name, std::size_t &top_place)
 {
 	range_for (auto &i, partial_range(mission_list, top_place, mission_list.size()))
 		if (!d_stricmp(&*i.filename, name)) {
@@ -597,7 +597,7 @@ Mission::~Mission()
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
-static mission_list build_mission_list(int anarchy_mode)
+static mission_list_type build_mission_list(int anarchy_mode)
 {
 
 	//now search for levels on disk
@@ -614,7 +614,7 @@ static mission_list build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
-	mission_list mission_list;
+	mission_list_type mission_list;
 	
 #if defined(DXX_BUILD_DESCENT_II)
 	d_fname builtin_mission_filename;
@@ -981,7 +981,7 @@ int load_mission_by_name(const char *mission_name)
 
 struct mission_menu
 {
-	mission_list ml;
+	mission_list_type ml;
 	int (*when_selected)(void);
 };
 
