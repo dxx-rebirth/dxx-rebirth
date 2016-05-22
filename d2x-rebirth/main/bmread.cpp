@@ -366,7 +366,7 @@ static int get_texture(char *name)
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(int pc_shareware)
 {
-	int	i, have_bin_tbl;
+	int	have_bin_tbl;
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
@@ -383,42 +383,45 @@ int gamedata_read_tbl(int pc_shareware)
 
 	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
 
-	for (i=0; i<MAX_SOUNDS; i++ )	{
+	for (unsigned i = 0; i < MAX_SOUNDS; ++i)
+	{
 		Sounds[i] = 255;
 		AltSounds[i] = 255;
 	}
 
-	for (i=0; i<MAX_TEXTURES; i++ ) {
-		TmapInfo[i].eclip_num = eclip_none;
-		TmapInfo[i].flags = 0;
-		TmapInfo[i].slide_u = TmapInfo[i].slide_v = 0;
-		TmapInfo[i].destroyed = -1;
+	range_for (auto &ti, TmapInfo)
+	{
+		ti.eclip_num = eclip_none;
+		ti.flags = 0;
+		ti.slide_u = ti.slide_v = 0;
+		ti.destroyed = -1;
 	}
 
 	range_for (auto &i, Reactors)
 		i.model_num = -1;
 
 	Num_effects = 0;
-	for (i=0; i<MAX_EFFECTS; i++ ) {
+	range_for (auto &ec, Effects)
+	{
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
-		eclip &ec = Effects[i];
 		ec.changing_wall_texture = -1;
 		ec.changing_object_texture = -1;
 		ec.segnum = segment_none;
 		ec.vc.num_frames = -1;		//another mark of being unused
 	}
 
-	for (i=0;i<MAX_POLYGON_MODELS;i++)
+	for (unsigned i = 0; i < MAX_POLYGON_MODELS; ++i)
 		Dying_modelnums[i] = Dead_modelnums[i] = -1;
 
 	Num_vclips = 0;
-	for (i=0; i<VCLIP_MAXNUM; i++ )	{
-		Vclip[i].num_frames = -1;
-		Vclip[i].flags = 0;
+	range_for (auto &vc, Vclip)
+	{
+		vc.num_frames = -1;
+		vc.flags = 0;
 	}
 
-	for (i=0; i<MAX_WALL_ANIMS; i++ )
-		WallAnims[i].num_frames = -1;
+	range_for (auto &wa, WallAnims)
+		wa.num_frames = -1;
 	Num_wall_anims = 0;
 
 	if (Installed)
@@ -603,7 +606,7 @@ int gamedata_read_tbl(int pc_shareware)
 	verify_textures();
 
 	//check for refereced but unused clip count
-	for (i=0; i<MAX_EFFECTS; i++ )
+	for (unsigned i = 0; i < MAX_EFFECTS; ++i)
 		if (	(
 				  (Effects[i].changing_wall_texture!=-1) ||
 				  (Effects[i].changing_object_texture!=-1)
@@ -613,13 +616,9 @@ int gamedata_read_tbl(int pc_shareware)
 
 	#ifndef NDEBUG
 	{
-		int used;
-		for (i=used=0; i<num_sounds; i++ )
-			if (Sounds[i] != 255)
-				used++;
-
 		//make sure all alt sounds refer to valid main sounds
-		for (i=used=0; i<num_sounds; i++ ) {
+		for (unsigned i = 0; i < num_sounds; ++i)
+		{
 			int alt = AltSounds[i];
 			Assert(alt==0 || alt==-1 || Sounds[alt]!=255);
 		}
