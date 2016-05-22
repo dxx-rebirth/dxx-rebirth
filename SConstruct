@@ -2998,6 +2998,7 @@ class DXXCommon(LazyObjectConstructor):
 		env.Prepend(CXXFLAGS = [
 			'-ftabstop=4',
 			'-Wall',
+			'-Wshadow',
 			Werror + 'extra',
 			Werror + 'format=2',
 			Werror + 'missing-braces',
