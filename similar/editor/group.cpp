@@ -365,13 +365,11 @@ static inline vms_matrix med_create_group_rotation_matrix(int delta_flag, const 
 // Rotate all vertices and objects in group.
 static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const vcsegptr_t first_seg, int first_side)
 {
-	int			v;
-	sbyte			vertex_list[MAX_VERTICES];
+	array<int8_t, MAX_VERTICES> vertex_list;
 	const auto rotate_center = compute_center_point_on_side(first_seg, first_side);
 
 	//	Create list of points to rotate.
-	for (v=0; v<=Highest_vertex_index; v++)
-		vertex_list[v] = 0;
+	vertex_list = {};
 
 	range_for (const auto &gs, group_seglist)
 	{
@@ -390,16 +388,14 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 	}
 
 	// Do the pre-rotation xlate, do the rotation, do the post-rotation xlate
-	for (v=0; v<=Highest_vertex_index; v++)
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
 		if (vertex_list[v]) {
 			const auto tv1 = vm_vec_sub(Vertices[v],rotate_center);
 			const auto tv = vm_vec_rotate(tv1,rotmat);
 			vm_vec_add(Vertices[v],tv,rotate_center);
 
 		}
-
 }
-
 
 // ------------------------------------------------------------------------------------------------
 static void cgl_aux(const vsegptridx_t segp, group::segment_array_type_t &seglistp, selected_segment_array_t *ignore_list, visited_segment_bitarray_t &visited)
