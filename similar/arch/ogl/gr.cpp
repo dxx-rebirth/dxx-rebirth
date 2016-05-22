@@ -466,26 +466,26 @@ int gr_check_fullscreen(void)
 
 void gr_toggle_fullscreen()
 {
-	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
+	const auto local_sdl_video_flags = (sdl_video_flags ^= SDL_FULLSCREEN);
 	if (gl_initialized)
 	{
 		if (sdl_no_modeswitch == 0) {
 			auto gsm = Game_screen_mode;
 			const auto DbgBpp = CGameArg.DbgBpp;
-			if (!SDL_VideoModeOK(gsm.width, gsm.height, DbgBpp, sdl_video_flags))
+			if (!SDL_VideoModeOK(gsm.width, gsm.height, DbgBpp, local_sdl_video_flags))
 			{
 				con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", gsm.width, gsm.height);
 				gsm.width = 640;
 				gsm.height = 480;
 				Game_screen_mode = gsm;
 			}
-			if (!SDL_SetVideoMode(gsm.width, gsm.height, DbgBpp, sdl_video_flags))
+			if (!SDL_SetVideoMode(gsm.width, gsm.height, DbgBpp, local_sdl_video_flags))
 			{
 				Error("Could not set %dx%dx%d opengl video mode: %s\n", gsm.width, gsm.height, DbgBpp, SDL_GetError());
 			}
 		}
 #ifdef RPI
-		if (rpi_setup_element(SM_W(Game_screen_mode), SM_H(Game_screen_mode), sdl_video_flags, 1)) {
+		if (rpi_setup_element(SM_W(Game_screen_mode), SM_H(Game_screen_mode), local_sdl_video_flags, 1)) {
 			 Error("RPi: Could not set up %dx%d element\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 		}
 #endif
@@ -508,7 +508,7 @@ void gr_toggle_fullscreen()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	CGameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
+	CGameCfg.WindowMode = !(local_sdl_video_flags & SDL_FULLSCREEN);
 }
 
 static void ogl_init_state(void)
