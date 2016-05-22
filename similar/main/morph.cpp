@@ -334,9 +334,9 @@ void morph_start(const vobjptr_t obj)
 
 static void draw_model(polygon_model_points &robot_points, polymodel *pm, int submodel_num, const submodel_angles anim_angles, g3s_lrgb light, morph_data *md)
 {
-	int mn;
 	int facing;
-	int sort_list[MAX_SUBMODELS],sort_n;
+	int sort_list[MAX_SUBMODELS];
+	unsigned sort_n;
 
 
 	//first, sort the submodels
@@ -369,16 +369,16 @@ static void draw_model(polygon_model_points &robot_points, polymodel *pm, int su
 
 	//now draw everything
 
-	for (uint_fast32_t i=0;i<sort_n;i++) {
-
-		mn = sort_list[i];
-
+	range_for (const auto mn, partial_const_range(sort_list, sort_n))
+	{
 		if (mn == submodel_num) {
 			array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 			for (unsigned i = 0; i < pm->n_textures; ++i)
 			{
-				texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]];
-				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
+				const auto ptr = ObjBitmapPtrs[pm->first_texture + i];
+				const auto &bmp = ObjBitmaps[ptr];
+				texture_list_index[i] = bmp;
+				texture_list[i] = &GameBitmaps[bmp.index];
 			}
 
 			// Make sure the textures for this object are paged in...
