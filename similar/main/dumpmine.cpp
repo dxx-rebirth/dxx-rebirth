@@ -736,10 +736,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 		tmap_buf[i] = 0;
 
 	if (load_level_flag) {
-		if (shareware_flag)
-			load_level(Shareware_level_names[level_num]);
-		else
-			load_level(Registered_level_names[level_num]);
+		load_level(shareware_flag ? Shareware_level_names[level_num] : Registered_level_names[level_num]);
 	}
 
 	range_for (const auto &&segp, vcsegptr)
