@@ -1019,33 +1019,32 @@ void clear_to_end_of_line(void)
 
 void bm_read_sound(int skip)
 {
-	int sound_num;
 	int alt_sound_num;
 
-	sound_num = get_int();
+	const int read_sound_num = get_int();
 	alt_sound_num = get_int();
 
-	if ( sound_num>=MAX_SOUNDS )
+	if ( read_sound_num>=MAX_SOUNDS )
 		Error( "Too many sound files.\n" );
 
-	if (sound_num >= num_sounds)
-		num_sounds = sound_num+1;
+	if (read_sound_num >= num_sounds)
+		num_sounds = read_sound_num+1;
 
-	if (Sounds[sound_num] != 255)
-		Error("Sound num %d already used, bitmaps.tbl, line %d\n",sound_num,linenum);
+	if (Sounds[read_sound_num] != 255)
+		Error("Sound num %d already used, bitmaps.tbl, line %d\n",read_sound_num,linenum);
 
 	arg = strtok(NULL, space_tab);
 
-	Sounds[sound_num] = ds_load(skip, arg);
+	Sounds[read_sound_num] = ds_load(skip, arg);
 
 	if ( alt_sound_num == 0 )
-		AltSounds[sound_num] = sound_num;
+		AltSounds[read_sound_num] = sound_num;
 	else if (alt_sound_num < 0 )
-		AltSounds[sound_num] = 255;
+		AltSounds[read_sound_num] = 255;
 	else
-		AltSounds[sound_num] = alt_sound_num;
+		AltSounds[read_sound_num] = alt_sound_num;
 
-	if (Sounds[sound_num] == 255)
+	if (Sounds[read_sound_num] == 255)
 		Error("Can't load soundfile <%s>",arg);
 }
 
