@@ -68,6 +68,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 
 #ifdef EDITOR
+
+namespace dsx {
+namespace {
+#if defined(DXX_BUILD_DESCENT_I)
+using perm_tmap_buffer_type = array<int, MAX_TEXTURES>;
+using level_tmap_buffer_type = array<int8_t, MAX_TEXTURES>;
+using wall_buffer_type = array<int, MAX_WALL_ANIMS>;
+#elif defined(DXX_BUILD_DESCENT_II)
+using perm_tmap_buffer_type = array<int, MAX_BITMAP_FILES>;
+using level_tmap_buffer_type = array<int8_t, MAX_BITMAP_FILES>;
+using wall_buffer_type = array<int, MAX_BITMAP_FILES>;
+#endif
+}
+}
+
+namespace dcx {
 const array<char[10], 7> Wall_names{{
 	"NORMAL   ",
 	"BLASTABLE",
@@ -77,10 +93,12 @@ const array<char[10], 7> Wall_names{{
 	"CLOSED   ",
 	"EXTERNAL "
 }};
+}
 
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num);
 static void say_totals(PHYSFS_File *my_file, const char *level_name);
 
+namespace dsx {
 const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 	"WALL    ",
 	"FIREBALL",
@@ -103,11 +121,12 @@ const array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 }};
 
 // ----------------------------------------------------------------------------
-static const char *object_types(const vcobjptr_t objp)
+static const char *object_types(const object_base &objp)
 {
-	const auto type = objp->type;
+	const auto type = objp.type;
 	assert(type == OBJ_NONE || type < MAX_OBJECT_TYPES);
 	return &Object_type_names[type][0];
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -726,14 +745,13 @@ static int Ignore_tmap_num2_error;
 #endif
 
 // ----------------------------------------------------------------------------
-static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, sbyte *level_tmap_buf, int max_tmap)
+static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
 {
 	int	sidenum;
-	int	i, j;
+	int	j;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	for (i=0; i<max_tmap; i++)
-		tmap_buf[i] = 0;
+	tmap_buf = {};
 
 	if (load_level_flag) {
 		load_level(shareware_flag ? Shareware_level_names[level_num] : Registered_level_names[level_num]);
@@ -792,8 +810,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	(void)max_tmap;
 	(void)shareware_flag;
 
-	for (i=0; i<MAX_BITMAP_FILES; i++)
-		tmap_buf[i] = 0;
+	tmap_buf = {};
 
 	if (load_level_flag) {
 		load_level(Adam_level_names[level_num]);
@@ -806,8 +823,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 		if (objp->render_type == RT_POLYOBJ) {
 			polymodel *po = &Polygon_models[objp->rtype.pobj_info.model_num];
 
-			for (i=0; i<po->n_textures; i++) {
-
+			for (unsigned i = 0; i < po->n_textures; ++i)
+			{
 				int	tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index;
 
 				if ((tli < MAX_BITMAP_FILES) && (tli >= 0)) {
@@ -881,17 +898,14 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 }
 
 // ----------------------------------------------------------------------------
-static void merge_buffers(int *dest, int *src, int num)
+template <std::size_t N>
+static void merge_buffers(array<int, N> &dest, const array<int, N> &src)
 {
-	int	i;
-
-	for (i=0; i<num; i++)
-		if (src[i])
-			dest[i] += src[i];
+	std::transform(dest.begin(), dest.end(), src.begin(), dest.begin(), std::plus<int>());
 }
 
 // ----------------------------------------------------------------------------
-static void say_used_tmaps(PHYSFS_File *my_file, int *tb)
+static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
 	int	i;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -915,7 +929,7 @@ static void say_used_tmaps(PHYSFS_File *my_file, int *tb)
 
 #if defined(DXX_BUILD_DESCENT_I)
 //	-----------------------------------------------------------------------------
-static void say_used_once_tmaps(PHYSFS_File *my_file, int *tb, sbyte *tb_lnum)
+static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb, const level_tmap_buffer_type &tb_lnum)
 {
 	int	i;
 	const char	*level_name;
@@ -937,7 +951,7 @@ static void say_used_once_tmaps(PHYSFS_File *my_file, int *tb, sbyte *tb_lnum)
 #endif
 
 // ----------------------------------------------------------------------------
-static void say_unused_tmaps(PHYSFS_File *my_file, int *tb)
+static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
 {
 	int	i;
 	int	count = 0;
@@ -968,7 +982,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, int *tb)
 
 #if defined(DXX_BUILD_DESCENT_I)
 // ----------------------------------------------------------------------------
-static void say_unused_walls(PHYSFS_File *my_file, int *tb)
+static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 {
 	int	i;
 	for (i=0; i<Num_wall_anims; i++)
@@ -1072,19 +1086,12 @@ static void say_totals_all(void)
 
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	int	temp_tmap_buf[MAX_TEXTURES];
-	sbyte	level_tmap_buf[MAX_TEXTURES];
-	int	temp_wall_buf[MAX_WALL_ANIMS];
-#elif defined(DXX_BUILD_DESCENT_II)
-	int	temp_tmap_buf[MAX_BITMAP_FILES];
-	sbyte level_tmap_buf[MAX_BITMAP_FILES];
-	int	temp_wall_buf[MAX_BITMAP_FILES];
-#endif
+	perm_tmap_buffer_type temp_tmap_buf;
+	level_tmap_buffer_type level_tmap_buf;
 
-	for (unsigned i=0; i<(sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0])); i++)
-		level_tmap_buf[i] = -1;
+	level_tmap_buf.fill(-1);
 
+	wall_buffer_type temp_wall_buf;
 	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
@@ -1094,18 +1101,6 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 void dump_used_textures_all(void)
 {
 	int	i;
-#if defined(DXX_BUILD_DESCENT_I)
-	int	temp_tmap_buf[MAX_TEXTURES];
-	int	perm_tmap_buf[MAX_TEXTURES];
-	sbyte	level_tmap_buf[MAX_TEXTURES];
-	int	temp_wall_buf[MAX_WALL_ANIMS];
-	int	perm_wall_buf[MAX_WALL_ANIMS];
-#elif defined(DXX_BUILD_DESCENT_II)
-	int	temp_tmap_buf[MAX_BITMAP_FILES];
-	int	perm_tmap_buf[MAX_BITMAP_FILES];
-	sbyte level_tmap_buf[MAX_BITMAP_FILES];
-	int	temp_wall_buf[MAX_BITMAP_FILES];
-#endif
 
 say_totals_all();
 
@@ -1118,22 +1113,21 @@ say_totals_all();
 		return;
 	}
 
-	for (unsigned i=0; i<sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]); i++) {
-		perm_tmap_buf[i] = 0;
-		level_tmap_buf[i] = -1;
-	}
+	perm_tmap_buffer_type perm_tmap_buf{};
+	level_tmap_buffer_type level_tmap_buf;
+	level_tmap_buf.fill(-1);
 
+	perm_tmap_buffer_type temp_tmap_buf;
 #if defined(DXX_BUILD_DESCENT_I)
-	for (i=0; i<MAX_WALL_ANIMS; i++) {
-		perm_wall_buf[i] = 0;
-	}
+	wall_buffer_type perm_wall_buf{};
 
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
+		wall_buffer_type temp_wall_buf;
 		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
 		say_used_tmaps(my_file, temp_tmap_buf);
-		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_TEXTURES);
-		merge_buffers(perm_wall_buf, temp_wall_buf, MAX_WALL_ANIMS);
+		merge_buffers(perm_tmap_buf, temp_tmap_buf);
+		merge_buffers(perm_wall_buf, temp_wall_buf);
 	}
 
 	PHYSFSX_printf(my_file, "\n\nUsed textures in all shareware mines:\n");
@@ -1153,6 +1147,7 @@ say_totals_all();
 	for (i=First_dump_level; i<=Last_dump_level; i++)
 #endif
 	{
+		wall_buffer_type temp_wall_buf;
 		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
@@ -1160,7 +1155,7 @@ say_totals_all();
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Adam_level_names[i]);
 #endif
 		say_used_tmaps(my_file, temp_tmap_buf);
-		merge_buffers(perm_tmap_buf, temp_tmap_buf, sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]));
+		merge_buffers(perm_tmap_buf, temp_tmap_buf);
 	}
 
 	PHYSFSX_printf(my_file, "\n\nUsed textures in all (including registered) mines:\n");
