@@ -2025,14 +2025,14 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack)
+static void init_boss_segments(boss_special_segment_array_t &a, int size_check, int one_wall_hack)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
 #endif
 	objptridx_t boss_objnum = object_none;
 
-	segptr.clear();
+	a.clear();
 #ifdef EDITOR
 	Selected_segs.clear();
 #endif
@@ -2066,7 +2066,7 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		segptr.emplace_back(original_boss_seg);
+		a.emplace_back(original_boss_seg);
 		#ifdef EDITOR
 		Selected_segs.emplace_back(original_boss_seg);
 		#endif
@@ -2104,11 +2104,11 @@ static void init_boss_segments(boss_special_segment_array_t &segptr, int size_ch
 								Int3();	//	queue overflow.  Make it bigger!
 	
 						if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(segp->children[sidenum]))) {
-							segptr.emplace_back(segp->children[sidenum]);
+							a.emplace_back(segp->children[sidenum]);
 							#ifdef EDITOR
 							Selected_segs.emplace_back(segp->children[sidenum]);
 							#endif
-							if (segptr.count() >= MAX_BOSS_TELEPORT_SEGS) {
+							if (a.count() >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;
 								break;
