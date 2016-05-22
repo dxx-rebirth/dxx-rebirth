@@ -718,7 +718,7 @@ static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 //Returns true if mission loaded ok, else false.
 static int load_mission(const mle *mission)
 {
-	char buf[PATH_MAX], *v;
+	char *v;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	close_extra_robot_movie();
@@ -795,11 +795,12 @@ static int load_mission(const mle *mission)
 	(mission->descent_version == Mission::descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
-	snprintf(buf, sizeof(buf), "%s%s", mission->path.c_str(), msn_extension);
+	array<char, PATH_MAX> mission_filename;
+	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", mission->path.c_str(), msn_extension);
 
-	PHYSFSEXT_locateCorrectCase(buf);
+	PHYSFSEXT_locateCorrectCase(mission_filename.data());
 
-	auto mfile = PHYSFSX_openReadBuffered(buf);
+	auto &&mfile = PHYSFSX_openReadBuffered(mission_filename.data());
 	if (!mfile) {
 		Current_mission.reset();
 		return 0;		//error!
@@ -811,8 +812,8 @@ static int load_mission(const mle *mission)
 	if (!PLAYING_BUILTIN_MISSION)
 #endif
 	{
-		strcpy(buf+strlen(buf)-4,".hog");		//change extension
-			PHYSFSX_contfile_init(buf, 0);
+		strcpy(mission_filename.data() + strlen(mission_filename.data()) - 3, "hog");		//change extension
+			PHYSFSX_contfile_init(mission_filename.data(), 0);
 		set_briefing_filename(Briefing_text_filename, Current_mission_filename);
 		Ending_text_filename = Briefing_text_filename;
 	}
