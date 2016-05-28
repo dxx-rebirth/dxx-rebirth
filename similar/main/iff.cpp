@@ -582,7 +582,7 @@ static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, int bitmap_type,
 
 	//Now do post-process if required
 
-	if (bitmap_type == BM_RGB15) {
+	if (bitmap_type == bm_mode::rgb15) {
 		ret = convert_rgb15(bm, bmheader);
 		if (ret != IFF_NO_ERROR)
 			return ret;
@@ -862,7 +862,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 	int ret;
 	int compression_on;
 
-	if (bm->bm_type == BM_RGB15) return IFF_BAD_BM_TYPE;
+	if (bm->bm_type == bm_mode::rgb15) return IFF_BAD_BM_TYPE;
 
 #if COMPRESS
 	compression_on = (bm->bm_w>=MIN_COMPRESS_WIDTH);
@@ -969,7 +969,7 @@ static const char error_messages[] = {
 	"IFF file has unknown FORM type.\0"
 	"Not an IFF file.\0"
 	"Cannot open file.\0"
-	"Tried to save invalid type, like BM_RGB15.\0"
+	"Tried to save invalid type, like bm_mode::rgb15.\0"
 	"Bad data in file.\0"
 	"ANIM file cannot be loaded with normal bitmap loader.\0"
 	"Normal bitmap file cannot be loaded with anim loader.\0"

@@ -43,7 +43,7 @@ main(int argc,char **argv)
 	grs_bitmap my_bitmap;
 	ubyte my_palette[256*3];
 
-	ret = iff_read_bitmap(argv[1],&my_bitmap,BM_RGB15,&my_palette);
+	ret = iff_read_bitmap(argv[1],&my_bitmap,bm_mode::rgb15,&my_palette);
 
 	printf("ret = %d\n",ret);
 

@@ -351,7 +351,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 {
 //a bitmap for the character
 	grs_bitmap char_bm = {};
-	char_bm.set_type(BM_LINEAR);
+	char_bm.set_type(bm_mode::linear);
 	char_bm.bm_flags = BM_FLAG_TRANSPARENT;
 	const char *text_ptr, *next_row, *text_ptr1;
 	int letter;
@@ -403,7 +403,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 				? cv_font.ft_chars[letter]
 				: &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 
-			gr_init_bitmap(char_bm, BM_LINEAR, 0, 0, width, cv_font.ft_h, width, fp);
+			gr_init_bitmap(char_bm, bm_mode::linear, 0, 0, width, cv_font.ft_h, width, fp);
 			gr_bitmapm(xx,yy,char_bm);
 
 			xx += spacing;
@@ -514,7 +514,7 @@ static void ogl_init_font(grs_font * font)
 	ogl_font_choose_size(font,gap,&tw,&th);
 	MALLOC(data, ubyte, tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
-	gr_init_bitmap(font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+	gr_init_bitmap(font->ft_parent_bitmap,bm_mode::linear,0,0,tw,th,tw,data);
 	gr_set_transparent(font->ft_parent_bitmap, 1);
 
 	if (!(font->ft_flags & FT_COLOR))
@@ -617,7 +617,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 
 	yy = y;
 
-	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != BM_OGL)
+	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != bm_mode::ogl)
 		Error("carp.\n");
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &cv_font = *grd_curcanv->cv_font;
@@ -673,7 +673,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (grd_curcanv->cv_bitmap.get_type() == BM_OGL) ? colors.init(grd_curcanv->cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (grd_curcanv->cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(grd_curcanv->cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
 			xx += spacing;
 
@@ -699,7 +699,7 @@ static void gr_ustring_mono(int x, int y, const char *s)
 {
 	switch(TYPE)
 	{
-		case BM_LINEAR:
+		case bm_mode::linear:
 			if (grd_curcanv->cv_font_bg_color == -1)
 				gr_internal_string0m(x, y, s);
 			else
@@ -730,7 +730,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 	}
 	if (
 #ifdef OGL
-		TYPE == BM_OGL ||
+		TYPE == bm_mode::ogl ||
 #endif
 		grd_curcanv->cv_font->ft_flags & FT_COLOR)
 	{
@@ -759,7 +759,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 void gr_ustring(int x, int y, const char *s )
 {
 #ifdef OGL
-	if (TYPE==BM_OGL)
+	if (TYPE==bm_mode::ogl)
 	{
 		ogl_internal_string(x,y,s);
 		return;

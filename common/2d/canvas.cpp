@@ -39,7 +39,7 @@ grs_canvas_ptr gr_create_canvas(uint16_t w, uint16_t h)
 	grs_canvas_ptr n = make_unique<grs_main_canvas>();
 	unsigned char *pixdata;
 	MALLOC(pixdata, unsigned char, MAX_BMP_SIZE(w, h));
-	gr_init_canvas(*n.get(), pixdata, BM_LINEAR, w, h);
+	gr_init_canvas(*n.get(), pixdata, bm_mode::linear, w, h);
 	return n;
 }
 

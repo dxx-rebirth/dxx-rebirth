@@ -46,9 +46,9 @@ void gr_uscanline(const unsigned x1, const unsigned x2, const unsigned y, const 
 {
 		switch(TYPE)
 		{
-		case BM_LINEAR:
+		case bm_mode::linear:
 #ifdef OGL
-		case BM_OGL:
+		case bm_mode::ogl:
 #endif
 			{
 				const auto data = &DATA[ROWSIZE * y + x1];

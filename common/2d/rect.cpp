@@ -36,7 +36,7 @@ namespace dcx {
 void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 {
 #ifdef OGL
-	if (TYPE == BM_OGL) {
+	if (TYPE == bm_mode::ogl) {
 		ogl_urect(left,top,right,bot, color);
 		return;
 	}
@@ -49,7 +49,7 @@ void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 void gr_rect(int left,int top,int right,int bot, const uint8_t color)
 {
 #ifdef OGL
-	if (TYPE == BM_OGL) {
+	if (TYPE == bm_mode::ogl) {
 		ogl_urect(left,top,right,bot, color);
 		return;
 	}

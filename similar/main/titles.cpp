@@ -172,7 +172,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 	strcat(new_filename,filename);
 	filename = new_filename;
 	gr_init_bitmap_data(ts->title_bm);
-	if ((pcx_error=pcx_read_bitmap( filename, ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
+	if ((pcx_error=pcx_read_bitmap( filename, ts->title_bm, bm_mode::linear, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -829,7 +829,7 @@ static int briefing_process_char(briefing *br)
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data(br->guy_bitmap);
-			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, BM_LINEAR, &temp_palette);
+			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, bm_mode::linear, &temp_palette);
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
 #endif
@@ -1229,12 +1229,12 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
-		if ( bald_guy_load("btexture.xxx", &br->background, BM_LINEAR, gr_palette) == 0)
+		if ( bald_guy_load("btexture.xxx", &br->background, bm_mode::linear, gr_palette) == 0)
 		{
 			return 0;
 		}
 
-	if ((pcx_error = pcx_read_bitmap(fname2, br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	if ((pcx_error = pcx_read_bitmap(fname2, br->background, bm_mode::linear, gr_palette))!=PCX_ERROR_NONE)
 	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
 	}
@@ -1268,7 +1268,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (d_stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
-	if ((pcx_error = pcx_read_bitmap(fname, br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	if ((pcx_error = pcx_read_bitmap(fname, br->background, bm_mode::linear, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 	show_fullscr(br->background);
 	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete

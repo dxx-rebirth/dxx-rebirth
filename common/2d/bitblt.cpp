@@ -172,17 +172,17 @@ void gr_ubitmap(grs_bitmap &bm)
 	const auto source = bm.get_type();
 	dest = TYPE;
 
-	if (source==BM_LINEAR) {
+	if (source==bm_mode::linear) {
 		switch( dest )
 		{
-		case BM_LINEAR:
+		case bm_mode::linear:
 			if ( bm.bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt00_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
 				gr_ubitmap00( x, y, bm );
 			return;
 #ifdef OGL
-		case BM_OGL:
+		case bm_mode::ogl:
 			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
 			return;
 #endif
@@ -200,17 +200,17 @@ void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 {
 	const auto source = bm.get_type();
 	auto dest = TYPE;
-	if (source==BM_LINEAR) {
+	if (source==bm_mode::linear) {
 		switch( dest )
 		{
-		case BM_LINEAR:
+		case bm_mode::linear:
 			if ( bm.bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
 				gr_ubitmap00m(x, y, bm);
 			return;
 #ifdef OGL
-		case BM_OGL:
+		case bm_mode::ogl:
 			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
 			return;
 #endif
@@ -261,7 +261,7 @@ static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, unsigned d
 
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_LINEAR)
+	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::linear)
 	{
 		if ( src.bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, src, dest );
@@ -271,22 +271,22 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 	}
 
 #ifdef OGL
-	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_OGL)
+	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if (src.get_type() == BM_OGL && dest.get_type() == BM_LINEAR)
+	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::linear)
 	{
 		return;
 	}
-	if (src.get_type() == BM_OGL && dest.get_type() == BM_OGL)
+	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::ogl)
 	{
 		return;
 	}
 #endif
 
-	if ((src.bm_flags & BM_FLAG_RLE) && src.get_type() == BM_LINEAR)
+	if ((src.bm_flags & BM_FLAG_RLE) && src.get_type() == bm_mode::linear)
 	{
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
@@ -346,7 +346,7 @@ void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm)
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 
-	if (bm.get_type() == BM_LINEAR && grd_curcanv->cv_bitmap.get_type() == BM_LINEAR)
+	if (bm.get_type() == bm_mode::linear && grd_curcanv->cv_bitmap.get_type() == bm_mode::linear)
 	{
 		if ( bm.bm_flags & BM_FLAG_RLE )
 			gr_bm_ubitblt00m_rle(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
@@ -362,16 +362,16 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 	ubyte c;
 
 #ifdef OGL
-	if (src.get_type() == BM_LINEAR && dest.get_type() == BM_OGL)
+	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
-	if (src.get_type() == BM_OGL && dest.get_type() == BM_LINEAR)
+	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::linear)
 	{
 		return;
 	}
-	if (src.get_type() == BM_OGL && dest.get_type() == BM_OGL)
+	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::ogl)
 	{
 		return;
 	}
@@ -499,14 +499,14 @@ void show_fullscr(grs_bitmap &bm)
 {
 	auto &scr = grd_curcanv->cv_bitmap;
 #ifdef OGL
-	if (bm.get_type() == BM_LINEAR && scr.get_type() == BM_OGL &&
+	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
 		ogl_ubitmapm_cs(0,0,-1,-1,bm, ogl_colors::white,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif
-	if (scr.get_type() != BM_LINEAR)
+	if (scr.get_type() != bm_mode::linear)
 	{
 		grs_bitmap_ptr p = gr_create_bitmap(scr.bm_w, scr.bm_h);
 		auto &tmp = *p.get();

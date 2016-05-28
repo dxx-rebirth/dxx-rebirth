@@ -5193,7 +5193,7 @@ void init_hoard_data()
 	range_for (auto &i, partial_range(Vclip[orb_vclip].frames, n_orb_frames))
 	{
 		i.index = bitmap_num;
-		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],bm_mode::linear,0,0,orb_w,orb_h,orb_w,bitmap_data1);
 		gr_set_transparent(GameBitmaps[bitmap_num], 1);
 		bitmap_data1 += orb_w*orb_h;
 		bitmap_num++;
@@ -5221,7 +5221,7 @@ void init_hoard_data()
 	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
 		i.index = bitmap_num;
-		gr_init_bitmap(GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
+		gr_init_bitmap(GameBitmaps[bitmap_num],bm_mode::linear,0,0,64,64,64,bitmap_data1);
 		bitmap_data1 += 64*64;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -5253,7 +5253,7 @@ void init_hoard_data()
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
-		gr_init_bitmap(i,BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
+		gr_init_bitmap(i,bm_mode::linear,0,0,icon_w,icon_h,icon_w,bitmap_data2);
 		gr_set_transparent(i, 1);
 		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 		PHYSFS_read(ifile,i.get_bitmap_data(),1,icon_w*icon_h);
@@ -5321,7 +5321,7 @@ void save_hoard_data(void)
 
 	for (unsigned i = 0; i < 2; ++i)
 	{
-		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",icon,BM_LINEAR,&palette);
+		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",icon,bm_mode::linear,&palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);

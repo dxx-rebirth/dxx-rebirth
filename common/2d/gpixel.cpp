@@ -30,10 +30,10 @@ unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 {
 	switch (bitmap.get_type())
 	{
-		case BM_LINEAR:
+		case bm_mode::linear:
 			return bitmap.bm_data[ bitmap.bm_rowsize*y + x ];
 #ifdef OGL
-		case BM_OGL:
+		case bm_mode::ogl:
 			return ogl_ugpixel(bitmap, x, y);
 #endif
 	}

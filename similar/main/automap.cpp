@@ -1010,7 +1010,7 @@ void do_automap()
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
 	gr_init_bitmap_data(am->automap_background);
-	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, BM_LINEAR, pal);
+	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, am->automap_background, bm_mode::linear, pal);
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(am->automap_background, pal, -1, -1);

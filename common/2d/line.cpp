@@ -273,11 +273,11 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
 	switch(TYPE)
 	{
 #ifdef OGL
-	case BM_OGL:
+	case bm_mode::ogl:
 		ogl_ulinec(a1, b1, a2, b2, color);
 		return;
 #endif
-	case BM_LINEAR:
+	case bm_mode::linear:
 		gr_universal_uline(a1, b1, a2, b2, color);
 		return;
 	}

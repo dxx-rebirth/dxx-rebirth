@@ -60,7 +60,7 @@ main(int argc,char **argv)
 #ifdef ANIM_TEST
 	ret = iff_read_animbrush(argv[1],bm_list,100,&n_bitmaps,&my_palette);
 #else
-	ret = iff_read_bitmap(argv[1],&my_bitmap,BM_LINEAR,&my_palette);
+	ret = iff_read_bitmap(argv[1],&my_bitmap,bm_mode::linear,&my_palette);
 	bm_list[0] = &my_bitmap;
 	n_bitmaps = 1;
 #endif

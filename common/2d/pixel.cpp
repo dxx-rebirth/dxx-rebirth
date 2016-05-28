@@ -37,11 +37,11 @@ void gr_upixel(unsigned x, unsigned y, const uint8_t color)
 	switch (TYPE)
 	{
 #ifdef OGL
-	case BM_OGL:
+	case bm_mode::ogl:
 		ogl_upixelc(*grd_curcanv, x, y, color);
 		return;
 #endif
-	case BM_LINEAR:
+	case bm_mode::linear:
 		DATA[ROWSIZE * y + x] = color;
 		return;
 	}
@@ -59,11 +59,11 @@ static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y
 	switch (bm.get_type())
 	{
 #ifdef OGL
-	case BM_OGL:
+	case bm_mode::ogl:
 		ogl_upixelc(*grd_curcanv, bm.bm_x+x,bm.bm_y+y,color);
 		return;
 #endif
-	case BM_LINEAR:
+	case bm_mode::linear:
 		bm.get_bitmap_data()[bm.bm_rowsize*y+x] = color;
 		return;
 	}

@@ -91,7 +91,7 @@ static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,ui
 
 void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 {
-	if (TYPE==BM_LINEAR)
+	if (TYPE==bm_mode::linear)
 		gr_ubox0(left, top, right, bot, color);
     else
 		gr_ubox12(left, top, right, bot, color);
@@ -100,7 +100,7 @@ void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 #ifdef EDITOR
 void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
-	if (TYPE==BM_LINEAR)
+	if (TYPE==bm_mode::linear)
 		gr_box0(left, top, right, bot, color);
 	else
 		gr_box12(left, top, right, bot, color);

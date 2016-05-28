@@ -203,7 +203,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 	source_bm.bm_x = source_bm.bm_y = 0;
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
 	source_bm.bm_h = bufh;
-	source_bm.set_type(BM_LINEAR);
+	source_bm.set_type(bm_mode::linear);
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 

@@ -43,7 +43,7 @@ int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette
 	//allocated. In other words, do this:
 	//   grs_bitmap * MyPicture;
 	//   MALLOC( MyPicture, grs_bitmap, 1);
-	//   iff_read_bitmap( filename, MyPicture, BM_LINEAR, NULL );
+	//   iff_read_bitmap( filename, MyPicture, bm_mode::linear, NULL );
 	//   ...do whatever with your bitmap ...
 	//   gr_free_bitmap( MyPicture );
 	//   exit(0)
@@ -72,7 +72,7 @@ const char *iff_errormsg(int error_number);
 #define IFF_UNKNOWN_FORM    2   //IFF file, but not a bitmap
 #define IFF_NOT_IFF         3   //this isn't even an IFF file
 #define IFF_NO_FILE         4   //cannot find or open file
-#define IFF_BAD_BM_TYPE     5   //tried to save invalid type, like BM_RGB15
+#define IFF_BAD_BM_TYPE     5   //tried to save invalid type, like bm_mode::rgb15
 #define IFF_CORRUPT         6   //bad data in file
 #define IFF_FORM_ANIM       7   //this is an anim, with non-anim load rtn
 #define IFF_FORM_BITMAP     8   //this is not an anim, with anim load rtn

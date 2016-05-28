@@ -62,11 +62,14 @@ extern int HiresGFXAvailable;
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
-#define BM_LINEAR   0
-#define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
+enum bm_mode
+{
+	linear,
+	rgb15 = 3,	//5 bits each r,g,b stored at 16 bits
 #ifdef OGL
-#define BM_OGL      5
+	ogl = 5,
 #endif /* def OGL */
+};
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
@@ -328,7 +331,7 @@ extern uint16_t gr_fade_table_selector;
 // between 0 and 255 then all occurances of that color are mapped to
 // whatever color the 2d uses for transparency. This is normally used
 // right after a call to iff_read_bitmap like this:
-//		iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
+//		iff_error = iff_read_bitmap(filename,new,bm_mode::linear,newpal);
 //		if (iff_error != IFF_NO_ERROR) Error("Can't load IFF file <%s>, error=%d",filename,iff_error);
 //		if (iff_has_transparency)
 //			gr_remap_bitmap(new, newpal, iff_transparent_color);

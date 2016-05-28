@@ -231,13 +231,13 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	xsize = header.Xmax - header.Xmin + 1;
 	ysize = header.Ymax - header.Ymin + 1;
 
-	if ( bitmap_type == BM_LINEAR )	{
+	if ( bitmap_type == bm_mode::linear )	{
 		if ( bmp.bm_data == NULL )	{
 			gr_init_bitmap_alloc(bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
 		}
 	}
 
-	if (bmp.get_type() == BM_LINEAR)
+	if (bmp.get_type() == bm_mode::linear)
 	{
 		for (row=0; row< ysize ; row++)      {
 			auto pixdata = &bmp.get_bitmap_data()[bmp.bm_rowsize*row];
