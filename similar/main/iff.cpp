@@ -521,7 +521,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
-	gr_init_bitmap(bm, bmheader.type, 0, 0, bmheader.w, bmheader.h, bmheader.w, bmheader.raw_data.release());
+	gr_init_bitmap(bm, static_cast<bm_mode>(bmheader.type), 0, 0, bmheader.w, bmheader.h, bmheader.w, bmheader.raw_data.release());
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else

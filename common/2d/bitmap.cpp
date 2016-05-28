@@ -61,11 +61,11 @@ grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char * raw_data )
 {
 	auto n = make_unique<grs_main_bitmap>();
-	gr_init_bitmap(*n.get(), 0, 0, 0, w, h, w, raw_data);
+	gr_init_bitmap(*n.get(), bm_mode::linear, 0, 0, w, h, w, raw_data);
 	return n;
 }
 
-void gr_init_bitmap(grs_bitmap &bm, uint8_t mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t *data) // TODO: virtualize
+void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h, const uint16_t bytesperline, const uint8_t *const data) // TODO: virtualize
 {
 	bm.bm_x = x;
 	bm.bm_y = y;
