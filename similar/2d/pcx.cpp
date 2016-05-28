@@ -98,7 +98,7 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_File *fp)
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
-int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
+int bald_guy_load(const char *const filename, grs_bitmap *const bmp, palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, count, fsize;
@@ -153,7 +153,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palet
 		}
 		bmp->bm_w = bmp->bm_rowsize = xsize;
 		bmp->bm_h = ysize;
-		bmp->set_type(bitmap_type);
+		bmp->set_type(bm_mode::linear);
 	}
 	
 	for (row=0; row< ysize ; row++)      {

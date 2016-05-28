@@ -1229,7 +1229,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
 	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
-		if ( bald_guy_load("btexture.xxx", &br->background, bm_mode::linear, gr_palette) == 0)
+		if (bald_guy_load("btexture.xxx", &br->background, gr_palette) == 0)
 		{
 			return 0;
 		}

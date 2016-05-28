@@ -45,7 +45,7 @@ struct palette_array_t;
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 // Load bitmap for little-known 'baldguy' cheat.
-extern int bald_guy_load( const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette );
+extern int bald_guy_load(const char *filename, grs_bitmap *bmp, palette_array_t &palette);
 }
 #endif
 
