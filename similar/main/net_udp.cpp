@@ -4566,10 +4566,7 @@ int net_udp_do_join_game()
 
 	if (!net_udp_can_join_netgame(&Netgame))
 	{
-		if (Netgame.numplayers == Netgame.max_numplayers)
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-		else
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, Netgame.numplayers == Netgame.max_numplayers ? TXT_GAME_FULL : TXT_IN_PROGRESS);
 		return 0;
 	}
 
