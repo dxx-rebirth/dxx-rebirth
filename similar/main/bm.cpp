@@ -569,7 +569,7 @@ static bitmap_index read_extra_bitmap_iff(const char * filename )
 	bitmap_num.index = 0;
 
 	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,*n,bm_mode::linear,&newpal);
+	iff_error = iff_read_bitmap(filename, *n, &newpal);
 	if (iff_error != IFF_NO_ERROR)		{
 		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s", filename, iff_errormsg(iff_error));
 		return bitmap_num;

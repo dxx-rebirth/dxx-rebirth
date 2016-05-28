@@ -200,7 +200,7 @@ static bitmap_index bm_load_sub(int skip, const char * filename )
 	}
 
 	grs_bitmap n;
-	iff_error = iff_read_bitmap(filename,n,bm_mode::linear,&newpal);
+	iff_error = iff_read_bitmap(filename, n, &newpal);
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}

@@ -35,7 +35,7 @@ static const std::size_t MAX_BITMAPS_PER_BRUSH = 30;
 
 //Prototypes for IFF library functions
 
-int iff_read_bitmap(const char *ifilename,grs_bitmap &bm,int bitmap_type,palette_array_t *palette);
+int iff_read_bitmap(const char *ifilename, grs_bitmap &bm, palette_array_t *palette);
 	//reads an IFF file into a grs_bitmap structure. fills in palette if not null
 	//returns error codes - see IFF.H.  see GR.H for bitmap_type
 	//MEM DETAILS:  This routines assumes that you already have the grs_bitmap
