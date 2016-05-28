@@ -38,7 +38,7 @@ void gr_upixel(unsigned x, unsigned y, const uint8_t color)
 	{
 #ifdef OGL
 	case BM_OGL:
-		ogl_upixelc(x, y, color);
+		ogl_upixelc(*grd_curcanv, x, y, color);
 		return;
 #endif
 	case BM_LINEAR:
@@ -60,7 +60,7 @@ static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y
 	{
 #ifdef OGL
 	case BM_OGL:
-		ogl_upixelc(bm.bm_x+x,bm.bm_y+y,color);
+		ogl_upixelc(*grd_curcanv, bm.bm_x+x,bm.bm_y+y,color);
 		return;
 #endif
 	case BM_LINEAR:
