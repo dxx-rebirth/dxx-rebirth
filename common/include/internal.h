@@ -43,9 +43,9 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 {
 	if (w!=last_width || h!=last_height)
 	{
+		last_width = w;
+		last_height = h;
 		glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);
-		last_width=w;
-		last_height=h;
 	}
 }
 }
