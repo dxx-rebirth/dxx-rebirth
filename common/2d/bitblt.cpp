@@ -63,15 +63,16 @@ static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, 
 
 static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	int dest_rowsize;
-	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
+	const size_t src_width = bm.bm_w;
+	const uintptr_t src_rowsize = bm.bm_rowsize;
+	const uintptr_t dest_rowsize = grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
 	auto dest = &(grd_curcanv->cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
 	auto src = bm.get_bitmap_data();
 
 	for (uint_fast32_t y1 = bm.bm_h; y1 --;)
 	{
-		gr_linear_movsd( src, dest, bm.bm_w );
-		src += bm.bm_rowsize;
+		gr_linear_movsd(src, dest, src_width);
+		src += src_rowsize;
 		dest+= dest_rowsize;
 	}
 }
