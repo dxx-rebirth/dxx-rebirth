@@ -240,10 +240,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 
 	for (uint_fast32_t i=0;i< *nframes; i++)	{
 		snprintf(tempname, sizeof(tempname), "%s#%u", fname, static_cast<unsigned>(i));
-		if ( iff_has_transparency )
-			gr_remap_bitmap_good(*bm[i].get(), newpal, iff_transparent_color, SuperX);
-		else
-			gr_remap_bitmap_good(*bm[i].get(), newpal, -1, SuperX);
+		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
 		bmp[i] = piggy_register_bitmap( bm[i].get(), tempname, 0 );
 	}
