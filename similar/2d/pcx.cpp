@@ -194,15 +194,15 @@ struct PCX_PHYSFS_file
 	RAIIPHYSFS_File PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp,int bitmap_type ,palette_array_t &palette);
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp, bm_mode bitmap_type, palette_array_t &palette);
 
-int pcx_read_bitmap(const char * filename, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette )
+int pcx_read_bitmap(const char *const filename, grs_bitmap &bmp, palette_array_t &palette)
 {
 	int result;
 	PCX_PHYSFS_file pcxphysfs{PHYSFSX_openReadBuffered(filename)};
 	if (!pcxphysfs.PCXfile)
 		return PCX_ERROR_OPENING;
-	result = pcx_read_bitmap_file(&pcxphysfs, bmp, bitmap_type, palette);
+	result = pcx_read_bitmap_file(&pcxphysfs, bmp, bm_mode::linear, palette);
 	return result;
 }
 
@@ -211,7 +211,7 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp, int bitmap_type, palette_array_t &palette)
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap &bmp, const bm_mode bitmap_type, palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, row, col, count, xsize, ysize;
