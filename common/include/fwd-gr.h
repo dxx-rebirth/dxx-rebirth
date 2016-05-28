@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // some defines for transparency and blending
 #define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
-#define GR_FADE_LEVELS       34
+#define GR_FADE_LEVELS       34u
 #define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
 #define GR_BLEND_NORMAL      0              // normal blending
 #define GR_BLEND_ADDITIVE_A  1              // additive alpha blending

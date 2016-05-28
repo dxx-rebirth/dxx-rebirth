@@ -104,7 +104,7 @@ struct grs_canvas : prohibit_void_ptr<grs_canvas>
 	const grs_font *  cv_font;        // the currently selected font
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
-	int         cv_fade_level;  // transparency level
+	unsigned cv_fade_level;  // transparency level
 };
 
 
