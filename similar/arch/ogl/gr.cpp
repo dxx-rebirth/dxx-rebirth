@@ -841,11 +841,14 @@ void ogl_upixelc(int x, int y, int c)
 		static_cast<GLfloat>((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width),
 		static_cast<GLfloat>(1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height)
 	};
+	const auto cr = static_cast<GLfloat>(CPAL2Tr(c));
+	const auto cg = static_cast<GLfloat>(CPAL2Tg(c));
+	const auto cb = static_cast<GLfloat>(CPAL2Tb(c));
 	GLfloat color_array[] = {
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0
+		cr, cg, cb, 1.0,
+		cr, cg, cb, 1.0,
+		cr, cg, cb, 1.0,
+		cr, cg, cb, 1.0
 	};
 
 	OGL_DISABLE(TEXTURE_2D);
