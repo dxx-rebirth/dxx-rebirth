@@ -315,8 +315,8 @@ protected:
 		{
 			return bitmask_low_aligned() << shift();
 		}
-		base_maskproxy_t(unsigned shift) :
-			m_shift(shift)
+		base_maskproxy_t(const unsigned s) :
+			m_shift(s)
 		{
 		}
 	};
