@@ -682,13 +682,13 @@ class get_chunks_state :
 	public interpreter_ignore_op_glow,
 	public interpreter_base
 {
-	const uint8_t *const data;
+	const uint8_t *const m_data;
 	uint8_t *const new_data;
 	chunk *const list;
 	int *const no;
 public:
 	get_chunks_state(const uint8_t *data, uint8_t *ndata, chunk *l, int *n) :
-		data(data), new_data(ndata), list(l), no(n)
+		m_data(data), new_data(ndata), list(l), no(n)
 	{
 	}
 	static uint_fast32_t translate_opcode(const uint8_t *, const uint16_t op)
@@ -701,12 +701,12 @@ public:
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
-		add_chunk(p, p - data + new_data, 28, list, no);
-		add_chunk(p, p - data + new_data, 30, list, no);
+		add_chunk(p, p - m_data + new_data, 28, list, no);
+		add_chunk(p, p - m_data + new_data, 30, list, no);
 	}
 	void op_subcall(const uint8_t *const p)
 	{
-		add_chunk(p, p - data + new_data, 16, list, no);
+		add_chunk(p, p - m_data + new_data, 16, list, no);
 	}
 };
 
