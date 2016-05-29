@@ -687,8 +687,8 @@ class get_chunks_state :
 	chunk *const list;
 	int *const no;
 public:
-	get_chunks_state(const uint8_t *data, uint8_t *ndata, chunk *l, int *n) :
-		data(data), new_data(ndata), list(l), no(n)
+	get_chunks_state(const uint8_t *const p, uint8_t *const ndata, chunk *const l, int *const n) :
+		data(p), new_data(ndata), list(l), no(n)
 	{
 	}
 	static uint_fast32_t translate_opcode(const uint8_t *, const uint16_t op)
