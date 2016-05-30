@@ -737,6 +737,7 @@ extern void MultiLevelInv_Repopulate(fix frequency);
 namespace dsx {
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
+void show_netgame_info(const netgame_info &netgame);
 }
 #endif
 extern void multi_send_player_inventory(int priority);
@@ -765,8 +766,6 @@ void save_hoard_data(void);
 #endif
 }
 #endif
-
-extern void show_netgame_info(struct netgame_info *netgame);
 
 //how to encode missiles & flares in weapon packets
 #define MISSILE_ADJUST  100

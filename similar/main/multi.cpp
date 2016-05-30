@@ -5820,16 +5820,14 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 
 }
 
-
-static char *ngii;
-static int show_netgame_info_poll( newmenu *menu, const d_event &event, newmenu_item *items )
+namespace dsx {
+static int show_netgame_info_poll( newmenu *menu, const d_event &event, char *ngii  )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CLOSE:
 		{
-                        (void)items;
 			d_free(ngii);
                         d_free(menus);
 			return 0;
@@ -5840,8 +5838,9 @@ static int show_netgame_info_poll( newmenu *menu, const d_event &event, newmenu_
 	return 0;
 }
 
-void show_netgame_info(netgame_info *netgame)
+void show_netgame_info(const netgame_info &netgame)
 {
+        static char *ngii;
         newmenu_item *m;
         int loc=0, ngilen = 50;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -5860,91 +5859,91 @@ void show_netgame_info(netgame_info *netgame)
                 return;
         }
 
-        snprintf(ngii+(ngilen*loc),ngilen,"Game Name\t  %s",netgame->game_name.data());                                                                      loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Mission Name\t  %s",netgame->mission_title.data());                                                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Level\t  %s%i", (netgame->levelnum<0)?"S":" ", abs(netgame->levelnum));                                           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Game Mode\t  %s", netgame->gamemode < GMNames.size() ? GMNames[netgame->gamemode] : "INVALID");                   loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Players\t  %i/%i", netgame->numplayers, netgame->max_numplayers);                                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Game Name\t  %s",netgame.game_name.data());                                                                      loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Mission Name\t  %s",netgame.mission_title.data());                                                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Level\t  %s%i", (netgame.levelnum<0)?"S":" ", abs(netgame.levelnum));                                           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Game Mode\t  %s", netgame.gamemode < GMNames.size() ? GMNames[netgame.gamemode] : "INVALID");                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Players\t  %i/%i", netgame.numplayers, netgame.max_numplayers);                                                 loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Game Options:");                                                                                                  loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Difficulty\t  %s", MENU_DIFFICULTY_TEXT(netgame->difficulty));                                                    loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Reactor Life\t  %i %s", netgame->control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);                             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Max Time\t  %i %s", netgame->PlayTimeAllowed * 5, TXT_MINUTES_ABBREV);                                            loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Kill Goal\t  %i", netgame->KillGoal * 5);                                                                         loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Difficulty\t  %s", MENU_DIFFICULTY_TEXT(netgame.difficulty));                                                    loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Reactor Life\t  %i %s", netgame.control_invul_time / F1_0 / 60, TXT_MINUTES_ABBREV);                             loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Max Time\t  %i %s", netgame.PlayTimeAllowed * 5, TXT_MINUTES_ABBREV);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Kill Goal\t  %i", netgame.KillGoal * 5);                                                                         loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Duplicate Powerups:");                                                                                            loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Primaries\t  %i", (int)netgame->DuplicatePowerups.get_primary_count());                                           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Secondaries\t  %i", (int)netgame->DuplicatePowerups.get_secondary_count());                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Primaries\t  %i", (int)netgame.DuplicatePowerups.get_primary_count());                                           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Secondaries\t  %i", (int)netgame.DuplicatePowerups.get_secondary_count());                                       loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Accessories\t  %i", (int)netgame->DuplicatePowerups.get_accessory_count());                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Accessories\t  %i", (int)netgame.DuplicatePowerups.get_accessory_count());                                       loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Spawn Options:");                                                                                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Use * Furthest Spawn Sites\t  %i", netgame->SecludedSpawns+1);                                                    loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Invulnerable Time\t  %1.1f sec", static_cast<float>(netgame->InvulAppear) / 2);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Use * Furthest Spawn Sites\t  %i", netgame.SecludedSpawns+1);                                                    loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Invulnerable Time\t  %1.1f sec", static_cast<float>(netgame.InvulAppear) / 2);                                   loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Objects Allowed:");                                                                                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Laser Upgrade\t  %s", (netgame->AllowedItems & NETFLAG_DOLASER)?TXT_YES:TXT_NO);                                  loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Quad Lasers\t  %s", (netgame->AllowedItems & NETFLAG_DOQUAD)?TXT_YES:TXT_NO);                                     loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Vulcan Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOVULCAN)?TXT_YES:TXT_NO);                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Spreadfire Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOSPREAD)?TXT_YES:TXT_NO);                             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Plasma Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOPLASMA)?TXT_YES:TXT_NO);                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Fusion Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOFUSION)?TXT_YES:TXT_NO);                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Homing Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOHOMING)?TXT_YES:TXT_NO);                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Proximity Bombs\t  %s", (netgame->AllowedItems & NETFLAG_DOPROXIM)?TXT_YES:TXT_NO);                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Smart Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOSMART)?TXT_YES:TXT_NO);                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Mega Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOMEGA)?TXT_YES:TXT_NO);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Laser Upgrade\t  %s", (netgame.AllowedItems & NETFLAG_DOLASER)?TXT_YES:TXT_NO);                                  loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Quad Lasers\t  %s", (netgame.AllowedItems & NETFLAG_DOQUAD)?TXT_YES:TXT_NO);                                     loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Vulcan Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOVULCAN)?TXT_YES:TXT_NO);                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Spreadfire Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOSPREAD)?TXT_YES:TXT_NO);                             loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Plasma Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOPLASMA)?TXT_YES:TXT_NO);                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Fusion Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOFUSION)?TXT_YES:TXT_NO);                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Homing Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOHOMING)?TXT_YES:TXT_NO);                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Proximity Bombs\t  %s", (netgame.AllowedItems & NETFLAG_DOPROXIM)?TXT_YES:TXT_NO);                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Smart Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOSMART)?TXT_YES:TXT_NO);                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Mega Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOMEGA)?TXT_YES:TXT_NO);                                   loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Super Lasers\t  %s", (netgame->AllowedItems & NETFLAG_DOSUPERLASER)?TXT_YES:TXT_NO);                              loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Gauss Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOGAUSS)?TXT_YES:TXT_NO);                                   loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Helix Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOHELIX)?TXT_YES:TXT_NO);                                   loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Phoenix Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOPHOENIX)?TXT_YES:TXT_NO);                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Omega Cannon\t  %s", (netgame->AllowedItems & NETFLAG_DOOMEGA)?TXT_YES:TXT_NO);                                   loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Flash Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOFLASH)?TXT_YES:TXT_NO);                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Guides Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOGUIDED)?TXT_YES:TXT_NO);                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Smart Mines\t  %s", (netgame->AllowedItems & NETFLAG_DOSMARTMINE)?TXT_YES:TXT_NO);                                loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Mercury Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOMERCURY)?TXT_YES:TXT_NO);                             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Earthshaker Missiles\t  %s", (netgame->AllowedItems & NETFLAG_DOSHAKER)?TXT_YES:TXT_NO);                          loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Super Lasers\t  %s", (netgame.AllowedItems & NETFLAG_DOSUPERLASER)?TXT_YES:TXT_NO);                              loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Gauss Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOGAUSS)?TXT_YES:TXT_NO);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Helix Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOHELIX)?TXT_YES:TXT_NO);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Phoenix Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOPHOENIX)?TXT_YES:TXT_NO);                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Omega Cannon\t  %s", (netgame.AllowedItems & NETFLAG_DOOMEGA)?TXT_YES:TXT_NO);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Flash Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOFLASH)?TXT_YES:TXT_NO);                                 loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Guides Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOGUIDED)?TXT_YES:TXT_NO);                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Smart Mines\t  %s", (netgame.AllowedItems & NETFLAG_DOSMARTMINE)?TXT_YES:TXT_NO);                                loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Mercury Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOMERCURY)?TXT_YES:TXT_NO);                             loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Earthshaker Missiles\t  %s", (netgame.AllowedItems & NETFLAG_DOSHAKER)?TXT_YES:TXT_NO);                          loc++;
 #endif
-        snprintf(ngii+(ngilen*loc),ngilen,"Cloaking\t  %s", (netgame->AllowedItems & NETFLAG_DOCLOAK)?TXT_YES:TXT_NO);                                       loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Invulnerability\t  %s", (netgame->AllowedItems & NETFLAG_DOINVUL)?TXT_YES:TXT_NO);                                loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Cloaking\t  %s", (netgame.AllowedItems & NETFLAG_DOCLOAK)?TXT_YES:TXT_NO);                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Invulnerability\t  %s", (netgame.AllowedItems & NETFLAG_DOINVUL)?TXT_YES:TXT_NO);                                loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Afterburners\t  %s", (netgame->AllowedItems & NETFLAG_DOAFTERBURNER)?TXT_YES:TXT_NO);                             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Ammo Rack\t  %s", (netgame->AllowedItems & NETFLAG_DOAMMORACK)?TXT_YES:TXT_NO);                                   loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Enery Converter\t  %s", (netgame->AllowedItems & NETFLAG_DOCONVERTER)?TXT_YES:TXT_NO);                            loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Headlight\t  %s", (netgame->AllowedItems & NETFLAG_DOHEADLIGHT)?TXT_YES:TXT_NO);                                  loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Afterburners\t  %s", (netgame.AllowedItems & NETFLAG_DOAFTERBURNER)?TXT_YES:TXT_NO);                             loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Ammo Rack\t  %s", (netgame.AllowedItems & NETFLAG_DOAMMORACK)?TXT_YES:TXT_NO);                                   loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Enery Converter\t  %s", (netgame.AllowedItems & NETFLAG_DOCONVERTER)?TXT_YES:TXT_NO);                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Headlight\t  %s", (netgame.AllowedItems & NETFLAG_DOHEADLIGHT)?TXT_YES:TXT_NO);                                  loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Objects Granted At Spawn:");                                                                                      loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Laser Level\t  %i", map_granted_flags_to_laser_level(netgame->SpawnGrantedItems)+1);                              loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Quad Lasers\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_QUAD)?TXT_YES:TXT_NO);             loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Vulcan Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_VULCAN)?TXT_YES:TXT_NO);         loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Spreadfire Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_SPREAD)?TXT_YES:TXT_NO);     loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Plasma Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_PLASMA)?TXT_YES:TXT_NO);         loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Fusion Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_FUSION)?TXT_YES:TXT_NO);         loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Laser Level\t  %i", map_granted_flags_to_laser_level(netgame.SpawnGrantedItems)+1);                              loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Quad Lasers\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_QUAD)?TXT_YES:TXT_NO);             loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Vulcan Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_VULCAN)?TXT_YES:TXT_NO);         loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Spreadfire Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_SPREAD)?TXT_YES:TXT_NO);     loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Plasma Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_PLASMA)?TXT_YES:TXT_NO);         loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Fusion Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_FUSION)?TXT_YES:TXT_NO);         loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Gauss Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_GAUSS)?TXT_YES:TXT_NO);           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Helix Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_HELIX)?TXT_YES:TXT_NO);           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Phoenix Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_PHOENIX)?TXT_YES:TXT_NO);       loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Omega Cannon\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_OMEGA)?TXT_YES:TXT_NO);           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Afterburners\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_AFTERBURNER)?TXT_YES:TXT_NO);     loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Ammo Rack\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_AMMORACK)?TXT_YES:TXT_NO);           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Enery Converter\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_CONVERTER)?TXT_YES:TXT_NO);    loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Headlight\t  %s", menu_bit_wrapper(netgame->SpawnGrantedItems.mask, NETGRANT_HEADLIGHT)?TXT_YES:TXT_NO);          loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Gauss Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_GAUSS)?TXT_YES:TXT_NO);           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Helix Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_HELIX)?TXT_YES:TXT_NO);           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Phoenix Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_PHOENIX)?TXT_YES:TXT_NO);       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Omega Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_OMEGA)?TXT_YES:TXT_NO);           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Afterburners\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_AFTERBURNER)?TXT_YES:TXT_NO);     loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Ammo Rack\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_AMMORACK)?TXT_YES:TXT_NO);           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Enery Converter\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_CONVERTER)?TXT_YES:TXT_NO);    loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Headlight\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_HEADLIGHT)?TXT_YES:TXT_NO);          loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Misc. Options:");                                                                                                 loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Show All Players On Automap\t  %s", netgame->game_flag.show_on_map?TXT_YES:TXT_NO);                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Show All Players On Automap\t  %s", netgame.game_flag.show_on_map?TXT_YES:TXT_NO);                               loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Allow Marker Camera Views\t  %s", netgame->Allow_marker_view?TXT_YES:TXT_NO);                                     loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Indestructable Lights\t  %s", netgame->AlwaysLighting?TXT_YES:TXT_NO);                                            loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Allow Marker Camera Views\t  %s", netgame.Allow_marker_view?TXT_YES:TXT_NO);                                     loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Indestructable Lights\t  %s", netgame.AlwaysLighting?TXT_YES:TXT_NO);                                            loc++;
 #endif
-        snprintf(ngii+(ngilen*loc),ngilen,"Bright Player Ships\t  %s", netgame->BrightPlayers?TXT_YES:TXT_NO);                                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Enemy Names On Hud\t  %s", netgame->ShowEnemyNames?TXT_YES:TXT_NO);                                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Friendly Fire (Team, Coop)\t  %s", netgame->NoFriendlyFire?TXT_NO:TXT_YES);                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Bright Player Ships\t  %s", netgame.BrightPlayers?TXT_YES:TXT_NO);                                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Enemy Names On Hud\t  %s", netgame.ShowEnemyNames?TXT_YES:TXT_NO);                                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Friendly Fire (Team, Coop)\t  %s", netgame.NoFriendlyFire?TXT_NO:TXT_YES);                                       loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Network Options:");                                                                                               loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Packets Per Second\t  %i", netgame->PacketsPerSec);                                                               loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Packets Per Second\t  %i", netgame.PacketsPerSec);                                                               loc++;
 
         Assert(loc == nginum);
 	for (int i = 0; i < nginum; i++) {
@@ -5952,5 +5951,6 @@ void show_netgame_info(netgame_info *netgame)
                 m[i].text = ngii+(i*ngilen);
 	}
 
-	newmenu_dotiny(NULL, "Netgame Info & Rules", nginum, m, 0, show_netgame_info_poll, m);
+	newmenu_dotiny(NULL, "Netgame Info & Rules", nginum, m, 0, show_netgame_info_poll, ngii);
+}
 }

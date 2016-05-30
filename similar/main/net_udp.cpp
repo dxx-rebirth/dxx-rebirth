@@ -5692,7 +5692,7 @@ static int show_game_info_handler(newmenu *, const d_event &event, netgame_info 
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem != 1)
 				return 0;
-			show_netgame_info(netgame);
+			show_netgame_info(*netgame);
 			return 1;
 		}
 		default:
