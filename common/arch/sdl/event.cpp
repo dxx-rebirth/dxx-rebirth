@@ -49,23 +49,33 @@ void event_poll()
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
+                                if (CGameArg.CtlNoMouse)
+                                        break;
 				mouse_button_handler(&event.button);
 				idle = 0;
 				break;
 			case SDL_MOUSEMOTION:
+                                if (CGameArg.CtlNoMouse)
+                                        break;
 				mouse_motion_handler(&event.motion);
 				idle = 0;
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
+                                if (CGameArg.CtlNoJoystick)
+                                        break;
 				joy_button_handler(&event.jbutton);
 				idle = 0;
 				break;
 			case SDL_JOYAXISMOTION:
+                                if (CGameArg.CtlNoJoystick)
+                                        break;
 				if (joy_axis_handler(&event.jaxis))
 					idle = 0;
 				break;
 			case SDL_JOYHATMOTION:
+                                if (CGameArg.CtlNoJoystick)
+                                        break;
 				joy_hat_handler(&event.jhat);
 				idle = 0;
 				break;

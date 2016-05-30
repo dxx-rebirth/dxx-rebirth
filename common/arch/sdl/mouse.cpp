@@ -153,9 +153,6 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
 	d_event_mouse_moved event;
 	
-	if (CGameArg.CtlNoMouse)
-		return;
-
 	Mouse.cursor_time = timer_query();
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;

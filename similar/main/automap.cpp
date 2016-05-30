@@ -540,6 +540,83 @@ static void name_frame(automap *am)
 #endif
 }
 
+static void automap_apply_input(automap *am)
+{
+	if (PlayerCfg.AutomapFreeFlight)
+	{
+		if ( am->controls.state.fire_primary)
+		{
+			// Reset orientation
+			am->viewMatrix = get_local_plrobj().orient;
+			vm_vec_scale_add(am->view_position, get_local_plrobj().pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
+			am->controls.state.fire_primary = 0;
+		}
+		
+		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
+		{
+			vms_angvec tangles;
+
+			tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
+			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
+			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
+
+			const auto &&tempm = vm_angles_2_matrix(tangles);
+			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
+			check_and_fix_matrix(am->viewMatrix);
+		}
+		
+		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
+		{
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_position, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			
+			// Crude wrapping check
+			clamp_fix_symmetric(am->view_position.x, F1_0*32000);
+			clamp_fix_symmetric(am->view_position.y, F1_0*32000);
+			clamp_fix_symmetric(am->view_position.z, F1_0*32000);
+		}
+	}
+	else
+	{
+		if ( am->controls.state.fire_primary)
+		{
+			// Reset orientation
+			am->viewDist = ZOOM_DEFAULT;
+			am->tangles.p = PITCH_DEFAULT;
+			am->tangles.h  = 0;
+			am->tangles.b  = 0;
+			am->view_target = get_local_plrobj().pos;
+			am->controls.state.fire_primary = 0;
+		}
+
+		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+		am->tangles.p += fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
+		am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
+		am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
+
+		if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
+		{
+			vms_angvec      tangles1;
+			vms_vector      old_vt;
+
+			old_vt = am->view_target;
+			tangles1 = am->tangles;
+			const auto &&tempm = vm_angles_2_matrix(tangles1);
+			vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
+			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			if ( vm_vec_dist_quick( am->view_target, get_local_plrobj().pos) > i2f(1000) )
+				am->view_target = old_vt;
+		}
+
+		const auto &&tempm = vm_angles_2_matrix(am->tangles);
+		vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
+
+		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
+	}
+}
+
 static void draw_automap(automap *am)
 {
 	int i;
@@ -819,79 +896,6 @@ static window_event_result automap_process_input(window *, const d_event &event,
 		}
 	}
 	
-	if (PlayerCfg.AutomapFreeFlight)
-	{
-		if ( am->controls.state.fire_primary)
-		{
-			// Reset orientation
-			am->viewMatrix = get_local_plrobj().orient;
-			vm_vec_scale_add(am->view_position, get_local_plrobj().pos, am->viewMatrix.fvec, -ZOOM_DEFAULT );
-			am->controls.state.fire_primary = 0;
-		}
-		
-		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
-		{
-			vms_angvec tangles;
-
-			tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
-			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
-			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
-
-			const auto &&tempm = vm_angles_2_matrix(tangles);
-			am->viewMatrix = vm_matrix_x_matrix(am->viewMatrix,tempm);
-			check_and_fix_matrix(am->viewMatrix);
-		}
-		
-		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
-		{
-			vm_vec_scale_add2( am->view_position, am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
-			vm_vec_scale_add2( am->view_position, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( am->view_position, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
-			
-			// Crude wrapping check
-			clamp_fix_symmetric(am->view_position.x, F1_0*32000);
-			clamp_fix_symmetric(am->view_position.y, F1_0*32000);
-			clamp_fix_symmetric(am->view_position.z, F1_0*32000);
-		}
-	}
-	else
-	{
-		if ( am->controls.state.fire_primary)
-		{
-			// Reset orientation
-			am->viewDist = ZOOM_DEFAULT;
-			am->tangles.p = PITCH_DEFAULT;
-			am->tangles.h  = 0;
-			am->tangles.b  = 0;
-			am->view_target = get_local_plrobj().pos;
-			am->controls.state.fire_primary = 0;
-		}
-
-		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
-		am->tangles.p += fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
-		am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
-		am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
-
-		if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
-		{
-			vms_angvec      tangles1;
-			vms_vector      old_vt;
-
-			old_vt = am->view_target;
-			tangles1 = am->tangles;
-			const auto &&tempm = vm_angles_2_matrix(tangles1);
-			vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
-			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
-			if ( vm_vec_dist_quick( am->view_target, get_local_plrobj().pos) > i2f(1000) )
-				am->view_target = old_vt;
-		}
-
-		const auto &&tempm = vm_angles_2_matrix(am->tangles);
-		vm_matrix_x_matrix(am->viewMatrix, get_local_plrobj().orient, tempm);
-
-		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
-	}
 	return window_event_result::ignored;
 }
 
@@ -928,6 +932,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 		}
 			
 		case EVENT_WINDOW_DRAW:
+                        automap_apply_input(am);
 			draw_automap(am);
 			break;
 			
