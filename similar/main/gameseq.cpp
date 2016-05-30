@@ -419,7 +419,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 	if (pnum == Player_num)
 	{
-		if (Netgame.InvulAppear)
+		if (Game_mode & GM_MULTI && Netgame.InvulAppear)
 		{
 			player_info.powerup_flags |= PLAYER_FLAGS_INVULNERABLE;
 			player_info.invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
