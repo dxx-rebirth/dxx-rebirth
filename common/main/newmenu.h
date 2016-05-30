@@ -292,7 +292,7 @@ static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text)
 {
 	ni.type = NM_TYPE_INPUT;
 	ni.text = text;
-	ni.text_len = len;
+	ni.text_len = len-1;
 }
 
 template <std::size_t len>

@@ -58,7 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
-#define COOL_MESSAGE_LEN 	50
+#define COOL_MESSAGE_LEN 	51
 #define MAX_HIGH_SCORES 	10
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -236,7 +236,7 @@ void scores_maybe_add_player(int abort_flag)
 		scores_fill_struct( &last_game );
 	} else {
 		if ( position==0 )	{
-			array<char, COOL_MESSAGE_LEN+10> text1{};
+			array<char, COOL_MESSAGE_LEN> text1{};
 			array<newmenu_item, 2> m{{
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
