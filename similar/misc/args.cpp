@@ -186,6 +186,7 @@ static void ReadIniArgs(Inilist &ini)
 	Arglist Args;
 	AppendIniArgs(ini.back().filename().c_str(), Args);
 	ReadCmdArgs(ini, Args);
+	ini.pop_back();
 }
 
 static void ReadCmdArgs(Inilist &ini, Arglist &Args)
@@ -393,7 +394,6 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			if (ini.size() > 10)
 				throw nesting_depth_exceeded();
 			ReadIniArgs(ini);
-			ini.pop_back();
 		}
 		else
 			throw unhandled_argument(std::move(*pp));
