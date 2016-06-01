@@ -400,8 +400,8 @@ class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned,
 	template <typename R>
 	struct tmpl_multibit_proxy_t : public visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>
 	{
-		tmpl_multibit_proxy_t(R byte, unsigned shift) :
-			visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>(byte, shift)
+		tmpl_multibit_proxy_t(R byte, unsigned s) :
+			visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>(byte, s)
 		{
 		}
 		explicit operator bool() const
