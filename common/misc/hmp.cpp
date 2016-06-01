@@ -182,10 +182,9 @@ static int get_event(hmp_file *hmp, event *ev) {
 	unsigned long got;
 	unsigned long mindelta, delta;
 	int ev_num;
-	hmp_track *trk, *fndtrk;
+	hmp_track *fndtrk = nullptr;
 
 	mindelta = INT_MAX;
-	fndtrk = NULL;
 	range_for (auto &rtrk, partial_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
 	{
 		const auto trk = &rtrk;
@@ -209,7 +208,8 @@ static int get_event(hmp_file *hmp, event *ev) {
 			fndtrk = trk;
 		}
 	}
-	if (!(trk = fndtrk))
+	const auto trk = fndtrk;
+	if (!trk)
 			return HMP_EOF;
 
 	got = get_var_num_hmi(trk->cur, trk->left, &delta);
