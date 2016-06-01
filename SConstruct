@@ -3459,7 +3459,11 @@ class DXXProgram(DXXCommon):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
-		print('===== %s v%s.%s.%s =====' % (self.PROGRAM_NAME, self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO))
+		git_describe_version = self.compute_extra_version()[0]
+		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
+		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
+			extra_version += ' ' + git_describe_version
+		print('===== %s %s =====' % (self.PROGRAM_NAME, extra_version))
 		self.user_settings = user_settings = self.UserSettings(program=self)
 		user_settings.register_variables(prefix=prefix, variables=variables)
 
@@ -3523,7 +3527,7 @@ class DXXProgram(DXXCommon):
 	@classmethod
 	def _compute_extra_version(cls):
 		try:
-			g = Git.pcall(['describe', '--tags', '--abbrev=8'], stderr=subprocess.PIPE)
+			g = Git.pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				return None
