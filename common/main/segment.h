@@ -415,8 +415,8 @@ class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned,
 	};
 	struct bitproxy_t : public tmpl_multibit_proxy_t<typename array_t::reference>
 	{
-		bitproxy_t(typename array_t::reference byte, unsigned shift) :
-			tmpl_multibit_proxy_t<typename array_t::reference>(byte, shift)
+		bitproxy_t(typename array_t::reference byte, unsigned s) :
+			tmpl_multibit_proxy_t<typename array_t::reference>(byte, s)
 		{
 		}
 		bitproxy_t& operator=(unsigned u)
