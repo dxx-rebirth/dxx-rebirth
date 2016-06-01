@@ -354,8 +354,8 @@ class visited_segment_bitarray_t : public visited_segment_mask_t<bool, 1>
 	template <typename R>
 	struct tmpl_bitproxy_t : public tmpl_maskproxy_t<R>
 	{
-		tmpl_bitproxy_t(R byte, unsigned shift) :
-			tmpl_maskproxy_t<R>(byte, shift)
+		tmpl_bitproxy_t(R byte, unsigned s) :
+			tmpl_maskproxy_t<R>(byte, s)
 		{
 		}
 		explicit operator bool() const
