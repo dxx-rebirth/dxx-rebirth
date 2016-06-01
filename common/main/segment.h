@@ -324,8 +324,8 @@ protected:
 	struct tmpl_maskproxy_t : public base_maskproxy_t
 	{
 		R m_byte;
-		tmpl_maskproxy_t(R byte, unsigned shift) :
-			base_maskproxy_t(shift), m_byte(byte)
+		tmpl_maskproxy_t(R byte, unsigned s) :
+			base_maskproxy_t(s), m_byte(byte)
 		{
 		}
 	};
