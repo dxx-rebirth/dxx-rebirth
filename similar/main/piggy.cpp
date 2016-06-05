@@ -587,7 +587,7 @@ int properties_init()
                 temp_sound.bits = 8;
                 temp_sound.freq = 11025;
 //end this section addition - VR
-		temp_sound.data = (uint8_t *)(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
+		temp_sound.data = reinterpret_cast<uint8_t *>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
@@ -1272,7 +1272,7 @@ void piggy_read_sounds(void)
 				PHYSFS_read( fp, snd->data, snd->length, 1 );
 			}
 			else
-				snd->data = (uint8_t *) (-1);
+				snd->data = reinterpret_cast<uint8_t *>(-1);
 		}
 	}
 }
@@ -1346,7 +1346,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
-			*((int *) (Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
+			*(reinterpret_cast<int *>(Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
 #ifndef MACDATA

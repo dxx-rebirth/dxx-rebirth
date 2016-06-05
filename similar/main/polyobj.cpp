@@ -239,7 +239,7 @@ static void align_polygon_model_data(polymodel *pm)
 			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
 		}
 		//write (corrected) chunk for current chunk:
-		*((short *)(cur_ch.new_base + cur_ch.offset))
+		*(reinterpret_cast<short *>(cur_ch.new_base + cur_ch.offset))
 		  = INTEL_SHORT(static_cast<short>(cur_ch.correction + GET_INTEL_SHORT(cur_ch.old_base + cur_ch.offset)));
 		//write (correctly aligned) chunk:
 		cur_old = old_dest(cur_ch);

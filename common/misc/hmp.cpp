@@ -332,7 +332,7 @@ static int setup_buffers(hmp_file *hmp) {
 		if (!(buf = (MIDIHDR *)d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
-		buf->lpData = (char *)(buf) + sizeof(MIDIHDR);
+		buf->lpData = reinterpret_cast<char *>(buf) + sizeof(MIDIHDR);
 		buf->dwBufferLength = HMP_BUFSIZE;
 		buf->dwUser = reinterpret_cast<uintptr_t>(hmp);
 		buf->lpNext = lastbuf;

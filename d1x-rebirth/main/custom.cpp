@@ -306,7 +306,7 @@ static int load_pigpog(const d_fname &pogname)
 
 			if ( cip->flags & BM_FLAG_RLE )
 			{
-				int *ip = (int *)(p);
+				int *ip = reinterpret_cast<int *>(p);
 				*ip = j;
 				p += 4;
 				j -= 4;

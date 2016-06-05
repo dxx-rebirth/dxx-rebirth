@@ -48,7 +48,7 @@ void c_tmap_scanline_flat()
 	ubyte *dest;
         int x, index = fx_xleft + (bytes_per_row * fx_y );
 
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y )  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y )  );
 
 	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 		if (++index >= SWIDTH*SHEIGHT) return;
@@ -64,7 +64,7 @@ void c_tmap_scanline_shaded()
 	ubyte *dest, tmp;
 	int x, index = fx_xleft + (bytes_per_row * fx_y );
 
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	fade = tmap_flat_shade_value;
 	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
@@ -86,7 +86,7 @@ void c_tmap_scanline_lin_nolight()
 	dudx = fx_du_dx; 
 	dvdx = fx_dv_dx*64; 
 
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
@@ -124,7 +124,7 @@ void c_tmap_scanline_lin()
 
 	l = fx_l>>8;
 	dldx = fx_dl_dx/256;
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		const auto pixPtrLocalCopy = pixptr;
@@ -230,7 +230,7 @@ void c_tmap_scanline_lin()
 
 	l = fx_l>>8;
 	dldx = fx_dl_dx/256;
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
@@ -285,7 +285,7 @@ static void c_fp_tmap_scanline_per()
 
 	rec_z = 1.0 / z; // gcc 2.95.2 is won't do this optimization itself
 
-	dest = (uint8_t *) (write_buffer + fx_xleft + (bytes_per_row * fx_y));
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y));
 	x = fx_xright - fx_xleft + 1;
 
 	if (!Transparency_on) {
@@ -384,7 +384,7 @@ static void c_fp_tmap_scanline_per()
 				z += dzdx;
 				rec_z = 1.0 / z;
 
-				*((uint64_t *) (dest)) = destlong;
+				*(reinterpret_cast<uint64_t *>(dest)) = destlong;
 				dest += 8;
 				x -= 8;
 				j -= 8;
@@ -426,7 +426,7 @@ static void c_fp_tmap_scanline_per()
 
 			j = x;
 			while (j >= 8) {
-				destlong = *((uint64_t *) (dest));
+				destlong = *(reinterpret_cast<uint64_t *>(dest));
 				c = (uint) pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)];
 				if (c != 255) {
 					destlong &= ~static_cast<uint64_t>(0xFF);
@@ -508,7 +508,7 @@ static void c_fp_tmap_scanline_per()
 				z += dzdx;
 				rec_z = 1.0 / z;
 
-				*((uint64_t *) (dest)) = destlong;
+				*(reinterpret_cast<uint64_t *>(dest)) = destlong;
 				dest += 8;
 				x -= 8;
 				j -= 8;
@@ -550,7 +550,7 @@ static void c_tmap_scanline_per()
 
 	l = fx_l>>8;
 	dldx = fx_dl_dx/256;
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		const auto pixPtrLocalCopy = pixptr;
@@ -663,7 +663,7 @@ void c_tmap_scanline_per()
 
 	l = fx_l>>8;
 	dldx = fx_dl_dx/256;
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
@@ -731,7 +731,7 @@ static void c_tmap_scanline_quad()
 	dldx = fx_dl_dx>>8;
 	
 	// Normal destination pointer setup
-	dest = (uint8_t *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
+	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
 		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {

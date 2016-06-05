@@ -510,7 +510,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 	}
 
 	d_free(bm.bm_mdata);				//get rid of old-style data
-	bm.bm_mdata = (uint8_t *) (new_data);			//..and point to new data
+	bm.bm_mdata = reinterpret_cast<uint8_t *>(new_data);			//..and point to new data
 
 	bm.bm_rowsize *= 2;				//two bytes per row
 #endif

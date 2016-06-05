@@ -2697,7 +2697,7 @@ multi_send_message(void)
 	{
 		loc += 1;
 		multibuf[loc] = static_cast<char>(Player_num);                       loc += 1;
-		strncpy((char *)(multibuf+loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
+		strncpy(reinterpret_cast<char *>(multibuf+loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
 		multibuf[loc-1] = '\0';
 		multi_send_data<MULTI_MESSAGE>(multibuf, loc, 0);
 		Network_message_reciever = -1;
@@ -3711,7 +3711,7 @@ void multi_send_kill_goal_counts()
 
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		*(char *)(multibuf+count)=(char)Players[i].KillGoalCount;
+		*reinterpret_cast<char *>(multibuf+count)=(char)Players[i].KillGoalCount;
 		count++;
 	}
 
@@ -3802,7 +3802,7 @@ void multi_send_light_specific (const playernum_t pnum,segnum_t segnum,ubyte val
 	//  Assert (pnum>-1 && pnum<N_players);
 
 	PUT_INTEL_INT(multibuf+count, segnum); count+=(sizeof(int));
-	*(char *)(multibuf+count)=val; count++;
+	*reinterpret_cast<char *>(multibuf+count)=val; count++;
 
 	range_for (auto &i, Segments[segnum].sides)
 	{
@@ -3875,7 +3875,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	multibuf[2]=whichfunc;              count++;
 	if (!words_bigendian)
 	{
-	*(uint32_t *)(multibuf+count)=sound;    count++;
+	*reinterpret_cast<uint32_t *>(multibuf+count)=sound;    count++;
 	}
 	else
 	{

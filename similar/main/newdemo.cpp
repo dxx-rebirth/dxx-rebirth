@@ -1914,7 +1914,7 @@ static int newdemo_read_frame_information(int rewrite)
 			done=1;
 			nd_read_short(&last_frame_length);
 			nd_read_int(&nd_playback_v_framecount);
-			nd_read_int((int *)(&nd_recorded_time));
+			nd_read_int(reinterpret_cast<int *>(&nd_recorded_time));
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -2861,8 +2861,8 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_PRIMARY_AMMO: {
 			unsigned short old_ammo, new_ammo;
 
-			nd_read_short((short *)(&old_ammo));
-			nd_read_short((short *)(&new_ammo));
+			nd_read_short(reinterpret_cast<short *>(&old_ammo));
+			nd_read_short(reinterpret_cast<short *>(&new_ammo));
 			if (rewrite)
 			{
 				nd_write_short(old_ammo);

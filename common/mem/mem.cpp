@@ -147,7 +147,7 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 	LineNum[id] = line;
 	Present[id]    = 1;
 
-	pc = (char *)(ptr);
+	pc = reinterpret_cast<char *>(ptr);
 
 	BytesMalloced += size;
 
@@ -188,7 +188,7 @@ static int mem_check_integrity( int block_number )
 	int ErrorCount;
 	ubyte * CheckData;
 
-	CheckData = (uint8_t *)((char *)MallocBase[block_number] + MallocSize[block_number]);
+	CheckData = reinterpret_cast<uint8_t *>((char *)MallocBase[block_number] + MallocSize[block_number]);
 
 	ErrorCount = 0;
 			

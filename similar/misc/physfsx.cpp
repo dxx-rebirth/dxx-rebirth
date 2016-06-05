@@ -232,7 +232,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 		
 		err = GetProcessBundleLocation(&psn, &fsref);
 		if (err == noErr)
-			err = FSRefMakePath(&fsref, (uint8_t *)(fullPath), PATH_MAX);
+			err = FSRefMakePath(&fsref, reinterpret_cast<uint8_t *>(fullPath), PATH_MAX);
 		
 		if (err == noErr)
 		{
