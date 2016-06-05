@@ -617,7 +617,7 @@ static void polyobj_find_min_max(polymodel *pm)
 		auto &mx = pm->submodel_maxs[m];
 		const auto &ofs = pm->submodel_offsets[m];
 
-		data = (ushort *)&pm->model_data[pm->submodel_ptrs[m]];
+		data = (uint16_t *)&pm->model_data[pm->submodel_ptrs[m]];
 	
 		type = *data++;
 	

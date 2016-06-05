@@ -87,7 +87,7 @@ static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vec
 	ushort nverts;
 	ushort *data,type;
 
-	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 
@@ -122,7 +122,7 @@ static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_nu
 	ushort *data,type;
 	int i;
 
-	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 
@@ -185,7 +185,7 @@ static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 	ushort *data,type;
 	int i;
 
-	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
+	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
 
