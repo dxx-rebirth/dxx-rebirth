@@ -3875,7 +3875,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	multibuf[2]=whichfunc;              count++;
 	if (!words_bigendian)
 	{
-	*(uint *)(multibuf+count)=sound;    count++;
+	*(uint32_t *)(multibuf+count)=sound;    count++;
 	}
 	else
 	{
