@@ -294,7 +294,7 @@ static int load_pigpog(const d_fname &pogname)
 				if (GameBitmapOffset[x]) // from pig?
 				{
 					BitmapOriginal[x].bm_flags |= BM_FLAG_PAGED_OUT;
-					BitmapOriginal[x].bm_data = (ubyte *)(size_t)GameBitmapOffset[x];
+					BitmapOriginal[x].bm_data = (uint8_t *)(size_t)GameBitmapOffset[x];
 				}
 			}
 

@@ -1003,9 +1003,9 @@ int read_player_file()
 		if (player_file_version>=20)
 			PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Winjoy map field
 		ubyte control_type_dos, control_type_win;
-		if (PHYSFS_read(file, (ubyte *)&control_type_dos, sizeof(ubyte), 1) != 1)
+		if (PHYSFS_read(file, (uint8_t *)&control_type_dos, sizeof(ubyte), 1) != 1)
 			goto read_player_file_failed;
-		else if (player_file_version >= 21 && PHYSFS_read(file, (ubyte *)&control_type_win, sizeof(ubyte), 1) != 1)
+		else if (player_file_version >= 21 && PHYSFS_read(file, (uint8_t *)&control_type_win, sizeof(ubyte), 1) != 1)
 #endif
 			goto read_player_file_failed;
 		else if (PHYSFS_read(file, &dummy_joy_sens, sizeof(ubyte), 1) !=1 )

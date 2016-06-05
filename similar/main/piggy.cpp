@@ -587,7 +587,7 @@ int properties_init()
                 temp_sound.bits = 8;
                 temp_sound.freq = 11025;
 //end this section addition - VR
-		temp_sound.data = (ubyte *)(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
+		temp_sound.data = (uint8_t *)(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
@@ -1048,7 +1048,7 @@ int read_hamfile()
 		for (i=0; i<N_sounds; i++ ) {
 			DiskSoundHeader_read(&sndh, ham_fp);
 			temp_sound.length = sndh.length;
-			temp_sound.data = (ubyte *)(size_t)(sndh.offset + header_size + sound_start);
+			temp_sound.data = (uint8_t *)(size_t)(sndh.offset + header_size + sound_start);
 			SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 			memcpy( temp_name_read, sndh.name, 8 );
 			temp_name_read[8] = 0;
@@ -1094,7 +1094,7 @@ static int read_sndfile()
 	for (i=0; i<N_sounds; i++ ) {
 		DiskSoundHeader_read(&sndh, snd_fp);
 		temp_sound.length = sndh.length;
-		temp_sound.data = (ubyte *)(size_t)(sndh.offset + header_size + sound_start);
+		temp_sound.data = (uint8_t *)(size_t)(sndh.offset + header_size + sound_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
@@ -1272,7 +1272,7 @@ void piggy_read_sounds(void)
 				PHYSFS_read( fp, snd->data, snd->length, 1 );
 			}
 			else
-				snd->data = (ubyte *) -1;
+				snd->data = (uint8_t *) -1;
 		}
 	}
 }
@@ -1750,7 +1750,7 @@ void load_bitmap_replacements(const char *level_name)
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (ubyte *) (size_t)bmh.offset;
+			bm->bm_data = (uint8_t *) (size_t)bmh.offset;
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
@@ -1841,7 +1841,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			*next_bitmap += new_size - zsize;
 		} else {
 			Assert( zsize + JUST_IN_CASE >= new_size );
-			bitmap->bm_mdata = (ubyte *) d_realloc(bitmap->bm_mdata, new_size);
+			bitmap->bm_mdata = (uint8_t *) d_realloc(bitmap->bm_mdata, new_size);
 			Assert(bitmap->bm_data);
 		}
 	}
