@@ -195,15 +195,15 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 		display_height=480;
 	}
 
-	if ((uint32_t)(x) > display_width) {
+	if (static_cast<uint32_t>(x) > display_width) {
 		con_printf(CON_URGENT, "RPi: Requested width %d exceeds display width %u, scaling down!",
 			x,display_width);
-		x=(int)(display_width);
+		x=static_cast<int>(display_width);
 	}
-	if ((uint32_t)(y) > display_height) {
+	if (static_cast<uint32_t>(y) > display_height) {
 		con_printf(CON_URGENT, "RPi: Requested height %d exceeds display height %u, scaling down!",
 			y,display_height);
-		y=(int)(display_height);
+		y=static_cast<int>(display_height);
 	}
 
 	con_printf(CON_DEBUG, "RPi: display resolution %ux%u, game resolution: %dx%d (%s)", display_width, display_height, x, y, (video_flags & SDL_FULLSCREEN)?"fullscreen":"windowed");
@@ -219,14 +219,14 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 		   we would have to track window movements, though ... */
 		dst_rect.x = 0;
 		dst_rect.y = 0;
-		dst_rect.width = (uint32_t)(x);
-		dst_rect.height= (uint32_t)(y);
+		dst_rect.width = static_cast<uint32_t>(x);
+		dst_rect.height= static_cast<uint32_t>(y);
 	}
 
 	src_rect.x = 0;
 	src_rect.y = 0;
-	src_rect.width = ((uint32_t)(x))<< 16;
-	src_rect.height =((uint32_t)(y))<< 16;
+	src_rect.width = (static_cast<uint32_t>(x))<< 16;
+	src_rect.height =(static_cast<uint32_t>(y))<< 16;
 
 	/* we do not want our overlay to be blended against the background */
 	alpha_descriptor.flags=DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS;
@@ -385,7 +385,7 @@ static int ogl_init_window(int x, int y)
 		if (info.subsystem == SDL_SYSWM_X11) {
 			x11Display = info.info.x11.display;
 			x11Window = info.info.x11.window;
-			con_printf (CON_DEBUG, "Display: %p, Window: %i ===", (void*)x11Display, (int)(x11Window));
+			con_printf (CON_DEBUG, "Display: %p, Window: %i ===", (void*)x11Display, static_cast<int>(x11Window));
 		}
 	}
 
@@ -886,10 +886,10 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)(last_width);
-	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)(last_width);
-	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)(last_height);
-	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)(last_height);
+	xo=(left+grd_curcanv->cv_bitmap.bm_x)/static_cast<float>(last_width);
+	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
+	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/static_cast<float>(last_height);
+	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / static_cast<float>(last_height);
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -900,7 +900,7 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
 		color_a = 1.0;
 	else
-		color_a = 1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0);
+		color_a = 1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
 	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
@@ -925,7 +925,7 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 void ogl_ulinec(int left,int top,int right,int bot,int c)
 {
 	GLfloat xo,yo,xf,yf;
-	GLfloat fade_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0);
+	GLfloat fade_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 	GLfloat color_array[] = {
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
@@ -937,10 +937,10 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
-	xo = (left + grd_curcanv->cv_bitmap.bm_x) / (float)(last_width);
-	xf = (right + grd_curcanv->cv_bitmap.bm_x) / (float)(last_width);
-	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)(last_height);
-	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)(last_height);
+	xo = (left + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
+	xf = (right + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
+	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
+	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
  
 	OGL_DISABLE(TEXTURE_2D);
 

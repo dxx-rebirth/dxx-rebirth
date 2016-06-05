@@ -401,7 +401,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
-			sbits += (int)(src.bm_data[4+i+sy]);
+			sbits += static_cast<int>(src.bm_data[4+i+sy]);
 		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
@@ -425,7 +425,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
-			sbits += (int)(src.bm_data[4+i+sy]);
+			sbits += static_cast<int>(src.bm_data[4+i+sy]);
 		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }

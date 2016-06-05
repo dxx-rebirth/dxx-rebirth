@@ -1827,7 +1827,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 {
 	int x1, x2, y;
 	int not_energy = HUD_SCALE_X(multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
-	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
+	double aplitscale=(static_cast<double>(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
 	hud_gauge_bitblt(LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT, multires_gauge_graphic);

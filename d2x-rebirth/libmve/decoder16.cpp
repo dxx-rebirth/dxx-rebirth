@@ -78,7 +78,7 @@ void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRema
     }
 
     if ((length-(pData-pOrig)) != 0) {
-    	con_printf(CON_CRITICAL, "DEBUG: junk left over: %d,%d,%d", (int)(pData-pOrig), length, (int)(length-(pData-pOrig)));
+    	con_printf(CON_CRITICAL, "DEBUG: junk left over: %d,%d,%d", static_cast<int>(pData-pOrig), length, static_cast<int>(length-(pData-pOrig)));
     }
 }
 

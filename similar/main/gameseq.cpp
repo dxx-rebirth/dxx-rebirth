@@ -676,20 +676,20 @@ static ushort netmisc_calc_checksum()
 			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 			range_for (auto &k, j.uvls)
 			{
-				t = INTEL_INT(((int)(k.u)));
+				t = INTEL_INT((static_cast<int>(k.u)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
-				t = INTEL_INT(((int)(k.v)));
+				t = INTEL_INT((static_cast<int>(k.v)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
-				t = INTEL_INT(((int)(k.l)));
+				t = INTEL_INT((static_cast<int>(k.l)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
 			}
 			range_for (auto &k, j.normals)
 			{
-				t = INTEL_INT(((int)(k.x)));
+				t = INTEL_INT((static_cast<int>(k.x)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
-				t = INTEL_INT(((int)(k.y)));
+				t = INTEL_INT((static_cast<int>(k.y)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
-				t = INTEL_INT(((int)(k.z)));
+				t = INTEL_INT((static_cast<int>(k.z)));
 				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
 			}
 		}

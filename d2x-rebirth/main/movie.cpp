@@ -209,17 +209,17 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 
 	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size
 	{
-		if (((float)(SWIDTH)/SHEIGHT) < ((float)(sw)/bufh))
-			scale = ((float)(SWIDTH)/sw);
+		if ((static_cast<float>(SWIDTH)/SHEIGHT) < (static_cast<float>(sw)/bufh))
+			scale = (static_cast<float>(SWIDTH)/sw);
 		else
-			scale = ((float)(SHEIGHT)/bufh);
+			scale = (static_cast<float>(SHEIGHT)/bufh);
 	}
 	else // Other (robot) movie so set scale to min. screen dimension
 	{
-		if (((float)(SWIDTH)/bufw) < ((float)(SHEIGHT)/bufh))
-			scale = ((float)(SWIDTH)/sw);
+		if ((static_cast<float>(SWIDTH)/bufw) < (static_cast<float>(SHEIGHT)/bufh))
+			scale = (static_cast<float>(SWIDTH)/sw);
 		else
-			scale = ((float)(SHEIGHT)/sh);
+			scale = (static_cast<float>(SHEIGHT)/sh);
 	}
 
 	if (dstx == -1) // center it

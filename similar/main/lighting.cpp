@@ -467,7 +467,7 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 			obj_color.r = obj_color.g = obj_color.b = 255;
 
 		// scale color to light intensity
-		cscale = ((float)(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
+		cscale = (static_cast<float>(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
 		lemission.r = obj_color.r * cscale;
 		lemission.g = obj_color.g * cscale;
 		lemission.b = obj_color.b * cscale;

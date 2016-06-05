@@ -189,7 +189,7 @@ static int med_save_situation(char * filename)
 	//	Write mine name.
 	struct splitpath_t path;
 	d_splitpath(filename, &path);
-	PHYSFSX_printf(SaveFile, "%.*s.min\n", (int)(path.base_end - path.base_start), path.base_start);
+	PHYSFSX_printf(SaveFile, "%.*s.min\n", static_cast<int>(path.base_end - path.base_start), path.base_start);
 
 	//	Write player position.
         PHYSFSX_printf(SaveFile, "%x %x %x\n",(unsigned int) ConsoleObject->pos.x,(unsigned int) ConsoleObject->pos.y,(unsigned int) ConsoleObject->pos.z);

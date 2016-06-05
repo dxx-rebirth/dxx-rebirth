@@ -489,9 +489,9 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
         if (words_bigendian)
         {
                 vms_vector swapped_vec;
-                swapped_vec.x = (fix)INTEL_INT((int)(fire.x));
-                swapped_vec.y = (fix)INTEL_INT((int)(fire.y));
-                swapped_vec.z = (fix)INTEL_INT((int)(fire.z));
+                swapped_vec.x = (fix)INTEL_INT(static_cast<int>(fire.x));
+                swapped_vec.y = (fix)INTEL_INT(static_cast<int>(fire.y));
+                swapped_vec.z = (fix)INTEL_INT(static_cast<int>(fire.z));
                 memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
         }
         else
@@ -648,9 +648,9 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT((int)(del_obj->pos.x));
-	swapped_vec.y = (fix)INTEL_INT((int)(del_obj->pos.y));
-	swapped_vec.z = (fix)INTEL_INT((int)(del_obj->pos.z));
+	swapped_vec.x = (fix)INTEL_INT(static_cast<int>(del_obj->pos.x));
+	swapped_vec.y = (fix)INTEL_INT(static_cast<int>(del_obj->pos.y));
+	swapped_vec.z = (fix)INTEL_INT(static_cast<int>(del_obj->pos.z));
 		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
 		loc += 12;
 	}
@@ -825,9 +825,9 @@ multi_do_robot_fire(const ubyte *buf)
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	gun_num = (sbyte)buf[loc];                                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
-	fire.x = (fix)INTEL_INT((int)(fire.x));
-	fire.y = (fix)INTEL_INT((int)(fire.y));
-	fire.z = (fix)INTEL_INT((int)(fire.z));
+	fire.x = (fix)INTEL_INT(static_cast<int>(fire.x));
+	fire.y = (fix)INTEL_INT(static_cast<int>(fire.y));
+	fire.z = (fix)INTEL_INT(static_cast<int>(fire.z));
 
 	if (botnum > Highest_object_index)
 		return;
@@ -1095,9 +1095,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
 	
 	vms_vector velocity{};
-	pos.x = (fix)INTEL_INT((int)(pos.x));
-	pos.y = (fix)INTEL_INT((int)(pos.y));
-	pos.z = (fix)INTEL_INT((int)(pos.z));
+	pos.x = (fix)INTEL_INT(static_cast<int>(pos.x));
+	pos.y = (fix)INTEL_INT(static_cast<int>(pos.y));
+	pos.z = (fix)INTEL_INT(static_cast<int>(pos.z));
 
 	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?

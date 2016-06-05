@@ -359,7 +359,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 			if (t) {                //extra stuff for ABMs
 				struct splitpath_t path;
 				d_splitpath(i.file_name, &path);
-				snprintf(temp, sizeof(temp), "%.*s%s\n", (int)(path.base_end - path.base_start), path.base_start, t);
+				snprintf(temp, sizeof(temp), "%.*s%s\n", static_cast<int>(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}
 			else
@@ -680,8 +680,8 @@ void piggy_init_pigfile(const char *filename)
 			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
 		else
 			strcpy( temp_name, temp_name_read );
-		width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
-		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
+		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->bm_flags = BM_FLAG_PAGED_OUT;
 		bm->avg_color = bmh.avg_color;
 
@@ -791,9 +791,9 @@ void piggy_new_pigfile(char *pigname)
 	
 			strcpy(AllBitmaps[i].name,temp_name);
 
-			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
-			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->bm_flags = BM_FLAG_PAGED_OUT;
 			bm->avg_color = bmh.avg_color;
 
@@ -1746,11 +1746,11 @@ void load_bitmap_replacements(const char *level_name)
 
 			DiskBitmapHeader_read(&bmh, ifile);
 
-			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
-			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (uint8_t *) (size_t)(bmh.offset);
+			bm->bm_data = (uint8_t *) static_cast<size_t>(bmh.offset);
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
@@ -1799,9 +1799,9 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	ubyte *data;
 	int width;
 
-	width = bmh->width + ((short) (bmh->wh_extra & 0x0f) << 8);
+	width = bmh->width + (static_cast<short>(bmh->wh_extra & 0x0f) << 8);
 	gr_set_bitmap_data(*bitmap, NULL);	// free ogl texture
-	gr_init_bitmap(*bitmap, bm_mode::linear, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
+	gr_init_bitmap(*bitmap, bm_mode::linear, 0, 0, width, bmh->height + (static_cast<short>(bmh->wh_extra & 0xf0) << 4), width, NULL);
 	bitmap->avg_color = bmh->avg_color;
 	gr_set_bitmap_flags(*bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 

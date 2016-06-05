@@ -161,8 +161,8 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		Assert(pcx_error == PCX_ERROR_NONE);
 		(void)pcx_error;
 		gr_remap_bitmap_good(nm_background, background_palette, -1, -1);
-		BGScaleX=((float)(SWIDTH)/nm_background.bm_w);
-		BGScaleY=((float)(SHEIGHT)/nm_background.bm_h);
+		BGScaleX=(static_cast<float>(SWIDTH)/nm_background.bm_w);
+		BGScaleY=(static_cast<float>(SHEIGHT)/nm_background.bm_h);
 		init_sub=1;
 	}
 
@@ -183,12 +183,12 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_palette_load( gr_palette );
 
 	show_fullscr(nm_background); // show so we load all necessary data for the sub-bitmap
-	if (!init_sub && ((nm_background_sub->bm_w != w*(((float) (nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*(((float) (nm_background.bm_h))/SHEIGHT))))
+	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
-		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*(((float) (nm_background.bm_w))/SWIDTH),h*(((float) (nm_background.bm_h))/SHEIGHT));
+		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
 	show_fullscr(*nm_background_sub.get());
 
 	gr_set_current_canvas(old);
@@ -740,7 +740,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						int arrow_width, arrow_height;
 						gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)(LINE_SPACING))*menu->scroll_offset);
+						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -751,7 +751,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						int arrow_width, arrow_height;
 						gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)(LINE_SPACING))*menu->scroll_offset);
+						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {

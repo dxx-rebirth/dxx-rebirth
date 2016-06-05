@@ -94,16 +94,16 @@ void init_interface_vars_to_assembler(void)
 	Assert(bp!=NULL);
 	Assert(bp->bm_data!=NULL);
 	//	If bytes_per_row has changed, create new table of pointers.
-	if (bytes_per_row != (int) (bp->bm_rowsize)) {
-		bytes_per_row = (int) (bp->bm_rowsize);
+	if (bytes_per_row != static_cast<int>(bp->bm_rowsize)) {
+		bytes_per_row = static_cast<int>(bp->bm_rowsize);
 	}
 
 	write_buffer = bp->bm_mdata;
 
 	Window_clip_left = 0;
-	Window_clip_right = (int) (bp->bm_w)-1;
+	Window_clip_right = static_cast<int>(bp->bm_w)-1;
 	Window_clip_top = 0;
-	Window_clip_bot = (int) (bp->bm_h)-1;
+	Window_clip_bot = static_cast<int>(bp->bm_h)-1;
 }
 
 static int Lighting_enabled;

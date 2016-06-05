@@ -70,7 +70,7 @@ long dist_2d(long x,long y);
 #else
 #include <math.h>
 static long dist_2d(long x,long y) {
-	return (long)sqrt((double)(x) * (double)(x) + (double)(y) * (double)(y));
+	return (long)sqrt(static_cast<double>(x) * static_cast<double>(x) + static_cast<double>(y) * static_cast<double>(y));
 }
 #endif
 

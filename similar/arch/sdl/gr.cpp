@@ -239,7 +239,7 @@ void gr_palette_step_up( int r, int g, int b )
 
 	for (int i=0; i<256; i++)
 	{
-		temp = (int)(p[i].r) + r + gr_palette_gamma;
+		temp = static_cast<int>(p[i].r) + r + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -247,7 +247,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].r = temp * 4;
-		temp = (int)(p[i].g) + g + gr_palette_gamma;
+		temp = static_cast<int>(p[i].g) + g + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -255,7 +255,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].g = temp * 4;
-		temp = (int)(p[i].b) + b + gr_palette_gamma;
+		temp = static_cast<int>(p[i].b) + b + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -287,7 +287,7 @@ void gr_palette_load( palette_array_t &pal )
 		return; // Display is not palettised
 
 	for (int i=0;i<64;i++)
-		gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
+		gamma[i] = static_cast<int>((pow((static_cast<double>(14)/static_cast<double>(32)), 1.0)*i) + 0.5);
 
 	for (int i = 0, j = 0; j < 256; j++)
 	{

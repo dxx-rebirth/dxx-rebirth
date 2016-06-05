@@ -204,7 +204,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 			n=PHYSFSX_fgetc(ifile);
 
 			if (n >= 0) {                       // copy next n+1 bytes from source, they are not compressed
-				nn = (int) (n)+1;
+				nn = static_cast<int>(n)+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane==depth)	//masking row
@@ -218,7 +218,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 			}
 			else if (n>=-127) {             // next -n + 1 bytes are following byte
 				c=PHYSFSX_fgetc(ifile);
-				nn = (int) (-n)+1;
+				nn = static_cast<int>(-n)+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane!=depth)	//not masking row
@@ -484,7 +484,7 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 	return IFF_NO_ERROR;
 }
 
-#define INDEX_TO_15BPP(i) ((short)((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
+#define INDEX_TO_15BPP(i) (static_cast<short>((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
 
 static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {

@@ -297,9 +297,9 @@ fix zhypot(fix a,fix b);
 	"call	quad_sqrt";
 #else
 static fix zhypot(fix a,fix b) {
-	double x = (double)(a) / 65536;
-	double y = (double)(b) / 65536;
-	return (long)(sqrt(x * x + y * y) * 65536);
+	double x = static_cast<double>(a) / 65536;
+	double y = static_cast<double>(b) / 65536;
+	return static_cast<long>(sqrt(x * x + y * y) * 65536);
 }
 #endif
 

@@ -592,12 +592,12 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(int nsides, float xsc, flo
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
 {
 	int size=270+(size_offs*20);
-	float scale = ((float)(SWIDTH)/SHEIGHT);
+	float scale = (static_cast<float>(SWIDTH)/SHEIGHT);
 	const array<float, 4> ret_rgba{{
 		static_cast<float>(PAL2Tr(color)),
 		static_cast<float>(PAL2Tg(color)),
 		static_cast<float>(PAL2Tb(color)),
-		static_cast<float>(1.0 - ((float)(alpha) / ((float)(GR_FADE_LEVELS))))
+		static_cast<float>(1.0 - (static_cast<float>(alpha) / (static_cast<float>(GR_FADE_LEVELS))))
 	}}, ret_dark_rgba{{
 		ret_rgba[0] / 2,
 		ret_rgba[1] / 2,
@@ -618,7 +618,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	}
 
 	glPushMatrix();
-	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)(last_width),1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)(last_height),0);
+	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/static_cast<float>(last_width),1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/static_cast<float>(last_height),0);
 
 	{
 		float gl1, gl2, gl3;
@@ -770,7 +770,7 @@ namespace dcx {
 void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t c)
 {
 	int i;
-	float scale = ((float)(grd_curcanv->cv_bitmap.bm_w)/grd_curcanv->cv_bitmap.bm_h);
+	float scale = (static_cast<float>(grd_curcanv->cv_bitmap.bm_w)/grd_curcanv->cv_bitmap.bm_h);
 	GLfloat color_array[20*4];
 	
 	for (i = 0; i < 20*4; i += 4)
@@ -807,13 +807,13 @@ int gr_ucircle(fix xc1, fix yc1, fix r1, const uint8_t c)
 {
 	int nsides;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)(last_width),
-	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)(last_height),0);
+	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / static_cast<float>(last_width),
+	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height),0);
 	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
-	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
+	nsides = 10 + 2 * static_cast<int>(M_PI * f2fl(r1) / 19);
 	if(!circle_va)
 		circle_va = circle_array_init(nsides);
 	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_va.get());
@@ -825,13 +825,13 @@ int gr_disk(fix x,fix y,fix r, const uint8_t c)
 {
 	int nsides;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)(last_width),
-	             1.0 - (f2fl(y) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)(last_height),0);
+	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / static_cast<float>(last_width),
+	             1.0 - (f2fl(y) + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height),0);
 	glScalef(f2fl(r) / last_width, f2fl(r) / last_height, 1.0);
-	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
+	nsides = 10 + 2 * static_cast<int>(M_PI * f2fl(r) / 19);
 	if(!disk_va)
 		disk_va = circle_array_init(nsides);
 	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va.get());
@@ -904,7 +904,7 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 		ogl_bindbmtex(bm);
 		ogl_texwrap(bm.gltexture, GL_REPEAT);
 		r_tpolyc++;
-		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0));
+		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	} else if (tmap_drawer_ptr == draw_tmap_flat) {
 		OGL_DISABLE(TEXTURE_2D);
 		/* for cloaked state faces */
@@ -1007,7 +1007,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
 		color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
 		color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
-		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)(grd_curcanv->cv_fade_level) / ((float)(GR_FADE_LEVELS) - 1.0));
+		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 		
 		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
 		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
@@ -1133,10 +1133,10 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	
 	dx+=dest.bm_x;
 	dy+=dest.bm_y;
-	xo=dx/(float)(last_width);
-	xs=dw/(float)(last_width);
-	yo=1.0-dy/(float)(last_height);
-	ys=dh/(float)(last_height);
+	xo=dx/static_cast<float>(last_width);
+	xs=dw/static_cast<float>(last_width);
+	yo=1.0-dy/static_cast<float>(last_height);
+	ys=dh/static_cast<float>(last_height);
 	
 	OGL_ENABLE(TEXTURE_2D);
 	
@@ -1431,16 +1431,16 @@ static void tex_set_size1(ogl_texture &tex,unsigned dbits,unsigned bits,unsigned
 {
 	int u;
 	if (tex.tw!=w || tex.th!=h){
-		u=(tex.w/(float)(tex.tw)*w) * (tex.h/(float)(tex.th)*h);
+		u=(tex.w/static_cast<float>(tex.tw)*w) * (tex.h/static_cast<float>(tex.th)*h);
 		glmprintf((0,"shrunken texture?\n"));
 	}else
 		u=tex.w*tex.h;
 	if (bits<=0){//the beta nvidia GLX server. doesn't ever return any bit sizes, so just use some assumptions.
-		tex.bytes=((float)(w)*h*dbits)/8.0;
-		tex.bytesu=((float)(u)*dbits)/8.0;
+		tex.bytes=(static_cast<float>(w)*h*dbits)/8.0;
+		tex.bytesu=(static_cast<float>(u)*dbits)/8.0;
 	}else{
-		tex.bytes=((float)(w)*h*bits)/8.0;
-		tex.bytesu=((float)(u)*bits)/8.0;
+		tex.bytes=(static_cast<float>(w)*h*bits)/8.0;
+		tex.bytesu=(static_cast<float>(u)*bits)/8.0;
 	}
 	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex.bytes));
 }
@@ -1501,8 +1501,8 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
 	//calculate u/v values that would make the resulting texture correctly sized
-	tex.u = (float) ((double) (tex.w) / (double) (tex.tw));
-	tex.v = (float) ((double) (tex.h) / (double) (tex.th));
+	tex.u = static_cast<float>(static_cast<double>(tex.w) / static_cast<double>(tex.tw));
+	tex.v = static_cast<float>(static_cast<double>(tex.h) / static_cast<double>(tex.th));
 
 	const uint8_t *outP = texbuf.get();
 	if (data) {
@@ -1689,10 +1689,10 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colo
 	auto &xo = std::get<0>(cs);
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
-	xo=x/(float)(last_width);
-	xf=(bm.bm_w+x)/(float)(last_width);
-	yo=1.0-y/(float)(last_height);
-	yf=1.0-(bm.bm_h+y)/(float)(last_height);
+	xo=x/static_cast<float>(last_width);
+	xf=(bm.bm_w+x)/static_cast<float>(last_width);
+	yo=1.0-y/static_cast<float>(last_height);
+	yf=1.0-(bm.bm_h+y)/static_cast<float>(last_height);
 
 	if (dw < 0)
 		dw = grd_curcanv->cv_bitmap.bm_w;
@@ -1703,12 +1703,12 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colo
 	else if (dh == 0)
 		dh = bm.bm_h;
 
-	h = (double) (scale) / (double) (F1_0);
+	h = static_cast<double>(scale) / static_cast<double>(F1_0);
 
-	xo = x / ((double) (last_width) * h);
-	xf = (dw + x) / ((double) (last_width) * h);
-	yo = 1.0 - y / ((double) (last_height) * h);
-	yf = 1.0 - (dh + y) / ((double) (last_height) * h);
+	xo = x / (static_cast<double>(last_width) * h);
+	xf = (dw + x) / (static_cast<double>(last_width) * h);
+	yo = 1.0 - y / (static_cast<double>(last_height) * h);
+	yf = 1.0 - (dh + y) / (static_cast<double>(last_height) * h);
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
@@ -1719,20 +1719,20 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colo
 		if (bm.bm_w==bm.gltexture->w)
 			u2=bm.gltexture->u;
 		else
-			u2=(bm.bm_w+bm.bm_x)/(float)(bm.gltexture->tw);
+			u2=(bm.bm_w+bm.bm_x)/static_cast<float>(bm.gltexture->tw);
 	}else {
-		u1=bm.bm_x/(float)(bm.gltexture->tw);
-		u2=(bm.bm_w+bm.bm_x)/(float)(bm.gltexture->tw);
+		u1=bm.bm_x/static_cast<float>(bm.gltexture->tw);
+		u2=(bm.bm_w+bm.bm_x)/static_cast<float>(bm.gltexture->tw);
 	}
 	if (bm.bm_y==0){
 		v1=0;
 		if (bm.bm_h==bm.gltexture->h)
 			v2=bm.gltexture->v;
 		else
-			v2=(bm.bm_h+bm.bm_y)/(float)(bm.gltexture->th);
+			v2=(bm.bm_h+bm.bm_y)/static_cast<float>(bm.gltexture->th);
 	}else{
-		v1=bm.bm_y/(float)(bm.gltexture->th);
-		v2=(bm.bm_h+bm.bm_y)/(float)(bm.gltexture->th);
+		v1=bm.bm_y/static_cast<float>(bm.gltexture->th);
+		v2=(bm.bm_h+bm.bm_y)/static_cast<float>(bm.gltexture->th);
 	}
 
 	const array<GLfloat, 8> vertex_array{{
