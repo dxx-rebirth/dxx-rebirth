@@ -989,10 +989,10 @@ static void show_animated_bitmap(briefing *br)
 #ifdef OGL
 	float scale = 1.0;
 
-	if (((float)SWIDTH/320) < ((float)SHEIGHT/200))
-		scale = ((float)SWIDTH/320);
+	if (((float)(SWIDTH)/320) < ((float)(SHEIGHT)/200))
+		scale = ((float)(SWIDTH)/320);
 	else
-		scale = ((float)SHEIGHT/200);
+		scale = ((float)(SHEIGHT)/200);
 #endif
 
 	// Only plot every nth frame.

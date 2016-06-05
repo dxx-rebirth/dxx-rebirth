@@ -335,7 +335,7 @@ int GetMyNetRanking()
 	if (PlayerCfg.NetlifeKills + PlayerCfg.NetlifeKilled <= 0)
 		return (1);
 
-	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
+	rank=(int) (((float)(PlayerCfg.NetlifeKills)/3000.0)*8.0);
 
 	eff = static_cast<int>(
 		static_cast<float>(
@@ -1830,7 +1830,7 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 		s = GET_INTEL_SHORT(buf + count);
 
 		if ((s > 0) && (i > 0))
-			map_objnum_local_to_remote((short)i, s, pnum);
+			map_objnum_local_to_remote((short)(i), s, pnum);
 		count += 2;
 	}
 	range_for (const auto i, partial_const_range(Net_create_objnums, remote_created, Net_create_loc))
@@ -2178,9 +2178,9 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	memcpy(&to_target, buf+count, 12);          count += 12;
 	if (words_bigendian)// swap the vector to_target
 	{
-	to_target.x = (fix)INTEL_INT((int)to_target.x);
-	to_target.y = (fix)INTEL_INT((int)to_target.y);
-	to_target.z = (fix)INTEL_INT((int)to_target.z);
+	to_target.x = (fix)INTEL_INT((int)(to_target.x));
+	to_target.y = (fix)INTEL_INT((int)(to_target.y));
+	to_target.z = (fix)INTEL_INT((int)(to_target.z));
 	}
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
@@ -2206,9 +2206,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 	if (words_bigendian)
 	{
-	new_pos.x = (fix)SWAPINT((int)new_pos.x);
-	new_pos.y = (fix)SWAPINT((int)new_pos.y);
-	new_pos.z = (fix)SWAPINT((int)new_pos.z);
+	new_pos.x = (fix)SWAPINT((int)(new_pos.x));
+	new_pos.y = (fix)SWAPINT((int)(new_pos.y));
+	new_pos.z = (fix)SWAPINT((int)(new_pos.z));
 	}
 
 	Net_create_loc = 0;
@@ -2485,21 +2485,21 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 		last_fireup_time = timer_query();
 	}
 
-	multibuf[0] = (char)MULTI_FIRE;
+	multibuf[0] = (char)(MULTI_FIRE);
 	if (is_bomb_objnum != object_none)
 	{
 		if (is_proximity_bomb_or_smart_mine(get_weapon_id(is_bomb_objnum)))
-			multibuf[0] = (char)MULTI_FIRE_BOMB;
+			multibuf[0] = (char)(MULTI_FIRE_BOMB);
 	}
 	else if (laser_track != object_none)
 	{
-		multibuf[0] = (char)MULTI_FIRE_TRACK;
+		multibuf[0] = (char)(MULTI_FIRE_TRACK);
 	}
-	multibuf[1] = (char)Player_num;
-	multibuf[2] = (char)laser_gun;
-	multibuf[3] = (char)laser_level;
-	multibuf[4] = (char)laser_flags;
-	multibuf[5] = (char)laser_fired;
+	multibuf[1] = (char)(Player_num);
+	multibuf[2] = (char)(laser_gun);
+	multibuf[3] = (char)(laser_level);
+	multibuf[4] = (char)(laser_flags);
+	multibuf[5] = (char)(laser_fired);
 
 	const auto &ownship = get_local_plrobj();
 	PUT_INTEL_INT(multibuf+6 , ownship.orient.fvec.x);
@@ -2550,7 +2550,7 @@ void multi_send_drop_marker (int player,const vms_vector &position,char messagen
 {
 	if (player<N_players)
 	{
-		multibuf[1]=(char)player;
+		multibuf[1]=(char)(player);
 		multibuf[2]=messagenum;
 		PUT_INTEL_INT(multibuf+3, position.x);
 		PUT_INTEL_INT(multibuf+7, position.y);
@@ -2589,7 +2589,7 @@ void multi_send_endlevel_start()
 	const bool secret = false;
 #endif
 	multibuf[1] = Player_num;
-	multibuf[2] = (char)secret;
+	multibuf[2] = (char)(secret);
 	if (!multi_goto_secret)
 		multi_goto_secret = 1 + !secret;
 
@@ -2632,7 +2632,7 @@ void multi_send_player_deres(deres_type_t type)
 #endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
-	multibuf[count++] = (char)player_info.laser_level;
+	multibuf[count++] = (char)(player_info.laser_level);
 
 	auto &secondary_ammo = get_local_player_secondary_ammo();
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];
@@ -2696,7 +2696,7 @@ multi_send_message(void)
 	if (Network_message_reciever != -1)
 	{
 		loc += 1;
-		multibuf[loc] = (char)Player_num;                       loc += 1;
+		multibuf[loc] = (char)(Player_num);                       loc += 1;
 		strncpy((char *)(multibuf+loc), Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
 		multibuf[loc-1] = '\0';
 		multi_send_data<MULTI_MESSAGE>(multibuf, loc, 0);
@@ -2708,7 +2708,7 @@ void
 multi_send_reappear()
 {
 	multi_send_position(vobjptridx(get_local_player().objnum));
-	multibuf[1] = (char)Player_num;
+	multibuf[1] = (char)(Player_num);
 	PUT_INTEL_SHORT(multibuf+2, get_local_player().objnum);
 
 	multi_send_data<MULTI_REAPPEAR>(multibuf, 4, 2);
@@ -2765,7 +2765,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 	else
 	{
 		PUT_INTEL_SHORT(multibuf+count, static_cast<int16_t>(-1));
-		multibuf[count+2] = (char)-1;
+		multibuf[count+2] = (char)(-1);
 	}
 	count += 3;
 	// I am host - I know what's going on so attach game_mode related info which might be vital for correct kill computation
@@ -2823,7 +2823,7 @@ void multi_send_cloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
-	multibuf[1] = (char)Player_num;
+	multibuf[1] = (char)(Player_num);
 
 	multi_send_data<MULTI_CLOAK>(multibuf, 2, 2);
 
@@ -2834,7 +2834,7 @@ void multi_send_decloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
-	multibuf[1] = (char)Player_num;
+	multibuf[1] = (char)(Player_num);
 
 	multi_send_data<MULTI_DECLOAK>(multibuf, 2, 2);
 }
@@ -2902,9 +2902,9 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT( (int)to_goal.x );
-	swapped_vec.y = (fix)INTEL_INT( (int)to_goal.y );
-	swapped_vec.z = (fix)INTEL_INT( (int)to_goal.z );
+	swapped_vec.x = (fix)INTEL_INT( (int)(to_goal.x) );
+	swapped_vec.y = (fix)INTEL_INT( (int)(to_goal.y) );
+	swapped_vec.z = (fix)INTEL_INT( (int)(to_goal.z) );
 		memcpy(&multibuf[count], &swapped_vec, 12);
 	}
 	else
@@ -2912,7 +2912,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 		memcpy(&multibuf[count], &to_goal, 12);
 	}
 	count += 12;
-	multibuf[count] = (char)best_gun_num;                   count +=  1;
+	multibuf[count] = (char)(best_gun_num);                   count +=  1;
 	PUT_INTEL_SHORT(multibuf+count, objnum );     count +=  2;
 	//                                                                                                                      ------------
 	//                                                                                                                      Total  = 16
@@ -2937,9 +2937,9 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT( (int)pos.x );
-	swapped_vec.y = (fix)INTEL_INT( (int)pos.y );
-	swapped_vec.z = (fix)INTEL_INT( (int)pos.z );
+	swapped_vec.x = (fix)INTEL_INT( (int)(pos.x) );
+	swapped_vec.y = (fix)INTEL_INT( (int)(pos.y) );
+	swapped_vec.z = (fix)INTEL_INT( (int)(pos.z) );
 		memcpy(&multibuf[count], &swapped_vec, 12);
 		count += 12;
 	}
@@ -2991,7 +2991,7 @@ multi_send_play_sound(int sound_num, fix volume)
 	int count = 0;
 	count += 1;
 	multibuf[count] = Player_num;                                   count += 1;
-	multibuf[count] = (char)sound_num;                      count += 1;
+	multibuf[count] = (char)(sound_num);                      count += 1;
 	multibuf[count] = (char)(volume >> 12); count += 1;
 	//                                                                                                         -----------
 	//                                                                                                         Total = 4
@@ -3588,7 +3588,7 @@ void multi_send_guided_info (const vobjptr_t miss,char done)
 	int count=0;
 
 	count++;
-	multibuf[count++]=(char)Player_num;
+	multibuf[count++]=(char)(Player_num);
 	multibuf[count++]=done;
 
 	if (words_bigendian)
@@ -3612,7 +3612,7 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 {
 	int count=3;
 
-	if (Guided_missile[(int)pnum]==NULL)
+	if (Guided_missile[(int)(pnum)]==NULL)
 	{
 		return;
 	}
@@ -3950,14 +3950,14 @@ void multi_do_capture_bonus(const playernum_t pnum)
 	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	team_kills[get_team(pnum)] += 5;
-	Players[(int)pnum].net_kills_total += 5;
-	Players[(int)pnum].KillGoalCount+=5;
+	Players[(int)(pnum)].net_kills_total += 5;
+	Players[(int)(pnum)].KillGoalCount+=5;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[(int)pnum].KillGoalCount>=TheGoal)
+		if (Players[(int)(pnum)].KillGoalCount>=TheGoal)
 		{
 			if (pnum==Player_num)
 			{
@@ -4020,18 +4020,18 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear orb flag
 
 	team_kills[get_team(pnum)] += bonus;
-	Players[(int)pnum].net_kills_total += bonus;
-	Players[(int)pnum].KillGoalCount+=bonus;
+	Players[(int)(pnum)].net_kills_total += bonus;
+	Players[(int)(pnum)].KillGoalCount+=bonus;
 
 	team_kills[get_team(pnum)]%=1000;
-	Players[(int)pnum].net_kills_total%=1000;
-	Players[(int)pnum].KillGoalCount%=1000;
+	Players[(int)(pnum)].net_kills_total%=1000;
+	Players[(int)(pnum)].KillGoalCount%=1000;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[(int)pnum].KillGoalCount>=TheGoal)
+		if (Players[(int)(pnum)].KillGoalCount>=TheGoal)
 		{
 			if (pnum==Player_num)
 			{
@@ -4405,7 +4405,7 @@ void multi_add_lifetime_killed ()
 
 void multi_send_ranking (uint8_t newrank)
 {
-	multibuf[1]=(char)Player_num;
+	multibuf[1]=(char)(Player_num);
 	multibuf[2] = newrank;
 
 	multi_send_data<MULTI_RANK>(multibuf,3,2);
@@ -4464,7 +4464,7 @@ void multi_send_bounty( void )
 		return;
 	
 	/* Add opcode, target ID and how often we re-assigned */
-	multibuf[1] = (char)Bounty_target;
+	multibuf[1] = (char)(Bounty_target);
 	
 	/* Send data */
 	multi_send_data<MULTI_DO_BOUNTY>( multibuf, 2, 2 );
@@ -4726,7 +4726,7 @@ static void multi_do_msgsend_state(const ubyte *buf)
 void multi_send_msgsend_state(msgsend_state_t state)
 {
 	multibuf[1] = Player_num;
-	multibuf[2] = (char)state;
+	multibuf[2] = (char)(state);
 	
 	multi_send_data<MULTI_TYPING_STATE>(multibuf, 3, 2);
 }
@@ -4783,7 +4783,7 @@ void multi_send_player_inventory(int priority)
 #endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
-	multibuf[count++] = (char)player_info.laser_level;
+	multibuf[count++] = (char)(player_info.laser_level);
 
 	auto &secondary_ammo = get_local_player_secondary_ammo();
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];

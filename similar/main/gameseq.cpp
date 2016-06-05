@@ -669,49 +669,49 @@ static ushort netmisc_calc_checksum()
 		{
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
-			do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 			s = INTEL_SHORT(j.tmap_num);
-			do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 			s = INTEL_SHORT(j.tmap_num2);
-			do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 			range_for (auto &k, j.uvls)
 			{
-				t = INTEL_INT(((int)k.u));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)k.v));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)k.l));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.u)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.v)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.l)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
 			}
 			range_for (auto &k, j.normals)
 			{
-				t = INTEL_INT(((int)k.x));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)k.y));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
-				t = INTEL_INT(((int)k.z));
-				do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.x)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.y)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
+				t = INTEL_INT(((int)(k.z)));
+				do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
 			}
 		}
 		range_for (auto &j, Segments[i].children)
 		{
 			s = INTEL_SHORT(j);
-			do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 		}
 		range_for (const uint16_t j, Segments[i].verts)
 		{
 			s = INTEL_SHORT(j);
-			do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 		}
 		s = INTEL_SHORT(Segments[i].objects);
-		do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+		do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 #if defined(DXX_BUILD_DESCENT_I)
 		do_checksum_calc((unsigned char *)&(Segments[i].special), 1, &sum1, &sum2);
 		do_checksum_calc((unsigned char *)&(Segments[i].matcen_num), 1, &sum1, &sum2);
 		s = INTEL_SHORT(Segments[i].value);
-		do_checksum_calc((uint8_t *)&s, 2, &sum1, &sum2);
+		do_checksum_calc((uint8_t *)(&s), 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
-		do_checksum_calc((uint8_t *)&t, 4, &sum1, &sum2);
+		do_checksum_calc((uint8_t *)(&t), 4, &sum1, &sum2);
 #endif
 	}
 	sum2 %= 255;

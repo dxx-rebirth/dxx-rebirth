@@ -1272,7 +1272,7 @@ void piggy_read_sounds(void)
 				PHYSFS_read( fp, snd->data, snd->length, 1 );
 			}
 			else
-				snd->data = (uint8_t *) -1;
+				snd->data = (uint8_t *) (-1);
 		}
 	}
 }
@@ -1750,7 +1750,7 @@ void load_bitmap_replacements(const char *level_name)
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (uint8_t *) (size_t)bmh.offset;
+			bm->bm_data = (uint8_t *) (size_t)(bmh.offset);
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
@@ -1762,7 +1762,7 @@ void load_bitmap_replacements(const char *level_name)
 		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
 			grs_bitmap *bm = &GameBitmaps[i];
-			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) bm->bm_data]);
+			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) (bm->bm_data)]);
 		}
 		last_palette_loaded_pig[0]= 0;  //force pig re-load
 		texmerge_flush();       //for re-merging with new textures

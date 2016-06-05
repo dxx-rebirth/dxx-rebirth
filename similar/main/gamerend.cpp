@@ -124,7 +124,7 @@ static void show_framerate()
 		fps_time = timer_query();
 	}
 	if (CGameArg.DbgVerbose)
-                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)1000/(F1_0/FrameTime)));
+                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)(1000)/(F1_0/FrameTime)));
         else
                 gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);
 }
@@ -847,7 +847,7 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), *bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)(SHEIGHT)/480:(double)(SHEIGHT)/200) + 0.5)), *bm,255, F1_0);
 #else
 			gr_ubitmapm(0,SHEIGHT-bm->bm_h,*bm);
 #endif

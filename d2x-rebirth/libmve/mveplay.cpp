@@ -160,7 +160,7 @@ static int create_timer_handler(unsigned char, unsigned char, const unsigned cha
 		temp = micro_frame_delay;
 		temp *= g_spdFactorNum;
 		temp /= g_spdFactorDenom;
-		micro_frame_delay = (int)temp;
+		micro_frame_delay = (int)(temp);
 	}
 
 	return 1;

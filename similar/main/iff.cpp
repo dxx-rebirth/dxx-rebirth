@@ -204,7 +204,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 			n=PHYSFSX_fgetc(ifile);
 
 			if (n >= 0) {                       // copy next n+1 bytes from source, they are not compressed
-				nn = (int) n+1;
+				nn = (int) (n)+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane==depth)	//masking row
@@ -218,7 +218,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 			}
 			else if (n>=-127) {             // next -n + 1 bytes are following byte
 				c=PHYSFSX_fgetc(ifile);
-				nn = (int) -n+1;
+				nn = (int) (-n)+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane!=depth)	//not masking row
@@ -510,7 +510,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 	}
 
 	d_free(bm.bm_mdata);				//get rid of old-style data
-	bm.bm_mdata = (uint8_t *) new_data;			//..and point to new data
+	bm.bm_mdata = (uint8_t *) (new_data);			//..and point to new data
 
 	bm.bm_rowsize *= 2;				//two bytes per row
 #endif

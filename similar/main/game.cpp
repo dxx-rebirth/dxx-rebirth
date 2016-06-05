@@ -219,7 +219,7 @@ void init_cockpit()
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			auto &bm = GameBitmaps[cockpit_bitmap[mode].index];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);
-			game_init_render_sub_buffers(x1*((float)SWIDTH/bm.bm_w), y1*((float)SHEIGHT/bm.bm_h), (x2-x1+1)*((float)SWIDTH/bm.bm_w), (y2-y1+2)*((float)SHEIGHT/bm.bm_h));
+			game_init_render_sub_buffers(x1*((float)(SWIDTH)/bm.bm_w), y1*((float)(SHEIGHT)/bm.bm_h), (x2-x1+1)*((float)(SWIDTH)/bm.bm_w), (y2-y1+2)*((float)(SHEIGHT)/bm.bm_h));
 			break;
 		}
 

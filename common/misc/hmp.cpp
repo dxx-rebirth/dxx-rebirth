@@ -332,7 +332,7 @@ static int setup_buffers(hmp_file *hmp) {
 		if (!(buf = (MIDIHDR *)d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
-		buf->lpData = (char *)buf + sizeof(MIDIHDR);
+		buf->lpData = (char *)(buf) + sizeof(MIDIHDR);
 		buf->dwBufferLength = HMP_BUFSIZE;
 		buf->dwUser = reinterpret_cast<uintptr_t>(hmp);
 		buf->lpNext = lastbuf;
@@ -425,7 +425,7 @@ int hmp_play(hmp_file *hmp, int bLoop)
 
 	if ((rc = setup_buffers(hmp)))
 		return rc;
-	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid,1, (DWORD) (size_t) midi_callback, 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR) {
+	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid,1, (DWORD) (size_t) (midi_callback), 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR) {
 		hmp->hmidi = NULL;
 		return HMP_MM_ERR;
 	}

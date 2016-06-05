@@ -489,7 +489,7 @@ static void dump_fix_as_short( fix value, int nbits, PHYSFS_File *SaveFile )
 		short_value = -0x7fff;
 	}
 	else
-		short_value = (short)int_value;
+		short_value = (short)(int_value);
 
 	PHYSFS_writeSLE16(SaveFile, short_value);
 }

@@ -640,7 +640,7 @@ static void nd_read_object(const vobjptridx_t obj)
 		if (obj->lifeleft == -1)
 			obj->lifeleft = IMMORTAL_TIME;
 		else
-			obj->lifeleft = (fix)((int)obj->lifeleft << 12);
+			obj->lifeleft = (fix)((int)(obj->lifeleft) << 12);
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {
@@ -817,7 +817,7 @@ static void nd_write_object(const vcobjptr_t obj)
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_write_fix(obj->lifeleft);
 	else {
-		life = (int)obj->lifeleft;
+		life = (int)(obj->lifeleft);
 		life = life >> 12;
 		if (life > 255)
 			life = 255;
@@ -1701,7 +1701,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			if (purpose != PURPOSE_REWRITE)
 				multi_new_game();
 			nd_read_byte(&c);
-			N_players = (int)c;
+			N_players = (int)(c);
 			// changed this to above two lines -- breaks on the mac because of
 			// endian issues
 			//		nd_read_byte((sbyte *)&N_players);
@@ -1914,7 +1914,7 @@ static int newdemo_read_frame_information(int rewrite)
 			done=1;
 			nd_read_short(&last_frame_length);
 			nd_read_int(&nd_playback_v_framecount);
-			nd_read_int((int *)&nd_recorded_time);
+			nd_read_int((int *)(&nd_recorded_time));
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -2485,7 +2485,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (weapon_type == 0)
 				Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 			else
-				Secondary_weapon = (int)weapon_num;
+				Secondary_weapon = (int)(weapon_num);
 
 			break;
 		}
@@ -2508,12 +2508,12 @@ static int newdemo_read_frame_information(int rewrite)
 				if (weapon_type == 0)
 					Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 				else
-					Secondary_weapon = (int)weapon_num;
+					Secondary_weapon = (int)(weapon_num);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (weapon_type == 0)
 					Primary_weapon = static_cast<primary_weapon_index_t>(old_weapon);
 				else
-					Secondary_weapon = (int)old_weapon;
+					Secondary_weapon = (int)(old_weapon);
 			}
 			break;
 		}
@@ -2861,8 +2861,8 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_PRIMARY_AMMO: {
 			unsigned short old_ammo, new_ammo;
 
-			nd_read_short((short *)&old_ammo);
-			nd_read_short((short *)&new_ammo);
+			nd_read_short((short *)(&old_ammo));
+			nd_read_short((short *)(&new_ammo));
 			if (rewrite)
 			{
 				nd_write_short(old_ammo);
@@ -2991,10 +2991,10 @@ static int newdemo_read_frame_information(int rewrite)
 				w.state = state;
 				w.cloak_value = cloak_value;
 				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
-				uvl[0].l = ((int) l0) << 8;
-				uvl[1].l = ((int) l1) << 8;
-				uvl[2].l = ((int) l2) << 8;
-				uvl[3].l = ((int) l3) << 8;
+				uvl[0].l = ((int) (l0)) << 8;
+				uvl[1].l = ((int) (l1)) << 8;
+				uvl[2].l = ((int) (l2)) << 8;
+				uvl[3].l = ((int) (l3)) << 8;
 			}
 			{
 				auto &w = *vwallptr(back_wall_num);
@@ -3002,10 +3002,10 @@ static int newdemo_read_frame_information(int rewrite)
 				w.state = state;
 				w.cloak_value = cloak_value;
 				auto &uvl = vsegptr(w.segnum)->sides[w.sidenum].uvls;
-				uvl[0].l = ((int) l0) << 8;
-				uvl[1].l = ((int) l1) << 8;
-				uvl[2].l = ((int) l2) << 8;
-				uvl[3].l = ((int) l3) << 8;
+				uvl[0].l = ((int) (l0)) << 8;
+				uvl[1].l = ((int) (l1)) << 8;
+				uvl[2].l = ((int) (l2)) << 8;
+				uvl[3].l = ((int) (l3)) << 8;
 			}
 			break;
 		}
@@ -3050,7 +3050,7 @@ static int newdemo_read_frame_information(int rewrite)
 					return -1;
 				}
 
-				LoadLevel((int)loaded_level,1);
+				LoadLevel((int)(loaded_level),1);
 				nd_playback_v_cntrlcen_destroyed = 0;
 			}
 
@@ -3306,7 +3306,7 @@ void newdemo_goto_end(int to_rewrite)
 
 	if (Newdemo_game_mode & GM_MULTI) {
 		nd_read_byte(&c);
-		N_players = (int)c;
+		N_players = (int)(c);
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
 		//		nd_read_byte((sbyte *)&N_players);

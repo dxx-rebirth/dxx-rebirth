@@ -1268,9 +1268,9 @@ void ai_path_set_orient_and_vel(const vobjptr_t objp, const vms_vector &goal_poi
 	if (dot < -15*F1_0/16) {
 		norm_cur_vel = norm_vec_to_goal;
 	} else {
-		norm_cur_vel.x += norm_vec_to_goal.x/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
-		norm_cur_vel.y += norm_vec_to_goal.y/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
-		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
+		norm_cur_vel.x += norm_vec_to_goal.x/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
+		norm_cur_vel.y += norm_vec_to_goal.y/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
+		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
 	}
 
 	vm_vec_normalize_quick(norm_cur_vel);
@@ -1553,9 +1553,9 @@ static void player_path_set_orient_and_vel(object &objp, const vms_vector &goal_
 	if (dot < -15*F1_0/16) {
 		norm_cur_vel = norm_vec_to_goal;
 	} else {
-		norm_cur_vel.x += norm_vec_to_goal.x/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
-		norm_cur_vel.y += norm_vec_to_goal.y/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
-		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)DESIGNATED_GAME_FRAMETIME/FrameTime);
+		norm_cur_vel.x += norm_vec_to_goal.x/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
+		norm_cur_vel.y += norm_vec_to_goal.y/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
+		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)(DESIGNATED_GAME_FRAMETIME)/FrameTime);
 	}
 
 	vm_vec_normalize_quick(norm_cur_vel);

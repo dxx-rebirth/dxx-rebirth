@@ -290,7 +290,7 @@ static void c_fp_tmap_scanline_per()
 
 	if (!Transparency_on) {
 		if (x >= 8) {
-			if ((j = (size_t) dest & 7) != 0) {
+			if ((j = (size_t) (dest) & 7) != 0) {
 				j = 8 - j;
 
 				while (j > 0) {
@@ -384,7 +384,7 @@ static void c_fp_tmap_scanline_per()
 				z += dzdx;
 				rec_z = 1.0 / z;
 
-				*((uint64_t *) dest) = destlong;
+				*((uint64_t *) (dest)) = destlong;
 				dest += 8;
 				x -= 8;
 				j -= 8;
@@ -405,7 +405,7 @@ static void c_fp_tmap_scanline_per()
 		}
 	} else {
 		if (x >= 8) {
-			if ((j = (size_t) dest & 7) != 0) {
+			if ((j = (size_t) (dest) & 7) != 0) {
 				j = 8 - j;
 
 				while (j > 0) {
@@ -426,10 +426,10 @@ static void c_fp_tmap_scanline_per()
 
 			j = x;
 			while (j >= 8) {
-				destlong = *((uint64_t *) dest);
+				destlong = *((uint64_t *) (dest));
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~(uint64_t)0xFF;
+					destlong &= ~(uint64_t)(0xFF);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c];
 				}
 				l += dldx;
@@ -439,7 +439,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 8);
+					destlong &= ~((uint64_t)(0xFF) << 8);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 8;
 				}
 				l += dldx;
@@ -449,7 +449,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 16);
+					destlong &= ~((uint64_t)(0xFF) << 16);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 16;
 				}
 				l += dldx;
@@ -459,7 +459,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 24);
+					destlong &= ~((uint64_t)(0xFF) << 24);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 24;
 				}
 				l += dldx;
@@ -469,7 +469,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 32);
+					destlong &= ~((uint64_t)(0xFF) << 32);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 32;
 				}
 				l += dldx;
@@ -479,7 +479,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 40);
+					destlong &= ~((uint64_t)(0xFF) << 40);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 40;
 				}
 				l += dldx;
@@ -489,7 +489,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 48);
+					destlong &= ~((uint64_t)(0xFF) << 48);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 48;
 				}
 				l += dldx;
@@ -499,7 +499,7 @@ static void c_fp_tmap_scanline_per()
 				rec_z = 1.0 / z;
 				c = (uint) pixptr[(((int) (v * rec_z)) & (64 * 63)) + (((int) (u * rec_z)) & 63)];
 				if (c != 255) {
-					destlong &= ~((uint64_t)0xFF << 56);
+					destlong &= ~((uint64_t)(0xFF) << 56);
 					destlong |= (uint64_t) gr_fade_table[((int) fabs(l))][c] << 56;
 				}
 				l += dldx;
@@ -508,7 +508,7 @@ static void c_fp_tmap_scanline_per()
 				z += dzdx;
 				rec_z = 1.0 / z;
 
-				*((uint64_t *) dest) = destlong;
+				*((uint64_t *) (dest)) = destlong;
 				dest += 8;
 				x -= 8;
 				j -= 8;

@@ -147,7 +147,7 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 	LineNum[id] = line;
 	Present[id]    = 1;
 
-	pc = (char *)ptr;
+	pc = (char *)(ptr);
 
 	BytesMalloced += size;
 
@@ -164,7 +164,7 @@ void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * fi
 	if ((nmemb | size) >= threshold) {
 		/* possible overflow condition */
 		if (request / size != nmemb)
-			request = ~(size_t)0;
+			request = ~(size_t)(0);
 	}
 	void *ptr = mem_malloc(request, var, filename, line);
 	if (ptr)

@@ -626,7 +626,7 @@ static int ToggleOutlineMode()
 //@@
 //@@	Update_flags |= UF_GAME_VIEW_CHANGED;
 //@@
-//@@	* (uint8_t *) 0x417 &= ~0x20;
+//@@	* (uint8_t *) (0x417) &= ~0x20;
 //@@
 //@@	return 1;
 //@@}
