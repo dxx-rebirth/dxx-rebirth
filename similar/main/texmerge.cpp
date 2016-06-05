@@ -56,6 +56,112 @@ struct TEXTURE_CACHE {
 	fix64		last_time_used;
 };
 
+/* Helper classes merge_texture_0 through merge_texture_3 correspond to
+ * the four values of `orient` used by texmerge_get_cached_bitmap.
+ */
+struct merge_texture_0
+{
+	static size_t get_top_data_index(const unsigned wh, const unsigned y, const unsigned x)
+	{
+		return wh * y + x;
+	}
+};
+
+struct merge_texture_1
+{
+	static size_t get_top_data_index(const unsigned wh, const unsigned y, const unsigned x)
+	{
+		return wh * x + ((wh - 1) - y);
+	}
+};
+
+struct merge_texture_2
+{
+	static size_t get_top_data_index(const unsigned wh, const unsigned y, const unsigned x)
+	{
+		return wh * ((wh - 1) - y) + ((wh - 1) - x);
+	}
+};
+
+struct merge_texture_3
+{
+	static size_t get_top_data_index(const unsigned wh, const unsigned y, const unsigned x)
+	{
+		return wh * ((wh - 1) - x) + y;
+	}
+};
+
+/* For supertransparent colors, remap 254.
+ * For regular transparent colors, do nothing.
+ *
+ * In both cases, the caller remaps TRANSPARENCY_COLOR to the bottom
+ * bitmap.
+ */
+struct merge_transform_super_xparent
+{
+	static uint8_t transform_color(uint8_t c)
+	{
+		return c == 254 ? TRANSPARENCY_COLOR : c;
+	}
+};
+
+struct merge_transform_new
+{
+	static uint8_t transform_color(uint8_t c)
+	{
+		return c;
+	}
+};
+
+}
+
+/* Run the transform for one texture merge case.  Different values of
+ * `orient` in texmerge_get_cached_bitmap lead to different types for
+ * `get_index`.
+ */
+template <typename texture_transform, typename get_index>
+static void merge_textures_case(const unsigned wh, const uint8_t *const top_data, const uint8_t *const bottom_data, uint8_t *dest_data)
+{
+	for (unsigned y = 0; y < wh; ++y)
+		for (unsigned x = 0; x < wh; ++x)
+		{
+			const auto c = top_data[get_index::get_top_data_index(wh, y, x)];
+			/* All merged textures support TRANSPARENCY_COLOR, so handle
+			 * it here.  Supertransparency is delegated down to
+			 * `texture_transform`, since not all textures want
+			 * supertransparency.
+			 */
+			*dest_data++ = (c == TRANSPARENCY_COLOR)
+				? bottom_data[wh * y + x]
+				: texture_transform::transform_color(c);
+		}
+}
+
+/* Dispatch a texture transformation based on the value of `orient`.
+ * The loops are duplicated in each case so that `orient` is not reread
+ * for each byte processed.
+ */
+template <typename texture_transform>
+static void merge_textures(unsigned orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
+{
+	const auto &top_data = expanded_top_bmp.bm_data;
+	const auto &bottom_data = expanded_bottom_bmp.bm_data;
+	const auto wh = expanded_bottom_bmp.bm_w;
+	switch (orient)
+	{
+		case 0:
+			merge_textures_case<texture_transform, merge_texture_0>(wh, top_data, bottom_data, dest_data);
+			break;
+		case 1:
+			merge_textures_case<texture_transform, merge_texture_1>(wh, top_data, bottom_data, dest_data);
+			break;
+		case 2:
+			merge_textures_case<texture_transform, merge_texture_2>(wh, top_data, bottom_data, dest_data);
+			break;
+		case 3:
+			merge_textures_case<texture_transform, merge_texture_3>(wh, top_data, bottom_data, dest_data);
+			break;
+	}
 }
 
 static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
@@ -64,11 +170,6 @@ static unsigned num_cache_entries;
 
 static int cache_hits = 0;
 static int cache_misses = 0;
-
-static void merge_textures_super_xparent(int type, const grs_bitmap &bottom_bmp, const grs_bitmap &top_bmp,
-											 ubyte *dest_data);
-static void merge_textures_new(int type, const grs_bitmap &bottom_bmp, const grs_bitmap &top_bmp,
-								ubyte *dest_data);
 
 //----------------------------------------------------------------------
 
@@ -157,12 +258,14 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 	ogl_freebmtexture(*least_recently_used->bitmap.get());
 #endif
 
+	auto &expanded_top_bmp = *rle_expand_texture(*bitmap_top);
+	auto &expanded_bottom_bmp = *rle_expand_texture(*bitmap_bottom);
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
-		merge_textures_super_xparent( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->get_bitmap_data() );
+		merge_textures<merge_transform_super_xparent>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
 		gr_set_bitmap_flags(*least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
 		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
-		merge_textures_new( orient, *bitmap_bottom, *bitmap_top, least_recently_used->bitmap->get_bitmap_data() );
+		merge_textures<merge_transform_new>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
 		least_recently_used->bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
 		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
 	}
@@ -172,127 +275,4 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 	least_recently_used->last_time_used = timer_query();
 	least_recently_used->orient = orient;
 	return *least_recently_used->bitmap.get();
-}
-
-void merge_textures_new( int type, const grs_bitmap &rbottom_bmp, const grs_bitmap &rtop_bmp, ubyte * dest_data )
-{
-	ubyte c = 0;
-	int wh;
-	auto top_bmp = rle_expand_texture(rtop_bmp);
-	auto bottom_bmp = rle_expand_texture(rbottom_bmp);
-
-	const auto &top_data = top_bmp->bm_data;
-	const auto &bottom_data = bottom_bmp->bm_data;
-	wh = bottom_bmp->bm_w;
-
-	switch( type )	{
-		case 0:
-			// Normal
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ ) {
-					c = top_data[ wh*y+x ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					*dest_data++ = c;
-				}
-			break;
-		case 1:
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*x+((wh-1)-y) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					*dest_data++ = c;
-				}
-			break;
-		case 2:
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*((wh-1)-y)+((wh-1)-x) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					*dest_data++ = c;
-				}
-			break;
-		case 3:
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*((wh-1)-x)+y  ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					*dest_data++ = c;
-				}
-			break;
-	}
-}
-
-void merge_textures_super_xparent( int type, const grs_bitmap &rbottom_bmp, const grs_bitmap &rtop_bmp, ubyte * dest_data )
-{
-	ubyte c = 0;
-	int wh;
-	auto top_bmp = rle_expand_texture(rtop_bmp);
-	auto bottom_bmp = rle_expand_texture(rbottom_bmp);
-
-	const auto &top_data = top_bmp->bm_data;
-	const auto &bottom_data = bottom_bmp->bm_data;
-	wh = bottom_bmp->bm_w;
-
-	switch( type )
-	{
-		case 0:
-			// Normal
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*y+x ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					else if (c==254)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 1:
-			// 
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*x+((wh-1)-y) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					else if (c==254)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 2:
-			// Normal
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*((wh-1)-y)+((wh-1)-x) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					else if (c==254)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 3:
-			// Normal
-			for (int y=0; y<wh; y++ )
-				for (int x=0; x<wh; x++ )
-				{
-					c = top_data[ wh*((wh-1)-x)+y  ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ wh*y+x ];
-					else if (c==254)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-	}
 }
