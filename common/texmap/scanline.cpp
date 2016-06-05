@@ -290,7 +290,7 @@ static void c_fp_tmap_scanline_per()
 
 	if (!Transparency_on) {
 		if (x >= 8) {
-			if ((j = (size_t) (dest) & 7) != 0) {
+			if ((j = reinterpret_cast<uintptr_t>(dest) & 7) != 0) {
 				j = 8 - j;
 
 				while (j > 0) {
@@ -405,7 +405,7 @@ static void c_fp_tmap_scanline_per()
 		}
 	} else {
 		if (x >= 8) {
-			if ((j = (size_t) (dest) & 7) != 0) {
+			if ((j = reinterpret_cast<uintptr_t>(dest) & 7) != 0) {
 				j = 8 - j;
 
 				while (j > 0) {
