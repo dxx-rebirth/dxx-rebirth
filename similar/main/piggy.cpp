@@ -1048,7 +1048,7 @@ int read_hamfile()
 		for (i=0; i<N_sounds; i++ ) {
 			DiskSoundHeader_read(&sndh, ham_fp);
 			temp_sound.length = sndh.length;
-			temp_sound.data = (uint8_t *)(size_t)(sndh.offset + header_size + sound_start);
+			temp_sound.data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(sndh.offset + header_size + sound_start));
 			SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 			memcpy( temp_name_read, sndh.name, 8 );
 			temp_name_read[8] = 0;
@@ -1094,7 +1094,7 @@ static int read_sndfile()
 	for (i=0; i<N_sounds; i++ ) {
 		DiskSoundHeader_read(&sndh, snd_fp);
 		temp_sound.length = sndh.length;
-		temp_sound.data = (uint8_t *)(size_t)(sndh.offset + header_size + sound_start);
+		temp_sound.data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(sndh.offset + header_size + sound_start));
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
@@ -1762,7 +1762,7 @@ void load_bitmap_replacements(const char *level_name)
 		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
 			grs_bitmap *bm = &GameBitmaps[i];
-			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[(size_t) (bm->bm_data)]);
+			gr_set_bitmap_data(*bm, &Bitmap_replacement_data[reinterpret_cast<uintptr_t>(bm->bm_data)]);
 		}
 		last_palette_loaded_pig[0]= 0;  //force pig re-load
 		texmerge_flush();       //for re-merging with new textures
