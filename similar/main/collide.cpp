@@ -2017,8 +2017,12 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 		drop_missile_1_or_4(playerobj,SMISSILE4_INDEX);
 #endif
 
-		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
-		if (!(player_info.primary_weapon_flags & HAS_VULCAN_FLAG))
+		//	If player has vulcan ammo, but no vulcan or gauss cannon, drop the ammo.
+		if (!(player_info.primary_weapon_flags & HAS_VULCAN_FLAG)
+#if defined(DXX_BUILD_DESCENT_II)
+                    && !(player_info.primary_weapon_flags & HAS_GAUSS_FLAG)
+#endif
+                )
 		{
 			auto amount = player_info.vulcan_ammo;
 			if (amount > 200) {
