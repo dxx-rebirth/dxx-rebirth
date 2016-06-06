@@ -5902,7 +5902,7 @@ static int show_netgame_info_poll( newmenu *menu, const d_event &event, char *ng
 
 void show_netgame_info(const netgame_info &netgame)
 {
-        static char *ngii;
+        char *ngii;
         newmenu_item *m;
         int loc=0, ngilen = 50;
 #if defined(DXX_BUILD_DESCENT_I)
