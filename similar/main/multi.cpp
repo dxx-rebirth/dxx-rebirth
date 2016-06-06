@@ -3583,6 +3583,66 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+// We collected some ammo from a vulcan/gauss cannon powerup. Now we need to let everyone else know about its new ammo count.
+void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum)
+{
+	sbyte obj_owner;
+	short remote_objnum;
+        int ammo_count = objnum->ctype.powerup_info.count;
+
+	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
+
+	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
+
+	multibuf[3] = obj_owner;
+
+        PUT_INTEL_SHORT(multibuf+4, static_cast<uint16_t>(ammo_count));
+
+	multi_send_data<MULTI_VULWPN_AMMO_ADJ>(multibuf, 6, 2);
+
+	if (Network_send_objects && multi_objnum_is_past(objnum))
+	{
+		Network_send_objnum = -1;
+	}
+}
+
+static void multi_do_vulcan_weapon_ammo_adjust(const ubyte *buf)
+{
+	short objnum; // which object to update
+	int ammo = 0;
+
+	objnum = GET_INTEL_SHORT(buf + 1);
+	// which remote list is it entered in
+	auto obj_owner = buf[3];
+
+	Assert(objnum >= 0);
+
+	if (objnum < 1)
+		return;
+
+	auto local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
+
+	if (local_objnum == object_none)
+	{
+		return;
+	}
+
+	const auto &&obj = vobjptr(local_objnum);
+	if (obj->type != OBJ_POWERUP)
+	{
+		return;
+	}
+
+	if (Network_send_objects && multi_objnum_is_past(local_objnum))
+	{
+		Network_send_objnum = -1;
+	}
+
+	ammo = GET_INTEL_SHORT(buf + 4);
+        if (objnum!=object_none)
+		obj->ctype.powerup_info.count = ammo;
+}
+
 void multi_send_guided_info (const vobjptr_t miss,char done)
 {
 	int count=0;
@@ -5374,6 +5434,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_DROP_WEAPON:
 			multi_do_drop_weapon(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
+		case MULTI_VULWPN_AMMO_ADJ:
+			multi_do_vulcan_weapon_ammo_adjust(buf); break;
 		case MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(pnum, buf); break;
 		case MULTI_MARKER:

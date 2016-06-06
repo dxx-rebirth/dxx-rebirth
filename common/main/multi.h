@@ -98,7 +98,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(25)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(26)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -537,6 +537,7 @@ void multi_send_guided_info (vobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
+void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum);
 }
 #ifndef RELEASE
 void multi_add_lifetime_kills(int count);

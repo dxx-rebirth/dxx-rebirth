@@ -414,6 +414,8 @@ int do_powerup(const vobjptridx_t obj)
 					id = POW_VULCAN_AMMO;		//set new id for making sound at end of this function
 					if (obj->ctype.powerup_info.count == 0)
 						used = 1;		//say used if all ammo taken
+                                        if (Game_mode & GM_MULTI)
+                                                multi_send_vulcan_weapon_ammo_adjust(obj); // let other players know how much ammo we took.
 				}
 			}
 

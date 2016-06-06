@@ -97,6 +97,7 @@
 	VALUE(MULTI_ORB_BONUS            , 3)	\
 	VALUE(MULTI_GOT_ORB              , 2)	\
 	VALUE(MULTI_EFFECT_BLOWUP        , 17)	\
+	VALUE(MULTI_VULWPN_AMMO_ADJ      , 6)	\
 
 #endif
 
