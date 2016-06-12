@@ -3587,16 +3587,14 @@ static void multi_do_drop_weapon (const playernum_t pnum, const ubyte *buf)
 void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum)
 {
 	sbyte obj_owner;
-	short remote_objnum;
-        int ammo_count = objnum->ctype.powerup_info.count;
-
-	remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
+	const auto remote_objnum = objnum_local_to_remote(objnum, &obj_owner);
 
 	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
 
-        PUT_INTEL_SHORT(multibuf+4, static_cast<uint16_t>(ammo_count));
+	const uint16_t ammo_count = objnum->ctype.powerup_info.count;
+	PUT_INTEL_SHORT(multibuf+4, ammo_count);
 
 	multi_send_data<MULTI_VULWPN_AMMO_ADJ>(multibuf, 6, 2);
 
@@ -3608,14 +3606,12 @@ void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum)
 
 static void multi_do_vulcan_weapon_ammo_adjust(const ubyte *buf)
 {
-	short objnum; // which object to update
-	int ammo = 0;
-
-	objnum = GET_INTEL_SHORT(buf + 1);
+	// which object to update
+	const objnum_t objnum = GET_INTEL_SHORT(buf + 1);
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
-	Assert(objnum >= 0);
+	assert(objnum != object_none);
 
 	if (objnum < 1)
 		return;
@@ -3638,8 +3634,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(const ubyte *buf)
 		Network_send_objnum = -1;
 	}
 
-	ammo = GET_INTEL_SHORT(buf + 4);
-        if (objnum!=object_none)
+	const auto ammo = GET_INTEL_SHORT(buf + 4);
 		obj->ctype.powerup_info.count = ammo;
 }
 
