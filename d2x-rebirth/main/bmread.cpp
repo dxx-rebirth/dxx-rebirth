@@ -2093,7 +2093,7 @@ void bm_write_all(PHYSFS_File *fp)
 		PHYSFS_write( fp, &bi, sizeof(bi), 1 );
 	range_for (const tmap_info &ti, partial_const_range(TmapInfo, t))
 		tmap_info_write(fp, ti);
-	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
+	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) (sizeof(bitmap_index))*NumTextures, (int) (sizeof(tmap_info))*NumTextures);
 
 	t = MAX_SOUNDS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
@@ -2104,45 +2104,45 @@ void bm_write_all(PHYSFS_File *fp)
 	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1 );
 	range_for (const vclip &vc, partial_const_range(Vclip, Num_vclips))
 		vclip_write(fp, vc);
-	PHYSFSX_printf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
+	PHYSFSX_printf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) (sizeof(vclip))*Num_vclips);
 
 	PHYSFS_write( fp, &Num_effects, sizeof(int), 1 );
 	range_for (const eclip &ec, partial_const_range(Effects, Num_effects))
 		eclip_write(fp, ec);
-	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
+	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) (sizeof(eclip))*Num_effects);
 
 	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1 );
 	range_for (const auto &w, partial_const_range(WallAnims, Num_wall_anims))
 		wclip_write(fp, w);
-	PHYSFSX_printf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
+	PHYSFSX_printf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) (sizeof(wclip))*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	PHYSFS_write( fp, Robot_info, sizeof(robot_info), t );
-	PHYSFSX_printf(tfile, "N_robot_types = %d, Robot_info array = %d\n", t, (int) sizeof(robot_info)*N_robot_types);
+	PHYSFSX_printf(tfile, "N_robot_types = %d, Robot_info array = %d\n", t, (int) (sizeof(robot_info))*N_robot_types);
 
 	t = N_D2_ROBOT_JOINTS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	range_for (auto &r, partial_const_range(Robot_joints, t))
 		jointpos_write(fp, r);
-	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
+	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) (sizeof(jointpos))*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	range_for (const auto &w, partial_const_range(Weapon_info, N_D2_WEAPON_TYPES))
 		weapon_info_write(fp, w);
-	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
+	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) (sizeof(weapon_info))*N_weapon_types);
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
 	range_for (const auto &p, partial_const_range(Powerup_info, N_powerup_types))
 		powerup_type_info_write(fp, p);
-	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
+	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) (sizeof(powerup_info))*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	range_for (const auto &p, partial_const_range(Polygon_models, t))
 		polymodel_write(fp, p);
-	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
+	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) (sizeof(polymodel))*t);
 
 	for (i=0; i<t; i++ )	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data.get());	//get RGB colors
@@ -2154,32 +2154,32 @@ void bm_write_all(PHYSFS_File *fp)
 
 	PHYSFS_write( fp, Dying_modelnums, sizeof(int), t );
 	PHYSFS_write( fp, Dead_modelnums, sizeof(int), t );
-	PHYSFSX_printf(tfile, "Dying_modelnums array = %d, Dead_modelnums array = %d\n", (int) sizeof(int)*t, (int) sizeof(int)*t);
+	PHYSFSX_printf(tfile, "Dying_modelnums array = %d, Dead_modelnums array = %d\n", (int) (sizeof(int))*t, (int) (sizeof(int))*t);
 
 	t = MAX_GAUGE_BMS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	PHYSFS_write( fp, Gauges, sizeof(bitmap_index), t );
 	PHYSFS_write( fp, Gauges_hires, sizeof(bitmap_index), t );
-	PHYSFSX_printf(tfile, "Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(bitmap_index)*t);
+	PHYSFSX_printf(tfile, "Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n", t, (int) (sizeof(bitmap_index))*t, (int) (sizeof(bitmap_index))*t);
 
 	t = MAX_OBJ_BITMAPS;
 	PHYSFS_write( fp, &t, sizeof(int), 1 );
 	PHYSFS_write( fp, ObjBitmaps, sizeof(bitmap_index), t );
 	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t );
-	PHYSFSX_printf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(ushort)*t);
+	PHYSFSX_printf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) (sizeof(bitmap_index))*t, (int) (sizeof(ushort))*t);
 
 	PHYSFS_write( fp, &only_player_ship, sizeof(player_ship), 1 );
 	PHYSFSX_printf(tfile, "player_ship size = %d\n", (int) sizeof(player_ship));
 
 	PHYSFS_write( fp, &Num_cockpits, sizeof(int), 1 );
 	PHYSFS_write( fp, cockpit_bitmap, sizeof(bitmap_index), Num_cockpits );
-	PHYSFSX_printf(tfile, "Num_cockpits = %d, cockpit_bitmaps array = %d\n", Num_cockpits, (int) sizeof(bitmap_index)*Num_cockpits);
+	PHYSFSX_printf(tfile, "Num_cockpits = %d, cockpit_bitmaps array = %d\n", Num_cockpits, (int) (sizeof(bitmap_index))*Num_cockpits);
 
 	PHYSFS_write( fp, &First_multi_bitmap_num, sizeof(int), 1 );
 
 	PHYSFS_write( fp, &Num_reactors, sizeof(Num_reactors), 1 );
 	PHYSFS_write( fp, Reactors, sizeof(*Reactors), Num_reactors);
-	PHYSFSX_printf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
+	PHYSFSX_printf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) (sizeof(*Reactors))*Num_reactors);
 
 	PHYSFS_write( fp, &Marker_model_num, sizeof(Marker_model_num), 1);
 	bm_write_extra_robots();

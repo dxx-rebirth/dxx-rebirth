@@ -551,7 +551,7 @@ void multi_send_create_robot(int station, objnum_t objnum, int type)
 
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
-	multibuf[loc] = (int8_t) station;                         loc += 1;
+	multibuf[loc] = (int8_t) (station);                         loc += 1;
 	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2;
 	multibuf[loc] = type;									loc += 1;
 
@@ -823,7 +823,7 @@ multi_do_robot_fire(const ubyte *buf)
                                                                                         loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
-	gun_num = (int8_t) buf[loc];                                                      loc += 1;
+	gun_num = (int8_t) (buf[loc]);                                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
 	fire.x = (fix)INTEL_INT(static_cast<int>(fire.x));
 	fire.y = (fix)INTEL_INT(static_cast<int>(fire.y));

@@ -154,7 +154,7 @@ static int create_timer_handler(unsigned char, unsigned char, const unsigned cha
 	else
 		timer_created = 1;
 
-	micro_frame_delay = get_int(data) * (int)get_short(data+4);
+	micro_frame_delay = get_int(data) * (int)(get_short(data+4));
 	if (g_spdFactorNum != 0)
 	{
 		temp = micro_frame_delay;

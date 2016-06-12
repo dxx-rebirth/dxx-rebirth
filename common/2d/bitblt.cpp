@@ -448,7 +448,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((y1 + sy) * data_offset)]);
 		else
-			sbits += (int)src.bm_data[4+y1+sy];
+			sbits += (int)(src.bm_data[4+y1+sy]);
 	}
 }
 #endif

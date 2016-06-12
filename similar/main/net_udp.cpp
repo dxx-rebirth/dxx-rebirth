@@ -824,7 +824,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len )
 	(void)bIPv6; // currently unused
 	
 	// Get the IP
-	sIP = (char *)&data[iPos];
+	sIP = (char *)(&data[iPos]);
 	iPos += strlen( sIP ) + 1;
 	
 	// Get the port

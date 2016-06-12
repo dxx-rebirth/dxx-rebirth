@@ -1841,7 +1841,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			*next_bitmap += new_size - zsize;
 		} else {
 			Assert( zsize + JUST_IN_CASE >= new_size );
-			bitmap->bm_mdata = (uint8_t *) d_realloc(bitmap->bm_mdata, new_size);
+			bitmap->bm_mdata = (uint8_t *) (d_realloc(bitmap->bm_mdata, new_size));
 			Assert(bitmap->bm_data);
 		}
 	}

@@ -1621,7 +1621,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 	vms_vector shot_orientation;
 
 	// Act out the actual shooting
-	weapon = (int)buf[2];
+	weapon = (int)(buf[2]);
 
 	flags = buf[4];
 	if (buf[0] == MULTI_FIRE_TRACK)
@@ -1676,7 +1676,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(objp, weapon, (int)buf[3], flags, (int)buf[5], shot_orientation);
+		do_laser_firing(objp, weapon, (int)(buf[3]), flags, (int)(buf[5]), shot_orientation);
 
 		if (weapon == primary_weapon_index_t::FUSION_INDEX)
 			Fusion_charge = save_charge;
@@ -2847,7 +2847,7 @@ void multi_send_door_open(segnum_t segnum, int side,ubyte flag)
 {
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(multibuf+1, segnum );
-	multibuf[3] = (int8_t) side;
+	multibuf[3] = (int8_t) (side);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2865,7 +2865,7 @@ void multi_send_door_open_specific(const playernum_t pnum,segnum_t segnum, int s
 	//   Assert (pnum>-1 && pnum<N_players);
 
 	PUT_INTEL_SHORT(multibuf+1, segnum);
-	multibuf[3] = (int8_t) side;
+	multibuf[3] = (int8_t) (side);
 	multibuf[4] = flag;
 
 	multi_send_data_direct<MULTI_DOOR_OPEN>(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
@@ -2887,7 +2887,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	int count = 0;
 
 	count += 1;
-	multibuf[count] = (int8_t) pnum;                  count += 1;
+	multibuf[count] = (int8_t) (pnum);                  count += 1;
 	//                                                                                                      -----------
 	//                                                                                                      Total size = 2
 
@@ -3044,7 +3044,7 @@ void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 	count += 1;
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
-	multibuf[count] = (int8_t) side;                                  count += 1;
+	multibuf[count] = (int8_t) (side);                                  count += 1;
 	PUT_INTEL_INT(multibuf+count, pnt.x);                          count += 4;
 	PUT_INTEL_INT(multibuf+count, pnt.y);                          count += 4;
 	PUT_INTEL_INT(multibuf+count, pnt.z);                          count += 4;
@@ -3556,7 +3556,7 @@ void multi_send_drop_weapon(const vobjptridx_t objnum, int seed)
 	Assert(ammo_count < F1_0); //make sure fits in short
 
 	count++;
-	multibuf[count++]=(char)get_powerup_id(objp);
+	multibuf[count++]=(char)(get_powerup_id(objp));
 	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
 	PUT_INTEL_SHORT(multibuf+count, static_cast<uint16_t>(ammo_count)); count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);
@@ -4226,7 +4226,7 @@ void multi_send_drop_flag(objnum_t objnum,int seed)
 	int count=0;
 	const auto &&objp = vobjptr(objnum);
 	count++;
-	multibuf[count++]=(char)get_powerup_id(objp);
+	multibuf[count++]=(char)(get_powerup_id(objp));
 
 	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);

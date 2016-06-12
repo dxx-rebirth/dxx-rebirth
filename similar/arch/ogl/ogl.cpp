@@ -1623,7 +1623,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt)
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
-				sbits += (int)bm->bm_data[4+i];
+				sbits += (int)(bm->bm_data[4+i]);
 			dbits += bm->bm_w;
 		}
 		buf=decodebuf;

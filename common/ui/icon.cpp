@@ -102,8 +102,8 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 	// Call twice to get original;
 	if (f)
 	{
-		icon->flag = (int8_t) f();
-		icon->flag = (int8_t) f();
+		icon->flag = (int8_t) (f());
+		icon->flag = (int8_t) (f());
 	} else {
 		icon->flag = 0;
 	}
@@ -164,7 +164,7 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_ev
 	if (icon->pressed == 1)
 	{
 		icon->status = 1;
-		icon->flag = (int8_t) icon->user_function();
+		icon->flag = (int8_t) (icon->user_function());
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, icon);
 		rval = window_event_result::handled;
 	}
