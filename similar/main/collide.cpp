@@ -1960,7 +1960,9 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		//Drop the vulcan, gauss, and ammo
 		auto vulcan_ammo = playerobj->ctype.player_info.vulcan_ammo;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG;
+#elif defined(DXX_BUILD_DESCENT_II)
 		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
 		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
 			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
@@ -2018,11 +2020,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 #endif
 
 		//	If player has vulcan ammo, but no vulcan or gauss cannon, drop the ammo.
-		if (!(player_info.primary_weapon_flags & HAS_VULCAN_FLAG)
-#if defined(DXX_BUILD_DESCENT_II)
-                    && !(player_info.primary_weapon_flags & HAS_GAUSS_FLAG)
-#endif
-                )
+		if (!(player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS))
 		{
 			auto amount = player_info.vulcan_ammo;
 			if (amount > 200) {
