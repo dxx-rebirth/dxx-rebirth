@@ -1750,7 +1750,7 @@ void load_bitmap_replacements(const char *level_name)
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (uint8_t *) static_cast<size_t>(bmh.offset);
+			bm->bm_data = reinterpret_cast<uint8_t *>(static_cast<size_t>(bmh.offset));
 
 			gr_set_bitmap_flags(*bm, bmh.flags & BM_FLAGS_TO_COPY);
 
