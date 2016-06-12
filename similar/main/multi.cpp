@@ -2847,7 +2847,7 @@ void multi_send_door_open(segnum_t segnum, int side,ubyte flag)
 {
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(multibuf+1, segnum );
-	multibuf[3] = (sbyte)side;
+	multibuf[3] = (int8_t) side;
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2865,7 +2865,7 @@ void multi_send_door_open_specific(const playernum_t pnum,segnum_t segnum, int s
 	//   Assert (pnum>-1 && pnum<N_players);
 
 	PUT_INTEL_SHORT(multibuf+1, segnum);
-	multibuf[3] = (sbyte)side;
+	multibuf[3] = (int8_t) side;
 	multibuf[4] = flag;
 
 	multi_send_data_direct<MULTI_DOOR_OPEN>(multibuf, DXX_MP_SIZE_DOOR_OPEN, pnum, 2);
@@ -2887,7 +2887,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	int count = 0;
 
 	count += 1;
-	multibuf[count] = (sbyte)pnum;                  count += 1;
+	multibuf[count] = (int8_t) pnum;                  count += 1;
 	//                                                                                                      -----------
 	//                                                                                                      Total size = 2
 
@@ -3044,7 +3044,7 @@ void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 	count += 1;
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum);                        count += 2;
-	multibuf[count] = (sbyte)side;                                  count += 1;
+	multibuf[count] = (int8_t) side;                                  count += 1;
 	PUT_INTEL_INT(multibuf+count, pnt.x);                          count += 4;
 	PUT_INTEL_INT(multibuf+count, pnt.y);                          count += 4;
 	PUT_INTEL_INT(multibuf+count, pnt.z);                          count += 4;
