@@ -2044,7 +2044,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 		}
 		else if (cloak_time + CLOAK_TIME_MAX - GameTime64 <= F1_0*3)
 		{
-			if (cloak_fade_value >= (GR_FADE_LEVELS-1))
+			if (cloak_fade_value >= (signed)(GR_FADE_LEVELS-1))
 			{
 				step = -2;
 			}
@@ -2067,7 +2067,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 			cloak_fade_value += step;
 		}
 
-		if (cloak_fade_value > (GR_FADE_LEVELS-1))
+		if (cloak_fade_value > (signed)(GR_FADE_LEVELS-1))
 			cloak_fade_value = (GR_FADE_LEVELS-1);
 		if (cloak_fade_value <= 0)
 			cloak_fade_value = 0;
