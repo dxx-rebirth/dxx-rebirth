@@ -1321,7 +1321,9 @@ static window_event_result HandleTestKey(int key)
 #endif
 			break;
 		case KEY_DEBUGGED + KEY_L:
-			if (++Lighting_on >= 2) Lighting_on = 0; break;
+			if (++Lighting_on >= 2)
+                                Lighting_on = 0;
+                        break;
 		case KEY_PAD5: slew_stop(); break;
 
 #ifndef NDEBUG
@@ -1660,15 +1662,15 @@ static window_event_result FinalCheats()
 	}
 
 	if (gotcha == &game_cheats::rapidfire)
-#if defined(DXX_BUILD_DESCENT_I)
-	{
-		do_megawow_powerup(200);
-	}
-#elif defined(DXX_BUILD_DESCENT_II)
 	{
 		HUD_init_message(HM_DEFAULT, "Rapid fire %s!", cheats.rapidfire?TXT_ON:TXT_OFF);
+#if defined(DXX_BUILD_DESCENT_I)
+                if (cheats.rapidfire)
+                        do_megawow_powerup(200);
+#endif
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::bouncyfire)
 	{
 		
