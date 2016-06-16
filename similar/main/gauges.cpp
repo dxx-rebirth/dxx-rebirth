@@ -1749,7 +1749,7 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
-				sbits += (int)(bm->bm_data[4+i]);
+				sbits += static_cast<int>(bm->bm_data[4+i]);
 			dbits += bm->bm_w;
 		}
 	}
@@ -2044,7 +2044,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 		}
 		else if (cloak_time + CLOAK_TIME_MAX - GameTime64 <= F1_0*3)
 		{
-			if (cloak_fade_value >= (signed)(GR_FADE_LEVELS-1))
+			if (cloak_fade_value >= static_cast<signed>(GR_FADE_LEVELS-1))
 			{
 				step = -2;
 			}
@@ -2067,7 +2067,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 			cloak_fade_value += step;
 		}
 
-		if (cloak_fade_value > (signed)(GR_FADE_LEVELS-1))
+		if (cloak_fade_value > static_cast<signed>(GR_FADE_LEVELS-1))
 			cloak_fade_value = (GR_FADE_LEVELS-1);
 		if (cloak_fade_value <= 0)
 			cloak_fade_value = 0;

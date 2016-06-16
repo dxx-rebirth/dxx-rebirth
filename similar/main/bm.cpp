@@ -739,7 +739,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
-				sbits += (int)(bm->bm_data[4+i]);
+				sbits += static_cast<int>(bm->bm_data[4+i]);
 			range_for (const auto color, unchecked_partial_range(dbits, bm_w))
 				process_one(color);
 		}

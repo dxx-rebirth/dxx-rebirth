@@ -741,7 +741,7 @@ namespace dsx {
 static void diminish_palette_towards_normal(void)
 {
 	int	dec_amount = 0;
-	float brightness_correction = 1-((float)(gr_palette_get_gamma())/64); // to compensate for brightness setting of the game
+	float brightness_correction = 1-(static_cast<float>(gr_palette_get_gamma())/64); // to compensate for brightness setting of the game
 
 	// Diminish at DIMINISH_RATE units/second.
 	if (FrameTime < (F1_0/DIMINISH_RATE))
@@ -824,7 +824,7 @@ void palette_save(void)
 
 void palette_restore(void)
 {
-	float brightness_correction = 1-((float)(gr_palette_get_gamma())/64);
+	float brightness_correction = 1-(static_cast<float>(gr_palette_get_gamma())/64);
 
 	PaletteRedAdd = Redsave; PaletteBlueAdd = Bluesave; PaletteGreenAdd = Greensave;
 	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );

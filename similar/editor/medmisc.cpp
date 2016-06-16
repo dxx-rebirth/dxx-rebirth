@@ -159,9 +159,9 @@ int medlisp_scale_segment(void)
 {
 	vms_vector	scale;
 
-	scale.x = fl2f((float)(func_get_param(0)));
-	scale.y = fl2f((float)(func_get_param(1)));
-	scale.z = fl2f((float)(func_get_param(2)));
+	scale.x = fl2f(static_cast<float>(func_get_param(0)));
+	scale.y = fl2f(static_cast<float>(func_get_param(1)));
+	scale.z = fl2f(static_cast<float>(func_get_param(2)));
 	med_create_new_segment(scale);
 	med_rotate_segment(Cursegp,vm_angles_2_matrix(Seg_orientation));
 	Update_flags |= UF_WORLD_CHANGED;
