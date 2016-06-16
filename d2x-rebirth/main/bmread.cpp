@@ -2169,7 +2169,7 @@ void bm_write_all(PHYSFS_File *fp)
 	PHYSFSX_printf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) (sizeof(bitmap_index))*t, (int) (sizeof(ushort))*t);
 
 	PHYSFS_write( fp, &only_player_ship, sizeof(player_ship), 1 );
-	PHYSFSX_printf(tfile, "player_ship size = %d\n", (int) sizeof(player_ship));
+	PHYSFSX_printf(tfile, "player_ship size = %d\n", (int)(sizeof(player_ship)));
 
 	PHYSFS_write( fp, &Num_cockpits, sizeof(int), 1 );
 	PHYSFS_write( fp, cockpit_bitmap, sizeof(bitmap_index), Num_cockpits );
