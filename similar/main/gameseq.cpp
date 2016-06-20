@@ -300,6 +300,8 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
 	plobj->ctype.player_info.powerup_flags = {};
+        select_primary_weapon(nullptr, 0, 0);
+        select_secondary_weapon(nullptr, 0, 0);
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
