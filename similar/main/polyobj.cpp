@@ -608,8 +608,6 @@ static void assign_minmax(vms_vector &minv, vms_vector &maxv, const vms_vector &
 
 static void polyobj_find_min_max(polymodel *pm)
 {
-	ushort nverts;
-	ushort *data,type;
 	auto &big_mn = pm->mins;
 	auto &big_mx = pm->maxs;
 	for (int m=0;m<pm->n_models;m++) {
@@ -617,13 +615,13 @@ static void polyobj_find_min_max(polymodel *pm)
 		auto &mx = pm->submodel_maxs[m];
 		const auto &ofs = pm->submodel_offsets[m];
 
-		data = (uint16_t *)&pm->model_data[pm->submodel_ptrs[m]];
+		auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[m]]);
 	
-		type = *data++;
+		const auto type = *data++;
 	
 		Assert(type == 7 || type == 1);
 	
-		nverts = *data++;
+		const uint16_t nverts = *data++ - 1;
 	
 		if (type==7)
 			data+=2;		//skip start & pad
@@ -631,15 +629,14 @@ static void polyobj_find_min_max(polymodel *pm)
 		auto vp = reinterpret_cast<const vms_vector *>(data);
 	
 		mn = mx = *vp++;
-		nverts--;
 
 		if (m==0)
 			big_mn = big_mx = mn;
 	
-		while (nverts--) {
-			assign_minmax(mn, mx, *vp);
-			assign_minmax(big_mn, big_mx, vm_vec_add(*vp, ofs));
-			vp++;
+		range_for (auto &v, unchecked_partial_range(vp, nverts))
+		{
+			assign_minmax(mn, mx, v);
+			assign_minmax(big_mn, big_mx, vm_vec_add(v, ofs));
 		}
 	}
 }
