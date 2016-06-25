@@ -88,7 +88,7 @@ static int pof_read_int(ubyte *bufp)
 {
 	int i;
 
-	i = *((int *) &bufp[Pof_addr]);
+	i = *((int *) (&bufp[Pof_addr]));
 	Pof_addr += 4;
 	return INTEL_INT(i);
 
@@ -120,7 +120,7 @@ static short pof_read_short(ubyte *bufp)
 {
 	short s;
 
-	s = *((short *) &bufp[Pof_addr]);
+	s = *((short *) (&bufp[Pof_addr]));
 	Pof_addr += 2;
 	return INTEL_SHORT(s);
 //	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)

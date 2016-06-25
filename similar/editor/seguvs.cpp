@@ -637,7 +637,7 @@ static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int 
 		if (side != base_side) {
 			auto &base_vp = Side_to_verts[side];
 			for (v0=0; v0<4; v0++)
-                                if (((base_seg->verts[(int) base_vp[v0]] == abs_id1) && (base_seg->verts[(int) base_vp[(v0+1) % 4]] == abs_id2)) || ((base_seg->verts[(int) base_vp[v0]] == abs_id2) && (base_seg->verts[(int)base_vp[ (v0+1) % 4]] == abs_id1))) {
+                                if (((base_seg->verts[(int) (base_vp[v0])] == abs_id1) && (base_seg->verts[(int) (base_vp[(v0+1) % 4])] == abs_id2)) || ((base_seg->verts[(int) (base_vp[v0])] == abs_id2) && (base_seg->verts[(int)(base_vp[ (v0+1) % 4])] == abs_id1))) {
 					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
 					*base_common_side = side;
 				}
@@ -652,7 +652,7 @@ static void get_side_ids(const vsegptr_t base_seg, const vsegptr_t con_seg, int 
 		if (side != con_side) {
 			auto &con_vp = Side_to_verts[side];
 			for (v0=0; v0<4; v0++)
-                                if (((con_seg->verts[(int) con_vp[(v0 + 1) % 4]] == abs_id1) && (con_seg->verts[(int) con_vp[v0]] == abs_id2)) || ((con_seg->verts[(int) con_vp[(v0 + 1) % 4]] == abs_id2) && (con_seg->verts[(int) con_vp[v0]] == abs_id1))) {
+                                if (((con_seg->verts[(int) (con_vp[(v0 + 1) % 4])] == abs_id1) && (con_seg->verts[(int) (con_vp[v0])] == abs_id2)) || ((con_seg->verts[(int) (con_vp[(v0 + 1) % 4])] == abs_id2) && (con_seg->verts[(int) (con_vp[v0])] == abs_id1))) {
 					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
 					*con_common_side = side;
 				}
@@ -825,8 +825,8 @@ static void propagate_tmaps_to_segment_sides(const vsegptridx_t base_seg, int ba
 
 	// Do for each edge on connecting face.
 	for (v=0; v<4; v++) {
-                abs_id1 = base_seg->verts[(int) base_vp[v]];
-                abs_id2 = base_seg->verts[(int) base_vp[(v+1) % 4]];
+                abs_id1 = base_seg->verts[(int) (base_vp[v])];
+                abs_id2 = base_seg->verts[(int) (base_vp[(v+1) % 4])];
 		propagate_tmaps_to_segment_side(base_seg, base_side, con_seg, con_side, abs_id1, abs_id2, uv_only_flag);
 	}
 
