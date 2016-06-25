@@ -95,20 +95,24 @@ enum powerup_type_t : uint8_t
 #endif
 };
 
+#ifdef dsx
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392u*2)
-#define MAX_POWERUP_TYPES			29
+constexpr unsigned MAX_POWERUP_TYPES = 29;
 #elif defined(DXX_BUILD_DESCENT_II)
 #define VULCAN_AMMO_MAX             (392u*4)
 #define GAUSS_WEAPON_AMMO_AMOUNT    392
 
-#define MAX_POWERUP_TYPES   50
+constexpr unsigned MAX_POWERUP_TYPES = 50;
 #endif
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)
 
 #define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
-extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
+
+}
+#endif
 
 struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 {
@@ -118,14 +122,17 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
 };
 
-extern unsigned N_powerup_types;
+namespace dsx {
 extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
+extern array<char[POWERUP_NAME_LENGTH], MAX_POWERUP_TYPES> Powerup_names;
+}
 
 void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
 namespace dcx {
 
+extern unsigned N_powerup_types;
 void draw_powerup(const object_base &obj);
 
 }
@@ -133,8 +140,10 @@ void draw_powerup(const object_base &obj);
 //returns true if powerup consumed
 int do_powerup(vobjptridx_t obj);
 
+namespace dsx {
 //process (animate) a powerup for one frame
 void do_powerup_frame(vobjptridx_t obj);
+}
 #endif
 
 // Diminish shields and energy towards max in case they exceeded it.

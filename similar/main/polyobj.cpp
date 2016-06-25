@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 unsigned N_polygon_models = 0;
+}
+namespace dsx {
 array<polymodel, MAX_POLYGON_MODELS> Polygon_models;	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
 }
 
@@ -572,13 +574,15 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 	g3_done_instance();
 }
 
-}
-
 void free_polygon_models()
 {
 	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
 		free_model(&i);
 }
+
+}
+
+namespace dcx {
 
 static void assign_max(fix &a, const fix &b)
 {
@@ -641,6 +645,10 @@ static void polyobj_find_min_max(polymodel *pm)
 	}
 }
 
+}
+
+namespace dsx {
+
 array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
 
 //returns the number of this model
@@ -675,10 +683,15 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 }
 
+}
+
+namespace dcx {
 
 void init_polygon_models()
 {
 	N_polygon_models = 0;
+}
+
 }
 
 //compare against this size when figuring how far to place eye for picture

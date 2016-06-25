@@ -447,6 +447,8 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info *ri)
 	return 1;
 }
 
+namespace dsx {
+
 static void load_hxm(const d_fname &hxmname)
 {
 	unsigned int repl_num;
@@ -548,6 +550,8 @@ static void load_hxm(const d_fname &hxmname)
 				ObjBitmaps[repl_num].index = PHYSFSX_readShort(f);
 		}
 	}
+}
+
 }
 
 // undo customized items

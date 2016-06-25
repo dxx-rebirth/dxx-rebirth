@@ -34,14 +34,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+namespace dcx {
 unsigned N_robot_types;
 unsigned N_robot_joints;
+}
 
+namespace dsx {
 //	Robot stuff
 array<robot_info, MAX_ROBOT_TYPES> Robot_info;
 
 //Big array of joint positions.  All robots index into this array
 array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
+}
 
 #if 0
 static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
@@ -51,6 +55,8 @@ static inline void PHYSFSX_writeAngleVec(PHYSFS_File *fp, const vms_angvec &v)
 	PHYSFS_writeSLE16(fp, v.h);
 }
 #endif
+
+namespace dsx {
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
@@ -86,6 +92,8 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 	vm_vec_add2(gun_point, obj.pos);
 }
 
+}
+
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
 int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state)
@@ -96,7 +104,6 @@ int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num
 	*jp_list_ptr = &Robot_joints[Robot_info[robot_type].anim_states[gun_num][state].offset];
 
 	return Robot_info[robot_type].anim_states[gun_num][state].n_joints;
-
 }
 
 #ifndef NDEBUG
@@ -129,6 +136,8 @@ static void set_robot_state(const vobjptr_t obj,int state)
 	}
 }
 #endif
+
+namespace dsx {
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
@@ -170,6 +179,8 @@ void robot_set_angles(robot_info *r,polymodel *pm,array<array<vms_angvec, MAX_SU
 			}
 		}
 	}
+
+}
 
 }
 

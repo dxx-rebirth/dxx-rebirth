@@ -97,8 +97,10 @@ static void verify_textures();
 static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
-char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
-char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
+namespace dsx {
+array<char[POWERUP_NAME_LENGTH], MAX_POWERUP_TYPES> Powerup_names;
+array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
+}
 
 //---------------- Internal variables ---------------------------
 static int			SuperX = -1;
@@ -313,6 +315,8 @@ static int get_int()
 //}
 
 #define LINEBUF_SIZE 600
+
+namespace dsx {
 
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
@@ -551,6 +555,8 @@ int gamedata_read_tbl(int pc_shareware)
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
 
 	return 0;
+}
+
 }
 
 void verify_textures()

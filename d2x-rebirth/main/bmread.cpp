@@ -90,8 +90,10 @@ using std::min;
 
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
-char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
-char	Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
+namespace dsx {
+array<char[POWERUP_NAME_LENGTH], MAX_POWERUP_TYPES> Powerup_names;
+array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
+}
 
 //---------------- Internal variables ---------------------------
 static int			SuperX = -1;
@@ -356,6 +358,8 @@ static int get_texture(char *name)
 #define LINEBUF_SIZE 600
 
 #define DEFAULT_PIG_PALETTE	"groupa.256"
+
+namespace dsx {
 
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
@@ -625,6 +629,8 @@ int gamedata_read_tbl(int pc_shareware)
 	gr_use_palette_table(D2_DEFAULT_PALETTE);
 
 	return 0;
+}
+
 }
 
 void verify_textures()

@@ -91,8 +91,10 @@ unsigned N_ObjBitmaps;
 static void bm_free_extra_objbitmaps();
 #endif
 
+namespace dsx {
 //for each model, a model number for dying & dead variants, or -1 if none
 array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+}
 
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.

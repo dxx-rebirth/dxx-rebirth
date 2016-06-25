@@ -44,10 +44,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define AS_FLINCH       4
 #define N_ANIM_STATES   5
 
-#define RI_CLOAKED_NEVER            0
 #define RI_CLOAKED_ALWAYS           1
-#define RI_CLOAKED_EXCEPT_FIRING    2
 
+namespace dcx {
 
 //describes the position of a certain joint
 struct jointpos : prohibit_void_ptr<jointpos>
@@ -63,7 +62,11 @@ struct jointlist
 	short offset;
 };
 
+}
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+constexpr unsigned ROBOT_NAME_LENGTH = 16;
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
 #define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
@@ -144,11 +147,15 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	array<array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
 	int     always_0xabcd;      // debugging
 };
+}
 
 const auto weapon_none = weapon_id_type::unspecified;
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-#define	MAX_ROBOT_TYPES	30				// maximum number of robot types
+// maximum number of robot types
+constexpr unsigned MAX_ROBOT_TYPES = 30;
+constexpr unsigned MAX_ROBOT_JOINTS = 600;
 
 static inline int robot_is_companion(const robot_info *)
 {
@@ -160,7 +167,9 @@ static inline int robot_is_thief(const robot_info *)
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_ROBOT_TYPES 85      // maximum number of robot types
+// maximum number of robot types
+constexpr unsigned MAX_ROBOT_TYPES = 85;
+constexpr unsigned MAX_ROBOT_JOINTS = 1600;
 
 static inline int robot_is_companion(const robot_info *robptr)
 {
@@ -173,28 +182,24 @@ static inline int robot_is_thief(const robot_info *robptr)
 }
 #endif
 
-#define ROBOT_NAME_LENGTH   16
-extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
-
 //the array of robots types
 extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
+extern array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
+extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
+}
 
+namespace dcx {
 //how many kinds of robots
 extern unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
-//test data for one robot
-#if defined(DXX_BUILD_DESCENT_I)
-#define MAX_ROBOT_JOINTS 600
-#elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_ROBOT_JOINTS 1600
-#endif
-extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 extern unsigned N_robot_joints;
+}
 
+namespace dsx {
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
 void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num);
-#endif
+}
 
 //  Tells joint positions for a gun to be in a specified state.
 //  A gun can have associated with it any number of joints.  In order to tell whether a gun is a certain
@@ -216,6 +221,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
 extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
+#endif
 
 /*
  * reads n robot_info structs from a PHYSFS_File
@@ -229,8 +235,8 @@ void jointpos_read(PHYSFS_File *fp, jointpos &jp);
 #if 0
 void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
-void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 namespace dsx {
+void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 }
 

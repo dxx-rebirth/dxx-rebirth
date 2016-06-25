@@ -61,7 +61,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "playsave.h"
 
+namespace dcx {
 unsigned N_powerup_types;
+}
+namespace dsx {
 array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 
 //process this powerup for this frame
@@ -115,6 +118,8 @@ void do_powerup_frame(const vobjptridx_t obj)
 		if ( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num > -1 )
 			digi_link_sound_to_object( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num, obj, 0, F1_0);
 	}
+}
+
 }
 
 namespace dcx {

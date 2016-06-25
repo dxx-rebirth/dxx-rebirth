@@ -140,8 +140,12 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
 void load_robot_replacements(const d_fname &level_name);
 #endif
 
+#ifdef dsx
+namespace dsx {
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware);
+}
+#endif
 
 extern void bm_read_all(PHYSFS_File * fp);
 

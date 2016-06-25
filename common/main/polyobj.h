@@ -36,16 +36,14 @@ struct bitmap_index;
 #include <physfs.h>
 #include "pack.h"
 
-struct robot_info;
-
 #ifdef dsx
 namespace dsx {
+struct robot_info;
 struct glow_values_t;
-}
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_POLYGON_MODELS 85
+constexpr unsigned MAX_POLYGON_MODELS = 85;
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_POLYGON_MODELS 200
+constexpr unsigned MAX_POLYGON_MODELS = 200;
 #endif
 
 // array of names of currently-loaded models
@@ -53,6 +51,7 @@ extern array<char[13], MAX_POLYGON_MODELS> Pof_names;
 
 //for each model, a model number for dying & dead variants, or -1 if none
 extern array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+}
 #endif
 #define MAX_SUBMODELS 10
 
@@ -95,20 +94,23 @@ public:
 	}
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+// how many polygon objects there are
+extern unsigned N_polygon_models;
+void init_polygon_models();
+
+}
+#ifdef dsx
+namespace dsx {
 // array of pointers to polygon objects
 extern array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
 
-// how many polygon objects there are
-extern unsigned N_polygon_models;
-#endif
-
-}
-
 void free_polygon_models();
-void init_polygon_models();
 
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
+}
+#endif
+
+namespace dcx {
 
 class alternate_textures
 {
@@ -122,6 +124,8 @@ public:
 	}
 	operator const bitmap_index *() const { return p; }
 };
+
+}
 
 #ifdef dsx
 namespace dsx {
