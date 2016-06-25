@@ -300,8 +300,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
 	plobj->ctype.player_info.powerup_flags = {};
-        select_primary_weapon(nullptr, 0, 0);
-        select_secondary_weapon(nullptr, 0, 0);
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -427,7 +425,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			player_info.invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			player_info.FakingInvul = 1;
 		}
-		Primary_weapon = [=]{
+		select_primary_weapon(nullptr, [=]{
 			range_for (auto i, PlayerCfg.PrimaryOrder)
 			{
 				if (i >= MAX_PRIMARY_WEAPONS)
@@ -450,7 +448,7 @@ void init_player_stats_new_ship(ubyte pnum)
 					return static_cast<primary_weapon_index_t>(i);
 			}
 			return primary_weapon_index_t::LASER_INDEX;
-		}();
+		}(), 0);
 #if defined(DXX_BUILD_DESCENT_II)
 		Primary_last_was_super[0] = 0;
 		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i)
@@ -471,10 +469,8 @@ void init_player_stats_new_ship(ubyte pnum)
 		if (Newdemo_state == ND_STATE_RECORDING)
 		{
 			newdemo_record_laser_level(player_info.laser_level, 0);
-			newdemo_record_player_weapon(0, 0);
-			newdemo_record_player_weapon(1, 0);
 		}
-		Secondary_weapon = 0;
+		select_secondary_weapon(nullptr, 0, 0);
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
 		Player_eggs_dropped = 0;
