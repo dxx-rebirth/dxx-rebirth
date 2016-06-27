@@ -2759,7 +2759,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 
 	if (killer_objnum != object_none)
 	{
-		short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
+		short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)(&multibuf[count+2])); // do it with variable since INTEL_SHORT won't work on return val from function.
 		PUT_INTEL_SHORT(multibuf+count, s);
 	}
 	else

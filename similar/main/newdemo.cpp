@@ -1704,7 +1704,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			N_players = static_cast<int>(c);
 			// changed this to above two lines -- breaks on the mac because of
 			// endian issues
-			//		nd_read_byte((sbyte *)&N_players);
+			//		nd_read_byte((sbyte *)(&N_players));
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
@@ -1811,8 +1811,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	nd_recorded_total = 0;
 	nd_playback_total = 0;
-	nd_read_byte((sbyte*)&energy);
-	nd_read_byte((sbyte*)&shield);
+	nd_read_byte((sbyte*)(&energy));
+	nd_read_byte((sbyte*)(&shield));
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_byte(energy);
@@ -1830,8 +1830,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
-	nd_read_byte((sbyte *)&Primary_weapon);
-	nd_read_byte((sbyte *)&Secondary_weapon);
+	nd_read_byte((sbyte *)(&Primary_weapon));
+	nd_read_byte((sbyte *)(&Secondary_weapon));
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_byte(Primary_weapon);
@@ -1845,7 +1845,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (shareware)
 	{
-		nd_read_byte((sbyte *)&c);
+		nd_read_byte((sbyte *)(&c));
 		if (c != ND_EVENT_NEW_LEVEL) {
 			auto flags = get_local_player_flags().get_player_flags();
 			energy = shield;
@@ -2349,8 +2349,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte old_energy;
 
 			if (!shareware)
-			nd_read_byte((sbyte *)&old_energy);
-			nd_read_byte((sbyte *)&energy);
+			nd_read_byte((sbyte *)(&old_energy));
+			nd_read_byte((sbyte *)(&energy));
 
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
@@ -2378,8 +2378,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte afterburner;
 			ubyte old_afterburner;
 
-			nd_read_byte((sbyte *)&old_afterburner);
-			nd_read_byte((sbyte *)&afterburner);
+			nd_read_byte((sbyte *)(&old_afterburner));
+			nd_read_byte((sbyte *)(&afterburner));
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
@@ -2403,8 +2403,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte old_shield;
 
 			if (!shareware)
-			nd_read_byte((sbyte *)&old_shield);
-			nd_read_byte((sbyte *)&shield);
+			nd_read_byte((sbyte *)(&old_shield));
+			nd_read_byte((sbyte *)(&shield));
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
@@ -2473,8 +2473,8 @@ static int newdemo_read_frame_information(int rewrite)
 		{
 			ubyte weapon_type, weapon_num;
 
-			nd_read_byte((sbyte *)&weapon_type);
-			nd_read_byte((sbyte *)&weapon_num);
+			nd_read_byte((sbyte *)(&weapon_type));
+			nd_read_byte((sbyte *)(&weapon_num));
 			if (rewrite)
 			{
 				nd_write_byte(weapon_type);
@@ -2494,9 +2494,9 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte weapon_type, weapon_num;
 			ubyte old_weapon;
 
-			nd_read_byte((sbyte *)&weapon_type);
-			nd_read_byte((sbyte *)&weapon_num);
-			nd_read_byte((sbyte *)&old_weapon);
+			nd_read_byte((sbyte *)(&weapon_type));
+			nd_read_byte((sbyte *)(&weapon_num));
+			nd_read_byte((sbyte *)(&old_weapon));
 			if (rewrite)
 			{
 				nd_write_byte(weapon_type);
@@ -3269,8 +3269,8 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_short(&bshort);
 	nd_read_int(&bint);
 
-	nd_read_byte((sbyte *)&energy);
-	nd_read_byte((sbyte *)&shield);
+	nd_read_byte((sbyte *)(&energy));
+	nd_read_byte((sbyte *)(&shield));
 	get_local_player_energy() = i2f(energy);
 	get_local_player_shields() = i2f(shield);
 	int recorded_player_flags;
@@ -3281,8 +3281,8 @@ void newdemo_goto_end(int to_rewrite)
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
 		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
-	nd_read_byte((sbyte *)&Primary_weapon);
-	nd_read_byte((sbyte *)&Secondary_weapon);
+	nd_read_byte((sbyte *)(&Primary_weapon));
+	nd_read_byte((sbyte *)(&Secondary_weapon));
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
@@ -3309,7 +3309,7 @@ void newdemo_goto_end(int to_rewrite)
 		N_players = static_cast<int>(c);
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
-		//		nd_read_byte((sbyte *)&N_players);
+		//		nd_read_byte((sbyte *)(&N_players));
 		range_for (auto &i, partial_range(Players, N_players)) {
 			nd_read_string(i.callsign.buffer());
 			nd_read_byte(&(i.connected));
