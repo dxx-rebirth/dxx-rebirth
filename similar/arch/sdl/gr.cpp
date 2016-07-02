@@ -152,7 +152,7 @@ int gr_check_fullscreen(void)
 
 void gr_toggle_fullscreen()
 {
-	const auto sdl_video_flags = (::sdl_video_flags ^= SDL_FULLSCREEN);
+	sdl_video_flags ^= SDL_FULLSCREEN;
 	const int WindowMode = !(sdl_video_flags & SDL_FULLSCREEN);
 	CGameCfg.WindowMode = WindowMode;
 	gr_remap_color_fonts();
