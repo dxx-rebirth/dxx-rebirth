@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "fwd-event.h"
+#include "dsx-ns.h"
 #include "ntstring.h"
 
 namespace dcx {
