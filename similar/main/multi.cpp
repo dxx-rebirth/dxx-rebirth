@@ -4157,7 +4157,8 @@ static void DropOrb ()
 	if (!game_mode_hoard())
 		Int3(); // How did we get here? Get Leighton!
 
-	if (!get_local_player_secondary_ammo()[PROXIMITY_INDEX])
+	auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+	if (!proximity)
 	{
 		HUD_init_message_literal(HM_MULTI, "No orbs to drop!");
 		return;
@@ -4176,10 +4177,10 @@ static void DropOrb ()
 	if (game_mode_hoard())
 		multi_send_drop_flag(objnum,seed);
 
-	-- get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+	-- proximity;
 
 	// If empty, tell everyone to stop drawing the box around me
-	if (!get_local_player_secondary_ammo()[PROXIMITY_INDEX])
+	if (!proximity)
 	{
 		get_local_player_flags() &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);

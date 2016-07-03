@@ -1366,7 +1366,8 @@ void DropSecondaryWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	if (get_local_player_secondary_ammo()[Secondary_weapon] ==0)
+	auto &secondary_ammo = get_local_player_secondary_ammo()[Secondary_weapon];
+	if (secondary_ammo == 0)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");
 		return;
@@ -1384,7 +1385,7 @@ void DropSecondaryWeapon ()
 		case POW_GUIDED_MISSILE_1:
 		case POW_MERCURY_MISSILE_1:
 #endif
-			if (get_local_player_secondary_ammo()[Secondary_weapon] % 4)
+			if (secondary_ammo % 4)
 			{
 				sub_ammo = 1;
 			}
@@ -1399,7 +1400,7 @@ void DropSecondaryWeapon ()
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_SMART_MINE:
 #endif
-			if (get_local_player_secondary_ammo()[Secondary_weapon] < 4)
+			if (secondary_ammo < 4)
 			{
 				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
 				return;
@@ -1472,10 +1473,9 @@ void DropSecondaryWeapon ()
 	if ((Game_mode & GM_MULTI) && objnum!=object_none)
 		multi_send_drop_weapon(objnum,seed);
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
-	secondary_ammo[Secondary_weapon] -= sub_ammo;
+	secondary_ammo -= sub_ammo;
 
-	if (secondary_ammo[Secondary_weapon]==0)
+	if (secondary_ammo == 0)
 	{
 		auto_select_secondary_weapon();
 	}

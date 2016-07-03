@@ -1466,7 +1466,9 @@ static void start_player_death_sequence(object_base &player)
 #if defined(DXX_BUILD_DESCENT_II)
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard())
-			if (get_local_player_secondary_ammo()[PROXIMITY_INDEX] < 12)
+		{
+			auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+			if (proximity < 12)
 			{
 				const auto is_bad_kill = []{
 					auto &lplr = get_local_player();
@@ -1486,8 +1488,9 @@ static void start_player_death_sequence(object_base &player)
 					return get_team(Player_num) == get_team(get_player_id(killer_objp));
 				};
 				if (!is_bad_kill())
-					++ get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+					++ proximity;
 			}
+		}
 #endif
 		multi_send_kill(vobjptridx(get_local_player().objnum));
 	}
