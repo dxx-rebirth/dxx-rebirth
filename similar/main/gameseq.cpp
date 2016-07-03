@@ -312,8 +312,11 @@ static void init_ammo_and_energy(void)
 {
 	if (get_local_player_energy() < INITIAL_ENERGY)
 		get_local_player_energy() = INITIAL_ENERGY;
-	if (get_local_player_shields() < StartingShields)
-		get_local_player_shields() = StartingShields;
+	{
+		auto &shields = get_local_player_shields();
+		if (shields < StartingShields)
+			shields = StartingShields;
+	}
 	auto &concussion = get_local_player_secondary_ammo()[CONCUSSION_INDEX];
 	if (concussion < 2 + NDL - Difficulty_level)
 		concussion = 2 + NDL - Difficulty_level;

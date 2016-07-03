@@ -1045,8 +1045,7 @@ void newdemo_record_start_demo()
 
 	nd_record_v_player_energy = (sbyte)(f2ir(get_local_player_energy()));
 	nd_write_byte((sbyte)(f2ir(get_local_player_energy())));
-	nd_record_v_player_shields = (sbyte)(f2ir(get_local_player_shields()));
-	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
+	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_player_shields())));
 	nd_write_int(nd_record_v_player_flags = get_local_player_flags().get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(Primary_weapon));
 	nd_write_byte(static_cast<int8_t>(Secondary_weapon));

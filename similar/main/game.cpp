@@ -1385,7 +1385,8 @@ namespace dsx {
 
 void GameProcessFrame(void)
 {
-	fix player_shields = get_local_player_shields();
+	auto &local_player_shields_ref = get_local_player_shields();
+	fix player_shields = local_player_shields_ref;
 	const auto player_was_dead = Player_dead_state;
 
 	update_player_stats();
@@ -1540,14 +1541,14 @@ void GameProcessFrame(void)
 	flicker_lights();
 
 	//if the player is taking damage, give up guided missile control
-	if (get_local_player_shields() != player_shields)
+	if (local_player_shields_ref != player_shields)
 		release_guided_missile(Player_num);
 #endif
 
 	// Check if we have to close in-game menus for multiplayer
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
 	{
-		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (get_local_player_shields() < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
+		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (local_player_shields_ref < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
                         game_leave_menus();
 	}
 }

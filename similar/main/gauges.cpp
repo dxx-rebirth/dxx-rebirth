@@ -2596,10 +2596,15 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 			show_cockpit_cloak_invul_timer(get_local_player_invulnerable_time() + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
                 }
 
-	} else if (cmmode == CM_STATUS_BAR)
-		sb_draw_shield_bar(f2ir(get_local_player_shields()), multires_gauge_graphic);
+	}
 	else
-		draw_shield_bar(f2ir(get_local_player_shields()), multires_gauge_graphic);
+	{
+		const auto shields_ir = f2ir(get_local_player_shields());
+		if (cmmode == CM_STATUS_BAR)
+			sb_draw_shield_bar(shields_ir, multires_gauge_graphic);
+		else
+			draw_shield_bar(shields_ir, multires_gauge_graphic);
+	}
 }
 
 const rgb_array_t player_rgb_normal{{

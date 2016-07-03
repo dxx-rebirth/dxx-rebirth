@@ -146,24 +146,26 @@ static void play_test_sound();
 
 static void transfer_energy_to_shield()
 {
-	fix e;		//how much energy gets transfered
 	static fix64 last_play_time=0;
 
-	e = min(min(FrameTime*CONVERTER_RATE, get_local_player_energy() - INITIAL_ENERGY),(MAX_SHIELDS-get_local_player_shields()) * CONVERTER_SCALE);
+	auto &shields = get_local_player_shields();
+	//how much energy gets transfered
+	const fix e = min(min(FrameTime*CONVERTER_RATE, get_local_player_energy() - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
 
 	if (e <= 0) {
 
 		if (get_local_player_energy() <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
-		else if (get_local_player_shields() >= MAX_SHIELDS) {
+		else if (shields >= MAX_SHIELDS)
+		{
 			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
 
 	get_local_player_energy()  -= e;
-	get_local_player_shields() += e/CONVERTER_SCALE;
+	shields += e / CONVERTER_SCALE;
 
 	if (last_play_time > GameTime64)
 		last_play_time = 0;

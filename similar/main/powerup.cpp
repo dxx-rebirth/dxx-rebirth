@@ -306,20 +306,23 @@ int do_powerup(const vobjptridx_t obj)
 			used = pick_up_energy();
 			break;
 		case POW_SHIELD_BOOST:
-			if (get_local_player_shields() < MAX_SHIELDS) {
+			{
+				auto &shields = get_local_player_shields();
+			if (shields < MAX_SHIELDS) {
 				fix boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)
 				if (Difficulty_level == 0)
 					boost += boost/2;
 #endif
-				get_local_player_shields() += boost;
-				if (get_local_player_shields() > MAX_SHIELDS)
-					get_local_player_shields() = MAX_SHIELDS;
-				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(get_local_player_shields()));
+				shields += boost;
+				if (shields > MAX_SHIELDS)
+					shields = MAX_SHIELDS;
+				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d", TXT_SHIELD, TXT_BOOSTED_TO, f2ir(shields));
 				used=1;
 			} else
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
+			}
 		case POW_LASER:
 			if (player_info.laser_level >= MAX_LASER_LEVEL) {
 #if defined(DXX_BUILD_DESCENT_I)

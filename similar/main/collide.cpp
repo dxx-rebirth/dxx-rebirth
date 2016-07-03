@@ -1317,8 +1317,11 @@ void do_final_boss_hacks(void)
 		Player_dead_state = player_dead_state::no;
 	}
 
-	if (get_local_player_shields() <= 0)
-		get_local_player_shields() = 1;
+	{
+		auto &shields = get_local_player_shields();
+		if (shields <= 0)
+			shields = 1;
+	}
 
 	//	If you're not invulnerable, get invulnerable!
 	auto &pl_flags = get_local_player_flags();
