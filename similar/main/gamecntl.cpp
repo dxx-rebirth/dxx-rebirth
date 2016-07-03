@@ -1257,18 +1257,20 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player_shields() = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: get_local_player().lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
+		{
 			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
-			get_local_player_flags() ^= PLAYER_FLAGS_CLOAKED;
-			if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
+			auto &pl_flags = get_local_player_flags();
+			pl_flags ^= PLAYER_FLAGS_CLOAKED;
+			if (pl_flags & PLAYER_FLAGS_CLOAKED) {
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
 				ai_do_cloak_stuff();
 				get_local_player_cloak_time() = GameTime64;
 			}
 			break;
-
+		}
 
 		case KEY_DEBUGGED+KEY_R:
 			cheats.robotfiringsuspended = !cheats.robotfiringsuspended;
@@ -1572,10 +1574,7 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::accessory)
 	{
-		get_local_player_flags() |=PLAYER_FLAGS_HEADLIGHT;
-		get_local_player_flags() |=PLAYER_FLAGS_AFTERBURNER;
-		get_local_player_flags() |=PLAYER_FLAGS_AMMO_RACK;
-		get_local_player_flags() |=PLAYER_FLAGS_CONVERTER;
+		get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_CONVERTER;
 		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 #endif
@@ -1588,8 +1587,9 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::invul)
 	{
-		get_local_player_flags() ^= PLAYER_FLAGS_INVULNERABLE;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (get_local_player_flags()&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+		auto &pl_flags = get_local_player_flags();
+		pl_flags ^= PLAYER_FLAGS_INVULNERABLE;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (pl_flags & PLAYER_FLAGS_INVULNERABLE) ? TXT_ON : TXT_OFF);
 		get_local_player_invulnerable_time() = GameTime64+i2f(1000);
 	}
 
@@ -1602,9 +1602,11 @@ static window_event_result FinalCheats()
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::cloak)
 	{
-		get_local_player_flags() ^= PLAYER_FLAGS_CLOAKED;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (get_local_player_flags()&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
-		if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
+		auto &pl_flags = get_local_player_flags();
+		pl_flags ^= PLAYER_FLAGS_CLOAKED;
+		const auto have_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, have_cloaked ? TXT_ON : TXT_OFF);
+		if (have_cloaked)
 		{
 			ai_do_cloak_stuff();
 			get_local_player_cloak_time() = GameTime64;

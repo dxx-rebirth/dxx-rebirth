@@ -3241,7 +3241,8 @@ void draw_hud()
 void render_gauges()
 {
 	int energy = f2ir(get_local_player_energy());
-	int cloak = ((get_local_player_flags()&PLAYER_FLAGS_CLOAKED) != 0);
+	auto &pl_flags = get_local_player_flags();
+	const auto cloak = (pl_flags & PLAYER_FLAGS_CLOAKED);
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 

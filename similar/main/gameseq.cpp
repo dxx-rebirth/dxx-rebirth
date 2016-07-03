@@ -1187,14 +1187,17 @@ void ExitSecretLevel(void)
 //	be invulnerable or cloaked.
 void do_cloak_invul_secret_stuff(fix64 old_gametime)
 {
-	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE) {
+	auto &pl_flags = get_local_player_flags();
+	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
+	{
 		fix64	time_used;
 
 		time_used = old_gametime - get_local_player_invulnerable_time();
 		get_local_player_invulnerable_time() = GameTime64 - time_used;
 	}
 
-	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
+	if (pl_flags & PLAYER_FLAGS_CLOAKED)
+	{
 		fix	time_used;
 
 		time_used = old_gametime - get_local_player_cloak_time();

@@ -1321,9 +1321,10 @@ void do_final_boss_hacks(void)
 		get_local_player_shields() = 1;
 
 	//	If you're not invulnerable, get invulnerable!
-	if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)) {
+	auto &pl_flags = get_local_player_flags();
+	if (!(pl_flags & PLAYER_FLAGS_INVULNERABLE)) {
+		pl_flags |= PLAYER_FLAGS_INVULNERABLE;
 		get_local_player_invulnerable_time() = GameTime64;
-		get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
