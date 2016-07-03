@@ -235,7 +235,7 @@ void c_tmap_scanline_lin()
 	if (!Transparency_on)	{
 		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			*dest++ = gr_fade_table[ (l&(0x7f00)) + (uint32_t) (pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ]) ];
+			*dest++ = gr_fade_table[ (l&(0x7f00)) + static_cast<uint32_t>(pixptr[ (f2i(v)&(64*63)) + (f2i(u)&63) ]) ];
 			//end edit -MM
 			l += dldx;
 			u += dudx;
@@ -396,7 +396,7 @@ static void c_fp_tmap_scanline_per()
 			if (++index >= SWIDTH*SHEIGHT) return;
 			*dest++ =
 			    gr_fade_table[static_cast<int>(fabs(l))][
-					  (uint32_t) (pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)])];
+					  static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)])];
 			l += dldx;
 			u += dudx;
 			v += dvdx;
@@ -570,7 +570,7 @@ static void c_tmap_scanline_per()
 				{	
 				if (++index >= SWIDTH*SHEIGHT) return;
 				//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-				*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][(uint32_t) (pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ]) ];
+				*dest++ = fadeTableLocalCopy[(l>>8)&0x7f][static_cast<uint32_t>(pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ]) ];
 				//end edit -MM
 				l += dldx;
 				u += dudx;
@@ -668,7 +668,7 @@ void c_tmap_scanline_per()
 	if (!Transparency_on)	{
 		for (int x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
-			*dest++ = gr_fade_table[ (l&(0x7f00)) + (uint32_t) (pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ]) ];
+			*dest++ = gr_fade_table[ (l&(0x7f00)) + static_cast<uint32_t>(pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ]) ];
 			//end edit -MM
 			l += dldx;
 			u += dudx;
