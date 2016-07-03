@@ -351,8 +351,9 @@ void init_player_stats_level(const secret_restore secret_flag)
 		plr.hours_level = 0;
 	}
 
-	get_local_plrobj().ctype.player_info.homing_object_dist = -F1_0; // Added by RH
-	get_local_plrobj().ctype.player_info.killer_objnum = object_none;
+	auto &plrobj = get_local_plrobj();
+	plrobj.ctype.player_info.homing_object_dist = -F1_0; // Added by RH
+	plrobj.ctype.player_info.killer_objnum = object_none;
 
 	plr.num_kills_level = 0;
 	plr.num_robots_level = count_number_of_robots();
@@ -365,7 +366,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
-		auto &powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+		auto &powerup_flags = plrobj.ctype.player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 #if defined(DXX_BUILD_DESCENT_II)
 		powerup_flags &= ~(PLAYER_FLAGS_MAP_ALL);

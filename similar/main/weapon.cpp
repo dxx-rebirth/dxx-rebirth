@@ -949,7 +949,7 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	}
 	if (change_weapon &&
 		!old_ammo)
-		maybe_autoselect_vulcan_weapon(get_local_plrobj().ctype.player_info);
+		maybe_autoselect_vulcan_weapon(plr.ctype.player_info);
 	return ammo_count;	//return amount used
 }
 

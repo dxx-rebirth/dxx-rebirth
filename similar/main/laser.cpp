@@ -1784,7 +1784,8 @@ int do_laser_firing_player(void)
 
 	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	auto &pl_energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
@@ -1840,7 +1841,7 @@ int do_laser_firing_player(void)
 #endif
 			}
 
-			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, get_local_plrobj().orient.fvec);
+			rval += do_laser_firing(vobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec);
 
 			pl_energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (pl_energy < 0)
