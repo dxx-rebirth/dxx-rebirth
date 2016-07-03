@@ -348,7 +348,7 @@ void multi_send_release_robot(const vobjptridx_t objnum)
 	multi_delete_controlled_robot(objnum);
 
 	multibuf[1] = Player_num;
-	s = objnum_local_to_remote(objnum, (int8_t *)(&multibuf[4]));
+	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[4]));
 	PUT_INTEL_SHORT(multibuf+2, s);
 
 	multi_send_data<MULTI_ROBOT_RELEASE>(multibuf, 5, 2);
@@ -426,7 +426,7 @@ void multi_send_robot_position_sub(const vobjptridx_t objnum, int now)
 
 	loc += 1;
 	multibuf[loc] = Player_num;                                            loc += 1;
-	s = objnum_local_to_remote(objnum, (int8_t *)(&multibuf[loc+2]));
+	s = objnum_local_to_remote(objnum, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
 	PUT_INTEL_SHORT(multibuf+loc, s);                                      loc += 3; // 5
 
 	quaternionpos qpp{};
@@ -482,7 +482,7 @@ void multi_send_robot_fire(const vobjptridx_t obj, int gun_num, const vms_vector
 
                                                                         loc += 1;
         multibuf[loc] = Player_num;                                     loc += 1;
-        s = objnum_local_to_remote(obj, (int8_t *)(&multibuf[loc+2]));
+        s = objnum_local_to_remote(obj, reinterpret_cast<int8_t *>(&multibuf[loc+2]));
         PUT_INTEL_SHORT(multibuf+loc, s);
                                                                         loc += 3;
         multibuf[loc] = gun_num;                                        loc += 1;

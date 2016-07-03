@@ -629,7 +629,7 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 
 	if (nFlags & 1)
 	{
-		temp = (uint8_t *)(g_vBackBuf1);
+		temp = reinterpret_cast<uint8_t *>(g_vBackBuf1);
 		g_vBackBuf1 = g_vBackBuf2;
 		g_vBackBuf2 = temp;
 	}
