@@ -1192,8 +1192,9 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime)
 	{
 		fix64	time_used;
 
-		time_used = old_gametime - get_local_player_invulnerable_time();
-		get_local_player_invulnerable_time() = GameTime64 - time_used;
+		auto &t = get_local_player_invulnerable_time();
+		time_used = old_gametime - t;
+		t = GameTime64 - time_used;
 	}
 
 	if (pl_flags & PLAYER_FLAGS_CLOAKED)
