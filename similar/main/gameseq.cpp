@@ -310,8 +310,11 @@ void init_player_stats_game(ubyte pnum)
 
 static void init_ammo_and_energy(void)
 {
-	if (get_local_player_energy() < INITIAL_ENERGY)
-		get_local_player_energy() = INITIAL_ENERGY;
+	{
+		auto &energy = get_local_player_energy();
+		if (energy < INITIAL_ENERGY)
+			energy = INITIAL_ENERGY;
+	}
 	{
 		auto &shields = get_local_player_shields();
 		if (shields < StartingShields)

@@ -1620,9 +1620,10 @@ static void object_move_one(const vobjptridx_t obj)
 			fuelcen_check_for_hoard_goal(segp);
 #endif
 
-		const fix fuel=fuelcen_give_fuel(segp, INITIAL_ENERGY - get_local_player_energy());
+		auto &energy = get_local_player_energy();
+		const fix fuel = fuelcen_give_fuel(segp, INITIAL_ENERGY - energy);
 		if (fuel > 0 )	{
-			get_local_player_energy() += fuel;
+			energy += fuel;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		auto &pl_shields = get_local_player_shields();

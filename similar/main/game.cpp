@@ -1403,8 +1403,9 @@ void GameProcessFrame(void)
 	if (pl_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 	{
 		static int turned_off=0;
-		get_local_player_energy() -= (FrameTime*3/8);
-		if (get_local_player_energy() < i2f(10)) {
+		auto &energy = get_local_player_energy();
+		energy -= (FrameTime*3/8);
+		if (energy < i2f(10)) {
 			if (!turned_off) {
 				pl_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 				turned_off = 1;
@@ -1415,9 +1416,9 @@ void GameProcessFrame(void)
 		else
 			turned_off = 0;
 
-		if (get_local_player_energy() <= 0)
+		if (energy <= 0)
 		{
-			get_local_player_energy() = 0;
+			energy = 0;
 			pl_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 			if (Game_mode & GM_MULTI)
 				multi_send_flags(Player_num);
@@ -1698,20 +1699,22 @@ void FireLaser()
 	Global_laser_firing_count = Controls.state.fire_primary?Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count:0;
 
 	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
-		if ((get_local_player_energy() < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
+		auto &energy = get_local_player_energy();
+		if (energy < F1_0 * 2 && Auto_fire_fusion_cannon_time == 0)
+		{
 			Global_laser_firing_count = 0;
 		} else {
 			static fix64 Fusion_next_sound_time = 0;
 
 			if (Fusion_charge == 0)
-				get_local_player_energy() -= F1_0*2;
+				energy -= F1_0*2;
 
 			Fusion_charge += FrameTime;
-			get_local_player_energy() -= FrameTime;
+			energy -= FrameTime;
 
-			if (get_local_player_energy() <= 0)
+			if (energy <= 0)
 			{
-				get_local_player_energy() = 0;
+				energy = 0;
 				Auto_fire_fusion_cannon_time = GameTime64 -1;	//	Fire now!
 			} else
 				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.

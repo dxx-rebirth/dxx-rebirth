@@ -150,11 +150,12 @@ static void transfer_energy_to_shield()
 
 	auto &shields = get_local_player_shields();
 	//how much energy gets transfered
-	const fix e = min(min(FrameTime*CONVERTER_RATE, get_local_player_energy() - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
+	auto &energy = get_local_player_energy();
+	const fix e = min(min(FrameTime*CONVERTER_RATE, energy - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
 
 	if (e <= 0) {
 
-		if (get_local_player_energy() <= INITIAL_ENERGY) {
+		if (energy <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
 		else if (shields >= MAX_SHIELDS)
@@ -164,7 +165,7 @@ static void transfer_energy_to_shield()
 		return;
 	}
 
-	get_local_player_energy()  -= e;
+	energy  -= e;
 	shields += e / CONVERTER_SCALE;
 
 	if (last_play_time > GameTime64)
