@@ -29,14 +29,14 @@ void decodeFrame8(unsigned char *pFrame, const unsigned char *pMap, int mapRemai
 		for (int i=0; i<xb/2; i++)
 		{
 			dispatchDecoder(&pFrame, (*pMap) & 0xf, &pData, &dataRemain, &i, &j);
-			if (pFrame < (unsigned char *)g_vBackBuf1)
+			if (pFrame < (uint8_t *)(g_vBackBuf1))
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
-			else if (pFrame >= ((unsigned char *)g_vBackBuf1) + g_width*g_height)
+			else if (pFrame >= ((uint8_t *)(g_vBackBuf1)) + g_width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
 			dispatchDecoder(&pFrame, (*pMap) >> 4, &pData, &dataRemain, &i, &j);
-			if (pFrame < (unsigned char *)g_vBackBuf1)
+			if (pFrame < (uint8_t *)(g_vBackBuf1))
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
-			else if (pFrame >= ((unsigned char *)g_vBackBuf1) + g_width*g_height)
+			else if (pFrame >= ((uint8_t *)(g_vBackBuf1)) + g_width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
 
 			++pMap;
@@ -229,7 +229,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 	{
 	case 0x0:
 		/* block is copied from block in current frame */
-		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1));
+		copyFrame(*pFrame, *pFrame + ((uint8_t *)(g_vBackBuf2) - (uint8_t *)(g_vBackBuf1)));
 	case 0x1:
 		/* block is unchanged from two frames ago */
 		*pFrame += 8;
@@ -287,7 +287,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y = -8 + BH
 		*/
 		relClose(*(*pData)++, &x, &y);
-		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1) + x + y*g_width);
+		copyFrame(*pFrame, *pFrame + ((uint8_t *)(g_vBackBuf2) - (uint8_t *)(g_vBackBuf1)) + x + y*g_width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -300,7 +300,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		x = (signed char)*(*pData)++;
 		y = (signed char)*(*pData)++;
-		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1) + x + y*g_width);
+		copyFrame(*pFrame, *pFrame + ((uint8_t *)(g_vBackBuf2) - (uint8_t *)(g_vBackBuf1)) + x + y*g_width);
 		*pFrame += 8;
 		*pDataRemain -= 2;
 		break;

@@ -298,12 +298,12 @@ static int fill_buffer(hmp_file *hmp) {
 				i = hmp->pending_size;
 			*(p++) = hmp->pending_event | i;
 			*(p++) = 0;
-			memcpy((unsigned char *)p, hmp->pending, i);
+			memcpy((uint8_t *)(p), hmp->pending, i);
 			hmp->pending_size -= i;
 			p += (i + 3) / 4;
 		} else {
 			if ((i = get_event(hmp, &ev))) {
-                                mhdr->dwBytesRecorded = ((unsigned char *)p) - ((unsigned char *)mhdr->lpData);
+                                mhdr->dwBytesRecorded = ((uint8_t *)(p)) - ((uint8_t *)(mhdr->lpData));
 				return i;
 			}
 			if (ev.datalen) {
@@ -320,7 +320,7 @@ static int fill_buffer(hmp_file *hmp) {
 			}
 		}
 	}
-        mhdr->dwBytesRecorded = ((unsigned char *)p) - ((unsigned char *)mhdr->lpData);
+        mhdr->dwBytesRecorded = ((uint8_t *)(p)) - ((uint8_t *)(mhdr->lpData));
 	return 0;
 }
 
