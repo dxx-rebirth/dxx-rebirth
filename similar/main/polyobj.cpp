@@ -122,7 +122,7 @@ static short pof_read_short(ubyte *bufp)
 {
 	short s;
 
-	s = *((int16_t *) (&bufp[Pof_addr]));
+	s = *(reinterpret_cast<int16_t *>(&bufp[Pof_addr]));
 	Pof_addr += 2;
 	return INTEL_SHORT(s);
 //	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)

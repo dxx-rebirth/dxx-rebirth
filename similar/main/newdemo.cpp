@@ -1726,8 +1726,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 					if (purpose == PURPOSE_REWRITE)
 						nd_write_int(i.score);
 				} else {
-					nd_read_short((int16_t *)(&i.net_killed_total));
-					nd_read_short((int16_t *)(&i.net_kills_total));
+					nd_read_short(reinterpret_cast<int16_t *>(&i.net_killed_total));
+					nd_read_short(reinterpret_cast<int16_t *>(&i.net_kills_total));
 					if (purpose == PURPOSE_REWRITE)
 					{
 						nd_write_short(i.net_killed_total);
@@ -3291,7 +3291,7 @@ void newdemo_goto_end(int to_rewrite)
 			get_local_player_vulcan_ammo() = s;
 	}
 	range_for (auto &i, get_local_player_secondary_ammo())
-		nd_read_short((int16_t *)(&i));
+		nd_read_short(reinterpret_cast<int16_t *>(&i));
 	{
 	int8_t i;
 	nd_read_byte(&i);
@@ -3316,8 +3316,8 @@ void newdemo_goto_end(int to_rewrite)
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(i.score));
 			} else {
-				nd_read_short((int16_t *)(&i.net_killed_total));
-				nd_read_short((int16_t *)(&i.net_kills_total));
+				nd_read_short(reinterpret_cast<int16_t *>(&i.net_killed_total));
+				nd_read_short(reinterpret_cast<int16_t *>(&i.net_kills_total));
 			}
 		}
 	} else {
