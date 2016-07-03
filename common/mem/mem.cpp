@@ -188,7 +188,7 @@ static int mem_check_integrity( int block_number )
 	int ErrorCount;
 	ubyte * CheckData;
 
-	CheckData = reinterpret_cast<uint8_t *>((char *)(MallocBase[block_number]) + MallocSize[block_number]);
+	CheckData = reinterpret_cast<uint8_t *>(reinterpret_cast<char *>(MallocBase[block_number]) + MallocSize[block_number]);
 
 	ErrorCount = 0;
 			

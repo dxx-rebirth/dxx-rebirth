@@ -90,7 +90,7 @@ static int pof_read_int(ubyte *bufp)
 {
 	int i;
 
-	i = *((int *) (&bufp[Pof_addr]));
+	i = *(reinterpret_cast<int *>(&bufp[Pof_addr]));
 	Pof_addr += 4;
 	return INTEL_INT(i);
 

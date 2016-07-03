@@ -1769,7 +1769,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	range_for (auto &i, get_local_player_secondary_ammo())
 	{
-		nd_read_short((short*)(&i));
+		nd_read_short(reinterpret_cast<short*>(&i));
 		if (purpose == PURPOSE_REWRITE)
 			nd_write_short(i);
 	}

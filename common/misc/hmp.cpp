@@ -366,7 +366,7 @@ static void _stdcall midi_callback(HMIDISTRM, UINT uMsg, DWORD, DWORD_PTR dw1, D
 
 	mhdr = ((MIDIHDR *)dw1);
 	mhdr->dwBytesRecorded = 0;
-	hmp = (hmp_file *)(mhdr->dwUser);
+	hmp = reinterpret_cast<hmp_file *>(mhdr->dwUser);
 	mhdr->lpNext = hmp->evbuf;
 	hmp->evbuf = mhdr;
 	hmp->bufs_in_mm--;

@@ -1809,8 +1809,8 @@ static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 
-	//      objp->phys_info.velocity = *(vms_vector *)(buf+16); // 12 bytes
-	//      objp->pos = *(vms_vector *)(buf+28);                // 12 bytes
+	//      objp->phys_info.velocity = *reinterpret_cast<vms_vector *>(buf+16); // 12 bytes
+	//      objp->pos = *reinterpret_cast<vms_vector *>(buf+28);                // 12 bytes
 
 	remote_created = buf[count++]; // How many did the other guy create?
 
