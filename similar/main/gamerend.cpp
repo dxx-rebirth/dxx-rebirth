@@ -435,9 +435,12 @@ static void set_missile_viewer(vobjptridx_t o)
 	Missile_viewer_sig = o->signature;
 }
 
-static void clear_missile_viewer()
+static int clear_missile_viewer()
 {
-	Missile_viewer = nullptr;
+        if (!Missile_viewer)
+                return 0;
+        Missile_viewer = nullptr;
+        return 1;
 }
 
 __attribute_warn_unused_result
@@ -597,9 +600,9 @@ static void show_extra_views()
 				did_missile_view=1;
 			}
 			else {
-				clear_missile_viewer();
-				RenderingType=255;
-				do_cockpit_window_view(1,WBU_STATIC);
+				if (clear_missile_viewer())
+                                        do_cockpit_window_view(1,WBU_STATIC);
+                                RenderingType=255;
 			}
 	}
 
