@@ -117,7 +117,6 @@ int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_t
 #endif
 
 namespace dcx {
-extern int Missile_gun;
 extern int Proximity_dropped;
 
 struct muzzle_info

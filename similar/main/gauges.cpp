@@ -2670,7 +2670,7 @@ void show_reticle(int reticle_type, int secondary_display)
 
 	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
 		secondary_bm_num += 3;		//now value is 0,1 or 3,4
-	else if (secondary_bm_num && !(Missile_gun&1))
+	else if (secondary_bm_num && !(get_local_plrobj().ctype.player_info.missile_gun & 1))
 			secondary_bm_num++;
 
 	cross_bm_num = ((primary_bm_num > 0) || (secondary_bm_num > 0));

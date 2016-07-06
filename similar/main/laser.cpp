@@ -2217,12 +2217,6 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 
 }
 
-namespace dcx {
-
-int Missile_gun = 0;
-
-}
-
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2294,6 +2288,7 @@ void do_missile_firing(int drop_bomb)
 		weapon_gun = Secondary_weapon_to_gun_num[weapon];
 
 		if (weapon_gun==4) {		//alternate left/right
+			auto &Missile_gun = get_local_plrobj().ctype.player_info.missile_gun;
 			weapon_gun += (gun_flag = (Missile_gun & 1));
 			Missile_gun++;
 		}
