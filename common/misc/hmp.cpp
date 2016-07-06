@@ -357,14 +357,13 @@ static void reset_tracks(struct hmp_file *hmp)
 
 static void _stdcall midi_callback(HMIDISTRM, UINT uMsg, DWORD, DWORD_PTR dw1, DWORD)
 {
-	MIDIHDR *mhdr;
 	hmp_file *hmp;
 	int rc;
 
 	if (uMsg != MOM_DONE)
 		return;
 
-	mhdr = ((MIDIHDR *)dw1);
+	const auto mhdr = reinterpret_cast<MIDIHDR *>(dw1);
 	mhdr->dwBytesRecorded = 0;
 	hmp = reinterpret_cast<hmp_file *>(mhdr->dwUser);
 	mhdr->lpNext = hmp->evbuf;

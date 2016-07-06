@@ -181,7 +181,7 @@ void c_tmap_scanline_lin()
 			l += dldx;
 			u += dudx;
 			v += dvdx;
-			*((unsigned long *) dest) = destlong;
+			*reinterpret_cast<unsigned long *>(dest) = destlong;
 			dest += 4;
 			x -= 4;
 			j -= 4;
@@ -612,7 +612,7 @@ static void c_tmap_scanline_per()
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
-			*((unsigned long *) dest) = destlong;
+			*reinterpret_cast<unsigned long *>(dest) = destlong;
 			dest += 4;
 			x -= 4;
 			j -= 4;

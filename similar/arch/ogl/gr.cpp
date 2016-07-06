@@ -608,11 +608,11 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 
 	modes = SDL_ListModes(NULL, sdl_check_flags);
 
-	if (modes == (SDL_Rect**)0) // check if we get any modes - if not, return 0
+	if (modes == reinterpret_cast<SDL_Rect **>(0)) // check if we get any modes - if not, return 0
 		return 0;
 
 
-	if (modes == (SDL_Rect**)-1)
+	if (modes == reinterpret_cast<SDL_Rect**>(-1))
 	{
 		return 0; // can obviously use any resolution... strange!
 	}
