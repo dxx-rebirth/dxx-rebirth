@@ -386,6 +386,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	Dead_player_camera = NULL;
 
 	// properly init these cursed globals
+	auto &Next_flare_fire_time = plrobj.ctype.player_info.Next_flare_fire_time;
 	Next_flare_fire_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
 	Controls.state.afterburner = 0;

@@ -130,7 +130,6 @@ fix	Fusion_charge = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
-fix64	Next_flare_fire_time = 0;
 }
 
 //	Function prototypes for GAME.C exclusively.
@@ -854,11 +853,13 @@ int allowed_to_fire_laser(void)
 
 int allowed_to_fire_flare(void)
 {
+	auto &plrobj = get_local_plrobj();
+	auto &Next_flare_fire_time = plrobj.ctype.player_info.Next_flare_fire_time;
 	if (Next_flare_fire_time > GameTime64)
 		return 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_local_player_energy() < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
+	if (plrobj.ctype.player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
 #define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
 	else

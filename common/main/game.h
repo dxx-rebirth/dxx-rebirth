@@ -57,7 +57,6 @@ extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
 extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
 extern fix64 Next_laser_fire_time;    // Time at which player can next fire his selected laser.
 extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.
-extern fix64 Next_flare_fire_time;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
