@@ -1194,8 +1194,8 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 		GameBitmaps[Textures[PIGGY_PAGE_IN(Textures[side->tmap_num]), side->tmap_num].index];
 	const auto bm = rle_expand_texture(rbm);
 
-	bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
-	bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
+	bmx = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;
+	bmy = static_cast<unsigned>(f2i(v*bm->bm_h)) % bm->bm_h;
 
 //note: the line above had -v, but that was wrong, so I changed it.  if
 //something doesn't work, and you want to make it negative again, you
