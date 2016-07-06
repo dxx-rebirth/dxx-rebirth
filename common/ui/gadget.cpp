@@ -182,21 +182,21 @@ static window_event_result ui_gadget_do(UI_DIALOG *dlg, UI_GADGET *g,const d_eve
 	switch( g->kind )
 	{
 		case UI_GADGET_BUTTON::s_kind:
-			return ui_button_do(dlg, (UI_GADGET_BUTTON *)g, event);
+			return ui_button_do(dlg, static_cast<UI_GADGET_BUTTON *>(g), event);
 		case UI_GADGET_LISTBOX::s_kind:
-			return ui_listbox_do(dlg, (UI_GADGET_LISTBOX *)g, event);
+			return ui_listbox_do(dlg, static_cast<UI_GADGET_LISTBOX *>(g), event);
 		case UI_GADGET_SCROLLBAR::s_kind:
-			return ui_scrollbar_do(dlg, (UI_GADGET_SCROLLBAR *)g, event);
+			return ui_scrollbar_do(dlg, static_cast<UI_GADGET_SCROLLBAR *>(g), event);
 		case UI_GADGET_RADIO::s_kind:
-			return ui_radio_do(dlg, (UI_GADGET_RADIO *)g, event);
+			return ui_radio_do(dlg, static_cast<UI_GADGET_RADIO *>(g), event);
 		case UI_GADGET_CHECKBOX::s_kind:
-			return ui_checkbox_do(dlg, (UI_GADGET_CHECKBOX *)g, event);
+			return ui_checkbox_do(dlg, static_cast<UI_GADGET_CHECKBOX *>(g), event);
 		case UI_GADGET_INPUTBOX::s_kind:
-			return ui_inputbox_do(dlg, (UI_GADGET_INPUTBOX *)g, event);
+			return ui_inputbox_do(dlg, static_cast<UI_GADGET_INPUTBOX *>(g), event);
 		case UI_GADGET_USERBOX::s_kind:
-			return ui_userbox_do(dlg, (UI_GADGET_USERBOX *)g, event);
+			return ui_userbox_do(dlg, static_cast<UI_GADGET_USERBOX *>(g), event);
 		case UI_GADGET_ICON::s_kind:
-			return ui_icon_do(dlg, (UI_GADGET_ICON *)g, event);
+			return ui_icon_do(dlg, static_cast<UI_GADGET_ICON *>(g), event);
 	}
 	return window_event_result::ignored;
 }
