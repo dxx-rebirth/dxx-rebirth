@@ -569,8 +569,8 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 				auto &u = hitpoint.u;
 				auto &v = hitpoint.v;
 
-				x = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
-				y = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
+				x = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;
+				y = static_cast<unsigned>(f2i(v*bm->bm_h)) % bm->bm_h;
 
 				switch (tmf) {		//adjust for orientation of paste-on
 					case 0x0000:	break;
