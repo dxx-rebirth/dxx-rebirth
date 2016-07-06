@@ -931,7 +931,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 			temp_ushort = PHYSFSX_readShort(LoadFile);
-			segp->static_light	= ((fix)temp_ushort) << 4;
+			segp->static_light	= static_cast<fix>(temp_ushort) << 4;
 			//PHYSFS_read( LoadFile, &Segments[segnum].static_light, sizeof(fix), 1 );
 		}
 
@@ -991,11 +991,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				range_for (auto &i, segp->sides[sidenum].uvls) {
 					temp_short = PHYSFSX_readShort(LoadFile);
-					i.u = ((fix)temp_short) << 5;
+					i.u = static_cast<fix>(temp_short) << 5;
 					temp_short = PHYSFSX_readShort(LoadFile);
-					i.v = ((fix)temp_short) << 5;
+					i.v = static_cast<fix>(temp_short) << 5;
 					temp_ushort = PHYSFSX_readShort(LoadFile);
-					i.l = ((fix)temp_ushort) << 1;
+					i.l = static_cast<fix>(temp_ushort) << 1;
 					//PHYSFS_read( LoadFile, &i.l, sizeof(fix), 1 );
 				}
 			} else {
