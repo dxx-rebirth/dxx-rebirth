@@ -844,6 +844,8 @@ int allowed_to_fire_laser(void)
 		return 0;
 	}
 
+	auto &plrobj = get_local_plrobj();
+	auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
 	//	Make sure enough time has elapsed to fire laser
 	if (Next_laser_fire_time > GameTime64)
 		return 0;

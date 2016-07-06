@@ -423,10 +423,13 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
                         Fusion_charge=0;
 			//end edit - Victor Rachels
 #endif
+			auto &plrobj = get_local_plrobj();
+			auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
 			if (wait_for_rearm)
+			{
 				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
-			if (wait_for_rearm)
 				Next_laser_fire_time = GameTime64 + REARM_TIME;
+			}
 			else
 				Next_laser_fire_time = 0;
 			Global_laser_firing_count = 0;

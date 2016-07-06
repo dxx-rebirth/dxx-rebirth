@@ -582,6 +582,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		if (GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that. Since Next_laser_firing_time is probably changed already (in do_laser_firing_player), we need to calculate the overhead slightly different. 
 			fire_frame_overhead = GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME;
 
+		auto &Next_laser_fire_time = parent_objp->ctype.player_info.Next_laser_fire_time;
 		Next_laser_fire_time = GameTime64+OMEGA_BASE_TIME-fire_frame_overhead;
 		Last_omega_fire_time = GameTime64;
 	}
@@ -1799,6 +1800,7 @@ int do_laser_firing_player(void)
 		auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
 #endif
 
+	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	while (Next_laser_fire_time <= GameTime64) {
 		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)) {
 			int	laser_level, flags, fire_frame_overhead = 0;
