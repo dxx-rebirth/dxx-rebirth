@@ -37,8 +37,8 @@ static void gr_ubox0(int left,int top,int right,int bot, const uint8_t color)
 	std::fill_n(ptr1 + 1, (right - left) - 1, color);
 	for (uint_fast32_t i = bot - top + 1; i--;)
 	{
-		ptr2[0] = (unsigned char) color;
-		ptr2[d] = (unsigned char) color;
+		ptr2[0] = color;
+		ptr2[d] = color;
 		ptr2 += ROWSIZE;
 	}
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
