@@ -640,7 +640,7 @@ static void nd_read_object(const vobjptridx_t obj)
 		if (obj->lifeleft == -1)
 			obj->lifeleft = IMMORTAL_TIME;
 		else
-			obj->lifeleft = (fix)(static_cast<int>(obj->lifeleft) << 12);
+			obj->lifeleft = static_cast<fix>(static_cast<int>(obj->lifeleft) << 12);
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {

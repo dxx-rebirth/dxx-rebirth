@@ -1163,8 +1163,8 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) (vp[1])]], Vertices[sp->verts[(int) (vp[0])]]);
-        vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) (vp[2])]], Vertices[sp->verts[(int) (vp[1])]]);
+        vm_vec_normalized_dir(vec1, Vertices[sp->verts[static_cast<int>(vp[1])]], Vertices[sp->verts[static_cast<int>(vp[0])]]);
+        vm_vec_normalized_dir(vec2, Vertices[sp->verts[static_cast<int>(vp[2])]], Vertices[sp->verts[static_cast<int>(vp[1])]]);
 	const auto cross0 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross0);
@@ -1175,8 +1175,8 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(vec1, Vertices[sp->verts[(int) (vp[2])]], Vertices[sp->verts[(int) (vp[1])]]);
-        vm_vec_normalized_dir(vec2, Vertices[sp->verts[(int) (vp[3])]], Vertices[sp->verts[(int) (vp[2])]]);
+        vm_vec_normalized_dir(vec1, Vertices[sp->verts[static_cast<int>(vp[2])]], Vertices[sp->verts[static_cast<int>(vp[1])]]);
+        vm_vec_normalized_dir(vec2, Vertices[sp->verts[static_cast<int>(vp[3])]], Vertices[sp->verts[static_cast<int>(vp[2])]]);
 	const auto cross1 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross1);

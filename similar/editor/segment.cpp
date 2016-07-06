@@ -809,7 +809,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 
 	// Set the vertex indices for the four vertices forming the front of the new side
 	for (v=0; v<4; v++)
-                nsp->verts[v] = destseg->verts[(int) (dvp[v])];
+                nsp->verts[v] = destseg->verts[static_cast<int>(dvp[v])];
 
 	// The other 4 vertices must be created.
 	// Their coordinates are determined by the 4 welded vertices and the vector from front
@@ -1228,11 +1228,11 @@ int med_form_joint(const vsegptridx_t seg1, int side1, const vsegptridx_t seg2, 
 	//	Make a copy of the list of vertices in seg2 which will be deleted and set the
 	//	associated vertex number, so that all occurrences of the vertices can be replaced.
 	for (v=0; v<4; v++)
-                lost_vertices[v] = seg2->verts[(int) (vp2[v])];
+                lost_vertices[v] = seg2->verts[static_cast<int>(vp2[v])];
 
 	//	Now, for each vertex in lost_vertices, determine which vertex it maps to.
 	for (v=0; v<4; v++)
-                remap_vertices[3 - ((v + bfi) % 4)] = seg1->verts[(int) (vp1[v])];
+                remap_vertices[3 - ((v + bfi) % 4)] = seg1->verts[static_cast<int>(vp1[v])];
 
 	// Now, in all segments, replace all occurrences of vertices in lost_vertices with remap_vertices
 
@@ -1300,7 +1300,7 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 	{
 	auto &sv = Side_to_verts[side2];
 	for (v=0; v<4; v++)
-                bs->verts[(3-v)+4] = seg2->verts[(int) (sv[v])];
+                bs->verts[(3-v)+4] = seg2->verts[static_cast<int>(sv[v])];
 	}
 
 	// Copy vertices from seg1 into first 4 vertices of bridge segment.
@@ -1309,7 +1309,7 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 	{
 	auto &sv = Side_to_verts[side1];
 	for (v=0; v<4; v++)
-                bs->verts[(v + bfi) % 4] = seg1->verts[(int) (sv[v])];
+                bs->verts[(v + bfi) % 4] = seg1->verts[static_cast<int>(sv[v])];
 	}
 
 	// Form connections to children, first initialize all to unconnected.
@@ -1335,7 +1335,7 @@ int med_form_bridge_segment(const vsegptridx_t seg1, int side1, const vsegptridx
 		seg1->children[side1] = segment_none;
 		seg2->children[side2] = segment_none;
 		bs->children[AttachSide] = segment_none;
-                bs->children[(int) (Side_opposite[AttachSide])] = segment_none;
+                bs->children[static_cast<int>(Side_opposite[AttachSide])] = segment_none;
 		if (med_delete_segment(bs)) {
 			Int3();
 		}

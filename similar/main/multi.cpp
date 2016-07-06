@@ -1709,8 +1709,8 @@ static void multi_do_message(const uint8_t *const cbuf)
 	const auto color = get_player_or_team_color(buf[1]);
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[(int)(buf[1])].callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
-	multi_sending_message[(int)(buf[1])] = msgsend_none;
+	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
+	multi_sending_message[static_cast<int>(buf[1])] = msgsend_none;
 }
 
 namespace dsx {
@@ -1942,17 +1942,17 @@ static void multi_do_escape(const ubyte *buf)
 
 	if (buf[2] == 0)
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[(int)(buf[1])].callsign), TXT_HAS_ESCAPED);
+		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_ESCAPED);
 		if (Game_mode & GM_NETWORK)
-			Players[(int)(buf[1])].connected = CONNECT_ESCAPE_TUNNEL;
+			Players[static_cast<int>(buf[1])].connected = CONNECT_ESCAPE_TUNNEL;
 		if (!multi_goto_secret)
 			multi_goto_secret = 2;
 	}
 	else if (buf[2] == 1)
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[(int)(buf[1])].callsign), TXT_HAS_FOUND_SECRET);
+		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_FOUND_SECRET);
 		if (Game_mode & GM_NETWORK)
-			Players[(int)(buf[1])].connected = CONNECT_FOUND_SECRET;
+			Players[static_cast<int>(buf[1])].connected = CONNECT_FOUND_SECRET;
 		if (!multi_goto_secret)
 			multi_goto_secret = 1;
 	}
@@ -2085,7 +2085,7 @@ static multi_do_quit(const ubyte *buf)
 
 	if (!(Game_mode & GM_NETWORK))
 		return;
-	multi_disconnect_player((int)(buf[1]));
+	multi_disconnect_player(static_cast<int>(buf[1]));
 }
 
 namespace dsx {
@@ -4776,7 +4776,7 @@ void multi_restore_game(ubyte slot, uint id)
 
 static void multi_do_msgsend_state(const ubyte *buf)
 {
-	multi_sending_message[(int)(buf[1])] = (msgsend_state_t)buf[2];
+	multi_sending_message[static_cast<int>(buf[1])] = (msgsend_state_t)buf[2];
 }
 
 void multi_send_msgsend_state(msgsend_state_t state)

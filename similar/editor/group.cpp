@@ -888,7 +888,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	int			child_save;
 	int			current_group_save;
 
-        if (!IS_CHILD(Cursegp->children[(int) (Side_opposite[Curside])]))
+        if (!IS_CHILD(Cursegp->children[static_cast<int>(Side_opposite[Curside])]))
 		// -- I don't understand this, MK, 01/25/94: if (Cursegp->children[Curside] != group_seg-Segments)
 		{
 			editor_status("Error -- unable to rotate group, Cursegp:Side_opposite[Curside] cannot be free.");
