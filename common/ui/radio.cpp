@@ -178,16 +178,13 @@ void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 	radio->flag = value;
 	radio->status = 1;	// redraw
 
-	auto tmp = static_cast<UI_GADGET_RADIO *>(radio->next);
-
-	while (tmp != radio)
+	for (auto tmp = radio; (tmp = static_cast<UI_GADGET_RADIO *>(tmp->next)) != radio;)
 	{
 		if ((tmp->kind == UI_GADGET_RADIO::s_kind) && (tmp->group == radio->group) && tmp->flag)
 		{
 			tmp->flag = 0;
 			tmp->status = 1;
 		}
-		tmp = (UI_GADGET_RADIO *) tmp->next;
 	}
 }
 
