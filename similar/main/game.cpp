@@ -871,6 +871,8 @@ int allowed_to_fire_flare(void)
 
 int allowed_to_fire_missile(void)
 {
+	auto &plrobj = get_local_plrobj();
+	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
 	//	Make sure enough time has elapsed to fire missile
 	if (Next_missile_fire_time > GameTime64)
 		return 0;

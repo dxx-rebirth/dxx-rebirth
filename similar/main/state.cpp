@@ -1650,6 +1650,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//	Restore hacked up weapon system stuff.
 	Auto_fire_fusion_cannon_time = 0;
+	auto &plrobj = get_local_plrobj();
+	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
 	Next_laser_fire_time = GameTime64;
 	Next_missile_fire_time = GameTime64;
 

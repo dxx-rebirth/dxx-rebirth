@@ -460,10 +460,13 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 
 	{
 		if (Secondary_weapon != weapon_num) {
+			auto &plrobj = get_local_plrobj();
+			auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
 			if (wait_for_rearm)
+			{
 				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
-			if (wait_for_rearm)
 				Next_missile_fire_time = GameTime64 + REARM_TIME;
+			}
 			else
 				Next_missile_fire_time = 0;
 			Global_missile_firing_count = 0;

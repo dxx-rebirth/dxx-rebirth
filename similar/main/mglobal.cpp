@@ -87,7 +87,6 @@ const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int{{
 // Texture map stuff
 
 fix64	Next_laser_fire_time;			//	Time at which player can next fire his selected laser.
-fix64	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
 #define DEFAULT_DIFFICULTY		1
