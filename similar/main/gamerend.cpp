@@ -429,10 +429,10 @@ static const char *get_missile_name(const unsigned laser_type)
 	}
 }
 
-static void set_missile_viewer(vobjptridx_t o)
+static void set_missile_viewer(object &o)
 {
-	Missile_viewer = o;
-	Missile_viewer_sig = o->signature;
+	Missile_viewer = &o;
+	Missile_viewer_sig = o.signature;
 }
 
 static int clear_missile_viewer()
@@ -458,7 +458,8 @@ static bool is_viewable_missile(weapon_id_type laser_type)
 
 static bool choose_missile_viewer()
 {
-	if (unlikely(PlayerCfg.MissileViewEnabled == MissileViewMode::None))
+	const auto MissileViewEnabled = PlayerCfg.MissileViewEnabled;
+	if (unlikely(MissileViewEnabled == MissileViewMode::None))
 		return false;
 	const auto need_new_missile_viewer = []{
 		if (!Missile_viewer)
@@ -475,36 +476,36 @@ static bool choose_missile_viewer()
 	if (likely(!need_new_missile_viewer()))
 		/* Valid viewer already set */
 		return true;
-	const auto better_match = [](cobjptridx_t a, vcobjptridx_t b) {
-		if (a == object_none)
+	const auto better_match = [](object *const a, object &b) {
+		if (!a)
 			return true;
-		const vcobjptridx_t va{a};
-		return va->lifeleft < b->lifeleft;
+		return a->lifeleft < b.lifeleft;
 	};
 	/* Find new missile */
-	objptridx_t local_player_missile = object_none, other_player_missile = object_none;
+	object *local_player_missile = nullptr, *other_player_missile = nullptr;
 	const auto game_mode = Game_mode;
-	range_for (const auto &&o, vobjptridx)
+	const auto local_player_objnum = get_local_player().objnum;
+	range_for (object &o, vobjptr)
 	{
-		if (o->type != OBJ_WEAPON)
+		if (o.type != OBJ_WEAPON)
 			continue;
-		if (o->ctype.laser_info.parent_type != OBJ_PLAYER)
+		if (o.ctype.laser_info.parent_type != OBJ_PLAYER)
 			continue;
 		const auto laser_type = get_weapon_id(o);
 		if (!is_viewable_missile(laser_type))
 			continue;
-		if (o->ctype.laser_info.parent_num == get_local_player().objnum)
+		if (o.ctype.laser_info.parent_num == local_player_objnum)
 		{
 			if (!better_match(local_player_missile, o))
 				continue;
-			local_player_missile = o;
+			local_player_missile = &o;
 		}
 		else
 		{
+			if (MissileViewEnabled != MissileViewMode::EnabledSelfAndAllies)
+				continue;
 			if (!better_match(other_player_missile, o))
 				continue;
-			if (PlayerCfg.MissileViewEnabled != MissileViewMode::EnabledSelfAndAllies)
-                                continue;
 			else if (game_mode & GM_MULTI_COOP)
 			{
 				/* Always allow missiles of other players */
@@ -512,18 +513,18 @@ static bool choose_missile_viewer()
 			else if (game_mode & GM_TEAM)
 			{
 				/* Allow missiles from same team */
-				if (get_team(Player_num) != get_team(get_player_id(vcobjptr(o->ctype.laser_info.parent_num))))
+				if (get_team(Player_num) != get_team(get_player_id(vcobjptr(o.ctype.laser_info.parent_num))))
 					continue;
 			}
 			else
 				continue;
-			other_player_missile = o;
+			other_player_missile = &o;
 		}
 	}
-	if (local_player_missile != object_none)
-		set_missile_viewer(local_player_missile);
-	else if (other_player_missile != object_none)
-		set_missile_viewer(other_player_missile);
+	object *o;
+	if ((o = local_player_missile) != nullptr ||
+		(o = other_player_missile) != nullptr)
+		set_missile_viewer(*o);
 	else
 		return false;
 	return true;
