@@ -1630,9 +1630,9 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[20]);
 	}
 
-	shot_orientation.x = (fix) GET_INTEL_INT(buf + 6); 
-	shot_orientation.y = (fix) GET_INTEL_INT(buf + 10); 
-	shot_orientation.z = (fix) GET_INTEL_INT(buf + 14); 
+	shot_orientation.x = static_cast<fix>(GET_INTEL_INT(buf + 6));
+	shot_orientation.y = static_cast<fix>(GET_INTEL_INT(buf + 10));
+	shot_orientation.z = static_cast<fix>(GET_INTEL_INT(buf + 14));
 
 	Assert (pnum < N_players);
 
@@ -2178,9 +2178,9 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	memcpy(&to_target, buf+count, 12);          count += 12;
 	if (words_bigendian)// swap the vector to_target
 	{
-	to_target.x = (fix)INTEL_INT(static_cast<int>(to_target.x));
-	to_target.y = (fix)INTEL_INT(static_cast<int>(to_target.y));
-	to_target.z = (fix)INTEL_INT(static_cast<int>(to_target.z));
+		to_target.x = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.x)));
+		to_target.y = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.y)));
+		to_target.z = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.z)));
 	}
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
@@ -2206,9 +2206,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 	if (words_bigendian)
 	{
-	new_pos.x = (fix)SWAPINT(static_cast<int>(new_pos.x));
-	new_pos.y = (fix)SWAPINT(static_cast<int>(new_pos.y));
-	new_pos.z = (fix)SWAPINT(static_cast<int>(new_pos.z));
+		new_pos.x = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.x)));
+		new_pos.y = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.y)));
+		new_pos.z = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.z)));
 	}
 
 	Net_create_loc = 0;
@@ -2902,9 +2902,9 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT( static_cast<int>(to_goal.x) );
-	swapped_vec.y = (fix)INTEL_INT( static_cast<int>(to_goal.y) );
-	swapped_vec.z = (fix)INTEL_INT( static_cast<int>(to_goal.z) );
+		swapped_vec.x = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.x)));
+		swapped_vec.y = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.y)));
+		swapped_vec.z = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.z)));
 		memcpy(&multibuf[count], &swapped_vec, 12);
 	}
 	else
@@ -2937,9 +2937,9 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-	swapped_vec.x = (fix)INTEL_INT( static_cast<int>(pos.x) );
-	swapped_vec.y = (fix)INTEL_INT( static_cast<int>(pos.y) );
-	swapped_vec.z = (fix)INTEL_INT( static_cast<int>(pos.z) );
+		swapped_vec.x = static_cast<fix>(INTEL_INT(static_cast<int>(pos.x)));
+		swapped_vec.y = static_cast<fix>(INTEL_INT(static_cast<int>(pos.y)));
+		swapped_vec.z = static_cast<fix>(INTEL_INT(static_cast<int>(pos.z)));
 		memcpy(&multibuf[count], &swapped_vec, 12);
 		count += 12;
 	}
@@ -4651,7 +4651,7 @@ void multi_initiate_save_game()
 	slot--;
 
 	// Make a unique game id
-	game_id = ((fix)timer_query());
+	game_id = static_cast<fix>(timer_query());
 	game_id ^= N_players<<4;
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
