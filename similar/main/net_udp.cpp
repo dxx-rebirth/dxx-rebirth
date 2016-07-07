@@ -3047,7 +3047,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 
 		len += 2;
 
-		if ((int)data[len] == CONNECT_DISCONNECTED)
+		if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
 			multi_disconnect_player(pnum);
 		Players[pnum].connected = data[len];					len++;
 		tmpvar = data[len];							len++;
@@ -3082,7 +3082,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 				continue;
 			}
 
-			if ((int)data[len] == CONNECT_DISCONNECTED)
+			if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
 				multi_disconnect_player(i);
 			Players[i].connected = data[len];				len++;
 			Players[i].net_kills_total = GET_INTEL_SHORT(&(data[len]));	len += 2;

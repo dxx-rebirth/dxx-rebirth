@@ -5930,10 +5930,10 @@ void show_netgame_info(const netgame_info &netgame)
         snprintf(ngii+(ngilen*loc),ngilen,"Kill Goal\t  %i", netgame.KillGoal * 5);                                                                         loc++;
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Duplicate Powerups:");                                                                                            loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Primaries\t  %i", (int)netgame.DuplicatePowerups.get_primary_count());                                           loc++;
-        snprintf(ngii+(ngilen*loc),ngilen,"Secondaries\t  %i", (int)netgame.DuplicatePowerups.get_secondary_count());                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Primaries\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_primary_count()));                                           loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Secondaries\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_secondary_count()));                                       loc++;
 #if defined(DXX_BUILD_DESCENT_II)
-        snprintf(ngii+(ngilen*loc),ngilen,"Accessories\t  %i", (int)netgame.DuplicatePowerups.get_accessory_count());                                       loc++;
+        snprintf(ngii+(ngilen*loc),ngilen,"Accessories\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_accessory_count()));                                       loc++;
 #endif
         snprintf(ngii+(ngilen*loc),ngilen," ");                                                                                                              loc++;
         snprintf(ngii+(ngilen*loc),ngilen,"Spawn Options:");                                                                                                 loc++;

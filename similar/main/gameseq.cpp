@@ -718,7 +718,7 @@ static ushort netmisc_calc_checksum()
 		do_checksum_calc((unsigned char *)&(Segments[i].matcen_num), 1, &sum1, &sum2);
 		s = INTEL_SHORT(Segments[i].value);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-		t = INTEL_INT(((int)Segments[i].static_light));
+		t = INTEL_INT(static_cast<int>(Segments[i].static_light));
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 #endif
 	}
