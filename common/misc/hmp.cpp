@@ -286,8 +286,8 @@ static int get_event(hmp_file *hmp, event *ev) {
 
 static int fill_buffer(hmp_file *hmp) {
 	MIDIHDR *mhdr = hmp->evbuf;
-	unsigned int *p = (unsigned int *)(mhdr->lpData + mhdr->dwBytesRecorded);
-	unsigned int *pend = (unsigned int *)(mhdr->lpData + mhdr->dwBufferLength);
+	unsigned int *p = reinterpret_cast<unsigned int *>(mhdr->lpData + mhdr->dwBytesRecorded);
+	unsigned int *pend = reinterpret_cast<unsigned int *>(mhdr->lpData + mhdr->dwBufferLength);
 	unsigned int i;
 	event ev{};
 
@@ -395,7 +395,7 @@ static void _stdcall midi_callback(HMIDISTRM, UINT uMsg, DWORD, DWORD_PTR dw1, D
 
 static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 	MIDIHDR *mhdr = hmp->evbuf;
-	unsigned int *p = (unsigned int *)(mhdr->lpData + mhdr->dwBytesRecorded);
+	unsigned int *p = reinterpret_cast<unsigned int *>(mhdr->lpData + mhdr->dwBytesRecorded);
 	*(p++) = 0;
 	*(p++) = 0;
 	*(p++) = (((DWORD)MEVT_TEMPO)<<24) | tempo;
