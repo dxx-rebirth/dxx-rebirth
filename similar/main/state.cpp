@@ -1407,7 +1407,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 //Restore GameTime
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	GameTime64 = (fix64)tmptime32;
+	GameTime64 = static_cast<fix64>(tmptime32);
 
 // Start new game....
 	callsign_t org_callsign;
@@ -1711,7 +1711,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	if (version >= 12) {
 		Flash_effect = PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		Time_flash_last_played = (fix64)tmptime32;
+		Time_flash_last_played = static_cast<fix64>(tmptime32);
 		PaletteRedAdd = PHYSFSX_readSXE32(fp, swap);
 		PaletteGreenAdd = PHYSFSX_readSXE32(fp, swap);
 		PaletteBlueAdd = PHYSFSX_readSXE32(fp, swap);

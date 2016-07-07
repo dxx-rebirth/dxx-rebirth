@@ -636,7 +636,7 @@ static void nd_read_object(const vobjptridx_t obj)
 
 		// MWA old way -- won't work with big endian machines       nd_read_byte((uint8_t *)&(obj->lifeleft));
 		nd_read_byte(&b);
-		obj->lifeleft = (fix)b;
+		obj->lifeleft = static_cast<fix>(b);
 		if (obj->lifeleft == -1)
 			obj->lifeleft = IMMORTAL_TIME;
 		else

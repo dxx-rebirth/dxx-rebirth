@@ -4592,11 +4592,11 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 #endif
 		ail->player_awareness_time = PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_seen = (fix64)tmptime32;
+		ail->time_player_seen = static_cast<fix64>(tmptime32);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_sound_attacked = (fix64)tmptime32;
+		ail->time_player_sound_attacked = static_cast<fix64>(tmptime32);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		ail->next_misc_sound_time = (fix64)tmptime32;
+		ail->next_misc_sound_time = static_cast<fix64>(tmptime32);
 		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
 		
 		range_for (auto &j, ail->goal_angles)
@@ -4633,7 +4633,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 	for (i = 0; i < n; i++, ci++)
 	{
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		ci->last_time = (fix64)tmptime32;
+		ci->last_time = static_cast<fix64>(tmptime32);
 #if defined(DXX_BUILD_DESCENT_II)
 		ci->last_segment = PHYSFSX_readSXE32(fp, swap);
 #endif
@@ -4652,10 +4652,10 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_serialize_read(fp, Point_segs);
 	ai_cloak_info_read_n_swap(Ai_cloak_info.data(), Ai_cloak_info.size(), swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_start_time = (fix64)tmptime32;
+	Boss_cloak_start_time = static_cast<fix64>(tmptime32);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Last_teleport_time = (fix64)tmptime32;
+	Last_teleport_time = static_cast<fix64>(tmptime32);
 #if defined(DXX_BUILD_DESCENT_II)
 	Boss_teleport_interval =
 #endif
@@ -4666,10 +4666,10 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Last_gate_time = (fix64)tmptime32;
+	Last_gate_time = static_cast<fix64>(tmptime32);
 	Gate_interval = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_dying_start_time = (fix64)tmptime32;
+	Boss_dying_start_time = static_cast<fix64>(tmptime32);
 	Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4678,12 +4678,12 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_readSXE32(fp, swap);
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	Boss_hit_time = (fix64)tmptime32;
+	Boss_hit_time = static_cast<fix64>(tmptime32);
 
 	if (version >= 8) {
 		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		Escort_last_path_created = (fix64)tmptime32;
+		Escort_last_path_created = static_cast<fix64>(tmptime32);
 		Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);
