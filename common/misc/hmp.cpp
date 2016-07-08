@@ -313,7 +313,7 @@ static int fill_buffer(hmp_file *hmp) {
 			} else {
 				*(p++) = ev.delta;
 				*(p++) = 0;
-				*(p++) = (((DWORD)MEVT_SHORTMSG) << 24) |
+				*(p++) = (((DWORD)(MEVT_SHORTMSG)) << 24) |
 					((DWORD)ev.msg[0]) |
 					(((DWORD)ev.msg[1]) << 8) |
 					(((DWORD)ev.msg[2]) << 16);
@@ -398,7 +398,7 @@ static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 	unsigned int *p = reinterpret_cast<unsigned int *>(mhdr->lpData + mhdr->dwBytesRecorded);
 	*(p++) = 0;
 	*(p++) = 0;
-	*(p++) = (((DWORD)MEVT_TEMPO)<<24) | tempo;
+	*(p++) = (((DWORD)(MEVT_TEMPO))<<24) | tempo;
 	mhdr->dwBytesRecorded += 12;
 }
 
