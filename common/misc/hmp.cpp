@@ -128,7 +128,7 @@ void hmp_stop(hmp_file *hmp)
 			timer_delay(1);
 	}
 	while ((mhdr = hmp->evbuf)) {
-		midiOutUnprepareHeader((HMIDIOUT)hmp->hmidi, mhdr, sizeof(MIDIHDR));
+		midiOutUnprepareHeader((HMIDIOUT)(hmp->hmidi), mhdr, sizeof(MIDIHDR));
 		hmp->evbuf = mhdr->lpNext;
 		d_free(mhdr);
 	}
@@ -406,7 +406,7 @@ void hmp_setvolume(hmp_file *hmp, int volume)
 {
 	if (hmp)
 		for (int channel = 0; channel < 16; channel++)
-			midiOutShortMsg((HMIDIOUT)hmp->hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (channel_volume[channel] * volume / MIDI_VOLUME_SCALE) << 16));
+			midiOutShortMsg((HMIDIOUT)(hmp->hmidi), (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (channel_volume[channel] * volume / MIDI_VOLUME_SCALE) << 16));
 
 	midi_volume = volume;
 }
@@ -448,7 +448,7 @@ int hmp_play(hmp_file *hmp, int bLoop)
 			} else
 				return rc;
 		}
- 		if ((rc = midiOutPrepareHeader((HMIDIOUT)hmp->hmidi, hmp->evbuf,
+ 		if ((rc = midiOutPrepareHeader((HMIDIOUT)(hmp->hmidi), hmp->evbuf,
 			sizeof(MIDIHDR))) != MMSYSERR_NOERROR) {
 			return HMP_MM_ERR;
 		}
