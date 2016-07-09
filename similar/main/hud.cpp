@@ -39,6 +39,7 @@
 #include "countarray.h"
 
 namespace {
+constexpr unsigned HUD_MESSAGE_LENGTH = 150;
 
 struct hudmsg
 {

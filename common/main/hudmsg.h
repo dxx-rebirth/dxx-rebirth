@@ -13,7 +13,6 @@
 
 #ifdef __cplusplus
 
-#define HUD_MESSAGE_LENGTH	150
 #define HUD_MAX_NUM_DISP	4
 #define HUD_MAX_NUM_STOR	20
 
