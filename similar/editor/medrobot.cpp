@@ -525,8 +525,6 @@ void robot_close_window()
 
 }
 
-#define	STRING_LENGTH	8
-
 int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
 	switch(event.type)
