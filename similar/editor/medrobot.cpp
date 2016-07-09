@@ -688,7 +688,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 				Cur_goody_id = 0;
 			case OBJ_POWERUP:
 				type_text = "Powerup";
-				id_text = Powerup_names[Cur_goody_id];
+				id_text = Powerup_names[Cur_goody_id].data();
 				break;
 		}
 

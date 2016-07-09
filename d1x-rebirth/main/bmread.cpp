@@ -98,7 +98,9 @@ static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 namespace dsx {
-array<char[POWERUP_NAME_LENGTH], MAX_POWERUP_TYPES> Powerup_names;
+#ifdef EDITOR
+powerup_names_array Powerup_names;
+#endif
 array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
 }
 
@@ -1673,7 +1675,9 @@ void bm_read_powerup(char *&arg, int unused_flag)
 	Powerup_info[n].vclip_num = vclip_none;
 	Powerup_info[n].hit_sound = sound_none;
 	Powerup_info[n].size = DEFAULT_POWERUP_SIZE;
+#ifdef EDITOR
 	Powerup_names[n][0] = 0;
+#endif
 
 	// Process arguments
 	arg = strtok( NULL, space_tab );
@@ -1691,9 +1695,13 @@ void bm_read_powerup(char *&arg, int unused_flag)
 			} else if (!d_stricmp( arg, "hit_sound" ))	{
 				Powerup_info[n].hit_sound = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "name" )) {
-				Assert(strlen(equal_ptr) < POWERUP_NAME_LENGTH);	//	Oops, name too long.
-				strcpy(Powerup_names[n], &equal_ptr[1]);
-				Powerup_names[n][strlen(Powerup_names[n])-1] = 0;
+#ifdef EDITOR
+				auto &name = Powerup_names[n];
+				const auto len = strlen(equal_ptr);
+				assert(len < name.size());	//	Oops, name too long.
+				memcpy(name.data(), &equal_ptr[1], len - 2);
+				name[len - 2] = 0;
+#endif
 			} else if (!d_stricmp( arg, "size" ))	{
 				Powerup_info[n].size = fl2f(atof(equal_ptr));
 			}

@@ -96,6 +96,10 @@ enum powerup_type_t : uint8_t
 };
 
 #ifdef dsx
+namespace dcx {
+constexpr unsigned POWERUP_NAME_LENGTH = 16;
+}
+
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define VULCAN_AMMO_MAX             (392u*2)
@@ -109,7 +113,10 @@ constexpr unsigned MAX_POWERUP_TYPES = 50;
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)
 
-#define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
+#ifdef EDITOR
+using powerup_names_array = array<array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
+extern powerup_names_array Powerup_names;
+#endif
 
 }
 #endif
@@ -124,7 +131,6 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 
 namespace dsx {
 extern array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
-extern array<char[POWERUP_NAME_LENGTH], MAX_POWERUP_TYPES> Powerup_names;
 }
 
 void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);

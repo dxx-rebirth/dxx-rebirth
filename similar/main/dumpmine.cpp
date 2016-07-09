@@ -137,7 +137,7 @@ static const char *object_ids(const vcobjptr_t objp)
 		case OBJ_ROBOT:
 			return Robot_names[get_robot_id(objp)];
 		case OBJ_POWERUP:
-			return Powerup_names[get_powerup_id(objp)];
+			return Powerup_names[get_powerup_id(objp)].data();
 	}
 	return	NULL;
 }
