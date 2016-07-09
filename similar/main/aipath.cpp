@@ -950,13 +950,8 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 		if ((aip->behavior == ai_behavior::AIB_SNIPE) || (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT))
 #endif
 		{
-			if (ConsoleObject->segnum == objp->segnum) {
-				create_n_segment_path(objp, AVOID_SEG_LENGTH, segment_none);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
+			create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum == objp->segnum ? segment_none : ConsoleObject->segnum);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 				//--Int3_if((aip->path_length != 0));
-			} else {
-				create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
-				//--Int3_if((aip->path_length != 0));
-			}
 #if defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior == ai_behavior::AIB_SNIPE) {
 				if (robot_is_thief(robptr))
@@ -1018,11 +1013,7 @@ void ai_follow_path(const vobjptridx_t objp, int player_visibility, const vms_ve
 			//	This is probably being done every frame, which is wasteful.
 			for (i=aip->cur_path_index; i<aip->path_length; i++) {
 				if (curpsp[i].segnum == player_segnum) {
-					if (player_segnum != objp->segnum) {
-						create_n_segment_path(objp, AVOID_SEG_LENGTH, player_segnum);
-					} else {
-						create_n_segment_path(objp, AVOID_SEG_LENGTH, segment_none);
-					}
+					create_n_segment_path(objp, AVOID_SEG_LENGTH, player_segnum != objp->segnum ? player_segnum : segment_none);
 #if defined(DXX_BUILD_DESCENT_I)
 					Assert(aip->path_length != 0);
 #endif
