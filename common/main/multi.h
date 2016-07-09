@@ -189,14 +189,14 @@ extern int multi_protocol; // set and determinate used protocol
 
 #define MULTI_GAME_TYPE_COUNT	8
 #if defined(DXX_BUILD_DESCENT_I)
-#define MULTI_GAME_NAME_LENGTH	13
+constexpr unsigned MULTI_GAME_NAME_LENGTH = 13;
 #define MULTI_ALLOW_POWERUP_TEXT_LENGTH	18
 #define MULTI_ALLOW_POWERUP_MAX 12
 #define D2X_MP_NETFLAGS(VALUE)
 #define DXX_GRANT_LASER_LEVEL_BITS	2
 #define D2X_MP_NETGRANT(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MULTI_GAME_NAME_LENGTH	17
+constexpr unsigned MULTI_GAME_NAME_LENGTH = 17;
 #define MULTI_ALLOW_POWERUP_TEXT_LENGTH	21
 #define MULTI_ALLOW_POWERUP_MAX 26
 #define NETFLAG_LABEL_GAUSS	"Gauss cannon"
@@ -355,7 +355,8 @@ void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 
 extern const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text;
-extern const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames;
+using GMNames_array = array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
+extern const GMNames_array GMNames;
 extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 }
 

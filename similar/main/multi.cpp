@@ -175,7 +175,7 @@ int   multi_quit_game = 0;
 
 namespace dsx {
 
-const array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT> GMNames = {{
+const GMNames_array GMNames = {{
 	"Anarchy",
 	"Team Anarchy",
 	"Robo Anarchy",
