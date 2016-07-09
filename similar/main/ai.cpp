@@ -123,6 +123,8 @@ static fix Dist_to_last_fired_upon_player_pos;
 }
 
 namespace dcx {
+constexpr int CHASE_TIME_LENGTH = F1_0 * 8;
+constexpr int Robot_sound_volume = F1_0;
 enum {
 	Flinch_scale = 4,
 	Attack_scale = 24,
@@ -1590,13 +1592,6 @@ void do_ai_robot_hit(const vobjptridx_t objp, player_awareness_type_t type)
 			}
 	}
 }
-
-}
-
-namespace {
-#define	CHASE_TIME_LENGTH		(F1_0*8)
-#define	DEFAULT_ROBOT_SOUND_VOLUME		F1_0
-int		Robot_sound_volume=DEFAULT_ROBOT_SOUND_VOLUME;
 
 }
 
