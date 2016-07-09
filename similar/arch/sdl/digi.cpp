@@ -213,8 +213,8 @@ void digi_set_digi_volume(int dvolume) { fptr->set_digi_volume(dvolume); }
 #ifdef _WIN32
 // Windows native-MIDI stuff.
 static uint8_t digi_win32_midi_song_playing;
+static uint8_t already_playing;
 static std::unique_ptr<hmp_file> cur_hmp;
-static int firstplay = 1;
 
 void digi_win32_set_midi_volume( int mvolume )
 {
@@ -223,10 +223,10 @@ void digi_win32_set_midi_volume( int mvolume )
 
 int digi_win32_play_midi_song( const char * filename, int loop )
 {
-	if (firstplay)
+	if (!already_playing)
 	{
 		hmp_reset();
-		firstplay = 0;
+		already_playing = 1;
 	}
 	digi_win32_stop_midi_song();
 
