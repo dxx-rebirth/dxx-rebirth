@@ -229,17 +229,8 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 //		int	i;
-//		char	temp_text[CENTER_STRING_LENGTH];
 	
 		ui_dprintf_at(dlg, 12, 6, "Seg: %3hu", static_cast<segnum_t>(Cursegp));
-
-//		for (i=0; i<CENTER_STRING_LENGTH; i++)
-//			temp_text[i] = ' ';
-//		temp_text[i] = 0;
-
-//		Assert(Curseg2p->special < MAX_CENTER_TYPES);
-//		strncpy(temp_text, Center_names[Curseg2p->special], strlen(Center_names[Curseg2p->special]));
-//		ui_dprintf_at( dlg, 12, 23, " Type: %s", temp_text );
 	}
 
 	if (c->old_seg_num != Cursegp)

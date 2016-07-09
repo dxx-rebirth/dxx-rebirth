@@ -26,8 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CENTERS_H
 #define _CENTERS_H
 
-#define       CENTER_STRING_LENGTH    12
-
 #include      "fuelcen.h"
 
 #ifdef __cplusplus
