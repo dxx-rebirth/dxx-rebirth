@@ -188,16 +188,17 @@ extern int multi_protocol; // set and determinate used protocol
 	D2X_MP_NETGRANT(VALUE)
 
 #define MULTI_GAME_TYPE_COUNT	8
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr unsigned MULTI_GAME_NAME_LENGTH = 13;
-#define MULTI_ALLOW_POWERUP_TEXT_LENGTH	18
+constexpr unsigned MULTI_ALLOW_POWERUP_TEXT_LENGTH = 18;
 #define MULTI_ALLOW_POWERUP_MAX 12
 #define D2X_MP_NETFLAGS(VALUE)
 #define DXX_GRANT_LASER_LEVEL_BITS	2
 #define D2X_MP_NETGRANT(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr unsigned MULTI_GAME_NAME_LENGTH = 17;
-#define MULTI_ALLOW_POWERUP_TEXT_LENGTH	21
+constexpr unsigned MULTI_ALLOW_POWERUP_TEXT_LENGTH = 21;
 #define MULTI_ALLOW_POWERUP_MAX 26
 #define NETFLAG_LABEL_GAUSS	"Gauss cannon"
 #define NETFLAG_LABEL_HELIX	"Helix cannon"
@@ -235,6 +236,7 @@ constexpr unsigned MULTI_GAME_NAME_LENGTH = 17;
 	VALUE(NETGRANT_HEADLIGHT, NETFLAG_LABEL_HEADLIGHT)
 
 #endif
+}
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME,STR)	static constexpr auto NAME = tt::integral_constant<unsigned, (1 << BIT_##NAME)>{};
@@ -354,9 +356,10 @@ void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short side
 void multi_object_to_object_rw(vobjptr_t obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, vobjptr_t obj);
 
-extern const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text;
 using GMNames_array = array<char[MULTI_GAME_NAME_LENGTH], MULTI_GAME_TYPE_COUNT>;
 extern const GMNames_array GMNames;
+using multi_allow_powerup_text_array = array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX>;
+extern const multi_allow_powerup_text_array multi_allow_powerup_text;
 extern const array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt;
 }
 

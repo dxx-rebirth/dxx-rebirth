@@ -262,7 +262,7 @@ const array<char[16], 10> RankStrings{{
 }
 
 namespace dsx {
-const array<char[MULTI_ALLOW_POWERUP_TEXT_LENGTH], MULTI_ALLOW_POWERUP_MAX> multi_allow_powerup_text = {{
+const multi_allow_powerup_text_array multi_allow_powerup_text = {{
 #define define_netflag_string(NAME,STR)	STR,
 	for_each_netflag_value(define_netflag_string)
 }};
