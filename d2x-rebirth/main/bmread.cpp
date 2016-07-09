@@ -93,8 +93,8 @@ static int			Num_robot_ais = 0;
 namespace dsx {
 #ifdef EDITOR
 powerup_names_array Powerup_names;
+robot_names_array Robot_names;
 #endif
-array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
 }
 
 //---------------- Internal variables ---------------------------
@@ -1146,7 +1146,6 @@ void bm_read_robot(int skip)
 	fix			drag = f1_0/2;
 	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1, weapon_type2 = weapon_id_type::unspecified;
 	int			g,s;
-	char			name[ROBOT_NAME_LENGTH];
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
 	auto behavior = ai_behavior::AIB_NORMAL;
 	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
@@ -1279,9 +1278,13 @@ void bm_read_robot(int skip)
 				else
 					Int3();	//	Error.  Illegal behavior type for current robot.
 			} else if (!d_stricmp( arg, "name" )) {
-				Assert(strlen(equal_ptr) < ROBOT_NAME_LENGTH);	//	Oops, name too long.
-				strcpy(name, &equal_ptr[1]);
-				name[strlen(name)-1] = 0;
+#ifdef EDITOR
+				auto &name = Robot_names[N_robot_types];
+				const auto len = strlen(equal_ptr);
+				assert(len < name.size());	//	Oops, name too long.
+				memcpy(name.data(), &equal_ptr[1], len - 2);
+				name[len - 2] = 0;
+#endif
 			} else if (!d_stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1365,8 +1368,6 @@ void bm_read_robot(int skip)
 		Robot_info[N_robot_types].contains_type = OBJ_ROBOT;
 	else
 		Robot_info[N_robot_types].contains_type = OBJ_POWERUP;
-
-	strcpy(Robot_names[N_robot_types], name);
 
 	N_robot_types++;
 

@@ -680,7 +680,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		switch (Cur_goody_type) {
 			case OBJ_ROBOT:
 				type_text = "Robot  ";
-				id_text = Robot_names[Cur_goody_id];
+				id_text = Robot_names[Cur_goody_id].data();
 				break;
 			default:
 				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
@@ -701,7 +701,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
 			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
-			ui_dprintf_at( MainWindow, 12, 38, " Name: %-8s", Robot_names[id]);
+			ui_dprintf_at( MainWindow, 12, 38, " Name: %-8s", Robot_names[id].data());
 
 		}	else {
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: none" );

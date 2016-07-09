@@ -100,8 +100,8 @@ static int			Num_robot_ais = 0;
 namespace dsx {
 #ifdef EDITOR
 powerup_names_array Powerup_names;
+robot_names_array Robot_names;
 #endif
-array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
 }
 
 //---------------- Internal variables ---------------------------
@@ -1009,7 +1009,6 @@ static void bm_read_robot(char *&arg, int skip)
 	fix			drag = f1_0/2;
 	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1;
 	int			g,s;
-	char			name[ROBOT_NAME_LENGTH];
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
 	int			score_value=1000;
 	int			cloak_type=0;		//	Default = this robot does not cloak
@@ -1086,9 +1085,13 @@ static void bm_read_robot(char *&arg, int skip)
 			} else if (!d_stricmp( arg, "claw_sound" )) {
 				claw_sound = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "name" )) {
-				Assert(strlen(equal_ptr) < ROBOT_NAME_LENGTH);	//	Oops, name too long.
-				strcpy(name, &equal_ptr[1]);
-				name[strlen(name)-1] = 0;
+#ifdef EDITOR
+				auto &name = Robot_names[N_robot_types];
+				const auto len = strlen(equal_ptr);
+				assert(len < name.size());	//	Oops, name too long.
+				memcpy(name.data(), &equal_ptr[1], len - 2);
+				name[len - 2] = 0;
+#endif
 			} else if (!d_stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1154,8 +1157,6 @@ static void bm_read_robot(char *&arg, int skip)
 		Robot_info[N_robot_types].contains_type = OBJ_ROBOT;
 	else
 		Robot_info[N_robot_types].contains_type = OBJ_POWERUP;
-
-	strcpy(Robot_names[N_robot_types], name);
 
 	N_robot_types++;
 	Num_total_object_types++;

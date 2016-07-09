@@ -284,7 +284,7 @@ static void draw_window_label()
 			case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
 			case OBJ_ROBOT:		viewer_name = "Robot";
 #ifdef EDITOR
-				viewer_id = Robot_names[get_robot_id(vcobjptr(Viewer))];
+				viewer_id = Robot_names[get_robot_id(vcobjptr(Viewer))].data();
 #endif
 				break;
 			case OBJ_HOSTAGE:		viewer_name = "Hostage"; break;

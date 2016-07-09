@@ -65,7 +65,9 @@ struct jointlist
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+namespace dcx {
 constexpr unsigned ROBOT_NAME_LENGTH = 16;
+}
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
@@ -184,7 +186,10 @@ static inline int robot_is_thief(const robot_info *robptr)
 
 //the array of robots types
 extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
-extern array<char[ROBOT_NAME_LENGTH], MAX_ROBOT_TYPES> Robot_names;
+#ifdef EDITOR
+using robot_names_array = array<array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
+extern robot_names_array Robot_names;
+#endif
 extern array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 }
 

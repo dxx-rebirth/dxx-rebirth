@@ -135,7 +135,7 @@ static const char *object_ids(const vcobjptr_t objp)
 	switch (objp->type)
 	{
 		case OBJ_ROBOT:
-			return Robot_names[get_robot_id(objp)];
+			return Robot_names[get_robot_id(objp)].data();
 		case OBJ_POWERUP:
 			return Powerup_names[get_powerup_id(objp)].data();
 	}
@@ -370,15 +370,15 @@ static void write_key_text(PHYSFS_File *my_file)
 				switch (objp->contains_id)
 				{
 					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
 						blue_count2 += objp->contains_count;
 						break;
 					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
 						gold_count2 += objp->contains_count;
 						break;
 					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)], objp->segnum);
+						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
 						red_count2 += objp->contains_count;
 						break;
 					default:
