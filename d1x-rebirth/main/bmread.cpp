@@ -964,7 +964,7 @@ static void bm_read_robot_ai(char *&arg, int skip)
 //returns a pointer to the bitmap
 static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
-	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
+	assert(N_ObjBitmaps < ObjBitmaps.size());
 
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 

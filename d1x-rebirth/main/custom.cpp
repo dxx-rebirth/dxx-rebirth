@@ -545,10 +545,7 @@ static void load_hxm(const d_fname &hxmname)
 		{
 			repl_num = PHYSFSX_readInt(f);
 			auto v = PHYSFSX_readShort(f);
-			if (repl_num >= MAX_OBJ_BITMAPS)
-			{
-			}
-			else
+			if (repl_num < ObjBitmaps.size())
 				ObjBitmaps[repl_num].index = v;
 		}
 	}

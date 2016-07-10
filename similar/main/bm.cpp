@@ -470,13 +470,13 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 		i = PHYSFSX_readInt(fp);
 
 	t = PHYSFSX_readInt(fp);
-	if (N_D2_OBJBITMAPS+t >= MAX_OBJ_BITMAPS)
-		Error("Too many object bitmaps (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPS);
+	if (N_D2_OBJBITMAPS+t >= ObjBitmaps.size())
+		Error("Too many object bitmaps (%d) in <%s>.  Max is %lu.", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS, N_D2_OBJBITMAPS + t));
 
 	t = PHYSFSX_readInt(fp);
-	if (N_D2_OBJBITMAPPTRS+t >= MAX_OBJ_BITMAPS)
-		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPPTRS);
+	if (N_D2_OBJBITMAPPTRS+t >= ObjBitmapPtrs.size())
+		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %lu.", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS, N_D2_OBJBITMAPPTRS + t))
 		i = PHYSFSX_readShort(fp);
 }
@@ -536,16 +536,16 @@ void load_robot_replacements(const d_fname &level_name)
 	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmap number
-		if (i<0 || i>=MAX_OBJ_BITMAPS)
-			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
+		if (i < 0 || i >= ObjBitmaps.size())
+			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%lu].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
 		bitmap_index_read(fp, ObjBitmaps[i]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmapptr number
-		if (i<0 || i>=MAX_OBJ_BITMAPS)
-			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),MAX_OBJ_BITMAPS-1);
+		if (i < 0 || i >= ObjBitmapPtrs.size())
+			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%lu].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
 	Robot_replacements_loaded = 1;
@@ -595,8 +595,7 @@ static bitmap_index read_extra_bitmap_iff(const char * filename )
 // formerly load_exit_model_bitmap
 static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 {
-	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
-
+	assert(N_ObjBitmaps < ObjBitmaps.size());
 	{
 		ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_iff(name);
 
@@ -613,7 +612,7 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 			Error("Bitmap <%s> is not 64x64",name);
 		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
 		N_ObjBitmaps++;
-		Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
+		assert(N_ObjBitmaps < ObjBitmaps.size());
 		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
 	}
 }

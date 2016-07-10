@@ -55,8 +55,9 @@ constexpr unsigned MAX_TEXTURES = 1200;
 #define TMI_GOAL_HOARD  32  //this is used to remap the goals
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 #include "inferno.h"
+namespace dsx {
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -81,6 +82,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 #define N_COCKPIT_BITMAPS 6
 #endif
 };
+}
 
 extern int Num_object_types;
 
@@ -127,14 +129,14 @@ extern int8_t	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if 
 extern int8_t	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
-#define MAX_OBJ_BITMAPS				210
+constexpr unsigned MAX_OBJ_BITMAPS = 210;
 
 #elif defined(DXX_BUILD_DESCENT_II)
 
 //the model number of the marker object
 extern int Marker_model_num;
 extern int Robot_replacements_loaded;
-#define MAX_OBJ_BITMAPS     610
+constexpr unsigned MAX_OBJ_BITMAPS = 610;
 extern unsigned N_ObjBitmaps;
 extern int extra_bitmap_num;
 #endif
@@ -146,9 +148,7 @@ extern array<ushort, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb);
 void load_robot_replacements(const d_fname &level_name);
-#endif
 
-#ifdef dsx
 namespace dsx {
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware);
@@ -165,13 +165,15 @@ int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile
-static const unsigned N_D2_ROBOT_TYPES = 66;
-static const unsigned N_D2_ROBOT_JOINTS = 1145;
-static const unsigned N_D2_OBJBITMAPS = 422;
-static const unsigned N_D2_OBJBITMAPPTRS = 502;
-static const unsigned N_D2_WEAPON_TYPES = 62;
+constexpr unsigned N_D2_ROBOT_TYPES = 66;
+constexpr unsigned N_D2_ROBOT_JOINTS = 1145;
+constexpr unsigned N_D2_OBJBITMAPS = 422;
+constexpr unsigned N_D2_OBJBITMAPPTRS = 502;
+constexpr unsigned N_D2_WEAPON_TYPES = 62;
+}
 #endif
 
 #endif

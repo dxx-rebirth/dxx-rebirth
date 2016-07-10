@@ -1095,7 +1095,7 @@ void bm_read_robot_ai(int skip)
 //returns a pointer to the bitmap
 static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
-	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
+	assert(N_ObjBitmaps < ObjBitmaps.size());
 
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 
@@ -1111,8 +1111,8 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		} else {
 			ObjBitmapPtrs[N_ObjBitmapPtrs++] = Effects[eclip_num].changing_object_texture;
 		}
-		Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
-		Assert(N_ObjBitmapPtrs < MAX_OBJ_BITMAPS);
+		assert(N_ObjBitmaps < ObjBitmaps.size());
+		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
 		return NULL;
 	}
 	else 	{
@@ -1121,8 +1121,8 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 			Error("Bitmap <%s> is not 64x64",name);
 		ObjBitmapPtrs[N_ObjBitmapPtrs++] = N_ObjBitmaps;
 		N_ObjBitmaps++;
-		Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
-		Assert(N_ObjBitmapPtrs < MAX_OBJ_BITMAPS);
+		assert(N_ObjBitmaps < ObjBitmaps.size());
+		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
 		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
 	}
 }
