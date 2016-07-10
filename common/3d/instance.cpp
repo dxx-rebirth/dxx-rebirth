@@ -18,8 +18,6 @@
 
 namespace dcx {
 
-#define MAX_INSTANCE_DEPTH	5
-
 namespace {
 
 struct instance_context {
@@ -29,7 +27,7 @@ struct instance_context {
 
 }
 
-static array<instance_context, MAX_INSTANCE_DEPTH> instance_stack;
+static array<instance_context, 5> instance_stack;
 
 int instance_depth = 0;
 
@@ -37,7 +35,7 @@ int instance_depth = 0;
 //if matrix==NULL, don't modify matrix.  This will be like doing an offset   
 void g3_start_instance_matrix(const vms_vector &pos,const vms_matrix *orient)
 {
-	Assert(instance_depth<MAX_INSTANCE_DEPTH);
+	assert(instance_depth < instance_stack.size());
 
 	instance_stack[instance_depth].m = View_matrix;
 	instance_stack[instance_depth].p = View_position;
