@@ -1512,9 +1512,11 @@ static int attempt_to_steal_item_2(const vobjptr_t objp, const vobjptr_t player_
 	rval = attempt_to_steal_item_3(objp, player_num);
 
 	if (rval) {
-		Stolen_item_index = (Stolen_item_index+1) % MAX_STOLEN_ITEMS;
+		++Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
-			Stolen_item_index = (Stolen_item_index+1) % MAX_STOLEN_ITEMS;
+			++Stolen_item_index;
+		if (++ Stolen_item_index >= Stolen_items.size())
+			Stolen_item_index -= Stolen_items.size();
 	}
 
 	return rval;
