@@ -35,10 +35,14 @@ struct bitmap_index;
 
 struct grs_bitmap;
 
+#ifdef dsx
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_TEXTURES		800
+constexpr unsigned MAX_TEXTURES = 800;
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_TEXTURES    1200
+constexpr unsigned MAX_TEXTURES = 1200;
+#endif
+}
 #endif
 
 //tmapinfo flags
@@ -87,12 +91,16 @@ extern struct player_ship only_player_ship;
 static struct player_ship *const Player_ship=&only_player_ship;
 extern unsigned Num_cockpits;
 extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
+namespace dsx {
 #ifdef EDITOR
-extern array<short, MAX_TEXTURES> tmap_xlate_table;
+using tmap_xlate_table_array = array<short, MAX_TEXTURES>;
+extern tmap_xlate_table_array tmap_xlate_table;
 #endif
+using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
+extern TmapInfo_array TmapInfo;
+}
 
 extern unsigned Num_tmaps;
-extern array<tmap_info, MAX_TEXTURES> TmapInfo;
 
 // Initializes the palette, bitmap system...
 void gamedata_close();

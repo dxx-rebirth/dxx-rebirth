@@ -72,7 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 unsigned NumTextures;
-array<bitmap_index, MAX_TEXTURES> Textures;		// All textures.
 
 #ifdef EDITOR
 int Num_object_subtypes = 1;
@@ -92,8 +91,10 @@ static void bm_free_extra_objbitmaps();
 #endif
 
 namespace dsx {
+Textures_array Textures;		// All textures.
 //for each model, a model number for dying & dead variants, or -1 if none
 array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+TmapInfo_array TmapInfo;
 }
 
 //right now there's only one player ship, but we can have another by
@@ -106,7 +107,6 @@ array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 
 //---------------- Variables for wall textures ------------------
 unsigned             Num_tmaps;
-array<tmap_info, MAX_TEXTURES> TmapInfo;
 
 //---------------- Variables for object textures ----------------
 

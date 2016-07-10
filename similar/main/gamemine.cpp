@@ -379,7 +379,9 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 #endif
 
 #ifdef EDITOR
-array<short, MAX_TEXTURES> tmap_xlate_table;
+namespace dsx {
+tmap_xlate_table_array tmap_xlate_table;
+}
 struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
 struct mfi mine_fileinfo;
 struct mh mine_header;

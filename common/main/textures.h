@@ -31,5 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Texture stuff... in mglobal.c
 
 extern unsigned NumTextures;
-extern array<bitmap_index, MAX_TEXTURES> Textures; // Array of all texture tmaps.
+namespace dsx {
+using Textures_array = array<bitmap_index, MAX_TEXTURES>;
+extern Textures_array Textures; // Array of all texture tmaps.
+}
 #endif
