@@ -544,10 +544,12 @@ static void load_hxm(const d_fname &hxmname)
 		for (i = 0; i < n_items; i++)
 		{
 			repl_num = PHYSFSX_readInt(f);
+			auto v = PHYSFSX_readShort(f);
 			if (repl_num >= MAX_OBJ_BITMAPS)
-				PHYSFSX_fseek(f, 2, SEEK_CUR);
+			{
+			}
 			else
-				ObjBitmaps[repl_num].index = PHYSFSX_readShort(f);
+				ObjBitmaps[repl_num].index = v;
 		}
 	}
 }
