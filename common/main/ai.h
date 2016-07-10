@@ -52,7 +52,6 @@ struct PHYSFS_File;
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
 #define MAX_DEPTH_TO_SEARCH_FOR_PLAYER  10
 #define BOSS_GATE_MATCEN_NUM            -1
-#define MAX_BOSS_TELEPORT_SEGS          100
 
 #define ROBOT_BRAIN 7
 #define ROBOT_BOSS1 17
@@ -90,7 +89,7 @@ extern object *Ai_last_missile_camera;
 #endif
 
 namespace dcx {
-struct boss_special_segment_array_t : public count_array_t<segnum_t, MAX_BOSS_TELEPORT_SEGS> {};
+struct boss_special_segment_array_t : public count_array_t<segnum_t, 100> {};
 struct boss_teleport_segment_array_t : public boss_special_segment_array_t {};
 struct boss_gate_segment_array_t : public boss_special_segment_array_t {};
 extern boss_teleport_segment_array_t Boss_teleport_segs;

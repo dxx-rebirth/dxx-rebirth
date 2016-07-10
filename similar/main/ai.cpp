@@ -2103,7 +2103,8 @@ static void init_boss_segments(boss_special_segment_array_t &a, int size_check, 
 							#ifdef EDITOR
 							Selected_segs.emplace_back(segp->children[sidenum]);
 							#endif
-							if (a.count() >= MAX_BOSS_TELEPORT_SEGS) {
+							if (a.count() >= a.size())
+							{
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;
 								break;
