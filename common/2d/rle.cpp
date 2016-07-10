@@ -341,8 +341,6 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	return 1;
 }
 
-#define MAX_CACHE_BITMAPS 32
-
 namespace {
 
 struct rle_cache_element
@@ -357,7 +355,7 @@ struct rle_cache_element
 static int rle_cache_initialized;
 static int rle_counter;
 static int rle_next;
-static array<rle_cache_element, MAX_CACHE_BITMAPS> rle_cache;
+static array<rle_cache_element, 32> rle_cache;
 
 void rle_cache_close(void)
 {
@@ -401,7 +399,6 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 {
 	int lowest_count, lc;
-	int least_recently_used;
 
 	if (!rle_cache_initialized) rle_cache_init();
 
@@ -414,35 +411,33 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 		rle_counter = 0;
 	
 	if ( rle_counter < lc )	{
-		range_for (auto &i, rle_cache)
-		{
-			i.rle_bitmap = NULL;
-			i.last_used = 0;
-		}
+		rle_cache_flush();
 	}
 
 	lowest_count = rle_cache[rle_next].last_used;
-	least_recently_used = rle_next;
+	auto least_recently_used = &rle_cache[rle_next];
 	rle_next++;
-	if ( rle_next >= MAX_CACHE_BITMAPS )
+	if (rle_next >= rle_cache.size())
 		rle_next = 0;
 
-	for (int i=0; i<MAX_CACHE_BITMAPS; i++ ) {
-		if (rle_cache[i].rle_bitmap == &bmp) 	{
-			rle_cache[i].last_used = rle_counter;
-			return rle_cache[i].expanded_bitmap.get();
+	range_for (auto &i, rle_cache)
+	{
+		if (i.rle_bitmap == &bmp)
+		{
+			i.last_used = rle_counter;
+			return i.expanded_bitmap.get();
 		}
-		if ( rle_cache[i].last_used < lowest_count )	{
-			lowest_count = rle_cache[i].last_used;
-			least_recently_used = i;
+		if (i.last_used < lowest_count)
+		{
+			lowest_count = (least_recently_used = &i)->last_used;
 		}
 	}
 
-	rle_cache[least_recently_used].expanded_bitmap = gr_create_bitmap(bmp.bm_w, bmp.bm_h);
-	rle_expand_texture_sub(bmp, *rle_cache[least_recently_used].expanded_bitmap.get());
-	rle_cache[least_recently_used].rle_bitmap = &bmp;
-	rle_cache[least_recently_used].last_used = rle_counter;
-	return rle_cache[least_recently_used].expanded_bitmap.get();
+	least_recently_used->expanded_bitmap = gr_create_bitmap(bmp.bm_w, bmp.bm_h);
+	rle_expand_texture_sub(bmp, *least_recently_used->expanded_bitmap.get());
+	least_recently_used->rle_bitmap = &bmp;
+	least_recently_used->last_used = rle_counter;
+	return least_recently_used->expanded_bitmap.get();
 }
 
 
