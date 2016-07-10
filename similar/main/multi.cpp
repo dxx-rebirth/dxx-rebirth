@@ -3697,9 +3697,9 @@ static void multi_do_guided (const playernum_t pnum, const ubyte *buf)
 
 void multi_send_stolen_items ()
 {
-	int i,count=1;
+	int count=1;
 
-	for (i=0;i<MAX_STOLEN_ITEMS;i++)
+	for (unsigned i = 0; i < Stolen_items.size(); ++i)
 	{
 		multibuf[i+1]=Stolen_items[i];
 		count++;      // So I like to break my stuff into smaller chunks, so what?
@@ -3709,9 +3709,7 @@ void multi_send_stolen_items ()
 
 static void multi_do_stolen_items (const ubyte *buf)
 {
-	int i;
-
-	for (i=0;i<MAX_STOLEN_ITEMS;i++)
+	for (unsigned i = 0; i < Stolen_items.size(); ++i)
 	{
 		Stolen_items[i]=buf[i+1];
 	}

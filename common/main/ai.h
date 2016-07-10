@@ -228,10 +228,10 @@ extern objnum_t	 Escort_goal_index;
 #define SNIPE_FIRE_TIME     (F1_0*2)
 
 #define THIEF_PROBABILITY   16384   // 50% chance of stealing an item at each attempt
-#define MAX_STOLEN_ITEMS    10      // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 
 extern int   Escort_kill_object;
-struct stolen_items_t : public array<ubyte, MAX_STOLEN_ITEMS> {};
+// Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
+struct stolen_items_t : public array<uint8_t, 10> {};
 extern stolen_items_t Stolen_items;
 
 extern void  create_buddy_bot(void);

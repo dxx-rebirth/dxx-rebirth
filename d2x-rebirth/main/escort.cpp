@@ -1563,10 +1563,11 @@ void init_thief_for_level(void)
 {
 	Stolen_items.fill(255);
 
-	Assert (MAX_STOLEN_ITEMS >= 3*2);	//	Oops!  Loop below will overwrite memory!
-  
+	constexpr unsigned iterations = 3;
+	static_assert (Stolen_items.size() >= iterations * 2, "Stolen_items too small");	//	Oops!  Loop below will overwrite memory!
    if (!(Game_mode & GM_MULTI))    
-		for (int i=0; i<3; i++) {
+		for (unsigned i = 0; i < iterations; i++)
+		{
 			Stolen_items[2*i] = POW_SHIELD_BOOST;
 			Stolen_items[2*i+1] = POW_ENERGY;
 		}
