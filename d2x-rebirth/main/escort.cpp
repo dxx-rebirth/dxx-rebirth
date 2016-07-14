@@ -78,7 +78,8 @@ namespace dsx {
 
 static void show_escort_menu(const array<char, 300> &);
 static void say_escort_goal(escort_goal_t goal_num);
-
+static fix64 Last_come_back_message_time;
+static fix64 Buddy_last_missile_time;
 
 static const array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
@@ -375,8 +376,8 @@ static int show_buddy_message()
 
 static void _buddy_message(const char *str)
 {
-	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 	Last_buddy_message_time = GameTime64;
+	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 }
 
 void (buddy_message)(const char * format, ... )
@@ -627,24 +628,53 @@ static void say_escort_goal(escort_goal_t goal_num)
 	if (Player_dead_state != player_dead_state::no)
 		return;
 
+	const char *str;
 	switch (goal_num) {
 		default:
 		case ESCORT_GOAL_UNSPECIFIED:
+			return;
+		case ESCORT_GOAL_BLUE_KEY:
+			str = "Finding BLUE KEY";
 			break;
-		case ESCORT_GOAL_BLUE_KEY:		buddy_message("Finding BLUE KEY");			break;
-		case ESCORT_GOAL_GOLD_KEY:		buddy_message("Finding YELLOW KEY");		break;
-		case ESCORT_GOAL_RED_KEY:		buddy_message("Finding RED KEY");			break;
-		case ESCORT_GOAL_CONTROLCEN:	buddy_message("Finding REACTOR");			break;
-		case ESCORT_GOAL_EXIT:			buddy_message("Finding EXIT");				break;
-		case ESCORT_GOAL_ENERGY:		buddy_message("Finding ENERGY");				break;
-		case ESCORT_GOAL_ENERGYCEN:	buddy_message("Finding ENERGY CENTER");	break;
-		case ESCORT_GOAL_SHIELD:		buddy_message("Finding a SHIELD");			break;
-		case ESCORT_GOAL_POWERUP:		buddy_message("Finding a POWERUP");			break;
-		case ESCORT_GOAL_ROBOT:			buddy_message("Finding a ROBOT");			break;
-		case ESCORT_GOAL_HOSTAGE:		buddy_message("Finding a HOSTAGE");			break;
-		case ESCORT_GOAL_SCRAM:			buddy_message("Staying away...");			break;
-		case ESCORT_GOAL_BOSS:			buddy_message("Finding BOSS robot");		break;
-		case ESCORT_GOAL_PLAYER_SPEW:	buddy_message("Finding your powerups");	break;
+		case ESCORT_GOAL_GOLD_KEY:
+			str = "Finding YELLOW KEY";
+			break;
+		case ESCORT_GOAL_RED_KEY:
+			str = "Finding RED KEY";
+			break;
+		case ESCORT_GOAL_CONTROLCEN:
+			str = "Finding REACTOR";
+			break;
+		case ESCORT_GOAL_EXIT:
+			str = "Finding EXIT";
+			break;
+		case ESCORT_GOAL_ENERGY:
+			str = "Finding ENERGY";
+			break;
+		case ESCORT_GOAL_ENERGYCEN:
+			str = "Finding ENERGY CENTER";
+			break;
+		case ESCORT_GOAL_SHIELD:
+			str = "Finding a SHIELD";
+			break;
+		case ESCORT_GOAL_POWERUP:
+			str = "Finding a POWERUP";
+			break;
+		case ESCORT_GOAL_ROBOT:
+			str = "Finding a ROBOT";
+			break;
+		case ESCORT_GOAL_HOSTAGE:
+			str = "Finding a HOSTAGE";
+			break;
+		case ESCORT_GOAL_SCRAM:
+			str = "Staying away...";
+			break;
+		case ESCORT_GOAL_BOSS:
+			str = "Finding BOSS robot";
+			break;
+		case ESCORT_GOAL_PLAYER_SPEW:
+			str = "Finding your powerups";
+			break;
 		case ESCORT_GOAL_MARKER1:
 		case ESCORT_GOAL_MARKER2:
 		case ESCORT_GOAL_MARKER3:
@@ -655,12 +685,14 @@ static void say_escort_goal(escort_goal_t goal_num)
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
 			buddy_message("Finding marker %i: '%.24s'", goal_num-ESCORT_GOAL_MARKER1+1, &MarkerMessage[goal_num-ESCORT_GOAL_MARKER1][0]);
-			break;
+			return;
 	}
+	buddy_message_str(str);
 }
 
 static void clear_escort_goals()
 {
+	Looking_for_marker = -1;
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 	Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 }
@@ -669,7 +701,6 @@ static void escort_goal_does_not_exist(escort_goal_t goal)
 {
 	Last_buddy_message_time = 0;	//	Force this message to get through.
 	buddy_message("No %s in mine.", Escort_goal_text[goal-1]);
-	Looking_for_marker = -1;
 	clear_escort_goals();
 }
 
@@ -677,7 +708,6 @@ static void escort_goal_unreachable(escort_goal_t goal)
 {
 	Last_buddy_message_time = 0;	//	Force this message to get through.
 	buddy_message("Can't reach %s.", Escort_goal_text[goal-1]);
-	Looking_for_marker = -1;
 	clear_escort_goals();
 }
 
@@ -858,16 +888,14 @@ static int time_to_visit_player(const vobjptr_t objp, ai_local *ailp, ai_static 
 	return 1;
 }
 
-fix64	Last_come_back_message_time = 0;
-
-fix64	Buddy_last_missile_time;
-
 //	-----------------------------------------------------------------------------
 static void bash_buddy_weapon_info(const vobjptridx_t objp)
 {
-	objp->ctype.laser_info.parent_num = vobjptridx(ConsoleObject);
-	objp->ctype.laser_info.parent_type = OBJ_PLAYER;
-	objp->ctype.laser_info.parent_signature = ConsoleObject->signature;
+	auto &laser_info = objp->ctype.laser_info;
+	const auto console = ConsoleObject;
+	laser_info.parent_num = vobjptridx(console);
+	laser_info.parent_type = OBJ_PLAYER;
+	laser_info.parent_signature = console->signature;
 }
 
 //	-----------------------------------------------------------------------------
@@ -987,11 +1015,17 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 	if (cheats.buddyangry)
 		do_buddy_dude_stuff();
 
-	if (Buddy_sorry_time + F1_0 > GameTime64) {
+	{
+		const auto buddy_sorry_time = Buddy_sorry_time;
+		if (buddy_sorry_time + F1_0 > GameTime64)
+		{
+			Buddy_sorry_time = -F1_0*2;
+			if (buddy_sorry_time < GameTime64 + F1_0*2)
+			{
 		Last_buddy_message_time = 0;	//	Force this message to get through.
-		if (Buddy_sorry_time < GameTime64 + F1_0*2)
 			buddy_message("Oops, sorry 'bout that...");
-		Buddy_sorry_time = -F1_0*2;
+			}
+		}
 	}
 
 	//	If buddy not allowed to talk, then he is locked in his room.  Make him mostly do nothing unless you're nearby.
@@ -1416,14 +1450,14 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 			{
 				if (auto &laser_level = player_info.laser_level)
 				{
-					if (laser_level > 3)
+					if (laser_level > MAX_LASER_LEVEL)
 					{
 						Stolen_items[Stolen_item_index] = POW_SUPER_LASER;
 					} else {
 						Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 					}
-					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 					-- laser_level;
+					thief_message("%s level decreased!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 					digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 					return 1;
 				}
@@ -1512,11 +1546,13 @@ static int attempt_to_steal_item_2(const vobjptr_t objp, const vobjptr_t player_
 	rval = attempt_to_steal_item_3(objp, player_num);
 
 	if (rval) {
-		++Stolen_item_index;
+		auto i = Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
-			++Stolen_item_index;
-		if (++ Stolen_item_index >= Stolen_items.size())
-			Stolen_item_index -= Stolen_items.size();
+			++i;
+		constexpr auto size = Stolen_items.size();
+		if (++ i >= size)
+			i -= size;
+		Stolen_item_index = i;
 	}
 
 	return rval;
