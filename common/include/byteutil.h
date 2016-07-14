@@ -55,11 +55,6 @@ static inline int32_t SWAPINT(const int32_t &i)
 {
 	return SWAPINT(static_cast<uint32_t>(i));
 }
-#ifndef macintosh
-#define SWAPINT64(x) ((((x) & 0xff00000000000000LL) >> 56) | (((x) & 0x00ff000000000000LL) >> 40) | (((x) & 0x0000ff0000000000LL) >> 24) | (((x) & 0x000000ff00000000LL) >> 8) | (((x) & 0x00000000ff000000LL) << 8) | (((x) & 0x0000000000ff0000LL) << 24) | (((x) & 0x000000000000ff00LL) << 40) | (((x) & 0x00000000000000ffLL) << 56))
-#else
-#define SWAPINT64(x) ((((x) & 0xff00000000000000LL)/(2^56)) | (((x) & 0x00ff000000000000LL)/(2^40)) | (((x) & 0x0000ff0000000000LL)/(2^24)) | (((x) & 0x000000ff00000000LL)/(2^8)) | (((x) & 0x00000000ff000000LL)*(2^8)) | (((x) & 0x0000000000ff0000LL)*(2^24)) | (((x) & 0x000000000000ff00LL)*(2^40)) | (((x) & 0x00000000000000ffLL)*(2^56)))
-#endif
 
 #ifndef WORDS_BIGENDIAN
 /* Always resolve F(a), so ambiguous calls are flagged even on little
