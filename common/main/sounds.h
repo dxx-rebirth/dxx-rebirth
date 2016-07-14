@@ -134,7 +134,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_DROP_BOMB                         26
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_SOUNDS                      250
+constexpr unsigned MAX_SOUNDS = 250;
 #elif defined(DXX_BUILD_DESCENT_II)
 #define SOUND_CHEATER                           200
 
@@ -163,7 +163,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_OPPONENT_HAS_SCORED               87
 
 //--------------------------------------------------------------
-#define MAX_SOUNDS  254     // bad to have sound 255!
+// bad to have sound 255!
+constexpr unsigned MAX_SOUNDS = 254;
 #endif
 
 // I think it would be nice to have a scrape sound...

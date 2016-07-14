@@ -1156,13 +1156,12 @@ int properties_init(void)
 
 static int piggy_is_needed(int soundnum)
 {
-	int i;
-
 	if (!CGameArg.SysLowMem)
 		return 1;
 
-	for (i=0; i<MAX_SOUNDS; i++ )   {
-		if ( (AltSounds[i] < 255) && (Sounds[AltSounds[i]] == soundnum) )
+	range_for (auto i, AltSounds)
+	{
+		if (i < 255 && Sounds[i] == soundnum)
 			return 1;
 	}
 	return 0;
@@ -1182,7 +1181,7 @@ void piggy_read_sounds(int pc_shareware)
 		// hack for Mac Demo
 		if (auto array = PHYSFSX_openReadBuffered(soundfile))
 		{
-			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
+			if (PHYSFS_read(array, Sounds, Sounds.size(), 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
 				con_printf(CON_URGENT,"Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
 				return;
