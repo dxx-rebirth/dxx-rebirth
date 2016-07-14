@@ -5055,10 +5055,7 @@ static void MultiLevelInv_CountPlayerInventory()
 			Current[POW_HEADLIGHT]++;
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
-                                if ((get_team(i)==TEAM_RED))
-				Current[POW_FLAG_BLUE]++;
-                                else
-				Current[POW_FLAG_RED]++;
+				++Current[(get_team(i) == TEAM_RED) ? POW_FLAG_BLUE : POW_FLAG_RED];
                         }
 #endif
 		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
