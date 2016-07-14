@@ -568,7 +568,7 @@ static void custom_remove()
 
 			if (bmo->bm_flags & BM_FLAG_PAGED_OUT)
 			{
-				GameBitmapOffset[i] = static_cast<int>(reinterpret_cast<uintptr_t>(BitmapOriginal[i].bm_data));
+				GameBitmapOffset[i] = static_cast<int>(reinterpret_cast<uintptr_t>(bmo->bm_data));
 				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
 				gr_set_bitmap_data(*bmp, Piggy_bitmap_cache_data);
 			}

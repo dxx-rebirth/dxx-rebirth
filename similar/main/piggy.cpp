@@ -116,8 +116,8 @@ int Num_sound_files = 0;
 namespace dsx {
 array<digi_sound, MAX_SOUND_FILES> GameSounds;
 static array<int, MAX_SOUND_FILES> SoundOffset;
-}
 array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
@@ -268,7 +268,7 @@ void swap_0_255(grs_bitmap *bmp)
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;
-	Assert( Num_bitmap_files < MAX_BITMAP_FILES );
+	assert(Num_bitmap_files < AllBitmaps.size());
 
 	temp.index = Num_bitmap_files;
 
@@ -433,7 +433,8 @@ int properties_init()
 //end this section addition - VR
 	}
 
-	for (unsigned i = 0; i < MAX_BITMAP_FILES; ++i)
+	static_assert(GameBitmapXlat.size() == GameBitmaps.size(), "size mismatch");
+	for (unsigned i = 0; i < GameBitmaps.size(); ++i)
 	{
 		GameBitmapXlat[i] = i;
 		GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
@@ -1006,13 +1007,11 @@ int read_hamfile()
 
 	#if 1 //ndef EDITOR
 	{
-		int i;
-
 		bm_read_all(ham_fp);
 		//PHYSFS_read( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
-		for (i = 0; i < MAX_BITMAP_FILES; i++)
+		range_for (auto &i, GameBitmapXlat)
 		{
-			GameBitmapXlat[i] = PHYSFSX_readShort(ham_fp);
+			i = PHYSFSX_readShort(ham_fp);
 			if (PHYSFS_eof(ham_fp))
 				break;
 		}
@@ -1116,7 +1115,7 @@ int properties_init(void)
 		SoundOffset[i] = 0;
 	}
 
-	for (unsigned i = 0; i < MAX_BITMAP_FILES; ++i)
+	for (unsigned i = 0; i < GameBitmapXlat.size(); ++i)
 	{
 		GameBitmapXlat[i] = i;
 	}

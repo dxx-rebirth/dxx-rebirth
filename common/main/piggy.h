@@ -107,11 +107,12 @@ void piggy_read_sound_data(digi_sound *snd);
 void piggy_load_level_data();
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_BITMAP_FILES	1800
+constexpr unsigned MAX_BITMAP_FILES = 1800;
 #define MAX_SOUND_FILES     MAX_SOUNDS
 #define PIGGY_PC_SHAREWARE 2
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced
+// Upped for CD Enhanced
+constexpr unsigned MAX_BITMAP_FILES = 2620;
 #define MAX_SOUND_FILES     MAX_SOUNDS
 #endif
 
@@ -121,8 +122,8 @@ extern void piggy_bitmap_page_in( bitmap_index bmp );
 
 namespace dsx {
 extern array<digi_sound, MAX_SOUND_FILES> GameSounds;
-}
 extern array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
+}
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
 static inline void _piggy_page_in(bitmap_index bmp) {
     if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT ) {

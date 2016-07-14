@@ -824,9 +824,10 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 			for (unsigned i = 0; i < po->n_textures; ++i)
 			{
-				int	tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index;
+				unsigned tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index;
 
-				if ((tli < MAX_BITMAP_FILES) && (tli >= 0)) {
+				if (tli < tmap_buf.size())
+				{
 					tmap_buf[tli]++;
 					if (level_tmap_buf[tli] == -1)
 						level_tmap_buf[tli] = level_num;
@@ -854,10 +855,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 					wall_buf[clip_num] = 1;
 
 					for (j=0; j<1; j++) {	//	Used to do through num_frames, but don't really want all the door01#3 stuff.
-						int	tmap_num;
-
-						tmap_num = Textures[WallAnims[clip_num].frames[j]].index;
-						Assert((tmap_num >= 0) && (tmap_num < MAX_BITMAP_FILES));
+						unsigned tmap_num = Textures[WallAnims[clip_num].frames[j]].index;
+						Assert(tmap_num < tmap_buf.size());
 						tmap_buf[tmap_num]++;
 						if (level_tmap_buf[tmap_num] == -1)
 							level_tmap_buf[tmap_num] = level_num;
@@ -867,22 +866,25 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 				if (sidep->tmap_num >= 0)
 				{
-					if (sidep->tmap_num < MAX_BITMAP_FILES) {
-						Assert(Textures[sidep->tmap_num].index < MAX_BITMAP_FILES);
-						tmap_buf[Textures[sidep->tmap_num].index]++;
-						if (level_tmap_buf[Textures[sidep->tmap_num].index] == -1)
-							level_tmap_buf[Textures[sidep->tmap_num].index] = level_num;
+					if (sidep->tmap_num < Textures.size()) {
+						const auto ti = Textures[sidep->tmap_num].index;
+						assert(ti < tmap_buf.size());
+						++tmap_buf[ti];
+						if (level_tmap_buf[ti] == -1)
+							level_tmap_buf[ti] = level_num;
 					} else
 						Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 				}
 
-				if ((sidep->tmap_num2 & 0x3fff) != 0)
+				if (const auto masked_tmap_num2 = (sidep->tmap_num2 & 0x3fff))
 				{
-					if ((sidep->tmap_num2 & 0x3fff) < MAX_BITMAP_FILES) {
-						Assert(Textures[sidep->tmap_num2 & 0x3fff].index < MAX_BITMAP_FILES);
-						tmap_buf[Textures[sidep->tmap_num2 & 0x3fff].index]++;
-						if (level_tmap_buf[Textures[sidep->tmap_num2 & 0x3fff].index] == -1)
-							level_tmap_buf[Textures[sidep->tmap_num2 & 0x3fff].index] = level_num;
+					if (masked_tmap_num2 < Textures.size())
+					{
+						const auto ti = Textures[masked_tmap_num2].index;
+						assert(ti < tmap_buf.size());
+						++tmap_buf[ti];
+						if (level_tmap_buf[ti] == -1)
+							level_tmap_buf[ti] = level_num;
 					} else {
 						if (!Ignore_tmap_num2_error)
 							Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
@@ -919,7 +921,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 			}
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
-	for (i=0; i<MAX_BITMAP_FILES; i++)
+	for (i = 0; i < tb.size(); ++i)
 		if (tb[i]) {
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name, tb[i]);
 		}
