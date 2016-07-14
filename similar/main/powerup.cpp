@@ -522,12 +522,18 @@ int do_powerup(const vobjptridx_t obj)
 				break;
 			}
 		case	POW_INVULNERABILITY:
-			if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE) {
+			{
+				auto &pl_flags = get_local_player_flags();
+				if (pl_flags & PLAYER_FLAGS_INVULNERABLE) {
+					if (!player_info.FakingInvul)
+					{
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
-			} else {
+					}
+					player_info.FakingInvul = 0;
+			}
+				pl_flags |= PLAYER_FLAGS_INVULNERABLE;
 				get_local_player_invulnerable_time() = GameTime64;
-				get_local_player_flags() |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
 				break;
