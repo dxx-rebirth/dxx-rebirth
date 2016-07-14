@@ -125,7 +125,7 @@ extern fix Cruise_speed;
 
 #if MAX_JOYSTICKS
 template <std::size_t N>
-struct joystick_text_length : tt::integral_constant<std::size_t, (N >= 10) ? (joystick_text_length<N / 10>::value + 1) : 1>
+struct joystick_text_length : tt::integral_constant<std::size_t, joystick_text_length<N / 10>::value + (N >= 10)>
 {
 };
 template <>
@@ -134,30 +134,26 @@ struct joystick_text_length<0> : tt::integral_constant<std::size_t, 1>
 };
 
 template <std::size_t N>
-class joystick_text_t
+class joystick_text_t : std::vector<array<char, N>>
 {
 	typedef std::vector<array<char, N> > vector_type;
-	typedef typename vector_type::size_type size_type;
-	typedef typename vector_type::reference reference;
-	vector_type text;
 public:
-	void clear() { text.clear(); }
-	size_type size() const { return text.size(); }
-	void resize(size_type s) { text.resize(s); }
-	reference operator[](size_type s) { return text.at(s); }
+	using vector_type::clear;
+	using vector_type::size;
+	using vector_type::resize;
+	typename vector_type::reference operator[](typename vector_type::size_type s)
+	{
+		return this->at(s);
+	}
 };
 
 #if MAX_AXES_PER_JOYSTICK
-class joyaxis_text_t : public joystick_text_t<sizeof("J A") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>
-{
-};
+using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>;
 extern joyaxis_text_t joyaxis_text;
 #endif
 
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-class joybutton_text_t : public joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>
-{
-};
+using joybutton_text_t = joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>;
 extern joybutton_text_t joybutton_text;
 #endif
 
