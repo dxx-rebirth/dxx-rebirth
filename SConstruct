@@ -1782,8 +1782,9 @@ help:always wipe certain freed memory
 		'-Wl,--large-address-aware',
 		'-Wl,--dynamicbase',
 		'-Wl,--nxcompat',
-		'-Wl,--insert-timestamp',
 	)
+	if os.getenv('SOURCE_DATE_EPOCH') is None:
+		__preferred_win32_linker_options += ('-Wl,--insert-timestamp',)
 	def __mangle_compiler_option_name(opt):
 		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
 	def __mangle_linker_option_name(opt):
