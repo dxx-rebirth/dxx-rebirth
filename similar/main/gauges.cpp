@@ -3134,12 +3134,14 @@ void draw_hud()
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
-		if (Primary_weapon == primary_weapon_index_t::VULCAN_INDEX)
-			newdemo_record_primary_ammo(get_local_player_vulcan_ammo());
+		int ammo;
+		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = get_local_player_vulcan_ammo(), true))
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
-			newdemo_record_primary_ammo(Omega_charge);
+			||
+			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = Omega_charge, true))
 #endif
+		)
+			newdemo_record_primary_ammo(ammo);
 		newdemo_record_secondary_ammo(get_local_player_secondary_ammo()[Secondary_weapon]);
 	}
 	if (PlayerCfg.HudMode == HudType::Hidden) // no hud, "immersion mode"
