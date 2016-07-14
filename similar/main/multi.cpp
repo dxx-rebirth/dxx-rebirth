@@ -4994,6 +4994,7 @@ static void MultiLevelInv_CountLevelPowerups()
 
 static void MultiLevelInv_CountPlayerInventory()
 {
+	auto &Current = MultiLevelInv.Current;
                 for (playernum_t i = 0; i < MAX_PLAYERS; i++)
                 {
                         if (Players[i].connected != CONNECT_PLAYING)
@@ -5010,71 +5011,71 @@ static void MultiLevelInv_CountPlayerInventory()
                                  * We do not know exactly how many normal lasers the player collected before going super so assume they have all.
                                  * This loss possible is insignificant since we have super lasers and normal ones may respawn some time after this player dies.
                                  */
-                                MultiLevelInv.Current[POW_LASER] += 4;
-                                MultiLevelInv.Current[POW_SUPER_LASER] += player_info.laser_level-MAX_LASER_LEVEL+1; // Laser levels start at 0!
+			Current[POW_LASER] += 4;
+			Current[POW_SUPER_LASER] += player_info.laser_level-MAX_LASER_LEVEL+1; // Laser levels start at 0!
                         }
                         else
 #endif
                         {
-                                MultiLevelInv.Current[POW_LASER] += player_info.laser_level+1; // Laser levels start at 0!
+			Current[POW_LASER] += player_info.laser_level+1; // Laser levels start at 0!
                         }
                         // NOTE: The following can probably be simplified.
                         if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-                                MultiLevelInv.Current[POW_QUAD_FIRE]++;
+			Current[POW_QUAD_FIRE]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(VULCAN_INDEX))
-                                MultiLevelInv.Current[POW_VULCAN_WEAPON]++;
+			Current[POW_VULCAN_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(SPREADFIRE_INDEX))
-                                MultiLevelInv.Current[POW_SPREADFIRE_WEAPON]++;
+			Current[POW_SPREADFIRE_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PLASMA_INDEX))
-                                MultiLevelInv.Current[POW_PLASMA_WEAPON]++;
+			Current[POW_PLASMA_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(FUSION_INDEX))
-                                MultiLevelInv.Current[POW_FUSION_WEAPON]++;
+			Current[POW_FUSION_WEAPON]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
-                                MultiLevelInv.Current[POW_CLOAK]++;
+			Current[POW_CLOAK]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-                                MultiLevelInv.Current[POW_INVULNERABILITY]++;
+			Current[POW_INVULNERABILITY]++;
 #if defined(DXX_BUILD_DESCENT_II)
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(GAUSS_INDEX))
-                                MultiLevelInv.Current[POW_GAUSS_WEAPON]++;
+			Current[POW_GAUSS_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(HELIX_INDEX))
-                                MultiLevelInv.Current[POW_HELIX_WEAPON]++;
+			Current[POW_HELIX_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PHOENIX_INDEX))
-                                MultiLevelInv.Current[POW_PHOENIX_WEAPON]++;
+			Current[POW_PHOENIX_WEAPON]++;
                         if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(OMEGA_INDEX))
-                                MultiLevelInv.Current[POW_OMEGA_WEAPON]++;
+			Current[POW_OMEGA_WEAPON]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
-                                MultiLevelInv.Current[POW_FULL_MAP]++;
+			Current[POW_FULL_MAP]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
-                                MultiLevelInv.Current[POW_AFTERBURNER]++;
+			Current[POW_AFTERBURNER]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
-                                MultiLevelInv.Current[POW_AMMO_RACK]++;
+			Current[POW_AMMO_RACK]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
-                                MultiLevelInv.Current[POW_CONVERTER]++;
+			Current[POW_CONVERTER]++;
                         if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
-                                MultiLevelInv.Current[POW_HEADLIGHT]++;
+			Current[POW_HEADLIGHT]++;
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
                                 if ((get_team(i)==TEAM_RED))
-                                        MultiLevelInv.Current[POW_FLAG_BLUE]++;
+				Current[POW_FLAG_BLUE]++;
                                 else
-                                        MultiLevelInv.Current[POW_FLAG_RED]++;
+				Current[POW_FLAG_RED]++;
                         }
 #endif
-                        MultiLevelInv.Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
-                        MultiLevelInv.Current[POW_MISSILE_1] += player_info.secondary_ammo[CONCUSSION_INDEX];
-                        MultiLevelInv.Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[HOMING_INDEX];
+		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
+		Current[POW_MISSILE_1] += player_info.secondary_ammo[CONCUSSION_INDEX];
+		Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[HOMING_INDEX];
 #if defined(DXX_BUILD_DESCENT_II)
                         if (!(Game_mode & GM_HOARD))
 #endif
-                                MultiLevelInv.Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
-                        MultiLevelInv.Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[SMART_INDEX];
-                        MultiLevelInv.Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[MEGA_INDEX];
+			Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
+		Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[SMART_INDEX];
+		Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[MEGA_INDEX];
 #if defined(DXX_BUILD_DESCENT_II)
-                        MultiLevelInv.Current[POW_SMISSILE1_1] += player_info.secondary_ammo[SMISSILE1_INDEX];
-                        MultiLevelInv.Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[GUIDED_INDEX];
-                        MultiLevelInv.Current[POW_SMART_MINE] += player_info.secondary_ammo[SMART_MINE_INDEX];
-                        MultiLevelInv.Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[SMISSILE4_INDEX];
-                        MultiLevelInv.Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[SMISSILE5_INDEX];
+		Current[POW_SMISSILE1_1] += player_info.secondary_ammo[SMISSILE1_INDEX];
+		Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[GUIDED_INDEX];
+		Current[POW_SMART_MINE] += player_info.secondary_ammo[SMART_MINE_INDEX];
+		Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[SMISSILE4_INDEX];
+		Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[SMISSILE5_INDEX];
 #endif
                 }
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5082,9 +5083,9 @@ static void MultiLevelInv_CountPlayerInventory()
                 {
                         range_for (auto &i, Stolen_items)
                         {
-							if (i >= MultiLevelInv.Current.size() || i == POW_ENERGY || i == POW_SHIELD_BOOST)
+						if (i >= Current.size() || i == POW_ENERGY || i == POW_SHIELD_BOOST)
                                         continue;
-							auto &c = MultiLevelInv.Current[i];
+						auto &c = Current[i];
                                 // NOTE: We don't need to consider vulcan ammo or 4pack items as the thief should not steal those items.
 							if (i == POW_PROXIMITY_WEAPON || i == POW_SMART_MINE)
 								c += 4;
