@@ -2324,10 +2324,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			if (weapon_index_is_player_bomb(weapon))
-				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, objnum);
-			else
-				multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, object_none);
+			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, weapon_index_is_player_bomb(weapon) ? objnum : objptridx(object_none));
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon
