@@ -203,7 +203,7 @@ static std::ptrdiff_t gr_rle_encode( int org_size, const uint8_t *src, ubyte *de
 {
 	ubyte c, oc;
 	ubyte count;
-	ubyte *dest_start;
+	uint8_t *dest_start;
 
 	dest_start = dest;
 	oc = *src++;

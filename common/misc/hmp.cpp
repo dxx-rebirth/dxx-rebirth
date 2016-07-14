@@ -597,7 +597,7 @@ void hmp_reset()
 
 static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 {
-	ubyte *dptr = data;
+	uint8_t *dptr = data;
 	ubyte lc1 = 0,last_com = 0;
 	uint d;
 	int n1;

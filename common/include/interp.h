@@ -84,7 +84,7 @@ static inline void swap_polygon_model_data(uint8_t *) {}
 struct chunk
 {
 	const uint8_t *old_base; // where the offset sets off from (relative to beginning of model_data)
-	ubyte *new_base; // where the base is in the aligned structure
+	uint8_t *new_base; // where the base is in the aligned structure
 	short offset; // how much to add to base to get the address of the offset
 	short correction; // how much the value of the offset must be shifted for alignment
 };

@@ -5216,7 +5216,7 @@ void init_hoard_data()
 	int orb_w,orb_h;
 	int icon_w,icon_h;
 	palette_array_t palette;
-	ubyte *bitmap_data1;
+	uint8_t *bitmap_data1;
 	int save_pos;
 	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
 
@@ -5303,7 +5303,7 @@ void init_hoard_data()
 	//Load and remap bitmap data for HUD icons
 	range_for (auto &i, Orb_icons)
 	{
-		ubyte *bitmap_data2;
+		uint8_t *bitmap_data2;
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );

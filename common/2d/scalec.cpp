@@ -248,7 +248,7 @@ static void scale_bitmap_c(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, i
 static void scale_row_transparent(const array<ubyte, 640> &sbits, ubyte * dbits, int width, fix u, fix du )
 {
 	ubyte c;
-	ubyte *dbits_end = &dbits[width-1];
+	uint8_t *dbits_end = &dbits[width-1];
 
 	if ( du < F1_0 )	{
 		// Scaling up.

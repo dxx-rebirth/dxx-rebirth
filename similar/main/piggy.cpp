@@ -130,7 +130,7 @@ static array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 static int Piggy_bitmap_cache_size;
 static int Piggy_bitmap_cache_next;
-ubyte * Piggy_bitmap_cache_data = NULL;
+uint8_t * Piggy_bitmap_cache_data = NULL;
 static array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
 static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 
@@ -1171,7 +1171,7 @@ static int piggy_is_needed(int soundnum)
 #if defined(DXX_BUILD_DESCENT_I)
 void piggy_read_sounds(int pc_shareware)
 {
-	ubyte * ptr;
+	uint8_t * ptr;
 	int i, sbytes;
 	int lastsize = 0;
 
@@ -1249,7 +1249,7 @@ void piggy_read_sounds(int pc_shareware)
 #elif defined(DXX_BUILD_DESCENT_II)
 void piggy_read_sounds(void)
 {
-	ubyte * ptr;
+	uint8_t * ptr;
 	int i, sbytes;
 
 	ptr = SoundBits.get();
@@ -1791,12 +1791,12 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      PHYSFS_File *d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
-                     ubyte **next_bitmap, /* where to write it (if 0, use malloc) */
+                     uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
 					 array<color_t, 256> &colormap) /* how to translate bitmap's colors */
 {
 	int zsize, pigsize = PHYSFS_fileLength(d1_Piggy_fp);
-	ubyte *data;
+	uint8_t *data;
 	int width;
 
 	width = bmh->width + (static_cast<short>(bmh->wh_extra & 0x0f) << 8);
@@ -1991,7 +1991,7 @@ void load_d1_bitmap_replacements()
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
 	int N_bitmaps;
 	short d1_index, d2_index;
-	ubyte* next_bitmap;
+	uint8_t * next_bitmap;
 	palette_array_t d1_palette;
 	char *p;
 	int pigsize;

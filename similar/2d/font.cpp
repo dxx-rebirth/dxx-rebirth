@@ -506,7 +506,7 @@ static void ogl_init_font(grs_font * font)
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int w,h,tw,th,curx=0,cury=0;
-	ubyte *data;
+	uint8_t *data;
 	int gap=1; // x/y offset between the chars so we can filter
 
 	th = tw = 0xffff;

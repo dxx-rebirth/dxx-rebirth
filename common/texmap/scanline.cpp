@@ -45,7 +45,7 @@ tmap_scanline_function_table tmap_scanline_functions;
 #ifndef OGL
 void c_tmap_scanline_flat()
 {
-	ubyte *dest;
+	uint8_t *dest;
         int x, index = fx_xleft + (bytes_per_row * fx_y );
 
 	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y )  );
@@ -61,7 +61,7 @@ void c_tmap_scanline_flat()
 void c_tmap_scanline_shaded()
 {
 	int fade;
-	ubyte *dest, tmp;
+	uint8_t *dest, tmp;
 	int x, index = fx_xleft + (bytes_per_row * fx_y );
 
 	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
@@ -76,7 +76,7 @@ void c_tmap_scanline_shaded()
 
 void c_tmap_scanline_lin_nolight()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	int x, index = fx_xleft + (bytes_per_row * fx_y );
 	fix u,v,dudx, dvdx;
@@ -112,7 +112,7 @@ void c_tmap_scanline_lin_nolight()
 #if 1
 void c_tmap_scanline_lin()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	int x, j, index = fx_xleft + (bytes_per_row * fx_y);
 	fix u,v,l,dudx, dvdx, dldx;
@@ -219,7 +219,7 @@ void c_tmap_scanline_lin()
 #else
 void c_tmap_scanline_lin()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	fix u,v,l,dudx, dvdx, dldx;
 
@@ -268,7 +268,7 @@ void c_tmap_scanline_lin()
 // Please send comments/suggestions to falk.hueffner@student.uni-tuebingen.de.
 static void c_fp_tmap_scanline_per()
 {
-	ubyte          *dest;
+	uint8_t *dest;
 	uint            c;
 	int             x, j, index = fx_xleft + (bytes_per_row * fx_y);
 	double          u, v, z, l, dudx, dvdx, dzdx, dldx, rec_z;
@@ -535,7 +535,7 @@ static void c_fp_tmap_scanline_per()
 // note the unrolling loop is broken. It is never called, and uses big endian. -- FH
 static void c_tmap_scanline_per()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	int x, j, index = fx_xleft + (bytes_per_row * fx_y);
 	fix l,u,v,z;
@@ -650,7 +650,7 @@ static void c_tmap_scanline_per()
 #else
 void c_tmap_scanline_per()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	fix u,v,z,l,dudx, dvdx, dzdx, dldx;
 
@@ -695,7 +695,7 @@ void c_tmap_scanline_per()
 
 static void c_tmap_scanline_quad()
 {
-	ubyte *dest;
+	uint8_t *dest;
 	uint c;
 	int x, index = fx_xleft + (bytes_per_row * fx_y);
 	fix u,v,l,dudx, dvdx, dldx;

@@ -46,7 +46,7 @@ struct digi_sound
         int bits;
         int freq;
 	int length;
-	ubyte * data;
+	uint8_t * data;
 };
 
 extern int digi_get_settings();

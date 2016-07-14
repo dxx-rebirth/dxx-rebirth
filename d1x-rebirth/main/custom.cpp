@@ -34,7 +34,7 @@ namespace {
 struct snd_info
 {
 	unsigned int length;
-	ubyte *data;
+	uint8_t *data;
 };
 
 }
@@ -245,7 +245,7 @@ static int load_pigpog(const d_fname &pogname)
 	unsigned num_custom;
 	grs_bitmap *bmp;
 	digi_sound *snd;
-	ubyte *p;
+	uint8_t *p;
 	auto f = PHYSFSX_openReadBuffered(pogname);
 	int i, j, rc = -1;
 	unsigned int x = 0;

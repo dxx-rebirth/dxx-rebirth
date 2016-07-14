@@ -186,7 +186,7 @@ static int mem_find_id( void * buffer )
 static int mem_check_integrity( int block_number )
 {
 	int ErrorCount;
-	ubyte * CheckData;
+	uint8_t * CheckData;
 
 	CheckData = reinterpret_cast<uint8_t *>(reinterpret_cast<char *>(MallocBase[block_number]) + MallocSize[block_number]);
 

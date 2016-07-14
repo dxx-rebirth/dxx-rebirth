@@ -728,7 +728,7 @@ static int write_body(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int co
 	int w=bitmap_header->w,h=bitmap_header->h;
 	int y,odd=w&1;
 	long len = EVEN(w) * h,newlen,total_len=0;
-	ubyte *p=bitmap_header->raw_data;
+	uint8_t *p=bitmap_header->raw_data;
 	long save_pos;
 
 	put_sig(body_sig,ofile);
@@ -770,7 +770,7 @@ int write_tiny(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int compressi
 	int new_w,new_h;
 	int len,total_len=0,newlen;
 	int x,xofs,odd;
-	ubyte *p = bitmap_header->raw_data;
+	uint8_t *p = bitmap_header->raw_data;
 	ubyte tspan[80],new_span[80*2];
 	long save_pos;
 
