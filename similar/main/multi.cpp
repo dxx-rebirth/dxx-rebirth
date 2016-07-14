@@ -5097,9 +5097,9 @@ static void MultiLevelInv_CountPlayerInventory()
 
 void MultiLevelInv_InitializeCount()
 {
-	MultiLevelInv = {};
 	MultiLevelInv_CountLevelPowerups();
 	MultiLevelInv.Initial = MultiLevelInv.Current;
+	MultiLevelInv.RespawnTimer = {};
 }
 
 void MultiLevelInv_Recount()
