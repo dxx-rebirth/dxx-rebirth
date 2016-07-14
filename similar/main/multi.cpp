@@ -4934,6 +4934,12 @@ void MultiLevelInv_Count(bool initial)
                 auto pid = get_powerup_id(objp);
                 switch (pid)
                 {
+					case POW_VULCAN_WEAPON:
+#if defined(DXX_BUILD_DESCENT_II)
+					case POW_GAUSS_WEAPON:
+#endif
+						MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
+						/* fall through to increment Current[pid] */
                         case POW_LASER:
                         case POW_QUAD_FIRE:
                         case POW_SPREADFIRE_WEAPON:
@@ -4963,13 +4969,6 @@ void MultiLevelInv_Count(bool initial)
                         case POW_FLAG_RED:
 #endif
                                 MultiLevelInv.Current[pid]++;
-                                break;
-                        case POW_VULCAN_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
-                        case POW_GAUSS_WEAPON:
-#endif
-                                MultiLevelInv.Current[pid]++;
-                                MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
                                 break;
                         case POW_MISSILE_4:
                         case POW_HOMING_AMMO_4:
