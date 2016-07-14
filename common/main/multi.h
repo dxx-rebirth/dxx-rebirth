@@ -735,7 +735,8 @@ extern struct netgame_info Netgame;
 void change_playernum_to(int new_pnum);
 
 // Multiplayer powerup capping
-extern void MultiLevelInv_Count(bool initial);
+void MultiLevelInv_InitializeCount();
+void MultiLevelInv_Recount();
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
 extern void MultiLevelInv_Repopulate(fix frequency);
 #ifdef dsx

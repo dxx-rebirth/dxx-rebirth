@@ -3316,7 +3316,7 @@ void multi_prep_level_objects()
 	}
 
 	// After everything is done, count initial level inventory.
-	MultiLevelInv_Count(1);
+	MultiLevelInv_InitializeCount();
 }
 
 void multi_prep_level_player(void)
@@ -4909,12 +4909,10 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
  * In 'current', also consider player inventories (and the thief bot).
  * NOTE: We add actual ammo amount - we do not want to count in 'amount of powerups'. Makes it easier to keep track of overhead (proximities, vulcan ammo)
  */
-void MultiLevelInv_Count(bool initial)
+static void MultiLevelInv_CountLevelPowerups()
 {
         if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
                 return;
-        if (initial)
-                MultiLevelInv = {};
         MultiLevelInv.Current = {};
 
         range_for (const auto &&objp, vobjptridx)
@@ -4992,11 +4990,10 @@ void MultiLevelInv_Count(bool initial)
                                 break; // All other items either do not exist or we NEVER want to have them respawn.
                 }
         }
+}
 
-        if (initial) // Copy current to initial
-                MultiLevelInv.Initial = MultiLevelInv.Current;
-        else // Add player inventories to current
-        {
+static void MultiLevelInv_CountPlayerInventory()
+{
                 for (playernum_t i = 0; i < MAX_PLAYERS; i++)
                 {
                         if (Players[i].connected != CONNECT_PLAYING)
@@ -5096,7 +5093,19 @@ void MultiLevelInv_Count(bool initial)
                         }
                 }
 #endif
-        }
+}
+
+void MultiLevelInv_InitializeCount()
+{
+	MultiLevelInv = {};
+	MultiLevelInv_CountLevelPowerups();
+	MultiLevelInv.Initial = MultiLevelInv.Current;
+}
+
+void MultiLevelInv_Recount()
+{
+	MultiLevelInv_CountLevelPowerups();
+	MultiLevelInv_CountPlayerInventory();
 }
 
 // Takes a powerup type and checks if we are allowed to spawn it.
@@ -5129,7 +5138,7 @@ void MultiLevelInv_Repopulate(fix frequency)
         if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
                 return;
 
-        MultiLevelInv_Count(0); // recount current items
+	MultiLevelInv_Recount(); // recount current items
         for (unsigned i = 0; i < MAX_POWERUP_TYPES; i++)
         {
                 if (MultiLevelInv_AllowSpawn((powerup_type_t)i))

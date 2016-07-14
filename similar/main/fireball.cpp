@@ -610,7 +610,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if ((Game_mode & GM_NETWORK) && adjust_cap)
 		{
-                        MultiLevelInv_Count(0); // recount current items
+			MultiLevelInv_Recount(); // recount current items
 			if (!MultiLevelInv_AllowSpawn(powerup_type))
 				return;
 		}
