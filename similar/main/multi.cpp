@@ -3249,6 +3249,32 @@ void update_item_state::process_powerup(const vcobjptridx_t o, const powerup_typ
 	}
 }
 
+class accumulate_object_count
+{
+protected:
+	using array_reference = array<uint32_t, MAX_POWERUP_TYPES> &;
+	array_reference current;
+	accumulate_object_count(array_reference a) : current(a)
+	{
+	}
+};
+
+template <typename F, typename M>
+class accumulate_flags_count : accumulate_object_count
+{
+	const F &flags;
+public:
+	accumulate_flags_count(array_reference a, const F &f) :
+		accumulate_object_count(a), flags(f)
+	{
+	}
+	void process(const M mask, const unsigned id) const
+	{
+		if (flags & mask)
+			++current[id];
+	}
+};
+
 }
 
 /*
@@ -5019,40 +5045,26 @@ static void MultiLevelInv_CountPlayerInventory()
                         {
 			Current[POW_LASER] += player_info.laser_level+1; // Laser levels start at 0!
                         }
+						accumulate_flags_count<player_flags, PLAYER_FLAG> powerup_flags(Current, player_info.powerup_flags);
+						accumulate_flags_count<player_info::primary_weapon_flag_type, unsigned> primary_weapon_flags(Current, player_info.primary_weapon_flags);
+						powerup_flags.process(PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(VULCAN_INDEX), POW_VULCAN_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(SPREADFIRE_INDEX), POW_SPREADFIRE_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(PLASMA_INDEX), POW_PLASMA_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(FUSION_INDEX), POW_FUSION_WEAPON);
+						powerup_flags.process(PLAYER_FLAGS_CLOAKED, POW_CLOAK);
+						powerup_flags.process(PLAYER_FLAGS_INVULNERABLE, POW_INVULNERABILITY);
                         // NOTE: The following can probably be simplified.
-                        if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-			Current[POW_QUAD_FIRE]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(VULCAN_INDEX))
-			Current[POW_VULCAN_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(SPREADFIRE_INDEX))
-			Current[POW_SPREADFIRE_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PLASMA_INDEX))
-			Current[POW_PLASMA_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(FUSION_INDEX))
-			Current[POW_FUSION_WEAPON]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
-			Current[POW_CLOAK]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-			Current[POW_INVULNERABILITY]++;
 #if defined(DXX_BUILD_DESCENT_II)
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(GAUSS_INDEX))
-			Current[POW_GAUSS_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(HELIX_INDEX))
-			Current[POW_HELIX_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(PHOENIX_INDEX))
-			Current[POW_PHOENIX_WEAPON]++;
-                        if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(OMEGA_INDEX))
-			Current[POW_OMEGA_WEAPON]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
-			Current[POW_FULL_MAP]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
-			Current[POW_AFTERBURNER]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
-			Current[POW_AMMO_RACK]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
-			Current[POW_CONVERTER]++;
-                        if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
-			Current[POW_HEADLIGHT]++;
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(GAUSS_INDEX), POW_GAUSS_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(HELIX_INDEX), POW_HELIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(PHOENIX_INDEX), POW_PHOENIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(OMEGA_INDEX), POW_OMEGA_WEAPON);
+						powerup_flags.process(PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
+						powerup_flags.process(PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
+						powerup_flags.process(PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
+						powerup_flags.process(PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
+						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
 				++Current[(get_team(i) == TEAM_RED) ? POW_FLAG_BLUE : POW_FLAG_RED];
