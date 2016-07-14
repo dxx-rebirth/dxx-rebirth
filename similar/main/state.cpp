@@ -914,7 +914,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 // Save Coop state_game_id and this Player's callsign. Oh the redundancy... we have this one later on but Coop games want to read this before loading a state so for easy access save this here, too
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
+		PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
 		PHYSFS_write(fp, &get_local_player().callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 	}
 
@@ -1137,7 +1137,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	else
 		PHYSFS_write(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
-	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
+	PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
 	{
 		const int i = 0;
 	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
