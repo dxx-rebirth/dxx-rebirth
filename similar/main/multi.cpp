@@ -4999,10 +4999,10 @@ static void MultiLevelInv_CountPlayerInventory()
                 {
                         if (Players[i].connected != CONNECT_PLAYING)
                                 continue;
-                        const auto &&objp = vobjptridx(Players[i].objnum);
-                        if (objp->type == OBJ_GHOST) // Player is dead. Their items are dropped now.
+		auto &obj = *vcobjptr(Players[i].objnum);
+		if (obj.type == OBJ_GHOST) // Player is dead. Their items are dropped now.
                                 continue;
-                        auto &player_info = objp->ctype.player_info;
+		auto &player_info = obj.ctype.player_info;
                         // NOTE: We do not need to consider Granted Spawn Items here. These are replaced with shields and even if not, the repopulation function will take care of it.
 #if defined(DXX_BUILD_DESCENT_II)
                         if (player_info.laser_level > MAX_LASER_LEVEL)
