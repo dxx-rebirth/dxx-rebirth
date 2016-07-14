@@ -85,7 +85,7 @@ static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector *
 static void find_min_max(polymodel *pm,int submodel_num,vms_vector &minv,vms_vector &maxv)
 {
 	ushort nverts;
-	ushort *data,type;
+	uint16_t *data,type;
 
 	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
@@ -119,7 +119,7 @@ fix morph_rate = MORPH_RATE;
 static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_num,morph_data *md)
 {
 	ushort nverts;
-	ushort *data,type;
+	uint16_t *data,type;
 	int i;
 
 	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
@@ -182,7 +182,7 @@ static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_nu
 static void update_points(polymodel *pm,int submodel_num,morph_data *md)
 {
 	ushort nverts;
-	ushort *data,type;
+	uint16_t *data,type;
 	int i;
 
 	data = (uint16_t *) &pm->model_data[pm->submodel_ptrs[submodel_num]];

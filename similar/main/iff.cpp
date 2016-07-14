@@ -496,7 +496,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 			gr_bm_pixel(bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	ushort *new_data;
+	uint16_t *new_data;
 	MALLOC(new_data, ushort, bm.bm_w * bm.bm_h * 2);
 	if (new_data == NULL)
 		return IFF_NO_MEM;
