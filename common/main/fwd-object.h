@@ -125,7 +125,6 @@ struct physics_info;
 struct physics_info_rw;
 
 struct laser_parent;
-struct laser_info;
 struct laser_info_rw;
 
 struct explosion_info;
@@ -159,7 +158,6 @@ const unsigned MAX_CONTROLCEN_GUNS = 8;
 struct powerup_info_rw;
 struct window_rendered_data;
 struct reactor_static;
-struct object;
 
 typedef array<uint8_t, MAX_OBJECT_TYPES> collision_inner_array_t;
 typedef array<collision_inner_array_t, MAX_OBJECT_TYPES> collision_outer_array_t;
