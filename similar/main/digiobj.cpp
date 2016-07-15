@@ -701,11 +701,10 @@ struct sound_q
 	int soundnum;
 };
 
-#define MAX_Q 32
 #define MAX_LIFE F1_0*30		// After being queued for 30 seconds, don't play it
 static int SoundQ_head, SoundQ_tail, SoundQ_num;
 int SoundQ_channel;
-static array<sound_q, MAX_Q> SoundQ;
+static array<sound_q, 32> SoundQ;
 
 void SoundQ_init()
 {
@@ -723,7 +722,8 @@ void SoundQ_end()
 {
 	// Current playing sound is stopped, so take it off the Queue
 	SoundQ_head = (SoundQ_head+1);
-	if ( SoundQ_head >= MAX_Q ) SoundQ_head = 0;
+	if (SoundQ_head >= SoundQ.size())
+		SoundQ_head = 0;
 	SoundQ_num--;
 	SoundQ_channel = -1;
 }
@@ -758,7 +758,8 @@ void digi_start_sound_queued( short soundnum, fix volume )
 	if (soundnum < 0 ) return;
 
 	i = SoundQ_tail+1;
-	if ( i>=MAX_Q ) i = 0;
+	if (i >= SoundQ.size())
+		i = 0;
 
 	// Make sure its loud so it doesn't get cancelled!
 	if ( volume < F1_0+1 )
