@@ -811,7 +811,7 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 	if (string_height)
 	{
 		const auto fontscale_y = FONTSCALE_Y(cv_font.ft_h);
-		*string_height = static_cast<int>(static_cast<float>(fontscale_y + (lines * (fontscale_y + FSPACY(1)))));
+		*string_height = static_cast<int>(fontscale_y + (lines * (fontscale_y + FSPACY(1))));
 	}
 }
 
@@ -955,7 +955,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 			con_printf(CON_URGENT, "Missing data in font file %s", fontname);
 			return {};
 		}
-		font->ft_data = ptr = ft_data = reinterpret_cast<unsigned char *>(&font_data[offset_data]);
+		font->ft_data = ptr = ft_data = &font_data[offset_data];
 		const auto ft_chars = reinterpret_cast<const uint8_t **>(ft_allocdata.get());
 		font->ft_chars = reinterpret_cast<const uint8_t *const *>(ft_chars);
 
