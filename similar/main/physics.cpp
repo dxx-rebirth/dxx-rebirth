@@ -897,17 +897,17 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 
 }
 
+namespace dcx {
 
 //this routine will set the thrust for an object to a value that will
 //(hopefully) maintain the object's current velocity
-void set_thrust_from_velocity(const vobjptr_t obj)
+void set_thrust_from_velocity(object_base &obj)
 {
-	fix k;
-
-	Assert(obj->movement_type == MT_PHYSICS);
-
-	k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
-
-	vm_vec_copy_scale(obj->mtype.phys_info.thrust,obj->mtype.phys_info.velocity,k);
+	Assert(obj.movement_type == MT_PHYSICS);
+	auto &phys_info = obj.mtype.phys_info;
+	vm_vec_copy_scale(phys_info.thrust, phys_info.velocity,
+		fixmuldiv(phys_info.mass, phys_info.drag, F1_0 - phys_info.drag)
+	);
+}
 
 }
