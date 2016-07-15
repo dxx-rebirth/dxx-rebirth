@@ -39,15 +39,3 @@ public:
 	exact_type<T> operator&() { return static_cast<T*>(this); }
 	exact_type<T const, T> operator&() const { return static_cast<T const*>(this); }
 };
-
-struct allow_void_ptr {};
-
-template <typename T>
-struct has_prohibit_void_ptr : tt::is_base_of<prohibit_void_ptr<T>, T> {};
-
-template <typename T>
-struct has_prohibit_void_ptr<T[]> {};
-
-template <typename T, typename D>
-struct inherit_void_ptr_handler : public
-	tt::conditional<has_prohibit_void_ptr<T>::value, prohibit_void_ptr<D>, allow_void_ptr> {};
