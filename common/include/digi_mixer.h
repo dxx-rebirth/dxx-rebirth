@@ -11,8 +11,10 @@
 #ifdef __cplusplus
 
 #ifdef dsx
-namespace dsx {
+namespace dcx {
 struct sound_object;
+}
+namespace dsx {
 int digi_mixer_init();
 void digi_mixer_close();
 int digi_mixer_start_sound(short, fix, int, int, int, int, sound_object *);

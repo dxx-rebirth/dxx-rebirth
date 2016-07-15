@@ -38,9 +38,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 
 #ifdef dsx
-namespace dsx {
+namespace dcx {
 
 struct sound_object;
+
+}
+namespace dsx {
 struct digi_sound
 {
         int bits;
@@ -145,7 +148,13 @@ void digi_win32_stop_midi_song();
 #endif
 void digi_end_soundobj(sound_object &);
 void SoundQ_end();
+#ifndef NDEBUG
 int verify_sound_channel_free( int channel );
+#endif
+
+}
+
+namespace dcx {
 
 class RAIIdigi_sound
 {

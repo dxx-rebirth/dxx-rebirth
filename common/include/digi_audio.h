@@ -12,9 +12,11 @@
 #ifdef __cplusplus
 
 #ifdef dsx
-namespace dsx {
+namespace dcx {
 struct sound_object;
-const int digi_max_channels = 16;
+constexpr int digi_max_channels = 16;
+}
+namespace dsx {
 int digi_audio_init();
 void digi_audio_reset();
 void digi_audio_close();

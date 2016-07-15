@@ -50,14 +50,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::max;
 
-namespace dsx {
+namespace dcx {
 
-#define SOF_USED				1 		// Set if this sample is used
-#define SOF_PLAYING			2		// Set if this sample is playing on a channel
-#define SOF_LINK_TO_OBJ		4		// Sound is linked to a moving object. If object dies, then finishes play and quits.
-#define SOF_LINK_TO_POS		8		// Sound is linked to segment, pos
-#define SOF_PLAY_FOREVER	16		// Play forever (or until level is stopped), otherwise plays once
-#define SOF_PERMANENT		32		// Part of the level, like a waterfall or fan
+constexpr unsigned SOF_USED = 1; 		// Set if this sample is used
+constexpr unsigned SOF_PLAYING = 2;		// Set if this sample is playing on a channel
+constexpr unsigned SOF_LINK_TO_OBJ = 4;		// Sound is linked to a moving object. If object dies, then finishes play and quits.
+constexpr unsigned SOF_LINK_TO_POS = 8;		// Sound is linked to segment, pos
+constexpr unsigned SOF_PLAY_FOREVER = 16;		// Play forever (or until level is stopped), otherwise plays once
+constexpr unsigned SOF_PERMANENT = 32;		// Part of the level, like a waterfall or fan
+
+constexpr tt::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
+constexpr unsigned MAX_SOUND_OBJECTS = 150;
 
 struct sound_object
 {
@@ -85,10 +88,11 @@ struct sound_object
 	} link_type;
 };
 
-constexpr tt::integral_constant<int, -1> RAIIdigi_sound::invalid_channel;
+}
 
-#define MAX_SOUND_OBJECTS 150
-typedef array<sound_object, MAX_SOUND_OBJECTS> sound_objects_t;
+namespace dsx {
+
+using sound_objects_t = array<sound_object, MAX_SOUND_OBJECTS>;
 static sound_objects_t SoundObjects;
 static short next_signature=0;
 
