@@ -591,13 +591,15 @@ void digi_sync_sounds()
 				if ( s.volume < 1 )	{
 					// Sound is too far away, so stop it from playing.
 
-					if ( s.channel>-1 )	{
-						if (s.flags & SOF_PLAY_FOREVER)
-							digi_stop_sound( s.channel );
-						else
-							digi_end_sound( s.channel );
-						N_active_sound_objects--;
+					const auto c = s.channel;
+					if (c > -1)
+					{
 						s.channel = -1;
+						if (s.flags & SOF_PLAY_FOREVER)
+							digi_stop_sound(c);
+						else
+							digi_end_sound(c);
+						N_active_sound_objects--;
 					}
 
 					if (! (s.flags & SOF_PLAY_FOREVER)) {
@@ -628,13 +630,16 @@ void digi_pause_digi_sounds()
 	digi_pause_looping_sound();
 	range_for (auto &s, SoundObjects)
 	{
-		if ((s.flags & SOF_USED) && s.channel>-1)
+		if (!(s.flags & SOF_USED))
+			continue;
+		const auto c = s.channel;
+		if (c > -1)
 		{
-			digi_stop_sound( s.channel );
+			s.channel = -1;
 			if (! (s.flags & SOF_PLAY_FOREVER))
 				s.flags = 0;	// Mark as dead, so some other sound can use this sound
 			N_active_sound_objects--;
-			s.channel = -1;
+			digi_stop_sound(c);
 		}
 	}
 
