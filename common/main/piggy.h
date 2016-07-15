@@ -123,12 +123,12 @@ extern void piggy_bitmap_page_in( bitmap_index bmp );
 namespace dsx {
 extern array<digi_sound, MAX_SOUND_FILES> GameSounds;
 extern array<grs_bitmap, MAX_BITMAP_FILES> GameBitmaps;
-}
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
 static inline void _piggy_page_in(bitmap_index bmp) {
     if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT ) {
         piggy_bitmap_page_in( bmp );
     }
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
