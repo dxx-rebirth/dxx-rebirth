@@ -64,7 +64,7 @@ static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, 
 
 	dv = (v1-v0) / (y1-y0);
 
-	rls_stretch_scanline_setup( static_cast<int>(x1-x0), f2i(u1)-f2i(u0) );
+	rls_stretch_scanline_setup(x1 - x0, f2i(u1) - f2i(u0));
 	if ( scale_ydelta_minus_1 < 1 ) return;
 
 	v = v0;
@@ -94,7 +94,7 @@ static void scale_up_bitmap_rle(const grs_bitmap &source_bmp, grs_bitmap &dest_b
 
 	dv = (v1-v0) / (y1-y0);
 
-	rls_stretch_scanline_setup( static_cast<int>(x1-x0), f2i(u1)-f2i(u0) );
+	rls_stretch_scanline_setup(x1 - x0, f2i(u1) - f2i(u0));
 	if ( scale_ydelta_minus_1 < 1 ) return;
 
 	v = v0;
