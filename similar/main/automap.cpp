@@ -273,7 +273,7 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 	{
 		float x0, y0, x1, y1;
 	};
-	static const array<array<xy, 5>, 9> sArray = {{
+	static constexpr array<array<xy, 5>, 9> sArray = {{
 		{{
 			{-0.25, 0.75, 0, 1},
 			{0, 1, 0, -1},
@@ -329,7 +329,7 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 			{-1, 0, -1, 1},
 		 }}
 	}};
-	static const array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
+	static constexpr array<uint_fast8_t, 9> NumOfPoints = {{3, 5, 4, 3, 5, 5, 2, 5, 4}};
 
 	const auto color = (num == HighlightMarker ? am->white_63 : am->blue_48);
 	const auto scale_x = Matrix_scale.x;
@@ -1454,8 +1454,8 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 #if defined(DXX_BUILD_DESCENT_II)
 static unsigned Marker_index;
 ubyte DefiningMarkerMessage=0;
-ubyte MarkerBeingDefined;
-ubyte LastMarkerDropped;
+static uint8_t MarkerBeingDefined;
+static uint8_t LastMarkerDropped;
 
 void InitMarkerInput ()
 {
@@ -1495,12 +1495,6 @@ window_event_result MarkerInputMessage(int key)
 {
 	switch( key )
 	{
-		case KEY_F8:
-		case KEY_ESC:
-			DefiningMarkerMessage = 0;
-			key_toggle_repeat(0);
-			game_flush_inputs();
-			break;
 		case KEY_LEFT:
 		case KEY_BACKSP:
 		case KEY_PAD4:
@@ -1512,6 +1506,9 @@ window_event_result MarkerInputMessage(int key)
 			MarkerMessage[(Player_num*2)+MarkerBeingDefined] = Marker_input;
 			DropMarker(MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
+			/* fallthrough */
+		case KEY_F8:
+		case KEY_ESC:
 			key_toggle_repeat(0);
 			game_flush_inputs();
 			DefiningMarkerMessage = 0;
