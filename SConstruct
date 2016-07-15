@@ -329,6 +329,7 @@ struct %(N)s_derived : %(N)s_base {
 		self.successful_flags = defaultdict(list)
 		self._sconf_results = []
 		self.__tool_versions = []
+		self.__defined_macros = ''
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -372,7 +373,10 @@ struct %(N)s_derived : %(N)s_base {
 #define {macro_name} {macro_value}
 {test}
 """.format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
-		context.sconf.Define(macro_name, macro_value if r else _comment_not_supported)
+		if not r:
+			macro_value = _comment_not_supported
+		context.sconf.Define(macro_name, macro_value)
+		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_ld_works', "assume ccache, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_distcc_ld_works', "assume distcc, C++ compiler, and C++ linker work"))
@@ -617,13 +621,14 @@ help:assume C++ compiler works
 			r = action('''
 %s
 %s
+%s
 
 #undef main	/* avoid -Dmain=SDL_main from libSDL */
 int main(int argc,char**argv){(void)argc;(void)argv;
 %s
 
 ;}
-''' % (self.__tool_versions, text, main), ext)
+''' % (self.__tool_versions, self.__defined_macros, text, main), ext)
 			# Some tests check that the compiler rejects an input.
 			# SConf considers the result a failure when the compiler
 			# rejects the input.  For tests that consider a rejection to
