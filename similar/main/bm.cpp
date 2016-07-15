@@ -471,12 +471,12 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= ObjBitmaps.size())
-		Error("Too many object bitmaps (%d) in <%s>.  Max is %lu.", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
+		Error("Too many object bitmaps (%d) in <%s>.  Max is %" DXX_PRI_size_type "u.", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS, N_D2_OBJBITMAPS + t));
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= ObjBitmapPtrs.size())
-		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %lu.", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
+		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type "u.", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS, N_D2_OBJBITMAPPTRS + t))
 		i = PHYSFSX_readShort(fp);
 }
@@ -537,7 +537,7 @@ void load_robot_replacements(const d_fname &level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmap number
 		if (i < 0 || i >= ObjBitmaps.size())
-			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%lu].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
+			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
 		bitmap_index_read(fp, ObjBitmaps[i]);
 	}
 
@@ -545,7 +545,7 @@ void load_robot_replacements(const d_fname &level_name)
 	for (j=0;j<t;j++) {
 		i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i < 0 || i >= ObjBitmapPtrs.size())
-			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%lu].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
+			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
 	Robot_replacements_loaded = 1;

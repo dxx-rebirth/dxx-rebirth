@@ -1744,6 +1744,100 @@ help:always wipe certain freed memory
 				poison = True
 		if poison:
 			context.sconf.Define('DXX_HAVE_POISON')
+	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_I64', "assume size_t is formatted as `unsigned I64`"))
+	@_custom_test
+	def _check_size_type_format_modifier(self,context,_text='''
+#include <cstddef>
+#define DXX_PRI_size_type %s
+__attribute_format_printf(1, 2)
+void f(const char *, ...);
+''',_main='''
+	std::size_t s = 0;
+	f("%" DXX_PRI_size_type, s);
+'''):
+		'''
+The test must declare a custom function to call with this format string.
+gcc has hardcoded knowledge about how printf works, but that knowledge
+on Mingw64 differs from the processing of
+__attribute__((format(printf,...))).  Mingw64 requires I64u for
+__attribute__((format)) functions, but llu for printf.  Mingw32 is
+consistent in its use of u.  Linux gcc is consistent in its use of
+lu.
+
+-- cut --
+#include <cstdio>
+#include <cstddef>
+__attribute__((format(printf,1,2))) void f(const char *,...);
+void a() {
+	std::size_t b = 0;
+	printf("%I64u", b);
+	f("%I64u", b);
+	printf("%llu", b);
+	f("%llu", b);
+	printf("%lu", b);
+	f("%lu", b);
+	printf("%u", b);
+	f("%u", b);
+}
+-- cut --
+
+$ x86_64-w64-mingw32-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
+<stdin>: In function 'void a()':
+<stdin>:6:19: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long long unsigned int}' [-Wformat=]
+<stdin>:9:13: warning: unknown conversion type character 'l' in format [-Wformat=]
+<stdin>:9:13: warning: too many arguments for format [-Wformat-extra-args]
+<stdin>:10:17: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka long long unsigned int}' [-Wformat=]
+<stdin>:11:12: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka long long unsigned int}' [-Wformat=]
+<stdin>:12:16: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long long unsigned int}' [-Wformat=]
+<stdin>:13:11: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long long unsigned int}' [-Wformat=]
+
+$ i686-w64-mingw32-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
+<stdin>: In function 'void a()':
+<stdin>:7:14: warning: format '%I64u' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:8:18: warning: format '%llu' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:9:13: warning: unknown conversion type character 'l' in format [-Wformat=]
+<stdin>:9:13: warning: too many arguments for format [-Wformat-extra-args]
+<stdin>:10:17: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:11:12: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+
+$ mingw32-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
+<stdin>: In function 'void a()':
+<stdin>:6:19: warning: format '%I64u' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:7:14: warning: format '%I64u' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:8:18: warning: unknown conversion type character 'l' in format [-Wformat=]
+<stdin>:8:18: warning: too many arguments for format [-Wformat-extra-args]
+<stdin>:9:13: warning: unknown conversion type character 'l' in format [-Wformat=]
+<stdin>:9:13: warning: too many arguments for format [-Wformat-extra-args]
+<stdin>:10:17: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+<stdin>:11:12: warning: format '%lu' expects argument of type 'long unsigned int', but argument 2 has type 'std::size_t {aka unsigned int}' [-Wformat=]
+
+$ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
+<stdin>: In function 'void a()':
+<stdin>:6:19: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+<stdin>:7:14: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+<stdin>:8:18: warning: format '%llu' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+<stdin>:9:13: warning: format '%llu' expects argument of type 'long long unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+<stdin>:12:16: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+<stdin>:13:11: warning: format '%u' expects argument of type 'unsigned int', but argument 2 has type 'std::size_t {aka long unsigned int}' [-Wformat=]
+
+'''
+		# Test types in order of decreasing probability.
+		for how in (
+			# Linux
+			('l', 'size_type_long'),
+			# Win64
+			('I64', 'size_type_I64'),
+			# Win32
+			('', 'size_type_int'),
+		):
+			DXX_PRI_size_type = how[0]
+			f = '"%su"' % DXX_PRI_size_type
+			if self.Compile(context, text=_text % f, main=_main, msg='whether to format std::size_t with "%%%su"' % DXX_PRI_size_type, calling_function=how[1]):
+				context.sconf.Define('DXX_PRI_size_type', f)
+				return
+		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
 	@_custom_test
 	def check_strcasecmp_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']}):
 		main = '''
