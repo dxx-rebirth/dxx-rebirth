@@ -264,24 +264,25 @@ void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int l
 
 void digi_change_looping_volume( fix volume )
 {
+	digi_looping_volume = volume;
 	if ( digi_looping_channel > -1 )
 		digi_set_channel_volume( digi_looping_channel, volume );
-	digi_looping_volume = volume;
-}
-
-void digi_stop_looping_sound()
-{
-	if ( digi_looping_channel > -1 )
-		digi_stop_sound( digi_looping_channel );
-	digi_looping_channel = -1;
-	digi_looping_sound = -1;
 }
 
 static void digi_pause_looping_sound()
 {
-	if ( digi_looping_channel > -1 )
-		digi_stop_sound( digi_looping_channel );
-	digi_looping_channel = -1;
+	const auto c = digi_looping_channel;
+	if (c > -1)
+	{
+		digi_looping_channel = -1;
+		digi_stop_sound(c);
+	}
+}
+
+void digi_stop_looping_sound()
+{
+	digi_looping_sound = -1;
+	digi_pause_looping_sound();
 }
 
 static void digi_unpause_looping_sound()
