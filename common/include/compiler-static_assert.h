@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <type_traits>
+
 #if defined(DXX_HAVE_CXX11_STATIC_ASSERT)
 /* native */
 #define static_assert(C,M)	static_assert(C,M)
@@ -24,11 +26,9 @@
 
 #define DEFINE_ASSERT_HELPER_CLASS(N,OP,STR)	\
 	template <typename T, T L, T R>	\
-	class N	\
+	class N : public std::integral_constant<bool, (L OP R)>	\
 	{	\
 		static_assert(L OP R, STR);	\
-	public:	\
-		static const bool value = (L OP R);	\
 	}
 
 DEFINE_ASSERT_HELPER_CLASS(assert_equal, ==, "values must be equal");
