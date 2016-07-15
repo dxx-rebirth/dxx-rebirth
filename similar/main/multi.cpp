@@ -338,7 +338,7 @@ int GetMyNetRanking()
 	rank=static_cast<int>((static_cast<float>(PlayerCfg.NetlifeKills)/3000.0)*8.0);
 
 	eff = static_cast<int>(
-		static_cast<float>(
+		(
 			static_cast<float>(PlayerCfg.NetlifeKills) / (
 				static_cast<float>(PlayerCfg.NetlifeKilled) + static_cast<float>(PlayerCfg.NetlifeKills)
 			)
@@ -2178,9 +2178,9 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	memcpy(&to_target, buf+count, 12);          count += 12;
 	if (words_bigendian)// swap the vector to_target
 	{
-		to_target.x = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.x)));
-		to_target.y = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.y)));
-		to_target.z = static_cast<fix>(INTEL_INT(static_cast<int>(to_target.z)));
+		to_target.x = INTEL_INT(static_cast<int>(to_target.x));
+		to_target.y = INTEL_INT(static_cast<int>(to_target.y));
+		to_target.z = INTEL_INT(static_cast<int>(to_target.z));
 	}
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
@@ -2206,9 +2206,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 	if (words_bigendian)
 	{
-		new_pos.x = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.x)));
-		new_pos.y = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.y)));
-		new_pos.z = static_cast<fix>(SWAPINT(static_cast<int>(new_pos.z)));
+		new_pos.x = SWAPINT(static_cast<int>(new_pos.x));
+		new_pos.y = SWAPINT(static_cast<int>(new_pos.y));
+		new_pos.z = SWAPINT(static_cast<int>(new_pos.z));
 	}
 
 	Net_create_loc = 0;
@@ -2902,9 +2902,9 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-		swapped_vec.x = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.x)));
-		swapped_vec.y = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.y)));
-		swapped_vec.z = static_cast<fix>(INTEL_INT(static_cast<int>(to_goal.z)));
+		swapped_vec.x = INTEL_INT(static_cast<int>(to_goal.x));
+		swapped_vec.y = INTEL_INT(static_cast<int>(to_goal.y));
+		swapped_vec.z = INTEL_INT(static_cast<int>(to_goal.z));
 		memcpy(&multibuf[count], &swapped_vec, 12);
 	}
 	else
@@ -2937,9 +2937,9 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	if (words_bigendian)
 	{
 		vms_vector swapped_vec;
-		swapped_vec.x = static_cast<fix>(INTEL_INT(static_cast<int>(pos.x)));
-		swapped_vec.y = static_cast<fix>(INTEL_INT(static_cast<int>(pos.y)));
-		swapped_vec.z = static_cast<fix>(INTEL_INT(static_cast<int>(pos.z)));
+		swapped_vec.x = INTEL_INT(static_cast<int>(pos.x));
+		swapped_vec.y = INTEL_INT(static_cast<int>(pos.y));
+		swapped_vec.z = INTEL_INT(static_cast<int>(pos.z));
 		memcpy(&multibuf[count], &swapped_vec, 12);
 		count += 12;
 	}
