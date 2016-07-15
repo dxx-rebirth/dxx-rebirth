@@ -1366,12 +1366,6 @@ namespace B
 using namespace B;
 ''', main='return A::a;', msg='whether compiler handles classes from "using namespace"', successflags=_successflags)
 	@_implicit_test
-	def check_boost_type_traits(self,context,f):
-		"""
-help:assume Boost.TypeTraits works
-"""
-		return self.Compile(context, text=f, msg='for Boost.TypeTraits', ext='.cpp', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_TYPE_TRAITS']})
-	@_implicit_test
 	def check_cxx11_type_traits(self,context,f,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']}):
 		"""
 help:assume <type_traits> works
@@ -1385,9 +1379,9 @@ help:assume <type_traits> works
 typedef tt::conditional<true,int,long>::type a;
 typedef tt::conditional<false,int,long>::type b;
 '''
-		if self.check_cxx11_type_traits(context, f) or self.check_boost_type_traits(context, f):
+		if self.check_cxx11_type_traits(context, f):
 			return
-		raise SCons.Errors.StopError("C++ compiler does not support <type_traits> or Boost.TypeTraits.")
+		raise SCons.Errors.StopError("C++ compiler does not support <type_traits>.")
 	@_implicit_test
 	def check_boost_foreach(self,context,**kwargs):
 		"""
