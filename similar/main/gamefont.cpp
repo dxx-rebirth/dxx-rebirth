@@ -116,15 +116,16 @@ void gamefont_choose_game_font(int scrx,int scry){
 	if (!CGameArg.OglFixedFont)
 	{
 		// if there's no texture filtering, scale by int
+		auto &f = font_conf[gf].font[m];
 		if (!CGameCfg.TexFilt)
 		{
-			FNTScaleX = static_cast<int>(scrx)/font_conf[gf].font[m].x;
-			FNTScaleY = static_cast<int>(scry)/font_conf[gf].font[m].y;
+			FNTScaleX = scrx / f.x;
+			FNTScaleY = scry / f.y;
 		}
 		else
 		{
-			FNTScaleX = static_cast<float>(scrx)/font_conf[gf].font[m].x;
-			FNTScaleY = static_cast<float>(scry)/font_conf[gf].font[m].y;
+			FNTScaleX = static_cast<float>(scrx) / f.x;
+			FNTScaleY = static_cast<float>(scry) / f.y;
 		}
 
 		// keep proportions
