@@ -847,18 +847,15 @@ static ubyte code_window_point(fix x,fix y,const rect &w)
 static array<char, MAX_SEGMENTS> visited2;
 #endif
 
-namespace {
-
-struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
-
-}
+using visited_twobit_array_t = visited_segment_multibit_array_t<2>;
 
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
-typedef array<int_fast8_t, 2> se_array0;
-typedef array<se_array0, 6> se_array1;
-typedef array<se_array1, 6> se_array2;
-constexpr se_array2 Two_sides_to_edge = {{
+constexpr array<
+	array<
+		array<int_fast8_t, 2>,
+		6>,
+	6> Two_sides_to_edge = {{
 	{{  {{edge_none,edge_none}},	 {{3,7}},	 {{edge_none,edge_none}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
 	{{  {{3,7}},	 {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{4,7}},	 {{0,3}}	}},
 	{{  {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{4,5}},	 {{0,1}}	}},
@@ -868,10 +865,11 @@ constexpr se_array2 Two_sides_to_edge = {{
 }};
 
 //given an edge specified by two verts, give the two sides on that edge
-typedef array<int_fast8_t, 2> es_array0;
-typedef array<es_array0, 8> es_array1;
-typedef array<es_array1, 8> es_array2;
-constexpr es_array2 Edge_to_sides = {{
+constexpr array<
+	array<
+		array<int_fast8_t, 2>,
+		8>,
+	8> Edge_to_sides = {{
 	{{  {{side_none,side_none}},	 {{2,5}},	 {{side_none,side_none}},	 {{1,5}},	 {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
 	{{  {{2,5}},	 {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
 	{{  {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}}	}},
@@ -907,13 +905,9 @@ static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigne
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
-	int side0,side1;
-	int	v0,v1;
 
-//@@	check_check();
-
-	v0 = verts[0];
-	v1 = verts[1];
+	const auto v0 = verts[0];
+	const auto v1 = verts[1];
 
 	auto b = begin(seg->verts);
 	auto e = end(seg->verts);
@@ -939,8 +933,8 @@ static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigne
 
 	const auto &eptr = Edge_to_sides[std::distance(b, iv0)][std::distance(b, iv1)];
 
-	side0 = eptr[0];
-	side1 = eptr[1];
+	const auto side0 = eptr[0];
+	const auto side1 = eptr[1];
 
 	Assert(side0 != side_none && side1 != side_none);
 
