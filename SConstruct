@@ -3091,6 +3091,7 @@ class DXXCommon(LazyObjectConstructor):
 			# `builddir` is implicit since $TARGET is the full path to
 			# the output
 				LINKCOMSTR						= "LD  %s $TARGET" % target,
+				RCCOMSTR						= "RC  %s %s $SOURCE" % format_tuple,
 			)
 
 		Werror = get_Werror_string(self.user_settings.CXXFLAGS)
