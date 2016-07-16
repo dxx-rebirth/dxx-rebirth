@@ -1724,8 +1724,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 					if (purpose == PURPOSE_REWRITE)
 						nd_write_int(i.score);
 				} else {
-					nd_read_short(reinterpret_cast<int16_t *>(&i.net_killed_total));
-					nd_read_short(reinterpret_cast<int16_t *>(&i.net_kills_total));
+					nd_read_short(&i.net_killed_total);
+					nd_read_short(&i.net_kills_total);
 					if (purpose == PURPOSE_REWRITE)
 					{
 						nd_write_short(i.net_killed_total);
@@ -1829,7 +1829,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	nd_read_byte(reinterpret_cast<int8_t *>(&Primary_weapon));
-	nd_read_byte(reinterpret_cast<int8_t *>(&Secondary_weapon));
+	nd_read_byte(&Secondary_weapon);
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_byte(Primary_weapon);
