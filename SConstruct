@@ -1744,6 +1744,7 @@ help:always wipe certain freed memory
 				poison = True
 		if poison:
 			context.sconf.Define('DXX_HAVE_POISON')
+	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_size', "assume size_t is formatted as `size_t`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_I64', "assume size_t is formatted as `unsigned I64`"))
@@ -1753,6 +1754,9 @@ help:always wipe certain freed memory
 #define DXX_PRI_size_type %s
 __attribute_format_printf(1, 2)
 void f(const char *, ...);
+void f(const char *, ...)
+{
+}
 ''',_main='''
 	std::size_t s = 0;
 	f("%" DXX_PRI_size_type, s);
@@ -1826,6 +1830,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 		# Test types in order of decreasing probability.
 		for how in (
 			# Linux
+			('z', 'size_type_size'),
 			('l', 'size_type_long'),
 			# Win64
 			('I64', 'size_type_I64'),
