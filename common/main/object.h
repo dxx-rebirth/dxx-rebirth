@@ -311,7 +311,7 @@ struct vclip_info : prohibit_void_ptr<vclip_info>
 {
 	int     vclip_num;
 	fix     frametime;
-	sbyte   framenum;
+	uint8_t framenum;
 };
 
 struct vclip_info_rw

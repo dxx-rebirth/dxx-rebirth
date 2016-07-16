@@ -765,7 +765,7 @@ static void nd_read_object(const vobjptridx_t obj)
 	case RT_HOSTAGE:
 		nd_read_int(&(obj->rtype.vclip_info.vclip_num));
 		nd_read_fix(&(obj->rtype.vclip_info.frametime));
-		nd_read_byte(&(obj->rtype.vclip_info.framenum));
+		nd_read_byte(reinterpret_cast<int8_t *>(&obj->rtype.vclip_info.framenum));
 		break;
 
 	case RT_LASER:

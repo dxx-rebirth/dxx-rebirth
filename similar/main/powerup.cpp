@@ -70,42 +70,36 @@ array<powerup_type_info, MAX_POWERUP_TYPES> Powerup_info;
 //process this powerup for this frame
 void do_powerup_frame(const vobjptridx_t obj)
 {
-	fix fudge;
 	vclip_info *vci = &obj->rtype.vclip_info;
-	vclip *vc = &Vclip[vci->vclip_num];
 
 #if defined(DXX_BUILD_DESCENT_I)
-	fudge = 0;
+	const fix fudge = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	long objnum = obj;
-	fudge = (FrameTime * (objnum&3)) >> 4;
+	const fix fudge = (FrameTime * (objnum&3)) >> 4;
 #endif
 	
+	auto &vc = Vclip[vci->vclip_num];
+	const auto vc_frame_time = vc.frame_time;
+	const auto vc_num_frames1 = vc.num_frames - 1;
 	vci->frametime -= FrameTime+fudge;
 	
 	while (vci->frametime < 0 ) {
 
-		vci->frametime += vc->frame_time;
-		if (vci->framenum >= vc->num_frames)
+		vci->frametime += vc_frame_time;
+		if (vci->framenum > vc_num_frames1)
 			vci->framenum=0;
-
-#if defined(DXX_BUILD_DESCENT_II)
-		if (vci->framenum < 0)
-			vci->framenum = vc->num_frames-1;
-#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (objnum&1)
 		{
-			if (vci->framenum)
-				vci->framenum--;
-			else
-				vci->framenum = vc->num_frames-1;
+			if (-- vci->framenum > vc_num_frames1)
+				vci->framenum = vc_num_frames1;
 		}
 		else
 #endif
 		{
-			if (vci->framenum >= vc->num_frames-1)
+			if (vci->framenum >= vc_num_frames1)
 				vci->framenum=0;
 			else
 				vci->framenum++;
