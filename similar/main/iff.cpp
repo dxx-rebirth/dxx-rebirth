@@ -963,7 +963,7 @@ done:
 }
 
 //text for error messges
-static const char error_messages[] = {
+constexpr char error_messages[] = {
 	"No error.\0"
 	"Not enough mem for loading or processing bitmap.\0"
 	"IFF file has unknown FORM type.\0"

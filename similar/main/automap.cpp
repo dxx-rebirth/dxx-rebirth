@@ -494,7 +494,7 @@ static void draw_player(const object_base &obj, const uint8_t color)
 
 #if defined(DXX_BUILD_DESCENT_II)
 //name for each group.  maybe move somewhere else
-static const char system_name[][17] = {
+constexpr char system_name[][17] = {
 			"Zeta Aquilae",
 			"Quartzon System",
 			"Brimspark System",

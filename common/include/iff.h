@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-static const std::size_t MAX_BITMAPS_PER_BRUSH = 30;
+constexpr std::size_t MAX_BITMAPS_PER_BRUSH = 30;
 
 //Prototypes for IFF library functions
 

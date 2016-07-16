@@ -140,7 +140,7 @@ static void generate_starfield();
 static void start_endlevel_flythrough(flythrough_data *flydata,const vobjptr_t obj,fix speed);
 
 #if defined(DXX_BUILD_DESCENT_II)
-static const char movie_table[] =	{	'a','b','c',
+constexpr char movie_table[] =	{	'a','b','c',
 							'a',
 							'd','f','d','f',
 							'g','h','i','g',

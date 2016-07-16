@@ -420,7 +420,7 @@ int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid)
 }
 
 //text for error messges
-static const char pcx_error_messages[] = {
+constexpr char pcx_error_messages[] = {
 	"No error.\0"
 	"Error opening file.\0"
 	"Couldn't read PCX header.\0"

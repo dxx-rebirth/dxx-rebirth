@@ -43,13 +43,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static const std::size_t VCLIP_MAXNUM = 70;
+constexpr std::size_t VCLIP_MAXNUM = 70;
 #elif defined(DXX_BUILD_DESCENT_II)
 #define VCLIP_WATER_HIT             84
 #define VCLIP_AFTERBURNER_BLOB      95
 #define VCLIP_MONITOR_STATIC        99
 
-static const std::size_t VCLIP_MAXNUM = 110;
+constexpr std::size_t VCLIP_MAXNUM = 110;
 #endif
 }
 

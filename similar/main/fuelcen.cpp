@@ -62,8 +62,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // The max number of fuel stations per mine.
 
 namespace dcx {
-static const fix Fuelcen_give_amount = i2f(25);
-static const fix Fuelcen_max_amount = i2f(100);
+constexpr fix Fuelcen_give_amount = i2f(25);
+constexpr fix Fuelcen_max_amount = i2f(100);
 
 // Every time a robot is created in the morphing code, it decreases capacity of the morpher
 // by this amount... when capacity gets to 0, no more morphers...

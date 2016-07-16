@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
-static const char MainHelpText[] = "\nMED General Functions\n\n" \
+constexpr char MainHelpText[] = "\nMED General Functions\n\n" \
 "SPACEBAR         Full Redraw\n" \
 "BACKSPACE        Drop into debugger\n\n" \
 "A                Attach a segment\n" \
@@ -43,7 +43,7 @@ static const char MainHelpText[] = "\nMED General Functions\n\n" \
 "ESC              Exit editor\n"\
 "ALT-Q/CTRL-Q/SHIFT-Q also Exit editor\n";
 
-static const char SegmentHelpText[] = "MED Segment Functions\n\n" \
+constexpr char SegmentHelpText[] = "MED Segment Functions\n\n" \
 "ALT-B            Create Bridge from current to marked segment\n" \
 "ALT-E            Exchange current and marked segments\n" \
 "ALT-J            Create Joint between current and marked segments\n" \
@@ -63,7 +63,7 @@ static const char SegmentHelpText[] = "MED Segment Functions\n\n" \
 "CTRL-F           Select next side\n" \
 "CTRL-SHIFT-F     Select previous side\n";
 
-static const char KeyPadHelpText[] = "MED KeyPad Functions\n\n" \
+constexpr char KeyPadHelpText[] = "MED KeyPad Functions\n\n" \
 
 "SHIFT-KEYPAD FUNCTIONS (Change direction vector of segment)\n" \
 "----------------------\n" \
@@ -79,7 +79,7 @@ static const char KeyPadHelpText[] = "MED KeyPad Functions\n\n" \
 "\nIn addition, CTRL-SHIFT-KEYPAD Changes size at x5 rate as above\n";
 
 
-static const char ViewHelpText[] = "MED View Changing Functions\n\n" \
+constexpr char ViewHelpText[] = "MED View Changing Functions\n\n" \
 "ALT-V            Change to orthogonal view (1,2,3)\n" \
 "CTRL-V           Toggle view to current segment\n" \
 "MINUS (-)        Zoom in\n" \
@@ -92,7 +92,7 @@ static const char ViewHelpText[] = "MED View Changing Functions\n\n" \
 //"CTRL-MINUS       Decreases drawing depth\n" 
 //"CTRL-EQUAL       Increases drawing depth\n" 
 
-static const char GameHelpText[] = "MED Game Screen Functions\n\n" \
+constexpr char GameHelpText[] = "MED Game Screen Functions\n\n" \
 "KEYPAD FUNCTIONS (Moves in game screen)\n" \
 "----------------\n" \
 "(7)                  8 Move Forward     (9)\n" \
@@ -109,7 +109,7 @@ static const char GameHelpText[] = "MED Game Screen Functions\n\n" \
 "PAD DIVIDE (/)   Game Zoom out\n" \
 "PAD MULTIPLY (*) Game Zoom In\n";
 
-static const char CurveHelpText[] = "MED Curve Generation Functions\n\n" \
+constexpr char CurveHelpText[] = "MED Curve Generation Functions\n\n" \
 "ALT-F10          Generate curve\n" \
 "F8               Delete curve\n" \
 "F11              'Set' curve\n" \
@@ -118,7 +118,7 @@ static const char CurveHelpText[] = "MED Curve Generation Functions\n\n" \
 "F10              Decrease r4 vector\n" \
 "SHIFT-F10        Increase r4 vector\n";
 
-static const char MacrosHelpText[] = "MED Macros Functions\n\n" \
+constexpr char MacrosHelpText[] = "MED Macros Functions\n\n" \
 "CTRL-INSERT      Play fast\n" \
 "CTRL-DELETE      Play normal\n" \
 "CTRL-HOME        Record all\n" \

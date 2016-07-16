@@ -17,9 +17,9 @@
 #include "compiler-make_unique.h"
 
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
-static const short MVE_HDRCONST1 = 0x001A;
-static const short MVE_HDRCONST2 = 0x0100;
-static const short MVE_HDRCONST3 = 0x1133;
+constexpr short MVE_HDRCONST1 = 0x001A;
+constexpr short MVE_HDRCONST2 = 0x0100;
+constexpr short MVE_HDRCONST3 = 0x1133;
 
 mve_cb_Read mve_read;
 mve_cb_Alloc mve_alloc;

@@ -237,7 +237,7 @@ int edge_list_size;		//set each frame
 #define HASH(a,b)  ((a*5+b) % edge_list_size)
 
 //define edge numberings
-static const int edges[] = {
+constexpr int edges[] = {
 		0*8+1,	// edge  0
 		0*8+3,	// edge  1
 		0*8+4,	// edge  2

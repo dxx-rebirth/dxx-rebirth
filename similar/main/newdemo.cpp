@@ -242,7 +242,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate);
 #if defined(DXX_BUILD_DESCENT_I)
 static int shareware = 0;	// reading shareware demo?
 #elif defined(DXX_BUILD_DESCENT_II)
-static const int shareware = 0;
+constexpr int shareware = 0;
 #endif
 
 int newdemo_get_percent_done()	{
@@ -3803,7 +3803,7 @@ static bool guess_demo_name(ntstring<PATH_MAX - 1> &filename)
 	return filename[0];
 }
 
-static const char demoname_allowed_chars[] = "azAZ09__--";
+constexpr char demoname_allowed_chars[] = "azAZ09__--";
 #define DEMO_FORMAT_STRING(S)	DEMO_DIR S "." DEMO_EXT
 void newdemo_stop_recording()
 {

@@ -148,7 +148,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles);
 void free_model(polymodel *po);
 
 #define MAX_POLYOBJ_TEXTURES 100
-static const unsigned N_D2_POLYGON_MODELS = 166;
+constexpr unsigned N_D2_POLYGON_MODELS = 166;
 #endif
 extern array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 #endif

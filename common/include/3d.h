@@ -203,7 +203,7 @@ static inline void g3_draw_poly(const array<cg3s_point *, N> &pointlist, const u
 	g3_draw_poly(N, pointlist, color);
 }
 
-static const std::size_t MAX_POINTS_PER_POLY = 25;
+constexpr std::size_t MAX_POINTS_PER_POLY = 25;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew

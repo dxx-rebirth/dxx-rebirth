@@ -197,7 +197,7 @@ void show_menus(void)
 }
 
 //pairs of chars describing ranges
-static const char playername_allowed_chars[] = "azAZ09__--";
+constexpr char playername_allowed_chars[] = "azAZ09__--";
 
 static int MakeNewPlayerFile(int allow_abort)
 {

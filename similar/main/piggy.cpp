@@ -1623,7 +1623,7 @@ static int piggy_does_bitmap_exist_slow(const char * name )
 }
 
 
-static const char gauge_bitmap_names[][9] = {
+constexpr char gauge_bitmap_names[][9] = {
 	"gauge01",
 	"gauge02",
 	"gauge06",

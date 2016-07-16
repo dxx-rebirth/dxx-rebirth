@@ -98,8 +98,8 @@ joybutton_text_t joybutton_text;
 #if MAX_AXES_PER_JOYSTICK
 joyaxis_text_t joyaxis_text;
 #endif
-static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
-static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
+constexpr char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
+constexpr char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
 const array<uint8_t, 19> system_keys{{
 	KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN,
@@ -178,7 +178,7 @@ const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings{{
 const array<ubyte, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff }};
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
-static const kc_item kc_keyboard[] = {
+constexpr kc_item kc_keyboard[] = {
 #if defined(DXX_BUILD_DESCENT_I)
 	{ 15, 49, 86, 26, 43,  2, 49,  1, BT_KEY, STATE_BIT1, {&control_info::state_controls_t::key_pitch_forward} },
 	{ 15, 49,115, 26, 48,  3,  0, 24, BT_KEY, STATE_BIT2, {&control_info::state_controls_t::key_pitch_forward} },
@@ -275,7 +275,7 @@ static const kc_item kc_keyboard[] = {
 	{158,179,241, 26, 54, 25, 55,  0, BT_KEY, 0, {&control_info::state_controls_t::toggle_bomb} },
 #endif
 };
-static const char *const kcl_keyboard =
+constexpr const char *kcl_keyboard =
 	"Pitch forward\0"
 	"Pitch backward\0"
 	"Turn left\0"
@@ -325,7 +325,7 @@ static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 #define DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(I)	(static_cast<void>(I), 0)
 #endif
 
-static const kc_item kc_joystick[] = {
+constexpr kc_item kc_joystick[] = {
 #if defined(DXX_BUILD_DESCENT_I)
 	{ 22, 46,104, DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(26), 15,  1, 24, 29, BT_JOY_BUTTON, STATE_BIT3, {&control_info::state_controls_t::fire_primary} },
 	{ 22, 54,104, DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(26),  0,  4, 34, 30, BT_JOY_BUTTON, STATE_BIT3, {&control_info::state_controls_t::fire_secondary} },
@@ -434,7 +434,7 @@ static const kc_item kc_joystick[] = {
 	{174,126,278, DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(26), 48, 13, 54, 13, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::toggle_bomb} },
 #endif
 };
-static const char *const kcl_joystick =
+constexpr const char *kcl_joystick =
 	"Fire primary\0"
 	"Fire secondary\0"
 	"Accelerate\0"
@@ -497,7 +497,7 @@ static const char *const kcl_joystick =
 static array<kc_mitem, lengthof(kc_joystick)> kcm_joystick;
 #endif
 
-static const kc_item kc_mouse[] = {
+constexpr kc_item kc_mouse[] = {
 	{ 25, 46,110, 26, 19,  1, 20,  5, BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::fire_primary} },
 	{ 25, 54,110, 26,  0,  4,  5,  6, BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::fire_secondary} },
 	{ 25, 78,110, 26, 26,  3,  8,  9, BT_MOUSE_BUTTON, STATE_BIT5, {&control_info::state_controls_t::accelerate} },
@@ -539,7 +539,7 @@ static const kc_item kc_mouse[] = {
 	{ 25,118,110, 26, 28, 14, 28, 13, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::cycle_secondary} },
 #endif
 };
-static const char *const kcl_mouse =
+constexpr const char *kcl_mouse =
 	"Fire primary\0"
 	"Fire secondary\0"
 	"Accelerate\0"
@@ -592,7 +592,7 @@ static array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
 #define DXX_KCONFIG_ITEM_JOY_WIDTH(I)	(static_cast<void>(I), 0)
 #endif
 
-static const kc_item kc_rebirth[] = {
+constexpr kc_item kc_rebirth[] = {
 	{ 15, 69,157, 26, 29,  3, 29,  1, BT_KEY, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15, 69,215, DXX_KCONFIG_ITEM_JOY_WIDTH(26), 27,  4,  0,  2, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15, 69,273, 26, 28,  5,  1,  3, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
@@ -624,7 +624,7 @@ static const kc_item kc_rebirth[] = {
 	{ 15,141,215, DXX_KCONFIG_ITEM_JOY_WIDTH(26), 25,  2, 27, 29, BT_JOY_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 	{ 15,141,273, 26, 26,  0, 28,  0, BT_MOUSE_BUTTON, 0, {&control_info::state_controls_t::select_weapon} },
 };
-static const char *const kcl_rebirth =
+constexpr const char *kcl_rebirth =
 	WEAPON_STRING_LASER	"\0"
 	WEAPON_STRING_VULCAN	"\0"
 	WEAPON_STRING_SPREADFIRE	"\0"
@@ -749,7 +749,7 @@ static std::ptrdiff_t find_next_item_left(const kc_item *const ib, const kc_item
 	return find_next_item<&find_item_state::x_decrement, &find_item_state::y_decrement>(ib, ie, state);
 }
 
-static const char btype_text[][13] = {
+constexpr char btype_text[][13] = {
 	"KEY",
 	"MOUSE_BUTTON",
 	"MOUSE_AXIS",

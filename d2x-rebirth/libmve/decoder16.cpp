@@ -141,7 +141,7 @@ static inline constexpr lookup_table_t genLoopkupTable(index_sequence<N...>)
 	};
 }
 
-static const lookup_table_t lookup_table = genLoopkupTable(make_tree_index_sequence<256>());
+constexpr lookup_table_t lookup_table = genLoopkupTable(make_tree_index_sequence<256>());
 
 static void copyFrame(unsigned short *pDest, unsigned short *pSrc)
 {

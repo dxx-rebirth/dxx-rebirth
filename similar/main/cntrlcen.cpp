@@ -145,11 +145,11 @@ int Control_center_destroyed = 0;
 fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
-static const int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
-static const int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
+constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 #endif
 
 //	-----------------------------------------------------------------------------

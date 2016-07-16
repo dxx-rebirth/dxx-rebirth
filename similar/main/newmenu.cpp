@@ -548,7 +548,7 @@ void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t
 }
 
 #ifdef NEWMENU_MOUSE
-static const ubyte Hack_DblClick_MenuMode=0;
+constexpr uint8_t Hack_DblClick_MenuMode=0;
 #endif
 
 newmenu_item *newmenu_get_items(newmenu *menu)

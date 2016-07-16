@@ -115,7 +115,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
 
-static const char dgss_id[4] = {'D', 'G', 'S', 'S'};
+constexpr char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
 unsigned state_game_id;
 

@@ -78,7 +78,7 @@ namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 fix	Flash_effect=0;
-static const int	PK1=1, PK2=8;
+constexpr int	PK1=1, PK2=8;
 #endif
 
 static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )

@@ -392,7 +392,7 @@ static void get_pnt(vms_vector &p,int i,int j)
 	p.y = HEIGHT(i,j)*HEIGHT_SCALE;
 }
 
-static const vms_vector light{0x2e14,0xe8f5,0x5eb8};
+constexpr vms_vector light{0x2e14,0xe8f5,0x5eb8};
 
 static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {

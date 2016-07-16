@@ -325,7 +325,7 @@ struct seg_seg
 	segnum_t       start, end;
 };
 
-static const unsigned MAX_POINT_SEGS = 2500;
+constexpr unsigned MAX_POINT_SEGS = 2500;
 
 }
 

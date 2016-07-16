@@ -232,7 +232,7 @@ array<array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_tex
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 
-static const int message_length[] = {
+constexpr int message_length[] = {
 #define define_message_length(NAME,SIZE)	(SIZE),
 	for_each_multiplayer_command(define_message_length)
 };
@@ -4282,7 +4282,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 namespace dsx {
 
-static const int PowerupAdjustMapping[]={11,19
+constexpr int PowerupAdjustMapping[]={11,19
 #if defined(DXX_BUILD_DESCENT_II)
 	,39,41,44
 #endif

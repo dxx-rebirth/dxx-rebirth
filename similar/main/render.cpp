@@ -126,7 +126,7 @@ static int found_side,found_face,found_poly;
 static segnum_t found_seg;
 static objnum_t found_obj;
 #else
-static const int _search_mode = 0;
+constexpr int _search_mode = 0;
 #endif
 
 #ifdef NDEBUG		//if no debug code, set these vars to constants
@@ -157,7 +157,7 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-static const fix Flash_rate = FLASH_CYCLE_RATE;
+constexpr fix Flash_rate = FLASH_CYCLE_RATE;
 
 //cycle the flashing light for when mine destroyed
 void flash_frame()
@@ -455,9 +455,9 @@ static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptri
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
 
-static const fix	Tulate_min_dot = (F1_0/4);
+constexpr fix	Tulate_min_dot = (F1_0/4);
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
-static const fix	Min_n0_n1_dot	= (F1_0*15/16);
+constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
 
 // -----------------------------------------------------------------------------------
 //	Render a side.
@@ -770,8 +770,8 @@ static void render_segment(const vcsegptridx_t seg)
 #ifdef EDITOR
 #ifndef NDEBUG
 
-const fix CROSS_WIDTH = i2f(8);
-const fix CROSS_HEIGHT = i2f(8);
+constexpr fix CROSS_WIDTH = i2f(8);
+constexpr fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
 static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
@@ -858,7 +858,7 @@ struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
 typedef array<int_fast8_t, 2> se_array0;
 typedef array<se_array0, 6> se_array1;
 typedef array<se_array1, 6> se_array2;
-static const se_array2 Two_sides_to_edge = {{
+constexpr se_array2 Two_sides_to_edge = {{
 	{{  {{edge_none,edge_none}},	 {{3,7}},	 {{edge_none,edge_none}},	 {{2,6}},	 {{6,7}},	 {{2,3}}	}},
 	{{  {{3,7}},	 {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{4,7}},	 {{0,3}}	}},
 	{{  {{edge_none,edge_none}},	 {{0,4}},	 {{edge_none,edge_none}},	 {{1,5}},	 {{4,5}},	 {{0,1}}	}},
@@ -871,7 +871,7 @@ static const se_array2 Two_sides_to_edge = {{
 typedef array<int_fast8_t, 2> es_array0;
 typedef array<es_array0, 8> es_array1;
 typedef array<es_array1, 8> es_array2;
-static const es_array2 Edge_to_sides = {{
+constexpr es_array2 Edge_to_sides = {{
 	{{  {{side_none,side_none}},	 {{2,5}},	 {{side_none,side_none}},	 {{1,5}},	 {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
 	{{  {{2,5}},	 {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
 	{{  {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}}	}},

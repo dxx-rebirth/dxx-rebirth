@@ -101,7 +101,9 @@ public:
 
 // Movielib data
 
-static const array<array<char, 8>, 3> movielib_files{{{"intro"}, {"other"}, {"robots"}}};
+constexpr array<array<char, 8>, 3> movielib_files{{
+	{"intro"}, {"other"}, {"robots"}
+}};
 namespace {
 
 struct loaded_movie_t

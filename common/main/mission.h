@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (limited by Demo and Multiplayer code)
-static const ubyte MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
+constexpr uint8_t MAX_SECRET_LEVELS_PER_MISSION = 127;	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
 #define MISSION_NAME_LEN                25
 
 #if defined(DXX_BUILD_DESCENT_I)

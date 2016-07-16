@@ -26,15 +26,15 @@
 
 namespace dcx {
 
-static const unsigned OP_EOF = 0;   //eof
-static const unsigned OP_DEFPOINTS = 1;   //defpoints
-static const unsigned OP_FLATPOLY = 2;   //flat-shaded polygon
-static const unsigned OP_TMAPPOLY = 3;   //texture-mapped polygon
-static const unsigned OP_SORTNORM = 4;   //sort by normal
-static const unsigned OP_RODBM = 5;   //rod bitmap
-static const unsigned OP_SUBCALL = 6;   //call a subobject
-static const unsigned OP_DEFP_START = 7;   //defpoints with start
-static const unsigned OP_GLOW = 8;   //glow value for next poly
+constexpr unsigned OP_EOF = 0;   //eof
+constexpr unsigned OP_DEFPOINTS = 1;   //defpoints
+constexpr unsigned OP_FLATPOLY = 2;   //flat-shaded polygon
+constexpr unsigned OP_TMAPPOLY = 3;   //texture-mapped polygon
+constexpr unsigned OP_SORTNORM = 4;   //sort by normal
+constexpr unsigned OP_RODBM = 5;   //rod bitmap
+constexpr unsigned OP_SUBCALL = 6;   //call a subobject
+constexpr unsigned OP_DEFP_START = 7;   //defpoints with start
+constexpr unsigned OP_GLOW = 8;   //glow value for next poly
 
 #ifdef EDITOR
 int g3d_interp_outline;
@@ -74,7 +74,7 @@ static void rotate_point_list(g3s_point *dest, const vms_vector *src, uint_fast3
 		g3_rotate_point(*dest++,*src++);
 }
 
-static const vms_angvec zero_angles = {0,0,0};
+constexpr vms_angvec zero_angles = {0,0,0};
 
 namespace {
 

@@ -71,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
-static const int EMULATING_D1 = 1;
+constexpr int EMULATING_D1 = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 static int DefineBriefingBox (const char **buf);
 #endif
@@ -362,7 +362,7 @@ static array<briefing_screen, MAX_BRIEFING_SCREENS> Briefing_screens{{
 }}; // default=0!!!
 #endif
 
-static const briefing_screen D1_Briefing_screens_full[] = {
+constexpr briefing_screen D1_Briefing_screens_full[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -409,7 +409,7 @@ static const briefing_screen D1_Briefing_screens_full[] = {
 	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 };
 
-static const briefing_screen D1_Briefing_screens_share[] = {
+constexpr briefing_screen D1_Briefing_screens_share[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },

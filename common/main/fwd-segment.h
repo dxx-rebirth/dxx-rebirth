@@ -21,6 +21,13 @@
 
 namespace dcx {
 constexpr std::size_t MAX_SEGMENTS = 9000;
+constexpr std::size_t MAX_VERTICES_PER_SEGMENT = 8;
+constexpr std::size_t MAX_SIDES_PER_SEGMENT = 6;
+constexpr std::size_t MAX_VERTICES_PER_POLY = 4;
+
+constexpr std::size_t MAX_SEGMENTS_ORIGINAL = 900;
+constexpr std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
+constexpr std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 }
 #ifdef dsx
 namespace dsx {
@@ -34,13 +41,6 @@ static constexpr valptridx<segment>::magic_constant<0> segment_first{};
 #endif
 
 namespace dcx {
-const std::size_t MAX_VERTICES_PER_SEGMENT = 8;
-const std::size_t MAX_SIDES_PER_SEGMENT = 6;
-const std::size_t MAX_VERTICES_PER_POLY = 4;
-
-const std::size_t MAX_SEGMENTS_ORIGINAL = 900;
-const std::size_t MAX_SEGMENT_VERTICES_ORIGINAL = 4*MAX_SEGMENTS_ORIGINAL;
-const std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 
 typedef uint_fast32_t sidenum_fast_t;
 
@@ -56,15 +56,16 @@ enum sidenum_t : uint8_t
 
 //normal everyday vertices
 
-const fix DEFAULT_LIGHTING = 0;   // (F1_0/2)
+constexpr fix DEFAULT_LIGHTING = 0;   // (F1_0/2)
 
 #ifdef EDITOR   //verts for the new segment
-const std::size_t NUM_NEW_SEG_VERTICES = 8;
-const std::size_t NEW_SEGMENT_VERTICES = MAX_SEGMENT_VERTICES;
-const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;
+constexpr std::size_t NUM_NEW_SEG_VERTICES = 8;
+constexpr std::size_t NEW_SEGMENT_VERTICES = MAX_SEGMENT_VERTICES;
+constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;
 #else           //No editor
-const std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
+constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
 #endif
+constexpr std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
 struct uvl;
 enum side_type : uint8_t;
@@ -84,14 +85,14 @@ const segment_type_t SEGMENT_IS_REPAIRCEN = 2;
 const segment_type_t SEGMENT_IS_CONTROLCEN = 3;
 const segment_type_t SEGMENT_IS_ROBOTMAKER = 4;
 #if defined(DXX_BUILD_DESCENT_I)
-const std::size_t MAX_CENTER_TYPES = 5;
+constexpr std::size_t MAX_CENTER_TYPES = 5;
 #elif defined(DXX_BUILD_DESCENT_II)
 typedef unsigned s2f_ambient_t;
 const s2f_ambient_t S2F_AMBIENT_WATER = 1;
 const s2f_ambient_t S2F_AMBIENT_LAVA = 2;
 const segment_type_t SEGMENT_IS_GOAL_BLUE = 5;
 const segment_type_t SEGMENT_IS_GOAL_RED = 6;
-const std::size_t MAX_CENTER_TYPES = 7;
+constexpr std::size_t MAX_CENTER_TYPES = 7;
 #endif
 
 namespace dcx {
@@ -103,7 +104,6 @@ extern array<vertex, MAX_VERTICES> Vertices;
 extern unsigned Num_segments;
 extern unsigned Num_vertices;
 
-const std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
 extern const array<array<uint8_t, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts;       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
@@ -119,10 +119,10 @@ namespace dsx {
 struct delta_light;
 struct dl_index;
 
-const std::size_t MAX_DL_INDICES = 500;
-const std::size_t MAX_DELTA_LIGHTS = 10000;
+constexpr std::size_t MAX_DL_INDICES = 500;
+constexpr std::size_t MAX_DELTA_LIGHTS = 10000;
 
-const fix DL_SCALE = 2048;    // Divide light to allow 3 bits integer, 5 bits fraction.
+constexpr fix DL_SCALE = 2048;    // Divide light to allow 3 bits integer, 5 bits fraction.
 
 extern array<dl_index, MAX_DL_INDICES> Dl_indices;
 extern array<delta_light, MAX_DELTA_LIGHTS> Delta_lights;
@@ -152,7 +152,7 @@ class visited_segment_bitarray_t;
 template <unsigned bits>
 class visited_segment_multibit_array_t;
 
-const int side_none = MAX_SIDES_PER_SEGMENT;
-const int edge_none = -1;
+constexpr int side_none = MAX_SIDES_PER_SEGMENT;
+constexpr int edge_none = -1;
 
 }

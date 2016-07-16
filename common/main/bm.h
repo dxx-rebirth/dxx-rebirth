@@ -90,7 +90,7 @@ struct player_ship;
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 extern struct player_ship only_player_ship;
-static struct player_ship *const Player_ship=&only_player_ship;
+constexpr struct player_ship *Player_ship = &only_player_ship;
 extern unsigned Num_cockpits;
 extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 namespace dsx {

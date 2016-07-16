@@ -688,7 +688,7 @@ int gr_set_mode(screen_mode mode)
 #define GLstrcmptestr(a,b) if (d_stricmp(a,#b)==0 || d_stricmp(a,"GL_" #b)==0)return GL_ ## b;
 
 #ifdef _WIN32
-static const char OglLibPath[]="opengl32.dll";
+constexpr char OglLibPath[]="opengl32.dll";
 
 static int ogl_rt_loaded=0;
 static int ogl_init_load_library(void)

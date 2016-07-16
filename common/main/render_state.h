@@ -8,7 +8,7 @@
 #include "segnum.h"
 #include "objnum.h"
 
-static const unsigned MAX_RENDER_SEGS = 500;
+constexpr unsigned MAX_RENDER_SEGS = 500;
 
 struct rect
 {

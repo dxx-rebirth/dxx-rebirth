@@ -26,7 +26,7 @@
 
 #include "compiler-range_for.h"
 
-namespace dsx {
+namespace dcx {
 
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
@@ -39,7 +39,7 @@ namespace dsx {
  * the value to avoid overflow.  (used with permission from ARDI)
  * DPH: Taken from SDL/src/SDL_mixer.c.
  */
-static const Uint8 mix8[] =
+constexpr uint8_t mix8[] =
 {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -106,6 +106,10 @@ struct sound_slot {
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
 };
+
+}
+
+namespace dsx {
 
 static array<sound_slot, MAX_SOUND_SLOTS> SoundSlots;
 static SDL_AudioSpec WaveSpec;

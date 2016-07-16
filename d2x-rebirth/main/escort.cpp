@@ -81,7 +81,7 @@ static void say_escort_goal(escort_goal_t goal_num);
 static fix64 Last_come_back_message_time;
 static fix64 Buddy_last_missile_time;
 
-static const array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
+constexpr array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
 	"BLUE KEY",
 	"YELLOW KEY",
 	"RED KEY",
@@ -1228,7 +1228,9 @@ void recreate_thief(const uint8_t thief_id)
 //	----------------------------------------------------------------------------
 #define	THIEF_ATTACK_TIME		(F1_0*10)
 
-static const fix	Thief_wait_times[NDL] = {F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10};
+constexpr array<fix, NDL> Thief_wait_times = {{
+	F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10
+}};
 
 //	-------------------------------------------------------------------------------------------------
 void do_thief_frame(const vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player)

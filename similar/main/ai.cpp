@@ -233,7 +233,7 @@ segnum_t             Believed_player_seg;
 }
 #endif
 
-static const std::size_t MAX_AWARENESS_EVENTS = 64;
+constexpr std::size_t MAX_AWARENESS_EVENTS = 64;
 struct awareness_event
 {
 	segnum_t	segnum;				// segment the event occurred in
@@ -313,7 +313,7 @@ static void move_toward_vector_component_add(fix vms_vector::*const p, const vms
 #if PARALLAX
 #if defined(DXX_BUILD_DESCENT_I)
 // Index into this array with ailp->mode
-static const char mode_text[][16] = {
+constexpr char mode_text[][16] = {
 	"STILL",
 	"WANDER",
 	"FOL_PATH",
@@ -325,7 +325,7 @@ static const char mode_text[][16] = {
 };
 
 //	Index into this array with aip->behavior
-const array<char[9], 6> behavior_text{
+constexpr array<char[9], 6> behavior_text{
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -344,7 +344,7 @@ const array<char[9], 6> behavior_text{
 // Third dimension is goal state.
 // Result is new goal state.
 // ERR_ means something impossible has happened.
-static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+constexpr int8_t Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 		// Event = AIE_FIRE, a nearby object fired
 		// none     rest      srch      lock      flin      fire      reco        // CURRENT is rows, GOAL is columns

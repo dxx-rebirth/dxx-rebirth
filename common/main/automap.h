@@ -57,8 +57,8 @@ void DropBuddyMarker(vobjptr_t objp);
 void InitMarkerInput();
 window_event_result MarkerInputMessage(int key);
 
-static const std::size_t NUM_MARKERS = 16;
-static const std::size_t MARKER_MESSAGE_LEN = 40;
+constexpr std::size_t NUM_MARKERS = 16;
+constexpr std::size_t MARKER_MESSAGE_LEN = 40;
 struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1> {};
 struct marker_messages_array_t : public array<marker_message_text_t, NUM_MARKERS> {};
 

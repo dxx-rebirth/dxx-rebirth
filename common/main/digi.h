@@ -88,7 +88,7 @@ extern int digi_xlat_sound(int soundno);
 extern void digi_stop_sound( int channel );
 
 // Volume 0-F1_0
-sound_object *const sound_object_none = nullptr;
+constexpr sound_object *sound_object_none = nullptr;
 int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, sound_object *);
 
 // Stops all sounds that are playing

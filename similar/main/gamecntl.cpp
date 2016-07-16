@@ -1414,7 +1414,7 @@ struct cheat_code
 	int (game_cheats::*stateptr);
 };
 
-static const cheat_code cheat_codes[] = {
+constexpr cheat_code cheat_codes[] = {
 #if defined(DXX_BUILD_DESCENT_I)
 	{ "gabbagabbahey", &game_cheats::enabled },
 	{ "scourge", &game_cheats::wowie },

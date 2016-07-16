@@ -32,7 +32,7 @@ enum class window_event_result : uint8_t
 	close,
 };
 
-static const unused_window_userdata_t *const unused_window_userdata = nullptr;
+constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 
 struct embed_window_pointer_t
 {

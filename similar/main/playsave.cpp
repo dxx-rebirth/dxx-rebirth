@@ -532,10 +532,10 @@ static void read_player_dxx(const char *filename)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static const char effcode1[]="d1xrocks_SKCORX!D";
-static const char effcode2[]="AObe)7Rn1 -+/zZ'0";
-static const char effcode3[]="aoeuidhtnAOEUIDH6";
-static const char effcode4[]="'/.;]<{=,+?|}->[3";
+constexpr char effcode1[]="d1xrocks_SKCORX!D";
+constexpr char effcode2[]="AObe)7Rn1 -+/zZ'0";
+constexpr char effcode3[]="aoeuidhtnAOEUIDH6";
+constexpr char effcode4[]="'/.;]<{=,+?|}->[3";
 
 static const uint8_t *decode_stat(const uint8_t *p,int *v,const char *effcode)
 {

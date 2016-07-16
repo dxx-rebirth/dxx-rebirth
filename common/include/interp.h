@@ -31,9 +31,9 @@ struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static const size_t glow_array_size = 1;
+constexpr std::size_t glow_array_size = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-static const size_t glow_array_size = 2;
+constexpr std::size_t glow_array_size = 2;
 #endif
 struct glow_values_t : public array<fix, glow_array_size> {};
 

@@ -63,7 +63,7 @@ struct sound_function_table_t
 };
 
 #ifdef USE_SDLMIXER
-static const sound_function_table_t digi_mixer_table{
+constexpr sound_function_table_t digi_mixer_table{
 	&digi_mixer_init,
 	&digi_mixer_close,
 #ifndef RELEASE
@@ -80,7 +80,7 @@ static const sound_function_table_t digi_mixer_table{
 };
 #endif
 
-static const sound_function_table_t digi_audio_table{
+constexpr sound_function_table_t digi_audio_table{
 	&digi_audio_init,
 	&digi_audio_close,
 #ifndef RELEASE
