@@ -1597,8 +1597,16 @@ using std::index_sequence;
 		self.Cxx14Compile(context, text=f, main=main, msg='for C++14 make_unique', successflags=_successflags)
 	@_implicit_test
 	def check_cxx11_inherit_constructor(self,context,text,_macro_value=_quote_macro_value('''
-	typedef B,##__VA_ARGS__ _dxx_constructor_base_type;
-	using _dxx_constructor_base_type::_dxx_constructor_base_type;'''),
+/* Use a typedef for the base type to avoid parsing issues when type
+ * B is a qualified name.  Without this typedef, B = std::BASE would
+ * expand as `using std::BASE::std::BASE`, which causes a parsing error.
+ * The correct way to inherit from std::BASE is `using std::BASE::BASE;`.
+ * With using dxx_constructor_base_type = std::BASE;`,
+ * `using dxx_constructor_base_type::dxx_constructor_base_type` produces
+ * the correct result.
+ */
+	using dxx_constructor_base_type = B,##__VA_ARGS__;
+	using dxx_constructor_base_type::dxx_constructor_base_type;'''),
 		**kwargs):
 		"""
 help:assume compiler supports inheriting constructors
@@ -1668,7 +1676,12 @@ DXX_INHERIT_CONSTRUCTORS(B,A);
 		for f in _methods:
 			macro_value = f(self, context, text=_text, main='B(0)')
 			if macro_value:
-				context.sconf.Define(_macro_define, macro_value)
+				context.sconf.Define(_macro_define, macro_value, '''
+Declare that derived type D inherits applicable constructors from base
+type B.  Use a variadic macro with the base type second so that types
+such as std::pair<int,int> pass through correctly without the need to
+parenthesize them.
+''')
 				return
 		raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
 	@_custom_test
