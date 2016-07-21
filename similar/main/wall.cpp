@@ -198,6 +198,7 @@ static void blast_blastable_wall(const vsegptridx_t seg, int side)
 	kill_stuck_objects(seg->sides[side].wall_num);
 	if (w1)
 		kill_stuck_objects(cwall_num);
+	flush_fcd_cache();
 
 	const auto a = w0.clip_num;
 	//if this is an exploding wall, explode it
@@ -817,6 +818,7 @@ void do_door_open(int door_num)
 		}
 
 	}
+	flush_fcd_cache();
 
 }
 
@@ -1375,9 +1377,6 @@ void kill_stuck_objects(int wallnum)
 		}
 	}
 	Num_stuck_objects = n;
-	//	Ok, this is awful, but we need to do things whenever a door opens/closes/disappears, etc.
-	flush_fcd_cache();
-
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

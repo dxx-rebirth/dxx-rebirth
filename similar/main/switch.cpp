@@ -223,6 +223,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			if (wall1)
 				kill_stuck_objects(csegp->sides[cside].wall_num);
   	}
+	flush_fcd_cache();
 
 	return ret;
 }
