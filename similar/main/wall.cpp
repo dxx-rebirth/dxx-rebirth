@@ -1367,7 +1367,6 @@ void remove_obsolete_stuck_objects(void)
 			vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)
 		{
 			Num_stuck_objects--;
-			vobjptr(Stuck_objects[objnum].objnum)->lifeleft = F1_0/8;
 			Stuck_objects[objnum].wallnum = wall_none;
 		}
 
