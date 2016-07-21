@@ -82,6 +82,14 @@ class StaticSubprocess:
 	qcall = staticmethod(qcall)
 	shlex_split = staticmethod(shlex_split)
 
+class ToolchainInformation(StaticSubprocess):
+	@staticmethod
+	def get_tool_path(env,tool,_qcall=StaticSubprocess.qcall):
+		# Include $LINKFLAGS since -fuse-ld=gold influences the path
+		# printed for the linker.
+		tool = env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
+		return tool, _qcall(tool).out.strip()
+
 class Git(StaticSubprocess):
 	__path_git = None
 	@classmethod
@@ -453,10 +461,7 @@ help:assume C++ compiler works
 	def _show_indirect_tool_version(self,context,CXX,tool,desc):
 		Display = context.Display
 		Display('%s: checking path to %s ... ' % (self.msgprefix, desc))
-		# Include $LINKFLAGS since -fuse-ld=gold influences the path
-		# printed for the linker.
-		tool = context.env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
-		name = StaticSubprocess.qcall(tool).out.strip()
+		tool, name = ToolchainInformation.get_tool_path(context.env, tool)
 		self.__tool_versions.append((tool, name))
 		if not name:
 			# Strange, but not fatal for this to fail.
@@ -3658,10 +3663,6 @@ class DXXProgram(DXXCommon):
 			objects.extend(static_archive_construction.objects_editor)
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
-		versid_cppdefines.extend([('DESCENT_%s' % k, self._quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
-		v = StaticSubprocess.get_version_head(env['CXX'])
-		versid_cppdefines.append(('DESCENT_CXX_version', self._quote_cppdefine(v)))
-		versid_build_environ.append('CXX_version')
 		extra_version = self.user_settings.extra_version
 		if extra_version is None:
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
@@ -3673,11 +3674,31 @@ class DXXProgram(DXXCommon):
 			if extra_version:
 				extra_version += ' '
 			extra_version += git_describe_version[0]
-		versid_cppdefines.append(('DESCENT_VERSION_EXTRA', self._quote_cppdefine(extra_version, f=str)))
-		versid_cppdefines.append(('DESCENT_git_status', self._quote_cppdefine(git_describe_version[1])))
-		versid_build_environ.append('git_status')
-		versid_cppdefines.append(('DESCENT_git_diffstat', self._quote_cppdefine(git_describe_version[2])))
-		versid_build_environ.append('git_diffstat')
+		get_version_head = StaticSubprocess.get_version_head
+		ld_path = ToolchainInformation.get_tool_path(env, 'ld')[1]
+		_quote_cppdefine = self._quote_cppdefine
+		versid_cppdefines.extend([('DESCENT_%s' % k, _quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
+		versid_cppdefines.extend((
+			# VERSION_EXTRA is special.  Format it as a string so that
+			# it can be pasted into g_descent_version (in vers_id.cpp)
+			# and look normal when printed as part of the startup
+			# banner.  Since it is pasted into g_descent_version, it is
+			# NOT included in versid_build_environ as an independent
+			# field.
+			('DESCENT_VERSION_EXTRA', _quote_cppdefine(extra_version, f=str)),
+			('DESCENT_CXX_version', _quote_cppdefine(get_version_head(env['CXX']))),
+			('DESCENT_LINK', _quote_cppdefine(ld_path)),
+			('DESCENT_LINK_version', _quote_cppdefine(get_version_head(ld_path))),
+			('DESCENT_git_status', _quote_cppdefine(git_describe_version[1])),
+			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version[2])),
+		))
+		versid_build_environ.extend((
+			'CXX_version',
+			'LINK',
+			'LINK_version',
+			'git_status',
+			'git_diffstat',
+		))
 		versid_cppdefines.append(('DXX_RBE"(A)"', '"%s"' % ''.join(['A(%s)' % k for k in versid_build_environ])))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
