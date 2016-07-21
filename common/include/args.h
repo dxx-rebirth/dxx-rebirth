@@ -74,7 +74,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #endif
 	bool SysShowCmdHelp;
 	bool SysLowMem;
-	bool SysUsePlayersDir;
+	uint8_t SysUsePlayersDir;
 	bool SysAutoRecordDemo;
 	bool SysWindow;
 	bool SysAutoDemo;
@@ -155,12 +155,17 @@ extern struct Arg GameArg;
 bool InitArgs(int argc, char **argv);
 }
 
-static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *f) __attribute_format_arg(2);
-static inline const char *PLAYER_DIRECTORY_STRING(const char *s, const char *)
+namespace dcx {
+#define PLAYER_DIRECTORY_TEXT	"Players/"
+
+__attribute_format_arg(1)
+static inline const char *PLAYER_DIRECTORY_STRING(const char *s);
+static inline const char *PLAYER_DIRECTORY_STRING(const char *s)
 {
-	return (CGameArg.SysUsePlayersDir) ? s : (s + sizeof("Players/") - 1);
+	return &s[CGameArg.SysUsePlayersDir];
 }
-#define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)("Players/" S, S))
+#define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)(PLAYER_DIRECTORY_TEXT S))
+}
 #endif
 
 #endif

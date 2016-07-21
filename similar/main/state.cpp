@@ -890,7 +890,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	fix tmptime32 = 0;
 
 	#ifndef NDEBUG
-	if (CGameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
+	if (CGameArg.SysUsePlayersDir && strncmp(filename, PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))
 		Int3();
 	#endif
 
@@ -1343,7 +1343,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 
 	#ifndef NDEBUG
-	if (CGameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
+	if (CGameArg.SysUsePlayersDir && strncmp(filename, PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))
 		Int3();
 	#endif
 
@@ -1885,7 +1885,7 @@ int state_get_game_id(const char *filename)
 	callsign_t saved_callsign;
 
 	#ifndef NDEBUG
-	if (CGameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
+	if (CGameArg.SysUsePlayersDir && strncmp(filename, PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))
 		Int3();
 	#endif
 
