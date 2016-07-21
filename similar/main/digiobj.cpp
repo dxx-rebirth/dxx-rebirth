@@ -53,7 +53,6 @@ using std::max;
 namespace dcx {
 
 constexpr unsigned SOF_USED = 1; 		// Set if this sample is used
-constexpr unsigned SOF_PLAYING = 2;		// Set if this sample is playing on a channel
 constexpr unsigned SOF_LINK_TO_OBJ = 4;		// Sound is linked to a moving object. If object dies, then finishes play and quits.
 constexpr unsigned SOF_LINK_TO_POS = 8;		// Sound is linked to segment, pos
 constexpr unsigned SOF_PLAY_FOREVER = 16;		// Play forever (or until level is stopped), otherwise plays once
