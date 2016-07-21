@@ -1379,9 +1379,7 @@ void kill_stuck_objects(int wallnum)
 	}
 	Num_stuck_objects = n;
 	//	Ok, this is awful, but we need to do things whenever a door opens/closes/disappears, etc.
-#if defined(DXX_BUILD_DESCENT_II)
 	flush_fcd_cache();
-#endif
 
 }
 

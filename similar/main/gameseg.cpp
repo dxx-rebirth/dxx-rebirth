@@ -819,6 +819,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		Last_fcd_flush_time = GameTime64;
 	}
 
+	else
 	//	Can't quickly get distance, so see if in Fcd_cache.
 	range_for (auto &i, Fcd_cache)
 		if (i.seg0 == seg0 && i.seg1 == seg1)
