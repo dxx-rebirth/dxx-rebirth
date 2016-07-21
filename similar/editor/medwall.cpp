@@ -624,18 +624,19 @@ int wall_restore_all()
 //	Remove a specific side.
 int wall_remove_side(const vsegptridx_t seg, short side)
 {
-	if (IS_CHILD(seg->children[side]) && IS_CHILD(seg->sides[side].wall_num)) {
+	if (IS_CHILD(seg->children[side]) && seg->sides[side].wall_num != wall_none)
+	{
 		const auto &&csegp = vsegptr(seg->children[side]);
-		auto Connectside = find_connect_side(seg, csegp);
+		const auto Connectside = find_connect_side(seg, csegp);
 
 		remove_trigger(seg, side);
 		remove_trigger(csegp, Connectside);
 
 		// Remove walls 'wall_num' and connecting side 'wall_num'
 		//  from Walls array.  
-		auto lower_wallnum = seg->sides[side].wall_num;
-		if (csegp->sides[Connectside].wall_num < lower_wallnum)
-			 lower_wallnum = csegp->sides[Connectside].wall_num;
+		const auto wall0 = seg->sides[side].wall_num;
+		const auto wall1 = csegp->sides[Connectside].wall_num;
+		const auto lower_wallnum = (wall0 < wall1) ? wall0 : wall1;
 
 		{
 			const auto linked_wall = vcwallptr(lower_wallnum)->linked_wall;
@@ -657,9 +658,9 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 		range_for (const auto &&segp, vsegptr)
 		{
 			if (segp->segnum != segment_none)
-			for (int w=0;w<MAX_SIDES_PER_SEGMENT;w++)
-				if (segp->sides[w].wall_num > lower_wallnum+1)
-					segp->sides[w].wall_num -= 2;
+				range_for (auto &w, segp->sides)
+					if (w.wall_num > lower_wallnum+1)
+						w.wall_num -= 2;
 		}
 
 		// Destroy any links to the deleted wall.
