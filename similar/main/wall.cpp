@@ -937,9 +937,6 @@ void wall_illusion_off(const vsegptridx_t seg, int side)
 {
 	const auto op = [](const wallnum_t wall_num) {
 		vwallptr(wall_num)->flags |= WALL_ILLUSION_OFF;
-#if defined(DXX_BUILD_DESCENT_II)
-		kill_stuck_objects(wall_num);
-#endif
 	};
 	wall_illusion_op(seg, side, op);
 }
