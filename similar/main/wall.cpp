@@ -1304,7 +1304,7 @@ void wall_frame_process()
 }
 
 static unsigned Num_stuck_objects;
-static array<stuckobj, MAX_STUCK_OBJECTS> Stuck_objects;
+static array<stuckobj, 32> Stuck_objects;
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
@@ -1337,7 +1337,7 @@ void remove_obsolete_stuck_objects(void)
 {
 	int	objnum;
 
-	objnum = d_tick_count % MAX_STUCK_OBJECTS;
+	objnum = d_tick_count % Stuck_objects.size();
 
 	if (Stuck_objects[objnum].wallnum != wall_none)
 		if ((Stuck_objects[objnum].wallnum == 0) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature))
@@ -1360,7 +1360,7 @@ void remove_obsolete_stuck_objects(void)
 	if (!Num_stuck_objects)
 		return;
 
-	objnum = d_tick_count % MAX_STUCK_OBJECTS;
+	objnum = d_tick_count % Stuck_objects.size();
 
 	if (Stuck_objects[objnum].wallnum != wall_none)
 		if (vcwallptr(Stuck_objects[objnum].wallnum)->state != WALL_DOOR_CLOSED ||

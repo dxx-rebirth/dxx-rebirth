@@ -160,8 +160,6 @@ struct wall_magic_constant_t
 
 const wall_magic_constant_t<0xffff> wall_none{};
 
-const std::size_t MAX_STUCK_OBJECTS = 32;
-
 struct stuckobj;
 struct v16_wall;
 struct v19_wall;
