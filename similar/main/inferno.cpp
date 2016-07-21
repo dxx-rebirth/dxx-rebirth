@@ -50,6 +50,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <sys/types.h>
 #endif
 
+#include <cctype>
 #include "pstypes.h"
 #include "strutil.h"
 #include "console.h"
@@ -534,16 +535,17 @@ static int main(int argc, char *argv[])
 		if (!CGameArg.SysPilot.empty())
 		{
 			char filename[sizeof(PLAYER_DIRECTORY_TEXT) + CALLSIGN_LEN + 4];
-			unsigned j;
 
 			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), CGameArg.SysPilot.c_str());
+			/* The pilot name is never used after this.  Clear it to
+			 * free the allocated memory, if any.
+			 */
+			CGameArg.SysPilot.clear();
 			const uintptr_t SysUsePlayersDir = CGameArg.SysUsePlayersDir;
-			for (j = SysUsePlayersDir; filename[j]; ++j)
+			auto j = SysUsePlayersDir;
+			for (const auto &facet = std::use_facet<std::ctype<char>>(std::locale::classic()); char &c = filename[j]; ++j)
 			{
-				switch (filename[j]) {
-					case ' ':
-						filename[j] = '\0';
-				}
+				c = facet.tolower(static_cast<uint8_t>(c));
 			}
 			if (j < sizeof(filename) - 4 && (j <= 4 || strcmp(&filename[j - 4], ".plr"))) // if player hasn't specified .plr extension in argument, add it
 			{
