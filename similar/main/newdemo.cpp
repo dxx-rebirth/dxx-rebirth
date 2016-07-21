@@ -3885,10 +3885,11 @@ int newdemo_count_demos()
 {
 	int NumFiles=0;
 
-	auto find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
-
-	for (auto i = find.get(); *i; ++i)
+	range_for (const auto i, PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions))
+	{
+		(void)i;
 		NumFiles++;
+	}
 	return NumFiles;
 }
 
@@ -3918,14 +3919,11 @@ void newdemo_start_playback(const char * filename)
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
 
-		auto find = PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions);
-
-		for (auto i = find.get(); *i; ++i)
+		range_for (const auto i, PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions))
 		{
 			if (NumFiles == RandFileNum)
 			{
-				strcat(filename2, *i);
-
+				strcat(filename2, i);
 				break;
 			}
 			NumFiles++;
