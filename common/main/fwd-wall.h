@@ -262,7 +262,7 @@ void remove_obsolete_stuck_objects();
 void wall_set_tmap_num(vsegptridx_t seg,int side,vsegptridx_t csegp,int cside,int anim_num,int frame_num);
 
 // Remove any flares from a wall
-void kill_stuck_objects(int wallnum);
+void kill_stuck_objects(wallnum_t wallnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
