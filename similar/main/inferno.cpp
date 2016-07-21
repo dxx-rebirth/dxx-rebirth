@@ -389,7 +389,7 @@ static int main(int argc, char *argv[])
 		return(0);
 	}
 
-	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
+	printf("\nType '%s -help' for a list of command-line options.\n\n", PROGNAME);
 
 	PHYSFSX_listSearchPathContent();
 	
