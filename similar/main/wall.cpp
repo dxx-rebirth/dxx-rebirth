@@ -1329,49 +1329,23 @@ void add_stuck_object(const vobjptridx_t objp, const vsegptr_t segp, int sidenum
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
 //	--------------------------------------------------------------------------------------------------
 //	Look at the list of stuck objects, clean up in case an object has gone away, but not been removed here.
 //	Removes up to one/frame.
 void remove_obsolete_stuck_objects(void)
 {
-	int	objnum;
-
-	objnum = d_tick_count % Stuck_objects.size();
-
-	if (Stuck_objects[objnum].wallnum != wall_none)
-		if ((Stuck_objects[objnum].wallnum == 0) || (vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature))
-		{
-			Num_stuck_objects--;
-			Stuck_objects[objnum].wallnum = wall_none;
-		}
-}
-#endif
-
-#if defined(DXX_BUILD_DESCENT_II)
-//	--------------------------------------------------------------------------------------------------
-//	Look at the list of stuck objects, clean up in case an object has gone away, but not been removed here.
-//	Removes up to one/frame.
-void remove_obsolete_stuck_objects(void)
-{
-	int	objnum;
-
 	//	Safety and efficiency code.  If no stuck objects, should never get inside the IF, but this is faster.
 	if (!Num_stuck_objects)
 		return;
-
-	objnum = d_tick_count % Stuck_objects.size();
-
-	if (Stuck_objects[objnum].wallnum != wall_none)
-		if (vcwallptr(Stuck_objects[objnum].wallnum)->state != WALL_DOOR_CLOSED ||
-			vcobjptr(Stuck_objects[objnum].objnum)->signature != Stuck_objects[objnum].signature)
+	auto &s = Stuck_objects[d_tick_count % Stuck_objects.size()];
+	if (s.wallnum != wall_none)
+		if (vcwallptr(s.wallnum)->state != WALL_DOOR_CLOSED ||
+			vcobjptr(s.objnum)->signature != s.signature)
 		{
 			Num_stuck_objects--;
-			Stuck_objects[objnum].wallnum = wall_none;
+			s.wallnum = wall_none;
 		}
-
 }
-#endif
 
 //	----------------------------------------------------------------------------------------------------
 //	Door with wall index wallnum is opening, kill all objects stuck in it.
