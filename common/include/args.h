@@ -74,7 +74,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #endif
 	bool SysShowCmdHelp;
 	bool SysLowMem;
-	uint8_t SysUsePlayersDir;
+	int8_t SysUsePlayersDir;
 	bool SysAutoRecordDemo;
 	bool SysWindow;
 	bool SysAutoDemo;
@@ -162,7 +162,7 @@ __attribute_format_arg(1)
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s);
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s)
 {
-	return &s[CGameArg.SysUsePlayersDir];
+	return &s[CGameArg.SysUsePlayersDir + sizeof(PLAYER_DIRECTORY_TEXT) - 1];
 }
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)(PLAYER_DIRECTORY_TEXT S))
 }

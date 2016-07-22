@@ -536,17 +536,22 @@ static int main(int argc, char *argv[])
 		{
 			char filename[sizeof(PLAYER_DIRECTORY_TEXT) + CALLSIGN_LEN + 4];
 
+			/* Step over the literal PLAYER_DIRECTORY_TEXT when it is
+			 * present.  Point at &filename[0] when
+			 * PLAYER_DIRECTORY_TEXT is absent.
+			 */
+			const auto b = &filename[-CGameArg.SysUsePlayersDir];
 			snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.12s"), CGameArg.SysPilot.c_str());
 			/* The pilot name is never used after this.  Clear it to
 			 * free the allocated memory, if any.
 			 */
 			CGameArg.SysPilot.clear();
-			const uintptr_t SysUsePlayersDir = CGameArg.SysUsePlayersDir;
-			auto j = SysUsePlayersDir;
-			for (const auto &facet = std::use_facet<std::ctype<char>>(std::locale::classic()); char &c = filename[j]; ++j)
+			auto p = b;
+			for (const auto &facet = std::use_facet<std::ctype<char>>(std::locale::classic()); char &c = *p; ++p)
 			{
 				c = facet.tolower(static_cast<uint8_t>(c));
 			}
+			auto j = p - filename;
 			if (j < sizeof(filename) - 4 && (j <= 4 || strcmp(&filename[j - 4], ".plr"))) // if player hasn't specified .plr extension in argument, add it
 			{
 				strcpy(&filename[j], ".plr");
@@ -554,9 +559,7 @@ static int main(int argc, char *argv[])
 			}
 			if(PHYSFSX_exists(filename,0))
 			{
-				filename[j - 4] = 0;
-				const auto b = &filename[SysUsePlayersDir];
-				get_local_player().callsign.copy(b, std::distance(b, end(filename)));
+				get_local_player().callsign.copy(b, std::distance(b, &filename[j - 4]));
 				read_player_file();
 				WriteConfigFile();
 			}
