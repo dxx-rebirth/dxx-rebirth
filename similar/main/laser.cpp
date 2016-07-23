@@ -83,21 +83,8 @@ static objptridx_t find_homing_object(const vms_vector &curpos, const vobjptridx
 // Called by render code.... determines if the laser is from a robot or the
 // player and calls the appropriate routine.
 
-void Laser_render(const vobjptr_t obj)
+void Laser_render(const object_base &obj)
 {
-
-//	Commented out by John (sort of, typed by Mike) on 6/8/94
-#if 0
-	switch( obj->id )	{
-	case WEAPON_TYPE_WEAK_LASER:
-	case WEAPON_TYPE_STRONG_LASER:
-	case WEAPON_TYPE_CANNON_BALL:
-	case WEAPON_TYPE_MISSILE:
-		break;
-	default:
-		Error( "Invalid weapon type in Laser_render\n" );
-	}
-#endif
 	auto &wi = Weapon_info[get_weapon_id(obj)];
 	switch(wi.render_type)
 	{
@@ -115,7 +102,6 @@ void Laser_render(const vobjptr_t obj)
 	default:
 		Error( "Invalid weapon render type in Laser_render\n" );
 	}
-
 }
 
 //---------------------------------------------------------------------------------
