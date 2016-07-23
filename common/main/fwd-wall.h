@@ -123,14 +123,14 @@ static inline constexpr WALL_IS_DOORWAY_sresult_t<F> WALL_IS_DOORWAY_sresult(WAL
 struct WALL_IS_DOORWAY_result_t;
 
 // WALL_IS_DOORWAY flags.
-const WALL_IS_DOORWAY_FLAG<1> WID_FLY_FLAG{};
-const WALL_IS_DOORWAY_FLAG<2> WID_RENDER_FLAG{};
-const WALL_IS_DOORWAY_FLAG<4> WID_RENDPAST_FLAG{};
-const WALL_IS_DOORWAY_FLAG<8> WID_EXTERNAL_FLAG{};
+constexpr WALL_IS_DOORWAY_FLAG<1> WID_FLY_FLAG{};
+constexpr WALL_IS_DOORWAY_FLAG<2> WID_RENDER_FLAG{};
+constexpr WALL_IS_DOORWAY_FLAG<4> WID_RENDPAST_FLAG{};
+constexpr WALL_IS_DOORWAY_FLAG<8> WID_EXTERNAL_FLAG{};
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-const WALL_IS_DOORWAY_FLAG<16> WID_CLOAKED_FLAG{};
+constexpr WALL_IS_DOORWAY_FLAG<16> WID_CLOAKED_FLAG{};
 }
 #endif
 
@@ -158,7 +158,7 @@ struct wall_magic_constant_t
 	constexpr operator wallnum_t() const { return I; }
 };
 
-const wall_magic_constant_t<0xffff> wall_none{};
+constexpr wall_magic_constant_t<0xffff> wall_none{};
 
 struct stuckobj;
 struct v16_wall;

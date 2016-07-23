@@ -496,8 +496,8 @@ ssize_t dxx_recvfrom_t::apply(int sockfd, void *buf, size_t len, int flags, sock
 	return rv;
 }
 
-const csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
-const sockaddr_dispatch_t<dxx_recvfrom_t> dxx_recvfrom{};
+constexpr csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
+constexpr sockaddr_dispatch_t<dxx_recvfrom_t> dxx_recvfrom{};
 
 }
 
@@ -617,7 +617,7 @@ public:
 #undef apply_sockaddr
 };
 
-const sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
+constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
 
 }
 
@@ -873,8 +873,8 @@ void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t add
 	dxx_sendto(game_addr, addrlen, UDP_Socket[0], buf, 0);
 }
 
-const csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
-const csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t>> net_udp_send_game_info{};
+constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
+constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t>> net_udp_send_game_info{};
 
 }
 
