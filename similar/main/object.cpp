@@ -887,18 +887,17 @@ void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 		Objects[0].prev = object_none;
 }
 
-void obj_unlink(const vobjptr_t obj)
+void obj_unlink(object_base &obj)
 {
-	segment *seg = &Segments[obj->segnum];
-	if (obj->prev == object_none)
-		seg->objects = obj->next;
-	else
-		vobjptr(obj->prev)->next = obj->next;
+	const auto next = obj.next;
+	((obj.prev == object_none)
+		? vsegptr(obj.segnum)->objects
+		: vobjptr(obj.prev)->next) = next;
 
-	if (obj->next != object_none)
-		vobjptr(obj->next)->prev = obj->prev;
+	obj.segnum = segment_none;
 
-	obj->segnum = segment_none;
+	if (next != object_none)
+		vobjptr(next)->prev = obj.prev;
 
 	Assert(Objects[0].next != 0);
 	Assert(Objects[0].prev != 0);

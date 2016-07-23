@@ -216,7 +216,7 @@ void obj_relink_all();
 void obj_link(vobjptridx_t objnum,vsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
-void obj_unlink(vobjptr_t objnum);
+void obj_unlink(object_base &objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
