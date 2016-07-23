@@ -261,6 +261,8 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 
 namespace dcx {
 
+constexpr vm_distance MAX_SMART_DISTANCE(F1_0*150);
+constexpr vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
 static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
@@ -343,11 +345,11 @@ static objptridx_t create_weapon_object(int weapon_type,const vsegptridx_t segnu
 //	Changing these constants will not affect the damage done.
 //	WARNING: If you change DESIRED_OMEGA_DIST and MAX_OMEGA_BLOBS, you don't merely change the look of the cannon,
 //	you change its range.  If you decrease DESIRED_OMEGA_DIST, you decrease how far the gun can fire.
-const fix OMEGA_BASE_TIME = F1_0/20; // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
-const unsigned MIN_OMEGA_BLOBS = 3;				//	No matter how close the obstruction, at this many blobs created.
-const fix MIN_OMEGA_DIST = F1_0*3;		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
-const fix DESIRED_OMEGA_DIST = F1_0*5;		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
-const unsigned MAX_OMEGA_BLOBS = 16;				//	No matter how far away the obstruction, this is the maximum number of blobs.
+constexpr fix OMEGA_BASE_TIME = F1_0/20; // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
+constexpr unsigned MIN_OMEGA_BLOBS = 3;				//	No matter how close the obstruction, at this many blobs created.
+constexpr fix MIN_OMEGA_DIST = F1_0*3;		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
+constexpr fix DESIRED_OMEGA_DIST = F1_0*5;		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
+constexpr unsigned MAX_OMEGA_BLOBS = 16;				//	No matter how far away the obstruction, this is the maximum number of blobs.
 constexpr vm_distance MAX_OMEGA_DIST{MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST};		//	Maximum extent of lightning blobs.
 constexpr vm_distance_squared MAX_OMEGA_DIST_SQUARED{MAX_OMEGA_DIST * MAX_OMEGA_DIST};
 
@@ -2056,8 +2058,6 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 
 namespace dcx {
 
-const vm_distance MAX_SMART_DISTANCE(F1_0*150);
-const vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
 #define	MAX_OBJDISTS			30
 
 }

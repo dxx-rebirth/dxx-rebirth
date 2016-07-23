@@ -70,7 +70,7 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             light_value;
 };
 
-const int vclip_none = -1;
+constexpr int vclip_none = -1;
 
 extern unsigned Num_vclips;
 

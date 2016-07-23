@@ -67,7 +67,7 @@ constexpr fix Fuelcen_max_amount = i2f(100);
 
 // Every time a robot is created in the morphing code, it decreases capacity of the morpher
 // by this amount... when capacity gets to 0, no more morphers...
-const fix EnergyToCreateOneRobot = i2f(1);
+constexpr fix EnergyToCreateOneRobot = i2f(1);
 
 unsigned Num_robot_centers;
 unsigned Num_fuelcenters;

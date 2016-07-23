@@ -61,10 +61,10 @@ static inline int32_t SWAPINT(const int32_t &i)
  * endian.
  */
 #define byteutil_choose_endian(F,a)	(static_cast<void>(static_cast<decltype(F(a))>(0)), a)
-const int words_bigendian = 0;
+constexpr int words_bigendian = 0;
 #else // ! WORDS_BIGENDIAN
 #define byteutil_choose_endian(F,a)	(F(a))
-const int words_bigendian = 1;
+constexpr int words_bigendian = 1;
 #endif // ! WORDS_BIGENDIAN
 
 #ifndef WORDS_NEED_ALIGNMENT

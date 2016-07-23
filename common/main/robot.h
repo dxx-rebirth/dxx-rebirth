@@ -151,7 +151,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 };
 }
 
-const auto weapon_none = weapon_id_type::unspecified;
+constexpr auto weapon_none = weapon_id_type::unspecified;
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)

@@ -2540,7 +2540,7 @@ static inline constexpr collision_outer_array_t collide_init(index_sequence<R...
 
 namespace dsx {
 
-const collision_outer_array_t CollisionResult = collide_init(make_tree_index_sequence<MAX_OBJECT_TYPES>(), make_tree_index_sequence<MAX_OBJECT_TYPES>());
+constexpr collision_outer_array_t CollisionResult = collide_init(make_tree_index_sequence<MAX_OBJECT_TYPES>(), make_tree_index_sequence<MAX_OBJECT_TYPES>());
 
 }
 

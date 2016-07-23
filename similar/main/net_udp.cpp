@@ -146,7 +146,7 @@ constexpr int require_tracker_socket = 0;
 static fix64 StartAbortMenuTime;
 
 #ifndef _WIN32
-const int INVALID_SOCKET = -1;
+constexpr int INVALID_SOCKET = -1;
 #endif
 
 namespace {
@@ -3233,8 +3233,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 #endif
 
-const unsigned reactor_invul_time_mini_scale = F1_0 * 60;
-const unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
+constexpr unsigned reactor_invul_time_mini_scale = F1_0 * 60;
+constexpr unsigned reactor_invul_time_scale = 5 * reactor_invul_time_mini_scale;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \

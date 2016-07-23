@@ -17,13 +17,13 @@
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-const unsigned MAX_WALLS = 175;	// Maximum number of walls
-const std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
-const std::size_t MAX_DOORS = 50;		// Maximum number of open doors
+constexpr unsigned MAX_WALLS = 175;	// Maximum number of walls
+constexpr std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
+constexpr std::size_t MAX_DOORS = 50;		// Maximum number of open doors
 #elif defined(DXX_BUILD_DESCENT_II)
-const unsigned MAX_WALLS = 254; // Maximum number of walls
-const std::size_t MAX_WALL_ANIMS = 60;  // Maximum different types of doors
-const std::size_t MAX_DOORS = 90;  // Maximum number of open doors
+constexpr unsigned MAX_WALLS = 254; // Maximum number of walls
+constexpr std::size_t MAX_WALL_ANIMS = 60;  // Maximum different types of doors
+constexpr std::size_t MAX_DOORS = 90;  // Maximum number of open doors
 #endif
 
 enum wall_type_t : uint8_t
@@ -43,31 +43,31 @@ enum wall_type_t : uint8_t
 
 namespace dcx {
 typedef unsigned wall_flag_t;
-const wall_flag_t WALL_BLASTED = 1;   // Blasted out wall.
-const wall_flag_t WALL_DOOR_OPENED = 2;   // Open door.
-const wall_flag_t WALL_DOOR_LOCKED = 8;   // Door is locked.
-const wall_flag_t WALL_DOOR_AUTO = 16;  // Door automatically closes after time.
-const wall_flag_t WALL_ILLUSION_OFF = 32;  // Illusionary wall is shut off.
+constexpr wall_flag_t WALL_BLASTED = 1;   // Blasted out wall.
+constexpr wall_flag_t WALL_DOOR_OPENED = 2;   // Open door.
+constexpr wall_flag_t WALL_DOOR_LOCKED = 8;   // Door is locked.
+constexpr wall_flag_t WALL_DOOR_AUTO = 16;  // Door automatically closes after time.
+constexpr wall_flag_t WALL_ILLUSION_OFF = 32;  // Illusionary wall is shut off.
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-const wall_flag_t WALL_WALL_SWITCH = 64;  // This wall is openable by a wall switch.
-const wall_flag_t WALL_BUDDY_PROOF = 128; // Buddy assumes he cannot get through this wall.
+constexpr wall_flag_t WALL_WALL_SWITCH = 64;  // This wall is openable by a wall switch.
+constexpr wall_flag_t WALL_BUDDY_PROOF = 128; // Buddy assumes he cannot get through this wall.
 }
 #endif
 
 namespace dcx {
 typedef unsigned wall_state_t;
-const wall_state_t WALL_DOOR_CLOSED = 0;       // Door is closed
-const wall_state_t WALL_DOOR_OPENING = 1;       // Door is opening.
-const wall_state_t WALL_DOOR_WAITING = 2;       // Waiting to close
-const wall_state_t WALL_DOOR_CLOSING = 3;       // Door is closing
+constexpr wall_state_t WALL_DOOR_CLOSED = 0;       // Door is closed
+constexpr wall_state_t WALL_DOOR_OPENING = 1;       // Door is opening.
+constexpr wall_state_t WALL_DOOR_WAITING = 2;       // Waiting to close
+constexpr wall_state_t WALL_DOOR_CLOSING = 3;       // Door is closing
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-const wall_state_t WALL_DOOR_OPEN = 4;       // Door is open, and staying open
-const wall_state_t WALL_DOOR_CLOAKING = 5;       // Wall is going from closed -> open
-const wall_state_t WALL_DOOR_DECLOAKING = 6;       // Wall is going from open -> closed
+constexpr wall_state_t WALL_DOOR_OPEN = 4;       // Door is open, and staying open
+constexpr wall_state_t WALL_DOOR_CLOAKING = 5;       // Wall is going from closed -> open
+constexpr wall_state_t WALL_DOOR_DECLOAKING = 6;       // Wall is going from open -> closed
 }
 #endif
 
@@ -80,19 +80,19 @@ enum wall_key_t : uint8_t
 	KEY_GOLD = 8,
 };
 
-const fix WALL_HPS = 100*F1_0;    // Normal wall's hp
-const fix WALL_DOOR_INTERVAL = 5*F1_0;      // How many seconds a door is open
+constexpr fix WALL_HPS = 100*F1_0;    // Normal wall's hp
+constexpr fix WALL_DOOR_INTERVAL = 5*F1_0;      // How many seconds a door is open
 
-const fix DOOR_OPEN_TIME = i2f(2);      // How long takes to open
-const fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
+constexpr fix DOOR_OPEN_TIME = i2f(2);      // How long takes to open
+constexpr fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 }
 
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-const std::size_t MAX_CLIP_FRAMES = 20;
+constexpr std::size_t MAX_CLIP_FRAMES = 20;
 #elif defined(DXX_BUILD_DESCENT_II)
-const std::size_t MAX_CLIP_FRAMES = 50;
+constexpr std::size_t MAX_CLIP_FRAMES = 50;
 #endif
 }
 
@@ -136,16 +136,16 @@ constexpr WALL_IS_DOORWAY_FLAG<16> WID_CLOAKED_FLAG{};
 
 namespace dcx {
 //  WALL_IS_DOORWAY return values          F/R/RP
-const auto WID_WALL                = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG);   // 0/1/0        wall
-const auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 0/1/1        transparent wall
-const auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG);   // 1/1/0        illusory wall
-const auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 1/1/1        transparent illusory wall
-const auto WID_NO_WALL             = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDPAST_FLAG);   //  1/0/1       no wall, can fly through
-const auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WID_EXTERNAL_FLAG);   // 0/0/0/1  don't see it, dont fly through it
+constexpr auto WID_WALL                = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG);   // 0/1/0        wall
+constexpr auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 0/1/1        transparent wall
+constexpr auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG);   // 1/1/0        illusory wall
+constexpr auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG);   // 1/1/1        transparent illusory wall
+constexpr auto WID_NO_WALL             = WALL_IS_DOORWAY_sresult(WID_FLY_FLAG | WID_RENDPAST_FLAG);   //  1/0/1       no wall, can fly through
+constexpr auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WID_EXTERNAL_FLAG);   // 0/0/0/1  don't see it, dont fly through it
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-const auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG);
+constexpr auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG);
 }
 #endif
 #endif
@@ -166,21 +166,21 @@ struct v19_wall;
 struct active_door;
 
 typedef unsigned wall_clip_flag_t;
-const wall_clip_flag_t WCF_EXPLODES = 1;       //door explodes when opening
-const wall_clip_flag_t WCF_BLASTABLE = 2;       //this is a blastable wall
-const wall_clip_flag_t WCF_TMAP1 = 4;       //this uses primary tmap, not tmap2
-const wall_clip_flag_t WCF_HIDDEN = 8;       //this uses primary tmap, not tmap2
+constexpr wall_clip_flag_t WCF_EXPLODES = 1;       //door explodes when opening
+constexpr wall_clip_flag_t WCF_BLASTABLE = 2;       //this is a blastable wall
+constexpr wall_clip_flag_t WCF_TMAP1 = 4;       //this uses primary tmap, not tmap2
+constexpr wall_clip_flag_t WCF_HIDDEN = 8;       //this uses primary tmap, not tmap2
 }
 
 #ifdef dsx
 namespace dsx {
 struct wall;
 struct wclip;
-const std::size_t MAX_CLIP_FRAMES_D1 = 20;
+constexpr std::size_t MAX_CLIP_FRAMES_D1 = 20;
 
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall;
-const std::size_t MAX_CLOAKING_WALLS = 10;
+constexpr std::size_t MAX_CLOAKING_WALLS = 10;
 extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
 extern unsigned Num_cloaking_walls;
 #endif

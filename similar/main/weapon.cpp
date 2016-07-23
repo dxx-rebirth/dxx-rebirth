@@ -977,7 +977,7 @@ int	Seismic_tremor_volume;
 static fix64 Next_seismic_sound_time;
 static bool Seismic_sound_playing;
 
-const int Seismic_sound = SOUND_SEISMIC_DISTURBANCE_START;
+constexpr int Seismic_sound = SOUND_SEISMIC_DISTURBANCE_START;
 
 static void start_seismic_sound()
 {

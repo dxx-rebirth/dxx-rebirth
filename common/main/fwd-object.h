@@ -32,77 +32,77 @@ static constexpr valptridx<object>::magic_constant<0> object_first{};
 }
 #endif
 
-const unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
+constexpr unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
 
 #if defined(DXX_BUILD_DESCENT_I)
-const unsigned MAX_OBJECT_TYPES = 15;
+constexpr unsigned MAX_OBJECT_TYPES = 15;
 #elif defined(DXX_BUILD_DESCENT_II)
-const unsigned MAX_OBJECT_TYPES = 16;
+constexpr unsigned MAX_OBJECT_TYPES = 16;
 #endif
 
 // Result types
 typedef unsigned result_type_t;
-const result_type_t RESULT_NOTHING = 0;   // Ignore this collision
-const result_type_t RESULT_CHECK = 1;   // Check for this collision
+constexpr result_type_t RESULT_NOTHING = 0;   // Ignore this collision
+constexpr result_type_t RESULT_CHECK = 1;   // Check for this collision
 
 // Control types - what tells this object what do do
 typedef unsigned control_type_t;
-const control_type_t CT_NONE = 0;		// doesn't move (or change movement)
-const control_type_t CT_AI = 1;			// driven by AI
-const control_type_t CT_EXPLOSION = 2;	// explosion sequencer
-const control_type_t CT_FLYING = 4;		// the player is flying
-const control_type_t CT_SLEW = 5;		// slewing
-const control_type_t CT_FLYTHROUGH = 6;	// the flythrough system
-const control_type_t CT_WEAPON = 9;		// laser, etc.
-const control_type_t CT_REPAIRCEN = 10;	// under the control of the repair center
-const control_type_t CT_MORPH = 11;		// this object is being morphed
-const control_type_t CT_DEBRIS = 12;	// this is a piece of debris
-const control_type_t CT_POWERUP = 13;	// animating powerup blob
-const control_type_t CT_LIGHT = 14;		// doesn't actually do anything
-const control_type_t CT_REMOTE = 15;	// controlled by another net player
-const control_type_t CT_CNTRLCEN = 16;	// the control center/main reactor
+constexpr control_type_t CT_NONE = 0;		// doesn't move (or change movement)
+constexpr control_type_t CT_AI = 1;			// driven by AI
+constexpr control_type_t CT_EXPLOSION = 2;	// explosion sequencer
+constexpr control_type_t CT_FLYING = 4;		// the player is flying
+constexpr control_type_t CT_SLEW = 5;		// slewing
+constexpr control_type_t CT_FLYTHROUGH = 6;	// the flythrough system
+constexpr control_type_t CT_WEAPON = 9;		// laser, etc.
+constexpr control_type_t CT_REPAIRCEN = 10;	// under the control of the repair center
+constexpr control_type_t CT_MORPH = 11;		// this object is being morphed
+constexpr control_type_t CT_DEBRIS = 12;	// this is a piece of debris
+constexpr control_type_t CT_POWERUP = 13;	// animating powerup blob
+constexpr control_type_t CT_LIGHT = 14;		// doesn't actually do anything
+constexpr control_type_t CT_REMOTE = 15;	// controlled by another net player
+constexpr control_type_t CT_CNTRLCEN = 16;	// the control center/main reactor
 
 // Movement types
 typedef unsigned movement_type_t;
-const movement_type_t MT_NONE = 0;   // doesn't move
-const movement_type_t MT_PHYSICS = 1;   // moves by physics
-const movement_type_t MT_SPINNING = 3;   // this object doesn't move, just sits and spins
+constexpr movement_type_t MT_NONE = 0;   // doesn't move
+constexpr movement_type_t MT_PHYSICS = 1;   // moves by physics
+constexpr movement_type_t MT_SPINNING = 3;   // this object doesn't move, just sits and spins
 
 // Render types
 typedef unsigned render_type_t;
-const render_type_t RT_NONE = 0;   // does not render
-const render_type_t RT_POLYOBJ = 1;   // a polygon model
-const render_type_t RT_FIREBALL = 2;   // a fireball
-const render_type_t RT_LASER = 3;   // a laser
-const render_type_t RT_HOSTAGE = 4;   // a hostage
-const render_type_t RT_POWERUP = 5;   // a powerup
-const render_type_t RT_MORPH = 6;   // a robot being morphed
-const render_type_t RT_WEAPON_VCLIP = 7;   // a weapon that renders as a vclip
+constexpr render_type_t RT_NONE = 0;   // does not render
+constexpr render_type_t RT_POLYOBJ = 1;   // a polygon model
+constexpr render_type_t RT_FIREBALL = 2;   // a fireball
+constexpr render_type_t RT_LASER = 3;   // a laser
+constexpr render_type_t RT_HOSTAGE = 4;   // a hostage
+constexpr render_type_t RT_POWERUP = 5;   // a powerup
+constexpr render_type_t RT_MORPH = 6;   // a robot being morphed
+constexpr render_type_t RT_WEAPON_VCLIP = 7;   // a weapon that renders as a vclip
 
 // misc object flags
 typedef unsigned object_flag_t;
-const object_flag_t OF_EXPLODING = 1;   // this object is exploding
-const object_flag_t OF_SHOULD_BE_DEAD = 2;   // this object should be dead, so next time we can, we should delete this object.
-const object_flag_t OF_DESTROYED = 4;   // this has been killed, and is showing the dead version
-const object_flag_t OF_SILENT = 8;   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
-const object_flag_t OF_ATTACHED = 16;  // this object is a fireball attached to another object
+constexpr object_flag_t OF_EXPLODING = 1;   // this object is exploding
+constexpr object_flag_t OF_SHOULD_BE_DEAD = 2;   // this object should be dead, so next time we can, we should delete this object.
+constexpr object_flag_t OF_DESTROYED = 4;   // this has been killed, and is showing the dead version
+constexpr object_flag_t OF_SILENT = 8;   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
+constexpr object_flag_t OF_ATTACHED = 16;  // this object is a fireball attached to another object
 #if defined(DXX_BUILD_DESCENT_II)
-const object_flag_t OF_PLAYER_DROPPED = 64;  // this object was dropped by the player...
+constexpr object_flag_t OF_PLAYER_DROPPED = 64;  // this object was dropped by the player...
 #endif
 
 // physics flags
 typedef unsigned physics_flag_t;
-const physics_flag_t PF_TURNROLL = 0x01;    // roll when turning
-const physics_flag_t PF_LEVELLING = 0x02;    // level object with closest side
-const physics_flag_t PF_BOUNCE = 0x04;    // bounce (not slide) when hit will
-const physics_flag_t PF_WIGGLE = 0x08;    // wiggle while flying
-const physics_flag_t PF_STICK = 0x10;    // object sticks (stops moving) when hits wall
-const physics_flag_t PF_PERSISTENT = 0x20;    // object keeps going even after it hits another object (eg, fusion cannon)
-const physics_flag_t PF_USES_THRUST = 0x40;    // this object uses its thrust
+constexpr physics_flag_t PF_TURNROLL = 0x01;    // roll when turning
+constexpr physics_flag_t PF_LEVELLING = 0x02;    // level object with closest side
+constexpr physics_flag_t PF_BOUNCE = 0x04;    // bounce (not slide) when hit will
+constexpr physics_flag_t PF_WIGGLE = 0x08;    // wiggle while flying
+constexpr physics_flag_t PF_STICK = 0x10;    // object sticks (stops moving) when hits wall
+constexpr physics_flag_t PF_PERSISTENT = 0x20;    // object keeps going even after it hits another object (eg, fusion cannon)
+constexpr physics_flag_t PF_USES_THRUST = 0x40;    // this object uses its thrust
 #if defined(DXX_BUILD_DESCENT_II)
-const physics_flag_t PF_BOUNCED_ONCE = 0x80;    // Weapon has bounced once.
-const physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotation of this object
-const physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
+constexpr physics_flag_t PF_BOUNCED_ONCE = 0x80;    // Weapon has bounced once.
+constexpr physics_flag_t PF_FREE_SPINNING = 0x100;   // Drag does not apply to rotation of this object
+constexpr physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twice, then dies
 #endif
 
 namespace dcx {
@@ -110,16 +110,16 @@ enum object_type_t : int;
 struct object_base;
 
 typedef unsigned powerup_flag_t;
-const powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player
+constexpr powerup_flag_t PF_SPAT_BY_PLAYER = 1;   //this powerup was spat by the player
 
-const unsigned IMMORTAL_TIME = 0x3fffffff;  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
+constexpr unsigned IMMORTAL_TIME = 0x3fffffff;  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
 struct shortpos;
 struct quaternionpos;
 
 // This is specific to the shortpos extraction routines in gameseg.c.
-const unsigned RELPOS_PRECISION = 10;
-const unsigned MATRIX_PRECISION = 9;
+constexpr unsigned RELPOS_PRECISION = 10;
+constexpr unsigned MATRIX_PRECISION = 9;
 
 struct physics_info;
 struct physics_info_rw;
@@ -150,9 +150,9 @@ struct object_rw;
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
-const unsigned MAX_CONTROLCEN_GUNS = 4;
+constexpr unsigned MAX_CONTROLCEN_GUNS = 4;
 #elif defined(DXX_BUILD_DESCENT_II)
-const unsigned MAX_CONTROLCEN_GUNS = 8;
+constexpr unsigned MAX_CONTROLCEN_GUNS = 8;
 #endif
 
 struct powerup_info_rw;

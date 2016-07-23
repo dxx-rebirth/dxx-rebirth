@@ -79,7 +79,7 @@ static inline constexpr const array<fix, 1 + sizeof...(N)> init_fix_recip_table(
 	return array<fix, 1 + sizeof...(N)>{{F1_0, (F1_0 / N)...}};
 }
 
-const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
+constexpr array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table = init_fix_recip_table(make_tree_index_sequence<FIX_RECIP_TABLE_SIZE>());
 
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.

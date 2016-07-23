@@ -24,7 +24,7 @@
 namespace dcx {
 class submodel_angles;
 
-const std::size_t MAX_POLYGON_VECS = 1000;
+constexpr std::size_t MAX_POLYGON_VECS = 1000;
 struct polygon_model_points : array<g3s_point, MAX_POLYGON_VECS> {};
 }
 

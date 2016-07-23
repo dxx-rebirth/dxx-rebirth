@@ -36,7 +36,7 @@ namespace dcx {
 template <std::size_t>
 struct PHYSFSX_gets_line_t;
 
-const unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
+constexpr unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
 
 // Current_level_num starts at 1 for the first level
 // -1,-2,-3 are secret levels

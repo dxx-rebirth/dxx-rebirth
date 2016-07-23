@@ -79,19 +79,19 @@ struct side;
 }
 
 typedef unsigned segment_type_t;
-const segment_type_t SEGMENT_IS_NOTHING = 0;
-const segment_type_t SEGMENT_IS_FUELCEN = 1;
-const segment_type_t SEGMENT_IS_REPAIRCEN = 2;
-const segment_type_t SEGMENT_IS_CONTROLCEN = 3;
-const segment_type_t SEGMENT_IS_ROBOTMAKER = 4;
+constexpr segment_type_t SEGMENT_IS_NOTHING = 0;
+constexpr segment_type_t SEGMENT_IS_FUELCEN = 1;
+constexpr segment_type_t SEGMENT_IS_REPAIRCEN = 2;
+constexpr segment_type_t SEGMENT_IS_CONTROLCEN = 3;
+constexpr segment_type_t SEGMENT_IS_ROBOTMAKER = 4;
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::size_t MAX_CENTER_TYPES = 5;
 #elif defined(DXX_BUILD_DESCENT_II)
 typedef unsigned s2f_ambient_t;
-const s2f_ambient_t S2F_AMBIENT_WATER = 1;
-const s2f_ambient_t S2F_AMBIENT_LAVA = 2;
-const segment_type_t SEGMENT_IS_GOAL_BLUE = 5;
-const segment_type_t SEGMENT_IS_GOAL_RED = 6;
+constexpr s2f_ambient_t S2F_AMBIENT_WATER = 1;
+constexpr s2f_ambient_t S2F_AMBIENT_LAVA = 2;
+constexpr segment_type_t SEGMENT_IS_GOAL_BLUE = 5;
+constexpr segment_type_t SEGMENT_IS_GOAL_RED = 6;
 constexpr std::size_t MAX_CENTER_TYPES = 7;
 #endif
 

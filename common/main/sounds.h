@@ -176,7 +176,7 @@ constexpr unsigned MAX_SOUNDS = 254;
 
 extern array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
-const int sound_none = -1;
+constexpr int sound_none = -1;
 #endif
 
 #endif /* _SOUNDS_H */

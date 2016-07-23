@@ -161,7 +161,7 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg);
 
 }
 
-const uint8_t trigger_none = 0xff;
+constexpr uint8_t trigger_none = 0xff;
 
 #define Num_triggers	Triggers.get_count()
 

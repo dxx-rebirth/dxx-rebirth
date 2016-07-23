@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-const unsigned MAX_TMAP_VERTS = 25;
+constexpr unsigned MAX_TMAP_VERTS = 25;
 
 #ifndef OGL
 // -------------------------------------------------------------------------------------------------------

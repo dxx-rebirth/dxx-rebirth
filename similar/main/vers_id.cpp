@@ -23,8 +23,8 @@
 #define DXX_VERSID_BUILD_TIME	__TIME__
 #endif
 
-const char g_descent_version[] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
-const char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
+constexpr char g_descent_version[] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
+constexpr char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
 
 #ifdef DXX_RBE
 #define RECORD_BUILD_VARIABLE(X)	extern const char g_descent_##X[];	\

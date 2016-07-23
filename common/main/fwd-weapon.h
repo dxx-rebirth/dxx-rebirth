@@ -70,18 +70,18 @@ struct weapon_info;
 #define WEAPON_RENDER_VCLIP         3
 
 #if defined(DXX_BUILD_DESCENT_I)
-const unsigned MAX_WEAPON_TYPES = 30;
+constexpr unsigned MAX_WEAPON_TYPES = 30;
 
-const unsigned MAX_PRIMARY_WEAPONS = 5;
-const unsigned MAX_SECONDARY_WEAPONS = 5;
+constexpr unsigned MAX_PRIMARY_WEAPONS = 5;
+constexpr unsigned MAX_SECONDARY_WEAPONS = 5;
 
 #elif defined(DXX_BUILD_DESCENT_II)
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
-const unsigned MAX_WEAPON_TYPES = 70;
+constexpr unsigned MAX_WEAPON_TYPES = 70;
 
-const unsigned MAX_PRIMARY_WEAPONS = 10;
-const unsigned MAX_SECONDARY_WEAPONS = 10;
+constexpr unsigned MAX_PRIMARY_WEAPONS = 10;
+constexpr unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
 extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;

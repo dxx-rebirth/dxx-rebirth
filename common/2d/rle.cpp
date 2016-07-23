@@ -41,8 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-const uint8_t RLE_CODE = 0xe0;
-const uint8_t NOT_RLE_CODE = 0x1f;
+constexpr uint8_t RLE_CODE = 0xe0;
+constexpr uint8_t NOT_RLE_CODE = 0x1f;
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 static inline int IS_RLE_CODE(const uint8_t &x)
 {
