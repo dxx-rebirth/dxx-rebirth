@@ -265,12 +265,13 @@ constexpr vm_distance MAX_SMART_DISTANCE(F1_0*150);
 constexpr vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
 static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 {
-	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
-	Muzzle_data[Muzzle_queue_index].segnum = segnum;
-	Muzzle_data[Muzzle_queue_index].pos = pos;
+	auto &m = Muzzle_data[Muzzle_queue_index];
 	Muzzle_queue_index++;
 	if (Muzzle_queue_index >= MUZZLE_QUEUE_MAX)
 		Muzzle_queue_index = 0;
+	m.segnum = segnum;
+	m.pos = pos;
+	m.create_time = timer_query();
 }
 
 }
