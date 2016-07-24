@@ -430,8 +430,7 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 			multi_digi_link_sound_to_pos(SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0);
 		}
 		hit_dir = hitseg->sides[hitside].normals[0];
-		const auto rand_vec = make_random_vector();
-		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
+		vm_vec_scale_add2(hit_dir, make_random_vector(), F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, hit_dir, F1_0*8);
 
@@ -487,18 +486,15 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 	const auto type = check_volatile_wall(obj, hitseg, hitside);
 	if (type != volatile_wall_result::none)
 	{
-		vms_vector	hit_dir;
-
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
 			Last_volatile_scrape_sound_time = GameTime64;
 			const auto sound = (type == volatile_wall_result::lava) ? SOUND_VOLATILE_WALL_HISS : SOUND_SHIP_IN_WATER;
 			multi_digi_link_sound_to_pos(sound, hitseg, 0, hitpt, 0, F1_0);
 		}
 
-			hit_dir = hitseg->sides[hitside].normals[0];
+		auto hit_dir = hitseg->sides[hitside].normals[0];
 
-		const auto rand_vec = make_random_vector();
-		vm_vec_scale_add2(hit_dir, rand_vec, F1_0/8);
+		vm_vec_scale_add2(hit_dir, make_random_vector(), F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, hit_dir, F1_0*8);
 	}

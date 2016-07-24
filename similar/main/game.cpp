@@ -1519,10 +1519,8 @@ void GameProcessFrame(void)
 				rotvel.x += rx;
 				rotvel.z += rz;
 
-				const auto rand_vec = make_random_vector();
-
 				const auto bump_amount = Fusion_charge > F1_0*2 ? Fusion_charge*4 : F1_0*4;
-				bump_one_object(console, rand_vec, bump_amount);
+				bump_one_object(console, make_random_vector(), bump_amount);
 			}
 		}
 

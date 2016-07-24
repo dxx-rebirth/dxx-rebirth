@@ -448,8 +448,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 		//	Every so often, re-perturb blobs
 		if ((i % 4) == 3) {
-			const auto temp_vec = make_random_vector();
-			vm_vec_scale_add2(perturb_vec, temp_vec, F1_0/4);
+			vm_vec_scale_add2(perturb_vec, make_random_vector(), F1_0/4);
 		}
 
 		const auto temp_pos = vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i]);
@@ -606,8 +605,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		fvi_query	fq;
 		fvi_info		hit_data;
 		int			fate;
-		const auto perturb_vec = make_random_vector();
-		const auto perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, perturb_vec, F1_0/16);
+		const auto &&perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, make_random_vector(), F1_0/16);
 		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
 		if (fq.startseg == segment_none) {
@@ -2062,8 +2060,7 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 		make_random_vector(vector_to_goal);
 	} else {
 		vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, objp->pos);
-		const auto random_vector = make_random_vector();
-		vm_vec_scale_add2(vector_to_goal, random_vector, F1_0/4);
+		vm_vec_scale_add2(vector_to_goal, make_random_vector(), F1_0/4);
 		vm_vec_normalize_quick(vector_to_goal);
 	}
 

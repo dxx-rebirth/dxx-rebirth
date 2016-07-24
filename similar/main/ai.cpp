@@ -630,8 +630,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 	if (Seismic_tremor_magnitude) {
 		fix			scale;
 		scale = fixdiv(2*Seismic_tremor_magnitude, Robot_info[get_robot_id(objp)].mass);
-		const auto &&rand_vec = make_random_vector();
-		vm_vec_scale_add2(new_fvec, rand_vec, scale);
+		vm_vec_scale_add2(new_fvec, make_random_vector(), scale);
 	}
 
 	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, &objp.orient.rvec);
@@ -1618,8 +1617,7 @@ static void compute_vis_and_vec(const vobjptridx_t objp, vms_vector &pos, ai_loc
 			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
 			if (delta_time > F1_0*2) {
 				Ai_cloak_info[cloak_index].last_time = GameTime64;
-				const auto randvec = make_random_vector();
-				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, randvec, 8*delta_time );
+				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, make_random_vector(), 8 * delta_time);
 			}
 
 			auto dist = vm_vec_normalized_dir_quick(vec_to_player, Ai_cloak_info[cloak_index].last_position, pos);
@@ -3753,8 +3751,7 @@ _exit_cheat:
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				auto goal_point = vm_vec_add(ConsoleObject->pos, goal_vector);
-				const auto rand_vec = make_random_vector();
-				vm_vec_scale_add2(goal_point, rand_vec, F1_0*8);
+				vm_vec_scale_add2(goal_point, make_random_vector(), F1_0*8);
 				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
 				move_towards_vector(obj, vec_to_goal, 0);
 				ai_turn_towards_vector(vec_to_player, obj, robptr->turn_time[Difficulty_level]);

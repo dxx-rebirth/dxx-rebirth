@@ -416,8 +416,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 			while ((d_rand() > rand_prob) && (count < 4))
 #endif
 			{
-				const auto randvec = make_random_vector();
-				vm_vec_scale_add2(vec_to_goal, randvec, F1_0/scale_divisor);
+				vm_vec_scale_add2(vec_to_goal, make_random_vector(), F1_0/scale_divisor);
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);
