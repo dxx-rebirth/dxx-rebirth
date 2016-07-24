@@ -1751,9 +1751,8 @@ static void object_move_one(const vobjptridx_t obj)
 #if defined(DXX_BUILD_DESCENT_II)
 		{
 			bool under_lavafall = false;
-			static array<bool, MAX_PLAYERS> lavafall_hiss_playing;
 
-			auto &playing = lavafall_hiss_playing[get_player_id(obj)];
+			auto &playing = obj->ctype.player_info.lavafall_hiss_playing;
 			const auto &&segp = vcsegptr(obj->segnum);
 			if (const auto sidemask = get_seg_masks(obj->pos, segp, obj->size).sidemask)
 			{
