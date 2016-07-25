@@ -2442,10 +2442,14 @@ static int newdemo_read_frame_information(int rewrite)
 			const auto old_invul = old_player_flags & PLAYER_FLAGS_INVULNERABLE;
 			const auto new_invul = new_player_flags & PLAYER_FLAGS_INVULNERABLE;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || ((Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) && (old_player_flags.get_player_flags() != 0xffff)) ) {
-				if (!old_cloaked && new_cloaked)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
-				if (old_cloaked && !new_cloaked)
-					get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
+				if (old_cloaked != new_cloaked)
+				{
+					auto &t = get_local_player_cloak_time();
+					if (!old_cloaked)
+						DXX_MAKE_VAR_UNDEFINED(t);
+					else
+						t = GameTime64 - (CLOAK_TIME_MAX / 2);
+				}
 				if (old_invul != new_invul)
 				{
 					auto &t = get_local_player_invulnerable_time();
@@ -2456,10 +2460,14 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				get_local_player_flags() = old_player_flags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				if (!old_cloaked  && new_cloaked)
-					get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
-				if (old_cloaked && !new_cloaked)
-					DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
+				if (old_cloaked != new_cloaked)
+				{
+					auto &t = get_local_player_cloak_time();
+					if (!old_cloaked)
+						t = GameTime64 - (CLOAK_TIME_MAX / 2);
+					else
+						DXX_MAKE_VAR_UNDEFINED(t);
+				}
 				if (old_invul != new_invul)
 				{
 					auto &t = get_local_player_invulnerable_time();
