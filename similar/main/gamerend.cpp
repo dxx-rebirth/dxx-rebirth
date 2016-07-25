@@ -176,13 +176,10 @@ static void show_netplayerinfo()
 	// player information (name, kills, ping, game efficiency)
 	y += line_spacing * 2;
 	gr_string(x,y,"player");
-	if (Game_mode & GM_MULTI_COOP)
-		gr_string(x + fspacx8 * 7, y, "score");
-	else
-	{
-		gr_string(x + fspacx8 * 7, y, "kills");
-		gr_string(x + fspacx8 * 12, y, "deaths");
-	}
+	gr_string(x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
+		? "score"
+		: (gr_string(x + fspacx8 * 12, y, "deaths"), "kills")
+	));
 	gr_string(x + fspacx8 * 18, y, "ping");
 	gr_string(x + fspacx8 * 23, y, "efficiency");
 
