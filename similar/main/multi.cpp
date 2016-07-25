@@ -562,15 +562,12 @@ multi_new_game(void)
 		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
 		Players[i].KillGoalCount=0;
-		multi_sending_message[i] = msgsend_none;
 	}
+	multi_sending_message.fill(msgsend_none);
 
-	for (uint_fast32_t i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
-	{
-		robot_controlled[i] = -1;
-		robot_agitation[i] = 0;
-		robot_fired[i] = 0;
-	}
+	robot_controlled.fill(-1);
+	robot_agitation = {};
+	robot_fired = {};
 
 	team_kills = {};
 	imulti_new_game=1;
@@ -3369,16 +3366,14 @@ void multi_prep_level_player(void)
 
 	multi_consistency_error(1);
 
-	for (uint_fast32_t i = 0; i<MAX_PLAYERS; i++)
-	{
-		multi_sending_message[i] = msgsend_none;
-		if (imulti_new_game)
+	multi_sending_message.fill(msgsend_none);
+	if (imulti_new_game)
+		for (uint_fast32_t i = 0; i != Players.size(); i++)
 			init_player_stats_new_ship(i);
-	}
 
 	for (unsigned i = 0; i < NumNetPlayerPositions; i++)
 	{
-		const auto objp = vobjptridx(Players[i].objnum);
+		const auto &&objp = vobjptr(Players[i].objnum);
 		if (i != Player_num)
 			objp->control_type = CT_REMOTE;
 		objp->movement_type = MT_PHYSICS;
@@ -3386,12 +3381,9 @@ void multi_prep_level_player(void)
 		Netgame.players[i].LastPacketTime = 0;
 	}
 
-	for (uint_fast32_t i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
-	{
-		robot_controlled[i] = -1;
-		robot_agitation[i] = 0;
-		robot_fired[i] = 0;
-	}
+	robot_controlled.fill(-1);
+	robot_agitation = {};
+	robot_fired = {};
 
 	Viewer = ConsoleObject = &get_local_plrobj();
 
@@ -3799,11 +3791,11 @@ void multi_send_kill_goal_counts()
 
 static void multi_do_kill_goal_counts(const ubyte *buf)
 {
-	int i,count=1;
+	int count=1;
 
-	for (i=0;i<MAX_PLAYERS;i++)
+	range_for (auto &i, Players)
 	{
-		Players[i].KillGoalCount = buf[count];
+		i.KillGoalCount = buf[count];
 		count++;
 	}
 
