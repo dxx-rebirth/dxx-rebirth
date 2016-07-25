@@ -623,13 +623,21 @@ static void show_one_extra_view(const int w)
 				do_cockpit_window_view(w,WBU_WEAPON);
 				break;
 			case CV_REAR:
-				if (Rear_view) {		//if big window is rear view, show front here
-					RenderingType=3+(w<<4);				
-					do_cockpit_window_view(w, vobjptr(ConsoleObject), 0, WBU_REAR, "FRONT");
-				}
-				else {					//show normal rear view
-					RenderingType=3+(w<<4);				
-					do_cockpit_window_view(w, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
+				RenderingType=3 + (w << 4);
+				{
+					int rear_view_flag;
+					const char *label;
+					if (Rear_view)	//if big window is rear view, show front here
+					{
+						rear_view_flag = 0;
+						label = "FRONT";
+					}
+					else	//show normal rear view
+					{
+						rear_view_flag = 1;
+						label = "REAR";
+					}
+					do_cockpit_window_view(w, vobjptr(ConsoleObject), rear_view_flag, WBU_REAR, label);
 				}
 			 	break;
 			case CV_ESCORT: {
