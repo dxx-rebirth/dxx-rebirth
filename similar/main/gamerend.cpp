@@ -94,18 +94,17 @@ static void game_draw_multi_message()
 {
 	if (!(Game_mode&GM_MULTI))
 		return;
-	if (multi_sending_message[Player_num])
-	{
-		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s: %s_", TXT_MESSAGE, Network_message.data());
-	}
-	else if (multi_defining_message)
-	{
-		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message.data());
-	}
+	const auto sending = multi_sending_message[Player_num];
+	int defining;
+	if (!sending && !(defining = multi_defining_message))
+		return;
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+	const auto &&y = (LINE_SPACING * 5) + FSPACY(1);
+	if (sending)
+		gr_printf(0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
+	else
+		gr_printf(0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
 }
 
 static void show_framerate()
