@@ -1774,8 +1774,7 @@ static void collide_hostage_and_player(const vobjptridx_t  hostage, const vobjpt
 
 static void collide_player_and_player(const vobjptridx_t player1, const vobjptridx_t player2, const vms_vector &collision_point)
 {
-	static fix64 last_player_bump[MAX_PLAYERS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	int damage_flag = 1, otherpl = -1;
+	int damage_flag = 1;
 
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, vcsegptridx(player1->segnum), 0, collision_point, 0, F1_0);
@@ -1786,12 +1785,12 @@ static void collide_player_and_player(const vobjptridx_t player1, const vobjptri
 		damage_flag = 0;
 		if (!(get_player_id(player1) == Player_num || get_player_id(player2) == Player_num))
 			return;
-		if (get_player_id(player1) > MAX_PLAYERS || get_player_id(player2) > MAX_PLAYERS)
-			return;
-		otherpl = (get_player_id(player1)==Player_num)?get_player_id(player2):get_player_id(player1);
-		if (last_player_bump[otherpl] + (F1_0/Netgame.PacketsPerSec) < GameTime64 || last_player_bump[otherpl] > GameTime64)
+		auto &last_player_bump = ((get_player_id(player1) == Player_num)
+			? player2
+			: player1)->ctype.player_info.Last_bumped_local_player;
+		if (last_player_bump + (F1_0/Netgame.PacketsPerSec) < GameTime64 || last_player_bump > GameTime64)
 		{
-			last_player_bump[otherpl] = GameTime64;
+			last_player_bump = GameTime64;
 			damage_flag = 1;
 		}
 	}
