@@ -2565,7 +2565,8 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 	gr_set_current_canvas(NULL);
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
-	if (get_local_player_invulnerable_time()+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
+	const auto t = get_local_player_invulnerable_time();
+	if (t + INVULNERABLE_TIME_MAX - GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
 		static fix time;
 		auto ltime = time + FrameTime;
@@ -2593,7 +2594,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
                 // Show Invulnerability Timer if enabled
 		if (show_cloak_invul_timer())
                 {
-			show_cockpit_cloak_invul_timer(get_local_player_invulnerable_time() + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
+			show_cockpit_cloak_invul_timer(t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
                 }
 
 	}
