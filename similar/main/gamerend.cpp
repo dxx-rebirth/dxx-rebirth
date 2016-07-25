@@ -198,12 +198,12 @@ static void show_netplayerinfo()
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
-		if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x + fspacx8 * 7, y, "%-6d", Players[i].score);
-		else
 		{
-			gr_printf(x + fspacx8 * 7, y,"%-6d", Players[i].net_kills_total);
-			gr_printf(x + fspacx8 * 12, y,"%-6d", Players[i].net_killed_total);
+			auto v = ((Game_mode & GM_MULTI_COOP)
+				? Players[i].score
+				: (gr_printf(x + fspacx8 * 12, y,"%-6d", Players[i].net_killed_total), Players[i].net_kills_total)
+			);
+			gr_printf(x + fspacx8 * 7, y, "%-6d", v);
 		}
 
 		gr_printf(x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
