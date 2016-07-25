@@ -1416,8 +1416,7 @@ static int maybe_steal_flag_item(const vobjptr_t playerobjp, const PLAYER_FLAG f
 //	----------------------------------------------------------------------------
 static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
-	(void)playerobjp;
-	if (auto &secondary_ammo = get_local_player_secondary_ammo()[weapon_num])
+	if (auto &secondary_ammo = playerobjp->ctype.player_info.secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_index_is_player_bomb(weapon_num))
 			{
