@@ -861,9 +861,17 @@ static int load_mission(const mle *mission)
 
 			if ((v=get_value(buf))!=NULL) {
 				char *ip;
-				unsigned long n_levels = strtoul(v, &ip, 10);
+				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
-				n_levels = min(n_levels, *ip ? 0ul : MAX_LEVELS_PER_MISSION);
+				if (n_levels > MAX_LEVELS_PER_MISSION)
+					continue;
+				if (*ip)
+				{
+					while (isspace(static_cast<unsigned>(*ip)))
+						++ip;
+					if (*ip && *ip != ';')
+						continue;
+				}
 				Level_names = make_unique<d_fname[]>(n_levels);
 				range_for (auto &i, unchecked_partial_range(Level_names.get(), n_levels))
 				{
@@ -884,11 +892,20 @@ static int load_mission(const mle *mission)
 		else if (istok(buf,"num_secrets")) {
 			if ((v=get_value(buf))!=NULL) {
 				char *ip;
-				unsigned long n_levels = strtoul(v, &ip, 10);
+				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_SECRET_LEVELS_PER_MISSION);
-				N_secret_levels = min(n_levels, *ip ? 0ul : MAX_SECRET_LEVELS_PER_MISSION);
-				Secret_level_names = make_unique<d_fname[]>(N_secret_levels);
-				Secret_level_table = make_unique<ubyte[]>(N_secret_levels);
+				if (n_levels > MAX_SECRET_LEVELS_PER_MISSION)
+					continue;
+				if (*ip)
+				{
+					while (isspace(static_cast<unsigned>(*ip)))
+						++ip;
+					if (*ip && *ip != ';')
+						continue;
+				}
+				N_secret_levels = n_levels;
+				Secret_level_names = make_unique<d_fname[]>(n_levels);
+				Secret_level_table = make_unique<uint8_t[]>(n_levels);
 				for (int i=0;i<N_secret_levels;i++) {
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
