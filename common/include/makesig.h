@@ -25,6 +25,6 @@
 #ifndef _MAKESIG_H
 #define _MAKESIG_H
 
-#define MAKE_SIG(a,b,c,d) (((long)(a)<<24)+((long)(b)<<16)+((c)<<8)+(d))
+#define MAKE_SIG(a,b,c,d) ((static_cast<long>(a)<<24)+(static_cast<long>(b)<<16)+((c)<<8)+(d))
 
 #endif
