@@ -217,14 +217,18 @@ void show_titles(void)
 		"mplaycd.pcx",	// Mac Registered
 		"iplogo1.pcx"	// PC. Only down here because it's lowres ;-)
 	);
-	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
-	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx",1))?"descenth.pcx":"descent.pcx"), 1, 1 );
+	const bool resolution_at_least_640_480 = (SWIDTH >= 640 && SHEIGHT >= 480);
+	auto &logo_hires_pcx = "logoh.pcx";
+	auto &descent_hires_pcx = "descenth.pcx";
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(logo_hires_pcx, 1)) ? logo_hires_pcx : "logo.pcx", 1, 1);
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(descent_hires_pcx, 1)) ? descent_hires_pcx : "descent.pcx", 1, 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
+	const auto hiresmode = HIRESMODE;
 	{       //show bundler screens
 		played=MOVIE_NOT_PLAYED;        //default is not played
 
@@ -232,7 +236,7 @@ void show_titles(void)
 
 		if (!played) {
 			char filename[12];
-			strcpy(filename,HIRESMODE?"pre_i1b.pcx":"pre_i1.pcx");
+			strcpy(filename, hiresmode ? "pre_i1b.pcx" : "pre_i1.pcx");
 
 			while (PHYSFSX_exists(filename,0))
 			{
@@ -258,7 +262,6 @@ void show_titles(void)
 			song_playing = 1;
 			con_printf( CON_DEBUG, "\nShowing logo screens..." );
 
-			const auto hiresmode = HIRESMODE;
 			show_first_found_title_screen(
 				hiresmode ? "iplogo1b.pcx" : "iplogo1.pcx", // OEM
 				"iplogo1.pcx", // SHAREWARE
@@ -285,7 +288,7 @@ void show_titles(void)
 		if (!played)
 		{
 			char filename[12];
-			strcpy(filename,HIRESMODE?"oem1b.pcx":"oem1.pcx");
+			strcpy(filename, hiresmode ? "oem1b.pcx" : "oem1.pcx");
 			while (PHYSFSX_exists(filename,0))
 			{
 				show_title_screen( filename, 1, 0 );
@@ -300,7 +303,7 @@ void show_titles(void)
 		songs_play_song( SONG_TITLE, 1);
 	}
 	con_printf( CON_DEBUG, "\nShowing logo screen..." );
-	const char *filename = HIRESMODE?"descentb.pcx":"descent.pcx";
+	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
 	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);
 #endif
