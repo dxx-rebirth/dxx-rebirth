@@ -66,6 +66,7 @@ class newmenu_item
 	};
 	struct number_slider_common_type
 	{
+		int min_value;
 		int max_value;
 	};
 	struct number_specific_type : number_slider_common_type
@@ -95,7 +96,6 @@ class newmenu_item
 public:
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
-	int     min_value;   // For sliders and number bars.
 	union {
 		radio_specific_type nm_private_radio;
 		number_specific_type nm_private_number;
@@ -412,8 +412,8 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 	ni.type = NM_TYPE_NUMBER;
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
-	ni.min_value = low;
 	auto &number = ni.number();
+	number.min_value = low;
 	number.max_value = high;
 }
 
@@ -423,8 +423,8 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	ni.type = NM_TYPE_SLIDER;
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
-	ni.min_value = low;
 	auto &slider = ni.slider();
+	slider.min_value = low;
 	slider.max_value = high;
 }
 
