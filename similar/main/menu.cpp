@@ -946,11 +946,13 @@ void change_res()
 
 	range_for (auto &i, partial_const_range(modes, num_presets))
 	{
-		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(i), SM_H(i));
-
-		nm_set_item_radio(m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == i) && GameCfg.AspectY == SM_W(i) / gcd(SM_W(i), SM_H(i)) && GameCfg.AspectX == SM_H(i) / gcd(SM_W(i), SM_H(i))), 0);
-		if (m[mc].value)
+		const auto &&sm_w = SM_W(i);
+		const auto &&sm_h = SM_H(i);
+		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", sm_w, sm_h);
+		const auto checked = (citem == -1 && Game_screen_mode == i && GameCfg.AspectY == sm_w / gcd(sm_w, sm_h) && GameCfg.AspectX == sm_h / gcd(sm_w, sm_h));
+		if (checked)
 			citem = mc;
+		nm_set_item_radio(m[mc], restext[mc], checked, 0);
 		mc++;
 	}
 
