@@ -31,7 +31,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <algorithm>
 #include <memory>
+#include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #ifdef _WIN32
 #include "fwd-window.h"
@@ -55,12 +57,43 @@ struct listbox;
 
 #define NM_MAX_TEXT_LEN     255
 
-struct newmenu_item
+class newmenu_item
 {
+	struct radio_specific_type
+	{
+		static constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> nm_type{};
+		int group;          // What group this belongs to for radio buttons.
+	};
+	struct imenu_specific_type
+	{
+		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> nm_type{};
+		int group;
+	};
+	template <typename T, unsigned expected_type = T::nm_type>
+		T &get_union_member(T &v)
+		{
+#ifdef DXX_CONSTANT_TRUE
+			if (DXX_CONSTANT_TRUE(type != expected_type))
+				DXX_ALWAYS_ERROR_FUNCTION(dxx_newmenu_trap_invalid_type, "invalid type access");
+#endif
+			if (type != expected_type)
+				throw std::runtime_error("invalid type access");
+			return v;
+		}
+public:
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	int     min_value, max_value;   // For sliders and number bars.
-	int     group;          // What group this belongs to for radio buttons.
+	union {
+		radio_specific_type nm_private_radio;
+		imenu_specific_type nm_private_imenu;
+	};
+	radio_specific_type &radio() {
+		return get_union_member(nm_private_radio);
+	}
+	imenu_specific_type &imenu() {
+		return get_union_member(nm_private_imenu);
+	}
 	int     text_len;       // The maximum length of characters that can be entered by this inputboxes
 	char    *text;          // The text associated with this item.
 	// The rest of these are used internally by by the menu system, so don't set 'em!!
@@ -344,7 +377,8 @@ static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigne
 	ni.type = NM_TYPE_RADIO;
 	ni.text = const_cast<char *>(text);
 	ni.value = checked;
-	ni.group = grp;
+	auto &radio = ni.radio();
+	radio.group = grp;
 }
 
 __attribute_nonnull()

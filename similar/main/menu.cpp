@@ -980,7 +980,7 @@ void change_res()
 	// check which resolution field was selected
 	unsigned i;
 	for (i = 0; i <= mc; i++)
-		if ((m[i].type == NM_TYPE_RADIO) && (m[i].group==0) && (m[i].value == 1))
+		if (m[i].type == NM_TYPE_RADIO && m[i].radio().group == 0 && m[i].value == 1)
 			break;
 
 	// now check for fullscreen toggle and apply if necessary

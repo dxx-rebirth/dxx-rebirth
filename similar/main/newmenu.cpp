@@ -387,7 +387,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 		}
 			break;
 		case NM_TYPE_INPUT_MENU:
-			if ( item->group==0 )
+			if (item->imenu().group == 0)
 			{
 				nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			} else {
@@ -705,7 +705,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 							case NM_TYPE_RADIO:
 								range_for (auto &r, menu->item_range())
 								{
-									if (&r != &citem && r.type == NM_TYPE_RADIO && r.group == citem.group && r.value)
+									if (&r != &citem && r.type == NM_TYPE_RADIO && r.radio().group == citem.radio().group && r.value)
 									{
 										r.value = 0;
 										changed = 1;
@@ -812,7 +812,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 							citem.value = -1;
 						if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-							menu->items[old_choice].group=0;
+							menu->items[old_choice].imenu().group = 0;
 							strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
 							menu->items[old_choice].value = -1;
 						}
@@ -866,9 +866,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 			if (event.type == EVENT_MOUSE_BUTTON_UP && menu->citem > -1)
 			{
 				auto &citem = menu->items[menu->citem];
-				if (citem.type == NM_TYPE_INPUT_MENU && citem.group == 0)
+				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
 				{
-					citem.group = 1;
+					citem.imenu().group = 1;
 					if (!d_stricmp(citem.saved_text, TXT_EMPTY))
 					{
 						citem.text[0] = 0;
@@ -893,9 +893,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				if (!(menu->citem > -1))
 					return window_event_result::close;
 				auto &citem = menu->items[menu->citem];
-				if (citem.type == NM_TYPE_INPUT_MENU && citem.group == 1)
+				if (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
 				{
-					citem.group = 0;
+					citem.imenu().group = 0;
 					strcpy(citem.text, citem.saved_text);
 					citem.value = -1;
 				} else {
@@ -961,7 +961,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
 			if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-				menu->items[old_choice].group=0;
+				menu->items[old_choice].imenu().group=0;
 				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
 				menu->items[old_choice].value = -1;
 			}
@@ -974,7 +974,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			if (citem.type == NM_TYPE_INPUT && menu->citem != old_choice)
 				citem.value = -1;
 			if ( (old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-				menu->items[old_choice].group=0;
+				menu->items[old_choice].imenu().group=0;
 				strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
 				menu->items[old_choice].value = -1;
 			}
@@ -1004,7 +1004,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 					case NM_TYPE_RADIO:
 						range_for (auto &i, menu->item_range())
 						{
-							if (&i != &citem && i.type == NM_TYPE_RADIO && i.group == citem.group && i.value)
+							if (&i != &citem && i.type == NM_TYPE_RADIO && i.radio().group == citem.radio().group && i.value)
 							{
 								i.value = 0;
 							}
@@ -1018,8 +1018,9 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.group == 0)	{
-				citem.group = 1;
+			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 0)
+			{
+				citem.imenu().group = 1;
 				if (!d_stricmp(citem.saved_text, TXT_EMPTY))
 				{
 					citem.text[0] = 0;
@@ -1030,7 +1031,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			} else
 			{
 				if (citem.type == NM_TYPE_INPUT_MENU)
-					citem.group = 0;	// go out of editing mode
+					citem.imenu().group = 0;	// go out of editing mode
 
 				// Tell callback, allow staying in menu
 				const d_select_event selected{menu->citem};
@@ -1044,9 +1045,9 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			break;
 
 		case KEY_ESC:
-			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.group == 1)
+			if (menu->citem > -1 && citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)
 			{
-				citem.group = 0;
+				citem.imenu().group = 0;
 				strcpy(citem.text, citem.saved_text);
 				citem.value = -1;
 			} else {
@@ -1060,7 +1061,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 	if ( menu->citem > -1 )	{
 		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
-		if ( ((citem.type == NM_TYPE_INPUT)||((citem.type == NM_TYPE_INPUT_MENU)&&(citem.group == 1)) )&& (old_choice == menu->citem) )	{
+		if ((citem.type == NM_TYPE_INPUT || (citem.type == NM_TYPE_INPUT_MENU && citem.imenu().group == 1)) && (old_choice == menu->citem) )	{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
 				if (citem.value == -1) citem.value = strlen(citem.text);
 				if (citem.value > 0)
@@ -1276,11 +1277,15 @@ static void newmenu_create_structure( newmenu *menu )
 				string_width = MAX_TEXT_WIDTH;
 
 			i.value = -1;
-			i.group = 0;
 			if (i.type == NM_TYPE_INPUT_MENU)
+			{
+				i.imenu().group = 0;
 				nmenus++;
+			}
 			else
+			{
 				nothers++;
+			}
 		}
 
 		i.w = string_width;
@@ -1351,7 +1356,7 @@ static void newmenu_create_structure( newmenu *menu )
 			fm = -1;	// find first marked one
 			for (unsigned j = 0; j < menu->nitems; ++j)
 			{
-				if (menu->items[j].type == NM_TYPE_RADIO && menu->items[j].group == i.group) {
+				if (menu->items[j].type == NM_TYPE_RADIO && menu->items[j].radio().group == i.radio().group) {
 					if (fm==-1 && menu->items[j].value)
 						fm = j;
 					menu->items[j].value = 0;
