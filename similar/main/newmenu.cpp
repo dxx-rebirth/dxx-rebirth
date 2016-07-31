@@ -1166,7 +1166,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 
 static void newmenu_create_structure( newmenu *menu )
 {
-	int aw, tw, th, twidth,fm,right_offset;
+	int aw, tw, th, twidth,right_offset;
 	int nmenus, nothers;
 	grs_canvas *save_canvas;
 
@@ -1353,19 +1353,17 @@ static void newmenu_create_structure( newmenu *menu )
 		i.x = BORDERX + twidth + right_offset;
 		i.y += BORDERY;
 		if (i.type == NM_TYPE_RADIO) {
-			fm = -1;	// find first marked one
-			for (unsigned j = 0; j < menu->nitems; ++j)
+			// find first marked one
+			newmenu_item *fm = nullptr;
+			range_for (auto &j, menu->item_range())
 			{
-				if (menu->items[j].type == NM_TYPE_RADIO && menu->items[j].radio().group == i.radio().group) {
-					if (fm==-1 && menu->items[j].value)
-						fm = j;
-					menu->items[j].value = 0;
+				if (j.type == NM_TYPE_RADIO && j.radio().group == i.radio().group) {
+					if (!fm && j.value)
+						fm = &j;
+					j.value = 0;
 				}
 			}
-			if ( fm>=0 )
-				menu->items[fm].value=1;
-			else
-				i.value=1;
+			(fm ? *fm : i).value = 1;
 		}
 	}
 
