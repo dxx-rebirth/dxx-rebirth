@@ -322,6 +322,13 @@ struct %(N)s_derived : %(N)s_base {
 	%(N)s_derived(int e) : %(N)s_base{e} {}
 };
 '''),
+		Cxx11RequiredFeature('std::array', '''
+#include "compiler-array.h"
+''', '''
+	array<int,2>b;
+	b[0]=1;
+'''
+),
 		Cxx11RequiredFeature('std::unordered_map::emplace', '''
 #include <unordered_map>
 ''', '''
@@ -1254,36 +1261,6 @@ fail.
 	def __skip_missing_cxx_std(self,level,text,kwargs):
 		if self.__cxx_conformance < level:
 			kwargs.setdefault('skipped', text)
-	@_implicit_test
-	def check_boost_array(self,context,**kwargs):
-		"""
-help:assume Boost.Array works
-"""
-		return self.Compile(context, msg='for Boost.Array', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_ARRAY']}, **kwargs)
-	@_implicit_test
-	def check_cxx_array(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_ARRAY']},**kwargs):
-		"""
-help:assume <array> works
-"""
-		return self.Compile(context, msg='for <array>', successflags=_successflags, **kwargs)
-	@_implicit_test
-	def check_cxx_tr1_array(self,context,**kwargs):
-		"""
-help:assume <tr1/array> works
-"""
-		return self.Compile(context, msg='for <tr1/array>', successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_TR1_ARRAY']}, **kwargs)
-	@_custom_test
-	def _check_cxx_array(self,context):
-		include = '''
-#include "compiler-array.h"
-'''
-		main = '''
-	array<int,2>b;
-	b[0]=1;
-'''
-		how = self.check_cxx_array(context, text=include, main=main) or self.check_boost_array(context, text=include, main=main) or self.check_cxx_tr1_array(context, text=include, main=main)
-		if not how:
-			raise SCons.Errors.StopError("C++ compiler does not support <array> or Boost.Array or <tr1/array>.")
 	def _check_static_assert_method(self,context,msg,f,testflags={},_tdict={'expr' : 'true&&true'},_fdict={'expr' : 'false||false'},**kwargs):
 		_Compile = self.Compile
 		return _Compile(context, text=f % _tdict, main='f(A());', msg=msg % 'true', testflags=testflags, **kwargs) and \
