@@ -3675,6 +3675,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			}
 #endif
 			
+			auto &slider = menus[opt->maxnet].slider();
 			if (menus[opt->coop].value)
 			{
 				if (menus[opt->maxnet].value>2) 
@@ -3682,9 +3683,9 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 					menus[opt->maxnet].value=2;
 				}
 				
-				if (menus[opt->maxnet].max_value>2)
+				if (slider.max_value > 2)
 				{
-					menus[opt->maxnet].max_value=2;
+					slider.max_value = 2;
 				}
 				opt->update_netgame_max_players();
 				
@@ -3699,10 +3700,10 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			}
 			else // if !Coop game
 			{
-				if (menus[opt->maxnet].max_value<6)
+				if (slider.max_value < 6)
 				{
 					menus[opt->maxnet].value=6;
-					menus[opt->maxnet].max_value=6;
+					slider.max_value = 6;
 					opt->update_netgame_max_players();
 				}
 			}

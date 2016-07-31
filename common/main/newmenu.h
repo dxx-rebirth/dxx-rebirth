@@ -64,10 +64,22 @@ class newmenu_item
 		static constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> nm_type{};
 		int group;          // What group this belongs to for radio buttons.
 	};
+	struct number_slider_common_type
+	{
+		int max_value;
+	};
+	struct number_specific_type : number_slider_common_type
+	{
+		static constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> nm_type{};
+	};
 	struct imenu_specific_type
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> nm_type{};
 		int group;
+	};
+	struct slider_specific_type : number_slider_common_type
+	{
+		static constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> nm_type{};
 	};
 	template <typename T, unsigned expected_type = T::nm_type>
 		T &get_union_member(T &v)
@@ -83,16 +95,29 @@ class newmenu_item
 public:
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
-	int     min_value, max_value;   // For sliders and number bars.
+	int     min_value;   // For sliders and number bars.
 	union {
 		radio_specific_type nm_private_radio;
+		number_specific_type nm_private_number;
 		imenu_specific_type nm_private_imenu;
+		slider_specific_type nm_private_slider;
 	};
 	radio_specific_type &radio() {
 		return get_union_member(nm_private_radio);
 	}
+	number_specific_type &number() {
+		return get_union_member(nm_private_number);
+	}
 	imenu_specific_type &imenu() {
 		return get_union_member(nm_private_imenu);
+	}
+	slider_specific_type &slider() {
+		return get_union_member(nm_private_slider);
+	}
+	number_slider_common_type *number_or_slider() {
+		return (type == nm_private_number.nm_type || type == nm_private_slider.nm_type)
+			? &nm_private_number
+			: nullptr;
 	}
 	int     text_len;       // The maximum length of characters that can be entered by this inputboxes
 	char    *text;          // The text associated with this item.
@@ -388,7 +413,8 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
 	ni.min_value = low;
-	ni.max_value = high;
+	auto &number = ni.number();
+	number.max_value = high;
 }
 
 __attribute_nonnull()
@@ -398,7 +424,8 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	ni.text = const_cast<char *>(text);
 	ni.value = now;
 	ni.min_value = low;
-	ni.max_value = high;
+	auto &slider = ni.slider();
+	slider.max_value = high;
 }
 
 #define NEWMENU_MOUSE

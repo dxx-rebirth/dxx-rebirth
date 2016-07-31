@@ -375,9 +375,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 		{
 			int i;
 			if (item->value < item->min_value) item->value=item->min_value;
-			if (item->value > item->max_value) item->value=item->max_value;
+			auto &slider = item->slider();
+			if (item->value > slider.max_value)
+				item->value = slider.max_value;
 			i = snprintf(item->saved_text.data(), item->saved_text.size(), "%s\t%s", item->text, SLIDER_LEFT);
-			for (uint_fast32_t j = (item->max_value-item->min_value+1); j--;)
+			for (uint_fast32_t j = (slider.max_value - item->min_value + 1); j--;)
 			{
 				i += snprintf(item->saved_text.data() + i, item->saved_text.size() - i, "%s", SLIDER_MIDDLE);
 			}
@@ -409,7 +411,9 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 		{
 			char text[sizeof("-2147483647")];
 			if (item->value < item->min_value) item->value=item->min_value;
-			if (item->value > item->max_value) item->value=item->max_value;
+			auto &number = item->number();
+			if (item->value > number.max_value)
+				item->value = number.max_value;
 			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			snprintf(text, sizeof(text), "%d", item->value );
 			nm_rstring(item->right_offset,item->x, item->y - (line_spacing * scroll_offset), text);
@@ -794,10 +798,11 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 								x1 = grd_curcanv->cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
 								int new_value;
+								auto &slider = citem.slider();
 								if (
 									(mx > x1 && mx < x1 + sleft_width && (new_value = citem.min_value, true)) ||
-									(mx < x2 && mx > x2 - sright_width && (new_value = citem.max_value, true)) ||
-									(mx > x1 + sleft_width && mx < x2 - sright_width - sleft_width && (new_value = (mx - x1 - sleft_width) / ((slider_width - sleft_width - sright_width) / (citem.max_value - citem.min_value + 1)), true))
+									(mx < x2 && mx > x2 - sright_width && (new_value = slider.max_value, true)) ||
+									(mx > x1 + sleft_width && mx < x2 - sright_width - sleft_width && (new_value = (mx - x1 - sleft_width) / ((slider_width - sleft_width - sright_width) / (slider.max_value - citem.min_value + 1)), true))
 								)
 									if (citem.value != new_value)
 									{
@@ -1123,7 +1128,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			}
 		}
 
-		if ( (citem.type == NM_TYPE_NUMBER) || (citem.type == NM_TYPE_SLIDER))
+		if (const auto ns = citem.number_or_slider())
 		{
 			switch( k ) {
 				case KEY_LEFT:
@@ -1151,7 +1156,9 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			}
 
 			if (citem.value < citem.min_value) citem.value = citem.min_value;
-			if (citem.value > citem.max_value) citem.value = citem.max_value;
+			auto &max_value = ns->max_value;
+			if (citem.value > max_value)
+				citem.value = max_value;
 		}
 
 	}
@@ -1219,7 +1226,8 @@ static void newmenu_create_structure( newmenu *menu )
 			int index,w1;
 			nothers++;
 			index = snprintf (i.saved_text.data(), i.saved_text.size(), "%s", SLIDER_LEFT);
-			for (uint_fast32_t j = (i.max_value - i.min_value + 1); j--;)
+			auto &slider = i.slider();
+			for (uint_fast32_t j = (slider.max_value - i.min_value + 1); j--;)
 			{
 				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
 			}
@@ -1260,7 +1268,8 @@ static void newmenu_create_structure( newmenu *menu )
 			int w1;
 			char test_text[20];
 			nothers++;
-			snprintf(test_text, sizeof(test_text), "%d", i.max_value);
+			auto &number = i.number();
+			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
 			gr_get_string_size(test_text, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			snprintf(test_text, sizeof(test_text), "%d", i.min_value);
