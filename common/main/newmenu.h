@@ -59,6 +59,20 @@ struct listbox;
 
 class newmenu_item
 {
+	struct input_common_type
+	{
+		int text_len;
+		/* Only used by imenu, but placing it in imenu_specific_type
+		 * makes newmenu_item non-POD.  Some users expect newmenu_item
+		 * to be POD.  Placing group here does not increase overall size
+		 * since number_slider_common_type also has two int members.
+		 */
+		int group;
+	};
+	struct input_specific_type : input_common_type
+	{
+		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> nm_type{};
+	};
 	struct radio_specific_type
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> nm_type{};
@@ -73,10 +87,9 @@ class newmenu_item
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> nm_type{};
 	};
-	struct imenu_specific_type
+	struct imenu_specific_type : input_common_type
 	{
 		static constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> nm_type{};
-		int group;
 	};
 	struct slider_specific_type : number_slider_common_type
 	{
@@ -97,11 +110,15 @@ public:
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	union {
+		input_specific_type nm_private_input;
 		radio_specific_type nm_private_radio;
 		number_specific_type nm_private_number;
 		imenu_specific_type nm_private_imenu;
 		slider_specific_type nm_private_slider;
 	};
+	input_specific_type &input() {
+		return get_union_member(nm_private_input);
+	}
 	radio_specific_type &radio() {
 		return get_union_member(nm_private_radio);
 	}
@@ -119,7 +136,11 @@ public:
 			? &nm_private_number
 			: nullptr;
 	}
-	int     text_len;       // The maximum length of characters that can be entered by this inputboxes
+	input_common_type *input_or_menu() {
+		return (type == nm_private_input.nm_type || type == nm_private_imenu.nm_type)
+			? &nm_private_input
+			: nullptr;
+	}
 	char    *text;          // The text associated with this item.
 	// The rest of these are used internally by by the menu system, so don't set 'em!!
 	short   x, y;
@@ -350,7 +371,7 @@ static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text)
 {
 	ni.type = NM_TYPE_INPUT;
 	ni.text = text;
-	ni.text_len = len-1;
+	ni.input().text_len = len - 1;
 }
 
 template <std::size_t len>

@@ -1080,7 +1080,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 				rval = window_event_result::handled;
 			} else {
 				auto ascii = key_ascii();
-				if ((ascii < 255 ) && (citem.value < citem.text_len ))
+				if (ascii < 255 && citem.value < citem.input_or_menu()->text_len)
 				{
 					if (citem.value == -1) {
 						citem.value = 0;
@@ -1282,10 +1282,11 @@ static void newmenu_create_structure( newmenu *menu )
 				i.right_offset = w1;
 		}
 
-		if (i.type == NM_TYPE_INPUT || i.type == NM_TYPE_INPUT_MENU)
+		if (const auto input_or_menu = i.input_or_menu())
 		{
 			i.saved_text.copy_if(i.text);
-			string_width = i.text_len * fspacx(8) + i.text_len;
+			const auto text_len = input_or_menu->text_len;
+			string_width = text_len * fspacx(8) + text_len;
 			if (i.type == NM_TYPE_INPUT && string_width > MAX_TEXT_WIDTH)
 				string_width = MAX_TEXT_WIDTH;
 

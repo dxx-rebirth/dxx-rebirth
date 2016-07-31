@@ -697,9 +697,10 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 			if (dsc == NULL) m[i+1].type = NM_TYPE_TEXT;
 		}
 		if (dsc != NULL) {
+			auto &mi = m[i + 1];
 			m[i+1].type = NM_TYPE_INPUT_MENU;
+			mi.imenu().text_len = DESC_LENGTH - 1;
 		}
-		m[i+1].text_len = DESC_LENGTH-1;
 		m[i+1].text = desc[i];
 	}
 
