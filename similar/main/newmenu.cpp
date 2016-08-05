@@ -700,28 +700,34 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						switch (citem.type)
 						{
 							case NM_TYPE_CHECK:
-								if (citem.value)
-									citem.value = 0;
-								else
-									citem.value = 1;
+								citem.value ^= 1;
 
 								if (menu->is_scroll_box)
 								changed = 1;
 								break;
 							case NM_TYPE_RADIO:
+								citem.value = 1;
+								{
+									const auto cg = citem.radio().group;
 								range_for (auto &r, menu->item_range())
 								{
-									if (&r != &citem && r.type == NM_TYPE_RADIO && r.radio().group == citem.radio().group && r.value)
+									if (&r != &citem && r.value && r.type == NM_TYPE_RADIO && r.radio().group == cg)
 									{
 										r.value = 0;
 										changed = 1;
 									}
 								}
-								citem.value = 1;
+								}
 								break;
 							case NM_TYPE_TEXT:
 								menu->citem=old_choice;
 								menu->mouse_state=0;
+								break;
+							case NM_TYPE_MENU:
+							case NM_TYPE_INPUT:
+							case NM_TYPE_NUMBER:
+							case NM_TYPE_INPUT_MENU:
+							case NM_TYPE_SLIDER:
 								break;
 						}
 						break;
@@ -990,15 +996,15 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 			if ( menu->citem > -1 )	{
 				switch (citem.type)
 				{
+					case NM_TYPE_TEXT:
+					case NM_TYPE_NUMBER:
+					case NM_TYPE_SLIDER:
 					case NM_TYPE_MENU:
 					case NM_TYPE_INPUT:
 					case NM_TYPE_INPUT_MENU:
 						break;
 					case NM_TYPE_CHECK:
-						if (citem.value)
-							citem.value = 0;
-						else
-							citem.value = 1;
+						citem.value ^= 1;
 						if (menu->is_scroll_box)
 						{
 							if (menu->citem==(menu->max_on_menu+menu->scroll_offset-1) || menu->citem==menu->scroll_offset)
@@ -1009,15 +1015,18 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 						changed = 1;
 						break;
 					case NM_TYPE_RADIO:
+						citem.value = 1;
+						{
+							const auto cg = citem.radio().group;
 						range_for (auto &i, menu->item_range())
 						{
-							if (&i != &citem && i.type == NM_TYPE_RADIO && i.radio().group == citem.radio().group && i.value)
+							if (&i != &citem && i.value && i.type == NM_TYPE_RADIO && i.radio().group == cg)
 							{
 								i.value = 0;
+								changed = 1;
 							}
 						}
-						citem.value = 1;
-						changed = 1;
+						}
 						break;
 				}
 			}

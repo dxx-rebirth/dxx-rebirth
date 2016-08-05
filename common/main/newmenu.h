@@ -46,14 +46,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct newmenu;
 struct listbox;
 
-#define NM_TYPE_MENU        0   // A menu item... when enter is hit on this, newmenu_do returns this item number
-#define NM_TYPE_INPUT       1   // An input box... fills the text field in, and you need to fill in text_len field.
-#define NM_TYPE_CHECK       2   // A check box. Set and get its status by looking at flags field (1=on, 0=off)
-#define NM_TYPE_RADIO       3   // Same as check box, but only 1 in a group can be set at a time. Set group fields.
-#define NM_TYPE_TEXT        4   // A line of text that does nothing.
-#define NM_TYPE_NUMBER      5   // A numeric entry counter.  Changes value from min_value to max_value;
-#define NM_TYPE_INPUT_MENU  6   // A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
-#define NM_TYPE_SLIDER      7   // A slider from min_value to max_value. Draws with text_len chars.
+enum nm_type : uint8_t
+{
+	NM_TYPE_MENU = 0,   // A menu item... when enter is hit on this, newmenu_do returns this item number
+	NM_TYPE_INPUT = 1,   // An input box... fills the text field in, and you need to fill in text_len field.
+	NM_TYPE_CHECK = 2,   // A check box. Set and get its status by looking at flags field (1=on, 0=off)
+	NM_TYPE_RADIO = 3,   // Same as check box, but only 1 in a group can be set at a time. Set group fields.
+	NM_TYPE_TEXT = 4,   // A line of text that does nothing.
+	NM_TYPE_NUMBER = 5,   // A numeric entry counter.  Changes value from min_value to max_value;
+	NM_TYPE_INPUT_MENU = 6,   // A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
+	NM_TYPE_SLIDER = 7,   // A slider from min_value to max_value. Draws with text_len chars.
+};
 
 #define NM_MAX_TEXT_LEN     255
 
@@ -107,7 +110,6 @@ class newmenu_item
 			return v;
 		}
 public:
-	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
 	union {
 		input_specific_type nm_private_input;
@@ -146,6 +148,7 @@ public:
 	short   x, y;
 	short   w, h;
 	short   right_offset;
+	nm_type type;           // What kind of item this is, see NM_TYPE_????? defines
 	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
