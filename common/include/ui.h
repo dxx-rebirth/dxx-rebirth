@@ -81,6 +81,8 @@ struct UI_GADGET
 	int             status;     \
 	int             oldstatus;  \
 	grs_subcanvas_ptr canvas;     \
+protected:
+	~UI_GADGET() = default;
 };
 
 struct UI_GADGET_USERBOX : UI_GADGET
