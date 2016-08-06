@@ -38,7 +38,7 @@ namespace {
 struct m3u_bytes
 {
 	using range_type = partial_range_t<char *>;
-	using alloc_type = std::unique_ptr<char[]>;
+	using alloc_type = std::unique_ptr<char *[]>;
 	range_type range;
 	alloc_type alloc;
 	m3u_bytes() :
@@ -61,17 +61,20 @@ public:
 	}
 };
 
-class list_deleter : std::default_delete<char *[]>, PHYSFS_list_deleter
+class list_deleter : PHYSFS_list_deleter
 {
-	typedef std::default_delete<char *[]> base_deleter;
 public:
-	std::unique_ptr<char[]> buf;	// buffer containing song file path text
+	/* When `list_pointers` is a PHYSFS allocation, `buf` is nullptr.
+	 * When `list_pointers` is a new[char *[]] allocation, `buf`
+	 * points to the same location as `list_pointers`.
+	 */
+	std::unique_ptr<char *[]> buf;
 	void operator()(char **list)
 	{
 		if (buf)
 		{
+			assert(buf.get() == list);
 			buf.reset();
-			this->base_deleter::operator()(list);
 		}
 		else
 			this->PHYSFS_list_deleter::operator()(list);
@@ -83,13 +86,13 @@ class list_pointers : public PHYSFSX_uncounted_list_template<list_deleter>
 	typedef PHYSFSX_uncounted_list_template<list_deleter> base_ptr;
 public:
 	using base_ptr::reset;
-	void reset(char **list, std::unique_ptr<char[]> &&buf)
+	void set_combined(std::unique_ptr<char *[]> &&buf)
 		noexcept(
-			noexcept(std::declval<base_ptr>().reset(list)) &&
+			noexcept(std::declval<base_ptr>().reset(buf.get())) &&
 			noexcept(std::declval<list_deleter>().buf = std::move(buf))
 		)
 	{
-		this->base_ptr::reset(list);
+		this->base_ptr::reset(buf.get());
 		get_deleter().buf = std::move(buf);
 	}
 	void reset(PHYSFSX_uncounted_list list)
@@ -168,8 +171,9 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	if (length >= PATH_MAX * JukeboxSongs.max_songs)
 		return {};
 	fseek(fp, 0, SEEK_SET);
-	auto &&list_buf = make_unique<char[]>(length + 1);
-	const auto p = list_buf.get();
+	const auto max_songs = JukeboxSongs.max_songs;
+	auto &&list_buf = make_unique<char*[]>(max_songs + 1 + (length / sizeof(char *)));
+	const auto p = reinterpret_cast<char *>(list_buf.get() + max_songs);
 	p[length] = '\0';	// make sure the last string is terminated
 	return fread(p, length, 1, fp)
 		? m3u_bytes(unchecked_partial_range(p, length), std::move(list_buf))
@@ -187,7 +191,7 @@ static int read_m3u(void)
 	const auto eol = [](char c) {
 		return c == '\n' || c == '\r' || !c;
 	};
-	JukeboxSongs.list.reset(new char *[JukeboxSongs.max_songs], std::move(list_buf));
+	JukeboxSongs.list.set_combined(std::move(list_buf));
 	const auto &range = m3u.range;
 	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
