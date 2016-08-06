@@ -27,10 +27,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "player-callsign.h"
-#include "mission.h"
 #endif
 
 #ifdef __cplusplus
+#include "mission.h"
 #include "pack.h"
 #include "compiler-array.h"
 #include "ntstring.h"
@@ -42,6 +42,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool Grabinput;
 	bool WindowMode;
 	int TexFilt;
+	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
 	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 };
@@ -72,7 +73,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 #endif
 	callsign_t LastPlayer;
 	array<int, 2> CMLevelMusicTrack;
-	ntstring<MISSION_NAME_LEN> LastMission;
 };
 extern struct Cfg GameCfg;
 

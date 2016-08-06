@@ -121,7 +121,7 @@ int ReadConfigFile()
 #endif
 	GameCfg.GammaLevel = 0;
 	GameCfg.LastPlayer = {};
-	GameCfg.LastMission = "";
+	CGameCfg.LastMission = "";
 	GameCfg.ResolutionX = 640;
 	GameCfg.ResolutionY = 480;
 	GameCfg.AspectX = 3;
@@ -190,7 +190,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, LastPlayerStr))
 			GameCfg.LastPlayer.copy_lower(value, std::distance(value, eol));
 		else if (cmp(lb, eq, LastMissionStr))
-			convert_string(GameCfg.LastMission, value, eol);
+			convert_string(CGameCfg.LastMission, value, eol);
 		else if (cmp(lb, eq, ResolutionXStr))
 			convert_integer(GameCfg.ResolutionX, value);
 		else if (cmp(lb, eq, ResolutionYStr))
@@ -255,7 +255,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic4Str, CGameCfg.CMMiscMusic[SONG_CREDITS].data());
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(get_local_player().callsign));
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(GameCfg.LastMission));
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(CGameCfg.LastMission));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);

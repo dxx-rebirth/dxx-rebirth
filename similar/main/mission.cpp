@@ -1013,7 +1013,7 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 			if (citem >= 0)
 			{
 				// Chose a mission
-				GameCfg.LastMission.copy_if(list[citem]);
+				CGameCfg.LastMission.copy_if(list[citem]);
 				if (!load_mission(&mm->ml[citem]))
 				{
 					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
@@ -1063,7 +1063,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
         default_mission = 0;
         for (uint_fast32_t i = 0; i < mission_list.size(); i++) {
             m[i] = mission_list[i].mission_name;
-            if ( !d_stricmp( m[i], GameCfg.LastMission ) )
+			if (!d_stricmp(m[i], CGameCfg.LastMission))
                 default_mission = i;
         }
 
