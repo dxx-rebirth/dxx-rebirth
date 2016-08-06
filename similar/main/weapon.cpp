@@ -117,9 +117,8 @@ weapon_info_array Weapon_info;
 namespace dcx {
 unsigned N_weapon_types;
 }
-primary_weapon_index_t Primary_weapon;
+player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 sbyte Secondary_weapon;
-static primary_weapon_index_t Delayed_primary;
 static sbyte Delayed_secondary;
 
 // autoselect ordering
@@ -438,7 +437,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );
 #endif
 		}
-		Delayed_primary = Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
+		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
@@ -544,7 +543,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #elif defined(DXX_BUILD_DESCENT_II)
 	has_weapon_result weapon_status;
 
-	const auto current = Primary_weapon;
+	const auto current = Primary_weapon.get_active();
 	const auto last_was_super = Primary_last_was_super[weapon_num];
 	const auto has_flag = weapon_status.has_weapon_flag;
 
@@ -690,14 +689,14 @@ void delayed_autoselect()
 {
 	if (!Controls.state.fire_primary)
 	{
-		const auto primary_weapon = Primary_weapon;
-		const auto delayed_primary = Delayed_primary;
+		const auto primary_weapon = Primary_weapon.get_active();
+		const auto delayed_primary = Primary_weapon.get_delayed();
 		if (delayed_primary != primary_weapon)
 		{
 			if (player_has_primary_weapon(delayed_primary).has_all())
 				select_primary_weapon(nullptr, delayed_primary, 1);
 			else
-				Delayed_primary = primary_weapon;
+				Primary_weapon.set_delayed(primary_weapon);
 		}
 	}
 	if (!Controls.state.fire_secondary)
@@ -719,14 +718,14 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 	const auto want_switch = [weapon_index]{
 		const auto cutpoint = POrderList(255);
 		const auto weapon_order = POrderList(weapon_index);
-		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(Delayed_primary));
+		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(Primary_weapon.get_delayed()));
 	};
 	if (Controls.state.fire_primary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
 	{
 		if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
 		{
 			if (want_switch())
-				Delayed_primary = static_cast<primary_weapon_index_t>(weapon_index);
+				Primary_weapon.set_delayed(static_cast<primary_weapon_index_t>(weapon_index));
 		}
 	}
 	else if (want_switch())
@@ -1270,7 +1269,7 @@ void DropCurrentWeapon ()
 	const auto Primary_weapon = ::Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
-	if (Primary_weapon==0)
+	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
 		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) && !GrantedItems.has_quad_laser())
 		{

@@ -989,7 +989,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	state_write_player(fp, get_local_player(), get_local_player_shields(), get_local_plrobj().ctype.player_info);
 
 // Save the current weapon info
-	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
+	{
+		int8_t v = static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon));
+		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
+	}
 	PHYSFS_write(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 // Save the difficulty level
@@ -1474,7 +1477,11 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		get_local_player().objnum = coop_org_objnum;
 
 // Restore the weapon states
-	PHYSFS_read(fp, &Primary_weapon, sizeof(sbyte), 1);
+	{
+		int8_t v;
+		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
+		Primary_weapon = static_cast<primary_weapon_index_t>(v);
+	}
 	PHYSFS_read(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 	select_primary_weapon(nullptr, Primary_weapon, 0);

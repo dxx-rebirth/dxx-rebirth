@@ -132,11 +132,40 @@ extern const array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 
 namespace dcx {
 extern unsigned N_weapon_types;
+template <typename T>
+class player_selected_weapon
+{
+	T active, delayed;
+public:
+	operator T() const
+	{
+		return get_active();
+	}
+	T get_active() const
+	{
+		return active;
+	}
+	T get_delayed() const
+	{
+		return delayed;
+	}
+	player_selected_weapon &operator=(T v)
+	{
+		active = v;
+		set_delayed(v);
+		return *this;
+	}
+	void set_delayed(T v)
+	{
+		delayed = v;
+	}
+};
+
 }
 void do_primary_weapon_select(uint_fast32_t weapon_num);
 void do_secondary_weapon_select(uint_fast32_t weapon_num);
 
-extern primary_weapon_index_t Primary_weapon;
+extern player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 extern sbyte Secondary_weapon;
 
 void auto_select_primary_weapon();
