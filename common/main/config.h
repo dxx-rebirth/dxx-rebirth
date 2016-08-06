@@ -43,6 +43,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool WindowMode;
 	int TexFilt;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
+	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 };
 
 extern struct CCfg CGameCfg;
@@ -72,7 +73,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	callsign_t LastPlayer;
 	array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
-	array<ntstring<PATH_MAX - 1>, 5> CMMiscMusic;
 };
 extern struct Cfg GameCfg;
 

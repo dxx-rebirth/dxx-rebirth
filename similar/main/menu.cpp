@@ -1881,7 +1881,7 @@ static int get_absolute_path(char *full_path, const char *rel_path)
 	return 1;
 }
 
-#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, GameCfg.CMMiscMusic[s].data())
+#define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
 #endif
 
 namespace {
@@ -1928,15 +1928,15 @@ namespace {
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank4)	\
 	DXX_MENUITEM(VERB, TEXT, "Non-level music:", opt_label_nonlevel_music)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Main menu", opt_sm_cm_mtype3_file1_b)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Briefing", opt_sm_cm_mtype3_file2_b)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Credits", opt_sm_cm_mtype3_file3_b)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Escape sequence", opt_sm_cm_mtype3_file4_b)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Game ending", opt_sm_cm_mtype3_file5_b)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
 
 #else
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)
@@ -2123,14 +2123,14 @@ void do_sound_menu()
 
 #ifdef USE_SDLMIXER
 	const auto old_CMLevelMusicPath = CGameCfg.CMLevelMusicPath;
-	const auto old_CMMiscMusic0 = GameCfg.CMMiscMusic[SONG_TITLE];
+	const auto old_CMMiscMusic0 = CGameCfg.CMMiscMusic[SONG_TITLE];
 #endif
 
 	sound_menu_items items;
 	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
 
 #ifdef USE_SDLMIXER
-	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0.data(), GameCfg.CMMiscMusic[SONG_TITLE].data())) )
+	if ((Game_wind != NULL && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) || (Game_wind == NULL && strcmp(old_CMMiscMusic0.data(), CGameCfg.CMMiscMusic[SONG_TITLE].data())))
 	{
 		songs_uninit();
 
