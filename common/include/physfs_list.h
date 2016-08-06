@@ -18,6 +18,7 @@ typedef char file_extension_t[5];
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-array.h"
+#include "fwd-partial_range.h"
 
 namespace dcx {
 
