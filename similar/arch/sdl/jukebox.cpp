@@ -35,6 +35,32 @@ namespace dcx {
 
 namespace {
 
+struct m3u_bytes
+{
+	using range_type = partial_range_t<char *>;
+	using alloc_type = std::unique_ptr<char[]>;
+	range_type range;
+	alloc_type alloc;
+	m3u_bytes() :
+		range(nullptr, nullptr), alloc()
+	{
+	}
+	m3u_bytes(m3u_bytes &&) = default;
+	m3u_bytes(range_type &&r, alloc_type &&b) :
+		range(std::move(r)), alloc(std::move(b))
+	{
+	}
+};
+
+class FILE_deleter
+{
+public:
+	void operator()(FILE *const p) const
+	{
+		fclose(p);
+	}
+};
+
 class list_deleter : std::default_delete<char *[]>, PHYSFS_list_deleter
 {
 	typedef std::default_delete<char *[]> base_deleter;
@@ -117,46 +143,52 @@ const array<file_extension_t, 5> jukebox_exts{{
 	SONG_EXT_MP3
 }};
 
+/* Open an m3u using fopen, not PHYSFS.  If the path seems to be under
+ * PHYSFS, that will be preferred over a raw filesystem path.
+ */
+static std::unique_ptr<FILE, FILE_deleter> open_m3u_from_disk(const char *const cfgpath)
+{
+	array<char, PATH_MAX> absbuf;
+	return std::unique_ptr<FILE, FILE_deleter>(fopen(
+	// it's a child of Sharepath, build full path
+		(PHYSFSX_exists(cfgpath, 0)
+			? (PHYSFSX_getRealPath(cfgpath, absbuf), absbuf.data())
+			: cfgpath), "rb")
+	);
 }
 
-namespace dsx {
+static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
+{
+	const auto &&f = open_m3u_from_disk(cfgpath);
+	if (!f)
+		return {};
+	const auto fp = f.get();
+	fseek(fp, -1, SEEK_END);
+	const std::size_t length = ftell(fp) + 1;
+	if (length >= PATH_MAX * JukeboxSongs.max_songs)
+		return {};
+	fseek(fp, 0, SEEK_SET);
+	auto &&list_buf = make_unique<char[]>(length + 1);
+	const auto p = list_buf.get();
+	p[length] = '\0';	// make sure the last string is terminated
+	return fread(p, length, 1, fp)
+		? m3u_bytes(unchecked_partial_range(p, length), std::move(list_buf))
+		: m3u_bytes();
+}
 
 static int read_m3u(void)
 {
-	FILE *fp;
-	std::size_t length;
-	{
-	char *buf;
-	array<char, PATH_MAX> absbuf;
-	const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
-	if (PHYSFSX_exists(cfgpath, 0)) // it's a child of Sharepath, build full path
-		PHYSFSX_getRealPath(cfgpath, (buf = absbuf.data(), absbuf));
-	else
-		buf = cfgpath;
-	fp = fopen(buf, "rb");
-	if (!fp)
+	auto &&m3u = read_m3u_bytes_from_disk(CGameCfg.CMLevelMusicPath.data());
+	auto &list_buf = m3u.alloc;
+	if (!list_buf)
 		return 0;
-	}
-	
-	fseek( fp, -1, SEEK_END );
-	length = ftell(fp) + 1;
-	auto list_buf = make_unique<char[]>(length + 1);
-	fseek(fp, 0, SEEK_SET);
-	if (!fread(list_buf.get(), length, 1, fp))
-	{
-		fclose(fp);
-		return 0;
-	}
-
-	fclose(fp);		// Finished with it
 
 	// The growing string list is allocated last, hopefully reducing memory fragmentation when it grows
-	list_buf[length] = '\0';	// make sure the last string is terminated
-	auto &&range = unchecked_partial_range(list_buf.get(), length);
 	const auto eol = [](char c) {
 		return c == '\n' || c == '\r' || !c;
 	};
 	JukeboxSongs.list.reset(new char *[JukeboxSongs.max_songs], std::move(list_buf));
+	const auto &range = m3u.range;
 	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
 		for (; buf != range.end() && eol(*buf);)	// find new line - support DOS, Unix and Mac line endings
@@ -180,6 +212,10 @@ static int read_m3u(void)
 	}
 	return 1;
 }
+
+}
+
+namespace dsx {
 
 /* Loads music file names from a given directory or M3U playlist */
 void jukebox_load()
