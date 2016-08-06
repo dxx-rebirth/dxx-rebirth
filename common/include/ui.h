@@ -254,25 +254,21 @@ int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_ti
 #define ui_messagebox(X,Y,N,T,...)	((ui_messagebox)((X),(Y),(T), ui_messagebox_tie(__VA_ARGS__)))
 
 template <typename T>
-class ui_subfunction_t
-{
-public:
-	typedef int (*type)(UI_DIALOG *,const d_event &, T *);
-};
+using ui_subfunction_t = int (*)(UI_DIALOG *,const d_event &, T *);
 
 class unused_ui_userdata_t;
-static unused_ui_userdata_t *const unused_ui_userdata = nullptr;
+constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
 
-UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void>::type callback, void *userdata, const void *createdata);
+UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata, const void *createdata);
 
 template <typename T1, typename T2 = const void>
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, T1 *userdata, T2 *createdata = nullptr)
+UI_DIALOG * ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, T1 *const userdata, T2 *const createdata = nullptr)
 {
-	return untyped_ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>::type>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
+	return untyped_ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
 }
 
 template <typename T1, typename T2 = const void>
-UI_DIALOG *ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, typename ui_subfunction_t<T1>::type callback, std::unique_ptr<T1> userdata, T2 *createdata = nullptr)
+UI_DIALOG *ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, std::unique_ptr<T1> userdata, T2 *const createdata = nullptr)
 {
 	auto r = ui_create_dialog(x, y, w, h, flags, callback, userdata.get(), createdata);
 	userdata.release();
