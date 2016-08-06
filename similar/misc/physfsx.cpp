@@ -264,29 +264,31 @@ namespace dcx {
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
 int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 {
-	char relname2[PATH_MAX], pathname[PATH_MAX];
+	char relname2[PATH_MAX];
 
 	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
+	array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 		return 0;
 
-	con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", add_to_end ? "append" : "set", pathname, relname);
-	return PHYSFS_addToSearchPath(pathname, add_to_end);
+	con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", add_to_end ? "append" : "set", pathname.data(), relname);
+	return PHYSFS_addToSearchPath(pathname.data(), add_to_end);
 }
 
 int PHYSFSX_removeRelFromSearchPath(const char *relname)
 {
-	char relname2[PATH_MAX], pathname[PATH_MAX];
+	char relname2[PATH_MAX];
 
 	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
+	array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
 		return 0;
 
-	return PHYSFS_removeFromSearchPath(pathname);
+	return PHYSFS_removeFromSearchPath(pathname.data());
 }
 
 int PHYSFSX_fsize(const char *hogname)
@@ -439,11 +441,10 @@ int PHYSFSX_isNewPath(const char *path)
 
 int PHYSFSX_rename(const char *oldpath, const char *newpath)
 {
-	char old[PATH_MAX], n[PATH_MAX];
-	
+	array<char, PATH_MAX> old, n;
 	PHYSFSX_getRealPath(oldpath, old);
 	PHYSFSX_getRealPath(newpath, n);
-	return (rename(old, n) == 0);
+	return (rename(old.data(), n.data()) == 0);
 }
 
 template <typename F>
@@ -551,11 +552,11 @@ void PHYSFSX_addArchiveContent()
 	// if found, add them...
 	range_for (const auto i, list)
 	{
-		char realfile[PATH_MAX];
+		array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i,realfile);
-		if (PHYSFS_addToSearchPath(realfile, 0))
+		if (PHYSFS_addToSearchPath(realfile.data(), 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile.data());
 			content_updated = 1;
 		}
 	}
@@ -566,12 +567,13 @@ void PHYSFSX_addArchiveContent()
 	// if found, add them...
 	range_for (const auto i, list)
 	{
-		char demofile[PATH_MAX], realfile[PATH_MAX];
+		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
+		array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(demofile,realfile);
-		if (PHYSFS_mount(realfile, DEMO_DIR, 0))
+		if (PHYSFS_mount(realfile.data(), DEMO_DIR, 0))
 		{
-			con_printf(CON_DEBUG, "PHYSFS: Added %s to " DEMO_DIR, realfile);
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to " DEMO_DIR, realfile.data());
 			content_updated = 1;
 		}
 	}
@@ -593,9 +595,9 @@ void PHYSFSX_removeArchiveContent()
 	// if found, remove them...
 	range_for (const auto i, list)
 	{
-		char realfile[PATH_MAX];
+		array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(i, realfile);
-		PHYSFS_removeFromSearchPath(realfile);
+		PHYSFS_removeFromSearchPath(realfile.data());
 	}
 	list.reset();
 	// find files in DEMO_DIR ...
@@ -603,10 +605,11 @@ void PHYSFSX_removeArchiveContent()
 	// if found, remove them...
 	range_for (const auto i, list)
 	{
-		char demofile[PATH_MAX], realfile[PATH_MAX];
+		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
+		array<char, PATH_MAX> realfile;
 		PHYSFSX_getRealPath(demofile,realfile);
-		PHYSFS_removeFromSearchPath(realfile);
+		PHYSFS_removeFromSearchPath(realfile.data());
 	}
 }
 

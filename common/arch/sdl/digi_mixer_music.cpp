@@ -76,7 +76,7 @@ static std::vector<uint8_t> current_music_hndlbuf;
 int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 {
 	SDL_RWops *rw = NULL;
-	char full_path[PATH_MAX];
+	array<char, PATH_MAX> full_path;
 	const char *fptr;
 	unsigned int bufsize = 0;
 
@@ -103,12 +103,15 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
 	if (!current_music && *filename == '~')
 	{
-		snprintf(full_path, PATH_MAX, "%s%s", PHYSFS_getUserDir(),
-				 &filename[1 + (!strncmp(&filename[1], PHYSFS_getDirSeparator(), strlen(PHYSFS_getDirSeparator())) ? 
-				 strlen(PHYSFS_getDirSeparator()) : 0)]);
-		current_music.reset(Mix_LoadMUS(full_path));
+		const auto sep = PHYSFS_getDirSeparator();
+		const auto lensep = strlen(sep);
+		snprintf(full_path.data(), PATH_MAX, "%s%s", PHYSFS_getUserDir(),
+				 &filename[1 + (!strncmp(&filename[1], sep, lensep)
+			? lensep
+			: 0)]);
+		current_music.reset(Mix_LoadMUS(full_path.data()));
 		if (current_music)
-			filename = full_path;	// used later for possible error reporting
+			filename = full_path.data();	// used later for possible error reporting
 	}
 		
 
@@ -116,9 +119,9 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	if (!current_music)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
-		current_music.reset(Mix_LoadMUS(full_path));
+		current_music.reset(Mix_LoadMUS(full_path.data()));
 		if (current_music)
-			filename = full_path;	// used later for possible error reporting
+			filename = full_path.data();	// used later for possible error reporting
 	}
 
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive

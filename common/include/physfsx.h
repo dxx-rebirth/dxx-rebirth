@@ -471,12 +471,6 @@ extern void PHYSFSX_listSearchPathContent();
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath, std::size_t);
 
 template <std::size_t N>
-static inline int PHYSFSX_getRealPath(const char *stdPath, char (&realPath)[N])
-{
-	return PHYSFSX_getRealPath(stdPath, realPath, N);
-}
-
-template <std::size_t N>
 static inline int PHYSFSX_getRealPath(const char *stdPath, array<char, N> &realPath)
 {
 	return PHYSFSX_getRealPath(stdPath, realPath.data(), N);

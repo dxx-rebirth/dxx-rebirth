@@ -1777,7 +1777,7 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 {
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
-	char new_path[PATH_MAX];
+	array<char, PATH_MAX> new_path;
 	
 	auto b = make_unique<browser>(ext_range);
 	b->title = title;
@@ -1791,7 +1791,7 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
 		PHYSFSX_getRealPath(orig_path, new_path);
-		orig_path = new_path;
+		orig_path = new_path.data();
 	}
 
 	// Set the viewing directory to orig_path, or some parent of it
