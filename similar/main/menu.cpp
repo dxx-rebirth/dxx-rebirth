@@ -1919,7 +1919,7 @@ namespace {
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank2)	\
 	DXX_MENUITEM(VERB, TEXT, "Jukebox options:", opt_label_jukebox_options)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Path for level music", opt_sm_mtype3_lmpath)	\
-	DXX_MENUITEM(VERB, INPUT, GameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMLevelMusicPath, opt_sm_mtype3_lmpath_input)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank3)	\
 	DXX_MENUITEM(VERB, TEXT, "Level music play order:", opt_label_lm_order)	\
 	DXX_MENUITEM(VERB, RADIO, "continuous", opt_sm_mtype3_lmplayorder1, GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT, optgrp_music_order)	\
@@ -2078,10 +2078,11 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				static const array<file_extension_t, 1> ext_list{{"m3u"}};		// select a directory or M3U playlist
+				const auto cfgpath = CGameCfg.CMLevelMusicPath.data();
 				select_file_recursive(
 					"Select directory or\nM3U playlist to\n play level music from" WINDOWS_DRIVE_CHANGE_TEXT,
-									  GameCfg.CMLevelMusicPath.data(), ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  get_absolute_path, GameCfg.CMLevelMusicPath.data());	// just copy the absolute path
+									  cfgpath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  get_absolute_path, cfgpath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
 				SELECT_SONG("Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT, SONG_TITLE);
@@ -2121,7 +2122,7 @@ void do_sound_menu()
 {
 
 #ifdef USE_SDLMIXER
-	const auto old_CMLevelMusicPath = GameCfg.CMLevelMusicPath;
+	const auto old_CMLevelMusicPath = CGameCfg.CMLevelMusicPath;
 	const auto old_CMMiscMusic0 = GameCfg.CMMiscMusic[SONG_TITLE];
 #endif
 
@@ -2129,7 +2130,7 @@ void do_sound_menu()
 	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
 
 #ifdef USE_SDLMIXER
-	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), GameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0.data(), GameCfg.CMMiscMusic[SONG_TITLE].data())) )
+	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0.data(), GameCfg.CMMiscMusic[SONG_TITLE].data())) )
 	{
 		songs_uninit();
 
