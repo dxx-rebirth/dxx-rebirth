@@ -1078,7 +1078,8 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
 #ifdef EDITOR
 void create_new_mission(void)
 {
-	Current_mission.reset(new Mission{});
+	Current_mission = make_unique<Mission>();
+	*Current_mission = {};
 	Current_mission->path = "new_mission";
 	Current_mission->filename = begin(Current_mission->path);
 	

@@ -145,6 +145,27 @@ struct Mission : Mission_path
 	descent_version_type descent_version;	// descent 1 or descent 2?
 	std::unique_ptr<d_fname> alternate_ham_file;
 #endif
+	/* Explicitly default move constructor and move operator=
+	 *
+	 * Without this, gcc (tested gcc-4.9, gcc-5) tries to use
+	 * a synthetic operator=(const Mission &) to implement `instance =
+	 * {};`, which fails because Mission contains std::unique_ptr, a
+	 * movable but noncopyable type.
+	 *
+	 * With the explicit default, gcc uses operator=(Mission &&), which
+	 * works.
+	 *
+	 * Explicitly default the default constructor since the explicitly
+	 * defaulted move constructor suppresses the implicit default
+	 * constructor.
+	 * Explicitly delete copy constructor and copy operator= for
+	 * thoroughness.
+	 */
+	Mission(Mission &&) = default;
+	Mission &operator=(Mission &&) = default;
+	Mission() = default;
+	Mission(const Mission &) = delete;
+	Mission &operator=(const Mission &) = delete;
 	~Mission();
 };
 
