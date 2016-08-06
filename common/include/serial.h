@@ -70,9 +70,7 @@ class is_cxx_array<const T> : public is_cxx_array<T>
 };
 
 template <typename T>
-class is_generic_class : public tt::conditional<is_cxx_array<T>::value, tt::false_type, tt::is_class<T>>::type
-{
-};
+using is_generic_class = typename tt::conditional<is_cxx_array<T>::value, tt::false_type, tt::is_class<T>>::type;
 
 template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
 static inline typename tt::enable_if<tt::is_integral<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
@@ -150,17 +148,13 @@ static inline const T &extract_value(const wrapped_empty_value<T> &t)
 }
 
 template <typename T, typename Trr = typename tt::remove_reference<T>::type>
-struct capture_type
-{
-	typedef
-		typename tt::conditional<tt::is_lvalue_reference<T>::value,
+using capture_type = typename tt::conditional<tt::is_lvalue_reference<T>::value,
 			std::reference_wrapper<Trr>,
 			typename tt::conditional<tt::is_empty<Trr>::value,
 				wrapped_empty_value<Trr>,
 				std::tuple<Trr>
 			>::type
-		>::type type;
-};
+		>;
 
 template <typename T, typename Trr = typename tt::remove_reference<T>::type>
 static inline auto capture_value(Trr &t) -> decltype(std::ref(t))
