@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "varutil.h"
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 #include "fmtcheck.h"
 #include "ntstring.h"
 
@@ -152,6 +153,7 @@ public:
 	ntstring<NM_MAX_TEXT_LEN> saved_text;
 };
 
+namespace dcx {
 template <typename T>
 class newmenu_subfunction_t
 {
@@ -164,6 +166,7 @@ typedef newmenu_subfunction_t<void>::type newmenu_subfunction;
 class unused_newmenu_userdata_t;
 constexpr newmenu_subfunction_t<const unused_newmenu_userdata_t>::type unused_newmenu_subfunction = nullptr;
 constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
+}
 
 int newmenu_do2(const char *title, const char *subtitle, uint_fast32_t nitems, newmenu_item *item, newmenu_subfunction subfunction, void *userdata, int citem, const char *filename);
 
@@ -207,6 +210,8 @@ static inline int newmenu_do1( const char * title, const char * subtitle, uint_f
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
+#ifdef dsx
+namespace dsx {
 newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag );
 
 static inline newmenu *newmenu_do3( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename )
@@ -238,6 +243,8 @@ static newmenu *newmenu_dotiny(const char * title, const char * subtitle, uint_f
 {
 	return newmenu_dotiny(title, subtitle, nitems, item, TabsFlag, reinterpret_cast<newmenu_subfunction_t<void>::type>(subfunction), static_cast<void *>(userdata));
 }
+}
+#endif
 
 // Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 void newmenu_doreorder(const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item *item);
@@ -319,6 +326,7 @@ window *listbox_get_window(listbox *lb);
 #endif
 extern void listbox_delete_item(listbox *lb, int item);
 
+namespace dcx {
 template <typename T>
 class listbox_subfunction_t
 {
@@ -329,6 +337,7 @@ public:
 class unused_listbox_userdata_t;
 static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
 static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
+}
 
 listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
 

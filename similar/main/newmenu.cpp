@@ -119,6 +119,7 @@ void newmenu_free_background()	{
 	nm_background1.reset();
 }
 
+namespace dsx {
 // Draws the custom menu background pcx, if available
 static void nm_draw_background1(const char * filename)
 {
@@ -139,6 +140,7 @@ static void nm_draw_background1(const char * filename)
 #if defined(DXX_BUILD_DESCENT_II)
 	strcpy(last_palette_loaded,"");		//force palette load next time
 #endif
+}
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (PHYSFSX_exists("scoresb.pcx",1)?"scoresb.pcx":"scores.pcx")
@@ -1184,6 +1186,7 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 	return rval;
 }
 
+namespace dsx {
 static void newmenu_create_structure( newmenu *menu )
 {
 	int aw, tw, th, twidth,right_offset;
@@ -1607,6 +1610,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t n
 		return NULL;
 	}
 	return menu;
+}
 }
 
 int (vnm_messagebox_aN)(const char *title, const nm_messagebox_tie &tie, const char *format, ...)

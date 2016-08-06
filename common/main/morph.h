@@ -25,23 +25,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "object.h"
-
 #ifdef __cplusplus
 #include <cstdint>
 #include "dxxsconf.h"
 #include "vecmat.h"
 #include "pack.h"
-#include "fwd-object.h"
 #include "polyobj.h"
+#include "dsx-ns.h"
 #include "compiler-array.h"
 
 #define MAX_VECS 5000
 
-struct morph_data;
-#define MAX_MORPH_OBJECTS 5
+#ifdef dsx
+#include "object.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct morph_data : prohibit_void_ptr<morph_data>
 {
 	object *obj;                                // object which is morphing
@@ -57,6 +54,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		submodel_startpoints;    // first point for each submodel
 };
 
+constexpr unsigned MAX_MORPH_OBJECTS = 5;
 extern array<morph_data, MAX_MORPH_OBJECTS> morph_objects;
 
 void morph_start(vobjptr_t obj);

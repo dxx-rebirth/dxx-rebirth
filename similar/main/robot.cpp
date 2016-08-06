@@ -196,6 +196,7 @@ static void jointlist_read(PHYSFS_File *fp, array<jointlist, N_ANIM_STATES> &jl)
 	}
 }
 
+namespace dsx {
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
@@ -303,6 +304,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 		jointlist_read(fp, j);
 
 	ri.always_0xabcd = PHYSFSX_readInt(fp);
+}
 }
 
 /*

@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <cstddef>
+#include "dsx-ns.h"
 
 extern unsigned state_game_id;
 extern int state_quick_item;
@@ -71,6 +72,7 @@ enum class blind_save
 
 }
 
+#ifdef dsx
 namespace dsx {
 int state_save_all_sub(const char *filename, const char *desc);
 
@@ -79,7 +81,6 @@ int state_get_restore_file(char *fname, blind_save);
 }
 int state_get_game_id(const char *filename);
 
-#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 int state_restore_all_sub(const char *filename);

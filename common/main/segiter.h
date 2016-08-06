@@ -1,6 +1,7 @@
 #pragma once
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#include "dsx-ns.h"
+#ifdef dsx
 #include <iterator>
 #include "dxxsconf.h"
 #include "object.h"
@@ -13,6 +14,8 @@ template <typename>
 struct unspecified_pointer_t;
 
 };
+
+namespace dsx {
 
 template <typename T>
 class segment_object_range_t
@@ -81,5 +84,7 @@ __attribute_warn_unused_result
 static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s)
 {
 	return s.objects == object_none ? cobjptridx(object_none) : cobjptridx(s.objects);
+}
+
 }
 #endif

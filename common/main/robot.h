@@ -226,12 +226,14 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
 extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
-#endif
 
+namespace dsx {
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &r);
+}
+#endif
 
 /*
  * reads n jointpos structs from a PHYSFS_File
@@ -240,9 +242,11 @@ void jointpos_read(PHYSFS_File *fp, jointpos &jp);
 #if 0
 void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
+#ifdef dsx
 namespace dsx {
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 }
+#endif
 
 #endif
