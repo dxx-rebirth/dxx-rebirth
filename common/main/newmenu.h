@@ -323,37 +323,33 @@ extern void listbox_delete_item(listbox *lb, int item);
 
 namespace dcx {
 template <typename T>
-class listbox_subfunction_t
-{
-public:
-	typedef int (*type)(listbox *menu,const d_event &event, T *userdata);
-};
+using listbox_subfunction_t = int (*)(listbox *menu,const d_event &event, T *userdata);
 
 class unused_listbox_userdata_t;
-static listbox_subfunction_t<unused_listbox_userdata_t>::type *const unused_listbox_subfunction = NULL;
-static unused_listbox_userdata_t *const unused_listbox_userdata = NULL;
+constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox_subfunction = nullptr;
+constexpr const unused_listbox_userdata_t *unused_listbox_userdata = nullptr;
 }
 
-listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata );
+listbox *newmenu_listbox1(const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void> listbox_callback, void *userdata);
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
-	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
+	return newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
 
 template <typename T>
-listbox *newmenu_listbox1(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, typename listbox_subfunction_t<T>::type listbox_callback, std::unique_ptr<T> userdata)
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<T> listbox_callback, std::unique_ptr<T> userdata)
 {
-	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata.get()));
+	auto r = newmenu_listbox1(title, nitems, items, allow_abort_flag, default_item, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata.get()));
 	userdata.release();
 	return r;
 }
 
 template <typename T>
-listbox *newmenu_listbox(const char *title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, typename listbox_subfunction_t<T>::type listbox_callback, T *userdata)
+listbox *newmenu_listbox(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const listbox_subfunction_t<T> listbox_callback, T *const userdata)
 {
-	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>::type>(listbox_callback), static_cast<void *>(userdata));
+	return newmenu_listbox1(title, nitems, items, allow_abort_flag, 0, reinterpret_cast<listbox_subfunction_t<void>>(listbox_callback), static_cast<void *>(userdata));
 }
 
 //should be called whenever the palette changes

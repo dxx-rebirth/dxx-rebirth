@@ -2071,7 +2071,7 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 	return window_event_result::ignored;
 }
 
-listbox *newmenu_listbox1( const char * title, uint_fast32_t nitems, const char *items[], int allow_abort_flag, int default_item, listbox_subfunction_t<void>::type listbox_callback, void *userdata )
+listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
 {
 	std::unique_ptr<listbox> lb{new listbox{}};
 	window *wind;
