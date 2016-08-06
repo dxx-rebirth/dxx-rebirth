@@ -459,7 +459,7 @@ static void strip_end_whitespace( char * text )
 	*ns = 0;
 }
 
-int newmenu_do2( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction_t<void>::type subfunction, void *userdata, int citem, const char * filename )
+int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
 {
 	newmenu *menu;
 	window *wind;
