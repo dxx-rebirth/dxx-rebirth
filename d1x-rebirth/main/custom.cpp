@@ -95,7 +95,7 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 
 	num_custom = 0;
 
-	if ((unsigned int)num_bitmaps <= MAX_BITMAP_FILES) // <v1.4 pig?
+	if (num_bitmaps <= MAX_BITMAP_FILES) // <v1.4 pig?
 	{
 		PHYSFSX_fseek(f, 8, SEEK_SET);
 		data_ofs = 8;
@@ -110,7 +110,8 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 	else
 		return -1; // invalid pig file
 
-	if ((unsigned int)num_bitmaps >= MAX_BITMAP_FILES || (unsigned int)num_sounds >= MAX_SOUND_FILES)
+	if (num_bitmaps >= MAX_BITMAP_FILES ||
+		num_sounds >= MAX_SOUND_FILES)
 		return -1; // invalid pig file
 	ci = make_unique<custom_info[]>(num_bitmaps + num_sounds);
 	custom_info *cip = ci.get();
