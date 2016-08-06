@@ -174,7 +174,8 @@ int gr_init()
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
-	grd_curscreen = make_unique<grs_screen, grs_screen>({});
+	grd_curscreen = make_unique<grs_screen>();
+	*grd_curscreen = {};
 
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;

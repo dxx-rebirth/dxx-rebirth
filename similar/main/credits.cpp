@@ -223,7 +223,8 @@ void credits_show(const char *credits_filename)
 	const char *filename = CREDITS_FILE;
 	palette_array_t backdrop_palette;
 	
-	auto cr = make_unique<credits, credits>({});
+	auto cr = make_unique<credits>();
+	*cr = {};
 	if (credits_filename) {
 		filename = credits_filename;
 		cr->have_bin_file = 1;
