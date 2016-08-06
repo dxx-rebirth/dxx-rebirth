@@ -1821,19 +1821,15 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 		}
 
 		p = b->view_path + strlen(b->view_path) - 1;
-		b->new_path = PHYSFSX_isNewPath(b->view_path);
-		
-		while (!PHYSFS_addToSearchPath(b->view_path, 0))
+		const size_t len_sep = strlen(sep);
+		while (b->new_path = PHYSFSX_isNewPath(b->view_path), !PHYSFS_addToSearchPath(b->view_path, 0))
 		{
-			size_t len_sep = strlen(sep);
 			while ((p > b->view_path) && strncmp(p, sep, len_sep))
 				p--;
 			*p = '\0';
 			
 			if (p == b->view_path)
 				break;
-			
-			b->new_path = PHYSFSX_isNewPath(b->view_path);
 		}
 	}
 	
