@@ -98,8 +98,8 @@ int ReadConfigFile()
 	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
 #endif
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
-	GameCfg.CMLevelMusicTrack[0] = -1;
-	GameCfg.CMLevelMusicTrack[1] = -1;
+	CGameCfg.CMLevelMusicTrack[0] = -1;
+	CGameCfg.CMLevelMusicTrack[1] = -1;
 	CGameCfg.CMLevelMusicPath = {};
 	CGameCfg.CMMiscMusic = {};
 #if defined(__APPLE__) && defined(__MACH__)
@@ -167,9 +167,9 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, CMLevelMusicPlayOrderStr))
 			convert_integer(GameCfg.CMLevelMusicPlayOrder, value);
 		else if (cmp(lb, eq, CMLevelMusicTrack0Str))
-			convert_integer(GameCfg.CMLevelMusicTrack[0], value);
+			convert_integer(CGameCfg.CMLevelMusicTrack[0], value);
 		else if (cmp(lb, eq, CMLevelMusicTrack1Str))
-			convert_integer(GameCfg.CMLevelMusicTrack[1], value);
+			convert_integer(CGameCfg.CMLevelMusicTrack[1], value);
 		else if (cmp(lb, eq, CMLevelMusicPathStr))
 			convert_string(CGameCfg.CMLevelMusicPath, value, eol);
 		else if (cmp(lb, eq, CMMiscMusic0Str))
@@ -245,8 +245,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, GameCfg.MusicType);
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, GameCfg.CMLevelMusicPlayOrder);
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, GameCfg.CMLevelMusicTrack[0]);
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, GameCfg.CMLevelMusicTrack[1]);
+	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0]);
+	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1]);
 	PHYSFSX_printf(infile, "%s=%s\n", CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath.data());
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic0Str, CGameCfg.CMMiscMusic[SONG_TITLE].data());
 	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic1Str, CGameCfg.CMMiscMusic[SONG_BRIEFING].data());

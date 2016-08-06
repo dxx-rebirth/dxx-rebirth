@@ -233,16 +233,16 @@ void jukebox_load()
 	if (JukeboxSongs.num_songs)
 	{
 		con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s", JukeboxSongs.num_songs, cfgpath.data());
-		if (GameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
+		if (CGameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
 		{
-			GameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
-			GameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
+			CGameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
+			CGameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
 		}
 	}
 	else
 	{
-		GameCfg.CMLevelMusicTrack[0] = -1;
-		GameCfg.CMLevelMusicTrack[1] = -1;
+		CGameCfg.CMLevelMusicTrack[0] = -1;
+		CGameCfg.CMLevelMusicTrack[1] = -1;
 		con_printf(CON_DEBUG,"Jukebox music could not be found!");
 	}
 }
@@ -250,14 +250,15 @@ void jukebox_load()
 // To proceed tru our playlist. Usually used for continous play, but can loop as well.
 static void jukebox_hook_next()
 {
-	if (!JukeboxSongs.list || GameCfg.CMLevelMusicTrack[0] == -1) return;
+	if (!JukeboxSongs.list || CGameCfg.CMLevelMusicTrack[0] == -1)
+		return;
 
 	if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
-		GameCfg.CMLevelMusicTrack[0] = d_rand() % GameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
+		CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
 	else
-		GameCfg.CMLevelMusicTrack[0]++;
-	if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
-		GameCfg.CMLevelMusicTrack[0] = 0;
+		CGameCfg.CMLevelMusicTrack[0]++;
+	if (CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
+		CGameCfg.CMLevelMusicTrack[0] = 0;
 
 	jukebox_play();
 }
@@ -271,10 +272,11 @@ int jukebox_play()
 	if (!JukeboxSongs.list)
 		return 0;
 
-	if (GameCfg.CMLevelMusicTrack[0] < 0 || GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
+	if (CGameCfg.CMLevelMusicTrack[0] < 0 ||
+		CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
 		return 0;
 
-	music_filename = JukeboxSongs.list[GameCfg.CMLevelMusicTrack[0]];
+	music_filename = JukeboxSongs.list[CGameCfg.CMLevelMusicTrack[0]];
 	if (!music_filename)
 		return 0;
 

@@ -533,7 +533,7 @@ int songs_play_level_song( int levelnum, int offset )
 		case MUSIC_TYPE_CUSTOM:
 		{
 			if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
-				GameCfg.CMLevelMusicTrack[0] = d_rand() % GameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
+				CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
 			else if (!offset)
 			{
 				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
@@ -545,19 +545,21 @@ int songs_play_level_song( int levelnum, int offset )
 
 					// As soon as we start a new level, go to next track
 					if (last_songnum != -1 && songnum != last_songnum)
-						((GameCfg.CMLevelMusicTrack[0]+1>=GameCfg.CMLevelMusicTrack[1])?GameCfg.CMLevelMusicTrack[0]=0:GameCfg.CMLevelMusicTrack[0]++);
+						((CGameCfg.CMLevelMusicTrack[0] + 1 >= CGameCfg.CMLevelMusicTrack[1])
+							? CGameCfg.CMLevelMusicTrack[0] = 0
+							: CGameCfg.CMLevelMusicTrack[0]++);
 					last_songnum = songnum;
 				}
 				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)
-					GameCfg.CMLevelMusicTrack[0] = (songnum % GameCfg.CMLevelMusicTrack[1]);
+					CGameCfg.CMLevelMusicTrack[0] = (songnum % CGameCfg.CMLevelMusicTrack[1]);
 			}
 			else
 			{
-				GameCfg.CMLevelMusicTrack[0] += offset;
-				if (GameCfg.CMLevelMusicTrack[0] < 0)
-					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[1] + GameCfg.CMLevelMusicTrack[0];
-				if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
-					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
+				CGameCfg.CMLevelMusicTrack[0] += offset;
+				if (CGameCfg.CMLevelMusicTrack[0] < 0)
+					CGameCfg.CMLevelMusicTrack[0] = CGameCfg.CMLevelMusicTrack[1] + CGameCfg.CMLevelMusicTrack[0];
+				if (CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
+					CGameCfg.CMLevelMusicTrack[0] = CGameCfg.CMLevelMusicTrack[0] - CGameCfg.CMLevelMusicTrack[1];
 			}
 
 			Song_playing = -1;
