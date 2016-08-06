@@ -972,9 +972,10 @@ void do_automap()
 	am->segment_limit = 1;
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
-	am->max_edges = Num_segments*12;
-	am->edges = make_unique<Edge_info[]>(am->max_edges);
-	am->drawingListBright = make_unique<Edge_info *[]>(am->max_edges);
+	const auto max_edges = Num_segments * 12;
+	am->max_edges = max_edges;
+	am->edges = make_unique<Edge_info[]>(max_edges);
+	am->drawingListBright = make_unique<Edge_info *[]>(max_edges);
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 	am->viewDist = 0;

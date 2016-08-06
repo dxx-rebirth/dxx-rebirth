@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "varutil.h"
 #include "window.h"
 #include "compiler-array.h"
+#include "compiler-make_unique.h"
 #include "compiler-type_traits.h"
 #include "ntstring.h"
 
@@ -286,7 +287,7 @@ template <typename T>
 __attribute_warn_unused_result
 static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, short x2, short y2)
 {
-	std::unique_ptr<T> t{new T};
+	auto t = make_unique<T>();
 	t->kind = T::s_kind;
 	ui_gadget_add(dlg, x1, y1, x2, y2, t.get());
 	return t;

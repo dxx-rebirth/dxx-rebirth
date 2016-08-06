@@ -39,6 +39,7 @@
 #include "pack.h"
 #include "ntstring.h"
 #include "compiler-array.h"
+#include "compiler-make_unique.h"
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 #include "partial_range.h"
@@ -244,7 +245,7 @@ struct PHYSFSX_gets_line_t
 	line_t &line() { return *m_line.get(); }
 	line_t &next()
 	{
-		m_line.reset(new line_t);
+		m_line = make_unique<line_t>();
 		return *m_line.get();
 	}
 #else
@@ -269,11 +270,12 @@ struct PHYSFSX_gets_line_t
 template <>
 struct PHYSFSX_gets_line_t<0>
 {
+#define DXX_ALLOCATE_PHYSFS_LINE(n)	make_unique<char[]>(n)
 	std::unique_ptr<char[]> m_line;
 	std::size_t m_length;
 	PHYSFSX_gets_line_t(std::size_t n) :
 #ifndef DXX_HAVE_POISON
-		m_line(new char[n]),
+		m_line(DXX_ALLOCATE_PHYSFS_LINE(n)),
 #endif
 		m_length(n)
 	{
@@ -283,7 +285,8 @@ struct PHYSFSX_gets_line_t<0>
 	char *next()
 	{
 #ifdef DXX_HAVE_POISON
-		m_line.reset(new char[m_length]);
+		/* Reallocate to tell checker to undefine the buffer */
+		m_line = DXX_ALLOCATE_PHYSFS_LINE(m_length);
 #endif
 		return m_line.get();
 	}
@@ -292,6 +295,7 @@ struct PHYSFSX_gets_line_t<0>
 	const char *begin() const { return *this; }
 	const char *end() const { return begin() + m_length; }
 	operator const void *() const = delete;
+#undef DXX_ALLOCATE_PHYSFS_LINE
 };
 
 class PHYSFSX_fgets_t

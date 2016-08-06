@@ -2073,10 +2073,11 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 
 listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, const char *items[], const int allow_abort_flag, const int default_item, const listbox_subfunction_t<void> listbox_callback, void *const userdata)
 {
-	std::unique_ptr<listbox> lb{new listbox{}};
 	window *wind;
 	newmenu_free_background();
 
+	auto lb = make_unique<listbox>();
+	*lb = {};
 	lb->title = title;
 	lb->nitems = nitems;
 	lb->item = items;
