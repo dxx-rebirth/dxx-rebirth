@@ -104,12 +104,10 @@ public:
 
 class jukebox_songs
 {
-	void quick_unload();
 public:
-	~jukebox_songs();
 	void unload();
 	list_pointers list;	// the actual list
-	int num_songs;	// number of jukebox songs
+	unsigned num_songs;	// number of jukebox songs
 	static const std::size_t max_songs = 1024;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 };
 
@@ -117,20 +115,10 @@ public:
 
 static jukebox_songs JukeboxSongs;
 
-jukebox_songs::~jukebox_songs()
-{
-	quick_unload();
-}
-
-void jukebox_songs::quick_unload()
-{
-	list.reset();
-}
-
 void jukebox_songs::unload()
 {
-	quick_unload();
 	num_songs = 0;
+	list.reset();
 }
 
 void jukebox_unload()
