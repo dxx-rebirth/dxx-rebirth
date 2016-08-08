@@ -161,10 +161,25 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	const auto fp = f.get();
 	fseek(fp, -1, SEEK_END);
 	const std::size_t length = ftell(fp) + 1;
-	if (length >= PATH_MAX * JukeboxSongs.max_songs)
+	const auto juke_max_songs = JukeboxSongs.max_songs;
+	if (length >= PATH_MAX * juke_max_songs)
 		return {};
 	fseek(fp, 0, SEEK_SET);
-	const auto max_songs = JukeboxSongs.max_songs;
+	/* A file consisting only of single character records and newline
+	 * separators, with no junk newlines, comments, or final terminator,
+	 * will need one pointer per two bytes of file, rounded up.  Any
+	 * file that uses longer records, which most will use, will need
+	 * fewer pointers.  This expression usually overestimates, sometimes
+	 * substantially.  However, it is still more conservative than the
+	 * previous expression, which was to allocate exactly
+	 * `JukeboxSongs.max_songs` pointers without regard to the file size
+	 * or contents.
+	 */
+	const auto required_alloc_size = 1 + (length / 2);
+	const auto max_songs = std::min(required_alloc_size, juke_max_songs);
+	/* Use T=`char*[]` to ensure alignment.  Place pointers before file
+	 * contents to keep the pointer array aligned.
+	 */
 	auto &&list_buf = make_unique<char*[]>(max_songs + 1 + (length / sizeof(char *)));
 	const auto p = reinterpret_cast<char *>(list_buf.get() + max_songs);
 	p[length] = '\0';	// make sure the last string is terminated
