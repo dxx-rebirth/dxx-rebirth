@@ -329,6 +329,13 @@ struct %(N)s_derived : %(N)s_base {
 	b[0]=1;
 '''
 ),
+		Cxx11RequiredFeature('range-based for', '''
+#include "compiler-range_for.h"
+''', '''
+	int b[2];
+	range_for(int&c,b)c=0;
+'''
+),
 		Cxx11RequiredFeature('std::unordered_map::emplace', '''
 #include <unordered_map>
 ''', '''
@@ -1369,26 +1376,6 @@ typedef tt::conditional<false,int,long>::type b;
 		if self.check_cxx11_type_traits(context, f):
 			return
 		raise SCons.Errors.StopError("C++ compiler does not support <type_traits>.")
-	@_implicit_test
-	def check_boost_foreach(self,context,**kwargs):
-		"""
-help:assume Boost.Foreach works
-"""
-		return self.Compile(context, msg='for Boost.Foreach', successflags={'CPPDEFINES' : ['DXX_HAVE_BOOST_FOREACH']}, **kwargs)
-	@_implicit_test
-	def check_cxx11_range_for(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_RANGE_FOR']},**kwargs):
-		return self.Compile(context, msg='for C++11 range-based for', successflags=_successflags, **kwargs)
-	@_custom_test
-	def _check_range_based_for(self,context):
-		include = '''
-#include "compiler-range_for.h"
-'''
-		main = '''
-	int b[2];
-	range_for(int&c,b)c=0;
-'''
-		if not self.check_cxx11_range_for(context, text=include, main=main) and not self.check_boost_foreach(context, text=include, main=main):
-			raise SCons.Errors.StopError("C++ compiler does not support range-based for or Boost.Foreach.")
 	@_custom_test
 	def check_cxx11_required_features(self,context):
 		features = self.__cxx11_required_features
