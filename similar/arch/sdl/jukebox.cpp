@@ -38,16 +38,21 @@ namespace {
 struct m3u_bytes
 {
 	using range_type = partial_range_t<char *>;
+	using ptr_range_type = partial_range_t<char **>;
 	using alloc_type = std::unique_ptr<char *[]>;
 	range_type range;
+	ptr_range_type ptr_range;
 	alloc_type alloc;
 	m3u_bytes() :
-		range(nullptr, nullptr), alloc()
+		range(nullptr, nullptr),
+		ptr_range(nullptr, nullptr)
 	{
 	}
 	m3u_bytes(m3u_bytes &&) = default;
-	m3u_bytes(range_type &&r, alloc_type &&b) :
-		range(std::move(r)), alloc(std::move(b))
+	m3u_bytes(range_type &&r, ptr_range_type &&p, alloc_type &&b) :
+		range(std::move(r)),
+		ptr_range(std::move(p)),
+		alloc(std::move(b))
 	{
 	}
 };
@@ -164,7 +169,11 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	const auto p = reinterpret_cast<char *>(list_buf.get() + max_songs);
 	p[length] = '\0';	// make sure the last string is terminated
 	return fread(p, length, 1, fp)
-		? m3u_bytes(unchecked_partial_range(p, length), std::move(list_buf))
+		? m3u_bytes(
+			unchecked_partial_range(p, length),
+			unchecked_partial_range(list_buf.get(), max_songs),
+			std::move(list_buf)
+		)
 		: m3u_bytes();
 }
 
@@ -181,6 +190,7 @@ static int read_m3u(void)
 	};
 	JukeboxSongs.list.set_combined(std::move(list_buf));
 	const auto &range = m3u.range;
+	auto pp = m3u.ptr_range.begin();
 	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
 		for (; buf != range.end() && eol(*buf);)	// find new line - support DOS, Unix and Mac line endings
@@ -189,8 +199,8 @@ static int read_m3u(void)
 			break;
 		if (*buf != '#')	// ignore comments / extra info
 		{
-			JukeboxSongs.list[JukeboxSongs.num_songs++] = buf;
-			if (JukeboxSongs.num_songs >= JukeboxSongs.max_songs)
+			*pp++ = buf;
+			if (pp == m3u.ptr_range.end())
 				break;
 		}
 		for (; buf != range.end(); ++buf)	// find end of line
@@ -202,6 +212,7 @@ static int read_m3u(void)
 		if (buf == range.end())
 			break;
 	}
+	JukeboxSongs.num_songs = std::distance(m3u.ptr_range.begin(), pp);
 	return 1;
 }
 
