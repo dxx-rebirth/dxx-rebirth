@@ -336,6 +336,15 @@ struct %(N)s_derived : %(N)s_base {
 	range_for(int&c,b)c=0;
 '''
 ),
+		Cxx11RequiredFeature('<type_traits>', '''
+#include <type_traits>
+''', '''
+	typename std::conditional<sizeof(argc) == sizeof(int),int,long>::type a = 0;
+	typename std::conditional<sizeof(argc) != sizeof(int),int,long>::type b = 0;
+	(void)a;
+	(void)b;
+'''
+),
 		Cxx11RequiredFeature('std::unordered_map::emplace', '''
 #include <unordered_map>
 ''', '''
@@ -1359,23 +1368,6 @@ namespace B
 }
 using namespace B;
 ''', main='return A::a;', msg='whether compiler handles classes from "using namespace"', successflags=_successflags)
-	@_implicit_test
-	def check_cxx11_type_traits(self,context,f,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX11_TYPE_TRAITS']}):
-		"""
-help:assume <type_traits> works
-"""
-		return self.Compile(context, text=f, msg='for <type_traits>', ext='.cpp', successflags=_successflags)
-	@_custom_test
-	def _check_type_traits(self,context):
-		f = '''
-#define DXX_INHERIT_CONSTRUCTORS	/* bypass sanity check */
-#include "compiler-type_traits.h"
-typedef tt::conditional<true,int,long>::type a;
-typedef tt::conditional<false,int,long>::type b;
-'''
-		if self.check_cxx11_type_traits(context, f):
-			return
-		raise SCons.Errors.StopError("C++ compiler does not support <type_traits>.")
 	@_custom_test
 	def check_cxx11_required_features(self,context):
 		features = self.__cxx11_required_features
