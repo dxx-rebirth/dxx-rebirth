@@ -114,7 +114,8 @@ class Git(StaticSubprocess):
 
 class ConfigureTests:
 	class Collector:
-		class RecordedTest:
+		class RecordedTest(object):
+			__slots__ = ('desc', 'name')
 			def __init__(self,name,desc):
 				self.name = name
 				self.desc = desc
@@ -132,13 +133,15 @@ class ConfigureTests:
 			self.record(self.RecordedTest(f.__name__, desc))
 			return f
 
-	class Cxx11RequiredFeature:
+	class Cxx11RequiredFeature(object):
+		__slots__ = ('main', 'name', 'text')
 		def __init__(self,name,text,main=''):
 			self.name = name
 			name = {'N' : 'test_' + name.replace(' ', '_')}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
-	class CxxRequiredFeatures:
+	class CxxRequiredFeatures(object):
+		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
 			self.features = features
 			self.main = ''.join([f.main for f in features])
@@ -2897,9 +2900,50 @@ class DXXCommon(LazyObjectConstructor):
  */
 '''))
 			__shared_cpp_dict[builddir] = check_header_includes
-			check_header_includes[0].get_found_includes = \
-				lambda env, scanner, path, __get_found_includes=check_header_includes[0].get_found_includes: \
-					__get_found_includes(env, scanner, path) + [fs.File(env['DXX_EFFECTIVE_SOURCE'])]
+			# This is ugly, but all other known methods are worse.  The
+			# object file needs to depend on the header that created it
+			# and recursively depend on headers that contributed to the
+			# header that created it.  Adding a dependency using
+			# env.Depend creates the first-level dependency, but does
+			# not recurse into the header.  Overriding
+			# get_found_includes will cause SCons to recurse in the
+			# desired way.
+			#
+			# Calling get_found_includes requires parameters that are
+			# not easily obtained here.  There does not appear to be a
+			# way to patch the node's dependency list to insert the
+			# header other than to override get_found_includes.
+			#
+			# Newer SCons applied a performance optimization based on
+			# using Python __slots__.  Using __slots__ makes it a
+			# runtime error to overwrite get_found_includes on the
+			# instance, so overwrite the class method instead.  However,
+			# some instances of the class may not want this hook, so
+			# keep a whitelist of nodes for which the hook is active.
+			c = check_header_includes[0].__class__
+			# If the attribute is missing, this is the first time that
+			# an env.Textfile has been created for this purpose.  Create
+			# the attribute so that subsequent passes do not add extra
+			# copies of the same hook.
+			#
+			# Since a flag attribute is needed anyway, make it useful by
+			# storing the hook whitelist in it.
+			if not hasattr(c, '_dxx_node_header_target_set'):
+				c._dxx_node_header_target_set = set()
+				def __get_found_includes(node, env, scanner, path):
+					# Always call the original and always return at
+					# least what it returned.  If this node is in the
+					# whitelist, then also apply the hook logic.
+					# Otherwise, this is a pass-through.
+					r = node.__get_found_includes(env, scanner, path)
+					return (r + [fs.File(env['DXX_EFFECTIVE_SOURCE'])]) \
+						if node in node._dxx_node_header_target_set else r
+				c.__get_found_includes = c.get_found_includes
+				c.get_found_includes = __get_found_includes
+			# Update the whitelist here, outside the hasattr block.
+			# This is necessary so that the hook is created once, but
+			# every env.Textfile created by this block is whitelisted.
+			c._dxx_node_header_target_set.add(check_header_includes[0])
 		if not __shared_header_file_list:
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			if not headers:
