@@ -138,6 +138,11 @@ class ConfigureTests:
 			name = {'N' : 'test_' + name.replace(' ', '_')}
 			self.text = text % name
 			self.main = ('{' + (main % name) + '}\n') if main else ''
+	class CxxRequiredFeatures:
+		def __init__(self,features):
+			self.features = features
+			self.main = ''.join([f.main for f in features])
+			self.text = ''.join([f.text for f in features])
 	class PCHAction:
 		def __init__(self,context):
 			self._context = context
@@ -272,7 +277,7 @@ class ConfigureTests:
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
-	__cxx11_required_features = [
+	__cxx11_required_features = CxxRequiredFeatures([
 		Cxx11RequiredFeature('constexpr', '''
 struct %(N)s {};
 static constexpr %(N)s get_%(N)s(){return {};}
@@ -352,7 +357,7 @@ struct %(N)s_derived : %(N)s_base {
 	m.emplace(0, 0);
 '''
 ),
-]
+])
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
@@ -1369,24 +1374,18 @@ namespace B
 using namespace B;
 ''', main='return A::a;', msg='whether compiler handles classes from "using namespace"', successflags=_successflags)
 	@_custom_test
-	def check_cxx11_required_features(self,context):
-		features = self.__cxx11_required_features
-		text = ''
-		main = ''
-		for f in features:
-			text += f.text
-			main += f.main
+	def check_cxx11_required_features(self,context,_features=__cxx11_required_features):
 		# First test all the features at once.  If all work, then done.
 		# If any fail, then the configure run will stop.
-		if self.Compile(context, text=text, main=main, msg='for required C++11 features'):
+		_Compile = self.Compile
+		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11 features'):
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
-		raise SCons.Errors.StopError("C++ compiler does not support %s." %
-			', '.join(
-				[f.name for f in features if not self.Compile(context, text=f.text, main=f.main, msg='for C++11 %s' % f.name)]
-			)
-		)
+		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg='for C++11 %s' % f.name)]
+		raise SCons.Errors.StopError(("C++ compiler does not support %s." %
+			', '.join(failures)
+		) if failures else 'C++ compiler supports each feature individually, but not all of them together.  Please report this as a bug in the Rebirth configure script.')
 	@_custom_test
 	def check_constexpr_union_constructor(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']}):
 		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
