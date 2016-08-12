@@ -1459,9 +1459,11 @@ dxx_compiler_supports_pch
 			# warnings about parameters that are unused in regular
 			# functions.
 			return
-		if self.check_cxx11_explicit_delete_anonymous(context, f):
-			raise SCons.Errors.StopError("C++ compiler rejects explicitly deleted functions with named parameters, even with -Wno-unused-parameter.")
-		raise SCons.Errors.StopError("C++ compiler does not support explicitly deleted functions.")
+		raise SCons.Errors.StopError(
+			"C++ compiler rejects explicitly deleted functions with named parameters, even with -Wno-unused-parameter." \
+				if self.check_cxx11_explicit_delete_anonymous(context, f) else \
+			"C++ compiler does not support explicitly deleted functions."
+		)
 	@_implicit_test
 	def check_cxx11_explicit_delete_named(self,context,f):
 		"""
@@ -2903,9 +2905,11 @@ class DXXCommon(LazyObjectConstructor):
 			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			if not headers:
 				g = Git.pcall(['--version'], stderr=subprocess.STDOUT)
-				if g.returncode:
-					raise SCons.Errors.StopError("`git ls-files` failed.  `git --version` failed.  Check that Git is installed.")
-				raise SCons.Errors.StopError("`git ls-files` failed, but `git --version` works.  Check that scons is run from a Git repository.")
+				raise SCons.Errors.StopError(
+					"`git ls-files` failed.  `git --version` failed.  Check that Git is installed." \
+						if g.returncode else \
+					"`git ls-files` failed, but `git --version` works.  Check that scons is run from a Git repository."
+				)
 			# Filter out OS X related directories.  Files in those
 			# directories assume they are only ever built on OS X, so
 			# they unconditionally include headers specific to OS X.
