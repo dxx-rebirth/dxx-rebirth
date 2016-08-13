@@ -722,6 +722,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			d = successflags.get('CPPDEFINES', None)
 			if d:
 				append_CPPDEFINE = f['CPPDEFINES'].append
+				Define = context.sconf.Define
 				for v in d:
 					# v is 'NAME' for -DNAME
 					# v is ('NAME', 'VALUE') for -DNAME=VALUE
@@ -731,7 +732,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 						# configuration header.
 						append_CPPDEFINE(v)
 						continue
-					context.sconf.Define(d[0], d[1])
+					Define(d[0], d[1])
 		else:
 			env_flags.restore(context.env)
 		self._sconf_results.append((calling_function, r))
@@ -976,13 +977,15 @@ void a()__attribute__((%s("a called")));
 ''' % __attribute__
 		macro_name = '__attribute_%s(M)' % attribute
 		Compile = self.Compile
+		Define = context.sconf.Define
 		if Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((%s))' % __attribute__):
-			context.sconf.Define('DXX_HAVE_ATTRIBUTE_%s' % attribute.upper())
-			context.sconf.Define(macro_name, '__attribute__((%s(M)))' % __attribute__)
+			Define('DXX_HAVE_ATTRIBUTE_%s' % attribute.upper())
+			macro_value = '__attribute__((%s(M)))' % __attribute__
 		else:
 			Compile(context, text=f, msg='whether compiler accepts function __attribute__((%s))' % __attribute__) and \
 			Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
-			context.sconf.Define(macro_name, self.comment_not_supported)
+			macro_value = self.comment_not_supported
+		Define(macro_name, macro_value)
 	@_custom_test
 	def check_builtin_bswap(self,context,
 		_main='''
@@ -1045,13 +1048,18 @@ static int a(int b){
 }
 '''
 		main = 'return a(1) + a(2)'
+		Define = context.sconf.Define
 		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p'):
-			context.sconf.Define('DXX_HAVE_BUILTIN_CONSTANT_P')
-			context.sconf.Define('dxx_builtin_constant_p(A)', '__builtin_constant_p(A)')
-			context.sconf.Define('DXX_CONSTANT_TRUE(E)', '(__builtin_constant_p((E)) && (E))')
+			Define('DXX_HAVE_BUILTIN_CONSTANT_P')
+			Define('DXX_CONSTANT_TRUE(E)', '(__builtin_constant_p((E)) && (E))')
+			dxx_builtin_constant_p = '__builtin_constant_p(A)'
 		else:
+			# This is present because it may be useful to see in the
+			# debug log.  It is not expected to modify the build
+			# environment.
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_constant_p')
-			context.sconf.Define('dxx_builtin_constant_p(A)', '((void)(A),0)')
+			dxx_builtin_constant_p = '((void)(A),0)'
+		Define('dxx_builtin_constant_p(A)', dxx_builtin_constant_p)
 	@_custom_test
 	def check_builtin_expect(self,context):
 		"""
@@ -1069,12 +1077,13 @@ which path should be considered hot.
 return __builtin_expect(argc == 1, 1) ? 1 : 0;
 '''
 		if self.Compile(context, text='', main=main, msg='whether compiler accepts __builtin_expect'):
-			context.sconf.Define('likely(A)', '__builtin_expect(!!(A), 1)')
-			context.sconf.Define('unlikely(A)', '__builtin_expect(!!(A), 0)')
+			likely = '__builtin_expect(!!(A), 1)'
+			unlikely = '__builtin_expect(!!(A), 0)'
 		else:
-			macro_value = '(!!(A))'
-			context.sconf.Define('likely(A)', macro_value)
-			context.sconf.Define('unlikely(A)',  macro_value)
+			likely = unlikely = '(!!(A))'
+		Define = context.sconf.Define
+		Define('likely(A)', likely)
+		Define('unlikely(A)', unlikely)
 	@_custom_test
 	def check_builtin_file(self,context):
 		if self.Compile(context, text='''
@@ -1135,9 +1144,10 @@ available.
 	return ({ 1 + 2; });
 '''
 		t = _compound_statement_native if self.Compile(context, text='', main=f, msg='whether compiler understands embedded compound statements') else _compound_statement_emulated
-		context.sconf.Define('DXX_BEGIN_COMPOUND_STATEMENT', t[0])
-		context.sconf.Define('DXX_END_COMPOUND_STATEMENT', t[1])
-		context.sconf.Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
+		Define = context.sconf.Define
+		Define('DXX_BEGIN_COMPOUND_STATEMENT', t[0])
+		Define('DXX_END_COMPOUND_STATEMENT', t[1])
+		Define('DXX_ALWAYS_ERROR_FUNCTION(F,S)', r'( DXX_BEGIN_COMPOUND_STATEMENT {	\
 	void F() __attribute_error(S);	\
 	F();	\
 } DXX_END_COMPOUND_STATEMENT )', '''
