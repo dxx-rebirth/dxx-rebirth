@@ -3186,8 +3186,6 @@ class DXXCommon(LazyObjectConstructor):
 
 	def process_user_settings(self):
 		env = self.env
-		CPPDEFINES = []
-		add_cpp_define = CPPDEFINES.append
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
@@ -3208,7 +3206,6 @@ class DXXCommon(LazyObjectConstructor):
 				LIBPATH = '%s/lib' % rpi_vc_path,
 				LIBS = ['bcm_host'],
 			)
-		env.Append(CPPDEFINES = CPPDEFINES)
 
 class DXXArchive(DXXCommon):
 	PROGRAM_NAME = 'DXX-Archive'
