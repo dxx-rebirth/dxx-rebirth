@@ -2587,14 +2587,13 @@ class DXXCommon(LazyObjectConstructor):
 			return '%s/share/games/%s' % (self.prefix, self._program.target)
 		def _generic_variable(key,help,default):
 			return (key, help, default)
-		@staticmethod
-		def __get_configure_tests(tests):
+		def __get_configure_tests(tests,_filter=lambda s: s.name[0] != '_'):
 			# Construct combined list on first use, then cache it
 			# forever.
 			try:
 				return tests.__configure_tests
 			except AttributeError:
-				tests.__configure_tests = c = tests.implicit_tests + tests.custom_tests
+				tests.__configure_tests = c = filter(_filter, tests.implicit_tests + tests.custom_tests)
 				return c
 		@classmethod
 		def __get_has_git_dir(cls):
@@ -2607,13 +2606,16 @@ class DXXCommon(LazyObjectConstructor):
 				cls.__has_git_dir = r = os.path.exists(os.environ.get('GIT_DIR', '.git'))
 			return r
 		def _options(self,
+				__get_configure_tests=__get_configure_tests,
 				generic_variable=_generic_variable,
 				BoolVariable=BoolVariable,
 				EnumVariable=EnumVariable,
 				conftests=ConfigureTests,
 				getenv=os.environ.get
 			):
-			tests = self.__get_configure_tests(conftests)
+			tests = __get_configure_tests(conftests)
+			expect_sconf_tuple = ('0', '1', conftests.expect_sconf_success, conftests.expect_sconf_failure)
+			sconf_tuple = ('0', '1', '2', conftests.sconf_force_failure, conftests.sconf_force_success, conftests.sconf_assume_success)
 			return (
 			{
 				'variable': EnumVariable,
@@ -2621,8 +2623,8 @@ class DXXCommon(LazyObjectConstructor):
 					('expect_sconf_%s' % t.name[6:],
 						None,
 						None,
-						{'allowed_values' : ['0', '1', conftests.expect_sconf_success, conftests.expect_sconf_failure]}
-					) for t in tests if t.name[0] != '_'
+						{'allowed_values' : expect_sconf_tuple}
+					) for t in tests
 				],
 			},
 			{
@@ -2631,8 +2633,8 @@ class DXXCommon(LazyObjectConstructor):
 					('sconf_%s' % t.name[6:],
 						None,
 						t.desc or ('assume result of %s' % t.name),
-						{'allowed_values' : ['0', '1', '2', conftests.sconf_force_failure, conftests.sconf_force_success, conftests.sconf_assume_success]}
-					) for t in tests if t.name[0] != '_'
+						{'allowed_values' : sconf_tuple}
+					) for t in tests
 				],
 			},
 			{
@@ -2719,7 +2721,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
-					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ['win32', 'darwin', 'linux']}),
+					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('win32', 'darwin', 'linux')}),
 				),
 			},
 			{
