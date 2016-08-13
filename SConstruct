@@ -369,6 +369,12 @@ struct %(N)s_derived : %(N)s_base {
 		self._sconf_results = []
 		self.__tool_versions = []
 		self.__defined_macros = ''
+		# Some tests check the functionality of the compiler's
+		# optimizer.
+		#
+		# When LTO is used, the optimizer is deferred to link time.
+		# Force all tests to be Link tests when LTO is enabled.
+		self.Compile = self.Link if user_settings.lto else self._Compile
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -627,14 +633,6 @@ help:assume C++ compiler works
 				self.__cxx_conformance = level
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
-	def Compile(self,context,**kwargs):
-		# Some tests check the functionality of the compiler's
-		# optimizer.
-		#
-		# When LTO is used, the optimizer is deferred to link time.
-		# Force all tests to be Link tests when LTO is enabled.
-		self.Compile = self.Link if self.user_settings.lto else self._Compile
-		return self.Compile(context, **kwargs)
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None):
 		if calling_function is None:
 			calling_function = self._find_calling_sconf_function()
@@ -754,9 +752,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		# give the user more help.
 		if self.Link(context, text=include, main=main, msg='for usable library %s' % lib, successflags=successflags):
 			return
-		if self.Compile(context, text=include, main=main, msg='for usable header %s' % header, testflags=successflags):
+		Compile = self.Compile
+		if Compile(context, text=include, main=main, msg='for usable header %s' % header, testflags=successflags):
 			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
-		if self.Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
+		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
 			return (1, "Header %s is parseable, but cannot compile the test program." % header)
 		return (2, "Header %s is missing or unusable." % header)
 	# Compile and link a program that uses a system library.  On
@@ -944,9 +943,10 @@ variables to their default-constructed value.
 """
 		text = 'struct A{int a;};'
 		main = 'A a{};(void)a;'
-		if self.Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags=_testflags_warn) or \
-			self.Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags=_successflags_nowarn) or \
-			not self.Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
+		Compile = self.Compile
+		if Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags=_testflags_warn) or \
+			Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags=_successflags_nowarn) or \
+			not Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
 	@_custom_test
@@ -975,12 +975,13 @@ help:assume compiler supports __attribute__((error))
 void a()__attribute__((%s("a called")));
 ''' % __attribute__
 		macro_name = '__attribute_%s(M)' % attribute
-		if self.Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((%s))' % __attribute__):
+		Compile = self.Compile
+		if Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((%s))' % __attribute__):
 			context.sconf.Define('DXX_HAVE_ATTRIBUTE_%s' % attribute.upper())
 			context.sconf.Define(macro_name, '__attribute__((%s(M)))' % __attribute__)
 		else:
-			self.Compile(context, text=f, msg='whether compiler accepts function __attribute__((%s))' % __attribute__) and \
-			self.Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
+			Compile(context, text=f, msg='whether compiler accepts function __attribute__((%s))' % __attribute__) and \
+			Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
 			context.sconf.Define(macro_name, self.comment_not_supported)
 	@_custom_test
 	def check_builtin_bswap(self,context,
@@ -1014,8 +1015,9 @@ gcc-4.8.
 		include = '''
 #include <cstdint>
 '''
-		if self.Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16) or \
-			self.Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
+		Compile = self.Compile
+		if Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16) or \
+			Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
 			return
 	@_custom_test
 	def check_builtin_constant_p(self,context):
@@ -1671,12 +1673,13 @@ static void a(){{
 }}
 '''
 		count = 20
-		if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 20-element tuples'):
+		Compile = self.Compile
+		if Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 20-element tuples'):
 			return
 		count = 2
 		raise SCons.Errors.StopError(
 			"Compiler cannot handle tuples of 20 elements.  Raise the template instantiation depth." \
-			if self.Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples') \
+			if Compile(context, text=text.format(type=','.join(('int',)*count), value=','.join(('0',)*count)), main='a()', msg='whether compiler handles 2-element tuples') \
 			else "Compiler cannot handle tuples of 2 elements."
 		)
 	@_implicit_test
@@ -1874,18 +1877,19 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 	):
 		if self.user_settings.host_platform == 'win32':
 			ldopts = self.__preferred_win32_linker_options
-		f, desc = (self.Link, 'linker') if ldopts else (self.Compile, 'compiler')
+		Compile = self.Compile
+		f, desc = (self.Link, 'linker') if ldopts else (Compile, 'compiler')
 		if f(context, text='', main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
 		# Compiler+linker together failed.  Check if compiler alone will work.
 		# If not ldopts, then next self.Compile is equivalent to previous
 		# f(...).
-		if not ldopts or not self.Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
+		if not ldopts or not Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
 			# Compiler alone failed.
 			# Run down the individual compiler options to find any that work.
 			for opt in ccopts:
-				self.Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
+				Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
 		# Run down the individual linker options to find any that work.
 		for opt in ldopts:
 			self.Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
