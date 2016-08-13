@@ -3642,8 +3642,8 @@ class DXXProgram(DXXCommon):
 			cls._computed_extra_version = c = (v or '', s, ds)
 		return c
 
-	@classmethod
-	def _compute_extra_version(cls):
+	@staticmethod
+	def _compute_extra_version():
 		try:
 			g = Git.pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
 		except OSError as e:
