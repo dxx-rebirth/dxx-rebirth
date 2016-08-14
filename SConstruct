@@ -2864,7 +2864,10 @@ class DXXCommon(LazyObjectConstructor):
 		ogllibs = ('opengl32',)
 		tools = ('mingw',)
 		def adjust_environment(self,program,env):
-			env.Append(CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'])
+			env.Append(
+				CPPDEFINES = ['_WIN32', 'WIN32_LEAN_AND_MEAN'],
+				LINKFLAGS = ['-mwindows'],
+			)
 	class DarwinPlatformSettings(_PlatformSettings):
 		# Darwin targets include Objective-C (not Objective-C++) code to
 		# access Apple-specific functionality.  Add 'gcc' to the target
@@ -3560,7 +3563,6 @@ class DXXProgram(DXXCommon):
 			self.platform_objects.append(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))
 			env.Append(
 				CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')],
-				LINKFLAGS = ['-mwindows'],
 				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
 			)
 	# Settings to apply to Apple builds
