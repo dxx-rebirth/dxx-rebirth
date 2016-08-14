@@ -287,6 +287,11 @@ static constexpr %(N)s get_%(N)s(){return {};}
 ''', '''
 	get_%(N)s();
 '''),
+		Cxx11RequiredFeature('extern constexpr', '''
+	/* <gcc-4.9 rejects this */
+extern const int %(N)s;
+constexpr int %(N)s = 0;
+'''),
 		Cxx11RequiredFeature('nullptr', '''
 #include <cstddef>
 std::nullptr_t %(N)s1 = nullptr;

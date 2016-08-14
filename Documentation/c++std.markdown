@@ -1,5 +1,5 @@
 # Required C++11 features
-DXX-Rebirth code uses C++11 features present in >=clang-3.4 and >=gcc-4.7.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject gcc-4.6, some C++11 features that are new in gcc-4.7 may be used without a corresponding test in SConf.
+DXX-Rebirth code uses C++11 features present in >=clang-3.4 and >=gcc-4.9.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject gcc-4.8, some C++11 features that are new in gcc-4.9 may be used without a corresponding test in SConf.
 
 These C++11 features are required to build DXX-Rebirth:
 
