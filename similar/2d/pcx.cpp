@@ -409,7 +409,7 @@ int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid)
 				return 0; 	// disk write error (probably full)
 			return 1;
 		} else {
-			if(EOF == PHYSFSX_putc(fid, static_cast<int>(0xC0) | cnt))
+			if(EOF == PHYSFSX_putc(fid, 0xC0 | cnt))
 				return 0; 	// disk write error
 			if(EOF == PHYSFSX_putc(fid, static_cast<int>(byt)))
 				return 0; 	// disk write error
