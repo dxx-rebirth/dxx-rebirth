@@ -616,7 +616,6 @@ static int video_codemap_handler(unsigned char, unsigned char, const unsigned ch
 static int video_data_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
 {
 	unsigned short nFlags;
-	unsigned char *temp;
 
 // don't need those but kept for further reference
 // 	nFrameHot  = get_short(data);
@@ -629,9 +628,7 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 
 	if (nFlags & 1)
 	{
-		temp = reinterpret_cast<uint8_t *>(g_vBackBuf1);
-		g_vBackBuf1 = g_vBackBuf2;
-		g_vBackBuf2 = temp;
+		std::swap(g_vBackBuf1, g_vBackBuf2);
 	}
 
 	/* convert the frame */
