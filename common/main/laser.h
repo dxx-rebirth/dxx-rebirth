@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MUZZLE_QUEUE_MAX    8
 
 // Constants & functions governing homing missile behavior.
+#define NEWHOMER // activates the 30FPS-base capped homing projective code. Remove to restore original behavior.
 #if defined(DXX_BUILD_DESCENT_I)
 #define HOMING_MAX_TRACKABLE_DOT        (3*F1_0/4)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -61,11 +62,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
+#ifdef NEWHOMER
 #define HOMING_TURN_TIME                (F1_0/30)
+#endif
 
 #ifdef dsx
 namespace dsx {
+#ifdef NEWHOMER
 void calc_d_homer_tick();
+#endif
 void Laser_render(const object_base &obj);
 objptridx_t Laser_player_fire(vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);

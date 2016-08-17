@@ -495,7 +495,9 @@ void calc_frame_time()
 	GameTime64 += FrameTime;
 
 	calc_d_tick();
+#ifdef NEWHOMER
         calc_d_homer_tick();
+#endif
 }
 
 namespace dsx {
