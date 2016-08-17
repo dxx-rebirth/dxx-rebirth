@@ -2025,8 +2025,8 @@ class LazyObjectConstructor(object):
 			return value
 
 	@staticmethod
-	def create_lazy_object_property(sources,__lazy_objects=__lazy_objects):
-		return property(lambda s, _f=__lazy_objects, _sources=sources: _f(s, _sources))
+	def create_lazy_object_getter(sources,__lazy_objects=__lazy_objects):
+		return lambda s, _f=__lazy_objects, _sources=sources: _f(s, _sources)
 
 class FilterHelpText:
 	_sconf_align = None
@@ -2888,7 +2888,6 @@ class DXXCommon(LazyObjectConstructor):
 	class _PlatformSettings:
 		tools = ('g++', 'gnulink')
 		ogllibs = ''
-		platform_objects = []
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
@@ -2932,6 +2931,9 @@ class DXXCommon(LazyObjectConstructor):
 		def ogllibs(self):
 			user_settings = self.user_settings
 			return (user_settings.opengles_lib, 'EGL') if user_settings.opengles else ('GL', 'GLU')
+		@staticmethod
+		def get_platform_objects(_empty=()):
+			return _empty
 		def adjust_environment(self,program,env):
 			env.Append(
 				CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'],
@@ -3272,7 +3274,7 @@ class DXXArchive(DXXCommon):
 	_argument_prefix_list = None
 	srcdir = 'common'
 	target = 'dxx-common'
-	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__get_objects_common = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 '2d/2dsline.cpp',
 '2d/bitblt.cpp',
 '2d/bitmap.cpp',
@@ -3316,11 +3318,11 @@ class DXXArchive(DXXCommon):
 'texmap/scanline.cpp'
 ]
 ])
-	objects_use_sdl1 = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	__get_objects_use_sdl1 = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'arch/sdl/rbaudio.cpp',
 ]
 ])
-	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	get_objects_editor = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'editor/autosave.cpp',
 'editor/func.cpp',
 'ui/button.cpp',
@@ -3344,38 +3346,37 @@ class DXXArchive(DXXCommon):
 ]
 ])
 	# for non-ogl
-	objects_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	get_objects_arch_sdl = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 '3d/clipper.cpp',
 'texmap/tmapflat.cpp'
 ]
 ])
 	# for ogl
-	objects_arch_ogl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	get_objects_arch_ogl = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'arch/ogl/ogl_extensions.cpp',
 'arch/ogl/ogl_sync.cpp'
 ]
 ])
-	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
+	get_objects_arch_sdlmixer = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer_music.cpp',
 ]
 ])
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
-		platform_objects = LazyObjectConstructor.create_lazy_object_property([
+		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter([
 'common/arch/win32/messagebox.cpp'
 ])
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
-		platform_objects = LazyObjectConstructor.create_lazy_object_property([
+		get_platform_objects = LazyObjectConstructor.create_lazy_object_getter([
 			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
 		])
 
-	@property
-	def objects_common(self):
-		value = list(self.__objects_common)
+	def get_objects_common(self):
+		value = list(self.__get_objects_common())
 		extend = value.extend
 		if not self.user_settings.sdl2:
-			extend(self.objects_use_sdl1)
-		extend(self.platform_settings.platform_objects)
+			extend(self.__get_objects_use_sdl1())
+		extend(self.platform_settings.get_platform_objects())
 		return value
 
 	def __init__(self,user_settings):
@@ -3434,7 +3435,7 @@ class DXXProgram(DXXCommon):
 	_computed_extra_version = None
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
-	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
+	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.cpp',
 'arch/ogl/ogl.cpp',
@@ -3442,14 +3443,14 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_similar_arch_sdl = DXXCommon.create_lazy_object_property([{
+	get_objects_similar_arch_sdl = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/sdl/gr.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([{
+	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/sdl/digi_mixer.cpp',
 'arch/sdl/jukebox.cpp'
@@ -3457,7 +3458,7 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	__objects_common = DXXCommon.create_lazy_object_property([{
+	__get_objects_common = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 '2d/font.cpp',
 '2d/palette.cpp',
@@ -3536,7 +3537,7 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
-	objects_editor = DXXCommon.create_lazy_object_property([{
+	get_objects_editor = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'editor/centers.cpp',
 'editor/curves.cpp',
@@ -3575,7 +3576,7 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 
-	objects_use_udp = DXXCommon.create_lazy_object_property([{
+	__get_objects_use_udp = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'main/net_udp.cpp',
 ]
@@ -3592,11 +3593,10 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.Win32PlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
-			self.platform_objects = self.platform_objects[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			rcbasename = os.path.join(program.srcdir, 'arch/win32/%s' % program.target)
-			self.platform_objects.append(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))
+			self.platform_objects = [(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))]
 			env.Append(
 				CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')],
 				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
@@ -3606,7 +3606,7 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
-			self.platform_objects = self.platform_objects[:]
+			self.platform_objects = self.get_platform_objects()[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
 			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
@@ -3618,17 +3618,17 @@ class DXXProgram(DXXCommon):
 			)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
+		platform_objects = ()
 		def __init__(self,program,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
 				user_settings.sharepath += '/'
 
-	@property
-	def objects_common(self):
-		value = list(self.__objects_common)
+	def get_objects_common(self):
+		value = list(self.__get_objects_common())
 		extend = value.extend
 		if self.user_settings.use_udp:
-			extend(self.objects_use_udp)
+			extend(self.__get_objects_use_udp())
 		extend(self.platform_settings.platform_objects)
 		return value
 
@@ -3718,21 +3718,23 @@ class DXXProgram(DXXCommon):
 	def _register_program(self,exe_target):
 		env = self.env
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
-		objects = static_archive_construction.objects_common
-		objects.extend(self.objects_common)
+		objects = static_archive_construction.get_objects_common()
+		objects.extend(self.get_objects_common())
 		if self.user_settings.sdlmixer:
-			objects.extend(static_archive_construction.objects_arch_sdlmixer)
-			objects.extend(self.objects_similar_arch_sdlmixer)
+			objects.extend(static_archive_construction.get_objects_arch_sdlmixer())
+			objects.extend(self.get_objects_similar_arch_sdlmixer())
 		if self.user_settings.opengl or self.user_settings.opengles:
 			env.Append(LIBS = self.platform_settings.ogllibs)
-			objects.extend(static_archive_construction.objects_arch_ogl)
-			objects.extend(self.objects_similar_arch_ogl)
+			static_objects_arch = static_archive_construction.get_objects_arch_ogl
+			objects_similar_arch = self.get_objects_similar_arch_ogl
 		else:
-			objects.extend(static_archive_construction.objects_arch_sdl)
-			objects.extend(self.objects_similar_arch_sdl)
+			static_objects_arch = static_archive_construction.get_objects_arch_sdl
+			objects_similar_arch = self.get_objects_similar_arch_sdl
+		objects.extend(static_objects_arch())
+		objects.extend(objects_similar_arch())
 		if self.user_settings.editor:
-			objects.extend(self.objects_editor)
-			objects.extend(static_archive_construction.objects_editor)
+			objects.extend(self.get_objects_editor())
+			objects.extend(static_archive_construction.get_objects_editor())
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
 		extra_version = self.user_settings.extra_version
@@ -3809,50 +3811,47 @@ class DXXProgram(DXXCommon):
 
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
-	target = 'd1x-rebirth'
+	target = \
 	srcdir = 'd1x-rebirth'
 	shortname = 'd1x'
 	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',)
 
 	# general source files
-	__objects_common = DXXCommon.create_lazy_object_property([{
+	__get_objects_common = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.cpp',
 'main/custom.cpp',
 'main/snddecom.cpp',
-#'tracker/client/tracker_client.c'
 ]
 ],
 	}])
-	@property
-	def objects_common(self):
-		value = DXXProgram.objects_common.fget(self)
-		value.extend(self.__objects_common)
+	def get_objects_common(self):
+		value = DXXProgram.get_objects_common(self)
+		value.extend(self.__get_objects_common())
 		return value
 
 	# for editor
-	__objects_editor = DXXCommon.create_lazy_object_property([{
+	__get_objects_editor = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/hostage.cpp',
 'editor/ehostage.cpp',
 ]
 ],
 	}])
-	@property
-	def objects_editor(self):
-		value = list(DXXProgram.objects_editor.fget(self))
-		value.extend(self.__objects_editor)
+	def get_objects_editor(self):
+		value = list(DXXProgram.get_objects_editor(self))
+		value.extend(self.__get_objects_editor())
 		return value
 
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
-	target = 'd2x-rebirth'
+	target = \
 	srcdir = 'd2x-rebirth'
 	shortname = 'd2x'
 	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',)
 
 	# general source files
-	__objects_common = DXXCommon.create_lazy_object_property([{
+	__get_objects_common = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'libmve/decoder8.cpp',
 'libmve/decoder16.cpp',
@@ -3866,23 +3865,21 @@ class D2XProgram(DXXProgram):
 ]
 ],
 	}])
-	@property
-	def objects_common(self):
-		value = DXXProgram.objects_common.fget(self)
-		value.extend(self.__objects_common)
+	def get_objects_common(self):
+		value = DXXProgram.get_objects_common(self)
+		value.extend(self.__get_objects_common())
 		return value
 
 	# for editor
-	__objects_editor = DXXCommon.create_lazy_object_property([{
+	__get_objects_editor = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.cpp',
 ]
 ],
 	}])
-	@property
-	def objects_editor(self):
-		value = list(DXXProgram.objects_editor.fget(self))
-		value.extend(self.__objects_editor)
+	def get_objects_editor(self):
+		value = list(DXXProgram.get_objects_editor(self))
+		value.extend(self.__get_objects_editor())
 		return value
 
 variables = Variables([v for (k,v) in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
