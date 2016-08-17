@@ -2175,6 +2175,8 @@ class PCHManager(object):
 		# List of currently active preprocessor guards
 		guard = []
 		header_search_path = None
+		os_path_join = os.path.join
+		os_path_exists = os.path.exists
 		for line in map(str.strip, source_filenode.get_contents().splitlines()):
 			if preceding_line is not None:
 				# Basic support for line continuation.
@@ -2225,8 +2227,8 @@ class PCHManager(object):
 						]
 					name = None
 					for d in header_search_path:
-						effective_name = os.path.join(d, bare_name)
-						if os.path.exists(effective_name):
+						effective_name = os_path_join(d, bare_name)
+						if os_path_exists(effective_name):
 							name = effective_name
 							break
 					if name is None:
@@ -2241,7 +2243,6 @@ class PCHManager(object):
 						# will evaluate as false.
 						continue
 					name = env.File(name)
-					name.__filename = '"%s"' % effective_name
 				candidates[name].add(tuple(guard))
 			elif directive == 'endif':
 				# guard should always be True here, but test to avoid
@@ -2283,7 +2284,7 @@ class PCHManager(object):
 			else:
 				# Own header
 				cpp_includes = owncpp_includes
-				name = included_file.__filename
+				name = '"%s"' % included_file
 				threshold = own_header_inclusion_threshold
 			if not threshold:
 				continue
