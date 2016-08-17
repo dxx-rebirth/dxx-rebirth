@@ -839,7 +839,7 @@ namespace dcx {
 void ogl_upixelc(const grs_canvas &canv, unsigned x, unsigned y, unsigned c)
 {
 	GLfloat vertex_array[] = {
-		static_cast<GLfloat>((x + canv.cv_bitmap.bm_x) / static_cast<float>(last_width)),
+		(x + canv.cv_bitmap.bm_x) / static_cast<float>(last_width),
 		static_cast<GLfloat>(1.0 - (y + canv.cv_bitmap.bm_y) / static_cast<float>(last_height))
 	};
 	const auto cr = static_cast<GLfloat>(CPAL2Tr(c));
@@ -1075,10 +1075,10 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.TGAheader[9] = 0;
 	TGA.TGAheader[10] = 0;
 	TGA.TGAheader[11] = 0;
-	TGA.header[0] = (GLbyte) WidthL;
-	TGA.header[1] = (GLbyte) WidthH;
-	TGA.header[2] = (GLbyte) HeightL;
-	TGA.header[3] = (GLbyte) HeightH;
+	TGA.header[0] = WidthL;
+	TGA.header[1] = WidthH;
+	TGA.header[2] = HeightL;
+	TGA.header[3] = HeightH;
 	TGA.header[4] = (GLbyte) 24;
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
