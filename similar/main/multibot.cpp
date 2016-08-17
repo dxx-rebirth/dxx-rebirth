@@ -825,9 +825,9 @@ multi_do_robot_fire(const ubyte *buf)
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	gun_num = static_cast<int8_t>(buf[loc]);                                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
-	fire.x = INTEL_INT(static_cast<int>(fire.x));
-	fire.y = INTEL_INT(static_cast<int>(fire.y));
-	fire.z = INTEL_INT(static_cast<int>(fire.z));
+	fire.x = INTEL_INT(fire.x);
+	fire.y = INTEL_INT(fire.y);
+	fire.z = INTEL_INT(fire.z);
 
 	if (botnum > Highest_object_index)
 		return;
@@ -1095,9 +1095,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
 	
 	vms_vector velocity{};
-	pos.x = INTEL_INT(static_cast<int>(pos.x));
-	pos.y = INTEL_INT(static_cast<int>(pos.y));
-	pos.z = INTEL_INT(static_cast<int>(pos.z));
+	pos.x = INTEL_INT(pos.x);
+	pos.y = INTEL_INT(pos.y);
+	pos.z = INTEL_INT(pos.z);
 
 	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?
