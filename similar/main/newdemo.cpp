@@ -1047,7 +1047,7 @@ void newdemo_record_start_demo()
 	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_player_shields())));
 	nd_write_int(nd_record_v_player_flags = get_local_player_flags().get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon)));
-	nd_write_byte(static_cast<int8_t>(Secondary_weapon));
+	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon)));
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	nd_record_v_player_afterburner = 0;
@@ -1318,7 +1318,10 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 	nd_write_byte( ND_EVENT_PLAYER_WEAPON );
 	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_type = weapon_type));
 	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_num = weapon_num));
-	nd_write_byte(weapon_type ? static_cast<int8_t>(Secondary_weapon) : static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon)));
+	nd_write_byte(weapon_type
+		? static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon))
+		: static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon))
+	);
 }
 
 void newdemo_record_effect_blowup(segnum_t segment, int side, const vms_vector &pnt)
@@ -3304,7 +3307,11 @@ void newdemo_goto_end(int to_rewrite)
 		nd_read_byte(&v);
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
-	nd_read_byte(reinterpret_cast<int8_t *>(&Secondary_weapon));
+	{
+		int8_t v;
+		nd_read_byte(&v);
+		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
+	}
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
@@ -3711,7 +3718,7 @@ static void newdemo_write_end()
 	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
 	nd_write_int(get_local_player_flags().get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon)));
-	nd_write_byte(static_cast<int8_t>(Secondary_weapon));
+	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon)));
 	byte_count += 8;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
