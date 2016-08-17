@@ -640,7 +640,7 @@ static void nd_read_object(const vobjptridx_t obj)
 		if (obj->lifeleft == -1)
 			obj->lifeleft = IMMORTAL_TIME;
 		else
-			obj->lifeleft = static_cast<fix>(static_cast<int>(obj->lifeleft) << 12);
+			obj->lifeleft = obj->lifeleft << 12;
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {
@@ -1850,7 +1850,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_I)
 	if (shareware)
 	{
-		nd_read_byte(reinterpret_cast<int8_t *>(&c));
+		nd_read_byte(&c);
 		if (c != ND_EVENT_NEW_LEVEL) {
 			auto flags = get_local_player_flags().get_player_flags();
 			energy = shield;
@@ -1919,7 +1919,7 @@ static int newdemo_read_frame_information(int rewrite)
 			done=1;
 			nd_read_short(&last_frame_length);
 			nd_read_int(&nd_playback_v_framecount);
-			nd_read_int(reinterpret_cast<int *>(&nd_recorded_time));
+			nd_read_int(&nd_recorded_time);
 			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
@@ -2580,7 +2580,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_short(distance);
 				break;
 			}
-			get_local_plrobj().ctype.player_info.homing_object_dist = i2f(static_cast<int>(distance << 16));
+			get_local_plrobj().ctype.player_info.homing_object_dist = i2f(distance << 16);
 			break;
 		}
 
@@ -3345,8 +3345,8 @@ void newdemo_goto_end(int to_rewrite)
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(i.score));
 			} else {
-				nd_read_short(reinterpret_cast<int16_t *>(&i.net_killed_total));
-				nd_read_short(reinterpret_cast<int16_t *>(&i.net_kills_total));
+				nd_read_short(&i.net_killed_total);
+				nd_read_short(&i.net_kills_total);
 			}
 		}
 	} else {
