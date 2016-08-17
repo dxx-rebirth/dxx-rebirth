@@ -1928,21 +1928,20 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 		if self.user_settings.host_platform == 'win32':
 			ldopts = self.__preferred_win32_linker_options
 		Compile = self.Compile
-		f, desc = (self.Link, 'linker') if ldopts else (Compile, 'compiler')
+		Link = self.Link
+		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
 		if f(context, text='', main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
 		# Compiler+linker together failed.  Check if compiler alone will work.
-		# If not ldopts, then next self.Compile is equivalent to previous
-		# f(...).
-		if not ldopts or not Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
+		if f is Compile or not Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
 			# Compiler alone failed.
 			# Run down the individual compiler options to find any that work.
 			for opt in ccopts:
 				Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
 		# Run down the individual linker options to find any that work.
 		for opt in ldopts:
-			self.Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
+			Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
 	@classmethod
 	def register_preferred_compiler_options(cls,
 		ccopts = __preferred_compiler_options,
