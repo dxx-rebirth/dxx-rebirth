@@ -431,6 +431,9 @@ struct %(N)s_derived : %(N)s_base {
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_ld_works', "assume ccache, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_distcc_ld_works', "assume distcc, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_ld_works', "assume C++ compiler and linker work"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_ld_blank_libs_works', "assume C++ compiler and linker work with empty $LIBS"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_ld_blank_libs_ldflags_works', "assume C++ compiler and linker work with empty $LIBS and empty $LDFLAGS"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx_blank_cxxflags_works', "assume C++ compiler works with empty $CXXFLAGS"))
 	# This must be the first custom test.  This test verifies the compiler
 	# works and disables any use of ccache/distcc for the duration of the
 	# configure run.
@@ -578,11 +581,43 @@ help:assume C++ compiler works
 		# If they are not in use, this assignment is a no-op.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
 		if Link(context, text='', msg='whether C++ compiler and linker work', calling_function='ld_works'):
+			# If ccache or distcc are in use, this block is only reached
+			# when one or both of them failed.  `most_recent_error` will
+			# be a description of the failure.  If neither are in use,
+			# `most_recent_error` will be None.
 			return most_recent_error
 		# Force only compile, even if LTO is enabled.
 		elif self._Compile(context, text='', msg='whether C++ compiler works', calling_function='cxx_works'):
-			return 'C++ compiler works, but C++ linker does not work.'
+			specified_LIBS = 'or ' if cenv.get('LIBS') else ''
+			if specified_LIBS:
+				cenv['LIBS'] = []
+				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS', calling_function='ld_blank_libs_works'):
+					# Using $LIBS="" allowed the test to succeed.  $LIBS
+					# specifies one or more unusable libraries.  Usually
+					# this is because it specifies a library which does
+					# not exist or is an incompatible architecture.
+					return 'C++ compiler works.  C++ linker works with blank $LIBS.  C++ linker does not work with specified $LIBS.'
+			if cenv['LINKFLAGS']:
+				cenv['LINKFLAGS'] = []
+				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS and blank $LDFLAGS', calling_function='ld_blank_libs_ldflags_works'):
+					# Using LINKFLAGS="" allowed the test to succeed.
+					# To avoid bloat, there is no further test to see
+					# whether the link will work with user-specified
+					# LIBS after LINKFLAGS is cleared.  The user must
+					# fix at least one problem anyway.  If the user is
+					# unlucky, fixing LINKFLAGS will result in a
+					# different error on the next run.  If the user is
+					# lucky, fixing LINKFLAGS will allow the build to
+					# run.
+					return 'C++ compiler works.  C++ linker works with blank $LIBS and blank $LDFLAGS.  C++ linker does not work with blank $LIBS and specified $LDFLAGS.'
+			return 'C++ compiler works.  C++ linker does not work with specified %(LIBS)s$LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.' % {
+				'LIBS' : specified_LIBS,
+			}
 		else:
+			if cenv['CXXFLAGS']:
+				cenv['CXXFLAGS'] = []
+				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
+					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx11', "assume C++ compiler supports C++11"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx14', "assume C++ compiler supports C++14"))
