@@ -218,7 +218,8 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 			}
 			else if (n>=-127) {             // next -n + 1 bytes are following byte
 				c=PHYSFSX_fgetc(ifile);
-				nn = static_cast<int>(-n)+1;
+				const int negative_n = -n;
+				nn = negative_n + 1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane!=depth)	//not masking row
