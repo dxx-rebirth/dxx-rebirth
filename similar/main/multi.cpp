@@ -2175,9 +2175,9 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	memcpy(&to_target, buf+count, 12);          count += 12;
 	if (words_bigendian)// swap the vector to_target
 	{
-		to_target.x = INTEL_INT(static_cast<int>(to_target.x));
-		to_target.y = INTEL_INT(static_cast<int>(to_target.y));
-		to_target.z = INTEL_INT(static_cast<int>(to_target.z));
+		to_target.x = INTEL_INT(to_target.x);
+		to_target.y = INTEL_INT(to_target.y);
+		to_target.z = INTEL_INT(to_target.z);
 	}
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
@@ -2203,9 +2203,9 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
 	if (words_bigendian)
 	{
-		new_pos.x = SWAPINT(static_cast<int>(new_pos.x));
-		new_pos.y = SWAPINT(static_cast<int>(new_pos.y));
-		new_pos.z = SWAPINT(static_cast<int>(new_pos.z));
+		new_pos.x = SWAPINT(new_pos.x);
+		new_pos.y = SWAPINT(new_pos.y);
+		new_pos.z = SWAPINT(new_pos.z);
 	}
 
 	Net_create_loc = 0;
