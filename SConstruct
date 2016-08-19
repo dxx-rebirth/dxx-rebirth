@@ -1902,6 +1902,15 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 	freeaddrinfo(res);
 	return 0;
 ''', msg='for getaddrinfo', successflags=_successflags)
+	@_custom_test
+	def check_timespec_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRUCT_TIMESPEC']}):
+		self.Compile(context, text='''
+#include <time.h>
+''', main='''
+	struct timespec ts;
+	(void)ts;
+	return 0;
+''', msg='for struct timespec', successflags=_successflags)
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wsuggest-attribute=noreturn',
@@ -2917,7 +2926,7 @@ class DXXCommon(LazyObjectConstructor):
 		def adjust_environment(self,program,env):
 			library_frameworks = os.path.join(os.getenv("HOME"), 'Library/Frameworks')
 			env.Append(
-				CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', '__unix__'],
+				CPPDEFINES = ['__unix__'],
 				CPPPATH = [os.path.join(library_frameworks, 'SDL.framework/Headers'), '/Library/Frameworks/SDL.framework/Headers'],
 				FRAMEWORKS = ['ApplicationServices', 'Cocoa', 'SDL'],
 				FRAMEWORKPATH = [library_frameworks, '/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks'],
@@ -2935,7 +2944,6 @@ class DXXCommon(LazyObjectConstructor):
 			return _empty
 		def adjust_environment(self,program,env):
 			env.Append(
-				CPPDEFINES = ['HAVE_STRUCT_TIMESPEC'],
 				CXXFLAGS = ['-pthread'],
 			)
 
