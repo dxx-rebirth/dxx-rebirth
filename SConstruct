@@ -1875,6 +1875,32 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
 	@_custom_test
+	def check_compiler_useless_cast(self,context):
+		context.sconf.Define('DXX_ptrdiff_cast_int', 'static_cast<int>'
+			if self.Compile(context, text='''
+#include <cstdio>
+''', main='''
+	char a[8];
+	snprintf(a, sizeof(a), "%.*s", static_cast<int>(&argv[0][1] - &argv[0][0]), "0");
+''', msg='whether to cast operator-(T*,T*) to int')
+			else '',
+		'''
+For mingw32-gcc-5.4.0 and x86_64-pc-linux-gnu-gcc-5.4.0, gcc defines
+`long operator-(T *, T *)`.
+
+For mingw32, gcc reports a useless cast converting `long` to `int`.
+For x86_64-pc-linux-gnu, gcc does not report a useless cast converting
+`long` to `int.
+
+Various parts of the code take the difference of two pointers, then cast
+it to `int` to be passed as a parameter to `snprintf` field width
+conversion `.*`.  The field width conversion is defined to take `int`,
+so the cast is necessary to avoid a warning from `-Wformat` on
+x86_64-pc-linux-gnu, but is not necessary on mingw32.  However, the cast
+causes a -Wuseless-cast warning on mingw32.
+'''
+		)
+	@_custom_test
 	def check_strcasecmp_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']}):
 		main = '''
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);

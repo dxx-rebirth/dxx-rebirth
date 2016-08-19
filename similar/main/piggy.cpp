@@ -359,7 +359,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 			if (t) {                //extra stuff for ABMs
 				struct splitpath_t path;
 				d_splitpath(i.file_name, &path);
-				snprintf(temp, sizeof(temp), "%.*s%s\n", static_cast<int>(path.base_end - path.base_start), path.base_start, t);
+				snprintf(temp, sizeof(temp), "%.*s%s\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}
 			else

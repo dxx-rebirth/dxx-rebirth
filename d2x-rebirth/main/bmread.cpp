@@ -240,7 +240,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	d_splitpath( filename, &path);
 	
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
-		snprintf( tempname, sizeof(tempname), "%.*s#%d", static_cast<int>(path.base_end - path.base_start), path.base_start, i );
+		snprintf( tempname, sizeof(tempname), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 		bi = piggy_find_bitmap( tempname );
 		if ( !bi.index )	
 			break;
@@ -262,7 +262,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	}
 
 	for (i=0;i< *nframes; i++)	{
-		snprintf( tempname, sizeof(tempname), "%.*s#%d", static_cast<int>(path.base_end - path.base_start), path.base_start, i );
+		snprintf( tempname, sizeof(tempname), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());

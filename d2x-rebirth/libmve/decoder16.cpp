@@ -77,8 +77,10 @@ void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRema
         FramePtr += 7*g_width;
     }
 
-    if ((length-(pData-pOrig)) != 0) {
-    	con_printf(CON_CRITICAL, "DEBUG: junk left over: %d,%d,%d", static_cast<int>(pData-pOrig), length, static_cast<int>(length-(pData-pOrig)));
+	const std::ptrdiff_t remaining = (pData - pOrig);
+	if (const std::ptrdiff_t difference = length - remaining)
+	{
+		con_printf(CON_CRITICAL, "DEBUG: junk left over: %d,%d,%d", DXX_ptrdiff_cast_int(remaining), length, DXX_ptrdiff_cast_int(difference));
     }
 }
 

@@ -1223,7 +1223,7 @@ int load_level(const char * filename_passed)
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
 	{
-		snprintf(filename, sizeof(filename), "%.*s%s", static_cast<int>(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
+		snprintf(filename, sizeof(filename), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
 		LoadFile = PHYSFSX_openReadBuffered(filename);
 	}
 
