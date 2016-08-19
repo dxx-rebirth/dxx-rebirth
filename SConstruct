@@ -3273,7 +3273,9 @@ class DXXArchive(DXXCommon):
 	_argument_prefix_list = None
 	srcdir = 'common'
 	target = 'dxx-common'
-	__get_objects_common = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
+
+	def get_objects_common(self,
+		__get_objects_common=DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 '2d/2dsline.cpp',
 '2d/bitblt.cpp',
 '2d/bitmap.cpp',
@@ -3316,11 +3318,19 @@ class DXXArchive(DXXCommon):
 'texmap/ntmap.cpp',
 'texmap/scanline.cpp'
 ]
-])
-	__get_objects_use_sdl1 = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
+]), \
+		__get_objects_use_sdl1=DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'arch/sdl/rbaudio.cpp',
 ]
 ])
+		):
+		value = list(__get_objects_common(self))
+		extend = value.extend
+		if not self.user_settings.sdl2:
+			extend(__get_objects_use_sdl1(self))
+		extend(self.platform_settings.get_platform_objects())
+		return value
+
 	get_objects_editor = DXXCommon.create_lazy_object_getter([os.path.join(srcdir, f) for f in [
 'editor/autosave.cpp',
 'editor/func.cpp',
@@ -3369,14 +3379,6 @@ class DXXArchive(DXXCommon):
 			'common/arch/cocoa/messagebox.mm',
 			'common/arch/cocoa/SDLMain.m'
 		])
-
-	def get_objects_common(self):
-		value = list(self.__get_objects_common())
-		extend = value.extend
-		if not self.user_settings.sdl2:
-			extend(self.__get_objects_use_sdl1())
-		extend(self.platform_settings.get_platform_objects())
-		return value
 
 	def __init__(self,user_settings):
 		DXXCommon.__init__(self)
@@ -3575,13 +3577,6 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 
-	__get_objects_use_udp = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
-'main/net_udp.cpp',
-]
-],
-		'transform_target':_apply_target_name,
-	}])
 	class UserSettings(DXXCommon.UserSettings):
 		@property
 		def BIN_DIR(self):
@@ -3623,11 +3618,19 @@ class DXXProgram(DXXCommon):
 			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
 				user_settings.sharepath += '/'
 
-	def get_objects_common(self):
-		value = list(self.__get_objects_common())
+	def get_objects_common(self,
+		__get_objects_common=__get_objects_common,
+		__get_objects_use_udp=DXXCommon.create_lazy_object_getter([{
+		'source':[
+'similar/main/net_udp.cpp',
+],
+		'transform_target':_apply_target_name,
+	}])
+		):
+		value = list(__get_objects_common(self))
 		extend = value.extend
 		if self.user_settings.use_udp:
-			extend(self.__get_objects_use_udp())
+			extend(__get_objects_use_udp(self))
 		extend(self.platform_settings.platform_objects)
 		return value
 
@@ -3816,7 +3819,9 @@ class D1XProgram(DXXProgram):
 	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',)
 
 	# general source files
-	__get_objects_common = DXXCommon.create_lazy_object_getter([{
+	def get_objects_common(self,
+		__get_dxx_objects_common=DXXProgram.get_objects_common, \
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.cpp',
 'main/custom.cpp',
@@ -3824,22 +3829,23 @@ class D1XProgram(DXXProgram):
 ]
 ],
 	}])
-	def get_objects_common(self):
-		value = DXXProgram.get_objects_common(self)
-		value.extend(self.__get_objects_common())
+		):
+		value = __get_dxx_objects_common(self)
+		value.extend(__get_dsx_objects_common(self))
 		return value
 
 	# for editor
-	__get_objects_editor = DXXCommon.create_lazy_object_getter([{
+	def get_objects_editor(self,
+		__get_dxx_objects_editor=DXXProgram.get_objects_editor,
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/hostage.cpp',
 'editor/ehostage.cpp',
 ]
 ],
-	}])
-	def get_objects_editor(self):
-		value = list(DXXProgram.get_objects_editor(self))
-		value.extend(self.__get_objects_editor())
+	}])):
+		value = list(__get_dxx_objects_editor(self))
+		value.extend(__get_dsx_objects_editor(self))
 		return value
 
 class D2XProgram(DXXProgram):
@@ -3850,7 +3856,9 @@ class D2XProgram(DXXProgram):
 	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',)
 
 	# general source files
-	__get_objects_common = DXXCommon.create_lazy_object_getter([{
+	def get_objects_common(self,
+		__get_dxx_objects_common=DXXProgram.get_objects_common, \
+		__get_dsx_objects_common=DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'libmve/decoder8.cpp',
 'libmve/decoder16.cpp',
@@ -3863,22 +3871,22 @@ class D2XProgram(DXXProgram):
 'misc/physfsrwops.cpp',
 ]
 ],
-	}])
-	def get_objects_common(self):
-		value = DXXProgram.get_objects_common(self)
-		value.extend(self.__get_objects_common())
+	}])):
+		value = __get_dxx_objects_common(self)
+		value.extend(__get_dsx_objects_common(self))
 		return value
 
 	# for editor
-	__get_objects_editor = DXXCommon.create_lazy_object_getter([{
+	def get_objects_editor(self,
+		__get_dxx_objects_editor=DXXProgram.get_objects_editor, \
+		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.cpp',
 ]
 ],
-	}])
-	def get_objects_editor(self):
-		value = list(DXXProgram.get_objects_editor(self))
-		value.extend(self.__get_objects_editor())
+		}])):
+		value = list(__get_dxx_objects_editor(self))
+		value.extend(__get_dsx_objects_editor(self))
 		return value
 
 variables = Variables([v for (k,v) in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
