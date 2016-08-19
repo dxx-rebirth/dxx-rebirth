@@ -4322,7 +4322,7 @@ abort:
 		}
 	}
 
-	range_for (auto &i, partial_range(Netgame.players, N_players, static_cast<unsigned>(Netgame.players.size())))
+	range_for (auto &i, partial_range(Netgame.players, N_players, Netgame.players.size()))
 	{
 		i.callsign = {};
 		i.rank=0;
