@@ -676,7 +676,11 @@ struct be_bytebuffer_t : serial::writer::bytebuffer_t
 	static uint16_t endian() { return big_endian; }
 };
 
-const array<uint8_t, 4> magic_header{{'M', 'T', 'h', 'd'}};
+const array<uint8_t, 10> magic_header{{
+	'M', 'T', 'h', 'd',
+	0, 0, 0, 6,
+	0, 1,
+}};
 const array<uint8_t, 19> tempo{{'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0}};
 const array<uint8_t, 8> track_header{{'M', 'T', 'r', 'k', 0, 0, 0, 0}};
 
@@ -690,7 +694,7 @@ struct midhdr
 	}
 };
 
-DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, static_cast<int32_t>(6), static_cast<int16_t>(1), m.num_trks, m.time_div, tempo));
+DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, m.num_trks, m.time_div, tempo));
 
 void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 {
