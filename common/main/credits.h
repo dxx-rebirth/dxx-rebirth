@@ -27,7 +27,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
+namespace dsx {
 void credits_show(const char *credits_filename);
+void credits_show();
+}
 
 #endif
 

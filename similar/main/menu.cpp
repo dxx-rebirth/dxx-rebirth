@@ -647,7 +647,7 @@ int do_option ( int select)
 			do_options_menu();
 			break;
 		case MENU_SHOW_CREDITS:
-			credits_show(NULL);
+			credits_show();
 			break;
 #ifndef RELEASE
 		case MENU_SANDBOX:

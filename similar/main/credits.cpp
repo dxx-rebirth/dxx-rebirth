@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <utility>
 
 #include "dxxerror.h"
 #include "pstypes.h"
@@ -61,10 +62,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
+#define MAKE_CREDITS_PAIR(F)	std::pair<const char *, int>(F ".tex", sizeof(F) + 1)
 #if defined(DXX_BUILD_DESCENT_I)
-#define CREDITS_FILE 			"credits.tex"
+#define CREDITS_FILE 			MAKE_CREDITS_PAIR("credits")
 #elif defined(DXX_BUILD_DESCENT_II)
-#define CREDITS_FILE    		(PHYSFSX_exists("mcredits.tex",1)?"mcredits.tex":PHYSFSX_exists("ocredits.tex",1)?"ocredits.tex":"credits.tex")
+#define CREDITS_FILE    		(	\
+	PHYSFSX_exists("mcredits.tex", 1)	\
+		? MAKE_CREDITS_PAIR("mcredits")	\
+		: PHYSFSX_exists("ocredits.tex", 1)	\
+			? MAKE_CREDITS_PAIR("ocredits") 	\
+			: MAKE_CREDITS_PAIR("credits")	\
+	)
 #define ALLOWED_CHAR			(!Current_mission ? 'R' : (is_SHAREWARE ? 'S' : 'R'))
 #endif
 
@@ -215,37 +223,15 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 	return window_event_result::ignored;
 }
 
-//if filename passed is NULL, show normal credits
-void credits_show(const char *credits_filename)
+namespace dsx {
+
+static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 {
-	window *wind;
-	int pcx_error;
-	const char *filename = CREDITS_FILE;
 	palette_array_t backdrop_palette;
-	
 	auto cr = make_unique<credits>();
 	*cr = {};
-	if (credits_filename) {
-		filename = credits_filename;
-		cr->have_bin_file = 1;
-	}
-	cr->file = PHYSFSX_openReadBuffered( filename );
-	if (!cr->file)
-	{
-		char nfile[32];
-		
-		if (credits_filename)
-		{
-			return;		//ok to not find special filename
-		}
-
-		auto tempp = strchr(filename, '.');
-		snprintf(nfile, sizeof(nfile), "%.*stxb", static_cast<int>(tempp - filename + 1), filename);
-		cr->file = PHYSFSX_openReadBuffered(nfile);
-		if (!cr->file)
-			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
-		cr->have_bin_file = 1;
-	}
+	cr->file = std::move(file);
+	cr->have_bin_file = have_bin_file;
 
 	set_screen_mode(SCREEN_MENU);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -253,7 +239,7 @@ void credits_show(const char *credits_filename)
 #endif
 	cr->backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop,backdrop_palette);
+	const auto pcx_error = pcx_read_bitmap(STARS_BACKGROUND, cr->backdrop,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		return;
 	}
@@ -269,7 +255,7 @@ void credits_show(const char *credits_filename)
 	key_flush();
 
 	credits *pcr = cr.get();
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr.release());
+	const auto wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr.release());
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
@@ -279,4 +265,29 @@ void credits_show(const char *credits_filename)
 
 	while (window_exists(wind))
 		event_process();
+}
+
+void credits_show(const char *const filename)
+{
+	if (auto &&file = PHYSFSX_openReadBuffered(filename))
+		credits_show_common(std::move(file), 1);
+}
+
+void credits_show()
+{
+	const auto &&credits_file = CREDITS_FILE;
+	int have_bin_file = 0;
+	auto file = PHYSFSX_openReadBuffered(credits_file.first);
+	if (!file)
+	{
+		char nfile[32];
+		snprintf(nfile, sizeof(nfile), "%.*sxb", credits_file.second, credits_file.first);
+		file = PHYSFSX_openReadBuffered(nfile);
+		if (!file)
+			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
+		have_bin_file = 1;
+	}
+	credits_show_common(std::move(file), have_bin_file);
+}
+
 }
