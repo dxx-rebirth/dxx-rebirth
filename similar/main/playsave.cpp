@@ -298,7 +298,7 @@ static int convert_pattern_array(const char (&name)[namelen], array<int, arrayle
 static void print_pattern_array(PHYSFS_File *fout, const char *name, const int *array, std::size_t arraylen)
 {
 	for (std::size_t i = 0; i < arraylen; ++i)
-		PHYSFSX_printf(fout,"%s%u=%d\n", name, static_cast<unsigned>(i), array[i]);
+		PHYSFSX_printf(fout,"%s%" DXX_PRI_size_type "=%d\n", name, i, array[i]);
 }
 
 template <std::size_t arraylen>
@@ -1454,10 +1454,10 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
 	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", ng->SpawnGrantedItems.mask);
-	PHYSFSX_printf(file, DuplicatePrimariesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_primary_count()));
-	PHYSFSX_printf(file, DuplicateSecondariesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_secondary_count()));
+	PHYSFSX_printf(file, DuplicatePrimariesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_primary_count());
+	PHYSFSX_printf(file, DuplicateSecondariesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_secondary_count());
 #if defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_printf(file, DuplicateAccessoriesStr "=%u\n", static_cast<unsigned>(ng->DuplicatePowerups.get_accessory_count()));
+	PHYSFSX_printf(file, DuplicateAccessoriesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_accessory_count());
 	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);
 #endif
