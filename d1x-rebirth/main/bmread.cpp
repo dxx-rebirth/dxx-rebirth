@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "pstypes.h"
 #include "gr.h"
@@ -243,7 +244,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 	}
 
 	for (uint_fast32_t i=0;i< *nframes; i++)	{
-		snprintf(tempname, sizeof(tempname), "%s#%u", fname, static_cast<unsigned>(i));
+		snprintf(tempname, sizeof(tempname), "%s#%" PRIuFAST32, fname, i);
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
 		bmp[i] = piggy_register_bitmap( bm[i].get(), tempname, 0 );
