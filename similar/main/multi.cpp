@@ -2434,7 +2434,7 @@ static void multi_reset_object_texture(object_base &objp)
 
 }
 
-void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32_t len)
+void multi_process_bigdata(const playernum_t pnum, const ubyte *const buf, const uint_fast32_t len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
@@ -2442,19 +2442,19 @@ void multi_process_bigdata(const playernum_t pnum, const ubyte *buf, uint_fast32
 	uint_fast32_t bytes_processed = 0;
 
 	while( bytes_processed < len )  {
-		uint_fast32_t type = buf[bytes_processed];
+		const uint_fast32_t type = buf[bytes_processed];
 
 		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))
 		{
-			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %lu!", static_cast<unsigned long>(type));
+			con_printf(CON_DEBUG, "multi_process_bigdata: Invalid packet type %" PRIuFAST32 "!", type);
 			return;
 		}
-		uint_fast32_t sub_len = message_length[type];
+		const uint_fast32_t sub_len = message_length[type];
 
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
-			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %u too short (%lu>%lu)!", static_cast<unsigned>(type), static_cast<unsigned long>(bytes_processed+sub_len), static_cast<unsigned long>(len));
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %" PRIuFAST32 " too short (%" PRIuFAST32 " > %" PRIuFAST32 ")!", type, bytes_processed + sub_len, len);
 			Int3();
 			return;
 		}
