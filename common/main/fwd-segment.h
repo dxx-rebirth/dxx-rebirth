@@ -65,7 +65,6 @@ constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES
 #else           //No editor
 constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES;
 #endif
-constexpr std::size_t MAX_EDGES = MAX_VERTICES * 4;
 
 struct uvl;
 enum side_type : uint8_t;

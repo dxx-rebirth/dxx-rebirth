@@ -79,6 +79,8 @@ using std::min;
 #define	ROBOT_COLOR			BM_XRGB( 31   ,  0   ,  0  )
 #define	PLAYER_COLOR		BM_XRGB(  0   ,  0   , 31  )
 
+constexpr unsigned MAX_EDGES = MAX_VERTICES * 4;
+
 static int     Search_mode=0;                      //if true, searching for segments at given x,y
 static int Search_x,Search_y;
 static int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
@@ -537,7 +539,7 @@ static void draw_mine(const vsegptridx_t mine_ptr,int depth)
 	int	i;
 	visited_segment_bitarray_t visited;
 
-	edge_list_size = min(static_cast<std::size_t>(Num_segments*12),MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(Num_segments * 12, MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {
@@ -561,7 +563,7 @@ static void draw_mine_all(int automap_flag)
 {
 	int	i;
 
-	edge_list_size = min(static_cast<std::size_t>(Num_segments*12),MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(Num_segments * 12, MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {
