@@ -1850,7 +1850,7 @@ public:
 			}
 			return closest_dist;
 		};
-		const auto max_spawn_sites = std::min(NumNetPlayerPositions, static_cast<unsigned>(sites.size()));
+		const auto max_spawn_sites = std::min<unsigned>(NumNetPlayerPositions, sites.size());
 		for (uint_fast32_t i = max_spawn_sites; i--;)
 		{
 			auto &s = sites[i];
