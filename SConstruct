@@ -2836,7 +2836,7 @@ class DXXCommon(LazyObjectConstructor):
 			return ['%s%s%s' % (p, '_' if p else '', name) for p in prefix]
 		def __init__(self,program=None):
 			self._program = program
-		def register_variables(self,prefix,variables):
+		def register_variables(self,prefix,variables,filtered_help):
 			self.known_variables = []
 			append_known_variable = self.known_variables.append
 			add_variable = variables.Add
@@ -3669,7 +3669,7 @@ class DXXProgram(DXXCommon):
 		extend(self.platform_settings.platform_objects)
 		return value
 
-	def __init__(self,prefix,variables):
+	def __init__(self,prefix,variables,filtered_help):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
@@ -3679,7 +3679,7 @@ class DXXProgram(DXXCommon):
 			extra_version += ' ' + git_describe_version
 		print('===== %s %s =====' % (self.PROGRAM_NAME, extra_version))
 		self.user_settings = user_settings = self.UserSettings(program=self)
-		user_settings.register_variables(prefix=prefix, variables=variables)
+		user_settings.register_variables(prefix, variables, filtered_help)
 
 	def init(self,substenv):
 		self.user_settings.read_variables(self.variables, substenv)
@@ -3690,6 +3690,7 @@ class DXXProgram(DXXCommon):
 			self.prepare_environment(archive)
 			self.process_user_settings()
 		self.register_program()
+		return self.variables.GenerateHelpText(self.env)
 
 	def prepare_environment(self,archive,
 			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
@@ -3727,30 +3728,30 @@ class DXXProgram(DXXCommon):
 			self._register_install(self.shortname, exe_target)
 
 	@classmethod
-	def compute_extra_version(cls):
+	def compute_extra_version(cls,_Git_spcall=Git.spcall):
 		c = cls._computed_extra_version
 		if c is None:
 			s = ds = None
 			v = cls._compute_extra_version()
 			if v:
-				s = Git.spcall(['status', '--short', '--branch'])
-				ds = Git.spcall(['diff', '--stat', 'HEAD'])
+				s = _Git_spcall(['status', '--short', '--branch'])
+				ds = _Git_spcall(['diff', '--stat', 'HEAD'])
 			cls._computed_extra_version = c = (v or '', s, ds)
 		return c
 
 	@staticmethod
-	def _compute_extra_version():
+	def _compute_extra_version(_Git_pcall=Git.pcall):
 		try:
-			g = Git.pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
+			g = _Git_pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				return None
 			raise
-		if g.returncode:
-			return None
-		c = Git.pcall(['diff', '--quiet', '--cached']).returncode
-		d = Git.pcall(['diff', '--quiet']).returncode
-		return g.out.split('\n')[0] + ('+' if c else '') + ('*' if d else '')
+		return None	\
+			if g.returncode else \
+			(g.out.split('\n')[0] +	\
+			('*' if _Git_pcall(['diff', '--quiet']).returncode else '') +	\
+			('+' if _Git_pcall(['diff', '--quiet', '--cached']).returncode else ''))
 
 	def _register_program(self,exe_target):
 		env = self.env
@@ -3843,9 +3844,6 @@ class DXXProgram(DXXCommon):
 					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 
-	def GenerateHelpText(self):
-		return self.variables.GenerateHelpText(self.env)
-
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = \
@@ -3924,76 +3922,106 @@ class D2XProgram(DXXProgram):
 		value.extend(__get_dsx_objects_editor(self))
 		return value
 
-variables = Variables([v for (k,v) in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
-filtered_help = FilterHelpText()
-variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
-def _filter_duplicate_prefix_elements(e,s):
-	r = e not in s
-	s.add(e)
-	return r
-def register_program(program,other_program):
+def register_program(program,other_program,variables,filtered_help,_itertools_product=itertools.product):
 	s = program.shortname
 	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [other_program.shortname not in ARGUMENTS]
-	# Fallback case: build the regular configuration.
+	# Legacy case: build one configuration.
 	if len(l) == 1:
 		try:
-			r = int(l[0])
+			if not int(l[0]):
+				# If the user specifies an integer that evaluates to
+				# False, this configuration is disabled.  This allows
+				# the user to build only one game, instead of both.
+				return []
+			# Coerce to an empty string, then reuse the case for stacked
+			# profiles.  This is slightly less efficient, but reduces
+			# maintenance by keeping avoiding multiple sites that call
+			# program().
+			l = ['']
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
 			pass
-		else:
-			return [program((s,''), variables)] if r else []
 	r = []
+	append = r.append
 	seen = set()
-	for e in l:
-		for prefix in itertools.product(*[v.split('+') for v in e.split(',')]):
+	add_seen = seen.add
+	for prefix in _itertools_product(*[
+		v.split('+')	\
+			for e in l	\
+			for v in e.split(',')
+	]):
 			duplicates = set()
-			prefix = tuple(p for p in prefix if _filter_duplicate_prefix_elements(p, duplicates))
+			# This would be simpler if set().add(V) returned the result
+			# of `V not in self`, as seen before the add.  Instead, it
+			# always returns None.
+			#
+			# Test for presence, then add if not present.  add() always
+			# returns None, which coerces to False in boolean context.
+			# This is slightly inefficient since we know the right hand
+			# side will always be True after negation, so we ought to be
+			# able to skip testing its truth value.  However, the
+			# alternative is to use a wrapper function that checks
+			# membership, adds the value, and returns the result of the
+			# test.  Calling such a function is even less efficient.
+			#
+			# In most cases, this loop is not run often enough for the
+			# efficiency to matter.
+			prefix = tuple([
+				p for p in prefix	\
+					if (p not in duplicates and not duplicates.add(p))
+			])
 			if prefix in seen:
 				continue
-			seen.add(prefix)
-			prefix = tuple('%s%s%s' % (s, '_' if p else '', p) for p in prefix) + prefix
-			r.append(program(prefix, variables))
+			add_seen(prefix)
+			append(program(tuple(('%s%s%s' % (s, '_' if p else '', p) for p in prefix)) + prefix, variables, filtered_help))
 	return r
-d1x = register_program(D1XProgram, D2XProgram)
-d2x = register_program(D2XProgram, D1XProgram)
 
+def main(register_program):
+	variables = Variables([v for k, v in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
+	filtered_help = FilterHelpText()
+	dxx =	\
+		register_program(D1XProgram, D2XProgram, variables, filtered_help) +	\
+		register_program(D2XProgram, D1XProgram, variables, filtered_help)
+	substenv = SCons.Environment.SubstitutionEnvironment()
+	variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
+	variables.Update(substenv)
 # show some help when running scons -h
-h = """DXX-Rebirth, SConstruct file help:
+	Help("""DXX-Rebirth, SConstruct file help:
 
 	Type 'scons' to build the binary.
 	Type 'scons install' to build (if it hasn't been done) and install.
 	Type 'scons -c' to clean up.
-	
+
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	d1x=[0/1]        Disable/enable D1X-Rebirth
 	d1x=prefix-list  Enable D1X-Rebirth with prefix-list modifiers
 	d2x=[0/1]        Disable/enable D2X-Rebirth
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
-"""
-substenv = SCons.Environment.SubstitutionEnvironment()
-variables.Update(substenv)
-dxx = d1x + d2x
-for d in dxx:
-	d.init(substenv)
-	h += '%s.%d:\n%s' % (d.PROGRAM_NAME, d.program_instance, d.GenerateHelpText())
-Help(h)
-unknown = variables.UnknownVariables()
-# Delete known unregistered variables
-unknown.pop('d1x', None)
-unknown.pop('d2x', None)
-unknown.pop('dxx', None)
-unknown.pop('site', None)
-ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
-if dxx and unknown:
-	try:
-		ignore_unknown_variables = int(ignore_unknown_variables)
-	except ValueError:
-		ignore_unknown_variables = False
-	if not ignore_unknown_variables:
-		raise SCons.Errors.StopError('Unknown values specified on command line.' +
+""" +	\
+		''.join(['%s.%d:\n%s' % (d.PROGRAM_NAME, d.program_instance, d.init(substenv)) for d in dxx])
+	)
+	if not dxx:
+		return
+	unknown = variables.UnknownVariables()
+	# Delete known unregistered variables
+	unknown.pop('d1x', None)
+	unknown.pop('d2x', None)
+	unknown.pop('dxx', None)
+	unknown.pop('site', None)
+	ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
+	if unknown:
+		# Protect user from misspelled options by reporting an error.
+		# Provide a way for the user to override the check, which might
+		# be necessary if the user is setting an option that is only
+		# understood by older (or newer) versions of SConstruct.
+		try:
+			ignore_unknown_variables = int(ignore_unknown_variables)
+		except ValueError:
+			ignore_unknown_variables = False
+		if not ignore_unknown_variables:
+			raise SCons.Errors.StopError('Unknown values specified on command line.' +
 ''.join(['\n\t%s' % k for k in unknown.keys()]) +
 '\nRemove unknown values or set ignore_unknown_variables=1 to continue.')
 
-#EOF
+main(register_program)
