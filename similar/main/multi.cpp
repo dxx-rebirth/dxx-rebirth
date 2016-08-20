@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "u_mem.h"
 #include "strutil.h"

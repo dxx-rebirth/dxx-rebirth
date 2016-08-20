@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <errno.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "dxxerror.h"
 #include "strutil.h"
