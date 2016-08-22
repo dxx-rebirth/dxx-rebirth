@@ -182,8 +182,6 @@
 
 #ifdef _WIN32
 #define wglGetProcAddress dwglGetProcAddress
-#if (WINVER >= 0x0500)
-#endif
 #endif
 
 typedef void (OGLFUNCCALL *glAlphaFunc_fp)(GLenum func, GLclampf ref);
@@ -238,8 +236,6 @@ typedef void (OGLFUNCCALL *glSelectTextureSGIS_fp)(GLenum target);
 
 #ifdef _WIN32
 typedef PROC  (OGLFUNCCALL *wglGetProcAddress_fp)(LPCSTR);
-#if (WINVER >= 0x0500)
-#endif
 #endif
 
 DEFVAR glAlphaFunc_fp dglAlphaFunc;
@@ -294,8 +290,6 @@ DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
 
 #ifdef _WIN32
 DEFVAR wglGetProcAddress_fp dwglGetProcAddress;
-#if (WINVER >= 0x0500)
-#endif
 #endif
 
 #ifdef DECLARE_VARS
