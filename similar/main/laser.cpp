@@ -1044,8 +1044,15 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 				return 0;
 #endif
 	}
-	const auto vector_to_goal = vm_vec_normalized_quick(vm_vec_sub(objp->pos, tracker->pos));
+	auto vector_to_goal = vm_vec_normalized_quick(vm_vec_sub(objp->pos, tracker->pos));
 	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if ((*dot < HOMING_MIN_TRACKABLE_DOT) && (*dot > F1_0*9/10)) {
+		vm_vec_normalize(vector_to_goal);
+		*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
+	}
+#endif
 
 	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
 		int	rval;
@@ -1234,9 +1241,14 @@ void calc_d_homer_tick()
 //	Computes and returns a fairly precise dot product.
 static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptridx_t tracker, fix *dot, fix tick_count)
 {
+#if defined(DXX_BUILD_DESCENT_I)
 	if (object_is_trackable(track_goal, tracker, dot)) {
+#elif defined(DXX_BUILD_DESCENT_II)
+	//	Every 8 frames for each object, scan all objects.
+	if (object_is_trackable(track_goal, tracker, dot) && (((tracker ^ tick_count) % 8) != 0)) {
+#endif
 		return track_goal;
-	} else if ((((tracker) ^ tick_count) % 4) == 0)
+	} else if (((tracker ^ tick_count) % 4) == 0)
 	{
 		int	goal_type, goal2_type;
 		//	If player fired missile, then search for an object, if not, then give up.
@@ -1522,10 +1534,10 @@ static bool is_any_guided_missile(const vcobjptr_t obj)
 
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
-static void homing_missile_turn_towards_velocity(object_base &objp, const vms_vector &norm_vel)
+static void homing_missile_turn_towards_velocity(object_base &objp, const vms_vector &norm_vel, fix ft)
 {
 	auto new_fvec = norm_vel;
-	vm_vec_scale(new_fvec, FrameTime * HOMING_MISSILE_SCALE);
+	vm_vec_scale(new_fvec, ft * HOMING_MISSILE_SCALE);
 	vm_vec_add2(new_fvec, objp.orient.fvec);
 	vm_vec_normalize_quick(new_fvec);
 
@@ -1658,7 +1670,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 					//	Only polygon objects have visible orientation, so only they should turn.
 					if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
-						homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
+						homing_missile_turn_towards_velocity(obj, temp_vec, HOMING_TURN_TIME);		//	temp_vec is normalized velocity.
                                 }
                         }
 #else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
@@ -1723,7 +1735,7 @@ void Laser_do_weapon_sequence(const vobjptridx_t obj)
 
 				//	Only polygon objects have visible orientation, so only they should turn.
 				if (Weapon_info[get_weapon_id(obj)].render_type == WEAPON_RENDER_POLYMODEL)
-					homing_missile_turn_towards_velocity(obj, temp_vec);		//	temp_vec is normalized velocity.
+					homing_missile_turn_towards_velocity(obj, temp_vec, FrameTime);		//	temp_vec is normalized velocity.
 			}
 #endif
 		}
