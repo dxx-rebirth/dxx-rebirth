@@ -610,7 +610,7 @@ help:assume C++ compiler works
 					# lucky, fixing LINKFLAGS will allow the build to
 					# run.
 					return 'C++ compiler works.  C++ linker works with blank $LIBS and blank $LDFLAGS.  C++ linker does not work with blank $LIBS and specified $LDFLAGS.'
-			return 'C++ compiler works.  C++ linker does not work with specified %(LIBS)s$LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.' % {
+			return 'C++ compiler works.  C++ linker does not work with specified %(LIBS)sblank $LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.' % {
 				'LIBS' : specified_LIBS,
 			}
 		else:
