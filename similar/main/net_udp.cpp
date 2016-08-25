@@ -5612,31 +5612,31 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 }
 
 static int net_udp_get_new_player_num ()
-  {
-		if ( N_players < Netgame.max_numplayers)
-			return (N_players);
-		
-		else
+{
+	if ( N_players < Netgame.max_numplayers)
+		return (N_players);
+
+	else
+	{
+		// Slots are full but game is open, see if anyone is
+		// disconnected and replace the oldest player with this new one
+
+		int oldest_player = -1;
+		fix64 oldest_time = timer_query();
+
+		Assert(N_players == Netgame.max_numplayers);
+
+		for (int i = 0; i < N_players; i++)
 		{
-			// Slots are full but game is open, see if anyone is
-			// disconnected and replace the oldest player with this new one
-		
-			int oldest_player = -1;
-			fix64 oldest_time = timer_query();
-
-			Assert(N_players == Netgame.max_numplayers);
-
-			for (int i = 0; i < N_players; i++)
+			if ( (!Players[i].connected) && (Netgame.players[i].LastPacketTime < oldest_time))
 			{
-				if ( (!Players[i].connected) && (Netgame.players[i].LastPacketTime < oldest_time))
-				{
-					oldest_time = Netgame.players[i].LastPacketTime;
-					oldest_player = i;
-				}
+				oldest_time = Netgame.players[i].LastPacketTime;
+				oldest_player = i;
 			}
-	    return (oldest_player);
-	  }
-  }
+		}
+		return (oldest_player);
+	}
+}
 
 void net_udp_send_extras ()
 {
