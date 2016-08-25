@@ -1091,10 +1091,9 @@ constexpr rgb_t hud_rgb_dimgreen = {0, 12, 0};
 constexpr rgb_t hud_rgb_gray = {6, 6, 6};
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
-}
 #endif
 
 __attribute_warn_unused_result
@@ -1514,6 +1513,7 @@ static void hud_show_weapons(void)
 
 		show_bomb_count(bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
+}
 }
 
 static void hud_show_cloak_invuln(void)
