@@ -1544,8 +1544,7 @@ void net_udp_disconnect_player(int playernum)
 	net_udp_noloss_clear_mdata_trace(playernum);
 }
 
-void
-static net_udp_new_player(UDP_sequence_packet *their)
+static void net_udp_new_player(UDP_sequence_packet *const their)
 {
 	int pnum;
 
@@ -3937,8 +3936,7 @@ int net_udp_setup_game()
 	return i >= 0;
 }
 
-void
-static net_udp_set_game_mode(int gamemode)
+static void net_udp_set_game_mode(const int gamemode)
 {
 	Show_kill_list = 1;
 
@@ -4135,8 +4133,7 @@ static int net_udp_send_sync(void)
 	return 0;
 }
 
-int
-static net_udp_select_teams(void)
+static int net_udp_select_teams()
 {
 	newmenu_item m[MAX_PLAYERS+4];
 	int choice, opt, opt_team_b;
@@ -4210,8 +4207,7 @@ menu:
 	goto menu;
 }
 
-int
-static net_udp_select_players(void)
+static int net_udp_select_players()
 {
 	int j;
 	char text[MAX_PLAYERS+4][45];
@@ -4487,8 +4483,7 @@ menu:
 }
 
 /* Do required syncing after each level, before starting new one */
-int
-net_udp_level_sync(void)
+int net_udp_level_sync()
 {
 	int result = 0;
 

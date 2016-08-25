@@ -418,8 +418,7 @@ uint16_t objnum_local_to_remote(objnum_t local_objnum, int8_t *owner)
 	return r.objnum;
 }
 
-void
-map_objnum_local_to_remote(int local_objnum, int remote_objnum, int owner)
+void map_objnum_local_to_remote(const int local_objnum, const int remote_objnum, const int owner)
 {
 	// Add a mapping from a network remote object number to a local one
 
@@ -546,8 +545,7 @@ int get_team(const playernum_t pnum)
 		return 0;
 }
 
-void
-multi_new_game(void)
+void multi_new_game()
 {
 	// Reset variables for a new net game
 
@@ -1098,8 +1096,7 @@ void multi_leave_game()
 
 }
 
-void
-multi_show_player_list()
+void multi_show_player_list()
 {
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
 		return;
@@ -1111,8 +1108,7 @@ multi_show_player_list()
 	Show_kill_list = 1;
 }
 
-int
-multi_endlevel(int *secret)
+int multi_endlevel(int *const secret)
 {
 	int result = 0;
 
@@ -1177,15 +1173,12 @@ void multi_send_endlevel_packet()
 //          the state of the game in some way.
 //
 
-void
-multi_define_macro(int key)
+void multi_define_macro(const int key)
 {
 	if (!(Game_mode & GM_MULTI))
 		return;
 
-	key &= (~KEY_SHIFTED);
-
-	switch(key)
+	switch (key & ~KEY_SHIFTED)
 	{
 		case KEY_F9:
 			multi_defining_message = 1; break;
@@ -1295,8 +1288,7 @@ void multi_send_macro(const int fkey)
 }
 
 
-void
-multi_send_message_start()
+void multi_send_message_start()
 {
 	if (Game_mode&GM_MULTI) {
 		multi_sending_message[Player_num] = msgsend_typing;
@@ -2078,10 +2070,8 @@ void multi_disconnect_player(const playernum_t pnum)
 	}
 }
 
-void
-static multi_do_quit(const ubyte *buf)
+static void multi_do_quit(const uint8_t *const buf)
 {
-
 	if (!(Game_mode & GM_NETWORK))
 		return;
 	multi_disconnect_player(static_cast<int>(buf[1]));
@@ -2358,8 +2348,7 @@ static void multi_do_hostage_door_status(const ubyte *buf)
 		wall_damage(vsegptridx(w.segnum), w.sidenum, w.hps - hps);
 }
 
-void
-multi_reset_stuff(void)
+void multi_reset_stuff()
 {
 	// A generic, emergency function to solve problems that crop up
 	// when a player exits quick-out from the game because of a
@@ -2688,8 +2677,7 @@ void multi_send_player_deres(deres_type_t type)
 
 }
 
-void
-multi_send_message(void)
+void multi_send_message()
 {
 	int loc = 0;
 	if (Network_message_reciever != -1)
@@ -2703,8 +2691,7 @@ multi_send_message(void)
 	}
 }
 
-void
-multi_send_reappear()
+void multi_send_reappear()
 {
 	multi_send_position(vobjptridx(get_local_player().objnum));
 	multibuf[1] = static_cast<char>(Player_num);
@@ -2984,8 +2971,7 @@ void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, short side
 
 }
 
-void
-multi_send_play_sound(int sound_num, fix volume)
+void multi_send_play_sound(const int sound_num, const fix volume)
 {
 	int count = 0;
 	count += 1;
@@ -2997,8 +2983,7 @@ multi_send_play_sound(int sound_num, fix volume)
 	multi_send_data<MULTI_PLAY_SOUND>(multibuf, count, 0);
 }
 
-void
-multi_send_score(void)
+void multi_send_score()
 {
 	// Send my current score to all other players so it will remain
 	// synced.
@@ -3013,8 +2998,7 @@ multi_send_score(void)
 	}
 }
 
-void
-multi_send_trigger(int triggernum)
+void multi_send_trigger(const int triggernum)
 {
 	// Send an event to trigger something in the mine
 

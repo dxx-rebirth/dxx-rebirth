@@ -158,8 +158,7 @@ int multi_can_move_robot(const vobjptridx_t objnum, int agitation)
 	return(rval);
 }
 
-void
-multi_check_robot_timeout(void)
+void multi_check_robot_timeout()
 {
 	static fix64 lastcheck = 0;
 	int i;
@@ -188,8 +187,7 @@ multi_check_robot_timeout(void)
 	}			
 }
 
-void
-multi_strip_robots(int playernum)
+void multi_strip_robots(const int playernum)
 {
 	// Grab all robots away from a player 
 	// (player died or exited the game)
@@ -356,8 +354,7 @@ void multi_send_release_robot(const vobjptridx_t objnum)
 
 #define MIN_ROBOT_COM_GAP F1_0/12
 
-int
-multi_send_robot_frame(int sent)
+int multi_send_robot_frame(int sent)
 {
 	static int last_sent = 0;
 
@@ -812,8 +809,7 @@ static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num
 	return calc_gun_point(v, obj, gun_num), v;
 }
 
-void
-multi_do_robot_fire(const ubyte *buf)
+void multi_do_robot_fire(const uint8_t *const buf)
 {
 	// Send robot fire event
 	int loc = 1;
@@ -914,8 +910,7 @@ int multi_explode_robot_sub(const vobjptridx_t robot)
 	return 1;
 }
 
-void
-multi_do_robot_explode(const ubyte *buf)
+void multi_do_robot_explode(const uint8_t *const buf)
 {
 	multi_explode_robot b;
 	multi_serialize_read(buf, b);
