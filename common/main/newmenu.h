@@ -454,18 +454,6 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 
 #define NEWMENU_MOUSE
 
-// #define NORMAL_CHECK_BOX    "Å"
-// #define CHECKED_CHECK_BOX   "Ç"
-// 
-// #define NORMAL_RADIO_BOX    ""
-// #define CHECKED_RADIO_BOX   "Ä"
-// #define CURSOR_STRING       "_"
-// #define SLIDER_LEFT         "É"  // 131
-// #define SLIDER_RIGHT        "Ñ"  // 132
-// #define SLIDER_MIDDLE       "Ö"  // 133
-// #define SLIDER_MARKER       "Ü"  // 134
-// #define UP_ARROW_MARKER     "á"  // 135
-// #define DOWN_ARROW_MARKER   "à"  // 136
 #define NORMAL_CHECK_BOX    "\201"
 #define CHECKED_CHECK_BOX   "\202"
 
