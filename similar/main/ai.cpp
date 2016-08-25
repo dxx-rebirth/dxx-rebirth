@@ -3139,18 +3139,14 @@ _exit_cheat:
 					break;
 				case ai_mode::AIM_RUN_FROM_OBJECT:
 					move_towards_segment_center(obj);
-					obj->mtype.phys_info.velocity.x = 0;
-					obj->mtype.phys_info.velocity.y = 0;
-					obj->mtype.phys_info.velocity.z = 0;
+					obj->mtype.phys_info.velocity = {};
 					create_n_segment_path(obj, 5, segment_none);
 					ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;
 					break;
 #if defined(DXX_BUILD_DESCENT_I)
 				case ai_mode::AIM_HIDE:
 					move_towards_segment_center(obj);
-					obj->mtype.phys_info.velocity.x = 0;
-					obj->mtype.phys_info.velocity.y = 0;
-					obj->mtype.phys_info.velocity.z = 0;
+					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - Difficulty_level*4))
 						create_path_to_player(obj, 4 + Overall_agitation/8, 1);
 					else {
@@ -3160,9 +3156,7 @@ _exit_cheat:
 #elif defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_BEHIND:
 					move_towards_segment_center(obj);
-					obj->mtype.phys_info.velocity.x = 0;
-					obj->mtype.phys_info.velocity.y = 0;
-					obj->mtype.phys_info.velocity.z = 0;
+					obj->mtype.phys_info.velocity = {};
 					break;
 				case ai_mode::AIM_SNIPE_ATTACK:
 				case ai_mode::AIM_SNIPE_FIRE:
