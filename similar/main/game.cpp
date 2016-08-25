@@ -824,6 +824,7 @@ void palette_save(void)
 	Redsave = PaletteRedAdd; Bluesave = PaletteBlueAdd; Greensave = PaletteGreenAdd;
 }
 
+namespace dsx {
 void palette_restore(void)
 {
 	float brightness_correction = 1-(static_cast<float>(gr_palette_get_gamma())/64);
@@ -835,6 +836,7 @@ void palette_restore(void)
 	//	Forces flash effect to fixup palette next frame.
 	Time_flash_last_played = 0;
 #endif
+}
 }
 
 //	--------------------------------------------------------------------------------------------------
@@ -855,6 +857,7 @@ int allowed_to_fire_laser(void)
 	return 1;
 }
 
+namespace dsx {
 int allowed_to_fire_flare(void)
 {
 	auto &plrobj = get_local_plrobj();
@@ -871,6 +874,7 @@ int allowed_to_fire_flare(void)
 		Next_flare_fire_time = GameTime64 + F1_0/4;
 
 	return 1;
+}
 }
 
 int allowed_to_fire_missile(void)

@@ -91,6 +91,7 @@ void decode_text(char *buf, int len)
 }
 
 //load all the text strings for Descent
+namespace dsx {
 void load_text()
 {
 	int len,i, have_binary = 0;
@@ -377,6 +378,7 @@ void load_text()
 
 	//Assert(tptr==text+len || tptr==text+len-2);
 
+}
 }
 
 

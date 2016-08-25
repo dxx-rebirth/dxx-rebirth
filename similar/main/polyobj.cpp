@@ -751,6 +751,7 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm)
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
+namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
@@ -763,4 +764,5 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 #if defined(DXX_BUILD_DESCENT_II)
 	g3_init_polygon_model(pm->model_data.get());
 #endif
+}
 }

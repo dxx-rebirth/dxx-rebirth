@@ -65,8 +65,12 @@ extern unsigned Max_linear_depth; //	Deepest segment at which linear extern inte
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 // cycle the flashing light for when mine destroyed
+#ifdef dsx
+namespace dsx {
 void flash_frame();
 
+}
+#endif
 int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int &face,int &poly);
 
 // these functions change different rendering parameters

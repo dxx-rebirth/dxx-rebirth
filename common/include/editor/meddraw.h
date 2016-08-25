@@ -31,7 +31,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct editor_view;
 
+#ifdef dsx
+namespace dsx {
 void meddraw_init_views( grs_canvas * canvas);
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 void draw_world(grs_canvas *screen_canvas,editor_view *v,vsegptridx_t mine_ptr,int depth);
 void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,vsegptridx_t mine_ptr,int depth);

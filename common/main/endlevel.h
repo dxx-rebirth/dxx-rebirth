@@ -31,9 +31,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 extern int Endlevel_sequence;
+#ifdef dsx
+namespace dsx {
 void do_endlevel_frame();
+}
+#endif
 void stop_endlevel_sequence();
+#ifdef dsx
+namespace dsx {
 void start_endlevel_sequence();
+}
+#endif
 void render_endlevel_frame(fix eye_offset);
 
 void draw_exit_model();
@@ -48,8 +56,12 @@ extern segnum_t exit_segnum;
 //@@extern int ext_expl_playing;
 
 //called for each level to load & setup the exit sequence
+#ifdef dsx
+namespace dsx {
 void load_endlevel_data(int level_num);
 
+}
+#endif
 extern unsigned exit_modelnum, destroyed_exit_modelnum;
 extern vms_matrix surface_orient;
 

@@ -50,7 +50,11 @@ void LoadGame(void);
 void SaveGame(void);
 int get_level_name(void);
 
+#ifdef dsx
+namespace dsx {
 extern int load_level(const char *filename);
+}
+#endif
 extern int save_level(const char *filename);
 
 extern char Gamesave_current_filename[PATH_MAX];

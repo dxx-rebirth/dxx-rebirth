@@ -541,6 +541,7 @@ static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *Sav
 }
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
+namespace dsx {
 int save_mine_data_compiled(PHYSFS_File *SaveFile)
 {
 	ubyte 	version = COMPILED_MINE_VERSION;
@@ -679,6 +680,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 #endif
 
 	return 0;
+}
 }
 
 

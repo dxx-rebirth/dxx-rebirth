@@ -93,7 +93,11 @@ static inline float FSPACY(const int &y)
 	return FSPACY()(y);
 }
 
+#ifdef dsx
+namespace dsx {
 void gamefont_init();
+}
+#endif
 void gamefont_close();
 void gamefont_choose_game_font(int scrx,int scry);
 

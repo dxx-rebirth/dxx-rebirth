@@ -649,8 +649,10 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mit
 #endif
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 static void kc_change_invert( kc_menu *menu, kc_mitem * item );
+namespace dsx {
 static void kc_drawquestion( kc_menu *menu, const kc_item *item );
 
+}
 #ifdef TABLE_CREATION
 static const kc_item *find_item_at(const kc_item *const ib, const kc_item *const ie, int x, int y)
 {
@@ -1196,6 +1198,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 	return window_event_result::ignored;
 }
 
+namespace dsx {
 static window_event_result kconfig_handler(window *wind,const d_event &event, kc_menu *menu)
 {
 	switch (event.type)
@@ -1305,6 +1308,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 	}
 	return window_event_result::handled;
 }
+}
 
 static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mitems,int nitems, const char *title)
 {
@@ -1378,6 +1382,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 }
 
 
+namespace dsx {
 static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 {
 	int x;
@@ -1404,6 +1409,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 
 	gr_string(x, fspacy_item_y, "?", w, h);
+}
 }
 
 static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, unsigned type, unsigned value)

@@ -165,6 +165,7 @@ static void addfontconf(int gf, int x, int y, const char *const fn)
 	font_conf[gf].num++;
 }
 
+namespace dsx {
 void gamefont_init()
 {
 	if (Gamefont_installed)
@@ -186,6 +187,7 @@ void gamefont_init()
 	}
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
+}
 }
 
 

@@ -115,6 +115,7 @@ int             First_multi_bitmap_num=-1;
 array<bitmap_index, MAX_OBJ_BITMAPS> ObjBitmaps;
 array<ushort, MAX_OBJ_BITMAPS>          ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 
+namespace dsx {
 void gamedata_close()
 {
 	free_polygon_models();
@@ -124,6 +125,7 @@ void gamedata_close()
 	free_endlevel_data();
 	rle_cache_close();
 	piggy_close();
+}
 }
 
 /*

@@ -83,8 +83,10 @@ struct robot_dialog
 
 }
 
+namespace dsx {
 static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
+}
 static void call_init_ai_object(object &objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
@@ -525,6 +527,7 @@ void robot_close_window()
 
 }
 
+namespace dsx {
 int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
 	switch(event.type)
@@ -719,6 +722,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	r->old_object = Cur_object_index;
 	
 	return rval;
+}
 }
 
 //	--------------------------------------------------------------------------------------------------------------------------

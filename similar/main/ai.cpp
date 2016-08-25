@@ -412,6 +412,7 @@ static int ready_to_fire_weapon1(const ai_local *ailp, fix threshold)
 	return (ailp->next_fire <= threshold);
 }
 
+namespace dsx {
 static int ready_to_fire_weapon2(const robot_info *robptr, const ai_local *ailp, fix threshold)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -424,6 +425,7 @@ static int ready_to_fire_weapon2(const robot_info *robptr, const ai_local *ailp,
 		return 0;
 	return (ailp->next_fire2 <= threshold);
 #endif
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -4230,6 +4232,7 @@ FILE *Ai_dump_file = NULL;
 char Ai_error_message[128] = "";
 
 // ----------------------------------------------------------------------------------
+namespace dsx {
 static void dump_ai_objects_all()
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4268,6 +4271,7 @@ static void dump_ai_objects_all()
 
 	fprintf(Ai_dump_file, "Total path length = %4i\n", total);
 #endif
+}
 }
 
 void force_dump_ai_objects_all(const char *msg)

@@ -105,7 +105,11 @@ extern TmapInfo_array TmapInfo;
 extern unsigned Num_tmaps;
 
 // Initializes the palette, bitmap system...
+#ifdef dsx
+namespace dsx {
 void gamedata_close();
+}
+#endif
 int gamedata_init();
 void bm_close();
 

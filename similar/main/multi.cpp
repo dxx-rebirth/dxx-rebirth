@@ -4418,6 +4418,7 @@ static void multi_do_start_trigger (const ubyte *buf)
 
 }
 
+namespace dsx {
 static void multi_adjust_lifetime_ranking(int &k, const int count)
 {
 	if (!(Game_mode & GM_NETWORK))
@@ -4440,6 +4441,7 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 #endif
 		}
 	}
+}
 }
 
 void multi_add_lifetime_kills(const int count)
@@ -4827,6 +4829,7 @@ static void multi_do_gmode_update(const ubyte *buf)
  * Send player inventory to all other players. Intended to be used for the host to repopulate the level with new powerups.
  * Could also be used to let host decide which powerups a client is allowed to collect and/or drop, anti-cheat functions (needs shield/energy update then and more frequent updates/triggers).
  */
+namespace dsx {
 void multi_send_player_inventory(int priority)
 {
 	int count = 0;
@@ -4865,7 +4868,9 @@ void multi_send_player_inventory(int priority)
 
 	multi_send_data<MULTI_PLAYER_INV>(multibuf, command_length<MULTI_PLAYER_INV>::value, priority);
 }
+}
 
+namespace dsx {
 static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 {
 	int count;
@@ -4907,12 +4912,14 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
 	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
 }
+}
 
 /*
  * Count the inventory of the level. Initial (start) or current (now).
  * In 'current', also consider player inventories (and the thief bot).
  * NOTE: We add actual ammo amount - we do not want to count in 'amount of powerups'. Makes it easier to keep track of overhead (proximities, vulcan ammo)
  */
+namespace dsx {
 static void MultiLevelInv_CountLevelPowerups()
 {
         if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_COOP))
@@ -4995,7 +5002,9 @@ static void MultiLevelInv_CountLevelPowerups()
                 }
         }
 }
+}
 
+namespace dsx {
 static void MultiLevelInv_CountPlayerInventory()
 {
 	auto &Current = MultiLevelInv.Current;
@@ -5082,6 +5091,7 @@ static void MultiLevelInv_CountPlayerInventory()
                 }
 #endif
 }
+}
 
 void MultiLevelInv_InitializeCount()
 {
@@ -5097,6 +5107,7 @@ void MultiLevelInv_Recount()
 }
 
 // Takes a powerup type and checks if we are allowed to spawn it.
+namespace dsx {
 bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 {
         if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
@@ -5118,6 +5129,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
         else if (MultiLevelInv.Initial[powerup_type] - MultiLevelInv.Current[powerup_type] >= req_amount)
                 return 1;
         return 0;
+}
 }
 
 // Repopulate the level with missing items.

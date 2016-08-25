@@ -206,7 +206,11 @@ void reset_cockpit();       // called if you've trashed the screen
 // functions to save, clear, and resture palette flash effects
 void reset_palette_add(void);
 }
+#ifdef dsx
+namespace dsx {
 void palette_restore(void);
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_I)
 void palette_save();
 static inline void full_palette_save(void)
@@ -350,7 +354,11 @@ window_event_result ReadControls(const d_event &event);
 int cheats_enabled();
 void game_disable_cheats();
 int allowed_to_fire_laser(void);
+#ifdef dsx
+namespace dsx {
 int allowed_to_fire_flare(void);
+}
+#endif
 int allowed_to_fire_missile(void);
 void	check_rear_view(void);
 int create_special_path(void);
@@ -371,7 +379,11 @@ extern fix64	Time_flash_last_played;
 #endif
 
 #ifdef EDITOR
+#ifdef dsx
+namespace dsx {
 void dump_used_textures_all();
+}
+#endif
 #endif
 
 #endif

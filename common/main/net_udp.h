@@ -19,14 +19,26 @@
 #include "ntstring.h"
 
 // Exported functions
+#ifdef dsx
+namespace dsx {
 int net_udp_setup_game(void);
+}
+#endif
 void net_udp_manual_join_game();
 void net_udp_list_join_game();
 int net_udp_objnum_is_past(objnum_t objnum);
+#ifdef dsx
+namespace dsx {
 void net_udp_do_frame(int force, int listen);
+}
+#endif
 void net_udp_send_data(const ubyte * ptr, int len, int priority );
+#ifdef dsx
+namespace dsx {
 void net_udp_leave_game();
 int net_udp_endlevel(int *secret);
+}
+#endif
 int net_udp_kmatrix_poll1( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 void net_udp_send_endlevel_packet();

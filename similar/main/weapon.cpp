@@ -137,6 +137,7 @@ array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 }
 
+namespace dsx {
 static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -144,6 +145,7 @@ static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
 	return weapon_index;
+}
 }
 
 // ; (0) Laser Level 1
@@ -190,6 +192,7 @@ static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
 //		HAS_ENERGY_FLAG
 //		HAS_AMMO_FLAG
 // See weapon.h for bit values
+namespace dsx {
 has_weapon_result player_has_primary_weapon(int weapon_num)
 {
 	int	return_value = 0;
@@ -234,6 +237,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 				return_value |= has_weapon_result::has_energy_flag;
 	return return_value;
 }
+}
 
 has_weapon_result player_has_secondary_weapon(int weapon_num)
 {
@@ -245,6 +249,7 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 	return return_value;
 }
 
+namespace dsx {
 void InitWeaponOrdering ()
  {
   // short routine to setup default weapon priorities for new pilots
@@ -396,6 +401,7 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 }
 
 }
+}
 
 void CyclePrimary ()
 {
@@ -410,6 +416,7 @@ void CycleSecondary ()
 
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
+namespace dsx {
 void select_primary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
@@ -454,7 +461,9 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 	}
 
 }
+}
 
+namespace dsx {
 void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
@@ -489,6 +498,7 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 	{
 		HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
 	}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -529,6 +539,7 @@ static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_n
 
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
+namespace dsx {
 void do_primary_weapon_select(uint_fast32_t weapon_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -590,7 +601,9 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #endif
 	select_primary_weapon(weapon_name, weapon_num, 1);
 }
+}
 
+namespace dsx {
 void do_secondary_weapon_select(uint_fast32_t weapon_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -652,6 +665,7 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	//now actually select the weapon
 #endif
 	select_secondary_weapon(weapon_name, weapon_num, 1);
+}
 }
 
 template <typename T>
@@ -736,6 +750,7 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
+namespace dsx {
 int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
@@ -800,6 +815,7 @@ int pick_up_secondary(int weapon_index,int count)
 	}
 
 	return 1;
+}
 }
 
 template <typename T>
@@ -892,6 +908,7 @@ void check_to_use_primary_super_laser()
 }
 #endif
 
+namespace dsx {
 static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -932,6 +949,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
 	maybe_autoselect_primary_weapon(weapon_index);
+}
 }
 
 //called when ammo (for the vulcan cannon) is picked up

@@ -52,21 +52,37 @@ extern array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 extern void add_points_to_score(int points);
 extern void add_bonus_points_to_score(int points);
 
+#ifdef dsx
+namespace dsx {
 void render_gauges(void);
 void init_gauges(void);
+}
+#endif
 void close_gauges(void);
+#ifdef dsx
+namespace dsx {
 void show_reticle(int reticle_type, int secondary_display);
 void show_HUD_names();
+}
+#endif
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
 
+#ifdef dsx
+namespace dsx {
 extern void draw_hud();     // draw all the HUD stuff
 
+}
+#endif
 extern void player_dead_message(void);
 //extern void say_afterburner_status(void);
 
 // from testgaug.c
 
+#ifdef dsx
+namespace dsx {
 extern void update_laser_weapon_info(void);
+}
+#endif
 extern void play_homing_warning(void);
 
 struct rgb {

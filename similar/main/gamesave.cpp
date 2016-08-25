@@ -187,6 +187,7 @@ int N_save_pof_names;
 static array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Save_pof_names;
 #endif
 
+namespace dsx {
 static void verify_object(const vobjptr_t obj)
 {
 	obj->lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
@@ -338,6 +339,7 @@ static void verify_object(const vobjptr_t obj)
 	}
 
 }
+}
 
 //static gs_skip(int len,PHYSFS_File *file)
 //{
@@ -346,6 +348,7 @@ static void verify_object(const vobjptr_t obj)
 //}
 
 //reads one object of the given version from the given file
+namespace dsx {
 static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
@@ -574,6 +577,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 	}
 
 }
+}
 
 #ifdef EDITOR
 static int PHYSFSX_writeMatrix(PHYSFS_File *file, const vms_matrix &m)
@@ -595,6 +599,7 @@ static int PHYSFSX_writeAngleVec(PHYSFS_File *file, const vms_angvec &v)
 }
 
 //writes one object to the given file
+namespace dsx {
 static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -771,6 +776,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 	}
 
 }
+}
 #endif
 
 // --------------------------------------------------------------------
@@ -779,6 +785,7 @@ static void write_object(const vcobjptr_t obj, short version, PHYSFS_File *f)
 // If level != -1, it loads the filename with extension changed to .min
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
+namespace dsx {
 static int load_game_data(PHYSFS_File *LoadFile)
 {
 	short game_top_fileinfo_version;
@@ -1159,6 +1166,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	else
 		return 0;
 }
+}
 
 // ----------------------------------------------------------------------------
 
@@ -1185,6 +1193,7 @@ int no_old_level_file_error=0;
 
 //loads a level (.LVL) file from disk
 //returns 0 if success, else error code
+namespace dsx {
 int load_level(const char * filename_passed)
 {
 #ifdef EDITOR
@@ -1413,6 +1422,7 @@ int load_level(const char * filename_passed)
 #endif
 	return 0;
 }
+}
 
 #ifdef EDITOR
 int get_level_name()
@@ -1430,6 +1440,7 @@ int get_level_name()
 
 // --------------------------------------------------------------------------------------
 //	Create a new mine, set global variables.
+namespace dsx {
 int create_new_mine(void)
 {
 	vms_matrix	m1 = IDENTITY_MATRIX;
@@ -1498,6 +1509,7 @@ int create_new_mine(void)
     //editor_status("New mine created.");
 	return	0;			// say no error
 }
+}
 
 int	Errors_in_mine;
 
@@ -1515,6 +1527,7 @@ static int compute_num_delta_light_records(void)
 
 // -----------------------------------------------------------------------------
 // Save game
+namespace dsx {
 static int save_game_data(PHYSFS_File *SaveFile)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1653,9 +1666,11 @@ static int save_game_data(PHYSFS_File *SaveFile)
 
 	return 0;
 }
+}
 
 // -----------------------------------------------------------------------------
 // Save game
+namespace dsx {
 static int save_level_sub(const char * filename)
 {
 	char temp_filename[PATH_MAX];
@@ -1798,6 +1813,7 @@ static int save_level_sub(const char * filename)
 
 	return 0;
 
+}
 }
 
 int save_level(const char * filename)

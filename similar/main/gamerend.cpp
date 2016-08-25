@@ -130,6 +130,7 @@ static void show_framerate()
 
 }
 
+namespace dsx {
 static void show_netplayerinfo()
 {
 	int x=0, y=0;
@@ -262,6 +263,7 @@ static void show_netplayerinfo()
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
+}
 
 #ifndef NDEBUG
 
@@ -315,6 +317,7 @@ static void draw_window_label()
 }
 #endif
 
+namespace dsx {
 static void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))
@@ -335,6 +338,7 @@ static void render_countdown_gauge()
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		gr_printf(0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
 	}
+}
 }
 
 static void game_draw_hud_stuff()

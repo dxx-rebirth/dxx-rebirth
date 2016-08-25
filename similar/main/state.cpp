@@ -121,6 +121,7 @@ unsigned state_game_id;
 
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
+namespace dsx {
 static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 {
 	obj_rw->signature     = obj->signature.get();
@@ -284,8 +285,10 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 			
 	}
 }
+}
 
 // turn object_rw to object after reading from Savegame
+namespace dsx {
 static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
@@ -452,9 +455,11 @@ static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			
 	}
 }
+}
 
 // Following functions convert player to player_rw and back to be written to/read from Savegames. player only differ to player_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn player to player_rw to be saved to Savegame.
+namespace dsx {
 static void state_player_to_player_rw(const fix pl_shields, const player *pl, player_rw *pl_rw, const player_info &pl_info)
 {
 	int i=0;
@@ -506,8 +511,10 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->hours_level               = pl->hours_level;
 	pl_rw->hours_total               = pl->hours_total;
 }
+}
 
 // turn player_rw to player after reading from Savegame
+namespace dsx {
 static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player_info &pl_info, fix &pl_shields)
 {
 	int i=0;
@@ -548,6 +555,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl_info.homing_object_dist        = pl_rw->homing_object_dist;
 	pl->hours_level               = pl_rw->hours_level;
 	pl->hours_total               = pl_rw->hours_total;
+}
 }
 
 static void state_write_player(PHYSFS_File *fp, const player &pl, const fix pl_shields, const player_info &pl_info)

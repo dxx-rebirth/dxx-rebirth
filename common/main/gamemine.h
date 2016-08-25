@@ -136,9 +136,13 @@ extern struct me mine_editor;
 
 // loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
+#ifdef dsx
+namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile);
 int load_mine_data_compiled(PHYSFS_File *LoadFile);
 
+}
+#endif
 #define TMAP_NUM_MASK 0x3FFF
 
 #if defined(DXX_BUILD_DESCENT_II)

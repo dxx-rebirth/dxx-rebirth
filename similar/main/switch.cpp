@@ -728,6 +728,7 @@ void trigger_write(PHYSFS_File *fp, const trigger &t)
 	PHYSFSX_serialize_write(fp, t);
 }
 
+namespace dsx {
 void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
@@ -799,7 +800,9 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->side[i]);
 }
+}
 
+namespace dsx {
 void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
@@ -883,7 +886,9 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->side[i]);
 }
+}
 
+namespace dsx {
 void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
@@ -920,4 +925,5 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->side[i]);
+}
 }

@@ -44,8 +44,12 @@ extern array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 
 // Simulate a physics object for this frame
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
+namespace dsx {
 void do_physics_sim(vobjptridx_t obj);
 
+}
+#endif
 namespace dcx {
 
 // Applies an instantaneous force on an object, resulting in an instantaneous

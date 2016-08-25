@@ -202,6 +202,7 @@ static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 }
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void write_exit_text(PHYSFS_File *my_file)
 {
 	int	j, count;
@@ -269,6 +270,7 @@ static void write_exit_text(PHYSFS_File *my_file)
 #endif
 	} else
 		PHYSFSX_printf(my_file, "\n");
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -539,6 +541,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 }
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void write_wall_text(PHYSFS_File *my_file)
 {
 	int	i, j;
@@ -581,8 +584,10 @@ static void write_wall_text(PHYSFS_File *my_file)
 	}
 
 }
+}
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void write_player_text(PHYSFS_File *my_file)
 {
 	int	num_players=0;
@@ -605,8 +610,10 @@ static void write_player_text(PHYSFS_File *my_file)
 	if (num_players > MAX_MULTI_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 }
+}
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void write_trigger_text(PHYSFS_File *my_file)
 {
 	int	w;
@@ -639,6 +646,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 
 	}
 
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -744,6 +752,7 @@ static int Ignore_tmap_num2_error;
 #endif
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
 {
 	int	sidenum;
@@ -897,6 +906,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	}
 #endif
 }
+}
 
 // ----------------------------------------------------------------------------
 template <std::size_t N>
@@ -906,6 +916,7 @@ static void merge_buffers(array<int, N> &dest, const array<int, N> &src)
 }
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
 	int	i;
@@ -926,6 +937,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name, tb[i]);
 		}
 #endif
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -952,6 +964,7 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 #endif
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
 {
 	int	i;
@@ -979,6 +992,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &tb)
 				count = 0;
 			}
 		}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1056,6 +1070,7 @@ int	Last_dump_level = NUM_ADAM_LEVELS-1;
 #endif
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 static void say_totals_all(void)
 {
 	int	i;
@@ -1084,6 +1099,7 @@ static void say_totals_all(void)
 	}
 #endif
 }
+}
 
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 {
@@ -1099,6 +1115,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num)
 }
 
 // ----------------------------------------------------------------------------
+namespace dsx {
 void dump_used_textures_all(void)
 {
 	int	i;
@@ -1164,6 +1181,7 @@ say_totals_all();
 
 	PHYSFSX_printf(my_file, "\nUnused textures in all (including registered) mines:\n");
 	say_unused_tmaps(my_file, perm_tmap_buf);
+}
 }
 
 #endif

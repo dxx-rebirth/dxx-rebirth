@@ -162,17 +162,25 @@ public:
 };
 
 }
+#ifdef dsx
+namespace dsx {
 void do_primary_weapon_select(uint_fast32_t weapon_num);
 void do_secondary_weapon_select(uint_fast32_t weapon_num);
 
+}
+#endif
 extern player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 extern sbyte Secondary_weapon;
 
 void auto_select_primary_weapon();
 void auto_select_secondary_weapon();
+#ifdef dsx
+namespace dsx {
 void select_primary_weapon(const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
 void select_secondary_weapon(const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
 
+}
+#endif
 class has_weapon_result;
 
 //-----------------------------------------------------------------------------
@@ -181,15 +189,23 @@ class has_weapon_result;
 //      HAS_WEAPON_FLAG
 //      HAS_ENERGY_FLAG
 //      HAS_AMMO_FLAG
+#ifdef dsx
+namespace dsx {
 has_weapon_result player_has_primary_weapon(int weapon_num);
+}
+#endif
 has_weapon_result player_has_secondary_weapon(int weapon_num);
 
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
+#ifdef dsx
+namespace dsx {
 int pick_up_secondary(int weapon_index,int count);
 
 //called when a primary weapon is picked up
 //returns true if actually picked up
+}
+#endif
 int pick_up_primary(int weapon_index);
 
 //called when ammo (for the vulcan cannon) is picked up
@@ -212,7 +228,11 @@ extern fix64 Seismic_disturbance_end_time;
 }
 #endif
 
+#ifdef dsx
+namespace dsx {
 void InitWeaponOrdering();
+}
+#endif
 void CyclePrimary();
 void CycleSecondary();
 void ReorderPrimary();

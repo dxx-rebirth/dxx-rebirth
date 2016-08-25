@@ -36,7 +36,11 @@ struct d_fname;
 
 }
 
+#ifdef dsx
+namespace dsx {
 extern void show_titles(void);
+}
+#endif
 #ifdef dsx
 namespace dsx {
 void do_briefing_screens(const d_fname &filename, int level_num);
@@ -49,6 +53,10 @@ void show_loading_screen(uint8_t *title_pal);
 extern void show_endgame_briefing(void);
 extern int intro_played;
 #endif
+#ifdef dsx
+namespace dsx {
 extern void show_order_form(void);
 
+}
+#endif
 #endif

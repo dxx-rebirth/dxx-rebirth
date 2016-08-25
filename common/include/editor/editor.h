@@ -182,8 +182,12 @@ extern	struct tm Editor_time_of_day;
 
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
 
+#ifdef dsx
+namespace dsx {
 void init_editor(void);
 
+}
+#endif
 #ifdef dsx
 namespace dsx {
 
@@ -261,8 +265,12 @@ extern   int medlisp_update_screen();
 //    Num_segments
 //    Num_vertices
 //    Cursegp = pointer to only segment.
+#ifdef dsx
+namespace dsx {
 extern	int create_new_mine(void);
 
+}
+#endif
 #ifdef dsx
 namespace dsx {
 //	Create a segment given center, dimensions, rotation matrix.
@@ -449,8 +457,12 @@ extern editor_view FrontView;
 extern editor_view RightView;
 
 extern int SafetyCheck();
+#ifdef dsx
+namespace dsx {
 int save_mine_data_compiled(PHYSFS_File *SaveFile);
 
+}
+#endif
 void editor_status( const char *text);
 
 extern int MacroNumEvents;

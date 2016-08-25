@@ -73,6 +73,7 @@ void songs_set_volume(int volume)
 
 // Set up everything for our music
 // NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
+namespace dsx {
 static void songs_init()
 {
 	int i = 0;
@@ -177,6 +178,7 @@ static void songs_init()
 
 	songs_set_volume(GameCfg.MusicVolume);
 }
+}
 
 void songs_uninit()
 {
@@ -268,6 +270,7 @@ void songs_pause_resume(void)
 #endif
 
 // 0 otherwise
+namespace dsx {
 static int songs_have_cd()
 {
 	unsigned long discid;
@@ -301,6 +304,7 @@ static int songs_have_cd()
 		default:
 			return 0;
 	}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -349,6 +353,7 @@ int songs_play_file(const char *filename, int repeat, void (*hook_finished_track
 	return 0;
 }
 
+namespace dsx {
 int songs_play_song( int songnum, int repeat )
 {
 	songs_init();
@@ -448,6 +453,7 @@ int songs_play_song( int songnum, int repeat )
 
 	return Song_playing;
 }
+}
 
 static void redbook_first_song_func()
 {
@@ -457,6 +463,7 @@ static void redbook_first_song_func()
 }
 
 // play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value
+namespace dsx {
 int songs_play_level_song( int levelnum, int offset )
 {
 	int songnum;
@@ -580,6 +587,7 @@ int songs_play_level_song( int levelnum, int offset )
 		songs_stop_all();
 #endif
 	return Song_playing;
+}
 }
 
 // check which song is playing, or -1 if not playing anything

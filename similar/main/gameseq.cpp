@@ -165,7 +165,9 @@ public:
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
 }
+namespace dsx {
 static void StartLevel(int random_flag);
+}
 static void copy_defaults_to_robot_all(void);
 
 namespace dcx {
@@ -566,6 +568,7 @@ void update_player_stats()
 }
 
 //go through this level and start any eclip sounds
+namespace dsx {
 static void set_sound_sources()
 {
 	int sidenum;
@@ -618,6 +621,7 @@ static void set_sound_sources()
 	Dont_start_sound_objects = 0;
 #endif
 }
+}
 
 
 //fix flash_dist=i2f(1);
@@ -664,6 +668,7 @@ static void do_checksum_calc(const uint8_t *b, int len, unsigned int *s1, unsign
 	}
 }
 
+namespace dsx {
 static ushort netmisc_calc_checksum()
 {
 	int i;
@@ -725,6 +730,7 @@ static ushort netmisc_calc_checksum()
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
 }
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -744,6 +750,7 @@ void load_level_robots(int level_num)
 #endif
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
+namespace dsx {
 void LoadLevel(int level_num,int page_in_textures)
 {
 	preserve_player_object_info p(Players[Player_num].objnum);
@@ -811,6 +818,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	gameseq_init_network_players();
 	p.restore();
 }
+}
 
 //sets up Player_num & ConsoleObject
 void InitPlayerObject()
@@ -832,6 +840,7 @@ void InitPlayerObject()
 }
 
 //starts a new game on the given level
+namespace dsx {
 void StartNewGame(int start_level)
 {
 	state_quick_item = -1;	// for first blind save, pick slot to save in
@@ -860,10 +869,12 @@ void StartNewGame(int start_level)
 	init_seismic_disturbances();
 #endif
 }
+}
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
+namespace dsx {
 void DoEndLevelScoreGlitz(int network)
 {
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
@@ -961,6 +972,7 @@ void DoEndLevelScoreGlitz(int network)
 	Assert(c <= N_GLITZITEMS);
 
 	newmenu_do2(nullptr, title, c, m, network && (Game_mode & GM_NETWORK) ? get_multi_endlevel_poll1() : unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1274,6 +1286,7 @@ void EnterSecretLevel(void)
 #endif
 
 //called when the player has finished a level
+namespace dsx {
 void PlayerFinishedLevel(int secret_flag)
 {
 	if (Game_wind)
@@ -1301,6 +1314,7 @@ void PlayerFinishedLevel(int secret_flag)
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 	reset_time();
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1799,6 +1813,7 @@ static void maybe_set_first_secret_visit(int level_num)
 
 //called when the player is starting a new level for normal game model
 //	secret_flag if came from a secret level
+namespace dsx {
 void StartNewLevel(int level_num)
 {
 	hide_menus();
@@ -1820,6 +1835,7 @@ void StartNewLevel(int level_num)
 
 	StartNewLevelSub(level_num, 1, secret_restore::none);
 
+}
 }
 
 namespace
@@ -1928,6 +1944,7 @@ static void InitPlayerPosition(int random_flag)
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
+namespace dsx {
 void copy_defaults_to_robot(const vobjptr_t objp)
 {
 	robot_info	*robptr;
@@ -1963,6 +1980,7 @@ void copy_defaults_to_robot(const vobjptr_t objp)
 		objp->shields /= 2;
 #endif
 }
+}
 
 //	-----------------------------------------------------------------------------------------------------
 //	Copy all values from the robot info structure to all instances of robots.
@@ -1979,6 +1997,7 @@ static void copy_defaults_to_robot_all(void)
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
+namespace dsx {
 static void StartLevel(int random_flag)
 {
 	assert(Player_dead_state == player_dead_state::no);
@@ -2015,4 +2034,5 @@ static void StartLevel(int random_flag)
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
+}
 }

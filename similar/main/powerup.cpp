@@ -150,6 +150,7 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 
 //#ifndef RELEASE
 //	Give the megawow powerup!
+namespace dsx {
 void do_megawow_powerup(int quantity)
 {
 	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
@@ -185,6 +186,7 @@ void do_megawow_powerup(int quantity)
 
 	update_laser_weapon_info();
 
+}
 }
 //#endif
 
@@ -249,6 +251,7 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 }
 
 //	returns true if powerup consumed
+namespace dsx {
 int do_powerup(const vobjptridx_t obj)
 {
 	int used=0;
@@ -688,6 +691,7 @@ int do_powerup(const vobjptridx_t obj)
 
 	return used;
 
+}
 }
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(powerup_type_info, pti, (pti.vclip_num, pti.hit_sound, pti.size, pti.light));

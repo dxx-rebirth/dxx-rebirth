@@ -339,6 +339,7 @@ static bool ml_sort_func(const mle &e0,const mle &e1)
 }
 
 //returns 1 if file read ok, else 0
+namespace dsx {
 static int read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname)
 {
 	if (auto mfile = PHYSFSX_openReadBuffered(pathname.data()))
@@ -414,7 +415,9 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 
 	return 0;
 }
+}
 
+namespace dsx {
 static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 {
     int size;
@@ -461,6 +464,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	mission->builtin_hogsize = 0;
 #endif
 	mission->filename = begin(mission->path);
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -511,6 +515,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 }
 #endif
 
+namespace dsx {
 static void add_missions_to_list(mission_list_type &mission_list, mission_candidate_search_path &path, const mission_candidate_search_path::iterator rel_path, int anarchy_mode)
 {
 	/* rel_path must point within the array `path`.
@@ -568,6 +573,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 		*rel_path = 0;	// chop off the entry
 	}
 }
+}
 
 /* move <mission_name> to <place> on mission list, increment <place> */
 static void promote (mission_list_type &mission_list, const char *const name, std::size_t &top_place)
@@ -597,6 +603,7 @@ Mission::~Mission()
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
+namespace dsx {
 static mission_list_type build_mission_list(int anarchy_mode)
 {
 
@@ -636,6 +643,7 @@ static mission_list_type build_mission_list(int anarchy_mode)
 	if (mission_list.size() > top_place)
 		std::sort(next(begin(mission_list), top_place), end(mission_list), ml_sort_func);
 	return mission_list;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -716,6 +724,7 @@ static void record_briefing(d_fname &f, array<char, PATH_MAX> &buf)
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
 //Returns true if mission loaded ok, else false.
+namespace dsx {
 static int load_mission(const mle *mission)
 {
 	char *v;
@@ -978,6 +987,7 @@ static int load_mission(const mle *mission)
 #endif
 
 	return 1;
+}
 }
 
 //loads the named mission if exists.

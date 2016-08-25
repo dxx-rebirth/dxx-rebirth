@@ -220,9 +220,13 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void trigger_read(PHYSFS_File *fp, trigger &t);
 void trigger_write(PHYSFS_File *fp, const trigger &t);
 
+#ifdef dsx
+namespace dsx {
 void v29_trigger_write(PHYSFS_File *fp, const trigger &t);
 void v30_trigger_write(PHYSFS_File *fp, const trigger &t);
 void v31_trigger_write(PHYSFS_File *fp, const trigger &t);
+}
+#endif
 #endif
 
 #endif

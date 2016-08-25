@@ -59,7 +59,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-type_traits.h"
 #include "partial_range.h"
 
+namespace dsx {
 static int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation);
+}
 static void multi_send_robot_position_sub(const vobjptridx_t objnum, int now);
 static void multi_send_release_robot(const vobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vobjptridx_t objnum);
@@ -219,6 +221,7 @@ void multi_strip_robots(const int playernum)
 
 }
 
+namespace dsx {
 int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 {
 	int i;
@@ -290,6 +293,7 @@ int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
 }	
+}
 
 void multi_delete_controlled_robot(const vobjptridx_t objnum)
 {
@@ -597,6 +601,7 @@ static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
 }
 
+namespace dsx {
 void multi_send_boss_teleport(const vobjptridx_t bossobj, segnum_t where)
 {
 	// Boss is up for grabs after teleporting
@@ -606,6 +611,7 @@ void multi_send_boss_teleport(const vobjptridx_t bossobj, segnum_t where)
 	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD; // Hands-off period!
 #endif
 	multi_send_boss_action<boss_teleport>(bossobj, where);
+}
 }
 
 void multi_send_boss_cloak(objnum_t bossobjnum)
@@ -630,6 +636,7 @@ void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, const vob
 
 #define MAX_ROBOT_POWERUPS 4
 
+namespace dsx {
 static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 {
 	// Send create robot information
@@ -677,6 +684,7 @@ static void multi_send_create_robot_powerups(const vcobjptr_t del_obj)
 	Net_create_loc = 0;
 
 	multi_send_data<MULTI_CREATE_ROBOT_POWERUPS>(multibuf, 27, 2);
+}
 }
 
 void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
@@ -809,6 +817,7 @@ static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num
 	return calc_gun_point(v, obj, gun_num), v;
 }
 
+namespace dsx {
 void multi_do_robot_fire(const uint8_t *const buf)
 {
 	// Send robot fire event
@@ -848,7 +857,9 @@ void multi_do_robot_fire(const uint8_t *const buf)
 		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
 	Laser_create_new_easy(fire, pw.first, botp, pw.second, 1);
 }
+}
 
+namespace dsx {
 int multi_explode_robot_sub(const vobjptridx_t robot)
 {
 	if (robot->type != OBJ_ROBOT) { // Object is robot?
@@ -908,6 +919,7 @@ int multi_explode_robot_sub(const vobjptridx_t robot)
    }
    
 	return 1;
+}
 }
 
 void multi_do_robot_explode(const uint8_t *const buf)
@@ -1011,6 +1023,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
+namespace dsx {
 void multi_do_boss_cloak(const ubyte *buf)
 {
 	boss_cloak b;
@@ -1027,6 +1040,7 @@ void multi_do_boss_cloak(const ubyte *buf)
 #endif
 	Boss_cloak_start_time = GameTime64;
 	boss_obj->ctype.ai_info.CLOAKED = 1;
+}
 }
 
 void multi_do_boss_start_gate(const ubyte *buf)
@@ -1188,6 +1202,7 @@ void multi_drop_robot_powerups(const vobjptridx_t del_obj)
 //	Note: This function will be called regardless of whether Game_mode is a multiplayer mode, so it
 //	should quick-out if not in a multiplayer mode.  On the other hand, it only gets called when a
 //	player or player weapon whacks a robot, so it happens rarely.
+namespace dsx {
 void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 {
 	int remote_objnum;
@@ -1225,4 +1240,5 @@ void multi_robot_request_change(const vobjptridx_t robot, int player_num)
 		multi_send_release_robot(rcrobot);
 		robot->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}
+}
 }

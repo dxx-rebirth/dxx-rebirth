@@ -305,6 +305,7 @@ static void init_editor_screen();
 static void gamestate_restore_check();
 static int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
 
+namespace dsx {
 void init_editor()
 {
 
@@ -401,6 +402,7 @@ void init_editor()
 	ModeFlag = 0;
 	
 	gamestate_restore_check();
+}
 }
 
 int ShowAbout()

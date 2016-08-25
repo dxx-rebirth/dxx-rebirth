@@ -54,11 +54,15 @@ extern int Player_highest_level;
 //
 
 // starts a new game on the given level
+#ifdef dsx
+namespace dsx {
 void StartNewGame(int start_level);
 
 // starts the next level
 void StartNewLevel(int level_num);
 
+}
+#endif
 void InitPlayerObject();            //make sure player's object set up
 namespace dsx {
 void init_player_stats_game(ubyte pnum);      //clear all stats
@@ -66,8 +70,12 @@ void init_player_stats_game(ubyte pnum);      //clear all stats
 
 // called when the player has finished a level
 // if secret flag is true, advance to secret level, else next normal level
+#ifdef dsx
+namespace dsx {
 void PlayerFinishedLevel(int secret_flag);
 
+}
+#endif
 namespace dsx {
 // called when the player has died
 void DoPlayerDead(void);
@@ -89,8 +97,12 @@ void ExitSecretLevel();
 
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
+#ifdef dsx
+namespace dsx {
 void LoadLevel(int level_num, int page_in_textures);
 
+}
+#endif
 extern void update_player_stats();
 
 // from scores.c
@@ -107,8 +119,12 @@ void close_message_window(void);
 // create flash for player appearance
 void create_player_appearance_effect(vobjptridx_t player_obj);
 void bash_to_shield(const vobjptr_t i);
+#ifdef dsx
+namespace dsx {
 void copy_defaults_to_robot(vobjptr_t objp);
 
+}
+#endif
 namespace dsx {
 void gameseq_remove_unused_players();
 // reset stuff so game is semi-normal when playing from editor
@@ -116,8 +132,12 @@ void editor_reset_stuff_on_level();
 }
 
 // Show endlevel bonus scores
+#ifdef dsx
+namespace dsx {
 extern void DoEndLevelScoreGlitz(int network);
 
+}
+#endif
 namespace dcx {
 // stuff for multiplayer
 extern unsigned NumNetPlayerPositions;

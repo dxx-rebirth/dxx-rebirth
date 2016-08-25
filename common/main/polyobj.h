@@ -166,6 +166,10 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
+#ifdef dsx
+namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp);
 
+}
+#endif
 #endif

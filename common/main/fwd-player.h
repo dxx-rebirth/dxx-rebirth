@@ -86,8 +86,12 @@ struct player_rw;
 #define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	4
 #endif
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+#ifdef dsx
+namespace dsx {
 void player_rw_swap(player_rw *p, int swap);
 
+}
+#endif
 extern array<object *, MAX_PLAYERS> Guided_missile;
 #endif
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;

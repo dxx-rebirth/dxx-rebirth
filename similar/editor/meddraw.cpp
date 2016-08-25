@@ -884,6 +884,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 
 }
 
+namespace dsx {
 void meddraw_init_views( grs_canvas * canvas)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -899,4 +900,5 @@ void meddraw_init_views( grs_canvas * canvas)
 	Views[2]->ev_canv = FrontViewBox->canvas;
 	Views[3]->ev_canv = RightViewBox->canvas;
 #endif
+}
 }

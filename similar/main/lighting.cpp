@@ -87,6 +87,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 }
 
 // ----------------------------------------------------------------------------------------------
+namespace dsx {
 static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, objnum_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
@@ -212,6 +213,7 @@ static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg
 		}
 	}
 }
+}
 
 #define FLASH_LEN_FIXED_SECONDS (F1_0/3)
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
@@ -254,6 +256,7 @@ static unsigned Num_headlights;
 static array<const object *, MAX_HEADLIGHTS> Headlights;
 
 // ---------------------------------------------------------
+namespace dsx {
 static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 {
 	int compute_color = 0;
@@ -474,6 +477,7 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 	}
 
 	return lemission;
+}
 }
 
 // ----------------------------------------------------------------------------------------------

@@ -60,6 +60,7 @@ fix Afterburner_charge=f1_0;
 using std::min;
 using std::max;
 
+namespace dsx {
 void read_flying_controls(const vobjptr_t obj)
 {
 	fix	forward_thrust_time;
@@ -204,4 +205,5 @@ void read_flying_controls(const vobjptr_t obj)
 		return;
 	}// end if
 
+}
 }

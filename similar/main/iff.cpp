@@ -140,6 +140,7 @@ static int parse_bmhd(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to decompressed pixel data
+namespace dsx {
 static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 {
 	auto p = bmheader->raw_data.get();
@@ -258,6 +259,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 #endif
 
 	return IFF_NO_ERROR;
+}
 }
 
 //modify passed bitmap
@@ -487,6 +489,7 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 #define INDEX_TO_15BPP(i) (static_cast<short>((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
 
+namespace dsx {
 static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
 	palette_array_t::iterator palptr = begin(bmheader.palette);
@@ -517,6 +520,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 #endif
 	return IFF_NO_ERROR;
 
+}
 }
 
 //copy an iff header structure to a grs_bitmap structure

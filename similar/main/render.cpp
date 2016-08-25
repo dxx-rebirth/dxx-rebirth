@@ -160,6 +160,7 @@ fix flash_scale;
 constexpr fix Flash_rate = FLASH_CYCLE_RATE;
 
 //cycle the flashing light for when mine destroyed
+namespace dsx {
 void flash_frame()
 {
 	static fixang flash_ang=0;
@@ -199,7 +200,9 @@ void flash_frame()
 
 
 }
+}
 
+namespace dsx {
 static inline int is_alphablend_eclip(int eclip_num)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -208,6 +211,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 #endif
 	return eclip_num == ECLIP_NUM_FUELCEN;
 }
+}
 
 // ----------------------------------------------------------------------------
 //	Render a face.
@@ -215,6 +219,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
+namespace dsx {
 static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
@@ -361,6 +366,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 	if (Outline_mode) draw_outline(nv, &pointlist[0]);
 #endif
 }
+}
 
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
@@ -462,6 +468,7 @@ constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
 // -----------------------------------------------------------------------------------
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
+namespace dsx {
 static void render_side(const vcsegptridx_t segp, int sidenum)
 {
 	fix		min_dot, max_dot;
@@ -549,6 +556,7 @@ im_so_ashamed: ;
 	}
 
 }
+}
 
 #ifdef EDITOR
 static void render_object_search(const vobjptridx_t obj)
@@ -605,6 +613,7 @@ static void render_object_search(const vobjptridx_t obj)
 }
 #endif
 
+namespace dsx {
 static void do_render_object(const vobjptridx_t obj, window_rendered_data &window)
 {
 	#ifdef EDITOR
@@ -684,6 +693,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 
 
 }
+}
 
 //increment counter for checking if points rotated
 //This must be called at the start of the frame if rotate_list() will be used
@@ -744,6 +754,7 @@ static void project_list(array<int, 8> &pointnumlist)
 
 // -----------------------------------------------------------------------------------
 #if !defined(OGL)
+namespace dsx {
 static void render_segment(const vcsegptridx_t seg)
 {
 	int			sn;
@@ -764,6 +775,7 @@ static void render_segment(const vcsegptridx_t seg)
 
 	//sort objects!
 	//object_sort_segment_objects( seg );
+}
 }
 #endif
 
@@ -1092,6 +1104,7 @@ static void sort_segment_object_list(render_state_t::per_segment_state_t &segsta
 	std::sort(v.begin(), v.end(), std::cref(context));
 }
 
+namespace dsx {
 static void build_object_lists(render_state_t &rstate)
 {
 	int nn;
@@ -1175,6 +1188,7 @@ static void build_object_lists(render_state_t &rstate)
 			sort_segment_object_list(rstate.render_seg_map[segnum]);
 		}
 	}
+}
 }
 
 //--unused-- int Total_num_tmaps_drawn=0;

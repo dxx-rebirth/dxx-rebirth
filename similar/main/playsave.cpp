@@ -204,6 +204,7 @@ static void check_weapon_reorder(array<ubyte, N> &w)
 	}
 }
 
+namespace dsx {
 int new_player_config()
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -277,6 +278,7 @@ int new_player_config()
 	
 	return 1;
 }
+}
 
 static int convert_pattern_array(const char *name, std::size_t namelen, int *array, std::size_t arraylen, const char *word, const char *line)
 {
@@ -319,6 +321,7 @@ static const char *splitword(char *line, char c)
 	return p;
 }
 
+namespace dsx {
 static void read_player_dxx(const char *filename)
 {
 	plyr_read_stats();
@@ -531,6 +534,7 @@ static void read_player_dxx(const char *filename)
 		}
 	}
 }
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr char effcode1[]="d1xrocks_SKCORX!D";
@@ -691,6 +695,7 @@ void plyr_save_stats()
 }
 #endif
 
+namespace dsx {
 static int write_player_dxx(const char *filename)
 {
 	int rc=0;
@@ -790,8 +795,10 @@ static int write_player_dxx(const char *filename)
 		return errno;
 
 }
+}
 
 //read in the player's saved games.  returns errno (0 == no error)
+namespace dsx {
 int read_player_file()
 {
 	char filename[PATH_MAX];
@@ -1114,6 +1121,7 @@ int read_player_file()
 	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
 	return -1;
 }
+}
 
 
 //finds entry for this level in table.  if not found, returns ptr to 
@@ -1174,6 +1182,7 @@ int get_highest_level(void)
 }
 
 //write out player's saved games.  returns errno (0 == no error)
+namespace dsx {
 void write_player_file()
 {
 	char filename[PATH_MAX];
@@ -1338,6 +1347,7 @@ void write_player_file()
 		PHYSFS_delete(filename);        //delete bogus file
 	}
 #endif
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

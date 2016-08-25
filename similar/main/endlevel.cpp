@@ -282,6 +282,7 @@ vms_matrix surface_orient;
 
 static int endlevel_data_loaded;
 
+namespace dsx {
 void start_endlevel_sequence()
 {
 
@@ -436,6 +437,7 @@ void start_endlevel_sequence()
 	mine_destroyed=0;
 
 }
+}
 
 static vms_angvec player_angles,player_dest_angles;
 #ifndef SHORT_SEQUENCE
@@ -533,6 +535,7 @@ static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const v
 	vm_extract_angles_vector(av,tv);
 }
 
+namespace dsx {
 void do_endlevel_frame()
 {
 	static fix timer;
@@ -884,6 +887,7 @@ void do_endlevel_frame()
 		#endif		//ifdef SHORT_SEQUENCE
 
 	}
+}
 }
 
 
@@ -1362,6 +1366,7 @@ static int convert_ext(d_fname &dest, const char (&ext)[4])
 }
 
 //called for each level to load & setup the exit sequence
+namespace dsx {
 void load_endlevel_data(int level_num)
 {
 	d_fname filename;
@@ -1573,4 +1578,5 @@ try_again:
 
 	}
 	endlevel_data_loaded = 1;
+}
 }

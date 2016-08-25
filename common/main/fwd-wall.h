@@ -198,14 +198,22 @@ extern unsigned Num_wall_anims;
 #endif
 
 #ifdef EDITOR
+#ifdef dsx
+namespace dsx {
 void wall_init();
+}
+#endif
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // Automatically checks if a there is a doorway (i.e. can fly through)
+#ifdef dsx
+namespace dsx {
 WALL_IS_DOORWAY_result_t wall_is_doorway (const side &side);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
+}
+#endif
 void wall_damage(vsegptridx_t seg, int side, fix damage);
 
 // Destroys a blastable wall. (So it is an opening afterwards)
@@ -215,6 +223,8 @@ void wall_illusion_on(vsegptridx_t seg, int side);
 void wall_illusion_off(vsegptridx_t seg, int side);
 
 // Opens a door, including animation and other processing.
+#ifdef dsx
+namespace dsx {
 void do_door_open(int door_num);
 
 // Closes a door, including animation and other processing.
@@ -223,6 +233,8 @@ void do_door_close(int door_num);
 // Opens a door
 void wall_open_door(vsegptridx_t seg, int side);
 
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_I)
 // Closes a door (called after given interval)
 void wall_close_door(int wall_num);
@@ -242,19 +254,27 @@ enum class wall_hit_process_t : unsigned
 
 // Determines what happens when a wall is shot
 //obj is the object that hit...either a weapon or the player himself
+#ifdef dsx
+namespace dsx {
 wall_hit_process_t wall_hit_process(vsegptridx_t seg, int side, fix damage, int playernum, vobjptr_t obj);
 
 // Opens/destroys specified door.
+}
+#endif
 void wall_toggle(vsegptridx_t segnum, unsigned side);
 
 // Tidy up Walls array for load/save purposes.
 void reset_walls();
 
 // Called once per frame..
+#ifdef dsx
+namespace dsx {
 void wall_frame_process();
 
 //  An object got stuck in a door (like a flare).
 //  Add global entry.
+}
+#endif
 void add_stuck_object(vobjptridx_t objp, vsegptr_t segnum, int sidenum);
 void remove_obsolete_stuck_objects();
 
@@ -262,8 +282,12 @@ void remove_obsolete_stuck_objects();
 void wall_set_tmap_num(vsegptridx_t seg,int side,vsegptridx_t csegp,int cside,int anim_num,int frame_num);
 
 // Remove any flares from a wall
+#ifdef dsx
+namespace dsx {
 void kill_stuck_objects(wallnum_t wallnum);
 
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
 void start_wall_cloak(vsegptridx_t seg, int side);

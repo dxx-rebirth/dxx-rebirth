@@ -81,6 +81,7 @@ static int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_d
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box
 //-------------------------------------------------------------------------
+namespace dsx {
 int do_centers_dialog()
 {
 	// Only open 1 instance of this window...
@@ -104,7 +105,9 @@ int do_centers_dialog()
 	MainWindow = ui_create_dialog(x, TMAPBOX_Y+20, width, 545-TMAPBOX_Y, DF_DIALOG, centers_dialog_handler, std::move(c));
 	return 1;
 }
+}
 
+namespace dsx {
 static int centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -133,6 +136,7 @@ static int centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
 		c->robotMatFlag[i] = ui_add_gadget_checkbox( w, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i].data());
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return 1;
+}
 }
 
 void close_centers_window()

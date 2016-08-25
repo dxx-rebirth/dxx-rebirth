@@ -44,15 +44,27 @@ void multi_send_robot_fire(vobjptridx_t objnum, int gun_num, const vms_vector &f
 void multi_send_claim_robot(vobjptridx_t objnum);
 void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
+#ifdef dsx
+namespace dsx {
 void multi_send_boss_teleport(vobjptridx_t bossobjnum, segnum_t where);
+}
+#endif
 void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
 void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objnum);
+#ifdef dsx
+namespace dsx {
 int multi_explode_robot_sub(vobjptridx_t botnum);
+}
+#endif
 void multi_drop_robot_powerups(vobjptridx_t objnum);
 int multi_send_robot_frame(int sent);
+#ifdef dsx
+namespace dsx {
 void multi_robot_request_change(vobjptridx_t robot, int playernum);
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_thief_frame();
 #endif
@@ -62,11 +74,19 @@ void multi_do_robot_explode(const ubyte *buf);
 void multi_do_robot_position(playernum_t pnum, const ubyte *buf);
 void multi_do_claim_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
+#ifdef dsx
+namespace dsx {
 void multi_do_robot_fire(const ubyte *buf);
+}
+#endif
 void multi_do_create_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
 void multi_do_boss_teleport(playernum_t pnum, const ubyte *buf);
+#ifdef dsx
+namespace dsx {
 void multi_do_boss_cloak(const ubyte *buf);
+}
+#endif
 void multi_do_boss_start_gate(const ubyte *buf);
 void multi_do_boss_stop_gate(const ubyte *buf);
 void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);

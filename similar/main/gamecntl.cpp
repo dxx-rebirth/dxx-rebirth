@@ -228,6 +228,7 @@ int which_bomb()
 }
 #endif
 
+namespace dsx {
 static void do_weapon_n_item_stuff()
 {
 	if (Controls.state.fire_flare > 0)
@@ -311,6 +312,7 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.energy_to_shield && (get_local_player_flags() & PLAYER_FLAGS_CONVERTER))
 		transfer_energy_to_shield();
 #endif
+}
 }
 
 static void format_time(char (&str)[9], unsigned secs_int, unsigned hours_extra)
@@ -716,6 +718,7 @@ dump_door_debugging_info()
 
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
+namespace dsx {
 static window_event_result HandleSystemKey(int key)
 {
 	if (Player_dead_state == player_dead_state::no)
@@ -955,7 +958,9 @@ static window_event_result HandleSystemKey(int key)
 	}
 	return window_event_result::handled;
 }
+}
 
+namespace dsx {
 static window_event_result HandleGameKey(int key)
 {
 	switch (key) {
@@ -1069,6 +1074,7 @@ static window_event_result HandleGameKey(int key)
 		return window_event_result::ignored;
 
 	return window_event_result::handled;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1210,6 +1216,7 @@ static void kill_buddy(void)
 }
 #endif
 
+namespace dsx {
 static window_event_result HandleTestKey(int key)
 {
 	switch (key)
@@ -1405,6 +1412,7 @@ static window_event_result HandleTestKey(int key)
 	}
 	return window_event_result::handled;
 }
+}
 #endif		//#ifndef RELEASE
 
 #define CHEAT_MAX_LEN 15
@@ -1460,6 +1468,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "bittersweet", &game_cheats::acid },
 };
 
+namespace dsx {
 static window_event_result FinalCheats()
 {
 	int (game_cheats::*gotcha);
@@ -1737,6 +1746,7 @@ static window_event_result FinalCheats()
 	}
 
 	return window_event_result::handled;
+}
 }
 
 // Internal Cheat Menu

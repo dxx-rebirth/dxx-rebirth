@@ -93,6 +93,7 @@ struct credits : ignore_window_pointer_t
 
 }
 
+namespace dsx {
 static window_event_result credits_handler(window *, const d_event &event, credits *cr)
 {
 	int l, y;
@@ -221,6 +222,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			break;
 	}
 	return window_event_result::ignored;
+}
 }
 
 namespace dsx {

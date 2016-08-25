@@ -737,7 +737,11 @@ void change_playernum_to(int new_pnum);
 // Multiplayer powerup capping
 void MultiLevelInv_InitializeCount();
 void MultiLevelInv_Recount();
+#ifdef dsx
+namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
+}
+#endif
 extern void MultiLevelInv_Repopulate(fix frequency);
 #ifdef dsx
 namespace dsx {
@@ -746,7 +750,11 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned Allowed
 void show_netgame_info(const netgame_info &netgame);
 }
 #endif
+#ifdef dsx
+namespace dsx {
 extern void multi_send_player_inventory(int priority);
+}
+#endif
 extern void multi_send_kill_goal_counts();
 void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)

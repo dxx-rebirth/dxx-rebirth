@@ -166,6 +166,7 @@ int	Dont_move_ai_objects=0;
 
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
+namespace dsx {
 static void do_physics_sim_rot(object_base &obj)
 {
 	vms_angvec	tangles;
@@ -253,6 +254,7 @@ static void do_physics_sim_rot(object_base &obj)
 
 	check_and_fix_matrix(obj.orient);
 }
+}
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 static void fix_illegal_wall_intersection(const vobjptridx_t obj)
@@ -297,6 +299,7 @@ public:
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
+namespace dsx {
 void do_physics_sim(const vobjptridx_t obj)
 {
 	ignore_objects_array_t ignore_obj_list;
@@ -761,6 +764,7 @@ void do_physics_sim(const vobjptridx_t obj)
 		}
 	}
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#endif
+}
 }
 
 namespace dcx {

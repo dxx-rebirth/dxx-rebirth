@@ -88,6 +88,7 @@ static uint_fast32_t check_transparency(const side &side)
 //		WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
 //		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
 //		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
+namespace dsx {
 WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 {
 	auto &w = *vcwallptr(side.wall_num);
@@ -130,10 +131,12 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 	else
 		return WID_WALL; // There are children behind the door.
 }
+}
 
 #ifdef EDITOR
 //-----------------------------------------------------------------
 // Initializes all the walls (in other words, no special walls)
+namespace dsx {
 void wall_init()
 {
 	Walls.set_count(0);
@@ -153,6 +156,7 @@ void wall_init()
 	Num_cloaking_walls = 0;
 #endif
 
+}
 }
 #endif
 
@@ -271,6 +275,7 @@ void wall_damage(const vsegptridx_t seg, int side, fix damage)
 
 //-----------------------------------------------------------------
 // Opens a door
+namespace dsx {
 void wall_open_door(const vsegptridx_t seg, int side)
 {
 	active_door *d;
@@ -383,6 +388,7 @@ void wall_open_door(const vsegptridx_t seg, int side)
 			digi_link_sound_to_pos( WallAnims[w->clip_num].open_sound, seg, side, cp, 0, F1_0 );
 
 	}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -625,6 +631,7 @@ static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side
 	return get_seg_masks(obj->pos, segnum, obj->size).sidemask & (1 << side);		//pokes through side!
 }
 
+namespace dsx {
 static int is_door_side_free(const vcsegptr_t seg, int side)
 {
 	range_for (const auto &&obj, objects_in(seg))
@@ -639,6 +646,7 @@ static int is_door_side_free(const vcsegptr_t seg, int side)
 			return 0;	//not free
 	}
 	return 1;
+}
 }
 
 //returns true of door in unobjstructed (& thus can close)
@@ -741,6 +749,7 @@ void wall_close_door(const vsegptridx_t seg, int side)
 //-----------------------------------------------------------------
 // Animates opening of a door.
 // Called in the game loop.
+namespace dsx {
 void do_door_open(int door_num)
 {
 	int p;
@@ -821,10 +830,12 @@ void do_door_open(int door_num)
 	flush_fcd_cache();
 
 }
+}
 
 //-----------------------------------------------------------------
 // Animates and processes the closing of a door.
 // Called from the game loop.
+namespace dsx {
 void do_door_close(int door_num)
 {
 	int p;
@@ -913,6 +924,7 @@ void do_door_close(int door_num)
 			wall_close_door_num(door_num);
 	}
 }
+}
 
 template <typename F>
 static void wall_illusion_op(const vsegptridx_t seg, unsigned side, F op)
@@ -970,6 +982,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //obj is the object that hit...either a weapon or the player himself
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
+namespace dsx {
 wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
 {
 	fix	show_message;
@@ -1061,6 +1074,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 		}
 	}
 	return wall_hit_process_t::WHP_NOT_SPECIAL;		//default is treat like normal wall
+}
 }
 
 //-----------------------------------------------------------------
@@ -1239,6 +1253,7 @@ static void do_decloaking_wall_frame(int cloaking_wall_num)
 }
 #endif
 
+namespace dsx {
 void wall_frame_process()
 {
 	int i;
@@ -1301,6 +1316,7 @@ void wall_frame_process()
 	}
 #endif
 }
+}
 
 static unsigned Num_stuck_objects;
 static array<stuckobj, 32> Stuck_objects;
@@ -1348,6 +1364,7 @@ void remove_obsolete_stuck_objects(void)
 
 //	----------------------------------------------------------------------------------------------------
 //	Door with wall index wallnum is opening, kill all objects stuck in it.
+namespace dsx {
 void kill_stuck_objects(const wallnum_t wallnum)
 {
 	if (!Num_stuck_objects)
@@ -1375,6 +1392,7 @@ void kill_stuck_objects(const wallnum_t wallnum)
 		}
 	}
 	Num_stuck_objects = n;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

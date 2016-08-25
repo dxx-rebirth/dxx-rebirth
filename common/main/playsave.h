@@ -177,6 +177,8 @@ extern struct player_config PlayerCfg;
 #endif
 
 // Used to save kconfig values to disk.
+#ifdef dsx
+namespace dsx {
 void write_player_file();
 
 int new_player_config();
@@ -184,6 +186,8 @@ int new_player_config();
 int read_player_file();
 
 // set a new highest level for player for this mission
+}
+#endif
 void set_highest_level(int levelnum);
 
 // gets the player's highest level from the file for this mission

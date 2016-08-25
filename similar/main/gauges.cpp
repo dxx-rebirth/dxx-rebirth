@@ -390,6 +390,7 @@ static array<int, 2> weapon_box_user{{WBU_WEAPON, WBU_WEAPON}};		//see WBU_ cons
 static grs_bitmap deccpt;
 static array<grs_subbitmap_ptr, 2> WinBoxOverlay; // Overlay subbitmaps for both weapon boxes
 
+namespace dsx {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto &g =
@@ -398,6 +399,7 @@ static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multi
 #endif
 		Gauges;
 	PIGGY_PAGE_IN(g[x]);
+}
 }
 
 static void draw_ammo_info(int x,int y,int ammo_count);
@@ -1041,6 +1043,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 	}
 }
 
+namespace dsx {
 static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1072,6 +1075,7 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 	int w, h;
 	gr_get_string_size(txt, &w, &h, nullptr);
 	gr_string(right_align ? x - w : x, y, txt, w, h);
+}
 }
 
 static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -1791,6 +1795,7 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	cur_h = bm->bm_h;
 }
 
+namespace dsx {
 static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1808,12 +1813,14 @@ static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_g
 	if (WinBoxOverlay[1])
 		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),*WinBoxOverlay[1].get(), multires_gauge_graphic);
 }
+}
 
 void close_gauges()
 {
 	WinBoxOverlay = {};
 }
 
+namespace dsx {
 void init_gauges()
 {
 	old_weapon[0] = old_weapon[1] = -1;
@@ -1821,6 +1828,7 @@ void init_gauges()
 #if defined(DXX_BUILD_DESCENT_II)
 	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
 #endif
+}
 }
 
 static void draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2136,6 +2144,7 @@ void draw_cockpit_keys_state::draw_all_keys(const local_multires_gauge_graphic m
 	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, multires_gauge_graphic, PLAYER_FLAGS_RED_KEY);
 }
 
+namespace dsx {
 static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x, int pic_y, const char *name, int text_x, int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	//clear the window
@@ -2178,7 +2187,9 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 		}
 	}
 }
+}
 
+namespace dsx {
 static void draw_primary_weapon_info(int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2227,7 +2238,9 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 		}
 	}
 }
+}
 
+namespace dsx {
 static void draw_secondary_weapon_info(int weapon_num, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x,y;
@@ -2266,6 +2279,7 @@ static void draw_secondary_weapon_info(int weapon_num, const local_multires_gaug
 				hud_show_secondary_weapons_mode(1,x,y);
 		}
 	}
+}
 }
 
 static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2408,6 +2422,7 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 }
 #endif
 
+namespace dsx {
 static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2443,7 +2458,9 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 		draw_static(0, multires_gauge_graphic);
 #endif
 }
+}
 
+namespace dsx {
 static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2464,6 +2481,7 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 		draw_static(1, multires_gauge_graphic);
 #endif
 }
+}
 
 static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_graphic)
 {
@@ -2471,6 +2489,7 @@ static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_
 	draw_weapon_box1(multires_gauge_graphic);
 }
 
+namespace dsx {
 static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int ew;
@@ -2498,6 +2517,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	gr_printf((grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(y), "%d", energy);
 
 	gr_set_current_canvas(NULL);
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2644,6 +2664,7 @@ const array<xy, 4> cross_offsets{{
 }};
 
 //draw the reticle
+namespace dsx {
 void show_reticle(int reticle_type, int secondary_display)
 {
 	int x,y,size;
@@ -2806,6 +2827,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	gr_uline(x0, y0, x1, y1, color);
 	}();
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+}
 }
 
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
@@ -3004,6 +3026,7 @@ static int see_object(const vcobjptridx_t objnum)
 }
 
 //show names of teammates & players carrying flags
+namespace dsx {
 void show_HUD_names()
 {
 	for (playernum_t pnum=0;pnum<N_players;pnum++)
@@ -3128,9 +3151,11 @@ void show_HUD_names()
 		}
 	}
 }
+}
 
 
 //draw all the things on the HUD
+namespace dsx {
 void draw_hud()
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3244,8 +3269,10 @@ void draw_hud()
 		gr_string(0x8000,GHEIGHT-LINE_SPACING,TXT_REAR_VIEW);
 	}
 }
+}
 
 //print out some player statistics
+namespace dsx {
 void render_gauges()
 {
 	int energy = f2ir(get_local_player_energy());
@@ -3346,10 +3373,12 @@ void render_gauges()
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 #endif
 }
+}
 
 //	---------------------------------------------------------------------------------------------------------
 //	Call when picked up a laser powerup.
 //	If laser is active, set old_weapon[0] to -1 to force redraw.
+namespace dsx {
 void update_laser_weapon_info(void)
 {
 	if (old_weapon[0] == 0)
@@ -3357,6 +3386,7 @@ void update_laser_weapon_info(void)
 		if (!(get_local_plrobj().ctype.player_info.laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
 #endif
 			old_weapon[0] = -1;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

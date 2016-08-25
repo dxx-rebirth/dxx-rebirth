@@ -36,10 +36,14 @@ struct bim_song_info
 #endif
 
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)());
+#ifdef dsx
+namespace dsx {
 int songs_play_song( int songnum, int repeat );
 int songs_play_level_song( int levelnum, int offset );
 
 //stop any songs - midi, redbook or jukebox - that are currently playing
+}
+#endif
 void songs_stop_all(void);
 
 // check which song is playing, or -1 if not playing anything

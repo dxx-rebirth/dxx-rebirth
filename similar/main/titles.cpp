@@ -205,6 +205,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		show_title_screen(filename, 1, 1);
 }
 
+namespace dsx {
 void show_titles(void)
 {
 	if (CGameArg.SysNoTitles)
@@ -308,7 +309,9 @@ void show_titles(void)
 		show_title_screen(filename, 1, 1);
 #endif
 }
+}
 
+namespace dsx {
 void show_order_form()
 {
 	if (CGameArg.SysNoTitles)
@@ -339,6 +342,7 @@ void show_order_form()
 		show_title_screen(exit_screen,1,0);
 #endif
 #endif
+}
 }
 
 
@@ -498,6 +502,7 @@ struct briefing : ignore_window_pointer_t
 
 }
 
+namespace dsx {
 static void briefing_init(briefing *br, short level_num)
 {
 	br->level_num = level_num;
@@ -517,9 +522,11 @@ static void briefing_init(briefing *br, short level_num)
 	br->door_div_count = 0;
 	br->animating_bitmap_type = 0;
 }
+}
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
+namespace dsx {
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
 	int len, have_binary = 0;
@@ -553,6 +560,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 
 	return (1);
 }
+}
 
 static int get_message_num(const char **message)
 {
@@ -573,8 +581,10 @@ static int get_message_num(const char **message)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 static void set_briefing_fontcolor (struct briefing *br);
 
+}
 static int get_new_message_num(const char **message)
 {
 	int	num=0;
@@ -661,6 +671,7 @@ static int check_text_pos(briefing *br)
 	return 0;
 }
 
+namespace dsx {
 static void put_char_delay(briefing *br, char ch)
 {
 	char str[2];
@@ -694,13 +705,17 @@ static void put_char_delay(briefing *br, char ch)
 
 	br->start_time = timer_query();
 }
+}
 
 static void init_spinning_robot(briefing *br);
+namespace dsx {
 static int load_briefing_screen(briefing *br, const char *fname);
 
 // Process a character for the briefing,
 // including special characters preceded by a '$'.
 // Return 1 when page is finished, 0 otherwise
+}
+namespace dsx {
 static int briefing_process_char(briefing *br)
 {
 	gr_set_curfont( GAME_FONT );
@@ -920,7 +935,9 @@ static int briefing_process_char(briefing *br)
 
 	return 0;
 }
+}
 
+namespace dsx {
 static void set_briefing_fontcolor (briefing *br)
 {
 	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
@@ -957,6 +974,7 @@ static void set_briefing_fontcolor (briefing *br)
 	//End D1X addition
 
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
+}
 }
 
 static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
@@ -1139,6 +1157,7 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 //-----------------------------------------------------------------------------
 #define KEY_DELAY_DEFAULT       ((F1_0*20)/1000)
 
+namespace dsx {
 static void init_new_page(briefing *br)
 {
 	br->new_page = 0;
@@ -1164,6 +1183,7 @@ static void init_new_page(briefing *br)
 
 	br->start_time = 0;
 	br->delay_count = KEY_DELAY_DEFAULT;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1200,10 +1220,13 @@ static int DefineBriefingBox (const char **buf)
 }
 #endif
 
+namespace dsx {
 static void free_briefing_screen(briefing *br);
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
+}
+namespace dsx {
 static int load_briefing_screen(briefing *br, const char *fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1295,7 +1318,9 @@ static int load_briefing_screen(briefing *br, const char *fname)
 #endif
 	return 1;
 }
+}
 
+namespace dsx {
 static void free_briefing_screen(briefing *br)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1314,7 +1339,9 @@ static void free_briefing_screen(briefing *br)
 	if (br->background.bm_data != NULL)
 		gr_free_bitmap_data(br->background);
 }
+}
 
+namespace dsx {
 static int new_briefing_screen(briefing *br, int first)
 {
 	br->new_screen = 0;
@@ -1408,9 +1435,11 @@ static int new_briefing_screen(briefing *br, int first)
 
 	return 1;
 }
+}
 
 
 //-----------------------------------------------------------------------------
+namespace dsx {
 static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
 {
 	switch (event.type)
@@ -1527,6 +1556,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			break;
 	}
 	return window_event_result::ignored;
+}
 }
 
 namespace dsx {

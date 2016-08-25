@@ -857,8 +857,10 @@ int do_new_game_menu()
 static void do_sound_menu();
 static void input_config();
 static void change_res();
+namespace dsx {
 static void hud_config();
 static void graphics_config();
+}
 static void gameplay_config();
 
 #define DXX_OPTIONS_MENU(VERB)	\
@@ -1471,6 +1473,7 @@ static int hud_config_menuset(newmenu *, const d_event &event, const unused_newm
 	return 0;
 }
 
+namespace dsx {
 void hud_config()
 {
 	int i = 0;
@@ -1489,6 +1492,7 @@ void hud_config()
 #endif
 	} while( i>-1 );
 
+}
 }
 
 #define DXX_GRAPHICS_MENU(VERB)	\
@@ -1572,6 +1576,7 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 	return 0;
 }
 
+namespace dsx {
 void graphics_config()
 {
 	array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
@@ -1607,6 +1612,7 @@ void graphics_config()
 	gr_set_attributes();
 	gr_set_mode(Game_screen_mode);
 #endif
+}
 }
 
 #if PHYSFS_VER_MAJOR >= 2
@@ -2278,6 +2284,7 @@ void do_options_menu()
 }
 
 #ifndef RELEASE
+namespace dsx {
 static window_event_result polygon_models_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static unsigned view_idx;
@@ -2353,6 +2360,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 	}
 	return window_event_result::ignored;
 }
+}
 
 static void polygon_models_viewer()
 {
@@ -2368,6 +2376,7 @@ static void polygon_models_viewer()
 		event_process();
 }
 
+namespace dsx {
 static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static int view_idx = 0;
@@ -2429,6 +2438,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			break;
 	}
 	return window_event_result::ignored;
+}
 }
 
 static void gamebitmaps_viewer()

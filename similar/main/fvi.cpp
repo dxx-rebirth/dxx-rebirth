@@ -625,6 +625,7 @@ segnum_t fvi_hit_seg2;		// what segment the hit point is in
 
 }
 
+namespace dsx {
 static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited);
 
 //What the hell is fvi_hit_seg for???
@@ -639,6 +640,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 //  ingore_obj			ignore collisions with this object
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
+}
 int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 {
 	int hit_type;
@@ -796,6 +798,7 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 	std::copy(src.begin(), src.begin() + count, std::back_inserter(dst));
 }
 
+namespace dsx {
 static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, cobjptridx_t thisobjnum, const std::pair<const objnum_t *, const objnum_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited)
 {
 	int startmask,endmask;	//mask of faces
@@ -1075,6 +1078,7 @@ quit_looking:
 
 	return hit_type;
 
+}
 }
 
 /*

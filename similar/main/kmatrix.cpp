@@ -201,6 +201,7 @@ struct kmatrix_screen : ignore_window_pointer_t
 
 }
 
+namespace dsx {
 static void kmatrix_redraw(kmatrix_screen *km)
 {
 	playernum_array_t sorted;
@@ -248,6 +249,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 	gr_palette_load(gr_palette);
 }
+}
 
 static void kmatrix_redraw_coop()
 {
@@ -276,6 +278,7 @@ static void kmatrix_redraw_coop()
 	gr_palette_load(gr_palette);
 }
 
+namespace dsx {
 static window_event_result kmatrix_handler(window *, const d_event &event, kmatrix_screen *km)
 {
 	int k = 0, choice = 0;
@@ -380,6 +383,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 			break;
 	}
 	return window_event_result::ignored;
+}
 }
 
 kmatrix_result kmatrix_view(int network)

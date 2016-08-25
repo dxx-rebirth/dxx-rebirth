@@ -29,8 +29,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
+#ifdef dsx
+namespace dsx {
 void paging_touch_all();
 
+}
+#endif
 #endif
 
 #endif /* _PAGING_H */

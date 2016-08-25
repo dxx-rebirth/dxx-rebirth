@@ -390,6 +390,7 @@ struct me mine_editor;
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
+namespace dsx {
 int load_mine_data(PHYSFS_File *LoadFile)
 {
 	char old_tmap_list[MAX_TEXTURES][FILENAME_LEN];
@@ -801,6 +802,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		return 0;
 
 }
+}
 #endif
 
 #define COMPILED_MINE_VERSION 0
@@ -854,6 +856,7 @@ static void segment2_read(const vsegptr_t s2, PHYSFS_File *fp)
 }
 #endif
 
+namespace dsx {
 int load_mine_data_compiled(PHYSFS_File *LoadFile)
 {
 	ubyte   compiled_version;
@@ -1023,4 +1026,5 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	reset_objects(1);		//one object, the player
 
 	return 0;
+}
 }

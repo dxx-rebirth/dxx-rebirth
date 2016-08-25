@@ -71,11 +71,19 @@ extern struct object DemoRightExtra,DemoLeftExtra;
 struct morph_data;
 
 // Functions called during recording process...
+#ifdef dsx
+namespace dsx {
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );
+}
+#endif
 #ifdef dsx
+#ifdef dsx
+namespace dsx {
 void newdemo_record_render_object(vobjptridx_t  obj);
 void newdemo_record_viewer_object(vobjptridx_t  obj);
+}
+#endif
 cobjptridx_t newdemo_find_object(object_signature_t signature);
 void newdemo_record_kill_sound_linked_to_object(vcobjptridx_t);
 namespace dsx {
@@ -105,7 +113,11 @@ extern void newdemo_record_wall_set_tmap_num1(short seg,ubyte side,short cseg,ub
 extern void newdemo_record_wall_set_tmap_num2(short seg,ubyte side,short cseg,ubyte cside,short tmap);
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
+#ifdef dsx
+namespace dsx {
 extern void newdemo_set_new_level(int level_num);
+}
+#endif
 extern void newdemo_record_restore_rearview(void);
 
 extern void newdemo_record_multi_death(int pnum);
@@ -129,11 +141,19 @@ extern void newdemo_record_secret_exit_blown(int truth);
 // Functions called during playback process...
 extern void newdemo_object_move_all();
 extern void newdemo_playback_one_frame();
+#ifdef dsx
+namespace dsx {
 extern void newdemo_goto_end(int to_rewrite);
+}
+#endif
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
+#ifdef dsx
+namespace dsx {
 extern void newdemo_stop_playback();
+}
+#endif
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 

@@ -41,16 +41,28 @@ void apply_damage_to_player(object &player, cobjptridx_t killer, fix damage, uin
 }
 
 // Returns 1 if robot died, else 0.
+#ifdef dsx
+namespace dsx {
 int apply_damage_to_robot(vobjptridx_t robot, fix damage, objnum_t killer_objnum);
 
+}
+#endif
 #define PERSISTENT_DEBRIS (PlayerCfg.PersistentDebris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
 
+#ifdef dsx
+namespace dsx {
 void collide_player_and_materialization_center(vobjptridx_t objp);
+}
+#endif
 void collide_robot_and_materialization_center(vobjptridx_t objp);
 
 void scrape_player_on_wall(vobjptridx_t obj, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
+#ifdef dsx
+namespace dsx {
 int maybe_detonate_weapon(vobjptridx_t obj0p, vobjptr_t obj, const vms_vector &pos);
 
+}
+#endif
 void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, const vms_vector &collision_point);
 
 void net_destroy_controlcen(objptridx_t controlcen);
@@ -58,11 +70,19 @@ void collide_player_and_powerup(object &player, vobjptridx_t powerup, const vms_
 #if defined(DXX_BUILD_DESCENT_I)
 #define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt)
 #endif
+#ifdef dsx
+namespace dsx {
 int check_effect_blowup(vsegptridx_t seg,int side,const vms_vector &pnt, const laser_parent &blower, int force_blowup_flag, int remote);
+}
+#endif
 void apply_damage_to_controlcen(vobjptridx_t controlcen, fix damage, vcobjptr_t who);
 void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
+#ifdef dsx
+namespace dsx {
 void drop_player_eggs(vobjptridx_t playerobj);
 
+}
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
 void do_final_boss_frame(void);
 void do_final_boss_hacks(void);

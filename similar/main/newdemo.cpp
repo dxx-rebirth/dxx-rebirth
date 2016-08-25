@@ -238,7 +238,9 @@ static fix nd_record_v_homing_distance = -1;
 static int nd_record_v_primary_ammo = -1;
 static int nd_record_v_secondary_ammo = -1;
 
+namespace dsx {
 static void newdemo_record_oneframeevent_update(int wallupdate);
+}
 #if defined(DXX_BUILD_DESCENT_I)
 static int shareware = 0;	// reading shareware demo?
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -537,6 +539,7 @@ static void nd_read_shortpos(object_base &obj)
 
 object *prev_obj=NULL;      //ptr to last object read in
 
+namespace dsx {
 static void nd_read_object(const vobjptridx_t obj)
 {
 	short shortsig = 0;
@@ -778,7 +781,9 @@ static void nd_read_object(const vobjptridx_t obj)
 
 	prev_obj = obj;
 }
+}
 
+namespace dsx {
 static void nd_write_object(const vcobjptr_t obj)
 {
 	int life;
@@ -931,6 +936,7 @@ static void nd_write_object(const vcobjptr_t obj)
 	}
 
 }
+}
 
 static void nd_record_meta(char (&buf)[7], const char *s)
 {
@@ -985,6 +991,7 @@ static void nd_rbe()
 	newdemo_write(buf, 1, sizeof(buf));
 }
 
+namespace dsx {
 void newdemo_record_start_demo()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1061,7 +1068,9 @@ void newdemo_record_start_demo()
 	newdemo_record_oneframeevent_update(0);
 #endif
 }
+}
 
+namespace dsx {
 void newdemo_record_start_frame(fix frame_time )
 {
 	if (nd_record_v_no_space) {
@@ -1110,7 +1119,9 @@ void newdemo_record_start_frame(fix frame_time )
 	}
 
 }
+}
 
+namespace dsx {
 void newdemo_record_render_object(const vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
@@ -1127,7 +1138,9 @@ void newdemo_record_render_object(const vobjptridx_t obj)
 	nd_write_byte(ND_EVENT_RENDER_OBJECT);
 	nd_write_object(obj);
 }
+}
 
+namespace dsx {
 void newdemo_record_viewer_object(const vobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
@@ -1147,6 +1160,7 @@ void newdemo_record_viewer_object(const vobjptridx_t obj)
 	nd_write_byte(RenderingType);
 #endif
 	nd_write_object(obj);
+}
 }
 
 void newdemo_record_sound( int soundno )
@@ -1515,6 +1529,7 @@ void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte t
 }
 #endif
 
+namespace dsx {
 void newdemo_set_new_level(int level_num)
 {
 	pause_game_world_time p;
@@ -1541,6 +1556,7 @@ void newdemo_set_new_level(int level_num)
 	}
 #endif
 }
+}
 
 /*
  * By design, the demo code does not record certain events when demo recording starts or ends.
@@ -1548,6 +1564,7 @@ void newdemo_set_new_level(int level_num)
  * re-record these events. It will "simulate" those events without using functions older game
  * versions cannot handle.
  */
+namespace dsx {
 static void newdemo_record_oneframeevent_update(int wallupdate)
 {
 	if (Player_dead_state != player_dead_state::no)
@@ -1585,6 +1602,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 		newdemo_record_guided_end();
 #endif
 }
+}
 
 enum purpose_type
 {
@@ -1593,6 +1611,7 @@ enum purpose_type
 	PURPOSE_REWRITE
 };
 
+namespace dsx {
 static int newdemo_read_demo_start(enum purpose_type purpose)
 {
 	sbyte version=0, game_type=0, c=0;
@@ -1869,6 +1888,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	get_local_player_shields() = i2f(shield);
 	return 0;
 }
+}
 
 static void newdemo_pop_ctrlcen_triggers()
 {
@@ -1887,6 +1907,7 @@ static void newdemo_pop_ctrlcen_triggers()
 	}
 }
 
+namespace dsx {
 static int newdemo_read_frame_information(int rewrite)
 {
 	int done, angle, volume;
@@ -3193,6 +3214,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 	return done;
 }
+}
 
 void newdemo_goto_beginning()
 {
@@ -3210,6 +3232,7 @@ void newdemo_goto_beginning()
 	nd_playback_v_at_eof = 0;
 }
 
+namespace dsx {
 void newdemo_goto_end(int to_rewrite)
 {
 	short frame_length=0, byte_count=0, bshort=0;
@@ -3366,6 +3389,7 @@ void newdemo_goto_end(int to_rewrite)
 	newdemo_read_frame_information(0); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	return;
+}
 }
 
 static void newdemo_back_frames(int frames)
@@ -4009,6 +4033,7 @@ void newdemo_start_playback(const char * filename)
 
 }
 
+namespace dsx {
 void newdemo_stop_playback()
 {
 	infile.reset();
@@ -4027,6 +4052,7 @@ void newdemo_stop_playback()
 	
 	if (Game_wind)
 		window_close(Game_wind);               // Exit game loop
+}
 }
 
 

@@ -211,6 +211,7 @@ static int piggy_is_needed(int soundnum);
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_File
  */
+namespace dsx {
 static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
@@ -223,6 +224,7 @@ static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 	dbh->flags = PHYSFSX_readByte(fp);
 	dbh->avg_color = PHYSFSX_readByte(fp);
 	dbh->offset = PHYSFSX_readInt(fp);
+}
 }
 
 /*
@@ -265,6 +267,7 @@ void swap_0_255(grs_bitmap *bmp)
 	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
 }
 
+namespace dsx {
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
 {
 	bitmap_index temp;
@@ -299,6 +302,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 	Num_bitmap_files++;
 
 	return temp;
+}
 }
 
 namespace dsx {
@@ -392,6 +396,7 @@ int piggy_find_sound(const char *name)
 	return i;
 }
 
+namespace dsx {
 static void piggy_close_file()
 {
 	if (Piggy_fp)
@@ -401,6 +406,7 @@ static void piggy_close_file()
 		Current_pigfile[0] = 0;
 #endif
 	}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1276,6 +1282,7 @@ void piggy_read_sounds(void)
 }
 #endif
 
+namespace dsx {
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
@@ -1435,8 +1442,10 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 //@@#endif
 
 }
+}
 
 #if 0
+namespace dsx {
 void piggy_bitmap_page_out_all()
 {
 	int i;
@@ -1459,6 +1468,7 @@ void piggy_bitmap_page_out_all()
 		}
 	}
 
+}
 }
 #endif
 
@@ -1584,6 +1594,7 @@ static void write_int(int i, PHYSFS_File *file)
 #endif
 #endif
 
+namespace dsx {
 void piggy_close()
 {
 	int i;
@@ -1601,6 +1612,7 @@ void piggy_close()
 	free_bitmap_replacements();
 	free_d1_tmap_nums();
 #endif
+}
 }
 
 void remove_char( char * s, char c )

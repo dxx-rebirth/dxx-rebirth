@@ -314,6 +314,7 @@ static void paging_touch_walls()
 	}
 }
 
+namespace dsx {
 void paging_touch_all()
 {
 	pause_game_world_time p;
@@ -354,4 +355,5 @@ void paging_touch_all()
 	paging_touch_vclip(Vclip[VCLIP_POWERUP_DISAPPEARANCE]);
 
 	reset_cockpit();		//force cockpit redraw next time
+}
 }
