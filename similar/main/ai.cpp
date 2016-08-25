@@ -2712,17 +2712,11 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
-
-			// Switch to next gun for next fire.
-			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= robptr->n_guns)
-				aip->CURRENT_GUN = 0;
-		} else {
-			// Switch to next gun for next fire.
-			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= robptr->n_guns)
-				aip->CURRENT_GUN = 0;
 		}
+			// Switch to next gun for next fire.
+			aip->CURRENT_GUN++;
+			if (aip->CURRENT_GUN >= robptr->n_guns)
+				aip->CURRENT_GUN = 0;
 	} else {
 
 
