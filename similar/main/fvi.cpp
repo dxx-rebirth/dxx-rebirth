@@ -783,7 +783,9 @@ static bool obj_in_list(objnum_t objnum,const std::pair<const objnum_t *, const 
 	return std::find(obj_list.first, obj_list.second, objnum) != obj_list.second;
 }
 
+namespace dsx {
 static int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,int facenum);
+}
 
 static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segment_array_t &src)
 {
@@ -1110,6 +1112,7 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also
+namespace dsx {
 fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const vcsegptridx_t seg, const uint_fast32_t sidenum, const uint_fast32_t facenum)
 {
 	const side *side = &seg->sides[sidenum];
@@ -1206,6 +1209,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 #elif defined(DXX_BUILD_DESCENT_II)
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
 #endif
+}
 }
 
 //new function for Mike
