@@ -70,6 +70,7 @@ void HUD_clear_messages()
 	HUD_color = -1;
 }
 
+namespace dsx {
 // ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
 void HUD_render_message_frame()
@@ -124,6 +125,7 @@ void HUD_render_message_frame()
 	}
 
 	gr_set_curfont( GAME_FONT );
+}
 }
 
 static int is_worth_showing(int class_flag)
