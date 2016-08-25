@@ -533,10 +533,6 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 	}
 }
 
-void triggers_frame_process()
-{
-}
-
 /*
  * reads a v29_trigger structure from a PHYSFS_File
  */

@@ -1472,7 +1472,6 @@ void GameProcessFrame(void)
 	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
 		do_special_effects();
 		wall_frame_process();
-		triggers_frame_process();
 	}
 
 	if (Control_center_destroyed) {
