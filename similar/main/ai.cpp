@@ -3617,12 +3617,14 @@ _exit_cheat:
 				if (Game_mode & GM_MULTI)
 				{
 					ai_multi_send_robot_position(obj, -1);
+					const int gun_num =
 #if defined(DXX_BUILD_DESCENT_II)
-					if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-						multi_send_robot_fire(obj, -2, fire_vec);
-					else
+						(aip->SUB_FLAGS & SUB_FLAGS_SPROX)
+						? -2
+						:
 #endif
-						multi_send_robot_fire(obj, -1, fire_vec);
+					-1;
+					multi_send_robot_fire(obj, gun_num, fire_vec);
 				}
 			}
 			break;
