@@ -226,7 +226,6 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								break;
 							case OBJ_PLAYER:	{
 								cobjptridx_t killer = object_none;
-								vms_vector	vforce2;
 #if defined(DXX_BUILD_DESCENT_II)
 								//	Hack! Warning! Test code!
 								if (objp != object_none && Weapon_info[get_weapon_id(objp)].flash && get_player_id(obj0p) == Player_num)
@@ -248,22 +247,26 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								if ((objp != object_none) && (Game_mode & GM_MULTI) && (objp->type == OBJ_PLAYER)) {
 									killer = objp;
 								}
-								vforce2 = vforce;
+								auto vforce2 = vforce;
 								if (parent != object_none ) {
 									killer = parent;
 									if (killer != ConsoleObject)		// if someone else whacks you, cut force by 2x
+									{
 										vforce2.x /= 2;	vforce2.y /= 2;	vforce2.z /= 2;
+									}
 								}
 								vforce2.x /= 2;	vforce2.y /= 2;	vforce2.z /= 2;
 
 								phys_apply_force(obj0p,vforce);
 								phys_apply_rot(obj0p,vforce2);
+								if (obj0p->shields >= 0)
+								{
 #if defined(DXX_BUILD_DESCENT_II)
 								if (Difficulty_level == 0)
 									damage /= 4;
 #endif
-								if ( obj0p->shields >= 0 )
 									apply_damage_to_player(obj0p, killer, damage, 1 );
+								}
 							}
 								break;
 
