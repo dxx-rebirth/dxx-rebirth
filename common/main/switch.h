@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-valptridx.h"
 #include "valptridx.h"
 #include "compiler-array.h"
+#include "dsx-ns.h"
 
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
@@ -166,6 +167,7 @@ constexpr uint8_t trigger_none = 0xff;
 #define Num_triggers	Triggers.get_count()
 
 extern void trigger_init();
+namespace dsx {
 void check_trigger(vcsegptridx_t seg, short side, vcobjptridx_t objnum, int shot);
 int check_trigger_sub(trgnum_t trigger_num, int player_num,int shot);
 
@@ -210,6 +212,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp);
 extern void trigger_read(trigger *t, PHYSFS_File *fp);
 void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
 void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t);
+}
 
 /*
  * reads n trigger structs from a PHYSFS_File and swaps if specified

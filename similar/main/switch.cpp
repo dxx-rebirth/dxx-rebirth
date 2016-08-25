@@ -86,6 +86,7 @@ static void do_link(const trigger &t)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 //close a door
 static void do_close_door(const trigger &t)
 {
@@ -238,6 +239,7 @@ static int (print_trigger_message)(int pnum, const trigger &t, int shot)
 		return 1;
 	return 0;
  }
+}
 #endif
 
 static void do_matcen(const trigger &t)
@@ -251,6 +253,7 @@ static void do_il_on(const trigger &t)
 	trigger_wall_op(t, vsegptridx, wall_illusion_on);
 }
 
+namespace dsx {
 static void do_il_off(const trigger &t)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -703,7 +706,6 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 }
 #endif
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<4>(), t.link_num, t.num_links, t.seg, t.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
