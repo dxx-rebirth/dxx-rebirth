@@ -1260,13 +1260,13 @@ static void multi_message_feedback(void)
 	}
 }
 
-void
-multi_send_macro(int key)
+void multi_send_macro(const int fkey)
 {
 	if (! (Game_mode & GM_MULTI) )
 		return;
 
-	switch(key)
+	unsigned key;
+	switch (fkey)
 	{
 		case KEY_F9:
 			key = 0; break;
@@ -1278,6 +1278,7 @@ multi_send_macro(int key)
 			key = 3; break;
 		default:
 			Int3();
+			return;
 	}
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0])
