@@ -253,7 +253,79 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 //	returns true if powerup consumed
 namespace dsx {
 
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_II)
+template <int r, int g, int b>
+struct player_hit_basic_silent_powerup
+{
+	const char *const desc_pickup;
+	player_hit_basic_silent_powerup(const char *const p) :
+		desc_pickup(p)
+	{
+	}
+	void report() const
+	{
+		powerup_basic_str(r, g, b, 0, desc_pickup);
+	}
+	template <PLAYER_FLAG player_flag>
+		void pickup(player_flags &powerup_flags) const
+		{
+			powerup_flags |= player_flag;
+			report();
+		}
+};
+
+template <int r, int g, int b, powerup_type_t id>
+struct player_hit_basic_sound_powerup : player_hit_basic_silent_powerup<r, g, b>
+{
+	using base_type = player_hit_basic_silent_powerup<r, g, b>;
+	DXX_INHERIT_CONSTRUCTORS(player_hit_basic_sound_powerup, base_type);
+	template <PLAYER_FLAG player_flag>
+		void pickup(player_flags &powerup_flags) const
+		{
+			multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
+			base_type::template pickup<player_flag>(powerup_flags);
+		}
+};
+
+using player_hit_silent_rb_powerup = player_hit_basic_silent_powerup<15, 0, 15>;
+
+struct player_hit_afterburner_powerup : player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>
+{
+	using base_type = player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>;
+	DXX_INHERIT_CONSTRUCTORS(player_hit_afterburner_powerup, base_type);
+	template <PLAYER_FLAG player_flag>
+		void pickup(player_flags &powerup_flags) const
+		{
+			Afterburner_charge = f1_0;
+			base_type::template pickup<player_flag>(powerup_flags);
+		}
+};
+
+struct player_hit_headlight_powerup
+{
+	/* Template parameter unused, but required for signature
+	 * compatibility with the other player_hit_* structures.
+	 */
+	template <PLAYER_FLAG>
+		void pickup(player_flags &powerup_flags) const
+		{
+			process(powerup_flags);
+		}
+	void process(player_flags &powerup_flags) const
+	{
+		const auto active = PlayerCfg.HeadlightActiveDefault;
+		powerup_flags |= active
+			? PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON
+			: PLAYER_FLAG::HEADLIGHT;
+		powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is O%s)", active ? "N" : "FF");
+		multi_digi_play_sample(Powerup_info[POW_HEADLIGHT].hit_sound, F1_0);
+		if (active && (Game_mode & GM_MULTI))
+			multi_send_flags (Player_num);
+	}
+};
+
 template <unsigned TEAM>
 static int player_hit_flag_powerup(player_info &player_info, const char *const desc)
 {
@@ -270,6 +342,40 @@ static int player_hit_flag_powerup(player_info &player_info, const char *const d
 	return 0;
 }
 #endif
+
+struct player_hit_quadlaser_powerup
+{
+	/* Template parameter unused, but required for signature
+	 * compatibility with the other player_hit_* structures.
+	 */
+	template <PLAYER_FLAG>
+		void pickup(player_flags &powerup_flags) const
+		{
+			process(powerup_flags);
+		}
+	void process(player_flags &powerup_flags) const
+	{
+		powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
+		powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!", TXT_QUAD_LASERS);
+		update_laser_weapon_info();
+	}
+};
+
+}
+
+static int player_has_powerup(const char *const desc_have)
+{
+	HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE, desc_have);
+	return (Game_mode & GM_MULTI) ? 0 : pick_up_energy();
+}
+
+template <PLAYER_FLAG player_flag, typename F>
+static int player_hit_powerup(player_flags &powerup_flags, const char *const desc_have, const F &&pickup)
+{
+	return (powerup_flags & player_flag)
+		? player_has_powerup(desc_have)
+		: (pickup.template pickup<player_flag>(powerup_flags), 1);
+}
 
 int do_powerup(const vobjptridx_t obj)
 {
@@ -374,15 +480,7 @@ int do_powerup(const vobjptridx_t obj)
 			used = pick_up_key(15, 15, 7, player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY, TXT_YELLOW, id);
 			break;
 		case POW_QUAD_FIRE:
-			if (!(get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)) {
-				get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
-				powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!",TXT_QUAD_LASERS);
-				update_laser_weapon_info();
-				used=1;
-			} else
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+			used = player_hit_powerup<PLAYER_FLAGS_QUAD_LASERS>(player_info.powerup_flags, TXT_QUAD_LASERS, player_hit_quadlaser_powerup());
 			break;
 
 		case	POW_VULCAN_WEAPON:
@@ -563,29 +661,11 @@ int do_powerup(const vobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_FULL_MAP:
-			if (get_local_player_flags() & PLAYER_FLAGS_MAP_ALL) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the FULL MAP");
-				if (!(Game_mode & GM_MULTI) )
-					used = pick_up_energy();
-			} else {
-				get_local_player_flags() |= PLAYER_FLAGS_MAP_ALL;
-				powerup_basic(15, 0, 15, 0, "FULL MAP!");
-				used=1;
-			}
+			used = player_hit_powerup<PLAYER_FLAGS_MAP_ALL>(player_info.powerup_flags, "the FULL MAP", player_hit_silent_rb_powerup("FULL MAP!"));
 			break;
 
 		case POW_CONVERTER:
-			if (get_local_player_flags() & PLAYER_FLAGS_CONVERTER) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Converter");
-				if (!(Game_mode & GM_MULTI) )
-					used = pick_up_energy();
-			} else {
-				get_local_player_flags() |= PLAYER_FLAGS_CONVERTER;
-			    	powerup_basic(15, 0, 15, 0, "Energy -> shield converter!");
-
-
-				used=1;
-			}
+			used = player_hit_powerup<PLAYER_FLAGS_CONVERTER>(player_info.powerup_flags, "the Converter", player_hit_silent_rb_powerup("Energy -> shield converter!"));
 			break;
 
 		case POW_SUPER_LASER:
@@ -612,50 +692,15 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_AMMO_RACK:
-			if (get_local_player_flags() & PLAYER_FLAGS_AMMO_RACK) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Ammo rack");
-				if (!(Game_mode & GM_MULTI) )
-					used = pick_up_energy();
-			}
-			else {
-				get_local_player_flags() |= PLAYER_FLAGS_AMMO_RACK;
-				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				powerup_basic(15, 0, 15, 0, "AMMO RACK!");
-				used=1;
-			}
+			used = player_hit_powerup<PLAYER_FLAGS_AMMO_RACK>(player_info.powerup_flags, "the Ammo rack", player_hit_basic_sound_powerup<15, 0, 15, POW_AMMO_RACK>("AMMO RACK!"));
 			break;
 
 		case POW_AFTERBURNER:
-			if (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Afterburner");
-				if (!(Game_mode & GM_MULTI) )
-					used = pick_up_energy();
-			}
-			else {
-				get_local_player_flags() |= PLAYER_FLAGS_AFTERBURNER;
-				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				powerup_basic(15, 15, 15, 0, "AFTERBURNER!");
-				Afterburner_charge = f1_0;
-				used=1;
-			}
+			used = player_hit_powerup<PLAYER_FLAGS_AFTERBURNER>(player_info.powerup_flags, "the Afterburner", player_hit_afterburner_powerup("AFTERBURNER!"));
 			break;
 
 		case POW_HEADLIGHT:
-			if (get_local_player_flags() & PLAYER_FLAGS_HEADLIGHT) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_HAVE,"the Headlight boost");
-				if (!(Game_mode & GM_MULTI) )
-					used = pick_up_energy();
-			}
-			else {
-				get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT;
-				multi_digi_play_sample(Powerup_info[get_powerup_id(obj)].hit_sound, F1_0);
-				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
-				if (PlayerCfg.HeadlightActiveDefault)
-					get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT_ON;
-				used=1;
-			   if (Game_mode & GM_MULTI)
-					multi_send_flags (Player_num);
-			}
+			used = player_hit_powerup<PLAYER_FLAGS_HEADLIGHT>(player_info.powerup_flags, "the Headlight boost", player_hit_headlight_powerup());
 			break;
 
 		case POW_FLAG_BLUE:
