@@ -307,10 +307,7 @@ typename T::maximum_size_type get_minimum_size(...);
 }
 
 template <std::size_t amount, uint8_t value = 0xcc>
-static inline detail::pad_type<amount, value> pad()
-{
-	return {};
-}
+using pad = detail::pad_type<amount, value>;
 
 #define DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
 	DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
