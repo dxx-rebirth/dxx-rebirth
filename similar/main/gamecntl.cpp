@@ -209,12 +209,14 @@ int which_bomb()
 
 
    // If hoard game, only let the player drop smart mines
-   if (game_mode_hoard())
+	if (game_mode_hoard())
 		return SMART_MINE_INDEX;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
+	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[bomb] == 0 &&
 		secondary_ammo[SMART_MINE_INDEX + PROXIMITY_INDEX - bomb] != 0)
 	{
@@ -285,9 +287,11 @@ static void do_weapon_n_item_stuff()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
-		auto &secondary_ammo = get_local_player_secondary_ammo();
+		auto &secondary_ammo = player_info.secondary_ammo;
 		if (!secondary_ammo[PROXIMITY_INDEX] && !secondary_ammo[SMART_MINE_INDEX])
 		{
 			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );

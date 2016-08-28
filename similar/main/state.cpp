@@ -1186,9 +1186,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 */
 		std::copy(Primary_last_was_super.begin(), Primary_last_was_super.end(), last_was_super.begin());
 		PHYSFS_write(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
+		std::copy(Secondary_last_was_super.begin(), Secondary_last_was_super.end(), last_was_super.begin());
+		PHYSFS_write(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
 	}
-
-	PHYSFS_write(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
 
 	//	Save flash effect stuff
 	PHYSFS_write(fp, &Flash_effect, sizeof(int), 1);
@@ -1747,7 +1748,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		 */
 		PHYSFS_read(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
 		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Primary_last_was_super.size()), Primary_last_was_super.begin());
-		PHYSFS_read(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
+		PHYSFS_read(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
+		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Secondary_last_was_super.size()), Secondary_last_was_super.begin());
 	}
 
 	if (version >= 12) {

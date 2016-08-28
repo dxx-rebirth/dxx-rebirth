@@ -113,6 +113,7 @@ struct player_info
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 #if defined(DXX_BUILD_DESCENT_II)
 	array<uint8_t, SUPER_WEAPON> Primary_last_was_super;
+	array<uint8_t, SUPER_WEAPON> Secondary_last_was_super;
 #endif
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable

@@ -1147,6 +1147,7 @@ static rgb_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
+			auto &Secondary_last_was_super = get_local_plrobj().ctype.player_info.Secondary_last_was_super;
 			if (Secondary_last_was_super[base_weapon])
 			{
 				if (is_super)

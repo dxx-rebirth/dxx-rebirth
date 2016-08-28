@@ -132,7 +132,6 @@ constexpr array<uint8_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{9,8,7,6,
 constexpr array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,4,3,1,5,0,255,7,6,2}};
 
 //flags whether the last time we use this weapon, it was the 'super' version
-array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 }
 
@@ -470,8 +469,8 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 		newdemo_record_player_weapon(1, weapon_num);
 
 	{
+		auto &plrobj = get_local_plrobj();
 		if (Secondary_weapon != weapon_num) {
-			auto &plrobj = get_local_plrobj();
 			auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
 			if (wait_for_rearm)
 			{
@@ -491,6 +490,7 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 		Delayed_secondary = Secondary_weapon = weapon_num;
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
+		auto &Secondary_last_was_super = plrobj.ctype.player_info.Secondary_last_was_super;
 		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
 	}
@@ -624,7 +624,9 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	has_weapon_result weapon_status;
 
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		current = Secondary_weapon;
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		last_was_super = Secondary_last_was_super[weapon_num];
 		has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
 	}
@@ -758,7 +760,8 @@ int pick_up_secondary(int weapon_index,int count)
 	int	num_picked_up;
 	const auto max = PLAYER_MAX_AMMO(get_local_plrobj(), Secondary_ammo_max[weapon_index]);
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[weapon_index] >= max)
 	{
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, secondary_ammo[weapon_index], SECONDARY_WEAPON_NAMES(weapon_index));
@@ -799,7 +802,7 @@ int pick_up_secondary(int weapon_index,int count)
 
 			if (weapon_index_is_player_bomb(weapon_index) &&
 					!weapon_index_is_player_bomb(Secondary_weapon)) {
-				auto &last = Secondary_last_was_super[PROXIMITY_INDEX];
+				auto &last = player_info.Secondary_last_was_super[PROXIMITY_INDEX];
 				if (weapon_order < SOrderList(last ? SMART_MINE_INDEX : PROXIMITY_INDEX))
 					last = (weapon_index == SMART_MINE_INDEX);
 			}

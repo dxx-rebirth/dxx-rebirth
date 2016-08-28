@@ -490,6 +490,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
 #if defined(DXX_BUILD_DESCENT_II)
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		Secondary_last_was_super = {};
 		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
 		Controls.state.afterburner = 0;
