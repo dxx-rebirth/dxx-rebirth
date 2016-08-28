@@ -134,13 +134,13 @@ constexpr array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,
 
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
-}
 
-namespace dsx {
-static unsigned get_mapped_weapon_index(unsigned weapon_index = Primary_weapon)
+static unsigned get_mapped_weapon_index(const player_info &player_info, const primary_weapon_index_t weapon_index)
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	if (weapon_index == primary_weapon_index_t::LASER_INDEX && get_local_plrobj().ctype.player_info.laser_level > MAX_LASER_LEVEL)
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)player_info;
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (weapon_index == primary_weapon_index_t::LASER_INDEX && player_info.laser_level > MAX_LASER_LEVEL)
 		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
 	return weapon_index;
@@ -404,7 +404,8 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 
 void CyclePrimary ()
 {
-	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index());
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index(player_info, Primary_weapon));
 }
 
 void CycleSecondary ()
@@ -739,10 +740,11 @@ void delayed_autoselect()
 
 static void maybe_autoselect_primary_weapon(int weapon_index)
 {
-	const auto want_switch = [weapon_index]{
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto want_switch = [weapon_index, &player_info]{
 		const auto cutpoint = POrderList(255);
 		const auto weapon_order = POrderList(weapon_index);
-		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(Primary_weapon.get_delayed()));
+		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(player_info, Primary_weapon.get_delayed()));
 	};
 	if (Controls.state.fire_primary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
 	{
@@ -957,7 +959,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	if (better >= cutpoint)
 		/* Preferred weapon is not auto-selectable */
 		return;
-	if (better >= POrderList(get_mapped_weapon_index(Primary_weapon)))
+	if (better >= POrderList(get_mapped_weapon_index(player_info, Primary_weapon)))
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
 	maybe_autoselect_primary_weapon(weapon_index);
