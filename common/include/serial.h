@@ -73,7 +73,7 @@ template <typename T>
 using is_generic_class = typename tt::conditional<is_cxx_array<T>::value, tt::false_type, tt::is_class<T>>::type;
 
 template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
-static inline typename tt::enable_if<tt::is_integral<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
+static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type process_buffer(Accessor &&, A1 &&);
 
 template <typename Accessor, typename A1, typename A1rr = typename tt::remove_reference<A1>::type>
 static inline typename tt::enable_if<tt::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
@@ -82,7 +82,7 @@ template <typename Accessor, typename A1, typename A1rr = typename tt::remove_re
 static inline typename tt::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
 
 template <typename Accessor, typename A1>
-typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &, A1 &);
+static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&, A1 &);
 
 template <typename Accessor, typename A1, typename... Args>
 static void process_buffer(Accessor &, const message<A1, Args...> &);
@@ -203,9 +203,9 @@ template <typename Accessor, typename UDT>
 void postprocess_udt(Accessor &, UDT &) {}
 
 template <typename Accessor, typename UDT>
-static inline void process_udt(Accessor &accessor, UDT &udt)
+static inline void process_udt(Accessor &&accessor, UDT &udt)
 {
-	process_buffer(accessor, udt_to_message(udt));
+	process_buffer(std::forward<Accessor &&>(accessor), udt_to_message(udt));
 }
 
 template <typename Accessor, typename E>
@@ -255,14 +255,24 @@ union pad_storage
 };
 
 template <typename Accessor, std::size_t amount, uint8_t value>
-static inline void process_udt(Accessor &accessor, const pad_type<amount, value> &)
+static inline void process_udt(Accessor &&accessor, const pad_type<amount, value> &)
 {
 	/* If reading from accessor, accessor data is const and buffer is
 	 * overwritten by read.
 	 * If writing to accessor, accessor data is non-const, so initialize
 	 * buffer to be written.
 	 */
-	pad_storage<amount> s(tt::is_const<typename tt::remove_pointer<typename Accessor::pointer>::type>(), value);
+	pad_storage<amount> s(std::is_const<
+		typename std::remove_pointer<
+		/* rvalue reference `Accessor &&` causes `Accessor` to be `T &`
+		 * for some type T.  Use std::remove_reference to get T.  Then
+		 * take the type `pointer` from type T to use as input to
+		 * std::remove_pointer.
+		 */
+			typename std::remove_reference<Accessor>::type
+			::pointer
+		>::type
+	>(), value);
 	for (std::size_t count = amount; count; count -= s.f.size())
 	{
 		if (count < s.f.size())
@@ -315,10 +325,10 @@ using pad = detail::pad_type<amount, value>;
 
 #define _DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
 	template <typename Accessor>	\
-	static inline void process_udt(Accessor &accessor, TYPE &NAME)	\
+	static inline void process_udt(Accessor &&accessor, TYPE &NAME)	\
 	{	\
 		using serial::process_buffer;	\
-		process_buffer(accessor, _SERIAL_UDT_UNWRAP_LIST MEMBERLIST);	\
+		process_buffer(std::forward<Accessor &&>(accessor), _SERIAL_UDT_UNWRAP_LIST MEMBERLIST);	\
 	}	\
 	\
 	__attribute_unused	\
@@ -677,9 +687,9 @@ static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value
 }
 
 template <typename Accessor, typename A1, typename A1rr>
-static inline typename tt::enable_if<tt::is_integral<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
+static inline typename std::enable_if<std::is_integral<A1rr>::value, void>::type process_buffer(Accessor &&accessor, A1 &&a1)
 {
-	process_integer(accessor, a1);
+	process_integer(std::forward<Accessor &&>(accessor), a1);
 }
 
 template <typename Accessor, typename A1, typename A1rr>
@@ -710,26 +720,26 @@ static typename tt::enable_if<!(sizeof(T) == 1 && tt::is_integral<T>::value), vo
 }
 
 template <typename Accessor, typename A1>
-typename tt::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &accessor, A1 &a1)
+static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&accessor, A1 &a1)
 {
-	process_array(accessor, a1);
+	process_array(std::forward<Accessor &&>(accessor), a1);
 }
 
 template <typename Accessor, typename... Args, std::size_t... N>
-static inline void process_message_tuple(Accessor &accessor, const std::tuple<Args...> &t, index_sequence<N...>)
+static inline void process_message_tuple(Accessor &&accessor, const std::tuple<Args...> &t, index_sequence<N...>)
 {
 	detail::sequence({(process_buffer(accessor, detail::extract_value(std::get<N>(t))), static_cast<uint8_t>(0))...});
 }
 
 template <typename Accessor, typename A1, typename... Args>
-static void process_buffer(Accessor &accessor, const message<A1, Args...> &m)
+static void process_buffer(Accessor &&accessor, const message<A1, Args...> &m)
 {
-	process_message_tuple(accessor, m.get_tuple(), make_tree_index_sequence<1 + sizeof...(Args)>());
+	process_message_tuple(std::forward<Accessor &&>(accessor), m.get_tuple(), make_tree_index_sequence<1 + sizeof...(Args)>());
 }
 
 /* Require at least two arguments to prevent self-selection */
 template <typename Accessor, typename A1, typename A2, typename... An>
-static void process_buffer(Accessor &accessor, A1 &&a1, A2 &&a2, An &&... an)
+static void process_buffer(Accessor &&accessor, A1 &&a1, A2 &&a2, An &&... an)
 {
 	detail::sequence({
 		(process_buffer(accessor, std::forward<A1>(a1)),
