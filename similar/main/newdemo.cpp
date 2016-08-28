@@ -3537,10 +3537,9 @@ void newdemo_playback_one_frame()
 		auto &player_info = objp->ctype.player_info;
 		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 			player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
+		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
+			player_info.invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	}
-
-	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return;
