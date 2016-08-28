@@ -2922,7 +2922,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 #if defined(DXX_BUILD_DESCENT_II)
 			if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
-				Omega_charge = (value<=0?f1_0:value);
+				get_local_plrobj().ctype.player_info.Omega_charge = (value<=0?f1_0:value);
 			else
 #endif
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))

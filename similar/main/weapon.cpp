@@ -228,7 +228,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
-			if (energy || Omega_charge)
+			if (energy || get_local_plrobj().ctype.player_info.Omega_charge)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #endif
@@ -1363,7 +1363,7 @@ void DropCurrentWeapon ()
 
 		//dropped weapon has current energy
 
-			objnum->ctype.powerup_info.count = Omega_charge;
+			objnum->ctype.powerup_info.count = get_local_plrobj().ctype.player_info.Omega_charge;
 	}
 #endif
 

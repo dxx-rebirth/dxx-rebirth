@@ -1318,7 +1318,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 				case primary_weapon_index_t::OMEGA_INDEX:
 					if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 					{
-						snprintf(weapon_str, sizeof(weapon_str), "O%03i", Omega_charge * 100/MAX_OMEGA_CHARGE);
+						snprintf(weapon_str, sizeof(weapon_str), "O%03i", get_local_plrobj().ctype.player_info.Omega_charge * 100/MAX_OMEGA_CHARGE);
 						txtweapon = weapon_str;
 					}
 					else
@@ -1490,7 +1490,7 @@ static void hud_show_weapons(void)
 				break;
 #if defined(DXX_BUILD_DESCENT_II)
 			case primary_weapon_index_t::OMEGA_INDEX:
-				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, Omega_charge * 100/MAX_OMEGA_CHARGE);
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, get_local_plrobj().ctype.player_info.Omega_charge * 100/MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2442,6 +2442,7 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 			{
+				auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
 				nd_ammo = Omega_charge;
 				ammo_count = Omega_charge * 100/MAX_OMEGA_CHARGE;
 			}
@@ -3164,7 +3165,7 @@ void draw_hud()
 		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = get_local_player_vulcan_ammo(), true))
 #if defined(DXX_BUILD_DESCENT_II)
 			||
-			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = Omega_charge, true))
+			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = get_local_plrobj().ctype.player_info.Omega_charge, true))
 #endif
 		)
 			newdemo_record_primary_ammo(ammo);

@@ -2009,7 +2009,7 @@ void drop_player_eggs(const vobjptridx_t playerobj)
 
 		objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::OMEGA_INDEX);
 		if (objnum!=object_none)
-			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? Omega_charge : MAX_OMEGA_CHARGE;
+			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? playerobj->ctype.player_info.Omega_charge : MAX_OMEGA_CHARGE;
 #endif
 
 		//	Drop the secondary weapons

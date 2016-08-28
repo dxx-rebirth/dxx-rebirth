@@ -94,6 +94,9 @@ struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
 	fix     homing_object_dist;     // Distance of nearest homing object.
+#if defined(DXX_BUILD_DESCENT_II)
+	fix Omega_charge;
+#endif
 	player_flags powerup_flags;
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 	uint16_t vulcan_ammo;

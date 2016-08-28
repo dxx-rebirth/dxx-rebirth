@@ -567,7 +567,7 @@ int do_powerup(const vobjptridx_t obj)
 		case	POW_OMEGA_WEAPON:
 			used = pick_up_primary(primary_weapon_index_t::OMEGA_INDEX);
 			if (used)
-				Omega_charge = obj->ctype.powerup_info.count;
+				player_info.Omega_charge = obj->ctype.powerup_info.count;
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;

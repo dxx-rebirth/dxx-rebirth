@@ -109,8 +109,6 @@ void release_guided_missile(int player_num);
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
-extern fix Omega_charge;
-extern int Smartmines_dropped;
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
 int ok_to_do_omega_damage(vcobjptr_t weapon);
 void create_robot_smart_children(vobjptridx_t objp, uint_fast32_t count);
@@ -122,7 +120,6 @@ int object_to_object_visibility(vcobjptridx_t obj1, vcobjptr_t obj2, int trans_t
 #endif
 
 namespace dcx {
-extern int Proximity_dropped;
 
 struct muzzle_info
 {

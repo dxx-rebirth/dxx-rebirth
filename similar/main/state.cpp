@@ -1201,6 +1201,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		}
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
+	auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 #endif
 	}
@@ -1775,7 +1776,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	if (version >= 22)
 	{
 		if (secret != secret_restore::survived)
-			Omega_charge = PHYSFSX_readSXE32(fp, swap);
+			get_local_plrobj().ctype.player_info.Omega_charge = PHYSFSX_readSXE32(fp, swap);
 		else
 			PHYSFSX_readSXE32(fp, swap);
 	}

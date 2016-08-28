@@ -495,7 +495,6 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 #define	MIN_OMEGA_CHARGE	(MAX_OMEGA_CHARGE/8)
 #define	OMEGA_CHARGE_SCALE	4			//	FrameTime / OMEGA_CHARGE_SCALE added to Omega_charge every frame.
-fix	Omega_charge = MAX_OMEGA_CHARGE;
 
 #define	OMEGA_CHARGE_SCALE	4
 
@@ -507,6 +506,7 @@ void omega_charge_frame(void)
 {
 	fix	delta_charge, old_omega_charge;
 
+	auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
 	if (Omega_charge == MAX_OMEGA_CHARGE)
 		return;
 
@@ -558,6 +558,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
+		auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
 		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !get_local_player_energy()))) {
 			obj_delete(weapon_objp);
 			return;
