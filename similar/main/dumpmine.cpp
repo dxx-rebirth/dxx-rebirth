@@ -130,9 +130,9 @@ static const char *object_types(const object_base &objp)
 }
 
 // ----------------------------------------------------------------------------
-static const char *object_ids(const vcobjptr_t objp)
+static const char *object_ids(const object_base &objp)
 {
-	switch (objp->type)
+	switch (objp.type)
 	{
 		case OBJ_ROBOT:
 			return Robot_names[get_robot_id(objp)].data();
@@ -1014,30 +1014,30 @@ static void say_totals(PHYSFS_File *my_file, const char *level_name)
 	PHYSFSX_printf(my_file, "\nLevel %s\n", level_name);
 	std::bitset<MAX_OBJECTS> used_objects;
 	while (objects_processed < Highest_object_index+1) {
-		int	objtype, objid, objcount, cur_obj_val, min_obj_val;
+		int	objtype, objid, objcount, min_obj_val;
 
 		//	Find new min objnum.
 		min_obj_val = 0x7fff0000;
-		objnum_t min_objnum = object_none;
+		const object_base *min_objp = nullptr;
 
 		range_for (const auto &&objp, vcobjptridx)
 		{
 			if (!used_objects[objp] && objp->type != OBJ_NONE)
 			{
-				cur_obj_val = objp->type * 1000 + objp->id;
+				const auto cur_obj_val = (objp->type << 10) + objp->id;
 				if (cur_obj_val < min_obj_val) {
-					min_objnum = objp;
+					min_objp = &*objp;
 					min_obj_val = cur_obj_val;
 				}
 			}
 		}
-		if ((min_objnum == object_none) || (Objects[min_objnum].type == 255))
+		if (!min_objp || min_objp->type == OBJ_NONE)
 			break;
 
 		objcount = 0;
 
-		objtype = Objects[min_objnum].type;
-		objid = Objects[min_objnum].id;
+		objtype = min_objp->type;
+		objid = min_objp->id;
 
 		range_for (const auto &&objp, vcobjptridx)
 		{
@@ -1056,8 +1056,7 @@ static void say_totals(PHYSFS_File *my_file, const char *level_name)
 		}
 
 		if (objcount) {
-			const auto &&min_objp = vcobjptr(min_objnum);
-			PHYSFSX_printf(my_file, "Object: %8s %8s %3i\n", object_types(min_objp), object_ids(min_objp), objcount);
+			PHYSFSX_printf(my_file, "Object: %8s %8s %3i\n", object_types(*min_objp), object_ids(*min_objp), objcount);
 		}
 	}
 
