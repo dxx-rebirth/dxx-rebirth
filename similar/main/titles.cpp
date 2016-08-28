@@ -208,10 +208,12 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 namespace dsx {
 void show_titles(void)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	songs_play_song(SONG_TITLE, 1);
+#endif
 	if (CGameArg.SysNoTitles)
 		return;
 #if defined(DXX_BUILD_DESCENT_I)
-	songs_play_song( SONG_TITLE, 1 );
 
 	show_first_found_title_screen(
 		"macplay.pcx",	// Mac Shareware
