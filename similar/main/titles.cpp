@@ -1622,9 +1622,10 @@ void do_end_briefing_screens(const d_fname &filename)
 
 	if (EMULATING_D1)
 	{
+		unsigned song;
 		if (d_stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 		{
-			songs_play_song( SONG_ENDGAME, 1 );
+			song = SONG_ENDGAME;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 #if defined(DXX_BUILD_DESCENT_I)
 			showorder = 1;
@@ -1632,7 +1633,7 @@ void do_end_briefing_screens(const d_fname &filename)
 		}
 		else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 		{
-			songs_play_song( SONG_BRIEFING, 1 );
+			song = SONG_BRIEFING;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 #if defined(DXX_BUILD_DESCENT_I)
 			showorder = 1;
@@ -1640,22 +1641,19 @@ void do_end_briefing_screens(const d_fname &filename)
 		}
 		else
 		{
-			songs_play_song( SONG_ENDGAME, 1 );
+			song = SONG_ENDGAME;
 			level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 		}
+		songs_play_song(song, 1);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (PLAYING_BUILTIN_MISSION)
 	{
-		if (d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
+		unsigned song;
+		if ((d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0 && (song = SONG_TITLE, true)) ||
+			(d_stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0 && (song = SONG_ENDGAME, true)))
 		{
-			songs_play_song( SONG_TITLE, 1 );
-			level_num_screen = 1;
-			showorder = 1;
-		}
-		else if (d_stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0)
-		{
-			songs_play_song( SONG_ENDGAME, 1 );
+			songs_play_song(song, 1);
 			level_num_screen = 1;
 			showorder = 1;
 		}
