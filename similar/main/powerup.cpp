@@ -647,7 +647,7 @@ int do_powerup(const vobjptridx_t obj)
 					player_info.FakingInvul = 0;
 			}
 				pl_flags |= PLAYER_FLAGS_INVULNERABLE;
-				get_local_player_invulnerable_time() = GameTime64;
+				player_info.invulnerable_time = GameTime64;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
 				break;

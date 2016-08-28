@@ -1606,10 +1606,11 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::invul)
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.invulnerable_time = GameTime64+i2f(1000);
 		auto &pl_flags = get_local_player_flags();
 		pl_flags ^= PLAYER_FLAGS_INVULNERABLE;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (pl_flags & PLAYER_FLAGS_INVULNERABLE) ? TXT_ON : TXT_OFF);
-		get_local_player_invulnerable_time() = GameTime64+i2f(1000);
 	}
 
 	if (gotcha == &game_cheats::shields)

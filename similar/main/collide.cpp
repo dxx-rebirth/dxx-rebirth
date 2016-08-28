@@ -1329,6 +1329,7 @@ void do_final_boss_hacks(void)
 		Player_dead_state = player_dead_state::no;
 	}
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
 		auto &shields = get_local_player_shields();
 		if (shields <= 0)
@@ -1339,7 +1340,7 @@ void do_final_boss_hacks(void)
 	auto &pl_flags = get_local_player_flags();
 	if (!(pl_flags & PLAYER_FLAGS_INVULNERABLE)) {
 		pl_flags |= PLAYER_FLAGS_INVULNERABLE;
-		get_local_player_invulnerable_time() = GameTime64;
+		player_info.invulnerable_time = GameTime64;
 	}
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));

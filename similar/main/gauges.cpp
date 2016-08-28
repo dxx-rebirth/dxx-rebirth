@@ -2597,7 +2597,8 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 	gr_set_current_canvas(NULL);
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
-	const auto t = get_local_player_invulnerable_time();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto t = player_info.invulnerable_time;
 	if (t + INVULNERABLE_TIME_MAX - GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
 		static fix time;

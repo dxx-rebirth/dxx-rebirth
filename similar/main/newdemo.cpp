@@ -1849,7 +1849,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+		player_info.invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	auto &Primary_weapon = player_info.Primary_weapon;
 	{
@@ -2483,7 +2483,8 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				if (old_invul != new_invul)
 				{
-					auto &t = get_local_player_invulnerable_time();
+					auto &player_info = get_local_plrobj().ctype.player_info;
+					auto &t = player_info.invulnerable_time;
 					if (!old_invul)
 						DXX_MAKE_VAR_UNDEFINED(t);
 					else
@@ -2501,7 +2502,8 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				if (old_invul != new_invul)
 				{
-					auto &t = get_local_player_invulnerable_time();
+					auto &player_info = get_local_plrobj().ctype.player_info;
+					auto &t = player_info.invulnerable_time;
 					if (!old_invul)
 						t = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 					else
@@ -3332,7 +3334,7 @@ void newdemo_goto_end(int to_rewrite)
 		get_local_player_cloak_time() = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
-		get_local_player_invulnerable_time() = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
+		player_info.invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	{
 		int8_t v;
 		nd_read_byte(&v);

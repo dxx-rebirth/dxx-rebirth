@@ -368,14 +368,15 @@ void init_player_stats_level(const secret_restore secret_flag)
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
-		auto &powerup_flags = plrobj.ctype.player_info.powerup_flags;
+		auto &player_info = plrobj.ctype.player_info;
+		auto &powerup_flags = player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 #if defined(DXX_BUILD_DESCENT_II)
 		powerup_flags &= ~(PLAYER_FLAGS_MAP_ALL);
 #endif
 
 		DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
-		DXX_MAKE_VAR_UNDEFINED(get_local_player_invulnerable_time());
+		DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 
 		const auto all_keys = PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY;
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
@@ -1209,12 +1210,13 @@ void ExitSecretLevel(void)
 //	be invulnerable or cloaked.
 void do_cloak_invul_secret_stuff(fix64 old_gametime)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &pl_flags = get_local_player_flags();
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
 		fix64	time_used;
 
-		auto &t = get_local_player_invulnerable_time();
+		auto &t = player_info.invulnerable_time;
 		time_used = old_gametime - t;
 		t = GameTime64 - time_used;
 	}
