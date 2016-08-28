@@ -84,7 +84,7 @@ constexpr unsigned MAX_PRIMARY_WEAPONS = 10;
 constexpr unsigned MAX_SECONDARY_WEAPONS = 10;
 #endif
 
-extern const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
+extern const array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
 extern const array<powerup_type_t, MAX_PRIMARY_WEAPONS> Primary_weapon_to_powerup;
 extern const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info;

@@ -68,7 +68,9 @@ constexpr tt::integral_constant<uint8_t, 4> has_weapon_result::has_ammo_flag;
 //	Convert primary weapons to indices in Weapon_info array.
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
-const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{0, weapon_id_type::VULCAN_ID, 12, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID}};
+const array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
+	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID
+}};
 const array<weapon_id_type, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_weapon_info{{weapon_id_type::CONCUSSION_ID, weapon_id_type::HOMING_ID, weapon_id_type::PROXIMITY_ID, weapon_id_type::SMART_ID, weapon_id_type::MEGA_ID}};
 
 //for each Secondary weapon, which gun it fires out of
@@ -77,7 +79,7 @@ const array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
 namespace dsx {
-const array<ubyte, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
+const array<weapon_id_type, MAX_PRIMARY_WEAPONS> Primary_weapon_to_weapon_info{{
 	weapon_id_type::LASER_ID, weapon_id_type::VULCAN_ID, weapon_id_type::SPREADFIRE_ID, weapon_id_type::PLASMA_ID, weapon_id_type::FUSION_ID,
 	weapon_id_type::SUPER_LASER_ID, weapon_id_type::GAUSS_ID, weapon_id_type::HELIX_ID, weapon_id_type::PHOENIX_ID, weapon_id_type::OMEGA_ID
 }};

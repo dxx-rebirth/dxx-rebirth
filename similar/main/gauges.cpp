@@ -2201,15 +2201,16 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 	(void)laser_level;
 #endif
 	int x,y;
-	int info_index;
 
 	{
-		info_index = Primary_weapon_to_weapon_info[weapon_num];
-
+		const auto weapon_id = Primary_weapon_to_weapon_info[weapon_num];
+		const auto info_index = 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (info_index == weapon_id_type::LASER_ID && laser_level > MAX_LASER_LEVEL)
-			info_index = weapon_id_type::SUPER_LASER_ID;
+			(weapon_id == weapon_id_type::LASER_ID && laser_level > MAX_LASER_LEVEL)
+			? weapon_id_type::SUPER_LASER_ID
+			:
 #endif
+			weapon_id;
 
 		const gauge_box *box;
 		int pic_x, pic_y, text_x, text_y;
