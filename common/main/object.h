@@ -109,6 +109,7 @@ struct player_info
 	bool FakingInvul;
 	bool lavafall_hiss_playing;
 	uint8_t missile_gun;
+	player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 	int8_t Secondary_weapon;
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.

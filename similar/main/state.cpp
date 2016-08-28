@@ -999,7 +999,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the current weapon info
 	{
-		int8_t v = static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon));
+		int8_t v = static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon));
 		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
 	}
 	PHYSFS_write(fp, &player_info.Secondary_weapon, sizeof(sbyte), 1);
@@ -1501,6 +1501,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		get_local_player().objnum = coop_org_objnum;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Primary_weapon = player_info.Primary_weapon;
 // Restore the weapon states
 	{
 		int8_t v;

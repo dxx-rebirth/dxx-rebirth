@@ -167,7 +167,6 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num);
 
 }
 #endif
-extern player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 
 void auto_select_primary_weapon();
 void auto_select_secondary_weapon();

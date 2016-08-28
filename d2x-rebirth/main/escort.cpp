@@ -1498,6 +1498,7 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 		return 1;
 
 	//	If primary weapon = laser, first try to rip away those nasty quad lasers!
+	const auto Primary_weapon = player_num->ctype.player_info.Primary_weapon;
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 		if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
 			return 1;

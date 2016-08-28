@@ -1511,7 +1511,8 @@ void GameProcessFrame(void)
 
 		auto laser_firing_count = Global_laser_firing_count;
 		if (Auto_fire_fusion_cannon_time) {
-			if (Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			if (player_info.Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
 			else if ((laser_firing_count = (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time)))
 			{
@@ -1703,8 +1704,11 @@ void enable_flicker(segnum_t segnum,int sidenum)
 //				    cannon.
 void FireLaser()
 {
-
-	Global_laser_firing_count = Controls.state.fire_primary?Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count:0;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Primary_weapon = player_info.Primary_weapon;
+	Global_laser_firing_count = Controls.state.fire_primary
+		? Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count
+		: 0;
 
 	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
 		auto &energy = get_local_player_energy();

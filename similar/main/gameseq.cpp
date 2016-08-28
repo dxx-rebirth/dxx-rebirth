@@ -1138,10 +1138,10 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 		if (PHYSFSX_exists(SECRETC_FILENAME,0))
 		{
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			const auto pw_save = Primary_weapon;
+			const auto pw_save = player_info.Primary_weapon;
 			const auto sw_save = player_info.Secondary_weapon;
 			state_restore_all(1, secret_restore::survived, SECRETC_FILENAME, blind_save::no);
-			Primary_weapon = pw_save;
+			player_info.Primary_weapon = pw_save;
 			player_info.Secondary_weapon = sw_save;
 			reset_special_effects();
 			StartSecretLevel();
@@ -1184,10 +1184,10 @@ void ExitSecretLevel(void)
 	{
 		do_screen_message(TXT_SECRET_RETURN);
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		const auto pw_save = Primary_weapon;
+		const auto pw_save = player_info.Primary_weapon;
 		const auto sw_save = player_info.Secondary_weapon;
 		state_restore_all(1, secret_restore::survived, SECRETB_FILENAME, blind_save::no);
-		Primary_weapon = pw_save;
+		player_info.Primary_weapon = pw_save;
 		player_info.Secondary_weapon = sw_save;
 	} else {
 		// File doesn't exist, so can't return to base level.  Advance to next one.

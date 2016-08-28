@@ -1103,7 +1103,8 @@ constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 __attribute_warn_unused_result
 static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 {
-	if (Primary_weapon==consider_weapon)
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (player_info.Primary_weapon == consider_weapon)
 		return hud_rgb_red;
 	else{
 		if (player_has_primary_weapon(consider_weapon).has_weapon())
@@ -1111,7 +1112,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
-			auto &Primary_last_was_super = get_local_plrobj().ctype.player_info.Primary_last_was_super;
+			auto &Primary_last_was_super = player_info.Primary_last_was_super;
 			if (Primary_last_was_super[base_weapon])
 			{
 				if (is_super)
@@ -1176,7 +1177,7 @@ static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
 __attribute_warn_unused_result
 static rgb_t hud_get_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_ammo)
 {
-	if (weapon_index_uses_vulcan_ammo(Primary_weapon))
+	if (weapon_index_uses_vulcan_ammo(get_local_plrobj().ctype.player_info.Primary_weapon))
 		return hud_rgb_red;
 	else if (has_weapon_uses_vulcan_ammo)
 		return hud_rgb_green;
@@ -1459,12 +1460,13 @@ static void hud_show_weapons(void)
 	else
 	{
 		const char *disp_primary_weapon_name;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		const auto Primary_weapon = player_info.Primary_weapon;
 
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 		switch (Primary_weapon) {
 			case primary_weapon_index_t::LASER_INDEX:
 				{
-					auto &player_info = get_local_plrobj().ctype.player_info;
 				if (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS)
 					snprintf(weapon_str, sizeof(weapon_str), "%s %s %i", TXT_QUAD, weapon_name, player_info.laser_level + 1);
 				else
@@ -1512,7 +1514,6 @@ static void hud_show_weapons(void)
 		gr_string(bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
 		const char *disp_secondary_weapon_name;
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Secondary_weapon = player_info.Secondary_weapon;
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
@@ -2435,6 +2436,8 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 	if (weapon_box_user[0] == WBU_WEAPON)
 #endif
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		const auto Primary_weapon = player_info.Primary_weapon;
 		draw_weapon_box(0,Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
@@ -2694,6 +2697,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	missile_ready = allowed_to_fire_missile();
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Primary_weapon = player_info.Primary_weapon;
 	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
 	auto &Secondary_weapon = player_info.Secondary_weapon;
 	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
@@ -3173,6 +3177,7 @@ void draw_hud()
 	{
 		int ammo;
 		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Primary_weapon = player_info.Primary_weapon;
 		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = get_local_player_vulcan_ammo(), true))
 #if defined(DXX_BUILD_DESCENT_II)
 			||

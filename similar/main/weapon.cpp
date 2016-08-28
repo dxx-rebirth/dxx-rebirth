@@ -119,7 +119,6 @@ weapon_info_array Weapon_info;
 namespace dcx {
 unsigned N_weapon_types;
 }
-player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 static sbyte Delayed_secondary;
 
 // autoselect ordering
@@ -405,7 +404,7 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 void CyclePrimary ()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index(player_info, Primary_weapon));
+	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index(player_info, player_info.Primary_weapon));
 }
 
 void CycleSecondary ()
@@ -425,6 +424,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Primary_weapon = player_info.Primary_weapon;
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
@@ -561,6 +561,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Primary_last_was_super = player_info.Primary_last_was_super;
+	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
 	const auto last_was_super = Primary_last_was_super[weapon_num];
 	const auto has_flag = weapon_status.has_weapon_flag;
@@ -698,7 +699,8 @@ void auto_select_weapon(T t)
 // Weapon type: 0==primary, 1==secondary
 void auto_select_primary_weapon()
 {
-		if (!player_has_primary_weapon(Primary_weapon).has_all())
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!player_has_primary_weapon(player_info.Primary_weapon).has_all())
 			auto_select_weapon<cycle_primary_state>({});
 }
 
@@ -711,8 +713,10 @@ void auto_select_secondary_weapon()
 
 void delayed_autoselect()
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!Controls.state.fire_primary)
 	{
+		auto &Primary_weapon = player_info.Primary_weapon;
 		const auto primary_weapon = Primary_weapon.get_active();
 		const auto delayed_primary = Primary_weapon.get_delayed();
 		if (delayed_primary != primary_weapon)
@@ -725,7 +729,6 @@ void delayed_autoselect()
 	}
 	if (!Controls.state.fire_secondary)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		const auto secondary_weapon = player_info.Secondary_weapon;
 		const auto delayed_secondary = Delayed_secondary;
 		if (delayed_secondary != secondary_weapon)
@@ -744,14 +747,14 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 	const auto want_switch = [weapon_index, &player_info]{
 		const auto cutpoint = POrderList(255);
 		const auto weapon_order = POrderList(weapon_index);
-		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(player_info, Primary_weapon.get_delayed()));
+		return weapon_order < cutpoint && weapon_order < POrderList(get_mapped_weapon_index(player_info, player_info.Primary_weapon.get_delayed()));
 	};
 	if (Controls.state.fire_primary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
 	{
 		if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
 		{
 			if (want_switch())
-				Primary_weapon.set_delayed(static_cast<primary_weapon_index_t>(weapon_index));
+				player_info.Primary_weapon.set_delayed(static_cast<primary_weapon_index_t>(weapon_index));
 		}
 	}
 	else if (want_switch())
@@ -912,7 +915,7 @@ void check_to_use_primary_super_laser()
 		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;
 		const auto pwi = POrderList(weapon_index);
 		if (pwi < POrderList(255) &&
-			pwi < POrderList(Primary_weapon))
+			pwi < POrderList(player_info.Primary_weapon))
 		{
 			select_primary_weapon(nullptr, primary_weapon_index_t::LASER_INDEX, 1);
 		}
@@ -959,7 +962,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	if (better >= cutpoint)
 		/* Preferred weapon is not auto-selectable */
 		return;
-	if (better >= POrderList(get_mapped_weapon_index(player_info, Primary_weapon)))
+	if (better >= POrderList(get_mapped_weapon_index(player_info, player_info.Primary_weapon)))
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
 	maybe_autoselect_primary_weapon(weapon_index);
@@ -1298,7 +1301,7 @@ void DropCurrentWeapon ()
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	powerup_type_t drop_type;
-	const auto Primary_weapon = ::Primary_weapon;
+	const auto &Primary_weapon = player_info.Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)

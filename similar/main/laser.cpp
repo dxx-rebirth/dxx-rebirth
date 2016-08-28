@@ -1801,6 +1801,9 @@ int do_laser_firing_player(void)
 	if (Player_dead_state != player_dead_state::no)
 		return 0;
 
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
+	const auto Primary_weapon = player_info.Primary_weapon;
 	const auto weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
 	energy_used = Weapon_info[weapon_index].energy_usage;
 
@@ -1811,8 +1814,6 @@ int do_laser_firing_player(void)
 
 	int uses_vulcan_ammo = weapon_index_uses_vulcan_ammo(Primary_weapon);
 
-	auto &plrobj = get_local_plrobj();
-	auto &player_info = plrobj.ctype.player_info;
 	auto &pl_energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
