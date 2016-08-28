@@ -252,6 +252,25 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 
 //	returns true if powerup consumed
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_II)
+template <unsigned TEAM>
+static int player_hit_flag_powerup(player_info &player_info, const char *const desc)
+{
+	if (!game_mode_capture_flag())
+		return 0;
+	const auto pnum = Player_num;
+	if (get_team(pnum) == TEAM)
+	{
+		player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
+		powerup_basic_str(15, 0, 15, 0, desc);
+		multi_send_got_flag(pnum);
+		return 1;
+	}
+	return 0;
+}
+#endif
+
 int do_powerup(const vobjptridx_t obj)
 {
 	int used=0;
@@ -640,13 +659,7 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_FLAG_BLUE:
-			if (game_mode_capture_flag())			
-				if (get_team(Player_num) == TEAM_RED) {
-					powerup_basic(15, 0, 15, 0, "BLUE FLAG!");
-					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
-					used=1;
-					multi_send_got_flag (Player_num);
-				}
+			used = player_hit_flag_powerup<TEAM_RED>(player_info, "BLUE FLAG!");
 		   break;
 
 		case POW_HOARD_ORB:
@@ -664,13 +677,7 @@ int do_powerup(const vobjptridx_t obj)
 		  break;	
 
 		case POW_FLAG_RED:
-			if (game_mode_capture_flag())			
-				if (get_team(Player_num) == TEAM_BLUE) {
-					powerup_basic(15, 0, 15, 0, "RED FLAG!");
-					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
-					used=1;
-					multi_send_got_flag (Player_num);
-				}
+			used = player_hit_flag_powerup<TEAM_BLUE>(player_info, "RED FLAG!");
 		   break;
 
 //		case POW_HOARD_ORB:
