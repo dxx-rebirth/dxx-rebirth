@@ -1054,7 +1054,7 @@ void newdemo_record_start_demo()
 	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_player_shields())));
 	nd_write_int(nd_record_v_player_flags = get_local_player_flags().get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon)));
-	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon)));
+	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	nd_record_v_player_afterburner = 0;
@@ -1332,8 +1332,9 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 	nd_write_byte( ND_EVENT_PLAYER_WEAPON );
 	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_type = weapon_type));
 	nd_write_byte(static_cast<int8_t>(nd_record_v_weapon_num = weapon_num));
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(weapon_type
-		? static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon))
+		? static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon))
 		: static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon))
 	);
 }
@@ -1855,6 +1856,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_read_byte(&v);
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
+	auto &Secondary_weapon = player_info.Secondary_weapon;
 	nd_read_byte(&Secondary_weapon);
 	if (purpose == PURPOSE_REWRITE)
 	{
@@ -2524,10 +2526,11 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			if (weapon_type == 0)
 				Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 			else
-				Secondary_weapon = static_cast<int>(weapon_num);
+				player_info.Secondary_weapon = static_cast<int>(weapon_num);
 
 			break;
 		}
@@ -2546,16 +2549,17 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(old_weapon);
 				break;
 			}
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (weapon_type == 0)
 					Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 				else
-					Secondary_weapon = static_cast<int>(weapon_num);
+					player_info.Secondary_weapon = static_cast<int>(weapon_num);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (weapon_type == 0)
 					Primary_weapon = static_cast<primary_weapon_index_t>(old_weapon);
 				else
-					Secondary_weapon = static_cast<int>(old_weapon);
+					player_info.Secondary_weapon = static_cast<int>(old_weapon);
 			}
 			break;
 		}
@@ -2942,10 +2946,11 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				get_local_player_secondary_ammo()[Secondary_weapon] = old_ammo;
+				player_info.secondary_ammo[player_info.Secondary_weapon] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				get_local_player_secondary_ammo()[Secondary_weapon] = new_ammo;
+				player_info.secondary_ammo[player_info.Secondary_weapon] = new_ammo;
 			break;
 		}
 
@@ -3315,6 +3320,7 @@ void newdemo_goto_end(int to_rewrite)
 
 	nd_read_byte(reinterpret_cast<int8_t *>(&energy));
 	nd_read_byte(reinterpret_cast<int8_t *>(&shield));
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	get_local_player_energy() = i2f(energy);
 	get_local_player_shields() = i2f(shield);
 	int recorded_player_flags;
@@ -3333,7 +3339,7 @@ void newdemo_goto_end(int to_rewrite)
 	{
 		int8_t v;
 		nd_read_byte(&v);
-		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
+		player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
 	}
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
@@ -3348,7 +3354,6 @@ void newdemo_goto_end(int to_rewrite)
 	int8_t i;
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (player_info.laser_level != laser_level) {
 		player_info.laser_level = laser_level;
 		if (!to_rewrite)
@@ -3741,8 +3746,9 @@ static void newdemo_write_end()
 	nd_write_byte((sbyte)(f2ir(get_local_player_energy())));
 	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
 	nd_write_int(get_local_player_flags().get_player_flags());        // be sure players flags are set
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon)));
-	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(Secondary_weapon)));
+	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	byte_count += 8;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
@@ -3752,7 +3758,6 @@ static void newdemo_write_end()
 		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(player_info.laser_level);
 	byte_count++;
 

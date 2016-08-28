@@ -994,6 +994,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	state_write_player(fp, get_local_player(), get_local_player_shields(), get_local_plrobj().ctype.player_info);
 
 // Save the current weapon info
@@ -1001,7 +1002,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		int8_t v = static_cast<int8_t>(static_cast<primary_weapon_index_t>(Primary_weapon));
 		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
 	}
-	PHYSFS_write(fp, &Secondary_weapon, sizeof(sbyte), 1);
+	PHYSFS_write(fp, &player_info.Secondary_weapon, sizeof(sbyte), 1);
 
 // Save the difficulty level
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
@@ -1173,7 +1174,6 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
 	//save last was super information
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
 		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super{};
@@ -1500,12 +1500,14 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	if (Game_mode & GM_MULTI_COOP)
 		get_local_player().objnum = coop_org_objnum;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 // Restore the weapon states
 	{
 		int8_t v;
 		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
+	auto &Secondary_weapon = player_info.Secondary_weapon;
 	PHYSFS_read(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 	select_primary_weapon(nullptr, Primary_weapon, 0);
@@ -1736,7 +1738,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 	if (version>=12) {
 		//read last was super information
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super;
 		/* Descent 2 shipped with Primary_last_was_super and

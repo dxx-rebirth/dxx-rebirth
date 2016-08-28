@@ -118,7 +118,6 @@ namespace dcx {
 unsigned N_weapon_types;
 }
 player_selected_weapon<primary_weapon_index_t> Primary_weapon;
-sbyte Secondary_weapon;
 static sbyte Delayed_secondary;
 
 // autoselect ordering
@@ -408,7 +407,8 @@ void CyclePrimary ()
 
 void CycleSecondary ()
 {
-	CycleWeapon<cycle_secondary_state>({}, Secondary_weapon);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	CycleWeapon<cycle_secondary_state>({}, player_info.Secondary_weapon);
 }
 
 
@@ -470,6 +470,8 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 
 	{
 		auto &plrobj = get_local_plrobj();
+		auto &player_info = plrobj.ctype.player_info;
+		auto &Secondary_weapon = player_info.Secondary_weapon;
 		if (Secondary_weapon != weapon_num) {
 			auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
 			if (wait_for_rearm)
@@ -625,7 +627,7 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		current = Secondary_weapon;
+		current = player_info.Secondary_weapon;
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		last_was_super = Secondary_last_was_super[weapon_num];
 		has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
@@ -699,7 +701,8 @@ void auto_select_primary_weapon()
 
 void auto_select_secondary_weapon()
 {
-		if (!player_has_secondary_weapon(Secondary_weapon).has_all())
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!player_has_secondary_weapon(player_info.Secondary_weapon).has_all())
 			auto_select_weapon<cycle_secondary_state>({});
 }
 
@@ -719,7 +722,8 @@ void delayed_autoselect()
 	}
 	if (!Controls.state.fire_secondary)
 	{
-		const auto secondary_weapon = Secondary_weapon;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		const auto secondary_weapon = player_info.Secondary_weapon;
 		const auto delayed_secondary = Delayed_secondary;
 		if (delayed_secondary != secondary_weapon)
 		{
@@ -801,7 +805,8 @@ int pick_up_secondary(int weapon_index,int count)
 			//we want to do a mini-auto-selection that applies to the drop bomb key
 
 			if (weapon_index_is_player_bomb(weapon_index) &&
-					!weapon_index_is_player_bomb(Secondary_weapon)) {
+				!weapon_index_is_player_bomb(player_info.Secondary_weapon))
+			{
 				auto &last = player_info.Secondary_last_was_super[PROXIMITY_INDEX];
 				if (weapon_order < SOrderList(last ? SMART_MINE_INDEX : PROXIMITY_INDEX))
 					last = (weapon_index == SMART_MINE_INDEX);
@@ -1395,7 +1400,9 @@ void DropSecondaryWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	auto &secondary_ammo = get_local_player_secondary_ammo()[Secondary_weapon];
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Secondary_weapon = player_info.Secondary_weapon;
+	auto &secondary_ammo = player_info.secondary_ammo[Secondary_weapon];
 	if (secondary_ammo == 0)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");

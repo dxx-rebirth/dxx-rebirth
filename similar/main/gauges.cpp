@@ -1139,15 +1139,16 @@ static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 __attribute_warn_unused_result
 static rgb_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 {
-	if (Secondary_weapon==consider_weapon)
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (player_info.Secondary_weapon == consider_weapon)
 		return hud_rgb_red;
 	else{
-		if (get_local_player_secondary_ammo()[consider_weapon]>0)
+		if (player_info.secondary_ammo[consider_weapon])
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
-			auto &Secondary_last_was_super = get_local_plrobj().ctype.player_info.Secondary_last_was_super;
+			auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 			if (Secondary_last_was_super[base_weapon])
 			{
 				if (is_super)
@@ -1511,9 +1512,11 @@ static void hud_show_weapons(void)
 		gr_string(bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
 		const char *disp_secondary_weapon_name;
 
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Secondary_weapon = player_info.Secondary_weapon;
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
-		snprintf(weapon_str, sizeof(weapon_str), "%s %u", disp_secondary_weapon_name, get_local_player_secondary_ammo()[Secondary_weapon]);
+		snprintf(weapon_str, sizeof(weapon_str), "%s %u", disp_secondary_weapon_name, player_info.secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, nullptr);
 		gr_string(bmwx - w, y - line_spacing, weapon_str, w, h);
 
@@ -2470,10 +2473,12 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 	if (weapon_box_user[1] == WBU_WEAPON)
 #endif
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Secondary_weapon = player_info.Secondary_weapon;
 		draw_weapon_box(1,Secondary_weapon);
 		if (weapon_box_states[1] == WS_SET)
 		{
-			const auto ammo = get_local_player_secondary_ammo()[Secondary_weapon];
+			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_secondary_ammo(ammo);
 			draw_secondary_ammo_info(ammo, multires_gauge_graphic);
@@ -2687,7 +2692,9 @@ void show_reticle(int reticle_type, int secondary_display)
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
+	auto &Secondary_weapon = player_info.Secondary_weapon;
 	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
 
 	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS))
@@ -3164,14 +3171,15 @@ void draw_hud()
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
 		int ammo;
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = get_local_player_vulcan_ammo(), true))
 #if defined(DXX_BUILD_DESCENT_II)
 			||
-			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = get_local_plrobj().ctype.player_info.Omega_charge, true))
+			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = player_info.Omega_charge, true))
 #endif
 		)
 			newdemo_record_primary_ammo(ammo);
-		newdemo_record_secondary_ammo(get_local_player_secondary_ammo()[Secondary_weapon]);
+		newdemo_record_secondary_ammo(player_info.secondary_ammo[player_info.Secondary_weapon]);
 	}
 	if (PlayerCfg.HudMode == HudType::Hidden) // no hud, "immersion mode"
 		return;

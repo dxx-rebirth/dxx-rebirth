@@ -1507,7 +1507,7 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 		if (maybe_steal_primary_weapon(player_num, Primary_weapon))
 			return 1;
 
-	if (maybe_steal_secondary_weapon(player_num, Secondary_weapon))
+	if (maybe_steal_secondary_weapon(player_num, player_num->ctype.player_info.Secondary_weapon))
 		return 1;
 
 	//	See what the player has and try to snag something.

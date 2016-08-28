@@ -241,7 +241,10 @@ static void do_weapon_n_item_stuff()
 	}
 
 	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
-		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count;
+	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[player_info.Secondary_weapon]].fire_count;
+	}
 
 	if (Global_missile_firing_count) {
 		do_missile_firing(0);

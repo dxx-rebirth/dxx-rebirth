@@ -2275,16 +2275,15 @@ void release_guided_missile(int player_num)
 void do_missile_firing(int drop_bomb)
 {
 	int gun_flag=0;
-	int bomb = which_bomb();
-	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
 	fix fire_frame_overhead = 0;
 
 	Network_laser_track = object_none;
-
-	Assert(weapon < MAX_SECONDARY_WEAPONS);
-
 	auto &plrobj = get_local_plrobj();
-	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
+	const auto bomb = which_bomb();
+	auto &player_info = plrobj.ctype.player_info;
+	const auto weapon = drop_bomb ? bomb : player_info.Secondary_weapon;
+	assert(weapon < MAX_SECONDARY_WEAPONS);
+	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
@@ -2351,7 +2350,7 @@ void do_missile_firing(int drop_bomb)
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon
-		if (!drop_bomb || Secondary_weapon == bomb)
+		if (!drop_bomb || player_info.Secondary_weapon == bomb)
 			auto_select_secondary_weapon();		//select next missile, if this one out of ammo
 	}
 }
