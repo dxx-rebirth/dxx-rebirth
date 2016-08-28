@@ -462,6 +462,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			return primary_weapon_index_t::LASER_INDEX;
 		}(), 0);
 #if defined(DXX_BUILD_DESCENT_II)
+		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		Primary_last_was_super[0] = 0;
 		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i)
 		{

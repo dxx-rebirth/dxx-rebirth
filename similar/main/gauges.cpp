@@ -1111,6 +1111,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
 			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
+			auto &Primary_last_was_super = get_local_plrobj().ctype.player_info.Primary_last_was_super;
 			if (Primary_last_was_super[base_weapon])
 			{
 				if (is_super)
@@ -1204,7 +1205,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	hud_set_vulcan_ammo_fontcolor(has_weapon_uses_vulcan_ammo);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
-		((primary_weapon_flags & gauss_mask) && (Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
+		((primary_weapon_flags & gauss_mask) && (get_local_plrobj().ctype.player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
 		? 'G'
 		: 
 #endif

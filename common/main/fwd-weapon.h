@@ -123,7 +123,6 @@ enum secondary_weapon_index_t : uint8_t;
 #define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)
 #define SUPER_WEAPON        5
 //flags whether the last time we use this weapon, it was the 'super' version
-extern array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 extern array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 //for each Secondary weapon, which gun it fires out of

@@ -132,7 +132,6 @@ constexpr array<uint8_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{9,8,7,6,
 constexpr array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,4,3,1,5,0,255,7,6,2}};
 
 //flags whether the last time we use this weapon, it was the 'super' version
-array<uint8_t, MAX_PRIMARY_WEAPONS> Primary_last_was_super;
 array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_last_was_super;
 #endif
 }
@@ -423,14 +422,14 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 		newdemo_record_player_weapon(0, weapon_num);
 
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
                         Fusion_charge=0;
 			//end edit - Victor Rachels
 #endif
-			auto &plrobj = get_local_plrobj();
-			auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
+			auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 			if (wait_for_rearm)
 			{
 				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
@@ -447,6 +446,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
+		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
 	}
@@ -554,6 +554,8 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #elif defined(DXX_BUILD_DESCENT_II)
 	has_weapon_result weapon_status;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Primary_last_was_super = player_info.Primary_last_was_super;
 	const auto current = Primary_weapon.get_active();
 	const auto last_was_super = Primary_last_was_super[weapon_num];
 	const auto has_flag = weapon_status.has_weapon_flag;

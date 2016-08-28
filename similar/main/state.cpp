@@ -1173,7 +1173,21 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
 	//save last was super information
-	PHYSFS_write(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	{
+		auto &Primary_last_was_super = player_info.Primary_last_was_super;
+		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super{};
+		/* Descent 2 shipped with Primary_last_was_super and
+		 * Secondary_last_was_super each sized to contain MAX_*_WEAPONS,
+		 * but only the first half of those are ever used.
+		 * Unfortunately, the save file format is defined as saving
+		 * MAX_*_WEAPONS for each.  Copy into a temporary, then write
+		 * the temporary to the file.
+		 */
+		std::copy(Primary_last_was_super.begin(), Primary_last_was_super.end(), last_was_super.begin());
+		PHYSFS_write(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
+	}
+
 	PHYSFS_write(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
 
 	//	Save flash effect stuff
@@ -1721,7 +1735,18 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 	if (version>=12) {
 		//read last was super information
-		PHYSFS_read(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Primary_last_was_super = player_info.Primary_last_was_super;
+		array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super;
+		/* Descent 2 shipped with Primary_last_was_super and
+		 * Secondary_last_was_super each sized to contain MAX_*_WEAPONS,
+		 * but only the first half of those are ever used.
+		 * Unfortunately, the save file format is defined as saving
+		 * MAX_*_WEAPONS for each.  Read into a temporary, then copy the
+		 * meaningful elements to the live data.
+		 */
+		PHYSFS_read(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
+		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Primary_last_was_super.size()), Primary_last_was_super.begin());
 		PHYSFS_read(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
 	}
 
