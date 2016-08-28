@@ -1791,7 +1791,6 @@ int do_laser_firing_player(void)
 {
 	fix		energy_used;
 	int		ammo_used;
-	int		weapon_index;
 	int		rval = 0;
 	int 		nfires = 1;
 	static int Spreadfire_toggle=0;
@@ -1802,7 +1801,7 @@ int do_laser_firing_player(void)
 	if (Player_dead_state != player_dead_state::no)
 		return 0;
 
-	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
+	const auto weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
 	energy_used = Weapon_info[weapon_index].energy_usage;
 
 	if (Difficulty_level < 2)
@@ -1819,7 +1818,7 @@ int do_laser_firing_player(void)
 	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
 	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
-	if (weapon_index == primary_weapon_index_t::HELIX_INDEX)
+	if (weapon_index == weapon_id_type::HELIX_ID)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
