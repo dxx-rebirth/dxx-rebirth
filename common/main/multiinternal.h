@@ -104,7 +104,8 @@
 #include "dxxsconf.h"
 #include "compiler-type_traits.h"
 
-enum multiplayer_command_t {
+enum multiplayer_command_t : uint8_t
+{
 	for_each_multiplayer_command(define_multiplayer_command)
 };
 
@@ -151,10 +152,6 @@ static inline void multi_serialize_write(int priority, const T &t)
 }
 
 template <multiplayer_command_t C>
-static inline decltype(serial::pad<1, static_cast<uint8_t>(C)>()) multiplayer_command()
-{
-	static_assert(static_cast<uint8_t>(C) == static_cast<unsigned>(C), "command truncated");
-	return serial::pad<1, static_cast<uint8_t>(C)>();
-}
+using multiplayer_command = serial::pad<1, static_cast<uint8_t>(C)>;
 
 #endif
