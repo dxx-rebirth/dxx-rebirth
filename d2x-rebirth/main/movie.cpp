@@ -235,7 +235,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 	ogl_ubitblt_i(
 		bufw*scale, bufh*scale,
 		dstx, dsty,
-		bufw, bufh, 0, 0, source_bm, grd_curcanv->cv_bitmap, GameCfg.MovieTexFilt);
+		bufw, bufh, 0, 0, source_bm, grd_curcanv->cv_bitmap, (GameCfg.MovieTexFilt)?OGL_TEXFILT_TRLINEAR:OGL_TEXFILT_CLASSIC);
 
 	glEnable (GL_BLEND);
 #else

@@ -76,6 +76,7 @@ Cfg GameCfg;
 #define AspectYStr "AspectY"
 #define WindowModeStr "WindowMode"
 #define TexFiltStr "TexFilt"
+#define TexAnisStr "TexAnisotropy"
 #if defined(DXX_BUILD_DESCENT_II)
 #define MovieTexFiltStr "MovieTexFilt"
 #define MovieSubtitlesStr "MovieSubtitles"
@@ -128,6 +129,7 @@ int ReadConfigFile()
 	GameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
 	CGameCfg.TexFilt = 0;
+	CGameCfg.TexAnisotropy = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = 0;
 	GameCfg.MovieSubtitles = 0;
@@ -203,6 +205,8 @@ int ReadConfigFile()
 			convert_integer(CGameCfg.WindowMode, value);
 		else if (cmp(lb, eq, TexFiltStr))
 			convert_integer(CGameCfg.TexFilt, value);
+		else if (cmp(lb, eq, TexAnisStr))
+			convert_integer(CGameCfg.TexAnisotropy, value);
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (cmp(lb, eq, MovieTexFiltStr))
 			convert_integer(GameCfg.MovieTexFilt, value);
@@ -262,6 +266,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, CGameCfg.TexFilt);
+	PHYSFSX_printf(infile, "%s=%i\n", TexAnisStr, CGameCfg.TexAnisotropy);
 #if defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);

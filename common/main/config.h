@@ -42,6 +42,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool Grabinput;
 	bool WindowMode;
 	int TexFilt;
+	bool TexAnisotropy;
 	array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;

@@ -1510,10 +1510,10 @@ enum {
 };
 #define DXX_OGL0_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Texture Filtering:", opt_gr_texfilt)	\
-	DXX_MENUITEM(VERB, RADIO, "None (Classical)", opt_filter_none, 0, optgrp_texfilt)	\
-	DXX_MENUITEM(VERB, RADIO, "Bilinear", opt_filter_bilinear, 0, optgrp_texfilt)	\
-	DXX_MENUITEM(VERB, RADIO, "Trilinear", opt_filter_trilinear, 0, optgrp_texfilt)	\
-	DXX_MENUITEM(VERB, RADIO, "Anisotropic", opt_filter_anisotropic, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Classic", opt_filter_none, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Blocky Filtered", opt_filter_upscale, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, RADIO, "Smooth", opt_filter_trilinear, 0, optgrp_texfilt)	\
+	DXX_MENUITEM(VERB, CHECK, "Anisotropic Filtering", opt_filter_anisotropy, CGameCfg.TexAnisotropy)	\
 	D2X_OGL_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank2)	\
 
@@ -1527,7 +1527,7 @@ enum {
 #define D2X_OGL_GRAPHICS_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_OGL_GRAPHICS_MENU(VERB)	\
-	DXX_MENUITEM(VERB, CHECK, "Movie Filter", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
+	DXX_MENUITEM(VERB, CHECK, "Cutscene Smoothing", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
 #endif
 
 #else
@@ -1550,11 +1550,10 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 				gr_palette_set_gamma(items[citem].value);
 #ifdef OGL
 			else
-			if (citem == opt_filter_anisotropic && ogl_maxanisotropy <= 1.0)
+			if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0)
 			{
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
-				items[opt_filter_trilinear].value = 1;
-				items[opt_filter_anisotropic].value = 0;
+				items[opt_filter_anisotropy].value = 0;
 			}
 #endif
 			break;
@@ -1592,12 +1591,13 @@ void graphics_config()
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
-	for (uint_fast32_t i = 0; i != 4; ++i)
+	for (uint_fast32_t i = 0; i != 3; ++i)
 		if (m[i+opt_filter_none].value)
 		{
 			CGameCfg.TexFilt = i;
 			break;
 		}
+	CGameCfg.TexAnisotropy = m[opt_filter_anisotropy].value;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
 #endif
