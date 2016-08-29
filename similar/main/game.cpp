@@ -483,7 +483,7 @@ void calc_frame_time()
 		if (Game_mode & GM_MULTI)
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (may_sleep)
-			timer_delay(F1_0>>8);
+			timer_delay_ms(1);
 	}
 
 	if ( cheats.turbo )

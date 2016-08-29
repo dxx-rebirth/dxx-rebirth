@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "automap.h"
 #include "rbaudio.h"
+#include "args.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "args.h"
 #include "gamepal.h"
@@ -1553,6 +1554,8 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(wind, event, menu);
 		case EVENT_IDLE:
+			if (!(Game_mode & GM_MULTI && Game_wind))
+				timer_delay2(CGameArg.SysMaxFPS);
 			break;
 		case EVENT_WINDOW_DRAW:
 			return newmenu_draw(wind, menu);
@@ -2058,7 +2061,8 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);
 		case EVENT_IDLE:
-			timer_delay2(50);
+			if (!(Game_mode & GM_MULTI && Game_wind))
+				timer_delay2(CGameArg.SysMaxFPS);
 			return listbox_mouse(wind, event, lb, -1);
 		case EVENT_WINDOW_DRAW:
 			return listbox_draw(wind, lb);
