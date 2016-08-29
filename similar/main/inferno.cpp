@@ -204,6 +204,7 @@ static void print_commandline_help()
 		VERB("                                    4: Immediately sync after buffer swap\n")	\
 		VERB("                                    5: Auto. use mode 2 if available, 0 otherwise\n")	\
 		VERB("  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: " DXX_STRINGIZE(OGL_SYNC_WAIT_DEFAULT) ")\n")	\
+		VERB("  -gl_darkedges                 Re-enable dark edges around filtered textures (as present in earlier versions of the engine)\n")	\
 	)	\
 	DXX_if_defined(USE_UDP, (	\
 		VERB("\n Multiplayer:\n\n")	\

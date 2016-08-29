@@ -96,6 +96,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #ifdef OGL
 	bool OglFixedFont;
 	SyncGLMethod OglSyncMethod;
+	bool OglDarkEdges;
 	bool DbgUseOldTextureMerge;
 	bool DbgGlIntensity4Ok;
 	bool DbgGlReadPixelsOk;

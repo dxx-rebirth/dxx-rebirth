@@ -291,6 +291,8 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.OglSyncMethod = arg_enum<SyncGLMethod>(pp, end);
 		else if (!d_stricmp(p, "-gl_syncwait"))
 			CGameArg.OglSyncWait = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-gl_darkedges"))
+			CGameArg.OglDarkEdges = true;
 #endif
 
 	// Multiplayer Options

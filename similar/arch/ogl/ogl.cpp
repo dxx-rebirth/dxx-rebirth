@@ -646,9 +646,8 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glEnableClientState(GL_COLOR_ARRAY);
 	
 	//cross
-	{
-		array<GLfloat, 8 * 4> cross_lca;
-		GLfloat *cross_lca_ptr;
+	array<GLfloat, 8 * 4> cross_lca;
+	GLfloat *cross_lca_ptr;
 	if (cross)
 	{
 		for (uint_fast32_t i = 0; i != cross_lca.size(); i += 8)
@@ -665,9 +664,11 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 		cross_lca_ptr = cross_lca.data();
 	}
 	else
+	{
 		cross_lca_ptr = dark_lca.data();
-		glColorPointer(4, GL_FLOAT, 0, cross_lca_ptr);
 	}
+	glColorPointer(4, GL_FLOAT, 0, cross_lca_ptr);
+
 	static const array<GLfloat, 8 * 2> cross_lva{{
 		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
 	}};
@@ -1504,6 +1505,7 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 	tex.u = static_cast<float>(static_cast<double>(tex.w) / static_cast<double>(tex.tw));
 	tex.v = static_cast<float>(static_cast<double>(tex.h) / static_cast<double>(tex.th));
 
+	auto *bufP = texbuf.get();
 	const uint8_t *outP = texbuf.get();
 	if (data) {
 		if (bm_flags >= 0)
@@ -1514,11 +1516,11 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 				outP = data;
 			else {
 				int h, w, tw;
-				
+
 				h = tex.lw / tex.w;
 				w = (tex.w - dxo) * h;
 				data += tex.lw * dyo + h * dxo;
-				auto *bufP = texbuf.get();
+				
 				tw = tex.tw * h;
 				h = tw - w;
 				for (; dyo < tex.h; dyo++, data += tex.lw) {
@@ -1531,6 +1533,92 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 			}
 		}
 	}
+
+	//bleed color (rgb) into the alpha area, to deal with "dark edges problem"
+	if ((tex.format == GL_RGBA) && texfilt && !CGameArg.OglDarkEdges)
+	{
+		GLubyte *p = bufP;
+		GLubyte *pdone = p + (4 * tex.tw * tex.th);
+		int line = 4 * tex.tw;
+		p += 4;
+		pdone -= 4;
+		GLubyte *ptop = p + line;
+		GLubyte *pbottom = pdone - line;
+
+		for (; p < pdone; p += 4)
+		{
+			//offsets 0 to 2 are r, g, b. offset 3 is alpha. 0x00 is transparent, 0xff is opaque.
+			if (! *(p + 3))
+			{
+				if (*(p - 1))
+				{
+					*p = *(p - 4);
+					*(p + 1) = *(p - 3);
+					*(p + 2) = *(p - 2);
+					continue;
+				} //from left
+				if (*(p + 7))
+				{
+					*p = *(p + 4);
+					*(p + 1) = *(p + 5);
+					*(p + 2) = *(p + 6);
+					continue;
+				} //from right
+				if (p >= ptop)
+				{
+					if (*(p - line + 3))
+					{
+						*p = *(p - line);
+						*(p + 1) = *(p - line + 1);
+						*(p + 2) = *(p - line + 2);
+						continue;
+					} //from above
+				}
+				if (p < pbottom)
+				{
+					if (*(p + line + 3))
+					{
+						*p = *(p + line);
+						*(p + 1) = *(p + line + 1);
+						*(p + 2) = *(p + line + 2);
+						continue;
+					} //from below
+					if (*(p + line - 1))
+					{
+						*p = *(p + line - 4);
+						*(p + 1) = *(p + line - 3);
+						*(p + 2) = *(p + line - 2);
+						continue;
+					} //bottom left
+					if (*(p + line + 7))
+					{
+						*p = *(p + line + 4);
+						*(p + 1) = *(p + line + 5);
+						*(p + 2) = *(p + line + 6);
+						continue;
+					} //bottom right
+				}
+				if (p >= ptop)
+				{
+					if (*(p - line - 1))
+					{
+						*p = *(p - line - 4);
+						*(p + 1) = *(p - line - 3);
+						*(p + 2) = *(p - line - 2);
+						continue;
+					} //top left
+					if (*(p - line + 7))
+					{
+						*p = *(p - line + 4);
+						*(p + 1) = *(p - line + 5);
+						*(p + 2) = *(p - line + 6);
+						continue;
+					} //top right
+				}
+			}
+		}
+	}
+
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex.handle);
 #ifndef OGLES
