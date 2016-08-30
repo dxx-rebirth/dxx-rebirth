@@ -60,10 +60,7 @@ Needed files:
 =============
 
    Since D1X-Rebirth is a Sourceport of the Descent-Engine you will need the Game-Content data files to run
-   the game. You don't own the full game, yet?
-   Just visit GOOD OLD GAMES via:
-   http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
-   and download it for a very low price! DRM-FREE!
+   the game. You can use your original Floppies, CDs or files from previously bought GOG or Steam versions.
 
    Following files are needed to run the game:
    descent.hog

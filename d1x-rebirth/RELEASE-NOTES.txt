@@ -1,34 +1,30 @@
 RELEASE NOTES
 =============
 
-What's new in 0.58.1
---------------------
-* Fixed some bugs regarding reactor, making the game virtually unplayable for a lot of people
-
-
-What's new in 0.58.0
---------------------
-* Several fixes and improvements for Multiplayer - especially Coop savestates
-* Sensitivity/Ramping sliders for keyboard input
-* More efficient postional data for Multiplayer, making ship positions more accurate and require less traffic (Thanks to v66r)
-* New file extension for AddOns (.dxa)
-* Key combination ALT+ENTER will not work ingame anymore to not interrupt player input
-* Command-line option to disable mouse cursor without disabling the mouse altogether
-* Support for Raspberry Pi by derhass
-* HUD style "no HUD"
-* Fixes for lighting code which wasn't updating correctly all the time
-* Improvement for transparency effects that won't make certain sprites disappear in front of bright surfaces
-* Support for hmp tempo setting (Thanks to Yarn)
-* Improvements and fixes for Shareware/Demo data
-* Improvements for firing mechanism, keeping fire rate accurate at all FPS
-* More fixes and improvements (see CHANGELOG.txt)
-
-
-Special notes for this release
-------------------------------
-* AddOns now use filename extension ".dxa". Your old AddOns will not work anymore. You can either re-download them or simply rename them from *.zip to *.dxa.
+What's new in 0.60
+------------------
+* Merged code bases and massive code refactorization. [Massive thanks to kp]
+* Homing projectiles now behave like in the original game running at 30 FPS! [Thanks to Drakona, Lothar, roncli, A Future Pilot, Ryusei117 and more]
+* Fixed FPS fluctuations with VSync. [Thanks to derhass]
+* Flashing effects properly scale to ingame brightness setting.
+* In addition to quicksave, there is now a quickload key!
+* Original base input sensitivity for all devices and mouse overrun option for mouse. [Thanks to the Retro team]
+* Improved collision detection, fixing player damage being way too low in some ocassions. [Thanks to Drakona]
+* Reworked OPTIONS menu.
+* New texture filtering options! [Thanks to beware]
+* Optional timers displaying countdowns for cloak and invulnerability.
+* New tracker for Multiplayer games.
+* Drastically improved positional accuracy and less latency in Multiplayer games.
+* Revamped powerup management in Multiplayer which properly handles and prevents loss and excess of powerups.
+* Important packets in Mulitplayer are handled in proper order, fixing a multitude of packet-loss related issues.
+* A plethora of new Multiplayer options. [Thanks to the Retro team, A Future Pilot and many more]
+* "Bright Players" Multiplayer option will now only affect players instead of all polygon models.
+* New Multiplayer GAME INFO screen that can be toggled ingame, too.
+* Fixed some Multiplayer scoring oddities.
+* ... and many, many more bugfixes and improvements.
 
 
 Known issues
 ------------
 * On Windows the mouse is not correctly released if using ALT+TAB to minimize the game. This is not a bug in the program but rather the SDL library. It can be worked around by pausing the game and using ALT+ENTER to get the game to windowed mode. The mosue should not be stuck then anymore.
+* Mac builds may suffer from crashes (or other random glitches) when playing MIDI music. This is not a bug in the program but rather an issue in timidity which SDL_mixer uses to play these files. Usingf a Soundtrack AddOn (which contains OGG files) should fix that problem.

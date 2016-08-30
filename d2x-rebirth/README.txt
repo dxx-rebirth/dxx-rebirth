@@ -8,31 +8,32 @@ http://www.dxx-rebirth.com
 0. Introduction:
 ================
 
-   D2X-Rebirth is based on a late D2X-CVS Source, coded and released by Bradley Bell and his team.
-   I spend much time to improve the Sourcecode, tried to fix bugs in there and added some improvements.
-   It is the goal of DXX-Rebirth to keep these games alive and the result is a very stable version of
-   the Descent ][ port - called D2X-Rebirth.
-   I hope you enjoy the game as you did when you played it the first time.
-   If you have something to say about my release, feel free to contact me at zico [at] dxx-rebirth [dot] com
+   DXX-Rebirth is based on the late D1X and D2X source ports (which, in turn, were based on the original
+   Descent source and LDescent). The Rebirth Team has spent a lot of time working to improve the source code
+   by fixing old bugs and adding some improvements, while always staying true to our philosophy: Keep it Descent!
+   It is the goal of DXX-Rebirth to keep Descent 1 & 2 alive and well, updating them for modern PCs while also
+   keeping them the same games you remember playing back in 1995!
+   If you have any questions, comments, or suggestions, contact zico [at] dxx-rebirth [dot] com, or come to
+   our forum: http://dxx-rebirth.com/frm
+   Now Material Defender...Prepare for Descent!
 
 
 1. Features:
 ============
 
-   DXX-Rebirth has every little feature you already may know from the DOS Version of Descent and much more.
+   DXX-Rebirth has every little feature you may remember from the original Descent 1&2 and much more.
 
    For example:
-   * Plays Descent and Descent 2 and all their AddOns and third-party levels.
-   * DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIX), Mac OS X 10.4+ and Windows (7, 8, 8.1, 10). Still the code can be compiled on many other systems as well.
-   * OpenGL provides a fast and smooth rendering - even on low-end systems.
-   * Optionally you can enbale several effects like Transparency, Colored lighting, Texture Filtering, FSAA, etc.
-   * Thanks to SDL, a wide palette of Joysticks are supported. Also you can use more Joysticks, buttons and axes than you can ever operate in your state of evolution.
-   * If you prefer steering your Pyro with a mouse, you will not have the problem that the movement becomes slow in high game speed.
+   * Full compatibility with Descent and Descent 2, including all expansions and third-party levels.
+   * DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIXs), Mac OS X and Windows. The source code can also be compiled on many other systems!
+   * OpenGL provides fast and smooth rendering - even on low-end systems.
+   * Optionally you can enable several effects like Transparency, Colored Lighting, Texture Filtering, FSAA, etc.
+   * Thanks to SDL, a wide variety of Joysticks are supported. Also you can use more Joysticks, buttons and axes than you can ever operate in your state of evolution.
    * Joystick, Keyboard and Mouse can be used simultaneously.
-   * The games can display all resolutions and aspects supported by your Monitor, including an option for VSync.
-   * Besides MIDI and CD-Audio (Redbook), you can play your own custom Music from your Harddrive or a separate AddOn.
+   * The games can display all resolutions and aspects supported by your monitor, including an option for VSync.
+   * Besides MIDI and CD-Audio (Redbook), you can play your own custom Music from your hard drive or a separate AddOn.
    * Both games can utilize special AddOn packs to replace or expand the original game content.
-   * Multiplayer via UDP protocol provides a fast and easy-to-use LAN and Online action. This includes reliable communication causing less glitches due to lost packages.
+   * Multiplayer via UDP protocol provides a fast and easy-to-use LAN and Online action. This includes reliable communication causing less glitches due to lost packets.
    * The ingame Demo-recording system has been improved. Demos are less glitchy and smaller while still still being backwards-compatible to earlier versions of the games.
    * Higher game speed will not cause glitches such as unacceptable fast homing projectiles, incredible high damage caused by several collisions or Fusion cannon, etc.
    * Player files, Savegames, Demos and Missions from DOS-Versions of the games can freely be used in DXX-Rebirth and vice versa.
@@ -49,13 +50,11 @@ http://www.dxx-rebirth.com
 3. Multiplayer:
 ===============
 
-   D2X-Rebirth supports Multiplayer over UDP/IP.
+   DXX-Rebirth supports Multiplayer over UDP/IP.
    Using UDP/IP works over LAN and Internet. By default, each game communicates over UDP-Port 42424. This can be
-   changed via the menus while creating a game and manually join a game, command-line argument or D2X.INI. To
-   successfully host a game online, make sure UDP-Port 42424 (or otherwise if specified correctly) is opened on
-   your Router/Firewall. Clients do not need to open any ports.
-   The game also supports IPv6 if built in while compiling and should be backwards compatible to IPv4 builds
-   as good as possible.
+   changed via the menus, command-line argument or .ini files. To successfully host a game online, make sure
+   UDP-Port 42424 (or whatever port you specified) is opened on your Router/Firewall. Clients do not need to
+   open any ports to join a game.
 
 
 4. Legal stuff:

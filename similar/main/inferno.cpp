@@ -214,7 +214,7 @@ static void print_commandline_help()
 		VERB("  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n")	\
 		DXX_if_defined(USE_TRACKER, (	\
 			VERB("  -tracker_hostaddr <n>         Address of tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT)	\
-			VERB("  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: " DXX_STRINGIZE(TRACKER_PORT_DEFAULT) ")\n")	\
+			VERB("  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT)	\
 		))	\
 	))	\
 	DXX_if_defined(EDITOR, (	\
@@ -236,7 +236,6 @@ static void print_commandline_help()
 	VERB("  -no-grab                      Never grab keyboard/mouse\n")	\
 	VERB("  -renderstats                  Enable renderstats info by default\n")	\
 	VERB("  -text <s>                     Specify alternate .tex file\n")	\
-	VERB("  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad)\n")	\
 	VERB("  -showmeminfo                  Show memory statistics\n")	\
 	VERB("  -nodoublebuffer               Disable Doublebuffering\n")	\
 	VERB("  -bigpig                       Use uncompressed RLE bitmaps\n")	\
@@ -250,6 +249,7 @@ static void print_commandline_help()
 		VERB("  -gl_gettexlevelparam_ok <n>   Override DbgGlGetTexLevelParamOk (default: 1)\n")	\
 	)	\
 	DXX_COMMAND_LINE_HELP_SDL(	\
+		VERB("  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad)\n")	\
 		VERB("  -hwsurface                    Use SDL HW Surface\n")	\
 		VERB("  -asyncblit                    Use queued blits over SDL. Can speed up rendering\n")	\
 	)	\

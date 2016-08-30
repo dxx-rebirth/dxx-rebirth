@@ -17,16 +17,7 @@ SHARE_DIR = $(PREFIX)/share
 DATA_DIR = $(SHARE_DIR)/games/$(package)
 DEBIAN_TMP = debian/tmp
 
-patch:  patch-stamp
-patch-stamp:
-	test -d debian/patches
-	@for patch in debian/patches/*.diff; do \
-		echo "Applying $$patch"; \
-		patch < $$patch; \
-	done
-	touch $@
-
-build:  patch build-stamp
+build:  build-stamp
 build-stamp:
 	$(SCONS) $(SCONSFLAGS)
 	strip $(BINARY)
@@ -34,7 +25,7 @@ build-stamp:
 
 clean:
 	$(SCONS) -c
-	rm -rf patch-stamp build-stamp *~ $(DEBIAN_TMP) debian/*~ debian/files* debian/substvars
+	rm -rf build-stamp *~ $(DEBIAN_TMP) debian/*~ debian/files* debian/substvars
 
 binary-indep:   checkroot build
 	$(checkdir)
