@@ -517,7 +517,8 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[0] ||
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
-								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
+								auto &cside = vsegptr(csegnum)->sides[csidenum];
+								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,0);
 								errors |= check_norms(seg,sidenum,1,cseg,csidenum,1);
@@ -531,7 +532,8 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[0] ||
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
-								Segments[csegnum].sides[csidenum].set_type(5-Segments[csegnum].sides[csidenum].get_type());
+								auto &cside = vsegptr(csegnum)->sides[csidenum];
+								cside.set_type(5 - cside.get_type());
 							} else {
 								errors |= check_norms(seg,sidenum,0,cseg,csidenum,1);
 								errors |= check_norms(seg,sidenum,1,cseg,csidenum,0);
