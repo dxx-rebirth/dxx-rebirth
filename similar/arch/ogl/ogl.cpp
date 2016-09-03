@@ -771,7 +771,7 @@ namespace dcx {
 void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t c)
 {
 	int i;
-	float scale = (static_cast<float>(grd_curcanv->cv_bitmap.bm_w)/grd_curcanv->cv_bitmap.bm_h);
+	const float scale = (static_cast<float>(grd_curcanv->cv_bitmap.bm_w)/grd_curcanv->cv_bitmap.bm_h);
 	GLfloat color_array[20*4];
 	
 	for (i = 0; i < 20*4; i += 4)
@@ -785,16 +785,20 @@ void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t c)
 	glDisable(GL_CULL_FACE);
 	glPushMatrix();
 	glTranslatef(f2glf(pnt.p3_vec.x),f2glf(pnt.p3_vec.y),-f2glf(pnt.p3_vec.z));
+	GLfloat gl1, gl2;
 	if (scale >= 1)
 	{
 		rad/=scale;
-		glScalef(f2glf(rad),f2glf(rad*scale),f2glf(rad));
+		gl1 = f2glf(rad);
+		gl2 = f2glf(rad*scale);
 	}
 	else
 	{
 		rad*=scale;
-		glScalef(f2glf(rad/scale),f2glf(rad),f2glf(rad));
+		gl1 = f2glf(rad/scale);
+		gl2 = f2glf(rad);
 	}
+	glScalef(gl1, gl2, f2glf(rad));
 	if(!sphere_va)
 		sphere_va = circle_array_init(20);
 	glEnableClientState(GL_COLOR_ARRAY);
