@@ -256,9 +256,7 @@ static int ok_for_buddy_to_talk(void)
 
 		//	Check one level deeper.
 		if (IS_CHILD(segp->children[i])) {
-			segment	*csegp = &Segments[segp->children[i]];
-
-			range_for (const auto j, csegp->sides)
+			range_for (const auto &j, vcsegptr(segp->children[i])->sides)
 			{
 				auto wall2 = j.wall_num;
 				if (wall2 != wall_none) {
