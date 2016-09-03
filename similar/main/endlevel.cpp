@@ -189,12 +189,10 @@ static fixang delta_ang(fixang a,fixang b)
 }
 
 //return though which side of seg0 is seg1
-static int matt_find_connect_side(int seg0,int seg1)
+static size_t matt_find_connect_side(const segment &seg0, const vcsegidx_t seg1)
 {
-	segment *Seg=&Segments[seg0];
-	for (int i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
-
-	return -1;
+	auto &children = seg0.children;
+	return std::distance(children.begin(), std::find(children.begin(), children.end(), seg1));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -362,48 +360,55 @@ void start_endlevel_sequence()
 #ifndef NDEBUG
 	segnum_t last_segnum;
 #endif
-	int exit_side,tunnel_length;
-
 	{
-		segnum_t segnum,old_segnum;
-		int entry_side,i;
-
 		//count segments in exit tunnel
 
-		old_segnum = ConsoleObject->segnum;
-		exit_side = find_exit_side(vobjptr(ConsoleObject));
-		segnum = Segments[old_segnum].children[exit_side];
-		tunnel_length = 0;
-		do {
-			entry_side = matt_find_connect_side(segnum,old_segnum);
-			exit_side = Side_opposite[entry_side];
-			old_segnum = segnum;
-			segnum = Segments[segnum].children[exit_side];
-			if (segnum == segment_none)
+		const object_base &console = vobjptr(ConsoleObject);
+		const auto exit_console_side = find_exit_side(console);
+		auto old_segnum = vcsegptridx(console.segnum);
+		auto child = old_segnum->children[exit_console_side];
+		unsigned tunnel_length = 0;
+		for (;;)
+		{
+			if (child == segment_none)
 			{
 				PlayerFinishedLevel(0);		//don't do special sequence
 				return;
 			}
 			tunnel_length++;
-		} while (segnum != segment_exit);
+			if (child == segment_exit)
+				break;
+			const auto segnum = vcsegptridx(child);
+			const auto entry_side = matt_find_connect_side(segnum, old_segnum);
+			const auto exit_side = Side_opposite[entry_side];
+			old_segnum = segnum;
+			child = segnum->children[exit_side];
+		}
 #ifndef NDEBUG
 		last_segnum = old_segnum;
 #endif
 		//now pick transition segnum 1/3 of the way in
 
-		old_segnum = ConsoleObject->segnum;
-		exit_side = find_exit_side(vobjptr(ConsoleObject));
-		segnum = Segments[old_segnum].children[exit_side];
-		i=tunnel_length/3;
-		while (i--) {
-
-			entry_side = matt_find_connect_side(segnum,old_segnum);
-			exit_side = Side_opposite[entry_side];
+		old_segnum = vcsegptridx(console.segnum);
+		child = old_segnum->children[exit_console_side];
+		for (auto i = tunnel_length / 3; i; --i)
+		{
+			/*
+			 * No sanity checks here.  If the tunnel ended with
+			 * segment_none, the function would have returned from the
+			 * prior loop.  If the tunnel ended with segment_exit, then
+			 * tunnel_length is the count of segments to reach the exit.
+			 * The termination condition on this loop quits at
+			 * (tunnel_length / 3), so the loop will quit before it
+			 * reaches segment_exit.
+			 */
+			auto segnum = vcsegptridx(child);
+			const auto entry_side = matt_find_connect_side(segnum, old_segnum);
+			const auto exit_side = Side_opposite[entry_side];
 			old_segnum = segnum;
-			segnum = Segments[segnum].children[exit_side];
+			child = segnum->children[exit_side];
 		}
-		transition_segnum = segnum;
-
+		transition_segnum = child;
 	}
 
 	if (Game_mode & GM_MULTI) {
@@ -1175,10 +1180,9 @@ static void angvec_add2_scale(vms_angvec &dest,const vms_vector &src,fix s)
 
 void do_endlevel_flythrough(flythrough_data *flydata)
 {
-	int old_player_seg;
 	const auto &&obj = vobjptridx(flydata->obj);
 	
-	old_player_seg = obj->segnum;
+	vcsegidx_t old_player_seg = obj->segnum;
 
 	//move the player for this frame
 
@@ -1206,11 +1210,11 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		if (!flydata->first_time) {
 
-			entry_side = matt_find_connect_side(obj->segnum,old_player_seg);
+			entry_side = matt_find_connect_side(vcsegptr(obj->segnum), old_player_seg);
 			exit_side = Side_opposite[entry_side];
 		}
 
-		if (flydata->first_time || entry_side==-1 || pseg->children[exit_side] == segment_none)
+		if (flydata->first_time || entry_side == side_none || pseg->children[exit_side] == segment_none)
 			exit_side = find_exit_side(obj);
 
 		{										//find closest side to align to
