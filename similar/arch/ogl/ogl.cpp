@@ -1682,35 +1682,39 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 	// should match structue in menu.cpp
 	// organized in switches for better readability
 	bool buildmipmap = false;
+	GLint gl_mag_filter_int, gl_min_filter_int;
 	switch (texfilt)
 	{
 		default:
 		case OGL_TEXFILT_CLASSIC: // Classic - Nearest
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			gl_mag_filter_int = GL_NEAREST;
 #ifndef OGLES
 			if (texanis && ogl_maxanisotropy > 1.0)
 			{
-				glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR); // looks nicer if anisotropy is applied.
+				// looks nicer if anisotropy is applied.
+				gl_min_filter_int = GL_NEAREST_MIPMAP_LINEAR;
 				buildmipmap = true;
 			}
 			else
 #endif
 			{
-				glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				gl_min_filter_int = GL_NEAREST;
 				buildmipmap = false;
 			}
 			break;
 		case OGL_TEXFILT_UPSCALE: // Upscaled - i.e. Blocky Filtered (Bilinear)
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			gl_mag_filter_int = GL_LINEAR_MIPMAP_LINEAR;
+			gl_min_filter_int = GL_LINEAR_MIPMAP_LINEAR;
 			buildmipmap = true;
 			break;
 		case OGL_TEXFILT_TRLINEAR: // Smooth - Trilinear
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			gl_mag_filter_int = GL_LINEAR;
+			gl_min_filter_int = GL_LINEAR_MIPMAP_LINEAR;
 			buildmipmap = true;
 			break;
 	}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter_int);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter_int);
 #ifndef OGLES
 	if (texanis && ogl_maxanisotropy > 1.0)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, ogl_maxanisotropy);
