@@ -567,10 +567,9 @@ static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 			segnum = segment_none;
 		}
 		else {	//don't drop in any children of control centers
-			int i;
-			for (i=0;i<6;i++) {
-				auto ch = Segments[segnum].children[i];
-				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
+			range_for (auto ch, vcsegptr(segnum)->children)
+			{
+				if (IS_CHILD(ch) && vcsegptr(ch)->special == SEGMENT_IS_CONTROLCEN) {
 					segnum = segment_none;
 					break;
 				}
