@@ -660,14 +660,12 @@ static void compress_segments(void)
 						if (l == seg)
 							l = hole;
 
-				auto sp = &Segments[hole];
-				range_for (auto &s, sp->children)
+				auto &sp = *vsegptr(hole);
+				range_for (auto &s, sp.children)
 				{
 					if (IS_CHILD(s)) {
-						auto csegp = &Segments[s];
-
 						// Find out on what side the segment connection to the former seg is on in *csegp.
-						range_for (auto &t, csegp->children)
+						range_for (auto &t, vsegptr(s)->children)
 						{
 							if (t == seg) {
 								t = hole;					// It used to be connected to seg, so make it connected to hole
@@ -677,7 +675,7 @@ static void compress_segments(void)
 				}	// end for s
 
 				//Update object segment pointers
-				range_for (const auto objp, objects_in(*sp))
+				range_for (const auto objp, objects_in(sp))
 				{
 					Assert(objp->segnum == seg);
 					objp->segnum = hole;
