@@ -233,7 +233,7 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 
 	SDL_LockAudio();
 
-	Assert(GameSounds[soundnum].data != (void *)-1);
+	Assert(GameSounds[soundnum].data != reinterpret_cast<void *>(-1));
 
 	starting_channel = next_channel;
 
