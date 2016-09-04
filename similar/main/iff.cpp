@@ -445,7 +445,6 @@ static int iff_parse_ilbm_pbm(PHYSFS_File *ifile,long form_type,iff_bitmap_heade
 static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,p;
-	sbyte *rowptr;
 	int bytes_per_row,byteofs;
 	ubyte checkmask,newbyte,setbit;
 
@@ -459,7 +458,7 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	for (int y=0;y<bmheader->h;y++) {
 
-		rowptr = (signed char *) &bmheader->raw_data[y * bytes_per_row * bmheader->nplanes];
+		const auto rowptr = reinterpret_cast<int8_t *>(&bmheader->raw_data[y * bytes_per_row * bmheader->nplanes]);
 
 		for (x=0,checkmask=0x80;x<bmheader->w;x++) {
 
