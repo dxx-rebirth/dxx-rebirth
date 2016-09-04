@@ -186,7 +186,7 @@ constexpr int gr_message_color_level=1;
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= *(text_ptr-1)) \
-				grd_curcanv->cv_font_fg_color = (unsigned char)*text_ptr; \
+				grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*text_ptr); \
 			text_ptr++; \
 		} \
 	} \
@@ -197,7 +197,7 @@ constexpr int gr_message_color_level=1;
 	} \
 	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
 		if (gr_message_color_level >= *text_ptr - 3) \
-			grd_curcanv->cv_font_fg_color=(unsigned char)orig_color; \
+			grd_curcanv->cv_font_fg_color= static_cast<uint8_t>(orig_color); \
 		text_ptr++; \
 	}
 
@@ -647,13 +647,13 @@ static int ogl_internal_string(int x, int y, const char *s )
 				break;
 			}
 
-			letter = (unsigned char)*text_ptr - cv_font.ft_minchar;
+			letter = static_cast<uint8_t>(*text_ptr) - cv_font.ft_minchar;
 
 			const auto &result = get_char_width<int>(cv_font, text_ptr[0], text_ptr[1]);
 			const auto &spacing = result.spacing;
 
 			underline = 0;
-			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06) //not in font, draw as space
+			if (!INFONT(letter) || static_cast<uint8_t>(*text_ptr) <= 0x06) //not in font, draw as space
 			{
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
