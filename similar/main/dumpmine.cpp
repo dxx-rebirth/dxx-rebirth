@@ -350,42 +350,31 @@ static void write_key_text(PHYSFS_File *my_file)
 	range_for (const auto &&objp, vcobjptridx)
 	{
 		if (objp->type == OBJ_POWERUP)
-			if (get_powerup_id(objp) == POW_KEY_BLUE) {
-				PHYSFSX_printf(my_file, "The BLUE key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
-				blue_count2++;
+		{
+			const char *color;
+			const auto id = get_powerup_id(objp);
+			if (
+				(id == POW_KEY_BLUE && (++blue_count2, color = "BLUE", true)) ||
+				(id == POW_KEY_RED && (++red_count2, color = "RED", true)) ||
+				(id == POW_KEY_GOLD && (++gold_count2, color = "GOLD", true))
+			)
+			{
+				PHYSFSX_printf(my_file, "The %s key is object %hu in segment %i\n", color, static_cast<objnum_t>(objp), objp->segnum);
 			}
-		if (objp->type == OBJ_POWERUP)
-			if (get_powerup_id(objp) == POW_KEY_RED) {
-				PHYSFSX_printf(my_file, "The RED key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
-				red_count2++;
-			}
-		if (objp->type == OBJ_POWERUP)
-			if (get_powerup_id(objp) == POW_KEY_GOLD) {
-				PHYSFSX_printf(my_file, "The GOLD key is object %hu in segment %i\n", static_cast<uint16_t>(objp), objp->segnum);
-				gold_count2++;
-			}
+		}
 
-		if (objp->contains_count)
+		if (const auto contains_count = objp->contains_count)
 		{
 			if (objp->contains_type == OBJ_POWERUP)
 			{
-				switch (objp->contains_id)
-				{
-					case POW_KEY_BLUE:
-						PHYSFSX_printf(my_file, "The BLUE key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
-						blue_count2 += objp->contains_count;
-						break;
-					case POW_KEY_GOLD:
-						PHYSFSX_printf(my_file, "The GOLD key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
-						gold_count2 += objp->contains_count;
-						break;
-					case POW_KEY_RED:
-						PHYSFSX_printf(my_file, "The RED key is contained in object %hu (a %s %s) in segment %i\n", static_cast<uint16_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
-						red_count2 += objp->contains_count;
-						break;
-					default:
-						break;
-				}
+				const char *color;
+				const auto id = objp->contains_id;
+				if (
+					(id == POW_KEY_BLUE && (blue_count2 += contains_count, color = "BLUE", true)) ||
+					(id == POW_KEY_RED && (red_count2 += contains_count, color = "RED", true)) ||
+					(id == POW_KEY_GOLD && (gold_count2 += contains_count, color = "GOLD", true))
+				)
+					PHYSFSX_printf(my_file, "The %s key is contained in object %hu (a %s %s) in segment %hu\n", color, static_cast<objnum_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
 			}
 		}
 	}
