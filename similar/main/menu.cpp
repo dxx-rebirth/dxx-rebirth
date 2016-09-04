@@ -405,7 +405,7 @@ int RegisterPlayer()
 	}
 
 	// Sort by name, except the <Create New Player> string
-	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
+	qsort(&m[1], NumItems - 1, sizeof(char *), string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
 		if (!d_stricmp(static_cast<const char *>(get_local_player().callsign), m[i]) )
@@ -771,7 +771,7 @@ int select_demo(void)
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
 	// Sort by name
-	qsort(list.get(), NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
+	qsort(list.get(), NumItems, sizeof(char *), string_array_sort_func);
 
 	auto clist = const_cast<const char **>(list.get());
 	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, clist, 1, 0, demo_menu_handler, list.release());

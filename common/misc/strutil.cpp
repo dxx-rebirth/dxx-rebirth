@@ -194,8 +194,10 @@ void d_splitpath(const char *name, struct splitpath_t *path)
 	path->ext_start = p;
 }
 
-int string_array_sort_func(char **e0, char **e1)
+int string_array_sort_func(const void *v0, const void *v1)
 {
+	const auto e0 = reinterpret_cast<const char *const *>(v0);
+	const auto e1 = reinterpret_cast<const char *const *>(v1);
 	return d_stricmp(*e0, *e1);
 }
 

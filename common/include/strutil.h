@@ -81,7 +81,7 @@ public:
 	void tidy(std::size_t offset, int (*comp)( const char *, const char * ));
 };
 
-int string_array_sort_func(char **e0, char **e1);
+int string_array_sort_func(const void *v0, const void *v1);
 
 }
 
