@@ -37,11 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static int file_sort_func(char **e0, char **e1)
-{
-	return d_stricmp(*e0, *e1);
-}
-
 static PHYSFSX_counted_list file_getdirlist(const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
@@ -61,7 +56,7 @@ static PHYSFSX_counted_list file_getdirlist(const char *dir)
 	auto j = std::remove_if(list.begin(), list.end(), predicate);
 	*j = NULL;
 	auto NumDirs = j.get() - list.get();
-	qsort(list.get(), NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+	qsort(list.get(), NumDirs, sizeof(char *), string_array_sort_func);
 	if (*dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
@@ -98,7 +93,7 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 	*j = NULL;
 	auto NumFiles = j.get() - list.get();
 	list.set_count(NumFiles);
-	qsort(list.get(), NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+	qsort(list.get(), NumFiles, sizeof(char *), string_array_sort_func);
 	return list;
 }
 
