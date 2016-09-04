@@ -298,8 +298,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   as a signed 8-bit value, and the second being the y offset as a
 		   signed 8-bit value.
 		*/
-		x = (signed char)*(*pData)++;
-		y = (signed char)*(*pData)++;
+		x = static_cast<int8_t>(*(*pData)++);
+		y = static_cast<int8_t>(*(*pData)++);
 		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
 		*pFrame += 8;
 		*pDataRemain -= 2;

@@ -25,14 +25,14 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain)
 {
     unsigned short offset;
-    unsigned short *FramePtr = (unsigned short *)pFrame;
+	auto FramePtr = reinterpret_cast<uint16_t *>(pFrame);
     int length;
     int op;
     int i, j;
     int xb, yb;
 
-    backBuf1 = (unsigned short *)g_vBackBuf1;
-    backBuf2 = (unsigned short *)g_vBackBuf2;
+	backBuf1 = reinterpret_cast<uint16_t *>(g_vBackBuf1);
+	backBuf2 = reinterpret_cast<uint16_t *>(g_vBackBuf2);
 
     xb = g_width >> 3;
     yb = g_height >> 3;
@@ -362,8 +362,8 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		--*pDataRemain;
 		break;
 	case 0x5:
-		x = (char)*(*pData)++;
-		y = (char)*(*pData)++;
+		x = static_cast<char>(*(*pData)++);
+		y = static_cast<char>(*(*pData)++);
 		copyFrame(*pFrame, *pFrame + (backBuf2 - backBuf1) + x + y*g_width);
 		*pDataRemain -= 2;
 		break;
