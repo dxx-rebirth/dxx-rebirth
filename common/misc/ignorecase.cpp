@@ -44,8 +44,8 @@ static int caseInsensitiveStringCompare(const char *x, const char *y)
     int ux, uy;
     do
     {
-        ux = toupper((int) *x);
-        uy = toupper((int) *y);
+        ux = toupper(static_cast<int>(*x));
+        uy = toupper(static_cast<int>(*y));
         if (ux != uy)
             return((ux > uy) ? 1 : -1);
         x++;
