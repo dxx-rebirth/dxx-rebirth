@@ -440,7 +440,7 @@ public:
 		(void)nv;
 		Assert(nv > 2);		//must have 3 or more points
 #if defined(DXX_BUILD_DESCENT_I)
-		*wp(p+28) = (short)gr_find_closest_color_15bpp(w(p+28));
+		*wp(p+28) = static_cast<short>(gr_find_closest_color_15bpp(w(p+28)));
 #elif defined(DXX_BUILD_DESCENT_II)
 		(void)p;
 #endif
