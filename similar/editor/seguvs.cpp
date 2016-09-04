@@ -377,7 +377,7 @@ static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, u
 	mag01 = fixmul(mag01, (va == 0 || va == 2) ? Stretch_scale_x : Stretch_scale_y);
 
 	if (unlikely(mag01 < F1_0/1024))
-		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", (unsigned short)(segp), sidenum);
+		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", static_cast<uint16_t>(segp), sidenum);
 	else {
 		struct frvec {
 			vms_vector fvec, rvec;
