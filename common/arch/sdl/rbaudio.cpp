@@ -31,6 +31,18 @@
 #include "partial_range.h"
 #include "compiler-range_for.h"
 
+#define DXX_CHECK_CD_INDRIVE_0(S)	\
+	static_assert(!CD_INDRIVE(S), #S)
+#define DXX_CHECK_CD_INDRIVE_1(S)	\
+	static_assert(CD_INDRIVE(S), #S)
+#undef CD_INDRIVE
+#define CD_INDRIVE(s)	(static_cast<int>(s) > 0)
+DXX_CHECK_CD_INDRIVE_0(CD_ERROR);
+DXX_CHECK_CD_INDRIVE_0(CD_TRAYEMPTY);
+DXX_CHECK_CD_INDRIVE_1(CD_STOPPED);
+DXX_CHECK_CD_INDRIVE_1(CD_PLAYING);
+DXX_CHECK_CD_INDRIVE_1(CD_PAUSED);
+
 namespace dcx {
 
 #define REDBOOK_VOLUME_SCALE 255
