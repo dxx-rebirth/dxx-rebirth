@@ -1210,8 +1210,10 @@ struct obj_path {
 	objnum_t objnum;
 };
 
-static int path_index_compare(obj_path *i1, obj_path *i2)
+static int path_index_compare(const void *const v1, const void *const v2)
 {
+	const auto i1 = reinterpret_cast<const obj_path *>(v1);
+	const auto i2 = reinterpret_cast<const obj_path *>(v2);
 	if (i1->path_start < i2->path_start)
 		return -1;
 	else if (i1->path_start == i2->path_start)
@@ -1340,7 +1342,7 @@ void ai_path_garbage_collect()
 	}
 
 	qsort(object_list, num_path_objects, sizeof(object_list[0]),
-			(int (*)(void const *,void const *))path_index_compare);
+			path_index_compare);
 
 	for (objind=0; objind < num_path_objects; objind++) {
 		ai_static	*aip;
