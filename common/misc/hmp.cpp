@@ -313,10 +313,10 @@ static int fill_buffer(hmp_file *hmp) {
 			} else {
 				*(p++) = ev.delta;
 				*(p++) = 0;
-				*(p++) = ((static_cast<DWORD>(MEVT_SHORTMSG)) << 24) |
-					((DWORD)ev.msg[0]) |
-					(((DWORD)ev.msg[1]) << 8) |
-					(((DWORD)ev.msg[2]) << 16);
+				*(p++) = (static_cast<DWORD>(MEVT_SHORTMSG) << 24) |
+					static_cast<DWORD>(ev.msg[0]) |
+					(static_cast<DWORD>(ev.msg[1]) << 8) |
+					(static_cast<DWORD>(ev.msg[2]) << 16);
 			}
 		}
 	}
@@ -329,7 +329,7 @@ static int setup_buffers(hmp_file *hmp) {
 
 	lastbuf = NULL;
 	for (int i = 0; i < HMP_BUFFERS; i++) {
-		if (!(buf = (MIDIHDR *)d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
+		if (!(buf = reinterpret_cast<MIDIHDR *>(d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR)))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
 		buf->lpData = reinterpret_cast<char *>(buf) + sizeof(MIDIHDR);
