@@ -151,10 +151,9 @@ static void verify_textures(void);
 int compute_average_pixel(grs_bitmap *n)
 {
 	int	row, column, color;
-	const char	*pptr;
 	int	total_red, total_green, total_blue;
 
-	pptr = (const char *)n->bm_data;
+	auto pptr = n->bm_data;
 
 	total_red = 0;
 	total_green = 0;
