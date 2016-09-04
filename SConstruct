@@ -3223,6 +3223,7 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'uninitialized',
 			Werror + 'undef',
 			Werror + 'useless-cast',
+			Werror + 'old-style-cast',
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
 			Werror + 'missing-declarations',
