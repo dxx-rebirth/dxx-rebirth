@@ -164,7 +164,7 @@ static int get_var_num_hmi(unsigned char *data, int datalen, unsigned long *valu
  * read a MIDI type variable length number
  */
 static int get_var_num(unsigned char *data, int datalen,
-	unsigned long *value) {
+	unsigned *value) {
 	unsigned char *orgdata = data;
 	unsigned long v = 0;
 
@@ -273,7 +273,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 		ev->msg[1] = *(trk->cur++);
 		trk->left--;
 		if (!(got = get_var_num(ev->data = trk->cur,
-			trk->left, (unsigned long *)&ev->datalen)))
+			trk->left, &ev->datalen)))
 			return HMP_INVALID_FILE;
 		trk->cur += ev->datalen;
 		if (trk->left <= ev->datalen)
