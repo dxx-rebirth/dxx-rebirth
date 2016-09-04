@@ -322,9 +322,6 @@ void do_controlcen_frame(const vobjptridx_t obj)
 
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
 		if (!(d_tick_count % 8)) {		//	Do every so often...
-			int			i;
-			segment		*segp = &Segments[obj->segnum];
-
 			// This is a hack.  Since the control center is not processed by
 			// ai_do_frame, it doesn't know to deal with cloaked dudes.  It
 			// seems to work in single-player mode because it is actually using
@@ -338,10 +335,8 @@ void do_controlcen_frame(const vobjptridx_t obj)
 
 			//	Hack for special control centers which are isolated and not reachable because the
 			//	real control center is inside the boss.
-			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-				if (IS_CHILD(segp->children[i]))
-					break;
-			if (i == MAX_SIDES_PER_SEGMENT)
+			auto &children = vcsegptr(obj->segnum)->children;
+			if (std::none_of(children.begin(), children.end(), IS_CHILD))
 				return;
 
 			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
