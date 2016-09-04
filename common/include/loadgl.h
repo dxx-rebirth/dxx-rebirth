@@ -173,17 +173,6 @@
 #define glVertexPointer dglVertexPointer
 #define glViewport dglViewport
 
-#define glMultiTexCoord2fARB dglMultiTexCoord2fARB
-#define glActiveTextureARB dglActiveTextureARB
-#define glMultiTexCoord2fSGIS dglMultiTexCoord2fSGIS
-#define glSelectTextureSGIS dglSelectTextureSGIS
-
-
-
-#ifdef _WIN32
-#define wglGetProcAddress dwglGetProcAddress
-#endif
-
 typedef void (OGLFUNCCALL *glAlphaFunc_fp)(GLenum func, GLclampf ref);
 typedef void (OGLFUNCCALL *glBindTexture_fp)(GLenum target, GLuint texture);
 typedef void (OGLFUNCCALL *glBlendFunc_fp)(GLenum sfactor, GLenum dfactor);
@@ -282,15 +271,6 @@ DEFVAR glTexParameteri_fp dglTexParameteri;
 DEFVAR glTranslatef_fp dglTranslatef;
 DEFVAR glVertexPointer_fp dglVertexPointer;
 DEFVAR glViewport_fp dglViewport;
-
-DEFVAR glMultiTexCoord2fARB_fp dglMultiTexCoord2fARB;
-DEFVAR glActiveTextureARB_fp dglActiveTextureARB;
-DEFVAR glMultiTexCoord2fSGIS_fp dglMultiTexCoord2fSGIS;
-DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
-
-#ifdef _WIN32
-DEFVAR wglGetProcAddress_fp dwglGetProcAddress;
-#endif
 
 #ifdef DECLARE_VARS
 
@@ -431,13 +411,6 @@ bool OpenGL_LoadLibrary(bool load, const char *OglLibPath)
 		dglTranslatef = (glTranslatef_fp)dll_GetSymbol(OpenGLModuleHandle,"glTranslatef");
 		dglVertexPointer = (glVertexPointer_fp)dll_GetSymbol(OpenGLModuleHandle,"glVertexPointer");
 		dglViewport = (glViewport_fp)dll_GetSymbol(OpenGLModuleHandle,"glViewport");
-
-#ifdef _WIN32
-		dwglGetProcAddress = (wglGetProcAddress_fp)dll_GetSymbol(OpenGLModuleHandle,"wglGetProcAddress");
-		#if (WINVER >= 0x0500)
-		#endif
-#endif
-
 	}
 
 	return true;
@@ -489,19 +462,6 @@ static void OpenGL_SetFuncsToNull(void)
 	dglTranslatef = NULL;
 	dglVertexPointer = NULL;
 	dglViewport = NULL;
-
-	dglMultiTexCoord2fARB = NULL;
-	dglActiveTextureARB = NULL;
-	dglMultiTexCoord2fSGIS = NULL;
-	dglSelectTextureSGIS = NULL;
-
-
-#ifdef _WIN32
-	dwglGetProcAddress = NULL;
-	#if (WINVER >= 0x0500)
-	#endif
-#endif
-
 }
 #endif
 
