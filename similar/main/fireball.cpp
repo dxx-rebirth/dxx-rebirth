@@ -530,7 +530,7 @@ static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 	vms_vector *player_pos;
         auto &drop_playerobj = *vobjptr(Players[drop_pnum].objnum);
 
-	d_srand((fix)timer_query());
+	d_srand(static_cast<fix>(timer_query()));
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 
