@@ -723,7 +723,7 @@ static ushort netmisc_calc_checksum()
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 #if defined(DXX_BUILD_DESCENT_I)
 		do_checksum_calc(&Segments[i].special, 1, &sum1, &sum2);
-		do_checksum_calc((unsigned char *)&(Segments[i].matcen_num), 1, &sum1, &sum2);
+		do_checksum_calc(reinterpret_cast<uint8_t *>(&Segments[i].matcen_num), 1, &sum1, &sum2);
 		s = INTEL_SHORT(Segments[i].value);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		t = INTEL_INT(Segments[i].static_light);
