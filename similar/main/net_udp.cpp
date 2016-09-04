@@ -671,7 +671,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 		return -1;
 	}
 #ifdef _WIN32
-	(void)setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
+	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char *>(&bcast), sizeof(bcast));
 #else
 	setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast));
 #endif
