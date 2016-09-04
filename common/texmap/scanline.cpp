@@ -127,7 +127,6 @@ void c_tmap_scanline_lin()
 	if (!Transparency_on)	{
 		const auto pixPtrLocalCopy = pixptr;
 		auto &fadeTableLocalCopy = gr_fade_table;
-		unsigned long	destlong;
 
 		x = fx_xright-fx_xleft+1;
 
@@ -155,6 +154,7 @@ void c_tmap_scanline_lin()
 		j &= ~3;
 		while (j > 0)
 			{
+				uint32_t destlong;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 			destlong = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ (f2i(v)&(64*63)) + (f2i(u)&63) ] ] << 24;
 			//end edit -MM
@@ -179,7 +179,7 @@ void c_tmap_scanline_lin()
 			l += dldx;
 			u += dudx;
 			v += dvdx;
-			*reinterpret_cast<unsigned long *>(dest) = destlong;
+			*reinterpret_cast<uint32_t *>(dest) = destlong;
 			dest += 4;
 			x -= 4;
 			j -= 4;
@@ -269,7 +269,6 @@ static void c_fp_tmap_scanline_per()
 	uint            c;
 	int             x, j, index = fx_xleft + (bytes_per_row * fx_y);
 	double          u, v, z, l, dudx, dvdx, dzdx, dldx, rec_z;
-	uint64_t		destlong;
 
 	u = f2db(fx_u);
 	v = f2db(fx_v) * 64.0;
@@ -308,8 +307,8 @@ static void c_fp_tmap_scanline_per()
 
 			j = x;
 			while (j >= 8) {
-				destlong =
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				uint64_t destlong =
+				    gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
 									    ((static_cast<int>(u * rec_z)) & 63)]];
 				l += dldx;
@@ -318,63 +317,63 @@ static void c_fp_tmap_scanline_per()
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 8;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 8;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 16;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 16;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 24;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 24;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 32;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 32;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 40;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 40;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 48;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 48;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
 				z += dzdx;
 				rec_z = 1.0 / z;
 				destlong |=
-				    (uint64_t) gr_fade_table[static_cast<int>(fabs(l))][
+				    static_cast<uint64_t>(gr_fade_table[static_cast<int>(fabs(l))][
 							      pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) +
-									    ((static_cast<int>(u * rec_z)) & 63)]] << 56;
+									    ((static_cast<int>(u * rec_z)) & 63)]]) << 56;
 				l += dldx;
 				u += dudx;
 				v += dvdx;
@@ -423,6 +422,7 @@ static void c_fp_tmap_scanline_per()
 
 			j = x;
 			while (j >= 8) {
+				uint64_t destlong;
 				destlong = *(reinterpret_cast<uint64_t *>(dest));
 				c = static_cast<uint32_t>(pixptr[((static_cast<int>(v * rec_z)) & (64 * 63)) + ((static_cast<int>(u * rec_z)) & 63)]);
 				if (c != 255) {
@@ -551,7 +551,6 @@ static void c_tmap_scanline_per()
 	if (!Transparency_on)	{
 		const auto pixPtrLocalCopy = pixptr;
 		auto &fadeTableLocalCopy = gr_fade_table;
-		unsigned long	destlong;
 
 		x = fx_xright-fx_xleft+1; // x = number of pixels in scanline
 
@@ -580,6 +579,7 @@ static void c_tmap_scanline_per()
 		j &= ~3;
 		while (j > 0)
 			{
+				uint32_t destlong;
 			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 			destlong = fadeTableLocalCopy[(l>>8)&0x7f][pixPtrLocalCopy[ ( (v/z)&(64*63) ) + ((u/z)&63) ] ] << 24;
 			//end edit -MM
@@ -608,7 +608,7 @@ static void c_tmap_scanline_per()
 			u += dudx;
 			v += dvdx;
 			z += dzdx;
-			*reinterpret_cast<unsigned long *>(dest) = destlong;
+			*reinterpret_cast<uint32_t *>(dest) = destlong;
 			dest += 4;
 			x -= 4;
 			j -= 4;
