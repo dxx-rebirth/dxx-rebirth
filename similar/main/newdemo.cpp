@@ -558,13 +558,13 @@ static void nd_read_object(const vobjptridx_t obj)
 	 * Do render type first, since with render_type == RT_NONE, we
 	 * blow by all other object information
 	 */
-	nd_read_byte((int8_t *) &(obj->render_type));
-	nd_read_byte((int8_t *) &(obj->type));
+	nd_read_byte(reinterpret_cast<int8_t *>(&obj->render_type));
+	nd_read_byte(reinterpret_cast<int8_t *>(&obj->type));
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 
-	nd_read_byte((int8_t *) &(obj->id));
-	nd_read_byte((int8_t *) &(obj->flags));
+	nd_read_byte(reinterpret_cast<int8_t *>(&obj->id));
+	nd_read_byte(reinterpret_cast<int8_t *>(&obj->flags));
 	nd_read_short(&shortsig);
 	// It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
@@ -603,7 +603,7 @@ static void nd_read_object(const vobjptridx_t obj)
 
 	case OBJ_POWERUP:
 		obj->control_type = CT_POWERUP;
-		nd_read_byte((int8_t *) &(obj->movement_type));        // might have physics movement
+		nd_read_byte(reinterpret_cast<int8_t *>(obj->movement_type));        // might have physics movement
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		break;
 
@@ -624,8 +624,8 @@ static void nd_read_object(const vobjptridx_t obj)
 		break;
 
 	default:
-		nd_read_byte((int8_t *) &(obj->control_type));
-		nd_read_byte((int8_t *) &(obj->movement_type));
+		nd_read_byte(reinterpret_cast<int8_t *>(&obj->control_type));
+		nd_read_byte(reinterpret_cast<int8_t *>(&obj->movement_type));
 		nd_read_fix(&(obj->size));
 		break;
 	}
@@ -826,7 +826,7 @@ static void nd_write_object(const vcobjptr_t obj)
 		life = life >> 12;
 		if (life > 255)
 			life = 255;
-		nd_write_byte((ubyte)life);
+		nd_write_byte(static_cast<uint8_t>(life));
 	}
 
 	if (obj->type == OBJ_ROBOT) {
@@ -1301,7 +1301,7 @@ void newdemo_record_player_afterburner(fix afterburner)
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_PLAYER_AFTERBURNER );
 	nd_write_byte(static_cast<int8_t>(exchange(nd_record_v_player_afterburner, afterburner) >> 9));
-	nd_write_byte((sbyte) (afterburner>>9));
+	nd_write_byte(static_cast<int8_t>(afterburner >> 9));
 }
 #endif
 
@@ -3119,9 +3119,9 @@ static int newdemo_read_frame_information(int rewrite)
 				// restore the walls
 				{
 					auto &w = *wp;
-					nd_read_byte ((signed char *)&w.type);
-					nd_read_byte ((signed char *)&w.flags);
-					nd_read_byte ((signed char *)&w.state);
+					nd_read_byte(reinterpret_cast<int8_t *>(&w.type));
+					nd_read_byte(reinterpret_cast<int8_t *>(&w.flags));
+					nd_read_byte(reinterpret_cast<int8_t *>(&w.state));
 
 					segment *seg;
 					int side;
@@ -3746,8 +3746,8 @@ static void newdemo_write_end()
 	{
 	byte_count += 10;       // from nd_record_v_framebytes_written
 
-	nd_write_byte((sbyte)(f2ir(get_local_player_energy())));
-	nd_write_byte((sbyte)(f2ir(get_local_player_shields())));
+	nd_write_byte(static_cast<int8_t>(f2ir(get_local_player_energy())));
+	nd_write_byte(static_cast<int8_t>(f2ir(get_local_player_shields())));
 	nd_write_int(get_local_player_flags().get_player_flags());        // be sure players flags are set
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
