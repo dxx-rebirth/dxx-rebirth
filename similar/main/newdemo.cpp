@@ -1876,7 +1876,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		if (c != ND_EVENT_NEW_LEVEL) {
 			auto flags = get_local_player_flags().get_player_flags();
 			energy = shield;
-			shield = (unsigned char)flags;
+			shield = static_cast<uint8_t>(flags);
 			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
 			Secondary_weapon = c;
 		} else
