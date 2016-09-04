@@ -192,12 +192,12 @@ static int med_save_situation(char * filename)
 	PHYSFSX_printf(SaveFile, "%.*s.min\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
 
 	//	Write player position.
-        PHYSFSX_printf(SaveFile, "%x %x %x\n",(unsigned int) ConsoleObject->pos.x,(unsigned int) ConsoleObject->pos.y,(unsigned int) ConsoleObject->pos.z);
+	PHYSFSX_printf(SaveFile, "%x %x %x\n",static_cast<unsigned>(ConsoleObject->pos.x),static_cast<unsigned>(ConsoleObject->pos.y),static_cast<unsigned>(ConsoleObject->pos.z));
 
 	//	Write player orientation.
-        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.rvec.x,(unsigned int) ConsoleObject->orient.rvec.y,(unsigned int) ConsoleObject->orient.rvec.z);
-        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.uvec.x,(unsigned int) ConsoleObject->orient.uvec.y,(unsigned int) ConsoleObject->orient.uvec.z);                       
-        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.fvec.x,(unsigned int) ConsoleObject->orient.fvec.y,(unsigned int) ConsoleObject->orient.fvec.z);
+	PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",static_cast<unsigned>(ConsoleObject->orient.rvec.x),static_cast<unsigned>(ConsoleObject->orient.rvec.y),static_cast<unsigned>(ConsoleObject->orient.rvec.z));
+	PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",static_cast<unsigned>(ConsoleObject->orient.uvec.x),static_cast<unsigned>(ConsoleObject->orient.uvec.y),static_cast<unsigned>(ConsoleObject->orient.uvec.z));
+	PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",static_cast<unsigned>(ConsoleObject->orient.fvec.x),static_cast<unsigned>(ConsoleObject->orient.fvec.y),static_cast<unsigned>(ConsoleObject->orient.fvec.z));
 	PHYSFSX_printf(SaveFile, "%i\n", ConsoleObject->segnum);
 	return 1;
 }
