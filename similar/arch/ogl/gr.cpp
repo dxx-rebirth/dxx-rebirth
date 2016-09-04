@@ -660,7 +660,7 @@ int gr_set_mode(screen_mode mode)
 	const uint_fast32_t w = SM_W(mode), h = SM_H(mode);
 
 	gr_bm_data = grd_curscreen->sc_canvas.cv_bitmap.get_bitmap_data();//since we use realloc, we want to keep this pointer around.
-	unsigned char *gr_new_bm_data = (unsigned char *)d_realloc(gr_bm_data,w*h);
+	auto gr_new_bm_data = reinterpret_cast<uint8_t *>(d_realloc(gr_bm_data, w * h));
 	if (!gr_new_bm_data)
 		return 0;
 	*grd_curscreen = {};

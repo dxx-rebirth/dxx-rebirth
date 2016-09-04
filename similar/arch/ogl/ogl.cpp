@@ -913,7 +913,7 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 	} else if (tmap_drawer_ptr == draw_tmap_flat) {
 		OGL_DISABLE(TEXTURE_2D);
 		/* for cloaked state faces */
-		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/(GLfloat)NUM_LIGHTING_LEVELS);
+		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/ static_cast<GLfloat>(NUM_LIGHTING_LEVELS));
 	} else {
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 		return;
