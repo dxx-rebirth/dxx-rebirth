@@ -3184,13 +3184,18 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If in materialization center, exit
-	if (!(Game_mode & GM_MULTI) && (Segments[obj->segnum].special == SEGMENT_IS_ROBOTMAKER)) {
+	if (!(Game_mode & GM_MULTI))
+	{
+		const auto &seg = *vcsegptr(obj->segnum);
+		if (seg.special == SEGMENT_IS_ROBOTMAKER)
+		{
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Station[Segments[obj->segnum].value].Enabled)
+			if (Station[seg.value].Enabled)
 #endif
 		{
 			ai_follow_path(obj, 1, NULL);    // 1 = player is visible, which might be a lie, but it works.
 			return;
+		}
 		}
 	}
 
