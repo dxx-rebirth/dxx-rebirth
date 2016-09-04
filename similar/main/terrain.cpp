@@ -59,7 +59,7 @@ static std::unique_ptr<uint8_t[]> light_array;
 //!!#define HEIGHT(_i,_j)   height_array[(grid_h-1-j)*grid_w+(_i)]
 //!!#define LIGHT(_i,_j)    light_array[(grid_h-1-j)*grid_w+(_i)]
 
-#define LIGHTVAL(_i,_j) (((fix) LIGHT(_i,_j))<<8)
+#define LIGHTVAL(_i,_j) (static_cast<fix>(LIGHT(_i, _j)) << 8)
 
 static grs_bitmap *terrain_bm;
 static int terrain_outline=0;
