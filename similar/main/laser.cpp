@@ -1991,7 +1991,7 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 1, 1, shot_orientation);
 
-			flags = (sbyte)(Fusion_charge >> 12);
+			flags = static_cast<int8_t>(Fusion_charge >> 12);
 
 			Fusion_charge = 0;
 
