@@ -2745,7 +2745,7 @@ void multi_send_kill(const vobjptridx_t objnum)
 
 	if (killer_objnum != object_none)
 	{
-		short s = (short)objnum_local_to_remote(killer_objnum, reinterpret_cast<int8_t *>(&multibuf[count+2])); // do it with variable since INTEL_SHORT won't work on return val from function.
+		const auto s = objnum_local_to_remote(killer_objnum, reinterpret_cast<int8_t *>(&multibuf[count+2])); // do it with variable since INTEL_SHORT won't work on return val from function.
 		PUT_INTEL_SHORT(multibuf+count, s);
 	}
 	else
@@ -3006,7 +3006,7 @@ void multi_send_trigger(const int triggernum)
 
 	count += 1;
 	multibuf[count] = Player_num;                                   count += 1;
-	multibuf[count] = (ubyte)triggernum;            count += 1;
+	multibuf[count] = triggernum;            count += 1;
 
 	multi_send_data<MULTI_TRIGGER>(multibuf, count, 2);
 }
@@ -3768,7 +3768,7 @@ void multi_send_kill_goal_counts()
 
 	for (i=0;i<MAX_PLAYERS;i++)
 	{
-		*reinterpret_cast<char *>(multibuf+count)=(char)Players[i].KillGoalCount;
+		multibuf[count] = Players[i].KillGoalCount;
 		count++;
 	}
 
@@ -4778,9 +4778,9 @@ void multi_restore_game(ubyte slot, uint id)
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
-static void multi_do_msgsend_state(const ubyte *buf)
+static void multi_do_msgsend_state(const uint8_t *buf)
 {
-	multi_sending_message[static_cast<int>(buf[1])] = (msgsend_state_t)buf[2];
+	multi_sending_message[static_cast<int>(buf[1])] = static_cast<msgsend_state_t>(buf[2]);
 }
 
 void multi_send_msgsend_state(msgsend_state_t state)
@@ -5141,7 +5141,7 @@ void MultiLevelInv_Repopulate(fix frequency)
 	MultiLevelInv_Recount(); // recount current items
         for (unsigned i = 0; i < MAX_POWERUP_TYPES; i++)
         {
-                if (MultiLevelInv_AllowSpawn((powerup_type_t)i))
+		if (MultiLevelInv_AllowSpawn(static_cast<powerup_type_t>(i)))
                         MultiLevelInv.RespawnTimer[i] += frequency;
                 else
                         MultiLevelInv.RespawnTimer[i] = 0;
@@ -5149,8 +5149,8 @@ void MultiLevelInv_Repopulate(fix frequency)
                 if (MultiLevelInv.RespawnTimer[i] >= F1_0*2)
                 {
                         con_printf(CON_VERBOSE, "MultiLevelInv_Repopulate type: %i - Init: %i Cur: %i", i, MultiLevelInv.Initial[i], MultiLevelInv.Current[i]);
-                        maybe_drop_net_powerup((powerup_type_t)i, 0, 1);
                         MultiLevelInv.RespawnTimer[i] = 0;
+			maybe_drop_net_powerup(static_cast<powerup_type_t>(i), 0, 1);
                 }
         }
 }
