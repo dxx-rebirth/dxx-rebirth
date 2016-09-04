@@ -50,7 +50,7 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
         } /* if */
 
         pos = static_cast<int>(current);
-        if ( ((PHYSFS_sint64) pos) != current )
+        if (static_cast<PHYSFS_sint64>(pos) != current)
         {
             SDL_SetError("Can't fit current file position in an int!");
             return(-1);
@@ -72,7 +72,7 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
         } /* if */
 
         pos = static_cast<int>(len);
-        if ( ((PHYSFS_sint64) pos) != len )
+        if (static_cast<PHYSFS_sint64>(pos) != len)
         {
             SDL_SetError("Can't fit end-of-file position in an int!");
             return(-1);
@@ -93,7 +93,7 @@ static int physfsrwops_seek(SDL_RWops *rw, int offset, int whence)
         return(-1);
     } /* if */
     
-    if (!PHYSFS_seek(handle, (PHYSFS_uint64) pos))
+    if (!PHYSFS_seek(handle, static_cast<PHYSFS_uint64>(pos)))
     {
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
         return(-1);
