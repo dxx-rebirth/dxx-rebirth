@@ -2151,7 +2151,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				Assert(objnum < MAX_OBJECTS);
 				if (words_bigendian)
 					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
-				multi_object_rw_to_object((object_rw *)&data[loc], obj);
+				multi_object_rw_to_object(reinterpret_cast<object_rw *>(&data[loc]), obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
 				obj->next = obj->prev = object_none;
@@ -4121,7 +4121,7 @@ static int net_udp_send_sync(void)
 	}
 
 	// Randomize their starting locations...
-	d_srand( (fix)timer_query() );
+	d_srand(static_cast<fix>(timer_query()));
 	for (unsigned i=0; i<NumNetPlayerPositions; i++ ) 
 	{
 		if (Players[i].connected)
@@ -4387,7 +4387,7 @@ static int net_udp_start_game(void)
 
 	// prepare broadcast address to announce our game
 	udp_init_broadcast_addresses();
-	d_srand( (fix)timer_query() );
+	d_srand(static_cast<fix>(timer_query()));
 	Netgame.protocol.udp.GameID=d_rand();
 
 	N_players = 0;
