@@ -1182,7 +1182,7 @@ window *game_setup(void)
 		Curside = 0;
 	}
 	
-	if (Segments[ConsoleObject->segnum].segnum == segment_none)      //segment no longer exists
+	if (vcsegptr(ConsoleObject->segnum)->segnum == segment_none)      //segment no longer exists
 		obj_relink(vobjptridx(ConsoleObject), Cursegp);
 
 	if (!check_obj_seg(ConsoleObject))
