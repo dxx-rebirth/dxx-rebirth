@@ -119,7 +119,7 @@ static void songs_init()
 		{
 			if ( strlen( inputline ) )
 			{
-				BIMSongs = (struct bim_song_info *) d_realloc(BIMSongs, sizeof(bim_song_info)*(i+1));
+				BIMSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSongs, sizeof(bim_song_info) * (i + 1)));
 				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename));
 				sscanf( inputline, "%15s", BIMSongs[i].filename );
 
@@ -144,7 +144,7 @@ static void songs_init()
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
 		if (i==12 && PHYSFSX_fsize("descent.sng")==422)
 		{
-			BIMSongs = (struct bim_song_info *) d_realloc(BIMSongs, sizeof(bim_song_info)*(i+15));
+			BIMSongs = reinterpret_cast<bim_song_info *>(d_realloc(BIMSongs, sizeof(bim_song_info) * (i + 15)));
 			for (i = 12; i <= 26; i++)
 				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i-4);
 		}
