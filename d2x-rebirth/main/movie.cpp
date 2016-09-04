@@ -138,7 +138,7 @@ static void MPlayFree(void *p)
 static unsigned int FileRead(void *handle, void *buf, unsigned int count)
 {
     unsigned numread;
-    numread = SDL_RWread((SDL_RWops *)handle, buf, 1, count);
+    numread = SDL_RWread(reinterpret_cast<SDL_RWops *>(handle), buf, 1, count);
     return (numread == count);
 }
 
