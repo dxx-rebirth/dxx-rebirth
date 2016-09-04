@@ -1058,10 +1058,10 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 		return;
 	}
 
-	HeightH = (GLbyte)(h / 256);
-	HeightL = (GLbyte)(h % 256);
-	WidthH  = (GLbyte)(w / 256);
-	WidthL  = (GLbyte)(w % 256);
+	HeightH = static_cast<GLbyte>(h / 256);
+	HeightL = static_cast<GLbyte>(h % 256);
+	WidthH  = static_cast<GLbyte>(w / 256);
+	WidthL  = static_cast<GLbyte>(w % 256);
 	// Write TGA Header
 	TGA.TGAheader[0] = 0;
 	TGA.TGAheader[1] = 0;
@@ -1079,7 +1079,7 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.header[1] = WidthH;
 	TGA.header[2] = HeightL;
 	TGA.header[3] = HeightH;
-	TGA.header[4] = (GLbyte) 24;
+	TGA.header[4] = static_cast<GLbyte>(24);
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
