@@ -229,8 +229,6 @@ std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::s
 //	AND he has never yet, since being initialized for level, been allowed to talk.
 static int ok_for_buddy_to_talk(void)
 {
-	segment	*segp;
-
 	if (Buddy_objnum == object_none)
 		return 0;
 
@@ -243,7 +241,7 @@ static int ok_for_buddy_to_talk(void)
 	if (Buddy_allowed_to_talk)
 		return 1;
 
-	segp = &Segments[buddy->segnum];
+	const segment *const segp = vcsegptr(buddy->segnum);
 
 	for (int i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		auto	wall_num = segp->sides[i].wall_num;
