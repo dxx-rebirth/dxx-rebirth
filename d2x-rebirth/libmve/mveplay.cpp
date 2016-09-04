@@ -441,19 +441,19 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 					nsamp += 4;
 
 					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail].reset((int16_t *)mve_alloc(nsamp));
+					mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
 					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail].get(), data); /* XXX */
 				} else {
 					nsamp -= 8;
 					data += 8;
 
 					mve_audio_buflens[mve_audio_buftail] = nsamp;
-					mve_audio_buffers[mve_audio_buftail].reset((int16_t *)mve_alloc(nsamp));
+					mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
 					memcpy(mve_audio_buffers[mve_audio_buftail].get(), data, nsamp);
 				}
 			} else {
 				mve_audio_buflens[mve_audio_buftail] = nsamp;
-				mve_audio_buffers[mve_audio_buftail].reset((int16_t *)mve_alloc(nsamp));
+				mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(nsamp)));
 
 				memset(mve_audio_buffers[mve_audio_buftail].get(), 0, nsamp); /* XXX */
 			}
@@ -480,7 +480,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!");
 
 				// copy back to the audio buffer
-				mve_audio_buffers[mve_audio_buftail].reset((int16_t *)mve_alloc(clen)); // free the old audio buffer
+				mve_audio_buffers[mve_audio_buftail].reset(reinterpret_cast<int16_t *>(mve_alloc(clen))); // free the old audio buffer
 				mve_audio_buflens[mve_audio_buftail] = clen;
 				memcpy(mve_audio_buffers[mve_audio_buftail].get(), cvt.buf, clen);
 			}
