@@ -419,7 +419,7 @@ static void PostProcessGameArg()
 
 	static char sdl_disable_lock_keys[] = "SDL_DISABLE_LOCK_KEYS=0";
 	if (CGameArg.CtlNoStickyKeys) // Must happen before SDL_Init!
-		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 1] = '1';
+		sdl_disable_lock_keys[sizeof(sdl_disable_lock_keys) - 2] = '1';
 	SDL_putenv(sdl_disable_lock_keys);
 }
 
