@@ -3936,7 +3936,7 @@ def register_program(program,other_program,variables,filtered_help,_itertools_pr
 				return []
 			# Coerce to an empty string, then reuse the case for stacked
 			# profiles.  This is slightly less efficient, but reduces
-			# maintenance by keeping avoiding multiple sites that call
+			# maintenance by not having multiple sites that call
 			# program().
 			l = ['']
 		except ValueError:
@@ -3946,11 +3946,8 @@ def register_program(program,other_program,variables,filtered_help,_itertools_pr
 	append = r.append
 	seen = set()
 	add_seen = seen.add
-	for prefix in _itertools_product(*[
-		v.split('+')	\
-			for e in l	\
-			for v in e.split(',')
-	]):
+	for e in l:
+		for prefix in _itertools_product(*[v.split('+') for v in e.split(',')]):
 			duplicates = set()
 			# This would be simpler if set().add(V) returned the result
 			# of `V not in self`, as seen before the add.  Instead, it
