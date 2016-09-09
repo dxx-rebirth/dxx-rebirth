@@ -280,23 +280,20 @@ static inline void *dll_LoadModule(const char *name)
 {
 	HINSTANCE handle;
 	handle = LoadLibrary(name);
-	return (void *)handle;
+	return reinterpret_cast<void *>(handle);
 }
 static inline void dll_UnloadModule(void *hdl)
 {
-	HINSTANCE handle;
-	handle = (HINSTANCE)hdl;
-
-	if(hdl)
+	if (hdl)
 	{
-		FreeLibrary(handle);
+		FreeLibrary(reinterpret_cast<HINSTANCE>(hdl));
 	}
 }
 static void *dll_GetSymbol(void *dllhandle,const char *symname)
 {
 	if(!dllhandle)
 		return NULL;
-	return (void *)GetProcAddress((HINSTANCE)dllhandle,symname);
+	return reinterpret_cast<void *>(GetProcAddress(reinterpret_cast<HINSTANCE>(dllhandle), symname));
 }
 #endif
 #ifdef __unix__
