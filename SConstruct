@@ -38,6 +38,20 @@ def get_Werror_string(l):
 	return '-Werror='
 
 class StaticSubprocess:
+	# This class contains utility functions for calling subprocesses
+	# that are expected to return the same output for every call.  The
+	# output is cached after the first call, so that callers can request
+	# the output again later without causing the program to be run again.
+	#
+	# Suitable programs are not required to depend solely on the
+	# parameters, but are assumed to depend only on state that is
+	# unlikely to change in the brief time that SConstruct runs.  For
+	# example, a tool might be upgraded by the system administrator,
+	# changing its version string.  However, we assume nobody upgrades
+	# their tools in the middle of an SConstruct run.  Results are not
+	# cached to persistent storage, so an upgrade performed after one
+	# SConstruct run, but before the next, will not cause any
+	# inconsistencies.
 	from shlex import split as shlex_split
 	class CachedCall:
 		def __init__(self,out,err,returncode):
@@ -91,6 +105,7 @@ class ToolchainInformation(StaticSubprocess):
 		return tool, _qcall(tool).out.strip()
 
 class Git(StaticSubprocess):
+	__computed_extra_version = None
 	__path_git = None
 	@classmethod
 	def __pcall_missing_git(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
@@ -98,19 +113,48 @@ class Git(StaticSubprocess):
 	@classmethod
 	def __pcall_found_git(cls,args,stderr=None,_pcall=StaticSubprocess.pcall):
 		return _pcall(cls.__path_git + args, stderr=stderr)
-	@classmethod
 	def pcall(cls,args,stderr=None):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
 		cls.pcall = f = cls.__pcall_found_git if git else cls.__pcall_missing_git
 		return f(args, stderr)
-	@classmethod
-	def spcall(cls,args,stderr=None):
-		g = cls.pcall(args, stderr)
+	def spcall(cls,args,stderr=None,_pcall=pcall):
+		g = _pcall(cls, args, stderr)
 		if g.returncode:
 			return None
 		return g.out
+	@classmethod
+	def compute_extra_version(cls,_spcall=spcall):
+		c = cls.__computed_extra_version
+		if c is None:
+			v = cls.__compute_extra_version()
+			cls.__computed_extra_version = c = (
+				v,
+				_spcall(cls, ['status', '--short', '--branch']),
+				_spcall(cls, ['diff', '--stat', 'HEAD']),
+			) if v else ('', None, None)
+		return c
+	# Run `git describe --tags --abbrev=12`.
+	# On failure, return None.
+	# On success, return a 3-tuple of:
+	#	first line of output of describe
+	#	'*' if there are unstaged changes else ''
+	#	'+' if there are staged changes else ''
+	@classmethod
+	def __compute_extra_version(cls,_pcall=pcall):
+		try:
+			g = _pcall(cls, ['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
+		except OSError as e:
+			if e.errno == errno.ENOENT:
+				return None
+			raise
+		return None	\
+			if g.returncode else \
+			(g.out.split('\n')[0] +	\
+			('*' if _pcall(cls, ['diff', '--quiet']).returncode else '') +	\
+			('+' if _pcall(cls, ['diff', '--quiet', '--cached']).returncode else ''))
+	pcall = classmethod(pcall)
 
 class ConfigureTests:
 	class Collector:
@@ -458,6 +502,8 @@ struct %(N)s_derived : %(N)s_base {
 		"""
 help:assume C++ compiler works
 """
+		# Use %r to print the tuple in an unambiguous form.
+		context.Log('scons: dxx: version: %r\n' % (Git.compute_extra_version(),))
 		cenv = context.env
 		penv = cenv['ENV']
 		self.__cxx_com_prefix = cenv['CXXCOM']
@@ -3478,7 +3524,6 @@ class DXXProgram(DXXCommon):
 	VERSION_MICRO = 1
 	static_archive_construction = {}
 	# None when unset.  Tuple of one once cached.
-	_computed_extra_version = None
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
@@ -3683,7 +3728,7 @@ class DXXProgram(DXXCommon):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
-		git_describe_version = self.compute_extra_version()[0]
+		git_describe_version = Git.compute_extra_version()[0]
 		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
 			extra_version += ' ' + git_describe_version
@@ -3737,32 +3782,6 @@ class DXXProgram(DXXCommon):
 		if self.user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
 
-	@classmethod
-	def compute_extra_version(cls,_Git_spcall=Git.spcall):
-		c = cls._computed_extra_version
-		if c is None:
-			s = ds = None
-			v = cls._compute_extra_version()
-			if v:
-				s = _Git_spcall(['status', '--short', '--branch'])
-				ds = _Git_spcall(['diff', '--stat', 'HEAD'])
-			cls._computed_extra_version = c = (v or '', s, ds)
-		return c
-
-	@staticmethod
-	def _compute_extra_version(_Git_pcall=Git.pcall):
-		try:
-			g = _Git_pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
-		except OSError as e:
-			if e.errno == errno.ENOENT:
-				return None
-			raise
-		return None	\
-			if g.returncode else \
-			(g.out.split('\n')[0] +	\
-			('*' if _Git_pcall(['diff', '--quiet']).returncode else '') +	\
-			('+' if _Git_pcall(['diff', '--quiet', '--cached']).returncode else ''))
-
 	def _register_program(self,exe_target):
 		env = self.env
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
@@ -3790,7 +3809,7 @@ class DXXProgram(DXXCommon):
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if self.VERSION_MICRO:
 				extra_version += '.%u' % self.VERSION_MICRO
-		git_describe_version = (self.compute_extra_version() if self.user_settings.git_describe_version else ('', '', ''))
+		git_describe_version = (Git.compute_extra_version() if self.user_settings.git_describe_version else ('', '', ''))
 		if git_describe_version[0] and not (extra_version and (extra_version == git_describe_version[0] or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version[0]))):
 			# Suppress duplicate output
 			if extra_version:
