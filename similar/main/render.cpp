@@ -436,9 +436,8 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 }
 
 template <std::size_t... N>
-static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &ovp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
-	const array<int, 4> vp{{ovp[N]...}};
 	const array<g3s_uvl, 4> uvl_copy{{
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
