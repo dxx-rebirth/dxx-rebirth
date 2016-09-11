@@ -557,19 +557,23 @@ void save_screen_shot(int automap_flag)
 }
 #endif
 
-namespace dsx {
+namespace dcx {
 
 //initialize flying
-void fly_init(const vobjptr_t obj)
+void fly_init(object_base &obj)
 {
-	obj->control_type = CT_FLYING;
-	obj->movement_type = MT_PHYSICS;
+	obj.control_type = CT_FLYING;
+	obj.movement_type = MT_PHYSICS;
 
-	vm_vec_zero(obj->mtype.phys_info.velocity);
-	vm_vec_zero(obj->mtype.phys_info.thrust);
-	vm_vec_zero(obj->mtype.phys_info.rotvel);
-	vm_vec_zero(obj->mtype.phys_info.rotthrust);
+	obj.mtype.phys_info.velocity = {};
+	obj.mtype.phys_info.thrust = {};
+	obj.mtype.phys_info.rotvel = {};
+	obj.mtype.phys_info.rotthrust = {};
 }
+
+}
+
+namespace dsx {
 
 //	------------------------------------------------------------------------------------
 static void do_cloak_stuff(void)
@@ -1190,7 +1194,7 @@ window *game_setup(void)
 #endif
 
 	Viewer = ConsoleObject;
-	fly_init(vobjptr(ConsoleObject));
+	fly_init(*ConsoleObject);
 	Game_suspended = 0;
 	reset_time();
 	FrameTime = 0;			//make first frame zero

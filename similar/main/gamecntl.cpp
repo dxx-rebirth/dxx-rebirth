@@ -1365,7 +1365,7 @@ static window_event_result HandleTestKey(int key)
 			slew_stop();
 			game_flush_inputs();
 			if ( ConsoleObject->control_type != CT_FLYING ) {
-				fly_init(vobjptr(ConsoleObject));
+				fly_init(*ConsoleObject);
 				Game_suspended &= ~SUSP_ROBOTS;	//robots move
 			} else {
 				slew_init(vobjptr(ConsoleObject));			//start player slewing

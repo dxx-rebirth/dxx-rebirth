@@ -192,7 +192,6 @@ extern int Rear_view;           // if true, looking back.
 namespace dsx {
 void game_flush_inputs();    // clear all inputs
 // initalize flying
-void fly_init(vobjptr_t obj);
 }
 #endif
 
@@ -201,6 +200,7 @@ void select_cockpit(cockpit_mode_t mode);
 
 // force cockpit redraw next time. call this if you've trashed the screen
 namespace dcx {
+void fly_init(object_base &obj);
 void reset_cockpit();       // called if you've trashed the screen
 
 // functions to save, clear, and resture palette flash effects
