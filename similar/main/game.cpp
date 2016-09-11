@@ -901,7 +901,7 @@ void full_palette_save(void)
 }
 #endif
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #define EXT_MUSIC_TEXT "Jukebox/Audio CD"
 #else
 #define EXT_MUSIC_TEXT "Audio CD"

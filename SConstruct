@@ -949,9 +949,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		user_settings = self.user_settings
 		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
-		if not user_settings.sdlmixer:
+		use_sdlmixer = user_settings.sdlmixer
+		context.sconf.Define('DXX_USE_SDLMIXER', int(use_sdlmixer))
+		if not use_sdlmixer:
 			return
-		self.successful_flags['CPPDEFINES'].append('USE_SDLMIXER')
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer, guess_flags)
 		if user_settings.host_platform == 'darwin':
 			successflags = successflags.copy()

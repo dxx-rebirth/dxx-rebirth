@@ -83,7 +83,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SndNoMusic;
 	bool SysNoBorders;
 	bool SysNoTitles;
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	bool SndDisableSdlMixer;
 #else
 	static constexpr tt::true_type SndDisableSdlMixer{};

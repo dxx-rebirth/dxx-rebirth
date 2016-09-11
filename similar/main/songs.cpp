@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "digi.h"
 #include "rbaudio.h"
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #include "digi_mixer_music.h"
 #include "jukebox.h"
 #endif
@@ -66,7 +66,7 @@ void songs_set_volume(int volume)
 		RBASetVolume(0);
 		RBASetVolume(volume);
 	}
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	mix_set_music_volume(volume);
 #endif
 }
@@ -128,7 +128,7 @@ static void songs_init()
 				{
 					++ dot;
 					if (!d_stricmp(dot, SONG_EXT_HMP)
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 						||
 						!d_stricmp(dot, SONG_EXT_MID) ||
 						!d_stricmp(dot, SONG_EXT_OGG) ||
@@ -171,7 +171,7 @@ static void songs_init()
 
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAInit();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	else if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
 		jukebox_load();
 #endif
@@ -183,7 +183,7 @@ static void songs_init()
 void songs_uninit()
 {
 	songs_stop_all();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	jukebox_unload();
 #endif
 	if (BIMSongs != NULL)
@@ -198,7 +198,7 @@ void songs_stop_all(void)
 	digi_win32_stop_midi_song();	// Stop midi song, if playing
 #endif
 	RBAStop();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	mix_stop_music();
 #endif
 
@@ -212,7 +212,7 @@ void songs_pause(void)
 #endif
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAPause();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	mix_pause_music();
 #endif
 }
@@ -224,7 +224,7 @@ void songs_resume(void)
 #endif
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAResume();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	mix_resume_music();
 #endif
 }
@@ -233,7 +233,7 @@ void songs_pause_resume(void)
 {
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAPauseResume();
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	mix_pause_resume_music();
 #endif
 }
@@ -335,13 +335,13 @@ int songs_play_file(const char *filename, int repeat, void (*hook_finished_track
 	{
 #if defined(_WIN32)
 		return digi_win32_play_midi_song( filename, repeat );
-#elif defined(USE_SDLMIXER)
+#elif DXX_USE_SDLMIXER
 		return mix_play_file( filename, repeat, hook_finished_track );
 #else
 		return 0;
 #endif
 	}
-#if defined(USE_SDLMIXER)
+#if DXX_USE_SDLMIXER
 	else if ( !d_stricmp(fptr, SONG_EXT_MID) ||
 			!d_stricmp(fptr, SONG_EXT_OGG) ||
 			!d_stricmp(fptr, SONG_EXT_FLAC) ||
@@ -424,7 +424,7 @@ int songs_play_song( int songnum, int repeat )
 #endif
 			break;
 		}
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
@@ -536,7 +536,7 @@ int songs_play_level_song( int levelnum, int offset )
 			}
 			break;
 		}
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{
 			if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)

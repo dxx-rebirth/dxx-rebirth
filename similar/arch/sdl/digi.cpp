@@ -25,7 +25,7 @@
 #include <digi.h>
 #include <digi_audio.h>
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #include <digi_mixer.h>
 #endif
 #ifdef _WIN32
@@ -62,7 +62,7 @@ struct sound_function_table_t
 	void (*set_digi_volume)(int);
 };
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 constexpr sound_function_table_t digi_mixer_table{
 	&digi_mixer_init,
 	&digi_mixer_close,
@@ -98,7 +98,7 @@ constexpr sound_function_table_t digi_audio_table{
 
 class sound_function_pointers_t
 {
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #ifdef DXX_COPY_SOUND_TABLE
 	sound_function_table_t table;
 #else
@@ -112,7 +112,7 @@ public:
 	inline sound_function_pointers_t &operator=(const sound_function_table_t &t);
 };
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #ifdef DXX_COPY_SOUND_TABLE
 const sound_function_table_t *sound_function_pointers_t::operator->()
 {
@@ -164,7 +164,7 @@ static sound_function_pointers_t fptr;
 
 void digi_select_system()
 {
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	if (!CGameArg.SndDisableSdlMixer)
 	{
 	con_printf(CON_NORMAL,"Using SDL_mixer library");

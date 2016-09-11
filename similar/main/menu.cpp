@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "mission.h"
 #include "songs.h"
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #include "jukebox.h" // for jukebox_exts
 #endif
 #include "config.h"
@@ -1876,7 +1876,7 @@ int select_file_recursive2(const char *title, const char *orig_path, const parti
 	DXX_MENUITEM(VERB, TEXT, TXT "", OPT)
 #endif
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 static int get_absolute_path(char *full_path, const char *rel_path)
 {
 	PHYSFSX_getRealPath(rel_path, full_path, PATH_MAX);
@@ -1894,7 +1894,7 @@ namespace {
 #define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
 #endif
 
-#if defined(USE_SDLMIXER) || defined(_WIN32)
+#if DXX_USE_SDLMIXER || defined(_WIN32)
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
 	DXX_MENUITEM(VERB, RADIO, "Built-in/Addon music", opt_sm_mtype1, GameCfg.MusicType == MUSIC_TYPE_BUILTIN, optgrp_music_type)	\
 
@@ -1912,7 +1912,7 @@ namespace {
 #define DXX_MUSIC_OPTIONS_CD_LABEL ""
 #endif
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
 	DXX_MENUITEM(VERB, RADIO, "Jukebox", opt_sm_mtype3, GameCfg.MusicType == MUSIC_TYPE_CUSTOM, optgrp_music_type)	\
 
@@ -1946,7 +1946,7 @@ namespace {
 #define DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)
 #endif
 
-#if SDL_MAJOR_VERSION == 1 && defined(USE_SDLMIXER)
+#if SDL_MAJOR_VERSION == 1 && DXX_USE_SDLMIXER
 #define DXX_MUSIC_OPTIONS_SEPARATOR_TEXT " / "
 #else
 #define DXX_MUSIC_OPTIONS_SEPARATOR_TEXT ""
@@ -1973,7 +1973,7 @@ public:
 	enum
 	{
 		optgrp_music_type,
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 		optgrp_music_order,
 #endif
 	};
@@ -2037,7 +2037,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
 				replay = 1;
 			}
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_CUSTOM;
@@ -2049,7 +2049,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 				GameCfg.OrigTrackOrder = items[citem].value;
 				replay = (Game_wind != NULL);
 			}
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3_lmplayorder1)
 			{
 				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
@@ -2070,7 +2070,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 		}
 		case EVENT_NEWMENU_SELECTED:
 		{
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 #ifdef _WIN32
 #define WINDOWS_DRIVE_CHANGE_TEXT	".\nCTRL-D to change drive"
@@ -2123,7 +2123,7 @@ int sound_menu_items::menuset(newmenu *, const d_event &event, sound_menu_items 
 void do_sound_menu()
 {
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	const auto old_CMLevelMusicPath = CGameCfg.CMLevelMusicPath;
 	const auto old_CMMiscMusic0 = CGameCfg.CMMiscMusic[SONG_TITLE];
 #endif
@@ -2131,7 +2131,7 @@ void do_sound_menu()
 	sound_menu_items items;
 	newmenu_do1(nullptr, "Sound Effects & Music", items.m.size(), items.m.data(), &sound_menu_items::menuset, &items, 0);
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	if ((Game_wind != NULL && strcmp(old_CMLevelMusicPath.data(), CGameCfg.CMLevelMusicPath.data())) || (Game_wind == NULL && strcmp(old_CMMiscMusic0.data(), CGameCfg.CMMiscMusic[SONG_TITLE].data())))
 	{
 		songs_uninit();

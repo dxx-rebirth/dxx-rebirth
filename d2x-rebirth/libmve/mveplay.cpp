@@ -6,6 +6,7 @@
  */
 //#define DEBUG
 
+#include "dxxsconf.h"
 #include <vector>
 #include <string.h>
 #include <time.h>
@@ -26,7 +27,7 @@
 #endif // _WIN32
 
 #include <SDL.h>
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #include <SDL_mixer.h>
 #endif
 
@@ -381,7 +382,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 		}
 	}
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	else {
 		// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
 		Mix_SetPostMix(mve_audio_spec->callback, mve_audio_spec->userdata);
@@ -401,7 +402,7 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
 	{
 		if (CGameArg.SndDisableSdlMixer)
 			SDL_PauseAudio(0);
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 		else
 			Mix_Pause(0);
 #endif
@@ -413,7 +414,7 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
 static int audio_data_handler(unsigned char major, unsigned char, const unsigned char *data, int, void *)
 {
 
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 	// MD2211: for audio conversion
 	SDL_AudioCVT cvt;
 	int clen;
@@ -459,7 +460,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 			}
 
 			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 			if (!CGameArg.SndDisableSdlMixer) {
 				// build converter: in = MVE format, out = SDL_mixer output
 				Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings

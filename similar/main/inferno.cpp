@@ -136,6 +136,7 @@ static void print_commandline_help()
 #define DXX_if_defined4(F,_,V,...)	DXX_if_defined5_##V(F)
 #define DXX_if_defined5_0(F)
 #define DXX_if_defined5_1(F)	DXX_if_defined_unwrap F
+#define DXX_if_defined_01(V,F)	DXX_if_defined4(F,,V)
 
 #define DXX_COMMAND_LINE_HELP_unix(V)	DXX_if_defined(__unix__, (V))
 #define DXX_COMMAND_LINE_HELP_D1(V)	DXX_if_defined(DXX_BUILD_DESCENT_I, (V))
@@ -185,7 +186,7 @@ static void print_commandline_help()
 	DXX_COMMAND_LINE_HELP_D2(	\
 		VERB("  -sound11k                     Use 11KHz sounds\n")	\
 	)	\
-	DXX_if_defined(USE_SDLMIXER, (	\
+	DXX_if_defined_01(DXX_USE_SDLMIXER, (	\
 		VERB("  -nosdlmixer                   Disable Sound output via SDL_mixer\n")	\
 	))	\
 	VERB("\n Graphics:\n\n")	\

@@ -267,7 +267,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 #endif
 		else if (!d_stricmp(p, "-nosdlmixer"))
 		{
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 			CGameArg.SndDisableSdlMixer = true;
 #endif
 		}

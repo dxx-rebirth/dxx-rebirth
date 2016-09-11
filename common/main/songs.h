@@ -14,6 +14,7 @@
 #define _SONGS_H
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 
 struct bim_song_info
 {
@@ -28,7 +29,7 @@ struct bim_song_info
 #define SONG_FIRST_LEVEL_SONG   5
 
 #define SONG_EXT_HMP            "hmp"
-#ifdef USE_SDLMIXER
+#if DXX_USE_SDLMIXER
 #define SONG_EXT_MID            "mid"
 #define SONG_EXT_OGG            "ogg"
 #define SONG_EXT_FLAC           "flac"
