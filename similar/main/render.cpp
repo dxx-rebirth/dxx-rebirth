@@ -223,9 +223,6 @@ namespace dsx {
 static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
-#ifdef OGL
-	grs_bitmap  *bm2 = NULL;
-#endif
 
 	array<g3s_lrgb, 4>		dyn_light;
 	array<cg3s_point *, 4> pointlist;
@@ -265,6 +262,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 	}
 
 #ifdef OGL
+	grs_bitmap *bm2 = nullptr;
 	if (!CGameArg.DbgUseOldTextureMerge)
 	{
 		PIGGY_PAGE_IN(Textures[tmap1]);
@@ -272,10 +270,10 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		if (tmap2){
 			PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 			bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-		}
-		if (bm2 && (bm2->bm_flags&BM_FLAG_SUPER_TRANSPARENT)){
+			if (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT) {
+				bm2 = nullptr;
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
-			bm2 = NULL;
+			}
 		}
 	}else
 #endif
