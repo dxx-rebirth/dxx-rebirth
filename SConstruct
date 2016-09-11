@@ -825,8 +825,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			return
 		self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
 		Result(s % self.msgprefix)
-	def _result_check_user_setting(self,context,condition,CPPDEFINES,label):
-		if condition:
+	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
+		if isinstance(CPPDEFINES, str):
+			context.sconf.Define(CPPDEFINES, int(condition))
+		elif condition:
 			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
 		context.Result('%s: checking whether to enable %s...%s' % (self.msgprefix, label, 'yes' if condition else 'no'))
 	@_custom_test
@@ -845,7 +847,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_udp(self,context,_CPPDEFINES=(('USE_UDP',),)):
 		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
 	@_custom_test
-	def _check_user_settings_tracker(self,context,_CPPDEFINES=(('USE_TRACKER',),)):
+	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):
 		self._result_check_user_setting(context, self.user_settings.use_tracker, _CPPDEFINES, 'UDP game tracker')
 	@_custom_test
 	def check_libphysfs(self,context,_header=('physfs.h',)):

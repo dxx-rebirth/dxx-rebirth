@@ -143,7 +143,7 @@ static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #else
 #define dispatch_sockaddr_from	from.sin
 #endif
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 static _sockaddr TrackerSocket;
 static int iTrackerVerified;
 constexpr int require_tracker_socket = 1;
@@ -721,7 +721,7 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 /* General UDP functions - END */
 
 /* Tracker stuff, begin! */
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 
 /* Tracker defines:  System stuff */
 #define TRACKER_SYS_VERSION		0x00	/* Tracker protocol version */
@@ -1139,7 +1139,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 #endif
 				break;
 			}
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 			if( key == KEY_F6 )
 			{
 				// Zero the list
@@ -3041,7 +3041,7 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 		case UPID_MDATA_ACK:
 			net_udp_noloss_got_ack(data, length);
 			break;
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 		case UPID_TRACKER_VERIFY:
 			iTrackerVerified = 1;
 			break;
@@ -3238,7 +3238,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 	return 0;
 }
 
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Track this game on", opt_tracker, Netgame.Tracker) \
 	DXX_MENUITEM(VERB, TEXT, tracker_addr_txt, opt_tracker_addr)
@@ -3364,7 +3364,7 @@ class more_game_options_menu_items
 #if defined(DXX_BUILD_DESCENT_II)
 	char extraAccessory[sizeof("Accessories: 0")];
 #endif
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
         char tracker_addr_txt[sizeof("65535") + 28];
 #endif
 	typedef array<newmenu_item, DXX_UDP_MENU_OPTIONS(COUNT)> menu_array;
@@ -3468,7 +3468,7 @@ public:
 		update_extra_primary_string(primary);
 		update_extra_secondary_string(secondary);
 		DXX_UDP_MENU_OPTIONS(ADD);
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 		const auto &tracker_addr = CGameArg.MplTrackerAddr;
 		if (tracker_addr.empty())
                 {
@@ -3862,7 +3862,7 @@ int net_udp_setup_game()
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
 
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	Netgame.Tracker = 1;
 #endif
 
@@ -3952,7 +3952,7 @@ int net_udp_setup_game()
 		net_udp_close();
 
 	write_netgame_profile(&Netgame);
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	/* Force off _after_ writing profile, so that command line does not
 	 * change ngp file.
 	 */
@@ -4263,7 +4263,7 @@ static int net_udp_select_players()
 	snprintf(title, sizeof(title), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
 
 GetPlayersAgain:
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	if( Netgame.Tracker )
 		udp_tracker_register();
 #endif
@@ -4276,7 +4276,7 @@ GetPlayersAgain:
 	{
 		// Aborted!
 		// Dump all players and go back to menu mode
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 		if( Netgame.Tracker )
 			udp_tracker_unregister();
 #endif
@@ -4640,7 +4640,7 @@ void net_udp_leave_game()
 		}
 		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 		N_players=nsave;
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 		if( Netgame.Tracker )
 			udp_tracker_unregister();
 #endif
@@ -4795,7 +4795,7 @@ void net_udp_do_frame(int force, int listen)
 		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 	}
 
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	// If we use the tracker, tell the tracker about us every 10 seconds
 	if( Netgame.Tracker )
 	{

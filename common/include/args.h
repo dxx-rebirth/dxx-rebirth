@@ -118,7 +118,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	int SysMaxFPS;
 	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	uint16_t MplTrackerPort;
 	std::string MplTrackerAddr;
 #endif

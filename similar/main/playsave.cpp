@@ -1442,7 +1442,7 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->PacketsPerSec, value);
 		else if (cmp(lb, eq, NoFriendlyFireStr))
 			convert_integer(ng->NoFriendlyFire, value);
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 		else if (cmp(lb, eq, TrackerStr))
 			convert_integer(ng->Tracker, value);
 #endif
@@ -1480,7 +1480,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, ControlInvulTimeStr "=%i\n", ng->control_invul_time);
 	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
 	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
-#ifdef USE_TRACKER
+#if DXX_USE_TRACKER
 	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);
 #else
 	PHYSFSX_printf(file, TrackerStr "=0\n");
