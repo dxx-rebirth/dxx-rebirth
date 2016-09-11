@@ -95,7 +95,19 @@ Install the listed prerequisites through your system package manager.
  physfs-dev**
 
 #### Mac OS X
+Where possible, Mac users should try to obtain a compiled package, rather than locally compiling from source.  To build from source, read on.
+
 Install the listed prerequisites through your preferred package manager.
+
+PhysicsFS must be installed as a separate dynamic library.  It is not supported as an OS X Framework.  The required files will be installed into the correct locations by the PhysicsFS installer; refer to the relevant instructions.
+
+The Mac OS X Command Line Tools are required.  Install them by running
+
+    xcode-select --install
+
+from the Terminal.  This may need to be done after each major OS upgrade as well.
+
+DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build using Xcode requires Xcode to be installed.
 
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
 * **brew install
