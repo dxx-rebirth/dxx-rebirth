@@ -34,10 +34,9 @@ public:
 template <typename D>
 class PHYSFSX_uncounted_list_template : public std::unique_ptr<char *[], D>
 {
-	typedef std::unique_ptr<char *[], D> base_ptr;
 public:
 	typedef null_sentinel_iterator<char *> const_iterator;
-	DXX_INHERIT_CONSTRUCTORS(PHYSFSX_uncounted_list_template, base_ptr);
+	DXX_INHERIT_CONSTRUCTORS(PHYSFSX_uncounted_list_template, std::unique_ptr<char *[], D>);
 	const_iterator begin() const
 	{
 		return this->get();

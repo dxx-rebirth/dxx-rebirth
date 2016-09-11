@@ -19,9 +19,6 @@
 
 #include <limits.h>
 
-// define a dboolean
-typedef int dboolean;
-
 //define a signed byte
 typedef signed char sbyte;
 

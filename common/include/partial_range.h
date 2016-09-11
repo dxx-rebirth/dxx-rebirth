@@ -252,8 +252,10 @@ __attribute_warn_unused_result
 static inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UO &o, const UL &l)
 {
 	/* Require unsigned length */
-	typedef typename tt::conditional<tt::is_unsigned<UO>::value, tt::is_unsigned<UL>, tt::false_type>::type enable_type;
-	return unchecked_partial_range<I, base_partial_range_error_t::required_buffer_size<NF, NE>::value>(file, line, estr, range_begin, o, l, enable_type());
+	return unchecked_partial_range<I, base_partial_range_error_t::required_buffer_size<NF, NE>::value>(
+		file, line, estr, range_begin, o, l,
+		typename std::conditional<std::is_unsigned<UO>::value, std::is_unsigned<UL>, std::false_type>::type()
+	);
 }
 
 template <typename I, typename UL, std::size_t NF, std::size_t NE>

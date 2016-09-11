@@ -18,7 +18,6 @@ class base_count_array_t
 {
 protected:
 	typedef T size_type;
-	typedef base_count_array_t<size_type> base_type;
 	void clear() { m_count = 0; }
 	size_type m_count;
 public:
@@ -30,7 +29,6 @@ public:
 template <typename T, std::size_t S>
 class count_array_t : public base_count_array_t<>
 {
-//	typedef base_type::size_type size_type;
 public:
 	typedef array<T, S> array_type;
 	typedef typename array_type::value_type value_type;
