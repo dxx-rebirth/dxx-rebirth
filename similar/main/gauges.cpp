@@ -981,16 +981,18 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 
 static void hud_show_energy(void)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &energy = player_info.energy;
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		const auto &&line_spacing = LINE_SPACING;
-		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(get_local_player_energy()));
+		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_energy(f2ir(get_local_player_energy()));
+		newdemo_record_player_energy(f2ir(energy));
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1453,9 +1455,10 @@ static void hud_show_weapons(void)
 		hud_show_primary_weapons_mode(1,x1,y);
 		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_player_shields()));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(get_local_player_energy()));
+		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
 	}
 	else
 	{
@@ -3293,7 +3296,8 @@ void draw_hud()
 namespace dsx {
 void render_gauges()
 {
-	int energy = f2ir(get_local_player_energy());
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto energy = f2ir(player_info.energy);
 	auto &pl_flags = get_local_player_flags();
 	const auto cloak = (pl_flags & PLAYER_FLAGS_CLOAKED);
 

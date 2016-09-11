@@ -169,7 +169,7 @@ void do_megawow_powerup(int quantity)
 	for (int i=3; i<MAX_SECONDARY_WEAPONS; i++)
 		secondary_ammo[i] = quantity/5;
 
-	get_local_player_energy() = F1_0*200;
+	player_info.energy = F1_0*200;
 	get_local_player_shields() = F1_0*200;
 	get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -196,7 +196,8 @@ static int pick_up_energy(void)
 {
 	int	used=0;
 
-	auto &energy = get_local_player_energy();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &energy = player_info.energy;
 	if (energy < MAX_ENERGY) {
 		fix boost;
 		boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);

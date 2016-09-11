@@ -506,7 +506,8 @@ void omega_charge_frame(void)
 {
 	fix	delta_charge, old_omega_charge;
 
-	auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &Omega_charge = player_info.Omega_charge;
 	if (Omega_charge == MAX_OMEGA_CHARGE)
 		return;
 
@@ -522,7 +523,7 @@ void omega_charge_frame(void)
 	if (Last_omega_fire_time + F1_0/3 > GameTime64)
 		return;
 
-	if (auto &energy = get_local_player_energy())
+	if (auto &energy = player_info.energy)
 	{
 		fix	energy_used;
 
@@ -558,8 +559,9 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
-		auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
-		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !get_local_player_energy()))) {
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &Omega_charge = player_info.Omega_charge;
+		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
 			obj_delete(weapon_objp);
 			return;
 		}
@@ -1492,7 +1494,8 @@ void Flare_create(const vobjptridx_t obj)
 
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
-	auto &energy = get_local_player_energy();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (energy > 0)
 #endif

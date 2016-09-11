@@ -1619,7 +1619,8 @@ static void object_move_one(const vobjptridx_t obj)
 			fuelcen_check_for_hoard_goal(segp);
 #endif
 
-		auto &energy = get_local_player_energy();
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &energy = player_info.energy;
 		const fix fuel = fuelcen_give_fuel(segp, INITIAL_ENERGY - energy);
 		if (fuel > 0 )	{
 			energy += fuel;

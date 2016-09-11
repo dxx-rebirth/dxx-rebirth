@@ -1414,7 +1414,8 @@ void GameProcessFrame(void)
 	if (pl_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 	{
 		static int turned_off=0;
-		auto &energy = get_local_player_energy();
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &energy = player_info.energy;
 		energy -= (FrameTime*3/8);
 		if (energy < i2f(10)) {
 			if (!turned_off) {
@@ -1711,7 +1712,7 @@ void FireLaser()
 		: 0;
 
 	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
-		auto &energy = get_local_player_energy();
+		auto &energy = player_info.energy;
 		if (energy < F1_0 * 2 && Auto_fire_fusion_cannon_time == 0)
 		{
 			Global_laser_firing_count = 0;

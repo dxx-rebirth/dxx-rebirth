@@ -148,9 +148,10 @@ static void transfer_energy_to_shield()
 {
 	static fix64 last_play_time=0;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &shields = get_local_player_shields();
+	auto &energy = player_info.energy;
 	//how much energy gets transfered
-	auto &energy = get_local_player_energy();
 	const fix e = min(min(FrameTime*CONVERTER_RATE, energy - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
 
 	if (e <= 0) {
@@ -1525,7 +1526,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(player_info.laser_level, MAX_LASER_LEVEL);
 
-		get_local_player_energy() = MAX_ENERGY;
+		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
@@ -1545,7 +1546,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(player_info.laser_level, MAX_LASER_LEVEL);
 
-		get_local_player_energy() = MAX_ENERGY;
+		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
@@ -1553,7 +1554,8 @@ static window_event_result FinalCheats()
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::lamer)
 	{
-		get_local_player_shields()=get_local_player_energy()=i2f(1);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		get_local_player_shields() = player_info.energy = i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1585,7 +1587,7 @@ static window_event_result FinalCheats()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_laser_level(player_info.laser_level, MAX_SUPER_LASER_LEVEL);
 
-		get_local_player_energy() = MAX_ENERGY;
+		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_SUPER_LASER_LEVEL;
 		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();

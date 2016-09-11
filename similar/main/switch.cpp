@@ -279,6 +279,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
 	if (pnum == Player_num) {
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (trigger.flags & TRIGGER_SHIELD_DAMAGE) {
 			get_local_player_shields() -= trigger.value;
 		}
@@ -301,7 +302,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 		}
 
 		if (trigger.flags & TRIGGER_ENERGY_DRAIN) {
-			get_local_player_energy() -= trigger.value;
+			player_info.energy -= trigger.value;
 		}
 	}
 

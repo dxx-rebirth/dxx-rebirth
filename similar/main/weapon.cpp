@@ -198,7 +198,7 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
-	auto &energy = get_local_player_energy();
+	auto &energy = player_info.energy;
 	if (energy < 0)
 		energy = 0;
 

@@ -142,7 +142,8 @@ void read_flying_controls(const vobjptr_t obj)
 			//charge up to full
 			charge_up = min(FrameTime/8,f1_0 - Afterburner_charge);	//recharge over 8 seconds
 	
-			auto &energy = get_local_player_energy();
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			auto &energy = player_info.energy;
 			cur_energy = max(energy - i2f(10), 0);	//don't drop below 10
 
 			//maybe limit charge up by energy

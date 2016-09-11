@@ -312,8 +312,9 @@ void init_player_stats_game(ubyte pnum)
 
 static void init_ammo_and_energy(void)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
-		auto &energy = get_local_player_energy();
+		auto &energy = player_info.energy;
 		if (energy < INITIAL_ENERGY)
 			energy = INITIAL_ENERGY;
 	}
@@ -322,7 +323,7 @@ static void init_ammo_and_energy(void)
 		if (shields < StartingShields)
 			shields = StartingShields;
 	}
-	auto &concussion = get_local_player_secondary_ammo()[CONCUSSION_INDEX];
+	auto &concussion = player_info.secondary_ammo[CONCUSSION_INDEX];
 	if (concussion < 2 + NDL - Difficulty_level)
 		concussion = 2 + NDL - Difficulty_level;
 }
@@ -916,12 +917,13 @@ void DoEndLevelScoreGlitz(int network)
 			skill_points = 0;
 
 		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
+		auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 		shield_points = f2i(get_local_player_shields()) * 10 * (Difficulty_level+1);
-		energy_points = f2i(get_local_player_energy()) * 5 * (Difficulty_level+1);
+		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
 		shield_points = f2i(get_local_player_shields()) * 5 * mine_level;
-		energy_points = f2i(get_local_player_energy()) * 2 * mine_level;
+		energy_points = f2i(player_info.energy) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
 		energy_points -= energy_points % 50;
@@ -1513,7 +1515,8 @@ void DoPlayerDead()
 
 		//clear out stuff so no bonus
 		get_local_player().hostages_on_board = 0;
-		get_local_player_energy() = 0;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.energy = 0;
 		get_local_player_shields() = 0;
 		get_local_player().connected = CONNECT_DIED_IN_MINE;
 

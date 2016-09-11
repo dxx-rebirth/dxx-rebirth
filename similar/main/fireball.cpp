@@ -974,10 +974,11 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 static bool skip_create_egg_powerup(powerup_type_t powerup)
 {
 	fix current;
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (powerup == POW_SHIELD_BOOST)
 		current = get_local_player_shields();
 	else if (powerup == POW_ENERGY)
-		current = get_local_player_energy();
+		current = player_info.energy;
 	else
 		return false;
 	int limit;
