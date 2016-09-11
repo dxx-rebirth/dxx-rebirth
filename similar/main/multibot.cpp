@@ -202,7 +202,29 @@ void multi_strip_robots(const int playernum)
 					multi_delete_controlled_robot(vobjptridx(r));
 		}
 
-		range_for (const auto &&objp, partial_range(vobjptr, 1u, vobjptr.count()))
+		/* clang-3.7 crashes with a segmentation fault if asked to
+		 * implicitly convert 1u to std::size_t in partial_range inline
+		 * chain.  Add a conversion up front, which seems to avoid the
+		 * bug.  The value must not be cast on non-clang targets because
+		 * some non-clang targets issue a `-Wuseless-cast` diagnostic
+		 * for the cast.  Fortunately, clang does not understand
+		 * `-Wuseless-cast`, so the cast can be used on all clang
+		 * targets, even ones where it is useless.
+		 *
+		 * This crash was first seen in x86_64-pc-linux-gnu-clang-3.7,
+		 * then later reported by kreator in `Apple LLVM version 7.3.0`
+		 * on `x86_64-apple-darwin15.6.0`.
+		 *
+		 * Comment from kreator regarding the clang crash bug:
+		 *	This has been reported with Apple, bug report 28247284
+		 */
+#ifdef __clang__
+#define DXX_partial_range_vobjptr_skip_distance	static_cast<std::size_t>
+#else
+#define DXX_partial_range_vobjptr_skip_distance
+#endif
+		range_for (const auto &&objp, partial_range(vobjptr, DXX_partial_range_vobjptr_skip_distance(1u), vobjptr.count()))
+#undef DXX_partial_range_vobjptr_skip_distance
 		{
 			if (objp->type == OBJ_ROBOT && objp->ctype.ai_info.REMOTE_OWNER == playernum)
 			{
