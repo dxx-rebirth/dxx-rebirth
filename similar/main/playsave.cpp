@@ -780,7 +780,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout,GRAPHICS_DYNLIGHTCOLOR_NAME_TEXT "=%i\n",PlayerCfg.DynLightColor);
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,PLX_VERSION_HEADER_TEXT "\n");
-		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
+		PHYSFSX_printf(fout,"plx version=" DXX_VERSION_STR "\n");
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		PHYSFSX_printf(fout,END_TEXT "\n");
 		fout.reset();
@@ -1485,7 +1485,7 @@ void write_netgame_profile(netgame_info *ng)
 #else
 	PHYSFSX_printf(file, TrackerStr "=0\n");
 #endif
-	PHYSFSX_printf(file, NGPVersionStr "=%s\n",VERSION);
+	PHYSFSX_printf(file, NGPVersionStr "=" DXX_VERSION_STR "\n");
 }
 
 }

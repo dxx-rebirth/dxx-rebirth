@@ -8,8 +8,8 @@
 
 #pragma once
 
-#define __stringize2(X)	#X
-#define __stringize(X)	__stringize2(X)
+#define DXX_STRINGIZE2(X)	#X
+#define DXX_STRINGIZE(X)	DXX_STRINGIZE2(X)
 
 #define VERSID_EXTRACT_0(A,...)	A
 #define VERSID_EXTRACT_1(A,B,...)	B
@@ -24,11 +24,10 @@
 #define DXX_VERSION_MINORi static_cast<uint16_t>(DXX_VERSION_MINORiu)
 #define DXX_VERSION_MICROi static_cast<uint16_t>(DXX_VERSION_MICROiu)
 
-#define DXX_VERSION_MAJOR __stringize(DXX_VERSION_MAJORiu)
-#define DXX_VERSION_MINOR __stringize(DXX_VERSION_MINORiu)
-#define DXX_VERSION_MICRO __stringize(DXX_VERSION_MICROiu)
-
-#define VERSION DXX_VERSION_MAJOR "." DXX_VERSION_MINOR "." DXX_VERSION_MICRO
+#define DXX_VERSION_STR	\
+	DXX_STRINGIZE(DXX_VERSION_MAJORiu) "."	\
+	DXX_STRINGIZE(DXX_VERSION_MINORiu) "."	\
+	DXX_STRINGIZE(DXX_VERSION_MICROiu)
 #if defined(DXX_BUILD_DESCENT_I)
 #define BASED_VERSION "Registered v1.5 Jan 5, 1996"
 #elif defined(DXX_BUILD_DESCENT_II)
