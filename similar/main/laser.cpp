@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "multi.h"
 #include "fwd-wall.h"
-#include "reverse.h"
 #include "playsave.h"
 
 #include "compiler-range_for.h"
