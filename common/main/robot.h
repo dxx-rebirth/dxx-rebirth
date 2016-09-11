@@ -186,7 +186,7 @@ static inline int robot_is_thief(const robot_info *robptr)
 
 //the array of robots types
 extern array<robot_info, MAX_ROBOT_TYPES> Robot_info;     // Robot info for AI system, loaded from bitmaps.tbl.
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 using robot_names_array = array<array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
 extern robot_names_array Robot_names;
 #endif

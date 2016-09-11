@@ -113,7 +113,7 @@ constexpr unsigned MAX_POWERUP_TYPES = 50;
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 using powerup_names_array = array<array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
 extern powerup_names_array Powerup_names;
 #endif

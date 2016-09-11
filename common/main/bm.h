@@ -74,7 +74,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	short   destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
 	uint8_t   flags;     //values defined above
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	d_fname filename;       //used by editor to remap textures
 	#endif
 
@@ -94,7 +94,7 @@ constexpr struct player_ship *Player_ship = &only_player_ship;
 extern unsigned Num_cockpits;
 extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 namespace dsx {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 using tmap_xlate_table_array = array<short, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
 #endif

@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #define COMPATIBLE_VERSION  16  // Oldest version that can safely be loaded.
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 struct mtfi {
 	ushort  fileinfo_signature;
 	ushort  fileinfo_version;

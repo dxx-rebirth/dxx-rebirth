@@ -200,7 +200,7 @@ struct DiskSoundHeader
 #if defined(DXX_BUILD_DESCENT_II)
 static void free_bitmap_replacements();
 static void free_d1_tmap_nums();
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
 static void piggy_write_pigfile(const char *filename);
 static void write_int(int i,PHYSFS_File *file);
@@ -277,7 +277,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 
 	if (!in_file) {
 #if defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 		if ( GameArg.EdiMacData )
 			swap_0_255( bmp );
 #endif
@@ -631,7 +631,7 @@ void piggy_init_pigfile(const char *filename)
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	int data_size;
 #endif
 
@@ -656,7 +656,7 @@ void piggy_init_pigfile(const char *filename)
 
 	if (!Piggy_fp) {
 
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 			return;         //if editor, ok to not have pig, because we'll build one
 		#else
 			Error("Cannot load required file <%s>",filename);
@@ -670,7 +670,7 @@ void piggy_init_pigfile(const char *filename)
 	header_size = N_bitmaps * sizeof(DiskBitmapHeader);
 
 	data_start = header_size + PHYSFS_tell(Piggy_fp);
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	data_size = PHYSFS_fileLength(Piggy_fp) - data_start;
 #endif
 	Num_bitmap_files = 1;
@@ -699,7 +699,7 @@ void piggy_init_pigfile(const char *filename)
 		piggy_register_bitmap(bm, temp_name, 1);
 	}
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Piggy_bitmap_cache_size = data_size + (data_size/10);   //extra mem for new bitmaps
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
@@ -723,7 +723,7 @@ void piggy_new_pigfile(char *pigname)
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_start;
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	int must_rewrite_pig = 0;
 #endif
 
@@ -761,7 +761,7 @@ void piggy_new_pigfile(char *pigname)
 		}
 	}
 
-#ifndef EDITOR
+#if !DXX_USE_EDITOR
 	if (!Piggy_fp)
 		Error("Cannot open correct version of <%s>", pigname);
 #endif
@@ -788,7 +788,7 @@ void piggy_new_pigfile(char *pigname)
 			else
 				strcpy( temp_name, temp_name_read );
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			//Make sure name matches
 			if (strcmp(temp_name,AllBitmaps[i].name)) {
 				//Int3();       //this pig is out of date.  Delete it
@@ -812,7 +812,7 @@ void piggy_new_pigfile(char *pigname)
 	else
 		N_bitmaps = 0;          //no pigfile, so no bitmaps
 
-	#ifndef EDITOR
+#if !DXX_USE_EDITOR
 
 	Assert(N_bitmaps == Num_bitmap_files-1);
 
@@ -1479,7 +1479,7 @@ void piggy_load_level_data()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 static void piggy_write_pigfile(const char *filename)
 {
@@ -1622,7 +1622,7 @@ void remove_char( char * s, char c )
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static int piggy_does_bitmap_exist_slow(const char * name )
 {
 	int i;

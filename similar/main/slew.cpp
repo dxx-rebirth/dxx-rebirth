@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "slew.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 

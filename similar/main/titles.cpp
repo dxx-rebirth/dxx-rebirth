@@ -326,7 +326,7 @@ void show_order_form()
 		"order01.pcx"	// D1 Demo
 	);
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifndef EDITOR
+#if !DXX_USE_EDITOR
 	key_flush();
 	const auto hiresmode = HIRESMODE;
 	/*

@@ -5349,7 +5349,7 @@ void init_hoard_data()
 	}
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void save_hoard_data(void)
 {
 	grs_bitmap icon;

@@ -79,7 +79,7 @@ array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 
 array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 const char	Special_names[MAX_CENTER_TYPES][11] = {
 	"NOTHING   ",
 	"FUELCEN   ",
@@ -247,7 +247,7 @@ void trigger_matcen(const vsegptridx_t segnum)
 	}
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //------------------------------------------------------------
 // Takes away a segment's fuel center properties.
 //	Deletes the segment point entry in the FuelCenter list.

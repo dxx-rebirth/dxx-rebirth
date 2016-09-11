@@ -81,7 +81,7 @@ fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const 
 
 void vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
 #endif
 

@@ -133,7 +133,7 @@ WALL_IS_DOORWAY_result_t wall_is_doorway(const side &side)
 }
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //-----------------------------------------------------------------
 // Initializes all the walls (in other words, no special walls)
 namespace dsx {

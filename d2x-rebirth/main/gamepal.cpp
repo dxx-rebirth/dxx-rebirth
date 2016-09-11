@@ -73,7 +73,7 @@ int load_palette(const char *name,int used_for_level,int no_change_screen)
 		//if not editor, load pig first so small install message can come
 		//up in old palette.  If editor version, we must load the pig after
 		//the palette is loaded so we can remap new textures.
-		#ifndef EDITOR
+#if !DXX_USE_EDITOR
 		piggy_new_pigfile(pigname);
 		#endif
 	}
@@ -103,7 +103,7 @@ int load_palette(const char *name,int used_for_level,int no_change_screen)
 
 		strncpy(last_palette_loaded_pig,name,sizeof(last_palette_loaded_pig));
 
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		piggy_new_pigfile(pigname);
 		#endif
 

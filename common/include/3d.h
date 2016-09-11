@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct grs_bitmap;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 namespace dcx {
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
 }

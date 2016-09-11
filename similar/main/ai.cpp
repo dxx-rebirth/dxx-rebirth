@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "kconfig.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/kdefs.h"
@@ -2028,7 +2028,7 @@ static void init_boss_segments(boss_special_segment_array_t &a, int size_check, 
 	objptridx_t boss_objnum = object_none;
 
 	a.clear();
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Selected_segs.clear();
 #endif
 
@@ -2062,7 +2062,7 @@ static void init_boss_segments(boss_special_segment_array_t &a, int size_check, 
 		seg_queue[head++] = original_boss_seg;
 
 		a.emplace_back(original_boss_seg);
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		Selected_segs.emplace_back(original_boss_seg);
 		#endif
 
@@ -2100,7 +2100,7 @@ static void init_boss_segments(boss_special_segment_array_t &a, int size_check, 
 	
 						if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(segp->children[sidenum]))) {
 							a.emplace_back(segp->children[sidenum]);
-							#ifdef EDITOR
+#if DXX_USE_EDITOR
 							Selected_segs.emplace_back(segp->children[sidenum]);
 							#endif
 							if (a.count() >= a.size())

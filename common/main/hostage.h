@@ -46,7 +46,7 @@ struct hostage_data
 
 extern array<hostage_data, MAX_HOSTAGES> Hostages;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void hostage_init_all();
 void hostage_compress_all();
 int hostage_is_valid( int hostage_num );
@@ -55,7 +55,7 @@ void hostage_init_info(vobjptridx_t objnum);
 #endif
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static inline void hostage_init_all() {}
 static inline void hostage_init_info(const objnum_t &) {}
 #endif

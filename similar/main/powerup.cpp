@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "newdemo.h"
 #include "escort.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "gr.h"	//	for powerup outline drawing
 #include "editor/editor.h"
 #endif

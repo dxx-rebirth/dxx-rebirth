@@ -300,7 +300,7 @@ int create_path_points(vobjptridx_t objp, segnum_t start_seg, segnum_t end_seg, 
 int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void player_follow_path(vobjptr_t objp);
 void check_create_player_path();
 #endif

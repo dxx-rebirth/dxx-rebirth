@@ -80,7 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 
@@ -1102,7 +1102,7 @@ static void endlevel_render_mine(fix eye_offset)
 	if (eye_offset)
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (EditorWindow)
 		Viewer_eye = Viewer->pos;
 	#endif

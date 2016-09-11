@@ -106,7 +106,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "window.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
@@ -290,7 +290,7 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Canv_editor = NULL;
 #endif
 
@@ -309,7 +309,7 @@ int set_screen_mode(int sm)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 		case SCREEN_EDITOR:
 		{
 			const screen_mode editor_mode{800, 600};
@@ -1179,7 +1179,7 @@ window *game_setup(void)
 	init_gauges();
 	netplayerinfo_on = 0;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (!Cursegp)
 	{
 		Cursegp = segptridx(segment_first);
@@ -1199,7 +1199,7 @@ window *game_setup(void)
 	reset_time();
 	FrameTime = 0;			//make first frame zero
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (Current_level_num == 0) {	//not a real level
 		init_player_stats_game(Player_num);
 		init_ai_objects();
@@ -1299,7 +1299,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 
 			game_disable_cheats();
 			Game_mode = GM_GAME_OVER;
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
 #endif
 				show_menus();
@@ -1442,7 +1442,7 @@ void GameProcessFrame(void)
 	}
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	check_create_player_path();
 	player_follow_path(vobjptr(ConsoleObject));
 #endif

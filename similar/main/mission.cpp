@@ -1085,7 +1085,7 @@ int select_mission(int anarchy_mode, const char *message, int (*when_selected)(v
     return 1;	// presume success
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void create_new_mission(void)
 {
 	Current_mission = make_unique<Mission>();

@@ -80,7 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_UDP
 #include "net_udp.h"
 #endif
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #endif
@@ -543,7 +543,7 @@ static void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num
 
 	#ifndef RELEASE
 	if (!(Game_mode & GM_MULTI ))	{
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
 		#endif
 	}
@@ -594,7 +594,7 @@ int do_option ( int select)
 		case MENU_LOAD_GAME:
 			state_restore_all(0, secret_restore::none, nullptr, blind_save::no);
 			break;
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		case MENU_EDITOR:
 			if (!Current_mission)
 			{
@@ -615,7 +615,7 @@ int do_option ( int select)
 			break;
 #endif
 		case MENU_QUIT:
-			#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (! SafetyCheck()) break;
 			#endif
 			return 0;

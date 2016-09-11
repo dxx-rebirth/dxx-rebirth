@@ -83,7 +83,7 @@ static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
 	return get_side_verts(r, segnum, sidenum), r;
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
 //              num_faces               number of lists

@@ -99,7 +99,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <sys/prctl.h>
 #endif
 #endif
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #include "ui.h"
@@ -350,7 +350,7 @@ int standard_handler(const d_event &event)
 			return 1;
 
 		case EVENT_QUIT:
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (SafetyCheck())
 #endif
 				Quitting = 1;
@@ -499,7 +499,7 @@ static int main(int argc, char *argv[])
 	gamedata_init();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (GameArg.EdiSaveHoardData) {
 		save_hoard_data();
 		exit(1);
@@ -569,7 +569,7 @@ static int main(int argc, char *argv[])
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (!GameArg.EdiAutoLoad.empty()) {
 		/* Any number >= FILENAME_LEN works */
 		Level_names[0].copy_if(GameArg.EdiAutoLoad.c_str(), GameArg.EdiAutoLoad.size());

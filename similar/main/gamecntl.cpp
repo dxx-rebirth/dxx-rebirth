@@ -102,7 +102,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "window.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
@@ -1294,7 +1294,7 @@ static window_event_result HandleTestKey(int key)
 			cheats.robotfiringsuspended = !cheats.robotfiringsuspended;
 			break;
 
-#ifdef EDITOR		//editor-specific functions
+#if DXX_USE_EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
 			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
@@ -1383,7 +1383,7 @@ static window_event_result HandleTestKey(int key)
 			break;
 		#endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 		case KEY_DEBUGGED+KEY_Q:
 			{
 				pause_game_world_time p;

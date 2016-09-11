@@ -378,7 +378,7 @@ extern fix64	Time_flash_last_played;
 }
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #ifdef dsx
 namespace dsx {
 void dump_used_textures_all();

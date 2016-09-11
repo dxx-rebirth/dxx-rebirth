@@ -159,7 +159,7 @@ struct side
 namespace dsx {
 
 struct segment {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	segnum_t   segnum;     // segment number, not sure what it means
 	short   group;      // group number to which the segment belongs.
 #endif

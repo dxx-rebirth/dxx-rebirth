@@ -44,7 +44,7 @@ static void gr_ubox0(int left,int top,int right,int bot, const uint8_t color)
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
 	if (top > MAXY ) return;
@@ -77,7 +77,7 @@ static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
 	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot), color);
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
     if (top > MAXY ) return;
@@ -97,7 +97,7 @@ void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 		gr_ubox12(left, top, right, bot, color);
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
 	if (TYPE==bm_mode::linear)

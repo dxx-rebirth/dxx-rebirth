@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "internal.h"
 #include "strutil.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/texpage.h"
 #endif
 
@@ -73,7 +73,7 @@ array<ubyte, MAX_SOUNDS> Sounds, AltSounds;
 
 unsigned NumTextures;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 int Num_object_subtypes = 1;
 #endif
 
@@ -244,7 +244,7 @@ void properties_read_cmp(PHYSFS_File * fp)
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 
-        #ifdef EDITOR
+#if DXX_USE_EDITOR
         //Build tmaplist
 	auto &&effect_range = partial_const_range(Effects, Num_effects);
 	Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
@@ -272,7 +272,7 @@ int gamedata_init()
 	init_polygon_models();
 	init_endlevel();
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
 	if (!gamedata_read_tbl(0))

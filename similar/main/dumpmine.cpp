@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 
 #include "inferno.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 #include "dxxerror.h"
@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 namespace dsx {
 namespace {

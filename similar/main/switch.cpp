@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 #include "bm.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 
@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //-----------------------------------------------------------------
 // Initializes all the switches.
 void trigger_init()
@@ -354,7 +354,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 				}
 				return 1;
 			} else {
-				#ifdef EDITOR
+#if DXX_USE_EDITOR
 					nm_messagebox_str( "Yo!", "You have hit the exit trigger!", "" );
 				#else
 					Int3();		//level num == 0, but no editor!

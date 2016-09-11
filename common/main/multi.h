@@ -775,7 +775,7 @@ void init_hoard_data();
 void multi_apply_goal_textures();
 
 int HoardEquipped();
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void save_hoard_data(void);
 #endif
 }

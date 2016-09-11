@@ -71,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
@@ -107,7 +107,7 @@ fix Render_zoom = 0x9000;					//the player's zoom factor
 static std::bitset<MAX_OBJECTS> object_rendered;
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 int	Render_only_bottom=0;
 int	Bottom_bitmap_num = 9;
 #endif
@@ -119,7 +119,7 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
 static int found_side,found_face,found_poly;
@@ -235,7 +235,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)segp;
 	(void)wid_flags;
-#ifndef EDITOR
+#if !DXX_USE_EDITOR
 	(void)sidenum;
 #endif
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -345,7 +345,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 	}
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
 		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
@@ -372,7 +372,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 //	Used to determine which face was clicked on.
 static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (_search_mode) {
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
@@ -556,7 +556,7 @@ im_so_ashamed: ;
 }
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static void render_object_search(const vobjptridx_t obj)
 {
 	int changed=0;
@@ -614,7 +614,7 @@ static void render_object_search(const vobjptridx_t obj)
 namespace dsx {
 static void do_render_object(const vobjptridx_t obj, window_rendered_data &window)
 {
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	int save_3d_outline=0;
 	#endif
 	int count = 0;
@@ -657,14 +657,14 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 
 	//check for editor object
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (EditorWindow && obj==Cur_object_index) {
 		save_3d_outline = g3d_interp_outline;
 		g3d_interp_outline=1;
 	}
 	#endif
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (_search_mode)
 		render_object_search(obj);
 	else
@@ -684,7 +684,7 @@ static void do_render_object(const vobjptridx_t obj, window_rendered_data &windo
 	}
 
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (EditorWindow && obj==Cur_object_index)
 		g3d_interp_outline = save_3d_outline;
 	#endif
@@ -777,7 +777,7 @@ static void render_segment(const vcsegptridx_t seg)
 }
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #ifndef NDEBUG
 
 constexpr fix CROSS_WIDTH = i2f(8);
@@ -1229,7 +1229,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
 	}
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (EditorWindow)
 		Viewer_eye = Viewer->pos;
 	#endif
@@ -1470,7 +1470,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	visited_twobit_array_t visited;
 
 	unsigned first_terminal_seg;
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 #if defined(DXX_BUILD_DESCENT_I)
 	if (_search_mode || eye_offset>0)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1702,7 +1702,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 
 	// -- commented out by mk on 09/14/94...did i do a good thing??  object_render_targets();
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	#ifndef NDEBUG
 	//draw curedge stuff
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
@@ -1711,7 +1711,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 }
 
 }
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1

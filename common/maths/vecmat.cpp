@@ -430,7 +430,7 @@ void vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 	sincos_2_matrix(m, al.b, fix_sincos(al.p), fix_sincos(al.h));
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //computes a matrix from a forward vector and an angle
 void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 {

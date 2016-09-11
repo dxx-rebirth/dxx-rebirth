@@ -36,7 +36,7 @@ constexpr unsigned OP_SUBCALL = 6;   //call a subobject
 constexpr unsigned OP_DEFP_START = 7;   //defpoints with start
 constexpr unsigned OP_GLOW = 8;   //glow value for next poly
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 int g3d_interp_outline;
 #endif
 

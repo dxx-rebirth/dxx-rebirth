@@ -103,7 +103,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "credits.h"
 #include "gamemine.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 #include "strutil.h"
@@ -506,7 +506,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	digi_kill_sound_linked_to_object(plrobj);
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level()
 {
@@ -1410,7 +1410,7 @@ static void AdvanceLevel(int secret_flag)
 
 	Control_center_destroyed = 0;
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (Current_level_num == 0)
 	{
 		window_close(Game_wind);		//not a real level
@@ -1483,7 +1483,7 @@ void DoPlayerDead()
 
 	dead_player_end();		//terminate death sequence (if playing)
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (Game_mode == GM_EDITOR) {			//test mine, not real level
 		const auto playerobj = &get_local_plrobj();
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );

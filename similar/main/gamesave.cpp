@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "newmenu.h"
 #include "inferno.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "editor/eswitch.h"
@@ -76,7 +76,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
 	"level01.rdl",
 	"level02.rdl",
@@ -139,7 +139,7 @@ int Gamesave_current_version;
 int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 // Return true if this level has a name of the form "level??"
 // Note that a pathspec can appear at the beginning of the filename.
 static int is_real_level(const char *filename)
@@ -529,7 +529,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 
 			tmo = PHYSFSX_readInt(f);
 
-			#ifndef EDITOR
+#if !DXX_USE_EDITOR
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -579,7 +579,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 }
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 static int PHYSFSX_writeMatrix(PHYSFS_File *file, const vms_matrix &m)
 {
 	if (PHYSFSX_writeVector(file, m.rvec) < 1 ||
@@ -1070,7 +1070,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 		}
 	}
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	//go through all triggers, killing unused ones
 	{
 		const auto &&wr = make_range(vwallptr);
@@ -1196,7 +1196,7 @@ int no_old_level_file_error=0;
 namespace dsx {
 int load_level(const char * filename_passed)
 {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	int use_compiled_level=1;
 #endif
 	char filename[PATH_MAX];
@@ -1209,7 +1209,7 @@ int load_level(const char * filename_passed)
 
 	strcpy(filename,filename_passed);
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	//if we have the editor, try the LVL first, no matter what was passed.
 	//if we don't have an LVL, try what was passed or RL2  
 	//if we don't have the editor, we just use what was passed
@@ -1237,7 +1237,7 @@ int load_level(const char * filename_passed)
 	}
 
 	if (!LoadFile)	{
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 			return 1;
 		#else
 			Error("Can't open file <%s>\n",filename);
@@ -1313,7 +1313,7 @@ int load_level(const char * filename_passed)
 #endif
 
 	PHYSFSX_fseek(LoadFile,minedata_offset,SEEK_SET);
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (!use_compiled_level) {
 		mine_err = load_mine_data(LoadFile);
 #if 0 // get from d1src if needed
@@ -1379,7 +1379,7 @@ int load_level(const char * filename_passed)
 	set_ambient_sound_flags();
 #endif
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 #if defined(DXX_BUILD_DESCENT_I)
 	//If an old version, ask the use if he wants to save as new version
 	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
@@ -1403,7 +1403,7 @@ int load_level(const char * filename_passed)
 #endif
 	#endif
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	if (EditorWindow)
 		editor_status_fmt("Loaded NEW mine %s, \"%s\"", filename, static_cast<const char *>(Current_level_name));
 	#endif
@@ -1424,7 +1424,7 @@ int load_level(const char * filename_passed)
 }
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 int get_level_name()
 {
 	array<newmenu_item, 2> m{{
@@ -1436,7 +1436,7 @@ int get_level_name()
 #endif
 
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 // --------------------------------------------------------------------------------------
 //	Create a new mine, set global variables.

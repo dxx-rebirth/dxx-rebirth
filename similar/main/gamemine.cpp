@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "game.h"
 #include "newmenu.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
@@ -67,7 +67,7 @@ segnum_t Secret_return_segment;
 vms_matrix Secret_return_orient;
 
 struct v16_segment {
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	short   segnum;             // segment number, not sure what it means
 	#endif
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
@@ -81,7 +81,7 @@ struct v16_segment {
 	sbyte   matcen_num;         // which center segment is associated with.
 	short   value;
 	fix     static_light;       // average static light in segment
-	#ifndef EDITOR
+#if !DXX_USE_EDITOR
 	short   pad;                // make structure longword aligned
 	#endif
 };
@@ -378,7 +378,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 }
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 namespace dsx {
 tmap_xlate_table_array tmap_xlate_table;
 }
@@ -401,7 +401,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	fuelcen_reset();
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	// Create a new mine to initialize things.
 	//texpage_goto_first();
 	create_new_mine();
@@ -648,7 +648,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 #if defined(DXX_BUILD_DESCENT_I)
 				*i = v16_seg;
 #elif defined(DXX_BUILD_DESCENT_II)
-				#ifdef EDITOR
+#if DXX_USE_EDITOR
 				i->segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
 				#endif
@@ -674,7 +674,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 				Error("Invalid mine version");
 
 			i->objects = object_none;
-			#ifdef EDITOR
+#if DXX_USE_EDITOR
 			i->group = -1;
 			#endif
 
@@ -716,7 +716,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	//===================== READ NEWSEGMENT INFO =====================
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 	{		// Default segment created.
 		med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});		// New_segment = Segments[0];
@@ -753,7 +753,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 															
 	//========================= UPDATE VARIABLES ======================
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 	// Setting to Markedsegp to NULL ignores Curside and Markedside, which
 	// we want to do when reading in an old file.
@@ -778,7 +778,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 
 	reset_objects(1);		//one object, the player
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Highest_vertex_index = MAX_SEGMENT_VERTICES-1;
 	Segments.set_count(MAX_SEGMENTS);
 	set_vertex_counts();
@@ -788,7 +788,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	warn_if_concave_segments();
 	#endif
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 		validate_segment_all();
 	#endif
 
@@ -877,7 +877,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	// 
 	// Although in a cloud of arrogant glee, he forgot to ifdef it on EDITOR!
 	// (Matt told me to write that!)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	for (int i=0; i<MAX_TEXTURES; i++)
 		tmap_xlate_table[i] = i;
 #endif
@@ -909,7 +909,7 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 		const auto segp = vsegptr(segnum);
 
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		segp->segnum = segnum;
 		segp->group = 0;
 		#endif

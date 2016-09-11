@@ -108,7 +108,7 @@ extern ubyte RenderingType;
 extern fix flash_scale;
 extern vms_vector Viewer_eye;
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 extern int Render_only_bottom;
 #endif
 

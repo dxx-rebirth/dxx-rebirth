@@ -197,7 +197,7 @@ extern unsigned Num_wall_anims;
 }
 #endif
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #ifdef dsx
 namespace dsx {
 void wall_init();

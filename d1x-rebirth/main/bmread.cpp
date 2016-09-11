@@ -62,7 +62,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "physfs-serial.h"
 #include "strutil.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/texpage.h"
 #endif
 
@@ -99,7 +99,7 @@ static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 namespace dsx {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 powerup_names_array Powerup_names;
 robot_names_array Robot_names;
 #endif
@@ -469,7 +469,7 @@ int gamedata_read_tbl(int pc_shareware)
 
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
 
-			#ifdef EDITOR
+#if DXX_USE_EDITOR
 			else IFTOK("!METALS_FLAG")		TextureMetals = texture_count;
 			else IFTOK("!LIGHTS_FLAG")		TextureLights = texture_count;
 			else IFTOK("!EFFECTS_FLAG")	TextureEffects = texture_count;
@@ -1086,7 +1086,7 @@ static void bm_read_robot(char *&arg, int skip)
 			} else if (!d_stricmp( arg, "claw_sound" )) {
 				claw_sound = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "name" )) {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 				auto &name = Robot_names[N_robot_types];
 				const auto len = strlen(equal_ptr);
 				assert(len < name.size());	//	Oops, name too long.
@@ -1677,7 +1677,7 @@ void bm_read_powerup(char *&arg, int unused_flag)
 	Powerup_info[n].vclip_num = vclip_none;
 	Powerup_info[n].hit_sound = sound_none;
 	Powerup_info[n].size = DEFAULT_POWERUP_SIZE;
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Powerup_names[n][0] = 0;
 #endif
 
@@ -1697,7 +1697,7 @@ void bm_read_powerup(char *&arg, int unused_flag)
 			} else if (!d_stricmp( arg, "hit_sound" ))	{
 				Powerup_info[n].hit_sound = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "name" )) {
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 				auto &name = Powerup_names[n];
 				const auto len = strlen(equal_ptr);
 				assert(len < name.size());	//	Oops, name too long.

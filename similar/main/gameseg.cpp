@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "lighting.h"
 #include "mission.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 
@@ -216,7 +216,7 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegp
 	}
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 // -----------------------------------------------------------------------------------
 //	Create all vertex lists (1 or 2) for faces on a side.
 //	Sets:
@@ -552,7 +552,7 @@ int check_segment_connections(void)
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.
 // Would be better to pass a paremeter to the routine...--MK, 01/17/96
-#if defined(DXX_BUILD_DESCENT_II) || defined(EDITOR)
+#if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
 int	Doing_lighting_hack_flag=0;
 #else
 #define Doing_lighting_hack_flag 0
@@ -1220,7 +1220,7 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		degeneracy_flag |= check_for_degenerate_side(sp, i);
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Degenerate_segment_found |= degeneracy_flag;
 #endif
 
@@ -1491,13 +1491,13 @@ void validate_segment_all(void)
 {
 	range_for (const auto &&segp, vsegptridx)
 	{
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		if (segp->segnum != segment_none)
 		#endif
 			validate_segment(segp);
 	}
 
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	{
 		for (int s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
 			if (Segments[s].segnum != segment_none) {

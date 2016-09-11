@@ -226,7 +226,7 @@ int load_mission_by_name (const char *mission_name);
 //Returns 1 if a mission was loaded.
 int select_mission (int anarchy_mode, const char *message, int (*when_selected)(void));
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 void create_new_mission(void);
 #endif
 

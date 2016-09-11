@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "physics.h"
 #include "wall.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #endif
@@ -414,7 +414,7 @@ cpp_done1: ;
 		qtail = -1;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	#ifdef EDITOR
+#if DXX_USE_EDITOR
 	Selected_segs.clear();
 	#endif
 #endif
@@ -429,7 +429,7 @@ cpp_done1: ;
 		psegs++;
 		l_num_points++;
 #if defined(DXX_BUILD_DESCENT_I)
-		#ifdef EDITOR
+#if DXX_USE_EDITOR
 		Selected_segs.emplace_back(this_seg);
 		#endif
 #endif
@@ -1457,7 +1457,7 @@ void attempt_to_resume_path(const vobjptridx_t objp)
 //					DEBUG FUNCTIONS FOLLOW
 //	----------------------------------------------------------------------------------------------------------
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 
 static void test_create_path_many(void) __attribute_used;
 static void test_create_path_many(void)

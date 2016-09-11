@@ -88,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "playsave.h"
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 
@@ -744,7 +744,7 @@ static void nd_read_object(const vobjptridx_t obj)
 
 		nd_read_int(&tmo);
 
-#ifndef EDITOR
+#if !DXX_USE_EDITOR
 		obj->rtype.pobj_info.tmap_override = tmo;
 #else
 		if (tmo==-1)

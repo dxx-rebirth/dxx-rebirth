@@ -75,7 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "playsave.h"
 #include "timer.h"
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #include "editor/editor.h"
 #endif
 
@@ -1174,7 +1174,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	return obj;
 }
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 //create a copy of an object. returns new object number
 objptridx_t obj_create_copy(const vobjptridx_t objnum, const vms_vector &new_pos, const vsegptridx_t newsegnum)
 {
@@ -1904,7 +1904,7 @@ void compress_objects(void)
 
 			*start_objp = *h;
 
-			#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (Cur_object_index == Highest_object_index)
 				Cur_object_index = start_i;
 			#endif

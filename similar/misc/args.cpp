@@ -331,7 +331,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-nobm"))
 			GameArg.EdiNoBm 		= 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 	// Editor Options
 
 		else if (!d_stricmp(p, "-autoload"))

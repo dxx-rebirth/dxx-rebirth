@@ -1403,7 +1403,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		// Cheating, add all edges as visited
 		range_for (const auto &&segp, vcsegptridx)
 		{
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (segp->segnum != segment_none)
 #endif
 			{
@@ -1414,7 +1414,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		// Not cheating, add visited edges, and then unvisited edges
 		range_for (const auto &&segp, vcsegptridx)
 		{
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (segp->segnum != segment_none)
 #endif
 				if (Automap_visited[segp]) {
@@ -1423,7 +1423,7 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		}
 		range_for (const auto &&segp, vcsegptridx)
 		{
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 			if (segp->segnum != segment_none)
 #endif
 				if (!Automap_visited[segp]) {

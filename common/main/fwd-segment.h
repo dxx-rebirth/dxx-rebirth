@@ -58,7 +58,7 @@ enum sidenum_t : uint8_t
 
 constexpr fix DEFAULT_LIGHTING = 0;   // (F1_0/2)
 
-#ifdef EDITOR   //verts for the new segment
+#if DXX_USE_EDITOR   //verts for the new segment
 constexpr std::size_t NUM_NEW_SEG_VERTICES = 8;
 constexpr std::size_t NEW_SEGMENT_VERTICES = MAX_SEGMENT_VERTICES;
 constexpr std::size_t MAX_VERTICES = MAX_SEGMENT_VERTICES + NUM_NEW_SEG_VERTICES;

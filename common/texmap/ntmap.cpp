@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#ifdef EDITOR
+#if DXX_USE_EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff
 #endif
 
