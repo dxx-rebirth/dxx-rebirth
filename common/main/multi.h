@@ -792,10 +792,10 @@ void save_hoard_data(void);
  */
 struct netplayer_info : prohibit_void_ptr<netplayer_info>
 {
-#if defined(USE_UDP)
+#if DXX_USE_UDP
 	union
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
@@ -819,10 +819,10 @@ namespace dsx {
  */
 struct netgame_info : prohibit_void_ptr<netgame_info>, ignore_window_pointer_t
 {
-#if defined(USE_UDP)
+#if DXX_USE_UDP
 	union
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		struct
 		{
 			struct _sockaddr		addr; // IP address of this netgame's host

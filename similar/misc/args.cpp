@@ -24,7 +24,7 @@
 #include "game.h"
 #include "gauges.h"
 #include "console.h"
-#ifdef USE_UDP
+#if DXX_USE_UDP
 #include "net_udp.h"
 #endif
 
@@ -153,7 +153,7 @@ static void InitGameArg()
 #if defined(DXX_BUILD_DESCENT_II)
 	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
 #endif
-#ifdef USE_UDP
+#if DXX_USE_UDP
 	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #if DXX_USE_TRACKER
 	CGameArg.MplTrackerAddr = TRACKER_ADDR_DEFAULT;
@@ -297,7 +297,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 
 	// Multiplayer Options
 
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		else if (!d_stricmp(p, "-udp_hostaddr"))
 			CGameArg.MplUdpHostAddr = arg_string(pp, end);
 		else if (!d_stricmp(p, "-udp_hostport"))

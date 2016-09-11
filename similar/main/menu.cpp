@@ -77,7 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "multi.h"
 #include "vers_id.h"
-#ifdef USE_UDP
+#if DXX_USE_UDP
 #include "net_udp.h"
 #endif
 #ifdef EDITOR
@@ -111,14 +111,14 @@ enum MENUS
     MENU_DIFFICULTY,
     MENU_HELP,
     MENU_NEW_PLAYER,
-    #if defined(USE_UDP)
+#if DXX_USE_UDP
         MENU_MULTIPLAYER,
     #endif
 
     MENU_SHOW_CREDITS,
     MENU_ORDER_INFO,
 
-    #ifdef USE_UDP
+#if DXX_USE_UDP
     MENU_START_UDP_NETGAME,
     MENU_JOIN_MANUAL_UDP_NETGAME,
     MENU_JOIN_LIST_UDP_NETGAME,
@@ -523,7 +523,7 @@ static void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
-#if defined(USE_UDP)
+#if DXX_USE_UDP
 	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
 #endif
 
@@ -624,7 +624,7 @@ int do_option ( int select)
 			RegisterPlayer();
 			break;
 
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
 			select_mission(1, TXT_MULTI_MISSION, net_udp_setup_game);
@@ -638,7 +638,7 @@ int do_option ( int select)
 			net_udp_list_join_game();
 			break;
 #endif
-#if defined(USE_UDP)
+#if DXX_USE_UDP
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
 			break;
@@ -2218,7 +2218,7 @@ void gameplay_config()
 
 }
 
-#if defined(USE_UDP)
+#if DXX_USE_UDP
 static int multi_player_menu_handler(newmenu *menu,const d_event &event, int *menu_choice)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -2261,7 +2261,7 @@ void do_multi_player_menu()
 		return;
 	}
 
-#ifdef USE_UDP
+#if DXX_USE_UDP
 	ADD_ITEM("HOST GAME", MENU_START_UDP_NETGAME, -1);
 #if DXX_USE_TRACKER
 	ADD_ITEM("FIND LAN/ONLINE GAMES", MENU_JOIN_LIST_UDP_NETGAME, -1);

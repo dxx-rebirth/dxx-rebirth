@@ -844,7 +844,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_ipv6(self,context,_CPPDEFINES=(('IPv6',),)):
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
 	@_custom_test
-	def _check_user_settings_udp(self,context,_CPPDEFINES=(('USE_UDP',),)):
+	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):
 		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
 	@_custom_test
 	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):

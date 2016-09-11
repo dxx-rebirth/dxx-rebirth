@@ -80,7 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "automap.h"
 #include "event.h"
-#ifdef USE_UDP
+#if DXX_USE_UDP
 #include "net_udp.h"
 #endif
 
@@ -462,7 +462,7 @@ int multi_objnum_is_past(objnum_t objnum)
 	switch (multi_protocol)
 	{
 		case MULTI_PROTO_UDP:
-#ifdef USE_UDP
+#if DXX_USE_UDP
 			return net_udp_objnum_is_past(objnum);
 			break;
 #endif
@@ -927,7 +927,7 @@ void multi_do_protocol_frame(int force, int listen)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_do_frame(force, listen);
 			break;
@@ -1006,7 +1006,7 @@ void _multi_send_data(const ubyte *buf, unsigned len, int priority)
 	{
 		switch (multi_protocol)
 		{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_data(buf, len, priority);
 				break;
@@ -1025,7 +1025,7 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct(buf, len, pnum, priority);
 			break;
@@ -1079,7 +1079,7 @@ void multi_leave_game()
 	{
 		switch (multi_protocol)
 		{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_leave_game();
 				break;
@@ -1114,7 +1114,7 @@ int multi_endlevel(int *const secret)
 
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			result = net_udp_endlevel(secret);
 			break;
@@ -1131,7 +1131,7 @@ multi_endlevel_poll *get_multi_endlevel_poll1()
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_kmatrix_poll1;
 #endif
@@ -1144,7 +1144,7 @@ multi_endlevel_poll *get_multi_endlevel_poll2()
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_kmatrix_poll2;
 #endif
@@ -1157,7 +1157,7 @@ void multi_send_endlevel_packet()
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_endlevel_packet();
 			break;
@@ -1305,7 +1305,7 @@ static void kick_player(player &plr, netplayer_info &nplr)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_dump_player(nplr.protocol.udp.addr, DUMP_KICKED);
 			break;
@@ -2034,7 +2034,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_disconnect_player(pnum);
 			break;
@@ -2587,7 +2587,7 @@ void multi_send_endlevel_start()
 		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
 		switch (multi_protocol)
 		{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_endlevel_packet();
 				break;
@@ -3398,7 +3398,7 @@ int multi_level_sync(void)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_UDP
+#if DXX_USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_level_sync();
 			break;
