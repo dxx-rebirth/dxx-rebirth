@@ -315,13 +315,11 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 			dli.r = dli.g = dli.b = fixmul(flash_scale, uvli.l);
 		else if (control_center_destroyed)	//make lights flash
 		{
+			dli.g = dli.b = fixmul(flash_scale, uvli.l);
 			if (PlayerCfg.DynLightColor) // let the mine glow red a little
-			{
-				dli.r = fixmul(flash_scale >= f0_5 * 1.5 ? flash_scale : f0_5 * 1.5,uvli.l);
-				dli.g = dli.b = fixmul(flash_scale, uvli.l);
-			}
+				dli.r = fixmul(std::max(static_cast<double>(flash_scale), f0_5 * 1.5), uvli.l);
 			else
-				dli.r = dli.g = dli.b = fixmul(flash_scale, uvli.l);
+				dli.r = dli.g;
 		}
 
 		// add light color
