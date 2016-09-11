@@ -224,13 +224,11 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 {
 	grs_bitmap  *bm;
 
-	array<g3s_lrgb, 4>		dyn_light;
 	array<cg3s_point *, 4> pointlist;
 
 	Assert(nv <= pointlist.size());
 
 	for (uint_fast32_t i = 0; i < nv; i++) {
-		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
@@ -288,9 +286,11 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
+	array<g3s_lrgb, 4>		dyn_light;
 	//set light values for each vertex & build pointlist
 	for (uint_fast32_t i = 0;i < nv;i++)
 	{
+		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l;
 		//the uvl struct has static light already in it
 
 		//scale static light for destruction effect
