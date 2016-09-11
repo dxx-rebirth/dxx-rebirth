@@ -311,15 +311,12 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		// And now the same for the ACTUAL (rgb) light we want to use
 
 		//scale static light for destruction effect
-		if (seismic_tremor_magnitude)	//make lights flash
-			dli.r = dli.g = dli.b = fixmul(flash_scale, uvli.l);
-		else if (control_center_destroyed)	//make lights flash
+		if (need_flashing_lights)	//make lights flash
 		{
 			dli.g = dli.b = fixmul(flash_scale, uvli.l);
-			if (PlayerCfg.DynLightColor) // let the mine glow red a little
-				dli.r = fixmul(std::max(static_cast<double>(flash_scale), f0_5 * 1.5), uvli.l);
-			else
-				dli.r = dli.g;
+			dli.r = (!seismic_tremor_magnitude && PlayerCfg.DynLightColor)
+				? fixmul(std::max(static_cast<double>(flash_scale), f0_5 * 1.5), uvli.l) // let the mine glow red a little
+				: dli.g;
 		}
 
 		// add light color
