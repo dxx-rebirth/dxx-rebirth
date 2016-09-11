@@ -1876,6 +1876,10 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
 	@_custom_test
 	def check_compiler_useless_cast(self,context):
+		# <=clang-3.7 does not understand -Wuseless-cast
+		self.Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', successflags={'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'useless-cast']})
+	@_custom_test
+	def check_compiler_ptrdiff_cast_int(self,context):
 		context.sconf.Define('DXX_ptrdiff_cast_int', 'static_cast<int>'
 			if self.Compile(context, text='''
 #include <cstdio>
@@ -1890,14 +1894,17 @@ For mingw32-gcc-5.4.0 and x86_64-pc-linux-gnu-gcc-5.4.0, gcc defines
 
 For mingw32, gcc reports a useless cast converting `long` to `int`.
 For x86_64-pc-linux-gnu, gcc does not report a useless cast converting
-`long` to `int.
+`long` to `int`.
 
 Various parts of the code take the difference of two pointers, then cast
 it to `int` to be passed as a parameter to `snprintf` field width
 conversion `.*`.  The field width conversion is defined to take `int`,
 so the cast is necessary to avoid a warning from `-Wformat` on
 x86_64-pc-linux-gnu, but is not necessary on mingw32.  However, the cast
-causes a -Wuseless-cast warning on mingw32.
+causes a -Wuseless-cast warning on mingw32.  Resolve these conflicting
+requirements by defining a macro that expands to `static_cast<int>` on
+platforms where the cast is required and expands to nothing on platforms
+where the cast is useless.
 '''
 		)
 	@_custom_test
@@ -3222,7 +3229,6 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'unused',
 			Werror + 'uninitialized',
 			Werror + 'undef',
-			Werror + 'useless-cast',
 			Werror + 'old-style-cast',
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
