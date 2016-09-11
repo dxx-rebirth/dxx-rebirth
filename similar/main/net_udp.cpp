@@ -136,7 +136,7 @@ static int num_active_udp_changed;
 static uint16_t UDP_MyPort;
 static sockaddr_in GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #define UDP_BCAST_ADDR "255.255.255.255"
-#ifdef IPv6
+#if DXX_USE_IPv6
 #define UDP_MCASTv6_ADDR "ff02::1"
 static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #define dispatch_sockaddr_from	from.sin6
@@ -345,7 +345,7 @@ static bool convert_text_portstring(const char *portstring, uint16_t &outport, b
 
 namespace {
 
-#ifdef IPv6
+#if DXX_USE_IPv6
 /* Returns true if kernel allows specifying sizeof(sockaddr_in6) for
  * size of a sockaddr_in.  Saves a compare+jump in application code to
  * pass sizeof(sockaddr_in6) and let kernel sort it out.
@@ -388,7 +388,7 @@ public:
 			fromlen = sizeof(from);
 			return apply_sockaddr();
 		}
-#ifdef IPv6
+#if DXX_USE_IPv6
 	template <typename... Args>
 		auto operator()(sockaddr_in6 &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
 		{
@@ -421,7 +421,7 @@ public:
 		{
 			return apply_sockaddr();
 		}
-#ifdef IPv6
+#if DXX_USE_IPv6
 	template <typename... Args>
 		auto operator()(const sockaddr_in6 &to, Args &&... args) const -> decltype(apply_sockaddr())
 		{
@@ -432,7 +432,7 @@ public:
 		auto operator()(const _sockaddr &to, Args &&... args) const -> decltype(apply_sockaddr())
 #undef apply_sockaddr
 		{
-#ifdef IPv6
+#if DXX_USE_IPv6
 			if (kernel_accepts_extra_sockaddr_bytes() || to.sin6.sin6_family == AF_INET6)
 				return operator()(to.sin6, std::forward<Args>(args)...);
 #endif
@@ -609,7 +609,7 @@ public:
 			socklen_t fromlen;
 			return apply_sockaddr(fromlen, AF_INET);
 		}
-#ifdef IPv6
+#if DXX_USE_IPv6
 	template <typename... Args>
 		auto operator()(sockaddr_in6 &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_UNSPEC))
 		{
@@ -632,7 +632,7 @@ constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_fi
 static void udp_init_broadcast_addresses()
 {
 	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT);
-#ifdef IPv6
+#if DXX_USE_IPv6
 	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT);
 #endif
 }
@@ -655,7 +655,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	}
 	sAddr = {};
 	sAddr.sa.sa_family = sAddr.address_family();
-#ifdef IPv6
+#if DXX_USE_IPv6
 	sAddr.sin6.sin6_port = htons (port); // short, network byte order
 	sAddr.sin6.sin6_addr = IN6ADDR_ANY_INIT; // automatically fill with my IP
 #else
@@ -813,7 +813,7 @@ static int udp_tracker_reqgames()
 	pBuf[1] = 0x02;
 #endif
 	// If we're IPv6 ready, send that too
-#ifdef IPv6
+#if DXX_USE_IPv6
 	pBuf[2] = 1;
 #else
 	pBuf[2] = 0;
@@ -1076,7 +1076,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 			num_active_udp_changed = 1;
 			num_active_udp_games = 0;
 			net_udp_request_game_info(GBcast, 1);
-#ifdef IPv6
+#if DXX_USE_IPv6
 			net_udp_request_game_info(GMcast_v6, 1);
 #endif
 			udp_tracker_reqgames();
@@ -1119,7 +1119,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				
 				// Request LAN games
 				net_udp_request_game_info(GBcast, 1);
-#ifdef IPv6
+#if DXX_USE_IPv6
 				net_udp_request_game_info(GMcast_v6, 1);
 #endif
 				
@@ -1134,7 +1134,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				num_active_udp_games = 0;
 				net_udp_request_game_info(GBcast, 1);
 
-#ifdef IPv6
+#if DXX_USE_IPv6
 				net_udp_request_game_info(GMcast_v6, 1);
 #endif
 				break;
@@ -2653,7 +2653,7 @@ void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t send
 static void net_udp_broadcast_game_info(ubyte info_upid)
 {
 	net_udp_send_game_info(GBcast, nullptr, info_upid);
-#ifdef IPv6
+#if DXX_USE_IPv6
 	net_udp_send_game_info(GMcast_v6, nullptr, info_upid);
 #endif
 }

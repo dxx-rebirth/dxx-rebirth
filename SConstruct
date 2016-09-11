@@ -841,7 +841,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_editor(self,context,_CPPDEFINES=(('EDITOR',),)):
 		self._result_check_user_setting(context, self.user_settings.editor, _CPPDEFINES, 'level editor')
 	@_custom_test
-	def _check_user_settings_ipv6(self,context,_CPPDEFINES=(('IPv6',),)):
+	def _check_user_settings_ipv6(self,context,_CPPDEFINES='DXX_USE_IPv6'):
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
 	@_custom_test
 	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):

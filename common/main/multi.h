@@ -69,7 +69,7 @@ struct _sockaddr
 	union {
 		sockaddr sa;
 		sockaddr_in sin;
-#ifdef IPv6
+#if DXX_USE_IPv6
 		sockaddr_in6 sin6;
 #define DXX_IPv6(v4,v6) v6
 #else
