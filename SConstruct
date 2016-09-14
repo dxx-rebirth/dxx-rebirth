@@ -3020,6 +3020,7 @@ class DXXCommon(LazyObjectConstructor):
 	class _PlatformSettings:
 		tools = ('g++', 'gnulink')
 		ogllibs = ''
+		platform_objects = ()
 		def __init__(self,program,user_settings):
 			self.__program = program
 			self.user_settings = user_settings
@@ -3732,7 +3733,6 @@ class DXXProgram(DXXCommon):
 		def __init__(self,program,user_settings):
 			DXXCommon.DarwinPlatformSettings.__init__(self,program,user_settings)
 			user_settings.sharepath = ''
-			self.platform_objects = self.get_platform_objects()[:]
 		def adjust_environment(self,program,env):
 			DXXCommon.DarwinPlatformSettings.adjust_environment(self, program, env)
 			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
@@ -3744,7 +3744,6 @@ class DXXProgram(DXXCommon):
 			)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
-		platform_objects = ()
 		def __init__(self,program,user_settings):
 			DXXCommon.LinuxPlatformSettings.__init__(self,program,user_settings)
 			if user_settings.sharepath and user_settings.sharepath[-1] != '/':
