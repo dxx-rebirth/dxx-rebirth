@@ -2039,6 +2039,7 @@ where the cast is useless.
 		'-fvisibility=hidden',
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
+		'-Wold-style-cast',
 	)
 	__preferred_win32_linker_options = (
 		'-Wl,--large-address-aware',
@@ -2055,6 +2056,16 @@ where the cast is useless.
 	def check_preferred_compiler_options(self,context,
 		ccopts=__preferred_compiler_options,
 		ldopts=(),
+		_text='''
+/* clang on OS X incorrectly diagnoses mistakes in Apple system headers
+ * even when -Wsystem-headers is not specified.  Include one known buggy
+ * header here, so that the compilation will fail and the compiler will be
+ * marked as not supporting -Wold-style-cast.
+ */
+#if defined(__APPLE__) && defined(__MACH__)
+#include <HIServices/Processes.h>
+#endif
+''',
 		_mangle_compiler_option_name=__mangle_compiler_option_name,
 		_mangle_linker_option_name=__mangle_linker_option_name
 	):
@@ -2063,18 +2074,18 @@ where the cast is useless.
 		Compile = self.Compile
 		Link = self.Link
 		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
-		if f(context, text='', main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
+		if f(context, text=_text, main='', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
 		# Compiler+linker together failed.  Check if compiler alone will work.
-		if f is Compile or not Compile(context, text='', main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
+		if f is Compile or not Compile(context, text=_text, main='', msg='whether compiler accepts preferred options', successflags={'CXXFLAGS' : ccopts}):
 			# Compiler alone failed.
 			# Run down the individual compiler options to find any that work.
 			for opt in ccopts:
-				Compile(context, text='', main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
+				Compile(context, text=_text, main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
 		# Run down the individual linker options to find any that work.
 		for opt in ldopts:
-			Link(context, text='', main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
+			Link(context, text=_text, main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
 	@classmethod
 	def register_preferred_compiler_options(cls,
 		ccopts = __preferred_compiler_options,
@@ -3321,7 +3332,6 @@ class DXXCommon(LazyObjectConstructor):
 			Werror + 'unused',
 			Werror + 'uninitialized',
 			Werror + 'undef',
-			Werror + 'old-style-cast',
 			Werror + 'pointer-arith',
 			Werror + 'cast-qual',
 			Werror + 'missing-declarations',
