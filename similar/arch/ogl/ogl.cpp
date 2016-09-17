@@ -133,12 +133,12 @@ static int ogl_texture_list_cur;
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-static int ogl_loadtexture(const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis) __attribute_nonnull();
+static int ogl_loadtexture(const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad) __attribute_nonnull();
 static void ogl_freetexture(ogl_texture &gltexture);
 
-static void ogl_loadbmtexture(grs_bitmap &bm)
+static void ogl_loadbmtexture(grs_bitmap &bm, bool edgepad)
 {
-	ogl_loadbmtexture_f(bm, CGameCfg.TexFilt, CGameCfg.TexAnisotropy);
+	ogl_loadbmtexture_f(bm, CGameCfg.TexFilt, CGameCfg.TexAnisotropy, edgepad);
 }
 
 }
@@ -336,9 +336,9 @@ static void ogl_texture_stats(void)
 	gr_printf(fspacx2, fspacy1 + (line_spacing * 3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
-static void ogl_bindbmtex(grs_bitmap &bm){
+static void ogl_bindbmtex(grs_bitmap &bm, bool edgepad){
 	if (bm.gltexture==NULL || bm.gltexture->handle<=0)
-		ogl_loadbmtexture(bm);
+		ogl_loadbmtexture(bm, edgepad);
 	OGL_BINDTEXTURE(bm.gltexture->handle);
 	bm.gltexture->numrend++;
 }
@@ -369,7 +369,7 @@ void ogl_cache_polymodel_textures(int model_num)
 		return;
 	po = &Polygon_models[model_num];
 	for (i=0;i<po->n_textures;i++)  {
-		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
+		ogl_loadbmtexture(GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index], 1);
 	}
 }
 
@@ -377,7 +377,7 @@ static void ogl_cache_vclip_textures(vclip *vc){
 	range_for (auto &i, partial_const_range(vc->frames, vc->num_frames))
 	{
 		PIGGY_PAGE_IN(i);
-		ogl_loadbmtexture(GameBitmaps[i.index]);
+		ogl_loadbmtexture(GameBitmaps[i.index], 0);
 	}
 }
 
@@ -453,10 +453,10 @@ void ogl_cache_level_textures(void)
 					if (CGameArg.DbgUseOldTextureMerge || (bm2.bm_flags & BM_FLAG_SUPER_TRANSPARENT))
 						bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
-						ogl_loadbmtexture(bm2);
+						ogl_loadbmtexture(bm2, 1);
 					}
 				}
-				ogl_loadbmtexture(*bm);
+				ogl_loadbmtexture(*bm, 1);
 			}
 		}
 		glmprintf((0,"finished ef:%i\n",ef));
@@ -514,7 +514,7 @@ void ogl_cache_level_textures(void)
 					ogl_cache_weapon_textures(ri.weapon_type);
 				}
 				if (objp->rtype.pobj_info.tmap_override != -1)
-					ogl_loadbmtexture(GameBitmaps[Textures[objp->rtype.pobj_info.tmap_override].index]);
+					ogl_loadbmtexture(GameBitmaps[Textures[objp->rtype.pobj_info.tmap_override].index], 1);
 				else
 					ogl_cache_polymodel_textures(objp->rtype.pobj_info.model_num);
 			}
@@ -906,7 +906,7 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bm);
+		ogl_bindbmtex(bm, 1);
 		ogl_texwrap(bm.gltexture, GL_REPEAT);
 		r_tpolyc++;
 		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
@@ -982,7 +982,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(*bm);
+	ogl_bindbmtex(*bm, 1);
 	ogl_texwrap(bm->gltexture,GL_REPEAT);
 	
 	for (c=0; c<nv; c++) {
@@ -1038,7 +1038,7 @@ void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, 
 	auto &i = std::get<0>(cs);
 
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
+	ogl_bindbmtex(bm, 0);
 	ogl_texwrap(bm.gltexture,GL_CLAMP_TO_EDGE);
 
 	const auto width = fixmul(iwidth, Matrix_scale.x);
@@ -1146,7 +1146,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.bm_flags, 0, texfilt, 0);
+	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.bm_flags, 0, texfilt, 0, 0);
 	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1500,7 +1500,7 @@ static void tex_set_size(ogl_texture &tex)
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis)
+static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad)
 {
 	tex.tw = pow2ize (tex.w);
 	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
@@ -1539,7 +1539,7 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 	}
 
 	//bleed color (rgb) into the alpha area, to deal with "dark edges problem"
-	if ((tex.format == GL_RGBA) && texfilt && !CGameArg.OglDarkEdges)
+	if ((tex.format == GL_RGBA) && texfilt && edgepad && !CGameArg.OglDarkEdges)
 	{
 		GLubyte *p = bufP;
 		GLubyte *pdone = p + (4 * tex.tw * tex.th);
@@ -1750,7 +1750,7 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 
 unsigned char decodebuf[1024*1024];
 
-void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis)
+void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepad)
 {
 
 	grs_bitmap *bm = &rbm;
@@ -1793,7 +1793,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->bm_flags, 0, texfilt, texanis);
+	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->bm_flags, 0, texfilt, texanis, edgepad);
 }
 
 static void ogl_freetexture(ogl_texture &gltexture)
@@ -1876,7 +1876,7 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colo
 	yf = 1.0 - (dh + y) / (static_cast<double>(last_height) * h);
 
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
+	ogl_bindbmtex(bm, 0);
 	ogl_texwrap(bm.gltexture,GL_CLAMP_TO_EDGE);
 	
 	if (bm.bm_x==0){

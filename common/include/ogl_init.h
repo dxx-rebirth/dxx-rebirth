@@ -90,7 +90,7 @@ extern GLfloat ogl_maxanisotropy;
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)
 #define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
-void ogl_loadbmtexture_f(grs_bitmap &bm, int texfilt, bool texanis);
+void ogl_loadbmtexture_f(grs_bitmap &bm, int texfilt, bool texanis, bool edgepad);
 void ogl_freebmtexture(grs_bitmap &bm);
 
 void ogl_start_frame(void);
