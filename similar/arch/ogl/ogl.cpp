@@ -456,7 +456,7 @@ void ogl_cache_level_textures(void)
 						ogl_loadbmtexture(bm2, 1);
 					}
 				}
-				ogl_loadbmtexture(*bm, 1);
+				ogl_loadbmtexture(*bm, 0);
 			}
 		}
 		glmprintf((0,"finished ef:%i\n",ef));
@@ -906,7 +906,7 @@ void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g
 	if (tmap_drawer_ptr == draw_tmap) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bm, 1);
+		ogl_bindbmtex(bm, 0);
 		ogl_texwrap(bm.gltexture, GL_REPEAT);
 		r_tpolyc++;
 		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
