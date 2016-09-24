@@ -2148,21 +2148,22 @@ class LazyObjectConstructor(object):
 			StaticObject = env.StaticObject
 			OBJSUFFIX = env['OBJSUFFIX']
 			builddir = self.user_settings.builddir
-			value = []
-			extend = value.extend
-			for s in source:
-				if isinstance(s, str):
-					transform_target = __strip_extension
-					s = (s,)
-				else:
-					transform_target = s.get('transform_target', __strip_extension)
-					s = s['source']
-				extend([
-					StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname) for srcname in s
-				])
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
-			value = tuple(value)
+			value = tuple([
+				StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname)	\
+				for s in source	\
+				# This is a single iteration comprehension to work
+				# around the inability to assign variables as part of a
+				# normal comprehension.  It iterates over one of two
+				# single element tuples.  The choice of tuple is
+				# controlled by the isinstance check.  Each single
+				# element tuple consists of (F, L) where F is the
+				# function to bind as `transform_target` and L is an
+				# iterable to bind as `t`.
+				for transform_target, t in (((__strip_extension, (s,)),) if isinstance(s, str) else ((s.get('transform_target', __strip_extension), s['source']),))	\
+				for srcname in t	\
+			])
 			cache[name] = value
 			return value
 
