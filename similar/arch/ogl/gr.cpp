@@ -61,7 +61,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
-#ifdef OGLES
+#if DXX_USE_OGLES
 #include <EGL/egl.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -71,7 +71,7 @@
 #endif
 #endif
 
-#ifndef OGLES
+#if !DXX_USE_OGLES
 #include "ogl_extensions.h"
 #include "ogl_sync.h"
 #endif
@@ -84,7 +84,7 @@ namespace dcx {
 
 static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 static int sdl_video_flags;
 
 #ifdef RPI
@@ -108,7 +108,7 @@ enum { sdl_no_modeswitch = 0 };
 
 }
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 static EGLDisplay eglDisplay=EGL_NO_DISPLAY;
 static EGLConfig eglConfig;
 static EGLSurface eglSurface=EGL_NO_SURFACE;
@@ -136,7 +136,7 @@ namespace dsx {
 
 void ogl_swap_buffers_internal(void)
 {
-#ifdef OGLES
+#if DXX_USE_OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
 	sync_helper.before_swap();
@@ -284,7 +284,7 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 
 #endif // RPI
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 static void ogles_destroy()
 {
 	if( eglDisplay != EGL_NO_DISPLAY ) {
@@ -316,7 +316,7 @@ static int ogl_init_window(int x, int y)
 	int use_x,use_y,use_bpp;
 	Uint32 use_flags;
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 	SDL_SysWMinfo info;
 	Window    x11Window = 0;
 	Display*  x11Display = 0;
@@ -372,7 +372,7 @@ static int ogl_init_window(int x, int y)
 #endif
 	}
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 #ifndef RPI
 	// NOTE: on the RPi, the EGL stuff is not connected to the X11 window,
 	//       so there is no need to destroy and recreate this
@@ -497,7 +497,7 @@ void gr_toggle_fullscreen()
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-#ifdef OGLES
+#if DXX_USE_OGLES
 		glOrthof(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 #else
  		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
@@ -519,7 +519,7 @@ static void ogl_init_state(void)
 	/* initialize viewing values */
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-#ifdef OGLES
+#if DXX_USE_OGLES
 	glOrthof(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 #else
  	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
@@ -539,7 +539,7 @@ namespace dsx {
 
 static void ogl_get_verinfo(void)
 {
-#ifndef OGLES
+#if !DXX_USE_OGLES
 	const auto gl_vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
 	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
@@ -588,7 +588,7 @@ uint_fast32_t gr_list_modes(array<screen_mode, 50> &gsmodes)
 {
 	SDL_Rect** modes;
 	int modesnum = 0;
-#ifdef OGLES
+#if DXX_USE_OGLES
 	int sdl_check_flags = SDL_FULLSCREEN; // always use Fullscreen as lead.
 #else
 	int sdl_check_flags = SDL_OPENGL | SDL_FULLSCREEN; // always use Fullscreen as lead.
@@ -665,7 +665,7 @@ int gr_set_mode(screen_mode mode)
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
 
-#ifndef OGLES
+#if !DXX_USE_OGLES
 	ogl_extensions_init();
 	sync_helper.init(CGameArg.OglSyncMethod, CGameArg.OglSyncWait);
 #endif
@@ -709,7 +709,7 @@ static int ogl_init_load_library(void)
 
 void gr_set_attributes(void)
 {
-#ifndef OGLES
+#if !DXX_USE_OGLES
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
@@ -794,7 +794,7 @@ void gr_close()
 	if (gl_initialized)
 	{
 		ogl_smash_texture_list_internal();
-#ifndef OGLES
+#if !DXX_USE_OGLES
 		sync_helper.deinit();
 #endif
 	}
@@ -811,7 +811,7 @@ void gr_close()
 		OpenGL_LoadLibrary(false, OglLibPath);
 #endif
 
-#ifdef OGLES
+#if DXX_USE_OGLES
 	ogles_destroy();
 #ifdef RPI
 	con_printf(CON_DEBUG, "RPi: cleanuing up");
@@ -860,7 +860,7 @@ unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 {
 	ubyte buf[4];
 
-#ifndef OGLES
+#if !DXX_USE_OGLES
 	GLint gl_draw_buffer;
 	glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 	glReadBuffer(gl_draw_buffer);
@@ -1104,7 +1104,7 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		HUD_init_message(HM_DEFAULT, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
 
-#ifndef OGLES
+#if !DXX_USE_OGLES
 	glReadBuffer(GL_FRONT);
 #endif
 

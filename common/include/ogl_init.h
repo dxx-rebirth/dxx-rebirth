@@ -27,7 +27,7 @@
 #  include <OpenGL/glu.h>
 # else
 #  define GL_GLEXT_PROTOTYPES
-#  ifdef OGLES
+#  if DXX_USE_OGLES
 #  include <GLES/gl.h>
 #  else
 #  include <GL/gl.h>

@@ -858,11 +858,13 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# overrides, so the user should not be offered an override.
 	@_custom_test
 	def _check_user_settings_opengl(self,context,
-		_CPPDEFINES_OGLES=(('OGLES',), ('OGL',)),
+		_CPPDEFINES_OGLES=(('OGL',)),
 		_CPPDEFINES_OGL=(('OGL',),)
 	):
 		user_settings = self.user_settings
 		Result = context.Result
+		Define = context.sconf.Define
+		Define('DXX_USE_OGLES', int(user_settings.opengles))
 		if user_settings.opengles:
 			s = '%s: building with OpenGL ES'
 			CPPDEFINES = _CPPDEFINES_OGLES

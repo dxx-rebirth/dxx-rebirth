@@ -945,7 +945,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(OGL)
 		RAIIdmem<uint8_t[]> buf;
 		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
-#ifndef OGLES
+#if !DXX_USE_OGLES
 		GLint gl_draw_buffer;
  		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
  		glReadBuffer(gl_draw_buffer);
