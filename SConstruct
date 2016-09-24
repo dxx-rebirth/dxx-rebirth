@@ -105,6 +105,7 @@ class ToolchainInformation(StaticSubprocess):
 		return tool, _qcall(tool).out.strip()
 
 class Git(StaticSubprocess):
+	# None when unset.  Result tuple once cached.
 	__computed_extra_version = None
 	__path_git = None
 	@classmethod
@@ -113,14 +114,15 @@ class Git(StaticSubprocess):
 	@classmethod
 	def __pcall_found_git(cls,args,stderr=None,_pcall=StaticSubprocess.pcall):
 		return _pcall(cls.__path_git + args, stderr=stderr)
+	@classmethod
 	def pcall(cls,args,stderr=None):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
 		cls.pcall = f = cls.__pcall_found_git if git else cls.__pcall_missing_git
 		return f(args, stderr)
-	def spcall(cls,args,stderr=None,_pcall=pcall):
-		g = _pcall(cls, args, stderr)
+	def spcall(cls,args,stderr=None):
+		g = cls.pcall(args, stderr)
 		if g.returncode:
 			return None
 		return g.out
@@ -133,7 +135,7 @@ class Git(StaticSubprocess):
 				v,
 				_spcall(cls, ['status', '--short', '--branch']),
 				_spcall(cls, ['diff', '--stat', 'HEAD']),
-			) if v else ('', None, None)
+			) if v is not None else ('', None, None)
 		return c
 	# Run `git describe --tags --abbrev=12`.
 	# On failure, return None.
@@ -142,19 +144,20 @@ class Git(StaticSubprocess):
 	#	'*' if there are unstaged changes else ''
 	#	'+' if there are staged changes else ''
 	@classmethod
-	def __compute_extra_version(cls,_pcall=pcall):
+	def __compute_extra_version(cls):
 		try:
-			g = _pcall(cls, ['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
+			g = cls.pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
 				return None
 			raise
-		return None	\
-			if g.returncode else \
-			(g.out.split('\n')[0] +	\
-			('*' if _pcall(cls, ['diff', '--quiet']).returncode else '') +	\
-			('+' if _pcall(cls, ['diff', '--quiet', '--cached']).returncode else ''))
-	pcall = classmethod(pcall)
+		if g.returncode:
+			return None
+		_pcall = cls.pcall
+		return (g.out.split('\n')[0] +	\
+			('*' if _pcall(['diff', '--quiet']).returncode else '') +	\
+			('+' if _pcall(['diff', '--quiet', '--cached']).returncode else '')
+		)
 
 class ConfigureTests:
 	class Collector:
@@ -3577,7 +3580,6 @@ class DXXProgram(DXXCommon):
 	VERSION_MINOR = 58
 	VERSION_MICRO = 1
 	static_archive_construction = {}
-	# None when unset.  Tuple of one once cached.
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
