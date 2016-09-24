@@ -58,7 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "common/3d/globvars.h"
 #include "playsave.h"
 #include "rle.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "args.h"
@@ -364,7 +364,7 @@ static bool show_cloak_invul_timer()
 // scaling gauges
 #define BASE_WIDTH ((multires_gauge_graphic.get(640, 320)))
 #define BASE_HEIGHT	((multires_gauge_graphic.get(480, 200)))
-#ifdef OGL
+#if DXX_USE_OGL
 #define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH) + 0.5)
 #define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT) + 0.5)
 #define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
@@ -611,7 +611,7 @@ const array<dspan, 107> weapon_windows_hires = {{
 
 static inline void hud_bitblt_free (unsigned x, unsigned y, unsigned w, unsigned h, grs_bitmap &bm)
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_ubitmapm_cs (x, y, w, h, bm, ogl_colors::white, F1_0);
 #else
 	gr_ubitmapm(x, y, bm);
@@ -1788,12 +1788,12 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 		fill_alpha_one_line(i, s.r);
 		i += bm_w;
 	}
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_freebmtexture(*bm);
 #endif
 	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
 	gr_set_transparent(deccpt,1);
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_ubitmapm_cs (0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
 #endif
 	WinBoxOverlay[0] = gr_create_sub_bitmap(deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
@@ -2125,7 +2125,7 @@ static const char *get_gauge_width_string(unsigned v)
 static void draw_numerical_display(int shield, int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_curfont( GAME_FONT );
-#ifndef OGL
+#if !DXX_USE_OGL
 	hud_gauge_bitblt(NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
 #endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
@@ -2395,7 +2395,7 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 	vclip *vc = &Vclip[VCLIP_MONITOR_STATIC];
 	int framenum;
 	int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
-#ifndef OGL
+#if !DXX_USE_OGL
 	int x,y;
 #endif
 
@@ -2413,7 +2413,7 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 	gr_set_current_canvas(NULL);
 	auto &bmp = GameBitmaps[vc->frames[framenum].index];
 	auto &box = gauge_boxes[boxofs+win];
-#ifndef OGL
+#if !DXX_USE_OGL
 	for (x = box.left; x < box.right; x += bmp.bm_w)
 		for (y = box.top; y < box.bot; y += bmp.bm_h)
 			gr_bitmap(x, y, bmp);
@@ -2749,7 +2749,7 @@ void show_reticle(int reticle_type, int secondary_display)
 			return;
 		}
 		case RET_TYPE_CLASSIC_REBOOT:
-#ifdef OGL
+#if DXX_USE_OGL
 			ogl_draw_vertex_reticle(cross_bm_num,primary_bm_num,secondary_bm_num,BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]),PlayerCfg.ReticleRGBA[3],PlayerCfg.ReticleSize);
 #endif
 			return;

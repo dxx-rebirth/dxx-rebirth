@@ -73,7 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "multi.h"
 #include "gr.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -597,7 +597,7 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 			grs_canvas *save_canv = grd_curcanv;
 			const auto &&fspacx = FSPACX();
 			const auto &&fspacy = FSPACY();
-#ifndef OGL
+#if !DXX_USE_OGL
 			auto temp_canv = gr_create_canvas(fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H));
 #else
 			auto temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
@@ -610,7 +610,7 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 			}};
 			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
-#ifndef OGL
+#if !DXX_USE_OGL
 			gr_bitmap((grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);
 #else
 			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white, F1_0);
@@ -942,7 +942,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		render_frame(0);
 
 		{
-#if defined(OGL)
+#if DXX_USE_OGL
 		RAIIdmem<uint8_t[]> buf;
 		MALLOC(buf, uint8_t[], THUMBNAIL_W * THUMBNAIL_H * 4);
 #if !DXX_USE_OGLES

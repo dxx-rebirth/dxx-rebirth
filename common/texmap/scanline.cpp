@@ -42,7 +42,7 @@ namespace dcx {
 
 tmap_scanline_function_table tmap_scanline_functions;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 void c_tmap_scanline_flat()
 {
 	uint8_t *dest;

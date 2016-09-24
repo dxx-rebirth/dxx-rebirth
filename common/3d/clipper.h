@@ -18,7 +18,7 @@
 struct g3s_codes;
 struct g3s_point;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 #include "3d.h"
 #include "globvars.h"
 #include "compiler-array.h"

@@ -76,7 +76,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "titles.h"
 #include "hudmsg.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -518,7 +518,7 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 void stop_endlevel_sequence()
 {
-#ifndef OGL
+#if !DXX_USE_OGL
 	Interpolation_method = 0;
 #endif
 
@@ -954,7 +954,7 @@ static fix satellite_size = i2f(400);
 constexpr vms_vector vmd_zero_vector{};
 static void render_external_scene(fix eye_offset)
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	int orig_Render_depth = Render_depth;
 #endif
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
@@ -998,12 +998,12 @@ static void render_external_scene(fix eye_offset)
 	draw_polygon_model(station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL);
 	#endif
 
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_toggle_depth_test(0);
 	Render_depth = (200-(vm_vec_dist_quick(mine_ground_exit_point, Viewer_eye)/F1_0))/36;
 #endif
 	render_terrain(mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
-#ifdef OGL
+#if DXX_USE_OGL
 	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
 #endif
@@ -1061,7 +1061,7 @@ void draw_stars()
 			p.p3_flags &= ~PF_PROJECTED;
 
 			g3_project_point(p);
-#ifndef OGL
+#if !DXX_USE_OGL
 			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy), color);
 #else
 			g3_draw_sphere(p,F1_0*3, color);

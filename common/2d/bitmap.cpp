@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "dxxerror.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "bitmap.h"
@@ -45,7 +45,7 @@ static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, unsigned char
 
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_freebmtexture(bm);
 #endif
 	bm.bm_data = data;
@@ -76,7 +76,7 @@ void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const 
 	bm.bm_rowsize = bytesperline;
 
 	bm.bm_data = nullptr;
-#ifdef OGL
+#if DXX_USE_OGL
 	bm.bm_parent = nullptr;
 	bm.gltexture = nullptr;
 #endif
@@ -94,7 +94,7 @@ void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
 	bm.bm_data = nullptr;
 	bm.bm_parent = nullptr;
-#ifdef OGL
+#if DXX_USE_OGL
 	bm.gltexture = nullptr;
 #endif
 }
@@ -108,7 +108,7 @@ grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, u
 
 void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_freebmtexture(bm);
 #endif
 	if (bm.bm_mdata != NULL)
@@ -128,7 +128,7 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	bm.set_type(bmParent.get_type());
 	bm.bm_rowsize = bmParent.bm_rowsize;
 
-#ifdef OGL
+#if DXX_USE_OGL
 	bm.gltexture = bmParent.gltexture;
 #endif
 	bm.bm_parent = &bmParent;

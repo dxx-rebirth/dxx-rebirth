@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 

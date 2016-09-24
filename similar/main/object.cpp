@@ -477,7 +477,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 
 			if (is_weapon_with_inner_model)
 			{
-#ifndef OGL // in software rendering must draw inner model last
+#if !DXX_USE_OGL // in software rendering must draw inner model last
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (draw_simple_model)
 					draw_polygon_model(obj->pos,
@@ -638,7 +638,7 @@ void render_object(const vobjptridx_t obj)
 		return;
 	}
 
-#ifndef OGL
+#if !DXX_USE_OGL
 	const auto mld_save = exchange(Max_linear_depth, Max_linear_depth_objects);
 #endif
 
@@ -771,7 +771,7 @@ void render_object(const vobjptridx_t obj)
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);
-#ifndef OGL
+#if !DXX_USE_OGL
 	Max_linear_depth = mld_save;
 #endif
 }

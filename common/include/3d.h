@@ -110,7 +110,7 @@ struct g3s_object {
 
 namespace dcx {
 
-#ifdef OGL
+#if DXX_USE_OGL
 typedef const g3s_point cg3s_point;
 #else
 typedef g3s_point cg3s_point;
@@ -123,7 +123,7 @@ void g3_start_frame(void);
 void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom);
 
 //end the frame
-#ifdef OGL
+#if DXX_USE_OGL
 #define g3_end_frame() ogl_end_frame()
 #else
 #define g3_end_frame()
@@ -281,7 +281,7 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
-#ifdef OGL
+#if DXX_USE_OGL
 enum class tmap_drawer_constant : uint_fast8_t
 {
 	polygon,

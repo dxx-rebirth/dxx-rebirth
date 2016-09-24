@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -944,7 +944,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
-#ifdef OGL
+#if DXX_USE_OGL
 			gr_free_bitmap_data(am->automap_background);
 #endif
 			std::default_delete<automap>()(am);

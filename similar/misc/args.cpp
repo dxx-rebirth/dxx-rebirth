@@ -162,7 +162,7 @@ static void InitGameArg()
 #endif
 	CGameArg.DbgVerbose = CON_NORMAL;
 	CGameArg.DbgBpp = 32;
-#ifdef OGL
+#if DXX_USE_OGL
 	CGameArg.OglSyncMethod = OGL_SYNC_METHOD_DEFAULT;
 	CGameArg.OglSyncWait = OGL_SYNC_WAIT_DEFAULT;
 	CGameArg.DbgGlIntensity4Ok 	= true;
@@ -282,7 +282,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-lowresmovies"))
 			GameArg.GfxSkipHiresMovie 		= 1;
 #endif
-#ifdef OGL
+#if DXX_USE_OGL
 	// OpenGL Options
 
 		else if (!d_stricmp(p, "-gl_fixedfont"))
@@ -371,7 +371,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		else if (!d_stricmp(p, "-16bpp"))
 			CGameArg.DbgBpp		= 16;
 
-#ifdef OGL
+#if DXX_USE_OGL
 		else if (!d_stricmp(p, "-gl_oldtexmerge"))
 			CGameArg.DbgUseOldTextureMerge = true;
 		else if (!d_stricmp(p, "-gl_intensity4_ok"))

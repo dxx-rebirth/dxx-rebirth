@@ -70,7 +70,7 @@ public:
 	const uint8_t *get_bitmap_data() const { return bm_data; }
 	uint8_t *get_bitmap_data() { return bm_mdata; }
 	struct grs_bitmap  *bm_parent;
-#ifdef OGL
+#if DXX_USE_OGL
 	struct ogl_texture *gltexture;
 #endif /* def OGL */
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
@@ -91,7 +91,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	const int16_t *ft_widths;      // Array of widths (required for prop font)
 	const uint8_t *ft_kerndata;    // Array of kerning triplet data
 	std::unique_ptr<uint8_t[]> ft_allocdata;
-#ifdef OGL
+#if DXX_USE_OGL
 	// These fields do not participate in disk i/o!
 	std::unique_ptr<grs_bitmap[]> ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;

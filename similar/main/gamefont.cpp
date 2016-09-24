@@ -112,7 +112,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 		if (m<0)
 			Error("no gamefont found for %ix%i\n",scrx,scry);
 
-#ifdef OGL
+#if DXX_USE_OGL
 	if (!CGameArg.OglFixedFont)
 	{
 		// if there's no texture filtering, scale by int

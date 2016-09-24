@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "screens.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 

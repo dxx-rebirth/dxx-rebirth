@@ -145,7 +145,7 @@ static void print_commandline_help()
 #define DXX_STRINGIZE2(X)	#X
 #define DXX_STRINGIZE(X)	DXX_STRINGIZE2(X)
 
-#ifdef OGL
+#if DXX_USE_OGL
 #define DXX_COMMAND_LINE_HELP_OGL(V)	V
 #define DXX_COMMAND_LINE_HELP_SDL(V)
 #else

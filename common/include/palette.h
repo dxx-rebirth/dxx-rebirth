@@ -58,7 +58,7 @@ extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 void gr_palette_load( palette_array_t &pal );
 color_t gr_find_closest_color_current( int r, int g, int b );
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_palette_read(palette_array_t &palette);
 #endif
 extern void init_computed_colors(void);

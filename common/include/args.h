@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include <cstdint>
 
-#ifdef OGL
+#if DXX_USE_OGL
 // GL Sync methods
 enum SyncGLMethod : uint8_t {
 	SYNC_GL_NONE=0,
@@ -93,7 +93,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #else
 	static constexpr tt::true_type CtlNoJoystick{};
 #endif
-#ifdef OGL
+#if DXX_USE_OGL
 	bool OglFixedFont;
 	SyncGLMethod OglSyncMethod;
 	bool OglDarkEdges;

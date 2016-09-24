@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#include "tmapext.h"
 
-#ifndef OGL
+#if !DXX_USE_OGL
 #include "3d.h"
 #include "dxxerror.h"
 

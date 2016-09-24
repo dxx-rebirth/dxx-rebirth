@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "pstypes.h"
@@ -1010,7 +1010,7 @@ static void show_animated_bitmap(briefing *br)
 {
 	grs_canvas  *curcanv_save;
 	grs_bitmap	*bitmap_ptr;
-#ifdef OGL
+#if DXX_USE_OGL
 	float scale = 1.0;
 
 	if ((static_cast<float>(SWIDTH)/320) < (static_cast<float>(SHEIGHT)/200))
@@ -1026,7 +1026,7 @@ static void show_animated_bitmap(briefing *br)
 			bi = piggy_find_bitmap(br->bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
-#ifdef OGL
+#if DXX_USE_OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
 			gr_bitmapm(rescale_x(220), rescale_y(45), *bitmap_ptr);
@@ -1094,7 +1094,7 @@ static void show_animated_bitmap(briefing *br)
 		bi = piggy_find_bitmap(br->bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
-#ifdef OGL
+#if DXX_USE_OGL
 		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
 #else
 		gr_bitmapm(0, 0, *bitmap_ptr);

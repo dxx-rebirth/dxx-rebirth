@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -32,7 +32,7 @@ unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 	{
 		case bm_mode::linear:
 			return bitmap.bm_data[ bitmap.bm_rowsize*y + x ];
-#ifdef OGL
+#if DXX_USE_OGL
 		case bm_mode::ogl:
 			return ogl_ugpixel(bitmap, x, y);
 #endif

@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -36,7 +36,7 @@ void gr_upixel(unsigned x, unsigned y, const uint8_t color)
 {
 	switch (TYPE)
 	{
-#ifdef OGL
+#if DXX_USE_OGL
 	case bm_mode::ogl:
 		ogl_upixelc(*grd_curcanv, x, y, color);
 		return;
@@ -58,7 +58,7 @@ static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y
 {
 	switch (bm.get_type())
 	{
-#ifdef OGL
+#if DXX_USE_OGL
 	case bm_mode::ogl:
 		ogl_upixelc(*grd_curcanv, bm.bm_x+x,bm.bm_y+y,color);
 		return;

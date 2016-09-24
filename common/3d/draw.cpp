@@ -17,7 +17,7 @@
 #include "globvars.h"
 #include "texmap.h"
 #include "clipper.h"
-#ifndef OGL
+#if !DXX_USE_OGL
 #include "gr.h"
 #endif
 
@@ -31,7 +31,7 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer)
 {
 	tmap_drawer_ptr = tmap_drawer;
 }
-#ifndef OGL
+#if !DXX_USE_OGL
 //deal with a clipped line
 static void must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,const uint8_t color,temporary_points_t &tp)
 {
@@ -92,7 +92,7 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist)
 		return (vm_vec_dot(tempv,vertlist[1]->p3_vec) < 0);
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 //deal with face that must be clipped
 static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
 {

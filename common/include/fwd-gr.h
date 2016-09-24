@@ -66,7 +66,7 @@ enum bm_mode
 {
 	linear,
 	rgb15 = 3,	//5 bits each r,g,b stored at 16 bits
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl = 5,
 #endif /* def OGL */
 };
@@ -114,7 +114,7 @@ namespace dsx {
 int gr_set_mode(screen_mode mode);
 
 int gr_init();
-#ifdef OGL
+#if DXX_USE_OGL
 void gr_set_attributes();
 #endif
 void gr_close();
@@ -163,7 +163,7 @@ grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, u
 void gr_init_bitmap_data (grs_bitmap &bm);
 
 void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color);
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 #define gr_settransblend(A,B)	gr_settransblend(A)
@@ -214,7 +214,7 @@ void show_fullscr(grs_bitmap &bm);
 void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy);
 
 // bitmap function with transparency
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm);
 void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm);
 #endif
@@ -236,7 +236,7 @@ void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32
 void gr_ubox(int left,int top,int right,int bot, uint8_t color);
 
 void gr_scanline(int x1, int x2, unsigned y, uint8_t color);
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_uscanline(unsigned x1, unsigned x2, unsigned y, uint8_t color);
 #endif
 void gr_close_font(std::unique_ptr<grs_font> font);

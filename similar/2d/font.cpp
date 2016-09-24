@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteutil.h"
 #include "console.h"
 #include "config.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -345,7 +345,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 	return gr_internal_string0_template<false>(x, y, s);
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 
 static int gr_internal_color_string(int x, int y, const char *s )
 {
@@ -729,7 +729,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 			return;
 	}
 	if (
-#ifdef OGL
+#if DXX_USE_OGL
 		TYPE == bm_mode::ogl ||
 #endif
 		grd_curcanv->cv_font->ft_flags & FT_COLOR)
@@ -758,7 +758,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 
 void gr_ustring(int x, int y, const char *s )
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	if (TYPE==bm_mode::ogl)
 	{
 		ogl_internal_string(x,y,s);
@@ -851,7 +851,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 {
 	if (font)
 	{
-#ifdef OGL
+#if DXX_USE_OGL
 		gr_free_bitmap_data(font->ft_parent_bitmap);
 #endif
 		//find font in list
@@ -1042,7 +1042,7 @@ grs_font_ptr gr_init_font(const char *fontname)
 			throw std::logic_error("too many open fonts");
 		*i = font.get();
 	}
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_init_font(font.get());
 #endif
 	return grs_font_ptr(font.release());
@@ -1056,11 +1056,11 @@ void gr_remap_font(grs_font *font, const char *fontname)
 		return;
 	if (!(n->ft_flags & FT_COLOR))
 		return;
-#ifdef OGL
+#if DXX_USE_OGL
 	gr_free_bitmap_data(font->ft_parent_bitmap);
 #endif
 	*font = std::move(*n.get());
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_init_font(font);
 #endif
 }

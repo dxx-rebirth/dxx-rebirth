@@ -44,7 +44,7 @@ namespace dcx {
 
 constexpr unsigned MAX_TMAP_VERTS = 25;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 // -------------------------------------------------------------------------------------------------------
 // This is the main texture mapper call.
 //	tmap_num references a texture map defined in Texmap_ptrs.
@@ -81,13 +81,13 @@ struct g3ds_tmap {
 
 //	Note:	Not all interpolation method and lighting combinations are supported.
 //	Set Interpolation_method to 0/1/2 for linear/linear, perspective/linear, perspective/perspective
-#ifndef OGL
+#if !DXX_USE_OGL
 extern	int	Interpolation_method;
 void init_interface_vars_to_assembler();
 #endif
 class push_interpolation_method
 {
-#ifdef OGL
+#if DXX_USE_OGL
 public:
 	push_interpolation_method(int, bool = true) {}
 #else

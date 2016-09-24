@@ -19,7 +19,7 @@
 #include "globvars.h"
 #include "clipper.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #else
 #include "texmap.h"  // for init_interface_vars_to_assembler()
@@ -56,7 +56,7 @@ void g3_start_frame(void)
 	
 	Window_scale.z = f1_0;		//always 1
 
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_start_frame();
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper

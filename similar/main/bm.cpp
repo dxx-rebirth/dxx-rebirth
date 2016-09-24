@@ -654,7 +654,7 @@ int load_exit_models()
 		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
 		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
 
-#ifdef OGL
+#if DXX_USE_OGL
 		ogl_cache_polymodel_textures(exit_modelnum);
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif

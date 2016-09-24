@@ -55,7 +55,7 @@ constexpr unsigned Max_linear_depth_objects = 20;
 constexpr unsigned Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 constexpr unsigned Max_debris_objects = 15; // How many debris objects to create
 
-#ifdef OGL
+#if DXX_USE_OGL
 #define DETRIANGULATION 0
 #else
 #define DETRIANGULATION 1

@@ -14,7 +14,7 @@
 #include "3d.h"
 #include "globvars.h"
 #include "maths.h"
-#ifndef OGL
+#if !DXX_USE_OGL
 #include "gr.h"
 #endif
 
@@ -127,7 +127,7 @@ void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_widt
 	g3_draw_tmap(rod.point_list,uvl_list,lrgb_list,bitmap);
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
 void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)

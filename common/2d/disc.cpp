@@ -16,7 +16,7 @@
 
 namespace dcx {
 
-#ifndef OGL
+#if !DXX_USE_OGL
 int gr_disk(fix xc1,fix yc1,fix r1, const uint8_t color)
 {
 	int p,x, y, xc, yc, r;

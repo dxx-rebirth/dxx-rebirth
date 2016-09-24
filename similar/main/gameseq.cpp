@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <time.h>
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -1685,7 +1685,7 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 	reset_special_effects();
 
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_cache_level_textures();
 #endif
 

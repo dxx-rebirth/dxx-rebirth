@@ -39,7 +39,7 @@ namespace dcx {
 
 struct g3ds_tmap;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
 
@@ -68,7 +68,7 @@ extern ubyte tmap_flat_shade_value;
 constexpr std::size_t FIX_RECIP_TABLE_SIZE = 641;	//increased from 321 to 641, since this res is now quite achievable.. slight fps boost -MM
 extern const array<fix, FIX_RECIP_TABLE_SIZE> fix_recip_table;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static inline fix fix_recip(unsigned i)
 {
 	if (i < fix_recip_table.size())

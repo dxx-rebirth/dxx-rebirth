@@ -39,7 +39,7 @@ static void gr_linear_darken(uint8_t *const dest, unsigned darkening_level, unsi
 
 #define gr_linear_stosd(D,C,N)	memset(D,C,N)
 
-#ifdef OGL
+#if DXX_USE_OGL
 static
 #endif
 void gr_uscanline(const unsigned x1, const unsigned x2, const unsigned y, const uint8_t color)
@@ -47,7 +47,7 @@ void gr_uscanline(const unsigned x1, const unsigned x2, const unsigned y, const 
 		switch(TYPE)
 		{
 		case bm_mode::linear:
-#ifdef OGL
+#if DXX_USE_OGL
 		case bm_mode::ogl:
 #endif
 			{

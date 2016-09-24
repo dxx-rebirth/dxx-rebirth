@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "dxxerror.h"
 #include "byteutil.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -44,14 +44,14 @@ namespace dcx {
 static int gr_bitblt_dest_step_shift = 0;
 
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 #endif
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, const uint_fast32_t num_pixels)
 {
 	auto predicate = [&](uint8_t s, uint8_t d) {
@@ -77,7 +77,7 @@ static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dest_rowsize;
@@ -117,7 +117,7 @@ static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
@@ -145,7 +145,7 @@ static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 	}
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	const uint_fast32_t bm_h = bm.bm_h;
@@ -181,7 +181,7 @@ void gr_ubitmap(grs_bitmap &bm)
 			else
 				gr_ubitmap00( x, y, bm );
 			return;
-#ifdef OGL
+#if DXX_USE_OGL
 		case bm_mode::ogl:
 			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
 			return;
@@ -195,7 +195,7 @@ void gr_ubitmap(grs_bitmap &bm)
 	}
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 {
 	const auto source = bm.get_type();
@@ -209,7 +209,7 @@ void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 			else
 				gr_ubitmap00m(x, y, bm);
 			return;
-#ifdef OGL
+#if DXX_USE_OGL
 		case bm_mode::ogl:
 			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
 			return;
@@ -270,7 +270,7 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 		return;
 	}
 
-#ifdef OGL
+#if DXX_USE_OGL
 	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
@@ -303,14 +303,14 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 {
 	int dx1=x, dx2=x+bm.bm_w-1;
 	int dy1=y, dy2=y+bm.bm_h-1;
-#ifndef OGL
+#if !DXX_USE_OGL
 	int sx=0, sy=0;
 #endif
 
 	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
 	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_ubitmapm_cs(x, y, 0, 0, bm, ogl_colors::white, F1_0);
 #else
 	if ( dx1 < 0 )
@@ -330,7 +330,7 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 #endif
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	int dx1=x, dx2=x+bm.bm_w-1;
@@ -361,7 +361,7 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 {
 	ubyte c;
 
-#ifdef OGL
+#if DXX_USE_OGL
 	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
 	{
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
@@ -406,7 +406,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	}
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
 	int data_offset;
@@ -498,7 +498,7 @@ inside:
 void show_fullscr(grs_bitmap &bm)
 {
 	auto &scr = grd_curcanv->cv_bitmap;
-#ifdef OGL
+#if DXX_USE_OGL
 	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{

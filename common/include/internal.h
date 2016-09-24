@@ -8,7 +8,7 @@
 
 #pragma once
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h" // interface to OpenGL module
 #include "gr.h"
 

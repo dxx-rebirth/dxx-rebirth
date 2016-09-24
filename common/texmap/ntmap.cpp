@@ -69,7 +69,7 @@ ubyte tmap_flat_shade_value;
 
 
 
-#ifndef OGL
+#if !DXX_USE_OGL
 int	Interpolation_method;	// 0 = choose best method
 // -------------------------------------------------------------------------------------
 template <std::size_t... N>
@@ -246,7 +246,7 @@ void compute_y_bounds(const g3ds_tmap &t, int &vlt, int &vlb, int &vrt, int &vrb
 //--
 //--}
 
-//#ifndef OGL
+//#if !DXX_USE_OGL
 static fix compute_du_dy_lin(const g3ds_tmap &t, int top_vertex,int bottom_vertex, fix recip_dy)
 {
 	return fixmul(t.verts[bottom_vertex].u - t.verts[top_vertex].u, recip_dy);

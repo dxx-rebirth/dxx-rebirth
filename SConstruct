@@ -857,25 +857,19 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# User settings tests are hidden because they do not respect sconf_*
 	# overrides, so the user should not be offered an override.
 	@_custom_test
-	def _check_user_settings_opengl(self,context,
-		_CPPDEFINES_OGLES=(('OGL',)),
-		_CPPDEFINES_OGL=(('OGL',),)
-	):
+	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
 		Result = context.Result
 		Define = context.sconf.Define
+		Define('DXX_USE_OGL', int(user_settings.opengl))
 		Define('DXX_USE_OGLES', int(user_settings.opengles))
 		if user_settings.opengles:
-			s = '%s: building with OpenGL ES'
-			CPPDEFINES = _CPPDEFINES_OGLES
+			s = 'OpenGL ES'
 		elif user_settings.opengl:
-			s = '%s: building with OpenGL'
-			CPPDEFINES = _CPPDEFINES_OGL
+			s = 'OpenGL'
 		else:
-			Result('%s: building with software renderer' % self.msgprefix)
-			return
-		self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
-		Result(s % self.msgprefix)
+			s = 'software renderer'
+		Result('%s: building with %s' % (self.msgprefix, s))
 	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
 		if isinstance(CPPDEFINES, str):
 			context.sconf.Define(CPPDEFINES, int(condition))

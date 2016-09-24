@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#ifndef OGL
+#if !DXX_USE_OGL
 int gr_ucircle(fix xc1,fix yc1,fix r1, const uint8_t color)
 {
 	int p,x, y, xc, yc, r;

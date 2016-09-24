@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <SDL.h>
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -188,7 +188,7 @@ void init_cockpit()
 	if ( Screen_mode == SCREEN_EDITOR )
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 
-#ifndef OGL
+#if !DXX_USE_OGL
 	if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -515,7 +515,7 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 namespace dcx {
 void save_screen_shot(int automap_flag)
 {

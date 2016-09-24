@@ -191,7 +191,7 @@ grs_canvas &window_get_canvas(window &wind)
 	return wind.w_canv;
 }
 
-#ifndef OGL
+#if !DXX_USE_OGL
 void window_update_canvases()
 {
 	window *wind;

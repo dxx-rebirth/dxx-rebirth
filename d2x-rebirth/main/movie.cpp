@@ -55,7 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "screens.h"
 #include "physfsrwops.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "args.h"
@@ -229,7 +229,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 	if (dsty == -1) // center it
 		dsty = (SHEIGHT/2)-((bufh*scale)/2);
 
-#ifdef OGL
+#if DXX_USE_OGL
 	glDisable (GL_BLEND);
 
 	ogl_ubitblt_i(
@@ -383,7 +383,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	movie m;
 	int track = 0;
 	int aborted = 0;
-#ifdef OGL
+#if DXX_USE_OGL
 	palette_array_t pal_save;
 #endif
 
@@ -413,7 +413,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-#ifdef OGL
+#if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette);
 	gr_palette_load(gr_palette);
@@ -450,7 +450,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
-#ifdef OGL
+#if DXX_USE_OGL
 	gr_copy_palette(gr_palette, pal_save);
 	gr_palette_load(pal_save);
 #endif

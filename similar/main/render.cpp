@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "effects.h"
 #include "playsave.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "args.h"
@@ -80,7 +80,7 @@ using std::min;
 using std::max;
 
 // (former) "detail level" values
-#ifdef OGL
+#if DXX_USE_OGL
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
 int Render_depth = 20; //how many segments deep to render
@@ -259,7 +259,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 		return;
 	}
 
-#ifdef OGL
+#if DXX_USE_OGL
 	grs_bitmap *bm2 = nullptr;
 	if (!CGameArg.DbgUseOldTextureMerge)
 	{
@@ -351,7 +351,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 	else
 #endif
 
-#ifdef OGL
+#if DXX_USE_OGL
 		if (bm2){
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}else
@@ -377,7 +377,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 		int save_lighting;
 		array<g3s_lrgb, 4> dyn_light{};
 		array<cg3s_point *, 4> pointlist;
-#ifdef OGL
+#if DXX_USE_OGL
 		(void)tmap1;
 		(void)tmap2;
 #else
@@ -392,21 +392,21 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
-#ifdef OGL
+#if DXX_USE_OGL
 		ogl_end_frame();
 #endif
 		{
 		uint8_t color = 0;
 		gr_pixel(_search_x,_search_y, color);	//set our search pixel to color zero
 		}
-#ifdef OGL
+#if DXX_USE_OGL
 		ogl_start_frame();
 #endif
 		{
 			const uint8_t color = 1;
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
-#ifdef OGL
+#if DXX_USE_OGL
 		g3_draw_poly(nv,pointlist, color);
 #else
 		(void)color;
@@ -569,7 +569,7 @@ static void render_object_search(const vobjptridx_t obj)
 	{
 	const uint8_t color = 0;
 	//set our search pixel to color zero
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_end_frame();
 
 	// For OpenGL we use gr_rect instead of gr_pixel,
@@ -591,7 +591,7 @@ static void render_object_search(const vobjptridx_t obj)
 
 	{
 		const uint8_t color = 1;
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_end_frame();
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
 	ogl_start_frame();
@@ -752,7 +752,7 @@ static void project_list(array<int, 8> &pointnumlist)
 
 
 // -----------------------------------------------------------------------------------
-#if !defined(OGL)
+#if !DXX_USE_OGL
 namespace dsx {
 static void render_segment(const vcsegptridx_t seg)
 {
@@ -1542,7 +1542,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 			}
 		}
 	}
-#ifndef OGL
+#if !DXX_USE_OGL
 	range_for (const auto segnum, reversed_render_range)
 	{
 		// Interpolation_method = 0;

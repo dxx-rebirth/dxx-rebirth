@@ -184,7 +184,7 @@ void render_terrain(const vms_vector &org_point,int org_2dx,int org_2dy)
 	terrain_y_cache get_dy_vec;
 
 	//Lighting_on = 0;
-#ifndef OGL
+#if !DXX_USE_OGL
 	Interpolation_method = 1;
 #endif
 

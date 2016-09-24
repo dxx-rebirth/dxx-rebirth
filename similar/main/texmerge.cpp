@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #define MAX_NUM_CACHE_BITMAPS 200
 #else
@@ -254,7 +254,7 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %u; top bitmap = %u; top width=%u; top height=%u", tmap_bottom, Textures[tmap_bottom].index, bitmap_bottom->bm_w, bitmap_bottom->bm_h, tmap_top, Textures[tmap_top & 0x3fff].index, bitmap_top->bm_w, bitmap_top->bm_h);
 
 	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
-#ifdef OGL
+#if DXX_USE_OGL
 	ogl_freebmtexture(*least_recently_used->bitmap.get());
 #endif
 

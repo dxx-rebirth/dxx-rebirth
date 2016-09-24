@@ -84,7 +84,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #endif
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 #include "physfs_list.h"
@@ -472,7 +472,7 @@ static int main_menu_handler(newmenu *menu,const d_event &event, int *menu_choic
 				int n_demos = newdemo_count_demos();
 				if ((d_rand() % (n_demos+1)) == 0 && !CGameArg.SysAutoDemo)
 				{
-#ifdef OGL
+#if DXX_USE_OGL
 					Screen_mode = -1;
 #endif
 					PlayMovie("intro.tex", "intro.mve",0);
@@ -1352,7 +1352,7 @@ void input_config()
 
 static void reticle_config()
 {
-#ifdef OGL
+#if DXX_USE_OGL
 #define DXX_RETICLE_TYPE_OGL(VERB)	\
 	DXX_MENUITEM(VERB, RADIO, "Classic Reboot", opt_reticle_classic_reboot, 0, optgrp_reticle)
 #else
@@ -1404,7 +1404,7 @@ static void reticle_config()
 	menu_items items;
 	{
 	auto i = PlayerCfg.ReticleType;
-#ifndef OGL
+#if !DXX_USE_OGL
 	if (i > 1) i--;
 #endif
 	items.m[items.opt_reticle_classic + i].value = 1;
@@ -1415,7 +1415,7 @@ static void reticle_config()
 	for (uint_fast32_t i = items.opt_reticle_classic; i != items.opt_label_blank_reticle_type; ++i)
 		if (items.m[i].value)
 		{
-#ifndef OGL
+#if !DXX_USE_OGL
 			if (i != items.opt_reticle_classic)
 				++i;
 #endif
@@ -1504,7 +1504,7 @@ void hud_config()
 	DXX_OGL1_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
 
-#ifdef OGL
+#if DXX_USE_OGL
 enum {
 	optgrp_texfilt,
 };
@@ -1548,7 +1548,7 @@ static int graphics_config_menuset(newmenu *, const d_event &event, newmenu_item
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_gr_brightness)
 				gr_palette_set_gamma(items[citem].value);
-#ifdef OGL
+#if DXX_USE_OGL
 			else
 			if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0)
 			{
@@ -1581,13 +1581,13 @@ void graphics_config()
 	array<newmenu_item, DXX_GRAPHICS_MENU(COUNT)> m;
 	DXX_GRAPHICS_MENU(ADD);
 
-#ifdef OGL
+#if DXX_USE_OGL
 	m[opt_filter_none+CGameCfg.TexFilt].value=1;
 #endif
 
 	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 0);
 
-#ifdef OGL
+#if DXX_USE_OGL
 	if (CGameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
@@ -1608,7 +1608,7 @@ void graphics_config()
 #endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
 	GameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
-#ifdef OGL
+#if DXX_USE_OGL
 	gr_set_attributes();
 	gr_set_mode(Game_screen_mode);
 #endif
@@ -2381,7 +2381,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 {
 	static int view_idx = 0;
 	int key = 0;
-#ifdef OGL
+#if DXX_USE_OGL
 	float scale = 1.0;
 #endif
 	bitmap_index bi;
@@ -2420,7 +2420,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			timer_delay(F1_0/60);
 			PIGGY_PAGE_IN(bi);
 			gr_clear_canvas( BM_XRGB(0,0,0) );
-#ifdef OGL
+#if DXX_USE_OGL
 			scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
 			ogl_ubitmapm_cs((SWIDTH/2)-(bm->bm_w*scale/2),(SHEIGHT/2)-(bm->bm_h*scale/2),bm->bm_w*scale,bm->bm_h*scale,*bm,ogl_colors::white,F1_0);
 #else

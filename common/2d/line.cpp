@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "maths.h"
 #include "clip.h"
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -272,7 +272,7 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
 	switch(TYPE)
 	{
-#ifdef OGL
+#if DXX_USE_OGL
 	case bm_mode::ogl:
 		ogl_ulinec(a1, b1, a2, b2, color);
 		return;

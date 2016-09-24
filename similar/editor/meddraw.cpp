@@ -56,7 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "segiter.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -134,14 +134,14 @@ static void check_segment(const vsegptridx_t seg)
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
-#ifdef OGL
+#if DXX_USE_OGL
 		g3_end_frame();
 #endif
 		{
 		uint8_t color = 0;
 		gr_pixel(Search_x,Search_y, color);	//set our search pixel to color zero
 		}
-#ifdef OGL
+#if DXX_USE_OGL
 		g3_start_frame();
 #endif
 		{
@@ -860,12 +860,12 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 
 	render_start_frame();
 
-#ifdef OGL
+#if DXX_USE_OGL
 	g3_end_frame();
 #endif
 	uint8_t color = 0;
 	gr_pixel(x,y, color);	//set our search pixel to color zero
-#ifdef OGL
+#if DXX_USE_OGL
 	g3_start_frame();
 #endif
 

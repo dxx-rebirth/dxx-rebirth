@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 
-#ifdef OGL
+#if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
 
@@ -35,7 +35,7 @@ namespace dcx {
 
 void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	if (TYPE == bm_mode::ogl) {
 		ogl_urect(left,top,right,bot, color);
 		return;
@@ -48,7 +48,7 @@ void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 
 void gr_rect(int left,int top,int right,int bot, const uint8_t color)
 {
-#ifdef OGL
+#if DXX_USE_OGL
 	if (TYPE == bm_mode::ogl) {
 		ogl_urect(left,top,right,bot, color);
 		return;
