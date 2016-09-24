@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
+#include "dxxsconf.h"
 #include <cstdint>
 
 #ifdef OGL
@@ -167,6 +167,4 @@ static inline const char *PLAYER_DIRECTORY_STRING(const char *s)
 }
 #define PLAYER_DIRECTORY_STRING(S)	((PLAYER_DIRECTORY_STRING)(PLAYER_DIRECTORY_TEXT S))
 }
-#endif
-
 #endif

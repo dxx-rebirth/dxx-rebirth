@@ -12,6 +12,7 @@
 #ifndef _OGL_INIT_H_ 
 #define _OGL_INIT_H_
 
+#include "dxxsconf.h"
 #ifdef _MSC_VER
 #include <windows.h>
 #include <stddef.h>
@@ -37,7 +38,6 @@
 # endif
 #endif
 
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fwd-gr.h"
 #include "palette.h"

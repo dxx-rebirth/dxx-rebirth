@@ -10,6 +10,7 @@
  *
  */
 
+#include "dxxsconf.h"
 #include <stdexcept>
 #include <tuple>
 #ifdef _WIN32
