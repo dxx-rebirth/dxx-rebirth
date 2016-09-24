@@ -63,6 +63,18 @@ int TextureLights = DXX_TEXTURE_INITIALIZER(263, 275);
 int TextureEffects = DXX_TEXTURE_INITIALIZER(327, 308);
 int TextureMetals = DXX_TEXTURE_INITIALIZER(156, 202);
 
+namespace {
+
+class texture_dialog
+{
+public:
+	std::unique_ptr<UI_GADGET_BUTTON> prev_texture, next_texture, first_texture, metal_texture, light_texture, effects_texture;
+};
+
+}
+
+static texture_dialog texpage_dialog;
+
 static int TexturePage = 0;
 
 static grs_subcanvas_ptr TmapnameCanvas;
@@ -173,14 +185,14 @@ int texpage_grab_current(int n)
 
 void texpage_init( UI_DIALOG * dlg )
 {
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 00, TMAPCURBOX_Y - 24, 30, 20, "<<", texpage_goto_prev );
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 32, TMAPCURBOX_Y - 24, 30, 20, ">>", texpage_goto_next );
+	auto &t = texpage_dialog;
+	t.prev_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 00, TMAPCURBOX_Y - 24, 30, 20, "<<", texpage_goto_prev );
+	t.next_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 32, TMAPCURBOX_Y - 24, 30, 20, ">>", texpage_goto_next );
 
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 00, TMAPCURBOX_Y - 48, 15, 20, "T", texpage_goto_first );
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 17, TMAPCURBOX_Y - 48, 15, 20, "M", texpage_goto_metals );
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 34, TMAPCURBOX_Y - 48, 15, 20, "L", texpage_goto_lights );
-	ui_add_gadget_button( dlg, TMAPCURBOX_X + 51, TMAPCURBOX_Y - 48, 15, 20, "E", texpage_goto_effects );
-	
+	t.first_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 00, TMAPCURBOX_Y - 48, 15, 20, "T", texpage_goto_first );
+	t.metal_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 17, TMAPCURBOX_Y - 48, 15, 20, "M", texpage_goto_metals );
+	t.light_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 34, TMAPCURBOX_Y - 48, 15, 20, "L", texpage_goto_lights );
+	t.effects_texture = ui_add_gadget_button( dlg, TMAPCURBOX_X + 51, TMAPCURBOX_Y - 48, 15, 20, "E", texpage_goto_effects );
 
 	for (int i=0;i<TMAPS_PER_PAGE;i++)
 		TmapBox[i] = ui_add_gadget_userbox( dlg, TMAPBOX_X + (i/3)*(2+TMAPBOX_W), TMAPBOX_Y + (i%3)*(2+TMAPBOX_H), TMAPBOX_W, TMAPBOX_H);

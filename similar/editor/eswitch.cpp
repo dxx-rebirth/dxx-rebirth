@@ -66,13 +66,12 @@ namespace {
 struct trigger_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
-	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton, remove_trigger, bind_wall, bind_matcen, enable_all_triggers;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, NUM_TRIGGER_FLAGS> triggerFlag;
 	int old_trigger_num;
 };
 
 }
-
 
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
@@ -331,10 +330,10 @@ static int trigger_dialog_created(UI_DIALOG *const w, trigger_dialog *const t)
 
 	// A bunch of buttons...
 	i = 80;
-	ui_add_gadget_button(w, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
-	ui_add_gadget_button(w, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
-	ui_add_gadget_button(w, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
-	ui_add_gadget_button(w, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
+	t->remove_trigger = ui_add_gadget_button(w, 155, i, 140, 26, "Remove Trigger", trigger_remove); i += 29;
+	t->bind_wall = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Wall", bind_wall_to_trigger); i += 29;
+	t->bind_matcen = ui_add_gadget_button(w, 155, i, 140, 26, "Bind Matcen", bind_matcen_to_trigger); i += 29;
+	t->enable_all_triggers = ui_add_gadget_button(w, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
 
 	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return 1;

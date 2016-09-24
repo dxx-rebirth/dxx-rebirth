@@ -67,7 +67,7 @@ namespace {
 struct hostage_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> hostageViewBox;
-	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton, next, prev, compress, delete_object, new_object;
 
 	vclip			*vclip_ptr;				// Used for the vclip on monitor
 	fix64			time;
@@ -279,11 +279,11 @@ static int hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
 	h->hostageViewBox = ui_add_gadget_userbox(w, 10, 90+10, 64, 64);
 	// A bunch of buttons...
 	int i = 90;
-	ui_add_gadget_button(w, 155, i, 140, 26, "Next Hostage", SelectNextHostage);	i += 29;		
-	ui_add_gadget_button(w, 155, i, 140, 26, "Prev Hostage", SelectPrevHostage); i += 29;		
-	ui_add_gadget_button(w, 155, i, 140, 26, "Compress All", CompressHostages); i += 29;		
-	ui_add_gadget_button(w, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;		
-	ui_add_gadget_button(w, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;		
+	h->next = ui_add_gadget_button(w, 155, i, 140, 26, "Next Hostage", SelectNextHostage);	i += 29;		
+	h->prev = ui_add_gadget_button(w, 155, i, 140, 26, "Prev Hostage", SelectPrevHostage); i += 29;		
+	h->compress = ui_add_gadget_button(w, 155, i, 140, 26, "Compress All", CompressHostages); i += 29;		
+	h->delete_object = ui_add_gadget_button(w, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;		
+	h->new_object = ui_add_gadget_button(w, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;		
 	h->time = timer_query();
 	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return 0;

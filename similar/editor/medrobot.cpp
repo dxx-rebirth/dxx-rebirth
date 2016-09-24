@@ -74,7 +74,7 @@ namespace {
 struct robot_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> robotViewBox, containsViewBox;
-	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_powerup_type, next_powerup_type, prev_powerup_id, next_powerup_id, prev_powerup_count, next_powerup_count, prev_robot_type, next_robot_type, next_segment, prev_object, next_object, delete_object, new_object, set_path;
 	array<std::unique_ptr<UI_GADGET_RADIO>, NUM_BOXES> initialMode;
 	fix64 time;
 	vms_angvec angles, goody_angles;
@@ -485,12 +485,12 @@ int do_robot_dialog()
 static int robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
 {
 	r->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL);
-	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
-	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
-	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
-	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
-	ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
-	ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
+	r->prev_powerup_type = ui_add_gadget_button(w, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
+	r->next_powerup_type = ui_add_gadget_button(w, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
+	r->prev_powerup_id = ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
+	r->next_powerup_id = ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
+	r->prev_powerup_count = ui_add_gadget_button(w, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
+	r->next_powerup_count = ui_add_gadget_button(w, GOODY_X+80, GOODY_Y+45, 25, 22, ">>", GoodyNextCount);
 	r->initialMode[0] = ui_add_gadget_radio(w,  6, 58, 16, 16, 0, "Hover");
 	r->initialMode[1] = ui_add_gadget_radio(w, 76, 58, 16, 16, 0, "Normal");
 	r->initialMode[2] = ui_add_gadget_radio(w,  6, 78, 16, 16, 0, "(hide)");
@@ -503,14 +503,14 @@ static int robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
 	r->containsViewBox = ui_add_gadget_userbox(w, 10, 202, 100, 80);
 	// A bunch of buttons...
 	int i = 135;
-	ui_add_gadget_button(w, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
-	ui_add_gadget_button(w, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
-	ui_add_gadget_button(w, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
-	ui_add_gadget_button(w, 190, i, 53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine);
-	ui_add_gadget_button(w, 247, i, 53, 26, ">>Obj",			LocalObjectSelectNextinMine); 		i += 29;		
-	ui_add_gadget_button(w, 190, i, 110, 26, "Delete", 		LocalObjectDelete);						i += 29;		
-	ui_add_gadget_button(w, 190, i, 110, 26, "Create New", 	LocalObjectPlaceObject);				i += 29;		
-	ui_add_gadget_button(w, 190, i, 110, 26, "Set Path", 	med_set_ai_path);
+	r->prev_robot_type = ui_add_gadget_button(w, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
+	r->next_robot_type = ui_add_gadget_button(w, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
+	r->next_segment = ui_add_gadget_button(w, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
+	r->prev_object = ui_add_gadget_button(w, 190, i, 53, 26, "<<Obj",		 	LocalObjectSelectPrevinMine);
+	r->next_object = ui_add_gadget_button(w, 247, i, 53, 26, ">>Obj",			LocalObjectSelectNextinMine); 		i += 29;		
+	r->delete_object = ui_add_gadget_button(w, 190, i, 110, 26, "Delete", 		LocalObjectDelete);						i += 29;		
+	r->new_object = ui_add_gadget_button(w, 190, i, 110, 26, "Create New", 	LocalObjectPlaceObject);				i += 29;		
+	r->set_path = ui_add_gadget_button(w, 190, i, 110, 26, "Set Path", 	med_set_ai_path);
 	r->time = timer_query();
 	r->old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
 	if ( Cur_object_index == object_none)
