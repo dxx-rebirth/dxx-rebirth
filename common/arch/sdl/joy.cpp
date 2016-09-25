@@ -146,7 +146,7 @@ class d_physical_joystick
 #endif
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
-	struct tuple_member_type_hat_map : array<unsigned, MAX_HATS_PER_JOYSTICK> {};
+	struct tuple_member_type_hat_map : array<unsigned, DXX_MAX_HATS_PER_JOYSTICK> {};
 	struct tuple_member_type_button_map : array<unsigned, DXX_MAX_BUTTONS_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_value : array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
@@ -184,7 +184,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 }
 #endif
 
-#if MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_HATS_PER_JOYSTICK
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
@@ -278,7 +278,7 @@ void joy_init()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 
@@ -307,9 +307,9 @@ void joy_init()
 			}
 #endif
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 			const auto n_buttons = check_warn_joy_support_limit<DXX_MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
-			const auto n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
+			const auto n_hats = check_warn_joy_support_limit<DXX_MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
 
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
@@ -320,7 +320,7 @@ void joy_init()
 				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, j + 1);
 			}
 #endif
-#if MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_HATS_PER_JOYSTICK
 			for (int j=0; j < n_hats; j++)
 			{
 				joystick.hat_map()[j] = joystick_n_buttons;
@@ -350,7 +350,7 @@ void joy_close()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 }

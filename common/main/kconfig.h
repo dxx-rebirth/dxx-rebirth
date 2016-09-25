@@ -152,8 +152,8 @@ using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<DXX_
 extern joyaxis_text_t joyaxis_text;
 #endif
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-using joybutton_text_t = joystick_text_t<sizeof("J H ") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>;
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+using joybutton_text_t = joystick_text_t<sizeof("J H ") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<DXX_MAX_HATS_PER_JOYSTICK>::value>;
 extern joybutton_text_t joybutton_text;
 #endif
 

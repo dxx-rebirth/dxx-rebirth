@@ -92,7 +92,7 @@ const array<sbyte, 64> fades{{
 }};
 
 const array<char[2], 2> invert_text{{"N", "Y"}};
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 joybutton_text_t joybutton_text;
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
@@ -319,7 +319,7 @@ static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 #define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	(static_cast<void>(I), 0)
 #endif
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 #define DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(I)	I
 #else
 #define DXX_KCONFIG_ITEM_JOY_BUTTON_WIDTH(I)	(static_cast<void>(I), 0)
@@ -586,7 +586,7 @@ static array<kc_mitem, lengthof(kc_mouse)> kcm_mouse;
 #define WEAPON_STRING_SMART	"SMART" D2X_EXTENDED_WEAPON_STRING("/MERCURY") " MISSILE"
 #define WEAPON_STRING_MEGA	"MEGA" D2X_EXTENDED_WEAPON_STRING("/EARTHSHAKER") " MISSILE"
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 #define DXX_KCONFIG_ITEM_JOY_WIDTH(I)	I
 #else
 #define DXX_KCONFIG_ITEM_JOY_WIDTH(I)	(static_cast<void>(I), 0)
@@ -640,7 +640,7 @@ static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 
 static void kc_drawinput( const kc_item &item, kc_mitem& mitem, int is_current, const char *label );
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #endif
 static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -806,7 +806,7 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 				return mousebutton_text[mitem.value];
 			case BT_MOUSE_AXIS:
 				return mouseaxis_text[mitem.value];
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 			case BT_JOY_BUTTON:
 				if (joybutton_text.size() > mitem.value)
 					return &joybutton_text[mitem.value][0];
@@ -904,7 +904,7 @@ static void kconfig_draw(kc_menu *menu)
 	else if ( menu->items == kc_joystick )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		gr_string(0x8000, fspacy(30), TXT_BUTTONS);
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
@@ -918,7 +918,7 @@ static void kconfig_draw(kc_menu *menu)
 #endif
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
 		const auto &&fspacx115 = fspacx(115);
 		const auto &&fspacy40 = fspacy(40);
@@ -960,7 +960,7 @@ static void kconfig_draw(kc_menu *menu)
 
 		const auto &&fspacy60 = fspacy(60);
 		gr_string(fspacx(152), fspacy60, "KEYBOARD");
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		gr_string(fspacx(210), fspacy60, "JOYSTICK");
 #endif
 		gr_string(fspacx(273), fspacy60, "MOUSE");
@@ -994,7 +994,7 @@ static void kconfig_draw(kc_menu *menu)
 			case BT_MOUSE_AXIS:
 				s = TXT_MOVE_NEW_MSE_AXIS;
 				break;
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 			case BT_JOY_BUTTON:
 				s = TXT_PRESS_NEW_JBUTTON;
 				break;
@@ -1244,7 +1244,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 				event_mouse_get_delta( event, &menu->old_maxis[0], &menu->old_maxis[1], &menu->old_maxis[2]);
 			break;
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 			if (menu->changing && menu->items[menu->citem].type == BT_JOY_BUTTON) kc_change_joybutton(*menu, event, menu->mitems[menu->citem]);
 			break;
@@ -1442,7 +1442,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
 }
 
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	int button = 255;
@@ -1664,7 +1664,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			break;
-#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))

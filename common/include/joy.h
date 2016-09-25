@@ -54,7 +54,7 @@ extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 #define joy_button_handler(jbe)	static_cast<void>(static_cast<SDL_JoyButtonEvent *const &>(jbe))
 #endif
 
-#if MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_HATS_PER_JOYSTICK
 extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
 #else
 #define joy_hat_handler(jhe)	static_cast<void>(static_cast<SDL_JoyHatEvent *const &>(jhe))
