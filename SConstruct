@@ -1536,26 +1536,6 @@ using namespace B;
 		raise SCons.Errors.StopError(("C++ compiler does not support %s." %
 			', '.join(failures)
 		) if failures else 'C++ compiler supports each feature individually, but not all of them together.  Please report this as a bug in the Rebirth configure script.')
-	@_custom_test
-	def check_constexpr_union_constructor(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR']}):
-		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56583
-		# <=gcc-4.7.x ICE on constexpr union constructors with anonymous
-		# substructure.
-		# Works fine without the substructure.
-		# Works fine in >=gcc-4.8 regardless of substructure.
-		f = '''
-union U {
-	struct {
-		int a;
-	};
-	constexpr U(int b) :
-		a(b)
-	{
-	}
-};
-U a{640};
-'''
-		self.Compile(context, text=f, msg='whether compiler supports constexpr union constructors', successflags=_successflags)
 	def _show_pch_count_message(self,context,which,user_setting):
 		count = user_setting if user_setting else 0
 		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))

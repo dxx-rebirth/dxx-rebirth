@@ -132,10 +132,7 @@ public:
 		return !(*this == rhs);
 	}
 	screen_mode() = default;
-#ifdef DXX_HAVE_CONSTEXPR_UNION_CONSTRUCTOR
-	constexpr
-#endif
-		screen_mode(uint16_t &&w, uint16_t &&h) :
+	constexpr screen_mode(uint16_t &&w, uint16_t &&h) :
 		width(w), height(h)
 	{
 	}
