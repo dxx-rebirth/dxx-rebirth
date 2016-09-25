@@ -36,7 +36,7 @@ int num_joysticks = 0;
  * and buttons of every joystick found.
  */
 static struct joyinfo {
-#if MAX_BUTTONS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	array<uint8_t, JOY_MAX_BUTTONS> button_state;
 #endif
 } Joystick;
@@ -147,7 +147,7 @@ class d_physical_joystick
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	struct tuple_member_type_hat_map : array<unsigned, MAX_HATS_PER_JOYSTICK> {};
-	struct tuple_member_type_button_map : array<unsigned, MAX_BUTTONS_PER_JOYSTICK> {};
+	struct tuple_member_type_button_map : array<unsigned, DXX_MAX_BUTTONS_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
 	struct tuple_member_type_axis_value : array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
 	tuple_type<
@@ -167,7 +167,7 @@ public:
 
 static array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
-#if MAX_BUTTONS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 void joy_button_handler(SDL_JoyButtonEvent *jbe)
 {
 	int button;
@@ -278,7 +278,7 @@ void joy_init()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 
@@ -307,12 +307,12 @@ void joy_init()
 			}
 #endif
 
-#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-			const auto n_buttons = check_warn_joy_support_limit<MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+			const auto n_buttons = check_warn_joy_support_limit<DXX_MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
 			const auto n_hats = check_warn_joy_support_limit<MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
 
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
-#if MAX_BUTTONS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 			for (int j=0; j < n_buttons; j++)
 			{
 				auto &text = joybutton_text[joystick_n_buttons];
@@ -350,7 +350,7 @@ void joy_close()
 #if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
-#if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 	joybutton_text.clear();
 #endif
 }
@@ -368,7 +368,7 @@ void joy_flush()
 		return;
 
 	static_assert(SDL_RELEASED == uint8_t(), "SDL_RELEASED not 0.");
-#if MAX_BUTTONS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 	Joystick.button_state = {};
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK

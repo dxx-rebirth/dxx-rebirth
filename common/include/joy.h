@@ -25,7 +25,7 @@ namespace dcx {
 struct d_event;
 
 #define JOY_MAX_AXES				(DXX_MAX_AXES_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
-#define JOY_MAX_BUTTONS				(MAX_BUTTONS_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
+#define JOY_MAX_BUTTONS				(DXX_MAX_BUTTONS_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
 
 struct d_event_joystick_axis_value
 {
@@ -48,7 +48,7 @@ extern int event_joystick_get_button(const d_event &event);
 
 namespace dcx {
 
-#if MAX_BUTTONS_PER_JOYSTICK
+#if DXX_MAX_BUTTONS_PER_JOYSTICK
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 #else
 #define joy_button_handler(jbe)	static_cast<void>(static_cast<SDL_JoyButtonEvent *const &>(jbe))

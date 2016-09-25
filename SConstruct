@@ -1003,7 +1003,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		CPPDEFINES.extend((
 			('DXX_MAX_JOYSTICKS', user_settings.max_joysticks),
 			('DXX_MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
-			('MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
+			('DXX_MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
 		))
 		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
