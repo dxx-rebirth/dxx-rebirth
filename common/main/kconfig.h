@@ -77,7 +77,7 @@ struct control_info {
         fix excess_pitch_time, excess_vertical_thrust_time, excess_heading_time, excess_sideways_thrust_time, excess_bank_time, excess_forward_thrust_time;
 	state_controls_t state; // to scale movement for keys only we need them to be separate from joystick/mouse buttons
 	array<fix, 3> mouse_axis, raw_mouse_axis;
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
 #endif
 };
@@ -147,8 +147,8 @@ public:
 	}
 };
 
-#if MAX_AXES_PER_JOYSTICK
-using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>;
+#if DXX_MAX_AXES_PER_JOYSTICK
+using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<DXX_MAX_AXES_PER_JOYSTICK>::value>;
 extern joyaxis_text_t joyaxis_text;
 #endif
 

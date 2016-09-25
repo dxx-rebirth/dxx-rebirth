@@ -148,8 +148,8 @@ class d_physical_joystick
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	struct tuple_member_type_hat_map : array<unsigned, MAX_HATS_PER_JOYSTICK> {};
 	struct tuple_member_type_button_map : array<unsigned, MAX_BUTTONS_PER_JOYSTICK> {};
-	struct tuple_member_type_axis_map : array<unsigned, MAX_AXES_PER_JOYSTICK> {};
-	struct tuple_member_type_axis_value : array<int, MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_map : array<unsigned, DXX_MAX_AXES_PER_JOYSTICK> {};
+	struct tuple_member_type_axis_value : array<int, DXX_MAX_AXES_PER_JOYSTICK> {};
 	tuple_type<
 		tuple_member_type_handle,
 		maybe_empty_array<tuple_member_type_hat_map>,
@@ -231,7 +231,7 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 }
 #endif
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 int joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	d_event_joystick_moved event;
@@ -275,7 +275,7 @@ void joy_init()
 	}
 
 	Joystick = {};
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
@@ -295,8 +295,8 @@ void joy_init()
 #endif
 		if (handle)
 		{
-#if MAX_AXES_PER_JOYSTICK
-			const auto n_axes = check_warn_joy_support_limit<MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
+#if DXX_MAX_AXES_PER_JOYSTICK
+			const auto n_axes = check_warn_joy_support_limit<DXX_MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
@@ -347,7 +347,7 @@ void joy_close()
 {
 	range_for (auto &j, SDL_Joysticks)
 		j.handle().reset();
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	joyaxis_text.clear();
 #endif
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
@@ -371,7 +371,7 @@ void joy_flush()
 #if MAX_BUTTONS_PER_JOYSTICK
 	Joystick.button_state = {};
 #endif
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	range_for (auto &j, SDL_Joysticks)
 		j.axis_value() = {};
 #endif

@@ -95,7 +95,7 @@ const array<char[2], 2> invert_text{{"N", "Y"}};
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 joybutton_text_t joybutton_text;
 #endif
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 joyaxis_text_t joyaxis_text;
 #endif
 constexpr char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
@@ -157,7 +157,7 @@ struct kc_menu : embed_window_pointer_t
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
 	array<int, 3>	old_maxis;
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	array<int, JOY_MAX_AXES>	old_jaxis;
 #endif
 };
@@ -313,7 +313,7 @@ constexpr const char *kcl_keyboard =
 static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 
 #if DXX_MAX_JOYSTICKS
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 #define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	I
 #else
 #define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	(static_cast<void>(I), 0)
@@ -644,7 +644,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem )
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #endif
 static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #endif
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -819,7 +819,7 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 #else
 				(void)buf;
 #endif
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 			case BT_JOY_AXIS:
 				if (joyaxis_text.size() > mitem.value)
 					return &joyaxis_text[mitem.value][0];
@@ -907,7 +907,7 @@ static void kconfig_draw(kc_menu *menu)
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
 		gr_string(0x8000, fspacy(30), TXT_BUTTONS);
 #endif
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		const auto &&fspacy145 = fspacy(145);
 		gr_string(0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -999,7 +999,7 @@ static void kconfig_draw(kc_menu *menu)
 				s = TXT_PRESS_NEW_JBUTTON;
 				break;
 #endif
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 			case BT_JOY_AXIS:
 				s = TXT_MOVE_NEW_JOY_AXIS;
 				break;
@@ -1250,7 +1250,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			break;
 #endif
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_MOVED:
 			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(*menu, event, menu->mitems[menu->citem]);
 			else
@@ -1464,7 +1464,7 @@ static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem 
 	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_BUTTON, button);
 }
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	const auto &av = event_joystick_get_axis(event);
@@ -1583,7 +1583,7 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 	clamp_value(value, -bound, bound);
 }
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 static void convert_raw_joy_axis(const uint_fast32_t player_cfg_index, const uint_fast32_t i)
 {
 	const auto raw_joy_axis = Controls.raw_joy_axis[i];
@@ -1716,7 +1716,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				}
 			}
 			break;
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_MOVED:
 		{
 			int joy_null_value = 0;
@@ -1794,7 +1794,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			break;
 	}
 	
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	for (int i = 0; i < JOY_MAX_AXES; i++) {
 		convert_raw_joy_axis(15, 0, i); // Turn L/R
 		convert_raw_joy_axis(13, 1, i); // Pitch U/D
@@ -1814,7 +1814,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_ramped_keyboard_field(plus, key_pitch_forward, Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		adjust_axis_field(Controls.pitch_time, Controls.joy_axis, kcm_joystick[13].value, kcm_joystick[14].value, PlayerCfg.JoystickSens[1]);
 #endif
 		// From mouse...
@@ -1831,7 +1831,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 		// From joystick...
 		// NOTE: Use Slide U/D invert setting
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[13].value, !kcm_joystick[20].value, PlayerCfg.JoystickSens[3]);
 #endif
 		// From mouse...
@@ -1843,7 +1843,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	// From buttons...
 	adjust_button_time(Controls.vertical_thrust_time, Controls.state.btn_slide_up, Controls.state.btn_slide_down, speed_factor);
 	// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[19].value, !kcm_joystick[20].value, PlayerCfg.JoystickSens[3]);
 #endif
 	// From mouse...
@@ -1856,7 +1856,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_ramped_keyboard_field(plus, key_heading_right, Controls.heading_time, PlayerCfg.KeyboardSens[0], speed_factor);
 		adjust_ramped_keyboard_field(minus, key_heading_left, Controls.heading_time, PlayerCfg.KeyboardSens[0], speed_factor);
 		// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		adjust_axis_field(Controls.heading_time, Controls.joy_axis, kcm_joystick[15].value, !kcm_joystick[16].value, PlayerCfg.JoystickSens[0]);
 #endif
 		// From mouse...
@@ -1871,7 +1871,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_ramped_keyboard_field(plus, key_heading_right, Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 		adjust_ramped_keyboard_field(minus, key_heading_left, Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 		// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		adjust_axis_field(Controls.sideways_thrust_time, Controls.joy_axis, kcm_joystick[15].value, !kcm_joystick[18].value, PlayerCfg.JoystickSens[2]);
 #endif
 		// From mouse...
@@ -1883,7 +1883,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	// From buttons...
 	adjust_button_time(Controls.sideways_thrust_time, Controls.state.btn_slide_right, Controls.state.btn_slide_left, speed_factor);
 	// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	adjust_axis_field(Controls.sideways_thrust_time, Controls.joy_axis, kcm_joystick[17].value, !kcm_joystick[18].value, PlayerCfg.JoystickSens[2]);
 #endif
 	// From mouse...
@@ -1896,7 +1896,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 		adjust_ramped_keyboard_field(plus, key_heading_left, Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 		adjust_ramped_keyboard_field(minus, key_heading_right, Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 		// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 		adjust_axis_field(Controls.bank_time, Controls.joy_axis, kcm_joystick[15].value, kcm_joystick[22].value, PlayerCfg.JoystickSens[4]);
 #endif
 		// From mouse...
@@ -1908,7 +1908,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	// From buttons...
 	adjust_button_time(Controls.bank_time, Controls.state.btn_bank_left, Controls.state.btn_bank_right, speed_factor);
 	// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	adjust_axis_field(Controls.bank_time, Controls.joy_axis, kcm_joystick[21].value, kcm_joystick[22].value, PlayerCfg.JoystickSens[4]);
 #endif
 	// From mouse...
@@ -1918,7 +1918,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 	// From keyboard/buttons...
 	adjust_button_time(Controls.forward_thrust_time, Controls.state.accelerate, Controls.state.reverse, speed_factor);
 	// From joystick...
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 	adjust_axis_field(Controls.forward_thrust_time, Controls.joy_axis, kcm_joystick[23].value, kcm_joystick[24].value, PlayerCfg.JoystickSens[5]);
 #endif
 	// From mouse...

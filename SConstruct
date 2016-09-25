@@ -1002,7 +1002,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', [])[:]
 		CPPDEFINES.extend((
 			('DXX_MAX_JOYSTICKS', user_settings.max_joysticks),
-			('MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
+			('DXX_MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
 		))

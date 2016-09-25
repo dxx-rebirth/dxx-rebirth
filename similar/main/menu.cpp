@@ -1149,7 +1149,7 @@ static void input_config_mouse()
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 static void input_config_joystick()
 {
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
@@ -1210,7 +1210,7 @@ class input_config_menu_items
 #define DXX_INPUT_CONFIG_JOYSTICK_ITEM(I)
 #endif
 
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 #define DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(I)	I
 #else
 #define DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(I)
@@ -1324,7 +1324,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 				input_config_keyboard();
 			if (citem == opt_ic_mouse)
 				input_config_mouse();
-#if MAX_AXES_PER_JOYSTICK
+#if DXX_MAX_AXES_PER_JOYSTICK
 			if (citem == opt_ic_joystick)
 				input_config_joystick();
 #endif
