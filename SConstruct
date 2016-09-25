@@ -304,6 +304,11 @@ class ConfigureTests:
 							if v and (k[0] == 'C' or k[0] == 'L')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
+					v = '%s --modversion %s' % (pkgconfig, pkgconfig_name)
+					Display("%s: reading %s version from `%s`\n" % (message, pkgconfig_name, v))
+					v = StaticSubprocess.qcall(v)
+					if v.out:
+						Display("%s: %s version: %r\n" % (message, display_name, v.out.split('\n')[0]))
 				except OSError as o:
 					Display("%s: %s pkg-config failed; using default flags for `%s`: %r\n" % (message, display_name, cmd, guess_flags))
 					flags = guess_flags
