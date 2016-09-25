@@ -248,7 +248,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.CtlNoMouse 		= true;
 		else if (!d_stricmp(p, "-nojoystick"))
 		{
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 			CGameArg.CtlNoJoystick		= 1;
 #endif
 		}

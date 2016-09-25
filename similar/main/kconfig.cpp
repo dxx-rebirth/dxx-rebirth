@@ -312,7 +312,7 @@ constexpr const char *kcl_keyboard =
 ;
 static array<kc_mitem, lengthof(kc_keyboard)> kcm_keyboard;
 
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 #if MAX_AXES_PER_JOYSTICK
 #define DXX_KCONFIG_ITEM_JOY_AXIS_WIDTH(I)	I
 #else
@@ -900,7 +900,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(fspacx(109), fspacy40, "OR");
 		gr_string(fspacx(264), fspacy40, "OR");
 	}
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
@@ -1126,7 +1126,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
 				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 			else if (menu->items == kc_joystick)
 				reset_mitem_values(kcm_joystick, DefaultKeySettings[1]);
 #endif
@@ -1181,7 +1181,7 @@ static window_event_result kconfig_key_command(window *, const d_event &event, k
 				PHYSFSX_printf( fp, "};\n" );
 
 				print_create_table_items(fp, "keyboard", kcl_keyboard, kc_keyboard);
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 				print_create_table_items(fp, "joystick", kcl_joystick, kc_joystick);
 #endif
 				print_create_table_items(fp, "mouse", kcl_mouse, kc_mouse);
@@ -1292,7 +1292,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			for (unsigned i=0; i < lengthof(kc_keyboard); i++ ) 
 				PlayerCfg.KeySettings[0][i] = kcm_keyboard[i].value;
 			
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 			for (unsigned i=0; i < lengthof(kc_joystick); i++ ) 
 				PlayerCfg.KeySettings[1][i] = kcm_joystick[i].value;
 #endif
@@ -1516,7 +1516,7 @@ void kconfig(const kconfig_type n)
 			kconfig_sub(kcl_##TYPE, kc_##TYPE, kcm_##TYPE, TITLE);	\
 			break;
 		kconfig_case(keyboard, "KEYBOARD");
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 		kconfig_case(joystick, "JOYSTICK");
 #endif
 		kconfig_case(mouse, "MOUSE");
@@ -1954,7 +1954,7 @@ void kc_set_controls()
 	for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
 		kcm_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 	for (unsigned i=0; i < lengthof(kc_joystick); i++ )
 	{
 		kcm_joystick[i].value = PlayerCfg.KeySettings[1][i];

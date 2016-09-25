@@ -1204,7 +1204,7 @@ namespace {
 
 class input_config_menu_items
 {
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 #define DXX_INPUT_CONFIG_JOYSTICK_ITEM(I)	I
 #else
 #define DXX_INPUT_CONFIG_JOYSTICK_ITEM(I)
@@ -1275,7 +1275,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 		case EVENT_NEWMENU_CHANGED:
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 			if (citem == opt_ic_usejoy)
 			{
 				constexpr auto flag = CONTROL_USING_JOYSTICK;
@@ -1312,7 +1312,7 @@ int input_config_menu_items::menuset(newmenu *, const d_event &event, input_conf
 			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
 				kconfig(kconfig_type::keyboard);
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 			if (citem == opt_ic_confjoy)
 				kconfig(kconfig_type::joystick);
 #endif

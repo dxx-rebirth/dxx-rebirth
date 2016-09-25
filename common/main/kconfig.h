@@ -101,7 +101,7 @@ extern void kconfig_read_controls(const d_event &event, int automap_flag);
 enum class kconfig_type
 {
 	keyboard,
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 	joystick,
 #endif
 	mouse,
@@ -123,7 +123,7 @@ extern void reset_cruise(void);
 extern fix Cruise_speed;
 
 
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 template <std::size_t N>
 struct joystick_text_length : tt::integral_constant<std::size_t, joystick_text_length<N / 10>::value + (N >= 10)>
 {
@@ -148,12 +148,12 @@ public:
 };
 
 #if MAX_AXES_PER_JOYSTICK
-using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>;
+using joyaxis_text_t = joystick_text_t<sizeof("J A") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<MAX_AXES_PER_JOYSTICK>::value>;
 extern joyaxis_text_t joyaxis_text;
 #endif
 
 #if MAX_BUTTONS_PER_JOYSTICK || MAX_HATS_PER_JOYSTICK
-using joybutton_text_t = joystick_text_t<sizeof("J H ") + joystick_text_length<MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>;
+using joybutton_text_t = joystick_text_t<sizeof("J H ") + joystick_text_length<DXX_MAX_JOYSTICKS>::value + joystick_text_length<MAX_HATS_PER_JOYSTICK>::value>;
 extern joybutton_text_t joybutton_text;
 #endif
 

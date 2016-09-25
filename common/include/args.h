@@ -88,7 +88,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #else
 	static constexpr tt::true_type SndDisableSdlMixer{};
 #endif
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 	bool CtlNoJoystick;
 #else
 	static constexpr tt::true_type CtlNoJoystick{};

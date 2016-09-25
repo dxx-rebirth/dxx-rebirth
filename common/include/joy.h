@@ -15,7 +15,7 @@
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 #include "pstypes.h"
 #include "maths.h"
 #include <SDL.h>
@@ -24,8 +24,8 @@ namespace dcx {
 
 struct d_event;
 
-#define JOY_MAX_AXES				(MAX_AXES_PER_JOYSTICK * MAX_JOYSTICKS)
-#define JOY_MAX_BUTTONS				(MAX_BUTTONS_PER_JOYSTICK * MAX_JOYSTICKS)
+#define JOY_MAX_AXES				(MAX_AXES_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
+#define JOY_MAX_BUTTONS				(MAX_BUTTONS_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
 
 struct d_event_joystick_axis_value
 {

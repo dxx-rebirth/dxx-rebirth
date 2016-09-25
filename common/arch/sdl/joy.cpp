@@ -22,7 +22,7 @@
 #include "kconfig.h"
 #include "compiler-range_for.h"
 
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 #include "compiler-integer_sequence.h"
 #include "compiler-type_traits.h"
 
@@ -165,7 +165,7 @@ public:
 
 }
 
-static array<d_physical_joystick, MAX_JOYSTICKS> SDL_Joysticks;
+static array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
 #if MAX_BUTTONS_PER_JOYSTICK
 void joy_button_handler(SDL_JoyButtonEvent *jbe)
@@ -282,7 +282,7 @@ void joy_init()
 	joybutton_text.clear();
 #endif
 
-	const auto n = check_warn_joy_support_limit<MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
+	const auto n = check_warn_joy_support_limit<DXX_MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
 	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];

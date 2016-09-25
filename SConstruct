@@ -1001,7 +1001,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			user_settings.max_axes_per_joystick = user_settings.max_buttons_per_joystick = user_settings.max_hats_per_joystick = 0
 		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', [])[:]
 		CPPDEFINES.extend((
-			('MAX_JOYSTICKS', user_settings.max_joysticks),
+			('DXX_MAX_JOYSTICKS', user_settings.max_joysticks),
 			('MAX_AXES_PER_JOYSTICK', user_settings.max_axes_per_joystick),
 			('MAX_BUTTONS_PER_JOYSTICK', user_settings.max_buttons_per_joystick),
 			('MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
@@ -1011,13 +1011,13 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
 		self._check_system_library(context,header=['SDL.h'],main='''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 #define DXX_SDL_INIT_JOYSTICK	SDL_INIT_JOYSTICK |
 #else
 #define DXX_SDL_INIT_JOYSTICK
 #endif
 	SDL_Init(DXX_SDL_INIT_JOYSTICK %s | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-#if MAX_JOYSTICKS
+#if DXX_MAX_JOYSTICKS
 	auto n = SDL_NumJoysticks();
 	(void)n;
 #endif
