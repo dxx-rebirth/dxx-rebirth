@@ -1512,7 +1512,7 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 
 	auto *bufP = texbuf.get();
 	const uint8_t *outP = texbuf.get();
-	if (data) {
+	{
 		if (bm_flags >= 0)
 			ogl_filltexbuf (data, texbuf.get(), tex.lw, tex.w, tex.h, dxo, dyo, tex.tw, tex.th, 
 								 tex.format, bm_flags, data_format);
