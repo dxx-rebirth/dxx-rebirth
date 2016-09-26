@@ -1194,10 +1194,6 @@ static void build_object_lists(render_state_t &rstate)
 
 int Rear_view=0;
 
-#ifdef JOHN_ZOOM
-fix Zoom_factor=F1_0;
-#endif
-
 namespace dsx {
 //renders onto current canvas
 void render_frame(fix eye_offset, window_rendered_data &window)
@@ -1240,27 +1236,10 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 	if (start_seg_num==segment_none)
 		start_seg_num = segptridx(Viewer->segnum);
 
-	if (Rear_view && (Viewer==ConsoleObject)) {
-		vms_angvec Player_head_angles;
-		Player_head_angles.p = Player_head_angles.b = 0;
-		Player_head_angles.h = 0x7fff;
-		const auto &&headm = vm_angles_2_matrix(Player_head_angles);
-		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
-		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
-	} else	{
-#ifdef JOHN_ZOOM
-		if (keyd_pressed[KEY_RSHIFT] )	{
-			Zoom_factor += FrameTime*4;
-			if (Zoom_factor > F1_0*5 ) Zoom_factor=F1_0*5;
-		} else {
-			Zoom_factor -= FrameTime*4;
-			if (Zoom_factor < F1_0 ) Zoom_factor = F1_0;
-		}
-		g3_set_view_matrix(Viewer_eye,Viewer->orient,fixdiv(Render_zoom,Zoom_factor));
-#else
-		g3_set_view_matrix(Viewer_eye,Viewer->orient,Render_zoom);
-#endif
-	}
+	g3_set_view_matrix(Viewer_eye,
+		(Rear_view && Viewer == ConsoleObject)
+		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, 0x7fff}))
+		: Viewer->orient, Render_zoom);
 
 	if (Clear_window == 1) {
 		if (Clear_window_color == -1)
