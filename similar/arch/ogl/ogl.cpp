@@ -896,7 +896,7 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist, con
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-void _g3_draw_tmap(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
 {
 	int index2, index3, index4;
 	GLfloat color_alpha = 1.0;
