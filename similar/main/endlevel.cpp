@@ -1119,15 +1119,9 @@ static void endlevel_render_mine(fix eye_offset)
 			start_seg_num = Viewer->segnum;
 	}
 
-	if (Endlevel_sequence == EL_LOOKBACK) {
-		vms_angvec angles = {0,0,0x7fff};
-
-		const auto &&headm = vm_angles_2_matrix(angles);
-		const auto viewm = vm_matrix_x_matrix(Viewer->orient,headm);
-		g3_set_view_matrix(Viewer_eye,viewm,Render_zoom);
-	}
-	else
-		g3_set_view_matrix(Viewer_eye,Viewer->orient,Render_zoom);
+	g3_set_view_matrix(Viewer_eye, Endlevel_sequence == EL_LOOKBACK
+		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, 0x7fff}))
+		: Viewer->orient, Render_zoom);
 
 	window_rendered_data window;
 	render_mine(start_seg_num, eye_offset, window);
