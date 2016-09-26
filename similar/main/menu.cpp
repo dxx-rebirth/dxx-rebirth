@@ -1794,7 +1794,7 @@ static int select_file_recursive2(const char *title, const char *orig_path, cons
 	b->new_path = 1;
 	
 	// Check for a PhysicsFS path first, saves complication!
-	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
+	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
 		PHYSFSX_getRealPath(orig_path, new_path);
 		orig_path = new_path.data();
