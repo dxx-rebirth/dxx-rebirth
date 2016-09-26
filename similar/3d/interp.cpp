@@ -201,9 +201,8 @@ private:
 	{
 		rotate_point_list(&Interp_point_list[i], src, n);
 	}
-	void set_color_by_model_light(fix g3s_lrgb::*const c, g3s_lrgb &o, const fix negdot) const
+	void set_color_by_model_light(fix g3s_lrgb::*const c, g3s_lrgb &o, const fix color) const
 	{
-		const auto color = (f1_0 / 4) + ((negdot * 3) / 4);
 		o.*c = fixmul(color, model_light.*c);
 	}
 protected:
@@ -211,9 +210,10 @@ protected:
 	{
 		g3s_lrgb light;
 		const auto negdot = -vm_vec_dot(View_matrix.fvec, *vp(p + 16));
-		set_color_by_model_light(&g3s_lrgb::r, light, negdot);
-		set_color_by_model_light(&g3s_lrgb::g, light, negdot);
-		set_color_by_model_light(&g3s_lrgb::b, light, negdot);
+		const auto color = (f1_0 / 4) + ((negdot * 3) / 4);
+		set_color_by_model_light(&g3s_lrgb::r, light, color);
+		set_color_by_model_light(&g3s_lrgb::g, light, color);
+		set_color_by_model_light(&g3s_lrgb::b, light, color);
 		return light;
 	}
 	g3_interpreter_draw_base(grs_bitmap **mbitmaps, const submodel_angles aangles, polygon_model_points &plist, const g3s_lrgb &mlight) :
