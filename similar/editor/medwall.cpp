@@ -68,7 +68,7 @@ namespace {
 struct wall_dialog
 {
 	std::unique_ptr<UI_GADGET_USERBOX> wallViewBox;
-	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
+	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_wall, next_wall, blastable, door, illusory, closed_wall, goto_prev_wall, goto_next_wall, remove, bind_trigger, bind_control;
 	array<std::unique_ptr<UI_GADGET_CHECKBOX>, 3> doorFlag;
 	array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	int old_wall_num;
@@ -360,17 +360,17 @@ static int wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
 	wd->wallViewBox = ui_add_gadget_userbox(w, 155, 5, 64, 64);
 	// A bunch of buttons...
 	i = 80;
-	ui_add_gadget_button(w, 155, i, 70, 22, "<< Clip", PrevWall);
-	ui_add_gadget_button(w, 155+70, i, 70, 22, "Clip >>", NextWall);i += 25;		
-	ui_add_gadget_button(w, 155, i, 140, 22, "Add Blastable", wall_add_blastable); i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Add Door", wall_add_door );	i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Add Illusory", wall_add_illusion);	i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Add Closed Wall", wall_add_closed_wall); i+=25;
-	ui_add_gadget_button(w, 155, i, 70, 22, "<< Prev", GotoPrevWall);
-	ui_add_gadget_button(w, 155+70, i, 70, 22, "Next >>", GotoNextWall);i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Remove Wall", wall_remove); i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
-	ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
+	wd->prev_wall = ui_add_gadget_button(w, 155, i, 70, 22, "<< Clip", PrevWall);
+	wd->next_wall = ui_add_gadget_button(w, 155+70, i, 70, 22, "Clip >>", NextWall);i += 25;
+	wd->blastable = ui_add_gadget_button(w, 155, i, 140, 22, "Add Blastable", wall_add_blastable); i += 25;
+	wd->door = ui_add_gadget_button(w, 155, i, 140, 22, "Add Door", wall_add_door );	i += 25;
+	wd->illusory = ui_add_gadget_button(w, 155, i, 140, 22, "Add Illusory", wall_add_illusion);	i += 25;
+	wd->closed_wall = ui_add_gadget_button(w, 155, i, 140, 22, "Add Closed Wall", wall_add_closed_wall); i+=25;
+	wd->goto_prev_wall = ui_add_gadget_button(w, 155, i, 70, 22, "<< Prev", GotoPrevWall);
+	wd->goto_next_wall = ui_add_gadget_button(w, 155+70, i, 70, 22, "Next >>", GotoNextWall);i += 25;
+	wd->remove = ui_add_gadget_button(w, 155, i, 140, 22, "Remove Wall", wall_remove); i += 25;
+	wd->bind_trigger = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
+	wd->bind_control = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
 	wd->old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return 1;
 }
