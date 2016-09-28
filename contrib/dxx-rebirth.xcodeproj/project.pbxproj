@@ -2060,7 +2060,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
-				dxx_build_type = "debug=True editor=False";
+				dxx_build_type = "debug=True editor=False CXXFLAGS=-O0";
 				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
 				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
 			};
@@ -2142,7 +2142,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				dxx_build_dir = "builddir=build/$(PRODUCT_NAME)";
-				dxx_build_type = "debug=True editor=True";
+				dxx_build_type = "debug=True editor=True CXXFLAGS=-O0";
 				dxx_net_opts = "ipv6=False use_udp=True use_tracker=True";
 				scons_args = "$(dxx_build_target) $(dxx_build_renderer) $(dxx_build_type) $(dxx_build_dir) $(dxx_net_opts)";
 			};
