@@ -108,6 +108,12 @@ struct newmenu : embed_window_pointer_t
 	}
 };
 
+constexpr std::integral_constant<unsigned, NM_TYPE_INPUT> newmenu_item::input_specific_type::nm_type;
+constexpr std::integral_constant<unsigned, NM_TYPE_RADIO> newmenu_item::radio_specific_type::nm_type;
+constexpr std::integral_constant<unsigned, NM_TYPE_NUMBER> newmenu_item::number_specific_type::nm_type;
+constexpr std::integral_constant<unsigned, NM_TYPE_INPUT_MENU> newmenu_item::imenu_specific_type::nm_type;
+constexpr std::integral_constant<unsigned, NM_TYPE_SLIDER> newmenu_item::slider_specific_type::nm_type;
+
 static grs_main_bitmap nm_background, nm_background1;
 static grs_subbitmap_ptr nm_background_sub;
 
