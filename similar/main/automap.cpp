@@ -1178,8 +1178,8 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info *&edge_ptr)
 
 }
 
-
-static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, segnum_t segnum, int hidden, int grate, int no_fade )	{
+static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint8_t color, const unsigned side, const segnum_t segnum, const uint8_t flags)
+{
 	int found;
 	Edge_info *e;
 
@@ -1225,13 +1225,7 @@ static void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, 
 		}
 	}
 
-	if ( grate )
-		e->flags |= EF_GRATE;
-
-	if ( hidden )
-		e->flags|=EF_SECRET;		// Mark this as a hidden edge
-	if ( no_fade )
-		e->flags |= EF_NO_FADE;
+	e->flags |= flags;
 }
 
 static void add_one_unknown_edge( automap *am, int va, int vb )
@@ -1250,17 +1244,16 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 
 static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 {
-	int 	is_grate, no_fade;
+	int 	is_grate;
 	ubyte	color;
 	int	sn;
 	const auto &segnum = seg;
-	int	hidden_flag;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-		hidden_flag = 0;
+		uint8_t hidden_flag = 0;
 
 		is_grate = 0;
-		no_fade = 0;
+		uint8_t no_fade = 0;
 
 		color = 255;
 		if (seg->children[sn] == segment_none) {
@@ -1288,7 +1281,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			if (trigger_num != trigger_none && vtrgptr(trigger_num)->type == TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
-				 no_fade=1;
+				no_fade = EF_NO_FADE;
 				 goto Here;
 				} 	
 #endif
@@ -1297,13 +1290,13 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			{
 			case WALL_DOOR:
 				if (w.keys == KEY_BLUE) {
-					no_fade = 1;
+					no_fade = EF_NO_FADE;
 					color = am->wall_door_blue;
 				} else if (w.keys == KEY_GOLD) {
-					no_fade = 1;
+					no_fade = EF_NO_FADE;
 					color = am->wall_door_gold;
 				} else if (w.keys == KEY_RED) {
-					no_fade = 1;
+					no_fade = EF_NO_FADE;
 					color = am->wall_door_red;
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
@@ -1312,9 +1305,18 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 						const auto &connected_side = find_connect_side(seg, vcseg);
 						switch (vcwallptr(vcseg->sides[connected_side].wall_num)->keys)
 						{
-								case KEY_BLUE:	color = am->wall_door_blue;	no_fade = 1; break;
-								case KEY_GOLD:	color = am->wall_door_gold;	no_fade = 1; break;
-								case KEY_RED:	color = am->wall_door_red;	no_fade = 1; break;
+							case KEY_BLUE:
+								color = am->wall_door_blue;
+								no_fade = EF_NO_FADE;
+								break;
+							case KEY_GOLD:
+								color = am->wall_door_gold;
+								no_fade = EF_NO_FADE;
+								break;
+							case KEY_RED:
+								color = am->wall_door_red;
+								no_fade = EF_NO_FADE;
+								break;
 							default:
 								color = am->wall_door_color;
 								break;
@@ -1322,7 +1324,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 					}
 				} else {
 					color = am->wall_normal_color;
-					hidden_flag = 1;
+					hidden_flag = EF_SECRET;
 				}
 				break;
 			case WALL_CLOSED:
@@ -1331,7 +1333,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 				if (WALL_IS_DOORWAY(seg,sn) & WID_RENDPAST_FLAG)
 					is_grate = 1;
 				else
-					hidden_flag = 1;
+					hidden_flag = EF_SECRET;
 				color = am->wall_normal_color;
 				break;
 			case WALL_BLASTABLE:
@@ -1354,14 +1356,16 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			Here:
 #endif
 			const auto vertex_list = get_side_verts(segnum,sn);
-			add_one_edge( am, vertex_list[0], vertex_list[1], color, sn, segnum, hidden_flag, 0, no_fade );
-			add_one_edge( am, vertex_list[1], vertex_list[2], color, sn, segnum, hidden_flag, 0, no_fade );
-			add_one_edge( am, vertex_list[2], vertex_list[3], color, sn, segnum, hidden_flag, 0, no_fade );
-			add_one_edge( am, vertex_list[3], vertex_list[0], color, sn, segnum, hidden_flag, 0, no_fade );
+			const uint8_t flags = hidden_flag | no_fade;
+			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, segnum, flags);
+			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, segnum, flags);
+			add_one_edge(am, vertex_list[2], vertex_list[3], color, sn, segnum, flags);
+			add_one_edge(am, vertex_list[3], vertex_list[0], color, sn, segnum, flags);
 
 			if ( is_grate )	{
-				add_one_edge( am, vertex_list[0], vertex_list[2], color, sn, segnum, hidden_flag, 1, no_fade );
-				add_one_edge( am, vertex_list[1], vertex_list[3], color, sn, segnum, hidden_flag, 1, no_fade );
+				const uint8_t grate_flags = flags | EF_GRATE;
+				add_one_edge(am, vertex_list[0], vertex_list[2], color, sn, segnum, grate_flags);
+				add_one_edge(am, vertex_list[1], vertex_list[3], color, sn, segnum, grate_flags);
 			}
 		}
 	}
