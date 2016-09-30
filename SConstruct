@@ -3350,9 +3350,10 @@ class DXXCommon(LazyObjectConstructor):
 		# set endianess
 		if (self.__endian == "big"):
 			message(self, "BigEndian machine detected")
-			self.env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
+			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 1)])
 		elif (self.__endian == "little"):
 			message(self, "LittleEndian machine detected")
+			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 0)])
 
 	@cached_property
 	def platform_settings(self):

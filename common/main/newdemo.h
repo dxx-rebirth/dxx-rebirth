@@ -44,7 +44,7 @@ class object_signature_t;
 #define DEMO_EXT		"dem"
 extern const array<file_extension_t, 1> demo_file_extensions;
 
-#ifdef WORDS_BIGENDIAN
+#if DXX_WORDS_BIGENDIAN
 #define DEMO_BACKUP_EXT			"386"
 #else
 #define DEMO_BACKUP_EXT			"ppc"

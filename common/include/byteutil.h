@@ -56,7 +56,7 @@ static inline int32_t SWAPINT(const int32_t &i)
 	return SWAPINT(static_cast<uint32_t>(i));
 }
 
-#ifndef WORDS_BIGENDIAN
+#if !DXX_WORDS_BIGENDIAN
 /* Always resolve F(a), so ambiguous calls are flagged even on little
  * endian.
  */

@@ -46,7 +46,7 @@ namespace dsx {
 
 static int16_t init_model_sub(uint8_t *p, int16_t);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(WORDS_BIGENDIAN)
+#if defined(DXX_BUILD_DESCENT_I) || DXX_WORDS_BIGENDIAN
 static inline int16_t *wp(uint8_t *p)
 {
 	return reinterpret_cast<int16_t *>(p);
@@ -532,7 +532,7 @@ static P iterate_polymodel(P p, State &state)
 
 }
 
-#ifdef WORDS_BIGENDIAN
+#if DXX_WORDS_BIGENDIAN
 namespace dcx {
 
 static inline fix *fp(uint8_t *p)
