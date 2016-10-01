@@ -50,6 +50,79 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
 
+struct window
+{
+private:
+	grs_canvas w_canv;					// the window's canvas to draw to
+	window_event_result (*w_callback)(window *wind,const d_event &event, void *data);	// the event handler
+	int w_visible;						// whether it's visible
+	int w_modal;						// modal = accept all user input exclusively
+	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
+	struct window *prev;				// the previous window in the doubly linked list
+	struct window *next;				// the next window in the doubly linked list
+	
+public:
+	// Declaring as friends to keep function syntax, for historical reasons (for now at least)
+	friend window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
+	
+	friend int window_close(window *wind);
+	friend int window_exists(window *wind);
+	friend window *window_get_front();
+	friend window *window_get_first();
+	friend void window_select(window &wind);
+	friend window *window_set_visible(window &wind, int visible);
+#if !DXX_USE_OGL
+	friend void window_update_canvases();
+#endif
+	friend window_event_result window_send_event(window &wind,const d_event &event);
+	friend void window_set_modal(window &wind, int modal);
+	friend int window_is_modal(window &wind);
+	
+	friend grs_canvas &window_get_canvas(window &wind)
+	{
+		return wind.w_canv;
+	}
+	
+	friend window *window_set_visible(window *wind, int visible)
+	{
+		return window_set_visible(*wind, visible);
+	}
+
+	friend int window_is_visible(window *wind)
+	{
+		return wind->w_visible;
+	}
+
+	friend void window_set_modal(window *wind, int modal)
+	{
+		wind->w_modal = modal;
+	}
+	
+	friend int window_is_modal(window &wind)
+	{
+		return wind.w_modal;
+	}
+	
+	friend window_event_result window_send_event(window &wind, const d_event &event)
+	{
+		auto r = wind.w_callback(&wind, event, wind.data);
+		if (r == window_event_result::close)
+			window_close(&wind);
+		return r;
+	}
+	
+	friend window *window_get_next(window &wind)
+	{
+		return wind.next;
+	}
+	
+	friend window *window_get_prev(window &wind)
+	{
+		return wind.prev;
+	}
+	
+};
+
 template <typename T1, typename T2 = const void>
 static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<T1> event_callback, T1 *data, T2 *createdata = nullptr)
 {
@@ -62,19 +135,6 @@ template <typename T1, typename T2 = const void>
 static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<const T1> event_callback, const T1 *userdata, T2 *createdata = nullptr)
 {
 	return window_create(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
-}
-
-static inline window *window_set_visible(window *wind, int visible)
-{
-	return window_set_visible(*wind, visible);
-}
-static inline int window_is_visible(window *wind)
-{
-	return window_is_visible(*wind);
-}
-static inline void window_set_modal(window *wind, int modal)
-{
-	window_set_modal(*wind, modal);
 }
 
 static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *file, unsigned line, const char *e)
