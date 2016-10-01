@@ -57,14 +57,20 @@ private:
 	window_event_result (*w_callback)(window *wind,const d_event &event, void *data);	// the event handler
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
-	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
+	void *w_data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
 	
 public:
+	// For creating the window, there are two ways - using the (older) window_create function
+	// or using the constructor, passing an event handler that takes a subclass of window.
+	explicit window(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data, const void *createdata);
+
+	template <typename T>
+			window(grs_canvas *src, int x, int y, int w, int h, window_subclass_subfunction<T> event_callback) :
+			window(src, x, y, w, h, reinterpret_cast<window_subclass_subfunction<window>>(event_callback), NULL, NULL) {}
+
 	// Declaring as friends to keep function syntax, for historical reasons (for now at least)
-	friend window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
-	
 	friend int window_close(window *wind);
 	friend int window_exists(window *wind);
 	friend window *window_get_front();
@@ -105,7 +111,7 @@ public:
 	
 	friend window_event_result window_send_event(window &wind, const d_event &event)
 	{
-		auto r = wind.w_callback(&wind, event, wind.data);
+		auto r = wind.w_callback(&wind, event, wind.w_data);
 		if (r == window_event_result::close)
 			window_close(&wind);
 		return r;
@@ -126,7 +132,7 @@ public:
 template <typename T1, typename T2 = const void>
 static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<T1> event_callback, T1 *data, T2 *createdata = nullptr)
 {
-	auto win = window_create(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(data), static_cast<const void *>(createdata));
+	auto win = new window(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(data), static_cast<const void *>(createdata));
 	set_embedded_window_pointer(data, win);
 	return win;
 }
@@ -134,7 +140,7 @@ static inline window *window_create(grs_canvas *src, int x, int y, int w, int h,
 template <typename T1, typename T2 = const void>
 static inline window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<const T1> event_callback, const T1 *userdata, T2 *createdata = nullptr)
 {
-	return window_create(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
+	return new window(src, x, y, w, h, reinterpret_cast<window_subfunction<void>>(event_callback), static_cast<void *>(const_cast<T1 *>(userdata)), static_cast<const void *>(createdata));
 }
 
 static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &event, const char *file, unsigned line, const char *e)
