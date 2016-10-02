@@ -240,7 +240,7 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, int 
 	return return_value;
 }
 
-has_weapon_result player_has_secondary_weapon(const player_info &player_info, int weapon_num)
+has_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
 	int	return_value = 0;
 	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];

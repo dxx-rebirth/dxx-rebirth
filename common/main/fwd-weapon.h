@@ -184,14 +184,10 @@ class has_weapon_result;
 #ifdef dsx
 namespace dsx {
 has_weapon_result player_has_primary_weapon(const player_info &, int weapon_num);
-has_weapon_result player_has_secondary_weapon(const player_info &, int weapon_num);
-}
-#endif
+has_weapon_result player_has_secondary_weapon(const player_info &, secondary_weapon_index_t weapon_num);
 
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
-#ifdef dsx
-namespace dsx {
 int pick_up_primary(player_info &, int weapon_index);
 int pick_up_secondary(player_info &, int weapon_index,int count);
 
