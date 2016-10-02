@@ -780,10 +780,9 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
 namespace dsx {
-int pick_up_secondary(int weapon_index,int count)
+int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 {
 	int	num_picked_up;
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, Secondary_ammo_max[weapon_index]);
 	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[weapon_index] >= max)

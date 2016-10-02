@@ -466,10 +466,10 @@ int do_powerup(const vobjptridx_t obj)
 				used = pick_up_energy();
 			break;
 		case POW_MISSILE_1:
-			used=pick_up_secondary(CONCUSSION_INDEX,1);
+			used=pick_up_secondary(player_info, CONCUSSION_INDEX, 1);
 			break;
 		case POW_MISSILE_4:
-			used=pick_up_secondary(CONCUSSION_INDEX,4);
+			used=pick_up_secondary(player_info, CONCUSSION_INDEX, 4);
 			break;
 
 		case POW_KEY_BLUE:
@@ -576,38 +576,38 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 
 		case	POW_PROXIMITY_WEAPON:
-			used=pick_up_secondary(PROXIMITY_INDEX,4);
+			used=pick_up_secondary(player_info, PROXIMITY_INDEX, 4);
 			break;
 		case	POW_SMARTBOMB_WEAPON:
-			used=pick_up_secondary(SMART_INDEX,1);
+			used=pick_up_secondary(player_info, SMART_INDEX, 1);
 			break;
 		case	POW_MEGA_WEAPON:
-			used=pick_up_secondary(MEGA_INDEX,1);
+			used=pick_up_secondary(player_info, MEGA_INDEX, 1);
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case	POW_SMISSILE1_1:
-			used=pick_up_secondary(SMISSILE1_INDEX,1);
+			used=pick_up_secondary(player_info, SMISSILE1_INDEX, 1);
 			break;
 		case	POW_SMISSILE1_4:
-			used=pick_up_secondary(SMISSILE1_INDEX,4);
+			used=pick_up_secondary(player_info, SMISSILE1_INDEX, 4);
 			break;
 		case	POW_GUIDED_MISSILE_1:
-			used=pick_up_secondary(GUIDED_INDEX,1);
+			used=pick_up_secondary(player_info, GUIDED_INDEX, 1);
 			break;
 		case	POW_GUIDED_MISSILE_4:
-			used=pick_up_secondary(GUIDED_INDEX,4);
+			used=pick_up_secondary(player_info, GUIDED_INDEX, 4);
 			break;
 		case	POW_SMART_MINE:
-			used=pick_up_secondary(SMART_MINE_INDEX,4);
+			used=pick_up_secondary(player_info, SMART_MINE_INDEX, 4);
 			break;
 		case	POW_MERCURY_MISSILE_1:
-			used=pick_up_secondary(SMISSILE4_INDEX,1);
+			used=pick_up_secondary(player_info, SMISSILE4_INDEX, 1);
 			break;
 		case	POW_MERCURY_MISSILE_4:
-			used=pick_up_secondary(SMISSILE4_INDEX,4);
+			used=pick_up_secondary(player_info, SMISSILE4_INDEX, 4);
 			break;
 		case	POW_EARTHSHAKER_MISSILE:
-			used=pick_up_secondary(SMISSILE5_INDEX,1);
+			used=pick_up_secondary(player_info, SMISSILE5_INDEX, 1);
 			break;
 #endif
 		case	POW_VULCAN_AMMO:
@@ -618,10 +618,10 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 			break;
 		case	POW_HOMING_AMMO_1:
-			used=pick_up_secondary(HOMING_INDEX,1);
+			used=pick_up_secondary(player_info, HOMING_INDEX, 1);
 			break;
 		case	POW_HOMING_AMMO_4:
-			used=pick_up_secondary(HOMING_INDEX,4);
+			used=pick_up_secondary(player_info, HOMING_INDEX, 4);
 			break;
 		case	POW_CLOAK:
 			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
