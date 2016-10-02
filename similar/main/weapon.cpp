@@ -356,7 +356,7 @@ public:
 		const weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
 		if (!player_has_secondary_weapon(pl_info, desired_weapon).has_all())
 			return false;
-		select_secondary_weapon(SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
+		select_secondary_weapon(pl_info, SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
 	}
 	static void abandon_auto_select()
@@ -478,20 +478,16 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 	}
 
 }
-}
 
-namespace dsx {
-void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
+void select_secondary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_weapon(1, weapon_num);
 
 	{
-		auto &plrobj = get_local_plrobj();
-		auto &player_info = plrobj.ctype.player_info;
 		auto &Secondary_weapon = player_info.Secondary_weapon;
 		if (Secondary_weapon != weapon_num) {
-			auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
+			auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 			if (wait_for_rearm)
 			{
 				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
@@ -510,7 +506,7 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 		Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
-		auto &Secondary_last_was_super = plrobj.ctype.player_info.Secondary_last_was_super;
+		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
 #endif
 	}
@@ -685,7 +681,7 @@ void do_secondary_weapon_select(player_info &player_info, uint_fast32_t weapon_n
 
 	//now actually select the weapon
 #endif
-	select_secondary_weapon(weapon_name, weapon_num, 1);
+	select_secondary_weapon(player_info, weapon_name, weapon_num, 1);
 }
 }
 
@@ -745,7 +741,7 @@ void delayed_autoselect(player_info &player_info)
 		if (delayed_secondary != secondary_weapon)
 		{
 			if (player_has_secondary_weapon(player_info, delayed_secondary).has_all())
-				select_secondary_weapon(nullptr, delayed_secondary, 1);
+				select_secondary_weapon(player_info, nullptr, delayed_secondary, 1);
 			else
 				Secondary_weapon.set_delayed(secondary_weapon);
 		}
@@ -814,7 +810,7 @@ int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 			}
 		}
 		else if (want_switch())
-			select_secondary_weapon(nullptr, weapon_index, 1);
+			select_secondary_weapon(player_info, nullptr, weapon_index, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 			//if it's a proxbomb or smart mine,
 			//we want to do a mini-auto-selection that applies to the drop bomb key

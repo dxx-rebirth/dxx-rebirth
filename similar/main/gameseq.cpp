@@ -486,7 +486,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		{
 			newdemo_record_laser_level(player_info.laser_level, 0);
 		}
-		select_secondary_weapon(nullptr, 0, 0);
+		select_secondary_weapon(player_info, nullptr, 0, 0);
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
 		Player_eggs_dropped = 0;

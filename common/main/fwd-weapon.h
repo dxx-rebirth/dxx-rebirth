@@ -169,7 +169,7 @@ void do_secondary_weapon_select(player_info &, uint_fast32_t weapon_num);
 void auto_select_primary_weapon(player_info &);
 void auto_select_secondary_weapon(player_info &);
 void select_primary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
-void select_secondary_weapon(const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
+void select_secondary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
 
 }
 #endif

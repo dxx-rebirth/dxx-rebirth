@@ -1519,7 +1519,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 
 	select_primary_weapon(pl_info, nullptr, Primary_weapon, 0);
-	select_secondary_weapon(nullptr, Secondary_weapon, 0);
+	select_secondary_weapon(pl_info, nullptr, Secondary_weapon, 0);
 
 // Restore the difficulty level
 	Difficulty_level = PHYSFSX_readSXE32(fp, swap);
