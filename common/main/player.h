@@ -167,11 +167,7 @@ struct player_ship
 	fix     wiggle;
 	fix     max_rotthrust;
 	array<vms_vector, N_PLAYER_GUNS> gun_points;
-}
-#if defined(DXX_BUILD_DESCENT_I)
-__pack__
-#endif
-;
+};
 #endif
 
 #endif
