@@ -538,7 +538,7 @@ static bool reject_unusable_primary_weapon_select(const player_info &player_info
 	return true;
 }
 
-static bool reject_unusable_secondary_weapon_select(const player_info &player_info, const uint_fast32_t weapon_num, const char *const weapon_name)
+static bool reject_unusable_secondary_weapon_select(const player_info &player_info, const secondary_weapon_index_t weapon_num, const char *const weapon_name)
 {
 	const auto weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	if (weapon_status.has_all())
@@ -615,7 +615,7 @@ void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num
 	select_primary_weapon(player_info, weapon_name, weapon_num, 1);
 }
 
-void do_secondary_weapon_select(player_info &player_info, uint_fast32_t weapon_num)
+void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index_t weapon_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
@@ -628,22 +628,18 @@ void do_secondary_weapon_select(player_info &player_info, uint_fast32_t weapon_n
 		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	int	current,has_flag;
-	ubyte	last_was_super;
 	has_weapon_result weapon_status;
 
-	{
-		current = player_info.Secondary_weapon;
-		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		last_was_super = Secondary_last_was_super[weapon_num];
-		has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
-	}
+	const auto current = player_info.Secondary_weapon.get_active();
+	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
+	const auto last_was_super = Secondary_last_was_super[weapon_num];
+	const auto has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
 
 		//already have this selected, so toggle to other of normal/super version
 
-		weapon_num += weapon_num+SUPER_WEAPON - current;
+		weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num) * 2) + SUPER_WEAPON - current);
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	}
 	else {
@@ -652,17 +648,17 @@ void do_secondary_weapon_select(player_info &player_info, uint_fast32_t weapon_n
 		//go to last-select version of requested missile
 
 		if (last_was_super)
-			weapon_num += SUPER_WEAPON;
+			weapon_num = static_cast<secondary_weapon_index_t>(static_cast<unsigned>(weapon_num) + SUPER_WEAPON);
 
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 
 		//if don't have last-selected, try other version
 
 		if ((weapon_status.flags() & has_flag) != has_flag) {
-			weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
+			weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num_save) * 2) + SUPER_WEAPON - static_cast<unsigned>(weapon_num));
 			weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 			if ((weapon_status.flags() & has_flag) != has_flag)
-				weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
+				weapon_num = static_cast<secondary_weapon_index_t>((static_cast<unsigned>(weapon_num_save) * 2) + SUPER_WEAPON - static_cast<unsigned>(weapon_num));
 		}
 	}
 

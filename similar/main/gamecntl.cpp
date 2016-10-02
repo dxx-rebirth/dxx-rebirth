@@ -267,7 +267,7 @@ static void do_weapon_n_item_stuff()
 		const auto select_weapon = exchange(Controls.state.select_weapon, 0) - 1;
 		const auto weapon_num = select_weapon > 4 ? select_weapon - 5 : select_weapon;
 		if (select_weapon > 4)
-			do_secondary_weapon_select(player_info, weapon_num);
+			do_secondary_weapon_select(player_info, static_cast<secondary_weapon_index_t>(select_weapon - 5));
 		else
 			do_primary_weapon_select(player_info, weapon_num);
 	}
