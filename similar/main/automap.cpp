@@ -764,14 +764,14 @@ static void draw_automap(automap *am)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
 #endif
 
-static void recompute_automap_segment_visibility(automap *am)
+static void recompute_automap_segment_visibility(const object &plrobj, automap *const am)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = plrobj.ctype.player_info;
 	int compute_depth_all_segments = (cheats.fullautomap || (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL));
 	if (Automap_debug_show_all_segments)
 		compute_depth_all_segments = 1;
 	automap_build_edge_list(am, compute_depth_all_segments);
-	am->max_segments_away = set_segment_depths(get_local_plrobj().segnum, compute_depth_all_segments ? NULL : &Automap_visited, am->depth_array);
+	am->max_segments_away = set_segment_depths(plrobj.segnum, compute_depth_all_segments ? nullptr : &Automap_visited, am->depth_array);
 	am->segment_limit = am->max_segments_away;
 	adjust_segment_limit(am, am->segment_limit);
 }
@@ -803,14 +803,16 @@ static window_event_result automap_key_command(window *, const d_event &event, a
 			{
 				cheats.fullautomap = !cheats.fullautomap;
 				// if cheat of map powerup, work with full depth
-				recompute_automap_segment_visibility(am);
+				auto &plrobj = get_local_plrobj();
+				recompute_automap_segment_visibility(plrobj, am);
 			}
 			return window_event_result::handled;
 #endif
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
 				Automap_debug_show_all_segments = !Automap_debug_show_all_segments;
-				recompute_automap_segment_visibility(am);
+				auto &plrobj = get_local_plrobj();
+				recompute_automap_segment_visibility(plrobj, am);
 			}
 			return window_event_result::handled;
 #endif
@@ -1015,7 +1017,7 @@ void do_automap()
 	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum
-	recompute_automap_segment_visibility(am);
+	recompute_automap_segment_visibility(plrobj, am);
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
