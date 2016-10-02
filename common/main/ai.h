@@ -253,7 +253,7 @@ void init_ai_for_ship(void);
 extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
-extern void init_ai_frame(void);
+void init_ai_frame(player_flags);
 
 __attribute_warn_unused_result
 std::size_t create_bfs_list(segnum_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);

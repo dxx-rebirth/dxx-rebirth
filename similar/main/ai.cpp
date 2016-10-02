@@ -2810,14 +2810,13 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 
 
 // ----------------------------------------------------------------------------
-void init_ai_frame(void)
+void init_ai_frame(const player_flags powerup_flags)
 {
 	Dist_to_last_fired_upon_player_pos = vm_vec_dist_quick(Last_fired_upon_player_pos, Believed_player_pos);
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ||
-		(player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) ||
-		(Afterburner_charge && Controls.state.afterburner && (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)))
+	if (!(powerup_flags & PLAYER_FLAGS_CLOAKED) ||
+		(powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) ||
+		(Afterburner_charge && Controls.state.afterburner && (powerup_flags & PLAYER_FLAGS_AFTERBURNER)))
 	{
 		ai_do_cloak_stuff();
 	}

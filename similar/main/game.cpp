@@ -1414,7 +1414,7 @@ void GameProcessFrame(void)
 	do_invulnerable_stuff();
 	remove_obsolete_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
-	init_ai_frame();
+	init_ai_frame(player_info.powerup_flags);
 	do_final_boss_frame();
 
 	auto &pl_flags = player_info.powerup_flags;
