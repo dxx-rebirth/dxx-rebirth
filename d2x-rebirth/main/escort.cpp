@@ -842,7 +842,8 @@ static escort_goal_t escort_set_goal_object(void)
 {
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	const auto &pl_flags = get_local_player_flags();
+	const auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto &pl_flags = player_info.powerup_flags;
 	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
 		return ESCORT_GOAL_BLUE_KEY;
 	else if (!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1) != object_none))

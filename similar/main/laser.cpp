@@ -1032,7 +1032,7 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 	if (Game_mode & GM_MULTI_COOP)
 		return 0;
 	//	Don't track player if he's cloaked.
-	if ((objp == get_local_player().objnum) && (get_local_player_flags() & PLAYER_FLAGS_CLOAKED))
+	if ((objp == get_local_player().objnum) && (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		return 0;
 
 	//	Can't track AI object if he's cloaked.

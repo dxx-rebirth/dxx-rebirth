@@ -1599,7 +1599,8 @@ void multi_do_death(int)
 	// Do any miscellaneous stuff for a new network player after death
 	if (!(Game_mode & GM_MULTI_COOP))
 	{
-		get_local_player_flags() |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.powerup_flags |= (PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 }
 
@@ -2639,7 +2640,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, get_local_player_flags().get_player_flags());
+	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
 	count += 4;
 
 	multibuf[count++] = Net_create_loc;
@@ -2670,7 +2671,7 @@ void multi_send_player_deres(deres_type_t type)
 	}
 
 	multi_send_data<MULTI_PLAYER_DERES>(multibuf, command_length<MULTI_PLAYER_DERES>::value, 2);
-	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED)
+	if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	multi_strip_robots(Player_num);
 }
@@ -4186,7 +4187,7 @@ static void DropOrb ()
 	// If empty, tell everyone to stop drawing the box around me
 	if (!proximity)
 	{
-		get_local_player_flags() &=~(PLAYER_FLAGS_FLAG);
+		player_info.powerup_flags &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);
 	}
 }
@@ -4203,7 +4204,8 @@ void DropFlag ()
 		return;
 	}
 
-	if (!(get_local_player_flags() & PLAYER_FLAGS_FLAG))
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!(player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 	{
 		HUD_init_message_literal(HM_MULTI, "No flag to drop!");
 		return;
@@ -4222,7 +4224,7 @@ void DropFlag ()
 	if (game_mode_capture_flag())
 		multi_send_drop_flag(objnum,seed);
 
-	get_local_player_flags() &=~(PLAYER_FLAGS_FLAG);
+	player_info.powerup_flags &=~(PLAYER_FLAGS_FLAG);
 }
 
 
@@ -4865,7 +4867,7 @@ void multi_send_player_inventory(int priority)
 
 	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
 	count += 2;
-	PUT_INTEL_INT(multibuf+count, get_local_player_flags().get_player_flags());
+	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
 	count += 4;
 
 	multi_send_data<MULTI_PLAYER_INV>(multibuf, command_length<MULTI_PLAYER_INV>::value, priority);

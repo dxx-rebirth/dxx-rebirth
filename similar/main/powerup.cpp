@@ -171,7 +171,7 @@ void do_megawow_powerup(int quantity)
 
 	player_info.energy = F1_0*200;
 	get_local_player_shields() = F1_0*200;
-	get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
+	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto laser_level = MAX_LASER_LEVEL;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -623,12 +623,12 @@ int do_powerup(const vobjptridx_t obj)
 			used=pick_up_secondary(HOMING_INDEX,4);
 			break;
 		case	POW_CLOAK:
-			if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
+			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
 				player_info.cloak_time = GameTime64;	//	Not! changed by awareness events (like player fires laser).
-				get_local_player_flags() |= PLAYER_FLAGS_CLOAKED;
+				player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
@@ -638,7 +638,7 @@ int do_powerup(const vobjptridx_t obj)
 			}
 		case	POW_INVULNERABILITY:
 			{
-				auto &pl_flags = get_local_player_flags();
+				auto &pl_flags = player_info.powerup_flags;
 				if (pl_flags & PLAYER_FLAGS_INVULNERABLE) {
 					if (!player_info.FakingInvul)
 					{
@@ -715,7 +715,7 @@ int do_powerup(const vobjptridx_t obj)
 				if (proximity < 12) {
 					++ proximity;
 					powerup_basic(15, 0, 15, 0, "Orb!!!");
-					get_local_player_flags() |= PLAYER_FLAGS_FLAG;
+					player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_orb (Player_num);
 				}

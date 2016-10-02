@@ -111,7 +111,8 @@ void read_flying_controls(const vobjptr_t obj)
 	forward_thrust_time = Controls.forward_thrust_time;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER)
+	auto &player_info = obj->ctype.player_info;
+	if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
 	{
 		if (Controls.state.afterburner) {			//player has key down
 			{
@@ -142,7 +143,6 @@ void read_flying_controls(const vobjptr_t obj)
 			//charge up to full
 			charge_up = min(FrameTime/8,f1_0 - Afterburner_charge);	//recharge over 8 seconds
 	
-			auto &player_info = get_local_plrobj().ctype.player_info;
 			auto &energy = player_info.energy;
 			cur_energy = max(energy - i2f(10), 0);	//don't drop below 10
 

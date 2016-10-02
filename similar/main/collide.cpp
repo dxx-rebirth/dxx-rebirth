@@ -150,7 +150,8 @@ static void collide_robot_and_wall(object &robot, const vsegptridx_t hitseg, sho
 				if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (w.keys != KEY_NONE)
 					{
-						if (get_local_player_flags() & static_cast<PLAYER_FLAG>(w.keys))
+						auto &player_info = get_local_plrobj().ctype.player_info;
+						if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(w.keys))
 							wall_open_door(hitseg, hitwall);
 					}
 					else if (!(w.flags & WALL_DOOR_LOCKED))
@@ -158,8 +159,11 @@ static void collide_robot_and_wall(object &robot, const vsegptridx_t hitseg, sho
 				}
 			} else if (Robot_info[get_robot_id(robot)].thief) {		//	Thief allowed to go through doors to which player has key.
 				if (w.keys != KEY_NONE)
-					if (get_local_player_flags() & static_cast<PLAYER_FLAG>(w.keys))
+				{
+					auto &player_info = get_local_plrobj().ctype.player_info;
+					if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(w.keys))
 						wall_open_door(hitseg, hitwall);
+				}
 			}
 #endif
 		}
@@ -391,7 +395,8 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 			multi_digi_link_sound_to_pos(SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume);
 		}
 
-		if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 			if ( get_local_player_shields() > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
@@ -427,7 +432,8 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		vms_vector	hit_dir;
 		fix damage = fixmul(d,FrameTime);
 
-		if (!(get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE))
+		auto &player_info = obj->ctype.player_info;
+		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 			apply_damage_to_player( obj, obj, damage, 0 );
 
 		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
@@ -1337,7 +1343,7 @@ void do_final_boss_hacks(void)
 	}
 
 	//	If you're not invulnerable, get invulnerable!
-	auto &pl_flags = get_local_player_flags();
+	auto &pl_flags = player_info.powerup_flags;
 	if (!(pl_flags & PLAYER_FLAGS_INVULNERABLE)) {
 		pl_flags |= PLAYER_FLAGS_INVULNERABLE;
 		player_info.invulnerable_time = GameTime64;
@@ -2073,7 +2079,8 @@ void apply_damage_to_player(object &playerobj, const cobjptridx_t killer, fix da
 	if (Player_dead_state != player_dead_state::no)
 		return;
 
-	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
+	auto &player_info = playerobj.ctype.player_info;
+	if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
 	if (possibly_friendly && multi_maybe_disable_friendly_fire(killer))
@@ -2155,7 +2162,8 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	const auto &&player_segp = vsegptridx(playerobj->segnum);
 	if (get_player_id(playerobj) == Player_num)
 	{
-		multi_digi_link_sound_to_pos((get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, player_segp, 0, collision_point, 0, F1_0);
+		auto &player_info = playerobj->ctype.player_info;
+		multi_digi_link_sound_to_pos((player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, player_segp, 0, collision_point, 0, F1_0);
 	}
 
 	object_create_explosion(player_segp, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT);

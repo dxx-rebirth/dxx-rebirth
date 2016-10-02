@@ -317,7 +317,8 @@ static void do_weapon_n_item_stuff()
 		Controls.state.toggle_bomb = 0;
 	}
 
-	if (Controls.state.energy_to_shield && (get_local_player_flags() & PLAYER_FLAGS_CONVERTER))
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (Controls.state.energy_to_shield && (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER))
 		transfer_energy_to_shield();
 #endif
 }
@@ -1280,7 +1281,7 @@ static window_event_result HandleTestKey(int key)
 				return window_event_result::ignored;
 
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			auto &pl_flags = get_local_player_flags();
+			auto &pl_flags = player_info.powerup_flags;
 			pl_flags ^= PLAYER_FLAGS_CLOAKED;
 			if (pl_flags & PLAYER_FLAGS_CLOAKED) {
 				if (Game_mode & GM_MULTI)
@@ -1529,7 +1530,7 @@ static window_event_result FinalCheats()
 
 		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_LASER_LEVEL;
-		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
+		player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 
@@ -1549,7 +1550,7 @@ static window_event_result FinalCheats()
 
 		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_LASER_LEVEL;
-		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
+		player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1590,13 +1591,14 @@ static window_event_result FinalCheats()
 
 		player_info.energy = MAX_ENERGY;
 		player_info.laser_level = MAX_SUPER_LASER_LEVEL;
-		get_local_player_flags() |= PLAYER_FLAGS_QUAD_LASERS;
+		player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
 
 	if (gotcha == &game_cheats::accessory)
 	{
-		get_local_player_flags() |= PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_CONVERTER;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.powerup_flags |= PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_CONVERTER;
 		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
 #endif
@@ -1604,14 +1606,15 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::allkeys)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
-		get_local_player_flags() |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
 	if (gotcha == &game_cheats::invul)
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.invulnerable_time = GameTime64+i2f(1000);
-		auto &pl_flags = get_local_player_flags();
+		auto &pl_flags = player_info.powerup_flags;
 		pl_flags ^= PLAYER_FLAGS_INVULNERABLE;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (pl_flags & PLAYER_FLAGS_INVULNERABLE) ? TXT_ON : TXT_OFF);
 	}
@@ -1626,7 +1629,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::cloak)
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		auto &pl_flags = get_local_player_flags();
+		auto &pl_flags = player_info.powerup_flags;
 		pl_flags ^= PLAYER_FLAGS_CLOAKED;
 		const auto have_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
 		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, have_cloaked ? TXT_ON : TXT_OFF);

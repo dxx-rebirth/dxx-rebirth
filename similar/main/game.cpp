@@ -644,7 +644,8 @@ static void do_afterburner_stuff(void)
 {
 	static sbyte func_play = 0;
 
-	const auto have_afterburner = get_local_player_flags() & PLAYER_FLAGS_AFTERBURNER;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto have_afterburner = player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER;
 	if (!have_afterburner)
 		Afterburner_charge = 0;
 
@@ -1401,6 +1402,7 @@ namespace dsx {
 
 void GameProcessFrame(void)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &local_player_shields_ref = get_local_player_shields();
 	fix player_shields = local_player_shields_ref;
 	const auto player_was_dead = Player_dead_state;
@@ -1415,11 +1417,10 @@ void GameProcessFrame(void)
 	init_ai_frame();
 	do_final_boss_frame();
 
-	auto &pl_flags = get_local_player_flags();
+	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 	{
 		static int turned_off=0;
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &energy = player_info.energy;
 		energy -= (FrameTime*3/8);
 		if (energy < i2f(10)) {
@@ -1517,7 +1518,6 @@ void GameProcessFrame(void)
 
 		auto laser_firing_count = Global_laser_firing_count;
 		if (Auto_fire_fusion_cannon_time) {
-			auto &player_info = get_local_plrobj().ctype.player_info;
 			if (player_info.Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
 			else if ((laser_firing_count = (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time)))

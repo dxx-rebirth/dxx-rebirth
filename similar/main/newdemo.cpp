@@ -1052,7 +1052,7 @@ void newdemo_record_start_demo()
 
 	nd_write_byte(nd_record_v_player_energy = static_cast<int8_t>(f2ir(player_info.energy)));
 	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_player_shields())));
-	nd_write_int(nd_record_v_player_flags = get_local_player_flags().get_player_flags());        // be sure players flags are set
+	nd_write_int(nd_record_v_player_flags = player_info.powerup_flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
@@ -1842,13 +1842,13 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
-	get_local_player_flags() = player_flags(recorded_player_flags);
+	player_info.powerup_flags = player_flags(recorded_player_flags);
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_int(recorded_player_flags);
-	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
+	if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 		player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
-	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
+	if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 		player_info.invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	auto &Primary_weapon = player_info.Primary_weapon;
@@ -1874,7 +1874,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		nd_read_byte(&c);
 		if (c != ND_EVENT_NEW_LEVEL) {
-			auto flags = get_local_player_flags().get_player_flags();
+			auto flags = player_info.powerup_flags.get_player_flags();
 			energy = shield;
 			shield = static_cast<uint8_t>(flags);
 			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
@@ -2491,7 +2491,7 @@ static int newdemo_read_frame_information(int rewrite)
 					else
 						t = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				}
-				get_local_player_flags() = old_player_flags;
+				player_info.powerup_flags = old_player_flags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				auto &player_info = get_local_plrobj().ctype.player_info;
 				if (old_cloaked != new_cloaked)
@@ -2510,7 +2510,7 @@ static int newdemo_read_frame_information(int rewrite)
 					else
 						DXX_MAKE_VAR_UNDEFINED(t);
 				}
-				get_local_player_flags() = new_player_flags;
+				player_info.powerup_flags = new_player_flags;
 			}
 			update_laser_weapon_info();     // in case of quad laser change
 			break;
@@ -3330,11 +3330,11 @@ void newdemo_goto_end(int to_rewrite)
 	get_local_player_shields() = i2f(shield);
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
-	get_local_player_flags() = player_flags(recorded_player_flags);
-	if (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) {
+	player_info.powerup_flags = player_flags(recorded_player_flags);
+	if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 		player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
-	if (get_local_player_flags() & PLAYER_FLAGS_INVULNERABLE)
+	if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 		player_info.invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	{
 		int8_t v;
@@ -3750,7 +3750,7 @@ static void newdemo_write_end()
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(static_cast<int8_t>(f2ir(player_info.energy)));
 	nd_write_byte(static_cast<int8_t>(f2ir(get_local_player_shields())));
-	nd_write_int(get_local_player_flags().get_player_flags());        // be sure players flags are set
+	nd_write_int(player_info.powerup_flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	byte_count += 8;

@@ -1214,7 +1214,7 @@ void ExitSecretLevel(void)
 void do_cloak_invul_secret_stuff(fix64 old_gametime)
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &pl_flags = get_local_player_flags();
+	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
 		fix64	time_used;

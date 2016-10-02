@@ -375,7 +375,8 @@ void do_controlcen_frame(const vobjptridx_t obj)
 		controlcen_death_silence = 0;
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
-		const auto &player_pos = (get_local_player_flags() & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		const auto &player_pos = (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
 		best_gun_num = calc_best_gun(
 			get_reactor_definition(get_reactor_id(obj)).n_guns,
 			obj,

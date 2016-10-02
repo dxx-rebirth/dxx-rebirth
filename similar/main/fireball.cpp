@@ -763,7 +763,9 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 			}
 		}
 	} else if (del_obj->contains_id == POW_QUAD_FIRE)
-		if ((get_local_player_flags() & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
+	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -780,6 +782,7 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 #endif
 			}
 		}
+	}
 
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.

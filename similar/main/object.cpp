@@ -1279,7 +1279,8 @@ void dead_player_end(void)
 
 	ConsoleObject->control_type = Control_type_save;
 	ConsoleObject->render_type = Render_type_save;
-	get_local_player_flags() &= ~PLAYER_FLAGS_INVULNERABLE;
+	auto &player_info = ConsoleObject->ctype.player_info;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_INVULNERABLE;
 	Player_eggs_dropped = 0;
 
 }
@@ -1412,7 +1413,8 @@ void dead_player_frame(void)
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
 #if defined(DXX_BUILD_DESCENT_II)
-				get_local_player_flags() &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+				auto &player_info = get_local_plrobj().ctype.player_info;
+				player_info.powerup_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 #endif
 			}
 		} else {
