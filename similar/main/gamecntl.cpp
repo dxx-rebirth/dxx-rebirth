@@ -234,6 +234,7 @@ int which_bomb()
 namespace dsx {
 static void do_weapon_n_item_stuff()
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (Controls.state.fire_flare > 0)
 	{
 		Controls.state.fire_flare = 0;
@@ -243,7 +244,6 @@ static void do_weapon_n_item_stuff()
 
 	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[player_info.Secondary_weapon]].fire_count;
 	}
 
@@ -267,7 +267,7 @@ static void do_weapon_n_item_stuff()
 		const auto select_weapon = exchange(Controls.state.select_weapon, 0) - 1;
 		const auto weapon_num = select_weapon > 4 ? select_weapon - 5 : select_weapon;
 		if (select_weapon > 4)
-			do_secondary_weapon_select(weapon_num);
+			do_secondary_weapon_select(player_info, weapon_num);
 		else
 			do_primary_weapon_select(weapon_num);
 	}
@@ -291,7 +291,6 @@ static void do_weapon_n_item_stuff()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
@@ -317,7 +316,6 @@ static void do_weapon_n_item_stuff()
 		Controls.state.toggle_bomb = 0;
 	}
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (Controls.state.energy_to_shield && (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER))
 		transfer_energy_to_shield();
 #endif
