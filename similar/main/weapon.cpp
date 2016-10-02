@@ -547,9 +547,8 @@ static bool reject_unusable_primary_weapon_select(const player_info &player_info
 	return true;
 }
 
-static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+static bool reject_unusable_secondary_weapon_select(const player_info &player_info, const uint_fast32_t weapon_num, const char *const weapon_name)
 {
-	const auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	if (weapon_status.has_all())
 		return false;
@@ -625,17 +624,16 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #endif
 	select_primary_weapon(player_info, weapon_name, weapon_num, 1);
 }
-}
 
-namespace dsx {
 void do_secondary_weapon_select(uint_fast32_t weapon_num)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	// do special hud msg. for picking registered weapon in shareware version.
 	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(weapon_num, weapon_name))
+	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(player_info, weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 		return;
@@ -645,7 +643,6 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	ubyte	last_was_super;
 	has_weapon_result weapon_status;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
 		current = player_info.Secondary_weapon;
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
