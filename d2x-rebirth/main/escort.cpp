@@ -1465,7 +1465,7 @@ static int maybe_steal_primary_weapon(const vobjptr_t playerobjp, int weapon_num
 				Stolen_items[Stolen_item_index] = Primary_weapon_to_powerup[weapon_num];
 
 				thief_message("%s stolen!", PRIMARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
-				auto_select_primary_weapon();
+				auto_select_primary_weapon(player_info);
 				digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 				return 1;
 			}

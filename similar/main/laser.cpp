@@ -1505,7 +1505,7 @@ void Flare_create(const vobjptridx_t obj)
 		{
 			energy = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-			auto_select_primary_weapon();
+			auto_select_primary_weapon(player_info);
 #endif
 		}
 
@@ -1826,7 +1826,7 @@ int do_laser_firing_player(void)
 			energy_used *= 2;
 
 	if	(!(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)))
-		auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
+		auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
 #endif
 
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
@@ -1887,11 +1887,11 @@ int do_laser_firing_player(void)
                                 maybe_drop_net_powerup(POW_VULCAN_AMMO, 1, 0);
 			}
 
-			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
+			auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
 
 		} else {
 #if defined(DXX_BUILD_DESCENT_II)
-			auto_select_primary_weapon();		//	Make sure the player can fire from this weapon.
+			auto_select_primary_weapon(player_info);		//	Make sure the player can fire from this weapon.
 			Next_laser_fire_time = GameTime64;	//	Prevents shots-to-fire from building up.
 #endif
 			break;	//	Couldn't fire weapon, so abort.

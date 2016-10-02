@@ -701,17 +701,16 @@ void auto_select_weapon(T t)
 	}
 }
 
+namespace dsx {
+
 //	----------------------------------------------------------------------------------------
 //	Automatically select next best weapon if unable to fire current weapon.
 // Weapon type: 0==primary, 1==secondary
-void auto_select_primary_weapon()
+void auto_select_primary_weapon(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!player_has_primary_weapon(player_info.Primary_weapon).has_all())
 			auto_select_weapon<cycle_primary_state>({});
 }
-
-namespace dsx {
 
 void auto_select_secondary_weapon(player_info &player_info)
 {
@@ -1407,7 +1406,7 @@ void DropCurrentWeapon ()
 	}
 	else
 		player_info.primary_weapon_flags &= ~HAS_PRIMARY_FLAG(Primary_weapon);
-	auto_select_primary_weapon();
+	auto_select_primary_weapon(player_info);
 }
 
 void DropSecondaryWeapon ()
