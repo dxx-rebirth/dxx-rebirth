@@ -22,32 +22,22 @@
 
 namespace dcx {
 
-struct window
-{
-	grs_canvas w_canv;					// the window's canvas to draw to
-	window_event_result (*w_callback)(window *wind,const d_event &event, void *data);	// the event handler
-	int w_visible;						// whether it's visible
-	int w_modal;						// modal = accept all user input exclusively
-	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
-	struct window *prev;				// the previous window in the doubly linked list
-	struct window *next;				// the next window in the doubly linked list
-};
-
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
-window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data, const void *createdata)
+window::window(grs_canvas *src, int x, int y, int w, int h, window_alloc_type type, window_subfunction<void> event_callback, void *data, const void *createdata)
 {
-	window *prev = window_get_front();
+	window *prev_front = window_get_front();
 	d_create_event event;
-	window *wind = new window;
+	window *wind = this;
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
 	gr_init_sub_canvas(wind->w_canv, *src, x, y, w, h);
 	wind->w_callback = event_callback;
 	wind->w_visible = 1;	// default to visible
 	wind->w_modal =	1;		// default to modal
-	wind->data = data;
+	wind->w_alloc = type;
+	wind->w_data = data;
 
 	if (FirstWindow == NULL)
 		FirstWindow = wind;
@@ -56,14 +46,30 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfun
 		FrontWindow->next = wind;
 	wind->next = NULL;
 	FrontWindow = wind;
-	if (prev)
-		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
+	if (prev_front)
+		WINDOW_SEND_EVENT(prev_front, EVENT_WINDOW_DEACTIVATED);
 
 	event.createdata = createdata;
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+}
 
-	return wind;
+void window::unlink()
+{
+	if (this == FrontWindow)
+		FrontWindow = this->prev;
+	if (this == FirstWindow)
+		FirstWindow = this->next;
+	if (this->next)
+		this->next->prev = this->prev;
+	if (this->prev)
+		this->prev->next = this->next;
+}
+
+window::~window()
+{
+	if (w_alloc == window_alloc_type::subclass)
+		unlink();
 }
 
 int window_close(window *wind)
@@ -71,6 +77,7 @@ int window_close(window *wind)
 	window *prev;
 	d_event event;
 	window_event_result (*w_callback)(window *wind,const d_event &event, void *data) = wind->w_callback;
+	window_alloc_type type = wind->w_alloc;
 
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
@@ -85,21 +92,19 @@ int window_close(window *wind)
 		return 0;
 	}
 
-	if (wind == FrontWindow)
-		FrontWindow = wind->prev;
-	if (wind == FirstWindow)
-		FirstWindow = wind->next;
-	if (wind->next)
-		wind->next->prev = wind->prev;
-	if (wind->prev)
-		wind->prev->next = wind->next;
+	if (type == window_alloc_type::separate)
+		wind->unlink();		// Remove from the window list
 
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
+	// Callback needs to recognise this is a NULL pointer! (And 'wind' will be a dangling pointer for window_alloc_type::subclass)
 	event.type = EVENT_WINDOW_CLOSED;
-	w_callback(wind, event, NULL);	// callback needs to recognise this is a NULL pointer!
-	delete wind;
+	w_callback(wind, event, NULL);
+	
+	if (type == window_alloc_type::separate)
+		delete wind;
+
 	return 1;
 }
 
@@ -127,16 +132,6 @@ window *window_get_first(void)
 	return FirstWindow;
 }
 
-window *window_get_next(window &wind)
-{
-	return wind.next;
-}
-
-window *window_get_prev(window &wind)
-{
-	return wind.prev;
-}
-
 // Make wind the front window
 void window_select(window &wind)
 {
@@ -156,7 +151,7 @@ void window_select(window &wind)
 	wind.next = nullptr;
 	FrontWindow = &wind;
 	
-	if (window_is_visible(wind))
+	if (window_is_visible(&wind))
 	{
 		if (prev)
 			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
@@ -181,16 +176,6 @@ window *window_set_visible(window &w, int visible)
 	return wind;
 }
 
-int window_is_visible(window &wind)
-{
-	return wind.w_visible;
-}
-
-grs_canvas &window_get_canvas(window &wind)
-{
-	return wind.w_canv;
-}
-
 #if !DXX_USE_OGL
 void window_update_canvases()
 {
@@ -205,23 +190,5 @@ void window_update_canvases()
 							wind->w_canv.cv_bitmap.bm_h);
 }
 #endif
-
-window_event_result window_send_event(window &wind, const d_event &event)
-{
-	auto r = wind.w_callback(&wind, event, wind.data);
-	if (r == window_event_result::close)
-		window_close(&wind);
-	return r;
-}
-
-void window_set_modal(window &wind, int modal)
-{
-	wind.w_modal = modal;
-}
-
-int window_is_modal(window &wind)
-{
-	return wind.w_modal;
-}
 
 }
