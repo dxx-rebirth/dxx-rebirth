@@ -1257,7 +1257,7 @@ void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	I am ashamed of this: fast_flag == -1 means normal slide about.  fast_flag = 0 means no evasion.
-static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int fast_flag)
+static void move_around_player(const vobjptridx_t objp, const player_flags powerup_flags, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 	int				dir;
@@ -1304,8 +1304,7 @@ static void move_around_player(const vobjptridx_t objp, const vms_vector &vec_to
 		//	Evasion speed is scaled by percentage of shields left so wounded robots evade less effectively.
 
 		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
-		auto &player_info = get_local_plrobj().ctype.player_info;
-		if (dot > robptr->field_of_view[Difficulty_level] && !(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)) {
+		if (dot > robptr->field_of_view[Difficulty_level] && !(powerup_flags & PLAYER_FLAGS_CLOAKED)) {
 			fix	damage_scale;
 
 			if (!robptr->strength)
@@ -1422,7 +1421,8 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 					ai_evaded = 1;
 					evade_speed = robptr->evade_speed[Difficulty_level];
-					move_around_player(objp, vec_to_player, evade_speed);
+					auto &player_info = get_local_plrobj().ctype.player_info;
+					move_around_player(objp, player_info.powerup_flags, vec_to_player, evade_speed);
 				}
 			}
 			return;
@@ -1444,7 +1444,8 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		{
 			//	1/4 of time, move around player, 3/4 of time, move away from player
 			if (d_rand() < 8192) {
-				move_around_player(objp, vec_to_player, -1);
+				auto &player_info = get_local_plrobj().ctype.player_info;
+				move_around_player(objp, player_info.powerup_flags, vec_to_player, -1);
 			} else {
 				move_away_from_player(objp, vec_to_player, 1);
 			}
@@ -1457,11 +1458,12 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		move_towards_player(objp, vec_to_player);
 	}
 	else {
+		auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 		if (dist_to_player < circle_distance)
 			move_away_from_player(objp, vec_to_player, 0);
 		else if (dist_to_player < circle_distance*2)
-			move_around_player(objp, vec_to_player, -1);
+			move_around_player(objp, player_info.powerup_flags, vec_to_player, -1);
 		else
 			move_towards_player(objp, vec_to_player);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1473,14 +1475,14 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		} else if (dist_to_player < circle_distance)
 			move_away_from_player(objp, vec_to_player, 0);
 		else if ((dist_to_player < (3+objval)*circle_distance/2) && !ready_to_fire_weapon1(ailp, -F1_0)) {
-			move_around_player(objp, vec_to_player, -1);
+			move_around_player(objp, player_info.powerup_flags, vec_to_player, -1);
 		} else {
 			if (ready_to_fire_weapon1(ailp, -(F1_0 + (objval << 12))) && player_visibility) {
 				//	Usually move away, but sometimes move around player.
 				if ((((GameTime64 >> 18) & 0x0f) ^ objval) > 4) {
 					move_away_from_player(objp, vec_to_player, 0);
 				} else {
-					move_around_player(objp, vec_to_player, -1);
+					move_around_player(objp, player_info.powerup_flags, vec_to_player, -1);
 				}
 			} else
 				move_towards_player(objp, vec_to_player);
