@@ -1260,40 +1260,40 @@ void move_towards_player(const vobjptr_t objp, const vms_vector &vec_to_player)
 static void move_around_player(const vobjptridx_t objp, const player_flags powerup_flags, const vms_vector &vec_to_player, int fast_flag)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	int				dir;
 	vms_vector		evade_vector;
 
 	if (fast_flag == 0)
 		return;
 
-	dir = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
-
-	Assert((dir >= 0) && (dir <= 3));
-
+	const unsigned dir = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
 	switch (dir) {
 		case 0:
-			evade_vector.x = fixmul(vec_to_player.z, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player.y, FrameTime*32);
-			evade_vector.z = fixmul(-vec_to_player.x, FrameTime*32);
+			evade_vector.x = vec_to_player.z;
+			evade_vector.y = vec_to_player.y;
+			evade_vector.z = -vec_to_player.x;
 			break;
 		case 1:
-			evade_vector.x = fixmul(-vec_to_player.z, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player.y, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player.x, FrameTime*32);
+			evade_vector.x = -vec_to_player.z;
+			evade_vector.y = vec_to_player.y;
+			evade_vector.z = vec_to_player.x;
 			break;
 		case 2:
-			evade_vector.x = fixmul(-vec_to_player.y, FrameTime*32);
-			evade_vector.y = fixmul(vec_to_player.x, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player.z, FrameTime*32);
+			evade_vector.x = -vec_to_player.y;
+			evade_vector.y = vec_to_player.x;
+			evade_vector.z = vec_to_player.z;
 			break;
 		case 3:
-			evade_vector.x = fixmul(vec_to_player.y, FrameTime*32);
-			evade_vector.y = fixmul(-vec_to_player.x, FrameTime*32);
-			evade_vector.z = fixmul(vec_to_player.z, FrameTime*32);
+			evade_vector.x = vec_to_player.y;
+			evade_vector.y = -vec_to_player.x;
+			evade_vector.z = vec_to_player.z;
 			break;
 		default:
-			Error("Function move_around_player: Bad case.");
+			throw std::runtime_error("move_around_player: bad case");
 	}
+	const auto frametime32 = FrameTime * 32;
+	evade_vector.x = fixmul(evade_vector.x, frametime32);
+	evade_vector.y = fixmul(evade_vector.y, frametime32);
+	evade_vector.z = fixmul(evade_vector.z, frametime32);
 
 	const robot_info		*robptr = &Robot_info[get_robot_id(objp)];
 	//	Note: -1 means normal circling about the player.  > 0 means fast evasion.
