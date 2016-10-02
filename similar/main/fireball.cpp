@@ -972,12 +972,12 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static bool skip_create_egg_powerup(powerup_type_t powerup)
+static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup)
 {
 	fix current;
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = player.ctype.player_info;
 	if (powerup == POW_SHIELD_BOOST)
-		current = get_local_plrobj().shields;
+		current = player.shields;
 	else if (powerup == POW_ENERGY)
 		current = player_info.energy;
 	else
@@ -1008,7 +1008,7 @@ objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector 
 	{
 		if (type == OBJ_POWERUP)
 		{
-			if (skip_create_egg_powerup(static_cast<powerup_type_t>(id)))
+			if (skip_create_egg_powerup(get_local_plrobj(), static_cast<powerup_type_t>(id)))
 				return object_none;
 		}
 	}
