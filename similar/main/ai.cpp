@@ -2669,24 +2669,17 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
+							auto &player_info = get_local_plrobj().ctype.player_info;
+							if (ready_to_fire_weapon1(ailp, 0)) {
+								ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, fire_pos);
+								Last_fired_upon_player_pos = fire_pos;
+							}
 							if (gun_num != 0) {
-								if (ready_to_fire_weapon1(ailp, 0)) {
-									auto &player_info = get_local_plrobj().ctype.player_info;
-									ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, fire_pos);
-									Last_fired_upon_player_pos = fire_pos;
-								}
-
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
-									auto &player_info = get_local_plrobj().ctype.player_info;
 									ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, 0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
-
-							} else if (ready_to_fire_weapon1(ailp, 0)) {
-								auto &player_info = get_local_plrobj().ctype.player_info;
-								ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, fire_pos);
-								Last_fired_upon_player_pos = fire_pos;
 							}
 						}
 					}
