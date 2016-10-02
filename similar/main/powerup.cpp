@@ -363,18 +363,18 @@ struct player_hit_quadlaser_powerup
 
 }
 
-static int player_has_powerup(const char *const desc_have)
+static int player_has_powerup(player_info &player_info, const char *const desc_have)
 {
 	HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE, desc_have);
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	return (Game_mode & GM_MULTI) ? 0 : pick_up_energy(player_info);
 }
 
 template <PLAYER_FLAG player_flag, typename F>
-static int player_hit_powerup(player_flags &powerup_flags, const char *const desc_have, const F &&pickup)
+static int player_hit_powerup(player_info &player_info, const char *const desc_have, const F &&pickup)
 {
+	auto &powerup_flags = player_info.powerup_flags;
 	return (powerup_flags & player_flag)
-		? player_has_powerup(desc_have)
+		? player_has_powerup(player_info, desc_have)
 		: (pickup.template pickup<player_flag>(powerup_flags), 1);
 }
 
@@ -481,7 +481,7 @@ int do_powerup(const vobjptridx_t obj)
 			used = pick_up_key(15, 15, 7, player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY, TXT_YELLOW, id);
 			break;
 		case POW_QUAD_FIRE:
-			used = player_hit_powerup<PLAYER_FLAGS_QUAD_LASERS>(player_info.powerup_flags, TXT_QUAD_LASERS, player_hit_quadlaser_powerup());
+			used = player_hit_powerup<PLAYER_FLAGS_QUAD_LASERS>(player_info, TXT_QUAD_LASERS, player_hit_quadlaser_powerup());
 			break;
 
 		case	POW_VULCAN_WEAPON:
@@ -662,11 +662,11 @@ int do_powerup(const vobjptridx_t obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case POW_FULL_MAP:
-			used = player_hit_powerup<PLAYER_FLAGS_MAP_ALL>(player_info.powerup_flags, "the FULL MAP", player_hit_silent_rb_powerup("FULL MAP!"));
+			used = player_hit_powerup<PLAYER_FLAGS_MAP_ALL>(player_info, "the FULL MAP", player_hit_silent_rb_powerup("FULL MAP!"));
 			break;
 
 		case POW_CONVERTER:
-			used = player_hit_powerup<PLAYER_FLAGS_CONVERTER>(player_info.powerup_flags, "the Converter", player_hit_silent_rb_powerup("Energy -> shield converter!"));
+			used = player_hit_powerup<PLAYER_FLAGS_CONVERTER>(player_info, "the Converter", player_hit_silent_rb_powerup("Energy -> shield converter!"));
 			break;
 
 		case POW_SUPER_LASER:
@@ -693,15 +693,15 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case POW_AMMO_RACK:
-			used = player_hit_powerup<PLAYER_FLAGS_AMMO_RACK>(player_info.powerup_flags, "the Ammo rack", player_hit_basic_sound_powerup<15, 0, 15, POW_AMMO_RACK>("AMMO RACK!"));
+			used = player_hit_powerup<PLAYER_FLAGS_AMMO_RACK>(player_info, "the Ammo rack", player_hit_basic_sound_powerup<15, 0, 15, POW_AMMO_RACK>("AMMO RACK!"));
 			break;
 
 		case POW_AFTERBURNER:
-			used = player_hit_powerup<PLAYER_FLAGS_AFTERBURNER>(player_info.powerup_flags, "the Afterburner", player_hit_afterburner_powerup("AFTERBURNER!"));
+			used = player_hit_powerup<PLAYER_FLAGS_AFTERBURNER>(player_info, "the Afterburner", player_hit_afterburner_powerup("AFTERBURNER!"));
 			break;
 
 		case POW_HEADLIGHT:
-			used = player_hit_powerup<PLAYER_FLAGS_HEADLIGHT>(player_info.powerup_flags, "the Headlight boost", player_hit_headlight_powerup());
+			used = player_hit_powerup<PLAYER_FLAGS_HEADLIGHT>(player_info, "the Headlight boost", player_hit_headlight_powerup());
 			break;
 
 		case POW_FLAG_BLUE:
