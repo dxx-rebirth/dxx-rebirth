@@ -306,7 +306,7 @@ static inline void _gr_set_current_canvas_inline(grs_canvas *canv)
 static inline void gr_set_current_canvas(grs_canvas *canv)
 {
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (__builtin_constant_p(!canv))
+	if (dxx_builtin_constant_p(!canv))
 		_gr_set_current_canvas_inline(canv);
 	else
 #endif

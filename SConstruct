@@ -1157,6 +1157,7 @@ gcc-4.8.
 		if Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{16,32,64} functions', successflags=_successflags_bswap16) or \
 			Compile(context, text=include, main=_main, msg='whether compiler implements __builtin_bswap{32,64} functions', successflags=_successflags_bswap):
 			return
+	implicit_tests.append(_implicit_test.RecordedTest('check_optimize_builtin_constant_p', "assume compiler optimizes __builtin_constant_p"))
 	@_custom_test
 	def check_builtin_constant_p(self,context):
 		"""
@@ -1184,7 +1185,7 @@ static int a(int b){
 '''
 		main = 'return a(1) + a(2)'
 		Define = context.sconf.Define
-		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p'):
+		if self.Link(context, text=f % 'c(b)', main=main, msg='whether compiler optimizes __builtin_constant_p', calling_function='optimize_builtin_constant_p'):
 			Define('DXX_HAVE_BUILTIN_CONSTANT_P')
 			Define('DXX_CONSTANT_TRUE(E)', '(__builtin_constant_p((E)) && (E))')
 			dxx_builtin_constant_p = '__builtin_constant_p(A)'

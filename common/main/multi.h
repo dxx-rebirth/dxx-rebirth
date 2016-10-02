@@ -506,7 +506,7 @@ void multi_send_endlevel_start();
 static inline void multi_send_endlevel_start(bool secret)
 {
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (!__builtin_constant_p(secret) || secret)
+	if (!dxx_builtin_constant_p(!!secret) || secret)
 		DXX_ALWAYS_ERROR_FUNCTION(multi_send_endlevel_start_with_secret, "secret not supported in Descent II");
 #endif
 	(void)secret;
