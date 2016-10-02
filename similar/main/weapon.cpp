@@ -272,6 +272,7 @@ class cycle_primary_state : public cycle_weapon_state
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info &pl_info = get_local_plrobj().ctype.player_info;
 #endif
+	using weapon_index_type = primary_weapon_index_t;
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Primary";
@@ -288,13 +289,17 @@ public:
 	{
 		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
 	}
-	bool maybe_select_weapon_by_type(uint_fast32_t desired_weapon) const
+	bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx) const
 	{
+		weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
 #if defined(DXX_BUILD_DESCENT_II)
 		// some remapping for SUPER LASER which is not an actual weapon type at all
-		if (desired_weapon == primary_weapon_index_t::LASER_INDEX && pl_info.laser_level > MAX_LASER_LEVEL)
-			return false;
-		if (desired_weapon == primary_weapon_index_t::SUPER_LASER_INDEX)
+		if (desired_weapon == primary_weapon_index_t::LASER_INDEX)
+		{
+			if (pl_info.laser_level > MAX_LASER_LEVEL)
+				return false;
+		}
+		else if (desired_weapon == primary_weapon_index_t::SUPER_LASER_INDEX)
 		{
 			if (pl_info.laser_level <= MAX_LASER_LEVEL)
 				return false;
@@ -320,6 +325,7 @@ public:
 
 class cycle_secondary_state : public cycle_weapon_state
 {
+	using weapon_index_type = secondary_weapon_index_t;
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Secondary";
@@ -336,8 +342,9 @@ public:
 	{
 		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
 	}
-	static bool maybe_select_weapon_by_type(uint_fast32_t desired_weapon)
+	static bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx)
 	{
+		const weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
 		if (!player_has_secondary_weapon(desired_weapon).has_all())
 			return false;
 		select_secondary_weapon(SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
