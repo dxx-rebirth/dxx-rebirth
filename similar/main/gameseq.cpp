@@ -377,7 +377,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 		powerup_flags &= ~(PLAYER_FLAGS_MAP_ALL);
 #endif
 
-		DXX_MAKE_VAR_UNDEFINED(get_local_player_cloak_time());
+		DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 		DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 
 		const auto all_keys = PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY;
@@ -1228,7 +1228,7 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime)
 	{
 		fix	time_used;
 
-		auto &t = get_local_player_cloak_time();
+		auto &t = player_info.cloak_time;
 		time_used = old_gametime - t;
 		t = GameTime64 - time_used;
 	}

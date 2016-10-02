@@ -2050,10 +2050,11 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 
+	const auto &player_info = get_local_plrobj().ctype.player_info;
 	if (cloak_state)
 	{
 		static int step = 0;
-		const auto cloak_time = get_local_player_cloak_time();
+		const auto cloak_time = player_info.cloak_time;
 
 		if (GameTime64 - cloak_time < F1_0)
 		{
@@ -2107,7 +2108,7 @@ static void draw_player_ship(int cloak_state,int x, int y, const local_multires_
 
         // Show Cloak Timer if enabled
 	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
-		show_cockpit_cloak_invul_timer(get_local_player_cloak_time() + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(y + (bm.bm_h / 2)));
+		show_cockpit_cloak_invul_timer(player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(y + (bm.bm_h / 2)));
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame

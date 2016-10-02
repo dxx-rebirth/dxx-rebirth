@@ -627,7 +627,7 @@ int do_powerup(const vobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
-				get_local_player_cloak_time() = GameTime64;	//	Not! changed by awareness events (like player fires laser).
+				player_info.cloak_time = GameTime64;	//	Not! changed by awareness events (like player fires laser).
 				get_local_player_flags() |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				if (Game_mode & GM_MULTI)

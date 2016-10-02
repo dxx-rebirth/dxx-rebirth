@@ -1279,13 +1279,14 @@ static window_event_result HandleTestKey(int key)
 			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			auto &pl_flags = get_local_player_flags();
 			pl_flags ^= PLAYER_FLAGS_CLOAKED;
 			if (pl_flags & PLAYER_FLAGS_CLOAKED) {
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
 				ai_do_cloak_stuff();
-				get_local_player_cloak_time() = GameTime64;
+				player_info.cloak_time = GameTime64;
 			}
 			break;
 		}
@@ -1624,6 +1625,7 @@ static window_event_result FinalCheats()
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::cloak)
 	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &pl_flags = get_local_player_flags();
 		pl_flags ^= PLAYER_FLAGS_CLOAKED;
 		const auto have_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
@@ -1631,7 +1633,7 @@ static window_event_result FinalCheats()
 		if (have_cloaked)
 		{
 			ai_do_cloak_stuff();
-			get_local_player_cloak_time() = GameTime64;
+			player_info.cloak_time = GameTime64;
 		}
 	}
 
