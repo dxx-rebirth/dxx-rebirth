@@ -239,12 +239,10 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, int 
 		}
 	return return_value;
 }
-}
 
-has_weapon_result player_has_secondary_weapon(int weapon_num)
+has_weapon_result player_has_secondary_weapon(const player_info &player_info, int weapon_num)
 {
 	int	return_value = 0;
-	const auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 	if (secondary_ammo && Weapon_info[weapon_index].ammo_usage <= secondary_ammo)
@@ -252,7 +250,6 @@ has_weapon_result player_has_secondary_weapon(int weapon_num)
 	return return_value;
 }
 
-namespace dsx {
 void InitWeaponOrdering ()
  {
   // short routine to setup default weapon priorities for new pilots
@@ -333,7 +330,12 @@ public:
 class cycle_secondary_state : public cycle_weapon_state
 {
 	using weapon_index_type = secondary_weapon_index_t;
+	player_info &pl_info;
 public:
+	cycle_secondary_state(player_info &p) :
+		pl_info(p)
+	{
+	}
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_SECONDARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Secondary";
 	static constexpr char error_weapon_list_corrupt[] = "secondary weapon list corrupt";
@@ -345,14 +347,14 @@ public:
 	{
 		return PlayerCfg.SecondaryOrder[cur_order_slot];
 	}
-	static bool maybe_select_weapon_by_order_slot(uint_fast32_t cur_order_slot)
+	bool maybe_select_weapon_by_order_slot(uint_fast32_t cur_order_slot)
 	{
 		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
 	}
-	static bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx)
+	bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx)
 	{
 		const weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
-		if (!player_has_secondary_weapon(desired_weapon).has_all())
+		if (!player_has_secondary_weapon(pl_info, desired_weapon).has_all())
 			return false;
 		select_secondary_weapon(SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
@@ -424,7 +426,7 @@ void CyclePrimary ()
 void CycleSecondary ()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	CycleWeapon<cycle_secondary_state>({}, player_info.Secondary_weapon);
+	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);
 }
 
 
@@ -549,7 +551,8 @@ static bool reject_unusable_primary_weapon_select(const uint_fast32_t weapon_num
 
 static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
-	const auto weapon_status = player_has_secondary_weapon(weapon_num);
+	const auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	if (weapon_status.has_all())
 		return false;
 	HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
@@ -644,8 +647,8 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 	ubyte	last_was_super;
 	has_weapon_result weapon_status;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		current = player_info.Secondary_weapon;
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		last_was_super = Secondary_last_was_super[weapon_num];
@@ -657,7 +660,7 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 		//already have this selected, so toggle to other of normal/super version
 
 		weapon_num += weapon_num+SUPER_WEAPON - current;
-		weapon_status = player_has_secondary_weapon(weapon_num);
+		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	}
 	else {
 		const auto weapon_num_save = weapon_num;
@@ -667,13 +670,13 @@ void do_secondary_weapon_select(uint_fast32_t weapon_num)
 		if (last_was_super)
 			weapon_num += SUPER_WEAPON;
 
-		weapon_status = player_has_secondary_weapon(weapon_num);
+		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 
 		//if don't have last-selected, try other version
 
 		if ((weapon_status.flags() & has_flag) != has_flag) {
 			weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
-			weapon_status = player_has_secondary_weapon(weapon_num);
+			weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 			if ((weapon_status.flags() & has_flag) != has_flag)
 				weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
 		}
@@ -722,8 +725,8 @@ void auto_select_primary_weapon(player_info &player_info)
 
 void auto_select_secondary_weapon(player_info &player_info)
 {
-	if (!player_has_secondary_weapon(player_info.Secondary_weapon).has_all())
-			auto_select_weapon<cycle_secondary_state>({});
+	if (!player_has_secondary_weapon(player_info, player_info.Secondary_weapon).has_all())
+		auto_select_weapon(cycle_secondary_state(player_info));
 }
 
 void delayed_autoselect(player_info &player_info)
@@ -748,7 +751,7 @@ void delayed_autoselect(player_info &player_info)
 		const auto delayed_secondary = Secondary_weapon.get_delayed();
 		if (delayed_secondary != secondary_weapon)
 		{
-			if (player_has_secondary_weapon(delayed_secondary).has_all())
+			if (player_has_secondary_weapon(player_info, delayed_secondary).has_all())
 				select_secondary_weapon(nullptr, delayed_secondary, 1);
 			else
 				Secondary_weapon.set_delayed(secondary_weapon);

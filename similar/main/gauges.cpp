@@ -2715,7 +2715,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	auto &Primary_weapon = player_info.Primary_weapon;
 	primary_bm_num = (laser_ready && player_has_primary_weapon(player_info, Primary_weapon).has_all());
 	auto &Secondary_weapon = player_info.Secondary_weapon;
-	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
+	secondary_bm_num = (missile_ready && player_has_secondary_weapon(player_info, Secondary_weapon).has_all());
 
 	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
