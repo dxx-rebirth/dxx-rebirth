@@ -274,9 +274,13 @@ public:
 
 class cycle_primary_state : public cycle_weapon_state
 {
-	player_info &pl_info = get_local_plrobj().ctype.player_info;
 	using weapon_index_type = primary_weapon_index_t;
+	player_info &pl_info;
 public:
+	cycle_primary_state(player_info &p) :
+		pl_info(p)
+	{
+	}
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
 	static constexpr char reorder_title[] = "Reorder Primary";
 	static constexpr char error_weapon_list_corrupt[] = "primary weapon list corrupt";
@@ -414,7 +418,7 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 void CyclePrimary ()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	CycleWeapon<cycle_primary_state>({}, get_mapped_weapon_index(player_info, player_info.Primary_weapon));
+	CycleWeapon(cycle_primary_state(player_info), get_mapped_weapon_index(player_info, player_info.Primary_weapon));
 }
 
 void CycleSecondary ()
@@ -713,7 +717,7 @@ namespace dsx {
 void auto_select_primary_weapon(player_info &player_info)
 {
 	if (!player_has_primary_weapon(player_info, player_info.Primary_weapon).has_all())
-			auto_select_weapon<cycle_primary_state>({});
+		auto_select_weapon(cycle_primary_state(player_info));
 }
 
 void auto_select_secondary_weapon(player_info &player_info)
