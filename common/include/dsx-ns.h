@@ -49,7 +49,18 @@ namespace dsx {	/* Force type mismatch on attempted nesting */
 	class dsx;	/* dsx declared inside dsx */
 #	endif
 }
+#ifndef DXX_NO_USING_DSX
+/* For compatibility during migration, add namespace dsx to the search
+ * list.  This conflicts with the long term goal of the dsx project, but
+ * is currently required for a successful build.
+ *
+ * When working on the dsx project, define this preprocessor symbol on a
+ * file, then fix everything that breaks with that symbol defined.  Move
+ * on to the next file.  When all files build with this symbol set, the
+ * symbol and the using statement can be removed.
+ */
 using namespace dsx;	// deprecated
+#endif
 #else
 /* This dummy class does not need to be guarded by
  * DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE because it is declared only
