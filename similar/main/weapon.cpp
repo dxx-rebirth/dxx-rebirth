@@ -753,11 +753,8 @@ void delayed_autoselect(player_info &player_info)
 	}
 }
 
-}
-
-static void maybe_autoselect_primary_weapon(int weapon_index)
+static void maybe_autoselect_primary_weapon(player_info &player_info, int weapon_index)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto want_switch = [weapon_index, &player_info]{
 		const auto cutpoint = POrderList(255);
 		const auto weapon_order = POrderList(weapon_index);
@@ -779,7 +776,6 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
-namespace dsx {
 int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 {
 	int	num_picked_up;
@@ -908,7 +904,7 @@ int pick_up_primary(player_info &player_info, int weapon_index)
 
 	player_info.primary_weapon_flags |= flag;
 
-	maybe_autoselect_primary_weapon(weapon_index);
+	maybe_autoselect_primary_weapon(player_info, weapon_index);
 
 	PALETTE_FLASH_ADD(7,14,21);
 
@@ -974,7 +970,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	if (better >= POrderList(get_mapped_weapon_index(player_info, player_info.Primary_weapon)))
 		/* Preferred weapon is not as desirable as the current weapon */
 		return;
-	maybe_autoselect_primary_weapon(weapon_index);
+	maybe_autoselect_primary_weapon(player_info, weapon_index);
 }
 
 //called when ammo (for the vulcan cannon) is picked up
