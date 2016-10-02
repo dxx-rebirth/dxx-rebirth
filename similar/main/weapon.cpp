@@ -119,7 +119,6 @@ weapon_info_array Weapon_info;
 namespace dcx {
 unsigned N_weapon_types;
 }
-static sbyte Delayed_secondary;
 
 // autoselect ordering
 
@@ -500,7 +499,7 @@ void select_secondary_weapon(const char *const weapon_name, const uint_fast32_t 
 			}
 
 		}
-		Delayed_secondary = Secondary_weapon = weapon_num;
+		Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		auto &Secondary_last_was_super = plrobj.ctype.player_info.Secondary_last_was_super;
@@ -738,14 +737,15 @@ void delayed_autoselect(player_info &player_info)
 	}
 	if (!Controls.state.fire_secondary)
 	{
-		const auto secondary_weapon = player_info.Secondary_weapon;
-		const auto delayed_secondary = Delayed_secondary;
+		auto &Secondary_weapon = player_info.Secondary_weapon;
+		const auto secondary_weapon = Secondary_weapon.get_active();
+		const auto delayed_secondary = Secondary_weapon.get_delayed();
 		if (delayed_secondary != secondary_weapon)
 		{
 			if (player_has_secondary_weapon(delayed_secondary).has_all())
 				select_secondary_weapon(nullptr, delayed_secondary, 1);
 			else
-				Delayed_secondary = secondary_weapon;
+				Secondary_weapon.set_delayed(secondary_weapon);
 		}
 	}
 }
@@ -801,10 +801,11 @@ int pick_up_secondary(int weapon_index,int count)
 	if (secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		const auto weapon_order = SOrderList(weapon_index);
-		const auto want_switch = [weapon_index, weapon_order, &secondary_ammo]{
+		auto &Secondary_weapon = player_info.Secondary_weapon;
+		const auto want_switch = [weapon_index, weapon_order, &secondary_ammo, &Secondary_weapon]{
 			return weapon_order < SOrderList(255) && (
-				secondary_ammo[Delayed_secondary] == 0 ||
-				weapon_order < SOrderList(Delayed_secondary)
+				secondary_ammo[Secondary_weapon.get_delayed()] == 0 ||
+				weapon_order < SOrderList(Secondary_weapon.get_delayed())
 				);
 		};
 		if (Controls.state.fire_secondary && PlayerCfg.NoFireAutoselect != FiringAutoselectMode::Immediate)
@@ -812,7 +813,7 @@ int pick_up_secondary(int weapon_index,int count)
 			if (PlayerCfg.NoFireAutoselect == FiringAutoselectMode::Delayed)
 			{
 				if (want_switch())
-					Delayed_secondary = weapon_index;
+					Secondary_weapon.set_delayed(static_cast<secondary_weapon_index_t>(weapon_index));
 			}
 		}
 		else if (want_switch())

@@ -1858,7 +1858,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
 	auto &Secondary_weapon = player_info.Secondary_weapon;
-	nd_read_byte(&Secondary_weapon);
+	{
+		int8_t v;
+		nd_read_byte(&v);
+		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
+	}
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_byte(Primary_weapon);
@@ -1877,8 +1881,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			auto flags = player_info.powerup_flags.get_player_flags();
 			energy = shield;
 			shield = static_cast<uint8_t>(flags);
-			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon);
-			Secondary_weapon = c;
+			Primary_weapon = static_cast<primary_weapon_index_t>(static_cast<uint8_t>(Secondary_weapon));
+			Secondary_weapon = static_cast<secondary_weapon_index_t>(c);
 		} else
 			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);
 	}
@@ -2534,7 +2538,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (weapon_type == 0)
 				player_info.Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 			else
-				player_info.Secondary_weapon = static_cast<int>(weapon_num);
+				player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 
 			break;
 		}
@@ -2558,12 +2562,12 @@ static int newdemo_read_frame_information(int rewrite)
 				if (weapon_type == 0)
 					player_info.Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 				else
-					player_info.Secondary_weapon = static_cast<int>(weapon_num);
+					player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (weapon_type == 0)
 					player_info.Primary_weapon = static_cast<primary_weapon_index_t>(old_weapon);
 				else
-					player_info.Secondary_weapon = static_cast<int>(old_weapon);
+					player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(old_weapon);
 			}
 			break;
 		}

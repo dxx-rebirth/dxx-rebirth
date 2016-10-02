@@ -1002,7 +1002,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 		int8_t v = static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon));
 		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
 	}
-	PHYSFS_write(fp, &player_info.Secondary_weapon, sizeof(sbyte), 1);
+	{
+		int8_t v = static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon));
+		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
+	}
 
 // Save the difficulty level
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
@@ -1509,7 +1512,11 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
 	auto &Secondary_weapon = player_info.Secondary_weapon;
-	PHYSFS_read(fp, &Secondary_weapon, sizeof(sbyte), 1);
+	{
+		int8_t v;
+		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
+		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
+	}
 
 	select_primary_weapon(nullptr, Primary_weapon, 0);
 	select_secondary_weapon(nullptr, Secondary_weapon, 0);
