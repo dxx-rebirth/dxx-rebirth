@@ -2826,7 +2826,7 @@ void init_ai_frame(void)
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-static void make_nearby_robot_snipe(void)
+static void make_nearby_robot_snipe(const player_flags powerup_flags)
 {
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
@@ -2834,7 +2834,6 @@ static void make_nearby_robot_snipe(void)
 	 * open.  However, passing powerup_flags here maintains the
 	 * semantics that past versions used.
 	 */
-	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
 	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
@@ -3414,7 +3413,8 @@ _exit_cheat:
 				if (ailp->next_action_time < 0) {
 					compute_vis_and_vec(obj, player_info.powerup_flags, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 					if (player_visibility) {
-						make_nearby_robot_snipe();
+						const auto powerup_flags = player_info.powerup_flags;
+						make_nearby_robot_snipe(powerup_flags);
 						ailp->next_action_time = (NDL - Difficulty_level) * 2*F1_0;
 					}
 				}
