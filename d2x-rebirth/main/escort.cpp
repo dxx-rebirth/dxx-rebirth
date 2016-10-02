@@ -1185,7 +1185,7 @@ void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to recreate thief in.
-static segnum_t choose_thief_recreation_segment()
+static segnum_t choose_thief_recreation_segment(const vcsegidx_t plrseg)
 {
 	segnum_t	segnum = segment_none;
 	int	cur_drop_depth;
@@ -1193,7 +1193,7 @@ static segnum_t choose_thief_recreation_segment()
 	cur_drop_depth = THIEF_DEPTH;
 
 	while ((segnum == segment_none) && (cur_drop_depth > THIEF_DEPTH/2)) {
-		segnum = pick_connected_segment(get_local_plrobj().segnum, cur_drop_depth);
+		segnum = pick_connected_segment(plrseg, cur_drop_depth);
 		if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 			segnum = segment_none;
 		cur_drop_depth--;
@@ -1211,7 +1211,7 @@ static fix64	Re_init_thief_time = 0x3f000000;
 //	----------------------------------------------------------------------
 void recreate_thief(const uint8_t thief_id)
 {
-	const auto segnum = choose_thief_recreation_segment();
+	const auto segnum = choose_thief_recreation_segment(ConsoleObject->segnum);
 	const auto &&segp = vsegptridx(segnum);
 	const auto &&center_point = compute_segment_center(segp);
 
