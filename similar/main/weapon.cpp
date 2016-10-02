@@ -423,16 +423,14 @@ void CyclePrimary ()
 	CycleWeapon(cycle_primary_state(player_info), get_mapped_weapon_index(player_info, player_info.Primary_weapon));
 }
 
-void CycleSecondary ()
+namespace dsx {
+void CycleSecondary(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);
 }
 
-
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
-namespace dsx {
 void select_primary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )

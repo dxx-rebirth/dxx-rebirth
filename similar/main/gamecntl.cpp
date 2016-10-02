@@ -260,7 +260,7 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.cycle_secondary > 0)
 	{
 		for (uint_fast32_t i = exchange(Controls.state.cycle_secondary, 0); i--;)
-			CycleSecondary ();
+			CycleSecondary(player_info);
 	}
 	if (Controls.state.select_weapon > 0)
 	{
