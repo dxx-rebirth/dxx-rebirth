@@ -355,18 +355,17 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 	}
 }
 
-static void DropMarker (int player_marker_num)
+static void DropMarker(const object &plrobj, const unsigned player_marker_num)
 {
 	int marker_num = (Player_num*2)+player_marker_num;
 
 	if (MarkerObject[marker_num] != object_none)
 		obj_delete(vobjptridx(MarkerObject[marker_num]));
 
-	const auto &playerp = get_local_plrobj();
-	MarkerObject[marker_num] = drop_marker_object(playerp.pos, vsegptridx(playerp.segnum), playerp.orient, marker_num);
+	MarkerObject[marker_num] = drop_marker_object(plrobj.pos, vsegptridx(plrobj.segnum), plrobj.orient, marker_num);
 
 	if (Game_mode & GM_MULTI)
-		multi_send_drop_marker(Player_num, playerp.pos, player_marker_num, MarkerMessage[marker_num]);
+		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerMessage[marker_num]);
 }
 
 void DropBuddyMarker(const vobjptr_t objp)
@@ -1514,7 +1513,7 @@ window_event_result MarkerInputMessage(int key)
 			break;
 		case KEY_ENTER:
 			MarkerMessage[(Player_num*2)+MarkerBeingDefined] = Marker_input;
-			DropMarker(MarkerBeingDefined);
+			DropMarker(get_local_plrobj(), MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
 			/* fallthrough */
 		case KEY_F8:
