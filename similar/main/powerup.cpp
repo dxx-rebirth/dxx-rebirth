@@ -226,14 +226,14 @@ static int pick_up_primary_or_energy(int weapon_index)
 
 }
 
-static int pick_up_vulcan_ammo(void)
+static int pick_up_vulcan_ammo(player_info &player_info)
 {
 	int	used=0;
 	if (pick_up_vulcan_ammo(VULCAN_AMMO_AMOUNT, false)) {
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
-		const auto max = PLAYER_MAX_AMMO(get_local_plrobj().ctype.player_info.powerup_flags, VULCAN_AMMO_MAX);
+		const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, VULCAN_AMMO_MAX);
 		HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %d %s!", TXT_ALREADY_HAVE, vulcan_ammo_scale(max), TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
@@ -508,7 +508,7 @@ int do_powerup(const vobjptridx_t obj)
 
 			if (!used && !(Game_mode & GM_MULTI) )
 //end addition/edit - Victor Rachels
-				used = pick_up_vulcan_ammo();
+				used = pick_up_vulcan_ammo(player_info);
 			break;
 #elif defined(DXX_BUILD_DESCENT_II)
 		case	POW_GAUSS_WEAPON: {
@@ -610,10 +610,10 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 #endif
 		case	POW_VULCAN_AMMO:
-			used = pick_up_vulcan_ammo();
+			used = pick_up_vulcan_ammo(player_info);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_vulcan_ammo();
+				used = pick_up_vulcan_ammo(player_info);
 #endif
 			break;
 		case	POW_HOMING_AMMO_1:
