@@ -269,7 +269,7 @@ static void do_weapon_n_item_stuff()
 		if (select_weapon > 4)
 			do_secondary_weapon_select(player_info, weapon_num);
 		else
-			do_primary_weapon_select(weapon_num);
+			do_primary_weapon_select(player_info, weapon_num);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (auto &headlight = Controls.state.headlight)

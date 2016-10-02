@@ -560,9 +560,8 @@ static bool reject_unusable_secondary_weapon_select(const player_info &player_in
 //	------------------------------------------------------------------------------------
 //	Select a weapon, primary or secondary.
 namespace dsx {
-void do_primary_weapon_select(uint_fast32_t weapon_num)
+void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
