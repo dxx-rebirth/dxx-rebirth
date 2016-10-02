@@ -95,18 +95,20 @@ Textures_array Textures;		// All textures.
 //for each model, a model number for dying & dead variants, or -1 if none
 array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
 TmapInfo_array TmapInfo;
+array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 }
 
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
+namespace dcx {
 player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
 unsigned Num_cockpits;
-array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
+unsigned Num_tmaps;
+}
 
 //---------------- Variables for wall textures ------------------
-unsigned             Num_tmaps;
 
 //---------------- Variables for object textures ----------------
 

@@ -84,6 +84,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 };
 }
 
+namespace dcx {
 extern int Num_object_types;
 
 struct player_ship;
@@ -92,24 +93,20 @@ struct player_ship;
 extern struct player_ship only_player_ship;
 constexpr struct player_ship *Player_ship = &only_player_ship;
 extern unsigned Num_cockpits;
-extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
+extern unsigned Num_tmaps;
+}
+
 namespace dsx {
+extern array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 #if DXX_USE_EDITOR
 using tmap_xlate_table_array = array<short, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
 #endif
 using TmapInfo_array = array<tmap_info, MAX_TEXTURES>;
 extern TmapInfo_array TmapInfo;
-}
-
-extern unsigned Num_tmaps;
-
 // Initializes the palette, bitmap system...
-#ifdef dsx
-namespace dsx {
 void gamedata_close();
 }
-#endif
 int gamedata_init();
 void bm_close();
 

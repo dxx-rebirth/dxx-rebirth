@@ -269,47 +269,50 @@ public:
 		return m_result == (has_weapon_flag | has_energy_flag | has_ammo_flag);
 	}
 };
-#endif
 
+namespace dsx {
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)
-static inline int which_bomb(void)
+
+static constexpr int which_bomb()
 {
 	return PROXIMITY_INDEX;
 }
 
-static inline int weapon_index_uses_vulcan_ammo(unsigned id)
+static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
 {
 	return id == primary_weapon_index_t::VULCAN_INDEX;
 }
 
-static inline int weapon_index_is_player_bomb(unsigned id)
+static constexpr int weapon_index_is_player_bomb(const unsigned id)
 {
 	return id == PROXIMITY_INDEX;
 }
 
 //multiply ammo by this before displaying
-static inline unsigned vulcan_ammo_scale(unsigned v)
+static constexpr unsigned vulcan_ammo_scale(const unsigned v)
 {
 	return (v * 0xcc180u) >> 16;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 int which_bomb(void);
 
-static inline int weapon_index_uses_vulcan_ammo(unsigned id)
+static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
 {
 	return id == primary_weapon_index_t::VULCAN_INDEX || id == primary_weapon_index_t::GAUSS_INDEX;
 }
 
-static inline int weapon_index_is_player_bomb(unsigned id)
+static constexpr int weapon_index_is_player_bomb(const unsigned id)
 {
 	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
 }
 
 //multiply ammo by this before displaying
-static inline unsigned vulcan_ammo_scale(unsigned v)
+static constexpr unsigned vulcan_ammo_scale(const unsigned v)
 {
 	return (v * 0xcc163u) >> 16;
+}
+#endif
 }
 #endif
 

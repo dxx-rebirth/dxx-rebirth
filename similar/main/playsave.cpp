@@ -177,6 +177,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SAVE_FILE_ID MAKE_SIG('D','P','L','R')
 
 struct player_config PlayerCfg;
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static void plyr_read_stats();
 static array<saved_game_sw, N_SAVE_SLOTS> saved_games;
@@ -184,6 +185,7 @@ static array<saved_game_sw, N_SAVE_SLOTS> saved_games;
 static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
 #endif
+}
 
 template <std::size_t N>
 static void check_weapon_reorder(array<ubyte, N> &w)
@@ -534,7 +536,6 @@ static void read_player_dxx(const char *filename)
 		}
 	}
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr char effcode1[]="d1xrocks_SKCORX!D";
@@ -695,7 +696,6 @@ void plyr_save_stats()
 }
 #endif
 
-namespace dsx {
 static int write_player_dxx(const char *filename)
 {
 	int rc=0;
@@ -1348,7 +1348,6 @@ void write_player_file()
 	}
 #endif
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 static int get_lifetime_checksum (int a,int b)
@@ -1363,8 +1362,6 @@ static int get_lifetime_checksum (int a,int b)
   return (num);
 }
 #endif
-
-namespace dsx {
 
 template <uint_fast32_t shift, uint_fast32_t width>
 static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, const char *value)

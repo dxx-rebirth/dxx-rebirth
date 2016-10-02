@@ -369,6 +369,7 @@ extern array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
 }
 
+namespace dsx {
 class powerup_cap_state
 {
 	typedef uint8_t powerup_count_type;
@@ -448,8 +449,6 @@ public:
 	void reset_powerup_both(powerup_type_t type);
 	void clear();
 };
-
-namespace dsx {
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, objnum_t laser_track, objptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, int player);

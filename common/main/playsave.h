@@ -46,7 +46,9 @@ enum class MissileViewMode : uint8_t
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
 
+#ifdef dsx
 #if defined(DXX_BUILD_DESCENT_I)
+namespace dsx {
 // NOTE: Obsolete structure - only kept for compability of shareware plr file
 struct saved_game_sw
 {
@@ -62,6 +64,8 @@ struct saved_game_sw
 } __pack__;
 
 void plyr_save_stats();
+}
+#endif
 #endif
 
 struct hli

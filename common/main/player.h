@@ -81,6 +81,8 @@ struct player : public prohibit_void_ptr<player>
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 };
 
+namespace dsx {
+
 // Same as above but structure how Savegames expect
 struct player_rw
 {
@@ -155,8 +157,12 @@ static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
 
+}
+
 #define get_local_player()	(Players[Player_num])
 #define get_local_plrobj()	(*vobjptr(get_local_player().objnum))
+
+namespace dcx {
 
 struct player_ship
 {
@@ -168,6 +174,9 @@ struct player_ship
 	fix     max_rotthrust;
 	array<vms_vector, N_PLAYER_GUNS> gun_points;
 };
+
+}
+
 #endif
 
 #endif

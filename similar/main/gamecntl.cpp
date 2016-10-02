@@ -199,6 +199,7 @@ static void update_vcr_state(void)
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
 }
 
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 //returns which bomb will be dropped next time the bomb key is pressed
 int which_bomb()
@@ -231,7 +232,6 @@ int which_bomb()
 }
 #endif
 
-namespace dsx {
 static void do_weapon_n_item_stuff()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;

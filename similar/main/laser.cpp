@@ -63,8 +63,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 array<object *, MAX_PLAYERS> Guided_missile;
 array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
+}
 #endif
 objnum_t Network_laser_track = object_none;
 #ifdef NEWHOMER

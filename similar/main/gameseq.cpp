@@ -165,9 +165,8 @@ public:
 
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
-}
-namespace dsx {
 static void StartLevel(int random_flag);
+array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 }
 static void copy_defaults_to_robot_all(void);
 
@@ -182,7 +181,6 @@ PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 }
-array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
 namespace dcx {
 fix StartingShields=INITIAL_SHIELDS;
 array<obj_position, MAX_PLAYERS> Player_init;

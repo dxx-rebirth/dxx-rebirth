@@ -67,9 +67,9 @@ struct callsign_t;
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
 
+namespace dcx {
 struct player_ship;
 
-namespace dcx {
 typedef unsigned playernum_t;
 typedef array<playernum_t, MAX_PLAYERS> playernum_array_t;
 
@@ -77,24 +77,23 @@ extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 struct player;
+namespace dsx {
 struct player_rw;
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	0
+constexpr unsigned DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	4
+constexpr unsigned DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS = 4;
 #endif
 extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
-#ifdef dsx
-namespace dsx {
 void player_rw_swap(player_rw *p, int swap);
-
+#if defined(DXX_BUILD_DESCENT_II)
+extern array<object *, MAX_PLAYERS> Guided_missile;
+extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
+#endif
 }
 #endif
-extern array<object *, MAX_PLAYERS> Guided_missile;
-#endif
-extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
 
 /*
  * reads a player_ship structure from a PHYSFS_File
