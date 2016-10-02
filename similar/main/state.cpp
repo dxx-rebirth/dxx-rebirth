@@ -1518,7 +1518,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
 	}
 
-	select_primary_weapon(nullptr, Primary_weapon, 0);
+	select_primary_weapon(pl_info, nullptr, Primary_weapon, 0);
 	select_secondary_weapon(nullptr, Secondary_weapon, 0);
 
 // Restore the difficulty level

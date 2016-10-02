@@ -313,13 +313,13 @@ public:
 #endif
 		if (!player_has_primary_weapon(pl_info, desired_weapon).has_all())
 			return false;
-		select_primary_weapon(PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
+		select_primary_weapon(pl_info, PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
 	}
-	static void abandon_auto_select()
+	void abandon_auto_select()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
-		select_primary_weapon(nullptr, 0, 1);
+		select_primary_weapon(pl_info, nullptr, 0, 1);
 	}
 	static const char *get_weapon_name(uint8_t i)
 	{
@@ -433,13 +433,12 @@ void CycleSecondary ()
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
 namespace dsx {
-void select_primary_weapon(const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
+void select_primary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_weapon(0, weapon_num);
 
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Primary_weapon = player_info.Primary_weapon;
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
@@ -472,7 +471,7 @@ void select_primary_weapon(const char *const weapon_name, const uint_fast32_t we
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::LASER_INDEX)
-			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, get_local_plrobj().ctype.player_info.laser_level+1, TXT_SELECTED);
+			HUD_init_message(HM_DEFAULT, "%s Level %d %s", weapon_name, player_info.laser_level+1, TXT_SELECTED);
 		else
 #endif
 			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
@@ -565,6 +564,7 @@ static bool reject_unusable_secondary_weapon_select(const uint_fast32_t weapon_n
 namespace dsx {
 void do_primary_weapon_select(uint_fast32_t weapon_num)
 {
+	auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
@@ -577,7 +577,6 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 #elif defined(DXX_BUILD_DESCENT_II)
 	has_weapon_result weapon_status;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Primary_last_was_super = player_info.Primary_last_was_super;
 	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
@@ -625,7 +624,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 
 	//now actually select the weapon
 #endif
-	select_primary_weapon(weapon_name, weapon_num, 1);
+	select_primary_weapon(player_info, weapon_name, weapon_num, 1);
 }
 }
 
@@ -739,7 +738,7 @@ void delayed_autoselect(player_info &player_info)
 		if (delayed_primary != primary_weapon)
 		{
 			if (player_has_primary_weapon(player_info, delayed_primary).has_all())
-				select_primary_weapon(nullptr, delayed_primary, 1);
+				select_primary_weapon(player_info, nullptr, delayed_primary, 1);
 			else
 				Primary_weapon.set_delayed(primary_weapon);
 		}
@@ -778,7 +777,7 @@ static void maybe_autoselect_primary_weapon(int weapon_index)
 		}
 	}
 	else if (want_switch())
-		select_primary_weapon(nullptr, weapon_index, 1);
+		select_primary_weapon(player_info, nullptr, weapon_index, 1);
 }
 
 //	---------------------------------------------------------------------
@@ -937,7 +936,7 @@ void check_to_use_primary_super_laser()
 		if (pwi < POrderList(255) &&
 			pwi < POrderList(player_info.Primary_weapon))
 		{
-			select_primary_weapon(nullptr, primary_weapon_index_t::LASER_INDEX, 1);
+			select_primary_weapon(player_info, nullptr, primary_weapon_index_t::LASER_INDEX, 1);
 		}
 	}
 	PALETTE_FLASH_ADD(7,14,21);

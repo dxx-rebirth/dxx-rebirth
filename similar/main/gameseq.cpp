@@ -440,7 +440,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			player_info.invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			player_info.FakingInvul = 1;
 		}
-		select_primary_weapon(nullptr, [=]{
+		select_primary_weapon(player_info, nullptr, [=]{
 			range_for (auto i, PlayerCfg.PrimaryOrder)
 			{
 				if (i >= MAX_PRIMARY_WEAPONS)
