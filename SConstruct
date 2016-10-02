@@ -103,6 +103,24 @@ class ToolchainInformation(StaticSubprocess):
 		# printed for the linker.
 		tool = env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
 		return tool, _qcall(tool).out.strip()
+	@staticmethod
+	def show_partial_environ(env, f):
+		for v in (
+			'CXX',
+			'CPPDEFINES',
+			'CPPPATH',
+			'CPPFLAGS',
+			'CXXFLAGS',
+			'LIBS',
+			'LINKFLAGS',
+		):
+			f("%s: %r" % (v, env.get(v, None)))
+		penv = env['ENV']
+		for v in (
+			'CCACHE_PREFIX',
+			'DISTCC_HOSTS',
+		):
+			f("$%s: %r" % (v, penv.get(v, None)))
 
 class Git(StaticSubprocess):
 	# None when unset.  Result tuple once cached.
@@ -608,6 +626,7 @@ help:assume C++ compiler works
 %s
 #endif
 ''' % (_crc32(s), s)
+		ToolchainInformation.show_partial_environ(cenv, lambda s, _Display=context.Display, _msgprefix=self.msgprefix: _Display("%s:\t%s\n" % (_msgprefix, s)))
 		if use_ccache:
 			if use_distcc:
 				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
@@ -3522,6 +3541,7 @@ class DXXArchive(DXXCommon):
 		self.process_user_settings()
 		self.configure_environment()
 		self.create_special_target_nodes(self)
+		ToolchainInformation.show_partial_environ(self.env, lambda s, _message=message, _self=self: _message(self, s))
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
@@ -3804,6 +3824,7 @@ class DXXProgram(DXXCommon):
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
 		)
+		ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
 
 	def register_program(self):
 		exe_target = self.user_settings.program_name
@@ -4063,7 +4084,7 @@ def main(register_program):
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
 """ +	\
-		''.join(['%s.%d:\n%s' % (d.PROGRAM_NAME, d.program_instance, d.init(substenv)) for d in dxx])
+		''.join(['%s:\n%s' % (d.program_message_prefix, d.init(substenv)) for d in dxx])
 	)
 	if not dxx:
 		return
