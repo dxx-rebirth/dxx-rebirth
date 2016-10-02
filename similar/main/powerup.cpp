@@ -216,9 +216,8 @@ static int pick_up_energy(void)
 	return used;
 }
 
-static int pick_up_primary_or_energy(int weapon_index)
+static int pick_up_primary_or_energy(player_info &player_info, int weapon_index)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto used = pick_up_primary(player_info, weapon_index);
 	if (used || (Game_mode & GM_MULTI))
 		return used;
@@ -548,22 +547,22 @@ int do_powerup(const vobjptridx_t obj)
 #endif
 
 		case	POW_SPREADFIRE_WEAPON:
-			used = pick_up_primary_or_energy(primary_weapon_index_t::SPREADFIRE_INDEX);
+			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::SPREADFIRE_INDEX);
 			break;
 		case	POW_PLASMA_WEAPON:
-			used = pick_up_primary_or_energy(primary_weapon_index_t::PLASMA_INDEX);
+			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::PLASMA_INDEX);
 			break;
 		case	POW_FUSION_WEAPON:
-			used = pick_up_primary_or_energy(primary_weapon_index_t::FUSION_INDEX);
+			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::FUSION_INDEX);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case	POW_HELIX_WEAPON:
-			used = pick_up_primary_or_energy(primary_weapon_index_t::HELIX_INDEX);
+			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::HELIX_INDEX);
 			break;
 
 		case	POW_PHOENIX_WEAPON:
-			used = pick_up_primary_or_energy(primary_weapon_index_t::PHOENIX_INDEX);
+			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::PHOENIX_INDEX);
 			break;
 
 		case	POW_OMEGA_WEAPON:
