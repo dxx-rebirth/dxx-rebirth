@@ -533,9 +533,8 @@ static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const
 	return false;
 }
 
-static bool reject_unusable_primary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+static bool reject_unusable_primary_weapon_select(const player_info &player_info, const uint_fast32_t weapon_num, const char *const weapon_name)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	const char *prefix;
 	if (!weapon_status.has_weapon())
@@ -569,7 +568,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(weapon_num, weapon_name))
+	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(player_info, weapon_num, weapon_name))
 	{
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 		return;
