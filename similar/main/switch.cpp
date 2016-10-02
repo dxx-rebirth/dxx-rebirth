@@ -268,7 +268,7 @@ static void do_il_off(const trigger &t)
 	trigger_wall_op(t, vsegptridx, op);
 }
 
-int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
+int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int shot)
 {
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
@@ -279,9 +279,9 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)shot;
 	if (pnum == Player_num) {
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = plrobj.ctype.player_info;
 		if (trigger.flags & TRIGGER_SHIELD_DAMAGE) {
-			get_local_plrobj().shields -= trigger.value;
+			plrobj.shields -= trigger.value;
 		}
 
 		if (trigger.flags & TRIGGER_EXIT) {
@@ -341,7 +341,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
-				if (get_local_plrobj().shields < 0 ||
+				if (plrobj.shields < 0 ||
 					Player_dead_state != player_dead_state::no)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
@@ -369,7 +369,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 				break;
 
-			if (get_local_plrobj().shields < 0 ||
+			if (plrobj.shields < 0 ||
 				Player_dead_state != player_dead_state::no)
 				break;
 
@@ -510,7 +510,7 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 		if (trigger_num == trigger_none)
 			return;
 
-		if (check_trigger_sub(trigger_num, Player_num,shot))
+		if (check_trigger_sub(get_local_plrobj(), trigger_num, Player_num,shot))
 			return;
 
 #if defined(DXX_BUILD_DESCENT_I)

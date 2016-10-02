@@ -2268,7 +2268,7 @@ static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
 		Int3(); // Illegal trigger number in multiplayer
 		return;
 	}
-	check_trigger_sub(trigger, pnum,0);
+	check_trigger_sub(get_local_plrobj(), trigger, pnum,0);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
