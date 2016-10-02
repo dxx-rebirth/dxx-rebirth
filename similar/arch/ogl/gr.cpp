@@ -718,16 +718,18 @@ void gr_set_attributes(void)
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, CGameCfg.VSync);
+	int buffers, samples;
 	if (CGameCfg.Multisample)
 	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+		buffers = 1;
+		samples = 4;
 	}
 	else
 	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+		buffers = samples = 0;
 	}
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, buffers);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
 #endif
 	ogl_smash_texture_list_internal();
 	gr_remap_color_fonts();
