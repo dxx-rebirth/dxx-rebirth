@@ -13,7 +13,7 @@
 
 #include "player.h"
 #include "physfsx.h"
-
+#include "compiler-range_for.h"
 
 namespace dsx {
 void player_rw_swap(player_rw *p, int swap)
@@ -69,6 +69,6 @@ void player_ship_read(player_ship *ps, PHYSFS_File *fp)
 	ps->brakes = PHYSFSX_readFix(fp);
 	ps->wiggle = PHYSFSX_readFix(fp);
 	ps->max_rotthrust = PHYSFSX_readFix(fp);
-	for (int i = 0; i < N_PLAYER_GUNS; i++)
-		PHYSFSX_readVector(fp, ps->gun_points[i]);
+	range_for (auto &i, ps->gun_points)
+		PHYSFSX_readVector(fp, i);
 }
