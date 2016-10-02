@@ -2622,7 +2622,7 @@ void multi_send_player_deres(deres_type_t type)
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = static_cast<char>(player_info.laser_level);
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
+	auto &secondary_ammo = player_info.secondary_ammo;
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];
 	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
 	multibuf[count++] = secondary_ammo[SMART_INDEX];
@@ -3979,7 +3979,8 @@ void multi_send_orb_bonus (const playernum_t pnum)
 	Assert (game_mode_hoard());
 
 	multibuf[1]=pnum;
-	multibuf[2] = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	multibuf[2] = player_info.secondary_ammo[PROXIMITY_INDEX];
 
 	multi_send_data<MULTI_ORB_BONUS>(multibuf,3,2);
 	multi_do_orb_bonus (pnum, multibuf);
@@ -4159,7 +4160,8 @@ static void DropOrb ()
 	if (!game_mode_hoard())
 		Int3(); // How did we get here? Get Leighton!
 
-	auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
 	if (!proximity)
 	{
 		HUD_init_message_literal(HM_MULTI, "No orbs to drop!");
@@ -4846,7 +4848,7 @@ void multi_send_player_inventory(int priority)
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = static_cast<char>(player_info.laser_level);
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
+	auto &secondary_ammo = player_info.secondary_ammo;
 	multibuf[count++] = secondary_ammo[HOMING_INDEX];
 	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
 	multibuf[count++] = secondary_ammo[SMART_INDEX];

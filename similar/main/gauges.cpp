@@ -944,7 +944,8 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", get_local_player_secondary_ammo()[PROXIMITY_INDEX]);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
@@ -1053,8 +1054,9 @@ static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_a
 		return;
 #endif
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto bomb = which_bomb();
-	int count = get_local_player_secondary_ammo()[bomb];
+	int count = player_info.secondary_ammo[bomb];
 
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
 
@@ -1364,13 +1366,15 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx3 = fspacx(3);
 	const auto &&fspacy2 = FSPACY(2);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &secondary_ammo = player_info.secondary_ammo;
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
 			hud_set_secondary_weapon_fontcolor(i);
-			snprintf(weapon_str,sizeof(weapon_str),"%i",get_local_player_secondary_ammo()[i]);
+			snprintf(weapon_str, sizeof(weapon_str), "%i", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(weapon_str, &w, &h, nullptr);
 			if (vertical){
@@ -1395,7 +1399,6 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	}
 
 	{
-		auto &secondary_ammo = get_local_player_secondary_ammo();
 		for (uint_fast32_t ui = 10; ui -- != 5;)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);

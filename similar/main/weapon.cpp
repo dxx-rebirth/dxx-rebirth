@@ -240,7 +240,8 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 has_weapon_result player_has_secondary_weapon(int weapon_num)
 {
 	int	return_value = 0;
-	const auto secondary_ammo = get_local_player_secondary_ammo()[weapon_num];
+	const auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 	if (secondary_ammo && Weapon_info[weapon_index].ammo_usage <= secondary_ammo)
 		return_value = has_weapon_result::has_weapon_flag | has_weapon_result::has_energy_flag | has_weapon_result::has_ammo_flag;

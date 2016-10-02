@@ -1575,7 +1575,7 @@ static window_event_result FinalCheats()
 		}
 
 		get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
-		auto &secondary_ammo = get_local_player_secondary_ammo();
+		auto &secondary_ammo = player_info.secondary_ammo;
 		secondary_ammo = Secondary_ammo_max;
 
 		if (Piggy_hamfile_version < 3) // SHAREWARE

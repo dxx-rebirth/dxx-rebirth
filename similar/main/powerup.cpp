@@ -162,7 +162,7 @@ void do_megawow_powerup(int quantity)
 #endif
 	get_local_player_vulcan_ammo() = VULCAN_AMMO_MAX;
 
-	auto &secondary_ammo = get_local_player_secondary_ammo();
+	auto &secondary_ammo = player_info.secondary_ammo;
 	for (int i=0; i<3; i++)
 		secondary_ammo[i] = quantity;
 
@@ -711,7 +711,7 @@ int do_powerup(const vobjptridx_t obj)
 		case POW_HOARD_ORB:
 			if (game_mode_hoard())			
 			{
-				auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+				auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
 				if (proximity < 12) {
 					++ proximity;
 					powerup_basic(15, 0, 15, 0, "Orb!!!");

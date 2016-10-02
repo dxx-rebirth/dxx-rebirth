@@ -2299,7 +2299,7 @@ void do_missile_firing(int drop_bomb)
 
 	if (Player_dead_state != player_dead_state::no)
 		return;
-	if (auto &secondary_weapon_ammo = get_local_player_secondary_ammo()[weapon])
+	if (auto &secondary_weapon_ammo = player_info.secondary_ammo[weapon])
 	{
 
 		int weapon_gun;

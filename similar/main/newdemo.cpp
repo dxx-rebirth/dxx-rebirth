@@ -1041,7 +1041,7 @@ void newdemo_record_start_demo()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player_vulcan_ammo() : 0);
 
-	range_for (auto &i, get_local_player_secondary_ammo())
+	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);
 
 	nd_write_byte(static_cast<sbyte>(player_info.laser_level));
@@ -1788,7 +1788,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_short(s);
 	}
 
-	range_for (auto &i, get_local_player_secondary_ammo())
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	range_for (auto &i, player_info.secondary_ammo)
 	{
 		nd_read_short(reinterpret_cast<short*>(&i));
 		if (purpose == PURPOSE_REWRITE)
@@ -1798,7 +1799,6 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	sbyte i;
 	nd_read_byte(&i);
 	const stored_laser_level laser_level(i);
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if ((purpose != PURPOSE_REWRITE) && (laser_level != player_info.laser_level)) {
 		player_info.laser_level = laser_level;
 		update_laser_weapon_info();
@@ -3353,7 +3353,7 @@ void newdemo_goto_end(int to_rewrite)
 		if (i == primary_weapon_index_t::VULCAN_INDEX)
 			get_local_player_vulcan_ammo() = s;
 	}
-	range_for (auto &i, get_local_player_secondary_ammo())
+	range_for (auto &i, player_info.secondary_ammo)
 		nd_read_short(reinterpret_cast<int16_t *>(&i));
 	{
 	int8_t i;
@@ -3758,7 +3758,7 @@ static void newdemo_write_end()
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player_vulcan_ammo() : 0);
 
-	range_for (auto &i, get_local_player_secondary_ammo())
+	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);
 	byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
 

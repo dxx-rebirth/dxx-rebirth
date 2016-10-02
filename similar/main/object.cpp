@@ -1443,7 +1443,7 @@ void dead_player_frame(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-static void start_player_death_sequence(object_base &player)
+static void start_player_death_sequence(object &player)
 {
 	assert(&player == ConsoleObject);
 	if (Player_dead_state != player_dead_state::no ||
@@ -1466,7 +1466,8 @@ static void start_player_death_sequence(object_base &player)
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard())
 		{
-			auto &proximity = get_local_player_secondary_ammo()[PROXIMITY_INDEX];
+			auto &player_info = player.ctype.player_info;
+			auto &proximity = player_info.secondary_ammo[PROXIMITY_INDEX];
 			if (proximity < 12)
 			{
 				const auto is_bad_kill = []{
