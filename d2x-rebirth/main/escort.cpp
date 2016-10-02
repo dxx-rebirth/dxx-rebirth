@@ -1411,7 +1411,8 @@ static int maybe_steal_flag_item(const vobjptr_t playerobjp, const PLAYER_FLAG f
 //	----------------------------------------------------------------------------
 static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_num)
 {
-	if (auto &secondary_ammo = playerobjp->ctype.player_info.secondary_ammo[weapon_num])
+	auto &player_info = playerobjp->ctype.player_info;
+	if (auto &secondary_ammo = player_info.secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_index_is_player_bomb(weapon_num))
 			{
@@ -1423,7 +1424,7 @@ static int maybe_steal_secondary_weapon(const vobjptr_t playerobjp, int weapon_n
 				Stolen_items[Stolen_item_index] = Secondary_weapon_to_powerup[weapon_num];
 			thief_message("%s stolen!", SECONDARY_WEAPON_NAMES(weapon_num));		//	Danger! Danger! Use of literal!  Danger!
 			if (-- secondary_ammo == 0)
-				auto_select_secondary_weapon();
+				auto_select_secondary_weapon(player_info);
 
 			// -- compress_stolen_items();
 			digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);

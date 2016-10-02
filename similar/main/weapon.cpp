@@ -711,14 +711,13 @@ void auto_select_primary_weapon()
 			auto_select_weapon<cycle_primary_state>({});
 }
 
-void auto_select_secondary_weapon()
+namespace dsx {
+
+void auto_select_secondary_weapon(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!player_has_secondary_weapon(player_info.Secondary_weapon).has_all())
 			auto_select_weapon<cycle_secondary_state>({});
 }
-
-namespace dsx {
 
 void delayed_autoselect(player_info &player_info)
 {
@@ -1532,7 +1531,7 @@ void DropSecondaryWeapon ()
 
 	if (secondary_ammo == 0)
 	{
-		auto_select_secondary_weapon();
+		auto_select_secondary_weapon(player_info);
 	}
 }
 

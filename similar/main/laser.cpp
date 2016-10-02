@@ -2353,7 +2353,7 @@ void do_missile_firing(int drop_bomb)
 
 		// don't autoselect if dropping prox and prox not current weapon
 		if (!drop_bomb || player_info.Secondary_weapon == bomb)
-			auto_select_secondary_weapon();		//select next missile, if this one out of ammo
+			auto_select_secondary_weapon(player_info);		//select next missile, if this one out of ammo
 	}
 }
 }
