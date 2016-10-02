@@ -655,10 +655,13 @@ static void compress_segments(void)
 					if (f.segnum == seg)
 						f.segnum = hole;
 
-				range_for (auto &t, partial_range(Triggers, Num_triggers))
+				range_for (const auto vt, vtrgptr)
+				{
+					auto &t = *vt;
 					range_for (auto &l, partial_range(t.seg, t.num_links))
 						if (l == seg)
 							l = hole;
+				}
 
 				auto &sp = *vsegptr(hole);
 				range_for (auto &s, sp.children)

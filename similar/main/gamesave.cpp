@@ -933,8 +933,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-	range_for (auto &i, partial_range(Triggers, Num_triggers))
+	range_for (const auto vt, vtrgptr)
 	{
+		auto &i = *vt;
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
 			v25_trigger_read(LoadFile, &i);
@@ -1604,13 +1605,16 @@ static int save_game_data(PHYSFS_File *SaveFile)
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
-	range_for (auto &t, partial_const_range(Triggers, Num_triggers))
+	range_for (const auto vt, vctrgptr)
+	{
+		auto &t = *vt;
 		if (game_top_fileinfo_version <= 29)
 			v29_trigger_write(SaveFile, t);
 		else if (game_top_fileinfo_version <= 30)
 			v30_trigger_write(SaveFile, t);
 		else if (game_top_fileinfo_version >= 31)
 			v31_trigger_write(SaveFile, t);
+	}
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 

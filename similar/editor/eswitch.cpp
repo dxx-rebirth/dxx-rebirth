@@ -276,8 +276,8 @@ static int trigger_remove()
 
 static int trigger_turn_all_ON()
 {
-	range_for (auto &t, partial_range(Triggers, Num_triggers))
-		t.flags &= TRIGGER_ON;
+	range_for (const auto t, vtrgptr)
+		t->flags &= TRIGGER_ON;
 	return 1;
 }
 
