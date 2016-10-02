@@ -483,15 +483,15 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objnum, int shot)
+void check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (objnum == get_local_player().objnum)
+	if (objnum == &plrobj)
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (objnum == get_local_player().objnum || (objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(objnum)].companion))
+	if (objnum == &plrobj || (objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(objnum)].companion))
 #endif
 	{
 
@@ -510,7 +510,7 @@ void check_trigger(const vcsegptridx_t seg, short side, const vcobjptridx_t objn
 		if (trigger_num == trigger_none)
 			return;
 
-		if (check_trigger_sub(get_local_plrobj(), trigger_num, Player_num,shot))
+		if (check_trigger_sub(plrobj, trigger_num, Player_num,shot))
 			return;
 
 #if defined(DXX_BUILD_DESCENT_I)

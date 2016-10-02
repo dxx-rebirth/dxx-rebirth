@@ -1929,7 +1929,8 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 	reset_objects(1);
-	get_local_plrobj().ctype.player_info.homing_object_dist = -1;
+	auto &plrobj = get_local_plrobj();
+	plrobj.ctype.player_info.homing_object_dist = -1;
 
 	prev_obj = NULL;
 
@@ -2241,12 +2242,12 @@ static int newdemo_read_frame_information(int rewrite)
                                                 break;
                                         }
                                         if (!truth)
-						check_trigger(segp, side, vobjptridx(objnum), shot);
+											check_trigger(segp, side, plrobj, vobjptridx(objnum), shot);
                                 } else if (!rewrite)
 #endif
                                 {
                                         if (Newdemo_vcr_state != ND_STATE_PAUSED)
-						check_trigger(segp, side, vobjptridx(objnum), shot);
+											check_trigger(segp, side, plrobj, vobjptridx(objnum), shot);
                                 }
                         }
 		}

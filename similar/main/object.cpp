@@ -1742,7 +1742,7 @@ static void object_move_one(const vobjptridx_t obj)
 				const auto connect_side = find_connect_side(seg1, seg0);
 				if (connect_side != side_none)
 				{
-					check_trigger(seg0, connect_side, obj,0);
+					check_trigger(seg0, connect_side, get_local_plrobj(), obj, 0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)

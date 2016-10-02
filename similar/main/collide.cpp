@@ -784,7 +784,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		//because robots can shoot out wall triggers, and so the trigger better
 		//take effect
 		//	NO -- Changed by MK, 10/18/95.  We don't want robots blowing puzzles.  Only player or buddy can open!
-		check_trigger(hitseg, hitwall, vcobjptridx(weapon->ctype.laser_info.parent_num), 1);
+		check_trigger(hitseg, hitwall, plrobj, vcobjptridx(weapon->ctype.laser_info.parent_num), 1);
 	}
 
 	if (get_weapon_id(weapon) == weapon_id_type::EARTHSHAKER_ID)
