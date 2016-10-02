@@ -2829,7 +2829,13 @@ void init_ai_frame(void)
 static void make_nearby_robot_snipe(void)
 {
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
-	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, bfs_list);
+	/* Passing powerup_flags here seems wrong.  Sniping robots do not
+	 * open doors, so they should not care what doors the player can
+	 * open.  However, passing powerup_flags here maintains the
+	 * semantics that past versions used.
+	 */
+	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
 		range_for (const auto objp, objects_in(vsegptr(i)))

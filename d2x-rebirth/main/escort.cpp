@@ -194,15 +194,13 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(segnum_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
 	bfs_list[head++] = start_seg;
 	visited[start_seg] = true;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	const auto powerup_flags = player_info.powerup_flags;
 	while ((head != tail) && (head < max_segs)) {
 		auto curseg = bfs_list[tail++];
 		const auto &&cursegp = vcsegptr(curseg);
@@ -555,7 +553,8 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto length = create_bfs_list(start_seg, bfs_list);
+	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
 		const auto &&rb = partial_const_range(bfs_list, length);
@@ -581,7 +580,8 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int special)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto length = create_bfs_list(start_seg, bfs_list);
+	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
 	{
