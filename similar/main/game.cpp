@@ -546,7 +546,7 @@ void save_screen_shot(int automap_flag)
 	gr_set_current_canvas(NULL);
 
 	if (!automap_flag)
-		HUD_init_message(HM_DEFAULT, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
+		HUD_init_message(HM_DEFAULT, "%s '%s", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);

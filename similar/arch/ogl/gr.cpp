@@ -1007,9 +1007,6 @@ void gr_palette_step_up(int r, int g, int b)
 	}
 }
 
-#undef min
-using std::min;
-
 void gr_palette_load( palette_array_t &pal )
 {
 	copy_bound_palette(gr_current_pal, pal);
@@ -1103,7 +1100,7 @@ void save_screen_shot(int automap_flag)
 	} while (PHYSFSX_exists(savename,0));
 
 	if (!automap_flag)
-		HUD_init_message(HM_DEFAULT, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
+		HUD_init_message(HM_DEFAULT, "%s '%s'", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
 
 #if !DXX_USE_OGLES
 	glReadBuffer(GL_FRONT);
