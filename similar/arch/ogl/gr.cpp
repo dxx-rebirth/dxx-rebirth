@@ -1033,7 +1033,8 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 	RAIIdmem<uint8_t[]> buf;
-	CALLOC(buf, uint8_t[], w*h*4);
+	const unsigned buffer_size_TGA = w * h * 3;
+	CALLOC(buf, uint8_t[], buffer_size_TGA);
 
 	RAIIdmem<uint8_t[]> rgbaBuf;
 	CALLOC(rgbaBuf, uint8_t[], w * h * 4);
@@ -1075,7 +1076,7 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.header[4] = static_cast<GLbyte>(24);
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
-	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
+	PHYSFS_write(TGAFile,buf, buffer_size_TGA * sizeof(unsigned char),1);
 }
 
 void save_screen_shot(int automap_flag)
