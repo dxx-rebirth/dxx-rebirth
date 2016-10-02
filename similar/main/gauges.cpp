@@ -1491,7 +1491,7 @@ static void hud_show_weapons(void)
 #if defined(DXX_BUILD_DESCENT_II)
 			case primary_weapon_index_t::GAUSS_INDEX:
 #endif
-				snprintf(weapon_str, sizeof(weapon_str), "%s: %u", weapon_name, vulcan_ammo_scale(get_local_player_vulcan_ammo()));
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %u", weapon_name, vulcan_ammo_scale(player_info.vulcan_ammo));
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -2458,7 +2458,7 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 			unsigned ammo_count;
 			if (weapon_index_uses_vulcan_ammo(Primary_weapon))
 			{
-				nd_ammo = get_local_player_vulcan_ammo();
+				nd_ammo = player_info.vulcan_ammo;
 				ammo_count = vulcan_ammo_scale(nd_ammo);
 			}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3193,7 +3193,7 @@ void draw_hud()
 		int ammo;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Primary_weapon = player_info.Primary_weapon;
-		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = get_local_player_vulcan_ammo(), true))
+		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = player_info.vulcan_ammo, true))
 #if defined(DXX_BUILD_DESCENT_II)
 			||
 			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = player_info.Omega_charge, true))

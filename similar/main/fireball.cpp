@@ -737,7 +737,9 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || (del_obj->contains_id == POW_VULCAN_AMMO)) && (get_local_player_vulcan_ammo() >= VULCAN_AMMO_MAX))
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj->contains_id == POW_VULCAN_AMMO) &&
+		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
 		del_obj->contains_count = 0;
 	else if (weapon_index != -1) {
 		if (player_has_primary_weapon(weapon_index).has_weapon() || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
@@ -764,7 +766,6 @@ void maybe_replace_powerup_with_energy(const vobjptr_t del_obj)
 		}
 	} else if (del_obj->contains_id == POW_QUAD_FIRE)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(del_obj, static_cast<powerup_type_t>(del_obj->contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {

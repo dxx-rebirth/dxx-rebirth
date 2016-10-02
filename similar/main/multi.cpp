@@ -2638,7 +2638,7 @@ void multi_send_player_deres(deres_type_t type)
 	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
 #endif
 
-	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
+	PUT_INTEL_SHORT(multibuf+count, player_info.vulcan_ammo);
 	count += 2;
 	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
 	count += 4;
@@ -4865,7 +4865,7 @@ void multi_send_player_inventory(int priority)
 	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
 #endif
 
-	PUT_INTEL_SHORT(multibuf+count, get_local_player_vulcan_ammo());
+	PUT_INTEL_SHORT(multibuf+count, player_info.vulcan_ammo);
 	count += 2;
 	PUT_INTEL_INT(multibuf+count, player_info.powerup_flags.get_player_flags());
 	count += 4;

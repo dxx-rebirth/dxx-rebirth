@@ -1039,7 +1039,7 @@ void newdemo_record_start_demo()
 	nd_record_v_secondary_ammo = -1;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player_vulcan_ammo() : 0);
+		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
 
 	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);
@@ -1778,17 +1778,17 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 #endif
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
 		nd_read_short(&s);
 		if (i == primary_weapon_index_t::VULCAN_INDEX)
-			get_local_player_vulcan_ammo() = s;
+			player_info.vulcan_ammo = s;
 		if (purpose == PURPOSE_REWRITE)
 			nd_write_short(s);
 	}
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	range_for (auto &i, player_info.secondary_ammo)
 	{
 		nd_read_short(reinterpret_cast<short*>(&i));
@@ -2935,7 +2935,7 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 #endif
 			if (weapon_index_uses_vulcan_ammo(player_info.Primary_weapon))
-				get_local_player_vulcan_ammo() = value;
+				player_info.vulcan_ammo = value;
 			break;
 		}
 
@@ -3351,7 +3351,7 @@ void newdemo_goto_end(int to_rewrite)
 		short s;
 		nd_read_short(&s);
 		if (i == primary_weapon_index_t::VULCAN_INDEX)
-			get_local_player_vulcan_ammo() = s;
+			player_info.vulcan_ammo = s;
 	}
 	range_for (auto &i, player_info.secondary_ammo)
 		nd_read_short(reinterpret_cast<int16_t *>(&i));
@@ -3756,7 +3756,7 @@ static void newdemo_write_end()
 	byte_count += 8;
 
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? get_local_player_vulcan_ammo() : 0);
+		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
 
 	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);
