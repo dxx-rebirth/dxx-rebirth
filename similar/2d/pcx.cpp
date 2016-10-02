@@ -296,7 +296,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	return PCX_ERROR_NONE;
 }
 
-int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &palette )
+int pcx_write_bitmap(const char *const filename, const grs_bitmap *const bmp, palette_array_t &palette)
 {
 	int retval;
 	ubyte data;
@@ -342,17 +342,14 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	}
 
 	// Write the extended palette
-	for (uint_fast32_t i=0; i < palette.size(); i++ )
+	range_for (auto &i, palette)
 	{
-		palette[i].r <<= 2;
-		palette[i].g <<= 2;
-		palette[i].b <<= 2;
+		i.r <<= 2;
+		i.g <<= 2;
+		i.b <<= 2;
 	}
 
 	retval = PHYSFS_write(PCXfile, &palette[0], sizeof(palette), 1);
-
-	diminish_palette(palette);
-
 	if (retval !=1)	{
 		return PCX_ERROR_WRITING;
 	}
