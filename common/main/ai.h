@@ -63,6 +63,7 @@ struct PHYSFS_File;
 #define BOSS_D1      1
 #define BOSS_SUPER   2
 #if defined(DXX_BUILD_DESCENT_II)
+#include "player-flags.h"
 namespace dsx {
 #define BOSS_D2     21 // Minimum D2 boss value.
 #define BOSS_COOL   21
@@ -151,12 +152,13 @@ void attempt_to_resume_path(vobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
+int ai_door_is_openable(
 #if defined(DXX_BUILD_DESCENT_I)
-typedef vobjptr_t _ai_door_is_openable_objptr;
+	vobjptr_t,
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef objptr_t _ai_door_is_openable_objptr;
+	objptr_t, player_flags,
 #endif
-int ai_door_is_openable(_ai_door_is_openable_objptr objp, vcsegptr_t segp, int sidenum);
+	vcsegptr_t segp, int sidenum);
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);

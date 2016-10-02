@@ -154,7 +154,8 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum)
 	if (wall_num == wall_none)
 		return 1;
 
-	rval = ai_door_is_openable(nullptr, segp, sidenum);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	rval = ai_door_is_openable(nullptr, player_info.powerup_flags, segp, sidenum);
 
 	return rval;
 

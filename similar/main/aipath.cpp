@@ -341,7 +341,8 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))
 #elif defined(DXX_BUILD_DESCENT_II)
-			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))))
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, player_info.powerup_flags, segp, snum))))
 #endif
 			{
 				auto this_seg = segp->children[snum];

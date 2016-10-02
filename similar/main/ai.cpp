@@ -1717,7 +1717,13 @@ void move_towards_segment_center(const vobjptr_t objp)
 //	Return true if door can be flown through by a suitable type robot.
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
-int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp, int sidenum)
+int ai_door_is_openable(
+#if defined(DXX_BUILD_DESCENT_I)
+	const vobjptr_t objp,
+#elif defined(DXX_BUILD_DESCENT_II)
+	const objptr_t objp, const player_flags powerup_flags,
+#endif
+	const vcsegptr_t segp, const int sidenum)
 {
 	if (!IS_CHILD(segp->children[sidenum]))
 		return 0;		//trap -2 (exit side)
@@ -1761,9 +1767,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 				case KEY_GOLD:
 				case KEY_RED:
 				{
-					auto &player_info = get_local_plrobj().ctype.player_info;
-					const auto flags = player_info.powerup_flags;
-					return flags & static_cast<PLAYER_FLAG>(wall_keys);
+					return powerup_flags & static_cast<PLAYER_FLAG>(wall_keys);
 				}
 			default:
 				break;
@@ -1830,8 +1834,7 @@ int ai_door_is_openable(_ai_door_is_openable_objptr objp, const vcsegptr_t segp,
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
 			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
-				auto &player_info = get_local_plrobj().ctype.player_info;
-				if (player_info.powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys))
+				if (powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys))
 					return 1;
 			}
 		}
