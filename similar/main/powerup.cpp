@@ -233,7 +233,7 @@ static int pick_up_vulcan_ammo(void)
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
-		const auto max = PLAYER_MAX_AMMO(get_local_plrobj(), VULCAN_AMMO_MAX);
+		const auto max = PLAYER_MAX_AMMO(get_local_plrobj().ctype.player_info.powerup_flags, VULCAN_AMMO_MAX);
 		HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %d %s!", TXT_ALREADY_HAVE, vulcan_ammo_scale(max), TXT_VULCAN_ROUNDS);
 		used = 0;
 	}

@@ -777,9 +777,8 @@ namespace dsx {
 int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
-	const auto max = PLAYER_MAX_AMMO(get_local_plrobj(), Secondary_ammo_max[weapon_index]);
-
 	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, Secondary_ammo_max[weapon_index]);
 	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[weapon_index] >= max)
 	{
@@ -982,9 +981,9 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 {
 	auto &plr = get_local_plrobj();
-	const auto max = PLAYER_MAX_AMMO(plr, VULCAN_AMMO_MAX);
 
 	auto &player_info = plr.ctype.player_info;
+	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, VULCAN_AMMO_MAX);
 	auto &plr_vulcan_ammo = player_info.vulcan_ammo;
 	const auto old_ammo = plr_vulcan_ammo;
 	if (old_ammo >= max)
