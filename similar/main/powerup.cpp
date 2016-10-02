@@ -192,11 +192,10 @@ void do_megawow_powerup(int quantity)
 
 namespace dsx {
 
-static int pick_up_energy(void)
+static int pick_up_energy(player_info &player_info)
 {
 	int	used=0;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &energy = player_info.energy;
 	if (energy < MAX_ENERGY) {
 		fix boost;
@@ -221,7 +220,7 @@ static int pick_up_primary_or_energy(player_info &player_info, int weapon_index)
 	const auto used = pick_up_primary(player_info, weapon_index);
 	if (used || (Game_mode & GM_MULTI))
 		return used;
-	return pick_up_energy();
+	return pick_up_energy(player_info);
 }
 
 static int pick_up_vulcan_ammo(player_info &player_info)
@@ -367,7 +366,8 @@ struct player_hit_quadlaser_powerup
 static int player_has_powerup(const char *const desc_have)
 {
 	HUD_init_message(HM_DEFAULT | HM_REDUNDANT | HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE, desc_have);
-	return (Game_mode & GM_MULTI) ? 0 : pick_up_energy();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	return (Game_mode & GM_MULTI) ? 0 : pick_up_energy(player_info);
 }
 
 template <PLAYER_FLAG player_flag, typename F>
@@ -426,7 +426,7 @@ int do_powerup(const vobjptridx_t obj)
 			used=1;
 			break;
 		case POW_ENERGY:
-			used = pick_up_energy();
+			used = pick_up_energy(player_info);
 			break;
 		case POW_SHIELD_BOOST:
 			{
@@ -462,7 +462,7 @@ int do_powerup(const vobjptridx_t obj)
 				used=1;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+				used = pick_up_energy(player_info);
 			break;
 		case POW_MISSILE_1:
 			used=pick_up_secondary(player_info, CONCUSSION_INDEX, 1);
@@ -570,7 +570,7 @@ int do_powerup(const vobjptridx_t obj)
 			if (used)
 				player_info.Omega_charge = obj->ctype.powerup_info.count;
 			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+				used = pick_up_energy(player_info);
 			break;
 #endif
 
@@ -689,7 +689,7 @@ int do_powerup(const vobjptridx_t obj)
 				used=1;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_energy();
+				used = pick_up_energy(player_info);
 			break;
 
 		case POW_AMMO_RACK:
