@@ -1521,7 +1521,7 @@ enum {
 	DXX_MENUITEM(VERB, CHECK, "Transparency Effects", opt_gr_alphafx, PlayerCfg.AlphaEffects)	\
 	DXX_MENUITEM(VERB, CHECK, "Colored Dynamic Light", opt_gr_dynlightcolor, PlayerCfg.DynLightColor)	\
 	DXX_MENUITEM(VERB, CHECK, "VSync", opt_gr_vsync, CGameCfg.VSync)	\
-	DXX_MENUITEM(VERB, CHECK, "4x multisampling", opt_gr_multisample, GameCfg.Multisample)	\
+	DXX_MENUITEM(VERB, CHECK, "4x multisampling", opt_gr_multisample, CGameCfg.Multisample)	\
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define D2X_OGL_GRAPHICS_MENU(VERB)
@@ -1588,7 +1588,7 @@ void graphics_config()
 	newmenu_do1(nullptr, "Graphics Options", m.size(), m.data(), graphics_config_menuset, m.data(), 0);
 
 #if DXX_USE_OGL
-	if (CGameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
+	if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
 	for (uint_fast32_t i = 0; i != 3; ++i)
@@ -1604,7 +1604,7 @@ void graphics_config()
 	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
 	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	CGameCfg.VSync = m[opt_gr_vsync].value;
-	GameCfg.Multisample = m[opt_gr_multisample].value;
+	CGameCfg.Multisample = m[opt_gr_multisample].value;
 #endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
 	GameCfg.FPSIndicator = m[opt_gr_fpsindi].value;

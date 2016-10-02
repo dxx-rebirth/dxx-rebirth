@@ -135,7 +135,7 @@ int ReadConfigFile()
 	GameCfg.MovieSubtitles = 0;
 #endif
 	CGameCfg.VSync = false;
-	GameCfg.Multisample = 0;
+	CGameCfg.Multisample = 0;
 	GameCfg.FPSIndicator = 0;
 	CGameCfg.Grabinput = true;
 
@@ -216,7 +216,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, VSyncStr))
 			convert_integer(CGameCfg.VSync, value);
 		else if (cmp(lb, eq, MultisampleStr))
-			convert_integer(GameCfg.Multisample, value);
+			convert_integer(CGameCfg.Multisample, value);
 		else if (cmp(lb, eq, FPSIndicatorStr))
 			convert_integer(GameCfg.FPSIndicator, value);
 		else if (cmp(lb, eq, GrabinputStr))
@@ -272,7 +272,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 #endif
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
-	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
+	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, CGameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
 	return 0;
