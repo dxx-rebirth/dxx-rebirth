@@ -1051,7 +1051,7 @@ void newdemo_record_start_demo()
 	nd_write_string(Current_mission_filename);
 
 	nd_write_byte(nd_record_v_player_energy = static_cast<int8_t>(f2ir(player_info.energy)));
-	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_player_shields())));
+	nd_write_byte(nd_record_v_player_shields = static_cast<int8_t>(f2ir(get_local_plrobj().shields)));
 	nd_write_int(nd_record_v_player_flags = player_info.powerup_flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
@@ -1888,7 +1888,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_playback_v_juststarted=1;
 #endif
 	player_info.energy = i2f(energy);
-	get_local_player_shields() = i2f(shield);
+	get_local_plrobj().shields = i2f(shield);
 	return 0;
 }
 }
@@ -2443,14 +2443,14 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (shareware)
-				get_local_player_shields() = i2f(shield);
+				get_local_plrobj().shields = i2f(shield);
 			else
 			{
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				get_local_player_shields() = i2f(shield);
+				get_local_plrobj().shields = i2f(shield);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				if (old_shield != 255)
-					get_local_player_shields() = i2f(old_shield);
+					get_local_plrobj().shields = i2f(old_shield);
 			}
 			}
 			break;
@@ -3327,7 +3327,7 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_byte(reinterpret_cast<int8_t *>(&shield));
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	player_info.energy = i2f(energy);
-	get_local_player_shields() = i2f(shield);
+	get_local_plrobj().shields = i2f(shield);
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
 	player_info.powerup_flags = player_flags(recorded_player_flags);
@@ -3749,7 +3749,7 @@ static void newdemo_write_end()
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	nd_write_byte(static_cast<int8_t>(f2ir(player_info.energy)));
-	nd_write_byte(static_cast<int8_t>(f2ir(get_local_player_shields())));
+	nd_write_byte(static_cast<int8_t>(f2ir(get_local_plrobj().shields)));
 	nd_write_int(player_info.powerup_flags.get_player_flags());        // be sure players flags are set
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));

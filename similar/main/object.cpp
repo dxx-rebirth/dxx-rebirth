@@ -1629,7 +1629,7 @@ static void object_move_one(const vobjptridx_t obj)
 			energy += fuel;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		auto &pl_shields = get_local_player_shields();
+		auto &pl_shields = get_local_plrobj().shields;
 		const fix shields = repaircen_give_shields(segp, INITIAL_SHIELDS - pl_shields);
 		if (shields > 0) {
 			pl_shields += shields;

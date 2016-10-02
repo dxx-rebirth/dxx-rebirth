@@ -1465,7 +1465,7 @@ static void hud_show_weapons(void)
 		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_player_shields()));
+		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_plrobj().shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
 	}
@@ -1585,12 +1585,12 @@ static void hud_show_shield(void)
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
 		const auto &&line_spacing = LINE_SPACING;
-		const auto &shields = get_local_player_shields();
+		const auto &shields = get_local_plrobj().shields;
 		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_shields(f2ir(get_local_player_shields()));
+		newdemo_record_player_shields(f2ir(get_local_plrobj().shields));
 }
 
 //draw the icons for number of lives
@@ -2647,7 +2647,7 @@ static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_g
 	}
 	else
 	{
-		const auto shields_ir = f2ir(get_local_player_shields());
+		const auto shields_ir = f2ir(get_local_plrobj().shields);
 		if (cmmode == CM_STATUS_BAR)
 			sb_draw_shield_bar(shields_ir, multires_gauge_graphic);
 		else
@@ -3315,7 +3315,7 @@ void render_gauges()
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 
-	auto shields = f2ir(get_local_player_shields());
+	auto shields = f2ir(get_local_plrobj().shields);
 	if (shields < 0 ) shields = 0;
 
 	gr_set_current_canvas(NULL);

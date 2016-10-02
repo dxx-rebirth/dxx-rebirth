@@ -149,7 +149,7 @@ static void transfer_energy_to_shield()
 	static fix64 last_play_time=0;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &shields = get_local_player_shields();
+	auto &shields = get_local_plrobj().shields;
 	auto &energy = player_info.energy;
 	//how much energy gets transfered
 	const fix e = min(min(FrameTime*CONVERTER_RATE, energy - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
@@ -1272,8 +1272,12 @@ static window_event_result HandleTestKey(int key)
 
 
 
-		case KEY_DEBUGGED+KEY_K:	get_local_player_shields() = 1;	break;							//	a virtual kill
-		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  get_local_player_shields() = -1;	 break;  //	an actual kill
+		case KEY_DEBUGGED+KEY_K:
+			get_local_plrobj().shields = 1;
+			break;							//	a virtual kill
+		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:
+			get_local_plrobj().shields = -1;
+			break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: get_local_player().lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
 		{
@@ -1557,7 +1561,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::lamer)
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		get_local_player_shields() = player_info.energy = i2f(1);
+		get_local_plrobj().shields = player_info.energy = i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1622,7 +1626,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::shields)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
-		get_local_player_shields() = MAX_SHIELDS;
+		get_local_plrobj().shields = MAX_SHIELDS;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)

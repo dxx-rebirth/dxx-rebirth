@@ -170,7 +170,7 @@ void do_megawow_powerup(int quantity)
 		secondary_ammo[i] = quantity/5;
 
 	player_info.energy = F1_0*200;
-	get_local_player_shields() = F1_0*200;
+	get_local_plrobj().shields = F1_0*200;
 	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto laser_level = MAX_LASER_LEVEL;
@@ -388,7 +388,7 @@ int do_powerup(const vobjptridx_t obj)
 
 	if (Player_dead_state != player_dead_state::no ||
 		ConsoleObject->type == OBJ_GHOST ||
-		get_local_player_shields() < 0)
+		get_local_plrobj().shields < 0)
 		return 0;
 
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime64<obj->ctype.powerup_info.creation_time+i2f(2))
@@ -430,7 +430,7 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 		case POW_SHIELD_BOOST:
 			{
-				auto &shields = get_local_player_shields();
+				auto &shields = get_local_plrobj().shields;
 			if (shields < MAX_SHIELDS) {
 				fix boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)

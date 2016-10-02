@@ -900,7 +900,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			if (killer_pnum==Player_num)
 			{
 				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
-				get_local_player_shields() = i2f(200);
+				get_local_plrobj().shields = i2f(200);
 			}
 			else
 			{
@@ -4021,7 +4021,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			if (pnum==Player_num)
 			{
 				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
-				get_local_player_shields()=i2f(200);
+				get_local_plrobj().shields = i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
@@ -4095,7 +4095,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 			if (pnum==Player_num)
 			{
 				HUD_init_message_literal(HM_MULTI, "You reached the kill goal!");
-				get_local_player_shields()=i2f(200);
+				get_local_plrobj().shields = i2f(200);
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));

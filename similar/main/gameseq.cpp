@@ -320,7 +320,7 @@ static void init_ammo_and_energy(void)
 			energy = INITIAL_ENERGY;
 	}
 	{
-		auto &shields = get_local_player_shields();
+		auto &shields = get_local_plrobj().shields;
 		if (shields < StartingShields)
 			shields = StartingShields;
 	}
@@ -920,10 +920,10 @@ void DoEndLevelScoreGlitz(int network)
 		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
 		auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(get_local_player_shields()) * 10 * (Difficulty_level+1);
+		shield_points = f2i(get_local_plrobj().shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
-		shield_points = f2i(get_local_player_shields()) * 5 * mine_level;
+		shield_points = f2i(get_local_plrobj().shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
@@ -1518,7 +1518,7 @@ void DoPlayerDead()
 		get_local_player().hostages_on_board = 0;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.energy = 0;
-		get_local_player_shields() = 0;
+		get_local_plrobj().shields = 0;
 		get_local_player().connected = CONNECT_DIED_IN_MINE;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened

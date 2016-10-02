@@ -1403,7 +1403,7 @@ namespace dsx {
 void GameProcessFrame(void)
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &local_player_shields_ref = get_local_player_shields();
+	auto &local_player_shields_ref = get_local_plrobj().shields;
 	fix player_shields = local_player_shields_ref;
 	const auto player_was_dead = Player_dead_state;
 

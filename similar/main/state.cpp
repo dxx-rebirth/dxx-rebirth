@@ -995,7 +995,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	state_write_player(fp, get_local_player(), get_local_player_shields(), get_local_plrobj().ctype.player_info);
+	state_write_player(fp, get_local_player(), get_local_plrobj().shields, player_info);
 
 // Save the current weapon info
 	{
@@ -1228,7 +1228,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * shields are ignored, and using local everywhere is cheaper
 		 * than using it only for the one slot where it may matter.
 		 */
-		const auto shields = get_local_player_shields();
+		const auto shields = get_local_plrobj().shields;
 		const auto &pl_info = get_local_plrobj().ctype.player_info;
 		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))
@@ -1570,7 +1570,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 	}
 	special_reset_objects();
-	get_local_player_shields() = pl_shields;
+	get_local_plrobj().shields = pl_shields;
 	get_local_plrobj().ctype.player_info = pl_info;
 
 	//	1 = Didn't die on secret level.

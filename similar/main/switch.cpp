@@ -281,7 +281,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 	if (pnum == Player_num) {
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (trigger.flags & TRIGGER_SHIELD_DAMAGE) {
-			get_local_player_shields() -= trigger.value;
+			get_local_plrobj().shields -= trigger.value;
 		}
 
 		if (trigger.flags & TRIGGER_EXIT) {
@@ -341,7 +341,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
-				if (get_local_player_shields() < 0 ||
+				if (get_local_plrobj().shields < 0 ||
 					Player_dead_state != player_dead_state::no)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
@@ -369,7 +369,7 @@ int check_trigger_sub(const trgnum_t trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 				break;
 
-			if (get_local_player_shields() < 0 ||
+			if (get_local_plrobj().shields < 0 ||
 				Player_dead_state != player_dead_state::no)
 				break;
 

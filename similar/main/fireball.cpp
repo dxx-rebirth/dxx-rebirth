@@ -980,7 +980,7 @@ static bool skip_create_egg_powerup(powerup_type_t powerup)
 	fix current;
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (powerup == POW_SHIELD_BOOST)
-		current = get_local_player_shields();
+		current = get_local_plrobj().shields;
 	else if (powerup == POW_ENERGY)
 		current = player_info.energy;
 	else

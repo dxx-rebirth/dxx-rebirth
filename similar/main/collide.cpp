@@ -397,7 +397,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
-			if ( get_local_player_shields() > f1_0*10 || ForceFieldHit)
+			if (playerobj->shields > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
 		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
@@ -1337,7 +1337,7 @@ void do_final_boss_hacks(void)
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	{
-		auto &shields = get_local_player_shields();
+		auto &shields = get_local_plrobj().shields;
 		if (shields <= 0)
 			shields = 1;
 	}
@@ -1398,7 +1398,7 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 					}
 				else
 				  {	// NOTE LINK TO ABOVE!!!
-					if ((get_local_player_shields() < 0) || Player_dead_state != player_dead_state::no)
+					if (get_local_plrobj().shields < 0 || Player_dead_state != player_dead_state::no)
 						robot->shields = 1;		//	Sorry, we can't allow you to kill the final boss after you've died.  Rough luck.
 					else
 						do_final_boss_hacks();
