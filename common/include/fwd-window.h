@@ -40,13 +40,11 @@ window *window_get_next(window &wind);
 window *window_get_prev(window &wind);
 void window_select(window &wind);
 window *window_set_visible(window &wind, int visible);
-int window_is_visible(window &wind);
 grs_canvas &window_get_canvas(window &wind);
 #if !DXX_USE_OGL
 void window_update_canvases();
 #endif
 window_event_result window_send_event(window &wind,const d_event &event);
-void window_set_modal(window &wind, int modal);
 int window_is_modal(window &wind);
 
 #define WINDOW_SEND_EVENT(w, e)	(event.type = e, (WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__, #e))

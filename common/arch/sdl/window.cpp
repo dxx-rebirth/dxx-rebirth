@@ -22,17 +22,6 @@
 
 namespace dcx {
 
-struct window
-{
-	grs_canvas w_canv;					// the window's canvas to draw to
-	window_event_result (*w_callback)(window *wind,const d_event &event, void *data);	// the event handler
-	int w_visible;						// whether it's visible
-	int w_modal;						// modal = accept all user input exclusively
-	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
-	struct window *prev;				// the previous window in the doubly linked list
-	struct window *next;				// the next window in the doubly linked list
-};
-
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 
@@ -127,16 +116,6 @@ window *window_get_first(void)
 	return FirstWindow;
 }
 
-window *window_get_next(window &wind)
-{
-	return wind.next;
-}
-
-window *window_get_prev(window &wind)
-{
-	return wind.prev;
-}
-
 // Make wind the front window
 void window_select(window &wind)
 {
@@ -156,7 +135,7 @@ void window_select(window &wind)
 	wind.next = nullptr;
 	FrontWindow = &wind;
 	
-	if (window_is_visible(wind))
+	if (wind.is_visible())
 	{
 		if (prev)
 			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
@@ -181,16 +160,6 @@ window *window_set_visible(window &w, int visible)
 	return wind;
 }
 
-int window_is_visible(window &wind)
-{
-	return wind.w_visible;
-}
-
-grs_canvas &window_get_canvas(window &wind)
-{
-	return wind.w_canv;
-}
-
 #if !DXX_USE_OGL
 void window_update_canvases()
 {
@@ -205,23 +174,5 @@ void window_update_canvases()
 							wind->w_canv.cv_bitmap.bm_h);
 }
 #endif
-
-window_event_result window_send_event(window &wind, const d_event &event)
-{
-	auto r = wind.w_callback(&wind, event, wind.data);
-	if (r == window_event_result::close)
-		window_close(&wind);
-	return r;
-}
-
-void window_set_modal(window &wind, int modal)
-{
-	wind.w_modal = modal;
-}
-
-int window_is_modal(window &wind)
-{
-	return wind.w_modal;
-}
 
 }
