@@ -1733,8 +1733,6 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 		set_thrust_from_velocity(obj);
 }
 
-}
-
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 {
 	const objnum_t objnum = GET_INTEL_SHORT(buf + 2);
@@ -1746,8 +1744,6 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	multi_make_ghost_player(pnum);
 	create_player_appearance_effect(obj);
 }
-
-namespace dsx {
 
 static void multi_do_player_deres(const playernum_t pnum, const ubyte *buf)
 {

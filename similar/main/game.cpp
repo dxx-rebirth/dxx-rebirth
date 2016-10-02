@@ -1548,7 +1548,7 @@ void GameProcessFrame(void)
 
 	if (Do_appearance_effect) {
 		Do_appearance_effect = 0;
-		create_player_appearance_effect(vobjptridx(ConsoleObject));
+		create_player_appearance_effect(*ConsoleObject);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

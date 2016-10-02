@@ -626,27 +626,25 @@ static void set_sound_sources()
 	Dont_start_sound_objects = 0;
 #endif
 }
-}
 
-
-//fix flash_dist=i2f(1);
-fix flash_dist=fl2f(.9);
+constexpr fix flash_dist=fl2f(.9);
 
 //create flash for player appearance
-void create_player_appearance_effect(const vobjptridx_t player_obj)
+void create_player_appearance_effect(const object_base &player_obj)
 {
-	const auto pos = (player_obj == Viewer)
-		? vm_vec_scale_add(player_obj->pos, player_obj->orient.fvec, fixmul(player_obj->size,flash_dist))
-		: player_obj->pos;
+	const auto pos = (&player_obj == Viewer)
+		? vm_vec_scale_add(player_obj.pos, player_obj.orient.fvec, fixmul(player_obj.size, flash_dist))
+		: player_obj.pos;
 
-	const objptridx_t effect_obj = object_create_explosion(vsegptridx(player_obj->segnum), pos, player_obj->size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&effect_obj = object_create_explosion(vsegptridx(player_obj.segnum), pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
-		effect_obj->orient = player_obj->orient;
+		effect_obj->orient = player_obj.orient;
 
 		if ( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num > -1 )
 			digi_link_sound_to_object( Vclip[VCLIP_PLAYER_APPEARANCE].sound_num, effect_obj, 0, F1_0);
 	}
+}
 }
 
 //
