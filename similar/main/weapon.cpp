@@ -1315,12 +1315,11 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 	return obj;
 }
 
-void DropCurrentWeapon ()
+void DropCurrentWeapon (player_info &player_info)
 {
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	powerup_type_t drop_type;
 	const auto &Primary_weapon = player_info.Primary_weapon;
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
@@ -1401,7 +1400,7 @@ void DropCurrentWeapon ()
 
 		//dropped weapon has current energy
 
-			objnum->ctype.powerup_info.count = get_local_plrobj().ctype.player_info.Omega_charge;
+			objnum->ctype.powerup_info.count = player_info.Omega_charge;
 	}
 #endif
 
@@ -1420,7 +1419,7 @@ void DropCurrentWeapon ()
 	auto_select_primary_weapon(player_info);
 }
 
-void DropSecondaryWeapon ()
+void DropSecondaryWeapon (player_info &player_info)
 {
 	int seed;
 	ushort sub_ammo=0;
@@ -1428,7 +1427,6 @@ void DropSecondaryWeapon ()
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Secondary_weapon = player_info.Secondary_weapon;
 	auto &secondary_ammo = player_info.secondary_ammo[Secondary_weapon];
 	if (secondary_ammo == 0)

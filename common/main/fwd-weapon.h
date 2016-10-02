@@ -237,8 +237,8 @@ void init_seismic_disturbances(void);
 void process_super_mines_frame(void);
 void do_seismic_stuff();
 #endif
-void DropCurrentWeapon();
-void DropSecondaryWeapon();
+void DropCurrentWeapon(player_info &);
+void DropSecondaryWeapon(player_info &);
 }
 #endif
 

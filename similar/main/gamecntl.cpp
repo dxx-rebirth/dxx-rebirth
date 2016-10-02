@@ -1055,12 +1055,12 @@ static window_event_result HandleGameKey(int key)
 		{
 				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
 			case KEY_F5 + KEY_SHIFTED:
-				DropCurrentWeapon();
+				DropCurrentWeapon(get_local_plrobj().ctype.player_info);
 				break;
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
 			case KEY_F6 + KEY_SHIFTED:
-				DropSecondaryWeapon();
+				DropSecondaryWeapon(get_local_plrobj().ctype.player_info);
 				break;
 
 #if defined(DXX_BUILD_DESCENT_II)
