@@ -142,11 +142,9 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const vcsegptr_t segp, int sidenum)
+static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player_flags powerup_flags)
 {
 	int		rval;
-	if (!IS_CHILD(segp->children[sidenum]))
-		return 0;
 
 	auto wall_num = segp->sides[sidenum].wall_num;
 
@@ -154,8 +152,7 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum)
 	if (wall_num == wall_none)
 		return 1;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	rval = ai_door_is_openable(nullptr, player_info.powerup_flags, segp, sidenum);
+	rval = ai_door_is_openable(nullptr, powerup_flags, segp, sidenum);
 
 	return rval;
 
@@ -204,6 +201,8 @@ std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::s
 	bfs_list[head++] = start_seg;
 	visited[start_seg] = true;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto powerup_flags = player_info.powerup_flags;
 	while ((head != tail) && (head < max_segs)) {
 		auto curseg = bfs_list[tail++];
 		const auto &&cursegp = vcsegptr(curseg);
@@ -211,7 +210,7 @@ std::size_t create_bfs_list(segnum_t start_seg, segnum_t *const bfs_list, std::s
 			auto connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
-				if (segment_is_reachable(cursegp, i)) {
+				if (segment_is_reachable(cursegp, i, powerup_flags)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;
