@@ -1502,7 +1502,7 @@ void hud_config()
 	DXX_MENUITEM(VERB, TEXT, "", blank1)	\
 	DXX_OGL0_GRAPHICS_MENU(VERB)	\
 	DXX_OGL1_GRAPHICS_MENU(VERB)	\
-	DXX_MENUITEM(VERB, CHECK, "FPS Counter", opt_gr_fpsindi, GameCfg.FPSIndicator)	\
+	DXX_MENUITEM(VERB, CHECK, "FPS Counter", opt_gr_fpsindi, CGameCfg.FPSIndicator)	\
 
 #if DXX_USE_OGL
 enum {
@@ -1607,7 +1607,7 @@ void graphics_config()
 	CGameCfg.Multisample = m[opt_gr_multisample].value;
 #endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
-	GameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
+	CGameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
 #if DXX_USE_OGL
 	gr_set_attributes();
 	gr_set_mode(Game_screen_mode);

@@ -44,6 +44,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	int TexFilt;
 	bool TexAnisotropy;
 	bool Multisample;
+	bool FPSIndicator;
 	array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
@@ -66,7 +67,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	int AspectY;
 	uint8_t DigiVolume;
 	uint8_t MusicVolume;
-	bool FPSIndicator;
 	bool ReverseStereo;
 	bool OrigTrackOrder;
 #ifdef DXX_BUILD_DESCENT_II

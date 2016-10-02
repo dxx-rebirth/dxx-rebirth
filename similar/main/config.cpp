@@ -136,7 +136,7 @@ int ReadConfigFile()
 #endif
 	CGameCfg.VSync = false;
 	CGameCfg.Multisample = 0;
-	GameCfg.FPSIndicator = 0;
+	CGameCfg.FPSIndicator = 0;
 	CGameCfg.Grabinput = true;
 
 
@@ -218,7 +218,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, MultisampleStr))
 			convert_integer(CGameCfg.Multisample, value);
 		else if (cmp(lb, eq, FPSIndicatorStr))
-			convert_integer(GameCfg.FPSIndicator, value);
+			convert_integer(CGameCfg.FPSIndicator, value);
 		else if (cmp(lb, eq, GrabinputStr))
 			convert_integer(CGameCfg.Grabinput, value);
 	}
@@ -273,7 +273,7 @@ int WriteConfigFile()
 #endif
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, CGameCfg.Multisample);
-	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
+	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, CGameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
 	return 0;
 }

@@ -372,7 +372,7 @@ static void game_draw_hud_stuff()
 
 	render_countdown_gauge();
 
-	if (GameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
+	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate();
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
