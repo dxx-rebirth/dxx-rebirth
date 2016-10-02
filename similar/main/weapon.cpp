@@ -987,15 +987,11 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 		return;
 	maybe_autoselect_primary_weapon(weapon_index);
 }
-}
 
 //called when ammo (for the vulcan cannon) is picked up
 //	Returns the amount picked up
-int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
+int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, const bool change_weapon)
 {
-	auto &plr = get_local_plrobj();
-
-	auto &player_info = plr.ctype.player_info;
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, VULCAN_AMMO_MAX);
 	auto &plr_vulcan_ammo = player_info.vulcan_ammo;
 	const auto old_ammo = plr_vulcan_ammo;
@@ -1010,11 +1006,10 @@ int pick_up_vulcan_ammo(uint_fast32_t ammo_count, const bool change_weapon)
 	}
 	if (change_weapon &&
 		!old_ammo)
-		maybe_autoselect_vulcan_weapon(plr.ctype.player_info);
+		maybe_autoselect_vulcan_weapon(player_info);
 	return ammo_count;	//return amount used
 }
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4

@@ -201,9 +201,9 @@ int pick_up_secondary(int weapon_index,int count);
 int pick_up_primary(int weapon_index);
 
 //called when ammo (for the vulcan cannon) is picked up
-int pick_up_vulcan_ammo(uint_fast32_t ammo_count, bool change_weapon = true);
 
 namespace dsx {
+int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, bool change_weapon = true);
 //this function is for when the player intentionally drops a powerup
 objptridx_t spit_powerup(vobjptr_t spitter, int id, int seed);
 

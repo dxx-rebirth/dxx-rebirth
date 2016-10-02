@@ -224,12 +224,10 @@ static int pick_up_primary_or_energy(int weapon_index)
 	return pick_up_energy();
 }
 
-}
-
 static int pick_up_vulcan_ammo(player_info &player_info)
 {
 	int	used=0;
-	if (pick_up_vulcan_ammo(VULCAN_AMMO_AMOUNT, false)) {
+	if (pick_up_vulcan_ammo(player_info, VULCAN_AMMO_AMOUNT, false)) {
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
@@ -238,6 +236,8 @@ static int pick_up_vulcan_ammo(player_info &player_info)
 		used = 0;
 	}
 	return used;
+}
+
 }
 
 static int pick_up_key(const int r, const int g, const int b, player_flags &player_flags, const PLAYER_FLAG key_flag, const char *const key_name, const powerup_type_t id)
@@ -489,7 +489,7 @@ int do_powerup(const vobjptridx_t obj)
 			if ((used = pick_up_primary(primary_weapon_index_t::VULCAN_INDEX)) != 0) {
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
 				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
-				pick_up_vulcan_ammo(vulcan_ammo_to_add_with_cannon);
+				pick_up_vulcan_ammo(player_info, vulcan_ammo_to_add_with_cannon);
 			}
 
 //added/edited 8/3/98 by Victor Rachels to fix vulcan multi bug
@@ -529,7 +529,7 @@ int do_powerup(const vobjptridx_t obj)
 
 			if (ammo > 0) {
 				int ammo_used;
-				ammo_used = pick_up_vulcan_ammo(ammo);
+				ammo_used = pick_up_vulcan_ammo(player_info, ammo);
 				obj->ctype.powerup_info.count -= ammo_used;
 				if (!used && ammo_used) {
 					powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
