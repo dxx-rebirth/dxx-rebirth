@@ -838,12 +838,10 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 //	-----------------------------------------------------------------------------
 //	Escort robot chooses goal object based on player's keys, location.
 //	Returns goal object.
-static escort_goal_t escort_set_goal_object(void)
+static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	const auto &player_info = get_local_plrobj().ctype.player_info;
-	const auto &pl_flags = player_info.powerup_flags;
 	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1) != object_none))
 		return ESCORT_GOAL_BLUE_KEY;
 	else if (!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1) != object_none))
@@ -989,7 +987,7 @@ static void do_buddy_dude_stuff(void)
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_visibility)
+void do_escort_frame(const vobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility)
 {
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
@@ -998,7 +996,6 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;
-		auto &plrobj = get_local_plrobj();
 		if (plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
 			const auto energy = plrobj.ctype.player_info.energy;
@@ -1078,7 +1075,7 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
-		Escort_goal_object = escort_set_goal_object();
+		Escort_goal_object = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp);
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1088,7 +1085,7 @@ void do_escort_frame(const vobjptridx_t objp, fix dist_to_player, int player_vis
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 	} else if (Escort_goal_object == ESCORT_GOAL_UNSPECIFIED) {
 		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
-			Escort_goal_object = escort_set_goal_object();
+			Escort_goal_object = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
@@ -1738,15 +1735,16 @@ void do_escort_menu(void)
 		return;
 	}
 	
+	auto &plrobj = get_local_plrobj();
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
 	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
-		next_goal = escort_set_goal_object();
+		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 		Escort_special_goal = ESCORT_GOAL_SCRAM;
 	} else {
 		Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
-		next_goal = escort_set_goal_object();
+		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
 	}
 
 	switch (next_goal) {

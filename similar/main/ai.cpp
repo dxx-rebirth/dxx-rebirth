@@ -900,7 +900,7 @@ void do_ai_robot_hit_attack(const vobjptridx_t robot, const vobjptridx_t playero
 //#endif
 
 	//	If player is dead, stop firing.
-	if (get_local_plrobj().type == OBJ_GHOST)
+	if (playerobj->type == OBJ_GHOST)
 		return;
 
 	if (robptr->attack_type == 1) {
@@ -3441,7 +3441,7 @@ _exit_cheat:
 	if (robot_is_companion(robptr)) {
 
 		compute_vis_and_vec(obj, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-		do_escort_frame(obj, dist_to_player, player_visibility);
+		do_escort_frame(obj, get_local_plrobj(), dist_to_player, player_visibility);
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
 			const auto &&dobjp = vobjptr(obj->ctype.ai_info.danger_laser_num);

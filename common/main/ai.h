@@ -163,7 +163,7 @@ int ai_multiplayer_awareness(vobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility);
+void do_escort_frame(vobjptridx_t objp, const object &plrobj, fix dist_to_player, int player_visibility);
 void do_snipe_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 void do_thief_frame(vobjptridx_t objp, fix dist_to_player, int player_visibility, const vms_vector &vec_to_player);
 #endif
