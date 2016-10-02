@@ -994,8 +994,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save player info
 	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	state_write_player(fp, get_local_player(), get_local_plrobj().shields, player_info);
+	const auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
+	state_write_player(fp, get_local_player(), plrobj.shields, player_info);
 
 // Save the current weapon info
 	{
@@ -1219,7 +1220,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		}
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
-	auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
+	auto &Omega_charge = player_info.Omega_charge;
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 #endif
 	}
@@ -1231,12 +1232,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * shields are ignored, and using local everywhere is cheaper
 		 * than using it only for the one slot where it may matter.
 		 */
-		const auto shields = get_local_plrobj().shields;
-		const auto &pl_info = get_local_plrobj().ctype.player_info;
+		const auto shields = plrobj.shields;
 		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))
 		{
-			state_write_player(fp, i, shields, pl_info);
+			state_write_player(fp, i, shields, player_info);
 		}
 		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
 		PHYSFS_write(fp, Netgame.mission_name.data(), Netgame.mission_name.size(), 1);
@@ -1466,6 +1466,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 //Read player info
 
+	auto &plrobj = get_local_plrobj();
 	player_info pl_info;
 	fix pl_shields;
 	{
@@ -1486,7 +1487,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				get_local_player().hostages_total = dummy_player.hostages_total;
 				get_local_player().hostages_on_board = dummy_player.hostages_on_board;
 				get_local_player().hostages_level = dummy_player.hostages_level;
-				get_local_plrobj().ctype.player_info.homing_object_dist = -1;
+				pl_info.homing_object_dist = -1;
 				get_local_player().hours_level = dummy_player.hours_level;
 				get_local_player().hours_total = dummy_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime);
@@ -1503,15 +1504,14 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	if (Game_mode & GM_MULTI_COOP)
 		get_local_player().objnum = coop_org_objnum;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &Primary_weapon = player_info.Primary_weapon;
+	auto &Primary_weapon = pl_info.Primary_weapon;
 // Restore the weapon states
 	{
 		int8_t v;
 		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
 		Primary_weapon = static_cast<primary_weapon_index_t>(v);
 	}
-	auto &Secondary_weapon = player_info.Secondary_weapon;
+	auto &Secondary_weapon = pl_info.Secondary_weapon;
 	{
 		int8_t v;
 		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
@@ -1577,8 +1577,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 	}
 	special_reset_objects();
-	get_local_plrobj().shields = pl_shields;
-	get_local_plrobj().ctype.player_info = pl_info;
+	plrobj.shields = pl_shields;
+	plrobj.ctype.player_info = pl_info;
 
 	//	1 = Didn't die on secret level.
 	//	2 = Died on secret level.
@@ -1692,9 +1692,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 	//	Restore hacked up weapon system stuff.
 	Auto_fire_fusion_cannon_time = 0;
-	auto &plrobj = get_local_plrobj();
-	auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
-	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
+	auto &player_info = plrobj.ctype.player_info;
+	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
+	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	Next_laser_fire_time = GameTime64;
 	Next_missile_fire_time = GameTime64;
 

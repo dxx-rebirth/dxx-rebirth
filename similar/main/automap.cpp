@@ -542,13 +542,13 @@ static void name_frame(automap *am)
 
 static void automap_apply_input(automap *am)
 {
+	auto &plrobj = get_local_plrobj();
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if ( am->controls.state.fire_primary)
 		{
 			// Reset orientation
 			am->controls.state.fire_primary = 0;
-			auto &plrobj = get_local_plrobj();
 			am->viewMatrix = plrobj.orient;
 			vm_vec_scale_add(am->view_position, plrobj.pos, am->viewMatrix.fvec, -ZOOM_DEFAULT);
 		}
@@ -587,7 +587,7 @@ static void automap_apply_input(automap *am)
 			am->tangles.p = PITCH_DEFAULT;
 			am->tangles.h  = 0;
 			am->tangles.b  = 0;
-			am->view_target = get_local_plrobj().pos;
+			am->view_target = plrobj.pos;
 			am->controls.state.fire_primary = 0;
 		}
 
@@ -596,7 +596,6 @@ static void automap_apply_input(automap *am)
 		am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
 		am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
 
-		auto &plrobj = get_local_plrobj();
 		if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
 		{
 			vms_angvec      tangles1;

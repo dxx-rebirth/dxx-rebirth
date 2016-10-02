@@ -320,6 +320,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 		return;
 #endif
 
+	auto &plrobj = get_local_plrobj();
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
 		if (!(d_tick_count % 8)) {		//	Do every so often...
 			// This is a hack.  Since the control center is not processed by
@@ -331,7 +332,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 			// center can spot cloaked dudes.
 
 			if (Game_mode & GM_MULTI)
-				Believed_player_pos = get_local_plrobj().pos;
+				Believed_player_pos = plrobj.pos;
 
 			//	Hack for special control centers which are isolated and not reachable because the
 			//	real control center is inside the boss.
@@ -375,7 +376,7 @@ void do_controlcen_frame(const vobjptridx_t obj)
 		controlcen_death_silence = 0;
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = plrobj.ctype.player_info;
 		const auto &player_pos = (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
 		best_gun_num = calc_best_gun(
 			get_reactor_definition(get_reactor_id(obj)).n_guns,

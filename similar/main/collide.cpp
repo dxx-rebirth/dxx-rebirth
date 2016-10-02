@@ -396,7 +396,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 			multi_digi_link_sound_to_pos(SOUND_PLAYER_HIT_WALL, hitseg, 0, hitpt, 0, volume);
 		}
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = playerobj->ctype.player_info;
 		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 			if (playerobj->shields > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
@@ -1338,9 +1338,10 @@ void do_final_boss_hacks(void)
 		Player_dead_state = player_dead_state::no;
 	}
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	{
-		auto &shields = get_local_plrobj().shields;
+		auto &shields = plrobj.shields;
 		if (shields <= 0)
 			shields = 1;
 	}

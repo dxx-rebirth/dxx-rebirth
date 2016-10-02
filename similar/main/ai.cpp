@@ -3024,7 +3024,8 @@ void do_ai_frame(const vobjptridx_t obj)
 
 	previous_visibility = ailp->previous_visibility;    //  Must get this before we toast the master copy!
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		Believed_player_pos = ConsoleObject->pos;
@@ -3451,7 +3452,7 @@ _exit_cheat:
 	if (robot_is_companion(robptr)) {
 
 		compute_vis_and_vec(obj, player_info.powerup_flags, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-		do_escort_frame(obj, get_local_plrobj(), dist_to_player, player_visibility);
+		do_escort_frame(obj, plrobj, dist_to_player, player_visibility);
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
 			const auto &&dobjp = vobjptr(obj->ctype.ai_info.danger_laser_num);

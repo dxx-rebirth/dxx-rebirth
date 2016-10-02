@@ -416,7 +416,8 @@ int do_powerup(const vobjptridx_t obj)
 		}
 	}
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	auto id = get_powerup_id(obj);
 	switch (id)
 	{
@@ -430,7 +431,7 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 		case POW_SHIELD_BOOST:
 			{
-				auto &shields = get_local_plrobj().shields;
+				auto &shields = plrobj.shields;
 			if (shields < MAX_SHIELDS) {
 				fix boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
 #if defined(DXX_BUILD_DESCENT_II)
