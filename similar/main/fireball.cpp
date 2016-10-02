@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <numeric>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -433,11 +434,10 @@ segidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 	int		cur_depth;
 	int		head, tail;
 	array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
-	sbyte   depth[MAX_SEGMENTS];
-	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
+	array<uint8_t, MAX_SEGMENTS> depth{};
+	array<uint8_t, MAX_SIDES_PER_SEGMENT> side_rand;
 
 	visited_segment_bitarray_t visited;
-	memset(depth, 0, Highest_segment_index+1);
 
 	head = 0;
 	tail = 0;
@@ -445,8 +445,7 @@ segidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 
 	cur_depth = 0;
 
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-		side_rand[i] = i;
+	std::iota(side_rand.begin(), side_rand.end(), 0);
 
 	//	Now, randomize a bit to start, so we don't always get started in the same direction.
 	for (i=0; i<4; i++) {
