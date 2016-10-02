@@ -983,7 +983,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
 namespace dsx {
-wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
+wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vsegptridx_t seg, int side, fix damage, int playernum, const vobjptr_t obj)
 {
 	fix	show_message;
 
@@ -1034,9 +1034,7 @@ wall_hit_process_t wall_hit_process(const vsegptridx_t seg, int side, fix damage
 		(w->keys == KEY_RED && (key_color = TXT_RED, true))
 	)
 	{
-		const auto &objp = get_local_plrobj();
-		const auto &player_info = objp.ctype.player_info;
-		if (!(player_info.powerup_flags & static_cast<PLAYER_FLAG>(w->keys)))
+		if (!(powerup_flags & static_cast<PLAYER_FLAG>(w->keys)))
 		{
 			static_assert(KEY_BLUE == static_cast<unsigned>(PLAYER_FLAGS_BLUE_KEY), "BLUE key flag mismatch");
 			static_assert(KEY_GOLD == static_cast<unsigned>(PLAYER_FLAGS_GOLD_KEY), "GOLD key flag mismatch");

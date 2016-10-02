@@ -255,8 +255,9 @@ enum class wall_hit_process_t : unsigned
 // Determines what happens when a wall is shot
 //obj is the object that hit...either a weapon or the player himself
 #ifdef dsx
+class player_flags;
 namespace dsx {
-wall_hit_process_t wall_hit_process(vsegptridx_t seg, int side, fix damage, int playernum, vobjptr_t obj);
+wall_hit_process_t wall_hit_process(player_flags, vsegptridx_t seg, int side, fix damage, int playernum, vobjptr_t obj);
 
 // Opens/destroys specified door.
 }

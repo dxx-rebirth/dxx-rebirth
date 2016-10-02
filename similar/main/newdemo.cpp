@@ -2178,7 +2178,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_hit_process(vsegptridx(segnum), side, damage, player, vobjptr(ConsoleObject));
+			{
+				auto &player_info = ConsoleObject->ctype.player_info;
+				wall_hit_process(player_info.powerup_flags, vsegptridx(segnum), side, damage, player, vobjptr(ConsoleObject));
+			}
 			break;
 		}
 

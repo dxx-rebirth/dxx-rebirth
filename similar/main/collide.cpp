@@ -365,7 +365,8 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 	else
 #endif
 	{
-		wall_hit_process(hitseg, hitwall, 20, get_player_id(playerobj), playerobj );
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		wall_hit_process(player_info.powerup_flags, hitseg, hitwall, 20, get_player_id(playerobj), playerobj);
 	}
 
 	//	** Damage from hitting wall **
@@ -775,6 +776,8 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 			playernum = -1;		//not a player (thus a robot)
 	}
 
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (blew_up) {		//could be a wall switch
 		//for wall triggers, always say that the player shot it out.  This is
@@ -788,7 +791,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		smega_rock_stuff();
 #endif
 
-	const auto wall_type = wall_hit_process( hitseg, hitwall, weapon->shields, playernum, weapon );
+	const auto wall_type = wall_hit_process(player_info.powerup_flags, hitseg, hitwall, weapon->shields, playernum, weapon);
 
 	// Wall is volatile if either tmap 1 or 2 is volatile
 	if ((TmapInfo[hitseg->sides[hitwall].tmap_num].flags & TMI_VOLATILE) || (hitseg->sides[hitwall].tmap_num2 && (TmapInfo[hitseg->sides[hitwall].tmap_num2&0x3fff].flags & TMI_VOLATILE))) {
