@@ -1304,6 +1304,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
 #endif
 				show_menus();
+			delete Game_wind;
 			Game_wind = NULL;
 			event_toggle_focus(0);
 			key_toggle_repeat(1);

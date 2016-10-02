@@ -279,7 +279,7 @@ static void kmatrix_redraw_coop()
 }
 
 namespace dsx {
-static window_event_result kmatrix_handler(window *, const d_event &event, kmatrix_screen *km)
+static window_event_result kmatrix_handler(window *wind, const d_event &event, kmatrix_screen *km)
 {
 	int k = 0, choice = 0;
 	
@@ -377,6 +377,7 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
 			newmenu_free_background();
+			delete wind;
 			break;
 			
 		default:

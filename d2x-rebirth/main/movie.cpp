@@ -274,7 +274,7 @@ struct movie : ignore_window_pointer_t
 
 }
 
-static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
+static window_event_result show_pause_message(window *wind, const d_event &event, const unused_window_userdata_t *)
 {
 	switch (event.type)
 	{
@@ -309,13 +309,17 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			break;
 		}
 
+		case EVENT_WINDOW_CLOSE:
+			delete wind;
+			break;
+
 		default:
 			break;
 	}
 	return window_event_result::ignored;
 }
 
-static window_event_result MovieHandler(window *, const d_event &event, movie *m)
+static window_event_result MovieHandler(window *wind, const d_event &event, movie *m)
 {
 	int key;
 
@@ -369,6 +373,7 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 		case EVENT_WINDOW_CLOSE:
 			if (Quitting)
 				m->result = m->aborted = 1;
+			delete wind;
 			break;
 			
 		default:

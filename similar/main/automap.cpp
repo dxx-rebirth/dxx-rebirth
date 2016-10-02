@@ -951,6 +951,7 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
 			multi_send_msgsend_state(msgsend_none);
+			delete wind;
 			return window_event_result::ignored;	// continue closing
 			break;
 

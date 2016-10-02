@@ -446,6 +446,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu);
+			delete wind;
 			break;
 
 		default:

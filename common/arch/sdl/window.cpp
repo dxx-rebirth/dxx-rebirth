@@ -53,6 +53,18 @@ window::window(grs_canvas *src, int x, int y, int w, int h, window_subfunction<v
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 }
 
+window::~window()
+{
+	if (this == FrontWindow)
+		FrontWindow = this->prev;
+	if (this == FirstWindow)
+		FirstWindow = this->next;
+	if (this->next)
+		this->next->prev = this->prev;
+	if (this->prev)
+		this->prev->next = this->next;
+}
+
 int window_close(window *wind)
 {
 	window *prev;
@@ -72,21 +84,12 @@ int window_close(window *wind)
 		return 0;
 	}
 
-	if (wind == FrontWindow)
-		FrontWindow = wind->prev;
-	if (wind == FirstWindow)
-		FirstWindow = wind->next;
-	if (wind->next)
-		wind->next->prev = wind->prev;
-	if (wind->prev)
-		wind->prev->next = wind->next;
-
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
 	event.type = EVENT_WINDOW_CLOSED;
-	w_callback(wind, event, NULL);	// callback needs to recognise this is a NULL pointer!
-	delete wind;
+	w_callback(nullptr, event, nullptr);	// callback needs to recognise nullptr is being passed!
+	
 	return 1;
 }
 

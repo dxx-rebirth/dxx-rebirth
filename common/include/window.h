@@ -57,7 +57,7 @@ private:
 	window_subfunction<void> w_callback;	// the event handler
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
-	void *w_data;							// whatever the user wants (eg menu data for 'newmenu' menus)
+	void *w_data;						// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
 	
@@ -69,7 +69,9 @@ public:
 	template <typename T>
 	window(grs_canvas *src, int x, int y, int w, int h, window_subclass_subfunction<T> event_callback) :
 	window(src, x, y, w, h, reinterpret_cast<window_subclass_subfunction<window>>(event_callback), nullptr, nullptr) {}
-	
+
+	~window();
+
 	// Declaring as friends to keep function syntax, for historical reasons (for now at least)
 	// Intended to transition to the class method form
 	friend window *window_create(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
