@@ -320,9 +320,17 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 		return PCX_ERROR_WRITING;
 	}
 
-	for (uint_fast32_t i=0; i<bmp->bm_h; i++ )	{
-		if (!pcx_encode_line( &bmp->get_bitmap_data()[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
+	{
+		const uint_fast32_t bm_w = bmp->bm_w;
+		const uint_fast32_t bm_rowsize = bmp->bm_rowsize;
+		const auto bm_data = bmp->get_bitmap_data();
+		const auto e = &bm_data[bm_rowsize * bmp->bm_h];
+		for (auto i = &bm_data[0]; i != e; i += bm_rowsize)
+		{
+			if (!pcx_encode_line(i, bm_w, PCXfile))
+			{
 			return PCX_ERROR_WRITING;
+			}
 		}
 	}
 
