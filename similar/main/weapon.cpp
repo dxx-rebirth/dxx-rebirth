@@ -921,9 +921,8 @@ int pick_up_primary(int weapon_index)
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-void check_to_use_primary_super_laser()
+void check_to_use_primary_super_laser(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!(player_info.primary_weapon_flags & HAS_SUPER_LASER_FLAG))
 	{
 		const auto weapon_index = primary_weapon_index_t::SUPER_LASER_INDEX;

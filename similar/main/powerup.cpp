@@ -685,7 +685,7 @@ int do_powerup(const vobjptridx_t obj)
 				powerup_basic(10, 0, 10, LASER_SCORE, "Super Boost to Laser level %d", player_info.laser_level + 1);
 				update_laser_weapon_info();
 				if (player_info.Primary_weapon != primary_weapon_index_t::LASER_INDEX)
-					check_to_use_primary_super_laser();
+					check_to_use_primary_super_laser(player_info);
 				used=1;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
