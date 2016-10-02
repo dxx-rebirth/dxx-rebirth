@@ -510,7 +510,7 @@ void omega_charge_frame(void)
 	if (Omega_charge == MAX_OMEGA_CHARGE)
 		return;
 
-	if (!player_has_primary_weapon(primary_weapon_index_t::OMEGA_INDEX).has_weapon())
+	if (!player_has_primary_weapon(player_info, primary_weapon_index_t::OMEGA_INDEX).has_weapon())
 		return;
 
 	if (Player_dead_state != player_dead_state::no)

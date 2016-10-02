@@ -1117,7 +1117,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 	if (player_info.Primary_weapon == consider_weapon)
 		return hud_rgb_red;
 	else{
-		if (player_has_primary_weapon(consider_weapon).has_weapon())
+		if (player_has_primary_weapon(player_info, consider_weapon).has_weapon())
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			const auto is_super = (consider_weapon >= 5);
@@ -2713,7 +2713,7 @@ void show_reticle(int reticle_type, int secondary_display)
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Primary_weapon = player_info.Primary_weapon;
-	primary_bm_num = (laser_ready && player_has_primary_weapon(Primary_weapon).has_all());
+	primary_bm_num = (laser_ready && player_has_primary_weapon(player_info, Primary_weapon).has_all());
 	auto &Secondary_weapon = player_info.Secondary_weapon;
 	secondary_bm_num = (missile_ready && player_has_secondary_weapon(Secondary_weapon).has_all());
 

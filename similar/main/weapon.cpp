@@ -190,10 +190,9 @@ static unsigned get_mapped_weapon_index(const player_info &player_info, const pr
 //		HAS_AMMO_FLAG
 // See weapon.h for bit values
 namespace dsx {
-has_weapon_result player_has_primary_weapon(int weapon_num)
+has_weapon_result player_has_primary_weapon(const player_info &player_info, int weapon_num)
 {
 	int	return_value = 0;
-	auto &player_info = get_local_plrobj().ctype.player_info;
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
@@ -275,9 +274,7 @@ public:
 
 class cycle_primary_state : public cycle_weapon_state
 {
-#if defined(DXX_BUILD_DESCENT_II)
 	player_info &pl_info = get_local_plrobj().ctype.player_info;
-#endif
 	using weapon_index_type = primary_weapon_index_t;
 public:
 	static constexpr tt::integral_constant<uint_fast32_t, MAX_PRIMARY_WEAPONS> max_weapons{};
@@ -313,7 +310,7 @@ public:
 				desired_weapon = primary_weapon_index_t::LASER_INDEX;
 		}
 #endif
-		if (!player_has_primary_weapon(desired_weapon).has_all())
+		if (!player_has_primary_weapon(pl_info, desired_weapon).has_all())
 			return false;
 		select_primary_weapon(PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
@@ -533,7 +530,8 @@ static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const
 
 static bool reject_unusable_primary_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
-	const auto weapon_status = player_has_primary_weapon(weapon_num);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	const char *prefix;
 	if (!weapon_status.has_weapon())
 		prefix = TXT_DONT_HAVE;
@@ -584,7 +582,7 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 		//already have this selected, so toggle to other of normal/super version
 
 		weapon_num += weapon_num+SUPER_WEAPON - current;
-		weapon_status = player_has_primary_weapon(weapon_num);
+		weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	}
 	else {
 		const auto weapon_num_save = weapon_num;
@@ -594,13 +592,13 @@ void do_primary_weapon_select(uint_fast32_t weapon_num)
 		if (last_was_super)
 			weapon_num += SUPER_WEAPON;
 
-		weapon_status = player_has_primary_weapon(weapon_num);
+		weapon_status = player_has_primary_weapon(player_info, weapon_num);
 
 		//if don't have last-selected, try other version
 
 		if ((weapon_status.flags() & has_flag) != has_flag) {
 			weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
-			weapon_status = player_has_primary_weapon(weapon_num);
+			weapon_status = player_has_primary_weapon(player_info, weapon_num);
 			if ((weapon_status.flags() & has_flag) != has_flag)
 				weapon_num = 2*weapon_num_save+SUPER_WEAPON - weapon_num;
 		}
@@ -714,7 +712,7 @@ namespace dsx {
 // Weapon type: 0==primary, 1==secondary
 void auto_select_primary_weapon(player_info &player_info)
 {
-	if (!player_has_primary_weapon(player_info.Primary_weapon).has_all())
+	if (!player_has_primary_weapon(player_info, player_info.Primary_weapon).has_all())
 			auto_select_weapon<cycle_primary_state>({});
 }
 
@@ -733,7 +731,7 @@ void delayed_autoselect(player_info &player_info)
 		const auto delayed_primary = Primary_weapon.get_delayed();
 		if (delayed_primary != primary_weapon)
 		{
-			if (player_has_primary_weapon(delayed_primary).has_all())
+			if (player_has_primary_weapon(player_info, delayed_primary).has_all())
 				select_primary_weapon(nullptr, delayed_primary, 1);
 			else
 				Primary_weapon.set_delayed(primary_weapon);
