@@ -218,7 +218,8 @@ static int pick_up_energy(void)
 
 static int pick_up_primary_or_energy(int weapon_index)
 {
-	const auto used = pick_up_primary(weapon_index);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto used = pick_up_primary(player_info, weapon_index);
 	if (used || (Game_mode & GM_MULTI))
 		return used;
 	return pick_up_energy();
@@ -458,7 +459,7 @@ int do_powerup(const vobjptridx_t obj)
 				++ player_info.laser_level;
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, player_info.laser_level+1);
 				update_laser_weapon_info();
-				pick_up_primary (primary_weapon_index_t::LASER_INDEX);
+				pick_up_primary(player_info, primary_weapon_index_t::LASER_INDEX);
 				used=1;
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
@@ -486,7 +487,7 @@ int do_powerup(const vobjptridx_t obj)
 
 		case	POW_VULCAN_WEAPON:
 #if defined(DXX_BUILD_DESCENT_I)
-			if ((used = pick_up_primary(primary_weapon_index_t::VULCAN_INDEX)) != 0) {
+			if ((used = pick_up_primary(player_info, primary_weapon_index_t::VULCAN_INDEX)) != 0) {
 				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
 				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
 				pick_up_vulcan_ammo(player_info, vulcan_ammo_to_add_with_cannon);
@@ -514,7 +515,7 @@ int do_powerup(const vobjptridx_t obj)
 		case	POW_GAUSS_WEAPON: {
 			int ammo = obj->ctype.powerup_info.count;
 
-			used = pick_up_primary((get_powerup_id(obj) == POW_VULCAN_WEAPON)
+			used = pick_up_primary(player_info, (get_powerup_id(obj) == POW_VULCAN_WEAPON)
 				? primary_weapon_index_t::VULCAN_INDEX
 				: primary_weapon_index_t::GAUSS_INDEX
 			);
@@ -566,7 +567,7 @@ int do_powerup(const vobjptridx_t obj)
 			break;
 
 		case	POW_OMEGA_WEAPON:
-			used = pick_up_primary(primary_weapon_index_t::OMEGA_INDEX);
+			used = pick_up_primary(player_info, primary_weapon_index_t::OMEGA_INDEX);
 			if (used)
 				player_info.Omega_charge = obj->ctype.powerup_info.count;
 			if (!used && !(Game_mode & GM_MULTI) )

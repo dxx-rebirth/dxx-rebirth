@@ -893,12 +893,12 @@ uint_fast32_t SOrderList (uint_fast32_t num)
 	return search_weapon_order_list<cycle_secondary_state>(num);
 }
 
+namespace dsx {
 //called when a primary weapon is picked up
 //returns true if actually picked up
-int pick_up_primary(int weapon_index)
+int pick_up_primary(player_info &player_info, int weapon_index)
 {
 	ushort flag = HAS_PRIMARY_FLAG(weapon_index);
-	auto &player_info = get_local_plrobj().ctype.player_info;
 
 	if (weapon_index != primary_weapon_index_t::LASER_INDEX &&
 		(player_info.primary_weapon_flags & flag))
@@ -920,7 +920,6 @@ int pick_up_primary(int weapon_index)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 void check_to_use_primary_super_laser(player_info &player_info)
 {
 	if (!(player_info.primary_weapon_flags & HAS_SUPER_LASER_FLAG))
@@ -935,10 +934,8 @@ void check_to_use_primary_super_laser(player_info &player_info)
 	}
 	PALETTE_FLASH_ADD(7,14,21);
 }
-}
 #endif
 
-namespace dsx {
 static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_I)

@@ -193,12 +193,12 @@ has_weapon_result player_has_secondary_weapon(const player_info &, int weapon_nu
 #ifdef dsx
 namespace dsx {
 int pick_up_secondary(int weapon_index,int count);
+int pick_up_primary(player_info &, int weapon_index);
 
 //called when a primary weapon is picked up
 //returns true if actually picked up
 }
 #endif
-int pick_up_primary(int weapon_index);
 
 //called when ammo (for the vulcan cannon) is picked up
 
