@@ -719,9 +719,10 @@ void auto_select_secondary_weapon()
 			auto_select_weapon<cycle_secondary_state>({});
 }
 
-void delayed_autoselect()
+namespace dsx {
+
+void delayed_autoselect(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!Controls.state.fire_primary)
 	{
 		auto &Primary_weapon = player_info.Primary_weapon;
@@ -747,6 +748,8 @@ void delayed_autoselect()
 				Delayed_secondary = secondary_weapon;
 		}
 	}
+}
+
 }
 
 static void maybe_autoselect_primary_weapon(int weapon_index)

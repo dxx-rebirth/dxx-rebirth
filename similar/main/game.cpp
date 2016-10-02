@@ -1543,7 +1543,7 @@ void GameProcessFrame(void)
 				laser_firing_count = 0;
 		}
 		Global_laser_firing_count = laser_firing_count;
-		delayed_autoselect();
+		delayed_autoselect(get_local_plrobj().ctype.player_info);
 	}
 
 	if (Do_appearance_effect) {

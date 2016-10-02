@@ -39,8 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-type_traits.h"
 
-void delayed_autoselect();
-
 #ifdef dsx
 namespace dsx {
 
@@ -233,6 +231,9 @@ enum secondary_weapon_index_t : uint8_t
 	SMISSILE5_INDEX = 9,
 #endif
 };
+
+struct player_info;
+void delayed_autoselect(player_info &);
 
 }
 
