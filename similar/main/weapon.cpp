@@ -198,8 +198,6 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
 	auto &energy = player_info.energy;
-	if (energy < 0)
-		energy = 0;
 
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
@@ -225,13 +223,21 @@ has_weapon_result player_has_primary_weapon(int weapon_num)
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
-			if (energy || get_local_plrobj().ctype.player_info.Omega_charge)
+			if (energy > 0 || player_info.Omega_charge)
 				return_value |= has_weapon_result::has_energy_flag;
 		}
 #endif
 		else
-			if (Weapon_info[weapon_index].energy_usage <= energy)
+		{
+			const auto energy_usage = Weapon_info[weapon_index].energy_usage;
+			/* The test for `energy_usage <= 0` should not be needed.
+			 * However, a Parallax comment suggests that players
+			 * sometimes get negative energy.  Use this test in
+			 * preference to coercing negative player energy to zero.
+			 */
+			if (energy_usage <= 0 || energy_usage <= energy)
 				return_value |= has_weapon_result::has_energy_flag;
+		}
 	return return_value;
 }
 }
