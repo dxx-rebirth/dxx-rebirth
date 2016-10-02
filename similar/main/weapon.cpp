@@ -415,15 +415,12 @@ void CycleWeapon(T t, const uint_fast32_t effective_weapon)
 }
 
 }
-}
 
-void CyclePrimary ()
+void CyclePrimary(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	CycleWeapon(cycle_primary_state(player_info), get_mapped_weapon_index(player_info, player_info.Primary_weapon));
 }
 
-namespace dsx {
 void CycleSecondary(player_info &player_info)
 {
 	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);

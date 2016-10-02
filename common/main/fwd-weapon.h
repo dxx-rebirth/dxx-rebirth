@@ -223,10 +223,10 @@ extern fix64 Seismic_disturbance_end_time;
 #ifdef dsx
 namespace dsx {
 void InitWeaponOrdering();
+void CyclePrimary(player_info &);
 void CycleSecondary(player_info &);
 }
 #endif
-void CyclePrimary();
 void ReorderPrimary();
 void ReorderSecondary();
 #ifdef dsx

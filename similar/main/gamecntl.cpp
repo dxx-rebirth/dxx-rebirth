@@ -255,7 +255,7 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.cycle_primary > 0)
 	{
 		for (uint_fast32_t i = exchange(Controls.state.cycle_primary, 0); i--;)
-			CyclePrimary ();
+			CyclePrimary(player_info);
 	}
 	if (Controls.state.cycle_secondary > 0)
 	{
