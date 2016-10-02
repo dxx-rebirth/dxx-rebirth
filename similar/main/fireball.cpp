@@ -426,12 +426,11 @@ static int door_is_openable_by_player(const vcsegptr_t segp, int sidenum)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return a segment %i segments away from initial segment.
 //	Returns -1 if can't find a segment that distance away.
-segidx_t pick_connected_segment(const vcobjptr_t objp, int max_depth)
+segidx_t pick_connected_segment(const vcsegidx_t start_seg, int max_depth)
 {
 	using std::swap;
 	int		i;
 	int		cur_depth;
-	int		start_seg;
 	int		head, tail;
 	array<segnum_t, QUEUE_SIZE * 2> seg_queue{};
 	sbyte   depth[MAX_SEGMENTS];
@@ -440,7 +439,6 @@ segidx_t pick_connected_segment(const vcobjptr_t objp, int max_depth)
 	visited_segment_bitarray_t visited;
 	memset(depth, 0, Highest_segment_index+1);
 
-	start_seg = objp->segnum;
 	head = 0;
 	tail = 0;
 	seg_queue[head++] = start_seg;
@@ -556,7 +554,7 @@ static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 			pnum = drop_pnum;
 		}
 
-		segnum = pick_connected_segment(vcobjptr(Players[pnum].objnum), cur_drop_depth);
+		segnum = pick_connected_segment(vcobjptr(Players[pnum].objnum)->segnum, cur_drop_depth);
 		if (segnum == segment_none)
 		{
 			cur_drop_depth--;
@@ -593,7 +591,7 @@ static vsegptridx_t choose_drop_segment(playernum_t drop_pnum)
 		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == segment_none) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
-			segnum = pick_connected_segment(vcobjptr(Players[drop_pnum].objnum), --cur_drop_depth);
+			segnum = pick_connected_segment(vcobjptr(Players[drop_pnum].objnum)->segnum, --cur_drop_depth);
 			if (segnum != segment_none && vcsegptr(segnum)->special == SEGMENT_IS_CONTROLCEN)
 				segnum = segment_none;
 		}
