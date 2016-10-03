@@ -217,8 +217,7 @@ static window_event_result credits_handler(window *wind, const d_event &event, c
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			std::default_delete<credits>()(cr);
-			if (wind)
-				delete wind;
+			delete wind;
 			break;
 		default:
 			break;

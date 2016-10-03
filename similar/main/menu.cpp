@@ -2354,8 +2354,7 @@ static window_event_result polygon_models_viewer_handler(window *wind, const d_e
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
-			if (wind)
-				delete wind;
+			delete wind;
 			break;
 		default:
 			break;
@@ -2435,8 +2434,7 @@ static window_event_result gamebitmaps_viewer_handler(window *wind, const d_even
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
-			if (wind)
-				delete wind;
+			delete wind;
 			break;
 		default:
 			break;
