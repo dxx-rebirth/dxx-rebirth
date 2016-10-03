@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-window.h"
 
-struct window *info_window_create(void);
+class window *info_window_create(void);
 
 extern int init_info;
 

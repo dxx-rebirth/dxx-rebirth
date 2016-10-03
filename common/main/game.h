@@ -47,7 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAXIMUM_FPS 1000
 #endif
 
-extern struct window *Game_wind;
+extern class window *Game_wind;
 
 // from mglobal.c
 namespace dcx {

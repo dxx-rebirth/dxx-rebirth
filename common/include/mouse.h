@@ -52,7 +52,7 @@ extern void mouse_flush();	// clears all mice events...
 extern void mouse_init(void);
 extern void mouse_close(void);
 extern void mouse_get_pos( int *x, int *y, int *z );
-window_event_result mouse_in_window(struct window *wind);
+window_event_result mouse_in_window(class window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 void mouse_enable_cursor();
 void mouse_disable_cursor();

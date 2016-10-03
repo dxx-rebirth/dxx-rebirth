@@ -50,16 +50,15 @@ static inline void set_embedded_window_pointer(embed_window_pointer_t *wp, windo
 
 static inline void set_embedded_window_pointer(ignore_window_pointer_t *, window *) {}
 
-struct window
+class window
 {
-private:
 	grs_canvas w_canv;					// the window's canvas to draw to
 	window_subfunction<void> w_callback;	// the event handler
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
 	void *w_data;						// whatever the user wants (eg menu data for 'newmenu' menus)
-	struct window *prev;				// the previous window in the doubly linked list
-	struct window *next;				// the next window in the doubly linked list
+	class window *prev;				// the previous window in the doubly linked list
+	class window *next;				// the next window in the doubly linked list
 	
 public:
 	// For creating the window, there are two ways - using the (older) window_create function

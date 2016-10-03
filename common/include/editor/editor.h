@@ -170,7 +170,7 @@ extern grs_font_ptr editor_font;
 
 extern	vms_vector Ed_view_target;		// what editor is looking at
 
-extern	struct window *Pad_info;		// Keypad text
+extern	class window *Pad_info;		// Keypad text
 
 extern	int		Show_axes_flag;		// 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 

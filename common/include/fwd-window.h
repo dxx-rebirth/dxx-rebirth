@@ -18,7 +18,7 @@ void arch_init();
 #endif
 namespace dcx {
 
-struct window;
+class window;
 enum class window_event_result : uint8_t;
 
 template <typename T>
