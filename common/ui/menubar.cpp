@@ -510,7 +510,7 @@ static window_event_result do_state_2(const d_event &event)
 
 
 
-static window_event_result menu_handler(window *, const d_event &event, MENU *menu)
+static window_event_result menu_handler(window *wind, const d_event &event, MENU *menu)
 {
 	int i;
 	int keypress = 0;
@@ -524,7 +524,8 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 	{
 		state = 0;
 		menu_hide_all();
-		menu->wind = NULL;
+		delete wind;
+		menu->wind = nullptr;
 		return window_event_result::ignored;
 	}
 	window_event_result rval = window_event_result::ignored;
@@ -664,7 +665,7 @@ static window_event_result menu_handler(window *, const d_event &event, MENU *me
 	return rval;
 }
 
-static window_event_result menubar_handler(window *, const d_event &event, MENU *)
+static window_event_result menubar_handler(window *wind, const d_event &event, MENU *)
 {
 	if (event.type == EVENT_WINDOW_DRAW)
 	{
@@ -684,7 +685,8 @@ static window_event_result menubar_handler(window *, const d_event &event, MENU 
 			}
 		}
 		
-		Menu[0].wind = NULL;
+		delete wind;
+		Menu[0].wind = nullptr;
 	}
 
 	switch (state)

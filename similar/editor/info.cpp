@@ -334,6 +334,7 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 			return window_event_result::handled;
 		case EVENT_WINDOW_CLOSE:
 			Pad_info = NULL;
+			delete wind;
 			break;
 			
 		default:

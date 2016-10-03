@@ -339,7 +339,7 @@ struct pause_window : ignore_window_pointer_t
 };
 
 //Process selected keys until game unpaused
-static window_event_result pause_handler(window *, const d_event &event, pause_window *p)
+static window_event_result pause_handler(window *wind, const d_event &event, pause_window *p)
 {
 	int key;
 
@@ -379,6 +379,7 @@ static window_event_result pause_handler(window *, const d_event &event, pause_w
 		case EVENT_WINDOW_CLOSE:
 			songs_resume();
 			delete p;
+			delete wind;
 			break;
 
 		default:
