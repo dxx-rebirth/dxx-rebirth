@@ -318,7 +318,7 @@ static int padnum=0;
 
 static void init_editor_screen();
 static void gamestate_restore_check();
-static int editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
+static window_event_result editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
 
 namespace dsx {
 void init_editor()
@@ -957,14 +957,14 @@ int RestoreGameState() {
 }
 
 // Handler for the main editor dialog
-int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
+window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 {
 	editor_view *new_cv;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 
 	if (event.type == EVENT_WINDOW_CREATED)
-		return 0;
+		return window_event_result::ignored;
 
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -972,7 +972,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 	{
 		close_editor();
 		EditorWindow = NULL;
-		return 0;
+		return window_event_result::ignored;
 	}
 	
 	// Update the windows
@@ -994,7 +994,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 		print_status_bar(status_line);
 		TimedAutosave(mine_filename);	// shows the time, hence here
 		set_editor_time_of_day();
-		return 1;
+		return window_event_result::handled;
 	}
 	
 	if ((selected_gadget == GameViewBox.get() && !render_3d_in_big_window) ||
@@ -1025,7 +1025,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 						Update_flags |= UF_ED_STATE_CHANGED;
 					}
 
-					rval = 1;
+					rval = window_event_result::handled;
 				}
 				break;
 				
@@ -1093,7 +1093,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 	{
 		KeyFunction[keypress]();
 		keypress = 0;
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 
 	switch (keypress)
@@ -1111,15 +1111,15 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 			break;
 		case KEY_SHIFTED + KEY_L:
 			ToggleLighting();
-			rval = 1;
+			rval = window_event_result::handled;
 			break;
 		case KEY_F1:
 			render_3d_in_big_window = !render_3d_in_big_window;
 			Update_flags |= UF_ALL;
-			rval = 1;
+			rval = window_event_result::handled;
 			break;			
 		default:
-			if (!rval)
+			if (rval == window_event_result::ignored)
 			{
 				char kdesc[100];
 				GetKeyDescription( kdesc, keypress );
@@ -1132,7 +1132,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 	if (ModeFlag)
 	{
 		ui_close_dialog(EditorWindow);
-		return 0;
+		return window_event_result::ignored;
 	}
 
 //		if (EditorWindow->keyboard_focus_gadget == GameViewBox) current_view=NULL;
@@ -1154,10 +1154,10 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 
 	// DO TEXTURE STUFF
 	if (texpage_do(event))
-		rval = 1;
+		rval = window_event_result::handled;
 	
 	if (objpage_do(event))
-		rval = 1;
+		rval = window_event_result::handled;
 
 
 	// Process selection of Cursegp using mouse.
@@ -1274,7 +1274,7 @@ int editor_handler(UI_DIALOG *, const d_event &event, unused_ui_userdata_t *)
 			LargeView.ev_matrix = vm_matrix_x_matrix(LargeView.ev_matrix,MouseRotMat);
 			LargeView.ev_changed = 1;
 			Large_view_index = -1;			// say not one of the orthogonal views
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 

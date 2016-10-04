@@ -76,7 +76,7 @@ struct centers_dialog
 
 }
 
-static int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c);
+static window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box
@@ -108,7 +108,7 @@ int do_centers_dialog()
 }
 
 namespace dsx {
-static int centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
+static window_event_result centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	int i = 80;
@@ -135,7 +135,7 @@ static int centers_dialog_created(UI_DIALOG *const w, centers_dialog *const c)
 	for (i=0; i < N_robot_types; i++)
 		c->robotMatFlag[i] = ui_add_gadget_checkbox( w, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i].data());
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
-	return 1;
+	return window_event_result::handled;
 }
 }
 
@@ -147,7 +147,7 @@ void close_centers_window()
 	}
 }
 
-int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
+window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *c)
 {
 	switch(event.type)
 	{
@@ -156,13 +156,13 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<centers_dialog>()(c);
 			MainWindow = NULL;
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
 //	int robot_flags;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 
 	Assert(MainWindow != NULL);
 
@@ -208,7 +208,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 				Update_flags |= UF_WORLD_CHANGED;
 				fuelcen_activate( Cursegp, i );
 			}
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 
@@ -222,7 +222,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 				f |= mask;
 			else
 				f &= ~mask;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	}
 	
@@ -242,7 +242,7 @@ int centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, centers_dialog *
 	if (GADGET_PRESSED(c->quitButton.get()) || keypress==KEY_ESC)
 	{
 		close_centers_window();
-		return 1;
+		return window_event_result::handled;
 	}		
 
 	c->old_seg_num = Cursegp;

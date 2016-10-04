@@ -61,7 +61,7 @@ struct messagebox
 
 }
 
-static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m)
+static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m)
 {
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
@@ -83,7 +83,7 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 
 		grd_curscreen->sc_canvas.cv_font = temp_font;
 		
-		return 1;
+		return window_event_result::handled;
 	}
 
 	for (uint_fast32_t i=0; i < m->button->count(); i++ )
@@ -91,11 +91,11 @@ static int messagebox_handler(UI_DIALOG *dlg,const d_event &event, messagebox *m
 		if (GADGET_PRESSED(m->button_g[i].get()))
 		{
 			*(m->choice) = i+1;
-			return 1;
+			return window_event_result::handled;
 		}
 	}
 	
-	return 0;
+	return window_event_result::ignored;
 }
 
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )

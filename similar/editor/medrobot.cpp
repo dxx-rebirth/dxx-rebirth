@@ -84,7 +84,7 @@ struct robot_dialog
 }
 
 namespace dsx {
-static int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
+static window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
 }
 static void call_init_ai_object(object &objp, ai_behavior behavior)
@@ -482,7 +482,7 @@ int do_robot_dialog()
 	return 1;
 }
 
-static int robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
+static window_event_result robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
 {
 	r->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL);
 	r->prev_powerup_type = ui_add_gadget_button(w, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
@@ -515,7 +515,7 @@ static int robot_dialog_created(UI_DIALOG *const w, robot_dialog *const r)
 	r->old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
 	if ( Cur_object_index == object_none)
 		LocalObjectSelectNextinMine();
-	return 1;
+	return window_event_result::handled;
 }
 
 void robot_close_window()
@@ -528,7 +528,7 @@ void robot_close_window()
 }
 
 namespace dsx {
-int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
+window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 {
 	switch(event.type)
 	{
@@ -537,7 +537,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<robot_dialog>()(r);
 			MainWindow = NULL;
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
@@ -545,7 +545,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	fix64	Temp;
 	int	first_object_index;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -611,7 +611,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 			if (behavior != b) {
 				behavior = b;		// Set the ai_state to the cooresponding radio button
 				call_init_ai_object(objp, b);
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 		}
 	}
@@ -716,7 +716,7 @@ int robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r)
 	if (GADGET_PRESSED(r->quitButton.get()) || keypress == KEY_ESC)
 	{
 		robot_close_window();
-		return 1;
+		return window_event_result::handled;
 	}		
 
 	r->old_object = Cur_object_index;
@@ -751,7 +751,7 @@ struct object_dialog
 
 }
 
-static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
+static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o);
 
 void object_close_window()
 {
@@ -785,7 +785,7 @@ int do_object_dialog()
 	return 1;
 }
 
-static int object_dialog_created(UI_DIALOG *const w, object_dialog *const o, const object_dialog::creation_context *const c)
+static window_event_result object_dialog_created(UI_DIALOG *const w, object_dialog *const o, const object_dialog::creation_context *const c)
 {
 	o->quitButton = ui_add_gadget_button(w, 20, 286, 40, 32, "Done", NULL );
 	o->quitButton->hotkey = KEY_ENTER;
@@ -802,10 +802,11 @@ static int object_dialog_created(UI_DIALOG *const w, object_dialog *const o, con
 	o->ztext = ui_add_gadget_inputbox<MATT_LEN>(w, 30, 192, message);
 	ui_gadget_calc_keys(w);
 	w->keyboard_focus_gadget = o->initialMode[0].get();
-	return 1;
+
+	return window_event_result::handled;
 }
 
-static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
+static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dialog *o)
 {
 	switch(event.type)
 	{
@@ -814,13 +815,13 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<object_dialog>()(o);
 			MattWindow = NULL;
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
 	const auto &&obj = vobjptr(Cur_object_index);
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -851,7 +852,7 @@ static int object_dialog_handler(UI_DIALOG *dlg,const d_event &event, object_dia
 		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text.get()));
 
 		object_close_window();
-		return 1;
+		return window_event_result::handled;
 	}
 	
 	return rval;

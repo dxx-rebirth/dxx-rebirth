@@ -114,9 +114,9 @@ struct ui_file_browser
 
 }
 
-static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_browser *const b)
+static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_browser *const b)
 {
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
@@ -129,7 +129,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 		ui_dputs_at(dlg, 20, 60, b->spaces.data());
 		ui_dputs_at( dlg, 20, 60, b->view_dir );
 		
-		return 1;
+		return window_event_result::handled;
 	}
 
 	if (GADGET_PRESSED(b->button2.get()))
@@ -137,13 +137,13 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 		b->filename_list.reset();
 		b->directory_list.reset();
 		ui_close_dialog(dlg);
-		return 1;
+		return window_event_result::handled;
 	}
 	
 	if (GADGET_PRESSED(b->help_button.get()))
 	{
 		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 	
 	if (event.type == EVENT_UI_LISTBOX_MOVED)
@@ -154,7 +154,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 		if ((ui_event_get_gadget(event) == b->listbox2.get()) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
 			ui_inputbox_set_text(b->user_file.get(), b->directory_list[b->listbox2->current_item]);
 
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 	
 	if (GADGET_PRESSED(b->button1.get()) || GADGET_PRESSED(b->user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
@@ -190,7 +190,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 			{
 				// Looks like a valid filename that already exists!
 				ui_close_dialog(dlg);
-				return 1;
+				return window_event_result::handled;
 			}
 			
 			// File doesn't exist, but can we create it?
@@ -200,7 +200,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 				// Looks like a valid filename!
 				PHYSFS_delete(b->filename);
 				ui_close_dialog(dlg);
-				return 1;
+				return window_event_result::handled;
 			}
 		}
 		else
@@ -214,7 +214,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 			{
 				b->directory_list.reset();
 				ui_close_dialog(dlg);
-				return 1;
+				return window_event_result::handled;
 			}
 			
 			ui_inputbox_set_text(b->user_file.get(), b->filespec);
@@ -223,7 +223,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 			{
 				b->filename_list.reset();
 				ui_close_dialog(dlg);
-				return 1;
+				return window_event_result::handled;
 			}
 			
 			ui_listbox_change(dlg, b->listbox1.get(), b->filename_list.get_count(), b->filename_list.get());
@@ -234,7 +234,7 @@ static int browser_handler(UI_DIALOG *const dlg, const d_event &event, ui_file_b
 			
 		}
 		
-		rval = 1;
+		rval = window_event_result::handled;
 	}
 	
 	return rval;

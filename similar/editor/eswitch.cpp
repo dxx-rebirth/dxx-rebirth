@@ -281,7 +281,7 @@ static int trigger_turn_all_ON()
 	return 1;
 }
 
-static int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t);
+static window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the trigger dialog box
@@ -308,7 +308,7 @@ int do_trigger_dialog()
 	return 1;
 }
 
-static int trigger_dialog_created(UI_DIALOG *const w, trigger_dialog *const t)
+static window_event_result trigger_dialog_created(UI_DIALOG *const w, trigger_dialog *const t)
 {
 	// These are the checkboxes for each door flag.
 	int i = 44;
@@ -336,7 +336,7 @@ static int trigger_dialog_created(UI_DIALOG *const w, trigger_dialog *const t)
 	t->enable_all_triggers = ui_add_gadget_button(w, 155, i, 140, 26, "All Triggers ON", trigger_turn_all_ON); i += 29;
 
 	t->old_trigger_num = -2;		// Set to some dummy value so everything works ok on the first frame.
-	return 1;
+	return window_event_result::handled;
 }
 
 void close_trigger_window()
@@ -347,7 +347,7 @@ void close_trigger_window()
 	}
 }
 
-int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t)
+window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *t)
 {
 	switch(event.type)
 	{
@@ -356,17 +356,17 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<trigger_dialog>()(t);
 			MainWindow = NULL;
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 
 	Assert(MainWindow != NULL);
 	if (!Markedsegp) {
 		close_trigger_window();
-		return 0;
+		return window_event_result::ignored;
 	}
 
 	//------------------------------------------------------------
@@ -409,7 +409,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	//------------------------------------------------------------
 	if (IS_CHILD(Markedsegp->children[Markedside]))
 	{
-		rval = 1;
+		rval = window_event_result::handled;
 		
 		if (GADGET_PRESSED(t->triggerFlag[0].get())) 
 			trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, t->triggerFlag[0]->flag); 
@@ -432,7 +432,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 		else if (GADGET_PRESSED(t->triggerFlag[9].get())) 
 			trigger_flag_Markedside(TRIGGER_SECRET_EXIT, t->triggerFlag[9]->flag);
 		else
-			rval = 0;
+			rval = window_event_result::ignored;
 
 	} else
 		range_for (auto &i, t->triggerFlag)
@@ -478,7 +478,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, trigger_dialog *
 	if (GADGET_PRESSED(t->quitButton.get()) || keypress == KEY_ESC)
 	{
 		close_trigger_window();
-		return 1;
+		return window_event_result::handled;
 	}		
 
 	t->old_trigger_num = trigger_num;

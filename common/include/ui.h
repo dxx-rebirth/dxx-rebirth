@@ -216,10 +216,10 @@ enum dialog_flags
 };
 
 template <typename T>
-using ui_subfunction_t = int (*)(struct UI_DIALOG *,const d_event &, T *);
+using ui_subfunction_t = window_event_result (*)(struct UI_DIALOG *,const d_event &, T *);
 
 template <typename T>
-using ui_subclass_subfunction_t = int (*)(T *,const d_event &, void *);
+using ui_subclass_subfunction_t = window_event_result (*)(T *,const d_event &, void *);
 
 struct UI_DIALOG : embed_window_pointer_t
 {
