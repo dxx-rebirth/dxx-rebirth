@@ -241,6 +241,8 @@ public:
 	template <typename T>
 	UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subclass_subfunction_t<T> callback) :
 	UI_DIALOG(x, y, w, h, flags, reinterpret_cast<ui_subclass_subfunction_t<UI_DIALOG>>(callback), nullptr, nullptr) {}
+	
+	~UI_DIALOG();
 };
 
 #define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)

@@ -133,10 +133,9 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			ui_gadget_delete_all(dlg);
-			selected_gadget = NULL;
-			delete dlg;
-			return window_event_result::ignored;
+			if (rval != window_event_result::deleted)	// check if handler already deleted dialog (e.g. if UI_DIALOG was subclassed)
+				delete dlg;
+			return window_event_result::ignored;	// free the window in any case (until UI_DIALOG is subclass of window)
 		default:
 			return window_event_result::ignored;
 	}
@@ -192,6 +191,12 @@ window *ui_dialog_get_window(UI_DIALOG *dlg)
 void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 {
 	gr_set_current_canvas(window_get_canvas(*dlg->wind));
+}
+
+UI_DIALOG::~UI_DIALOG()
+{
+	ui_gadget_delete_all(this);
+	selected_gadget = NULL;
 }
 
 void ui_close_dialog( UI_DIALOG * dlg )
