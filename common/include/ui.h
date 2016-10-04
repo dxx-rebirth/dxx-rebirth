@@ -215,16 +215,32 @@ enum dialog_flags
 	DF_MODAL = 8		// modal = accept all user input exclusively
 };
 
+template <typename T>
+using ui_subfunction_t = int (*)(struct UI_DIALOG *,const d_event &, T *);
+
+template <typename T>
+using ui_subclass_subfunction_t = int (*)(T *,const d_event &, void *);
+
 struct UI_DIALOG : embed_window_pointer_t
 {
-	int				(*callback)(struct UI_DIALOG *,const d_event &, void *);
+	// TODO: Make these private
+	ui_subfunction_t<void>	d_callback;
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;
-	void			*userdata;
-	short           x, y;
-	short           width, height;
-	short           text_x, text_y;
-	enum dialog_flags flags;
+	void			*d_userdata;
+	short           d_x, d_y;
+	short           d_width, d_height;
+	short           d_text_x, d_text_y;
+	enum dialog_flags d_flags;
+
+public:
+	// For creating the dialog, there are two ways - using the (older) ui_create_dialog function
+	// or using the constructor, passing an event handler that takes a subclass of UI_DIALOG.
+	explicit UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata, const void *createdata);
+	
+	template <typename T>
+	UI_DIALOG(short x, short y, short w, short h, enum dialog_flags flags, ui_subclass_subfunction_t<T> callback) :
+	UI_DIALOG(x, y, w, h, flags, reinterpret_cast<ui_subclass_subfunction_t<UI_DIALOG>>(callback), nullptr, nullptr) {}
 };
 
 #define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
@@ -254,18 +270,13 @@ typedef cstring_tie<10> ui_messagebox_tie;
 int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_tie &Button );
 #define ui_messagebox(X,Y,N,T,...)	((ui_messagebox)((X),(Y),(T), ui_messagebox_tie(__VA_ARGS__)))
 
-template <typename T>
-using ui_subfunction_t = int (*)(UI_DIALOG *,const d_event &, T *);
-
 class unused_ui_userdata_t;
 constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
-
-UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, enum dialog_flags flags, ui_subfunction_t<void> callback, void *userdata, const void *createdata);
 
 template <typename T1, typename T2 = const void>
 UI_DIALOG * ui_create_dialog(const short x, const short y, const short w, const short h, const enum dialog_flags flags, const ui_subfunction_t<T1> callback, T1 *const userdata, T2 *const createdata = nullptr)
 {
-	return untyped_ui_create_dialog(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
+	return new UI_DIALOG(x, y, w, h, flags, reinterpret_cast<ui_subfunction_t<void>>(callback), static_cast<void *>(userdata), static_cast<const void *>(createdata));
 }
 
 template <typename T1, typename T2 = const void>
