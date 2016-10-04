@@ -134,7 +134,6 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 			ui_gadget_delete_all(dlg);
 			selected_gadget = NULL;
 			delete dlg;
-			delete wind;
 			return window_event_result::ignored;
 		default:
 			return window_event_result::ignored;

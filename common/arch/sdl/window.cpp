@@ -65,12 +65,13 @@ int window_close(window *wind)
 {
 	window *prev;
 	d_event event;
-	window_event_result (*w_callback)(window *wind,const d_event &event, void *data) = wind->w_callback;
+	window_event_result result;
+	window_subfunction<void> w_callback = wind->w_callback;
 
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
-	if (WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE) == window_event_result::handled)
+	if ((result = WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE)) == window_event_result::handled)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
@@ -80,12 +81,15 @@ int window_close(window *wind)
 		return 0;
 	}
 
+	if (result != window_event_result::deleted)	// don't attempt to re-delete
+		delete wind;
+
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
 	event.type = EVENT_WINDOW_CLOSED;
 	w_callback(nullptr, event, nullptr);	// callback needs to recognise nullptr is being passed!
-	
+
 	return 1;
 }
 

@@ -30,6 +30,8 @@ enum class window_event_result : uint8_t
 	// Window handled event.
 	handled,
 	close,
+	// Window handler already deleted window (most likely because it was subclassed), don't attempt to re-delete
+	deleted,
 };
 
 constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;

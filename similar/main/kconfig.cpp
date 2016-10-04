@@ -1286,7 +1286,6 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			
 		case EVENT_WINDOW_CLOSE:
 			delete menu;
-			delete wind;
 			
 			// Update save values...
 			
