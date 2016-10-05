@@ -733,7 +733,7 @@ static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int 
 {
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1);
 	Escort_goal_index = egi;
-	if (egi != object_none)
+	if (egi != object_none && egi != object_guidebot_cannot_reach)
 		return vcobjptr(egi)->segnum;
 	return segment_none;
 }
