@@ -1097,9 +1097,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			w->controlling_trigger = -1;
 #endif
 
-		for (trgnum_t t = 0; t < Num_triggers; t++)
+		range_for (const auto &&t, vctrgptridx)
 		{
-			auto &tr = *vctrgptr(t);
+			auto &tr = *t;
 			for (unsigned l = 0; l < tr.num_links; ++l)
 			{
 				//check to see that if a trigger requires a wall that it has one,
@@ -1108,7 +1108,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				if (trigger_is_matcen(tr))
 				{
 					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-						throw std::runtime_error("matcen triggers non-matcen segment");
+						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", t.get_unchecked_index(), seg_num);
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
