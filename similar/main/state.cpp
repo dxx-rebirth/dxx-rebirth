@@ -122,10 +122,17 @@ unsigned state_game_id;
 // Following functions convert object to object_rw and back to be written to/read from Savegames. Mostly object differs to object_rw in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 // turn object to object_rw to be saved to Savegame.
 namespace dsx {
-static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
+static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj_rw)
 {
+	const auto otype = obj->type;
+	if (otype == OBJ_NONE)
+	{
+		*obj_rw = {};
+		obj_rw->type = otype;
+		return;
+	}
+	obj_rw->type = otype;
 	obj_rw->signature     = obj->signature.get();
-	obj_rw->type          = obj->type;
 	obj_rw->id            = obj->id;
 	obj_rw->next          = obj->next;
 	obj_rw->prev          = obj->prev;
@@ -155,7 +162,7 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 	obj_rw->contains_count= obj->contains_count;
 	obj_rw->matcen_creator= obj->matcen_creator;
 	obj_rw->lifeleft      = obj->lifeleft;
-	
+
 	switch (obj_rw->movement_type)
 	{
 		case MT_PHYSICS:
@@ -289,7 +296,7 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *obj_rw)
 
 // turn object_rw to object after reading from Savegame
 namespace dsx {
-static void state_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
+static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj->type          = obj_rw->type;
