@@ -17,7 +17,7 @@ namespace untyped_index_mismatch_exception
 #else
 #define REPORT_STANDARD_LEADER_TEXT
 #endif
-#define REPORT_STANDARD_FORMAT	" base=%p size=%" DXX_PRI_size_type "u"
+#define REPORT_STANDARD_FORMAT	" base=%p size=%" DXX_PRI_size_type
 #define REPORT_STANDARD_ARGUMENTS	array_base, array_size
 #define REPORT_STANDARD_SIZE	(	\
 		sizeof(REPORT_FORMAT_STRING) +	\
