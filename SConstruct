@@ -1830,13 +1830,14 @@ static void a(){{
 			else "Compiler cannot handle tuples of 2 elements."
 		)
 	@_implicit_test
-	def check_poison_valgrind(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
+	def check_poison_valgrind(self,context):
 		'''
 help:add Valgrind annotations; wipe certain freed memory when running under Valgrind
 '''
 		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
 		r = 'valgrind' in self.user_settings.poison
 		context.Result(r)
+		self._define_macro(context, 'DXX_HAVE_POISON_VALGRIND', int(r))
 		if not r:
 			return
 		text = '''
@@ -1846,7 +1847,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 		main = '''
 	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
 '''
-		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags=_successflags):
+		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works'):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
 	@_implicit_test

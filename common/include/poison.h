@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef DXX_HAVE_POISON_VALGRIND
+#if DXX_HAVE_POISON_VALGRIND
 #include <valgrind/memcheck.h>
 #endif
 
@@ -8,7 +8,7 @@ template <typename T>
 static inline void DXX_MAKE_MEM_UNDEFINED(T *b, unsigned long l)
 {
 	(void)b;(void)l;
-#ifdef DXX_HAVE_POISON_VALGRIND
+#if DXX_HAVE_POISON_VALGRIND
 	VALGRIND_MAKE_MEM_UNDEFINED(b, l);
 #define DXX_HAVE_POISON_UNDEFINED 1
 #endif
@@ -33,7 +33,7 @@ static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 {
 #if DXX_HAVE_POISON
 	int store = DXX_HAVE_POISON_OVERWRITE;
-#ifdef DXX_HAVE_POISON_VALGRIND
+#if DXX_HAVE_POISON_VALGRIND
 	if (!store)
 		store |= RUNNING_ON_VALGRIND;
 #endif
