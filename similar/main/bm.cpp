@@ -735,7 +735,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		for (uint_fast32_t i = 0; i != bm_h; ++i)
 		{
-#ifdef DXX_HAVE_POISON
+#if DXX_HAVE_POISON
 			/* Reallocate to undefine buffer */
 			buf = make_unique<uint8_t[]>(bm_w);
 #endif

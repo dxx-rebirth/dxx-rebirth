@@ -495,6 +495,8 @@ struct %(N)s_derived : %(N)s_base {
 """.format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
 		if not r:
 			macro_value = _comment_not_supported
+		self._define_macro(context, macro_name, macro_value)
+	def _define_macro(self,context,macro_name,macro_value):
 		context.sconf.Define(macro_name, macro_value)
 		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
@@ -1063,7 +1065,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
 		use_sdlmixer = user_settings.sdlmixer
-		context.sconf.Define('DXX_USE_SDLMIXER', int(use_sdlmixer))
+		self._define_macro(context, 'DXX_USE_SDLMIXER', int(use_sdlmixer))
 		if not use_sdlmixer:
 			return
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer, guess_flags)
@@ -1838,6 +1840,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 		if not r:
 			return
 		text = '''
+#define DXX_HAVE_POISON	1
 #include "poison.h"
 '''
 		main = '''
@@ -1868,8 +1871,7 @@ help:always wipe certain freed memory
 		for f in _methods:
 			if f(self, context):
 				poison = True
-		if poison:
-			context.sconf.Define('DXX_HAVE_POISON')
+		self._define_macro(context, 'DXX_HAVE_POISON', int(poison))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_size', "assume size_t is formatted as `size_t`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))

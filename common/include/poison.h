@@ -31,7 +31,7 @@ static inline void DXX_MAKE_VAR_UNDEFINED(T &b)
 template <typename T, typename V>
 static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 {
-#ifdef DXX_HAVE_POISON
+#if DXX_HAVE_POISON
 	int store = 0;
 #ifdef DXX_HAVE_POISON_OVERWRITE
 	store |= 1;

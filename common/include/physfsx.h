@@ -238,7 +238,7 @@ struct PHYSFSX_gets_line_t
 	PHYSFSX_gets_line_t(PHYSFSX_gets_line_t &&) = default;
 	PHYSFSX_gets_line_t &operator=(PHYSFSX_gets_line_t &&) = default;
 	typedef array<char, N> line_t;
-#ifdef DXX_HAVE_POISON
+#if DXX_HAVE_POISON
 	/* Force onto heap to improve checker accuracy */
 	std::unique_ptr<line_t> m_line;
 	const line_t &line() const { return *m_line.get(); }
@@ -274,7 +274,7 @@ struct PHYSFSX_gets_line_t<0>
 	std::unique_ptr<char[]> m_line;
 	std::size_t m_length;
 	PHYSFSX_gets_line_t(std::size_t n) :
-#ifndef DXX_HAVE_POISON
+#if !DXX_HAVE_POISON
 		m_line(DXX_ALLOCATE_PHYSFS_LINE(n)),
 #endif
 		m_length(n)
@@ -284,7 +284,7 @@ struct PHYSFSX_gets_line_t<0>
 	const char *line() const { return m_line.get(); }
 	char *next()
 	{
-#ifdef DXX_HAVE_POISON
+#if DXX_HAVE_POISON
 		/* Reallocate to tell checker to undefine the buffer */
 		m_line = DXX_ALLOCATE_PHYSFS_LINE(m_length);
 #endif
