@@ -173,7 +173,16 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				Assert(cside != side_none);
 			}
 
-			auto &wall0 = *vwallptr(segp->sides[side].wall_num);
+			wall *w0p;
+			try {
+				const auto w0num = segp->sides[side].wall_num;
+				w0p = vwallptr(w0num);
+			} catch (const valptridx<wall>::index_range_exception &e) {
+				con_puts(CON_URGENT, e.what());
+				con_printf(CON_URGENT, "%s:%u: trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.  Please report this to the level author, not to the Rebirth maintainers.", __FILE__, __LINE__, addressof(t), i, static_cast<segnum_t>(segp), side);
+				continue;
+			}
+			auto &wall0 = *w0p;
 			wallptr_t wall1 = nullptr;
 			if ((cside == side_none || csegp->sides[cside].wall_num == wall_none ||
 				(wall1 = vwallptr(csegp->sides[cside].wall_num))->type == new_wall_type) &&
