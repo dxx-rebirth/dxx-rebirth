@@ -208,13 +208,13 @@ static void print_commandline_help()
 		VERB("  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: " DXX_STRINGIZE(OGL_SYNC_WAIT_DEFAULT) ")\n")	\
 		VERB("  -gl_darkedges                 Re-enable dark edges around filtered textures (as present in earlier versions of the engine)\n")	\
 	)	\
-	DXX_if_defined(USE_UDP, (	\
+	DXX_if_defined_01(DXX_USE_UDP, (	\
 		VERB("\n Multiplayer:\n\n")	\
 		VERB("  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT)	\
 		VERB("  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT)	\
 		VERB("  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT)	\
-		VERB("  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n")	\
-		DXX_if_defined(USE_TRACKER, (	\
+		DXX_if_defined_01(DXX_USE_TRACKER, (	\
+			VERB("  -no-tracker                   Disable tracker (unless overridden by later -tracker_hostaddr)\n")	\
 			VERB("  -tracker_hostaddr <n>         Address of tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT)	\
 			VERB("  -tracker_hostport <n>         Port of tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT)	\
 		))	\
