@@ -1857,12 +1857,11 @@ help:always wipe certain freed memory
 		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use overwrite poisoning'))
 		r = 'overwrite' in self.user_settings.poison
 		context.Result(r)
-		if r:
-			context.sconf.Define('DXX_HAVE_POISON_OVERWRITE')
+		self._define_macro(context, 'DXX_HAVE_POISON_OVERWRITE', int(r))
 		return r
 	@_custom_test
 	def _check_poison_method(self,context,
-		_methods=(check_poison_valgrind, check_poison_overwrite),
+		_methods=(check_poison_overwrite, check_poison_valgrind),
 		poison = None
 	):
 		# Always run both checks.  The user may want a program that

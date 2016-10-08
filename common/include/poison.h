@@ -32,10 +32,7 @@ template <typename T, typename V>
 static inline void _DXX_POISON_MEMORY_RANGE(T b, T e, const V &v)
 {
 #if DXX_HAVE_POISON
-	int store = 0;
-#ifdef DXX_HAVE_POISON_OVERWRITE
-	store |= 1;
-#endif
+	int store = DXX_HAVE_POISON_OVERWRITE;
 #ifdef DXX_HAVE_POISON_VALGRIND
 	if (!store)
 		store |= RUNNING_ON_VALGRIND;
