@@ -4659,7 +4659,10 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	range_for (object &obj, Objects)
-		ai_local_read_swap(&obj.ctype.ai_info.ail, swap, fp);
+	{
+		ai_local discard;
+		ai_local_read_swap(obj.type == OBJ_ROBOT ? &obj.ctype.ai_info.ail : &discard, swap, fp);
+	}
 	PHYSFSX_serialize_read(fp, Point_segs);
 	ai_cloak_info_read_n_swap(Ai_cloak_info.data(), Ai_cloak_info.size(), swap, fp);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
