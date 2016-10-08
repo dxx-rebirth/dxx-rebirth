@@ -138,7 +138,9 @@ static array<window *, 16> menus;
 // Function Prototypes added after LINTING
 static int do_option(int select);
 static int do_new_game_menu(void);
+#if DXX_USE_UDP
 static void do_multi_player_menu();
+#endif
 #ifndef RELEASE
 static void do_sandbox_menu();
 #endif

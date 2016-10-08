@@ -24,6 +24,7 @@
 #include "game.h"
 #include "gauges.h"
 #include "console.h"
+#include "mission.h"
 #if DXX_USE_UDP
 #include "net_udp.h"
 #endif
