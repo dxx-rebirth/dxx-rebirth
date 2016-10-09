@@ -552,7 +552,7 @@ static void short_swap(short *s)
 
 static void fix_swap(fix &f)
 {
-	f = (fix)SWAPINT(static_cast<int>(f));
+	f = SWAPINT(f);
 }
 
 static void fix_swap(fix *f)
