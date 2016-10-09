@@ -893,6 +893,9 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		context.Result('%s: checking endian to use...%s' % (self.msgprefix, __endian_names[endian]))
 		self._define_macro(context, 'DXX_WORDS_BIGENDIAN', endian)
 	@_custom_test
+	def _check_user_settings_words_need_alignment(self,context):
+		self._result_check_user_setting(context, self.user_settings.words_need_alignment, 'DXX_WORDS_NEED_ALIGNMENT', 'word alignment fixups')
+	@_custom_test
 	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
 		Result = context.Result
@@ -2793,6 +2796,8 @@ class DXXCommon(LazyObjectConstructor):
 				# If isatty is None, then assume output is a TTY.
 				cls.__stdout_is_not_a_tty = r = False if isatty is None else not isatty()
 			return r
+		def default_words_need_alignment(self):
+			return self.raspberrypi
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi:
 				return 'GLESv2'
@@ -2899,6 +2904,7 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
 					# This is intentionally undocumented.  If a bug
@@ -3404,7 +3410,6 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
-		env.Append(CPPDEFINES = [('DXX_WORDS_NEED_ALIGNMENT', int(user_settings.raspberrypi))])
 		# Raspberry Pi?
 		if user_settings.raspberrypi:
 			rpi_vc_path = user_settings.rpi_vc_path
