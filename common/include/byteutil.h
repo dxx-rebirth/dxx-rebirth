@@ -67,7 +67,7 @@ constexpr int words_bigendian = 0;
 constexpr int words_bigendian = 1;
 #endif // ! WORDS_BIGENDIAN
 
-#ifndef WORDS_NEED_ALIGNMENT
+#if !DXX_WORDS_NEED_ALIGNMENT
 #define byteutil_unaligned_copy(dt, d, s)	(static_cast<dt &>(d) = *reinterpret_cast<const dt *>(s))
 #else // ! WORDS_NEED_ALIGNMENT
 #define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), (s), sizeof(d))

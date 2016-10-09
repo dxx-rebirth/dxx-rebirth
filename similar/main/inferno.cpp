@@ -96,7 +96,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #ifndef __linux__
 #include "messagebox.h"
 #else
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 #include <sys/prctl.h>
 #endif
 #endif
@@ -617,7 +617,7 @@ int main(int argc, char *argv[])
 {
 	mem_init();
 #ifdef __linux__
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);
 #endif
 #else

@@ -3403,12 +3403,13 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 
 		env.Prepend(CXXFLAGS = ['-g', '-O2'])
+		env.Append(CPPDEFINES = [('DXX_WORDS_NEED_ALIGNMENT', int(user_settings.raspberrypi))])
 		# Raspberry Pi?
 		if user_settings.raspberrypi:
 			rpi_vc_path = user_settings.rpi_vc_path
 			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
 			env.Append(
-				CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'],
+				CPPDEFINES = ['RPI'],
 			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.

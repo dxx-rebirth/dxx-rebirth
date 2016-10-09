@@ -72,7 +72,7 @@ void swap_polygon_model_data(ubyte *data);
 static inline void swap_polygon_model_data(uint8_t *) {}
 #endif
 
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 /*
  * A chunk struct (as used for alignment) contains all relevant data
  * concerning a piece of data that may need to be aligned.
