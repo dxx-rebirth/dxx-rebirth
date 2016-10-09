@@ -16,22 +16,6 @@ SCons.Defaults.DefaultEnvironment(tools = [])
 def message(program,msg):
 	print "%s: %s" % (program.program_message_prefix, msg)
 
-# endianess-checker
-def checkEndian():
-    if ARGUMENTS.has_key('endian'):
-        r = ARGUMENTS['endian']
-        if r == "little" or r == "big":
-            return r
-        raise SCons.Errors.UserError("Unknown endian value: %s" % r)
-    import struct
-    array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
-    i = struct.unpack('i', array)
-    if i == struct.unpack('<i', array):
-        return "little"
-    elif i == struct.unpack('>i', array):
-        return "big"
-    return "unknown"
-
 def get_Werror_string(l):
 	if l and '-Werror' in l:
 		return '-W'
@@ -346,7 +330,8 @@ class ConfigureTests:
 	implicit_tests = _implicit_test.tests
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
-	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
+	__python_import_struct = None
+	__flags_Werror = {'CXXFLAGS' : ['-Werror']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
@@ -882,6 +867,31 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			raise SCons.Errors.StopError(e[1])
 	# User settings tests are hidden because they do not respect sconf_*
 	# overrides, so the user should not be offered an override.
+	@_custom_test
+	def _check_user_settings_endian(self,context,__endian_names=('little', 'big')):
+		cls = self.__class__
+		endian = self.user_settings.host_endian
+		if endian is None:
+			struct = cls.__python_import_struct
+			if struct is None:
+				import struct
+				cls.__python_import_struct = struct
+			a = struct.pack('cccc', '1', '2', '3', '4')
+			unpack = struct.unpack
+			i = unpack('i', a)
+			if i == unpack('<i', a):
+				endian = 0
+			elif i == unpack('>i', a):
+				endian = 1
+			else:
+				raise SCons.Errors.UserError("Unknown host endian: unpack('i', %r) == %r; set host_endian='big' or host_endian='little' as appropriate." % (a, i))
+		else:
+			if endian == __endian_names[0]:
+				endian = 0
+			else:
+				endian = 1
+		context.Result('%s: checking endian to use...%s' % (self.msgprefix, __endian_names[endian]))
+		self._define_macro(context, 'DXX_WORDS_BIGENDIAN', endian)
 	@_custom_test
 	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
@@ -2699,7 +2709,6 @@ class PCHManager(object):
 
 class DXXCommon(LazyObjectConstructor):
 	pch_manager = None
-	__endian = checkEndian()
 	@cached_property
 	def program_message_prefix(self):
 		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
@@ -2926,6 +2935,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
+					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('win32', 'darwin', 'linux')}),
 				),
 			},
@@ -3368,15 +3378,6 @@ class DXXCommon(LazyObjectConstructor):
 				('-flto=%s' % self.user_settings.lto) if self.user_settings.lto > 1 else '-flto',
 			])
 
-	def check_endian(self):
-		# set endianess
-		if (self.__endian == "big"):
-			message(self, "BigEndian machine detected")
-			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 1)])
-		elif (self.__endian == "little"):
-			message(self, "LittleEndian machine detected")
-			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 0)])
-
 	@cached_property
 	def platform_settings(self):
 		# windows or *nix?
@@ -3540,7 +3541,6 @@ class DXXArchive(DXXCommon):
 		if not user_settings.register_compile_target:
 			return
 		self.prepare_environment()
-		self.check_endian()
 		self.process_user_settings()
 		self.configure_environment()
 		self.create_special_target_nodes(self)
@@ -3811,7 +3811,6 @@ class DXXProgram(DXXCommon):
 	def prepare_environment(self,archive,
 			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
 		):
-		self.check_endian()
 		DXXCommon.prepare_environment(self)
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)

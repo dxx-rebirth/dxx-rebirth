@@ -34,33 +34,39 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstdint>
 #include <string.h>    // for memcpy
+#include "dxxsconf.h"
 #include "pstypes.h"
 
-static inline uint16_t SWAPSHORT(const uint16_t &x)
+static constexpr uint16_t SWAPSHORT(const uint16_t &x)
 {
+#ifdef DXX_HAVE_BUILTIN_BSWAP16
+	return __builtin_bswap16(x);
+#else
 	return (x << 8) | (x >> 8);
+#endif
 }
 
-static inline int16_t SWAPSHORT(const int16_t &i)
+static constexpr int16_t SWAPSHORT(const int16_t &i)
 {
 	return SWAPSHORT(static_cast<uint16_t>(i));
 }
 
-static inline uint32_t SWAPINT(const uint32_t &x)
+static constexpr uint32_t SWAPINT(const uint32_t &x)
 {
+#ifdef DXX_HAVE_BUILTIN_BSWAP
+	return __builtin_bswap32(x);
+#else
 	return (x << 24) | (x >> 24) | ((x & 0xff00) << 8) | ((x >> 8) & 0xff00);
+#endif
 }
 
-static inline int32_t SWAPINT(const int32_t &i)
+static constexpr int32_t SWAPINT(const int32_t &i)
 {
 	return SWAPINT(static_cast<uint32_t>(i));
 }
 
 #if !DXX_WORDS_BIGENDIAN
-/* Always resolve F(a), so ambiguous calls are flagged even on little
- * endian.
- */
-#define byteutil_choose_endian(F,a)	(static_cast<void>(static_cast<decltype(F(a))>(0)), a)
+#define byteutil_choose_endian(F,a)	(a)
 constexpr int words_bigendian = 0;
 #else // ! WORDS_BIGENDIAN
 #define byteutil_choose_endian(F,a)	(F(a))
@@ -73,14 +79,22 @@ constexpr int words_bigendian = 1;
 #define byteutil_unaligned_copy(dt, d, s)	memcpy(&static_cast<dt &>(d), (s), sizeof(d))
 #endif // ! WORDS_NEED_ALIGNMENT
 
-template <typename T>
-static inline T INTEL_SHORT(const T &x)
+static constexpr uint16_t INTEL_SHORT(const uint16_t &x)
 {
 	return byteutil_choose_endian(SWAPSHORT, x);
 }
 
-template <typename T>
-static inline T INTEL_INT(const T &x)
+static constexpr int16_t INTEL_SHORT(const int16_t &x)
+{
+	return byteutil_choose_endian(SWAPSHORT, x);
+}
+
+static constexpr uint32_t INTEL_INT(const uint32_t &x)
+{
+	return byteutil_choose_endian(SWAPINT, x);
+}
+
+static constexpr int32_t INTEL_INT(const int32_t &x)
 {
 	return byteutil_choose_endian(SWAPINT, x);
 }
