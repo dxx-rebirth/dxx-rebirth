@@ -1863,15 +1863,15 @@ help:always wipe certain freed memory
 	@_custom_test
 	def _check_poison_method(self,context,
 		_methods=(check_poison_overwrite, check_poison_valgrind),
-		poison = None
+		poison=0
 	):
 		# Always run both checks.  The user may want a program that
 		# always uses overwrite poisoning and, when running under
 		# Valgrind, marks the memory as undefined.
 		for f in _methods:
 			if f(self, context):
-				poison = True
-		self._define_macro(context, 'DXX_HAVE_POISON', int(poison))
+				poison = 1
+		self._define_macro(context, 'DXX_HAVE_POISON', poison)
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_size', "assume size_t is formatted as `size_t`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))
