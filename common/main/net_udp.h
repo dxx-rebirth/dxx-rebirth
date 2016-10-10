@@ -55,9 +55,9 @@ constexpr uint16_t UDP_PORT_DEFAULT = 42424;
 #if DXX_USE_TRACKER
 #ifndef TRACKER_ADDR_DEFAULT
 /* Allow an alternate default at compile time */
-#define TRACKER_ADDR_DEFAULT "dxxtracker.reenigne.net"
+#define TRACKER_ADDR_DEFAULT "dxxtracker.hopto.org"
 #endif
-constexpr uint16_t TRACKER_PORT_DEFAULT = 42420;
+constexpr uint16_t TRACKER_PORT_DEFAULT = 9999;
 #endif
 #define UDP_MAX_NETGAMES 900
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
@@ -101,8 +101,10 @@ constexpr uint16_t TRACKER_PORT_DEFAULT = 42420;
 #define UPID_MAX_SIZE			       1024 // Max size for a packet
 #define UPID_MDATA_BUF_SIZE			454
 #if DXX_USE_TRACKER
-#  define UPID_TRACKER_VERIFY			 21 // The tracker has successfully gotten a hold of us
-#  define UPID_TRACKER_INCGAME			 22 // The tracker is sending us some game info
+#define UPID_TRACKER_REGISTER			 21 // Register or update a game on the tracker.
+#define UPID_TRACKER_REMOVE			 22 // Remove our game from the tracker.
+#define UPID_TRACKER_REQGAMES			 23 // Request a list of all games stored on the tracker.
+#define UPID_TRACKER_GAMEINFO			 24 // Packet containing info about a game
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)

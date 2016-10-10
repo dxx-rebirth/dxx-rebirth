@@ -50,11 +50,11 @@ http://www.dxx-rebirth.com
 3. Multiplayer:
 ===============
 
-   DXX-Rebirth supports Multiplayer over UDP/IP.
-   Using UDP/IP works over LAN and Internet. By default, each game communicates over UDP-Port 42424. This can be
-   changed via the menus, command-line argument or .ini files. To successfully host a game online, make sure
-   UDP-Port 42424 (or whatever port you specified) is opened on your Router/Firewall. Clients do not need to
-   open any ports to join a game.
+   DXX-Rebirth supports Multiplayer over UDP/IP.Using UDP/IP works over LAN and Internet. 
+   By default, each game communicates over UDP-Port 42424. This can be changed via the menus, command-line argument or .ini files. 
+   Please be aware that if you host a game and players want to join your game online via direct IP connection, your specified game port should be forwarded on your router. 
+   If you host your game on the Online Tracker and other players join via this method, port forwarding should not be necessary.
+   If you only want to join a game, or host a game on LAN (not online), port forwarding should not be necessary. If you do experience problems, please check your NAT settings and/or Firewall.
 
 
 4. Legal stuff:
