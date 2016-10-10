@@ -1022,6 +1022,31 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const vcobjptr_t obj2,
 	return 0;
 }
 
+static fix get_scaled_min_trackable_dot()
+{
+	fix curFT = FrameTime;
+#ifdef NEWHOMER
+	curFT = HOMING_TURN_TIME;
+#endif
+#if defined(DXX_BUILD_DESCENT_I)
+	if (curFT <= F1_0/16)
+		return (3*(F1_0 - HOMING_MIN_TRACKABLE_DOT)/4 + HOMING_MIN_TRACKABLE_DOT);
+	else if (curFT < F1_0/4)
+		return (fixmul(F1_0 - HOMING_MIN_TRACKABLE_DOT, F1_0-4*curFT) + HOMING_MIN_TRACKABLE_DOT);
+	else
+		return (HOMING_MIN_TRACKABLE_DOT);
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (curFT <= F1_0/64)
+		return (HOMING_MIN_TRACKABLE_DOT);
+	else if (curFT < F1_0/32)
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - 2*curFT);
+	else if (curFT < F1_0/4)
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/16 - curFT);
+	else
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/8);
+#endif
+}
+
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
@@ -1052,13 +1077,13 @@ static int object_is_trackable(const objptridx_t objp, const vobjptridx_t tracke
 	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((*dot < HOMING_MIN_TRACKABLE_DOT) && (*dot > F1_0*9/10)) {
+	if ((*dot < get_scaled_min_trackable_dot()) && (*dot > F1_0*9/10)) {
 		vm_vec_normalize(vector_to_goal);
 		*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 	}
 #endif
 
-	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
+	if (*dot >= get_scaled_min_trackable_dot()) {
 		int	rval;
 		//	dot is in legal range, now see if object is visible
 		rval =  object_to_object_visibility(tracker, objp, FQ_TRANSWALL);
@@ -1132,7 +1157,7 @@ objptridx_t find_homing_object_complete(const vms_vector &curpos, const vobjptri
 
 	const fix64 HOMING_MAX_TRACKABLE_DIST = F1_0*250;
 	vm_distance_squared max_trackable_dist{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST};
-	fix min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
+	fix min_trackable_dot = HOMING_MIN_TRACKABLE_DOT;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (tracker_id == weapon_id_type::OMEGA_ID)
