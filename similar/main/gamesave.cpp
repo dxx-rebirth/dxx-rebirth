@@ -1097,9 +1097,9 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			w->controlling_trigger = -1;
 #endif
 
-		for (trgnum_t t = 0; t < Num_triggers; t++)
+		range_for (const auto &&t, vctrgptridx)
 		{
-			auto &tr = *vctrgptr(t);
+			auto &tr = *t;
 			for (unsigned l = 0; l < tr.num_links; ++l)
 			{
 				//check to see that if a trigger requires a wall that it has one,
@@ -1108,17 +1108,19 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				if (trigger_is_matcen(tr))
 				{
 					if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-						throw std::runtime_error("matcen triggers non-matcen segment");
+						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", t.get_unchecked_index(), seg_num);
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				else if (tr.type != TT_LIGHT_OFF && tr.type != TT_LIGHT_ON)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
 					auto wall_num = vsegptr(seg_num)->sides[side_num].wall_num;
-					if (wall_num == wall_none)
-						Int3();	//	This is illegal.  This trigger requires a wall
-					else
+					try {
 						vwallptr(wall_num)->controlling_trigger = t;
+					} catch (const valptridx<wall>::index_range_exception &e) {
+						con_puts(CON_URGENT, e.what());
+						con_printf(CON_URGENT, "%s:%u: trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.  Please report this to the level author, not to the Rebirth maintainers.", __FILE__, __LINE__, static_cast<trgnum_t>(t), l, tr.type, seg_num, side_num);
+					}
 				}
 #endif
 			}

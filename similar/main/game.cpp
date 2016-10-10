@@ -1310,9 +1310,6 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			key_toggle_repeat(1);
 			break;
 
-		case EVENT_WINDOW_CLOSED:
-			break;
-
 		default:
 			break;
 	}

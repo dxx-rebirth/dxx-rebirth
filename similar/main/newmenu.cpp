@@ -1512,9 +1512,6 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 static window_event_result newmenu_handler(window *wind,const d_event &event, newmenu *menu)
 {
-	if (event.type == EVENT_WINDOW_CLOSED)
-		return window_event_result::ignored;
-
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
@@ -2037,9 +2034,6 @@ static window_event_result listbox_draw(window *, listbox *lb)
 
 static window_event_result listbox_handler(window *wind,const d_event &event, listbox *lb)
 {
-	if (event.type == EVENT_WINDOW_CLOSED)
-		return window_event_result::ignored;
-
 	if (lb->listbox_callback)
 	{
 		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);

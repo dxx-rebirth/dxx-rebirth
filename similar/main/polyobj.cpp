@@ -180,7 +180,7 @@ static array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 static const uint8_t *old_dest(const chunk &o) // return where chunk is (in unaligned struct)
 {
 	return GET_INTEL_SHORT(&o.old_base[o.offset]) + o.old_base;
@@ -416,7 +416,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			pof_cfseek(model_buf,next_chunk,SEEK_SET);
 	}
 
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
 	if (words_bigendian)
@@ -756,7 +756,7 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
 	pm->model_data = make_unique<ubyte[]>(pm->model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
 	if (words_bigendian)

@@ -93,8 +93,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 {
 	window_event_result rval{window_event_result::ignored};
 
-	if (event.type == EVENT_WINDOW_CLOSED ||
-		event.type == EVENT_WINDOW_ACTIVATED ||
+	if (event.type == EVENT_WINDOW_ACTIVATED ||
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
 	

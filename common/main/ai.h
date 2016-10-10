@@ -256,11 +256,11 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 void init_ai_frame(player_flags);
 
 __attribute_warn_unused_result
-std::size_t create_bfs_list(segnum_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
+std::size_t create_bfs_list(vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
 __attribute_warn_unused_result
-std::size_t create_bfs_list(const segnum_t start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
 {
 	return create_bfs_list(start_seg, powerup_flags, bfs_list.data(), N);
 }

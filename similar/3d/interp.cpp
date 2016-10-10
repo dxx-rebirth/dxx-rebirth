@@ -552,7 +552,7 @@ static void short_swap(short *s)
 
 static void fix_swap(fix &f)
 {
-	f = (fix)SWAPINT(static_cast<int>(f));
+	f = SWAPINT(f);
 }
 
 static void fix_swap(fix *f)
@@ -657,7 +657,7 @@ void swap_polygon_model_data(ubyte *data)
 }
 #endif
 
-#ifdef WORDS_NEED_ALIGNMENT
+#if DXX_WORDS_NEED_ALIGNMENT
 namespace dcx {
 
 static void add_chunk(const uint8_t *old_base, uint8_t *new_base, int offset,

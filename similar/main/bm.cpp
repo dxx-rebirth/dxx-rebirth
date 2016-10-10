@@ -475,12 +475,12 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= ObjBitmaps.size())
-		Error("Too many object bitmaps (%d) in <%s>.  Max is %" DXX_PRI_size_type "u.", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
+		Error("Too many object bitmaps (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmaps.size() - N_D2_OBJBITMAPS);
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_D2_OBJBITMAPS, N_D2_OBJBITMAPS + t));
 
 	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= ObjBitmapPtrs.size())
-		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type "u.", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
+		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS, N_D2_OBJBITMAPPTRS + t))
 		i = PHYSFSX_readShort(fp);
 }
@@ -735,7 +735,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
 		for (uint_fast32_t i = 0; i != bm_h; ++i)
 		{
-#ifdef DXX_HAVE_POISON
+#if DXX_HAVE_POISON
 			/* Reallocate to undefine buffer */
 			buf = make_unique<uint8_t[]>(bm_w);
 #endif

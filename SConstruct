@@ -16,22 +16,6 @@ SCons.Defaults.DefaultEnvironment(tools = [])
 def message(program,msg):
 	print "%s: %s" % (program.program_message_prefix, msg)
 
-# endianess-checker
-def checkEndian():
-    if ARGUMENTS.has_key('endian'):
-        r = ARGUMENTS['endian']
-        if r == "little" or r == "big":
-            return r
-        raise SCons.Errors.UserError("Unknown endian value: %s" % r)
-    import struct
-    array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
-    i = struct.unpack('i', array)
-    if i == struct.unpack('<i', array):
-        return "little"
-    elif i == struct.unpack('>i', array):
-        return "big"
-    return "unknown"
-
 def get_Werror_string(l):
 	if l and '-Werror' in l:
 		return '-W'
@@ -346,7 +330,8 @@ class ConfigureTests:
 	implicit_tests = _implicit_test.tests
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
-	__flags_Werror = {k:['-Werror'] for k in ['CXXFLAGS']}
+	__python_import_struct = None
+	__flags_Werror = {'CXXFLAGS' : ['-Werror']}
 	_cxx_conformance_cxx11 = 11
 	_cxx_conformance_cxx14 = 14
 	__cxx_conformance = None
@@ -495,6 +480,8 @@ struct %(N)s_derived : %(N)s_base {
 """.format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
 		if not r:
 			macro_value = _comment_not_supported
+		self._define_macro(context, macro_name, macro_value)
+	def _define_macro(self,context,macro_name,macro_value):
 		context.sconf.Define(macro_name, macro_value)
 		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
@@ -881,6 +868,34 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# User settings tests are hidden because they do not respect sconf_*
 	# overrides, so the user should not be offered an override.
 	@_custom_test
+	def _check_user_settings_endian(self,context,__endian_names=('little', 'big')):
+		cls = self.__class__
+		endian = self.user_settings.host_endian
+		if endian is None:
+			struct = cls.__python_import_struct
+			if struct is None:
+				import struct
+				cls.__python_import_struct = struct
+			a = struct.pack('cccc', '1', '2', '3', '4')
+			unpack = struct.unpack
+			i = unpack('i', a)
+			if i == unpack('<i', a):
+				endian = 0
+			elif i == unpack('>i', a):
+				endian = 1
+			else:
+				raise SCons.Errors.UserError("Unknown host endian: unpack('i', %r) == %r; set host_endian='big' or host_endian='little' as appropriate." % (a, i))
+		else:
+			if endian == __endian_names[0]:
+				endian = 0
+			else:
+				endian = 1
+		context.Result('%s: checking endian to use...%s' % (self.msgprefix, __endian_names[endian]))
+		self._define_macro(context, 'DXX_WORDS_BIGENDIAN', endian)
+	@_custom_test
+	def _check_user_settings_words_need_alignment(self,context):
+		self._result_check_user_setting(context, self.user_settings.words_need_alignment, 'DXX_WORDS_NEED_ALIGNMENT', 'word alignment fixups')
+	@_custom_test
 	def _check_user_settings_opengl(self,context):
 		user_settings = self.user_settings
 		Result = context.Result
@@ -1063,7 +1078,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, mixer, 'yes' if user_settings.sdlmixer else 'no'))
 		# SDL_mixer support?
 		use_sdlmixer = user_settings.sdlmixer
-		context.sconf.Define('DXX_USE_SDLMIXER', int(use_sdlmixer))
+		self._define_macro(context, 'DXX_USE_SDLMIXER', int(use_sdlmixer))
 		if not use_sdlmixer:
 			return
 		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, mixer, mixer, guess_flags)
@@ -1828,22 +1843,24 @@ static void a(){{
 			else "Compiler cannot handle tuples of 2 elements."
 		)
 	@_implicit_test
-	def check_poison_valgrind(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_POISON_VALGRIND']}):
+	def check_poison_valgrind(self,context):
 		'''
 help:add Valgrind annotations; wipe certain freed memory when running under Valgrind
 '''
 		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
 		r = 'valgrind' in self.user_settings.poison
 		context.Result(r)
+		self._define_macro(context, 'DXX_HAVE_POISON_VALGRIND', int(r))
 		if not r:
 			return
 		text = '''
+#define DXX_HAVE_POISON	1
 #include "poison.h"
 '''
 		main = '''
 	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
 '''
-		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works', successflags=_successflags):
+		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works'):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
 	@_implicit_test
@@ -1854,22 +1871,20 @@ help:always wipe certain freed memory
 		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use overwrite poisoning'))
 		r = 'overwrite' in self.user_settings.poison
 		context.Result(r)
-		if r:
-			context.sconf.Define('DXX_HAVE_POISON_OVERWRITE')
+		self._define_macro(context, 'DXX_HAVE_POISON_OVERWRITE', int(r))
 		return r
 	@_custom_test
 	def _check_poison_method(self,context,
-		_methods=(check_poison_valgrind, check_poison_overwrite),
-		poison = None
+		_methods=(check_poison_overwrite, check_poison_valgrind),
+		poison=0
 	):
 		# Always run both checks.  The user may want a program that
 		# always uses overwrite poisoning and, when running under
 		# Valgrind, marks the memory as undefined.
 		for f in _methods:
 			if f(self, context):
-				poison = True
-		if poison:
-			context.sconf.Define('DXX_HAVE_POISON')
+				poison = 1
+		self._define_macro(context, 'DXX_HAVE_POISON', poison)
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_size', "assume size_t is formatted as `size_t`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_long', "assume size_t is formatted as `unsigned long`"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_int', "assume size_t is formatted as `unsigned int`"))
@@ -2697,7 +2712,6 @@ class PCHManager(object):
 
 class DXXCommon(LazyObjectConstructor):
 	pch_manager = None
-	__endian = checkEndian()
 	@cached_property
 	def program_message_prefix(self):
 		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
@@ -2782,6 +2796,8 @@ class DXXCommon(LazyObjectConstructor):
 				# If isatty is None, then assume output is a TTY.
 				cls.__stdout_is_not_a_tty = r = False if isatty is None else not isatty()
 			return r
+		def default_words_need_alignment(self):
+			return self.raspberrypi
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi:
 				return 'GLESv2'
@@ -2888,6 +2904,7 @@ class DXXCommon(LazyObjectConstructor):
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					('words_need_alignment', self.default_words_need_alignment, 'align words at load (needed for many non-x86 systems)'),
 					('register_compile_target', True, 'report compile targets to SCons core'),
 					('register_cpp_output_targets', None, None),
 					# This is intentionally undocumented.  If a bug
@@ -2924,6 +2941,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
+					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
 					('host_platform', 'linux' if sys.platform == 'linux2' else sys.platform, 'cross-compile to specified platform', {'allowed_values' : ('win32', 'darwin', 'linux')}),
 				),
 			},
@@ -3366,15 +3384,6 @@ class DXXCommon(LazyObjectConstructor):
 				('-flto=%s' % self.user_settings.lto) if self.user_settings.lto > 1 else '-flto',
 			])
 
-	def check_endian(self):
-		# set endianess
-		if (self.__endian == "big"):
-			message(self, "BigEndian machine detected")
-			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 1)])
-		elif (self.__endian == "little"):
-			message(self, "LittleEndian machine detected")
-			self.env.Append(CPPDEFINES = [('DXX_WORDS_BIGENDIAN', 0)])
-
 	@cached_property
 	def platform_settings(self):
 		# windows or *nix?
@@ -3406,7 +3415,7 @@ class DXXCommon(LazyObjectConstructor):
 			rpi_vc_path = user_settings.rpi_vc_path
 			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
 			env.Append(
-				CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'],
+				CPPDEFINES = ['RPI'],
 			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
@@ -3537,7 +3546,6 @@ class DXXArchive(DXXCommon):
 		if not user_settings.register_compile_target:
 			return
 		self.prepare_environment()
-		self.check_endian()
 		self.process_user_settings()
 		self.configure_environment()
 		self.create_special_target_nodes(self)
@@ -3808,7 +3816,6 @@ class DXXProgram(DXXCommon):
 	def prepare_environment(self,archive,
 			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
 		):
-		self.check_endian()
 		DXXCommon.prepare_environment(self)
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)

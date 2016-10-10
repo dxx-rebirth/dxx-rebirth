@@ -66,7 +66,6 @@ int window_close(window *wind)
 	window *prev;
 	d_event event;
 	window_event_result result;
-	window_subfunction<void> w_callback = wind->w_callback;
 
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
@@ -86,9 +85,6 @@ int window_close(window *wind)
 
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
-
-	event.type = EVENT_WINDOW_CLOSED;
-	w_callback(nullptr, event, nullptr);	// callback needs to recognise nullptr is being passed!
 
 	return 1;
 }

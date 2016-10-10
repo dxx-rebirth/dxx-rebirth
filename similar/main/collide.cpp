@@ -1718,7 +1718,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
 	       	else
-			multi_robot_request_change(robot, get_robot_id(vcobjptr(weapon->ctype.laser_info.parent_num)));
+			multi_robot_request_change(robot, get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)));
 
 		std::pair<fix, int> explosion_size_and_vclip;
 		if ((robptr->exp1_vclip_num > -1 && (explosion_size_and_vclip = {(robot->size / 2 * 3) / 4, robptr->exp1_vclip_num}, true))

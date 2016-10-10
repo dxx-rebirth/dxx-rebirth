@@ -194,7 +194,7 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(segnum_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
@@ -519,7 +519,7 @@ static int get_boss_id(void)
 //	-----------------------------------------------------------------------------
 //	Return object index if object of objtype, objid exists in mine, else return -1
 //	"special" is used to find objects spewed by player which is hacked into flags field of powerup.
-static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int objid, int special)
+static objnum_t exists_in_mine_2(const vcsegptr_t segp, const int objtype, const int objid, const int special)
 {
 	range_for (const auto curobjp, objects_in(segp))
 	{
@@ -550,7 +550,7 @@ static objnum_t exists_in_mine_2(const vcsegptridx_t segp, int objtype, int obji
 }
 
 //	-----------------------------------------------------------------------------
-static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
+static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
@@ -577,7 +577,7 @@ static segnum_t exists_fuelcen_in_mine(segnum_t start_seg)
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int special)
+static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
 	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
@@ -585,7 +585,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
 	{
-		auto objnum = exists_in_mine_2(vcsegptridx(segnum), objtype, objid, special);
+		const auto &&objnum = exists_in_mine_2(vcsegptr(segnum), objtype, objid, special);
 			if (objnum != object_none)
 				return objnum;
 
@@ -594,9 +594,9 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	range_for (const auto &&segnum, vcsegptridx)
+	range_for (const auto &&segnum, vcsegptr)
 		{
-			auto objnum = exists_in_mine_2(segnum, objtype, objid, special);
+		const auto &&objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
@@ -606,7 +606,7 @@ static objnum_t exists_in_mine(segnum_t start_seg, int objtype, int objid, int s
 
 //	-----------------------------------------------------------------------------
 //	Return true if it happened, else return false.
-static segnum_t find_exit_segment(void)
+static segidx_t find_exit_segment()
 {
 	//	---------- Find exit doors ----------
 	range_for (const auto &&segp, vcsegptridx)
@@ -733,7 +733,7 @@ static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int 
 {
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1);
 	Escort_goal_index = egi;
-	if (egi != object_none)
+	if (egi != object_none && egi != object_guidebot_cannot_reach)
 		return vcobjptr(egi)->segnum;
 	return segment_none;
 }

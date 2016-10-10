@@ -241,7 +241,7 @@ static void info_display_default(int show_all)
 	
 	if ( old_Num_objects != num_objects )	{
 		old_Num_objects = num_objects;
-		gr_uprintf( 0, 32, "Objs: %3d/%3" DXX_PRI_size_type "u", num_objects, MAX_OBJECTS);
+		gr_uprintf( 0, 32, "Objs: %3d/%3" DXX_PRI_size_type, num_objects, MAX_OBJECTS);
 	}
 
   	//--------------- Current_segment_number -------------
