@@ -109,7 +109,7 @@ struct title_screen : ignore_window_pointer_t
 
 }
 
-static window_event_result title_handler(window *wind, const d_event &event, title_screen *ts)
+static window_event_result title_handler(window *, const d_event &event, title_screen *ts)
 {
 	switch (event.type)
 	{
@@ -146,7 +146,6 @@ static window_event_result title_handler(window *wind, const d_event &event, tit
 
 		case EVENT_WINDOW_CLOSE:
 			gr_free_bitmap_data(ts->title_bm);
-			delete wind;
 			break;
 
 		default:
@@ -1444,7 +1443,7 @@ static int new_briefing_screen(briefing *br, int first)
 
 //-----------------------------------------------------------------------------
 namespace dsx {
-static window_event_result briefing_handler(window *wind, const d_event &event, briefing *br)
+static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
 {
 	switch (event.type)
 	{
@@ -1554,7 +1553,6 @@ static window_event_result briefing_handler(window *wind, const d_event &event, 
 #if defined(DXX_BUILD_DESCENT_II)
 			br->hum_channel.reset();
 #endif
-			delete wind;
 			break;
 
 		default:

@@ -287,7 +287,6 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:
-			delete wind;
 			break;
 		default:
 			break;

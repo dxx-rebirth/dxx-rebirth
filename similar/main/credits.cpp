@@ -94,7 +94,7 @@ struct credits : ignore_window_pointer_t
 }
 
 namespace dsx {
-static window_event_result credits_handler(window *wind, const d_event &event, credits *cr)
+static window_event_result credits_handler(window *, const d_event &event, credits *cr)
 {
 	int l, y;
 	switch (event.type)
@@ -217,7 +217,6 @@ static window_event_result credits_handler(window *wind, const d_event &event, c
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			std::default_delete<credits>()(cr);
-			delete wind;
 			break;
 		default:
 			break;

@@ -87,7 +87,7 @@ struct count_wall
 
 }
 
-static int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
+static window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd);
 
 //---------------------------------------------------------------------
 // Add a wall (removable 2 sided)
@@ -344,7 +344,7 @@ int do_wall_dialog()
 	return 1;
 }
 
-static int wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
+static window_event_result wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
 {
 	wd->quitButton = ui_add_gadget_button(w, 20, 252, 48, 40, "Done", NULL);
 	// These are the checkboxes for each door flag.
@@ -372,7 +372,8 @@ static int wall_dialog_created(UI_DIALOG *const w, wall_dialog *const wd)
 	wd->bind_trigger = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Trigger", bind_wall_to_trigger); i += 25;
 	wd->bind_control = ui_add_gadget_button(w, 155, i, 140, 22, "Bind to Control", bind_wall_to_control_center); i+=25;
 	wd->old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
-	return 1;
+
+	return window_event_result::handled;
 }
 
 void close_wall_window()
@@ -381,7 +382,7 @@ void close_wall_window()
 		ui_close_dialog(exchange(MainWindow, nullptr));
 }
 
-int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
+window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 {
 	switch(event.type)
 	{
@@ -389,7 +390,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			return wall_dialog_created(dlg, wd);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<wall_dialog>()(wd);
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
@@ -397,7 +398,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	fix DeltaTime;
 	fix64 Temp;
 	int keypress = 0;
-	int rval = 0;
+	window_event_result rval = window_event_result::ignored;
 	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -442,7 +443,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				w->flags |= WALL_DOOR_LOCKED;
 			else
 				w->flags &= ~WALL_DOOR_LOCKED;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 		else if (GADGET_PRESSED(wd->doorFlag[1].get()))
 		{
@@ -450,7 +451,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				w->flags |= WALL_DOOR_AUTO;
 			else
 				w->flags &= ~WALL_DOOR_AUTO;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 
 		//------------------------------------------------------------
@@ -461,7 +462,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 			if (GADGET_PRESSED(wd->keyFlag[i].get()))
 			{
 				w->keys = 1<<i;		// Set the ai_state to the cooresponding radio button
-				rval = 1;
+				rval = window_event_result::handled;
 			}
 		}
 	} else {
@@ -478,7 +479,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 				w->flags |= WALL_ILLUSION_OFF;
 			else
 				w->flags &= ~WALL_ILLUSION_OFF;
-			rval = 1;
+			rval = window_event_result::handled;
 		}
 	} else 
 		for (	int i=2; i < 3; i++ ) 
@@ -574,7 +575,7 @@ int wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wall_dialog *wd)
 	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
 	{
 		close_wall_window();
-		return 1;
+		return window_event_result::handled;
 	}		
 
 	wd->old_wall_num = Cursegp->sides[Curside].wall_num;

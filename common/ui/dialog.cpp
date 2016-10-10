@@ -42,13 +42,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#define D_X             (dlg->x)
-#define D_Y             (dlg->y)
-#define D_WIDTH         (dlg->width)
-#define D_HEIGHT        (dlg->height)
-#define D_GADGET        (dlg->gadget)
-#define D_TEXT_X        (dlg->text_x)
-#define D_TEXT_Y        (dlg->text_y)
+#define D_X             (dlg->d_x)
+#define D_Y             (dlg->d_y)
+#define D_WIDTH         (dlg->d_width)
+#define D_HEIGHT        (dlg->d_height)
+#define D_GADGET        (dlg->d_gadget)
+#define D_TEXT_X        (dlg->d_text_x)
+#define D_TEXT_Y        (dlg->d_text_y)
 
 #ifndef __MSDOS__
 #define _disable()
@@ -70,7 +70,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	req_w = w;
 	req_h = h;
 	
-	if (dlg->flags & DF_BORDER)
+	if (dlg->d_flags & DF_BORDER)
 	{
 		req_w -= 2*BORDER_WIDTH;
 		req_h -= 2*BORDER_WIDTH;
@@ -81,26 +81,25 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	
 	ui_dialog_set_current_canvas(dlg);
 	
-	if (dlg->flags & DF_FILLED)
+	if (dlg->d_flags & DF_FILLED)
 		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );
 	
 	gr_set_fontcolor( CBLACK, CWHITE );
-	
-	D_TEXT_X = 0;
-	D_TEXT_Y = 0;
 }
 
 
 // The dialog handler borrows heavily from the newmenu_handler
 static window_event_result ui_dialog_handler(window *wind,const d_event &event, UI_DIALOG *dlg)
 {
+	window_event_result rval{window_event_result::ignored};
+
 	if (event.type == EVENT_WINDOW_ACTIVATED ||
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
 	
-	if (dlg->callback)
-		if ((*dlg->callback)(dlg, event, dlg->userdata))
-			return window_event_result::handled;		// event handled
+	if (dlg->d_callback)
+		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) == window_event_result::handled)
+			return rval;		// event handled
 
 	if (!window_exists(wind))
 		return window_event_result::handled;
@@ -123,7 +122,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		case EVENT_WINDOW_DRAW:
 		{
 			ui_dialog_draw(dlg);
-			window_event_result rval = ui_dialog_do_gadgets(dlg, event);
+			rval = ui_dialog_do_gadgets(dlg, event);
 			if (rval != window_event_result::close)
 			{
 				d_event event2 = { EVENT_UI_DIALOG_DRAW };
@@ -133,21 +132,20 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			ui_gadget_delete_all(dlg);
-			selected_gadget = NULL;
-			delete dlg;
-			delete wind;
-			return window_event_result::ignored;
+			if (rval != window_event_result::deleted)	// check if handler already deleted dialog (e.g. if UI_DIALOG was subclassed)
+				delete dlg;
+			return window_event_result::ignored;	// free the window in any case (until UI_DIALOG is subclass of window)
 		default:
 			return window_event_result::ignored;
 	}
 }
 
-UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata, const void *const createdata)
+UI_DIALOG::UI_DIALOG(short x, short y, short w, short h, const enum dialog_flags flags, const ui_subfunction_t<void> callback, void *const userdata, const void *const createdata) :
+d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdata(userdata), d_text_x(0), d_text_y(0), d_flags(flags)
 {
 	int sw, sh, req_w, req_h;
 
-	auto dlg = make_unique<UI_DIALOG>();
+	auto dlg = this;
 	sw = grd_curscreen->get_screen_width();
 	sh = grd_curscreen->get_screen_height();
 
@@ -156,8 +154,6 @@ UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, const en
 	req_w = w;
 	req_h = h;
 	
-	dlg->flags = flags;
-
 	if (flags & DF_BORDER)
 	{
 		x -= BORDER_WIDTH;
@@ -175,25 +171,15 @@ UI_DIALOG *untyped_ui_create_dialog(short x, short y, short w, short h, const en
 	D_Y = y;
 	D_WIDTH = w;
 	D_HEIGHT = h;
-	D_GADGET = NULL;
-	dlg->keyboard_focus_gadget = NULL;
 	selected_gadget = NULL;
 
-	dlg->callback = callback;
-	dlg->userdata = userdata;
 	dlg->wind = window_create(&grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
-						 req_w, req_h, ui_dialog_handler, dlg.get(), createdata);
+						 req_w, req_h, ui_dialog_handler, dlg, createdata);
 	
-	if (!dlg->wind)
-	{
-		return NULL;
-	}
-
 	if (!(flags & DF_MODAL))
 		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
-	return dlg.release();
 }
 
 window *ui_dialog_get_window(UI_DIALOG *dlg)
@@ -204,6 +190,12 @@ window *ui_dialog_get_window(UI_DIALOG *dlg)
 void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 {
 	gr_set_current_canvas(window_get_canvas(*dlg->wind));
+}
+
+UI_DIALOG::~UI_DIALOG()
+{
+	ui_gadget_delete_all(this);
+	selected_gadget = NULL;
 }
 
 void ui_close_dialog( UI_DIALOG * dlg )

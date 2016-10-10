@@ -1564,7 +1564,6 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 			return newmenu_draw(wind, menu);
 		case EVENT_WINDOW_CLOSE:
 			delete menu;
-			delete wind;
 			break;
 
 		default:
@@ -2069,7 +2068,6 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 			return listbox_draw(wind, lb);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<listbox>()(lb);
-			delete wind;
 			break;
 		default:
 			break;

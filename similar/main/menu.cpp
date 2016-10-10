@@ -2287,7 +2287,7 @@ void do_options_menu()
 
 #ifndef RELEASE
 namespace dsx {
-static window_event_result polygon_models_viewer_handler(window *wind, const d_event &event, const unused_window_userdata_t *)
+static window_event_result polygon_models_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static unsigned view_idx;
 	int key = 0;
@@ -2356,7 +2356,6 @@ static window_event_result polygon_models_viewer_handler(window *wind, const d_e
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
-			delete wind;
 			break;
 		default:
 			break;
@@ -2380,7 +2379,7 @@ static void polygon_models_viewer()
 }
 
 namespace dsx {
-static window_event_result gamebitmaps_viewer_handler(window *wind, const d_event &event, const unused_window_userdata_t *)
+static window_event_result gamebitmaps_viewer_handler(window *, const d_event &event, const unused_window_userdata_t *)
 {
 	static int view_idx = 0;
 	int key = 0;
@@ -2436,7 +2435,6 @@ static window_event_result gamebitmaps_viewer_handler(window *wind, const d_even
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
-			delete wind;
 			break;
 		default:
 			break;

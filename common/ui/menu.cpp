@@ -49,24 +49,24 @@ struct menu
 
 }
 
-static int menu_handler(UI_DIALOG *,const d_event &event, menu *m)
+static window_event_result menu_handler(UI_DIALOG *,const d_event &event, menu *m)
 {
 	for (int i=0; i<m->num_buttons; i++ )
 	{
 		if (GADGET_PRESSED(m->button_g[i].get()))
 		{
 			*(m->choice) = i+1;
-			return 1;
+			return window_event_result::handled;
 		}
 	}
 	
 	if ( (*(m->choice)==0) && B1_JUST_RELEASED )
 	{
 		*(m->choice) = -1;
-		return 1;
+		return window_event_result::handled;
 	}
 	
-	return 0;
+	return window_event_result::ignored;
 }
 
 int MenuX( int x, int y, int NumButtons, const char *const text[] )

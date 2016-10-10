@@ -65,11 +65,12 @@ int window_close(window *wind)
 {
 	window *prev;
 	d_event event;
+	window_event_result result;
 
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
-	if (WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE) == window_event_result::handled)
+	if ((result = WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CLOSE)) == window_event_result::handled)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
@@ -79,8 +80,12 @@ int window_close(window *wind)
 		return 0;
 	}
 
+	if (result != window_event_result::deleted)	// don't attempt to re-delete
+		delete wind;
+
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
+
 	return 1;
 }
 
