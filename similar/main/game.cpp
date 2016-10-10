@@ -1499,7 +1499,9 @@ void GameProcessFrame(void)
 	}
 	else
 	{ // Note the link to above!
-
+#ifndef NEWHOMER
+		get_local_plrobj().ctype.player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+#endif
 		object_move_all();
 		powerup_grab_cheat_all();
 
