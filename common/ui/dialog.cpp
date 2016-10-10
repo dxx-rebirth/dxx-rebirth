@@ -94,8 +94,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 // The dialog handler borrows heavily from the newmenu_handler
 static window_event_result ui_dialog_handler(window *wind,const d_event &event, UI_DIALOG *dlg)
 {
-	if (event.type == EVENT_WINDOW_CLOSED ||
-		event.type == EVENT_WINDOW_ACTIVATED ||
+	if (event.type == EVENT_WINDOW_ACTIVATED ||
 		event.type == EVENT_WINDOW_DEACTIVATED)
 		return window_event_result::ignored;
 	
