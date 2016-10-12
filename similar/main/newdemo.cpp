@@ -428,11 +428,16 @@ static void nd_read_byte(uint8_t *const b)
 	nd_read_byte(reinterpret_cast<int8_t *>(b));
 }
 
-static void nd_read_short(short *s)
+static void nd_read_short(int16_t *const s)
 {
 	newdemo_read(s, 2, 1);
 	if (swap_endian)
 		*s = SWAPSHORT(*s);
+}
+
+static void nd_read_short(uint16_t *const s)
+{
+	nd_read_short(reinterpret_cast<int16_t *>(s));
 }
 
 static void nd_read_segnum16(segnum_t &s)
@@ -528,13 +533,13 @@ static void nd_read_shortpos(object_base &obj)
 			nd_read_byte(&i);
 	}
 
-	nd_read_short(&(sp.xo));
-	nd_read_short(&(sp.yo));
-	nd_read_short(&(sp.zo));
-	nd_read_short(&(sp.segment));
-	nd_read_short(&(sp.velx));
-	nd_read_short(&(sp.vely));
-	nd_read_short(&(sp.velz));
+	nd_read_short(&sp.xo);
+	nd_read_short(&sp.yo);
+	nd_read_short(&sp.zo);
+	nd_read_short(&sp.segment);
+	nd_read_short(&sp.velx);
+	nd_read_short(&sp.vely);
+	nd_read_short(&sp.velz);
 
 	my_extract_shortpos(obj, &sp);
 	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_type == CT_EXPLOSION)
@@ -1796,7 +1801,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	range_for (auto &i, player_info.secondary_ammo)
 	{
-		nd_read_short(reinterpret_cast<short*>(&i));
+		uint16_t u;
+		nd_read_short(&u);
+		i = u;
 		if (purpose == PURPOSE_REWRITE)
 			nd_write_short(i);
 	}
@@ -2924,8 +2931,8 @@ static int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_PRIMARY_AMMO: {
 			unsigned short old_ammo, new_ammo;
 
-			nd_read_short(reinterpret_cast<short *>(&old_ammo));
-			nd_read_short(reinterpret_cast<short *>(&new_ammo));
+			nd_read_short(&old_ammo);
+			nd_read_short(&new_ammo);
 			if (rewrite)
 			{
 				nd_write_short(old_ammo);
@@ -3367,7 +3374,11 @@ void newdemo_goto_end(int to_rewrite)
 			player_info.vulcan_ammo = s;
 	}
 	range_for (auto &i, player_info.secondary_ammo)
-		nd_read_short(reinterpret_cast<int16_t *>(&i));
+	{
+		uint16_t u;
+		nd_read_short(&u);
+		i = u;
+	}
 	{
 	int8_t i;
 	nd_read_byte(&i);
