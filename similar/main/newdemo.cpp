@@ -418,9 +418,14 @@ static void nd_write_shortpos(const vcobjptr_t obj)
 	nd_write_short(sp.velz);
 }
 
-static void nd_read_byte(sbyte *b)
+static void nd_read_byte(int8_t *const b)
 {
 	newdemo_read(b, 1, 1);
+}
+
+static void nd_read_byte(uint8_t *const b)
+{
+	nd_read_byte(reinterpret_cast<int8_t *>(b));
 }
 
 static void nd_read_short(short *s)
@@ -520,7 +525,7 @@ static void nd_read_shortpos(object_base &obj)
 	if ((render_type == RT_POLYOBJ || render_type == RT_HOSTAGE || render_type == RT_MORPH) || obj.type == OBJ_CAMERA)
 	{
 		range_for (auto &i, sp.bytemat)
-			nd_read_byte(&(i));
+			nd_read_byte(&i);
 	}
 
 	nd_read_short(&(sp.xo));
@@ -558,13 +563,13 @@ static void nd_read_object(const vobjptridx_t obj)
 	 * Do render type first, since with render_type == RT_NONE, we
 	 * blow by all other object information
 	 */
-	nd_read_byte(reinterpret_cast<int8_t *>(&obj->render_type));
-	nd_read_byte(reinterpret_cast<int8_t *>(&obj->type));
+	nd_read_byte(&obj->render_type);
+	nd_read_byte(&obj->type);
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 
-	nd_read_byte(reinterpret_cast<int8_t *>(&obj->id));
-	nd_read_byte(reinterpret_cast<int8_t *>(&obj->flags));
+	nd_read_byte(&obj->id);
+	nd_read_byte(&obj->flags);
 	nd_read_short(&shortsig);
 	// It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
@@ -603,7 +608,7 @@ static void nd_read_object(const vobjptridx_t obj)
 
 	case OBJ_POWERUP:
 		obj->control_type = CT_POWERUP;
-		nd_read_byte(reinterpret_cast<int8_t *>(obj->movement_type));        // might have physics movement
+		nd_read_byte(&obj->movement_type);        // might have physics movement
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		break;
 
@@ -624,8 +629,8 @@ static void nd_read_object(const vobjptridx_t obj)
 		break;
 
 	default:
-		nd_read_byte(reinterpret_cast<int8_t *>(&obj->control_type));
-		nd_read_byte(reinterpret_cast<int8_t *>(&obj->movement_type));
+		nd_read_byte(&obj->control_type);
+		nd_read_byte(&obj->movement_type);
 		nd_read_fix(&(obj->size));
 		break;
 	}
@@ -768,7 +773,7 @@ static void nd_read_object(const vobjptridx_t obj)
 	case RT_HOSTAGE:
 		nd_read_int(&(obj->rtype.vclip_info.vclip_num));
 		nd_read_fix(&(obj->rtype.vclip_info.frametime));
-		nd_read_byte(reinterpret_cast<int8_t *>(&obj->rtype.vclip_info.framenum));
+		nd_read_byte(&obj->rtype.vclip_info.framenum);
 		break;
 
 	case RT_LASER:
@@ -1690,7 +1695,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		if (Newdemo_game_mode & GM_TEAM)
 		{
-			nd_read_byte(reinterpret_cast<int8_t *>(&Netgame.team_vector));
+			nd_read_byte(&Netgame.team_vector);
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(Netgame.team_vector);
 		}
@@ -1707,7 +1712,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	else
 	{
 		if (Newdemo_game_mode & GM_TEAM) {
-			nd_read_byte(reinterpret_cast<int8_t *>(&Netgame.team_vector));
+			nd_read_byte(&Netgame.team_vector);
 			nd_read_string(Netgame.team_name[0].buffer());
 			nd_read_string(Netgame.team_name[1].buffer());
 			if (purpose == PURPOSE_REWRITE)
@@ -1725,7 +1730,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			N_players = static_cast<int>(c);
 			// changed this to above two lines -- breaks on the mac because of
 			// endian issues
-			//		nd_read_byte(reinterpret_cast<int8_t *>(&N_players));
+			//		nd_read_byte(&N_players);
 			if (purpose == PURPOSE_REWRITE)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
@@ -1735,7 +1740,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 				DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 				nd_read_string(i.callsign.buffer());
-				nd_read_byte(&(i.connected));
+				nd_read_byte(&i.connected);
 				if (purpose == PURPOSE_REWRITE)
 				{
 					nd_write_string(static_cast<const char *>(i.callsign));
@@ -1832,8 +1837,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 	nd_recorded_total = 0;
 	nd_playback_total = 0;
-	nd_read_byte(reinterpret_cast<int8_t *>(&energy));
-	nd_read_byte(reinterpret_cast<int8_t *>(&shield));
+	nd_read_byte(&energy);
+	nd_read_byte(&shield);
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_byte(energy);
@@ -2386,8 +2391,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte old_energy;
 
 			if (!shareware)
-			nd_read_byte(reinterpret_cast<int8_t *>(&old_energy));
-			nd_read_byte(reinterpret_cast<int8_t *>(&energy));
+			nd_read_byte(&old_energy);
+			nd_read_byte(&energy);
 
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
@@ -2416,8 +2421,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte afterburner;
 			ubyte old_afterburner;
 
-			nd_read_byte(reinterpret_cast<int8_t *>(&old_afterburner));
-			nd_read_byte(reinterpret_cast<int8_t *>(&afterburner));
+			nd_read_byte(&old_afterburner);
+			nd_read_byte(&afterburner);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
@@ -2441,8 +2446,8 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte old_shield;
 
 			if (!shareware)
-			nd_read_byte(reinterpret_cast<int8_t *>(&old_shield));
-			nd_read_byte(reinterpret_cast<int8_t *>(&shield));
+			nd_read_byte(&old_shield);
+			nd_read_byte(&shield);
 			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
@@ -2529,8 +2534,8 @@ static int newdemo_read_frame_information(int rewrite)
 		{
 			ubyte weapon_type, weapon_num;
 
-			nd_read_byte(reinterpret_cast<int8_t *>(&weapon_type));
-			nd_read_byte(reinterpret_cast<int8_t *>(&weapon_num));
+			nd_read_byte(&weapon_type);
+			nd_read_byte(&weapon_num);
 			if (rewrite)
 			{
 				nd_write_byte(weapon_type);
@@ -2551,9 +2556,9 @@ static int newdemo_read_frame_information(int rewrite)
 			ubyte weapon_type, weapon_num;
 			ubyte old_weapon;
 
-			nd_read_byte(reinterpret_cast<int8_t *>(&weapon_type));
-			nd_read_byte(reinterpret_cast<int8_t *>(&weapon_num));
-			nd_read_byte(reinterpret_cast<int8_t *>(&old_weapon));
+			nd_read_byte(&weapon_type);
+			nd_read_byte(&weapon_num);
+			nd_read_byte(&old_weapon);
 			if (rewrite)
 			{
 				nd_write_byte(weapon_type);
@@ -3128,9 +3133,9 @@ static int newdemo_read_frame_information(int rewrite)
 				// restore the walls
 				{
 					auto &w = *wp;
-					nd_read_byte(reinterpret_cast<int8_t *>(&w.type));
-					nd_read_byte(reinterpret_cast<int8_t *>(&w.flags));
-					nd_read_byte(reinterpret_cast<int8_t *>(&w.state));
+					nd_read_byte(&w.type);
+					nd_read_byte(&w.flags);
+					nd_read_byte(&w.state);
 
 					segment *seg;
 					int side;
@@ -3331,8 +3336,8 @@ void newdemo_goto_end(int to_rewrite)
 	nd_read_short(&bshort);
 	nd_read_int(&bint);
 
-	nd_read_byte(reinterpret_cast<int8_t *>(&energy));
-	nd_read_byte(reinterpret_cast<int8_t *>(&shield));
+	nd_read_byte(&energy);
+	nd_read_byte(&shield);
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	player_info.energy = i2f(energy);
 	get_local_plrobj().shields = i2f(shield);
@@ -3379,10 +3384,10 @@ void newdemo_goto_end(int to_rewrite)
 		N_players = static_cast<int>(c);
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
-		//		nd_read_byte(reinterpret_cast<int8_t *>(&N_players));
+		//		nd_read_byte(&N_players);
 		range_for (auto &i, partial_range(Players, N_players)) {
 			nd_read_string(i.callsign.buffer());
-			nd_read_byte(&(i.connected));
+			nd_read_byte(&i.connected);
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(i.score));
 			} else {
