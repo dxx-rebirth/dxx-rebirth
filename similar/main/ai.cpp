@@ -4442,16 +4442,6 @@ DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const arra
 
 namespace dsx {
 
-static void ai_save_one_ai_local(PHYSFS_File *fp, const object &i)
-{
-	ai_local_rw ail_rw;
-	if (i.type == OBJ_ROBOT)
-		state_ai_local_to_ai_local_rw(&i.ctype.ai_info.ail, &ail_rw);
-	else
-		ail_rw = {};
-	PHYSFS_write(fp, &ail_rw, sizeof(ail_rw), 1);
-}
-
 int ai_save_state(PHYSFS_File *fp)
 {
 	fix tmptime32 = 0;
@@ -4459,8 +4449,14 @@ int ai_save_state(PHYSFS_File *fp)
 	const int Ai_initialized = 0;
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	range_for (auto &i, Objects)
-		ai_save_one_ai_local(fp, i);
+	{
+		ai_local_rw zero{};
+		range_for (const auto &i, Objects)
+		{
+			ai_local_rw ail_rw;
+			PHYSFS_write(fp, i.type == OBJ_ROBOT ? (state_ai_local_to_ai_local_rw(&i.ctype.ai_info.ail, &ail_rw), &ail_rw) : &zero, sizeof(ail_rw), 1);
+		}
+	}
 	PHYSFSX_serialize_write(fp, Point_segs);
 	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	range_for (auto &i, Ai_cloak_info)

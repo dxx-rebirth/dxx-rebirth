@@ -125,12 +125,6 @@ namespace dsx {
 static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj_rw)
 {
 	const auto otype = obj->type;
-	if (otype == OBJ_NONE)
-	{
-		*obj_rw = {};
-		obj_rw->type = otype;
-		return;
-	}
 	obj_rw->type = otype;
 	obj_rw->signature     = obj->signature.get();
 	obj_rw->id            = obj->id;
@@ -1051,12 +1045,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	//PHYSFS_write(fp, Objects, sizeof(object), i);
-	range_for (const auto &&objp, vcobjptr)
 	{
-		object_rw obj_rw;
-		state_object_to_object_rw(objp, &obj_rw);
-		PHYSFS_write(fp, &obj_rw, sizeof(obj_rw), 1);
+		object_rw None{};
+		None.type = OBJ_NONE;
+		range_for (const auto &&objp, vcobjptr)
+		{
+			object_rw obj_rw;
+			auto &obj = *objp;
+			PHYSFS_write(fp, obj.type == OBJ_NONE ? &None : (state_object_to_object_rw(objp, &obj_rw), &obj_rw), sizeof(obj_rw), 1);
+		}
 	}
 	
 //Save wall info
