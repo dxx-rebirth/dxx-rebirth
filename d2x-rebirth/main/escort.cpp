@@ -577,10 +577,9 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg)
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special)
+static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
 	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
@@ -731,7 +730,8 @@ static void escort_go_to_goal(const vobjptridx_t objp, ai_static *aip, segnum_t 
 //	-----------------------------------------------------------------------------
 static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid)
 {
-	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1);
+	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
+	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1, powerup_flags);
 	Escort_goal_index = egi;
 	if (egi != object_none && egi != object_guidebot_cannot_reach)
 		return vcobjptr(egi)->segnum;
@@ -794,7 +794,11 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 				goal_seg = escort_get_goal_segment(objp, OBJ_HOSTAGE, -1);
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
-				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW);
+				{
+					auto &player_info = get_local_plrobj().ctype.player_info;
+					const auto powerup_flags = player_info.powerup_flags;
+					Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
+				}
 				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
@@ -850,7 +854,7 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 		(!(pl_flags & PLAYER_FLAGS_RED_KEY) && (keyid = POW_KEY_RED, goal = ESCORT_GOAL_RED_KEY, true))
 	)
 	{
-		if (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, keyid, -1) != object_none)
+		if (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, keyid, -1, pl_flags) != object_none)
 			return goal;
 	}
 	if (Control_center_destroyed == 0)
