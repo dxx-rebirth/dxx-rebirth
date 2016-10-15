@@ -25,27 +25,37 @@ namespace dcx {
 static window *FrontWindow = nullptr;
 static window *FirstWindow = nullptr;
 
-window::window(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data, const void *createdata) :
+window::window(grs_canvas &src, const int x, const int y, const int w, const int h, const window_subfunction<void> event_callback, void *const data) :
 	// Default to visible and modal
 	w_callback(event_callback), w_visible(1), w_modal(1), w_data(data), prev(FrontWindow), next(nullptr)
 {
-	window *prev_front = window_get_front();
-	d_create_event event;
-	window *wind = this;
 	Assert(event_callback != nullptr);
-	gr_init_sub_canvas(wind->w_canv, src, x, y, w, h);
+	gr_init_sub_canvas(w_canv, src, x, y, w, h);
 
 	if (FirstWindow == nullptr)
-		FirstWindow = wind;
-	if (FrontWindow)
-		FrontWindow->next = wind;
-	FrontWindow = wind;
-	if (prev_front)
-		WINDOW_SEND_EVENT(prev_front, EVENT_WINDOW_DEACTIVATED);
+		FirstWindow = this;
+}
 
-	event.createdata = createdata;
-	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
-	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+void window::send_creation_events(const void *const createdata)
+{
+	const auto prev_front = window_get_front();
+	if (FrontWindow)
+		FrontWindow->next = this;
+	FrontWindow = this;
+	if (prev_front)
+	{
+		d_event event;
+		WINDOW_SEND_EVENT(prev_front, EVENT_WINDOW_DEACTIVATED);
+	}
+	{
+		d_create_event event;
+		event.createdata = createdata;
+		WINDOW_SEND_EVENT(this, EVENT_WINDOW_CREATED);
+	}
+	{
+		d_event event;
+		WINDOW_SEND_EVENT(this, EVENT_WINDOW_ACTIVATED);
+	}
 }
 
 window::~window()
