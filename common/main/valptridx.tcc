@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <inttypes.h>
 #include "valptridx.h"
+#include "compiler-addressof.h"
 
 namespace untyped_index_mismatch_exception
 {
@@ -81,7 +82,7 @@ void valptridx<managed_type>::index_mismatch_exception::report(DXX_VALPTRIDX_REP
 {
 	using namespace untyped_index_mismatch_exception;
 	char buf[report_buffer_size];
-	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<const managed_type *>(&array[0]), supplied_index, expected_pointer, actual_pointer, buf, array.size());
+	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS addressof(array), supplied_index, expected_pointer, actual_pointer, buf, array.size());
 	throw index_mismatch_exception(buf);
 }
 
@@ -108,6 +109,6 @@ void valptridx<managed_type>::null_pointer_exception::report(DXX_VALPTRIDX_REPOR
 {
 	using namespace untyped_null_pointer_exception;
 	char buf[report_buffer_size];
-	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<const managed_type *>(&array[0]), buf, array.size());
+	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS addressof(array), buf, array.size());
 	throw null_pointer_exception(buf);
 }
