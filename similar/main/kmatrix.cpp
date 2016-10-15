@@ -156,10 +156,10 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 static void kmatrix_draw_coop_names(playernum_array_t &)
 {
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	const auto &&fspacy = FSPACY();
-	gr_string(CENTERSCREEN, fspacy(40), "SCORE");
-	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_string(CENTERSCREEN + FSPACX(50), fspacy(40), "DEATHS");
+	const auto &&fspacy40 = FSPACY(40);
+	const auto centerscreen = CENTERSCREEN;
+	gr_string(centerscreen, fspacy40, "SCORE");
+	gr_string(centerscreen + FSPACX(50), fspacy40, "DEATHS");
 }
 
 static void kmatrix_status_msg (fix time, int reactor)
