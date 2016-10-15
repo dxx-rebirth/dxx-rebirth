@@ -78,6 +78,8 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	const auto &&fspacx = FSPACX();
 	gr_string(fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
 
+	const auto &&rgb10 = BM_XRGB(10, 10, 10);
+	const auto &&rgb25 = BM_XRGB(25, 25, 25);
 	for (int j=0; j<N_players; j++)
 	{
 		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
@@ -87,25 +89,18 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 		{
 			if (kmij == 0)
 			{
-				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
+				gr_set_fontcolor(rgb10, -1);
 				gr_string(x, y, "0");
 			}
 			else
 			{
-				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
+				gr_set_fontcolor(rgb25, -1);
 				gr_printf(x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			if (kmij <= 0)
-			{
-				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-			}
-			else
-			{
-				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-			}
+			gr_set_fontcolor(kmij <= 0 ? rgb10 : rgb25, -1);
 			gr_printf(x, y, "%hu", kmij);
 		}
 	}
@@ -123,7 +118,7 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	}
 
 	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
+	gr_set_fontcolor(rgb25, -1);
 	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
 
@@ -133,23 +128,26 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
+	const auto &&rgb31 = BM_XRGB(31, 31, 31);
 	for (int j=0; j<N_players; j++)
 	{
 		x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
+		color_t c;
 		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
-			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+			c = rgb31;
 		else
 		{
 			const auto color = get_player_or_team_color(sorted[j]);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+			const auto &rgb = player_rgb[color];
+			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
-
+		gr_set_fontcolor(c, -1);
 		gr_printf(x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
 	}
 
 	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
+	gr_set_fontcolor(rgb31, -1);
 	gr_string(x, fspacy(40), "K/E");
 }
 
