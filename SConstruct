@@ -225,10 +225,10 @@ class ConfigureTests:
 			self.__getitem__ = self.flags.__getitem__
 		def restore(self,env):
 			env.Replace(**self.flags)
-	class ForceVerboseLog:
+	class ForceVerboseLog(PreservedEnvironment):
 		def __init__(self,env):
 			# Force verbose output to sconf.log
-			self.cc_env_strings = {}
+			self.flags = {}
 			for k in (
 				'CXXCOMSTR',
 				'LINKCOMSTR',
@@ -236,13 +236,10 @@ class ConfigureTests:
 				try:
 					# env is like a dict, but does not have .pop(), so
 					# emulate it with a lookup + delete.
-					self.cc_env_strings[k] = env[k]
+					self.flags[k] = env[k]
 					del env[k]
 				except KeyError:
 					pass
-		def restore(self,env):
-			# Restore potential quiet build options
-			env.Replace(**self.cc_env_strings)
 	class pkgconfig:
 		def _get_pkg_config_exec_path(context,msgprefix,pkgconfig):
 			Display = context.Display
@@ -2054,19 +2051,19 @@ where the cast is useless.
 	(void)ts;
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
-	__preferred_compiler_options = (
+	__preferred_compiler_options = [
 		'-fvisibility=hidden',
 		'-Wsuggest-attribute=noreturn',
 		'-Wlogical-op',
 		'-Wold-style-cast',
-	)
-	__preferred_win32_linker_options = (
+	]
+	__preferred_win32_linker_options = [
 		'-Wl,--large-address-aware',
 		'-Wl,--dynamicbase',
 		'-Wl,--nxcompat',
-	)
+	]
 	if os.getenv('SOURCE_DATE_EPOCH') is None:
-		__preferred_win32_linker_options += ('-Wl,--insert-timestamp',)
+		__preferred_win32_linker_options += ['-Wl,--insert-timestamp']
 	def __mangle_compiler_option_name(opt):
 		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
 	def __mangle_linker_option_name(opt):
@@ -3855,7 +3852,6 @@ class DXXProgram(DXXCommon):
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
 		)
-		ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
 
 	def register_program(self):
 		exe_target = self.user_settings.program_name
@@ -3864,13 +3860,15 @@ class DXXProgram(DXXCommon):
 			if self.user_settings.editor:
 				exe_target += '-editor'
 		exe_target = os.path.join(self.user_settings.builddir, exe_target)
-		PROGSUFFIX = self.env['PROGSUFFIX']
+		env = self.env
+		PROGSUFFIX = env['PROGSUFFIX']
 		if PROGSUFFIX and not exe_target.endswith(PROGSUFFIX):
 			exe_target += PROGSUFFIX
 		if self.user_settings.register_compile_target:
 			exe_target = self._register_program(exe_target)
 		if self.user_settings.register_install_target:
 			self._register_install(self.shortname, exe_target)
+		ToolchainInformation.show_partial_environ(env, lambda s, _message=message, _self=self: _message(self, s))
 
 	def _register_program(self,exe_target):
 		env = self.env
