@@ -1574,7 +1574,6 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 
 newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t nitems, newmenu_item * item, newmenu_subfunction subfunction, void *userdata, int citem, const char * filename, int TinyMode, int TabsFlag )
 {
-	window *wind = NULL;
 	newmenu *menu = new newmenu{};
 	menu->citem = citem;
 	menu->scroll_offset = 0;
@@ -1608,7 +1607,7 @@ newmenu *newmenu_do4( const char * title, const char * subtitle, uint_fast32_t n
 	newmenu_create_structure(menu);
 
 	// Create the basic window
-	wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
+	const auto wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, newmenu_handler, menu);
 	
 	if (!wind)
 	{
@@ -2094,7 +2093,7 @@ listbox *newmenu_listbox1(const char *const title, const uint_fast32_t nitems, c
 	
 	listbox_create_structure(lb.get());
 
-	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb.get());
+	wind = window_create(grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, listbox_handler, lb.get());
 	if (!wind)
 	{
 		lb.reset();

@@ -173,7 +173,7 @@ d_callback(callback), gadget(nullptr), keyboard_focus_gadget(nullptr), d_userdat
 	D_HEIGHT = h;
 	selected_gadget = NULL;
 
-	dlg->wind = window_create(&grd_curscreen->sc_canvas,
+	dlg->wind = window_create(grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 req_w, req_h, ui_dialog_handler, dlg, createdata);

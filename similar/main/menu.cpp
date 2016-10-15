@@ -2366,7 +2366,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 
 static void polygon_models_viewer()
 {
-	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, polygon_models_viewer_handler, unused_window_userdata);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, polygon_models_viewer_handler, unused_window_userdata);
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };
@@ -2445,7 +2445,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 
 static void gamebitmaps_viewer()
 {
-	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, gamebitmaps_viewer_handler, unused_window_userdata);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, gamebitmaps_viewer_handler, unused_window_userdata);
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };

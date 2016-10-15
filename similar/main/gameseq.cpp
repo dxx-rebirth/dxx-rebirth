@@ -536,7 +536,7 @@ void editor_reset_stuff_on_level()
 	compute_slide_segs();
 #endif
 	if (!Game_wind)
-		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
+		Game_wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
 }
 #endif
 

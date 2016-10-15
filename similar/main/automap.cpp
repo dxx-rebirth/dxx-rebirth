@@ -985,7 +985,7 @@ void do_automap()
 	int pcx_error;
 	palette_array_t pal;
 	automap *am = new automap{};
-	window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
+	window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
 	am->leave_mode = 0;
 	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
 	am->max_segments_away = 0;

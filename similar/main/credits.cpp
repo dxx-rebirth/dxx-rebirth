@@ -257,7 +257,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	key_flush();
 
 	credits *pcr = cr.get();
-	const auto wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr.release());
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, credits_handler, cr.release());
 	if (!wind)
 	{
 		d_event event = { EVENT_WINDOW_CLOSE };

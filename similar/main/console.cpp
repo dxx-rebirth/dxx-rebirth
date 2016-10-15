@@ -297,11 +297,9 @@ static window_event_result con_handler(window *wind,const d_event &event, const 
 
 void con_showup(void)
 {
-	window *wind;
-
 	game_flush_inputs();
 	con_state = CON_STATE_OPENING;
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, con_handler, unused_window_userdata);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, con_handler, unused_window_userdata);
 	
 	if (!wind)
 	{

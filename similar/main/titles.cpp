@@ -156,7 +156,6 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 
 static void show_title_screen(const char * filename, int allow_keys, int from_hog_only )
 {
-	window *wind;
 	int pcx_error;
 	char new_filename[PATH_MAX] = "";
 
@@ -181,7 +180,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 
 	gr_palette_load( gr_palette );
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
 	if (!wind)
 	{
 		gr_free_bitmap_data(ts->title_bm);
@@ -1566,8 +1565,6 @@ namespace dsx {
 
 void do_briefing_screens(const d_fname &filename, int level_num)
 {
-	window *wind;
-
 	if (!*static_cast<const char *>(filename))
 		return;
 
@@ -1579,7 +1576,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 		return;
 	}
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br.get());
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, briefing_handler, br.get());
 	if (!wind)
 	{
 		return;

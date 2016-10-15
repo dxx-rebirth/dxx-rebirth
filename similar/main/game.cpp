@@ -1166,13 +1166,12 @@ namespace dsx {
 
 window *game_setup(void)
 {
-	window *game_wind;
 
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
-	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
+	const auto game_wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
 	if (!game_wind)
 		return NULL;
 

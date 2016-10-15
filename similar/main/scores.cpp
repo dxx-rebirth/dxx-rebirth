@@ -482,6 +482,6 @@ void scores_view(stats_info *last_game, int citem)
 
 	const auto &&fspacx320 = FSPACX(320);
 	const auto &&fspacy200 = FSPACY(200);
-	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200,
+	window_create(grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200,
 				  scores_handler, menu);
 }

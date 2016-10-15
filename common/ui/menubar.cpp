@@ -146,7 +146,7 @@ static void menu_show( MENU * menu )
 {
 	if (!menu->wind)
 	{
-		menu->wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, 
+		menu->wind = window_create(grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h,
 								   ((menu == &Menu[0]) ? menubar_handler : menu_handler), menu);
 		if (!menu->wind)
 			return;

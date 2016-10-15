@@ -387,7 +387,6 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 
 kmatrix_result kmatrix_view(int network)
 {
-	window *wind;
 	kmatrix_screen km;
 	gr_init_bitmap_data(km.background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != PCX_ERROR_NONE)
@@ -408,7 +407,7 @@ kmatrix_result kmatrix_view(int network)
 		if (i.objnum != object_none)
 			digi_kill_sound_linked_to_object(vcobjptridx(i.objnum));
 
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, kmatrix_handler, &km);
 	if (!wind)
 	{
 		return kmatrix_result::abort;

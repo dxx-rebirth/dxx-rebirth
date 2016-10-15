@@ -25,16 +25,15 @@ namespace dcx {
 static window *FrontWindow = nullptr;
 static window *FirstWindow = nullptr;
 
-window::window(grs_canvas *src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data, const void *createdata) :
+window::window(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *data, const void *createdata) :
 	// Default to visible and modal
 	w_callback(event_callback), w_visible(1), w_modal(1), w_data(data), prev(FrontWindow), next(nullptr)
 {
 	window *prev_front = window_get_front();
 	d_create_event event;
 	window *wind = this;
-	Assert(src != nullptr);
 	Assert(event_callback != nullptr);
-	gr_init_sub_canvas(wind->w_canv, *src, x, y, w, h);
+	gr_init_sub_canvas(wind->w_canv, src, x, y, w, h);
 
 	if (FirstWindow == nullptr)
 		FirstWindow = wind;

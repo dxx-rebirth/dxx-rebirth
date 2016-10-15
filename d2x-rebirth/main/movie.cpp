@@ -342,7 +342,7 @@ static window_event_result MovieHandler(window *, const d_event &event, movie *m
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
-				if (window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, unused_window_userdata))
+				if (window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, unused_window_userdata))
 					MVE_rmHoldMovie();
 				return window_event_result::handled;
 			}
@@ -402,7 +402,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 	const auto reshow = hide_menus();
-	const auto wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, MovieHandler, &m);
 	if (!wind)
 	{
 		if (reshow)

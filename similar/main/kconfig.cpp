@@ -1330,7 +1330,7 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
-	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - fspacy(200)) / 2, fspacx(320), fspacy(200),
+	if (!(menu->wind = window_create(grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - fspacy(200)) / 2, fspacx(320), fspacy(200),
 					   kconfig_handler, menu)))
 		delete menu;
 }

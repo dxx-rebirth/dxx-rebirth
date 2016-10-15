@@ -1710,7 +1710,6 @@ void do_escort_menu(void)
 	const char *goal_txt;
 	const char *tstr;
 	escort_menu *menu;
-	window *wind;
 
 	if (Game_mode & GM_MULTI) {
 		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
@@ -1735,7 +1734,7 @@ void do_escort_menu(void)
 		return;
 	
 	// Just make it the full screen size and let show_escort_menu figure it out
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, escort_menu_handler, menu);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, escort_menu_handler, menu);
 	if (!wind)
 	{
 		d_free(menu);
