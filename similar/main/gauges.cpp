@@ -1424,7 +1424,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 }
 
-static void hud_show_weapons(void)
+static void hud_show_weapons(const player_info &player_info)
 {
 	int	y;
 	const char	*weapon_name;
@@ -1463,7 +1463,6 @@ static void hud_show_weapons(void)
 		hud_show_primary_weapons_mode(1,x1,y);
 		hud_show_secondary_weapons_mode(1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_plrobj().shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
@@ -1471,7 +1470,6 @@ static void hud_show_weapons(void)
 	else
 	{
 		const char *disp_primary_weapon_name;
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		const auto Primary_weapon = player_info.Primary_weapon;
 
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
@@ -3244,7 +3242,7 @@ void draw_hud()
 			hud_show_energy(player_info);
 			hud_show_shield();
 			hud_show_afterburner(player_info);
-			hud_show_weapons();
+			hud_show_weapons(player_info);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
