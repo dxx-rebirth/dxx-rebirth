@@ -728,9 +728,8 @@ static void escort_go_to_goal(const vobjptridx_t objp, ai_static *aip, segnum_t 
 }
 
 //	-----------------------------------------------------------------------------
-static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid)
+static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid, const player_flags powerup_flags)
 {
-	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1, powerup_flags);
 	Escort_goal_index = egi;
 	if (egi != object_none && egi != object_guidebot_cannot_reach)
@@ -749,28 +748,30 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 
 	Escort_kill_object = -1;
 
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	const auto powerup_flags = player_info.powerup_flags;
 	if (Looking_for_marker != -1) {
-		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1);
+		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1, powerup_flags);
 	} else {
 		switch (Escort_goal_object) {
 			case ESCORT_GOAL_BLUE_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_BLUE);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_BLUE, powerup_flags);
 				break;
 			case ESCORT_GOAL_GOLD_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_GOLD);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_GOLD, powerup_flags);
 				break;
 			case ESCORT_GOAL_RED_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_RED);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_KEY_RED, powerup_flags);
 				break;
 			case ESCORT_GOAL_CONTROLCEN:
-				goal_seg = escort_get_goal_segment(objp, OBJ_CNTRLCEN, -1);
+				goal_seg = escort_get_goal_segment(objp, OBJ_CNTRLCEN, -1, powerup_flags);
 				break;
 			case ESCORT_GOAL_EXIT:
 				goal_seg = find_exit_segment();
 				Escort_goal_index = goal_seg;
 				break;
 			case ESCORT_GOAL_ENERGY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY, powerup_flags);
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum);
@@ -782,23 +783,19 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 					escort_go_to_goal(objp, aip, goal_seg);
 				return;
 			case ESCORT_GOAL_SHIELD:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_SHIELD_BOOST);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_SHIELD_BOOST, powerup_flags);
 				break;
 			case ESCORT_GOAL_POWERUP:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, -1);
+				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, -1, powerup_flags);
 				break;
 			case ESCORT_GOAL_ROBOT:
-				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, -1);
+				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, -1, powerup_flags);
 				break;
 			case ESCORT_GOAL_HOSTAGE:
-				goal_seg = escort_get_goal_segment(objp, OBJ_HOSTAGE, -1);
+				goal_seg = escort_get_goal_segment(objp, OBJ_HOSTAGE, -1, powerup_flags);
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
-				{
-					auto &player_info = get_local_plrobj().ctype.player_info;
-					const auto powerup_flags = player_info.powerup_flags;
-					Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
-				}
+				Escort_goal_index = exists_in_mine(objp->segnum, -1, -1, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
 				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
@@ -809,7 +806,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 	
 				boss_id = get_boss_id();
 				Assert(boss_id != -1);
-				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, boss_id);
+				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, boss_id, powerup_flags);
 				break;
 			}
 			default:
