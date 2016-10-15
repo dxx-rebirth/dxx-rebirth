@@ -269,7 +269,8 @@ static void kmatrix_redraw_coop()
 		const auto &&y = fspacy(50 + i * 9);
 		gr_string(x_callsign, y, static_cast<const char *>(plr.callsign));
 		gr_set_fontcolor(rgb60_40_10, -1);
-		gr_printf(x_centerscreen, y, "%d", plr.score);
+		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
+		gr_printf(x_centerscreen, y, "%d", player_info.mission.score);
 		gr_printf(x_centerscreen + fspacx50, y, "%d", plr.net_killed_total);
 	}
 

@@ -61,7 +61,6 @@ struct player : public prohibit_void_ptr<player>
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
-	int     score;                  // Current score.
 	fix     time_level;             // Level time played
 	fix     time_total;             // Game time played (high word = seconds)
 

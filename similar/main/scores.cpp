@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "menu.h"
 #include "player.h"
+#include "object.h"
 #include "screens.h"
 #include "gamefont.h"
 #include "mouse.h"
@@ -174,7 +175,8 @@ static void int_to_string( int number, char *dest )
 static void scores_fill_struct(stats_info * stats)
 {
 	stats->name = get_local_player().callsign;
-	stats->score = get_local_player().score;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	stats->score = player_info.mission.score;
 	stats->ending_level = get_local_player().level;
 	if (get_local_player().num_robots_total > 0 )	
 		stats->kill_ratio = (get_local_player().num_kills_total*100)/get_local_player().num_robots_total;
@@ -223,8 +225,10 @@ void scores_maybe_add_player(int abort_flag)
 	scores_read(&scores);
 	
 	position = MAX_HIGH_SCORES;
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
-		if ( get_local_player().score > scores.stats[i].score )	{
+		if (player_info.mission.score > scores.stats[i].score)
+		{
 			position = i;
 			break;
 		}

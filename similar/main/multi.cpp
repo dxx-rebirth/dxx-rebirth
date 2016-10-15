@@ -636,7 +636,10 @@ void multi_sort_kill_list()
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (Game_mode & GM_MULTI_COOP)
-			kills[i] = Players[i].score;
+		{
+			auto &player_info = vcobjptr(Players[i].objnum)->ctype.player_info;
+			kills[i] = player_info.mission.score;
+		}
 #if defined(DXX_BUILD_DESCENT_II)
 		else
 		if (Show_kill_list==2)
@@ -871,7 +874,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		if (killer_pnum == Player_num) {
 			if (Game_mode & GM_MULTI_COOP)
 			{
-				const auto local_player_score = get_local_player().score;
+				auto &player_info = get_local_plrobj().ctype.player_info;
+				const auto local_player_score = player_info.mission.score;
 				add_points_to_score(local_player_score >= 1000 ? -1000 : -local_player_score);
 			}
 			else
@@ -2234,7 +2238,8 @@ static void multi_do_score(const playernum_t pnum, const ubyte *buf)
 		score = GET_INTEL_INT(buf + 2);
 		newdemo_record_multi_score(pnum, score);
 	}
-	Players[pnum].score = GET_INTEL_INT(buf + 2);
+	auto &player_info = vobjptr(Players[pnum].objnum)->ctype.player_info;
+	player_info.mission.score = GET_INTEL_INT(buf + 2);
 	multi_sort_kill_list();
 }
 
@@ -2977,7 +2982,8 @@ void multi_send_score()
 		multi_sort_kill_list();
 		count += 1;
 		multibuf[count] = Player_num;                           count += 1;
-		PUT_INTEL_INT(multibuf+count, get_local_player().score);  count += 4;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		PUT_INTEL_INT(multibuf+count, player_info.mission.score);  count += 4;
 		multi_send_data<MULTI_SCORE>(multibuf, count, 0);
 	}
 }

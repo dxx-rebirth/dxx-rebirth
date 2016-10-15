@@ -678,7 +678,8 @@ static void hud_show_score()
 		value = plr.net_kills_total;
 	} else {
 		label = TXT_SCORE;
-		value = plr.score;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		value = player_info.mission.score;
   	}
 	snprintf(score_str, sizeof(score_str), "%s: %5d", label, value);
 
@@ -769,10 +770,11 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 
 	gr_set_curfont( GAME_FONT );
 	auto &player = get_local_player();
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	snprintf(score_str, sizeof(score_str), "%5d",
 			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
 			? player.net_kills_total
-			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player.score));
+			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player_info.mission.score));
 	int	w, h;
 	gr_get_string_size(score_str, &w, &h, nullptr);
 
@@ -1678,7 +1680,7 @@ static void show_time()
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
-static void common_add_points_to_score(const int points, int &score)
+static void common_add_points_to_score(const int points, player_info &player_info)
 {
 	if (points == 0 || cheats.enabled)
 		return;
@@ -1686,15 +1688,19 @@ static void common_add_points_to_score(const int points, int &score)
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
 
+	auto &score = player_info.mission.score;
 	const auto prev_score = score;
 	score += points;
 
 	if (Game_mode & GM_MULTI)
 		return;
 
-	if (get_local_player().score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
+	const auto current_ship_score = score / EXTRA_SHIP_SCORE;
+	const auto previous_ship_score = prev_score / EXTRA_SHIP_SCORE;
+	if (current_ship_score != previous_ship_score)
+	{
 		int snd;
-		get_local_player().lives += get_local_player().score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
+		get_local_player().lives += current_ship_score - previous_ship_score;
 		powerup_basic_str(20, 20, 20, 0, TXT_EXTRA_LIFE);
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
@@ -1709,8 +1715,8 @@ void add_points_to_score(int points)
 	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
-	auto &score = get_local_player().score;
-	common_add_points_to_score(points, score);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	common_add_points_to_score(points, player_info);
 	if (Game_mode & GM_MULTI_COOP)
 		multi_send_score();
 }
@@ -1721,8 +1727,8 @@ void add_points_to_score(int points)
 void add_bonus_points_to_score(int points)
 {
 	assert(!(Game_mode & GM_MULTI));
-	auto &score = get_local_player().score;
-	common_add_points_to_score(points, score);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	common_add_points_to_score(points, player_info);
 }
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
@@ -2997,7 +3003,7 @@ static void hud_show_kill_list()
 		else if (Show_kill_list == 3)
 			gr_printf(x1,y,"%3d",team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x1,y,"%-6d",Players[player_num].score);
+			gr_printf(x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
 			gr_printf(x1,y,"%3d(%d)",Players[player_num].net_kills_total,Players[player_num].KillGoalCount);
 		else

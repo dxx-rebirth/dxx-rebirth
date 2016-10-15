@@ -1509,7 +1509,8 @@ static window_event_result FinalCheats()
 			cheats.*gotcha = !(cheats.*gotcha);
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
-			get_local_player().score = 0;
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			player_info.mission.score = 0;
 			break;
 		}
 	}
@@ -1873,7 +1874,7 @@ static void do_cheat_menu()
 	auto &plr = get_local_player();
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
-	snprintf(score_text, sizeof(score_text), "%d", plr.score);
+	snprintf(score_text, sizeof(score_text), "%d", player_info.mission.score);
 	uint8_t plr_laser_level = player_info.laser_level;
 	DXX_WIMP_MENU(ADD);
 	mmn = newmenu_do("Wimp Menu",NULL,m, unused_newmenu_subfunction, unused_newmenu_userdata);
@@ -1883,7 +1884,7 @@ static void do_cheat_menu()
 		char *p;
 		auto ul = strtoul(score_text, &p, 10);
 		if (!*p)
-			plr.score = static_cast<int>(ul);
+			player_info.mission.score = static_cast<int>(ul);
 		init_gauges();
 	}
 }

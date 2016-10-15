@@ -1450,9 +1450,10 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].net_killed_total = 0;
 	kill_matrix[pnum] = {};
-	Players[pnum].score = 0;
 	const auto &&objp = vobjptr(Players[pnum].objnum);
-	objp->ctype.player_info.powerup_flags = {};
+	auto &player_info = objp->ctype.player_info;
+	player_info.mission.score = 0;
+	player_info.powerup_flags = {};
 	Players[pnum].KillGoalCount=0;
 
 	if (pnum == N_players)
@@ -2074,7 +2075,9 @@ void net_udp_send_rejoin_sync(int player_num)
 	{
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
-		Netgame.player_score[j] = Players[j].score;
+		auto &objp = *vcobjptr(Players[j].objnum);
+		auto &player_info = objp.ctype.player_info;
+		Netgame.player_score[j] = player_info.mission.score;
 	}
 
 	Netgame.level_time = get_local_player().time_level;
@@ -2102,7 +2105,9 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	{
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
-		Netgame.player_score[j] = Players[j].score;
+		auto &objp = *vcobjptr(Players[j].objnum);
+		auto &player_info = objp.ctype.player_info;
+		Netgame.player_score[j] = player_info.mission.score;
 	}
 
 	Netgame.level_time = get_local_player().time_level;
@@ -2228,11 +2233,12 @@ void net_udp_update_netgame(void)
 		Netgame.players[i].connected = Players[i].connected;
 		Netgame.killed[i] = Players[i].net_killed_total;
 		Netgame.player_kills[i] = Players[i].net_kills_total;
+		auto &objp = *vcobjptr(Players[i].objnum);
+		auto &player_info = objp.ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_II)
-		Netgame.player_score[i] = Players[i].score;
+		Netgame.player_score[i] = player_info.mission.score;
 #endif
-		const auto &&objp = vobjptr(Players[i].objnum);
-		Netgame.net_player_flags[i] = objp->ctype.player_info.powerup_flags;
+		Netgame.net_player_flags[i] = player_info.powerup_flags;
 	}
 	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;
@@ -3906,8 +3912,10 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		Players[i].connected = Netgame.players[i].connected;
 		Players[i].net_kills_total = Netgame.player_kills[i];
 		Players[i].net_killed_total = Netgame.killed[i];
+		auto &objp = *vobjptr(Players[i].objnum);
+		auto &player_info = objp.ctype.player_info;
 		if ((Network_rejoined) || (i != Player_num))
-			Players[i].score = Netgame.player_score[i];
+			player_info.mission.score = Netgame.player_score[i];
 	}
 	kill_matrix = Netgame.kills;
 

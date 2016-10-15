@@ -281,7 +281,6 @@ void gameseq_remove_unused_players()
 // Setup player for new game
 void init_player_stats_game(ubyte pnum)
 {
-	Players[pnum].score = 0;
 	Players[pnum].last_score = 0;
 	Players[pnum].lives = INITIAL_LIVES;
 	Players[pnum].level = 1;
@@ -300,7 +299,9 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
-	plobj->ctype.player_info.powerup_flags = {};
+	auto &player_info = plobj->ctype.player_info;
+	player_info.powerup_flags = {};
+	player_info.mission.score = 0;
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -344,7 +345,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 	// int	i;
 
 	auto &plr = get_local_player();
-	plr.last_score = plr.score;
 
 	plr.level = Current_level_num;
 
@@ -354,8 +354,10 @@ void init_player_stats_level(const secret_restore secret_flag)
 	}
 
 	auto &plrobj = get_local_plrobj();
-	plrobj.ctype.player_info.homing_object_dist = -F1_0; // Added by RH
-	plrobj.ctype.player_info.killer_objnum = object_none;
+	auto &player_info = plrobj.ctype.player_info;
+	player_info.homing_object_dist = -F1_0; // Added by RH
+	player_info.killer_objnum = object_none;
+	plr.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
 	plr.num_robots_level = count_number_of_robots();
@@ -368,7 +370,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
 
-		auto &player_info = plrobj.ctype.player_info;
 		auto &powerup_flags = player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -899,7 +900,8 @@ static void DoEndLevelScoreGlitz()
 		mine_level *= -(Last_level/N_secret_levels);
 #endif
 
-	level_points = get_local_player().score - get_local_player().last_score;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	level_points = player_info.mission.score - get_local_player().last_score;
 
 	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
@@ -913,7 +915,6 @@ static void DoEndLevelScoreGlitz()
 			skill_points = 0;
 
 		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
-		auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 		shield_points = f2i(get_local_plrobj().shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
@@ -960,7 +961,7 @@ static void DoEndLevelScoreGlitz()
 		snprintf(m_str[c++], sizeof(m_str[0]), "%s", endgame_text);
 
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
-	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, get_local_player().score);
+	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, player_info.mission.score);
 
 	for (i=0; i<c; i++) {
 		nm_set_item_text(m[i], m_str[i]);

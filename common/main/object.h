@@ -117,6 +117,11 @@ struct player_info
 	array<uint8_t, SUPER_WEAPON> Primary_last_was_super;
 	array<uint8_t, SUPER_WEAPON> Secondary_last_was_super;
 #endif
+	union {
+		struct {
+			int score;				// Current score.
+		} mission;
+	};
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable
 	fix64 Next_flare_fire_time;

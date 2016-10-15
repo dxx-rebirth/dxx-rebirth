@@ -484,7 +484,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_rw->secondary_ammo[i] = pl_info.secondary_ammo[i];
 	pl_rw->last_score                = pl->last_score;
-	pl_rw->score                     = pl->score;
+	pl_rw->score                     = pl_info.mission.score;
 	pl_rw->time_level                = pl->time_level;
 	pl_rw->time_total                = pl->time_total;
 	if (pl_info.cloak_time - GameTime64 < F1_0*(-18000))
@@ -535,7 +535,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_info.secondary_ammo[i] = pl_rw->secondary_ammo[i];
 	pl->last_score                = pl_rw->last_score;
-	pl->score                     = pl_rw->score;
+	pl_info.mission.score                     = pl_rw->score;
 	pl->time_level                = pl_rw->time_level;
 	pl->time_total                = pl_rw->time_total;
 	pl_info.cloak_time                = pl_rw->cloak_time;
@@ -1915,9 +1915,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			Netgame.killed[i] = Players[i].net_killed_total;
-			Netgame.player_score[i] = Players[i].score;
 			const auto &&objp = vobjptr(Players[i].objnum);
-			Netgame.net_player_flags[i] = objp->ctype.player_info.powerup_flags;
+			auto &pi = objp->ctype.player_info;
+			Netgame.player_score[i] = pi.mission.score;
+			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)

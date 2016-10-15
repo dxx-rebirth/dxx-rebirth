@@ -1032,7 +1032,7 @@ void newdemo_record_start_demo()
 			nd_write_byte(i.connected);
 
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(i.score);
+				nd_write_int(vcobjptr(i.objnum)->ctype.player_info.mission.score);
 			} else {
 				nd_write_short(i.net_killed_total);
 				nd_write_short(i.net_kills_total);
@@ -1040,7 +1040,7 @@ void newdemo_record_start_demo()
 		}
 	} else
 		// NOTE LINK TO ABOVE!!!
-		nd_write_int(get_local_player().score);
+		nd_write_int(get_local_plrobj().ctype.player_info.mission.score);
 
 	nd_record_v_weapon_type = -1;
 	nd_record_v_weapon_num = -1;
@@ -1482,7 +1482,7 @@ void newdemo_record_multi_score(int pnum, int score)
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_MULTI_SCORE);
 	nd_write_byte(static_cast<int8_t>(pnum));
-	nd_write_int(score - Players[pnum].score);      // called before score is changed!!!!
+	nd_write_int(score - vcobjptr(Players[pnum].objnum)->ctype.player_info.mission.score);      // called before score is changed!!!!
 }
 
 void newdemo_record_primary_ammo(int new_ammo)
@@ -1753,9 +1753,9 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				}
 
 				if (Newdemo_game_mode & GM_MULTI_COOP) {
-					nd_read_int(&(i.score));
+					nd_read_int(&player_info.mission.score);
 					if (purpose == PURPOSE_REWRITE)
-						nd_write_int(i.score);
+						nd_write_int(player_info.mission.score);
 				} else {
 					nd_read_short(&i.net_killed_total);
 					nd_read_short(&i.net_kills_total);
@@ -1773,22 +1773,24 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		} else
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			nd_read_int(&(get_local_player().score));      // Note link to above if!
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			nd_read_int(&player_info.mission.score);      // Note link to above if!
 			if (purpose == PURPOSE_REWRITE)
-				nd_write_int(get_local_player().score);
+				nd_write_int(player_info.mission.score);
 #endif
 		}
 	}
+	auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Newdemo_game_mode & GM_MULTI))
 	{
-		nd_read_int(&(get_local_player().score));      // Note link to above if!
+		auto &score = player_info.mission.score;
+		nd_read_int(&score);      // Note link to above if!
 		if (purpose == PURPOSE_REWRITE)
-			nd_write_int(get_local_player().score);
+			nd_write_int(score);
 	}
 #endif
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 	{
 		short s;
@@ -2903,10 +2905,11 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_int(score);
 				break;
 			}
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].score -= score;
+				player_info.mission.score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].score += score;
+				player_info.mission.score += score;
 			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
 			Game_mode = GM_NORMAL;
@@ -2922,10 +2925,11 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_int(score);
 				break;
 			}
+			auto &player_info = get_local_plrobj().ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				get_local_player().score -= score;
+				player_info.mission.score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				get_local_player().score += score;
+				player_info.mission.score += score;
 			break;
 		}
 
@@ -3402,14 +3406,15 @@ void newdemo_goto_end(int to_rewrite)
 			nd_read_string(i.callsign.buffer());
 			nd_read_byte(&i.connected);
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
-				nd_read_int(&(i.score));
+				auto &pl_info = vobjptr(i.objnum)->ctype.player_info;
+				nd_read_int(&pl_info.mission.score);
 			} else {
 				nd_read_short(&i.net_killed_total);
 				nd_read_short(&i.net_kills_total);
 			}
 		}
 	} else {
-		nd_read_int(&(get_local_player().score));
+		nd_read_int(&player_info.mission.score);
 	}
 
 	if (to_rewrite)
@@ -3799,7 +3804,8 @@ static void newdemo_write_end()
 			byte_count += (strlen(static_cast<const char *>(i.callsign)) + 2);
 			nd_write_byte(i.connected);
 			if (Game_mode & GM_MULTI_COOP) {
-				nd_write_int(i.score);
+				auto &pl_info = vcobjptr(i.objnum)->ctype.player_info;
+				nd_write_int(pl_info.mission.score);
 				byte_count += 5;
 			} else {
 				nd_write_short(i.net_killed_total);
@@ -3808,7 +3814,7 @@ static void newdemo_write_end()
 			}
 		}
 	} else {
-		nd_write_int(get_local_player().score);
+		nd_write_int(player_info.mission.score);
 		byte_count += 4;
 	}
 	nd_write_short(byte_count);
