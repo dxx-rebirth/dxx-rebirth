@@ -651,10 +651,12 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 				vwallptr(linked_wall)->linked_wall = wall_none;
 		}
 
-		for (int w=lower_wallnum;w<Num_walls-2;w++)
-			Walls[w] = Walls[w+2];
-
-		Walls.set_count(Num_walls - 2);
+		{
+			const auto num_walls = Num_walls;
+			auto &&sr = partial_const_range(Walls, static_cast<wallnum_t>(lower_wallnum + 2), num_walls);
+			std::move(sr.begin(), sr.end(), partial_range(Walls, lower_wallnum, num_walls - 2).begin());
+			Walls.set_count(num_walls - 2);
+		}
 
 		range_for (const auto &&segp, vsegptr)
 		{
