@@ -550,10 +550,9 @@ static objnum_t exists_in_mine_2(const vcsegptr_t segp, const int objtype, const
 }
 
 //	-----------------------------------------------------------------------------
-static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg)
+static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_flags powerup_flags)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto powerup_flags = get_local_plrobj().ctype.player_info.powerup_flags;
 	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
@@ -774,7 +773,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY, powerup_flags);
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
-				goal_seg = exists_fuelcen_in_mine(objp->segnum);
+				goal_seg = exists_fuelcen_in_mine(objp->segnum, powerup_flags);
 				if (goal_seg == segment_none)
 					escort_goal_does_not_exist(ESCORT_GOAL_ENERGYCEN);
 				else if (goal_seg == segment_exit)
