@@ -535,39 +535,42 @@ static void write_matcen_text(PHYSFS_File *my_file)
 namespace dsx {
 static void write_wall_text(PHYSFS_File *my_file)
 {
-	int	i, j;
+	int	j;
 	array<int8_t, MAX_WALLS> wall_flags;
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
-	for (i=0; i<Num_walls; i++) {
+	range_for (auto &&wp, vcwallptridx)
+	{
+		auto &w = *wp;
 		int	sidenum;
 
+		const auto i = static_cast<wallnum_t>(wp);
 		PHYSFSX_printf(my_file, "Wall %03i: seg=%3i, side=%2i, linked_wall=%3i, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i,
-			Walls[i].segnum, Walls[i].sidenum, Walls[i].linked_wall, Wall_names[Walls[i].type], Walls[i].flags, Walls[i].hps >> 16, Walls[i].trigger, Walls[i].clip_num, Walls[i].keys, Walls[i].state);
+			w.segnum, w.sidenum, w.linked_wall, Wall_names[w.type], w.flags, w.hps >> 16, w.trigger, w.clip_num, w.keys, w.state);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Walls[i].trigger >= Num_triggers)
-			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,Walls[i].trigger);
+		if (w.trigger >= Num_triggers)
+			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,w.trigger);
 #endif
 
-		auto segnum = Walls[i].segnum;
-		sidenum = Walls[i].sidenum;
+		auto segnum = w.segnum;
+		sidenum = w.sidenum;
 
-		if (Segments[segnum].sides[sidenum].wall_num != i)
-			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].sides[sidenum].wall_num));
+		if (Segments[segnum].sides[sidenum].wall_num != wp)
+			err_printf(my_file, "Error: Wall %u points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].sides[sidenum].wall_num));
 	}
 
 	wall_flags = {};
 
-	range_for (const auto &&segp, vcsegptr)
+	range_for (const auto &&segp, vcsegptridx)
 	{
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			const auto sidep = &segp->sides[j];
 			if (sidep->wall_num != wall_none)
 			{
 				if (wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %i.", static_cast<int16_t>(sidep->wall_num), static_cast<int16_t>(i), j);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %i.", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), j);
 				else
 					wall_flags[sidep->wall_num] = 1;
 			}
