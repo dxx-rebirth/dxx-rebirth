@@ -1295,17 +1295,6 @@ void net_udp_close()
 #endif
 }
 
-// Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
-int net_udp_kmatrix_poll1( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
-{
-	// Polling loop for End-of-level menu
-	if (event.type != EVENT_WINDOW_DRAW)
-		return 0;
-	net_udp_do_frame(0, 1);
-	
-	return 0;
-}
-
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
 int net_udp_kmatrix_poll2( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {

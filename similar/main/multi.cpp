@@ -1127,19 +1127,6 @@ int multi_endlevel(int *const secret)
 	return(result);
 }
 
-multi_endlevel_poll *get_multi_endlevel_poll1()
-{
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			return net_udp_kmatrix_poll1;
-#endif
-		default:
-			throw std::logic_error("Protocol handling missing in multi_endlevel_poll1");
-	}
-}
-
 multi_endlevel_poll *get_multi_endlevel_poll2()
 {
 	switch (multi_protocol)

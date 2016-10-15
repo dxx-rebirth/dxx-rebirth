@@ -552,7 +552,6 @@ void multi_consistency_error(int reset);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
 using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
-multi_endlevel_poll *get_multi_endlevel_poll1();
 multi_endlevel_poll *get_multi_endlevel_poll2();
 void multi_send_endlevel_packet();
 #ifdef dsx
