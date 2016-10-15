@@ -1728,8 +1728,19 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 {
 	const objnum_t objnum = GET_INTEL_SHORT(buf + 2);
 
-	const auto obj = vobjptridx(objnum);
-	if (pnum != get_ghost_id(obj))
+	auto &obj = *vcobjptr(objnum);
+	if (obj.type != OBJ_PLAYER && obj.type != OBJ_GHOST)
+	{
+		con_printf(CON_URGENT, "%s:%u: BUG: object %hu has type %u, expected %u or %u", __FILE__, __LINE__, objnum, obj.type, OBJ_PLAYER, OBJ_GHOST);
+		return;
+	}
+	/* Override macro, call only the getter.
+	 *
+	 * This message is overloaded to be used on both players and ghosts,
+	 * so the standard check cannot be used.  Instead, the correct check
+	 * is open-coded above.
+	 */
+	if (pnum != (get_player_id)(obj))
 		return;
 
 	multi_make_ghost_player(pnum);
