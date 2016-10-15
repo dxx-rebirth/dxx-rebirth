@@ -623,7 +623,8 @@ static int init_subtitles(const char *filename)
 static void draw_subtitles(int frame_num)
 {
 	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
-	static int num_active_subtitles,next_subtitle;
+	static int next_subtitle;
+	static unsigned num_active_subtitles;
 	int y;
 	int must_erase=0;
 
@@ -664,9 +665,10 @@ static void draw_subtitles(int frame_num)
 	}
 
 	//now draw the current subtitles
-	for (int t=0;t<num_active_subtitles;t++)
-		if (active_subtitles[t] != -1) {
-			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
+	range_for (const auto &t, partial_range(active_subtitles, num_active_subtitles))
+		if (t != -1)
+		{
+			gr_string(0x8000, y, Subtitles[t].msg);
 			y += line_spacing;
 		}
 }
