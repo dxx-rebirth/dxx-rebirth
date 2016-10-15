@@ -129,7 +129,7 @@ void draw_powerup(const object_base &obj)
 static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int score)
 {
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
-	add_points_to_score(score);
+	add_points_to_score(ConsoleObject->ctype.player_info, score);
 }
 
 void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const char *format, ...)

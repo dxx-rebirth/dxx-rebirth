@@ -81,6 +81,7 @@ extern playernum_t Player_num;  // The player number who is on the console.
 struct player;
 namespace dsx {
 struct player_rw;
+struct player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr unsigned DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS = 0;
 #elif defined(DXX_BUILD_DESCENT_II)

@@ -961,7 +961,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 	rval = multi_explode_robot_sub(robot);
 
 	if (rval && (killer == get_local_player().objnum))
-		add_points_to_score(Robot_info[get_robot_id(robot)].score_value);
+		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value);
 }
 
 void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)

@@ -201,7 +201,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 #endif
 									if (apply_damage_to_robot(obj0p, damage, parent))
 										if ((objp != object_none) && (parent == get_local_player().objnum))
-											add_points_to_score(Robot_info[get_robot_id(obj0p)].score_value);
+											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj0p)].score_value);
 								}
 #if defined(DXX_BUILD_DESCENT_II)
 								if (objp != object_none && Robot_info[get_robot_id(obj0p)].companion && !Weapon_info[get_weapon_id(objp)].flash)

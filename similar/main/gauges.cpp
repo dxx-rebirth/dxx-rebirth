@@ -1707,7 +1707,7 @@ static void common_add_points_to_score(const int points, player_info &player_inf
 	}
 }
 
-void add_points_to_score(int points)
+void add_points_to_score(player_info &player_info, int points)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
@@ -1715,7 +1715,6 @@ void add_points_to_score(int points)
 	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	common_add_points_to_score(points, player_info);
 	if (Game_mode & GM_MULTI_COOP)
 		multi_send_score();
