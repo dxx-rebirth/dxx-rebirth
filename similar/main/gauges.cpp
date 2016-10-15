@@ -987,9 +987,8 @@ static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_grap
 }
 #endif
 
-static void hud_show_energy(void)
+static void hud_show_energy(const player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &energy = player_info.energy;
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
@@ -3244,7 +3243,7 @@ void draw_hud()
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			auto &player_info = get_local_plrobj().ctype.player_info;
-			hud_show_energy();
+			hud_show_energy(player_info);
 			hud_show_shield();
 			hud_show_afterburner();
 			hud_show_weapons();
