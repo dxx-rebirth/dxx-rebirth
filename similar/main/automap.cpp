@@ -628,33 +628,51 @@ static void draw_automap(automap *am)
 	show_fullscr(am->automap_background);
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	{
+		int x, y;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
-		gr_string(80*(SWIDTH/640.0), 36*(SHEIGHT/480.0), TXT_AUTOMAP);
+			x = 80 * (SWIDTH / 640.), y = 36 * (SHEIGHT / 480.);
 	else
 #endif
-		gr_string((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
+			x = SWIDTH / 8, y = SHEIGHT / 16;
+		gr_string(x, y, TXT_AUTOMAP);
+	}
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	{
+		int x;
+		int y0, y1, y2;
 #if defined(DXX_BUILD_DESCENT_I)
+		const auto s1 = TXT_SLIDE_UPDOWN;
+		const auto &s2 = "F9/F10 Changes viewing distance";
 	if (!MacHog)
 	{
-		gr_string((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
-		gr_string((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
-		gr_string((SWIDTH/4.923), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
+			x = SWIDTH / 4.923;
+			y0 = SHEIGHT / 1.126;
+			y1 = SHEIGHT / 1.083;
+			y2 = SHEIGHT / 1.043;
 	}
 	else
 	{
 		// for the Mac automap they're shown up the top, hence the different layout
-		gr_string(265*(SWIDTH/640.0), 27*(SHEIGHT/480.0), TXT_TURN_SHIP);
-		gr_string(265*(SWIDTH/640.0), 44*(SHEIGHT/480.0), TXT_SLIDE_UPDOWN);
-		gr_string(265*(SWIDTH/640.0), 61*(SHEIGHT/480.0), "F9/F10 Changes viewing distance");
+			x = 265 * (SWIDTH / 640.);
+			y0 = 27 * (SHEIGHT / 480.);
+			y1 = 44 * (SHEIGHT / 480.);
+			y2 = 61 * (SHEIGHT / 480.);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_string((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
-	gr_string((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
-	gr_string((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
+		const auto &s1 = "F9/F10 Changes viewing distance";
+		const auto s2 = TXT_AUTOMAP_MARKER;
+		x = SWIDTH / 10.666;
+		y0 = SHEIGHT / 1.126;
+		y1 = SHEIGHT / 1.083;
+		y2 = SHEIGHT / 1.043;
 #endif
+		gr_string(x, y0, TXT_TURN_SHIP);
+		gr_string(x, y1, s1);
+		gr_string(x, y2, s2);
+	}
 
 	gr_set_current_canvas(&am->automap_view);
 
