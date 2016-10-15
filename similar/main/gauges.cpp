@@ -1003,16 +1003,14 @@ static void hud_show_energy(const player_info &player_info)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void hud_show_afterburner(void)
+static inline void hud_show_afterburner(const player_info &)
 {
 }
 #define convert_1s(s)
 #elif defined(DXX_BUILD_DESCENT_II)
-static void hud_show_afterburner(void)
+static void hud_show_afterburner(const player_info &player_info)
 {
 	int y;
-
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (! (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER))
 		return;		//don't draw if don't have
 
@@ -3245,7 +3243,7 @@ void draw_hud()
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			hud_show_energy(player_info);
 			hud_show_shield();
-			hud_show_afterburner();
+			hud_show_afterburner(player_info);
 			hud_show_weapons();
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
