@@ -59,36 +59,58 @@ extern float FNTScaleX, FNTScaleY;
 
 extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
 
+template <char tag>
+class font_scaled_float
+{
+	const float f;
+public:
+	explicit font_scaled_float(float v) :
+		f(v)
+	{
+	}
+	operator float() const
+	{
+		return f;
+	}
+};
+
+template <char tag>
 class font_scale_float
 {
 	const float scale;
 public:
+	using scaled = font_scaled_float<tag>;
 	font_scale_float(float s) :
 		scale(s)
 	{
 	}
-	float operator()(const int &i) const
+	auto operator()(const int &i) const
 	{
-		return scale * i;
+		return scaled(scale * i);
 	}
 };
 
-static inline font_scale_float FSPACX()
+using font_x_scale_float = font_scale_float<'x'>;
+using font_y_scale_float = font_scale_float<'y'>;
+using font_x_scaled_float = font_x_scale_float::scaled;
+using font_y_scaled_float = font_y_scale_float::scaled;
+
+static inline font_x_scale_float FSPACX()
 {
 	return FNTScaleX * (GAME_FONT->ft_w / 7);
 }
 
-static inline float FSPACX(const int &x)
+static inline auto FSPACX(const int &x)
 {
 	return FSPACX()(x);
 }
 
-static inline font_scale_float FSPACY()
+static inline font_y_scale_float FSPACY()
 {
 	return FNTScaleY * (GAME_FONT->ft_h / 5);
 }
 
-static inline float FSPACY(const int &y)
+static inline auto FSPACY(const int &y)
 {
 	return FSPACY()(y);
 }

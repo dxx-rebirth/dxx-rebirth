@@ -54,14 +54,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-make_unique.h"
 #include "partial_range.h"
 
-static font_scale_float FONTSCALE_X()
+static font_x_scale_float FONTSCALE_X()
 {
 	return FNTScaleX;
 }
 
-static float FONTSCALE_Y(const int &y)
+static auto FONTSCALE_Y(const int &y)
 {
-	return FNTScaleY * y;
+	return font_scaled_float<'y'>(FNTScaleY * y);
 }
 
 #define MAX_OPEN_FONTS	50
