@@ -874,17 +874,6 @@ void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 
 	if (obj->next != object_none)
 		vobjptr(obj->next)->prev = obj;
-	
-	//list_seg_objects( segnum );
-	//check_duplicate_objects();
-
-	Assert(Objects[0].next != 0);
-	if (Objects[0].next == 0)
-		Objects[0].next = object_none;
-
-	Assert(Objects[0].prev != 0);
-	if (Objects[0].prev == 0)
-		Objects[0].prev = object_none;
 }
 
 void obj_unlink(object_base &obj)
@@ -898,9 +887,6 @@ void obj_unlink(object_base &obj)
 
 	if (next != object_none)
 		vobjptr(next)->prev = obj.prev;
-
-	Assert(Objects[0].next != 0);
-	Assert(Objects[0].prev != 0);
 }
 
 // Returns a new, unique signature for a new object
@@ -1235,8 +1221,6 @@ void obj_delete(const vobjptridx_t obj)
 		Debris_object_count--;
 
 	obj_unlink(obj);
-
-	Assert(Objects[0].next != 0);
 	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
 	obj->type = OBJ_NONE;		//unused!
 	obj_free(obj);
