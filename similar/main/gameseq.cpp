@@ -870,13 +870,11 @@ void StartNewGame(int start_level)
 	init_seismic_disturbances();
 #endif
 }
-}
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
-namespace dsx {
-void DoEndLevelScoreGlitz(int network)
+static void DoEndLevelScoreGlitz(int network)
 {
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
 	int	all_hostage_points;

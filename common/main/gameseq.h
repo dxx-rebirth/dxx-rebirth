@@ -122,22 +122,13 @@ void bash_to_shield(const vobjptr_t i);
 namespace dsx {
 void create_player_appearance_effect(const object_base &player_obj);
 void copy_defaults_to_robot(vobjptr_t objp);
-
-}
-#endif
-namespace dsx {
 void gameseq_remove_unused_players();
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
 }
+#endif
 
 // Show endlevel bonus scores
-#ifdef dsx
-namespace dsx {
-extern void DoEndLevelScoreGlitz(int network);
-
-}
-#endif
 namespace dcx {
 // stuff for multiplayer
 extern unsigned NumNetPlayerPositions;
