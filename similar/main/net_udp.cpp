@@ -3895,7 +3895,6 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	range_for (auto &i, Players)
 	{
 		i.net_kills_total = 0;
-		i.net_killed_total = 0;
 	}
 
 	for (int i=0; i<N_players; i++ ) {
@@ -3924,10 +3923,6 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		Network_status = NETSTAT_MENU;
 		throw multi::local_player_not_playing();
 	}
-
-	if (Network_rejoined)
-		for (int i=0; i<N_players;i++)
-			Players[i].net_killed_total = Netgame.killed[i];
 
 #if defined(DXX_BUILD_DESCENT_I)
 	PlayerCfg.NetlifeKills -= get_local_player().net_kills_total;
