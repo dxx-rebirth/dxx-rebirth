@@ -4155,9 +4155,7 @@ static int add_awareness_event(const object_base &objp, player_awareness_type_t 
 void create_awareness_event(const vobjptr_t objp, player_awareness_type_t type)
 {
 	// If not in multiplayer, or in multiplayer with robots, do this, else unnecessary!
-#if defined(DXX_BUILD_DESCENT_II)
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
-#endif
 	{
 		if (add_awareness_event(objp, type)) {
 			if (((d_rand() * (static_cast<unsigned>(type) + 4)) >> 15) > 4)
@@ -4177,7 +4175,7 @@ struct awareness_t : array<player_awareness_type_t, MAX_SEGMENTS>
 }
 
 // ----------------------------------------------------------------------------------
-static void pae_aux(segnum_t segnum, player_awareness_type_t type, int level, awareness_t &New_awareness)
+static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t type, const int level, awareness_t &New_awareness)
 {
 	if (New_awareness[segnum] < type)
 		New_awareness[segnum] = type;
@@ -4189,9 +4187,13 @@ static void pae_aux(segnum_t segnum, player_awareness_type_t type, int level, aw
 	if (level <= 3)
 #endif
 	{
-		range_for (auto &j, Segments[segnum].children)
+		const auto subtype = (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION)
+			? player_awareness_type_t::PA_PLAYER_COLLISION
+			: type;
+		const auto sublevel = level + 1;
+		range_for (auto &j, segnum->children)
 			if (IS_CHILD(j))
-				pae_aux(j, type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION ? player_awareness_type_t::PA_PLAYER_COLLISION : type, level+1, New_awareness);
+				pae_aux(segnum.absolute_sibling(j), subtype, sublevel, New_awareness);
 	}
 }
 
@@ -4203,7 +4205,7 @@ static void process_awareness_events(awareness_t &New_awareness)
 	{
 		New_awareness.fill(player_awareness_type_t::PA_NONE);
 		range_for (auto &i, partial_const_range(Awareness_events, Num_awareness_events))
-			pae_aux(i.segnum, i.type, 1, New_awareness);
+			pae_aux(vcsegptridx(i.segnum), i.type, 1, New_awareness);
 	}
 
 	Num_awareness_events = 0;
