@@ -311,16 +311,17 @@ static void scores_draw_item( int i, stats_info * stats )
 	y -= 3;
 
 	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
+	const auto &&fspacx66 = fspacx(66);
+	const auto &&fspacy_y = FSPACY(y);
 	if (strlen(stats->name)==0) {
-		gr_string(fspacx(66), fspacy(y), TXT_EMPTY);
+		gr_string(fspacx66, fspacy_y, TXT_EMPTY);
 		return;
 	}
-	gr_string(fspacx(66), fspacy(y), stats->name);
+	gr_string(fspacx66, fspacy_y, stats->name);
 	int_to_string(stats->score, buffer);
 	scores_rputs( 149, y, buffer );
 
-	gr_string(fspacx(166), fspacy(y), MENU_DIFFICULTY_TEXT(stats->diff_level));
+	gr_string(fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
 		scores_rprintf( 232, y, "%d-%d", stats->starting_level, stats->ending_level );
@@ -475,8 +476,8 @@ void scores_view(stats_info *last_game, int citem)
 	set_screen_mode(SCREEN_MENU);
 	show_menus();
 
-	const auto &&fspacx = FSPACX();
-	const auto &&fspacy = FSPACY();
-	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx(320)) / 2, (SHEIGHT - fspacy(200)) / 2, fspacx(320), fspacy(200),
+	const auto &&fspacx320 = FSPACX(320);
+	const auto &&fspacy200 = FSPACY(200);
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - fspacx320) / 2, (SHEIGHT - fspacy200) / 2, fspacx320, fspacy200,
 				  scores_handler, menu);
 }

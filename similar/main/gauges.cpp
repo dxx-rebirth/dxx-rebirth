@@ -2901,14 +2901,12 @@ static void hud_show_kill_list()
 		save_y = y -= fspacx(6);
 		if (Game_mode & GM_MULTI_COOP)
 			x1 = fspacx(33);
-		else
-			x1 = fspacx43;
 	}
 
 	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
-	const auto &&bmw_x0_cockpit = bm_w - (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT ? fspacx(53) : fspacx(60));
+	const auto &&bmw_x0_cockpit = bm_w - fspacx(PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT ? 53 : 60);
 	// Right edge of name, change this for width problems
-	const auto &&bmw_x1_multi = bm_w - ((Game_mode & GM_MULTI_COOP) ? fspacx(27) : fspacx(15));
+	const auto &&bmw_x1_multi = bm_w - fspacx((Game_mode & GM_MULTI_COOP) ? 27 : 15);
 	const auto &&fspacx1 = fspacx(1);
 	const auto &&fspacx2 = fspacx(2);
 	const auto &&fspacx18 = fspacx(18);
