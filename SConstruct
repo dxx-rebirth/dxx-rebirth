@@ -2171,17 +2171,28 @@ class LazyObjectConstructor(object):
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
 			value = tuple([
-				StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname)	\
+				StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
+					**({} if transform_env is None else transform_env(env))
+				)	\
 				for s in source	\
 				# This is a single iteration comprehension to work
 				# around the inability to assign variables as part of a
 				# normal comprehension.  It iterates over one of two
 				# single element tuples.  The choice of tuple is
 				# controlled by the isinstance check.  Each single
-				# element tuple consists of (F, L) where F is the
-				# function to bind as `transform_target` and L is an
-				# iterable to bind as `t`.
-				for transform_target, t in (((__strip_extension, (s,)),) if isinstance(s, str) else ((s.get('transform_target', __strip_extension), s['source']),))	\
+				# element tuple consists of (F, T, L) where F is the
+				# function to bind as `transform_target`, T is the
+				# function to bind as `transform_env` (or None), and L
+				# is an iterable to bind as `t`.
+				for transform_target, transform_env, t in (	\
+					((__strip_extension, None, (s,)),)	\
+					if isinstance(s, str) \
+					else ((	\
+						s.get('transform_target', __strip_extension),	\
+						s.get('transform_env', None),	\
+						s['source'],	\
+					),)	\
+				)	\
 				for srcname in t	\
 			])
 			cache[name] = value
@@ -3618,7 +3629,7 @@ class DXXProgram(DXXCommon):
 		'transform_target':_apply_target_name,
 	}])
 	__get_objects_common = DXXCommon.create_lazy_object_getter([{
-		'source':[os.path.join('similar', f) for f in [
+		'source':[os.path.join('similar', f) for f in (
 '2d/font.cpp',
 '2d/palette.cpp',
 '2d/pcx.cpp',
@@ -3654,7 +3665,6 @@ class DXXProgram(DXXCommon):
 'main/hostage.cpp',
 'main/hud.cpp',
 'main/iff.cpp',
-'main/inferno.cpp',
 'main/kconfig.cpp',
 'main/kmatrix.cpp',
 'main/laser.cpp',
@@ -3691,11 +3701,18 @@ class DXXProgram(DXXCommon):
 'main/wall.cpp',
 'main/weapon.cpp',
 'misc/args.cpp',
-'misc/physfsx.cpp',
-]
+)
 ],
 		'transform_target':_apply_target_name,
-	}])
+	}, {
+		'source': (
+'similar/main/inferno.cpp',
+'similar/misc/physfsx.cpp',
+),
+		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
+		'transform_target':_apply_target_name,
+	}
+	])
 	get_objects_editor = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'editor/centers.cpp',
@@ -3820,13 +3837,13 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_special_target_nodes(archive)
+		env.__dxx_CPPDEFINE_SHAREPATH = [('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str))]
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
 				_DXX_VERSION_SEQ,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
-				('SHAREPATH', self._quote_cppdefine(self.user_settings.sharepath, f=str)),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
