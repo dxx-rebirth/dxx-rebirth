@@ -411,9 +411,6 @@ namespace dsx {
 
 void ogl_cache_level_textures(void)
 {
-	int side;
-	short tmap1,tmap2;
-	struct side *sidep;
 	int max_efx=0,ef;
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
@@ -436,13 +433,14 @@ void ogl_cache_level_textures(void)
 		}
 		do_special_effects();
 
-		for (uint_fast32_t seg=0;seg < Num_segments;seg++){
-			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++){
-				sidep=&Segments[seg].sides[side];
-				tmap1=sidep->tmap_num;
-				tmap2=sidep->tmap_num2;
+		range_for (auto &&seg, vcsegptr)
+		{
+			range_for (auto &side, seg->sides)
+			{
+				const auto tmap1 = side.tmap_num;
+				const auto tmap2 = side.tmap_num2;
 				if (tmap1<0 || tmap1>=NumTextures){
-					glmprintf((0,"ogl_cache_level_textures %i %i %i %i\n",seg,side,tmap1,NumTextures));
+					glmprintf((0,"ogl_cache_level_textures %i %p %i %i\n",seg,&side,tmap1,NumTextures));
 					//				tmap1=0;
 					continue;
 				}
