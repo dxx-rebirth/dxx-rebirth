@@ -672,14 +672,15 @@ static void do_checksum_calc(const uint8_t *b, int len, unsigned int *s1, unsign
 namespace dsx {
 static ushort netmisc_calc_checksum()
 {
-	int i;
 	unsigned int sum1,sum2;
 	short s;
 	int t;
 
 	sum1 = sum2 = 0;
-	for (i = 0; i < Highest_segment_index + 1; i++) {
-		range_for (auto &j, Segments[i].sides)
+	range_for (auto &&segp, vcsegptr)
+	{
+		auto &i = *segp;
+		range_for (auto &j, i.sides)
 		{
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(j.get_type())), 1, &sum1, &sum2);
 			s = INTEL_SHORT(j.wall_num);
@@ -707,24 +708,24 @@ static ushort netmisc_calc_checksum()
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 			}
 		}
-		range_for (auto &j, Segments[i].children)
+		range_for (auto &j, i.children)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
-		range_for (const uint16_t j, Segments[i].verts)
+		range_for (const uint16_t j, i.verts)
 		{
 			s = INTEL_SHORT(j);
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 		}
-		s = INTEL_SHORT(Segments[i].objects);
+		s = INTEL_SHORT(i.objects);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 #if defined(DXX_BUILD_DESCENT_I)
-		do_checksum_calc(&Segments[i].special, 1, &sum1, &sum2);
-		do_checksum_calc(reinterpret_cast<uint8_t *>(&Segments[i].matcen_num), 1, &sum1, &sum2);
-		s = INTEL_SHORT(Segments[i].value);
+		do_checksum_calc(&i.special, 1, &sum1, &sum2);
+		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.matcen_num), 1, &sum1, &sum2);
+		s = INTEL_SHORT(i.value);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-		t = INTEL_INT(Segments[i].static_light);
+		t = INTEL_INT(i.static_light);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 #endif
 	}
