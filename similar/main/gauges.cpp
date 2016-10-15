@@ -1678,29 +1678,16 @@ static void show_time()
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
-void add_points_to_score(int points)
+static void common_add_points_to_score(const int points, int &score)
 {
-	int prev_score;
-
-	score_time += f1_0*2;
-	score_display += points;
-	if (score_time > f1_0*4) score_time = f1_0*4;
-
 	if (points == 0 || cheats.enabled)
 		return;
-
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		return;
-
-	prev_score=get_local_player().score;
-
-	get_local_player().score += points;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
 
-	if (Game_mode & GM_MULTI_COOP)
-		multi_send_score();
+	const auto prev_score = score;
+	score += points;
 
 	if (Game_mode & GM_MULTI)
 		return;
@@ -1714,30 +1701,28 @@ void add_points_to_score(int points)
 	}
 }
 
+void add_points_to_score(int points)
+{
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+		return;
+	score_time += f1_0*2;
+	score_display += points;
+	if (score_time > f1_0*4) score_time = f1_0*4;
+
+	auto &score = get_local_player().score;
+	common_add_points_to_score(points, score);
+	if (Game_mode & GM_MULTI_COOP)
+		multi_send_score();
+}
+
+/* This is only called in single player when the player is between
+ * levels.
+ */
 void add_bonus_points_to_score(int points)
 {
-	int prev_score;
-
-	if (points == 0 || cheats.enabled)
-		return;
-
-	prev_score=get_local_player().score;
-
-	get_local_player().score += points;
-
-
-	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_score(points);
-
-	if (Game_mode & GM_MULTI)
-		return;
-
-	if (get_local_player().score/EXTRA_SHIP_SCORE != prev_score/EXTRA_SHIP_SCORE) {
-		int snd;
-		get_local_player().lives += get_local_player().score/EXTRA_SHIP_SCORE - prev_score/EXTRA_SHIP_SCORE;
-		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
-			digi_play_sample( snd, F1_0 );
-	}
+	assert(!(Game_mode & GM_MULTI));
+	auto &score = get_local_player().score;
+	common_add_points_to_score(points, score);
 }
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
