@@ -874,7 +874,7 @@ void StartNewGame(int start_level)
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
-static void DoEndLevelScoreGlitz(int network)
+static void DoEndLevelScoreGlitz()
 {
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
 	int	all_hostage_points;
@@ -971,7 +971,7 @@ static void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	newmenu_do2(nullptr, title, c, m, network && (Game_mode & GM_NETWORK) ? get_multi_endlevel_poll1() : unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
+	newmenu_do2(nullptr, title, c, m, unused_newmenu_subfunction, unused_newmenu_userdata, 0, GLITZ_BACKGROUND);
 }
 }
 
@@ -1246,7 +1246,7 @@ void EnterSecretLevel(void)
 	Entered_from_level = Current_level_num;
 
 	if (Control_center_destroyed)
-		DoEndLevelScoreGlitz(0);
+		DoEndLevelScoreGlitz();
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		state_save_all(secret_save::b, blind_save::no);	//	Not between levels (ie, save all), IS a secret level, NO filename override
@@ -1364,7 +1364,7 @@ static void DoEndGame(void)
 		multi_endlevel_score();
 	else
 		// NOTE LINK TO ABOVE
-		DoEndLevelScoreGlitz(0);
+		DoEndLevelScoreGlitz();
 
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		gr_set_current_canvas( NULL );
@@ -1400,7 +1400,7 @@ static void AdvanceLevel(int secret_flag)
                 }
 		else
 			// NOTE LINK TO ABOVE!!!
-			DoEndLevelScoreGlitz(0);		//give bonuses
+			DoEndLevelScoreGlitz();		//give bonuses
 	}
 
 	Control_center_destroyed = 0;
