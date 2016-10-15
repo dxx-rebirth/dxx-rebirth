@@ -504,7 +504,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->num_kills_total           = pl->num_kills_total;
 	pl_rw->num_robots_level          = pl->num_robots_level;
 	pl_rw->num_robots_total          = pl->num_robots_total;
-	pl_rw->hostages_rescued_total    = pl->hostages_rescued_total;
+	pl_rw->hostages_rescued_total    = pl_info.mission.hostages_rescued_total;
 	pl_rw->hostages_total            = pl->hostages_total;
 	pl_rw->hostages_on_board         = pl_info.mission.hostages_on_board;
 	pl_rw->hostages_level            = pl->hostages_level;
@@ -549,7 +549,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->num_kills_total           = pl_rw->num_kills_total;
 	pl->num_robots_level          = pl_rw->num_robots_level;
 	pl->num_robots_total          = pl_rw->num_robots_total;
-	pl->hostages_rescued_total    = pl_rw->hostages_rescued_total;
+	pl_info.mission.hostages_rescued_total    = pl_rw->hostages_rescued_total;
 	pl->hostages_total            = pl_rw->hostages_total;
 	pl_info.mission.hostages_on_board         = pl_rw->hostages_on_board;
 	pl->hostages_level            = pl_rw->hostages_level;
@@ -1486,7 +1486,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 				get_local_player().num_robots_level = dummy_player.num_robots_level;
 				get_local_player().num_robots_total = dummy_player.num_robots_total;
-				get_local_player().hostages_rescued_total = dummy_player.hostages_rescued_total;
 				get_local_player().hostages_total = dummy_player.hostages_total;
 				get_local_player().hostages_level = dummy_player.hostages_level;
 				pl_info.homing_object_dist = -1;

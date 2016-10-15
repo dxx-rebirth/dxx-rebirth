@@ -183,8 +183,8 @@ static void scores_fill_struct(stats_info * stats)
 	else
 		stats->kill_ratio = 0;
 
-	if (get_local_player().hostages_total > 0 )	
-		stats->hostage_ratio = (get_local_player().hostages_rescued_total*100)/get_local_player().hostages_total;
+	if (const auto hostages_total = get_local_player().hostages_total)
+		stats->hostage_ratio = (player_info.mission.hostages_rescued_total * 100) / hostages_total;
 	else
 		stats->hostage_ratio = 0;
 

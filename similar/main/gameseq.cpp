@@ -294,7 +294,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].num_robots_level = 0;
 	Players[pnum].num_robots_total = 0;
 	Players[pnum].KillGoalCount = 0;
-	Players[pnum].hostages_rescued_total = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
@@ -302,6 +301,7 @@ void init_player_stats_game(ubyte pnum)
 	player_info.powerup_flags = {};
 	player_info.mission.score = 0;
 	player_info.mission.last_score = 0;
+	player_info.mission.hostages_rescued_total = 0;
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1295,7 +1295,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 	//credit the player for hostages
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	get_local_player().hostages_rescued_total += player_info.mission.hostages_on_board;
+	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		array<newmenu_item, 1> m{{

@@ -121,6 +121,7 @@ struct player_info
 		struct {
 			int score;				// Current score.
 			int last_score;			// Score at beginning of current level.
+			uint16_t hostages_rescued_total; // Total number of hostages rescued.
 			uint8_t hostages_on_board;
 		} mission;
 	};
