@@ -948,7 +948,7 @@ static void DoEndLevelScoreGlitz()
 	} else
 		endgame_points = is_last_level = 0;
 
-	add_bonus_points_to_score(skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
+	add_bonus_points_to_score(player_info, skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
 
 	c = 0;
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...

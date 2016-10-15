@@ -1723,10 +1723,9 @@ void add_points_to_score(player_info &player_info, int points)
 /* This is only called in single player when the player is between
  * levels.
  */
-void add_bonus_points_to_score(int points)
+void add_bonus_points_to_score(player_info &player_info, int points)
 {
 	assert(!(Game_mode & GM_MULTI));
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	common_add_points_to_score(points, player_info);
 }
 
