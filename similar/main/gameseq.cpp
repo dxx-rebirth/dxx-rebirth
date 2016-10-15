@@ -222,7 +222,7 @@ static void gameseq_init_network_players()
 
 	// Initialize network player start locations and object numbers
 
-	ConsoleObject = &Objects[0];
+	ConsoleObject = &Objects.front();
 	k = 0;
 	j = 0;
 	const auto multiplayer = Game_mode & GM_MULTI;

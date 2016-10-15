@@ -632,10 +632,8 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		if (w == we)
 			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", i);
 		else
-			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(Segments[w->segnum].sides[w->sidenum].wall_num));
-
+			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(vcsegptr(w->segnum)->sides[w->sidenum].wall_num));
 	}
-
 }
 }
 

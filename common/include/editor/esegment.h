@@ -15,7 +15,7 @@
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern segptridx_t Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 
-#define	New_segment	(Segments[MAX_SEGMENTS-1])
+#define	New_segment	(Segments.back())
 
 extern	int		Curside;					// Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 extern	int		Curedge;					//	Current edge on current side, in 0..3

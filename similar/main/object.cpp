@@ -833,7 +833,7 @@ void init_objects()
 	range_for (auto &j, Segments)
 		j.objects = object_none;
 
-	ConsoleObject = Viewer = &Objects[0];
+	ConsoleObject = Viewer = &Objects.front();
 	ConsoleObject->segnum = segment_none;
 
 	init_player_object();
@@ -850,7 +850,7 @@ void special_reset_objects(void)
 	num_objects=MAX_OBJECTS;
 
 	Objects.set_count(1);
-	Assert(Objects[0].type != OBJ_NONE);		//0 should be used
+	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
 	DXX_MAKE_MEM_UNDEFINED(free_obj_list.begin(), free_obj_list.end());
 	for (objnum_t i = MAX_OBJECTS; i--;)

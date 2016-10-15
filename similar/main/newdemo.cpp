@@ -2675,7 +2675,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 
 		case ND_EVENT_WALL_SET_TMAP_NUM1: {
-			short seg, cseg, tmap;
+			uint16_t seg, cseg, tmap;
 			sbyte side,cside;
 
 			nd_read_short(&seg);
@@ -2693,12 +2693,12 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
-				Segments[seg].sides[side].tmap_num = Segments[cseg].sides[cside].tmap_num = tmap;
+				vsegptr(seg)->sides[side].tmap_num = vsegptr(cseg)->sides[cside].tmap_num = tmap;
 			break;
 		}
 
 		case ND_EVENT_WALL_SET_TMAP_NUM2: {
-			short seg, cseg, tmap;
+			uint16_t seg, cseg, tmap;
 			sbyte side,cside;
 
 			nd_read_short(&seg);
@@ -2716,8 +2716,10 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
-				Assert(tmap!=0 && Segments[seg].sides[side].tmap_num2!=0);
-				Segments[seg].sides[side].tmap_num2 = Segments[cseg].sides[cside].tmap_num2 = tmap;
+				assert(tmap != 0);
+				auto &s0 = *vsegptr(seg);
+				assert(s0.sides[side].tmap_num2 != 0);
+				s0.sides[side].tmap_num2 = vsegptr(cseg)->sides[cside].tmap_num2 = tmap;
 			}
 			break;
 		}
@@ -3148,7 +3150,7 @@ static int newdemo_read_frame_information(int rewrite)
 					int side;
 					if (rewrite)	// hack some dummy variables
 					{
-						seg = &Segments[0];
+						seg = &Segments.front();
 						side = 0;
 					}
 					else
@@ -4033,7 +4035,7 @@ void newdemo_start_playback(const char * filename)
 	change_playernum_to(0);                 // force playernum to 0
 	nd_playback_v_save_callsign = get_local_player().callsign;
 	get_local_player().lives=0;
-	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
+	Viewer = ConsoleObject = &Objects.front();   // play properly as if console player
 
 	if (newdemo_read_demo_start(rnd_demo)) {
 		infile.reset();

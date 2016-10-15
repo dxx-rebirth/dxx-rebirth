@@ -547,7 +547,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	auto gb = GroupList[current_group].segments.begin();
 	auto ge = GroupList[current_group].segments.end();
 	auto gp = Groupsegp[current_group];
-	auto gi = std::find_if(gb, ge, [gp](short segnum){ return &Segments[segnum] == gp; });
+	auto gi = std::find_if(gb, ge, [gp](const segnum_t segnum){ return vcsegptr(segnum) == gp; });
 	int gs_index = (gi == ge) ? 0 : std::distance(gb, gi);
 
 	GroupList[new_current_group] = GroupList[current_group];
