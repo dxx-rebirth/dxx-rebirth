@@ -590,18 +590,16 @@ public:
 	using typename array_type::reference;
 	using typename array_type::const_reference;
 	using index_type = typename containing_type::index_type;
-	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, reference>::type operator[](T n)
+	reference operator[](const integral_type &n)
+		{
+			return array_type::operator[](n);
+		}
+	const_reference operator[](const integral_type &n) const
 		{
 			return array_type::operator[](n);
 		}
 	template <typename T>
-		typename tt::enable_if<tt::is_integral<T>::value, const_reference>::type operator[](T n) const
-		{
-			return array_type::operator[](n);
-		}
-	template <typename T>
-		typename tt::enable_if<!tt::is_integral<T>::value, reference>::type operator[](T) const = delete;
+		reference operator[](const T &) const = delete;
 #if DXX_HAVE_POISON_UNDEFINED
 	array_managed_type();
 #else
