@@ -127,21 +127,6 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
 
-static void kmatrix_draw_coop_item(int  i, playernum_array_t &sorted)
-{
-	int  x, y;
-
-	y = FSPACY(50+i*9);
-	const auto &&fspacx = FSPACX();
-	gr_string(fspacx(CENTERING_OFFSET(N_players)), y, static_cast<const char *>(Players[sorted[i]].callsign));
-	x = CENTERSCREEN;
-	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
-	gr_printf( x, y, "%d", Players[sorted[i]].score );
-	x = CENTERSCREEN + fspacx(50);
-	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
-	gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
-}
-
 static void kmatrix_draw_names(playernum_array_t &sorted)
 {
 	int x;
@@ -261,10 +246,17 @@ static void kmatrix_redraw_coop()
 	gr_set_curfont(GAME_FONT);
 	multi_get_kill_list(sorted);
 	kmatrix_draw_coop_names(sorted);
+	const auto &&fspacx = FSPACX();
+	const auto &&fspacy = FSPACY();
+	const auto x_callsign = fspacx(CENTERING_OFFSET(N_players));
+	const auto x_centerscreen = CENTERSCREEN;
+	const auto &&fspacx50 = fspacx(50);
+	const auto rgb60_40_10 = BM_XRGB(60, 40, 10);
 
 	for (playernum_t i = 0; i < N_players; ++i)
 	{
-		if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
+		auto &plr = Players[sorted[i]];
+		if (plr.connected == CONNECT_DISCONNECTED)
 			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
 		else
 		{
@@ -272,7 +264,11 @@ static void kmatrix_redraw_coop()
 			gr_set_fontcolor(BM_XRGB(color.r, color.g, color.b),-1 );
 		}
 
-		kmatrix_draw_coop_item( i, sorted );
+		const auto &&y = fspacy(50 + i * 9);
+		gr_string(x_callsign, y, static_cast<const char *>(plr.callsign));
+		gr_set_fontcolor(rgb60_40_10, -1);
+		gr_printf(x_centerscreen, y, "%d", plr.score);
+		gr_printf(x_centerscreen + fspacx50, y, "%d", plr.net_killed_total);
 	}
 
 	gr_palette_load(gr_palette);
