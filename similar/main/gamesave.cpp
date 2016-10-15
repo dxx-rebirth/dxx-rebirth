@@ -1067,7 +1067,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 	{
 		auto &w = *p;
 		if (w.trigger >= Num_triggers) {
-			w.trigger = -1;	//kill trigger
+			w.trigger = trigger_none;	//kill trigger
 		}
 	}
 
