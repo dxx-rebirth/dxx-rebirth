@@ -610,13 +610,11 @@ static void write_player_text(PHYSFS_File *my_file)
 namespace dsx {
 static void write_trigger_text(PHYSFS_File *my_file)
 {
-	int	w;
-
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Triggers:\n");
-	for (trgnum_t i = 0; i < Num_triggers; i++)
+	range_for (auto &&t, vctrgptridx)
 	{
-		const auto &&t = vctrgptr(i);
+		const auto i = static_cast<trgnum_t>(t);
 #if defined(DXX_BUILD_DESCENT_I)
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
                         t->flags, static_cast<unsigned>(t->value), 0, t->link_num, t->num_links);
@@ -629,14 +627,12 @@ static void write_trigger_text(PHYSFS_File *my_file)
 			PHYSFSX_printf(my_file, "[%03i:%i] ", t->seg[j], t->side[j]);
 
 		//	Find which wall this trigger is connected to.
-		for (w=0; w<Num_walls; w++)
-			if (Walls[w].trigger == i)
-				break;
-
-		if (w == Num_walls)
+		const auto &&we = vcwallptr.end();
+		auto w = std::find_if(vcwallptr.begin(), we, [i](const wall *const p) { return p->trigger == i; });
+		if (w == we)
 			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", i);
 		else
-			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", Walls[w].segnum, Walls[w].sidenum, static_cast<int16_t>(Segments[Walls[w].segnum].sides[Walls[w].sidenum].wall_num));
+			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(Segments[w->segnum].sides[w->sidenum].wall_num));
 
 	}
 
