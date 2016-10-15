@@ -601,8 +601,8 @@ int wall_restore_all()
 	for (int i=0;i<Num_open_doors;i++)
 		wall_close_door_num(i);
 
-	for (int i=0;i<Num_segments;i++)
-		range_for (auto &j, Segments[i].sides)
+	range_for (auto &&i, vsegptr)
+		range_for (auto &j, i->sides)
 		{
 			const auto wall_num = j.wall_num;
 			if (wall_num != wall_none)
