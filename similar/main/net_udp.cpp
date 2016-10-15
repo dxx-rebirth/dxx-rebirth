@@ -1267,8 +1267,7 @@ void net_udp_init()
 }
 #endif
 
-	UDP_Socket[0].reset();
-	UDP_Socket[1].reset();
+	UDP_Socket = {};
 
 	Netgame = {};
 	UDP_Seq = {};
@@ -1290,8 +1289,7 @@ void net_udp_init()
 
 void net_udp_close()
 {
-	range_for (auto &i, UDP_Socket)
-		i.reset();
+	UDP_Socket = {};
 #ifdef _WIN32
 	WSACleanup();
 #endif
@@ -4543,8 +4541,8 @@ static void net_udp_flush(RAIIsocket &s)
 
 void net_udp_flush()
 {
-	net_udp_flush(UDP_Socket[0]);
-	net_udp_flush(UDP_Socket[1]);
+	range_for (auto &s, UDP_Socket)
+		net_udp_flush(s);
 }
 
 static void net_udp_listen(RAIIsocket &sock)
@@ -5633,13 +5631,6 @@ static int udp_tracker_init()
 	if (CGameArg.MplTrackerAddr.empty())
 		return 0;
 	const char *tracker_addr = CGameArg.MplTrackerAddr.c_str();
-	int tracker_port = d_rand() % 0xffff;
-
-	while (tracker_port <= 1024)
-		tracker_port = d_rand() % 0xffff;
-
-	// Open the socket
-	udp_open_socket(UDP_Socket[2], tracker_port );
 
 	// Fill the address
 	if (udp_dns_filladdr(TrackerSocket, tracker_addr, CGameArg.MplTrackerPort, true) < 0)
