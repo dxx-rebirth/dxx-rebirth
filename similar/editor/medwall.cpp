@@ -1023,20 +1023,17 @@ static void copy_old_wall_data_to_new(wallnum_t owall, wallnum_t nwall)
 // ------------------------------------------------------------------------------------------------
 void copy_group_walls(int old_group, int new_group)
 {
-	group::segment_array_type_t::const_iterator bo = GroupList[old_group].segments.begin();
 	group::segment_array_type_t::const_iterator bn = GroupList[new_group].segments.begin();
-	group::segment_array_type_t::const_iterator eo = GroupList[old_group].segments.end();
-	int	old_seg, new_seg;
 
-	for (; bo != eo; ++bo, ++bn)
+	range_for (const auto old_seg, GroupList[old_group].segments)
 	{
-		old_seg = *bo;
-		new_seg = *bn;
-
+		const auto new_seg = *bn++;
+		auto &os = vcsegptr(old_seg)->sides;
+		auto &ns = vsegptr(new_seg)->sides;
 		for (int j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
-			if (Segments[old_seg].sides[j].wall_num != wall_none) {
-				Segments[new_seg].sides[j].wall_num = Num_walls;
-				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
+			if (os[j].wall_num != wall_none) {
+				ns[j].wall_num = Num_walls;
+				copy_old_wall_data_to_new(os[j].wall_num, Num_walls);
 				auto &w = *vwallptr(static_cast<wallnum_t>(Num_walls));
 				w.segnum = new_seg;
 				w.sidenum = j;
@@ -1047,7 +1044,7 @@ void copy_group_walls(int old_group, int new_group)
 	}
 }
 
-int	Validate_walls=1;
+static int Validate_walls=1;
 
 //	--------------------------------------------------------------------------------------------------------
 //	This function should be in medwall.c.
