@@ -120,6 +120,7 @@ struct player_info
 	union {
 		struct {
 			int score;				// Current score.
+			int last_score;			// Score at beginning of current level.
 		} mission;
 	};
 	fix64   cloak_time;             // Time cloaked

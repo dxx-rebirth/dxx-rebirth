@@ -483,7 +483,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->vulcan_ammo   = pl_info.vulcan_ammo;
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_rw->secondary_ammo[i] = pl_info.secondary_ammo[i];
-	pl_rw->last_score                = pl->last_score;
+	pl_rw->last_score                = pl_info.mission.last_score;
 	pl_rw->score                     = pl_info.mission.score;
 	pl_rw->time_level                = pl->time_level;
 	pl_rw->time_total                = pl->time_total;
@@ -534,7 +534,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl_info.vulcan_ammo   = pl_rw->vulcan_ammo;
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_info.secondary_ammo[i] = pl_rw->secondary_ammo[i];
-	pl->last_score                = pl_rw->last_score;
+	pl_info.mission.last_score                = pl_rw->last_score;
 	pl_info.mission.score                     = pl_rw->score;
 	pl->time_level                = pl_rw->time_level;
 	pl->time_total                = pl_rw->time_total;
@@ -1482,7 +1482,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			state_read_player(fp, dummy_player, swap, pl_info, pl_shields);
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				get_local_player().level = dummy_player.level;
-				get_local_player().last_score = dummy_player.last_score;
 				get_local_player().time_level = dummy_player.time_level;
 
 				get_local_player().num_robots_level = dummy_player.num_robots_level;

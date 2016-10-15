@@ -281,7 +281,6 @@ void gameseq_remove_unused_players()
 // Setup player for new game
 void init_player_stats_game(ubyte pnum)
 {
-	Players[pnum].last_score = 0;
 	Players[pnum].lives = INITIAL_LIVES;
 	Players[pnum].level = 1;
 	Players[pnum].time_level = 0;
@@ -302,6 +301,7 @@ void init_player_stats_game(ubyte pnum)
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
 	player_info.mission.score = 0;
+	player_info.mission.last_score = 0;
 
 	init_player_stats_new_ship(pnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -357,7 +357,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	auto &player_info = plrobj.ctype.player_info;
 	player_info.homing_object_dist = -F1_0; // Added by RH
 	player_info.killer_objnum = object_none;
-	plr.last_score = player_info.mission.score;
+	player_info.mission.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
 	plr.num_robots_level = count_number_of_robots();
@@ -390,9 +390,9 @@ void init_player_stats_level(const secret_restore secret_flag)
 	Dead_player_camera = NULL;
 
 	// properly init these cursed globals
-	auto &Next_flare_fire_time = plrobj.ctype.player_info.Next_flare_fire_time;
-	auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
-	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
+	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
+	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
+	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	Next_flare_fire_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
 	Controls.state.afterburner = 0;
@@ -901,7 +901,7 @@ static void DoEndLevelScoreGlitz()
 #endif
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	level_points = player_info.mission.score - get_local_player().last_score;
+	level_points = player_info.mission.score - player_info.mission.last_score;
 
 	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
