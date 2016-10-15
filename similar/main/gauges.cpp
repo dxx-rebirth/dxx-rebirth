@@ -880,9 +880,8 @@ static void hud_show_homing_warning(void)
 	}
 }
 
-static void hud_show_keys(const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_keys(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto player_key_flags = player_info.powerup_flags;
 	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
@@ -3246,7 +3245,7 @@ void draw_hud()
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
-			hud_show_keys(multires_gauge_graphic);
+			hud_show_keys(player_info, multires_gauge_graphic);
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)
