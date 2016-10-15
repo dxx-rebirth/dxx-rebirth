@@ -402,10 +402,11 @@ static int do_game_pause()
 
 	format_time(total_time, f2i(get_local_player().time_total), get_local_player().hours_total);
 	format_time(level_time, f2i(get_local_player().time_level), get_local_player().hours_level);
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
-		snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),get_local_player().hostages_on_board,level_time,total_time);
+		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s", MENU_DIFFICULTY_TEXT(Difficulty_level), player_info.mission.hostages_on_board, level_time, total_time);
 	else
-	  	snprintf(&p->msg[0], p->msg.size(),"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),get_local_player().hostages_on_board);
+		snprintf(&p->msg[0], p->msg.size(), "PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n", MENU_DIFFICULTY_TEXT(Difficulty_level), player_info.mission.hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
 
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, pause_handler, p))

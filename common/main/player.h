@@ -73,7 +73,6 @@ struct player : public prohibit_void_ptr<player>
 	short   num_robots_total;       // Number of robots total
 	ushort  hostages_rescued_total; // Total number of hostages rescued.
 	ushort  hostages_total;         // Total number of hostages.
-	ubyte   hostages_on_board;      // Number of hostages on ship.
 	ubyte   hostages_level;         // Number of hostages on this level.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)

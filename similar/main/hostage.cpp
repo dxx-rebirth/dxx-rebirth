@@ -60,7 +60,8 @@ void hostage_rescue()
 {
 	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
 
-	get_local_player().hostages_on_board++;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	++player_info.mission.hostages_on_board;
 
 	// Do an audio effect
 	if (Newdemo_state != ND_STATE_PLAYBACK)

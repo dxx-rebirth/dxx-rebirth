@@ -1372,7 +1372,7 @@ void dead_player_frame(void)
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (Player_dead_state != player_dead_state::exploded)
 			{
-				const auto hostages_lost = exchange(get_local_player().hostages_on_board, 0);
+				const auto hostages_lost = exchange(get_local_plrobj().ctype.player_info.mission.hostages_on_board, 0);
 
 				if (hostages_lost > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages_lost);

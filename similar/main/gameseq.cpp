@@ -365,7 +365,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 
 	plr.hostages_level = count_number_of_hostages();
 	plr.hostages_total += plr.hostages_level;
-	plr.hostages_on_board = 0;
+	player_info.mission.hostages_on_board = 0;
 
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy();
@@ -501,7 +501,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		init_ai_for_ship();
 #endif
 	}
-	Players[pnum].hostages_on_board = 0;
+	player_info.mission.hostages_on_board = 0;
 	player_info.homing_object_dist = -F1_0; // Added by RH
 	digi_kill_sound_linked_to_object(plrobj);
 }
@@ -914,7 +914,7 @@ static void DoEndLevelScoreGlitz()
 		} else
 			skill_points = 0;
 
-		hostage_points = get_local_player().hostages_on_board * 500 * (Difficulty_level+1);
+		hostage_points = player_info.mission.hostages_on_board * 500 * (Difficulty_level+1);
 #if defined(DXX_BUILD_DESCENT_I)
 		shield_points = f2i(get_local_plrobj().shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
@@ -935,8 +935,8 @@ static void DoEndLevelScoreGlitz()
 	all_hostage_text[0] = 0;
 	endgame_text[0] = 0;
 
-	if (!cheats.enabled && (get_local_player().hostages_on_board == get_local_player().hostages_level)) {
-		all_hostage_points = get_local_player().hostages_on_board * 1000 * (Difficulty_level+1);
+	if (!cheats.enabled && (player_info.mission.hostages_on_board == get_local_player().hostages_level)) {
+		all_hostage_points = player_info.mission.hostages_on_board * 1000 * (Difficulty_level+1);
 		snprintf(all_hostage_text, sizeof(all_hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	} else
 		all_hostage_points = 0;
@@ -1294,7 +1294,8 @@ void PlayerFinishedLevel(int secret_flag)
 		window_set_visible(Game_wind, 0);
 
 	//credit the player for hostages
-	get_local_player().hostages_rescued_total += get_local_player().hostages_on_board;
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	get_local_player().hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		array<newmenu_item, 1> m{{
@@ -1511,8 +1512,8 @@ void DoPlayerDead()
 	if ( Control_center_destroyed ) {
 
 		//clear out stuff so no bonus
-		get_local_player().hostages_on_board = 0;
 		auto &player_info = get_local_plrobj().ctype.player_info;
+		player_info.mission.hostages_on_board = 0;
 		player_info.energy = 0;
 		get_local_plrobj().shields = 0;
 		get_local_player().connected = CONNECT_DIED_IN_MINE;
