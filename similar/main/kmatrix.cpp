@@ -256,13 +256,17 @@ static void kmatrix_redraw_coop()
 	for (playernum_t i = 0; i < N_players; ++i)
 	{
 		auto &plr = Players[sorted[i]];
+		int r, g, b;
 		if (plr.connected == CONNECT_DISCONNECTED)
-			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+			r = g = b = 31;
 		else
 		{
 			auto &color = player_rgb_normal[get_player_color(sorted[i])];
-			gr_set_fontcolor(BM_XRGB(color.r, color.g, color.b),-1 );
+			r = color.r * 2;
+			g = color.g * 2;
+			b = color.b * 2;
 		}
+		gr_set_fontcolor(gr_find_closest_color(r, g, b), -1);
 
 		const auto &&y = fspacy(50 + i * 9);
 		gr_string(x_callsign, y, static_cast<const char *>(plr.callsign));
