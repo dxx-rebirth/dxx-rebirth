@@ -289,45 +289,47 @@ static void write_key_text(PHYSFS_File *my_file)
 	blue_count = 0;
 	gold_count = 0;
 
-	for (i=0; i<Num_walls; i++) {
-		if (Walls[i].keys & KEY_BLUE) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the blue key.\n", i, Walls[i].segnum, Walls[i].sidenum);
+	range_for (auto &&wp, vcwallptr)
+	{
+		auto &w = *wp;
+		if (w.keys & KEY_BLUE) {
+			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the blue key.\n", i, w.segnum, w.sidenum);
 			if (blue_segnum == segment_none) {
-				blue_segnum = Walls[i].segnum;
-				blue_sidenum = Walls[i].sidenum;
+				blue_segnum = w.segnum;
+				blue_sidenum = w.sidenum;
 				blue_count++;
 			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(blue_segnum));
+				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(blue_segnum));
 				if (connect_side != blue_sidenum) {
-					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, blue_segnum, blue_sidenum);
+					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", w.segnum, blue_segnum, blue_sidenum);
 					blue_count++;
 				}
 			}
 		}
-		if (Walls[i].keys & KEY_RED) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the red key.\n", i, Walls[i].segnum, Walls[i].sidenum);
+		if (w.keys & KEY_RED) {
+			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the red key.\n", i, w.segnum, w.sidenum);
 			if (red_segnum == segment_none) {
-				red_segnum = Walls[i].segnum;
-				red_sidenum = Walls[i].sidenum;
+				red_segnum = w.segnum;
+				red_sidenum = w.sidenum;
 				red_count++;
 			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(red_segnum));
+				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(red_segnum));
 				if (connect_side != red_sidenum) {
-					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, red_segnum, red_sidenum);
+					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", w.segnum, red_segnum, red_sidenum);
 					red_count++;
 				}
 			}
 		}
-		if (Walls[i].keys & KEY_GOLD) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the gold key.\n", i, Walls[i].segnum, Walls[i].sidenum);
+		if (w.keys & KEY_GOLD) {
+			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the gold key.\n", i, w.segnum, w.sidenum);
 			if (gold_segnum == segment_none) {
-				gold_segnum = Walls[i].segnum;
-				gold_sidenum = Walls[i].sidenum;
+				gold_segnum = w.segnum;
+				gold_sidenum = w.sidenum;
 				gold_count++;
 			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(Walls[i].segnum), vcsegptr(gold_segnum));
+				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(gold_segnum));
 				if (connect_side != gold_sidenum) {
-					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", Walls[i].segnum, gold_segnum, gold_sidenum);
+					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", w.segnum, gold_segnum, gold_sidenum);
 					gold_count++;
 				}
 			}
