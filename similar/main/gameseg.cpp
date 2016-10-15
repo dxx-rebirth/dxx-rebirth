@@ -1523,8 +1523,7 @@ void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 //	Returns maximum depth value.
 unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, segment_depth_array_t &depth)
 {
-	int	curseg;
-	int	queue[MAX_SEGMENTS];
+	array<segnum_t, MAX_SEGMENTS> queue;
 	int	head, tail;
 
 	head = 0;
@@ -1538,10 +1537,10 @@ unsigned set_segment_depths(int start_seg, array<ubyte, MAX_SEGMENTS> *limit, se
 
 	unsigned parent_depth=0;
 	while (head < tail) {
-		curseg = queue[head++];
+		const auto curseg = queue[head++];
 		parent_depth = depth[curseg];
 
-		range_for (const auto childnum, Segments[curseg].children)
+		range_for (const auto childnum, vcsegptr(curseg)->children)
 		{
 			if (childnum != segment_none && childnum != segment_exit)
 				if (!limit || (*limit)[childnum])
