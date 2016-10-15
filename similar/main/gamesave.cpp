@@ -1340,28 +1340,39 @@ int load_level(const char * filename_passed)
 	 * HACK to fix this by moving the Vertex and fixing the associated Normals.
 	 * NOTE: This only fixes the normals of segment 104, not the other ones connected to this Vertex but this is unsignificant.
 	 */
-	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename)
-		&& ( Vertices[Segments[104].verts[0]].x == -53990800 && Vertices[Segments[104].verts[0]].y == -59927741 && Vertices[Segments[104].verts[0]].z == 23034584 )
-		&& ( Segments[104].sides[1].normals[0].x == 56775 && Segments[104].sides[1].normals[0].y == -27796 && Segments[104].sides[1].normals[0].z == -17288 && Segments[104].sides[1].normals[1].x == 50157 && Segments[104].sides[1].normals[1].y == -34561 && Segments[104].sides[1].normals[1].z == -24180 )
-		&& ( Segments[104].sides[2].normals[0].x == 60867 && Segments[104].sides[2].normals[0].y == -19485 && Segments[104].sides[2].normals[0].z == -14507 && Segments[104].sides[2].normals[1].x == 55485 && Segments[104].sides[2].normals[1].y == -29668 && Segments[104].sides[2].normals[1].z == -18332 )
-		)
+	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !d_stricmp("d2levc-4.rl2",filename))
 	{
-			Vertices[Segments[104].verts[0]].x = -53859726;
-			Vertices[Segments[104].verts[0]].y = -59927743;
-			Vertices[Segments[104].verts[0]].z = 23034586;
-			Segments[104].sides[1].normals[0].x = 56123;
-			Segments[104].sides[1].normals[0].y = -27725;
-			Segments[104].sides[1].normals[0].z = -19401;
-			Segments[104].sides[1].normals[1].x = 49910;
-			Segments[104].sides[1].normals[1].y = -33946;
-			Segments[104].sides[1].normals[1].z = -25525;
-			Segments[104].sides[2].normals[0].x = 60903;
-			Segments[104].sides[2].normals[0].y = -18371;
-			Segments[104].sides[2].normals[0].z = -15753;
-			Segments[104].sides[2].normals[1].x = 57004;
-			Segments[104].sides[2].normals[1].y = -26385;
-			Segments[104].sides[2].normals[1].z = -18688;
+		auto &s104 = *vsegptr(vsegidx_t(104));
+		auto &s104v0 = Vertices[s104.verts[0]];
+		auto &s104s1 = s104.sides[1];
+		auto &s104s1n0 = s104s1.normals[0];
+		auto &s104s1n1 = s104s1.normals[1];
+		auto &s104s2 = s104.sides[2];
+		auto &s104s2n0 = s104s2.normals[0];
+		auto &s104s2n1 = s104s2.normals[1];
+		if (
+			(s104v0.x == -53990800 && s104v0.y == -59927741 && s104v0.z == 23034584) &&
+			(s104s1n0.x == 56775 && s104s1n0.y == -27796 && s104s1n0.z == -17288 && s104s1n1.x == 50157 && s104s1n1.y == -34561 && s104s1n1.z == -24180) &&
+			(s104s2n0.x == 60867 && s104s2n0.y == -19485 && s104s2n0.z == -14507 && s104s2n1.x == 55485 && s104s2n1.y == -29668 && s104s2n1.z == -18332)
+		)
+		{
+			s104v0.x = -53859726;
+			s104v0.y = -59927743;
+			s104v0.z = 23034586;
+			s104s1n0.x = 56123;
+			s104s1n0.y = -27725;
+			s104s1n0.z = -19401;
+			s104s1n1.x = 49910;
+			s104s1n1.y = -33946;
+			s104s1n1.z = -25525;
+			s104s2n0.x = 60903;
+			s104s2n0.y = -18371;
+			s104s2n0.z = -15753;
+			s104s2n1.x = 57004;
+			s104s2n1.y = -26385;
+			s104s2n1.z = -18688;
 			// I feel so dirty now ...
+		}
 	}
 #endif
 
