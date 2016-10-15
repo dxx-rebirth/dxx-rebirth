@@ -1498,12 +1498,8 @@ void validate_segment_all(void)
 	}
 
 #if DXX_USE_EDITOR
-	{
-		for (int s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
-			if (Segments[s].segnum != segment_none) {
-				Segments[s].segnum = segment_none;
-			}
-	}
+	range_for (auto &s, partial_range(Segments, Highest_segment_index + 1, Segments.size()))
+		s.segnum = segment_none;
 	#endif
 }
 
