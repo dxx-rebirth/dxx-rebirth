@@ -1110,9 +1110,8 @@ constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 #endif
 
 __attribute_warn_unused_result
-static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
+static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (player_info.Primary_weapon == consider_weapon)
 		return hud_rgb_red;
 	else{
@@ -1142,7 +1141,8 @@ static rgb_t hud_get_primary_weapon_fontcolor(const int consider_weapon)
 
 static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
 {
-	auto rgb = hud_get_primary_weapon_fontcolor(consider_weapon);
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto rgb = hud_get_primary_weapon_fontcolor(player_info, consider_weapon);
 	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
