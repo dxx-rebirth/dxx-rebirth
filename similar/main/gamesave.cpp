@@ -1143,21 +1143,6 @@ static int load_game_data(PHYSFS_File *LoadFile)
 			}
 		}
 	}
-
-	#ifndef NDEBUG
-	{
-		for (int sidenum=0; sidenum<6; sidenum++) {
-			const auto wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
-			if (wallnum != wall_none)
-				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
-					Int3();	//	Error.  Bogus walls in this segment.
-								// Consult Yuan or Mike.
-		}
-	}
-	#endif
-
-	//create_local_segment_data();
-
 	fix_object_segs();
 
 	if (game_top_fileinfo_version < GAME_VERSION
