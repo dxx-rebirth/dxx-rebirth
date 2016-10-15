@@ -623,7 +623,7 @@ static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fa
 	menu.citem = icitem;
 }
 
-static void newmenu_scroll(newmenu *menu, int amount)
+static void newmenu_scroll(newmenu *const menu, const int amount)
 {
 	if (amount == 0) // nothing to do for us
 		return;
@@ -645,9 +645,21 @@ static void newmenu_scroll(newmenu *menu, int amount)
 	if (first == range.end())
 		return;
 	const auto rlast = std::find_if(range.rbegin(), std::reverse_iterator<newmenu_item *>(first), predicate).base();
+	/* `first == rlast` should not happen, since that would mean that
+	 * there are no elements in `range` for which `predicate` is true.
+	 * If there are no such elements, then `first == range.end()` should
+	 * be true and the function would have returned above.
+	 */
+	assert(first != rlast);
 	if (first == rlast) // nothing to do for us
 		return;
 	const auto last = std::prev(rlast);
+	/* Exactly one element that satisfies `predicate` exists in `range`.
+	 * Only elements that satisfy `predicate` can be selected, so the
+	 * selection cannot be changed.
+	 */
+	if (first == last)
+		return;
 	auto citem = &menu->items[menu->citem];
 	if (citem == last && amount == 1) // if citem == last item and we want to go down one step, go to first item
 	{
