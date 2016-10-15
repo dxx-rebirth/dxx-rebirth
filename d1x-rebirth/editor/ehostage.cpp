@@ -246,7 +246,7 @@ static int CompressHostages()
 //@@}
 
 
-static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h);
+static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h);
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
@@ -272,7 +272,7 @@ int do_hostage_dialog()
 	return 1;
 }
 
-static int hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
+static window_event_result hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
 {
 	h->quitButton = ui_add_gadget_button(w, 20, 222, 48, 40, "Done", NULL);
 	// The little box the hostage vclip will play in.
@@ -286,7 +286,7 @@ static int hostage_dialog_created(UI_DIALOG *const w, hostage_dialog *const h)
 	h->new_object = ui_add_gadget_button(w, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;		
 	h->time = timer_query();
 	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
-	return 0;
+	return window_event_result::ignored;
 }
 
 void hostage_close_window()
@@ -297,7 +297,7 @@ void hostage_close_window()
 	}
 }
 
-static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h)
+static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_dialog *h)
 {
 	switch(event.type)
 	{
@@ -305,14 +305,12 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 			return hostage_dialog_created(dlg, h);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<hostage_dialog>()(h);
-			return 0;
+			return window_event_result::ignored;
 		default:
 			break;
 	}
 	fix64 Temp;
 	int keypress = 0;
-	int rval = 0;
-	
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 
@@ -378,13 +376,9 @@ static int hostage_dialog_handler(UI_DIALOG *dlg,const d_event &event, hostage_d
 	if (GADGET_PRESSED(h->quitButton.get()) || keypress==KEY_ESC)
 	{
 		hostage_close_window();
-		return 1;
+		return window_event_result::handled;
 	}		
 
 	LastHostageIndex = CurrentHostageIndex;
-	
-	return rval;
+	return window_event_result::ignored;
 }
-
-
-
