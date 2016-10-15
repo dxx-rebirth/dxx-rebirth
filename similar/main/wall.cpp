@@ -1316,8 +1316,10 @@ void wall_frame_process()
 }
 }
 
+namespace dcx {
 static unsigned Num_stuck_objects;
 static array<stuckobj, 32> Stuck_objects;
+}
 
 //	An object got stuck in a door (like a flare).
 //	Add global entry.
@@ -1393,7 +1395,6 @@ void kill_stuck_objects(const wallnum_t wallnum)
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 // -----------------------------------------------------------------------------------
 // Initialize stuck objects array.  Called at start of level
 void init_stuck_objects(void)
@@ -1403,6 +1404,7 @@ void init_stuck_objects(void)
 	Num_stuck_objects = 0;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 // -----------------------------------------------------------------------------------
 // Clear out all stuck objects.  Called for a new ship
 void clear_stuck_objects(void)

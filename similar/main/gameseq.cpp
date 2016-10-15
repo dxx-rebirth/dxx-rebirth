@@ -528,10 +528,10 @@ void editor_reset_stuff_on_level()
 	init_morphs();
 	init_all_matcens();
 	init_player_stats_new_ship(Player_num);
+	init_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_controlcen_for_level();
 	automap_clear_visited();
-	init_stuck_objects();
 	init_thief_for_level();
 	compute_slide_segs();
 #endif
@@ -1667,10 +1667,10 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 	init_morphs();
 	init_all_matcens();
 	reset_palette_add();
+	init_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_smega_detonates();
 	init_thief_for_level();
-	init_stuck_objects();
 	if (!(Game_mode & GM_MULTI))
 		filter_objects_from_level();
 #endif
