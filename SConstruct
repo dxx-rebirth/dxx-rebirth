@@ -3605,6 +3605,10 @@ class DXXProgram(DXXCommon):
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
+	def _apply_env_version_seq(env,
+		_DXX_VERSION_SEQ=[('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))]
+	):
+		return {'CPPDEFINES' : env['CPPDEFINES'] + _DXX_VERSION_SEQ}
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.cpp',
@@ -3682,7 +3686,6 @@ class DXXProgram(DXXCommon):
 'main/physics.cpp',
 'main/piggy.cpp',
 'main/player.cpp',
-'main/playsave.cpp',
 'main/polyobj.cpp',
 'main/powerup.cpp',
 'main/render.cpp',
@@ -3710,6 +3713,12 @@ class DXXProgram(DXXCommon):
 'similar/misc/physfsx.cpp',
 ),
 		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
+		'transform_target':_apply_target_name,
+	}, {
+		'source': (
+'similar/main/playsave.cpp',
+),
+		'transform_env': _apply_env_version_seq,
 		'transform_target':_apply_target_name,
 	}
 	])
@@ -3794,9 +3803,10 @@ class DXXProgram(DXXCommon):
 	def get_objects_common(self,
 		__get_objects_common=__get_objects_common,
 		__get_objects_use_udp=DXXCommon.create_lazy_object_getter([{
-		'source':[
+		'source':(
 'similar/main/net_udp.cpp',
-],
+),
+		'transform_env': _apply_env_version_seq,
 		'transform_target':_apply_target_name,
 	}])
 		):
@@ -3830,9 +3840,7 @@ class DXXProgram(DXXCommon):
 		self.register_program()
 		return self.variables.GenerateHelpText(self.env)
 
-	def prepare_environment(self,archive,
-			_DXX_VERSION_SEQ=('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))
-		):
+	def prepare_environment(self,archive):
 		DXXCommon.prepare_environment(self)
 		env = self.env
 		env.MergeFlags(archive.configure_added_environment_flags)
@@ -3841,7 +3849,6 @@ class DXXProgram(DXXCommon):
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
-				_DXX_VERSION_SEQ,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
 			],
