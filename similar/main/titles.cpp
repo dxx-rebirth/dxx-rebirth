@@ -926,7 +926,8 @@ static int briefing_process_char(briefing *br)
 	} else {
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!br->got_z) {
-			Int3(); // Hey ryan!!!! You gotta load a screen before you start
+			LevelError("briefing wrote to screen without using $Z to load a screen; loading default.");
+			//Int3(); // Hey ryan!!!! You gotta load a screen before you start
 			// printing to it! You know, $Z !!!
 			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 		}

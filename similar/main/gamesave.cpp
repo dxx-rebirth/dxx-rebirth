@@ -1119,7 +1119,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 						vwallptr(wall_num)->controlling_trigger = t;
 					} catch (const valptridx<wall>::index_range_exception &e) {
 						con_puts(CON_URGENT, e.what());
-						con_printf(CON_URGENT, "%s:%u: trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.  Please report this to the level author, not to the Rebirth maintainers.", __FILE__, __LINE__, static_cast<trgnum_t>(t), l, tr.type, seg_num, side_num);
+						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", static_cast<trgnum_t>(t), l, tr.type, seg_num, side_num);
 					}
 				}
 #endif

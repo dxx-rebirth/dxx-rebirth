@@ -179,7 +179,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				w0p = vwallptr(w0num);
 			} catch (const valptridx<wall>::index_range_exception &e) {
 				con_puts(CON_URGENT, e.what());
-				con_printf(CON_URGENT, "%s:%u: trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.  Please report this to the level author, not to the Rebirth maintainers.", __FILE__, __LINE__, addressof(t), i, static_cast<segnum_t>(segp), side);
+				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", addressof(t), i, static_cast<segnum_t>(segp), side);
 				continue;
 			}
 			auto &wall0 = *w0p;

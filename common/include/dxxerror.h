@@ -75,6 +75,8 @@ void UserError(const char *fmt, ...) __noreturn __attribute_format_printf(1, 2);
 #define UserError(F,...)	dxx_call_printf_checked(UserError,(UserError_puts),(),DXX_STRINGIZE_FL(__FILE__, __LINE__, F),##__VA_ARGS__)
 #define Assert assert
 
+#define LevelError(F,...)	con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, F "  Please report this to the level author, not to the Rebirth maintainers."), ##__VA_ARGS__)
+
 /* Compatibility with x86-specific name */
 #define Int3() d_debugbreak()
 
