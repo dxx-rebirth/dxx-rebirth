@@ -461,7 +461,7 @@ namespace dcx {
 
 int gr_check_fullscreen(void)
 {
-	return (sdl_video_flags & SDL_FULLSCREEN);
+	return !!(sdl_video_flags & SDL_FULLSCREEN);
 }
 
 void gr_toggle_fullscreen()

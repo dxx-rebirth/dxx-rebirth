@@ -688,6 +688,21 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	}
 }
 
+static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
+{
+	citem.value = 1;
+	const auto cg = citem.radio().group;
+	range_for (auto &r, menu.item_range())
+	{
+		if (&r != &citem && r.value && r.type == NM_TYPE_RADIO && r.radio().group == cg)
+		{
+			r.value = 0;
+			return 1;
+		}
+	}
+	return 0;
+}
+
 static window_event_result newmenu_mouse(window *wind,const d_event &event, newmenu *menu, int button)
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
@@ -721,24 +736,11 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						switch (citem.type)
 						{
 							case NM_TYPE_CHECK:
-								citem.value ^= 1;
-
-								if (menu->is_scroll_box)
+								citem.value = !citem.value;
 								changed = 1;
 								break;
 							case NM_TYPE_RADIO:
-								citem.value = 1;
-								{
-									const auto cg = citem.radio().group;
-								range_for (auto &r, menu->item_range())
-								{
-									if (&r != &citem && r.value && r.type == NM_TYPE_RADIO && r.radio().group == cg)
-									{
-										r.value = 0;
-										changed = 1;
-									}
-								}
-								}
+								changed = nm_trigger_radio_button(*menu, citem);
 								break;
 							case NM_TYPE_TEXT:
 								menu->citem=old_choice;
@@ -1025,29 +1027,11 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 					case NM_TYPE_INPUT_MENU:
 						break;
 					case NM_TYPE_CHECK:
-						citem.value ^= 1;
-						if (menu->is_scroll_box)
-						{
-							if (menu->citem==(menu->max_on_menu+menu->scroll_offset-1) || menu->citem==menu->scroll_offset)
-							{
-							}
-						}
-
+						citem.value = !citem.value;
 						changed = 1;
 						break;
 					case NM_TYPE_RADIO:
-						citem.value = 1;
-						{
-							const auto cg = citem.radio().group;
-						range_for (auto &i, menu->item_range())
-						{
-							if (&i != &citem && i.value && i.type == NM_TYPE_RADIO && i.radio().group == cg)
-							{
-								i.value = 0;
-								changed = 1;
-							}
-						}
-						}
+						changed = nm_trigger_radio_button(*menu, citem);
 						break;
 				}
 			}
