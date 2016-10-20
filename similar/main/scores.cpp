@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
-#define COOL_MESSAGE_LEN 	51
+#define COOL_MESSAGE_LEN 	50
 #define MAX_HIGH_SCORES 	10
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -87,7 +87,11 @@ struct all_scores
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
 } DXX_SCORE_STRUCT_PACK;
-
+#if defined(DXX_BUILD_DESCENT_I)
+static_assert(sizeof(all_scores) == 294, "high score size wrong");
+#elif defined(DXX_BUILD_DESCENT_II)
+static_assert(sizeof(all_scores) == 336, "high score size wrong");
+#endif
 
 static void scores_read(all_scores *scores)
 {
