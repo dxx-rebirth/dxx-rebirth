@@ -301,7 +301,7 @@ static void move_toward_vector_component_assign(fix vms_vector::*const p, const 
 
 static void move_toward_vector_component_add(fix vms_vector::*const p, const vms_vector &vec_goal, const fix frametime64, const fix difficulty_scale, vms_vector &velocity)
 {
-	velocity.*p += fixmul(vec_goal.*p, frametime64) * difficulty_scale;
+	velocity.*p += fixmul(vec_goal.*p, frametime64) * difficulty_scale / 4;
 }
 
 }
@@ -1221,7 +1221,7 @@ static void move_towards_vector(object_base &objp, const vms_vector &vec_goal, i
 		move_toward_vector_component_assign(&vms_vector::z, vec_goal, frametime32, velocity);
 	} else {
 		const fix frametime64 = FrameTime * 64;
-		const fix difficulty_scale = (Difficulty_level+5)/4;
+		const fix difficulty_scale = Difficulty_level + 5;
 		move_toward_vector_component_add(&vms_vector::x, vec_goal, frametime64, difficulty_scale, velocity);
 		move_toward_vector_component_add(&vms_vector::y, vec_goal, frametime64, difficulty_scale, velocity);
 		move_toward_vector_component_add(&vms_vector::z, vec_goal, frametime64, difficulty_scale, velocity);
