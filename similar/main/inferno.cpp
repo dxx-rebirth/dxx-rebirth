@@ -369,6 +369,10 @@ int standard_handler(const d_event &event)
 namespace dsx {
 
 #define PROGNAME argv[0]
+#define DXX_RENAME_IDENTIFIER2(I,N)	I##$##N
+#define DXX_RENAME_IDENTIFIER(I,N)	DXX_RENAME_IDENTIFIER2(I,N)
+#define argc	DXX_RENAME_IDENTIFIER(argc_gc, DXX_git_commit)
+#define argv	DXX_RENAME_IDENTIFIER(argv_gd, DXX_git_describe)
 
 //	DESCENT by Parallax Software
 //	DESCENT II by Parallax Software
@@ -626,3 +630,6 @@ int main(int argc, char *argv[])
 #endif
 	return dsx::main(argc, argv);
 }
+
+#undef argv
+#undef argc

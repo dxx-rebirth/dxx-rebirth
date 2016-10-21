@@ -107,7 +107,15 @@ class ToolchainInformation(StaticSubprocess):
 			f("$%s: %r" % (v, penv.get(v, None)))
 
 class Git(StaticSubprocess):
-	# None when unset.  Result tuple once cached.
+	class ComputedExtraVersion(object):
+		__slots__ = ('describe', 'status', 'diffstat_HEAD', 'revparse_HEAD')
+		def __init__(self,describe,status,diffstat_HEAD,revparse_HEAD):
+			self.describe = describe
+			self.status = status
+			self.diffstat_HEAD = diffstat_HEAD
+			self.revparse_HEAD = revparse_HEAD
+	UnknownExtraVersion = ComputedExtraVersion('', None, None, None)
+	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
 	@classmethod
@@ -133,11 +141,12 @@ class Git(StaticSubprocess):
 		c = cls.__computed_extra_version
 		if c is None:
 			v = cls.__compute_extra_version()
-			cls.__computed_extra_version = c = (
+			cls.__computed_extra_version = c = cls.ComputedExtraVersion(
 				v,
 				_spcall(cls, ['status', '--short', '--branch']),
 				_spcall(cls, ['diff', '--stat', 'HEAD']),
-			) if v is not None else ('', None, None)
+				_spcall(cls, ['rev-parse', 'HEAD']).rstrip(),
+			) if v is not None else cls.UnknownExtraVersion
 		return c
 	# Run `git describe --tags --abbrev=12`.
 	# On failure, return None.
@@ -415,6 +424,23 @@ struct %(N)s_derived : %(N)s_base {
 ''', '''
 	std::unordered_map<int,int> m;
 	m.emplace(0, 0);
+'''
+),
+		# This test could be made optional, but until someone reports an
+		# otherwise-supported compiler that fails this test, it is
+		# mandatory for simplicity.
+		Cxx11RequiredFeature('extended identifiers', '''
+''', r'''
+#define DXX_RENAME_IDENTIFIER2_%(N)s(I,N)	I##$##N
+#define DXX_RENAME_IDENTIFIER_%(N)s(I,N)	DXX_RENAME_IDENTIFIER2_%(N)s(I,N)
+#define DXX_extended_%(N)s a\u012b\u012f\u013d
+#define %(N)s_var	DXX_RENAME_IDENTIFIER_%(N)s(%(N)s_var, DXX_extended_%(N)s)
+	int %(N)s_var;
+	(void)%(N)s_var;
+#undef %(N)s_var
+#undef DXX_extended_%(N)s
+#undef DXX_RENAME_IDENTIFIER_%(N)s
+#undef DXX_RENAME_IDENTIFIER2_%(N)s
 '''
 ),
 ])
@@ -3268,10 +3294,9 @@ class DXXCommon(LazyObjectConstructor):
 			self.pch_manager = PCHManager(self.user_settings, self.env, self.srcdir, configure_pch_flags, archive.pch_manager)
 
 	@staticmethod
-	def _quote_cppdefine(s,f=repr):
+	def _quote_cppdefine(s,f=repr,b2a_hex=binascii.b2a_hex):
 		r = ''
 		prior = False
-		b2a_hex = binascii.b2a_hex
 		for c in f(s):
 			# No xdigit support in str
 			if c in ' ()*+,-./:=[]_' or (c.isalnum() and not (prior and (c.isdigit() or c in 'abcdefABCDEF'))):
@@ -3284,6 +3309,10 @@ class DXXCommon(LazyObjectConstructor):
 				continue
 			prior = False
 		return '\\"%s\\"' % r
+
+	@staticmethod
+	def _encode_cppdefine_for_identifier(s,b2a_base64=binascii.b2a_base64):
+		return '"%s"' % b2a_base64(s).rstrip().replace('+', r'\u012b').replace('/', r'\u012f').replace('=', r'\u013d')
 
 	def prepare_environment(self):
 		# Prettier build messages......
@@ -3707,6 +3736,11 @@ class DXXProgram(DXXCommon):
 	}, {
 		'source': (
 'similar/main/inferno.cpp',
+),
+		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
+		'transform_target':_apply_target_name,
+	}, {
+		'source': (
 'similar/misc/physfsx.cpp',
 ),
 		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
@@ -3818,7 +3852,7 @@ class DXXProgram(DXXCommon):
 		self.variables = variables
 		self._argument_prefix_list = prefix
 		DXXCommon.__init__(self)
-		git_describe_version = Git.compute_extra_version()[0]
+		git_describe_version = Git.compute_extra_version().describe
 		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
 		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
 			extra_version += ' ' + git_describe_version
@@ -3874,6 +3908,8 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
 		objects = static_archive_construction.get_objects_common()
+		git_describe_version = Git.compute_extra_version() if self.user_settings.git_describe_version else Git.UnknownExtraVersion
+		env.__dxx_CPPDEFINE_git_version = [('DXX_git_commit', git_describe_version.revparse_HEAD), ('DXX_git_describe', self._encode_cppdefine_for_identifier(git_describe_version.describe))]
 		objects.extend(self.get_objects_common())
 		if self.user_settings.sdlmixer:
 			objects.extend(static_archive_construction.get_objects_arch_sdlmixer())
@@ -3897,12 +3933,12 @@ class DXXProgram(DXXCommon):
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if self.VERSION_MICRO:
 				extra_version += '.%u' % self.VERSION_MICRO
-		git_describe_version = (Git.compute_extra_version() if self.user_settings.git_describe_version else ('', '', ''))
-		if git_describe_version[0] and not (extra_version and (extra_version == git_describe_version[0] or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version[0]))):
+		git_describe_version_describe_output = git_describe_version.describe
+		if git_describe_version_describe_output and not (extra_version and (extra_version == git_describe_version_describe_output or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version_describe_output))):
 			# Suppress duplicate output
 			if extra_version:
 				extra_version += ' '
-			extra_version += git_describe_version[0]
+			extra_version += git_describe_version_describe_output
 		get_version_head = StaticSubprocess.get_version_head
 		ld_path = ToolchainInformation.get_tool_path(env, 'ld')[1]
 		_quote_cppdefine = self._quote_cppdefine
@@ -3918,8 +3954,8 @@ class DXXProgram(DXXCommon):
 			('DESCENT_CXX_version', _quote_cppdefine(get_version_head(env['CXX']))),
 			('DESCENT_LINK', _quote_cppdefine(ld_path)),
 			('DESCENT_LINK_version', _quote_cppdefine(get_version_head(ld_path))),
-			('DESCENT_git_status', _quote_cppdefine(git_describe_version[1])),
-			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version[2])),
+			('DESCENT_git_status', _quote_cppdefine(git_describe_version.status)),
+			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version.diffstat_HEAD)),
 		))
 		versid_build_environ.extend((
 			'CXX_version',
