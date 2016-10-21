@@ -25,7 +25,6 @@
 	VALUE(MULTI_FIRE                  , 18)	\
 	VALUE(MULTI_FIRE_TRACK            , 21)	\
 	VALUE(MULTI_FIRE_BOMB             , 20)	\
-	VALUE(MULTI_KILL                  , 5)	\
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
 	VALUE(MULTI_QUIT                  , 2)	\

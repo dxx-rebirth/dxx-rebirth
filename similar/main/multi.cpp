@@ -5425,8 +5425,6 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_FIRE_TRACK:
 		case MULTI_FIRE_BOMB:
 			multi_do_fire(pnum, buf); break;
-		case MULTI_KILL:
-			multi_do_kill(pnum, buf); break;
 		case MULTI_REMOVE_OBJECT:
 			multi_do_remobj(buf); break;
 		case MULTI_PLAYER_DERES:
