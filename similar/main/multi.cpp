@@ -3808,27 +3808,45 @@ static void multi_do_heartbeat (const ubyte *buf)
 
 void multi_check_for_killgoal_winner ()
 {
-	int i,best=0,bestnum=0;
 	if (Control_center_destroyed)
 		return;
 
-	for (i=0;i<N_players;i++)
+	/* For historical compatibility, this routine has some quirks with
+	 * scoring:
+	 * - When two or more players have the same number of kills, this
+	 *   routine always chooses the lowest index player.  No opportunity
+	 *   is provided for the players to score a tie-breaking kill, nor
+	 *   is any other property (such as remaining shields) considered.
+	 * - This routine has no special handling for the case that all
+	 *   players are tied at zero kills.  It will choose the lowest
+	 *   index player, despite no player having any kills.
+	 * - This routine has no special handling for the case that all
+	 *   players have _negative_ kills, which can happen if players die
+	 *   a penalized death (such as being killed by the reactor) and do
+	 *   not score an equal or greater number of approved kills.  If all
+	 *   players have negative kills, then this routine will choose
+	 *   player 0, rather than the player with the kill count closest to
+	 *   zero.
+	 */
+	const auto &local_player = get_local_player();
+	const player *bestplr = &Players[0];
+	int highest_kill_goal_count = 0;
+	range_for (auto &i, partial_const_range(Players, N_players))
 	{
-		if (Players[i].KillGoalCount>best)
+		const auto KillGoalCount = i.KillGoalCount;
+		if (highest_kill_goal_count < KillGoalCount)
 		{
-			best=Players[i].KillGoalCount;
-			bestnum=i;
+			highest_kill_goal_count = KillGoalCount;
+			bestplr = &i;
 		}
 	}
 
-	if (bestnum==Player_num)
+	if (bestplr == &local_player)
 	{
-		HUD_init_message(HM_MULTI, "You have the best score at %d kills!",best);
-		//Players[Player_num].shields=i2f(200);
+		HUD_init_message(HM_MULTI, "You have the best score at %d kills!", highest_kill_goal_count);
 	}
 	else
-
-		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",static_cast<const char *>(Players[bestnum].callsign),best);
+		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!", static_cast<const char *>(bestplr->callsign), highest_kill_goal_count);
 
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 	net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
