@@ -1763,10 +1763,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				{
 					int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
 					Controls.raw_mouse_axis[i] += ax[i];
-					if (Controls.raw_mouse_axis[i] < -MOUSEFS_DELTA_RANGE)
-						Controls.raw_mouse_axis[i] = -MOUSEFS_DELTA_RANGE;
-					if (Controls.raw_mouse_axis[i] > MOUSEFS_DELTA_RANGE)
-						Controls.raw_mouse_axis[i] = MOUSEFS_DELTA_RANGE;
+					clamp_symmetric_value(Controls.raw_mouse_axis[i], MOUSEFS_DELTA_RANGE);
 					if (Controls.raw_mouse_axis[i] > mouse_null_value) 
 						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i] - mouse_null_value) * MOUSEFS_DELTA_RANGE) / (MOUSEFS_DELTA_RANGE - mouse_null_value) * frametime) / MOUSEFS_DELTA_RANGE;
 					else if (Controls.raw_mouse_axis[i] < -mouse_null_value)
