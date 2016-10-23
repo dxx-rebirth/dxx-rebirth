@@ -162,7 +162,7 @@ constexpr int INVALID_SOCKET = -1;
 
 namespace {
 
-struct RAIIsocket
+class RAIIsocket
 {
 #ifndef _WIN32
 	typedef int SOCKET;
@@ -172,6 +172,7 @@ struct RAIIsocket
 	}
 #endif
 	SOCKET s;
+public:
 	constexpr RAIIsocket() : s(INVALID_SOCKET)
 	{
 	}
@@ -650,7 +651,6 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	int bcast = 1;
 
 	// close stale socket
-	sock.reset();
 	struct _sockaddr sAddr;   // my address information
 
 	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
