@@ -513,7 +513,11 @@ void ogl_cache_level_textures(void)
 					ogl_cache_weapon_textures(ri.weapon_type);
 				}
 				if (objp->rtype.pobj_info.tmap_override != -1)
-					ogl_loadbmtexture(GameBitmaps[Textures[objp->rtype.pobj_info.tmap_override].index], 1);
+				{
+					auto &t = Textures[objp->rtype.pobj_info.tmap_override];
+					PIGGY_PAGE_IN(t);
+					ogl_loadbmtexture(GameBitmaps[t.index], 1);
+				}
 				else
 					ogl_cache_polymodel_textures(objp->rtype.pobj_info.model_num);
 			}
@@ -1751,7 +1755,8 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepad)
 {
-
+	assert(!(rbm.bm_flags & BM_FLAG_PAGED_OUT));
+	assert(rbm.bm_data);
 	grs_bitmap *bm = &rbm;
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
