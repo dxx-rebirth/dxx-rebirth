@@ -2277,23 +2277,21 @@ void net_udp_send_endlevel_packet(void)
 	}
 	else
 	{
-		ubyte buf[UPID_MAX_SIZE];
-
-		memset(buf, 0,  sizeof(buf));
-
+		array<uint8_t, 8 + sizeof(kill_matrix[0])> buf;
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
 		buf[len] = get_local_player().connected;							len++;
 		buf[len] = Countdown_seconds_left;									len++;
-		PUT_INTEL_SHORT(buf + len, get_local_player().net_kills_total);	len += 2;
-		PUT_INTEL_SHORT(buf + len, get_local_player().net_killed_total);	len += 2;
+		PUT_INTEL_SHORT(&buf[len], get_local_player().net_kills_total);	len += 2;
+		PUT_INTEL_SHORT(&buf[len], get_local_player().net_killed_total);	len += 2;
 
 		range_for (auto &i, kill_matrix[Player_num])
 		{
-			PUT_INTEL_SHORT(buf + len, i);			len += 2;
+			PUT_INTEL_SHORT(&buf[len], i);
+			len += 2;
 		}
 
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 }
 
