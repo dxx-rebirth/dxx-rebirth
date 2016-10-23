@@ -2252,31 +2252,28 @@ void net_udp_send_endlevel_packet(void)
 
 	if (multi_i_am_master())
 	{
-		ubyte buf[UPID_MAX_SIZE];
-
-		memset(buf, 0, sizeof(buf));
-
+		array<uint8_t, 2 + (5 * Players.size()) + sizeof(kill_matrix)> buf;
 		buf[len] = UPID_ENDLEVEL_H;											len++;
 		buf[len] = Countdown_seconds_left;									len++;
 
 		range_for (auto &i, Players)
 		{
 			buf[len] = i.connected;								len++;
-			PUT_INTEL_SHORT(buf + len, i.net_kills_total);			len += 2;
-			PUT_INTEL_SHORT(buf + len, i.net_killed_total);		len += 2;
+			PUT_INTEL_SHORT(&buf[len], i.net_kills_total);			len += 2;
+			PUT_INTEL_SHORT(&buf[len], i.net_killed_total);		len += 2;
 		}
 
 		range_for (auto &i, kill_matrix)
 		{
 			range_for (auto &j, i)
 			{
-				PUT_INTEL_SHORT(buf + len, j);				len += 2;
+				PUT_INTEL_SHORT(&buf[len], j);				len += 2;
 			}
 		}
 
 		for (int i = 1; i < MAX_PLAYERS; i++)
 			if (Players[i].connected != CONNECT_DISCONNECTED)
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 	else
 	{
