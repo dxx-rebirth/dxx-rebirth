@@ -5103,7 +5103,7 @@ void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockadd
 
 void net_udp_send_pdata()
 {
-	ubyte buf[sizeof(UDP_frame_info)];
+	array<uint8_t, sizeof(UDP_frame_info)> buf;
 	int len = 0;
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
@@ -5113,38 +5113,36 @@ void net_udp_send_pdata()
 	if ( !( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) )
 		return;
 
-	memset(&buf, 0, sizeof(UDP_frame_info));
-	
 	buf[len] = UPID_PDATA;									len++;
 	buf[len] = Player_num;									len++;
 	buf[len] = get_local_player().connected;						len++;
 
 	quaternionpos qpp{};
 	create_quaternionpos(&qpp, vobjptr(get_local_player().objnum), 0);
-	PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
-	PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
-	PUT_INTEL_SHORT(buf+len, qpp.orient.y);							len += 2;
-	PUT_INTEL_SHORT(buf+len, qpp.orient.z);							len += 2;
-	PUT_INTEL_INT(buf+len, qpp.pos.x);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.pos.y);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.pos.z);							len += 4;
-	PUT_INTEL_SHORT(buf+len, qpp.segment);							len += 2;
-	PUT_INTEL_INT(buf+len, qpp.vel.x);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.vel.y);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.vel.z);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.rotvel.x);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.rotvel.y);							len += 4;
-	PUT_INTEL_INT(buf+len, qpp.rotvel.z);							len += 4; // 46 + 3 = 49
+	PUT_INTEL_SHORT(&buf[len], qpp.orient.w);							len += 2;
+	PUT_INTEL_SHORT(&buf[len], qpp.orient.x);							len += 2;
+	PUT_INTEL_SHORT(&buf[len], qpp.orient.y);							len += 2;
+	PUT_INTEL_SHORT(&buf[len], qpp.orient.z);							len += 2;
+	PUT_INTEL_INT(&buf[len], qpp.pos.x);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.pos.y);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.pos.z);							len += 4;
+	PUT_INTEL_SHORT(&buf[len], qpp.segment);							len += 2;
+	PUT_INTEL_INT(&buf[len], qpp.vel.x);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.vel.y);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.vel.z);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.rotvel.x);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.rotvel.y);							len += 4;
+	PUT_INTEL_INT(&buf[len], qpp.rotvel.z);							len += 4; // 46 + 3 = 49
 
 	if (multi_i_am_master())
 	{
 		for (int i = 1; i < MAX_PLAYERS; i++)
 			if (Players[i].connected != CONNECT_DISCONNECTED)
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 	else
 	{
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 	}
 }
 
