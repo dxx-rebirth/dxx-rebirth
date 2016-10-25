@@ -455,8 +455,8 @@ public:
 		{
 			return apply_array(buf, buflen);
 		}
-	template <typename A, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, A &buf, Args &&... args) const -> decltype(apply_array(buf.data(), buf.size()))
+	template <std::size_t N, typename... Args>
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, array<uint8_t, N> &buf, Args &&... args) const -> decltype(apply_array(buf.data(), buf.size()))
 		{
 			return apply_array(buf.data(), buf.size());
 		}
