@@ -4742,7 +4742,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
  */
 static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, const _sockaddr &sender_addr)
 {
-	ubyte buf[7], pkt_sender_pnum = sender_pnum;
+	ubyte pkt_sender_pnum = sender_pnum;
 	int len = 0;
 
 	// If we are a client, we get all our packets from the host.
@@ -4754,11 +4754,11 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 		return 0;
 
         // Prepare the ACK (but do not send, yet)
-        memset(&buf,0,sizeof(buf));
+	array<uint8_t, 7> buf;
         buf[len] = UPID_MDATA_ACK;											len++;
         buf[len] = Player_num;												len++;
         buf[len] = pkt_sender_pnum;											len++;
-        PUT_INTEL_INT(buf + len, pkt_num);										len += 4;
+	PUT_INTEL_INT(&buf[len], pkt_num);										len += 4;
 
         // Make sure this is the packet we are expecting!
         if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
@@ -4768,7 +4768,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
                         if (pkt_num == i) // We got this packet already - need to REsend ACK
                         {
                                 con_printf(CON_VERBOSE, "P#%u: Resending MData ACK for pkt %i we already got by pnum %i",Player_num, pkt_num, sender_pnum);
-                                dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
+                                dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
                                 return 0;
                         }
                 }
@@ -4777,7 +4777,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
         }
 
 	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i by pnum %i",Player_num, pkt_num, sender_pnum);
-	dxx_sendto(sender_addr, UDP_Socket[0], buf, len, 0);
+	dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
 
 	UDP_mdata_trace[sender_pnum].cur_slot++;
 	if (UDP_mdata_trace[sender_pnum].cur_slot >= UDP_MDATA_STOR_QUEUE_SIZE)
