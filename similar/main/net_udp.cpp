@@ -375,7 +375,7 @@ public:
 #define apply_passthrough()	this->F::apply(std::forward<Args>(args)...)
 	template <typename... Args>
 	__attribute_always_inline()
-		auto operator()(Args &&... args) const -> decltype(apply_passthrough())
+		auto operator()(Args &&... args) const
 		{
 			return apply_passthrough();
 		}
@@ -388,23 +388,24 @@ class sockaddr_dispatch_t : F
 public:
 #define apply_sockaddr()	this->F::operator()(reinterpret_cast<sockaddr &>(from), fromlen, std::forward<Args>(args)...)
 	template <typename... Args>
-		auto operator()(sockaddr_in &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
+		auto operator()(sockaddr_in &from, socklen_t &fromlen, Args &&... args) const
 		{
 			fromlen = sizeof(from);
 			return apply_sockaddr();
 		}
 #if DXX_USE_IPv6
 	template <typename... Args>
-		auto operator()(sockaddr_in6 &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
+		auto operator()(sockaddr_in6 &from, socklen_t &fromlen, Args &&... args) const
 		{
 			fromlen = sizeof(from);
 			return apply_sockaddr();
 		}
 #endif
 	template <typename... Args>
-		auto operator()(_sockaddr &from, socklen_t &fromlen, Args &&... args) const -> decltype(apply_sockaddr())
+		__attribute_always_inline()
+		auto operator()(_sockaddr &from, socklen_t &fromlen, Args &&... args) const
 		{
-			return this->operator()(dispatch_sockaddr_from, fromlen, std::forward<Args>(args)...);
+			return this->sockaddr_dispatch_t<F>::operator()<Args...>(dispatch_sockaddr_from, fromlen, std::forward<Args>(args)...);
 		}
 #undef apply_sockaddr
 };
@@ -415,34 +416,34 @@ class csockaddr_dispatch_t : F
 public:
 #define apply_sockaddr()	this->F::operator()(to, tolen, std::forward<Args>(args)...)
 	template <typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, Args &&... args) const -> decltype(apply_sockaddr())
+		auto operator()(const sockaddr &to, socklen_t tolen, Args &&... args) const
 		{
 			return apply_sockaddr();
 		}
 #undef apply_sockaddr
-#define apply_sockaddr()	this->F::operator()(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...)
+#define apply_sockaddr(to)	this->F::operator()(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...)
 	template <typename... Args>
-		auto operator()(const sockaddr_in &to, Args &&... args) const -> decltype(apply_sockaddr())
+		auto operator()(const sockaddr_in &to, Args &&... args) const
 		{
-			return apply_sockaddr();
+			return apply_sockaddr(to);
 		}
 #if DXX_USE_IPv6
 	template <typename... Args>
-		auto operator()(const sockaddr_in6 &to, Args &&... args) const -> decltype(apply_sockaddr())
+		auto operator()(const sockaddr_in6 &to, Args &&... args) const
 		{
-			return apply_sockaddr();
+			return apply_sockaddr(to);
 		}
 #endif
 	template <typename... Args>
-		auto operator()(const _sockaddr &to, Args &&... args) const -> decltype(apply_sockaddr())
-#undef apply_sockaddr
+		auto operator()(const _sockaddr &to, Args &&... args) const
 		{
 #if DXX_USE_IPv6
 			if (kernel_accepts_extra_sockaddr_bytes() || to.sin6.sin6_family == AF_INET6)
-				return operator()(to.sin6, std::forward<Args>(args)...);
+				return apply_sockaddr(to.sin6);
 #endif
-			return operator()(to.sin, std::forward<Args>(args)...);
+			return apply_sockaddr(to.sin);
 		}
+#undef apply_sockaddr
 };
 
 template <typename F>
@@ -451,12 +452,12 @@ class socket_array_dispatch_t : F
 public:
 #define apply_array(B,L)	this->F::operator()(to, tolen, sock, B, L, std::forward<Args>(args)...)
 	template <typename T, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, T *buf, uint_fast32_t buflen, Args &&... args) const -> decltype(apply_array(buf, buflen))
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, T *buf, uint_fast32_t buflen, Args &&... args) const
 		{
 			return apply_array(buf, buflen);
 		}
 	template <std::size_t N, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, array<uint8_t, N> &buf, Args &&... args) const -> decltype(apply_array(buf.data(), buf.size()))
+		auto operator()(const sockaddr &to, socklen_t tolen, int sock, array<uint8_t, N> &buf, Args &&... args) const
 		{
 			return apply_array(buf.data(), buf.size());
 		}
@@ -612,21 +613,21 @@ class sockaddr_resolve_family_dispatch_t : sockaddr_dispatch_t<F>
 public:
 #define apply_sockaddr(fromlen,family)	this->sockaddr_dispatch_t<F>::operator()(from, fromlen, family, std::forward<Args>(args)...)
 	template <typename... Args>
-		auto operator()(sockaddr_in &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_INET))
+		auto operator()(sockaddr_in &from, Args &&... args) const
 		{
 			socklen_t fromlen;
 			return apply_sockaddr(fromlen, AF_INET);
 		}
 #if DXX_USE_IPv6
 	template <typename... Args>
-		auto operator()(sockaddr_in6 &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_UNSPEC))
+		auto operator()(sockaddr_in6 &from, Args &&... args) const
 		{
 			socklen_t fromlen;
 			return apply_sockaddr(fromlen, AF_UNSPEC);
 		}
 #endif
 	template <typename... Args>
-		auto operator()(_sockaddr &from, Args &&... args) const -> decltype(apply_sockaddr(std::declval<socklen_t &>(), AF_UNSPEC))
+		auto operator()(_sockaddr &from, Args &&... args) const
 		{
 			return this->operator()(dispatch_sockaddr_from, std::forward<Args>(args)...);
 		}
