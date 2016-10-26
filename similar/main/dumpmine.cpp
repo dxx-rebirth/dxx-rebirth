@@ -273,81 +273,80 @@ static void write_exit_text(PHYSFS_File *my_file)
 }
 }
 
+namespace {
+
+class key_stat
+{
+	const char *const label;
+	unsigned wall_count = 0, powerup_count = 0;
+	segnum_t seg = segment_none;
+	uint8_t side = 0;
+public:
+	key_stat(const char *const p) :
+		label(p)
+	{
+	}
+	void check_wall(PHYSFS_File *const fp, const vcwallptridx_t wpi, const wall_key_t key)
+	{
+		auto &w = *wpi;
+		if (!(w.keys & key))
+			return;
+		PHYSFSX_printf(fp, "Wall %i (seg=%i, side=%i) is keyed to the %s key.\n", static_cast<wallnum_t>(wpi), w.segnum, w.sidenum, label);
+		if (seg == segment_none)
+		{
+			seg = w.segnum;
+			side = w.sidenum;
+		}
+		else
+		{
+			const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(seg));
+			if (connect_side == side)
+				return;
+			warning_printf(fp, "Warning: This door at seg %i, is different than the one at seg %i, side %i", w.segnum, seg, side);
+		}
+		++wall_count;
+	}
+	void report_walls(PHYSFS_File *const fp) const
+	{
+		if (wall_count > 1)
+			warning_printf(fp, "Warning: %i doors are keyed to the %s key.", wall_count, label);
+	}
+	void found_powerup(const unsigned amount = 1)
+	{
+		powerup_count += amount;
+	}
+	void report_keys(PHYSFS_File *const fp) const
+	{
+		if (!powerup_count)
+		{
+			if (wall_count)
+				err_printf(fp, "Error: There is a door keyed to the %s key, but no %s key!", label, label);
+		}
+		else if (powerup_count > 1)
+			err_printf(fp, "Error: There are %i %s keys!", powerup_count, label);
+	}
+};
+
+}
+
 // ----------------------------------------------------------------------------
 static void write_key_text(PHYSFS_File *my_file)
 {
-	int	i;
-	int	red_count, blue_count, gold_count;
-	int	red_count2, blue_count2, gold_count2;
-	int	blue_sidenum=-1, red_sidenum=-1, gold_sidenum=-1;
-	segnum_t	blue_segnum=segment_none, red_segnum=segment_none, gold_segnum=segment_none;
-
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Key stuff:\n");
 
-	red_count = 0;
-	blue_count = 0;
-	gold_count = 0;
+	key_stat blue("blue"), gold("gold"), red("red");
 
-	range_for (auto &&wp, vcwallptr)
+	range_for (const auto &&w, vcwallptridx)
 	{
-		auto &w = *wp;
-		if (w.keys & KEY_BLUE) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the blue key.\n", i, w.segnum, w.sidenum);
-			if (blue_segnum == segment_none) {
-				blue_segnum = w.segnum;
-				blue_sidenum = w.sidenum;
-				blue_count++;
-			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(blue_segnum));
-				if (connect_side != blue_sidenum) {
-					warning_printf(my_file, "Warning: This blue door at seg %i, is different than the one at seg %i, side %i", w.segnum, blue_segnum, blue_sidenum);
-					blue_count++;
-				}
-			}
-		}
-		if (w.keys & KEY_RED) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the red key.\n", i, w.segnum, w.sidenum);
-			if (red_segnum == segment_none) {
-				red_segnum = w.segnum;
-				red_sidenum = w.sidenum;
-				red_count++;
-			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(red_segnum));
-				if (connect_side != red_sidenum) {
-					warning_printf(my_file, "Warning: This red door at seg %i, is different than the one at seg %i, side %i", w.segnum, red_segnum, red_sidenum);
-					red_count++;
-				}
-			}
-		}
-		if (w.keys & KEY_GOLD) {
-			PHYSFSX_printf(my_file, "Wall %i (seg=%i, side=%i) is keyed to the gold key.\n", i, w.segnum, w.sidenum);
-			if (gold_segnum == segment_none) {
-				gold_segnum = w.segnum;
-				gold_sidenum = w.sidenum;
-				gold_count++;
-			} else {
-				const auto &&connect_side = find_connect_side(vcsegptridx(w.segnum), vcsegptr(gold_segnum));
-				if (connect_side != gold_sidenum) {
-					warning_printf(my_file, "Warning: This gold door at seg %i, is different than the one at seg %i, side %i", w.segnum, gold_segnum, gold_sidenum);
-					gold_count++;
-				}
-			}
-		}
+		blue.check_wall(my_file, w, KEY_BLUE);
+		gold.check_wall(my_file, w, KEY_GOLD);
+		red.check_wall(my_file, w, KEY_RED);
 	}
 
-	if (blue_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the blue key.", blue_count);
-
-	if (red_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the red key.", red_count);
-
-	if (gold_count > 1)
-		warning_printf(my_file, "Warning: %i doors are keyed to the gold key.", gold_count);
-
-	red_count2 = 0;
-	blue_count2 = 0;
-	gold_count2 = 0;
+	blue.report_walls(my_file);
+	gold.report_walls(my_file);
+	red.report_walls(my_file);
 
 	range_for (const auto &&objp, vcobjptridx)
 	{
@@ -356,9 +355,9 @@ static void write_key_text(PHYSFS_File *my_file)
 			const char *color;
 			const auto id = get_powerup_id(objp);
 			if (
-				(id == POW_KEY_BLUE && (++blue_count2, color = "BLUE", true)) ||
-				(id == POW_KEY_RED && (++red_count2, color = "RED", true)) ||
-				(id == POW_KEY_GOLD && (++gold_count2, color = "GOLD", true))
+				(id == POW_KEY_BLUE && (blue.found_powerup(), color = "BLUE", true)) ||
+				(id == POW_KEY_RED && (red.found_powerup(), color = "RED", true)) ||
+				(id == POW_KEY_GOLD && (gold.found_powerup(), color = "GOLD", true))
 			)
 			{
 				PHYSFSX_printf(my_file, "The %s key is object %hu in segment %i\n", color, static_cast<objnum_t>(objp), objp->segnum);
@@ -372,35 +371,18 @@ static void write_key_text(PHYSFS_File *my_file)
 				const char *color;
 				const auto id = objp->contains_id;
 				if (
-					(id == POW_KEY_BLUE && (blue_count2 += contains_count, color = "BLUE", true)) ||
-					(id == POW_KEY_RED && (red_count2 += contains_count, color = "RED", true)) ||
-					(id == POW_KEY_GOLD && (gold_count2 += contains_count, color = "GOLD", true))
+					(id == POW_KEY_BLUE && (blue.found_powerup(contains_count), color = "BLUE", true)) ||
+					(id == POW_KEY_RED && (red.found_powerup(contains_count), color = "RED", true)) ||
+					(id == POW_KEY_GOLD && (gold.found_powerup(contains_count), color = "GOLD", true))
 				)
 					PHYSFSX_printf(my_file, "The %s key is contained in object %hu (a %s %s) in segment %hu\n", color, static_cast<objnum_t>(objp), object_types(objp), Robot_names[get_robot_id(objp)].data(), objp->segnum);
 			}
 		}
 	}
 
-	if (blue_count)
-		if (blue_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the blue key, but no blue key!");
-
-	if (red_count)
-		if (red_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the red key, but no red key!");
-
-	if (gold_count)
-		if (gold_count2 == 0)
-			err_printf(my_file, "Error: There is a door keyed to the gold key, but no gold key!");
-
-	if (blue_count2 > 1)
-		err_printf(my_file, "Error: There are %i blue keys!", blue_count2);
-
-	if (red_count2 > 1)
-		err_printf(my_file, "Error: There are %i red keys!", red_count2);
-
-	if (gold_count2 > 1)
-		err_printf(my_file, "Error: There are %i gold keys!", gold_count2);
+	blue.report_keys(my_file);
+	gold.report_keys(my_file);
+	red.report_keys(my_file);
 }
 
 // ----------------------------------------------------------------------------
