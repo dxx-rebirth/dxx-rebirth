@@ -5657,7 +5657,7 @@ static int udp_tracker_register()
 /* Ask the tracker to send us a list of games */
 static int udp_tracker_reqgames()
 {
-	array<uint8_t, 2 + strlen(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
+	array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
 	snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, UDP_REQ_ID DXX_VERSION_STR ".%hu", MULTI_PROTO_VERSION );
