@@ -98,7 +98,7 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		return window_event_result::ignored;
 	
 	if (dlg->d_callback)
-		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) == window_event_result::handled)
+		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) != window_event_result::ignored)
 			return rval;		// event handled
 
 	if (!window_exists(wind))
