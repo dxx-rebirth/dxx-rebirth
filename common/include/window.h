@@ -129,7 +129,9 @@ public:
 	{
 		auto r = wind.w_callback(&wind, event, wind.w_data);
 		if (r == window_event_result::close)
-			window_close(&wind);
+			if (window_close(&wind))
+				return window_event_result::deleted;
+
 		return r;
 	}
 	
