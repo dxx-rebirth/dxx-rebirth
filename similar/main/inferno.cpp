@@ -269,7 +269,7 @@ int Quitting = 0;
 namespace dcx {
 
 // Default event handler for everything except the editor
-int standard_handler(const d_event &event)
+window_event_result standard_handler(const d_event &event)
 {
 	int key;
 
@@ -277,7 +277,7 @@ int standard_handler(const d_event &event)
 	{
 		window *wind = window_get_front();
 		if (!wind)
-			return 0;
+			return window_event_result::ignored;	// finished quitting
 	
 		if (wind == Game_wind)
 		{
@@ -285,7 +285,7 @@ int standard_handler(const d_event &event)
 			Quitting = 0;
 			choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 			if (choice != 0)
-				return 0;
+				return window_event_result::handled;	// aborted quitting
 			else
 			{
 				CGameArg.SysAutoDemo = false;
@@ -295,9 +295,12 @@ int standard_handler(const d_event &event)
 		
 		// Close front window, let the code flow continue until all windows closed or quit cancelled
 		if (!window_close(wind))
+		{
 			Quitting = 0;
+			return window_event_result::handled;
+		}
 		
-		return 1;
+		return window_event_result::deleted;	// tell the event system we deleted some window
 	}
 
 	switch (event.type)
@@ -321,26 +324,26 @@ int standard_handler(const d_event &event)
 				{
 					gr_set_current_canvas(NULL);
 					save_screen_shot(0);
-					return 1;
+					return window_event_result::handled;
 				}
 
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:
 					if (Game_wind)
 						if (Game_wind == window_get_front())
-							return 0;
+							return window_event_result::ignored;
 					gr_toggle_fullscreen();
-					return 1;
+					return window_event_result::handled;
 
 #if defined(__APPLE__) || defined(macintosh)
 				case KEY_COMMAND+KEY_Q:
 					// Alt-F4 already taken, too bad
 					Quitting = 1;
-					return 1;
+					return window_event_result::handled;
 #endif
 				case KEY_SHIFTED + KEY_ESC:
 					con_showup();
-					return 1;
+					return window_event_result::handled;
 			}
 			break;
 
@@ -348,20 +351,20 @@ int standard_handler(const d_event &event)
 		case EVENT_IDLE:
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();
-			return 1;
+			return window_event_result::handled;
 
 		case EVENT_QUIT:
 #if DXX_USE_EDITOR
 			if (SafetyCheck())
 #endif
 				Quitting = 1;
-			return 1;
+			return window_event_result::handled;
 
 		default:
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
 }

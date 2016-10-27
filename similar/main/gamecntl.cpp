@@ -1937,6 +1937,8 @@ window_event_result ReadControls(const d_event &event)
 
 	if (event.type == EVENT_KEY_COMMAND)
 	{
+		window_event_result result;
+
 		key = event_key_get(event);
 #if defined(DXX_BUILD_DESCENT_II)
 		if (DefiningMarkerMessage)
@@ -1985,8 +1987,8 @@ window_event_result ReadControls(const d_event &event)
 		}
 #endif
 
-		if (call_default_handler(event))
-			return window_event_result::handled;
+		if ((result = call_default_handler(event)) != window_event_result::ignored)
+			return result;
 	}
 
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)

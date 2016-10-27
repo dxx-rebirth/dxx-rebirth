@@ -97,14 +97,16 @@ namespace dsx {
 static window_event_result credits_handler(window *, const d_event &event, credits *cr)
 {
 	int l, y;
+	window_event_result result;
+
 	switch (event.type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (!call_default_handler(event))	// if not print screen, debug etc
+			if ((result = call_default_handler(event)) == window_event_result::ignored)	// if not print screen, debug etc
 			{
 				return window_event_result::close;
 			}
-			return window_event_result::handled;
+			return result;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:

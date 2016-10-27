@@ -116,7 +116,7 @@ int event_init()
 	return 0;
 }
 
-int call_default_handler(const d_event &event)
+window_event_result call_default_handler(const d_event &event)
 {
 	return standard_handler(event);
 }

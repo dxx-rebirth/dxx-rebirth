@@ -15,6 +15,7 @@ struct d_change_event;
 struct d_select_event;
 
 enum event_type : unsigned;
+enum class window_event_result : unsigned;
 
 int event_init();
 
@@ -23,7 +24,7 @@ void event_poll();
 void event_flush();
 
 // Set and call the default event handler
-int call_default_handler(const d_event &event);
+window_event_result call_default_handler(const d_event &event);
 
 // Send an event to the front window as first priority, then to the windows behind if it's not modal (editor), then the default handler
 void event_send(const d_event &event);

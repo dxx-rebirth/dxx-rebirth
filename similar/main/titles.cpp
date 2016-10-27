@@ -111,6 +111,8 @@ struct title_screen : ignore_window_pointer_t
 
 static window_event_result title_handler(window *, const d_event &event, title_screen *ts)
 {
+	window_event_result result;
+
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
@@ -123,12 +125,12 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 			break;
 
 		case EVENT_KEY_COMMAND:
-			if (!call_default_handler(event))
+			if ((result = call_default_handler(event)) == window_event_result::ignored)
 				if (ts->allow_keys)
 				{
 					return window_event_result::close;
 				}
-			return window_event_result::handled;
+			return result;
 
 		case EVENT_IDLE:
 			timer_delay2(50);
@@ -1445,6 +1447,8 @@ static int new_briefing_screen(briefing *br, int first)
 namespace dsx {
 static window_event_result briefing_handler(window *, const d_event &event, briefing *br)
 {
+	window_event_result result;
+
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1489,8 +1493,8 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 					// fall through
 
 				default:
-					if (call_default_handler(event))
-						return window_event_result::handled;
+					if ((result = call_default_handler(event)) != window_event_result::ignored)
+						return result;
 					else if (br->new_screen)
 					{
 						if (!new_briefing_screen(br, 0))

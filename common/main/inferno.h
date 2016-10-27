@@ -49,7 +49,7 @@ namespace dcx {
 constexpr std::size_t FILENAME_LEN = 13;
 
 // Default event handler for everything except the editor
-int standard_handler(const d_event &event);
+window_event_result standard_handler(const d_event &event);
 
 // a filename, useful for declaring arrays of filenames
 struct d_fname : ntstring<FILENAME_LEN - 1>

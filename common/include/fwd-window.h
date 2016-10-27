@@ -19,7 +19,7 @@ void arch_init();
 namespace dcx {
 
 class window;
-enum class window_event_result : uint8_t;
+enum class window_event_result : unsigned;
 
 template <typename T>
 using window_subfunction = window_event_result (*)(window *menu,const d_event &event, T *userdata);

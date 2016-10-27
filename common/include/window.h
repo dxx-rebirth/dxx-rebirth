@@ -23,7 +23,7 @@
 #include "fwd-window.h"
 namespace dcx {
 
-enum class window_event_result : uint8_t
+enum class window_event_result : unsigned
 {
 	// Window ignored event.  Bubble up.
 	ignored,
