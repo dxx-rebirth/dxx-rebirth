@@ -850,8 +850,7 @@ static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &e
 		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text.get()));
 		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text.get()));
 
-		object_close_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}
 	
 	return rval;
