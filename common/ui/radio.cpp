@@ -159,8 +159,9 @@ window_event_result ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio,const d
 			tmp = tmp->next;
 		}
 		radio->flag = 1;
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, radio);
-		rval = window_event_result::handled;
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, radio);
+		if (rval == window_event_result::ignored)
+			rval = window_event_result::handled;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)

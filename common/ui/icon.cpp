@@ -165,8 +165,9 @@ window_event_result ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon,const d_ev
 	{
 		icon->status = 1;
 		icon->flag = static_cast<int8_t>(icon->user_function());
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, icon);
-		rval = window_event_result::handled;
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, icon);
+		if (rval == window_event_result::ignored)
+			rval = window_event_result::handled;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)
