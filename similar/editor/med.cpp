@@ -1131,8 +1131,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 	if (ModeFlag)
 	{
-		ui_close_dialog(EditorWindow);
-		return window_event_result::ignored;
+		return window_event_result::close;
 	}
 
 //		if (EditorWindow->keyboard_focus_gadget == GameViewBox) current_view=NULL;
