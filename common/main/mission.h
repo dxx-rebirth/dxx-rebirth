@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
+#include "fwd-window.h"
 
 #ifdef __cplusplus
 #include "ntstring.h"
@@ -224,7 +225,7 @@ int load_mission_by_name (const char *mission_name);
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
-int select_mission (int anarchy_mode, const char *message, int (*when_selected)(void));
+int select_mission (int anarchy_mode, const char *message, window_event_result (*when_selected)(void));
 
 #if DXX_USE_EDITOR
 void create_new_mission(void);

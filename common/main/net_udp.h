@@ -17,11 +17,12 @@
 #include "pack.h"
 #include "compiler-array.h"
 #include "ntstring.h"
+#include "fwd-window.h"
 
 // Exported functions
 #ifdef dsx
 namespace dsx {
-int net_udp_setup_game(void);
+window_event_result net_udp_setup_game(void);
 }
 #endif
 void net_udp_manual_join_game();

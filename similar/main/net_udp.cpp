@@ -3683,7 +3683,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 }
 
 namespace dsx {
-int net_udp_setup_game()
+window_event_result net_udp_setup_game()
 {
 	int optnum;
 	param_opt opt;
@@ -3820,7 +3820,7 @@ int net_udp_setup_game()
 		Netgame.Tracker = 0;
 #endif
 
-	return i >= 0;
+	return (i >= 0) ? window_event_result::close : window_event_result::handled;
 }
 }
 

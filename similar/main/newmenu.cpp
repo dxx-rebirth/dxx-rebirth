@@ -1663,7 +1663,7 @@ struct listbox : embed_window_pointer_t
 	const char **item;
 	int allow_abort_flag;
 	unsigned marquee_maxchars;
-	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
+	window_event_result (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
 	unsigned nitems;
 	int citem, first_item;
 	int marquee_charpos, marquee_scrollback;
@@ -1773,10 +1773,10 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 				y2 = y1+h;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
-					// Tell callback, allow staying in menu
+					// Tell callback, if it wants to close it will return window_event_result::close
 					const d_select_event selected{lb->citem};
-					if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
-						return window_event_result::handled;
+					if (lb->listbox_callback)
+						return (*lb->listbox_callback)(lb, selected, lb->userdata);
 					return window_event_result::close;
 				}
 			}
@@ -1853,11 +1853,11 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			// Tell callback, allow staying in menu
+			// Tell callback, if it wants to close it will return window_event_result::close
 			{
 				const d_select_event selected{lb->citem};
-				if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
-				return window_event_result::handled;
+				if (lb->listbox_callback)
+					return (*lb->listbox_callback)(lb, selected, lb->userdata);
 			}
 			return window_event_result::close;
 		default:
@@ -2022,7 +2022,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 
 		event.type = EVENT_NEWMENU_DRAW;
 		if ( lb->listbox_callback )
-			(*lb->listbox_callback)(lb, event, lb->userdata);
+			return (*lb->listbox_callback)(lb, event, lb->userdata);
 	}
 	return window_event_result::handled;
 }
@@ -2031,9 +2031,9 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 {
 	if (lb->listbox_callback)
 	{
-		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
-		if (rval)
-			return window_event_result::handled;		// event handled
+		auto rval = (*lb->listbox_callback)(lb, event, lb->userdata);
+		if (rval != window_event_result::ignored)
+			return rval;		// event handled
 	}
 
 	switch (event.type)

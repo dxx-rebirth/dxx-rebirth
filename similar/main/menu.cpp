@@ -137,7 +137,7 @@ static array<window *, 16> menus;
 
 // Function Prototypes added after LINTING
 static int do_option(int select);
-static int do_new_game_menu(void);
+static window_event_result do_new_game_menu(void);
 #if DXX_USE_UDP
 static void do_multi_player_menu();
 #endif
@@ -148,7 +148,7 @@ static void do_sandbox_menu();
 namespace {
 
 template <typename T>
-using select_file_subfunction = int (*)(T *, const char *);
+using select_file_subfunction = window_event_result (*)(T *, const char *);
 
 }
 
@@ -247,7 +247,7 @@ try_again:
 
 static void delete_player_saved_games(const char * name);
 
-static int player_menu_keycommand( listbox *lb,const d_event &event )
+static window_event_result player_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -291,15 +291,15 @@ static int player_menu_keycommand( listbox *lb,const d_event &event )
 						listbox_delete_item(lb, citem);
 				}
 
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int player_menu_handler( listbox *lb,const d_event &event, char **list )
+static window_event_result player_menu_handler( listbox *lb,const d_event &event, char **list )
 {
 	const char **items = listbox_get_items(lb);
 	switch (event.type)
@@ -310,22 +310,23 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
-				return 0;		// shouldn't happen
+				return window_event_result::ignored;		// shouldn't happen
 			else if (citem == 0)
 			{
 				// They selected 'create new pilot'
-				return !MakeNewPlayerFile(1);
+				return MakeNewPlayerFile(1) ? window_event_result::close : window_event_result::handled;
 			}
 			else
 			{
 				get_local_player().callsign.copy_lower(items[citem], strlen(items[citem]));
 			}
+			return window_event_result::close;
 			break;
 		}
 
 		case EVENT_WINDOW_CLOSE:
 			if (read_player_file() != EZERO)
-				return 1;		// abort close!
+				return window_event_result::handled;		// abort close!
 
 			WriteConfigFile();		// Update lastplr
 
@@ -337,7 +338,7 @@ static int player_menu_handler( listbox *lb,const d_event &event, char **list )
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
 //Inputs the player's name, without putting up the background screen
@@ -678,7 +679,7 @@ static void delete_player_saved_games(const char * name)
 	}
 }
 
-static int demo_menu_keycommand( listbox *lb,const d_event &event )
+static window_event_result demo_menu_keycommand( listbox *lb,const d_event &event )
 {
 	const char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -706,7 +707,7 @@ static int demo_menu_keycommand( listbox *lb,const d_event &event )
 						listbox_delete_item(lb, citem);
 				}
 
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 
@@ -726,15 +727,15 @@ static int demo_menu_keycommand( listbox *lb,const d_event &event )
 				if (!x)
 					newdemo_swap_endian(items[citem]);
 
-				return 1;
+				return window_event_result::handled;
 			}
 			break;
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
-static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
+static window_event_result demo_menu_handler(listbox *lb, const d_event &event, char **items)
 {
 	switch (event.type)
 	{
@@ -744,9 +745,9 @@ static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
-				return 0;		// shouldn't happen
+				return window_event_result::ignored;		// shouldn't happen
 			newdemo_start_playback(items[citem]);
-			return 1;		// stay in demo selector
+			return window_event_result::handled;		// stay in demo selector
 		}
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);
@@ -754,7 +755,7 @@ static int demo_menu_handler(listbox *lb, const d_event &event, char **items)
 		default:
 			break;
 	}
-	return 0;
+	return window_event_result::ignored;
 }
 
 int select_demo(void)
@@ -806,7 +807,7 @@ static int do_difficulty_menu()
 	return 0;
 }
 
-int do_new_game_menu()
+window_event_result do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
 
@@ -833,7 +834,7 @@ int do_new_game_menu()
 			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, m, unused_newmenu_subfunction, unused_newmenu_userdata );
 
 			if (choice==-1 || m[1].text[0]==0)
-				return 0;
+				return window_event_result::handled;
 
 			new_level_num = atoi(m[1].text);
 
@@ -849,11 +850,11 @@ int do_new_game_menu()
 	Difficulty_level = PlayerCfg.DefaultDifficulty;
 
 	if (!do_difficulty_menu())
-		return 0;
+		return window_event_result::handled;
 
 	StartNewGame(new_level_num);
 
-	return 1;	// exit mission listbox
+	return window_event_result::close;	// exit mission listbox
 }
 
 static void do_sound_menu();
@@ -1627,7 +1628,7 @@ struct browser
 	{
 	}
 	const char	*title;			// The title - needed for making another listbox when changing directory
-	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
+	window_event_result (*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
 	void	*userdata;		// Whatever you want passed to when_selected
 	string_array_t list;
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
@@ -1674,7 +1675,7 @@ static int list_directory(browser *b)
 	return 1;
 }
 
-static int select_file_handler(listbox *menu,const d_event &event, browser *b)
+static window_event_result select_file_handler(listbox *menu,const d_event &event, browser *b)
 {
 	char newpath[PATH_MAX];
 	const char **list = listbox_get_items(menu);
@@ -1700,9 +1701,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				{
 					select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
 					// close old box.
-					window_close(listbox_get_window(menu));
+					return window_event_result::close;
 				}
-				return 0;
+				return window_event_result::handled;
 			}
 			break;
 		}
@@ -1729,7 +1730,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 				{
 #if defined(__APPLE__) && defined(__MACH__)
 					if (!d_stricmp(p, "/Volumes"))
-						return 1;
+						return window_event_result::handled;
 #endif
 					if (p[len_sep] != '\0')
 						p[len_sep] = '\0';
@@ -1739,7 +1740,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 						// For Mac OS X, list all active volumes if we leave the root
 						strcpy(newpath, "/Volumes");
 #else
-						return 1;
+						return window_event_result::handled;
 #endif
 					}
 				}
@@ -1747,7 +1748,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 					*p = '\0';
 			}
 			else if (citem == 1 && b->select_dir)
-				return !(*b->when_selected)(b->userdata, "");
+				return (*b->when_selected)(b->userdata, "");
 			else
 			{
 				size_t len_newpath = strlen(newpath);
@@ -1763,9 +1764,9 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
 			{
 				// If it fails, stay in this one
-				return !select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata);
+				return select_file_recursive(b->title, newpath, b->ext_range, b->select_dir, b->when_selected, b->userdata) ? window_event_result::close : window_event_result::handled;
 			}
-			return !(*b->when_selected)(b->userdata, list[citem]);
+			return (*b->when_selected)(b->userdata, list[citem]);
 		}
 		case EVENT_WINDOW_CLOSE:
 			if (b->new_path)
@@ -1778,7 +1779,7 @@ static int select_file_handler(listbox *menu,const d_event &event, browser *b)
 			break;
 	}
 	
-	return 0;
+	return window_event_result::ignored;
 }
 
 static int select_file_recursive2(const char *title, const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, int select_dir, select_file_subfunction<void> when_selected, void *userdata)
@@ -1879,10 +1880,10 @@ int select_file_recursive2(const char *title, const char *orig_path, const parti
 #endif
 
 #if DXX_USE_SDLMIXER
-static int get_absolute_path(char *full_path, const char *rel_path)
+static window_event_result get_absolute_path(char *full_path, const char *rel_path)
 {
 	PHYSFSX_getRealPath(rel_path, full_path, PATH_MAX);
-	return 1;
+	return window_event_result::close;
 }
 
 #define SELECT_SONG(t, s)	select_file_recursive(t, CGameCfg.CMMiscMusic[s].data(), jukebox_exts, 0, get_absolute_path, CGameCfg.CMMiscMusic[s].data())
