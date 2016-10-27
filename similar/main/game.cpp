@@ -1307,12 +1307,15 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			Game_wind = NULL;
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
+			return window_event_result::ignored;
 			break;
 
 		default:
 			break;
 	}
-	return window_event_result::ignored;
+	
+	// If we deleted the window, tell the event loop
+	return Game_wind ? window_event_result::ignored : window_event_result::deleted;
 }
 
 // Initialise game, actually runs in main event loop
