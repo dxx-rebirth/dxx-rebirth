@@ -192,7 +192,12 @@ void show_menus(void)
 	{
 		if (!i)
 			break;
-		if (window_exists(i))
+		
+		// Hidden windows don't receive events, so the only way to close is outside its handler
+		// Which there should be no cases of here
+		// window_exists could return a false positive if a new window was created
+		// with the same pointer value as the deleted one, so killing window_exists (call and function)
+		// if (window_exists(i))
 			window_set_visible(i, 1);
 	}
 	menus[0] = NULL;
