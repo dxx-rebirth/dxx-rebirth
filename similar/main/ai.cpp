@@ -1379,7 +1379,7 @@ static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec
 //	Move towards, away_from or around player.
 //	Also deals with evasion.
 //	If the flag evade_only is set, then only allowed to evade, not allowed to move otherwise (must have mode == AIM_STILL).
-static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility)
+static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, fix dist_to_player, const vms_vector &vec_to_player, fix circle_distance, int evade_only, int player_visibility, const player_info &player_info)
 {
 	const robot_info	*robptr = &Robot_info[get_robot_id(objp)];
 
@@ -1421,7 +1421,6 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 
 					ai_evaded = 1;
 					evade_speed = robptr->evade_speed[Difficulty_level];
-					auto &player_info = get_local_plrobj().ctype.player_info;
 					move_around_player(objp, player_info.powerup_flags, vec_to_player, evade_speed);
 				}
 			}
@@ -1444,7 +1443,6 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		{
 			//	1/4 of time, move around player, 3/4 of time, move away from player
 			if (d_rand() < 8192) {
-				auto &player_info = get_local_plrobj().ctype.player_info;
 				move_around_player(objp, player_info.powerup_flags, vec_to_player, -1);
 			} else {
 				move_away_from_player(objp, vec_to_player, 1);
@@ -1458,7 +1456,6 @@ static void ai_move_relative_to_player(const vobjptridx_t objp, ai_local *ailp, 
 		move_towards_player(objp, vec_to_player);
 	}
 	else {
-		auto &player_info = get_local_plrobj().ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 		if (dist_to_player < circle_distance)
 			move_away_from_player(objp, vec_to_player, 0);
@@ -3459,7 +3456,7 @@ _exit_cheat:
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
 				fix circle_distance;
 				circle_distance = robptr->circle_distance[Difficulty_level] + ConsoleObject->size;
-				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 1, player_visibility);
+				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 1, player_visibility, player_info);
 			}
 		}
 
@@ -3571,7 +3568,7 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 					return;
 				}
-				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 0, player_visibility);
+				ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, circle_distance, 0, player_visibility, player_info);
 
 				if ((obj_ref & 1) && ((aip->GOAL_STATE == AIS_SRCH) || (aip->GOAL_STATE == AIS_LOCK))) {
 					if (player_visibility) // == 2)
@@ -3818,7 +3815,7 @@ _exit_cheat:
 								ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 							return;
 						}
-						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility);
+						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility, player_info);
 						ai_multi_send_robot_position(obj, ai_evaded ? (ai_evaded = 0, 1) : -1);
 					} else {
 						// Robots in hover mode are allowed to evade at half normal speed.
@@ -3827,7 +3824,7 @@ _exit_cheat:
 								ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 							return;
 						}
-						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 1, player_visibility);
+						ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 1, player_visibility, player_info);
 						if (ai_evaded) {
 							ai_multi_send_robot_position(obj, -1);
 							ai_evaded = 0;
@@ -3877,7 +3874,7 @@ _exit_cheat:
 			if (ai_multiplayer_awareness(obj, 53)) {
 				ai_do_actual_firing_stuff(obj, aip, ailp, robptr, vec_to_player, dist_to_player, gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 				if (robot_is_thief(robptr))
-					ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility);
+					ai_move_relative_to_player(obj, ailp, dist_to_player, vec_to_player, 0, 0, player_visibility, player_info);
 				break;
 			}
 			break;
