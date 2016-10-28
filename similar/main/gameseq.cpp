@@ -1208,9 +1208,8 @@ void ExitSecretLevel(void)
 // ---------------------------------------------------------------------------------------------------------------
 //	Set invulnerable_time and cloak_time in player struct to preserve amount of time left to
 //	be invulnerable or cloaked.
-void do_cloak_invul_secret_stuff(fix64 old_gametime)
+void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
