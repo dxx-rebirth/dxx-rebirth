@@ -301,8 +301,7 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	
 	wind = ui_dialog_get_window(dlg);
 	
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 
 	//key_flush();
 
