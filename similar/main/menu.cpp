@@ -2458,8 +2458,7 @@ static void gamebitmaps_viewer()
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 }
 
 #define DXX_SANDBOX_MENU(VERB)	\
