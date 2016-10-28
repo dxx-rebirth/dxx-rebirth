@@ -318,7 +318,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 		//if (!is_under_another_window( dlg, tmp ))
 			rval = ui_gadget_do(dlg, tmp, event);
 		
-		if (!window_exists(wind))
+		if (rval == window_event_result::deleted)
 			break;
 
 		tmp = tmp->next;
