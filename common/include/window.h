@@ -21,18 +21,8 @@
 
 #ifdef __cplusplus
 #include "fwd-window.h"
+#include "event.h"
 namespace dcx {
-
-enum class window_event_result : unsigned
-{
-	// Window ignored event.  Bubble up.
-	ignored,
-	// Window handled event.
-	handled,
-	close,
-	// Window handler already deleted window (most likely because it was subclassed), don't attempt to re-delete
-	deleted,
-};
 
 constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 

@@ -48,6 +48,17 @@ enum event_type : unsigned
 	EVENT_UI_USERBOX_DRAGGED
 };
 
+enum class window_event_result : unsigned
+{
+	// Window ignored event.  Bubble up.
+	ignored,
+	// Window handled event.
+	handled,
+	close,
+	// Window handler already deleted window (most likely because it was subclassed), don't attempt to re-delete
+	deleted,
+};
+
 // A vanilla event. Cast to the correct type of event according to 'type'.
 struct d_event
 {
