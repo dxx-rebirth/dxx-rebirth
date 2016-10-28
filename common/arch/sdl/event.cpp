@@ -165,9 +165,10 @@ void event_process(void)
 	while (wind != NULL)
 	{
 		window *prev = window_get_prev(*wind);
+		window_event_result result(window_event_result::ignored);
 		if (window_is_visible(wind))
-			window_send_event(*wind, event);
-		if (!window_exists(wind))
+			result = window_send_event(*wind, event);
+		if (result == window_event_result::deleted)
 		{
 			if (!prev) // well there isn't a previous window ...
 				break; // ... just bail out - we've done everything for this frame we can.
