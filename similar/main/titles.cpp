@@ -189,8 +189,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
