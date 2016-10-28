@@ -1613,8 +1613,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 }
 
 void do_end_briefing_screens(const d_fname &filename)
