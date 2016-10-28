@@ -72,7 +72,7 @@ public:
 	friend window *window_create(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
 	
 	friend int window_close(window *wind);
-	friend int window_exists(window *wind);
+	//friend int window_exists(window *wind);
 	friend window *window_get_front();
 	friend window *window_get_first();
 	friend void window_select(window &wind);
