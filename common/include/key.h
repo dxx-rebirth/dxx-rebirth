@@ -87,7 +87,7 @@ extern pressed_keys keyd_pressed;
 #define key_toggle_repeat(E)	key_toggle_repeat##E()
 void key_toggle_repeat0();
 void key_toggle_repeat1();
-void key_handler(struct SDL_KeyboardEvent *kevent);
+window_event_result key_handler(struct SDL_KeyboardEvent *kevent);
 
 // for key_ismodlck
 #define KEY_ISMOD	1

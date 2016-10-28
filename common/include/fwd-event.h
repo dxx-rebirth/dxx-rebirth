@@ -20,17 +20,17 @@ enum class window_event_result : unsigned;
 int event_init();
 
 // Sends input events to event handlers
-void event_poll();
+window_event_result event_poll();
 void event_flush();
 
 // Set and call the default event handler
 window_event_result call_default_handler(const d_event &event);
 
 // Send an event to the front window as first priority, then to the windows behind if it's not modal (editor), then the default handler
-void event_send(const d_event &event);
+window_event_result event_send(const d_event &event);
 
 // Sends input, idle and draw events to event handlers
-void event_process();
+window_event_result event_process();
 
 void event_enable_focus();
 void event_disable_focus();

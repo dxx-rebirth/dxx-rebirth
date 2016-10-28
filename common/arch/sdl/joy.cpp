@@ -168,7 +168,7 @@ public:
 static array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-void joy_button_handler(SDL_JoyButtonEvent *jbe)
+window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe)
 {
 	int button;
 	d_event_joystickbutton event;
@@ -180,14 +180,15 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 	event.type = (jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP;
 	event.button = button;
 	con_printf(CON_DEBUG, "Sending event %s, button %d", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
-	event_send(event);
+	return event_send(event);
 }
 #endif
 
 #if DXX_MAX_HATS_PER_JOYSTICK
-void joy_hat_handler(SDL_JoyHatEvent *jhe)
+window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
+	window_event_result highest_result(window_event_result::ignored);
 	//Save last state of the hat-button
 
 	//get current state of the hat-button
@@ -226,13 +227,15 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 			event.type = EVENT_JOYSTICK_BUTTON_UP;
 			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d", event.button);
 		}
-		event_send(event);
+		highest_result = std::max(event_send(event), highest_result);
 	}
+
+	return highest_result;
 }
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-int joy_axis_handler(SDL_JoyAxisEvent *jae)
+window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	d_event_joystick_moved event;
 	auto &js = SDL_Joysticks[jae->which];
@@ -240,15 +243,14 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 	auto &axis_value = js.axis_value()[jae->axis];
 	// inaccurate stick is inaccurate. SDL might send SDL_JoyAxisEvent even if the value is the same as before.
 	if (axis_value == jae->value/256)
-		return 0;
+		return window_event_result::ignored;
 
 	event.value = axis_value = jae->value/256;
 	event.type = EVENT_JOYSTICK_MOVED;
 	event.axis = axis;
 	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d",event.axis, event.value);
-	event_send(event);
 
-	return 1;
+	return event_send(event);
 }
 #endif
 

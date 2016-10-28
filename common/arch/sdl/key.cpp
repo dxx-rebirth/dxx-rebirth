@@ -393,14 +393,14 @@ void pressed_keys::update(const std::size_t keycode, const uint8_t down)
 		modifier_cache &= ~mask;
 }
 
-void key_handler(SDL_KeyboardEvent *kevent)
+window_event_result key_handler(SDL_KeyboardEvent *kevent)
 {
 	int event_keysym=-1;
 
 	// Read SDLK symbol and state
         event_keysym = kevent->keysym.sym;
 		if (event_keysym == SDLK_UNKNOWN)
-			return;
+			return window_event_result::ignored;
 	const auto key_state = (kevent->state != SDL_RELEASED);
 
 	// fill the unicode frame-related unicode buffer 
@@ -418,10 +418,10 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	auto re = key_properties.rend();
 	auto fi = std::find_if(key_properties.rbegin(), re, [event_keysym](const key_props &k) { return k.sym == event_keysym; });
 	if (fi == re)
-		return;
+		return window_event_result::ignored;
 	unsigned keycode = std::distance(key_properties.begin(), std::next(fi).base());
 	if (keycode == 0)
-		return;
+		return window_event_result::ignored;
 
 	/* 
 	 * process the key if:
@@ -450,8 +450,10 @@ void key_handler(SDL_KeyboardEvent *kevent)
 				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
 				key_properties[keycode & 0xff].key_text
 				);
-		event_send(event);
+		return event_send(event);
 	}
+
+	return window_event_result::ignored;
 }
 
 void key_init()

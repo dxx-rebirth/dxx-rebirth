@@ -27,16 +27,16 @@
 
 namespace dcx {
 
-void event_poll()
+window_event_result event_poll()
 {
 	SDL_Event event;
 	int clean_uniframe=1;
 	window *wind = window_get_front();
-	int idle = 1;
+	window_event_result highest_result(window_event_result::ignored);
 	
 	// If the front window changes, exit this loop, otherwise unintended behavior can occur
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
-	while ((wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))
+	while ((highest_result != window_event_result::deleted) && (wind == window_get_front()) && (event = {}, SDL_PollEvent(&event)))
 	{
 		switch(event.type) {
 			case SDL_KEYDOWN:
@@ -44,63 +44,58 @@ void event_poll()
 				if (clean_uniframe)
 					unicode_frame_buffer = {};
 				clean_uniframe=0;
-				key_handler(&event.key);
-				idle = 0;
+				highest_result = std::max(key_handler(&event.key), highest_result);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-                                if (CGameArg.CtlNoMouse)
-                                        break;
-				mouse_button_handler(&event.button);
-				idle = 0;
+				if (CGameArg.CtlNoMouse)
+					break;
+				highest_result = std::max(mouse_button_handler(&event.button), highest_result);
 				break;
 			case SDL_MOUSEMOTION:
-                                if (CGameArg.CtlNoMouse)
-                                        break;
-				mouse_motion_handler(&event.motion);
-				idle = 0;
+				if (CGameArg.CtlNoMouse)
+					break;
+				highest_result = std::max(mouse_motion_handler(&event.motion), highest_result);
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
-                                if (CGameArg.CtlNoJoystick)
-                                        break;
-				joy_button_handler(&event.jbutton);
-				idle = 0;
+				if (CGameArg.CtlNoJoystick)
+					break;
+				highest_result = std::max(joy_button_handler(&event.jbutton), highest_result);
 				break;
 			case SDL_JOYAXISMOTION:
-                                if (CGameArg.CtlNoJoystick)
-                                        break;
-				if (joy_axis_handler(&event.jaxis))
-					idle = 0;
+				if (CGameArg.CtlNoJoystick)
+					break;
+				highest_result = std::max(joy_axis_handler(&event.jaxis), highest_result);
 				break;
 			case SDL_JOYHATMOTION:
-                                if (CGameArg.CtlNoJoystick)
-                                        break;
-				joy_hat_handler(&event.jhat);
-				idle = 0;
+				if (CGameArg.CtlNoJoystick)
+					break;
+				highest_result = std::max(joy_hat_handler(&event.jhat), highest_result);
 				break;
 			case SDL_JOYBALLMOTION:
 				break;
 			case SDL_QUIT: {
 				d_event qevent = { EVENT_QUIT };
-				call_default_handler(qevent);
-				idle = 0;
+				highest_result = std::max(call_default_handler(qevent), highest_result);
 			} break;
 		}
 	}
 
-	// Send the idle event if there were no other events
-	if (idle)
+	// Send the idle event if there were no other events (or they were ignored)
+	if (highest_result == window_event_result::ignored)
 	{
 		d_event ievent;
 		
 		ievent.type = EVENT_IDLE;
-		event_send(ievent);
+		highest_result = std::max(event_send(ievent), highest_result);
 	}
 	else
 		event_reset_idle_seconds();
 	
 	mouse_cursor_autohide();
+
+	return highest_result;
 }
 
 void event_flush()
@@ -121,7 +116,7 @@ window_event_result call_default_handler(const d_event &event)
 	return standard_handler(event);
 }
 
-void event_send(const d_event &event)
+window_event_result event_send(const d_event &event)
 {
 	window *wind;
 	window_event_result handled = window_event_result::ignored;
@@ -138,27 +133,32 @@ void event_send(const d_event &event)
 		}
 	
 	if (handled == window_event_result::ignored)
-		call_default_handler(event);
+		return call_default_handler(event);
+
+	return handled;
 }
 
 // Process the first event in queue, sending to the appropriate handler
 // This is the new object-oriented system
 // Uses the old system for now, but this may change
-void event_process(void)
+window_event_result event_process(void)
 {
 	d_event event;
 	window *wind = window_get_front();
+	window_event_result highest_result;
 
 	timer_update();
 
-	event_poll();	// send input events first
+	highest_result = event_poll();	// send input events first
 
 	cmd_queue_process();
 
 	// Doing this prevents problems when a draw event can create a newmenu,
 	// such as some network menus when they report a problem
-	if (window_get_front() != wind)
-		return;
+	// Also checking for window_event_result::deleted in case a window was created
+	// with the same pointer value as the deleted one
+	if ((highest_result == window_event_result::deleted) || (window_get_front() != wind))
+		return highest_result;
 	
 	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
 	wind = window_get_first();
@@ -176,9 +176,13 @@ void event_process(void)
 		}
 		else
 			wind = window_get_next(*wind);
+
+		highest_result = std::max(result, highest_result);
 	}
 
 	gr_flip();
+
+	return highest_result;
 }
 
 template <bool activate_focus>
