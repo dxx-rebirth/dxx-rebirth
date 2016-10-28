@@ -310,16 +310,16 @@ void init_player_stats_game(ubyte pnum)
 #endif
 }
 
-static void init_ammo_and_energy(void)
+static void init_ammo_and_energy(object &plrobj)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = plrobj.ctype.player_info;
 	{
 		auto &energy = player_info.energy;
 		if (energy < INITIAL_ENERGY)
 			energy = INITIAL_ENERGY;
 	}
 	{
-		auto &shields = get_local_plrobj().shields;
+		auto &shields = plrobj.shields;
 		if (shields < StartingShields)
 			shields = StartingShields;
 	}
@@ -368,7 +368,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	player_info.mission.hostages_on_board = 0;
 
 	if (secret_flag == secret_restore::none) {
-		init_ammo_and_energy();
+		init_ammo_and_energy(plrobj);
 
 		auto &powerup_flags = player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
