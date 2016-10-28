@@ -208,10 +208,7 @@ static bitmap_index bm_load_sub(int skip, const char * filename )
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
-	if ( iff_has_transparency )
-		gr_remap_bitmap_good(n, newpal, iff_transparent_color, SuperX);
-	else
-		gr_remap_bitmap_good(n, newpal, -1, SuperX);
+	gr_remap_bitmap_good(n, newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
 	n.avg_color = compute_average_pixel(&n);
 
