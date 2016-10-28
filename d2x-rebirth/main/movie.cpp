@@ -437,8 +437,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 
 	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 
