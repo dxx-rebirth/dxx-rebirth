@@ -51,6 +51,7 @@ class window
 	void *w_data;						// whatever the user wants (eg menu data for 'newmenu' menus)
 	class window *prev;				// the previous window in the doubly linked list
 	class window *next;				// the next window in the doubly linked list
+	bool *w_exists;					// optional pointer to a tracking variable
 	
 public:
 	// For creating the window, there are two ways - using the (older) window_create function
@@ -134,7 +135,14 @@ public:
 	{
 		return wind.prev;
 	}
-	
+
+	bool track(bool *exists)
+	{
+		if (w_exists)
+			return false;	// whoops - already have a tracking variable
+		w_exists = exists;
+		return true;
+	}
 };
 
 template <typename T1, typename T2 = const void>

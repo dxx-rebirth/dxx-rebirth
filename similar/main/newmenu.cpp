@@ -469,7 +469,7 @@ static void strip_end_whitespace( char * text )
 int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
 {
 	newmenu *menu;
-	window *wind;
+	bool exists = true;
 	int rval = -1;
 
 	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename );
@@ -477,11 +477,14 @@ int newmenu_do2(const char *const title, const char *const subtitle, const uint_
 	if (!menu)
 		return -1;
 	menu->rval = &rval;
-	wind = menu->wind;	// avoid dereferencing a freed 'menu'
+
+	// Track to see when the window is freed
+	// Doing this way in case another window is opened on top without its own polling loop
+	menu->wind->track(&exists);
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (window_exists(wind))
+	while (exists)
 		event_process();
 
 	return rval;
