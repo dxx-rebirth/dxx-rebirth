@@ -1510,18 +1510,18 @@ static window_event_result FinalCheats()
 			cheats.*gotcha = !(cheats.*gotcha);
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
-			auto &player_info = get_local_plrobj().ctype.player_info;
-			player_info.mission.score = 0;
 			break;
 		}
 	}
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
+	player_info.mission.score = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::wowie)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
 		player_info.vulcan_ammo = VULCAN_AMMO_MAX;
@@ -1542,7 +1542,6 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 
 		player_info.vulcan_ammo = VULCAN_AMMO_MAX;
@@ -1560,8 +1559,7 @@ static window_event_result FinalCheats()
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::lamer)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
-		get_local_plrobj().shields = player_info.energy = i2f(1);
+		plrobj.shields = player_info.energy = i2f(1);
 		HUD_init_message_literal(HM_DEFAULT, "Take that...cheater!");
 	}
 
@@ -1569,7 +1567,6 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		if (Piggy_hamfile_version < 3) // SHAREWARE
 		{
 			player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
@@ -1601,7 +1598,6 @@ static window_event_result FinalCheats()
 
 	if (gotcha == &game_cheats::accessory)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.powerup_flags |= PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_CONVERTER;
 		HUD_init_message_literal(HM_DEFAULT, "Accessories!!");
 	}
@@ -1610,13 +1606,11 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::allkeys)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
 	if (gotcha == &game_cheats::invul)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		player_info.invulnerable_time = GameTime64+i2f(1000);
 		auto &pl_flags = player_info.powerup_flags;
 		pl_flags ^= PLAYER_FLAGS_INVULNERABLE;
@@ -1626,13 +1620,12 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::shields)
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
-		get_local_plrobj().shields = MAX_SHIELDS;
+		plrobj.shields = MAX_SHIELDS;
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::cloak)
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &pl_flags = player_info.powerup_flags;
 		pl_flags ^= PLAYER_FLAGS_CLOAKED;
 		const auto have_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
