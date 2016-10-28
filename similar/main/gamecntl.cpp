@@ -144,12 +144,12 @@ static void play_test_sound();
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
 
-static void transfer_energy_to_shield()
+static void transfer_energy_to_shield(object &plrobj)
 {
 	static fix64 last_play_time=0;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &shields = get_local_plrobj().shields;
+	auto &player_info = plrobj.ctype.player_info;
+	auto &shields = plrobj.shields;
 	auto &energy = player_info.energy;
 	//how much energy gets transfered
 	const fix e = min(min(FrameTime*CONVERTER_RATE, energy - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
@@ -176,7 +176,6 @@ static void transfer_energy_to_shield()
 		digi_play_sample_once(SOUND_CONVERT_ENERGY, F1_0);
 		last_play_time = GameTime64;
 	}
-
 }
 #endif
 
@@ -234,7 +233,8 @@ int which_bomb()
 
 static void do_weapon_n_item_stuff()
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	if (Controls.state.fire_flare > 0)
 	{
 		Controls.state.fire_flare = 0;
@@ -317,7 +317,7 @@ static void do_weapon_n_item_stuff()
 	}
 
 	if (Controls.state.energy_to_shield && (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER))
-		transfer_energy_to_shield();
+		transfer_energy_to_shield(plrobj);
 #endif
 }
 }
