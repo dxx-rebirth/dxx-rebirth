@@ -2380,8 +2380,7 @@ static void polygon_models_viewer()
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 }
 
 namespace dsx {
