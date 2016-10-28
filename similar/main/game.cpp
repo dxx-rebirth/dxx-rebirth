@@ -600,13 +600,9 @@ static void do_cloak_stuff(void)
 	}
 }
 
-}
-
 //	------------------------------------------------------------------------------------
-static void do_invulnerable_stuff(void)
+static void do_invulnerable_stuff(player_info &player_info)
 {
-	auto &plobj = get_local_plrobj();
-	auto &player_info = plobj.ctype.player_info;
 	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{
@@ -627,14 +623,13 @@ static void do_invulnerable_stuff(void)
 	}
 }
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void do_afterburner_stuff()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 ubyte	Last_afterburner_state = 0;
-fix Last_afterburner_charge = 0;
+static fix Last_afterburner_charge;
 fix64	Time_flash_last_played;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
@@ -1407,7 +1402,7 @@ void GameProcessFrame(void)
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_afterburner_stuff();
 	do_cloak_stuff();
-	do_invulnerable_stuff();
+	do_invulnerable_stuff(player_info);
 	remove_obsolete_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_ai_frame(player_info.powerup_flags);
