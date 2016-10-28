@@ -1512,8 +1512,11 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
 
-		if (!window_exists(wind))
-			return window_event_result::handled;	// some subfunction closed the window: bail!
+#if 0	// No current instances of the subfunction closing the window itself (which is preferred)
+		// Enable when all subfunctions return a window_event_result
+		if (rval == window_event_result::deleted)
+			return rval;	// some subfunction closed the window: bail!
+#endif
 
 		if (rval)
 		{
