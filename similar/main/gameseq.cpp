@@ -900,7 +900,8 @@ static void DoEndLevelScoreGlitz()
 		mine_level *= -(Last_level/N_secret_levels);
 #endif
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	level_points = player_info.mission.score - player_info.mission.last_score;
 
 	if (!cheats.enabled) {
@@ -916,10 +917,10 @@ static void DoEndLevelScoreGlitz()
 
 		hostage_points = player_info.mission.hostages_on_board * 500 * (Difficulty_level+1);
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(get_local_plrobj().shields) * 10 * (Difficulty_level+1);
+		shield_points = f2i(plrobj.shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
-		shield_points = f2i(get_local_plrobj().shields) * 5 * mine_level;
+		shield_points = f2i(plrobj.shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
