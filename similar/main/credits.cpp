@@ -267,8 +267,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	while (event_process() != window_event_result::deleted) {}
 }
 
 void credits_show(const char *const filename)
