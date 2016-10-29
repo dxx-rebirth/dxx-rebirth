@@ -2380,7 +2380,7 @@ static void polygon_models_viewer()
 		return;
 	}
 
-	while (event_process() != window_event_result::deleted) {}
+	event_process_all();
 }
 
 namespace dsx {
@@ -2458,7 +2458,7 @@ static void gamebitmaps_viewer()
 		return;
 	}
 
-	while (event_process() != window_event_result::deleted) {}
+	event_process_all();
 }
 
 #define DXX_SANDBOX_MENU(VERB)	\

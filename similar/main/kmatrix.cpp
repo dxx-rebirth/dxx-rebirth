@@ -413,7 +413,7 @@ kmatrix_result kmatrix_view(int network)
 		return kmatrix_result::abort;
 	}
 	
-	while (event_process() != window_event_result::deleted) {}
+	event_process_all();
 
 	gr_free_bitmap_data(km.background);
 	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);

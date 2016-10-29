@@ -90,5 +90,13 @@ struct d_select_event : d_event
 
 fix event_get_idle_seconds();
 
+// Process all events until the front window is deleted
+// Won't work if there's the possibility of another window on top
+// without its own event loop
+static inline void event_process_all(void)
+{
+	while (event_process() != window_event_result::deleted) {}
+}
+
 }
 #endif

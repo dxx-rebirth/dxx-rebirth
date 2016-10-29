@@ -189,7 +189,7 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 		return;
 	}
 
-	while (event_process() != window_event_result::deleted) {}
+	event_process_all();
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1613,7 +1613,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
-	while (event_process() != window_event_result::deleted) {}
+	event_process_all();
 }
 
 void do_end_briefing_screens(const d_fname &filename)
