@@ -385,7 +385,7 @@ static int ogl_init_window(int x, int y)
 		if (info.subsystem == SDL_SYSWM_X11) {
 			x11Display = info.info.x11.display;
 			x11Window = info.info.x11.window;
-			con_printf (CON_DEBUG, "Display: %p, Window: %i ===", (void*)x11Display, static_cast<int>(x11Window));
+			con_printf (CON_DEBUG, "Display: %p, Window: %i ===", x11Display, static_cast<int>(x11Window));
 		}
 	}
 
@@ -421,9 +421,9 @@ static int ogl_init_window(int x, int y)
 		}
 
 #ifdef RPI
-		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (EGLNativeWindowType)&nativewindow, winAttribs);
+		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, static_cast<EGLNativeWindowType>(&nativewindow), winAttribs);
 #else
-		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (NativeWindowType)x11Window, winAttribs);
+		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, static_cast<NativeWindowType>(x11Window), winAttribs);
 #endif
 		if ((!TestEGLError("eglCreateWindowSurface")) || eglSurface == EGL_NO_SURFACE) {
 			con_printf(CON_URGENT, "EGL: Error creating window surface");
