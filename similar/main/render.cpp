@@ -1109,9 +1109,9 @@ static void build_object_lists(render_state_t &rstate)
 	int nn;
 	const auto viewer = Viewer;
 	for (nn=0;nn < rstate.N_render_segs;nn++) {
-		auto segnum = rstate.Render_list[nn];
+		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			range_for (const auto obj, objects_in(Segments[segnum]))
+			range_for (const auto obj, objects_in(vcsegptr(segnum)))
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)
@@ -1121,9 +1121,6 @@ static void build_object_lists(render_state_t &rstate)
 				}
 				if (unlikely(obj == viewer) && likely(obj->attached_obj == object_none))
 					continue;
-
-				Assert( obj->segnum == segnum );
-
 				if (obj->flags & OF_ATTACHED)
 					continue;		//ignore this object
 
@@ -1176,7 +1173,6 @@ static void build_object_lists(render_state_t &rstate)
 				} while (did_migrate);
 				add_obj_to_seglist(rstate, obj, new_segnum);
 			}
-
 		}
 	}
 
