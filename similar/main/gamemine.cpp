@@ -1016,8 +1016,8 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 
 	validate_segment_all();			// Fill in side type and normals.
 
-	range_for (auto &i, partial_range(Segments, Num_segments)) {
-		const auto &&pi = vsegptridx(&i);
+	range_for (const auto &&pi, vsegptridx)
+	{
 		if (Gamesave_current_version > 5)
 			segment2_read(pi, LoadFile);
 		fuelcen_activate(pi);
