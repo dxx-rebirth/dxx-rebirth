@@ -651,10 +651,10 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 	multi_send_boss_action<boss_stop_gate>(bossobjnum);
 }
 
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, const vobjptridx_t objrobot)
+void multi_send_boss_create_robot(vobjidx_t bossobjnum, const vobjptridx_t objrobot)
 {
 	map_objnum_local_to_local(objrobot);
-	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
+	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, get_robot_id(objrobot));
 }
 
 #define MAX_ROBOT_POWERUPS 4
