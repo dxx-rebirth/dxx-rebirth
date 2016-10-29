@@ -7,6 +7,18 @@
 #include "object.h"
 #include "segment.h"
 
+#ifndef DXX_SEGITER_DEBUG_OBJECT_LINKAGE
+#	ifdef NDEBUG
+#		define DXX_SEGITER_DEBUG_OBJECT_LINKAGE	0
+#	else
+#		define DXX_SEGITER_DEBUG_OBJECT_LINKAGE	1
+#	endif
+#endif
+
+#if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
+#include <cassert>
+#endif
+
 namespace detail
 {
 
@@ -21,14 +33,35 @@ template <typename T>
 class segment_object_range_t
 {
 	class iterator;
-	iterator b;
+	const iterator b;
 public:
 	segment_object_range_t(T &&o) :
 		b(std::move(o))
 	{
 	}
-	iterator begin() const { return b; }
+	const iterator &begin() const { return b; }
 	iterator end() const { return T(object_none); }
+	template <typename OF, typename SF>
+		static segment_object_range_t construct(const segment &s, OF &of, SF &sf)
+		{
+			if (s.objects == object_none)
+				return T(object_none);
+			auto &&opi = of(s.objects);
+#ifdef NDEBUG
+			(void)sf;
+#else
+			const object &o = opi;
+			/* Assert that the first object in the segment claims to be
+			 * in the segment that claims to have that object.
+			 */
+			assert(sf(o.segnum) == &s);
+			/* Assert that the first object in the segment agrees that there
+			 * are no objects before it in the segment.
+			 */
+			assert(o.prev == object_none);
+#endif
+			return T(std::move(opi));
+		}
 };
 
 template <typename T>
@@ -43,11 +76,12 @@ public:
 		T(std::move(o))
 	{
 	}
-	T operator *() { return *static_cast<T *>(this); }
+	T operator *() const { return *this; }
 	iterator &operator++()
 	{
-		const auto ni = m_ptr->next;
 		const auto oi = m_idx;
+		const auto op = m_ptr;
+		const auto ni = op->next;
 		m_idx = ni;
 		/* If ni == object_none, then the iterator is at end() and there should
 		 * be no further reads of m_ptr.  Optimizing compilers will typically
@@ -55,8 +89,20 @@ public:
 		 * omit the store.  Omit the nullptr assignment so that less optimizing
 		 * compilers do not generate a useless branch.
 		 */
+		m_ptr += static_cast<std::size_t>(ni) - static_cast<std::size_t>(oi);
 		if (ni != object_none)
-			m_ptr += static_cast<std::size_t>(ni) - static_cast<std::size_t>(oi);
+		{
+#if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
+			/* Assert that the next object in the segment agrees that
+			 * the preceding object is the previous object.
+			 */
+			assert(oi == m_ptr->prev);
+			/* Assert that the old object and new object are in the same
+			 * segment.
+			 */
+			assert(op->segnum == m_ptr->segnum);
+#endif
+		}
 		return *this;
 	}
 	bool operator==(const iterator &rhs) const
@@ -72,18 +118,13 @@ public:
 __attribute_warn_unused_result
 static inline segment_object_range_t<objptridx_t> objects_in(segment &s)
 {
-	/* The factory function invocation cannot be moved out of the
-	 * individual branches because the ternary operator calls different
-	 * overloads of the factory function, depending on whether the true
-	 * branch or false branch is taken.
-	 */
-	return s.objects == object_none ? objptridx(object_none) : objptridx(s.objects);
+	return segment_object_range_t<objptridx_t>::construct(s, vobjptridx, vsegptr);
 }
 
 __attribute_warn_unused_result
 static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s)
 {
-	return s.objects == object_none ? cobjptridx(object_none) : cobjptridx(s.objects);
+	return segment_object_range_t<cobjptridx_t>::construct(s, vcobjptridx, vcsegptr);
 }
 
 }
