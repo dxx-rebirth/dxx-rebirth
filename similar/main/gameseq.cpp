@@ -166,7 +166,7 @@ public:
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+array<player, MAX_PLAYERS> Players;   // Misc player info
 }
 static void copy_defaults_to_robot_all(void);
 

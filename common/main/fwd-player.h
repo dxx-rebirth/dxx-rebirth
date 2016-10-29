@@ -82,12 +82,7 @@ struct player;
 namespace dsx {
 struct player_rw;
 struct player_info;
-#if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS = 4;
-#endif
-extern array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+extern array<player, MAX_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
 #if defined(DXX_BUILD_DESCENT_II)
 extern array<object *, MAX_PLAYERS> Guided_missile;
