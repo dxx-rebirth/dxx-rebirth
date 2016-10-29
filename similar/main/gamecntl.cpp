@@ -1678,8 +1678,8 @@ static window_event_result FinalCheats()
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (gotcha == &game_cheats::fullautomap && cheats.fullautomap)
-		HUD_init_message(HM_DEFAULT, "FULL MAP!");
+	if (gotcha == &game_cheats::fullautomap)
+		HUD_init_message_literal(HM_DEFAULT, cheats.fullautomap ? "FULL MAP!" : "REGULAR MAP");
 #endif
 
 	if (gotcha == &game_cheats::ghostphysics)
