@@ -1336,31 +1336,16 @@ static void move_around_player(const vobjptridx_t objp, const player_flags power
 static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	int				objref;
 
-	pptr->velocity.x -= fixmul(vec_to_player.x, FrameTime*16);
-	pptr->velocity.y -= fixmul(vec_to_player.y, FrameTime*16);
-	pptr->velocity.z -= fixmul(vec_to_player.z, FrameTime*16);
+	const auto frametime = FrameTime;
+	pptr->velocity.x -= fixmul(vec_to_player.x, frametime*16);
+	pptr->velocity.y -= fixmul(vec_to_player.y, frametime*16);
+	pptr->velocity.z -= fixmul(vec_to_player.z, frametime*16);
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
-		objref = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
-
-		switch (objref) {
-			case 0:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, FrameTime << 5);
-				break;
-			case 1:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, -FrameTime << 5);
-				break;
-			case 2:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, FrameTime << 5);
-				break;
-			case 3:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, -FrameTime << 5);
-				break;
-			default:	Int3();	//	Impossible, bogus value on objref, must be in 0..3
-		}
+		const int objref = objp ^ ((d_tick_count + 3 * objp) >> 5);
+		vm_vec_scale_add2(pptr->velocity, (objref & 2) ? objp->orient.rvec : objp->orient.uvec, ((objref & 1) ? -frametime : frametime) << 5);
 	}
 
 
