@@ -102,7 +102,7 @@ namespace {
 
 struct title_screen : ignore_window_pointer_t
 {
-	grs_bitmap title_bm;
+	grs_main_bitmap title_bm;
 	fix64 timer;
 	int allow_keys;
 };
@@ -145,7 +145,6 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data(ts->title_bm);
 			break;
 
 		default:
@@ -183,7 +182,6 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, title_handler, ts.get());
 	if (!wind)
 	{
-		gr_free_bitmap_data(ts->title_bm);
 		return;
 	}
 
@@ -469,7 +467,7 @@ struct briefing : ignore_window_pointer_t
 	short	level_num;
 	short	cur_screen;
 	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
-	grs_bitmap background;
+	grs_main_bitmap background;
 	char	background_name[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
@@ -1339,8 +1337,6 @@ static void free_briefing_screen(briefing *br)
 #endif
 	if (EMULATING_D1)
 		br->screen.reset();
-	if (br->background.bm_data != NULL)
-		gr_free_bitmap_data(br->background);
 }
 }
 
