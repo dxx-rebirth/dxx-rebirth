@@ -188,15 +188,12 @@ static void matcen_create(const vsegptridx_t segp)
 
 //------------------------------------------------------------
 // Adds a segment that already is a special type into the Station array.
-void fuelcen_activate(const vsegptridx_t segp, int station_type )
+void fuelcen_activate(const vsegptridx_t segp)
 {
-	segp->special = station_type;
-
 	if (segp->special == SEGMENT_IS_ROBOTMAKER)
 		matcen_create( segp);
 	else
 		fuelcen_create( segp);
-	
 }
 
 //	The lower this number is, the more quickly the center can be re-triggered.
