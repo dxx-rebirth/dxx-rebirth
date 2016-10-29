@@ -1634,17 +1634,16 @@ namespace {
 struct escort_menu : ignore_window_pointer_t
 {
 	array<char, 300> msg;
+	static window_event_result event_handler(window *wind, const d_event &event, escort_menu *menu);
+	static window_event_result event_key_command(const d_event &event);
 };
 
 }
 
-static window_event_result escort_menu_keycommand(window *, const d_event &event, escort_menu *)
+window_event_result escort_menu::event_key_command(const d_event &event)
 {
-	int	key;
-	
-	key = event_key_get(event);
-	
-	switch (key) {
+	switch (const auto key = event_key_get(event))
+	{
 		case KEY_0:
 		case KEY_1:
 		case KEY_2:
@@ -1676,7 +1675,7 @@ static window_event_result escort_menu_keycommand(window *, const d_event &event
 	return window_event_result::ignored;
 }
 
-static window_event_result escort_menu_handler(window *wind,const d_event &event, escort_menu *menu)
+window_event_result escort_menu::event_handler(window *, const d_event &event, escort_menu *menu)
 {
 	switch (event.type)
 	{
@@ -1685,7 +1684,7 @@ static window_event_result escort_menu_handler(window *wind,const d_event &event
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			return escort_menu_keycommand(wind, event, menu);
+			return event_key_command(event);
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;
@@ -1734,7 +1733,7 @@ void do_escort_menu(void)
 		return;
 	
 	// Just make it the full screen size and let show_escort_menu figure it out
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, escort_menu_handler, menu);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, &escort_menu::event_handler, menu);
 	if (!wind)
 	{
 		d_free(menu);
