@@ -1921,8 +1921,6 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 		return object_none;
 	}
 
-	Net_create_objnums[0] = objp; // A convenient global to get objnum back to caller for multiplayer
-
 	//Set polygon-object-specific data
 
 	objp->rtype.pobj_info.model_num = robptr->model_num;
@@ -2465,7 +2463,7 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 				randtype = Super_boss_gate_list[randtype];
 				Assert(randtype < N_robot_types);
 
-				const objptridx_t rtval = gate_in_robot(randtype);
+				const auto &&rtval = gate_in_robot(randtype);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_create_robot(objp, rtval);
