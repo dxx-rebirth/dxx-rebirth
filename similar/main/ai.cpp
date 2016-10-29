@@ -2469,7 +2469,6 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_create_robot(objp, randtype, rtval);
-					map_objnum_local_to_local(Net_create_objnums[0]);
 				}
 			}	
 	}

@@ -653,6 +653,7 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 
 void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, const vobjptridx_t objrobot)
 {
+	map_objnum_local_to_local(objrobot);
 	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
 }
 
