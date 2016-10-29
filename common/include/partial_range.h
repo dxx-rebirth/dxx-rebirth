@@ -9,9 +9,38 @@
 #include <iterator>
 #include <cstdio>
 #include <string>
+#include <type_traits>
 #include "fwd-partial_range.h"
 #include "compiler-addressof.h"
-#include "compiler-type_traits.h"
+
+/* If no value was specified for DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE,
+ * then define it to true for NDEBUG builds and false for debug builds.
+ *
+ * When DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE is true, the partial_range
+ * exception is a global scope structure.
+ *
+ * When DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE is false, the
+ * partial_range exception is nested in partial_range_t<I>, so that the
+ * exception type encodes the range type.
+ *
+ * Encoding the range type in the exception produces a more descriptive
+ * message when the program aborts for an uncaught exception, but
+ * produces larger debug information and many nearly-redundant
+ * instantiations of the report function.  Using the global scope
+ * structure avoids those redundant instances, but makes the exception
+ * description less descriptive.
+ *
+ * Choose false if you expect to debug partial_range exceptions or
+ * report them to someone who will debug them for you.  Choose true if
+ * you want a smaller program.
+ */
+#ifndef DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
+#ifdef NDEBUG
+#define DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE	1
+#else
+#define DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE	0
+#endif
+#endif
 
 namespace partial_range_detail
 {
@@ -30,11 +59,28 @@ static inline auto adl_end(T &t) -> decltype(end(t))
 
 }
 
+#if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
+struct partial_range_error;
+#endif
+
 template <typename I>
 class partial_range_t
 {
 public:
 	typedef I iterator;
+	/* When using the unminimized type, forward declare a structure.
+	 *
+	 * When using the minimized type, add a typedef here so that later
+	 * code can unconditionally use the qualified type name.  Using a
+	 * typedef here instead of a preprocessor macro at the usage sites
+	 * causes the debug information to be very slightly bigger, but has
+	 * no effect on the size of the generated code and is easier to
+	 * maintain.
+	 */
+#if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
+	using partial_range_error =
+#endif
+	struct partial_range_error;
 	iterator m_begin, m_end;
 	partial_range_t(iterator b, iterator e) :
 		m_begin(b), m_end(e)
@@ -66,62 +112,42 @@ public:
 	}
 };
 
-#ifdef DXX_HAVE_BOOST_FOREACH
-#include <boost/range/const_iterator.hpp>
-#include <boost/range/mutable_iterator.hpp>
-
-namespace boost
+namespace partial_range_detail
 {
-	template <typename iterator>
-		struct range_mutable_iterator< partial_range_t<iterator> >
-		{
-			typedef iterator type;
-		};
-
-	template <typename iterator>
-		struct range_const_iterator< partial_range_t<iterator> >
-		{
-			typedef iterator type;
-		};
-}
-#endif
-
-struct base_partial_range_error_t : std::out_of_range
-{
-	DXX_INHERIT_CONSTRUCTORS(base_partial_range_error_t, std::out_of_range);
 #define REPORT_FORMAT_STRING	 "%s:%u: %s %lu past %p end %lu \"%s\""
 	template <std::size_t NF, std::size_t NE>
 		/* Round reporting into large buckets.  Code size is more
 		 * important than stack space.
 		 */
-		using required_buffer_size = tt::integral_constant<std::size_t, ((sizeof(REPORT_FORMAT_STRING) + sizeof("65535") + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + (NF + NE + sizeof("begin"))) | 0xff) + 1>;
+		using required_buffer_size = std::integral_constant<std::size_t, ((sizeof(REPORT_FORMAT_STRING) + sizeof("65535") + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + (NF + NE + sizeof("begin"))) | 0xff) + 1>;
 	template <std::size_t N>
 		__attribute_cold
-	static void prepare(char (&buf)[N], unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const void *t)
+	static void prepare_error_string(char (&buf)[N], unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const void *t)
 	{
 		snprintf(buf, sizeof(buf), REPORT_FORMAT_STRING, file, line, desc, expr, t, d, estr);
 	}
 #undef REPORT_FORMAT_STRING
-};
+}
 
+#if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
+struct partial_range_error
+#else
 template <typename I>
-struct partial_range_error_t : base_partial_range_error_t
+struct partial_range_t<I>::partial_range_error
+#endif
+	final : std::out_of_range
 {
-	DXX_INHERIT_CONSTRUCTORS(partial_range_error_t, base_partial_range_error_t);
+	DXX_INHERIT_CONSTRUCTORS(partial_range_error, out_of_range);
 	template <std::size_t N>
 		__attribute_cold
 		__attribute_noreturn
-	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d);
+	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
+	{
+		char buf[N];
+		partial_range_detail::prepare_error_string<N>(buf, d, estr, file, line, desc, expr, t);
+		throw partial_range_error(buf);
+	}
 };
-
-template <typename T>
-template <std::size_t N>
-void partial_range_error_t<T>::report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const void *t, unsigned long d)
-{
-	char buf[N];
-	base_partial_range_error_t::prepare(buf, d, estr, file, line, desc, expr, t);
-	throw partial_range_error_t<T>(buf);
-}
 
 namespace partial_range_detail
 {
@@ -160,7 +186,7 @@ static inline void check_range_bounds(const char *file, unsigned line, const cha
 #endif
 #define PARTIAL_RANGE_CHECK_BOUND(EXPR,S)	\
 	PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S),	\
-	((EXPR > d) && (partial_range_error_t<I>::template report<required_buffer_size>(file, line, estr, #S, EXPR, t, d), 0))
+	((EXPR > d) && (I::template report<required_buffer_size>(file, line, estr, #S, EXPR, t, d), 0))
 	PARTIAL_RANGE_CHECK_BOUND(o, begin);
 	PARTIAL_RANGE_CHECK_BOUND(l, end);
 #undef PARTIAL_RANGE_CHECK_BOUND
@@ -169,7 +195,7 @@ static inline void check_range_bounds(const char *file, unsigned line, const cha
 
 /* C arrays lack a size method, but have a constant size */
 template <typename T, std::size_t d>
-static constexpr tt::integral_constant<std::size_t, d> get_range_size(T (&)[d])
+static constexpr std::integral_constant<std::size_t, d> get_range_size(T (&)[d])
 {
 	return {};
 }
@@ -209,7 +235,7 @@ static inline void check_range_object_size(const char *, unsigned, const char *,
 
 template <typename I, std::size_t required_buffer_size>
 __attribute_warn_unused_result
-static inline partial_range_t<I> (unchecked_partial_range)(const char *file, unsigned line, const char *estr, I range_begin, const std::size_t o, const std::size_t l, tt::true_type)
+static inline partial_range_t<I> (unchecked_partial_range)(const char *file, unsigned line, const char *estr, I range_begin, const std::size_t o, const std::size_t l, std::true_type)
 {
 #ifdef DXX_HAVE_BUILTIN_CONSTANT_P
 	/* Compile-time only check.  Runtime handles (o > l) correctly, and
@@ -224,7 +250,7 @@ static inline partial_range_t<I> (unchecked_partial_range)(const char *file, uns
 	/* Avoid iterator dereference if range is empty */
 	if (l)
 	{
-		partial_range_detail::check_range_object_size<I, required_buffer_size>(file, line, estr, *range_begin, o, l);
+		partial_range_detail::check_range_object_size<typename partial_range_t<I>::partial_range_error, required_buffer_size>(file, line, estr, *range_begin, o, l);
 	}
 #else
 	(void)file;
@@ -245,14 +271,14 @@ static inline partial_range_t<I> (unchecked_partial_range)(const char *file, uns
 }
 
 template <typename I, std::size_t N>
-static inline partial_range_t<I> (unchecked_partial_range)(const char *, unsigned, const char *, I, std::size_t, std::size_t, tt::false_type) = delete;
+static inline partial_range_t<I> (unchecked_partial_range)(const char *, unsigned, const char *, I, std::size_t, std::size_t, std::false_type) = delete;
 
 template <typename I, typename UO, typename UL, std::size_t NF, std::size_t NE>
 __attribute_warn_unused_result
 static inline partial_range_t<I> (unchecked_partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], I range_begin, const UO &o, const UL &l)
 {
 	/* Require unsigned length */
-	return unchecked_partial_range<I, base_partial_range_error_t::required_buffer_size<NF, NE>::value>(
+	return unchecked_partial_range<I, partial_range_detail::required_buffer_size<NF, NE>::value>(
 		file, line, estr, range_begin, o, l,
 		typename std::conditional<std::is_unsigned<UO>::value, std::is_unsigned<UL>, std::false_type>::type()
 	);
@@ -269,7 +295,7 @@ template <typename T, typename UO, typename UL, std::size_t NF, std::size_t NE, 
 __attribute_warn_unused_result
 static inline partial_range_t<I> (partial_range)(const char (&file)[NF], unsigned line, const char (&estr)[NE], T &t, const UO &o, const UL &l)
 {
-	partial_range_detail::check_partial_range<I, base_partial_range_error_t::required_buffer_size<NF, NE>::value, T>(file, line, estr, t, o, l);
+	partial_range_detail::check_partial_range<typename partial_range_t<I>::partial_range_error, partial_range_detail::required_buffer_size<NF, NE>::value, T>(file, line, estr, t, o, l);
 	return unchecked_partial_range<I, UO, UL>(file, line, estr, begin(t), o, l);
 }
 
