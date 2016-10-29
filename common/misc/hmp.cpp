@@ -345,13 +345,15 @@ static int setup_buffers(hmp_file *hmp) {
 
 static void reset_tracks(struct hmp_file *hmp)
 {
-	for (int i = 0; i < hmp->num_trks; i++) {
-		if (hmp->trks[i].loop_set)
-			hmp->trks[i].cur = hmp->trks[i].loop;
+	if (hmp->num_trks > 0)
+	range_for (auto &i, partial_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
+	{
+		if (i.loop_set)
+			i.cur = i.loop;
 		else
-			hmp->trks[i].cur = hmp->trks[i].data.get();
-		hmp->trks[i].left = hmp->trks[i].len;
-		hmp->trks[i].cur_time = 0;
+			i.cur = i.data.get();
+		i.left = i.len;
+		i.cur_time = 0;
 	}
 	hmp->cur_time = 0;
 }
