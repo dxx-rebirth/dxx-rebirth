@@ -1534,14 +1534,23 @@ static int do_boss_weapon_collision(const object_base &robot, const object &weap
 						Buddy_gave_hint_count--;
 						Last_time_buddy_gave_hint = GameTime64;
 						sval = (d_rand()*4) >> 15;
+						const char *msg;
 						switch (sval) {
-							case 0:	buddy_message("Hit him in the back!");	break;
-							case 1:	buddy_message("He's invulnerable there!");	break;
-							case 2:	buddy_message("Get behind him and fire!");	break;
+							case 0:
+								msg = "Hit him in the back!";
+								break;
+							case 1:
+								msg = "He's invulnerable there!";
+								break;
+							case 2:
+								msg = "Get behind him and fire!";
+								break;
 							case 3:
 							default:
-										buddy_message("Hit the glowing spot!");	break;
+								msg = "Hit the glowing spot!";
+								break;
 						}
+						buddy_message_str(msg);
 					}
 				}
 			}
