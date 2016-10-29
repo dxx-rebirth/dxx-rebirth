@@ -35,17 +35,17 @@ class segment_object_range_t
 	class iterator;
 	const iterator b;
 public:
-	segment_object_range_t(T &&o) :
+	segment_object_range_t(iterator &&o) :
 		b(std::move(o))
 	{
 	}
 	const iterator &begin() const { return b; }
-	iterator end() const { return T(object_none); }
+	static iterator end() { return T(object_none, static_cast<typename T::allow_none_construction *>(nullptr)); }
 	template <typename OF, typename SF>
 		static segment_object_range_t construct(const segment &s, OF &of, SF &sf)
 		{
 			if (s.objects == object_none)
-				return T(object_none);
+				return end();
 			auto &&opi = of(s.objects);
 #ifdef NDEBUG
 			(void)sf;
@@ -60,7 +60,7 @@ public:
 			 */
 			assert(o.prev == object_none);
 #endif
-			return T(std::move(opi));
+			return iterator(std::move(opi));
 		}
 };
 
@@ -116,15 +116,15 @@ public:
 };
 
 __attribute_warn_unused_result
-static inline segment_object_range_t<objptridx_t> objects_in(segment &s)
+static inline segment_object_range_t<vobjptridx_t> objects_in(segment &s)
 {
-	return segment_object_range_t<objptridx_t>::construct(s, vobjptridx, vsegptr);
+	return segment_object_range_t<vobjptridx_t>::construct(s, vobjptridx, vsegptr);
 }
 
 __attribute_warn_unused_result
-static inline segment_object_range_t<cobjptridx_t> objects_in(const segment &s)
+static inline segment_object_range_t<vcobjptridx_t> objects_in(const segment &s)
 {
-	return segment_object_range_t<cobjptridx_t>::construct(s, vcobjptridx, vcsegptr);
+	return segment_object_range_t<vcobjptridx_t>::construct(s, vcobjptridx, vcsegptr);
 }
 
 }

@@ -107,6 +107,13 @@ protected:
 	VERB(managed_type, derived_type_prefix, vcprefix, ptridx)
 
 public:
+	/* This is a special placeholder that allows segiter to bypass the
+	 * normal rules.  The calling code is responsible for providing the
+	 * safety that is bypassed.  Use this bypass only if you understand
+	 * exactly what you are skipping and why your use is safe despite
+	 * the lack of checking.
+	 */
+	class allow_none_construction;
 	typedef basic_ptridx<vc>	vcptridx;
 	typedef basic_ptridx<ic>	cptridx;
 	typedef basic_ptridx<vm>	vptridx;
