@@ -1691,7 +1691,9 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 		default:
 		case OGL_TEXFILT_CLASSIC: // Classic - Nearest
 			gl_mag_filter_int = GL_NEAREST;
-#if !DXX_USE_OGLES
+#if DXX_USE_OGLES
+			static_cast<void>(texanis);
+#else
 			if (texanis && ogl_maxanisotropy > 1.0)
 			{
 				// looks nicer if anisotropy is applied.
