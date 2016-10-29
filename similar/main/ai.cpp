@@ -1918,7 +1918,7 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 
 	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return objp;
+		return object_none;
 	}
 
 	Net_create_objnums[0] = objp; // A convenient global to get objnum back to caller for multiplayer

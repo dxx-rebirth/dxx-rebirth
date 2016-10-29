@@ -301,7 +301,7 @@ static objptridx_t create_weapon_object(int weapon_type,const vsegptridx_t segnu
 
 	auto obj = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
 	if (obj == object_none)
-		return obj;
+		return object_none;
 
 	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
 		obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(obj)].model_num;
@@ -745,8 +745,9 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 
 	const objptridx_t obj = create_weapon_object(weapon_type,segnum,position);
 
-	if ( obj == object_none ) {
-		return obj;
+	if (obj == object_none)
+	{
+		return object_none;
 	}
 	const auto &weapon_info = Weapon_info[weapon_type];
 
@@ -1408,7 +1409,7 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon
 	const auto &&objnum = Laser_create_new(LaserDir, LaserPos, vsegptridx(LaserSeg), obj, laser_type, make_sound);
 
 	if (objnum == object_none)
-		return objnum;
+		return object_none;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
@@ -2134,15 +2135,15 @@ static objptridx_t create_homing_missile(const vobjptridx_t objp, const objptrid
 
 	//	Create a vector towards the goal, then add some noise to it.
 	const auto &&objnum = Laser_create_new(vector_to_goal, objp->pos, vsegptridx(objp->segnum), objp, objtype, make_sound);
-	if (objnum == object_none)
-		return objnum;
-
+	if (objnum != object_none)
+	{
 	// Fixed to make sure the right person gets credit for the kill
 
 //	Objects[objnum].ctype.laser_info.parent_num = objp->ctype.laser_info.parent_num;
 //	Objects[objnum].ctype.laser_info.parent_type = objp->ctype.laser_info.parent_type;
 //	Objects[objnum].ctype.laser_info.parent_signature = objp->ctype.laser_info.parent_signature;
 	objnum->ctype.laser_info.track_goal = goal_obj;
+	}
 	return objnum;
 }
 

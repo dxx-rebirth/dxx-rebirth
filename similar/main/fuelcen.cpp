@@ -307,9 +307,10 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
-	if (obj == object_none) {
+	if (obj == object_none)
+	{
 		Int3();
-		return obj;
+		return object_none;
 	}
 
 	//Set polygon-object-specific data

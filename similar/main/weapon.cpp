@@ -1247,9 +1247,10 @@ objptridx_t spit_powerup(const vobjptr_t spitter, int id,int seed)
 
 	const auto &&obj = obj_create(OBJ_POWERUP, id, vsegptridx(spitter->segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
-	if (obj == object_none ) {
+	if (obj == object_none)
+	{
 		Int3();
-		return obj;
+		return object_none;
 	}
 	obj->mtype.phys_info.velocity = new_velocity;
 	obj->mtype.phys_info.drag = 512;	//1024;
@@ -1497,8 +1498,7 @@ void DropSecondaryWeapon (player_info &player_info)
 	if (objnum == object_none)
 		return;
 
-
-	if ((Game_mode & GM_MULTI) && objnum!=object_none)
+	if (Game_mode & GM_MULTI)
 		multi_send_drop_weapon(objnum,seed);
 
 	secondary_ammo -= sub_ammo;

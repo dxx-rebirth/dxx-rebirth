@@ -87,8 +87,9 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
 
-	if (obj == object_none) {
-		return obj;
+	if (obj == object_none)
+	{
+		return object_none;
 	}
 
 	//now set explosion-specific data
@@ -849,9 +850,10 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 				auto		obj = obj_create( OBJ_POWERUP, id, segnum, new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 				objnum = obj;
 
-				if (objnum == object_none ) {
+				if (objnum == object_none)
+				{
 					Int3();
-					return objnum;
+					return object_none;
 				}
 
 				if (Game_mode & GM_MULTI)
@@ -918,9 +920,10 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 				const auto &&obj = obj_create(OBJ_ROBOT, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 				objnum = obj;
-				if ( objnum == object_none ) {
+				if (objnum == object_none)
+				{
 					Int3();
-					return objnum;
+					return object_none;
 				}
 #if defined(DXX_BUILD_DESCENT_II)
 				if (player)

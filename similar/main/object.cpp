@@ -1075,7 +1075,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	const objptridx_t obj = obj_allocate();
 
 	if (obj == object_none)		//no free objects
-		return obj;
+		return object_none;
 
 	Assert(obj->type == OBJ_NONE);		//make sure unused
 	auto signature = obj_get_signature();
@@ -1168,7 +1168,7 @@ objptridx_t obj_create_copy(const vobjptridx_t objnum, const vms_vector &new_pos
 	const objptridx_t obj = obj_allocate();
 
 	if (obj == object_none)
-		return obj;
+		return object_none;
 
 	*obj = *objnum;
 
