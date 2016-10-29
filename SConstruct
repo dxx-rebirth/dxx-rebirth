@@ -2776,6 +2776,8 @@ class DXXCommon(LazyObjectConstructor):
 		_default_prefix = '/usr/local'
 		__stdout_is_not_a_tty = None
 		__has_git_dir = None
+		def default_poison(self):
+			return 'overwrite' if self.debug else 'none'
 		def default_builddir(self):
 			builddir_prefix = self.builddir_prefix
 			builddir_suffix = self.builddir_suffix
@@ -2982,7 +2984,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': ListVariable,
 				'arguments': (
-					('poison', 'none', 'method for poisoning free memory', {'names' : ('valgrind', 'overwrite')}),
+					('poison', self.default_poison, 'method for poisoning free memory', {'names' : ('valgrind', 'overwrite')}),
 				),
 			},
 			{
