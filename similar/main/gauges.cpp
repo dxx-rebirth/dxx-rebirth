@@ -3010,7 +3010,7 @@ static void hud_show_kill_list()
                                 x2 = SWIDTH - (fspacx64/2);
                         else
                                 x2 = x0 + fspacx64;
-                        gr_printf(x2,y,"%4dms",Netgame.players[player_num].ping*44);
+                        gr_printf(x2,y,"%4dms",Netgame.players[player_num].ping);
                 }
 
 		y += line_spacing;
