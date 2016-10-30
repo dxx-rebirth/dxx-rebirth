@@ -141,7 +141,7 @@ struct automap : ignore_window_pointer_t
 	// Screen canvas variables
 	grs_canvas		automap_view;
 	
-	grs_bitmap		automap_background;
+	grs_main_bitmap		automap_background;
 	
 	// Rendering variables
 	fix			zoom;
@@ -965,9 +965,6 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
-#if DXX_USE_OGL
-			gr_free_bitmap_data(am->automap_background);
-#endif
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;

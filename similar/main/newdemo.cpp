@@ -2033,7 +2033,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_RENDER_OBJECT:       // Followed by an object structure
 		{
-			const objptridx_t obj = obj_allocate();
+			const auto &&obj = obj_allocate();
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);
@@ -2291,7 +2291,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (newdemo_read( md->submodel_active, sizeof(md->submodel_active), 1 )!=1) { done=-1; break; }
 			if (newdemo_read( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 )!=1) { done=-1; break; }
 #endif
-			const objptridx_t obj = obj_allocate();
+			const auto &&obj = obj_allocate();
 			if (obj==object_none)
 				break;
 			nd_read_object(obj);

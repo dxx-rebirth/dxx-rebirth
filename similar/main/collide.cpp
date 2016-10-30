@@ -1486,8 +1486,9 @@ fix64	Last_time_buddy_gave_hint = 0;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-static int do_boss_weapon_collision(const object_base &robot, const object &weapon, const vms_vector &collision_point)
+static int do_boss_weapon_collision(const vcobjptridx_t robotptridx, const object &weapon, const vms_vector &collision_point)
 {
+	const object_base &robot = robotptridx;
 	int	d2_boss_index;
 	int	damage_flag;
 
@@ -1498,17 +1499,23 @@ static int do_boss_weapon_collision(const object_base &robot, const object &weap
 	Assert((d2_boss_index >= 0) && (d2_boss_index < NUM_D2_BOSSES));
 
 	//	See if should spew a bot.
-	if (weapon.ctype.laser_info.parent_type == OBJ_PLAYER)
+	if (weapon.ctype.laser_info.parent_type == OBJ_PLAYER && weapon.ctype.laser_info.parent_num == get_local_player().objnum)
 		if ((Weapon_info[get_weapon_id(weapon)].matter
 			? Boss_spews_bots_matter
 			: Boss_spews_bots_energy)[d2_boss_index])
 		{
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
-					if (boss_spew_robot(robot, collision_point) != object_none)
+					const auto &&spew = boss_spew_robot(robot, collision_point);
+					if (spew != object_none)
+					{
 						Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
+						multi_send_boss_create_robot(robotptridx, spew);
+					}
 				}
-			boss_spew_robot(robot, collision_point);
+			const auto &&spew = boss_spew_robot(robot, collision_point);
+			if (spew != object_none)
+				multi_send_boss_create_robot(robotptridx, spew);
 		}
 
 	if (Boss_invulnerable_spot[d2_boss_index]) {
@@ -1534,14 +1541,23 @@ static int do_boss_weapon_collision(const object_base &robot, const object &weap
 						Buddy_gave_hint_count--;
 						Last_time_buddy_gave_hint = GameTime64;
 						sval = (d_rand()*4) >> 15;
+						const char *msg;
 						switch (sval) {
-							case 0:	buddy_message("Hit him in the back!");	break;
-							case 1:	buddy_message("He's invulnerable there!");	break;
-							case 2:	buddy_message("Get behind him and fire!");	break;
+							case 0:
+								msg = "Hit him in the back!";
+								break;
+							case 1:
+								msg = "He's invulnerable there!";
+								break;
+							case 2:
+								msg = "Get behind him and fire!";
+								break;
 							case 3:
 							default:
-										buddy_message("Hit the glowing spot!");	break;
+								msg = "Hit the glowing spot!";
+								break;
 						}
+						buddy_message_str(msg);
 					}
 				}
 			}

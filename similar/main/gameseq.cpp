@@ -166,7 +166,7 @@ public:
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+array<player, MAX_PLAYERS> Players;   // Misc player info
 }
 static void copy_defaults_to_robot_all(void);
 
@@ -1045,7 +1045,7 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 static void do_screen_message(const char *msg) __attribute_nonnull();
 static void do_screen_message(const char *msg)
 {
-	grs_bitmap background;
+	grs_main_bitmap background;
 	
 	if (Game_mode & GM_MULTI)
 		return;
@@ -1058,7 +1058,6 @@ static void do_screen_message(const char *msg)
 		nm_item_menu(TXT_OK),
 	}};
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
-	gr_free_bitmap_data(background);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

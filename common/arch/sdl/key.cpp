@@ -28,6 +28,7 @@
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-array.h"
+#include "compiler-range_for.h"
 
 namespace dcx {
 
@@ -406,10 +407,10 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	// fill the unicode frame-related unicode buffer 
 	if (key_state && kevent->keysym.unicode > 31 && kevent->keysym.unicode < 255)
 	{
-		for (int i = 0; i < KEY_BUFFER_SIZE; i++)
-			if (unicode_frame_buffer[i] == '\0')
+		range_for (auto &i, unicode_frame_buffer)
+			if (i == '\0')
 			{
-				unicode_frame_buffer[i] = kevent->keysym.unicode;
+				i = kevent->keysym.unicode;
 				break;
 			}
 	}

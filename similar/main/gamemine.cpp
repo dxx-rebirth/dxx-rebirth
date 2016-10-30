@@ -668,7 +668,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 				i->matcen_num = v16_seg.matcen_num;
 				i->static_light = v16_seg.static_light;
 #endif
-				fuelcen_activate(i, i->special);
+				fuelcen_activate(i);
 			}
 			else 
 				Error("Invalid mine version");
@@ -709,7 +709,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 			range_for (const auto &&segp, vsegptridx)
 			{
 				segment2_read(segp, LoadFile);
-				fuelcen_activate(segp, segp->special);
+				fuelcen_activate(segp);
 			}
 #endif
 	}
@@ -1016,11 +1016,11 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 
 	validate_segment_all();			// Fill in side type and normals.
 
-	range_for (auto &i, partial_range(Segments, Num_segments)) {
-		const auto &&pi = vsegptridx(&i);
+	range_for (const auto &&pi, vsegptridx)
+	{
 		if (Gamesave_current_version > 5)
 			segment2_read(pi, LoadFile);
-		fuelcen_activate(pi, i.special );
+		fuelcen_activate(pi);
 	}
 
 	reset_objects(1);		//one object, the player

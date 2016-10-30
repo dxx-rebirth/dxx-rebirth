@@ -1238,7 +1238,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			*segp = tseg; 
 			segp->objects = object_none;
 
-			fuelcen_activate(segp, segp->special);
+			fuelcen_activate(segp);
 			}
 
 		range_for (const auto &gs, segment_ids)

@@ -1336,31 +1336,16 @@ static void move_around_player(const vobjptridx_t objp, const player_flags power
 static void move_away_from_player(const vobjptridx_t objp, const vms_vector &vec_to_player, int attack_type)
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
-	int				objref;
 
-	pptr->velocity.x -= fixmul(vec_to_player.x, FrameTime*16);
-	pptr->velocity.y -= fixmul(vec_to_player.y, FrameTime*16);
-	pptr->velocity.z -= fixmul(vec_to_player.z, FrameTime*16);
+	const auto frametime = FrameTime;
+	pptr->velocity.x -= fixmul(vec_to_player.x, frametime*16);
+	pptr->velocity.y -= fixmul(vec_to_player.y, frametime*16);
+	pptr->velocity.z -= fixmul(vec_to_player.z, frametime*16);
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
-		objref = ((objp) ^ ((d_tick_count + 3*(objp)) >> 5)) & 3;
-
-		switch (objref) {
-			case 0:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, FrameTime << 5);
-				break;
-			case 1:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.uvec, -FrameTime << 5);
-				break;
-			case 2:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, FrameTime << 5);
-				break;
-			case 3:
-				vm_vec_scale_add2(pptr->velocity, objp->orient.rvec, -FrameTime << 5);
-				break;
-			default:	Int3();	//	Impossible, bogus value on objref, must be in 0..3
-		}
+		const int objref = objp ^ ((d_tick_count + 3 * objp) >> 5);
+		vm_vec_scale_add2(pptr->velocity, (objref & 2) ? objp->orient.rvec : objp->orient.uvec, ((objref & 1) ? -frametime : frametime) << 5);
 	}
 
 
@@ -1918,10 +1903,8 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 
 	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
-		return objp;
+		return object_none;
 	}
-
-	Net_create_objnums[0] = objp; // A convenient global to get objnum back to caller for multiplayer
 
 	//Set polygon-object-specific data
 
@@ -2465,11 +2448,10 @@ static void do_super_boss_stuff(const vobjptridx_t objp, fix dist_to_player, int
 				randtype = Super_boss_gate_list[randtype];
 				Assert(randtype < N_robot_types);
 
-				const objptridx_t rtval = gate_in_robot(randtype);
+				const auto &&rtval = gate_in_robot(randtype);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
-					multi_send_boss_create_robot(objp, randtype, rtval);
-					map_objnum_local_to_local(Net_create_objnums[0]);
+					multi_send_boss_create_robot(objp, rtval);
 				}
 			}	
 	}

@@ -426,23 +426,6 @@ struct %(N)s_derived : %(N)s_base {
 	m.emplace(0, 0);
 '''
 ),
-		# This test could be made optional, but until someone reports an
-		# otherwise-supported compiler that fails this test, it is
-		# mandatory for simplicity.
-		Cxx11RequiredFeature('extended identifiers', '''
-''', r'''
-#define DXX_RENAME_IDENTIFIER2_%(N)s(I,N)	I##$##N
-#define DXX_RENAME_IDENTIFIER_%(N)s(I,N)	DXX_RENAME_IDENTIFIER2_%(N)s(I,N)
-#define DXX_extended_%(N)s a\u012b\u012f\u013d
-#define %(N)s_var	DXX_RENAME_IDENTIFIER_%(N)s(%(N)s_var, DXX_extended_%(N)s)
-	int %(N)s_var;
-	(void)%(N)s_var;
-#undef %(N)s_var
-#undef DXX_extended_%(N)s
-#undef DXX_RENAME_IDENTIFIER_%(N)s
-#undef DXX_RENAME_IDENTIFIER2_%(N)s
-'''
-),
 ])
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
@@ -1142,6 +1125,25 @@ variables to their default-constructed value.
 			not Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
 			return
 		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
+	@_custom_test
+	def check_compiler_extended_identifiers(self,context,main=r'''
+#define DXX_RENAME_IDENTIFIER2(I,N)	I##$##N
+#define DXX_RENAME_IDENTIFIER(I,N)	DXX_RENAME_IDENTIFIER2(I,N)
+#define DXX_extended a\u012b\u012f\u013d
+#define var	DXX_RENAME_IDENTIFIER(var, DXX_extended)
+	int var;
+	(void)var;
+#undef var
+#undef DXX_extended
+#undef DXX_RENAME_IDENTIFIER
+#undef DXX_RENAME_IDENTIFIER2
+''',_successflags={'CXXFLAGS' : ['-fextended-identifiers']}):
+		Compile = self.Compile
+		if Compile(context, text='', main=main, msg='whether compiler accepts extended identifiers by default') or \
+			Compile(context, text='', main=main, msg='whether compiler accepts extended identifiers with -fextended-identifiers', successflags=_successflags):
+			return
+		user_settings = self.user_settings
+		user_settings._dxx_extended_identifiers = user_settings._dxx_disable_extended_identifiers
 	@_custom_test
 	def check_attribute_error(self,context):
 		"""
@@ -2776,6 +2778,11 @@ class DXXCommon(LazyObjectConstructor):
 		_default_prefix = '/usr/local'
 		__stdout_is_not_a_tty = None
 		__has_git_dir = None
+		# +/=
+		_dxx_extended_identifiers = (r'\u012b', r'\u012f', r'\u013d')
+		_dxx_disable_extended_identifiers = ('_2b', '_2f', '_3d')
+		def default_poison(self):
+			return 'overwrite' if self.debug else 'none'
 		def default_builddir(self):
 			builddir_prefix = self.builddir_prefix
 			builddir_suffix = self.builddir_suffix
@@ -2982,7 +2989,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': ListVariable,
 				'arguments': (
-					('poison', 'none', 'method for poisoning free memory', {'names' : ('valgrind', 'overwrite')}),
+					('poison', self.default_poison, 'method for poisoning free memory', {'names' : ('valgrind', 'overwrite')}),
 				),
 			},
 			{
@@ -3311,8 +3318,13 @@ class DXXCommon(LazyObjectConstructor):
 		return '\\"%s\\"' % r
 
 	@staticmethod
-	def _encode_cppdefine_for_identifier(s,b2a_base64=binascii.b2a_base64):
-		return '"%s"' % b2a_base64(s).rstrip().replace('+', r'\u012b').replace('/', r'\u012f').replace('=', r'\u013d')
+	def _encode_cppdefine_for_identifier(user_settings,s,b2a_base64=binascii.b2a_base64):
+		extended_identifiers = user_settings._dxx_extended_identifiers
+		return '"%s"' % b2a_base64(s)	\
+			.rstrip()	\
+			.replace('+', extended_identifiers[0])	\
+			.replace('/', extended_identifiers[1])	\
+			.replace('=', extended_identifiers[2])
 
 	def prepare_environment(self):
 		# Prettier build messages......
@@ -3906,15 +3918,16 @@ class DXXProgram(DXXCommon):
 
 	def _register_program(self,exe_target):
 		env = self.env
-		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
+		user_settings = self.user_settings
+		static_archive_construction = self.static_archive_construction[user_settings.builddir]
 		objects = static_archive_construction.get_objects_common()
-		git_describe_version = Git.compute_extra_version() if self.user_settings.git_describe_version else Git.UnknownExtraVersion
-		env.__dxx_CPPDEFINE_git_version = [('DXX_git_commit', git_describe_version.revparse_HEAD), ('DXX_git_describe', self._encode_cppdefine_for_identifier(git_describe_version.describe))]
+		git_describe_version = Git.compute_extra_version() if user_settings.git_describe_version else Git.UnknownExtraVersion
+		env.__dxx_CPPDEFINE_git_version = [('DXX_git_commit', git_describe_version.revparse_HEAD), ('DXX_git_describe', self._encode_cppdefine_for_identifier(user_settings,git_describe_version.describe))]
 		objects.extend(self.get_objects_common())
-		if self.user_settings.sdlmixer:
+		if user_settings.sdlmixer:
 			objects.extend(static_archive_construction.get_objects_arch_sdlmixer())
 			objects.extend(self.get_objects_similar_arch_sdlmixer())
-		if self.user_settings.opengl or self.user_settings.opengles:
+		if user_settings.opengl or user_settings.opengles:
 			env.Append(LIBS = self.platform_settings.ogllibs)
 			static_objects_arch = static_archive_construction.get_objects_arch_ogl
 			objects_similar_arch = self.get_objects_similar_arch_ogl
@@ -3923,12 +3936,12 @@ class DXXProgram(DXXCommon):
 			objects_similar_arch = self.get_objects_similar_arch_sdl
 		objects.extend(static_objects_arch())
 		objects.extend(objects_similar_arch())
-		if self.user_settings.editor:
+		if user_settings.editor:
 			objects.extend(self.get_objects_editor())
 			objects.extend(static_archive_construction.get_objects_editor())
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'][:]
-		extra_version = self.user_settings.extra_version
+		extra_version = user_settings.extra_version
 		if extra_version is None:
 			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
 			if self.VERSION_MICRO:
@@ -3969,8 +3982,8 @@ class DXXProgram(DXXCommon):
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
 		versid_cpp = 'similar/main/vers_id.cpp'
-		versid_obj = env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(versid_cpp), self.env["OBJSUFFIX"]), source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
-		if self.user_settings.versid_depend_all:
+		versid_obj = env.StaticObject(target='%s%s%s' % (user_settings.builddir, self._apply_target_name(versid_cpp), self.env["OBJSUFFIX"]), source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
+		if user_settings.versid_depend_all:
 			# Optional fake dependency to force vers_id to rebuild so
 			# that it picks up the latest timestamp.
 			env.Depends(versid_obj, objects)

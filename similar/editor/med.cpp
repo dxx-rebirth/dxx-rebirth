@@ -438,7 +438,7 @@ int SetPlayerFromCurseg()
 int fuelcen_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_FUELCEN;
-	fuelcen_activate(Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp);
 	return 1;
 }
 
@@ -453,14 +453,14 @@ int repaircen_create_from_curseg()
 int controlcen_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_CONTROLCEN;
-	fuelcen_activate(Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp);
 	return 1;
 }
 
 int robotmaker_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_ROBOTMAKER;
-	fuelcen_activate(Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp);
 	return 1;
 }
 

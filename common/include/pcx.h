@@ -55,7 +55,7 @@ namespace dcx {
 // then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
 
-int pcx_read_bitmap(const char * filename, grs_bitmap &bmp, palette_array_t &palette);
+int pcx_read_bitmap(const char * filename, grs_main_bitmap &bmp, palette_array_t &palette);
 
 // Writes the bitmap bmp to filename, using palette. Returns error code.
 
