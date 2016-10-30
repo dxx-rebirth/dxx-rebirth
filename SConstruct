@@ -2011,8 +2011,20 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
 	@_custom_test
 	def check_compiler_useless_cast(self,context):
+		Compile = self.Compile
+		flags = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'useless-cast']}
+		if Compile(context, text='''
+#include <SDL_endian.h>
+''', main='''
+	return SDL_Swap32(argc);
+''', msg='whether compiler argument -Wuseless-cast works with SDL', successflags=flags):
+			return
 		# <=clang-3.7 does not understand -Wuseless-cast
-		self.Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', successflags={'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'useless-cast']})
+		# This test does not influence the compile environment, but is
+		# run to distinguish in the output whether the failure is
+		# because the compiler does not accept -Wuseless-cast or because
+		# SDL's headers provoke a warning from -Wuseless-cast.
+		Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', testflags=flags)
 	@_custom_test
 	def check_compiler_ptrdiff_cast_int(self,context):
 		context.sconf.Define('DXX_ptrdiff_cast_int', 'static_cast<int>'
