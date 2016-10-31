@@ -100,20 +100,6 @@ int window_close(window *wind)
 	return 1;
 }
 
-#if 0
-// This function is problematic in that another window could open with the same pointer value,
-// causing a false positive to be returned.
-// Could use w_exists, but that would mean filling it out with some bool stored elsewhere for every window (yuck)
-int window_exists(window *wind)
-{
-	window *w;
-
-	for (w = FirstWindow; w && w != wind; w = w->next) {}
-	
-	return w && w == wind;
-}
-#endif
-
 // Get the top window that's visible
 window *window_get_front(void)
 {

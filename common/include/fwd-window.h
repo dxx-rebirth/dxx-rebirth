@@ -33,7 +33,6 @@ class unused_window_userdata_t;
  */
 
 int window_close(window *wind);
-//int window_exists(window *wind);
 window *window_get_front();
 window *window_get_first();
 window *window_get_next(window &wind);
