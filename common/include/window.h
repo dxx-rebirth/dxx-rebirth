@@ -20,6 +20,8 @@
 #include "console.h"
 
 #ifdef __cplusplus
+#include <assert.h>
+
 #include "fwd-window.h"
 #include "event.h"
 namespace dcx {
@@ -136,12 +138,10 @@ public:
 		return wind.prev;
 	}
 
-	bool track(bool *exists)
+	void track(bool *exists)
 	{
-		if (w_exists)
-			return false;	// whoops - already have a tracking variable
+		assert(w_exists == nullptr);
 		w_exists = exists;
-		return true;
 	}
 };
 
