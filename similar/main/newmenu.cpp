@@ -1669,7 +1669,7 @@ struct listbox : embed_window_pointer_t
 	const char **item;
 	int allow_abort_flag;
 	unsigned marquee_maxchars;
-	window_event_result (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
+	listbox_subfunction_t<void> listbox_callback;
 	unsigned nitems;
 	int citem, first_item;
 	int marquee_charpos, marquee_scrollback;
