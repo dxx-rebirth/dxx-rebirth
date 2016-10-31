@@ -467,6 +467,7 @@ int multi_objnum_is_past(objnum_t objnum)
 			break;
 #endif
 		default:
+			(void)objnum;
 			Error("Protocol handling missing in multi_objnum_is_past\n");
 			break;
 	}
@@ -937,6 +938,7 @@ void multi_do_protocol_frame(int force, int listen)
 			break;
 #endif
 		default:
+			(void)force; (void)listen;
 			Error("Protocol handling missing in multi_do_protocol_frame\n");
 			break;
 	}
@@ -1016,6 +1018,7 @@ void _multi_send_data(const ubyte *buf, unsigned len, int priority)
 				break;
 #endif
 			default:
+				(void)buf; (void)len; (void)priority;
 				Error("Protocol handling missing in multi_send_data\n");
 				break;
 		}
@@ -1035,6 +1038,7 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 			break;
 #endif
 		default:
+			(void)buf; (void)len; (void)priority;
 			Error("Protocol handling missing in multi_send_data_direct\n");
 			break;
 	}
@@ -1124,6 +1128,7 @@ int multi_endlevel(int *const secret)
 			break;
 #endif
 		default:
+			(void)secret;
 			Error("Protocol handling missing in multi_endlevel\n");
 			break;
 	}
@@ -1302,6 +1307,7 @@ static void kick_player(player &plr, netplayer_info &nplr)
 			break;
 #endif
 		default:
+			(void)nplr;
 			Error("Protocol handling missing in multi_send_message_end\n");
 			break;
 	}
