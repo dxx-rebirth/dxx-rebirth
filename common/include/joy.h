@@ -14,9 +14,9 @@
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
+#include "event.h"
 
 #if DXX_MAX_JOYSTICKS
-#include "fwd-event.h"
 #include "pstypes.h"
 #include "maths.h"
 #include <SDL.h>
@@ -50,19 +50,28 @@ namespace dcx {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 extern window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe);
 #else
-#define joy_button_handler(jbe)	static_cast<void>(static_cast<SDL_JoyButtonEvent *const &>(jbe))
+static inline window_event_result joy_button_handler(void *)
+{
+	return window_event_result::ignored;
+}
 #endif
 
 #if DXX_MAX_HATS_PER_JOYSTICK
 extern window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe);
 #else
-#define joy_hat_handler(jhe)	static_cast<void>(static_cast<SDL_JoyHatEvent *const &>(jhe))
+static inline window_event_result joy_hat_handler(void *)
+{
+	return window_event_result::ignored;
+}
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
 extern window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae);
 #else
-#define joy_axis_handler(jae)	(static_cast<void>(static_cast<SDL_JoyAxisEvent *const &>(jae)), 1)
+static inline window_event_result joy_axis_handler(void *)
+{
+	return window_event_result::ignored;
+}
 #endif
 
 }
