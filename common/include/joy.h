@@ -16,14 +16,12 @@
 #include "dsx-ns.h"
 
 #if DXX_MAX_JOYSTICKS
+#include "fwd-event.h"
 #include "pstypes.h"
 #include "maths.h"
 #include <SDL.h>
 
 namespace dcx {
-
-struct d_event;
-enum class window_event_result : unsigned;
 
 #define JOY_MAX_AXES				(DXX_MAX_AXES_PER_JOYSTICK * DXX_MAX_JOYSTICKS)
 #define JOY_MAX_BUTTONS				(DXX_MAX_BUTTONS_PER_JOYSTICK * DXX_MAX_JOYSTICKS)

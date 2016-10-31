@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "pstypes.h"
+
 namespace dcx {
 
 struct d_event;
@@ -15,7 +17,7 @@ struct d_change_event;
 struct d_select_event;
 
 enum event_type : unsigned;
-enum class window_event_result : unsigned;
+enum class window_event_result : uint8_t;
 
 int event_init();
 

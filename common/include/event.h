@@ -48,7 +48,7 @@ enum event_type : unsigned
 	EVENT_UI_USERBOX_DRAGGED
 };
 
-enum class window_event_result : unsigned
+enum class window_event_result : uint8_t
 {
 	// Window ignored event.  Bubble up.
 	ignored,

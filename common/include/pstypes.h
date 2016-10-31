@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #endif
 
+#include <cstdint>
 #include <limits.h>
 
 //define a signed byte
