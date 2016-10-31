@@ -165,19 +165,20 @@ window_event_result event_process(void)
 	while (wind != NULL)
 	{
 		window *prev = window_get_prev(*wind);
-		window_event_result result(window_event_result::ignored);
 		if (window_is_visible(wind))
-			result = window_send_event(*wind, event);
-		if (result == window_event_result::deleted)
 		{
-			if (!prev) // well there isn't a previous window ...
-				break; // ... just bail out - we've done everything for this frame we can.
-			wind = window_get_next(*prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
-		}
-		else
-			wind = window_get_next(*wind);
+			auto result = window_send_event(*wind, event);
+			if (result == window_event_result::deleted)
+			{
+				if (!prev) // well there isn't a previous window ...
+					break; // ... just bail out - we've done everything for this frame we can.
+				wind = window_get_next(*prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
+			}
+			else
+				wind = window_get_next(*wind);
 
-		highest_result = std::max(result, highest_result);
+			highest_result = std::max(result, highest_result);
+		}
 	}
 
 	gr_flip();
