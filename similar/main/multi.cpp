@@ -533,7 +533,7 @@ kmatrix_result multi_endlevel_score()
 	if (Game_wind && game_wind_visible)
 		window_set_visible(Game_wind, 0);
 
-        return rval;
+	return rval;
 }
 
 }

@@ -841,45 +841,45 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 			}
 			if (obj_in_list(objnum, ignore_obj_list))
 				continue;
-				int fudged_rad = rad;
+			int fudged_rad = rad;
 
 #if defined(DXX_BUILD_DESCENT_II)
-				//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
-				if (objnum->type == OBJ_POWERUP)
-					if (flags & FQ_IGNORE_POWERUPS)
-						continue;
+			//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
+			if (objnum->type == OBJ_POWERUP)
+				if (flags & FQ_IGNORE_POWERUPS)
+					continue;
 #endif
 
-				//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-				const auto &thisobjp = thisobjnum;
-				if (thisobjp->type == OBJ_ROBOT)
-					if (objnum->type == OBJ_ROBOT)
+			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
+			const auto &thisobjp = thisobjnum;
+			if (thisobjp->type == OBJ_ROBOT)
+				if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
-						if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(thisobjp)].attack_type))
+					if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(thisobjp)].attack_type))
 #endif
-						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
-							continue;
+					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
+						continue;
 
-				if (thisobjp->type == OBJ_ROBOT && Robot_info[get_robot_id(thisobjp)].attack_type)
-					fudged_rad = (rad*3)/4;
+			if (thisobjp->type == OBJ_ROBOT && Robot_info[get_robot_id(thisobjp)].attack_type)
+				fudged_rad = (rad*3)/4;
 
-				//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-				if (thisobjp->type == OBJ_PLAYER &&
-						((objnum->type == OBJ_PLAYER) ||
-						((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
-					fudged_rad = rad/2;	//(rad*3)/4;
+			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
+			if (thisobjp->type == OBJ_PLAYER &&
+					((objnum->type == OBJ_PLAYER) ||
+					((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
+				fudged_rad = rad/2;	//(rad*3)/4;
 
-				vms_vector hit_point;
-				const auto &&d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum, thisobjp);
+			vms_vector hit_point;
+			const auto &&d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum, thisobjp);
 
-				if (d)          //we have intersection
-					if (d < closest_d) {
-						fvi_hit_object = objnum;
-						Assert(fvi_hit_object!=object_none);
-						closest_d = d;
-						closest_hit_point = hit_point;
-						hit_type=HIT_OBJECT;
-					}
+			if (d)          //we have intersection
+				if (d < closest_d) {
+					fvi_hit_object = objnum;
+					Assert(fvi_hit_object!=object_none);
+					closest_d = d;
+					closest_hit_point = hit_point;
+					hit_type=HIT_OBJECT;
+				}
 		}
 	}
 

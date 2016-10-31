@@ -1589,8 +1589,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				if (!rotate_list(seg->verts).uand)
 				{		//all off screen?
 
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
+					if (Viewer->type!=OBJ_ROBOT)
+						Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{
@@ -1640,8 +1640,8 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 				if (!rotate_list(seg->verts).uand)
 				{		//all off screen?
 
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
+					if (Viewer->type!=OBJ_ROBOT)
+						Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 					{

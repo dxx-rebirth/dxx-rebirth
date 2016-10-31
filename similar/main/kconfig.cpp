@@ -1495,7 +1495,7 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 		code = 0;
 	else
 		return;
-		kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
+	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
 }
 
 static void kc_change_invert( kc_menu *menu, kc_mitem * item )
