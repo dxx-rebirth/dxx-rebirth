@@ -118,7 +118,7 @@ static void net_udp_send_extras ();
 }
 static void net_udp_broadcast_game_info(ubyte info_upid);
 namespace dsx {
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info);
+static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID = 0);
 }
 static int net_udp_start_game(void);
 
@@ -145,13 +145,26 @@ static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #endif
 #if DXX_USE_TRACKER
 static _sockaddr TrackerSocket;
+enum class TrackerAckState : uint8_t
+{
+	TACK_NOCONNECTION,   // No connection with tracker (yet);
+	TACK_INTERNAL	= 1, // Got ACK on TrackerSocket
+	TACK_EXTERNAL	= 2, // Got ACK on our game sopcket
+	TACK_SEQCOMPL	= 3, // We had enough time to get all acks. If we missed something now, tell the user
+};
+static TrackerAckState TrackerAckStatus;
+static fix64 TrackerAckTime;
 static int udp_tracker_init();
 static int udp_tracker_unregister();
 namespace dsx {
 static int udp_tracker_register();
 static int udp_tracker_reqgames();
 }
-static int udp_tracker_process_game( ubyte *data, int data_len );
+static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr &sender_addr );
+static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr &sender_addr );
+static void udp_tracker_verify_ack_timeout();
+static void udp_tracker_request_holepunch( uint16_t TrackerGameID );
+static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _sockaddr &sender_addr );
 #endif
 
 static fix64 StartAbortMenuTime;
@@ -532,11 +545,11 @@ namespace {
 class udp_dns_filladdr_t
 {
 public:
-	static int apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool silent);
+	static int apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool numeric_only, bool silent);
 };
 
 // Resolve address
-int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool silent)
+int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool numeric_only, bool silent)
 {
 #ifdef DXX_HAVE_GETADDRINFO
 	// Variables
@@ -550,6 +563,9 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	hints.ai_family = ai_family;
 	// We are always UDP
 	hints.ai_socktype = SOCK_DGRAM;
+	// Numeric address only?
+	if (numeric_only)
+		hints.ai_flags |= AI_NUMERICHOST;
 	
 	// Resolve the domain name
 	RAIIaddrinfo result;
@@ -587,6 +603,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	
 	// Free memory
 #else
+	(void)numeric_only;
 	sockaddr_in &sai = reinterpret_cast<sockaddr_in &>(addr);
 	if (addrlen < sizeof(sai))
 		return -1;
@@ -640,9 +657,9 @@ constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_fi
 
 static void udp_init_broadcast_addresses()
 {
-	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT, true);
+	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT, true, true);
 #if DXX_USE_IPv6
-	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, true);
+	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, true, true);
 #endif
 }
 
@@ -760,6 +777,9 @@ struct direct_join
 	struct _sockaddr host_addr;
 	int connecting;
 	fix64 start_time, last_time;
+#if DXX_USE_TRACKER
+	uint16_t gameid;
+#endif
 	char addrbuf[128];
 	char hostportbuf[6], myportbuf[6];
 };
@@ -787,6 +807,10 @@ static int net_udp_game_connect(direct_join *dj)
 	if (timer_query() >= dj->last_time + F1_0)
 	{
 		net_udp_request_game_info(dj->host_addr, 0);
+#if DXX_USE_TRACKER
+		if (timer_query() >= dj->start_time + (F1_0*4) && dj->gameid)
+			udp_tracker_request_holepunch(dj->gameid);
+#endif
 		dj->last_time = timer_query();
 	}
 	timer_delay2(5);
@@ -859,7 +883,7 @@ static int manual_join_game_handler(newmenu *menu,const d_event &event, direct_j
 			if (!convert_text_portstring(dj->hostportbuf, hostport, true, false))
 				return 1;
 			// Resolve address
-			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, hostport, false) < 0)
+			if (udp_dns_filladdr(dj->host_addr, dj->addrbuf, hostport, false, false) < 0)
 			{
 				return 1;
 			}
@@ -947,6 +971,8 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 #if DXX_USE_TRACKER
 			udp_tracker_reqgames();
 #endif
+			if (!dj->connecting) // fallback/failsafe!
+				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			break;
 		}
 		case EVENT_IDLE:
@@ -954,6 +980,8 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 			{
 				if (net_udp_game_connect(dj))
 					return -2;	// Success!
+				if (!dj->connecting) // connect wasn't successful - get rid of the message.
+					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			}
 			break;
 		case EVENT_KEY_COMMAND:
@@ -1028,6 +1056,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				if (dj->connecting)
 				{
 					dj->connecting = 0;
+					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 					return 1;
 				}
 				break;
@@ -1037,7 +1066,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 		case EVENT_NEWMENU_SELECTED:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 4) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-4) <= num_active_udp_games-1))
+			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 4) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-3) <= num_active_udp_games))
 			{
 				multi_new_game();
 				N_players = 0;
@@ -1047,6 +1076,10 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				dj->host_addr = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].game_addr;
 				Netgame.players[0].protocol.udp.addr = dj->host_addr;
 				dj->connecting = 1;
+#if DXX_USE_TRACKER
+				dj->gameid = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].TrackerGameID;
+#endif
+				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\tConnecting. Please wait...");
 				return 1;
 			}
 			else
@@ -1169,10 +1202,10 @@ void net_udp_list_join_game()
 	newmenu_item *m;
 	direct_join *dj;
 
-	CALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+4)*2)+1);
+	CALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+5)*2)+1);
 	if (!m)
 		return;
-	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+4)*2)+1)*74);
+	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+5)*2)+1)*74);
 	if (!ljtext)
 	{
 		d_free(m);
@@ -1224,9 +1257,10 @@ void net_udp_list_join_game()
 		nm_set_item_menu(m[i+4], ljtext + 74 * i);
 		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
 	}
+	nm_set_item_text(m[UDP_NETGAMES_PPAGE+4], "\t" );
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+4), m, 1, net_udp_list_join_poll, dj);
+	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+5), m, 1, net_udp_list_join_poll, dj);
 }
 
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
@@ -2554,7 +2588,7 @@ static unsigned net_udp_send_request(void)
 }
 
 namespace dsx {
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, int lite_info)
+static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID)
 {
 	uint_fast32_t len = 0;
 	if (lite_info)
@@ -2584,6 +2618,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		copy_to_ntstring(data, len, recv_game.game_name);
 		copy_to_ntstring(data, len, recv_game.mission_title);
 		copy_to_ntstring(data, len, recv_game.mission_name);
+		recv_game.TrackerGameID = TrackerGameID;
 	
 		num_active_udp_changed = 1;
 		
@@ -2906,7 +2941,15 @@ static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, in
 			break;
 #if DXX_USE_TRACKER
 		case UPID_TRACKER_GAMEINFO:
-			udp_tracker_process_game( data, length );
+			udp_tracker_process_game( data, length, sender_addr );
+			break;
+		case UPID_TRACKER_ACK:
+			if (!multi_i_am_master())
+				break;
+			udp_tracker_process_ack( data, length, sender_addr );
+			break;
+		case UPID_TRACKER_HOLEPUNCH:
+			udp_tracker_process_holepunch( data, length, sender_addr );
 			break;
 #endif
 		default:
@@ -4119,12 +4162,16 @@ static int net_udp_select_players()
 
 	snprintf(title, sizeof(title), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
 
-GetPlayersAgain:
 #if DXX_USE_TRACKER
 	if( Netgame.Tracker )
+	{
+		TrackerAckStatus = TrackerAckState::TACK_NOCONNECTION;
+		TrackerAckTime = timer_query();
 		udp_tracker_register();
+	}
 #endif
 
+GetPlayersAgain:
 	j = newmenu_do1(nullptr, title, spd.m.size(), spd.m.data(), net_udp_start_poll, &spd, 1);
 
 	save_nplayers = N_players;
@@ -4133,11 +4180,6 @@ GetPlayersAgain:
 	{
 		// Aborted!
 		// Dump all players and go back to menu mode
-#if DXX_USE_TRACKER
-		if( Netgame.Tracker )
-			udp_tracker_unregister();
-#endif
-
 abort:
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
@@ -4152,6 +4194,10 @@ abort:
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
+#if DXX_USE_TRACKER
+		if( Netgame.Tracker )
+			udp_tracker_unregister();
+#endif
 		return(0);
 	}
 	// Count number of players chosen
@@ -4657,6 +4703,9 @@ void net_udp_do_frame(int force, int listen)
 	}
 
 	net_udp_ping_frame(time);
+#if DXX_USE_TRACKER
+	udp_tracker_verify_ack_timeout();
+#endif
 
 	if (listen)
 	{
@@ -5616,20 +5665,76 @@ static int udp_tracker_init()
 {
 	if (CGameArg.MplTrackerAddr.empty())
 		return 0;
+
+	TrackerAckStatus = TrackerAckState::TACK_NOCONNECTION;
+	TrackerAckTime = timer_query();
+
 	const char *tracker_addr = CGameArg.MplTrackerAddr.c_str();
 
 	// Fill the address
-	if (udp_dns_filladdr(TrackerSocket, tracker_addr, CGameArg.MplTrackerPort, true) < 0)
+	if (udp_dns_filladdr(TrackerSocket, tracker_addr, CGameArg.MplTrackerPort, false, true) < 0)
 		return -1;
 
 	// Yay
 	return 0;
 }
 
+/* Compares sender to tracker. Returns 1 if address matches, Returns 2 is address and port matches. */
+static int sender_is_tracker(const _sockaddr &sender, const _sockaddr &tracker)
+{
+	uint16_t sf, tf, sp, tp;
+
+	sf = sender.sin.sin_family;
+	tf = tracker.sin.sin_family;
+
+#if DXX_USE_IPv6
+	if (sf == AF_INET6)
+	{
+		if (tf == AF_INET)
+		{
+			if (IN6_IS_ADDR_V4MAPPED(&sender.sin6.sin6_addr))
+			{
+				if (memcmp(&sender.sin6.sin6_addr.s6_addr[12], &tracker.sin.sin_addr, sizeof(tracker.sin.sin_addr)))
+					return 0;
+				tp = tracker.sin.sin_port;
+			}
+			else
+				return 0;
+		}
+		else if (tf == AF_INET6)
+		{
+			if (memcmp(&sender.sin6.sin6_addr, &tracker.sin6.sin6_addr, sizeof(sender.sin6.sin6_addr)))
+				return 0;
+			tp = tracker.sin6.sin6_port;
+		}
+		else
+			return 0;
+		sp = sender.sin6.sin6_port;
+	}
+	else
+#endif
+	if (sf == AF_INET)
+	{
+		if (sf != tf)
+			return 0;
+		if (memcmp(&sender.sin.sin_addr, &tracker.sin.sin_addr, sizeof(sender.sin.sin_addr)))
+			return 0;
+		sp = sender.sin.sin_port;
+		tp = tracker.sin.sin_port;
+	}
+	else
+		return 0;
+
+	if (tp == sp)
+		return 2;
+	else
+		return 1;
+}
+
 /* Unregister from the tracker */
 static int udp_tracker_unregister()
 {
-	array<uint8_t, 1> pBuf = {};
+	array<uint8_t, 1> pBuf;
 
 	pBuf[0] = UPID_TRACKER_REMOVE;
 
@@ -5643,12 +5748,11 @@ static int udp_tracker_register()
 	net_udp_update_netgame();
 
 	game_info_light light;
-	int len = 0, light_len = net_udp_prepare_light_game_info(light);
-	array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,c=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
+	int len = 1, light_len = net_udp_prepare_light_game_info(light);
+	array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
 
-	pBuf[0] = UPID_TRACKER_REGISTER;				len++;
-	snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,c=", MULTI_PROTO_VERSION );
-									len += strlen(reinterpret_cast<char *>(&pBuf[1]));
+	pBuf[0] = UPID_TRACKER_REGISTER;
+	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );
 	memcpy(&pBuf[len], light.buf.data(), light_len);		len += light_len;
 
 	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, len, 0);
@@ -5658,46 +5762,158 @@ static int udp_tracker_register()
 static int udp_tracker_reqgames()
 {
 	array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
+	int len = 1;
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
-	snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, UDP_REQ_ID DXX_VERSION_STR ".%hu", MULTI_PROTO_VERSION );
+	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, UDP_REQ_ID DXX_VERSION_STR ".%hu", MULTI_PROTO_VERSION );
 
-	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, strlen(reinterpret_cast<char *>(&pBuf)), 0);
+	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, len, 0);
 }
 }
 
 /* The tracker has sent us a game.  Let's list it. */
-static int udp_tracker_process_game( ubyte *data, int data_len )
+static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr &sender_addr )
 {
-	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
-	char sIP[16] = {}, sPort[6] = {};
-	uint16_t iPort = 0;
+	// Only accept data from the tracker we specified and only when we look at the netlist (i.e. NETSTAT_BROWSING)
+	if (!sender_is_tracker(sender_addr, TrackerSocket) || (Network_status != NETSTAT_BROWSING))
+		return -1;
+
+	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL, *p4 = NULL;
+	char sIP[46] = {}, sPort[6] = {};
+	uint16_t iPort = 0, TrackerGameID = 0;
 
 	// Get the IP
-	p0 = strstr(reinterpret_cast<char *>(data), "a=")+2;
-	p1 = strstr(p0, ":");
-	if (p0 == NULL || p1 == NULL || p1-p0 < 7 || p1-p0 > sizeof(sIP))
+	if ((p0 = strstr(reinterpret_cast<char *>(data), "a=")) == NULL)
+		return -1;
+	p0 +=2;
+	if ((p1 = strstr(p0, "/")) == NULL)
 		return -1;
 	memcpy(sIP, p0, p1-p0);
+	if (p1-p0 < 1 || p1-p0 > sizeof(sIP))
+		return -1;
 
 	// Get the port
-	p2 = strstr(reinterpret_cast<char *>(data), ":")+1;
-	p3 = strstr(p2, "c=");
-	if (p2 == NULL || p3 == NULL || p3-p2-1 < 1 || p3-p2-1 > sizeof(sPort))
+	if ((p2 = strstr(reinterpret_cast<char *>(data), "/")) == NULL)
+		return -1;
+	p2++;
+	if ((p3 = strstr(p2, "c=")) == NULL)
 		return -1;
 	memcpy(sPort, p2, p3-p2-1);
+	if (p3-p2-1 < 1 || p3-p2-1 > sizeof(sPort))
+		return -1;
 	if (!convert_text_portstring(sPort, iPort, true, true))
 		return -1;
 
 	// Get the DNS stuff
 	struct _sockaddr sAddr;
-	if(udp_dns_filladdr(sAddr, sIP, iPort, true) < 0)
+	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
+		return -1;
+
+	TrackerGameID = GET_INTEL_SHORT(p3 + 2);
+	if ((p4 = strstr(reinterpret_cast<char *>(data), "z=")) == NULL)
 		return -1;
 
 	// Now process the actual lite_game packet contained.
-	int iPos = (p3-p0+5);
-	net_udp_process_game_info( &data[iPos], data_len - iPos, sAddr, 1 );
+	int iPos = (p4-p0+5);
+	net_udp_process_game_info( &data[iPos], data_len - iPos, sAddr, 1, TrackerGameID );
 
 	return 0;
+}
+
+/* Process ACK's from tracker. We will get up to 5, each internal and external */
+static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr &sender_addr )
+{
+	if(!Netgame.Tracker)
+		return;
+	if (data_len != 2)
+		return;
+	int addr_check = sender_is_tracker(sender_addr, TrackerSocket);
+
+	switch (data[1])
+	{
+		case 0: // ack coming from the same socket we are already talking with the tracker
+			if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION && addr_check == 2)
+			{
+				TrackerAckStatus = TrackerAckState::TACK_INTERNAL;
+				con_printf(CON_VERBOSE, "[Tracker] Got internal ACK. Your game is hosted!");
+			}
+			break;
+		case 1: // ack from another socket (same IP, different port) to see if we're reachable from the outside
+			if (TrackerAckStatus <= TrackerAckState::TACK_INTERNAL && addr_check)
+			{
+				TrackerAckStatus = TrackerAckState::TACK_EXTERNAL;
+				con_printf(CON_VERBOSE, "[Tracker] Got external ACK.\nYour game is hosted and game port is reachable!");
+			}
+			break;
+	}
+}
+
+/* 10 seconds passed since we registered our game. If we have not received all ACK's, yet, tell user about that! */
+static void udp_tracker_verify_ack_timeout()
+{
+	if (!Netgame.Tracker || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
+		return;
+	if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION)
+	{
+		TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL; // set this now or we'll run into an endless loop if nm_messagebox triggers.
+		if (Network_status == NETSTAT_PLAYING)
+			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
+		else
+			nm_messagebox(TXT_WARNING, 1, TXT_OK, "No ACK from tracker.\nPlease check game log.");
+		con_printf(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid,\nTracker is offline or otherwise unreachable.");
+	}
+	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)
+		con_printf(CON_NORMAL, "[Tracker] No external signal from game tracker.\nYour game port does not seem to be reachable.\nClients will attempt hole-punching to join your game.");
+	TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL;
+}
+
+/* We don't seem to be able to connect to a game. Ask Tracker to send hole punch request to host. */
+static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
+{
+	array<uint8_t, 3> pBuf;
+
+	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
+	PUT_INTEL_SHORT(&pBuf[1], TrackerGameID);
+
+	con_printf(CON_VERBOSE, "[Tracker] Sending hole-punch request for game [%i] to tracker.", TrackerGameID);
+	dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, 3, 0);
+}
+
+/* Tracker sent us an address from a client requesting hole punching.
+ * We'll simply reply with another hole punch packet and wait for them to request our game info properly. */
+static void udp_tracker_process_holepunch( ubyte *data, int data_len, const _sockaddr &sender_addr )
+{
+	if (data_len == 1 && !multi_i_am_master())
+	{
+		con_printf(CON_VERBOSE, "[Tracker] Received hole-punch pong from a host.");
+		return;
+	}
+	if (!Netgame.Tracker || !sender_is_tracker(sender_addr, TrackerSocket) || !multi_i_am_master())
+		return;
+
+	char *p0, delimiter[] = "/";
+	char sIP[46] = {}, sPort[6] = {};
+	uint16_t iPort = 0;
+
+	p0 = strtok(reinterpret_cast<char *>(data), delimiter);
+	if (p0 == NULL)
+		return;
+	p0++;
+	memcpy(sIP, p0, strlen(p0));
+	p0 = strtok(NULL, delimiter);
+	if (p0 == NULL)
+		return;
+	memcpy(sPort, p0, strlen(p0));
+	if (!convert_text_portstring(sPort, iPort, true, true))
+		return;
+
+	// Get the DNS stuff
+	struct _sockaddr sAddr;
+	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
+		return;
+
+	array<uint8_t, 1> pBuf;
+	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
+	dxx_sendto(sAddr, UDP_Socket[0], &pBuf, 1, 0);
 }
 #endif /* USE_TRACKER */
