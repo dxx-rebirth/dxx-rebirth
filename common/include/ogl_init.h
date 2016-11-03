@@ -44,20 +44,8 @@
 #include "pstypes.h"
 #include "3d.h"
 #include "compiler-array.h"
+#include "ogl_extensions.h"
 
-#ifndef GL_VERSION_1_1
-#ifdef GL_EXT_texture
-#define GL_INTENSITY4 GL_INTENSITY4_EXT
-#define GL_INTENSITY8 GL_INTENSITY8_EXT
-#endif
-#endif
-
-#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
-#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
-#endif
-#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
-#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-#endif
 #define OGL_TEXFILT_CLASSIC  0
 #define OGL_TEXFILT_UPSCALE  1
 #define OGL_TEXFILT_TRLINEAR 2
@@ -85,7 +73,6 @@ void ogl_init_texture(ogl_texture &t, int w, int h, int flags);
 void ogl_init_shared_palette(void);
 
 namespace dcx {
-extern GLfloat ogl_maxanisotropy;
 
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)
