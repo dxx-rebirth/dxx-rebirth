@@ -89,7 +89,7 @@ class d_size_sorted<std::tuple<Ts...>>
 	using first_type = typename split_tuple::first_type;
 	using second_type = typename split_tuple::second_type;
 public:
-	using type = typename tt::conditional<(sizeof(first_type) < sizeof(second_type)),
+	using type = typename std::conditional<(sizeof(first_type) < sizeof(second_type)),
 		decltype(std::tuple_cat(std::declval<first_type>(), std::declval<second_type>())),
 		decltype(std::tuple_cat(std::declval<second_type>(), std::declval<first_type>()))
 	>::type;
@@ -107,15 +107,15 @@ template <typename>
 class ignore_empty {};
 
 template <typename T>
-using maybe_empty_array = typename tt::conditional<T().empty(), ignore_empty<T>, T>::type;
+using maybe_empty_array = typename std::conditional<T().empty(), ignore_empty<T>, T>::type;
 
 /* This struct is an array, with one entry for each physical joystick
  * found.
  */
 class d_physical_joystick
 {
-#define for_each_tuple_item(VERB)	\
-	VERB(handle)	\
+#define for_each_tuple_item(HANDLE_VERB,VERB)	\
+	HANDLE_VERB(handle)	\
 	VERB(hat_map)	\
 	VERB(button_map)	\
 	VERB(axis_map)	\
@@ -124,26 +124,31 @@ class d_physical_joystick
 #if DXX_USE_SIZE_SORTED_TUPLE
 	template <typename... Ts>
 		using tuple_type = typename d_size_sorted<std::tuple<Ts...>>::type;
-#define define_getter(N)	\
-	auto N() -> decltype(std::get<tuple_member_type_##N>(t))	\
-	{	\
-		return std::get<tuple_member_type_##N>(t);	\
-	}
+#define define_handle_getter(N)	\
+	define_getter(N, tuple_member_type_##N)
+#define define_array_getter(N)	\
+	define_getter(N, maybe_empty_array<tuple_member_type_##N>)
 #else
 	template <typename... Ts>
 		using tuple_type = std::tuple<Ts...>;
 	enum
 	{
 #define define_enum(V)	tuple_item_##V,
-		for_each_tuple_item(define_enum)
+		for_each_tuple_item(define_enum, define_enum)
 #undef define_enum
 	};
-#define define_getter(N)	\
-	auto N() -> decltype(std::get<tuple_item_##N>(t))	\
-	{	\
-		return std::get<tuple_item_##N>(t);	\
-	}
+	/* std::get<index> does not handle the maybe_empty_array case, so
+	 * reuse the same getter for both handle and array.
+	 */
+#define define_handle_getter(N)	\
+	define_getter(N, tuple_item_##N)
+#define define_array_getter	define_handle_getter
 #endif
+#define define_getter(N,V)	\
+	auto &N()	\
+	{	\
+		return std::get<V>(t);	\
+	}
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	struct tuple_member_type_hat_map : array<unsigned, DXX_MAX_HATS_PER_JOYSTICK> {};
@@ -158,7 +163,9 @@ class d_physical_joystick
 		maybe_empty_array<tuple_member_type_axis_value>
 	> t;
 public:
-	for_each_tuple_item(define_getter);
+	for_each_tuple_item(define_handle_getter, define_array_getter);
+#undef define_handle_getter
+#undef define_array_getter
 #undef define_getter
 #undef for_each_tuple_item
 };
