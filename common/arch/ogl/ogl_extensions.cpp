@@ -39,10 +39,10 @@ static array<long, 2> parse_version_str(const char *v)
 		char *ptr;
 		if (v[0] == 'O') {
 			// OpenGL ES uses the format "OpenGL ES-xx major.minor"
-			const char *prefix_gles="OpenGL ES-";
-			if (!strncmp(v, prefix_gles, strlen(prefix_gles))) {
+			const auto &prefix_gles = "OpenGL ES-";
+			if (!strncmp(v, prefix_gles, sizeof(prefix_gles)-1)) {
 				// skip the prefix
-				v += strlen(prefix_gles);
+				v += sizeof(prefix_gles)-1;
 				// skip the profile marker
 				if (v[0] && v[1]) {
 					v +=2;
@@ -97,7 +97,7 @@ static support_mode is_supported(const char *extensions, const array<long, 2> &v
 
 void ogl_extensions_init()
 {
-	const auto *version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
+	const auto version_str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 	if (!version_str) {
 		con_printf(CON_URGENT, "no valid OpenGL context when querying GL extensions!");
 		return;
@@ -105,13 +105,13 @@ void ogl_extensions_init()
 	const auto version = parse_version_str(version_str);
 	const auto extension_str = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
-	con_printf(CON_VERBOSE, "OpenGL%s: version %ld.%ld (%s)",
 #if DXX_USE_OGLES
-			" ES",
+#define DXX_OGL_STRING  " ES"
 #else
-			"",
+#define DXX_OGL_STRING  ""
 #endif
-			version[0], version[1], version_str);
+	    con_printf(CON_VERBOSE, "OpenGL" DXX_OGL_STRING ": version %ld.%ld (%s)", version[0], version[1], version_str);
+#undef DXX_OGL_STRING
 
 	/* GL_EXT_texture_filter_anisotropic */
 	if (is_supported(extension_str, version, "GL_EXT_texture_filter_anisotropic", -1, -1, -1, -1)) {
