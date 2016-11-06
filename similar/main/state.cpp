@@ -1491,7 +1491,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				pl_info.homing_object_dist = -1;
 				get_local_player().hours_level = dummy_player.hours_level;
 				get_local_player().hours_total = dummy_player.hours_total;
-				do_cloak_invul_secret_stuff(old_gametime);
+				do_cloak_invul_secret_stuff(old_gametime, pl_info);
 			} else {
 				get_local_player() = dummy_player;
 			}

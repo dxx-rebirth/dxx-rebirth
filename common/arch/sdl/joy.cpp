@@ -89,7 +89,7 @@ class d_size_sorted<std::tuple<Ts...>>
 	using first_type = typename split_tuple::first_type;
 	using second_type = typename split_tuple::second_type;
 public:
-	using type = typename tt::conditional<(sizeof(first_type) < sizeof(second_type)),
+	using type = typename std::conditional<(sizeof(first_type) < sizeof(second_type)),
 		decltype(std::tuple_cat(std::declval<first_type>(), std::declval<second_type>())),
 		decltype(std::tuple_cat(std::declval<second_type>(), std::declval<first_type>()))
 	>::type;
@@ -107,15 +107,15 @@ template <typename>
 class ignore_empty {};
 
 template <typename T>
-using maybe_empty_array = typename tt::conditional<T().empty(), ignore_empty<T>, T>::type;
+using maybe_empty_array = typename std::conditional<T().empty(), ignore_empty<T>, T>::type;
 
 /* This struct is an array, with one entry for each physical joystick
  * found.
  */
 class d_physical_joystick
 {
-#define for_each_tuple_item(VERB)	\
-	VERB(handle)	\
+#define for_each_tuple_item(HANDLE_VERB,VERB)	\
+	HANDLE_VERB(handle)	\
 	VERB(hat_map)	\
 	VERB(button_map)	\
 	VERB(axis_map)	\
@@ -124,26 +124,31 @@ class d_physical_joystick
 #if DXX_USE_SIZE_SORTED_TUPLE
 	template <typename... Ts>
 		using tuple_type = typename d_size_sorted<std::tuple<Ts...>>::type;
-#define define_getter(N)	\
-	auto N() -> decltype(std::get<tuple_member_type_##N>(t))	\
-	{	\
-		return std::get<tuple_member_type_##N>(t);	\
-	}
+#define define_handle_getter(N)	\
+	define_getter(N, tuple_member_type_##N)
+#define define_array_getter(N)	\
+	define_getter(N, maybe_empty_array<tuple_member_type_##N>)
 #else
 	template <typename... Ts>
 		using tuple_type = std::tuple<Ts...>;
 	enum
 	{
 #define define_enum(V)	tuple_item_##V,
-		for_each_tuple_item(define_enum)
+		for_each_tuple_item(define_enum, define_enum)
 #undef define_enum
 	};
-#define define_getter(N)	\
-	auto N() -> decltype(std::get<tuple_item_##N>(t))	\
-	{	\
-		return std::get<tuple_item_##N>(t);	\
-	}
+	/* std::get<index> does not handle the maybe_empty_array case, so
+	 * reuse the same getter for both handle and array.
+	 */
+#define define_handle_getter(N)	\
+	define_getter(N, tuple_item_##N)
+#define define_array_getter	define_handle_getter
 #endif
+#define define_getter(N,V)	\
+	auto &N()	\
+	{	\
+		return std::get<V>(t);	\
+	}
 	using tuple_member_type_handle = std::unique_ptr<SDL_Joystick, SDL_Joystick_deleter>;
 	//Note: Descent expects hats to be buttons, so these are indices into Joystick.buttons
 	struct tuple_member_type_hat_map : array<unsigned, DXX_MAX_HATS_PER_JOYSTICK> {};
@@ -158,7 +163,9 @@ class d_physical_joystick
 		maybe_empty_array<tuple_member_type_axis_value>
 	> t;
 public:
-	for_each_tuple_item(define_getter);
+	for_each_tuple_item(define_handle_getter, define_array_getter);
+#undef define_handle_getter
+#undef define_array_getter
 #undef define_getter
 #undef for_each_tuple_item
 };
@@ -257,8 +264,7 @@ window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae)
 
 /* ----------------------------------------------- */
 
-template <unsigned MAX, typename T>
-static T check_warn_joy_support_limit(const T n, const char *const desc)
+static unsigned check_warn_joy_support_limit(const unsigned n, const char *const desc, const unsigned MAX)
 {
 	if (n <= MAX)
 	{
@@ -284,7 +290,7 @@ void joy_init()
 	joybutton_text.clear();
 #endif
 
-	const auto n = check_warn_joy_support_limit<DXX_MAX_JOYSTICKS>(SDL_NumJoysticks(), "joystick");
+	const auto n = check_warn_joy_support_limit(SDL_NumJoysticks(), "joystick", DXX_MAX_JOYSTICKS);
 	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
 	for (int i = 0; i < n; i++) {
 		auto &joystick = SDL_Joysticks[num_joysticks];
@@ -298,7 +304,7 @@ void joy_init()
 		if (handle)
 		{
 #if DXX_MAX_AXES_PER_JOYSTICK
-			const auto n_axes = check_warn_joy_support_limit<DXX_MAX_AXES_PER_JOYSTICK>(SDL_JoystickNumAxes(handle), "axe");
+			const auto n_axes = check_warn_joy_support_limit(SDL_JoystickNumAxes(handle), "axe", DXX_MAX_AXES_PER_JOYSTICK);
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
 			for (int j=0; j < n_axes; j++)
@@ -310,8 +316,8 @@ void joy_init()
 #endif
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-			const auto n_buttons = check_warn_joy_support_limit<DXX_MAX_BUTTONS_PER_JOYSTICK>(SDL_JoystickNumButtons(handle), "button");
-			const auto n_hats = check_warn_joy_support_limit<DXX_MAX_HATS_PER_JOYSTICK>(SDL_JoystickNumHats(handle), "hat");
+			const auto n_buttons = check_warn_joy_support_limit(SDL_JoystickNumButtons(handle), "button", DXX_MAX_BUTTONS_PER_JOYSTICK);
+			const auto n_hats = check_warn_joy_support_limit(SDL_JoystickNumHats(handle), "hat", DXX_MAX_HATS_PER_JOYSTICK);
 
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 #if DXX_MAX_BUTTONS_PER_JOYSTICK

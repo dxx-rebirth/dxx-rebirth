@@ -1495,7 +1495,7 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 		code = 0;
 	else
 		return;
-		kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
+	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
 }
 
 static void kc_change_invert( kc_menu *menu, kc_mitem * item )
@@ -1725,9 +1725,7 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 				break;
 			const auto &av = event_joystick_get_axis(event);
 			const auto &axis = av.axis;
-			const auto &value = av.value;
-
-			Controls.raw_joy_axis[axis] = value;
+			auto value = av.value;
 
 			if (axis == kcm_joystick[13].value) // Pitch U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[1]*8;
@@ -1742,12 +1740,13 @@ void kconfig_read_controls(const d_event &event, int automap_flag)
 			else if (axis == kcm_joystick[23].value) // Throttle - default deadzone
 				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
-			if (Controls.raw_joy_axis[axis] > joy_null_value) 
-				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]-joy_null_value)*128)/(128-joy_null_value);
-			else if (Controls.raw_joy_axis[axis] < -joy_null_value)
-				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]+joy_null_value)*128)/(128-joy_null_value);
+			if (value > joy_null_value)
+				value = ((value - joy_null_value) * 128) / (128 - joy_null_value);
+			else if (value < -joy_null_value)
+				value = ((value + joy_null_value) * 128) / (128 - joy_null_value);
 			else
-				Controls.raw_joy_axis[axis] = 0;
+				value = 0;
+			Controls.raw_joy_axis[axis] = value;
 			break;
 		}
 #endif

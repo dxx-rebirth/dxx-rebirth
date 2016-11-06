@@ -651,9 +651,10 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 	multi_send_boss_action<boss_stop_gate>(bossobjnum);
 }
 
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, const vobjptridx_t objrobot)
+void multi_send_boss_create_robot(vobjidx_t bossobjnum, const vobjptridx_t objrobot)
 {
-	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, static_cast<uint8_t>(robot_type));
+	map_objnum_local_to_local(objrobot);
+	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, get_robot_id(objrobot));
 }
 
 #define MAX_ROBOT_POWERUPS 4
@@ -1108,8 +1109,9 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Gate one in!
-	if (gate_in_robot(b.robot_type, vsegptridx(b.where)) != object_none)
-		map_objnum_local_to_remote(Net_create_objnums[0], b.objrobot, pnum);
+	const auto &&robot = gate_in_robot(b.robot_type, vsegptridx(b.where));
+	if (robot != object_none)
+		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
 
 void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)

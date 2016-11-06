@@ -62,7 +62,7 @@ void fuelcen_reset();
 void fuelcen_create( vsegptridx_t segp);
 // Makes a fuel center active... needs to be called when
 // a segment is loaded from disk.
-void fuelcen_activate( vsegptridx_t segp, int station_type );
+void fuelcen_activate(vsegptridx_t segp);
 // Deletes a segment as a fuel center.
 void fuelcen_delete(vsegptr_t segp);
 

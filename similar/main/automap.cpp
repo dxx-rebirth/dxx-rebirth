@@ -141,7 +141,7 @@ struct automap : ignore_window_pointer_t
 	// Screen canvas variables
 	grs_canvas		automap_view;
 	
-	grs_bitmap		automap_background;
+	grs_main_bitmap		automap_background;
 	
 	// Rendering variables
 	fix			zoom;
@@ -540,17 +540,16 @@ static void name_frame(automap *am)
 #endif
 }
 
-static void automap_apply_input(automap *am)
+static void automap_apply_input(automap *am, const vms_matrix &plrorient, const vms_vector &plrpos)
 {
-	auto &plrobj = get_local_plrobj();
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if ( am->controls.state.fire_primary)
 		{
 			// Reset orientation
 			am->controls.state.fire_primary = 0;
-			am->viewMatrix = plrobj.orient;
-			vm_vec_scale_add(am->view_position, plrobj.pos, am->viewMatrix.fvec, -ZOOM_DEFAULT);
+			am->viewMatrix = plrorient;
+			vm_vec_scale_add(am->view_position, plrpos, am->viewMatrix.fvec, -ZOOM_DEFAULT);
 		}
 		
 		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
@@ -587,7 +586,7 @@ static void automap_apply_input(automap *am)
 			am->tangles.p = PITCH_DEFAULT;
 			am->tangles.h  = 0;
 			am->tangles.b  = 0;
-			am->view_target = plrobj.pos;
+			am->view_target = plrpos;
 			am->controls.state.fire_primary = 0;
 		}
 
@@ -604,15 +603,15 @@ static void automap_apply_input(automap *am)
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
 			const auto &&tempm = vm_angles_2_matrix(tangles1);
-			vm_matrix_x_matrix(am->viewMatrix, plrobj.orient, tempm);
+			vm_matrix_x_matrix(am->viewMatrix, plrorient, tempm);
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( am->view_target, am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
-			if (vm_vec_dist_quick(am->view_target, plrobj.pos) > i2f(1000))
+			if (vm_vec_dist_quick(am->view_target, plrpos) > i2f(1000))
 				am->view_target = old_vt;
 		}
 
 		const auto &&tempm = vm_angles_2_matrix(am->tangles);
-		vm_matrix_x_matrix(am->viewMatrix, plrobj.orient, tempm);
+		vm_matrix_x_matrix(am->viewMatrix, plrorient, tempm);
 
 		clamp_fix_lh(am->viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}
@@ -954,7 +953,10 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 		}
 			
 		case EVENT_WINDOW_DRAW:
-                        automap_apply_input(am);
+			{
+				auto &plrobj = get_local_plrobj();
+				automap_apply_input(am, plrobj.orient, plrobj.pos);
+			}
 			draw_automap(am);
 			break;
 			
@@ -963,9 +965,6 @@ static window_event_result automap_handler(window *wind,const d_event &event, au
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
-#if DXX_USE_OGL
-			gr_free_bitmap_data(am->automap_background);
-#endif
 			std::default_delete<automap>()(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;

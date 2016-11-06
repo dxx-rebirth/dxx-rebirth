@@ -301,8 +301,8 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 				const auto dist = vm_dist_to_plane(checkp, s->normals[fn], mvert);
 
 				if (dist-rad < -PLANE_DIST_TOLERANCE) {
-				if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
-					center_count++;
+					if (dist < -PLANE_DIST_TOLERANCE)	//in front of face
+						center_count++;
 
 					masks.facemask |= facebit;
 					side_count++;
@@ -337,8 +337,8 @@ segmasks get_seg_masks(const vms_vector &checkp, const vcsegptr_t segnum, fix ra
 
 			const auto dist = vm_dist_to_plane(checkp, s->normals[0], Vertices[vertnum]);
 			if (dist-rad < -PLANE_DIST_TOLERANCE) {
-			if (dist < -PLANE_DIST_TOLERANCE)
-				masks.centermask |= sidebit;
+				if (dist < -PLANE_DIST_TOLERANCE)
+					masks.centermask |= sidebit;
 	
 				masks.facemask |= facebit;
 				masks.sidemask |= sidebit;
@@ -583,20 +583,22 @@ static segptridx_t trace_segs(const vms_vector &p0, const vsegptridx_t oldsegnum
 		biggest_side = -1;
 		biggest_val = 0;
 		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
+		{
 			if ((centermask & bit) && IS_CHILD(seg->children[sidenum])
 			    && side_dists[sidenum] < biggest_val) {
 				biggest_val = side_dists[sidenum];
 				biggest_side = sidenum;
 			}
+		}
 
-			if (biggest_side == -1)
-				break;
+		if (biggest_side == -1)
+			break;
 
-			side_dists[biggest_side] = 0;
-			// trace into adjacent segment:
-			auto check = trace_segs(p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
-			if (check != segment_none)		//we've found a segment
-				return check;
+		side_dists[biggest_side] = 0;
+		// trace into adjacent segment:
+		auto check = trace_segs(p0, oldsegnum.absolute_sibling(seg->children[biggest_side]), recursion_count + 1, visited);
+		if (check != segment_none)		//we've found a segment
+			return check;
 	}
 	return segment_none;		//we haven't found a segment
 }

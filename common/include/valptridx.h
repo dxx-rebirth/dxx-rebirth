@@ -269,10 +269,19 @@ public:
 		m_idx(check_allowed_invalid_index(i) ? i : check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a))
 	{
 	}
+protected:
+	template <integral_type v>
+		basic_idx(const magic_constant<v> &, const allow_none_construction *) :
+			m_idx(v)
+	{
+		static_assert(!allow_nullptr, "allow_none_construction used where nullptr was already legal");
+		static_assert(static_cast<std::size_t>(v) >= array_size, "allow_none_construction used with valid index");
+	}
 	basic_idx(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type i, array_managed_type &a, const allow_end_construction *) :
 		m_idx(check_index_range<std::less_equal>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a))
 	{
 	}
+public:
 	template <integral_type v>
 		basic_idx(const magic_constant<v> &) :
 			m_idx(v)
@@ -324,6 +333,7 @@ public:
 	using index_type = typename containing_type::index_type;
 	using const_pointer_type = typename containing_type::const_pointer_type;
 	using mutable_pointer_type = typename containing_type::mutable_pointer_type;
+	using allow_none_construction = typename containing_type::allow_none_construction;
 	using typename policy::array_managed_type;
 	using typename policy::pointer_type;
 	using typename policy::reference_type;
@@ -477,6 +487,11 @@ protected:
 		++ m_ptr;
 		return *this;
 	}
+	basic_ptr(const allow_none_construction *) :
+		m_ptr(nullptr)
+	{
+		static_assert(!allow_nullptr, "allow_none_construction used where nullptr was already legal");
+	}
 };
 
 template <typename managed_type>
@@ -525,6 +540,12 @@ public:
 		basic_ptridx(const magic_constant<v> &m, array_managed_type &a) :
 			vptr_type(m, a),
 			vidx_type(m)
+	{
+	}
+	template <integral_type v>
+		basic_ptridx(const magic_constant<v> &m, const allow_none_construction *const n) :
+			vptr_type(n),
+			vidx_type(m, n)
 	{
 	}
 	basic_ptridx(index_type i) = delete;

@@ -49,7 +49,7 @@ hmp_file::~hmp_file()
 }
 
 std::unique_ptr<hmp_file> hmp_open(const char *filename) {
-	int data, num_tracks, tempo;
+	int data, tempo;
 	auto fp = PHYSFSX_openReadBuffered(filename);
 
 	if (!fp)
@@ -67,6 +67,7 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 		return NULL;
 	}
 
+	unsigned num_tracks;
 	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
 	{
 		return NULL;
@@ -93,22 +94,22 @@ std::unique_ptr<hmp_file> hmp_open(const char *filename) {
 		return NULL;
 	}
 
-	for (int i = 0; i < num_tracks; i++) {
+	range_for (auto &i, partial_range(hmp->trks, num_tracks))
+	{
 		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
 		{
 			return NULL;
 		}
 
 		data -= 12;
-		hmp->trks[i].len = data;
-
-		hmp->trks[i].data = make_unique<uint8_t[]>(data);
+		i.len = data;
+		i.data = make_unique<uint8_t[]>(data);
 		/* finally, read track data */
-		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, hmp->trks[i].data.get(), data, 1) != 1))
+		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, i.data.get(), data, 1) != 1))
 		{
 			return NULL;
 		}
-		hmp->trks[i].loop_set = 0;
+		i.loop_set = 0;
 	}
 	hmp->filesize = PHYSFS_fileLength(fp);
 	return hmp;
@@ -344,13 +345,15 @@ static int setup_buffers(hmp_file *hmp) {
 
 static void reset_tracks(struct hmp_file *hmp)
 {
-	for (int i = 0; i < hmp->num_trks; i++) {
-		if (hmp->trks[i].loop_set)
-			hmp->trks[i].cur = hmp->trks[i].loop;
+	if (hmp->num_trks > 0)
+	range_for (auto &i, partial_range(hmp->trks, static_cast<unsigned>(hmp->num_trks)))
+	{
+		if (i.loop_set)
+			i.cur = i.loop;
 		else
-			hmp->trks[i].cur = hmp->trks[i].data.get();
-		hmp->trks[i].left = hmp->trks[i].len;
-		hmp->trks[i].cur_time = 0;
+			i.cur = i.data.get();
+		i.left = i.len;
+		i.cur_time = 0;
 	}
 	hmp->cur_time = 0;
 }

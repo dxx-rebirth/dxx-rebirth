@@ -146,7 +146,7 @@ void gr_clear_canvas(color_t color);
 void gr_init_bitmap(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline, const uint8_t* data);
 void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
-void gr_init_bitmap_alloc(grs_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);
+void gr_init_bitmap_alloc(grs_main_bitmap &bm, bm_mode mode, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t bytesperline);
 void gr_free_bitmap_data(grs_bitmap &bm);
 
 // Allocate a bitmap and its pixel data buffer.

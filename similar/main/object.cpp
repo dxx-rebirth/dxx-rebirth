@@ -1072,10 +1072,10 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	}
 
 	// Find next free object
-	const objptridx_t obj = obj_allocate();
+	const auto &&obj = obj_allocate();
 
 	if (obj == object_none)		//no free objects
-		return obj;
+		return object_none;
 
 	Assert(obj->type == OBJ_NONE);		//make sure unused
 	auto signature = obj_get_signature();
@@ -1162,15 +1162,15 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 
 #if DXX_USE_EDITOR
 //create a copy of an object. returns new object number
-objptridx_t obj_create_copy(const vobjptridx_t objnum, const vms_vector &new_pos, const vsegptridx_t newsegnum)
+objptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, const vsegptridx_t newsegnum)
 {
 	// Find next free object
-	const objptridx_t obj = obj_allocate();
+	const auto &&obj = obj_allocate();
 
 	if (obj == object_none)
-		return obj;
+		return object_none;
 
-	*obj = *objnum;
+	*obj = srcobj;
 
 	obj->pos = obj->last_pos = new_pos;
 

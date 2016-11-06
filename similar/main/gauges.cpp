@@ -1729,46 +1729,76 @@ void add_bonus_points_to_score(player_info &player_info, int points)
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
 static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-
 	static unsigned char *cur=NULL;
 	static short cur_w=0, cur_h=0;
-	static unsigned char cockpitbuf[1024*1024];
+#ifndef DXX_MAX_COCKPIT_BITMAP_SIZE
+	/* 640 wide by 480 high should be enough for all bitmaps shipped
+	 * with shareware or commercial data.
+	 * Use a #define so that the value can be easily overridden at build
+	 * time.
+	 */
+#define DXX_MAX_COCKPIT_BITMAP_SIZE	(640 * 480)
+#endif
+	static array<uint8_t, DXX_MAX_COCKPIT_BITMAP_SIZE> cockpitbuf;
 
+	const unsigned bm_h = bm->bm_h;
+	if (unlikely(!bm_h))
+		/* Invalid, but later code has undefined results if bm_h==0 */
+		return;
+	const unsigned bm_w = bm->bm_w;
 	// check if we processed this bitmap already
-	if (cur==bm->bm_data && cur_w == bm->bm_w && cur_h == bm->bm_h)
+	if (cur == bm->bm_data && cur_w == bm_w && cur_h == bm_h)
 		return;
 
-	memset(cockpitbuf,0,1024*1024);
+	cockpitbuf = {};
 
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
-		unsigned char * dbits;
-		int i, data_offset;
+		const std::pair<uintptr_t, uintptr_t> src_bit_length = (bm->bm_flags & BM_FLAG_RLE_BIG)
+			? std::pair<uintptr_t, uintptr_t>(2, 0xffff)
+			: std::pair<uintptr_t, uintptr_t>(1, 0xff);
 
-		data_offset = 1;
-		if (bm->bm_flags & BM_FLAG_RLE_BIG)
-			data_offset = 2;
-
-		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
-		dbits = cockpitbuf;
-
-		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, rle_end(*bm, cockpitbuf));
-			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
-				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
-			else
-				sbits += static_cast<int>(bm->bm_data[4+i]);
-			dbits += bm->bm_w;
+		auto ptr_src_bit_lengths = &bm->bm_data[4];
+		auto src_bits = &ptr_src_bit_lengths[(bm_h * src_bit_length.first)];
+		auto dbits = cockpitbuf.data();
+		for (const auto end_src_bit_lengths = src_bits;;)
+		{
+			auto &&r = gr_rle_decode({src_bits, dbits}, rle_end(*bm, cockpitbuf));
+			/* Both bytes are always legal to read since the bitmap data
+			 * is placed after the length table.  Reading both, then
+			 * conditionally masking out the high bits (dependent on
+			 * BM_FLAG_RLE_BIG) encourages the compiler to implement
+			 * this line without using branches.
+			 */
+			const uintptr_t advance_src_bits = (ptr_src_bit_lengths[0] | (static_cast<uintptr_t>(ptr_src_bit_lengths[1]) << 8)) & src_bit_length.second;
+			ptr_src_bit_lengths += src_bit_length.first;
+			if (ptr_src_bit_lengths == end_src_bit_lengths)
+				break;
+			if (unlikely(dbits == r.dst))
+			{
+				/* Out of space.  Return without adjusting the bitmap.
+				 * The result will look ugly, but run correctly.
+				 */
+				con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %" DXX_PRI_size_type, __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), cockpitbuf.size());
+				return;
+			}
+			src_bits += advance_src_bits;
+			dbits += bm_w;
 		}
 	}
 	else
 	{
-		memcpy(&cockpitbuf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
+		const std::size_t len = bm_w * bm_h;
+		if (len > cockpitbuf.size())
+		{
+			con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %" DXX_PRI_size_type, __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), cockpitbuf.size());
+			return;
+		}
+		memcpy(cockpitbuf.data(), bm->bm_data, len);
 	}
 
 	// add alpha color to the pixels which are inside the window box spans
 	const unsigned lower_y = ((multires_gauge_graphic.get(364, 151)));
-	const unsigned bm_w = bm->bm_w;
 	unsigned i = bm_w * lower_y;
 	const auto fill_alpha_one_line = [](unsigned o, const span &s) {
 		std::fill_n(&cockpitbuf[o + s.l], s.r - s.l + 1, TRANSPARENCY_COLOR);
@@ -1786,7 +1816,7 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 #if DXX_USE_OGL
 	ogl_freebmtexture(*bm);
 #endif
-	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
+	gr_init_bitmap(deccpt, bm_mode::linear, 0, 0, bm_w, bm_h, bm_w, cockpitbuf.data());
 	gr_set_transparent(deccpt,1);
 #if DXX_USE_OGL
 	ogl_ubitmapm_cs (0, 0, -1, -1, deccpt, 255, F1_0); // render one time to init the texture
@@ -1795,8 +1825,8 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	WinBoxOverlay[1] = gr_create_sub_bitmap(deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
 
 	cur = bm->get_bitmap_data();
-	cur_w = bm->bm_w;
-	cur_h = bm->bm_h;
+	cur_w = bm_w;
+	cur_h = bm_h;
 }
 
 namespace dsx {
@@ -3010,7 +3040,7 @@ static void hud_show_kill_list()
                                 x2 = SWIDTH - (fspacx64/2);
                         else
                                 x2 = x0 + fspacx64;
-                        gr_printf(x2,y,"%4dms",Netgame.players[player_num].ping*44);
+                        gr_printf(x2,y,"%4dms",Netgame.players[player_num].ping);
                 }
 
 		y += line_spacing;

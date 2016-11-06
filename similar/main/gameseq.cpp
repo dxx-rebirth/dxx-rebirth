@@ -166,7 +166,7 @@ public:
 namespace dsx {
 static void AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-array<player, MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS> Players;   // Misc player info
+array<player, MAX_PLAYERS> Players;   // Misc player info
 }
 static void copy_defaults_to_robot_all(void);
 
@@ -310,16 +310,16 @@ void init_player_stats_game(ubyte pnum)
 #endif
 }
 
-static void init_ammo_and_energy(void)
+static void init_ammo_and_energy(object &plrobj)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &player_info = plrobj.ctype.player_info;
 	{
 		auto &energy = player_info.energy;
 		if (energy < INITIAL_ENERGY)
 			energy = INITIAL_ENERGY;
 	}
 	{
-		auto &shields = get_local_plrobj().shields;
+		auto &shields = plrobj.shields;
 		if (shields < StartingShields)
 			shields = StartingShields;
 	}
@@ -368,7 +368,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 	player_info.mission.hostages_on_board = 0;
 
 	if (secret_flag == secret_restore::none) {
-		init_ammo_and_energy();
+		init_ammo_and_energy(plrobj);
 
 		auto &powerup_flags = player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
@@ -427,6 +427,8 @@ void init_player_stats_new_ship(ubyte pnum)
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
+	if (granted_primary_weapon_flags & HAS_OMEGA_FLAG)
+		player_info.Omega_charge = MAX_OMEGA_CHARGE;
 #endif
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -900,7 +902,8 @@ static void DoEndLevelScoreGlitz()
 		mine_level *= -(Last_level/N_secret_levels);
 #endif
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	level_points = player_info.mission.score - player_info.mission.last_score;
 
 	if (!cheats.enabled) {
@@ -916,10 +919,10 @@ static void DoEndLevelScoreGlitz()
 
 		hostage_points = player_info.mission.hostages_on_board * 500 * (Difficulty_level+1);
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(get_local_plrobj().shields) * 10 * (Difficulty_level+1);
+		shield_points = f2i(plrobj.shields) * 10 * (Difficulty_level+1);
 		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
 #elif defined(DXX_BUILD_DESCENT_II)
-		shield_points = f2i(get_local_plrobj().shields) * 5 * mine_level;
+		shield_points = f2i(plrobj.shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
 
 		shield_points -= shield_points % 50;
@@ -1044,7 +1047,7 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 static void do_screen_message(const char *msg) __attribute_nonnull();
 static void do_screen_message(const char *msg)
 {
-	grs_bitmap background;
+	grs_main_bitmap background;
 	
 	if (Game_mode & GM_MULTI)
 		return;
@@ -1057,7 +1060,6 @@ static void do_screen_message(const char *msg)
 		nm_item_menu(TXT_OK),
 	}};
 	newmenu_do( NULL, msg, nm_message_items, draw_endlevel_background, static_cast<grs_bitmap *>(&background));
-	gr_free_bitmap_data(background);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1207,9 +1209,8 @@ void ExitSecretLevel(void)
 // ---------------------------------------------------------------------------------------------------------------
 //	Set invulnerable_time and cloak_time in player struct to preserve amount of time left to
 //	be invulnerable or cloaked.
-void do_cloak_invul_secret_stuff(fix64 old_gametime)
+void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_INVULNERABLE)
 	{

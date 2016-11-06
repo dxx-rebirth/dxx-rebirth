@@ -48,7 +48,7 @@ void c_tmap_scanline_flat()
 	uint8_t *dest;
         int x, index = fx_xleft + (bytes_per_row * fx_y );
 
-	dest = reinterpret_cast<uint8_t *>(write_buffer + fx_xleft + (bytes_per_row * fx_y )  );
+	dest = (write_buffer + fx_xleft + (bytes_per_row * fx_y ));
 
 	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 		if (++index >= SWIDTH*SHEIGHT) return;

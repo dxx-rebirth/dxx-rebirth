@@ -33,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "u_mem.h"
 
+#include "compiler-array.h"
+
 namespace dcx {
 
 #define MEMSTATS 0
@@ -46,12 +48,12 @@ namespace dcx {
 
 #define MAX_INDEX 10000
 
-static void *MallocBase[MAX_INDEX];
-static unsigned int MallocSize[MAX_INDEX];
-static unsigned char Present[MAX_INDEX];
-static const char * Filename[MAX_INDEX];
-static const char * Varname[MAX_INDEX];
-static int LineNum[MAX_INDEX];
+static array<void *, MAX_INDEX> MallocBase;
+static array<unsigned int, MAX_INDEX> MallocSize;
+static array<unsigned char, MAX_INDEX> Present;
+static array<const char *, MAX_INDEX> Filename;
+static array<const char *, MAX_INDEX> Varname;
+static array<int, MAX_INDEX> LineNum;
 static int BytesMalloced = 0;
 
 static int free_list[MAX_INDEX];
@@ -66,15 +68,15 @@ void mem_init()
 {
 	Initialized = 1;
 
+	MallocBase = {};
+	MallocSize = {};
+	Present = {};
+	Filename = {};
+	Varname = {};
+	LineNum = {};
 	for (int i=0; i<MAX_INDEX; i++ )
 	{
 		free_list[i] = i;
-		MallocBase[i] = 0;
-		MallocSize[i] = 0;
-		Present[i] = 0;
-		Filename[i] = NULL;
-		Varname[i] = NULL;
-		LineNum[i] = 0;
 	}
 
 	num_blocks = 0;

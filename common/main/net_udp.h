@@ -105,6 +105,8 @@ constexpr uint16_t TRACKER_PORT_DEFAULT = 9999;
 #define UPID_TRACKER_REMOVE			 22 // Remove our game from the tracker.
 #define UPID_TRACKER_REQGAMES			 23 // Request a list of all games stored on the tracker.
 #define UPID_TRACKER_GAMEINFO			 24 // Packet containing info about a game
+#define UPID_TRACKER_ACK			 25 // An ACK packet from the tracker
+#define UPID_TRACKER_HOLEPUNCH			 26 // Hole punching process. Sent from client to tracker to request hole punching from game host and received by host from tracker to initiate hole punching to requesting client
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
@@ -114,6 +116,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	struct _sockaddr                game_addr;
 	array<short, 3>                 program_iver;
 	fix                             GameID;
+	uint16_t			TrackerGameID;
 	ntstring<NETGAME_NAME_LEN> game_name;
 	ntstring<MISSION_NAME_LEN> mission_title;
 	ntstring<8> mission_name;

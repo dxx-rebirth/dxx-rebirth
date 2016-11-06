@@ -736,7 +736,7 @@ static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int 
 	return segment_none;
 }
 
-static void escort_create_path_to_goal(const vobjptridx_t objp)
+static void escort_create_path_to_goal(const vobjptridx_t objp, const player_info &player_info)
 {
 	segnum_t	goal_seg = segment_none;
 	ai_static	*aip = &objp->ctype.ai_info;
@@ -747,7 +747,6 @@ static void escort_create_path_to_goal(const vobjptridx_t objp)
 
 	Escort_kill_object = -1;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto powerup_flags = player_info.powerup_flags;
 	if (Looking_for_marker != -1) {
 		goal_seg = escort_get_goal_segment(objp, OBJ_MARKER, Escort_goal_object - ESCORT_GOAL_MARKER1, powerup_flags);
@@ -1000,11 +999,12 @@ void do_escort_frame(const vobjptridx_t objp, const object &plrobj, fix dist_to_
 
 	Buddy_objnum = objp;
 
+	auto &player_info = plrobj.ctype.player_info;
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime64;
-		if (plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
+		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
-			const auto energy = plrobj.ctype.player_info.energy;
+			const auto energy = player_info.energy;
 			const auto ienergy = f2i(energy);
 			if (ienergy < 40)
 				if (ienergy & 4)
@@ -1081,9 +1081,9 @@ void do_escort_frame(const vobjptridx_t objp, const object &plrobj, fix dist_to_
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
-		Escort_goal_object = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
+		Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
-		escort_create_path_to_goal(objp);
+		escort_create_path_to_goal(objp, player_info);
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		if (aip->path_length < 3) {
 			create_n_segment_path(objp, 5, Believed_player_seg);
@@ -1091,9 +1091,9 @@ void do_escort_frame(const vobjptridx_t objp, const object &plrobj, fix dist_to_
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 	} else if (Escort_goal_object == ESCORT_GOAL_UNSPECIFIED) {
 		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
-			Escort_goal_object = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
+			Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
-			escort_create_path_to_goal(objp);
+			escort_create_path_to_goal(objp, player_info);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 			if (aip->path_length < 3) {
 				create_n_segment_path(objp, 5, Believed_player_seg);
@@ -1634,17 +1634,16 @@ namespace {
 struct escort_menu : ignore_window_pointer_t
 {
 	array<char, 300> msg;
+	static window_event_result event_handler(window *wind, const d_event &event, escort_menu *menu);
+	static window_event_result event_key_command(const d_event &event);
 };
 
 }
 
-static window_event_result escort_menu_keycommand(window *, const d_event &event, escort_menu *)
+window_event_result escort_menu::event_key_command(const d_event &event)
 {
-	int	key;
-	
-	key = event_key_get(event);
-	
-	switch (key) {
+	switch (const auto key = event_key_get(event))
+	{
 		case KEY_0:
 		case KEY_1:
 		case KEY_2:
@@ -1676,7 +1675,7 @@ static window_event_result escort_menu_keycommand(window *, const d_event &event
 	return window_event_result::ignored;
 }
 
-static window_event_result escort_menu_handler(window *wind,const d_event &event, escort_menu *menu)
+window_event_result escort_menu::event_handler(window *, const d_event &event, escort_menu *menu)
 {
 	switch (event.type)
 	{
@@ -1685,7 +1684,7 @@ static window_event_result escort_menu_handler(window *wind,const d_event &event
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			return escort_menu_keycommand(wind, event, menu);
+			return event_key_command(event);
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;
@@ -1734,7 +1733,7 @@ void do_escort_menu(void)
 		return;
 	
 	// Just make it the full screen size and let show_escort_menu figure it out
-	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, escort_menu_handler, menu);
+	const auto wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, &escort_menu::event_handler, menu);
 	if (!wind)
 	{
 		d_free(menu);

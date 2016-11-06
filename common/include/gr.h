@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 #include "pack.h"
 #include "compiler-array.h"
+#include "compiler-exchange.h"
 
 struct grs_point
 {
@@ -199,6 +200,17 @@ public:
 	grs_main_bitmap() = default;
 	grs_main_bitmap(const grs_main_bitmap &) = delete;
 	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
+	grs_main_bitmap(grs_main_bitmap &&r) :
+		grs_bitmap(std::move(static_cast<grs_bitmap &>(r)))
+	{
+		r.bm_data = nullptr;
+	}
+	grs_main_bitmap &operator=(grs_main_bitmap &&r)
+	{
+		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
+		bm_data = exchange(r.bm_data, nullptr);
+		return *this;
+	}
 	~grs_main_bitmap()
 	{
 		reset();

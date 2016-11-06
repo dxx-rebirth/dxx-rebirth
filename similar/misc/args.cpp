@@ -141,12 +141,14 @@ template<typename E> E arg_enum(Arglist::iterator &pp, Arglist::const_iterator e
 	return static_cast<E>(arg_integer(pp, end));
 }
 
+#if DXX_USE_UDP
 static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, uint16_t &out, bool allow_privileged)
 {
 	auto port = arg_integer(pp, end);
 	if (static_cast<uint16_t>(port) == port && (allow_privileged || port >= 1024))
 		out = port;
 }
+#endif
 
 static void InitGameArg()
 {

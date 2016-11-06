@@ -206,7 +206,8 @@ window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 			{
 				fuelcen_delete(Cursegp);
 				Update_flags |= UF_WORLD_CHANGED;
-				fuelcen_activate( Cursegp, i );
+				Cursegp->special = i;
+				fuelcen_activate(Cursegp);
 			}
 			rval = window_event_result::handled;
 		}

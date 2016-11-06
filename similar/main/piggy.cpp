@@ -858,10 +858,7 @@ void piggy_new_pigfile(char *pigname)
 					SuperX = (GameBitmapFlags[i+fnum]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 					//above makes assumption that supertransparent color is 254
 
-					if ( iff_has_transparency )
-						gr_remap_bitmap_good(*bm[fnum].get(), newpal, iff_transparent_color, SuperX);
-					else
-						gr_remap_bitmap_good(*bm[fnum].get(), newpal, -1, SuperX);
+					gr_remap_bitmap_good(*bm[fnum].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum].get());
 
@@ -904,10 +901,7 @@ void piggy_new_pigfile(char *pigname)
 				SuperX = (GameBitmapFlags[i]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 				//above makes assumption that supertransparent color is 254
 
-				if ( iff_has_transparency )
-					gr_remap_bitmap_good(n, newpal, iff_transparent_color, SuperX);
-				else
-					gr_remap_bitmap_good(n, newpal, -1, SuperX);
+				gr_remap_bitmap_good(n, newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
 				n.avg_color = compute_average_pixel(&n);
 

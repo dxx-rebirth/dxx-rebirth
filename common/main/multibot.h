@@ -52,7 +52,7 @@ void multi_send_boss_teleport(vobjptridx_t bossobjnum, segnum_t where);
 void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
-void multi_send_boss_create_robot(objnum_t bossobjnum, int robot_type, vobjptridx_t objnum);
+void multi_send_boss_create_robot(vobjidx_t bossobjnum, vobjptridx_t objnum);
 #ifdef dsx
 namespace dsx {
 int multi_explode_robot_sub(vobjptridx_t botnum);

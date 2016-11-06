@@ -88,7 +88,7 @@ struct credits : ignore_window_pointer_t
 	int extra_inc;
 	int done;
 	int row;
-	grs_bitmap backdrop;
+	grs_main_bitmap backdrop;
 };
 
 }
@@ -215,7 +215,6 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			gr_free_bitmap_data(cr->backdrop);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			std::default_delete<credits>()(cr);

@@ -80,10 +80,6 @@ struct _sockaddr
 	{
 		return DXX_IPv6(AF_INET, AF_INET6);
 	}
-	static int resolve_address_family()
-	{
-		return DXX_IPv6(address_family(), AF_UNSPEC);
-	}
 	static int protocol_family()
 	{
 		return DXX_IPv6(PF_INET, PF_INET6);

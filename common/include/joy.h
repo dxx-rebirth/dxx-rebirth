@@ -40,9 +40,9 @@ extern int event_joystick_get_button(const d_event &event);
 
 }
 #else
-#define joy_init()
+#define joy_init()	static_cast<void>(0)
 #define joy_flush()
-#define joy_close()
+#define joy_close()	static_cast<void>(0)
 #endif
 
 namespace dcx {

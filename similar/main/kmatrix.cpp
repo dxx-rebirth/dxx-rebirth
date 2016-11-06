@@ -175,7 +175,7 @@ namespace {
 
 struct kmatrix_screen : ignore_window_pointer_t
 {
-	grs_bitmap background;
+	grs_main_bitmap background;
 	int network;
 	fix64 end_time;
 	int playing;
@@ -415,6 +415,5 @@ kmatrix_result kmatrix_view(int network)
 	
 	event_process_all();
 
-	gr_free_bitmap_data(km.background);
 	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);
 }
