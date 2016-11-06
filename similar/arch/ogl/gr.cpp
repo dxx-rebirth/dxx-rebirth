@@ -71,10 +71,7 @@
 #endif
 #endif
 
-#if !DXX_USE_OGLES
-#include "ogl_extensions.h"
 #include "ogl_sync.h"
-#endif
 
 #include "compiler-make_unique.h"
 
@@ -94,9 +91,9 @@ static DISPMANX_DISPLAY_HANDLE_T dispman_display=DISPMANX_NO_HANDLE;
 #endif
 
 #else
-static ogl_sync sync_helper;
 static int sdl_video_flags = SDL_OPENGL;
 #endif
+static ogl_sync sync_helper;
 static int gr_installed;
 static int gl_initialized;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
@@ -136,13 +133,13 @@ namespace dsx {
 
 void ogl_swap_buffers_internal(void)
 {
+	sync_helper.before_swap();
 #if DXX_USE_OGLES
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
-	sync_helper.before_swap();
 	SDL_GL_SwapBuffers();
-	sync_helper.after_swap();
 #endif
+	sync_helper.after_swap();
 }
 
 #ifdef RPI
@@ -537,14 +534,13 @@ static void ogl_init_state(void)
 
 namespace dsx {
 
-static void ogl_get_verinfo(void)
+static void ogl_tune_for_current(void)
 {
-#if !DXX_USE_OGLES
 	const auto gl_vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
 	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
-	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s",gl_vendor,gl_renderer,gl_version);
+	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s", gl_vendor,gl_renderer);
 
 	//add driver specific hacks here.  whee.
 	if ((d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && d_stricmp(gl_version,"1.2 Mesa 3.0")==0)
@@ -568,15 +564,11 @@ static void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i", CGameArg.DbgGlIntensity4Ok, CGameArg.DbgGlLuminance4Alpha4Ok, CGameArg.DbgGlRGBA2Ok, CGameArg.DbgGlReadPixelsOk, CGameArg.DbgGlGetTexLevelParamOk);
 #endif
-	const auto gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
-	{
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
-		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f",ogl_maxanisotropy);
+	if ( (ogl_maxanisotropy < 1.0f) && CGameCfg.TexAnisotropy ) {
+
+		con_printf(CON_VERBOSE,"anisotropic texture filter not supported");
+		CGameCfg.TexAnisotropy = false;
 	}
-	else if (CGameCfg.TexFilt >= 3)
-		CGameCfg.TexFilt = 2;
-#endif
 }
 
 }
@@ -663,12 +655,9 @@ int gr_set_mode(screen_mode mode)
 	gr_set_current_canvas(NULL);
 
 	ogl_init_window(w,h);//platform specific code
-	ogl_get_verinfo();
-
-#if !DXX_USE_OGLES
 	ogl_extensions_init();
+	ogl_tune_for_current();
 	sync_helper.init(CGameArg.OglSyncMethod, CGameArg.OglSyncWait);
-#endif
 
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
@@ -796,9 +785,7 @@ void gr_close()
 	if (gl_initialized)
 	{
 		ogl_smash_texture_list_internal();
-#if !DXX_USE_OGLES
 		sync_helper.deinit();
-#endif
 	}
 
 	if (grd_curscreen)
