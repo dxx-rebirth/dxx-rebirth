@@ -1557,10 +1557,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	range_for (const auto &&obj, vobjptridx)
 	{
 		obj->rtype.pobj_info.alt_textures = -1;
-		auto segnum = exchange(obj->segnum, segment_none);
-		obj->next = obj->prev = object_none;
 		if ( obj->type != OBJ_NONE )	{
-			obj_link(obj, vsegptridx(segnum));
+			const auto segnum = obj->segnum;
+			obj_link_unchecked(obj, vsegptridx(segnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields

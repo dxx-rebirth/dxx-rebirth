@@ -2015,8 +2015,6 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				auto segnum = Viewer->segnum;
-				Viewer->next = Viewer->prev = object_none;
-				Viewer->segnum = segment_none;
 
 				// HACK HACK HACK -- since we have multiple level recording, it can be the case
 				// HACK HACK HACK -- that when rewinding the demo, the viewer is in a segment
@@ -2025,7 +2023,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 				if (segnum > Highest_segment_index)
 					segnum = 0;
-				obj_link(vobjptridx(Viewer), vsegptridx(segnum));
+				obj_link_unchecked(vobjptridx(Viewer), vsegptridx(segnum));
 			}
 			}
 		}
@@ -2045,8 +2043,6 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				auto segnum = obj->segnum;
-				obj->next = obj->prev = object_none;
-				obj->segnum = segment_none;
 
 				// HACK HACK HACK -- don't render objects is segments greater than Highest_segment_index
 				// HACK HACK HACK -- (see above)
@@ -2054,7 +2050,7 @@ static int newdemo_read_frame_information(int rewrite)
 				if (segnum > Highest_segment_index)
 					break;
 
-				obj_link(obj, vsegptridx(segnum));
+				obj_link_unchecked(obj, vsegptridx(segnum));
 				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
@@ -2305,9 +2301,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 					auto segnum = obj->segnum;
-					obj->next = obj->prev = object_none;
-					obj->segnum = segment_none;
-					obj_link(obj, vsegptridx(segnum));
+					obj_link_unchecked(obj, vsegptridx(segnum));
 				}
 			}
 			break;

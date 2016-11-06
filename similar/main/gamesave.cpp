@@ -1022,7 +1022,6 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	range_for (auto &i, Objects)
 	{
-		i.next = i.prev = object_none;
 		if (i.type != OBJ_NONE) {
 			auto objsegnum = i.segnum;
 			if (objsegnum > Highest_segment_index)		//bogus object
@@ -1031,8 +1030,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				i.type = OBJ_NONE;
 			}
 			else {
-				i.segnum = segment_none;			//avoid Assert()
-				obj_link(vobjptridx(&i), vsegptridx(objsegnum));
+				obj_link_unchecked(vobjptridx(&i), vsegptridx(objsegnum));
 			}
 		}
 	}

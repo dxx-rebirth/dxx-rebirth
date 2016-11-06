@@ -214,6 +214,12 @@ void obj_relink_all();
 // links an object into a segment's list of objects.
 // takes object number and segment number
 void obj_link(vobjptridx_t objnum,vsegptridx_t segnum);
+/* Link an object without checking whether the object is currently
+ * unlinked.  This should be used only in cases where the caller is
+ * intentionally overriding the normal linking rules (such as loading
+ * objects from demos or from the network).
+ */
+void obj_link_unchecked(vobjptridx_t obj, vsegptridx_t segnum);
 
 // unlinks an object from a segment's list of objects
 void obj_unlink(object_base &objnum);

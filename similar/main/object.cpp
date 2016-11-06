@@ -840,10 +840,9 @@ void init_objects()
 		j.objects = object_none;
 
 	ConsoleObject = Viewer = &Objects.front();
-	ConsoleObject->segnum = segment_none;
 
 	init_player_object();
-	obj_link(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
+	obj_link_unchecked(vobjptridx(ConsoleObject), vsegptridx(segment_first));	//put in the world in segment 0
 	num_objects = 1;						//just the player
 	Objects.set_count(1);
 }
@@ -870,7 +869,14 @@ void special_reset_objects(void)
 //link the object into the list for its segment
 void obj_link(const vobjptridx_t obj,const vsegptridx_t segnum)
 {
-	Assert(obj->segnum == segment_none);
+	assert(obj->segnum == segment_none);
+	assert(obj->next == object_none);
+	assert(obj->prev == object_none);
+	obj_link_unchecked(obj, segnum);
+}
+
+void obj_link_unchecked(const vobjptridx_t obj,const vsegptridx_t segnum)
+{
 	obj->segnum = segnum;
 	
 	obj->next = segnum->objects;
@@ -1143,8 +1149,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 		segnum = p;
 	}
 
-	obj->segnum = segment_none;					//set to zero by memset, above
-	obj_link(obj,segnum);
+	obj_link_unchecked(obj, segnum);
 
 	//	Set (or not) persistent bit in phys_info.
 	if (obj->type == OBJ_WEAPON) {
@@ -1182,10 +1187,7 @@ objptridx_t obj_create_copy(const object &srcobj, const vms_vector &new_pos, con
 
 	obj->pos = obj->last_pos = new_pos;
 
-	obj->next = obj->prev = object_none;
-	obj->segnum = segment_none;
-
-	obj_link(obj,newsegnum);
+	obj_link_unchecked(obj,newsegnum);
 
 	obj->signature				= obj_get_signature();
 
@@ -1551,7 +1553,7 @@ static void obj_delete_all_that_should_be_dead()
 void obj_relink(const vobjptridx_t objnum,const vsegptridx_t newsegnum)
 {
 	obj_unlink(objnum);
-	obj_link(objnum,newsegnum);
+	obj_link_unchecked(objnum,newsegnum);
 }
 
 // for getting out of messed up linking situations (i.e. caused by demo playback)
@@ -1566,11 +1568,10 @@ void obj_relink_all(void)
 	{
 		if (obj->type != OBJ_NONE)
 		{
-			auto segnum = exchange(obj->segnum, segment_none);
-			obj->next = obj->prev = object_none;
+			auto segnum = obj->segnum;
 			if (segnum > Highest_segment_index)
 				segnum = segment_first;
-			obj_link(obj, vsegptridx(segnum));
+			obj_link_unchecked(obj, vsegptridx(segnum));
 		}
 	}
 }

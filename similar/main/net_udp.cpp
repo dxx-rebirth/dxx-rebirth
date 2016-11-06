@@ -2058,12 +2058,10 @@ static void net_udp_read_object_packet( ubyte *data )
 				multi_object_rw_to_object(reinterpret_cast<object_rw *>(&data[loc]), obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
-				obj->next = obj->prev = object_none;
 				obj->attached_obj = object_none;
 				if (segnum != segment_none)
 				{
-					obj->segnum = segment_none;
-					obj_link(obj, vsegptridx(segnum));
+					obj_link_unchecked(obj, vsegptridx(segnum));
 				}
 				if (obj_owner == my_pnum) 
 					map_objnum_local_to_local(objnum);
