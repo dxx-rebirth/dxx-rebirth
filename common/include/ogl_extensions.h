@@ -47,12 +47,29 @@ typedef void (APIENTRYP PFNGLWAITSYNCPROC) (GLsync sync, GLbitfield flags, GLuin
 #define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
 #define GL_TIMEOUT_EXPIRED                0x911B
 
+/* GL_EXT_texture */
+#ifndef GL_VERSION_1_1
+#ifdef GL_EXT_texture
+#define GL_INTENSITY4 GL_INTENSITY4_EXT
+#define GL_INTENSITY8 GL_INTENSITY8_EXT
+#endif
+#endif
+
+/* GL_EXT_texture_filter_anisotropic */
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
+
 namespace dcx {
 
 extern bool ogl_have_ARB_sync;
 extern PFNGLFENCESYNCPROC glFenceSyncFunc;
 extern PFNGLDELETESYNCPROC glDeleteSyncFunc;
 extern PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc;
+extern GLfloat ogl_maxanisotropy;
 
 /* Global initialization:
  * will need an OpenGL context and intialize all function pointers.
