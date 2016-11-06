@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "pstypes.h"
+#include <cstdint>
 
 namespace dcx {
 
