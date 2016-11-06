@@ -2047,7 +2047,7 @@ static void net_udp_read_object_packet( ubyte *data )
 			}
 			if (objnum != object_none) {
 				auto obj = vobjptridx(objnum);
-				if (obj->segnum != segment_none)
+				if (obj->type != OBJ_NONE)
 				{
 					obj_unlink(obj);
 					Assert(obj->segnum == segment_none);
