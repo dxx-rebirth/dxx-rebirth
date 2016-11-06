@@ -889,13 +889,14 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	compiled_version = PHYSFSX_readByte(LoadFile);
 	(void)compiled_version;
 
-	DXX_MAKE_MEM_UNDEFINED(Vertices.begin(), Vertices.end());
+	DXX_POISON_VAR(Vertices, 0xfc);
 	if (New_file_format_load)
 		Num_vertices = PHYSFSX_readShort(LoadFile);
 	else
 		Num_vertices = PHYSFSX_readInt(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
 
+	DXX_POISON_VAR(Segments, 0xfc);
 	if (New_file_format_load)
 		Num_segments = PHYSFSX_readShort(LoadFile);
 	else
@@ -905,7 +906,6 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile)
 	range_for (auto &i, partial_range(Vertices, Num_vertices))
 		PHYSFSX_readVector(LoadFile, i);
 
-	DXX_MAKE_MEM_UNDEFINED(Segments.begin(), Segments.end());
 	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
 		const auto segp = vsegptr(segnum);
 

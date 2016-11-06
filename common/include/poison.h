@@ -60,6 +60,12 @@ static inline void DXX_POISON_MEMORY(T b, T e, const V &v)
 	DXX_MAKE_MEM_UNDEFINED(b, e);
 }
 
+template <typename T>
+static inline void DXX_POISON_VAR(T &b, const unsigned char v)
+{
+	DXX_POISON_MEMORY(reinterpret_cast<unsigned char *>(&b), sizeof(T), v);
+}
+
 #ifndef DXX_HAVE_POISON_UNDEFINED
 #define DXX_HAVE_POISON_UNDEFINED	0
 #endif

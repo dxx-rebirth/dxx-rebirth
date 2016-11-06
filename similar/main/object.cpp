@@ -822,12 +822,12 @@ void init_player_object()
 //sets up the free list & init player & whatever else
 void init_objects()
 {
-	DXX_MAKE_MEM_UNDEFINED(Objects.begin(), Objects.end());
 	for (objnum_t i = 0; i< MAX_OBJECTS; ++i)
 	{
 		free_obj_list[i] = i;
-		const auto &&objp = vobjptr(i);
-		objp->type = OBJ_NONE;
+		auto &obj = *vobjptr(i);
+		DXX_POISON_VAR(obj, 0xfd);
+		obj.type = OBJ_NONE;
 	}
 
 	range_for (auto &j, Segments)
@@ -851,7 +851,7 @@ void special_reset_objects(void)
 	Objects.set_count(1);
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
-	DXX_MAKE_MEM_UNDEFINED(free_obj_list.begin(), free_obj_list.end());
+	DXX_POISON_VAR(free_obj_list, 0xfd);
 	for (objnum_t i = MAX_OBJECTS; i--;)
 		if (vcobjptr(i)->type == OBJ_NONE)
 			free_obj_list[--num_objects] = i;
@@ -885,14 +885,33 @@ void obj_link_unchecked(const vobjptridx_t obj,const vsegptridx_t segnum)
 void obj_unlink(object_base &obj)
 {
 	const auto next = obj.next;
+	/* It is a bug elsewhere if vsegptr ever fails here.  However, it is
+	 * expensive to check, so only force verification in debug builds.
+	 *
+	 * In debug builds, always compute it, for the side effect of
+	 * validating the segment number.
+	 *
+	 * In release builds, compute it when it is needed.
+	 */
+#ifndef NDEBUG
+	const auto &&segp = vsegptr(obj.segnum);
+#endif
 	((obj.prev == object_none)
-		? vsegptr(obj.segnum)->objects
+		? (
+#ifdef NDEBUG
+			vsegptr(obj.segnum)
+#else
+			segp
+#endif
+		)->objects
 		: vobjptr(obj.prev)->next) = next;
 
 	obj.segnum = segment_none;
 
 	if (next != object_none)
 		vobjptr(next)->prev = obj.prev;
+	DXX_POISON_VAR(obj.next, 0xfa);
+	DXX_POISON_VAR(obj.prev, 0xfa);
 }
 
 // Returns a new, unique signature for a new object
@@ -1091,7 +1110,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	// in uninitialized fields.
 	*obj = {};
 	// Tell Valgrind to warn on any uninitialized fields.
-	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
+	DXX_POISON_VAR(*obj, 0xfd);
 
 	obj->signature				= signature;
 	obj->type 				= type;
@@ -1225,7 +1244,7 @@ void obj_delete(const vobjptridx_t obj)
 		Debris_object_count--;
 
 	obj_unlink(obj);
-	DXX_MAKE_MEM_UNDEFINED(&*obj, sizeof(*obj));
+	DXX_POISON_VAR(*obj, 0xfa);
 	obj->type = OBJ_NONE;		//unused!
 	obj_free(obj);
 }
@@ -1928,10 +1947,9 @@ void reset_objects(int n_objs)
 	for (objnum_t i = num_objects; i < MAX_OBJECTS; ++i)
 	{
 		free_obj_list[i] = i;
-		const auto &&objp = vobjptr(i);
-		*objp = {};
-		objp->type = OBJ_NONE;
-		objp->segnum = segment_none;
+		auto &obj = *vobjptr(i);
+		DXX_POISON_VAR(obj, 0xfd);
+		obj.type = OBJ_NONE;
 	}
 
 	Objects.set_count(num_objects);
