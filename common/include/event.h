@@ -48,6 +48,17 @@ enum event_type : unsigned
 	EVENT_UI_USERBOX_DRAGGED
 };
 
+enum class window_event_result : uint8_t
+{
+	// Window ignored event.  Bubble up.
+	ignored,
+	// Window handled event.
+	handled,
+	close,
+	// Window handler already deleted window (most likely because it was subclassed), don't attempt to re-delete
+	deleted,
+};
+
 // A vanilla event. Cast to the correct type of event according to 'type'.
 struct d_event
 {
@@ -78,6 +89,14 @@ struct d_select_event : d_event
 };
 
 fix event_get_idle_seconds();
+
+// Process all events until the front window is deleted
+// Won't work if there's the possibility of another window on top
+// without its own event loop
+static inline void event_process_all(void)
+{
+	while (event_process() != window_event_result::deleted) {}
+}
 
 }
 #endif

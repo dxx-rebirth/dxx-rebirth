@@ -365,8 +365,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 
 	Assert(MainWindow != NULL);
 	if (!Markedsegp) {
-		close_trigger_window();
-		return window_event_result::ignored;
+		return window_event_result::close;
 	}
 
 	//------------------------------------------------------------
@@ -477,8 +476,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(t->quitButton.get()) || keypress == KEY_ESC)
 	{
-		close_trigger_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}		
 
 	t->old_trigger_num = trigger_num;

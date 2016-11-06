@@ -136,8 +136,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 	{
 		b->filename_list.reset();
 		b->directory_list.reset();
-		ui_close_dialog(dlg);
-		return window_event_result::handled;
+		return window_event_result::close;
 	}
 	
 	if (GADGET_PRESSED(b->help_button.get()))
@@ -189,8 +188,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 			if (RAIIPHYSFS_File{PHYSFS_openRead(b->filename)})
 			{
 				// Looks like a valid filename that already exists!
-				ui_close_dialog(dlg);
-				return window_event_result::handled;
+				return window_event_result::close;
 			}
 			
 			// File doesn't exist, but can we create it?
@@ -199,8 +197,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 				TempFile.reset();
 				// Looks like a valid filename!
 				PHYSFS_delete(b->filename);
-				ui_close_dialog(dlg);
-				return window_event_result::handled;
+				return window_event_result::close;
 			}
 		}
 		else
@@ -213,8 +210,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 			if (!b->filename_list)
 			{
 				b->directory_list.reset();
-				ui_close_dialog(dlg);
-				return window_event_result::handled;
+				return window_event_result::close;
 			}
 			
 			ui_inputbox_set_text(b->user_file.get(), b->filespec);
@@ -222,8 +218,7 @@ static window_event_result browser_handler(UI_DIALOG *const dlg, const d_event &
 			if (!b->directory_list)
 			{
 				b->filename_list.reset();
-				ui_close_dialog(dlg);
-				return window_event_result::handled;
+				return window_event_result::close;
 			}
 			
 			ui_listbox_change(dlg, b->listbox1.get(), b->filename_list.get_count(), b->filename_list.get());
@@ -306,8 +301,7 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	
 	wind = ui_dialog_get_window(dlg);
 	
-	while (window_exists(wind))
-		event_process();
+	event_process_all();
 
 	//key_flush();
 

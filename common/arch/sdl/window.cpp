@@ -27,7 +27,7 @@ static window *FirstWindow = nullptr;
 
 window::window(grs_canvas &src, const int x, const int y, const int w, const int h, const window_subfunction<void> event_callback, void *const data) :
 	// Default to visible and modal
-	w_callback(event_callback), w_visible(1), w_modal(1), w_data(data), prev(FrontWindow), next(nullptr)
+	w_callback(event_callback), w_visible(1), w_modal(1), w_data(data), prev(FrontWindow), next(nullptr), w_exists(nullptr)
 {
 	Assert(event_callback != nullptr);
 	gr_init_sub_canvas(w_canv, src, x, y, w, h);
@@ -60,6 +60,8 @@ void window::send_creation_events(const void *const createdata)
 
 window::~window()
 {
+	if (w_exists)
+		*w_exists = false;
 	if (this == FrontWindow)
 		FrontWindow = this->prev;
 	if (this == FirstWindow)
@@ -96,15 +98,6 @@ int window_close(window *wind)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
 	return 1;
-}
-
-int window_exists(window *wind)
-{
-	window *w;
-
-	for (w = FirstWindow; w && w != wind; w = w->next) {}
-	
-	return w && w == wind;
 }
 
 // Get the top window that's visible

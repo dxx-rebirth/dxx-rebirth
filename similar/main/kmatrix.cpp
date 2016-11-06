@@ -413,7 +413,7 @@ kmatrix_result kmatrix_view(int network)
 		return kmatrix_result::abort;
 	}
 	
-	while (window_exists(wind))
-		event_process();
+	event_process_all();
+
 	return (km.aborted ? kmatrix_result::abort : kmatrix_result::proceed);
 }

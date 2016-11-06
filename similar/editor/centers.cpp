@@ -242,8 +242,7 @@ window_event_result centers_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(c->quitButton.get()) || keypress==KEY_ESC)
 	{
-		close_centers_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}		
 
 	c->old_seg_num = Cursegp;

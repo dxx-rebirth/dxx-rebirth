@@ -143,8 +143,9 @@ window_event_result ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbo
 	
 	if (inputbox->pressed)
 	{
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, inputbox);
-		rval = window_event_result::handled;
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, inputbox);
+		if (rval == window_event_result::ignored)
+			rval = window_event_result::handled;
 	}
 		
 	if (event.type == EVENT_WINDOW_DRAW)

@@ -1978,8 +1978,9 @@ window_event_result ReadControls(const d_event &event)
 		}
 #endif
 
-		if (call_default_handler(event))
-			return window_event_result::handled;
+		auto result = call_default_handler(event);
+		if (result != window_event_result::ignored)
+			return result;
 	}
 
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)

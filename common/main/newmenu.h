@@ -35,9 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#ifdef _WIN32
 #include "fwd-window.h"
-#endif
 #include "varutil.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -323,7 +321,7 @@ extern void listbox_delete_item(listbox *lb, int item);
 
 namespace dcx {
 template <typename T>
-using listbox_subfunction_t = int (*)(listbox *menu,const d_event &event, T *userdata);
+using listbox_subfunction_t = window_event_result (*)(listbox *menu,const d_event &event, T *userdata);
 
 class unused_listbox_userdata_t;
 constexpr listbox_subfunction_t<const unused_listbox_userdata_t> *unused_listbox_subfunction = nullptr;

@@ -378,7 +378,7 @@ static window_event_result wall_dialog_created(UI_DIALOG *const w, wall_dialog *
 
 void close_wall_window()
 {
-	if (likely(MainWindow))
+	if (MainWindow)
 		ui_close_dialog(exchange(MainWindow, nullptr));
 }
 
@@ -574,8 +574,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
 	{
-		close_wall_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}		
 
 	wd->old_wall_num = Cursegp->sides[Curside].wall_num;

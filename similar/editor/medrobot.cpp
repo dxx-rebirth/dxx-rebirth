@@ -715,8 +715,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(r->quitButton.get()) || keypress == KEY_ESC)
 	{
-		robot_close_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}		
 
 	r->old_object = Cur_object_index;
@@ -851,8 +850,7 @@ static window_event_result object_dialog_handler(UI_DIALOG *dlg,const d_event &e
 		obj->mtype.spin_rate.y = fl2f(atof(o->ytext->text.get()));
 		obj->mtype.spin_rate.z = fl2f(atof(o->ztext->text.get()));
 
-		object_close_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}
 	
 	return rval;

@@ -60,7 +60,7 @@ void mouse_close(void)
 	SDL_ShowCursor(SDL_ENABLE);
 }
 
-static void maybe_send_z_move(const unsigned button)
+static window_event_result maybe_send_z_move(const unsigned button)
 {
 	short dz;
 	if (button == MBTN_Z_UP)
@@ -76,37 +76,39 @@ static void maybe_send_z_move(const unsigned button)
 		dz = -1*Z_SENSITIVITY;
 	}
 	else
-		return;
+		return window_event_result::ignored;
 	d_event_mouse_moved event{};
 	event.type = EVENT_MOUSE_MOVED;
 	event.dz = dz;
-	event_send(event);
+	return event_send(event);
 }
 
-static void send_singleclick(const bool pressed, const unsigned button)
+static window_event_result send_singleclick(const bool pressed, const unsigned button)
 {
 	const d_event_mousebutton event{pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_BUTTON_%s, button %d, coords %d,%d,%d",
 			   pressed ? "DOWN" : "UP", event.button, Mouse.x, Mouse.y, Mouse.z);
-	event_send(event);
+	return event_send(event);
 }
 
-static void maybe_send_doubleclick(const fix64 now, const unsigned button)
+static window_event_result maybe_send_doubleclick(const fix64 now, const unsigned button)
 {
 	auto &when = Mouse.time_lastpressed[button];
 	const auto then = when;
 	when = now;
 	if (now > then + F1_0/5)
-		return;
+		return window_event_result::ignored;
 	const d_event_mousebutton event{EVENT_MOUSE_DOUBLE_CLICKED, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", button, Mouse.x, Mouse.y);
-	event_send(event);
+	return event_send(event);
 }
 
-void mouse_button_handler(SDL_MouseButtonEvent *mbe)
+window_event_result mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
+	window_event_result highest_result(window_event_result::ignored);
+
 	if (unlikely(CGameArg.CtlNoMouse))
-		return;
+		return window_event_result::ignored;
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
 	static const array<int, 17> button_remap{{
@@ -130,7 +132,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	}};
 	const unsigned button_idx = mbe->button - 1; // -1 since SDL seems to start counting at 1
 	if (unlikely(button_idx >= button_remap.size()))
-		return;
+		return window_event_result::ignored;
 
 	const auto now = timer_query();
 	const auto button = button_remap[button_idx];
@@ -139,17 +141,19 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 	const auto pressed = mbe_state != SDL_RELEASED;
 	if (pressed) {
-		maybe_send_z_move(button);
+		highest_result = maybe_send_z_move(button);
 	}
-	send_singleclick(pressed, button);
+	highest_result = std::max(send_singleclick(pressed, button), highest_result);
 	//Double-click support
 	if (pressed)
 	{
-		maybe_send_doubleclick(now, button);
+		highest_result = std::max(maybe_send_doubleclick(now, button), highest_result);
 	}
+
+	return highest_result;
 }
 
-void mouse_motion_handler(SDL_MouseMotionEvent *mme)
+window_event_result mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
 	d_event_mouse_moved event;
 	
@@ -164,7 +168,7 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	
 	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
-	event_send(event);
+	return event_send(event);
 }
 
 void mouse_flush()	// clears all mice events...

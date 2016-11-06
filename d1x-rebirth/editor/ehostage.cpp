@@ -375,8 +375,7 @@ static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(h->quitButton.get()) || keypress==KEY_ESC)
 	{
-		hostage_close_window();
-		return window_event_result::handled;
+		return window_event_result::close;
 	}		
 
 	LastHostageIndex = CurrentHostageIndex;

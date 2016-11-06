@@ -20,19 +20,11 @@
 #include "console.h"
 
 #ifdef __cplusplus
-#include "fwd-window.h"
-namespace dcx {
+#include <assert.h>
 
-enum class window_event_result : uint8_t
-{
-	// Window ignored event.  Bubble up.
-	ignored,
-	// Window handled event.
-	handled,
-	close,
-	// Window handler already deleted window (most likely because it was subclassed), don't attempt to re-delete
-	deleted,
-};
+#include "fwd-window.h"
+#include "event.h"
+namespace dcx {
 
 constexpr const unused_window_userdata_t *unused_window_userdata = nullptr;
 
@@ -61,6 +53,7 @@ class window
 	void *w_data;						// whatever the user wants (eg menu data for 'newmenu' menus)
 	class window *prev;				// the previous window in the doubly linked list
 	class window *next;				// the next window in the doubly linked list
+	bool *w_exists;					// optional pointer to a tracking variable
 	
 public:
 	// For creating the window, there are two ways - using the (older) window_create function
@@ -81,7 +74,6 @@ public:
 	friend window *window_create(grs_canvas &src, int x, int y, int w, int h, window_subfunction<void> event_callback, void *userdata, const void *createdata);
 	
 	friend int window_close(window *wind);
-	friend int window_exists(window *wind);
 	friend window *window_get_front();
 	friend window *window_get_first();
 	friend void window_select(window &wind);
@@ -129,7 +121,9 @@ public:
 	{
 		auto r = wind.w_callback(&wind, event, wind.w_data);
 		if (r == window_event_result::close)
-			window_close(&wind);
+			if (window_close(&wind))
+				return window_event_result::deleted;
+
 		return r;
 	}
 	
@@ -142,7 +136,12 @@ public:
 	{
 		return wind.prev;
 	}
-	
+
+	void track(bool *exists)
+	{
+		assert(w_exists == nullptr);
+		w_exists = exists;
+	}
 };
 
 template <typename T1, typename T2 = const void>

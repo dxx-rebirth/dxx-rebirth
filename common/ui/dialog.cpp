@@ -98,21 +98,15 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 		return window_event_result::ignored;
 	
 	if (dlg->d_callback)
-		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) == window_event_result::handled)
+		if ((rval = (*dlg->d_callback)(dlg, event, dlg->d_userdata)) != window_event_result::ignored)
 			return rval;		// event handled
-
-	if (!window_exists(wind))
-		return window_event_result::handled;
 
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:
-			/*return*/ ui_dialog_do_gadgets(dlg, event);
-			if (!window_exists(wind))
-				return window_event_result::handled;
-			return mouse_in_window(dlg->wind);
+			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 			return ui_dialog_do_gadgets(dlg, event);

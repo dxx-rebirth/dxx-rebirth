@@ -469,7 +469,7 @@ static void strip_end_whitespace( char * text )
 int newmenu_do2(const char *const title, const char *const subtitle, const uint_fast32_t nitems, newmenu_item *const item, const newmenu_subfunction subfunction, void *const userdata, const int citem, const char *const filename)
 {
 	newmenu *menu;
-	window *wind;
+	bool exists = true;
 	int rval = -1;
 
 	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename );
@@ -477,11 +477,14 @@ int newmenu_do2(const char *const title, const char *const subtitle, const uint_
 	if (!menu)
 		return -1;
 	menu->rval = &rval;
-	wind = menu->wind;	// avoid dereferencing a freed 'menu'
+
+	// Track to see when the window is freed
+	// Doing this way in case another window is opened on top without its own polling loop
+	menu->wind->track(&exists);
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (window_exists(wind))
+	while (exists)
 		event_process();
 
 	return rval;
@@ -1512,8 +1515,11 @@ static window_event_result newmenu_handler(window *wind,const d_event &event, ne
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
 
-		if (!window_exists(wind))
-			return window_event_result::handled;	// some subfunction closed the window: bail!
+#if 0	// No current instances of the subfunction closing the window itself (which is preferred)
+		// Enable when all subfunctions return a window_event_result
+		if (rval == window_event_result::deleted)
+			return rval;	// some subfunction closed the window: bail!
+#endif
 
 		if (rval)
 		{
@@ -1663,7 +1669,7 @@ struct listbox : embed_window_pointer_t
 	const char **item;
 	int allow_abort_flag;
 	unsigned marquee_maxchars;
-	int (*listbox_callback)(listbox *lb,const d_event &event, void *userdata);
+	listbox_subfunction_t<void> listbox_callback;
 	unsigned nitems;
 	int citem, first_item;
 	int marquee_charpos, marquee_scrollback;
@@ -1773,10 +1779,10 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 				y2 = y1+h;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
 				{
-					// Tell callback, allow staying in menu
+					// Tell callback, if it wants to close it will return window_event_result::close
 					const d_select_event selected{lb->citem};
-					if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
-						return window_event_result::handled;
+					if (lb->listbox_callback)
+						return (*lb->listbox_callback)(lb, selected, lb->userdata);
 					return window_event_result::close;
 				}
 			}
@@ -1853,11 +1859,11 @@ static window_event_result listbox_key_command(window *, const d_event &event, l
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			// Tell callback, allow staying in menu
+			// Tell callback, if it wants to close it will return window_event_result::close
 			{
 				const d_select_event selected{lb->citem};
-				if (lb->listbox_callback && (*lb->listbox_callback)(lb, selected, lb->userdata))
-				return window_event_result::handled;
+				if (lb->listbox_callback)
+					return (*lb->listbox_callback)(lb, selected, lb->userdata);
 			}
 			return window_event_result::close;
 		default:
@@ -2022,7 +2028,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 
 		event.type = EVENT_NEWMENU_DRAW;
 		if ( lb->listbox_callback )
-			(*lb->listbox_callback)(lb, event, lb->userdata);
+			return (*lb->listbox_callback)(lb, event, lb->userdata);
 	}
 	return window_event_result::handled;
 }
@@ -2031,9 +2037,9 @@ static window_event_result listbox_handler(window *wind,const d_event &event, li
 {
 	if (lb->listbox_callback)
 	{
-		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
-		if (rval)
-			return window_event_result::handled;		// event handled
+		auto rval = (*lb->listbox_callback)(lb, event, lb->userdata);
+		if (rval != window_event_result::ignored)
+			return rval;		// event handled
 	}
 
 	switch (event.type)

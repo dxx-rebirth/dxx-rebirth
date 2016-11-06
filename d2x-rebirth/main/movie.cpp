@@ -276,6 +276,8 @@ struct movie : ignore_window_pointer_t
 
 static window_event_result show_pause_message(window *, const d_event &event, const unused_window_userdata_t *)
 {
+	window_event_result result;
+
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
@@ -284,11 +286,11 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			// else fall through
 
 		case EVENT_KEY_COMMAND:
-			if (!call_default_handler(event))
+			if ((result = call_default_handler(event)) == window_event_result::ignored)
 			{
 				return window_event_result::close;
 			}
-			return window_event_result::handled;
+			return result;
 
 		case EVENT_WINDOW_DRAW:
 		{
@@ -435,8 +437,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	while (window_exists(wind))
-		event_process();
+	event_process_all();
 
 	Assert(m.aborted || m.result == MVE_ERR_EOF);	 ///movie should be over
 

@@ -139,8 +139,10 @@ window_event_result ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbo
 	if (checkbox->pressed == 1)
 	{
 		checkbox->flag ^= 1;
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, checkbox);
-		return window_event_result::handled;
+		auto rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, checkbox);
+		if (rval == window_event_result::ignored)
+			rval = window_event_result::handled;
+		return rval;
 	}
 
 	if (event.type == EVENT_WINDOW_DRAW)

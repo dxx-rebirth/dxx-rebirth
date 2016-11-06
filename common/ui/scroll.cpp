@@ -282,8 +282,9 @@ window_event_result ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrol
 		scrollbar->moved = 1;
 	if (scrollbar->moved)
 	{
-		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, scrollbar);
-		rval = window_event_result::handled;
+		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, scrollbar);
+		if (rval == window_event_result::ignored)
+			rval = window_event_result::handled;
 	}
 
 	if (oldpos != scrollbar->fake_position)

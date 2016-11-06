@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "strutil.h"
 #include "inferno.h"
+#include "window.h"
 #include "mission.h"
 #include "gameseq.h"
 #include "titles.h"
@@ -1009,10 +1010,10 @@ int load_mission_by_name(const char *mission_name)
 struct mission_menu
 {
 	mission_list_type ml;
-	int (*when_selected)(void);
+	window_event_result (*when_selected)(void);
 };
 
-static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
+static window_event_result mission_menu_handler(listbox *lb,const d_event &event, mission_menu *mm)
 {
 	const char **list = listbox_get_items(lb);
 	switch (event.type)
@@ -1027,10 +1028,10 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 				if (!load_mission(&mm->ml[citem]))
 				{
 					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-					return 1;	// stay in listbox so user can select another one
+					return window_event_result::handled;	// stay in listbox so user can select another one
 				}
 			}
-			return !(*mm->when_selected)();
+			return (*mm->when_selected)();
 		}
 		case EVENT_WINDOW_CLOSE:
 			d_free(list);
@@ -1041,10 +1042,10 @@ static int mission_menu_handler(listbox *lb,const d_event &event, mission_menu *
 			break;
 	}
 	
-	return 0;
+	return window_event_result::ignored;
 }
 
-int select_mission(int anarchy_mode, const char *message, int (*when_selected)(void))
+int select_mission(int anarchy_mode, const char *message, window_event_result (*when_selected)(void))
 {
 	auto mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;
