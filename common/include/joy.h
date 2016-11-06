@@ -50,28 +50,19 @@ namespace dcx {
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 extern window_event_result joy_button_handler(SDL_JoyButtonEvent *jbe);
 #else
-static inline window_event_result joy_button_handler(void *)
-{
-	return window_event_result::ignored;
-}
+#define joy_button_handler(jbe) (static_cast<SDL_JoyButtonEvent *const &>(jbe), window_event_result::ignored)
 #endif
 
 #if DXX_MAX_HATS_PER_JOYSTICK
 extern window_event_result joy_hat_handler(SDL_JoyHatEvent *jhe);
 #else
-static inline window_event_result joy_hat_handler(void *)
-{
-	return window_event_result::ignored;
-}
+#define joy_hat_handler(jbe) (static_cast<SDL_JoyHatEvent *const &>(jbe), window_event_result::ignored)
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
 extern window_event_result joy_axis_handler(SDL_JoyAxisEvent *jae);
 #else
-static inline window_event_result joy_axis_handler(void *)
-{
-	return window_event_result::ignored;
-}
+#define joy_axis_handler(jbe) (static_cast<SDL_JoyAxisEvent *const &>(jbe), window_event_result::ignored)
 #endif
 
 }
