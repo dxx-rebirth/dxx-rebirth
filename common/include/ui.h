@@ -307,7 +307,6 @@ static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, shor
 }
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)());
-extern void ui_gadget_delete_all( UI_DIALOG * dlg );
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
 extern UI_GADGET *ui_event_get_gadget(const d_event &event);
 window_event_result ui_dialog_do_gadgets( UI_DIALOG * dlg, const d_event &event );
