@@ -305,6 +305,7 @@ static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &
 			return hostage_dialog_created(dlg, h);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<hostage_dialog>()(h);
+			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
 			break;

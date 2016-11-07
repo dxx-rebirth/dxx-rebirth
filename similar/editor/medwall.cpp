@@ -390,6 +390,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 			return wall_dialog_created(dlg, wd);
 		case EVENT_WINDOW_CLOSE:
 			std::default_delete<wall_dialog>()(wd);
+			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
 			break;
