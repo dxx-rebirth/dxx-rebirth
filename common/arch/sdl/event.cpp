@@ -179,6 +179,8 @@ window_event_result event_process(void)
 
 			highest_result = std::max(result, highest_result);
 		}
+		else
+			wind = window_get_next(*wind);
 	}
 
 	gr_flip();
