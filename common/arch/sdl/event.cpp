@@ -161,21 +161,14 @@ window_event_result event_process(void)
 		return highest_result;
 	
 	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
-	wind = window_get_first();
-	while (wind != NULL)
+	for (wind = window_get_first(); wind != nullptr; wind = window_get_next(*wind))
 	{
-		window *prev = window_get_prev(*wind);
 		if (window_is_visible(wind))
 		{
+			auto prev = window_get_prev(*wind);
 			auto result = window_send_event(*wind, event);
 			if (result == window_event_result::deleted)
-			{
-				if (!prev) // well there isn't a previous window ...
-					break; // ... just bail out - we've done everything for this frame we can.
-				wind = window_get_next(*prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
-			}
-			else
-				wind = window_get_next(*wind);
+				wind = prev;	// take the previous window and get the next one from that (if prev isn't nullptr)
 
 			highest_result = std::max(result, highest_result);
 		}
