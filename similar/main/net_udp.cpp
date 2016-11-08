@@ -809,8 +809,9 @@ static int net_udp_game_connect(direct_join *dj)
 	{
 		net_udp_request_game_info(dj->host_addr, 0);
 #if DXX_USE_TRACKER
-		if (timer_query() >= dj->start_time + (F1_0*4) && dj->gameid)
-			udp_tracker_request_holepunch(dj->gameid);
+		if (dj->gameid)
+			if (timer_query() >= dj->start_time + (F1_0*4))
+				udp_tracker_request_holepunch(dj->gameid);
 #endif
 		dj->last_time = timer_query();
 	}
@@ -5779,8 +5780,8 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 	if (!sender_is_tracker(sender_addr, TrackerSocket) || (Network_status != NETSTAT_BROWSING))
 		return -1;
 
-	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL, *p4 = NULL;
-	char sIP[46] = {}, sPort[6] = {};
+	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
+	char sIP[47] = {}, sPort[6] = {};
 	uint16_t iPort = 0, TrackerGameID = 0;
 
 	// Get the IP
@@ -5789,19 +5790,17 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 	p0 +=2;
 	if ((p1 = strstr(p0, "/")) == NULL)
 		return -1;
-	memcpy(sIP, p0, p1-p0);
 	if (p1-p0 < 1 || p1-p0 > sizeof(sIP))
 		return -1;
+	memcpy(sIP, p0, p1-p0);
 
 	// Get the port
-	if ((p2 = strstr(reinterpret_cast<char *>(data), "/")) == NULL)
+	p1++;
+	if ((p2 = strstr(p1, "c=")) == NULL)
 		return -1;
-	p2++;
-	if ((p3 = strstr(p2, "c=")) == NULL)
+	if (p2-p1-1 < 1 || p2-p1-1 > sizeof(sPort))
 		return -1;
-	memcpy(sPort, p2, p3-p2-1);
-	if (p3-p2-1 < 1 || p3-p2-1 > sizeof(sPort))
-		return -1;
+	memcpy(sPort, p1, p2-p1-1);
 	if (!convert_text_portstring(sPort, iPort, true, true))
 		return -1;
 
@@ -5809,13 +5808,14 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 	struct _sockaddr sAddr;
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return -1;
-
-	TrackerGameID = GET_INTEL_SHORT(p3 + 2);
-	if ((p4 = strstr(reinterpret_cast<char *>(data), "z=")) == NULL)
+	if (data_len < p2-reinterpret_cast<char *>(data)+2)
+		return -1;
+	TrackerGameID = GET_INTEL_SHORT(p2 + 2);
+	if ((p3 = strstr(reinterpret_cast<char *>(data), "z=")) == NULL)
 		return -1;
 
 	// Now process the actual lite_game packet contained.
-	int iPos = (p4-p0+5);
+	int iPos = (p3-p0+5);
 	net_udp_process_game_info( &data[iPos], data_len - iPos, sAddr, 1, TrackerGameID );
 
 	return 0;
