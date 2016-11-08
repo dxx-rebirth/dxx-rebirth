@@ -828,6 +828,12 @@ void init_objects()
 		free_obj_list[i] = i;
 		const auto &&objp = vobjptr(i);
 		objp->type = OBJ_NONE;
+		// init segment and signature for multiplayer object sync.
+		if (Game_Mode & GM_MULTI)
+		{
+			objp->segnum = segment_none;
+			objp->signature = obj_get_signature();
+		}
 	}
 
 	range_for (auto &j, Segments)

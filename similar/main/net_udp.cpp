@@ -2047,6 +2047,11 @@ static void net_udp_read_object_packet( ubyte *data )
 			}
 			if (objnum != object_none) {
 				auto obj = vobjptridx(objnum);
+				if (obj->segnum != segment_none)
+				{
+					obj_unlink(obj);
+					Assert(obj->segnum == segment_none);
+				}
 				Assert(objnum < MAX_OBJECTS);
 				if (words_bigendian)
 					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
