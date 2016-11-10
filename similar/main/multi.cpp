@@ -167,7 +167,6 @@ int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 static array<unsigned, MAX_PLAYERS>   sorted_kills;
-static int multi_goto_secret;
 array<array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
 array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
@@ -1941,16 +1940,12 @@ static void multi_do_escape(const ubyte *buf)
 		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_ESCAPED);
 		if (Game_mode & GM_NETWORK)
 			Players[static_cast<int>(buf[1])].connected = CONNECT_ESCAPE_TUNNEL;
-		if (!multi_goto_secret)
-			multi_goto_secret = 2;
 	}
 	else if (buf[2] == 1)
 	{
 		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_FOUND_SECRET);
 		if (Game_mode & GM_NETWORK)
 			Players[static_cast<int>(buf[1])].connected = CONNECT_FOUND_SECRET;
-		if (!multi_goto_secret)
-			multi_goto_secret = 1;
 	}
 	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
@@ -2584,8 +2579,6 @@ void multi_send_endlevel_start()
 #endif
 	multibuf[1] = Player_num;
 	multibuf[2] = static_cast<char>(secret);
-	if (!multi_goto_secret)
-		multi_goto_secret = 1 + !secret;
 
 	multi_send_data<MULTI_ENDLEVEL_START>(multibuf, 3, 2);
 	if (Game_mode & GM_NETWORK)
