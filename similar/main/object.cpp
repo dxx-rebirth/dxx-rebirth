@@ -939,7 +939,9 @@ objptridx_t obj_allocate()
 	if (objnum > Highest_object_index) {
 		Objects.set_count(objnum + 1);
 	}
-	return objptridx(objnum);
+	const auto &&r = vobjptridx(objnum);
+	assert(r->type == OBJ_NONE);
+	return r;
 }
 
 //frees up an object.  Generally, obj_delete() should be called to get
