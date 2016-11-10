@@ -1811,12 +1811,12 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	} else
 		First_secret_visit = 0;
 
+	player_info.Omega_charge = 0;
 	if (version >= 22)
 	{
+		auto i = PHYSFSX_readSXE32(fp, swap);
 		if (secret != secret_restore::survived)
-			get_local_plrobj().ctype.player_info.Omega_charge = PHYSFSX_readSXE32(fp, swap);
-		else
-			PHYSFSX_readSXE32(fp, swap);
+			player_info.Omega_charge = i;
 	}
 #endif
 
