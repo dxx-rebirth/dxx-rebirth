@@ -1304,7 +1304,10 @@ static window_event_result HandleTestKey(int key)
 		case KEY_E + KEY_DEBUGGED:
 			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
 			init_editor();
-			return window_event_result::close;
+			// If editor failed to load, carry on playing
+			if (!EditorWindow)
+				window_set_visible(Game_wind, 1);
+			return EditorWindow ? window_event_result::close : window_event_result::handled;
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{

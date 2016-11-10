@@ -735,7 +735,7 @@ static void ul_xlate(char *s)
 }
 
 
-void menubar_init( const char * file )
+int menubar_init( const char * file )
 {
 	int np;
 	char buf1[200];
@@ -751,8 +751,12 @@ void menubar_init( const char * file )
 			j.Hotkey = -1;
 	auto infile = PHYSFSX_openReadBuffered(file);
 
-	if (!infile) return;
-		
+	if (!infile)
+	{
+		Warning("Couldn't find %s\n", file);
+		return 0;
+	}
+	
 	PHYSFSX_gets_line_t<200> buffer;
 	while ( PHYSFSX_fgets( buffer, infile) != NULL )
 	{
@@ -870,6 +874,8 @@ void menubar_init( const char * file )
 
 	}
 	Menu[0].w = 700;
+
+	return 1;
 }
 
 void menubar_hide()
