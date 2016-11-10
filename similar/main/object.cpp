@@ -900,15 +900,15 @@ object_signature_t obj_get_signature()
 {
 	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
 	uint_fast32_t lsig = sig;
-	for (const auto &&range = make_range(vcobjptridx);;)
+	for (const auto &&b = vcobjptr.begin(), &&e = vcobjptr.end();;)
 	{
 		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
 			lsig = 0;
 		++ lsig;
-		const auto predicate = [lsig](const vcobjptridx_t &o) {
+		const auto predicate = [lsig](const vcobjptr_t &o) {
 			return o->type != OBJ_NONE && o->signature.get() == lsig;
 		};
-		if (std::find_if(range.begin(), range.end(), predicate) != range.end())
+		if (std::find_if(b, e, predicate) != e)
 			continue;
 		sig = static_cast<int16_t>(lsig);
 		return object_signature_t{static_cast<uint16_t>(lsig)};
