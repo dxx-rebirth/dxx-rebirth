@@ -1455,9 +1455,9 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	{
 		first_terminal_seg = 0;
 	}
-	else
+	//else
 	#endif
-		//NOTE LINK TO ABOVE!!
+		//NOTE LINK TO ABOVE!!	-Link killed by kreatordxx to get editor selection working again
 		build_segment_list(rstate, visited, first_terminal_seg, start_seg_num);		//fills in Render_list & N_render_segs
 
 	const auto &&render_range = partial_const_range(rstate.Render_list, rstate.N_render_segs);
@@ -1483,7 +1483,7 @@ void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &wi
 	}
 	#endif
 
-	if (!(_search_mode))
+	//if (!(_search_mode))
 		build_object_lists(rstate);
 
 	if (eye_offset<=0) // Do for left eye or zero.
