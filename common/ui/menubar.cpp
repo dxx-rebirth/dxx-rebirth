@@ -817,7 +817,6 @@ int menubar_init( const char * file )
 			if (!item.user_function)
 			{
 				con_printf(CON_URGENT, "%s:%u: unknown function \"%s\" in \"%s\"", __FILE__, __LINE__, buf1, file);
-				break;
 			}
 		}
 				
