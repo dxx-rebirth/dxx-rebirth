@@ -1118,15 +1118,12 @@ void reset_walls()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void do_cloaking_wall_frame(int cloaking_wall_num)
+static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	sbyte old_cloak; // for demo recording
 
-	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
-
 	d = &CloakingWalls[cloaking_wall_num];
-	wall *const wfront = vwallptr(d->front_wallnum);
 	wall *const wback = wallptr(d->back_wallnum);
 
 	old_cloak = wfront->cloak_value;
@@ -1185,18 +1182,14 @@ static void do_cloaking_wall_frame(int cloaking_wall_num)
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
 	if ( Newdemo_state == ND_STATE_RECORDING && (wfront->cloak_value != old_cloak || d->time == FrameTime) )
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, wfront->type, wfront->state, wfront->cloak_value, Segments[wfront->segnum].sides[wfront->sidenum].uvls[0].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[1].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[2].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[3].l);
-
 }
 
-static void do_decloaking_wall_frame(int cloaking_wall_num)
+static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	sbyte old_cloak; // for demo recording
 
-	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
-
 	d = &CloakingWalls[cloaking_wall_num];
-	wall *const wfront = vwallptr(d->front_wallnum);
 	wall *const wback = wallptr(d->back_wallnum);
 
 	old_cloak = wfront->cloak_value;
@@ -1297,6 +1290,7 @@ void wall_frame_process()
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
+	if (Newdemo_state != ND_STATE_PLAYBACK)
 	for (i=0;i<Num_cloaking_walls;i++) {
 		cloaking_wall *d;
 
@@ -1304,9 +1298,9 @@ void wall_frame_process()
 		wall *const w = vwallptr(d->front_wallnum);
 
 		if (w->state == WALL_DOOR_CLOAKING)
-			do_cloaking_wall_frame(i);
+			do_cloaking_wall_frame(w, i);
 		else if (w->state == WALL_DOOR_DECLOAKING)
-			do_decloaking_wall_frame(i);
+			do_decloaking_wall_frame(w, i);
 #ifdef _DEBUG
 		else
 			Int3();	//unexpected wall state
