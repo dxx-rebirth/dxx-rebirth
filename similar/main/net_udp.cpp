@@ -2003,6 +2003,8 @@ static void net_udp_read_object_packet( ubyte *data )
 		{
 			// Clear object array
 			init_objects();
+			for (objnum_t j = 1; j < MAX_OBJECTS; ++j)
+				vobjptr(j)->segnum = segment_none; // init segment for object sync.
 			Network_rejoined = 1;
 			my_pnum = obj_owner;
 			change_playernum_to(my_pnum);
