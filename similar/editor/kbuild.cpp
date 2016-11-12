@@ -35,6 +35,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //  ---------- Create a bridge segment between current segment/side and marked segment/side ----------
 int CreateBridge()
 {
+	if (!Markedsegp) {
+		editor_status("No marked side.");
+		return 0;
+	}
+	
     if (!med_form_bridge_segment(Cursegp,Curside,Markedsegp,Markedside)) {
 		Update_flags |= UF_WORLD_CHANGED;
 		mine_changed = 1;

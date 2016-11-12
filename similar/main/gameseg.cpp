@@ -1277,7 +1277,8 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 				swap(w[j], w[i]);
 			}
 
-	Assert((v[0] < v[1]) && (v[1] < v[2]) && (v[2] < v[3]));
+	if (!((v[0] < v[1]) && (v[1] < v[2]) && (v[2] < v[3])))
+		LevelError("Level contains malformed geometry.");
 
 	//	Now, if for any w[i] & w[i+1]: w[i+1] = (w[i]+3)%4, then must swap
 	*v0 = v[0];
