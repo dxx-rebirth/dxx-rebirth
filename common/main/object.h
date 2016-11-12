@@ -117,6 +117,7 @@ struct player_info
 	array<uint8_t, SUPER_WEAPON> Primary_last_was_super;
 	array<uint8_t, SUPER_WEAPON> Secondary_last_was_super;
 #endif
+	int16_t net_killed_total;		// Number of times killed total
 	union {
 		struct {
 			int score;				// Current score.

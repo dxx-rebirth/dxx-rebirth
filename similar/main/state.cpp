@@ -498,7 +498,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 #if defined(DXX_BUILD_DESCENT_II)
 	pl_rw->KillGoalCount             = pl->KillGoalCount;
 #endif
-	pl_rw->net_killed_total          = pl->net_killed_total;
+	pl_rw->net_killed_total          = pl_info.net_killed_total;
 	pl_rw->net_kills_total           = pl->net_kills_total;
 	pl_rw->num_kills_level           = pl->num_kills_level;
 	pl_rw->num_kills_total           = pl->num_kills_total;
@@ -543,7 +543,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 #if defined(DXX_BUILD_DESCENT_II)
 	pl->KillGoalCount             = pl_rw->KillGoalCount;
 #endif
-	pl->net_killed_total          = pl_rw->net_killed_total;
+	pl_info.net_killed_total          = pl_rw->net_killed_total;
 	pl->net_kills_total           = pl_rw->net_kills_total;
 	pl->num_kills_level           = pl_rw->num_kills_level;
 	pl->num_kills_total           = pl_rw->num_kills_total;
@@ -1911,9 +1911,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.killed[i] = Players[i].net_killed_total;
 			const auto &&objp = vobjptr(Players[i].objnum);
 			auto &pi = objp->ctype.player_info;
+			Netgame.killed[i] = pi.net_killed_total;
 			Netgame.player_score[i] = pi.mission.score;
 			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}

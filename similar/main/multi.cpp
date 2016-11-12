@@ -558,7 +558,6 @@ void multi_new_game()
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
-		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
 		Players[i].KillGoalCount=0;
 	}
@@ -635,9 +634,9 @@ void multi_sort_kill_list()
 	array<int, MAX_PLAYERS> kills;
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
+		auto &player_info = vcobjptr(Players[i].objnum)->ctype.player_info;
 		if (Game_mode & GM_MULTI_COOP)
 		{
-			auto &player_info = vcobjptr(Players[i].objnum)->ctype.player_info;
 			kills[i] = player_info.mission.score;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -645,13 +644,13 @@ void multi_sort_kill_list()
 		if (Show_kill_list==2)
 		{
 			auto &p = Players[i];
-			const auto kk = p.net_killed_total + p.net_kills_total;
+			const auto kk = player_info.net_killed_total + p.net_kills_total;
 			// always draw the ones without any ratio last
 			kills[i] = kk <= 0
 				? kk - 1
 				: static_cast<int>(
 					static_cast<float>(p.net_kills_total) / (
-						static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+						static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
 					) * 100.0
 				);
 		}
@@ -722,7 +721,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	{
 		if (Game_mode & GM_TEAM)
 			-- team_kills[get_team(killed_pnum)];
-		Players[killed_pnum].net_killed_total++;
+		++ killed->ctype.player_info.net_killed_total;
 		Players[killed_pnum].net_kills_total--;
 		-- Players[killed_pnum].KillGoalCount;
 
@@ -761,7 +760,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			else
 				HUD_init_message(HM_MULTI, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_ROBOT );
 		}
-		Players[killed_pnum].net_killed_total++;
+		++ killed->ctype.player_info.net_killed_total;
 		return;
 	}
 
@@ -787,7 +786,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				team_kills[get_team(killed_pnum)] -= 1;
 			}
 
-			Players[killed_pnum].net_killed_total += 1;
+			++ killed->ctype.player_info.net_killed_total;
 			Players[killed_pnum].net_kills_total -= 1;
 			-- Players[killed_pnum].KillGoalCount;
 
@@ -869,7 +868,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				newdemo_record_multi_kill(killer_pnum, 1);
 		}
 
-		Players[killed_pnum].net_killed_total += 1;
+		++ killed->ctype.player_info.net_killed_total;
 		const char *name0, *name1;
 		if (killer_pnum == Player_num) {
 			if (Game_mode & GM_MULTI_COOP)

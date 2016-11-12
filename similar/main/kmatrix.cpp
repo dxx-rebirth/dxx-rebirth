@@ -107,11 +107,12 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 
 	{
 		auto &p = Players[sorted[i]];
-		const int eff = (p.net_killed_total + p.net_kills_total <= 0)
+		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
+		const int eff = (player_info.net_killed_total + p.net_kills_total <= 0)
 			? 0
 			: static_cast<int>(
 				static_cast<float>(p.net_kills_total) / (
-					static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+					static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
 				) * 100.0
 			);
 		snprintf(temp, sizeof(temp), "%i%%", eff <= 0 ? 0 : eff);
@@ -271,7 +272,7 @@ static void kmatrix_redraw_coop()
 		gr_set_fontcolor(rgb60_40_10, -1);
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 		gr_printf(x_centerscreen, y, "%d", player_info.mission.score);
-		gr_printf(x_centerscreen + fspacx50, y, "%d", plr.net_killed_total);
+		gr_printf(x_centerscreen + fspacx50, y, "%d", player_info.net_killed_total);
 	}
 
 	gr_palette_load(gr_palette);

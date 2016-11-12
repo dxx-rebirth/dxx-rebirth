@@ -1608,7 +1608,8 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 	if (Game_mode & GM_MULTI) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, get_local_player().net_killed_total);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
 	else if (get_local_player().lives > 1)  {
 		gr_set_curfont( GAME_FONT );
@@ -1637,7 +1638,8 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		char killed_str[20];
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
-		snprintf(killed_str, sizeof(killed_str), "%5d", get_local_player().net_killed_total);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
 		gr_get_string_size(killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
@@ -3016,11 +3018,12 @@ static void hud_show_kill_list()
 		if (Show_kill_list==2)
 		{
 			auto &p = Players[player_num];
-			const int eff = (p.net_killed_total + p.net_kills_total <= 0)
+			auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
+			const int eff = (player_info.net_killed_total + p.net_kills_total <= 0)
 				? 0
 				: static_cast<int>(
 					static_cast<float>(p.net_kills_total) / (
-						static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+						static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
 					) * 100.0
 				);
 			gr_printf(x1, y, "%i%%", eff <= 0 ? 0 : eff);
