@@ -975,18 +975,22 @@ void multi_do_frame(void)
 		multi_send_gmode_update();
 		last_gmode_time = timer_query();
 	}
-	// Send out inventory three times per second
-	if (timer_query() >= last_inventory_time + (F1_0/3))
+
+	if (Network_status == NETSTAT_PLAYING)
 	{
-		multi_send_player_inventory(0);
-		last_inventory_time = timer_query();
+		// Send out inventory three times per second
+		if (timer_query() >= last_inventory_time + (F1_0/3))
+		{
+			multi_send_player_inventory(0);
+			last_inventory_time = timer_query();
+		}
+		// Repopulate the level if necessary
+		if (timer_query() >= last_repo_time + (F1_0/2))
+		{
+			MultiLevelInv_Repopulate((F1_0/2));
+			last_repo_time = timer_query();
+		}
 	}
-	// Repopulate the level if necessary
-	if (timer_query() >= last_repo_time + (F1_0/2))
-        {
-                MultiLevelInv_Repopulate((F1_0/2));
-                last_repo_time = timer_query();
-        }
 
 	multi_send_message(); // Send any waiting messages
 
@@ -5131,7 +5135,7 @@ void MultiLevelInv_Recount()
 namespace dsx {
 bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 {
-        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status != NETSTAT_PLAYING))
                 return 0;
 
         int req_amount = 1; // required amount of item to drop a powerup.
@@ -5156,7 +5160,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 // Repopulate the level with missing items.
 void MultiLevelInv_Repopulate(fix frequency)
 {
-        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed)
                 return;
 
 	MultiLevelInv_Recount(); // recount current items
