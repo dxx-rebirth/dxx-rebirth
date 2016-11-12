@@ -3031,7 +3031,7 @@ static void hud_show_kill_list()
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-			gr_printf(x1,y,"%3d(%d)", player_info.net_kills_total, Players[player_num].KillGoalCount);
+			gr_printf(x1,y,"%3d(%d)", player_info.net_kills_total, player_info.KillGoalCount);
 		else
 			gr_printf(x1,y,"%3d", player_info.net_kills_total);
 

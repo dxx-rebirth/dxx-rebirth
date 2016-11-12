@@ -520,13 +520,15 @@ kmatrix_result multi_endlevel_score()
 			vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
 	range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
-		vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
+	{
+		auto &obj = *vobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+#if defined(DXX_BUILD_DESCENT_II)
+		player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 #endif
-
-	range_for (auto &i, Players)
-		i.KillGoalCount=0;
+		player_info.KillGoalCount = 0;
+	}
 
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
@@ -558,7 +560,6 @@ void multi_new_game()
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
-		Players[i].KillGoalCount=0;
 	}
 	multi_sending_message.fill(msgsend_none);
 
@@ -721,7 +722,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			-- team_kills[get_team(killed_pnum)];
 		++ killed->ctype.player_info.net_killed_total;
 		-- killed->ctype.player_info.net_kills_total;
-		-- Players[killed_pnum].KillGoalCount;
+		-- killed->ctype.player_info.KillGoalCount;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
@@ -786,7 +787,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 
 			++ killed->ctype.player_info.net_killed_total;
 			-- killed->ctype.player_info.net_kills_total;
-			-- Players[killed_pnum].KillGoalCount;
+			-- killed->ctype.player_info.KillGoalCount;
 
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killed_pnum, -1);
@@ -840,7 +841,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			{
 				team_kills[killer_team] += adjust;
 				killer->ctype.player_info.net_kills_total += adjust;
-				Players[killer_pnum].KillGoalCount += adjust;
+				killer->ctype.player_info.KillGoalCount += adjust;
 			}
 			else if( Game_mode & GM_BOUNTY )
 			{
@@ -849,7 +850,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				{
 					/* Increment kill counts */
 					++ killer->ctype.player_info.net_kills_total;
-					Players[killer_pnum].KillGoalCount++;
+					++ killer->ctype.player_info.KillGoalCount;
 					
 					/* If the target died, the new one is set! */
 					if( killed_pnum == Bounty_target )
@@ -859,7 +860,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			else
 			{
 				++ killer->ctype.player_info.net_kills_total;
-				Players[killer_pnum].KillGoalCount+=1;
+				++ killer->ctype.player_info.KillGoalCount;
 			}
 			
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -895,7 +896,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		const auto TheGoal = Netgame.KillGoal * 5;
 		if (((Game_mode & GM_TEAM)
 				? team_kills[get_team(killer_pnum)]
-				: Players[killer_pnum].KillGoalCount
+				: killer->ctype.player_info.KillGoalCount
 			) >= TheGoal)
 		{
 			if (killer_pnum==Player_num)
@@ -3765,14 +3766,15 @@ static void multi_do_wall_status (const ubyte *buf)
 
 void multi_send_kill_goal_counts()
 {
-	int i,count=1;
+	int count=1;
 
-	for (i=0;i<MAX_PLAYERS;i++)
+	range_for (auto &i, Players)
 	{
-		multibuf[count] = Players[i].KillGoalCount;
+		auto &obj = *vcobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		multibuf[count] = player_info.KillGoalCount;
 		count++;
 	}
-
 	multi_send_data<MULTI_KILLGOALS>(multibuf, count, 2);
 }
 
@@ -3782,7 +3784,9 @@ static void multi_do_kill_goal_counts(const ubyte *buf)
 
 	range_for (auto &i, Players)
 	{
-		i.KillGoalCount = buf[count];
+		auto &obj = *vobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		player_info.KillGoalCount = buf[count];
 		count++;
 	}
 
@@ -3833,7 +3837,9 @@ void multi_check_for_killgoal_winner ()
 	int highest_kill_goal_count = 0;
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
-		const auto KillGoalCount = i.KillGoalCount;
+		auto &obj = *vcobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		const auto KillGoalCount = player_info.KillGoalCount;
 		if (highest_kill_goal_count < KillGoalCount)
 		{
 			highest_kill_goal_count = KillGoalCount;
@@ -4030,13 +4036,13 @@ void multi_do_capture_bonus(const playernum_t pnum)
 	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear capture flag
 	player_info.net_kills_total += 5;
-	Players[static_cast<int>(pnum)].KillGoalCount+=5;
+	player_info.KillGoalCount += 5;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[static_cast<int>(pnum)].KillGoalCount>=TheGoal)
+		if (player_info.KillGoalCount >= TheGoal)
 		{
 			if (pnum==Player_num)
 			{
@@ -4102,17 +4108,17 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear orb flag
 	player_info.net_kills_total += bonus;
-	Players[static_cast<int>(pnum)].KillGoalCount+=bonus;
+	player_info.KillGoalCount += bonus;
 
 	team_kills[get_team(pnum)]%=1000;
 	player_info.net_kills_total%=1000;
-	Players[static_cast<int>(pnum)].KillGoalCount%=1000;
+	player_info.KillGoalCount %= 1000;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[static_cast<int>(pnum)].KillGoalCount>=TheGoal)
+		if (player_info.KillGoalCount >= TheGoal)
 		{
 			if (pnum==Player_num)
 			{

@@ -10,6 +10,7 @@
 #include "object.h"
 #include "powerup.h"
 #include "serial.h"
+#include "fwd-player.h"
 
 #define _UNPACK_MULTIPLAYER_SERIAL_MESSAGE(A,...)	A, ## __VA_ARGS__
 #define DEFINE_MULTIPLAYER_SERIAL_MESSAGE(C,T,V,A)	\
@@ -56,7 +57,7 @@
 	VALUE(MULTI_SAVE_GAME            , 2+24)	/* (ubyte slot, uint id, char name[20]) */	\
 	VALUE(MULTI_RESTORE_GAME         , 2+4)	/* (ubyte slot, uint id) */	\
 	VALUE(MULTI_HEARTBEAT            , 5)	\
-	VALUE(MULTI_KILLGOALS            , 9)	\
+	VALUE(MULTI_KILLGOALS            , 1 + MAX_PLAYERS)	\
 	VALUE(MULTI_DO_BOUNTY            , 2)	\
 	VALUE(MULTI_TYPING_STATE         , 3)	\
 	VALUE(MULTI_GMODE_UPDATE         , 3)	\

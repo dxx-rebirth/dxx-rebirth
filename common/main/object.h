@@ -119,6 +119,7 @@ struct player_info
 #endif
 	int16_t net_killed_total;		// Number of times killed total
 	int16_t net_kills_total;		// Number of net kills total
+	int16_t KillGoalCount;			// Num of players killed this level
 	union {
 		struct {
 			int score;				// Current score.

@@ -1491,7 +1491,7 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	player_info.net_kills_total = 0;
 	player_info.mission.score = 0;
 	player_info.powerup_flags = {};
-	Players[pnum].KillGoalCount=0;
+	player_info.KillGoalCount = 0;
 
 	if (pnum == N_players)
 	{
@@ -1652,7 +1652,9 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		net_udp_noloss_clear_mdata_trace(player_num);
 	}
 
-	Players[player_num].KillGoalCount=0;
+	auto &obj = *vobjptr(Players[player_num].objnum);
+	auto &player_info = obj.ctype.player_info;
+	player_info.KillGoalCount = 0;
 
 	// Send updated Objects data to the new/returning player
 
@@ -2181,7 +2183,9 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].protocol.udp.addr = p->player.protocol.udp.addr;
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
-	Players[N_players].KillGoalCount=0;
+	auto &obj = *vobjptr(Players[N_players].objnum);
+	auto &player_info = obj.ctype.player_info;
+	player_info.KillGoalCount = 0;
 	Players[N_players].connected = CONNECT_PLAYING;
 	Netgame.players[N_players].LastPacketTime = timer_query();
 	N_players++;

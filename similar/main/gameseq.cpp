@@ -291,7 +291,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].num_kills_total = 0;
 	Players[pnum].num_robots_level = 0;
 	Players[pnum].num_robots_total = 0;
-	Players[pnum].KillGoalCount = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
@@ -299,6 +298,7 @@ void init_player_stats_game(ubyte pnum)
 	player_info.powerup_flags = {};
 	player_info.net_killed_total = 0;
 	player_info.net_kills_total = 0;
+	player_info.KillGoalCount = 0;
 	player_info.mission.score = 0;
 	player_info.mission.last_score = 0;
 	player_info.mission.hostages_rescued_total = 0;
