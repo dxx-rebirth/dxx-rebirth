@@ -123,8 +123,6 @@ namespace dsx {
 void create_player_appearance_effect(const object_base &player_obj);
 void copy_defaults_to_robot(vobjptr_t objp);
 void gameseq_remove_unused_players();
-// reset stuff so game is semi-normal when playing from editor
-void editor_reset_stuff_on_level();
 }
 #endif
 

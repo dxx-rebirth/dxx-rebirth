@@ -87,6 +87,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fuelcen.h"
 #include "gameseq.h"
+#include "mission.h"
 #include "newmenu.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -257,11 +258,15 @@ int	GotoGameScreen()
 //@@	Player_init.pos = Player->pos;
 //@@	Player_init.orient = Player->orient;
 //@@	Player_init.segnum = Player->segnum;	
-	
+
+	// Always use the simple dummy mission (for now at least)
+	create_new_mission();
+	Current_level_num = 1;
+
 // -- must always save gamesave.sav because the restore-objects code relies on it
 // -- that code could be made smarter and use the original file, if appropriate.
 //	if (mine_changed) 
-	if (gamestate_not_restored == 0) {
+	/*if (gamestate_not_restored == 0)*/ {
 		gamestate_not_restored = 1;
 		save_level("GAMESAVE.LVL");
 		editor_status("Gamestate saved.\n");
@@ -905,10 +910,7 @@ static void close_editor()
 		case 3:
 			if (!Game_wind)	// if we're already playing a game, don't touch!
 			{
-				set_screen_mode(SCREEN_GAME);		//put up game screen
-				Game_mode = GM_EDITOR;
-				editor_reset_stuff_on_level();
-				N_players = 1;
+				StartNewGame(Current_level_num);
 			}
 			break;
 	}

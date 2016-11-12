@@ -508,40 +508,6 @@ void init_player_stats_new_ship(ubyte pnum)
 	digi_kill_sound_linked_to_object(plrobj);
 }
 
-#if DXX_USE_EDITOR
-//reset stuff so game is semi-normal when playing from editor
-void editor_reset_stuff_on_level()
-{
-	gameseq_init_network_players();
-	init_player_stats_level(secret_restore::none);
-	const auto &&console = vobjptr(get_local_player().objnum);
-	ConsoleObject = Viewer = console;
-	set_player_id(console, Player_num);
-	console->control_type = CT_FLYING;
-	console->movement_type = MT_PHYSICS;
-	Game_suspended = 0;
-	verify_console_object();
-	Control_center_destroyed = 0;
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		gameseq_remove_unused_players();
-	init_cockpit();
-	init_robots_for_level();
-	init_ai_objects();
-	init_morphs();
-	init_all_matcens();
-	init_player_stats_new_ship(Player_num);
-	init_stuck_objects();
-#if defined(DXX_BUILD_DESCENT_II)
-	init_controlcen_for_level();
-	automap_clear_visited();
-	init_thief_for_level();
-	compute_slide_segs();
-#endif
-	if (!Game_wind)
-		Game_wind = window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, unused_window_userdata);
-}
-#endif
-
 }
 
 //do whatever needs to be done when a player dies in multiplayer
@@ -1481,20 +1447,6 @@ void DoPlayerDead()
 	gr_palette_load (gr_palette);
 
 	dead_player_end();		//terminate death sequence (if playing)
-
-#if DXX_USE_EDITOR
-	if (Game_mode == GM_EDITOR) {			//test mine, not real level
-		const auto playerobj = &get_local_plrobj();
-		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
-		load_level("gamesave.lvl");
-		init_player_stats_new_ship(Player_num);
-		playerobj->flags &= ~OF_SHOULD_BE_DEAD;
-		StartLevel(0);
-		return;
-	}
-	#endif
 
 	if ( Game_mode&GM_MULTI )
 	{

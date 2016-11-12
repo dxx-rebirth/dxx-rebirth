@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "mission.h"
 #include "gameseq.h"
+#include "gamesave.h"
 #include "titles.h"
 #include "piggy.h"
 #include "console.h"
@@ -1093,6 +1094,7 @@ void create_new_mission(void)
 	*Current_mission = {};
 	Current_mission->path = "new_mission";
 	Current_mission->filename = begin(Current_mission->path);
+	Current_mission->builtin_hogsize = 0;
 	
 	Level_names = make_unique<d_fname[]>(1);
 	if (!Level_names)
@@ -1102,5 +1104,12 @@ void create_new_mission(void)
 	}
 
 	Level_names[0] = "GAMESAVE.LVL";
+	Last_level = 1;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Gamesave_current_version > 3)
+		Current_mission->descent_version = Mission::descent_version_type::descent2;	// custom ham not supported in editor (yet)
+	else
+		Current_mission->descent_version = Mission::descent_version_type::descent1;
+#endif
 }
 #endif
