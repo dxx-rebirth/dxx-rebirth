@@ -499,7 +499,7 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 #define	OMEGA_CHARGE_SCALE	4
 
-int	Last_omega_fire_time=0;
+static fix Omega_recharge_delay;
 
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
@@ -519,10 +519,15 @@ void omega_charge_frame(void)
 		return;
 
 	//	Don't charge while firing. Wait 1/3 second after firing before recharging
-	if (Last_omega_fire_time > GameTime64)
-		Last_omega_fire_time = GameTime64;
-	if (Last_omega_fire_time + F1_0/3 > GameTime64)
-		return;
+	if (Omega_recharge_delay)
+	{
+		if (Omega_recharge_delay > FrameTime)
+		{
+			Omega_recharge_delay -= FrameTime;
+			return;
+		}
+		Omega_recharge_delay = 0;
+	}
 
 	if (auto &energy = player_info.energy)
 	{
@@ -558,7 +563,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 	const auto pnum = get_player_id(parent_objp);
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = parent_objp->ctype.player_info;
 		auto &Omega_charge = player_info.Omega_charge;
 		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
 			obj_delete(weapon_objp);
@@ -569,7 +574,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		Last_omega_fire_time = GameTime64;
+		Omega_recharge_delay = F1_0 / 3;
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
