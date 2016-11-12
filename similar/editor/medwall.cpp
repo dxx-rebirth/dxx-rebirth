@@ -896,7 +896,10 @@ int wall_unlink_door()
 	}
 
 	if (w1->linked_wall == wall_none)
+	{
 		editor_status("Curseg/curside is not linked");
+		return 0;
+	}
 
 	auto &w2 = *vwallptr(w1->linked_wall);
 	Assert(w2.linked_wall == cwall_num);
