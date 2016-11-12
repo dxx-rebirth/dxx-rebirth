@@ -1124,7 +1124,8 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 	sbyte old_cloak; // for demo recording
 
 	d = &CloakingWalls[cloaking_wall_num];
-	wall *const wback = wallptr(d->back_wallnum);
+	const auto &&wpback = wallptr(d->back_wallnum);
+	wall &wback = wpback ? wpback : *wfront;
 
 	old_cloak = wfront->cloak_value;
 
@@ -1133,12 +1134,10 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 	if (d->time > CLOAKING_WALL_TIME) {
 		int i;
 
+		wback.type = WALL_OPEN;
+		wback.state = WALL_DOOR_CLOSED;		//why closed? why not?
 		wfront->type = WALL_OPEN;
 		wfront->state = WALL_DOOR_CLOSED;		//why closed? why not?
-		if (wback) {
-			wback->type = WALL_OPEN;
-			wback->state = WALL_DOOR_CLOSED;		//why closed? why not?
-		}
 
 		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
 			CloakingWalls[i] = CloakingWalls[i+1];
@@ -1149,20 +1148,17 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		int old_type=wfront->type;
 
 		wfront->cloak_value = ((d->time - CLOAKING_WALL_TIME/2) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
-		if (wback)
-			wback->cloak_value = wfront->cloak_value;
+		wback.cloak_value = wfront->cloak_value;
 
 		if (old_type != WALL_CLOAKED) {		//just switched
 			int i;
 
+			wback.type = WALL_CLOAKED;
 			wfront->type = WALL_CLOAKED;
-			if (wback)
-				wback->type = WALL_CLOAKED;
 
 			for (i=0;i<4;i++) {
+				Segments[wback.segnum].sides[wback.sidenum].uvls[i].l = d->back_ls[i];
 				Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = d->front_ls[i];
-				if (wback)
-					Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
 			}
 		}
 	}
@@ -1173,9 +1169,8 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		light_scale = fixdiv(CLOAKING_WALL_TIME/2-d->time,CLOAKING_WALL_TIME/2);
 
 		for (i=0;i<4;i++) {
+			Segments[wback.segnum].sides[wback.sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
-			if (wback)
-				Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 		}
 	}
 
@@ -1190,7 +1185,8 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 	sbyte old_cloak; // for demo recording
 
 	d = &CloakingWalls[cloaking_wall_num];
-	wall *const wback = wallptr(d->back_wallnum);
+	const auto &&wpback = wallptr(d->back_wallnum);
+	wall &wback = wpback ? wpback : *wfront;
 
 	old_cloak = wfront->cloak_value;
 
@@ -1200,13 +1196,11 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		int i;
 
 		wfront->state = WALL_DOOR_CLOSED;
-		if (wback)
-			wback->state = WALL_DOOR_CLOSED;
+		wback.state = WALL_DOOR_CLOSED;
 
 		for (i=0;i<4;i++) {
+			Segments[wback.segnum].sides[wback.sidenum].uvls[i].l = d->back_ls[i];
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = d->front_ls[i];
-			if (wback)
-				Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
 		}
 
 		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
@@ -1218,23 +1212,20 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		fix light_scale;
 		int i;
 
-		wfront->type = wback->type = WALL_CLOSED;
+		wfront->type = wback.type = WALL_CLOSED;
 
 		light_scale = fixdiv(d->time-CLOAKING_WALL_TIME/2,CLOAKING_WALL_TIME/2);
 
 		for (i=0;i<4;i++) {
+			Segments[wback.segnum].sides[wback.sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
-			if (wback)
-			Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 		}
 	}
 	else {		//cloaking in
 		wfront->cloak_value = ((CLOAKING_WALL_TIME/2 - d->time) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
 		wfront->type = WALL_CLOAKED;
-		if (wback) {
-			wback->cloak_value = wfront->cloak_value;
-			wback->type = WALL_CLOAKED;
-		}
+		wback.cloak_value = wfront->cloak_value;
+		wback.type = WALL_CLOAKED;
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
