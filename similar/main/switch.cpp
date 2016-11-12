@@ -302,7 +302,7 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 				Newdemo_state = ND_STATE_PAUSED;
 
 			if (Game_mode & GM_MULTI)
-				multi_send_endlevel_start(1);
+				multi_send_endlevel_start(multi_endlevel_type::secret);
 			if (Game_mode & GM_NETWORK)
 				multi_do_protocol_frame(1, 1);
 			PlayerFinishedLevel(1);		//1 means go to secret level

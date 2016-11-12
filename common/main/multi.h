@@ -494,17 +494,20 @@ void multi_do_frame(void);
 
 #ifdef dsx
 namespace dsx {
+
+enum class multi_endlevel_type : bool
+{
+	normal,
 #if defined(DXX_BUILD_DESCENT_I)
-void multi_send_endlevel_start(bool);
+	secret,
+#endif
+};
+#if defined(DXX_BUILD_DESCENT_I)
+void multi_send_endlevel_start(multi_endlevel_type);
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start();
-static inline void multi_send_endlevel_start(bool secret)
+static inline void multi_send_endlevel_start(multi_endlevel_type)
 {
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (!dxx_builtin_constant_p(!!secret) || secret)
-		DXX_ALWAYS_ERROR_FUNCTION(multi_send_endlevel_start_with_secret, "secret not supported in Descent II");
-#endif
-	(void)secret;
 	multi_send_endlevel_start();
 }
 #endif

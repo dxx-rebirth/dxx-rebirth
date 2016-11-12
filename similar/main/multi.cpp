@@ -1941,7 +1941,7 @@ static void multi_do_escape(const ubyte *buf)
 	const char *txt;
 	int connected;
 #if defined(DXX_BUILD_DESCENT_I)
-	if (buf[2])
+	if (buf[2] == static_cast<uint8_t>(multi_endlevel_type::secret))
 	{
 		txt = TXT_HAS_FOUND_SECRET;
 		connected = CONNECT_FOUND_SECRET;
@@ -2577,7 +2577,7 @@ void multi_send_markers()
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
-void multi_send_endlevel_start(const bool secret)
+void multi_send_endlevel_start(const multi_endlevel_type secret)
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start()
 #endif
@@ -2585,7 +2585,7 @@ void multi_send_endlevel_start()
 	array<uint8_t, DXX_MP_SIZE_ENDLEVEL_START> buf;
 	buf[1] = Player_num;
 #if defined(DXX_BUILD_DESCENT_I)
-	buf[2] = secret;
+	buf[2] = static_cast<uint8_t>(secret);
 #endif
 
 	multi_send_data<MULTI_ENDLEVEL_START>(buf.data(), buf.size(), 2);
