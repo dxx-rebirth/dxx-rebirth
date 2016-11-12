@@ -62,7 +62,10 @@ namespace {
 struct cwframe
 {
 	wall &w;
-	cwframe(wall &wr) : w(wr)
+	array<uvl, 4> &uvls;
+	cwframe(wall &wr) :
+		w(wr),
+		uvls(vsegptr(w.segnum)->sides[w.sidenum].uvls)
 	{
 	}
 };
@@ -1169,8 +1172,8 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 			front.w.type = back.w.type = WALL_CLOAKED;
 
 			for (i=0;i<4;i++) {
-				Segments[back.w.segnum].sides[back.w.sidenum].uvls[i].l = d->back_ls[i];
-				Segments[front.w.segnum].sides[front.w.sidenum].uvls[i].l = d->front_ls[i];
+				back.uvls[i].l = d->back_ls[i];
+				front.uvls[i].l = d->front_ls[i];
 			}
 		}
 	}
@@ -1181,14 +1184,14 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		light_scale = fixdiv(CLOAKING_WALL_TIME/2-d->time,CLOAKING_WALL_TIME/2);
 
 		for (i=0;i<4;i++) {
-			Segments[back.w.segnum].sides[back.w.sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
-			Segments[front.w.segnum].sides[front.w.sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
+			back.uvls[i].l = fixmul(d->back_ls[i], light_scale);
+			front.uvls[i].l = fixmul(d->front_ls[i], light_scale);
 		}
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
 	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
-		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, Segments[front.w.segnum].sides[front.w.sidenum].uvls[0].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[1].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[2].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[3].l);
+		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
 }
 
 static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
@@ -1210,8 +1213,8 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		front.w.state = WALL_DOOR_CLOSED;
 
 		for (i=0;i<4;i++) {
-			Segments[back.w.segnum].sides[back.w.sidenum].uvls[i].l = d->back_ls[i];
-			Segments[front.w.segnum].sides[front.w.sidenum].uvls[i].l = d->front_ls[i];
+			back.uvls[i].l = d->back_ls[i];
+			front.uvls[i].l = d->front_ls[i];
 		}
 
 		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
@@ -1228,8 +1231,8 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		light_scale = fixdiv(d->time-CLOAKING_WALL_TIME/2,CLOAKING_WALL_TIME/2);
 
 		for (i=0;i<4;i++) {
-			Segments[back.w.segnum].sides[back.w.sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
-			Segments[front.w.segnum].sides[front.w.sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
+			back.uvls[i].l = fixmul(d->back_ls[i], light_scale);
+			front.uvls[i].l = fixmul(d->front_ls[i], light_scale);
 		}
 	}
 	else {		//cloaking in
@@ -1245,7 +1248,9 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
 	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
-		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, Segments[front.w.segnum].sides[front.w.sidenum].uvls[0].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[1].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[2].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[3].l);
+	{
+		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
+	}
 
 }
 #endif
