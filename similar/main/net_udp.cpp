@@ -563,7 +563,12 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	hints.ai_family = ai_family;
 	// We are always UDP
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_V4MAPPED | AI_ALL | AI_NUMERICSERV;
+#ifdef AI_NUMERICSERV
+	hints.ai_flags |= AI_NUMERICSERV;
+#endif
+#if DXX_USE_IPv6
+	hints.ai_flags |= AI_V4MAPPED | AI_ALL;
+#endif
 	// Numeric address only?
 	if (numeric_only)
 		hints.ai_flags |= AI_NUMERICHOST;
