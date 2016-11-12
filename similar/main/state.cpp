@@ -1816,7 +1816,13 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 		auto i = PHYSFSX_readSXE32(fp, swap);
 		if (secret != secret_restore::survived)
+		{
 			player_info.Omega_charge = i;
+			/* The savegame does not record this, so pick a value.  Be
+			 * nice to the player: let the cannon recharge immediately.
+			 */
+			player_info.Omega_recharge_delay = 0;
+		}
 	}
 #endif
 
