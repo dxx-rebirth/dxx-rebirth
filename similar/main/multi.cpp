@@ -1931,24 +1931,28 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 
 static void multi_do_escape(const ubyte *buf)
 {
-	const auto objnum = vobjptridx(Players[buf[1]].objnum);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	auto &plr = Players[buf[1]];
+	const auto &&objnum = vobjptridx(plr.objnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	digi_kill_sound_linked_to_object (objnum);
 #endif
 
-	if (buf[2] == 0)
+	const char *txt;
+	int connected;
+	if (buf[2])
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_ESCAPED);
-		if (Game_mode & GM_NETWORK)
-			Players[static_cast<int>(buf[1])].connected = CONNECT_ESCAPE_TUNNEL;
+		txt = TXT_HAS_FOUND_SECRET;
+		connected = CONNECT_FOUND_SECRET;
 	}
-	else if (buf[2] == 1)
+	else
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_FOUND_SECRET);
-		if (Game_mode & GM_NETWORK)
-			Players[static_cast<int>(buf[1])].connected = CONNECT_FOUND_SECRET;
+		txt = TXT_HAS_ESCAPED;
+		connected = CONNECT_ESCAPE_TUNNEL;
 	}
+	HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(plr.callsign), txt);
+	if (Game_mode & GM_NETWORK)
+		plr.connected = connected;
 	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
 }
