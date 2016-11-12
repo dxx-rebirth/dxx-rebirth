@@ -2248,7 +2248,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 				? objptridx((numobjs == 1)
 					? objlist[0]
 					: get_random_different_object())
-				: objptridx(object_none);
+				: object_none;
 			create_homing_missile(objp, sel_objnum, blob_id, (i==0)?1:0);
 		}
 	}
@@ -2269,10 +2269,6 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 #endif
 	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
-
-}
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 
@@ -2376,7 +2372,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, weapon_index_is_player_bomb(weapon) ? objnum : objptridx(object_none));
+			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon

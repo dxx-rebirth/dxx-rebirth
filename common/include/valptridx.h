@@ -361,9 +361,9 @@ public:
 	}
 	template <integral_type v>
 		basic_ptr(const magic_constant<v> &, array_managed_type &a) :
-			m_ptr(static_cast<std::size_t>(v) < array_size ? &(a[v]) : nullptr)
+			m_ptr(&a[v])
 	{
-		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
+		static_assert(static_cast<std::size_t>(v) < array_size, "valid magic index required when using array");
 	}
 	template <typename rpolicy, unsigned ru>
 		basic_ptr(const basic_ptr<rpolicy, ru> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
