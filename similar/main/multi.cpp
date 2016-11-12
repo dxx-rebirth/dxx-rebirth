@@ -3420,10 +3420,9 @@ int multi_level_sync(void)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
+static void apply_segment_goal_texture(const vsegptr_t seg, const std::size_t tex)
 {
 	seg->static_light = i2f(100);	//make static light bright
-	std::size_t tex = find_goal_texture(game_mode_hoard() ? TMI_GOAL_HOARD : team_mask);
 	if (tex < TmapInfo.size())
 		range_for (auto &s, seg->sides)
 		{
@@ -3435,21 +3434,29 @@ static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
+	std::size_t tex_blue, tex_red;
+	if (game_mode_hoard())
+		tex_blue = tex_red = find_goal_texture(TMI_GOAL_HOARD);
+	else
+	{
+		tex_blue = find_goal_texture(TMI_GOAL_BLUE);
+		tex_red = find_goal_texture(TMI_GOAL_RED);
+	}
 	range_for (const auto &&seg, vsegptr)
 	{
-		uint8_t team_mask;
+		std::size_t tex;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
-			team_mask = TMI_GOAL_BLUE;
+			tex = tex_blue;
 		}
 		else if (seg->special==SEGMENT_IS_GOAL_RED)
 		{
 			// Make both textures the same if Hoard mode
-			team_mask = TMI_GOAL_RED;
+			tex = tex_red;
 		}
 		else
 			continue;
-		apply_segment_goal_texture(seg, team_mask);
+		apply_segment_goal_texture(seg, tex);
 	}
 }
 
