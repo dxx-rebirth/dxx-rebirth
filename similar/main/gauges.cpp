@@ -670,15 +670,14 @@ static void hud_show_score()
 
 	gr_set_curfont( GAME_FONT );
 
-	auto &plr = get_local_player();
 	const char *label;
 	int value;
+	auto &player_info = get_local_plrobj().ctype.player_info;
 	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
 		label = TXT_KILLS;
-		value = plr.net_kills_total;
+		value = player_info.net_kills_total;
 	} else {
 		label = TXT_SCORE;
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		value = player_info.mission.score;
   	}
 	snprintf(score_str, sizeof(score_str), "%s: %5d", label, value);
@@ -769,11 +768,10 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
 	gr_set_curfont( GAME_FONT );
-	auto &player = get_local_player();
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	snprintf(score_str, sizeof(score_str), "%5d",
 			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
-			? player.net_kills_total
+			? player_info.net_kills_total
 			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player_info.mission.score));
 	int	w, h;
 	gr_get_string_size(score_str, &w, &h, nullptr);
@@ -2974,6 +2972,7 @@ static void hud_show_kill_list()
 			player_num = i;
 		else
 			player_num = player_list[i];
+		auto &p = Players[player_num];
 
 		color_t fontcolor;
 		rgb color;
@@ -3015,15 +3014,14 @@ static void hud_show_kill_list()
 		}
 		gr_string(x0, y, name, sw, sh);
 
+		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
 		if (Show_kill_list==2)
 		{
-			auto &p = Players[player_num];
-			auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
-			const int eff = (player_info.net_killed_total + p.net_kills_total <= 0)
+			const int eff = (player_info.net_killed_total + player_info.net_kills_total <= 0)
 				? 0
 				: static_cast<int>(
-					static_cast<float>(p.net_kills_total) / (
-						static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
+					static_cast<float>(player_info.net_kills_total) / (
+						static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
 					) * 100.0
 				);
 			gr_printf(x1, y, "%i%%", eff <= 0 ? 0 : eff);
@@ -3033,9 +3031,9 @@ static void hud_show_kill_list()
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x1, y, "%-6d", vcobjptr(Players[player_num].objnum)->ctype.player_info.mission.score);
 		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-			gr_printf(x1,y,"%3d(%d)",Players[player_num].net_kills_total,Players[player_num].KillGoalCount);
+			gr_printf(x1,y,"%3d(%d)", player_info.net_kills_total, Players[player_num].KillGoalCount);
 		else
-			gr_printf(x1,y,"%3d",Players[player_num].net_kills_total);
+			gr_printf(x1,y,"%3d", player_info.net_kills_total);
 
                 if (PlayerCfg.MultiPingHud && Show_kill_list != 3)
                 {

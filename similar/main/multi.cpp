@@ -558,7 +558,6 @@ void multi_new_game()
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
-		Players[i].net_kills_total = 0;
 		Players[i].KillGoalCount=0;
 	}
 	multi_sending_message.fill(msgsend_none);
@@ -643,20 +642,19 @@ void multi_sort_kill_list()
 		else
 		if (Show_kill_list==2)
 		{
-			auto &p = Players[i];
-			const auto kk = player_info.net_killed_total + p.net_kills_total;
+			const auto kk = player_info.net_killed_total + player_info.net_kills_total;
 			// always draw the ones without any ratio last
 			kills[i] = kk <= 0
 				? kk - 1
 				: static_cast<int>(
-					static_cast<float>(p.net_kills_total) / (
-						static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
+					static_cast<float>(player_info.net_kills_total) / (
+						static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
 					) * 100.0
 				);
 		}
 #endif
 		else
-			kills[i] = Players[i].net_kills_total;
+			kills[i] = player_info.net_kills_total;
 	}
 
 	const auto predicate = [&](unsigned a, unsigned b) {
@@ -722,7 +720,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		if (Game_mode & GM_TEAM)
 			-- team_kills[get_team(killed_pnum)];
 		++ killed->ctype.player_info.net_killed_total;
-		Players[killed_pnum].net_kills_total--;
+		-- killed->ctype.player_info.net_kills_total;
 		-- Players[killed_pnum].KillGoalCount;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -787,7 +785,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			}
 
 			++ killed->ctype.player_info.net_killed_total;
-			Players[killed_pnum].net_kills_total -= 1;
+			-- killed->ctype.player_info.net_kills_total;
 			-- Players[killed_pnum].KillGoalCount;
 
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -841,7 +839,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			if (is_team_game)
 			{
 				team_kills[killer_team] += adjust;
-				Players[killer_pnum].net_kills_total += adjust;
+				killer->ctype.player_info.net_kills_total += adjust;
 				Players[killer_pnum].KillGoalCount += adjust;
 			}
 			else if( Game_mode & GM_BOUNTY )
@@ -850,7 +848,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
 				{
 					/* Increment kill counts */
-					Players[killer_pnum].net_kills_total++;
+					++ killer->ctype.player_info.net_kills_total;
 					Players[killer_pnum].KillGoalCount++;
 					
 					/* If the target died, the new one is set! */
@@ -860,7 +858,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			}
 			else
 			{
-				Players[killer_pnum].net_kills_total += 1;
+				++ killer->ctype.player_info.net_kills_total;
 				Players[killer_pnum].KillGoalCount+=1;
 			}
 			
@@ -4026,10 +4024,12 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			: SOUND_HUD_BLUE_GOT_GOAL
 		), F1_0*2);
 
-	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	team_kills[get_team(pnum)] += 5;
-	Players[static_cast<int>(pnum)].net_kills_total += 5;
+	auto &plr = Players[pnum];
+	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear capture flag
+	player_info.net_kills_total += 5;
 	Players[static_cast<int>(pnum)].KillGoalCount+=5;
 
 	if (Netgame.KillGoal>0)
@@ -4096,14 +4096,16 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 		PhallicLimit=bonus;
 	}
 
-	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear orb flag
 
 	team_kills[get_team(pnum)] += bonus;
-	Players[static_cast<int>(pnum)].net_kills_total += bonus;
+	auto &plr = Players[pnum];
+	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear orb flag
+	player_info.net_kills_total += bonus;
 	Players[static_cast<int>(pnum)].KillGoalCount+=bonus;
 
 	team_kills[get_team(pnum)]%=1000;
-	Players[static_cast<int>(pnum)].net_kills_total%=1000;
+	player_info.net_kills_total%=1000;
 	Players[static_cast<int>(pnum)].KillGoalCount%=1000;
 
 	if (Netgame.KillGoal>0)

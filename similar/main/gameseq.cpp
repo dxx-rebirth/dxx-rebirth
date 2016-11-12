@@ -287,7 +287,6 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].time_total = 0;
 	Players[pnum].hours_level = 0;
 	Players[pnum].hours_total = 0;
-	Players[pnum].net_kills_total = 0;
 	Players[pnum].num_kills_level = 0;
 	Players[pnum].num_kills_total = 0;
 	Players[pnum].num_robots_level = 0;
@@ -299,6 +298,7 @@ void init_player_stats_game(ubyte pnum)
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
 	player_info.net_killed_total = 0;
+	player_info.net_kills_total = 0;
 	player_info.mission.score = 0;
 	player_info.mission.last_score = 0;
 	player_info.mission.hostages_rescued_total = 0;

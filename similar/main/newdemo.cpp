@@ -1036,7 +1036,7 @@ void newdemo_record_start_demo()
 				nd_write_int(pl_info.mission.score);
 			} else {
 				nd_write_short(pl_info.net_killed_total);
-				nd_write_short(i.net_kills_total);
+				nd_write_short(pl_info.net_kills_total);
 			}
 		}
 	} else
@@ -1453,7 +1453,7 @@ void newdemo_record_multi_connect(int pnum, int new_player, const char *new_call
 		nd_write_string(static_cast<const char *>(Players[pnum].callsign));
 		auto &player_info = vcobjptr(Players[pnum].objnum)->ctype.player_info;
 		nd_write_int(player_info.net_killed_total);
-		nd_write_int(Players[pnum].net_kills_total);
+		nd_write_int(player_info.net_kills_total);
 	}
 	nd_write_string(new_callsign);
 }
@@ -1760,11 +1760,11 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 						nd_write_int(player_info.mission.score);
 				} else {
 					nd_read_short(&player_info.net_killed_total);
-					nd_read_short(&i.net_kills_total);
+					nd_read_short(&player_info.net_kills_total);
 					if (purpose == PURPOSE_REWRITE)
 					{
 						nd_write_short(player_info.net_killed_total);
-						nd_write_short(i.net_kills_total);
+						nd_write_short(player_info.net_kills_total);
 					}
 				}
 			}
@@ -2797,12 +2797,13 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(kill);
 				break;
 			}
+			auto &player_info = vobjptr(Players[pnum].objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[pnum].net_kills_total -= kill;
+				player_info.net_kills_total -= kill;
 				if (Newdemo_game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] -= kill;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[pnum].net_kills_total += kill;
+				player_info.net_kills_total += kill;
 				if (Newdemo_game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] += kill;
 			}
@@ -2843,13 +2844,13 @@ static int newdemo_read_frame_information(int rewrite)
 				if (!new_player) {
 					Players[pnum].callsign = old_callsign;
 					player_info.net_killed_total = killed_total;
-					Players[pnum].net_kills_total = kills_total;
+					player_info.net_kills_total = kills_total;
 				} else {
 					N_players--;
 				}
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].connected = CONNECT_PLAYING;
-				Players[pnum].net_kills_total = 0;
+				player_info.net_kills_total = 0;
 				player_info.net_killed_total = 0;
 				Players[pnum].callsign = new_callsign;
 				if (new_player)
@@ -3414,7 +3415,7 @@ void newdemo_goto_end(int to_rewrite)
 				nd_read_int(&pl_info.mission.score);
 			} else {
 				nd_read_short(&pl_info.net_killed_total);
-				nd_read_short(&i.net_kills_total);
+				nd_read_short(&pl_info.net_kills_total);
 			}
 		}
 	} else {
@@ -3813,7 +3814,7 @@ static void newdemo_write_end()
 				byte_count += 5;
 			} else {
 				nd_write_short(pl_info.net_killed_total);
-				nd_write_short(i.net_kills_total);
+				nd_write_short(pl_info.net_kills_total);
 				byte_count += 5;
 			}
 		}

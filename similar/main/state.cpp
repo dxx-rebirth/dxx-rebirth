@@ -499,7 +499,7 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->KillGoalCount             = pl->KillGoalCount;
 #endif
 	pl_rw->net_killed_total          = pl_info.net_killed_total;
-	pl_rw->net_kills_total           = pl->net_kills_total;
+	pl_rw->net_kills_total           = pl_info.net_kills_total;
 	pl_rw->num_kills_level           = pl->num_kills_level;
 	pl_rw->num_kills_total           = pl->num_kills_total;
 	pl_rw->num_robots_level          = pl->num_robots_level;
@@ -544,7 +544,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->KillGoalCount             = pl_rw->KillGoalCount;
 #endif
 	pl_info.net_killed_total          = pl_rw->net_killed_total;
-	pl->net_kills_total           = pl_rw->net_kills_total;
+	pl_info.net_kills_total           = pl_rw->net_kills_total;
 	pl->num_kills_level           = pl_rw->num_kills_level;
 	pl->num_kills_total           = pl_rw->num_kills_total;
 	pl->num_robots_level          = pl_rw->num_robots_level;

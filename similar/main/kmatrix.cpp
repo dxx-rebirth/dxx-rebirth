@@ -72,7 +72,6 @@ static void kmatrix_redraw_coop();
 static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 {
 	int x, y;
-	char temp[10];
 
 	y = FSPACY(50+i*9);
 	const auto &&fspacx = FSPACX();
@@ -105,22 +104,19 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 		}
 	}
 
-	{
 		auto &p = Players[sorted[i]];
 		auto &player_info = vcobjptr(p.objnum)->ctype.player_info;
-		const int eff = (player_info.net_killed_total + p.net_kills_total <= 0)
+		const int eff = (player_info.net_killed_total + player_info.net_kills_total <= 0)
 			? 0
 			: static_cast<int>(
-				static_cast<float>(p.net_kills_total) / (
-					static_cast<float>(player_info.net_killed_total) + static_cast<float>(p.net_kills_total)
+				static_cast<float>(player_info.net_kills_total) / (
+					static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
 				) * 100.0
 			);
-		snprintf(temp, sizeof(temp), "%i%%", eff <= 0 ? 0 : eff);
-	}
 
 	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
 	gr_set_fontcolor(rgb25, -1);
-	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
+	gr_printf(x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
 static void kmatrix_draw_names(playernum_array_t &sorted)
