@@ -5859,7 +5859,7 @@ static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr 
 /* 10 seconds passed since we registered our game. If we have not received all ACK's, yet, tell user about that! */
 static void udp_tracker_verify_ack_timeout()
 {
-	if (!Netgame.Tracker || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
+	if (!Netgame.Tracker || !multi_i_am_master() || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
 		return;
 	if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION)
 	{
