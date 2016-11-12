@@ -70,6 +70,17 @@ struct cwframe
 	}
 };
 
+struct cwresult
+{
+	bool remove;
+	bool record;
+	cwresult() = default;
+	explicit cwresult(bool r) :
+		remove(false), record(r)
+	{
+	}
+};
+
 }
 
 }
@@ -1134,38 +1145,23 @@ void reset_walls()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
+static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall *const d, const cwframe front, const cwframe back)
 {
-	cloaking_wall *d;
-
-	d = &CloakingWalls[cloaking_wall_num];
-	const auto &&wpback = wallptr(d->back_wallnum);
-	const cwframe front(*wfront);
-	const cwframe back = (wpback ? cwframe(*wpback) : front);
-
-	bool cloak_value_updated = (d->time == 0);
-	d->time += FrameTime;
-
+	cwresult r(initial);
 	if (d->time > CLOAKING_WALL_TIME) {
-		int i;
-
 		front.w.type = back.w.type = WALL_OPEN;
 		front.w.state = back.w.state = WALL_DOOR_CLOSED;		//why closed? why not?
-
-		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
-			CloakingWalls[i] = CloakingWalls[i+1];
-		Num_cloaking_walls--;
-
+		r.remove = true;
 	}
 	else if (d->time > CLOAKING_WALL_TIME/2) {
 		const int8_t cloak_value = ((d->time - CLOAKING_WALL_TIME / 2) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
 		if (front.w.cloak_value != cloak_value)
 		{
-			cloak_value_updated = true;
+			r.record = true;
 			front.w.cloak_value = back.w.cloak_value = cloak_value;
 		}
 
-		if (wfront->type != WALL_CLOAKED)
+		if (front.w.type != WALL_CLOAKED)
 		{		//just switched
 			int i;
 
@@ -1188,24 +1184,12 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 			front.uvls[i].l = fixmul(d->front_ls[i], light_scale);
 		}
 	}
-
-	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
-		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
+	return r;
 }
 
-static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
+static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall *const d, const cwframe front, const cwframe back)
 {
-	cloaking_wall *d;
-
-	d = &CloakingWalls[cloaking_wall_num];
-	const auto &&wpback = wallptr(d->back_wallnum);
-	const cwframe front(*wfront);
-	const cwframe back = (wpback ? cwframe(*wpback) : front);
-
-	bool cloak_value_updated = (d->time == 0);
-	d->time += FrameTime;
-
+	cwresult r(initial);
 	if (d->time > CLOAKING_WALL_TIME) {
 		int i;
 
@@ -1216,11 +1200,7 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 			back.uvls[i].l = d->back_ls[i];
 			front.uvls[i].l = d->front_ls[i];
 		}
-
-		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
-			CloakingWalls[i] = CloakingWalls[i+1];
-		Num_cloaking_walls--;
-
+		r.remove = true;
 	}
 	else if (d->time > CLOAKING_WALL_TIME/2) {		//fading in
 		fix light_scale;
@@ -1240,25 +1220,19 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		if (front.w.cloak_value != cloak_value)
 		{
 			front.w.cloak_value = back.w.cloak_value = cloak_value;
-			cloak_value_updated = true;
+			r.record = true;
 		}
 		front.w.type = WALL_CLOAKED;
 		back.w.type = WALL_CLOAKED;
 	}
-
-	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
-	{
-		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
-	}
-
+	return r;
 }
 #endif
 
 namespace dsx {
 void wall_frame_process()
 {
-	int i;
+	unsigned i;
 
 	for (i=0;i<Num_open_doors;i++) {
 		active_door *d;
@@ -1307,15 +1281,33 @@ void wall_frame_process()
 
 		d = &CloakingWalls[i];
 		wall *const w = vwallptr(d->front_wallnum);
+		const auto &&wpback = wallptr(d->back_wallnum);
+		const cwframe front(*w);
+		const cwframe back = (wpback ? cwframe(*wpback) : front);
+		const bool initial = (d->time == 0);
+		d->time += FrameTime;
 
+		cwresult r;
 		if (w->state == WALL_DOOR_CLOAKING)
-			do_cloaking_wall_frame(w, i);
+			r = do_cloaking_wall_frame(initial, d, front, back);
 		else if (w->state == WALL_DOOR_DECLOAKING)
-			do_decloaking_wall_frame(w, i);
-#ifdef _DEBUG
+			r = do_decloaking_wall_frame(initial, d, front, back);
 		else
+		{
 			Int3();	//unexpected wall state
-#endif
+			continue;
+		}
+		if (r.record)
+		{
+			// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
+			if (Newdemo_state == ND_STATE_RECORDING && r.record)
+				newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
+		}
+		if (r.remove)
+		{
+			const auto &&cr = partial_range(CloakingWalls, i, Num_cloaking_walls--);
+			std::move(std::next(cr.begin()), cr.end(), cr.begin());
+		}
 	}
 #endif
 }
