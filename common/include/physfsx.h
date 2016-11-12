@@ -44,7 +44,7 @@
 #include "compiler-type_traits.h"
 #include "partial_range.h"
 
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#ifdef DXX_CONSTANT_TRUE
 #define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	DXX_CONSTANT_TRUE((S) > (v))
 #define _DXX_PHYSFS_CHECK_SIZE(S,C,v)	_DXX_PHYSFS_CHECK_SIZE_CONSTANT(static_cast<size_t>(S) * static_cast<size_t>(C), v)
 #define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	\
