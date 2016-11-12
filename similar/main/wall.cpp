@@ -1134,15 +1134,13 @@ void reset_walls()
 static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 {
 	cloaking_wall *d;
-	sbyte old_cloak; // for demo recording
 
 	d = &CloakingWalls[cloaking_wall_num];
 	const auto &&wpback = wallptr(d->back_wallnum);
 	const cwframe front(*wfront);
 	const cwframe back = (wpback ? cwframe(*wpback) : front);
 
-	old_cloak = front.w.cloak_value;
-
+	bool cloak_value_updated = (d->time == 0);
 	d->time += FrameTime;
 
 	if (d->time > CLOAKING_WALL_TIME) {
@@ -1157,11 +1155,15 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 
 	}
 	else if (d->time > CLOAKING_WALL_TIME/2) {
-		const auto old_type = front.w.type;
+		const int8_t cloak_value = ((d->time - CLOAKING_WALL_TIME / 2) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
+		if (front.w.cloak_value != cloak_value)
+		{
+			cloak_value_updated = true;
+			front.w.cloak_value = back.w.cloak_value = cloak_value;
+		}
 
-		front.w.cloak_value = back.w.cloak_value = ((d->time - CLOAKING_WALL_TIME/2) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
-
-		if (old_type != WALL_CLOAKED) {		//just switched
+		if (wfront->type != WALL_CLOAKED)
+		{		//just switched
 			int i;
 
 			front.w.type = back.w.type = WALL_CLOAKED;
@@ -1185,22 +1187,20 @@ static void do_cloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if ( Newdemo_state == ND_STATE_RECORDING && (front.w.cloak_value != old_cloak || d->time == FrameTime) )
+	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, Segments[front.w.segnum].sides[front.w.sidenum].uvls[0].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[1].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[2].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[3].l);
 }
 
 static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 {
 	cloaking_wall *d;
-	sbyte old_cloak; // for demo recording
 
 	d = &CloakingWalls[cloaking_wall_num];
 	const auto &&wpback = wallptr(d->back_wallnum);
 	const cwframe front(*wfront);
 	const cwframe back = (wpback ? cwframe(*wpback) : front);
 
-	old_cloak = front.w.cloak_value;
-
+	bool cloak_value_updated = (d->time == 0);
 	d->time += FrameTime;
 
 	if (d->time > CLOAKING_WALL_TIME) {
@@ -1233,14 +1233,18 @@ static void do_decloaking_wall_frame(wall *const wfront, int cloaking_wall_num)
 		}
 	}
 	else {		//cloaking in
-		front.w.cloak_value = ((CLOAKING_WALL_TIME/2 - d->time) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
-		back.w.cloak_value = front.w.cloak_value;
-		back.w.type = WALL_CLOAKED;
+		const int8_t cloak_value = ((CLOAKING_WALL_TIME/2 - d->time) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
+		if (front.w.cloak_value != cloak_value)
+		{
+			front.w.cloak_value = back.w.cloak_value = cloak_value;
+			cloak_value_updated = true;
+		}
 		front.w.type = WALL_CLOAKED;
+		back.w.type = WALL_CLOAKED;
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if ( Newdemo_state == ND_STATE_RECORDING && (front.w.cloak_value != old_cloak || d->time == FrameTime) )
+	if (Newdemo_state == ND_STATE_RECORDING && cloak_value_updated)
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, Segments[front.w.segnum].sides[front.w.sidenum].uvls[0].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[1].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[2].l, Segments[front.w.segnum].sides[front.w.sidenum].uvls[3].l);
 
 }
