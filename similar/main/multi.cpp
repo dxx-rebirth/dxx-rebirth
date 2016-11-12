@@ -1940,12 +1940,14 @@ static void multi_do_escape(const ubyte *buf)
 
 	const char *txt;
 	int connected;
+#if defined(DXX_BUILD_DESCENT_I)
 	if (buf[2])
 	{
 		txt = TXT_HAS_FOUND_SECRET;
 		connected = CONNECT_FOUND_SECRET;
 	}
 	else
+#endif
 	{
 		txt = TXT_HAS_ESCAPED;
 		connected = CONNECT_ESCAPE_TUNNEL;
@@ -2580,13 +2582,13 @@ void multi_send_endlevel_start(const bool secret)
 void multi_send_endlevel_start()
 #endif
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	const bool secret = false;
+	array<uint8_t, DXX_MP_SIZE_ENDLEVEL_START> buf;
+	buf[1] = Player_num;
+#if defined(DXX_BUILD_DESCENT_I)
+	buf[2] = secret;
 #endif
-	multibuf[1] = Player_num;
-	multibuf[2] = static_cast<char>(secret);
 
-	multi_send_data<MULTI_ENDLEVEL_START>(multibuf, 3, 2);
+	multi_send_data<MULTI_ENDLEVEL_START>(buf.data(), buf.size(), 2);
 	if (Game_mode & GM_NETWORK)
 	{
 		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
