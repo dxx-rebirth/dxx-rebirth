@@ -663,7 +663,7 @@ int wall_remove_side(const vsegptridx_t seg, short side)
 		{
 			if (segp->segnum != segment_none)
 				range_for (auto &w, segp->sides)
-					if (w.wall_num > lower_wallnum+1)
+					if (w.wall_num != wall_none && w.wall_num > lower_wallnum+1)
 						w.wall_num -= 2;
 		}
 
