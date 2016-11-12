@@ -860,6 +860,11 @@ int wall_link_doors()
 		return 0;
 	}
 
+	if (!Markedsegp) {
+		editor_status("No marked side.");
+		return 0;
+	}
+	
 	const auto mwall_num = Markedsegp->sides[Markedside].wall_num;
 	const auto &&w2 = wallptr(mwall_num);
 
