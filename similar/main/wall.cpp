@@ -1145,6 +1145,24 @@ void reset_walls()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d)
+{
+	for (uint_fast32_t i = 0; i != 4; ++i)
+	{
+		back_uvls[i].l = d.back_ls[i];
+		front_uvls[i].l = d.front_ls[i];
+	}
+}
+
+static void scale_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d, const fix light_scale)
+{
+	for (uint_fast32_t i = 0; i != 4; ++i)
+	{
+		back_uvls[i].l = fixmul(d.back_ls[i], light_scale);
+		front_uvls[i].l = fixmul(d.front_ls[i], light_scale);
+	}
+}
+
 static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, const cwframe front, const cwframe back)
 {
 	cwresult r(initial);
@@ -1163,26 +1181,14 @@ static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, con
 
 		if (front.w.type != WALL_CLOAKED)
 		{		//just switched
-			int i;
-
 			front.w.type = back.w.type = WALL_CLOAKED;
-
-			for (i=0;i<4;i++) {
-				back.uvls[i].l = d.back_ls[i];
-				front.uvls[i].l = d.front_ls[i];
-			}
+			copy_cloaking_wall_light_to_wall(back.uvls, front.uvls, d);
 		}
 	}
 	else {		//fading out
 		fix light_scale;
-		int i;
-
 		light_scale = fixdiv(CLOAKING_WALL_TIME / 2 - d.time, CLOAKING_WALL_TIME / 2);
-
-		for (i=0;i<4;i++) {
-			back.uvls[i].l = fixmul(d.back_ls[i], light_scale);
-			front.uvls[i].l = fixmul(d.front_ls[i], light_scale);
-		}
+		scale_cloaking_wall_light_to_wall(back.uvls, front.uvls, d, light_scale);
 	}
 	return r;
 }
@@ -1191,29 +1197,18 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 {
 	cwresult r(initial);
 	if (d.time > CLOAKING_WALL_TIME) {
-		int i;
 
 		back.w.state = WALL_DOOR_CLOSED;
 		front.w.state = WALL_DOOR_CLOSED;
-
-		for (i=0;i<4;i++) {
-			back.uvls[i].l = d.back_ls[i];
-			front.uvls[i].l = d.front_ls[i];
-		}
+		copy_cloaking_wall_light_to_wall(back.uvls, front.uvls, d);
 		r.remove = true;
 	}
 	else if (d.time > CLOAKING_WALL_TIME/2) {		//fading in
 		fix light_scale;
-		int i;
-
 		front.w.type = back.w.type = WALL_CLOSED;
 
 		light_scale = fixdiv(d.time - CLOAKING_WALL_TIME / 2, CLOAKING_WALL_TIME / 2);
-
-		for (i=0;i<4;i++) {
-			back.uvls[i].l = fixmul(d.back_ls[i], light_scale);
-			front.uvls[i].l = fixmul(d.front_ls[i], light_scale);
-		}
+		scale_cloaking_wall_light_to_wall(back.uvls, front.uvls, d, light_scale);
 	}
 	else {		//cloaking in
 		const int8_t cloak_value = ((CLOAKING_WALL_TIME / 2 - d.time) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
