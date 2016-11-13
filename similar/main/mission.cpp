@@ -1092,7 +1092,7 @@ void create_new_mission(void)
 {
 	Current_mission = make_unique<Mission>();
 	*Current_mission = {};
-	Current_mission->path = "new_mission";
+	Current_mission->path = "new_miss";		// limited to eight characters because of savegame format
 	Current_mission->filename = begin(Current_mission->path);
 	Current_mission->builtin_hogsize = 0;
 	
