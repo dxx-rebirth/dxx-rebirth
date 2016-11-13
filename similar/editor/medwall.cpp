@@ -411,13 +411,12 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
 
-	const auto wn = Cursegp->sides[Curside].wall_num;
-	const auto &&w = wn == wall_none ? nullptr : vwallptr(wn);
+	const auto &&w = wallptridx(Cursegp->sides[Curside].wall_num);
 	//------------------------------------------------------------
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (wd->old_wall_num != wn)
+	if (wd->old_wall_num != w)
 	{
 		if (w)
 		{
@@ -534,7 +533,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		if (w)	{
-			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hi    ", static_cast<int16_t>(wn));
+			ui_dprintf_at( MainWindow, 12, 6, "Wall: %hi    ", static_cast<int16_t>(w));
 			switch (w->type) {
 				case WALL_NORMAL:
 					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );
@@ -572,14 +571,14 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 		}
 	}
 	
-	if (ui_button_any_drawn || (wd->old_wall_num != wn) )
+	if (ui_button_any_drawn || (wd->old_wall_num != w) )
 		Update_flags |= UF_WORLD_CHANGED;
 	if (GADGET_PRESSED(wd->quitButton.get()) || keypress == KEY_ESC)
 	{
 		return window_event_result::close;
 	}		
 
-	wd->old_wall_num = wn;
+	wd->old_wall_num = w;
 	
 	return rval;
 }
