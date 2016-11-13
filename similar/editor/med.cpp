@@ -117,7 +117,7 @@ grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
 
 window *Pad_info;		// Keypad text
 
-grs_font_ptr editor_font = nullptr;
+grs_font_ptr editor_font;
 
 //where the editor is looking
 vms_vector Ed_view_target;
@@ -885,8 +885,7 @@ static void close_editor()
 
 	ui_close();
 
-	if (editor_font)
-		editor_font.reset();
+	editor_font.reset();
 
 	PHYSFSX_removeRelFromSearchPath("editor/data");
 	PHYSFSX_removeRelFromSearchPath("editor");

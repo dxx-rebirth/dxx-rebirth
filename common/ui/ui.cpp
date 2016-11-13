@@ -41,7 +41,7 @@ static int Initialized = 0;
 
 unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 
-grs_font_ptr ui_small_font = nullptr;
+grs_font_ptr ui_small_font;
 
 int ui_init()
 {
@@ -85,8 +85,7 @@ void ui_close()
 		menubar_close();
 		
 		ui_pad_close();
-		if (ui_small_font)
-			ui_small_font.reset();
+		ui_small_font.reset();
 	}
 
 	return;

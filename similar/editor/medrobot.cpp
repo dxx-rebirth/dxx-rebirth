@@ -769,7 +769,6 @@ int do_object_dialog()
 {
 	if (Cur_object_index == object_none)
 		Cur_object_index = object_first;
-	Assert(Cur_object_index != object_guidebot_cannot_reach);	// not supposed to be this one
 
 	auto obj = vobjptr(Cur_object_index);
 	if (obj->type == OBJ_ROBOT)		//don't do this for robots
