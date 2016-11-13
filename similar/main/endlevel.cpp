@@ -322,7 +322,7 @@ void start_endlevel_sequence()
 	get_local_plrobj().ctype.player_info.homing_object_dist = -F1_0; // Turn off homing sound.
 
 	if (Game_mode & GM_MULTI) {
-		multi_send_endlevel_start(0);
+		multi_send_endlevel_start(multi_endlevel_type::normal);
 		multi_do_protocol_frame(1, 1);
 	}
 
@@ -412,7 +412,7 @@ void start_endlevel_sequence()
 	}
 
 	if (Game_mode & GM_MULTI) {
-		multi_send_endlevel_start(0);
+		multi_send_endlevel_start(multi_endlevel_type::normal);
 		multi_do_protocol_frame(1, 1);
 	}
 #ifndef NDEBUG

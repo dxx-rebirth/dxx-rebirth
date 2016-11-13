@@ -520,13 +520,15 @@ kmatrix_result multi_endlevel_score()
 			vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
 	range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
-		vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
+	{
+		auto &obj = *vobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+#if defined(DXX_BUILD_DESCENT_II)
+		player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 #endif
-
-	range_for (auto &i, Players)
-		i.KillGoalCount=0;
+		player_info.KillGoalCount = 0;
+	}
 
 	// hide Game_wind again if we brought it up
 	if (Game_wind && game_wind_visible)
@@ -558,9 +560,6 @@ void multi_new_game()
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
-		Players[i].net_killed_total = 0;
-		Players[i].net_kills_total = 0;
-		Players[i].KillGoalCount=0;
 	}
 	multi_sending_message.fill(msgsend_none);
 
@@ -635,29 +634,28 @@ void multi_sort_kill_list()
 	array<int, MAX_PLAYERS> kills;
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
 	{
+		auto &player_info = vcobjptr(Players[i].objnum)->ctype.player_info;
 		if (Game_mode & GM_MULTI_COOP)
 		{
-			auto &player_info = vcobjptr(Players[i].objnum)->ctype.player_info;
 			kills[i] = player_info.mission.score;
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		else
 		if (Show_kill_list==2)
 		{
-			auto &p = Players[i];
-			const auto kk = p.net_killed_total + p.net_kills_total;
+			const auto kk = player_info.net_killed_total + player_info.net_kills_total;
 			// always draw the ones without any ratio last
 			kills[i] = kk <= 0
 				? kk - 1
 				: static_cast<int>(
-					static_cast<float>(p.net_kills_total) / (
-						static_cast<float>(p.net_killed_total) + static_cast<float>(p.net_kills_total)
+					static_cast<float>(player_info.net_kills_total) / (
+						static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
 					) * 100.0
 				);
 		}
 #endif
 		else
-			kills[i] = Players[i].net_kills_total;
+			kills[i] = player_info.net_kills_total;
 	}
 
 	const auto predicate = [&](unsigned a, unsigned b) {
@@ -722,9 +720,9 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	{
 		if (Game_mode & GM_TEAM)
 			-- team_kills[get_team(killed_pnum)];
-		Players[killed_pnum].net_killed_total++;
-		Players[killed_pnum].net_kills_total--;
-		-- Players[killed_pnum].KillGoalCount;
+		++ killed->ctype.player_info.net_killed_total;
+		-- killed->ctype.player_info.net_kills_total;
+		-- killed->ctype.player_info.KillGoalCount;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
@@ -761,7 +759,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			else
 				HUD_init_message(HM_MULTI, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_ROBOT );
 		}
-		Players[killed_pnum].net_killed_total++;
+		++ killed->ctype.player_info.net_killed_total;
 		return;
 	}
 
@@ -787,9 +785,9 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				team_kills[get_team(killed_pnum)] -= 1;
 			}
 
-			Players[killed_pnum].net_killed_total += 1;
-			Players[killed_pnum].net_kills_total -= 1;
-			-- Players[killed_pnum].KillGoalCount;
+			++ killed->ctype.player_info.net_killed_total;
+			-- killed->ctype.player_info.net_kills_total;
+			-- killed->ctype.player_info.KillGoalCount;
 
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killed_pnum, -1);
@@ -842,8 +840,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			if (is_team_game)
 			{
 				team_kills[killer_team] += adjust;
-				Players[killer_pnum].net_kills_total += adjust;
-				Players[killer_pnum].KillGoalCount += adjust;
+				killer->ctype.player_info.net_kills_total += adjust;
+				killer->ctype.player_info.KillGoalCount += adjust;
 			}
 			else if( Game_mode & GM_BOUNTY )
 			{
@@ -851,8 +849,8 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
 				{
 					/* Increment kill counts */
-					Players[killer_pnum].net_kills_total++;
-					Players[killer_pnum].KillGoalCount++;
+					++ killer->ctype.player_info.net_kills_total;
+					++ killer->ctype.player_info.KillGoalCount;
 					
 					/* If the target died, the new one is set! */
 					if( killed_pnum == Bounty_target )
@@ -861,15 +859,15 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 			}
 			else
 			{
-				Players[killer_pnum].net_kills_total += 1;
-				Players[killer_pnum].KillGoalCount+=1;
+				++ killer->ctype.player_info.net_kills_total;
+				++ killer->ctype.player_info.KillGoalCount;
 			}
 			
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_kill(killer_pnum, 1);
 		}
 
-		Players[killed_pnum].net_killed_total += 1;
+		++ killed->ctype.player_info.net_killed_total;
 		const char *name0, *name1;
 		if (killer_pnum == Player_num) {
 			if (Game_mode & GM_MULTI_COOP)
@@ -898,7 +896,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 		const auto TheGoal = Netgame.KillGoal * 5;
 		if (((Game_mode & GM_TEAM)
 				? team_kills[get_team(killer_pnum)]
-				: Players[killer_pnum].KillGoalCount
+				: killer->ctype.player_info.KillGoalCount
 			) >= TheGoal)
 		{
 			if (killer_pnum==Player_num)
@@ -975,18 +973,22 @@ void multi_do_frame(void)
 		multi_send_gmode_update();
 		last_gmode_time = timer_query();
 	}
-	// Send out inventory three times per second
-	if (timer_query() >= last_inventory_time + (F1_0/3))
+
+	if (Network_status == NETSTAT_PLAYING)
 	{
-		multi_send_player_inventory(0);
-		last_inventory_time = timer_query();
+		// Send out inventory three times per second
+		if (timer_query() >= last_inventory_time + (F1_0/3))
+		{
+			multi_send_player_inventory(0);
+			last_inventory_time = timer_query();
+		}
+		// Repopulate the level if necessary
+		if (timer_query() >= last_repo_time + (F1_0/2))
+		{
+			MultiLevelInv_Repopulate((F1_0/2));
+			last_repo_time = timer_query();
+		}
 	}
-	// Repopulate the level if necessary
-	if (timer_query() >= last_repo_time + (F1_0/2))
-        {
-                MultiLevelInv_Repopulate((F1_0/2));
-                last_repo_time = timer_query();
-        }
 
 	multi_send_message(); // Send any waiting messages
 
@@ -1929,24 +1931,30 @@ static void multi_do_controlcen_destroy(const ubyte *buf)
 
 static void multi_do_escape(const ubyte *buf)
 {
-	const auto objnum = vobjptridx(Players[buf[1]].objnum);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	auto &plr = Players[buf[1]];
+	const auto &&objnum = vobjptridx(plr.objnum);
 #if defined(DXX_BUILD_DESCENT_II)
 	digi_kill_sound_linked_to_object (objnum);
 #endif
 
-	if (buf[2] == 0)
+	const char *txt;
+	int connected;
+#if defined(DXX_BUILD_DESCENT_I)
+	if (buf[2] == static_cast<uint8_t>(multi_endlevel_type::secret))
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_ESCAPED);
-		if (Game_mode & GM_NETWORK)
-			Players[static_cast<int>(buf[1])].connected = CONNECT_ESCAPE_TUNNEL;
+		txt = TXT_HAS_FOUND_SECRET;
+		connected = CONNECT_FOUND_SECRET;
 	}
-	else if (buf[2] == 1)
+	else
+#endif
 	{
-		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(Players[static_cast<int>(buf[1])].callsign), TXT_HAS_FOUND_SECRET);
-		if (Game_mode & GM_NETWORK)
-			Players[static_cast<int>(buf[1])].connected = CONNECT_FOUND_SECRET;
+		txt = TXT_HAS_ESCAPED;
+		connected = CONNECT_ESCAPE_TUNNEL;
 	}
+	HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(plr.callsign), txt);
+	if (Game_mode & GM_NETWORK)
+		plr.connected = connected;
 	create_player_appearance_effect(objnum);
 	multi_make_player_ghost(buf[1]);
 }
@@ -2569,18 +2577,18 @@ void multi_send_markers()
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
-void multi_send_endlevel_start(const bool secret)
+void multi_send_endlevel_start(const multi_endlevel_type secret)
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start()
 #endif
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	const bool secret = false;
+	array<uint8_t, DXX_MP_SIZE_ENDLEVEL_START> buf;
+	buf[1] = Player_num;
+#if defined(DXX_BUILD_DESCENT_I)
+	buf[2] = static_cast<uint8_t>(secret);
 #endif
-	multibuf[1] = Player_num;
-	multibuf[2] = static_cast<char>(secret);
 
-	multi_send_data<MULTI_ENDLEVEL_START>(multibuf, 3, 2);
+	multi_send_data<MULTI_ENDLEVEL_START>(buf.data(), buf.size(), 2);
 	if (Game_mode & GM_NETWORK)
 	{
 		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
@@ -3412,10 +3420,9 @@ int multi_level_sync(void)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
+static void apply_segment_goal_texture(const vsegptr_t seg, const std::size_t tex)
 {
 	seg->static_light = i2f(100);	//make static light bright
-	std::size_t tex = find_goal_texture(game_mode_hoard() ? TMI_GOAL_HOARD : team_mask);
 	if (tex < TmapInfo.size())
 		range_for (auto &s, seg->sides)
 		{
@@ -3427,21 +3434,29 @@ static void apply_segment_goal_texture(const vsegptr_t seg, ubyte team_mask)
 
 void multi_apply_goal_textures()
 {
+	std::size_t tex_blue, tex_red;
+	if (game_mode_hoard())
+		tex_blue = tex_red = find_goal_texture(TMI_GOAL_HOARD);
+	else
+	{
+		tex_blue = find_goal_texture(TMI_GOAL_BLUE);
+		tex_red = find_goal_texture(TMI_GOAL_RED);
+	}
 	range_for (const auto &&seg, vsegptr)
 	{
-		uint8_t team_mask;
+		std::size_t tex;
 		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
-			team_mask = TMI_GOAL_BLUE;
+			tex = tex_blue;
 		}
 		else if (seg->special==SEGMENT_IS_GOAL_RED)
 		{
 			// Make both textures the same if Hoard mode
-			team_mask = TMI_GOAL_RED;
+			tex = tex_red;
 		}
 		else
 			continue;
-		apply_segment_goal_texture(seg, team_mask);
+		apply_segment_goal_texture(seg, tex);
 	}
 }
 
@@ -3764,14 +3779,15 @@ static void multi_do_wall_status (const ubyte *buf)
 
 void multi_send_kill_goal_counts()
 {
-	int i,count=1;
+	int count=1;
 
-	for (i=0;i<MAX_PLAYERS;i++)
+	range_for (auto &i, Players)
 	{
-		multibuf[count] = Players[i].KillGoalCount;
+		auto &obj = *vcobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		multibuf[count] = player_info.KillGoalCount;
 		count++;
 	}
-
 	multi_send_data<MULTI_KILLGOALS>(multibuf, count, 2);
 }
 
@@ -3781,7 +3797,9 @@ static void multi_do_kill_goal_counts(const ubyte *buf)
 
 	range_for (auto &i, Players)
 	{
-		i.KillGoalCount = buf[count];
+		auto &obj = *vobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		player_info.KillGoalCount = buf[count];
 		count++;
 	}
 
@@ -3832,7 +3850,9 @@ void multi_check_for_killgoal_winner ()
 	int highest_kill_goal_count = 0;
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
-		const auto KillGoalCount = i.KillGoalCount;
+		auto &obj = *vcobjptr(i.objnum);
+		auto &player_info = obj.ctype.player_info;
+		const auto KillGoalCount = player_info.KillGoalCount;
 		if (highest_kill_goal_count < KillGoalCount)
 		{
 			highest_kill_goal_count = KillGoalCount;
@@ -4023,17 +4043,19 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			: SOUND_HUD_BLUE_GOT_GOAL
 		), F1_0*2);
 
-	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	team_kills[get_team(pnum)] += 5;
-	Players[static_cast<int>(pnum)].net_kills_total += 5;
-	Players[static_cast<int>(pnum)].KillGoalCount+=5;
+	auto &plr = Players[pnum];
+	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear capture flag
+	player_info.net_kills_total += 5;
+	player_info.KillGoalCount += 5;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[static_cast<int>(pnum)].KillGoalCount>=TheGoal)
+		if (player_info.KillGoalCount >= TheGoal)
 		{
 			if (pnum==Player_num)
 			{
@@ -4093,21 +4115,23 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 		PhallicLimit=bonus;
 	}
 
-	vobjptr(Players[pnum].objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear orb flag
 
 	team_kills[get_team(pnum)] += bonus;
-	Players[static_cast<int>(pnum)].net_kills_total += bonus;
-	Players[static_cast<int>(pnum)].KillGoalCount+=bonus;
+	auto &plr = Players[pnum];
+	auto &player_info = vobjptr(plr.objnum)->ctype.player_info;
+	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear orb flag
+	player_info.net_kills_total += bonus;
+	player_info.KillGoalCount += bonus;
 
 	team_kills[get_team(pnum)]%=1000;
-	Players[static_cast<int>(pnum)].net_kills_total%=1000;
-	Players[static_cast<int>(pnum)].KillGoalCount%=1000;
+	player_info.net_kills_total%=1000;
+	player_info.KillGoalCount %= 1000;
 
 	if (Netgame.KillGoal>0)
 	{
 		TheGoal=Netgame.KillGoal*5;
 
-		if (Players[static_cast<int>(pnum)].KillGoalCount>=TheGoal)
+		if (player_info.KillGoalCount >= TheGoal)
 		{
 			if (pnum==Player_num)
 			{
@@ -5131,7 +5155,7 @@ void MultiLevelInv_Recount()
 namespace dsx {
 bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 {
-        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+        if ((Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status != NETSTAT_PLAYING))
                 return 0;
 
         int req_amount = 1; // required amount of item to drop a powerup.
@@ -5156,7 +5180,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 // Repopulate the level with missing items.
 void MultiLevelInv_Repopulate(fix frequency)
 {
-        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+        if (!multi_i_am_master() || (Game_mode & GM_MULTI_COOP) || Control_center_destroyed)
                 return;
 
 	MultiLevelInv_Recount(); // recount current items

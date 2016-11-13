@@ -287,18 +287,18 @@ void init_player_stats_game(ubyte pnum)
 	Players[pnum].time_total = 0;
 	Players[pnum].hours_level = 0;
 	Players[pnum].hours_total = 0;
-	Players[pnum].net_killed_total = 0;
-	Players[pnum].net_kills_total = 0;
 	Players[pnum].num_kills_level = 0;
 	Players[pnum].num_kills_total = 0;
 	Players[pnum].num_robots_level = 0;
 	Players[pnum].num_robots_total = 0;
-	Players[pnum].KillGoalCount = 0;
 	Players[pnum].hostages_level = 0;
 	Players[pnum].hostages_total = 0;
 	const auto &&plobj = vobjptr(Players[pnum].objnum);
 	auto &player_info = plobj->ctype.player_info;
 	player_info.powerup_flags = {};
+	player_info.net_killed_total = 0;
+	player_info.net_kills_total = 0;
+	player_info.KillGoalCount = 0;
 	player_info.mission.score = 0;
 	player_info.mission.last_score = 0;
 	player_info.mission.hostages_rescued_total = 0;
@@ -429,6 +429,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 	if (granted_primary_weapon_flags & HAS_OMEGA_FLAG)
 		player_info.Omega_charge = MAX_OMEGA_CHARGE;
+	player_info.Omega_recharge_delay = 0;
 #endif
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);

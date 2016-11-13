@@ -499,8 +499,6 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 #define	OMEGA_CHARGE_SCALE	4
 
-int	Last_omega_fire_time=0;
-
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
 void omega_charge_frame(void)
@@ -519,10 +517,16 @@ void omega_charge_frame(void)
 		return;
 
 	//	Don't charge while firing. Wait 1/3 second after firing before recharging
-	if (Last_omega_fire_time > GameTime64)
-		Last_omega_fire_time = GameTime64;
-	if (Last_omega_fire_time + F1_0/3 > GameTime64)
-		return;
+	auto &Omega_recharge_delay = player_info.Omega_recharge_delay;
+	if (Omega_recharge_delay)
+	{
+		if (Omega_recharge_delay > FrameTime)
+		{
+			Omega_recharge_delay -= FrameTime;
+			return;
+		}
+		Omega_recharge_delay = 0;
+	}
 
 	if (auto &energy = player_info.energy)
 	{
@@ -556,11 +560,9 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 {
 	vms_vector	goal_pos;
 	const auto pnum = get_player_id(parent_objp);
-	fix fire_frame_overhead = 0;
-
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
-		auto &player_info = get_local_plrobj().ctype.player_info;
+		auto &player_info = parent_objp->ctype.player_info;
 		auto &Omega_charge = player_info.Omega_charge;
 		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
 			obj_delete(weapon_objp);
@@ -571,12 +573,7 @@ static void do_omega_stuff(const vobjptridx_t parent_objp, const vms_vector &fir
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		if (GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that. Since Next_laser_firing_time is probably changed already (in do_laser_firing_player), we need to calculate the overhead slightly different. 
-			fire_frame_overhead = GameTime64 - Last_omega_fire_time + OMEGA_BASE_TIME;
-
-		auto &Next_laser_fire_time = parent_objp->ctype.player_info.Next_laser_fire_time;
-		Next_laser_fire_time = GameTime64+OMEGA_BASE_TIME-fire_frame_overhead;
-		Last_omega_fire_time = GameTime64;
+		player_info.Omega_recharge_delay = F1_0 / 3;
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
@@ -1865,10 +1862,17 @@ int do_laser_firing_player(void)
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
 
-			if (!cheats.rapidfire)
-				Next_laser_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
-			else
-				Next_laser_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
+			Next_laser_fire_time = GameTime64 - fire_frame_overhead + (unlikely(cheats.rapidfire)
+				? (F1_0 / 25)
+				: (
+#if defined(DXX_BUILD_DESCENT_II)
+					weapon_index == weapon_id_type::OMEGA_ID
+					? OMEGA_BASE_TIME
+					:
+#endif
+					Weapon_info[weapon_index].fire_wait
+				)
+			);
 
 			laser_level = player_info.laser_level;
 
@@ -2248,7 +2252,7 @@ static void create_smart_children(const vobjptridx_t objp, const uint_fast32_t n
 				? objptridx((numobjs == 1)
 					? objlist[0]
 					: get_random_different_object())
-				: objptridx(object_none);
+				: object_none;
 			create_homing_missile(objp, sel_objnum, blob_id, (i==0)?1:0);
 		}
 	}
@@ -2269,10 +2273,6 @@ void create_weapon_smart_children(const vobjptridx_t objp)
 #endif
 	create_smart_children(objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
-
-}
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 
@@ -2376,7 +2376,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, weapon_index_is_player_bomb(weapon) ? objnum : objptridx(object_none));
+			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon

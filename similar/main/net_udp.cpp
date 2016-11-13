@@ -563,7 +563,12 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	hints.ai_family = ai_family;
 	// We are always UDP
 	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_V4MAPPED | AI_ALL | AI_NUMERICSERV;
+#ifdef AI_NUMERICSERV
+	hints.ai_flags |= AI_NUMERICSERV;
+#endif
+#if DXX_USE_IPv6
+	hints.ai_flags |= AI_V4MAPPED | AI_ALL;
+#endif
 	// Numeric address only?
 	if (numeric_only)
 		hints.ai_flags |= AI_NUMERICHOST;
@@ -1484,14 +1489,14 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	Netgame.players[pnum].rank=their->player.rank;
 
 	Players[pnum].connected = CONNECT_PLAYING;
-	Players[pnum].net_kills_total = 0;
-	Players[pnum].net_killed_total = 0;
 	kill_matrix[pnum] = {};
 	const auto &&objp = vobjptr(Players[pnum].objnum);
 	auto &player_info = objp->ctype.player_info;
+	player_info.net_killed_total = 0;
+	player_info.net_kills_total = 0;
 	player_info.mission.score = 0;
 	player_info.powerup_flags = {};
-	Players[pnum].KillGoalCount=0;
+	player_info.KillGoalCount = 0;
 
 	if (pnum == N_players)
 	{
@@ -1652,7 +1657,9 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		net_udp_noloss_clear_mdata_trace(player_num);
 	}
 
-	Players[player_num].KillGoalCount=0;
+	auto &obj = *vobjptr(Players[player_num].objnum);
+	auto &player_info = obj.ctype.player_info;
+	player_info.KillGoalCount = 0;
 
 	// Send updated Objects data to the new/returning player
 
@@ -2113,10 +2120,10 @@ void net_udp_send_rejoin_sync(int player_num)
 	Netgame.kills = kill_matrix;
 	for (int j=0; j<MAX_PLAYERS; j++)
 	{
-		Netgame.killed[j] = Players[j].net_killed_total;
-		Netgame.player_kills[j] = Players[j].net_kills_total;
 		auto &objp = *vcobjptr(Players[j].objnum);
 		auto &player_info = objp.ctype.player_info;
+		Netgame.killed[j] = player_info.net_killed_total;
+		Netgame.player_kills[j] = player_info.net_kills_total;
 		Netgame.player_score[j] = player_info.mission.score;
 	}
 
@@ -2143,10 +2150,10 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	Netgame.kills = kill_matrix;
 	for (int j=0; j<MAX_PLAYERS; j++)
 	{
-		Netgame.killed[j] = Players[j].net_killed_total;
-		Netgame.player_kills[j] = Players[j].net_kills_total;
 		auto &objp = *vcobjptr(Players[j].objnum);
 		auto &player_info = objp.ctype.player_info;
+		Netgame.killed[j] = player_info.net_killed_total;
+		Netgame.player_kills[j] = player_info.net_kills_total;
 		Netgame.player_score[j] = player_info.mission.score;
 	}
 
@@ -2177,7 +2184,9 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].protocol.udp.addr = p->player.protocol.udp.addr;
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
-	Players[N_players].KillGoalCount=0;
+	auto &obj = *vobjptr(Players[N_players].objnum);
+	auto &player_info = obj.ctype.player_info;
+	player_info.KillGoalCount = 0;
 	Players[N_players].connected = CONNECT_PLAYING;
 	Netgame.players[N_players].LastPacketTime = timer_query();
 	N_players++;
@@ -2271,10 +2280,10 @@ void net_udp_update_netgame(void)
 	for (int i = 0; i < MAX_PLAYERS; i++) 
 	{
 		Netgame.players[i].connected = Players[i].connected;
-		Netgame.killed[i] = Players[i].net_killed_total;
-		Netgame.player_kills[i] = Players[i].net_kills_total;
 		auto &objp = *vcobjptr(Players[i].objnum);
 		auto &player_info = objp.ctype.player_info;
+		Netgame.killed[i] = player_info.net_killed_total;
+		Netgame.player_kills[i] = player_info.net_kills_total;
 #if defined(DXX_BUILD_DESCENT_II)
 		Netgame.player_score[i] = player_info.mission.score;
 #endif
@@ -2299,8 +2308,12 @@ void net_udp_send_endlevel_packet(void)
 		range_for (auto &i, Players)
 		{
 			buf[len] = i.connected;								len++;
-			PUT_INTEL_SHORT(&buf[len], i.net_kills_total);			len += 2;
-			PUT_INTEL_SHORT(&buf[len], i.net_killed_total);		len += 2;
+			auto &objp = *vcobjptr(i.objnum);
+			auto &player_info = objp.ctype.player_info;
+			PUT_INTEL_SHORT(&buf[len], player_info.net_kills_total);
+			len += 2;
+			PUT_INTEL_SHORT(&buf[len], player_info.net_killed_total);
+			len += 2;
 		}
 
 		range_for (auto &i, kill_matrix)
@@ -2322,8 +2335,11 @@ void net_udp_send_endlevel_packet(void)
 		buf[len] = Player_num;												len++;
 		buf[len] = get_local_player().connected;							len++;
 		buf[len] = Countdown_seconds_left;									len++;
-		PUT_INTEL_SHORT(&buf[len], get_local_player().net_kills_total);	len += 2;
-		PUT_INTEL_SHORT(&buf[len], get_local_player().net_killed_total);	len += 2;
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		PUT_INTEL_SHORT(&buf[len], player_info.net_kills_total);
+		len += 2;
+		PUT_INTEL_SHORT(&buf[len], player_info.net_killed_total);
+		len += 2;
 
 		range_for (auto &i, kill_matrix[Player_num])
 		{
@@ -2984,8 +3000,12 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		tmpvar = data[len];							len++;
 		if ((Network_status != NETSTAT_PLAYING) && (Players[pnum].connected == CONNECT_PLAYING) && (tmpvar < Countdown_seconds_left))
 			Countdown_seconds_left = tmpvar;
-		Players[pnum].net_kills_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
-		Players[pnum].net_killed_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		auto &objp = *vobjptr(Players[pnum].objnum);
+		auto &player_info = objp.ctype.player_info;
+		player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
+		len += 2;
+		player_info.net_killed_total = GET_INTEL_SHORT(&data[len]);
+		len += 2;
 
 		range_for (auto &i, kill_matrix[pnum])
 		{
@@ -3015,9 +3035,13 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 
 			if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
 				multi_disconnect_player(i);
+			auto &objp = *vobjptr(Players[i].objnum);
+			auto &player_info = objp.ctype.player_info;
 			Players[i].connected = data[len];				len++;
-			Players[i].net_kills_total = GET_INTEL_SHORT(&(data[len]));	len += 2;
-			Players[i].net_killed_total = GET_INTEL_SHORT(&(data[len]));	len += 2;
+			player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
+			len += 2;
+			player_info.net_killed_total = GET_INTEL_SHORT(&data[len]);
+			len += 2;
 
 			if (Players[i].connected)
 				Netgame.players[i].LastPacketTime = timer_query();
@@ -3936,11 +3960,6 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	
 	Player_num = MULTI_PNUM_UNDEF;
 
-	range_for (auto &i, Players)
-	{
-		i.net_kills_total = 0;
-	}
-
 	for (int i=0; i<N_players; i++ ) {
 		if (i == Netgame.protocol.udp.your_index && Netgame.players[i].callsign == temp_callsign)
 		{
@@ -3953,10 +3972,10 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 		}
 		Players[i].callsign = Netgame.players[i].callsign;
 		Players[i].connected = Netgame.players[i].connected;
-		Players[i].net_kills_total = Netgame.player_kills[i];
-		Players[i].net_killed_total = Netgame.killed[i];
 		auto &objp = *vobjptr(Players[i].objnum);
 		auto &player_info = objp.ctype.player_info;
+		player_info.net_kills_total = Netgame.player_kills[i];
+		player_info.net_killed_total = Netgame.killed[i];
 		if ((Network_rejoined) || (i != Player_num))
 			player_info.mission.score = Netgame.player_score[i];
 	}
@@ -3969,8 +3988,11 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	PlayerCfg.NetlifeKills -= get_local_player().net_kills_total;
-	PlayerCfg.NetlifeKilled -= get_local_player().net_killed_total;
+	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		PlayerCfg.NetlifeKills -= player_info.net_kills_total;
+		PlayerCfg.NetlifeKilled -= player_info.net_killed_total;
+	}
 #endif
 
 	if (Network_rejoined)
@@ -5855,7 +5877,7 @@ static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr 
 /* 10 seconds passed since we registered our game. If we have not received all ACK's, yet, tell user about that! */
 static void udp_tracker_verify_ack_timeout()
 {
-	if (!Netgame.Tracker || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
+	if (!Netgame.Tracker || !multi_i_am_master() || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
 		return;
 	if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION)
 	{

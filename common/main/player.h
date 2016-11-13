@@ -64,9 +64,6 @@ struct player : public prohibit_void_ptr<player>
 	fix     time_total;             // Game time played (high word = seconds)
 
 
-	short   KillGoalCount;          // Num of players killed this level
-	short   net_killed_total;       // Number of times killed total
-	short   net_kills_total;        // Number of net kills total
 	short   num_kills_level;        // Number of kills this level
 	short   num_kills_total;        // Number of kills total
 	short   num_robots_level;       // Number of initial robots this level

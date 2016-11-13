@@ -917,7 +917,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		Result('%s: building with %s' % (self.msgprefix, s))
 	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
 		if isinstance(CPPDEFINES, str):
-			context.sconf.Define(CPPDEFINES, int(condition))
+			self._define_macro(context, CPPDEFINES, int(condition))
 		elif condition:
 			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
 		context.Result('%s: checking whether to enable %s...%s' % (self.msgprefix, label, 'yes' if condition else 'no'))
@@ -2064,8 +2064,12 @@ where the cast is useless.
 	def check_getaddrinfo_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_GETADDRINFO']}):
 		self.Compile(context, text='''
 #ifdef WIN32
+#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0600
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT < DXX_WIN32_MINIMUM_WIN32_WINNT)
+#undef _WIN32_WINNT
+#endif
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
+#define _WIN32_WINNT DXX_WIN32_MINIMUM_WIN32_WINNT
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -2076,8 +2080,15 @@ where the cast is useless.
 #endif
 ''', main='''
 	addrinfo *res = nullptr;
-	const addrinfo *hints = nullptr;
-	int i = getaddrinfo("", "", hints, &res);
+	addrinfo hints{};
+#ifdef AI_NUMERICSERV
+	/* Test that it is defined to a term that can be used with bit-or */
+	hints.ai_flags |= AI_NUMERICSERV;
+#endif
+#if DXX_USE_IPv6
+	hints.ai_flags |= AI_V4MAPPED | AI_ALL;
+#endif
+	int i = getaddrinfo("", "", &hints, &res);
 	(void)i;
 	freeaddrinfo(res);
 	return 0;
@@ -3650,8 +3661,8 @@ class DXXArchive(DXXCommon):
 class DXXProgram(DXXCommon):
 	# version number
 	VERSION_MAJOR = 0
-	VERSION_MINOR = 58
-	VERSION_MICRO = 1
+	VERSION_MINOR = 59
+	VERSION_MICRO = 100
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
