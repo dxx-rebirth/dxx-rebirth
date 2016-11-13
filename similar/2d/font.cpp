@@ -498,7 +498,7 @@ static void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		}
 	}
 	if (smallr<=0)
-		Error("couldn't fit font?\n");
+		Error("Could not fit font?\n");
 }
 
 static void ogl_init_font(grs_font * font)

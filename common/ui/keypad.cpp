@@ -371,7 +371,7 @@ int ui_pad_read( int n, const char * filename )
 
 	auto infile = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
-		Warning( "Couldn't find %s\n", filename );
+		Warning( "Could not find %s\n", filename );
 		return 0;
 	}
 	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());

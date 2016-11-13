@@ -294,7 +294,7 @@ static int find_edge_num(int v0,int v1)
 		if (*edgep++ == vv)
 			return (N_EDGES_PER_SEGMENT-i);
 
-	Error("couldn't find edge for %d,%d",v0,v1);
+	Error("Could not find edge for %d,%d",v0,v1);
 
 	//return -1;
 }

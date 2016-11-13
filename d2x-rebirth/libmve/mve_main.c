@@ -37,7 +37,7 @@ int main(int c, char **v)
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
 	{
-		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+		fprintf(stderr, "Could not initialize SDL: %s\n",SDL_GetError());
 		exit(1);
 	}
 	atexit(SDL_Quit);

@@ -115,7 +115,7 @@ int CreateSloppyAdjacentJoint()
 				undo_status[Autosave_count] = "Sloppy Joint segment undone.";
 	    		warn_if_concave_segments();
 				}
-			else editor_status("Couldn't form sloppy joint.\n");
+			else editor_status("Could not form sloppy joint.\n");
 		} else
 			editor_status("Attempted to form sloppy joint through connected side -- joint segment not formed (you bozo).");
 	} else

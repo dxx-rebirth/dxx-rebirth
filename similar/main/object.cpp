@@ -131,7 +131,7 @@ void object_goto_next_viewer()
 		}
 	}
 
-	Error( "Couldn't find a viewer object!" );
+	Error( "Could not find a viewer object!" );
 
 }
 #endif

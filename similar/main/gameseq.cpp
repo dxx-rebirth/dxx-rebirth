@@ -744,7 +744,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	int load_ret = load_level(level_name);		//actually load the data from disk!
 
 	if (load_ret)
-		Error("Couldn't load level file <%s>, error = %d",static_cast<const char *>(level_name),load_ret);
+		Error("Could not load level file <%s>, error = %d",static_cast<const char *>(level_name),load_ret);
 
 	Current_level_num=level_num;
 

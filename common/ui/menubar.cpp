@@ -753,7 +753,7 @@ int menubar_init( const char * file )
 
 	if (!infile)
 	{
-		Warning("Couldn't find %s\n", file);
+		Warning("Could not find %s\n", file);
 		return 0;
 	}
 	
