@@ -155,7 +155,7 @@ namespace partial_range_detail
 template <typename I, std::size_t required_buffer_size>
 static inline void check_range_bounds(const char *file, unsigned line, const char *estr, const void *t, const std::size_t o, const std::size_t l, const std::size_t d)
 {
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#ifdef DXX_CONSTANT_TRUE
 	/*
 	 * If EXPR and d are compile-time constant, and the (EXPR > d)
 	 * branch is optimized out, then the expansion of
@@ -176,8 +176,8 @@ static inline void check_range_bounds(const char *file, unsigned line, const cha
 	 * as compile-time constant.
 	 *
 	 * If the compiler cannot optimize based on the result of
-	 * __builtin_constant_p (such as at -O0), then configure tests set
-	 * !DXX_HAVE_BUILTIN_CONSTANT_P and the macro expands to nothing.
+	 * __builtin_constant_p (such as at -O0), then configure tests do
+	 * not define DXX_CONSTANT_TRUE and the macro expands to nothing.
 	 */
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
 	(DXX_CONSTANT_TRUE(EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw_##S, #S " will always throw"), 0))
@@ -237,7 +237,7 @@ template <typename I, std::size_t required_buffer_size>
 __attribute_warn_unused_result
 static inline partial_range_t<I> (unchecked_partial_range)(const char *file, unsigned line, const char *estr, I range_begin, const std::size_t o, const std::size_t l, std::true_type)
 {
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
+#ifdef DXX_CONSTANT_TRUE
 	/* Compile-time only check.  Runtime handles (o > l) correctly, and
 	 * it can happen in a correct program.  If it is guaranteed to
 	 * happen, then the range is always empty, which likely indicates a

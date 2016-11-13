@@ -52,15 +52,15 @@ static inline void con_puts_literal(int level, const char (&str)[len])
 }
 #define con_puts(A1,S,...)	(con_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-#define _dxx_con_printf_check_trailing_newline(F)	\
-	(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n' &&	\
+#ifdef DXX_CONSTANT_TRUE
+#define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
+	(DXX_CONSTANT_TRUE(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n') &&	\
 		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_trailing_newline, "trailing literal newline on con_printf"), 0)),
 #else
-#define _dxx_con_printf_check_trailing_newline(C)
+#define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(C)
 #endif
 #define con_printf(A1,F,...)	\
-	_dxx_con_printf_check_trailing_newline(F)	\
+	DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	dxx_call_printf_checked(con_printf,con_puts_literal,(A1),(F),##__VA_ARGS__)
 void con_showup(void);
 

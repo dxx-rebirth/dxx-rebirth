@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "dxxsconf.h"
 #include "fwd-player.h"
 #include "player-callsign.h"
 #include "player-flags.h"
@@ -37,10 +38,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 
 #ifdef _WIN32
-#ifdef _WIN32_WINNT
+/* Require _WIN32_WINNT >= 0x0501 to enable getaddrinfo
+ * Require _WIN32_WINNT >= 0x0600 to enable some useful AI_* flags
+ */
+#ifdef DXX_HAVE_GETADDRINFO
+#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0600
+#else
+#define DXX_WIN32_MINIMUM_WIN32_WINNT	0x0500
+#endif
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT < DXX_WIN32_MINIMUM_WIN32_WINNT)
 #undef _WIN32_WINNT
 #endif
-#define _WIN32_WINNT 0x0501 // for get/freeaddrinfo()
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT DXX_WIN32_MINIMUM_WIN32_WINNT
+#endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
@@ -94,7 +105,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(27)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(2)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -494,17 +505,20 @@ void multi_do_frame(void);
 
 #ifdef dsx
 namespace dsx {
+
+enum class multi_endlevel_type : bool
+{
+	normal,
 #if defined(DXX_BUILD_DESCENT_I)
-void multi_send_endlevel_start(bool);
+	secret,
+#endif
+};
+#if defined(DXX_BUILD_DESCENT_I)
+void multi_send_endlevel_start(multi_endlevel_type);
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start();
-static inline void multi_send_endlevel_start(bool secret)
+static inline void multi_send_endlevel_start(multi_endlevel_type)
 {
-#ifdef DXX_HAVE_BUILTIN_CONSTANT_P
-	if (!dxx_builtin_constant_p(!!secret) || secret)
-		DXX_ALWAYS_ERROR_FUNCTION(multi_send_endlevel_start_with_secret, "secret not supported in Descent II");
-#endif
-	(void)secret;
 	multi_send_endlevel_start();
 }
 #endif

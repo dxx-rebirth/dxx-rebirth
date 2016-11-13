@@ -10,6 +10,7 @@
 #include "object.h"
 #include "powerup.h"
 #include "serial.h"
+#include "fwd-player.h"
 
 #define _UNPACK_MULTIPLAYER_SERIAL_MESSAGE(A,...)	A, ## __VA_ARGS__
 #define DEFINE_MULTIPLAYER_SERIAL_MESSAGE(C,T,V,A)	\
@@ -32,7 +33,7 @@
 	VALUE(MULTI_CONTROLCEN           , 4)	\
 	VALUE(MULTI_ROBOT_CLAIM          , 5)	\
 	VALUE(MULTI_CLOAK                , 2)	\
-	VALUE(MULTI_ENDLEVEL_START       , 3)	\
+	VALUE(MULTI_ENDLEVEL_START       , DXX_MP_SIZE_ENDLEVEL_START)	\
 	VALUE(MULTI_CREATE_EXPLOSION     , 2)	\
 	VALUE(MULTI_CONTROLCEN_FIRE      , 16)	\
 	VALUE(MULTI_CREATE_POWERUP       , 19)	\
@@ -56,7 +57,7 @@
 	VALUE(MULTI_SAVE_GAME            , 2+24)	/* (ubyte slot, uint id, char name[20]) */	\
 	VALUE(MULTI_RESTORE_GAME         , 2+4)	/* (ubyte slot, uint id) */	\
 	VALUE(MULTI_HEARTBEAT            , 5)	\
-	VALUE(MULTI_KILLGOALS            , 9)	\
+	VALUE(MULTI_KILLGOALS            , 1 + MAX_PLAYERS)	\
 	VALUE(MULTI_DO_BOUNTY            , 2)	\
 	VALUE(MULTI_TYPING_STATE         , 3)	\
 	VALUE(MULTI_GMODE_UPDATE         , 3)	\
@@ -68,12 +69,14 @@
 	D2X_MP_COMMANDS(VALUE)	\
 
 #if defined(DXX_BUILD_DESCENT_I)
+#define DXX_MP_SIZE_ENDLEVEL_START	3
 #define DXX_MP_SIZE_PLAYER_RELATED	58
 #define DXX_MP_SIZE_PLAYER_INVENTORY	15
 #define DXX_MP_SIZE_BEGIN_SYNC	37
 #define DXX_MP_SIZE_DOOR_OPEN	4
 #define D2X_MP_COMMANDS(VALUE)
 #elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_MP_SIZE_ENDLEVEL_START	2
 #define DXX_MP_SIZE_PLAYER_RELATED	(97+10)
 #define DXX_MP_SIZE_PLAYER_INVENTORY	21
 #define DXX_MP_SIZE_BEGIN_SYNC	41

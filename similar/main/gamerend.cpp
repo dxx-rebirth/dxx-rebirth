@@ -196,9 +196,11 @@ static void show_netplayerinfo()
 		gr_set_fontcolor(BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
 		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		{
+			auto &plrobj = *vcobjptr(Players[i].objnum);
+			auto &player_info = plrobj.ctype.player_info;
 			auto v = ((Game_mode & GM_MULTI_COOP)
-				? vcobjptr(Players[i].objnum)->ctype.player_info.mission.score
-				: (gr_printf(x + fspacx8 * 12, y,"%-6d", Players[i].net_killed_total), Players[i].net_kills_total)
+				? player_info.mission.score
+				: (gr_printf(x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
 			);
 			gr_printf(x + fspacx8 * 7, y, "%-6d", v);
 		}

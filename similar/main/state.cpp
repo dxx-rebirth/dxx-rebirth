@@ -496,10 +496,10 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	else
 		pl_rw->invulnerable_time = pl_info.invulnerable_time - GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
-	pl_rw->KillGoalCount             = pl->KillGoalCount;
+	pl_rw->KillGoalCount             = pl_info.KillGoalCount;
 #endif
-	pl_rw->net_killed_total          = pl->net_killed_total;
-	pl_rw->net_kills_total           = pl->net_kills_total;
+	pl_rw->net_killed_total          = pl_info.net_killed_total;
+	pl_rw->net_kills_total           = pl_info.net_kills_total;
 	pl_rw->num_kills_level           = pl->num_kills_level;
 	pl_rw->num_kills_total           = pl->num_kills_total;
 	pl_rw->num_robots_level          = pl->num_robots_level;
@@ -541,10 +541,10 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl_info.cloak_time                = pl_rw->cloak_time;
 	pl_info.invulnerable_time         = pl_rw->invulnerable_time;
 #if defined(DXX_BUILD_DESCENT_II)
-	pl->KillGoalCount             = pl_rw->KillGoalCount;
+	pl_info.KillGoalCount             = pl_rw->KillGoalCount;
 #endif
-	pl->net_killed_total          = pl_rw->net_killed_total;
-	pl->net_kills_total           = pl_rw->net_kills_total;
+	pl_info.net_killed_total          = pl_rw->net_killed_total;
+	pl_info.net_kills_total           = pl_rw->net_kills_total;
 	pl->num_kills_level           = pl_rw->num_kills_level;
 	pl->num_kills_total           = pl_rw->num_kills_total;
 	pl->num_robots_level          = pl_rw->num_robots_level;
@@ -1816,7 +1816,13 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 		auto i = PHYSFSX_readSXE32(fp, swap);
 		if (secret != secret_restore::survived)
+		{
 			player_info.Omega_charge = i;
+			/* The savegame does not record this, so pick a value.  Be
+			 * nice to the player: let the cannon recharge immediately.
+			 */
+			player_info.Omega_recharge_delay = 0;
+		}
 	}
 #endif
 
@@ -1911,9 +1917,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.killed[i] = Players[i].net_killed_total;
 			const auto &&objp = vobjptr(Players[i].objnum);
 			auto &pi = objp->ctype.player_info;
+			Netgame.killed[i] = pi.net_killed_total;
 			Netgame.player_score[i] = pi.mission.score;
 			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}

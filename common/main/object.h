@@ -96,6 +96,7 @@ struct player_info
 	fix     homing_object_dist;     // Distance of nearest homing object.
 #if defined(DXX_BUILD_DESCENT_II)
 	fix Omega_charge;
+	fix Omega_recharge_delay;
 #endif
 	player_flags powerup_flags;
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
@@ -117,6 +118,9 @@ struct player_info
 	array<uint8_t, SUPER_WEAPON> Primary_last_was_super;
 	array<uint8_t, SUPER_WEAPON> Secondary_last_was_super;
 #endif
+	int16_t net_killed_total;		// Number of times killed total
+	int16_t net_kills_total;		// Number of net kills total
+	int16_t KillGoalCount;			// Num of players killed this level
 	union {
 		struct {
 			int score;				// Current score.
