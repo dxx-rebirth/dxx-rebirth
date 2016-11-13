@@ -41,7 +41,7 @@ static PHYSFSX_counted_list file_getdirlist(const char *dir)
 {
 	ntstring<PATH_MAX - 1> path;
 	auto dlen = path.copy_if(dir);
-	if ((!dlen && strlen(dir) > 0) || !path.copy_if(dlen, "/"))
+	if ((!dlen && dir[0] != '\0') || !path.copy_if(dlen, "/"))
 		return nullptr;
 	++ dlen;
 	PHYSFSX_counted_list list{PHYSFS_enumerateFiles(dir)};
