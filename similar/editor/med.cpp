@@ -329,7 +329,7 @@ static void close_editor();
 namespace dsx {
 void init_editor()
 {
-	const char *const pads[] = {
+	static const char pads[][13] = {
 		"segmove.pad",
 		"segsize.pad",
 		"curve.pad",
