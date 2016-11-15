@@ -1088,11 +1088,11 @@ int select_mission(int anarchy_mode, const char *message, window_event_result (*
 }
 
 #if DXX_USE_EDITOR
-int write_mission(void)
+static int write_mission(void)
 {
 	auto &msn_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-	(Current_mission->descent_version == Mission::descent_version_type::descent2) ? MISSION_EXTENSION_DESCENT_II :
+	(Current_mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 	MISSION_EXTENSION_DESCENT_I;
 	array<char, PATH_MAX> mission_filename;
@@ -1107,19 +1107,20 @@ int write_mission(void)
 			return 0;
 	}
 
+	const char *prefix = "";
 #if defined(DXX_BUILD_DESCENT_II)
 	switch (Current_mission->descent_version)
 	{
 		case Mission::descent_version_type::descent2x:
-			PHYSFSX_printf(mfile, "x");
+			prefix = "x";
 			break;
 
 		case Mission::descent_version_type::descent2z:
-			PHYSFSX_printf(mfile, "z");
+			prefix = "z";
 			break;
 			
 		case Mission::descent_version_type::descent2a:
-			PHYSFSX_printf(mfile, "!");
+			prefix = "!";
 			break;
 
 		default:
@@ -1127,7 +1128,7 @@ int write_mission(void)
 	}
 #endif
 
-	PHYSFSX_printf(mfile, "name = %s\n", static_cast<const char *>(Current_mission->mission_name));
+	PHYSFSX_printf(mfile, "%sname = %s\n", prefix, static_cast<const char *>(Current_mission->mission_name));
 
 	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag ? "anarchy" : "normal");
 
@@ -1154,8 +1155,6 @@ int write_mission(void)
 	if (Current_mission->alternate_ham_file)
 		PHYSFSX_printf(mfile, "ham = %s\n", static_cast<const char *>(*Current_mission->alternate_ham_file.get()));
 #endif
-
-	mfile.reset();
 
 	return 1;
 }
