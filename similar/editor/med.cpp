@@ -1113,6 +1113,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 	if ((keypress&0xff)==KEY_RSHIFT) keypress=0;
 	if ((keypress&0xff)==KEY_LCTRL) keypress=0;
 	if ((keypress&0xff)==KEY_RCTRL) keypress=0;
+	if ((keypress&0xff)==KEY_LMETA) keypress=0;
+	if ((keypress&0xff)==KEY_RMETA) keypress=0;
 //		if ((keypress&0xff)==KEY_LALT) keypress=0;
 //		if ((keypress&0xff)==KEY_RALT) keypress=0;
 
