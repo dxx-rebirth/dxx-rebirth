@@ -127,7 +127,7 @@ int CreateNewMine()
 		init_info = 1;
 		ResetFilename();
 		Game_mode = GM_UNKNOWN;
-		Current_level_num = 0;		//0 means not a real game
+		Current_level_num = 1;		// make level 1
 	}
 	return 1;
 }

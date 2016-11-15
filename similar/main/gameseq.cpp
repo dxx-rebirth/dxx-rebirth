@@ -173,8 +173,8 @@ static void copy_defaults_to_robot_all(void);
 namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
-//0 means not a real level loaded
-int	Current_level_num=0,Next_level_num;
+//0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
+int	Current_level_num=1,Next_level_num;
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 
 // Global variables describing the player
@@ -1376,13 +1376,6 @@ static void AdvanceLevel(int secret_flag)
 	}
 
 	Control_center_destroyed = 0;
-
-#if DXX_USE_EDITOR
-	if (Current_level_num == 0)
-	{
-		window_close(Game_wind);		//not a real level
-	}
-	#endif
 
 	if (Game_mode & GM_MULTI)	{
 		int result;

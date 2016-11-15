@@ -151,7 +151,7 @@ if (SafetyCheck())  {
 		checkforgamext(game_filename);
 		if (load_level(game_filename))
 			return 0;
-		Current_level_num = 0;			//not a real level
+		Current_level_num = 1;			// assume level 1
 		gamestate_not_restored = 0;
 		Update_flags = UF_WORLD_CHANGED;
 		Perm_player_position = ConsoleObject->pos;
