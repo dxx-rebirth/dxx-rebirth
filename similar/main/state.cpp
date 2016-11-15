@@ -77,6 +77,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#if DXX_USE_EDITOR
+#include "editor/editor.h"
+#endif
+
 #include "compiler-exchange.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -1477,7 +1481,13 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	player_info pl_info;
 	fix pl_shields;
 	{
-		StartNewLevelSub(current_level, 1, secret);
+#if DXX_USE_EDITOR
+		// Don't bother with the other game sequence stuff if loading saved game in editor
+		if (EditorWindow)
+			LoadLevel(current_level, 1);
+		else
+#endif
+			StartNewLevelSub(current_level, 1, secret);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (secret != secret_restore::none) {

@@ -1304,15 +1304,22 @@ static window_event_result HandleTestKey(int key)
 #if DXX_USE_EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
+		{
 			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
+			auto old_gamestate = gamestate;
+			gamestate = editor_gamestate::unsaved;	// saved game editing mode
+
 			init_editor();
 			// If editor failed to load, carry on playing
 			if (!EditorWindow)
 			{
 				window_set_visible(Game_wind, 1);
+				gamestate = old_gamestate;
 				return window_event_result::handled;
 			}
 			return window_event_result::close;
+		}
+
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{

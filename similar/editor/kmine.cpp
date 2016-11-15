@@ -123,7 +123,7 @@ int CreateNewMine()
 		Found_segs.clear();
 		Selected_segs.clear();
 		med_compress_mine();
-		gamestate_not_restored = 0;
+		gamestate = editor_gamestate::none;
 		init_info = 1;
 		ResetFilename();
 		Game_mode = GM_UNKNOWN;

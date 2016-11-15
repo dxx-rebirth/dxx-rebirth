@@ -752,7 +752,10 @@ void LoadLevel(int level_num,int page_in_textures)
 	load_palette(Current_level_palette,1,1);		//don't change screen
 #endif
 
-	show_boxed_message(TXT_LOADING, 0);
+#if DXX_USE_EDITOR
+	if (!EditorWindow)
+#endif
+		show_boxed_message(TXT_LOADING, 0);
 #ifdef RELEASE
 	timer_delay(F1_0);
 #endif
@@ -780,7 +783,10 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	set_sound_sources();
 
-	songs_play_level_song( Current_level_num, 0 );
+#if DXX_USE_EDITOR
+	if (!EditorWindow)
+#endif
+		songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 #if defined(DXX_BUILD_DESCENT_I)
