@@ -1499,7 +1499,7 @@ void GameProcessFrame(void)
 	else
 	{ // Note the link to above!
 #ifndef NEWHOMER
-		get_local_plrobj().ctype.player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+		player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 #endif
 		object_move_all();
 		powerup_grab_cheat_all();
@@ -1541,7 +1541,7 @@ void GameProcessFrame(void)
 				laser_firing_count = 0;
 		}
 		Global_laser_firing_count = laser_firing_count;
-		delayed_autoselect(get_local_plrobj().ctype.player_info);
+		delayed_autoselect(player_info);
 	}
 
 	if (Do_appearance_effect) {
@@ -1550,7 +1550,7 @@ void GameProcessFrame(void)
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	omega_charge_frame();
+	omega_charge_frame(player_info);
 	slide_textures();
 	flicker_lights();
 

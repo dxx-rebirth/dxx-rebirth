@@ -134,7 +134,6 @@ extern array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 namespace dsx {
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
-void omega_charge_frame(void);
 
 static inline int is_proximity_bomb_or_smart_mine(weapon_id_type id)
 {

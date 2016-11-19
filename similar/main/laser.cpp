@@ -501,16 +501,14 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
-void omega_charge_frame(void)
+void omega_charge_frame(player_info &player_info)
 {
 	fix	delta_charge, old_omega_charge;
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)))
+		return;
 	auto &Omega_charge = player_info.Omega_charge;
 	if (Omega_charge == MAX_OMEGA_CHARGE)
-		return;
-
-	if (!player_has_primary_weapon(player_info, primary_weapon_index_t::OMEGA_INDEX).has_weapon())
 		return;
 
 	if (Player_dead_state != player_dead_state::no)

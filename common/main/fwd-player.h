@@ -87,6 +87,7 @@ void player_rw_swap(player_rw *p, int swap);
 #if defined(DXX_BUILD_DESCENT_II)
 extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;
+void omega_charge_frame(player_info &);
 #endif
 }
 #endif
