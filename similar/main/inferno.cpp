@@ -519,7 +519,7 @@ static int main(int argc, char *argv[])
 		return(0);
 
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
-	texmerge_init( 10 );		// 10 cache bitmaps
+	texmerge_init();		// 10 cache bitmaps
 
 #if defined(DXX_BUILD_DESCENT_II)
 	piggy_init_pigfile("groupa.pig");	//get correct pigfile

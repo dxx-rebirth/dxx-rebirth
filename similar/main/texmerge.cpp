@@ -39,10 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
-#define MAX_NUM_CACHE_BITMAPS 200
-#else
-#define MAX_NUM_CACHE_BITMAPS 50
 #endif
+#define MAX_NUM_CACHE_BITMAPS 10
 
 //static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
@@ -166,21 +164,14 @@ static void merge_textures(unsigned orient, const grs_bitmap &expanded_bottom_bm
 
 static array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 
-static unsigned num_cache_entries;
-
 static int cache_hits = 0;
 static int cache_misses = 0;
 
 //----------------------------------------------------------------------
 
-int texmerge_init(int num_cached_textures)
+int texmerge_init()
 {
-	if ( num_cached_textures <= MAX_NUM_CACHE_BITMAPS )
-		num_cache_entries = num_cached_textures;
-	else
-		num_cache_entries = MAX_NUM_CACHE_BITMAPS;
-	
-	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	range_for (auto &i, Cache)
 	{
 		i.bitmap = NULL;
 		i.last_time_used = -1;
@@ -194,7 +185,7 @@ int texmerge_init(int num_cached_textures)
 
 void texmerge_flush()
 {
-	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	range_for (auto &i, Cache)
 	{
 		i.last_time_used = -1;
 		i.top_bmp = NULL;
@@ -207,7 +198,7 @@ void texmerge_flush()
 //-------------------------------------------------------------------------
 void texmerge_close()
 {
-	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	range_for (auto &i, Cache)
 	{
 		i.bitmap.reset();
 	}
@@ -228,7 +219,7 @@ grs_bitmap &texmerge_get_cached_bitmap(unsigned tmap_bottom, unsigned tmap_top)
 
 	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
-	range_for (auto &i, partial_range(Cache, num_cache_entries))
+	range_for (auto &i, Cache)
 	{
 		if ( (i.last_time_used > -1) && (i.top_bmp==bitmap_top) && (i.bottom_bmp==bitmap_bottom) && (i.orient==orient ))	{
 			cache_hits++;
