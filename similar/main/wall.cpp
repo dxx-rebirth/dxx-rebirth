@@ -562,20 +562,15 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 		return;
 
 	if (w->state == WALL_DOOR_CLOAKING) {	//cloaking, so reuse door
-		d = NULL;
-
-		for (unsigned i = 0; i < Num_cloaking_walls; ++i)
-		{		//find door
-
-			d = &CloakingWalls[i];
-	
-			if (d->front_wallnum == w || d->back_wallnum == w)
-			{
-				d->time = CLOAKING_WALL_TIME - d->time;
-				break;
-			}
+		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
+		if (i == r.end())
+		{
+			d_debugbreak();
+			return;
 		}
-		Assert( d!=NULL ); // Get John!
+		d = i;
+		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
 		d = &CloakingWalls[Num_cloaking_walls];
