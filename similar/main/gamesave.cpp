@@ -352,7 +352,9 @@ namespace dsx {
 static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 {
 	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
+	const auto signature = obj_get_signature();
 	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
+	obj->signature = signature;
 	obj->type           = PHYSFSX_readByte(f);
 	obj->id             = PHYSFSX_readByte(f);
 
@@ -884,7 +886,6 @@ static int load_game_data(PHYSFS_File *LoadFile)
 		{
 			const auto &&o = vobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
-			i.signature = obj_get_signature();
 			verify_object(o);
 		}
 	}
