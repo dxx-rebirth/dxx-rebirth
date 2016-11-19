@@ -130,7 +130,7 @@ static array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 static int Piggy_bitmap_cache_size;
 static int Piggy_bitmap_cache_next;
-uint8_t * Piggy_bitmap_cache_data = NULL;
+static uint8_t *Piggy_bitmap_cache_data;
 static array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
 static array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 
@@ -1451,11 +1451,7 @@ void piggy_bitmap_page_out_all()
 	for (i=0; i<Num_bitmap_files; i++ ) {
 		if ( GameBitmapOffset[i] > 0 ) {	// Don't page out bitmaps read from disk!!!
 			GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
-#if defined(DXX_BUILD_DESCENT_I)
-			gr_set_bitmap_data (GameBitmaps[i], Piggy_bitmap_cache_data);
-#elif defined(DXX_BUILD_DESCENT_II)
-			gr_set_bitmap_data(GameBitmaps[i], NULL);
-#endif
+			gr_set_bitmap_data(GameBitmaps[i], nullptr);
 		}
 	}
 

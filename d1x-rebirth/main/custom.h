@@ -19,7 +19,6 @@
 #define DBM_FLAG_ABM            64
 
 extern array<int, MAX_BITMAP_FILES> GameBitmapOffset;
-extern ubyte * Piggy_bitmap_cache_data;
 
 void load_custom_data(const d_fname &level_file);
 
