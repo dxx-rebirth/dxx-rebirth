@@ -102,12 +102,18 @@ valptridx<managed_type>::array_managed_type::array_managed_type()
 #endif
 
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
+valptridx<cloaking_wall>::array_managed_type CloakingWalls;
+#endif
 valptridx<object>::array_managed_type Objects;
 valptridx<segment>::array_managed_type Segments;
 valptridx<trigger>::array_managed_type Triggers;
 valptridx<wall>::array_managed_type Walls;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+template class valptridx<cloaking_wall>;
+#endif
 template class valptridx<object>;
 template class valptridx<segment>;
 template class valptridx<trigger>;

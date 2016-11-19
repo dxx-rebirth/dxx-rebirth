@@ -1091,10 +1091,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 #if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
 	{
-		const int i = Num_cloaking_walls;
+		const int i = CloakingWalls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	range_for (auto &w, partial_const_range(CloakingWalls, Num_cloaking_walls))
+	range_for (auto &&w, vcclwallptr)
 		cloaking_wall_write(w, fp);
 #endif
 
@@ -1619,8 +1619,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
-		Num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
-		range_for (auto &w, partial_range(CloakingWalls, Num_cloaking_walls))
+		unsigned num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
+		CloakingWalls.set_count(num_cloaking_walls);
+		range_for (auto &&w, vclwallptr)
 			cloaking_wall_read(w, fp);
 	}
 #endif

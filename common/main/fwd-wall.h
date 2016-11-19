@@ -181,8 +181,8 @@ constexpr std::size_t MAX_CLIP_FRAMES_D1 = 20;
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall;
 constexpr std::size_t MAX_CLOAKING_WALLS = 10;
-extern array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
-extern unsigned Num_cloaking_walls;
+using clwallnum_t = uint8_t;
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(cloaking_wall, clwall, CloakingWalls, MAX_CLOAKING_WALLS);
 #endif
 
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls, MAX_WALLS);

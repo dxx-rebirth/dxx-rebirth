@@ -164,6 +164,7 @@ struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 	array<fix, 4> back_ls;      // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
 };
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(cloaking_wall, clwall);
 #endif
 
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(wall, wall);

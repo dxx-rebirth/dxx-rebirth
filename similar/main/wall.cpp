@@ -54,9 +54,6 @@ array<active_door, MAX_DOORS> ActiveDoors;
 namespace dsx {
 constexpr unsigned CLOAKING_WALL_TIME = F1_0;
 
-array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
-unsigned Num_cloaking_walls;
-
 namespace {
 
 struct cwframe
@@ -199,7 +196,7 @@ void wall_init()
 	}
 	Num_open_doors = 0;
 #if defined(DXX_BUILD_DESCENT_II)
-	Num_cloaking_walls = 0;
+	CloakingWalls.set_count(0);
 #endif
 
 }
@@ -495,7 +492,7 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	const auto cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
-		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		const auto &&r = make_range(vclwallptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
 		{
@@ -506,16 +503,18 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
-		d = &CloakingWalls[Num_cloaking_walls];
-		d->time = 0;
-		if (Num_cloaking_walls >= MAX_CLOAKING_WALLS) {		//no more!
+		const clwallnum_t c = CloakingWalls.get_count();
+		if (c >= CloakingWalls.size())
+		{
 			Int3();		//ran out of cloaking wall slots
 			w->type = WALL_OPEN;
 			if (const auto &&w1 = wallptr(cwall_num))
 				w1->type = WALL_OPEN;
 			return;
 		}
-		Num_cloaking_walls++;
+		CloakingWalls.set_count(c + 1);
+		d = vclwallptr(c);
+		d->time = 0;
 	}
 	else {
 		Int3();		//unexpected wall state
@@ -562,7 +561,7 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 		return;
 
 	if (w->state == WALL_DOOR_CLOAKING) {	//cloaking, so reuse door
-		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		const auto &&r = make_range(vclwallptr);
 		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
 		if (i == r.end())
 		{
@@ -573,9 +572,9 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
-		d = &CloakingWalls[Num_cloaking_walls];
-		d->time = 0;
-		if (Num_cloaking_walls >= MAX_CLOAKING_WALLS) {		//no more!
+		const clwallnum_t c = CloakingWalls.get_count();
+		if (c >= CloakingWalls.size())
+		{
 			Int3();		//ran out of cloaking wall slots
 			/* what is this _doing_ here?
 			w->type = WALL_CLOSED;
@@ -583,7 +582,9 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 			*/
 			return;
 		}
-		Num_cloaking_walls++;
+		CloakingWalls.set_count(c + 1);
+		d = vclwallptr(c);
+		d->time = 0;
 	}
 	else {
 		Int3();		//unexpected wall state
@@ -1311,10 +1312,10 @@ void wall_frame_process()
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
-		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		const auto &&r = make_range(vclwallptr);
 		cw_removal_predicate rp;
 		std::remove_if(r.begin(), r.end(), std::ref(rp));
-		Num_cloaking_walls = rp.num_cloaking_walls;
+		CloakingWalls.set_count(rp.num_cloaking_walls);
 	}
 #endif
 }
