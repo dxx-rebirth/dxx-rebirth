@@ -438,6 +438,8 @@ static void draw_polygon_object(const vobjptridx_t obj)
 				alt_textures = multi_player_textures[ati];
 
 #if defined(DXX_BUILD_DESCENT_II)
+			if (obj->type == OBJ_ROBOT)
+			{
 			//	Snipers get bright when they fire.
 			ai_local		*ailp = &obj->ctype.ai_info.ail;
 			if (ailp->next_fire < F1_0/8) {
@@ -447,6 +449,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 					light.g = 2*light.g + F1_0;
 					light.b = 2*light.b + F1_0;
 				}
+			}
 			}
 #endif
 
