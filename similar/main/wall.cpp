@@ -52,7 +52,7 @@ array<active_door, MAX_DOORS> ActiveDoors;
 #if defined(DXX_BUILD_DESCENT_II)
 #include "collide.h"
 namespace dsx {
-#define CLOAKING_WALL_TIME f1_0
+constexpr unsigned CLOAKING_WALL_TIME = F1_0;
 
 array<cloaking_wall, MAX_CLOAKING_WALLS> CloakingWalls;
 unsigned Num_cloaking_walls;
@@ -85,6 +85,19 @@ struct cw_removal_predicate
 {
 	unsigned num_cloaking_walls = 0;
 	bool operator()(cloaking_wall &d);
+};
+
+struct find_cloaked_wall_predicate
+{
+	const vwallidx_t w;
+	find_cloaked_wall_predicate(const vwallidx_t i) :
+		w(i)
+	{
+	}
+	bool operator()(const cloaking_wall &cw) const
+	{
+		return cw.front_wallnum == w || cw.back_wallnum == w;
+	}
 };
 
 }
@@ -482,19 +495,15 @@ void start_wall_cloak(const vsegptridx_t seg, int side)
 	const auto cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
-		d = NULL;
-
-		for (unsigned i = 0; i < Num_cloaking_walls; ++i)
-		{		//find door
-
-			d = &CloakingWalls[i];
-			if (d->front_wallnum == w || d->back_wallnum == w)
-			{
-				d->time = CLOAKING_WALL_TIME - d->time;
-				break;
-			}
+		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
+		if (i == r.end())
+		{
+			d_debugbreak();
+			return;
 		}
-		Assert( d!=NULL ); // Get John!
+		d = i;
+		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == WALL_DOOR_CLOSED) {	//create new door
 		d = &CloakingWalls[Num_cloaking_walls];
