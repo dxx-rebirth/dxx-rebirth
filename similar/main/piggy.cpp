@@ -255,7 +255,7 @@ static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 }
 #endif
 
-void swap_0_255(grs_bitmap *bmp)
+void swap_0_255(grs_bitmap &bmp)
 {
 	auto a = [](uint8_t &c) {
 		if (c == 0)
@@ -263,8 +263,8 @@ void swap_0_255(grs_bitmap *bmp)
 		else if (c == 255)
 			c = 0;
 	};
-	auto d = bmp->get_bitmap_data();
-	std::for_each(d, d + (bmp->bm_h * bmp->bm_w), a);
+	auto d = bmp.get_bitmap_data();
+	std::for_each(d, d + (bmp.bm_h * bmp.bm_w), a);
 }
 
 namespace dsx {
@@ -279,7 +279,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
 		if ( GameArg.EdiMacData )
-			swap_0_255( bmp );
+			swap_0_255(*bmp);
 #endif
 #endif
 		if (CGameArg.DbgNoCompressPigBitmap)
@@ -863,7 +863,7 @@ void piggy_new_pigfile(char *pigname)
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum].get());
 
 					if ( GameArg.EdiMacData )
-						swap_0_255( bm[fnum].get() );
+						swap_0_255(*bm[fnum].get());
 
 					if (CGameArg.DbgNoCompressPigBitmap)
 						gr_bitmap_rle_compress(*bm[fnum].get());
@@ -906,7 +906,7 @@ void piggy_new_pigfile(char *pigname)
 				n.avg_color = compute_average_pixel(&n);
 
 				if ( GameArg.EdiMacData )
-					swap_0_255( &n );
+					swap_0_255(n);
 
 				if (CGameArg.DbgNoCompressPigBitmap)
 					gr_bitmap_rle_compress(n);
@@ -1385,7 +1385,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #if defined(DXX_BUILD_DESCENT_I)
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 			if (MacPig)
-				swap_0_255(bmp);
+				swap_0_255(*bmp);
 #elif defined(DXX_BUILD_DESCENT_II)
 			int pigsize = PHYSFS_fileLength(Piggy_fp);
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
@@ -1403,7 +1403,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			case MAC_GROUPA_PIGSIZE:
 			case MAC_ICE_PIGSIZE:
 			case MAC_WATER_PIGSIZE:
-				swap_0_255( bmp );
+				swap_0_255(*bmp);
 				break;
 			}
 #endif
@@ -1824,7 +1824,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		if (bmh->flags & BM_FLAG_RLE)
 			rle_swap_0_255(*bitmap);
 		else
-			swap_0_255(bitmap);
+			swap_0_255(*bitmap);
 	}
 	if (bmh->flags & BM_FLAG_RLE)
 		rle_remap(*bitmap, colormap);

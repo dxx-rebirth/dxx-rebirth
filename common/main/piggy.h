@@ -188,6 +188,6 @@ extern array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
 #endif
 void piggy_init_pigfile(const char *filename);
 int read_hamfile();
-void swap_0_255(grs_bitmap *bmp);
+void swap_0_255(grs_bitmap &bmp);
 
 #endif

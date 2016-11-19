@@ -1273,7 +1273,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		!d_stricmp(fname2, "brief03h.pcx") || !d_stricmp(fname2, "end01h.pcx")
 		))
 	{
-		swap_0_255(&br->background);
+		swap_0_255(br->background);
 		gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
 		gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 63;
 	}
