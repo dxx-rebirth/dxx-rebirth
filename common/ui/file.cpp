@@ -240,7 +240,6 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	char		InputText[PATH_MAX];
 	char		*p;
 	UI_DIALOG	*dlg;
-	window		*wind;
 	int			rval = 0;
 	auto b = make_unique<ui_file_browser>();
 	if ((p = strrchr(filename, '/')))
@@ -298,8 +297,6 @@ int ui_get_filename(char (&filename)[PATH_MAX], const char *const filespec, cons
 	b->filename = filename;
 	b->filespec = filespec;
 	b->message = message;
-	
-	wind = ui_dialog_get_window(dlg);
 	
 	event_process_all();
 
