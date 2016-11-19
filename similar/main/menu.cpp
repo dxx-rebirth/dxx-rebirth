@@ -92,6 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
+#include "compiler-exchange.h"
 #include "compiler-make_unique.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -171,17 +172,14 @@ int hide_menus(void)
 		return 0;		// there are already hidden menus
 
 	wind = window_get_front();
-	range_for (auto &i, partial_range(menus, menus.size() - 1))
+	range_for (auto &i, menus)
 	{
 		i = wind;
 		if (!wind)
 			break;
 		wind = window_set_visible(*wind, 0);
 	}
-
 	Assert(window_get_front() == NULL);
-	menus.back() = nullptr;
-
 	return 1;
 }
 
@@ -199,13 +197,42 @@ void show_menus(void)
 		// window_exists could return a false positive if a new window was created
 		// with the same pointer value as the deleted one, so killing window_exists (call and function)
 		// if (window_exists(i))
-			window_set_visible(i, 1);
+		window_set_visible(exchange(i, nullptr), 1);
 	}
-	menus[0] = NULL;
+}
+
+namespace dcx {
+
+/* This is a hack to prevent writing to freed memory.  Various points in
+ * the game code call `hide_menus()`, then later use `show_menus()` to
+ * reverse the effect.  If the forcibly hidden window is deleted before
+ * `show_menus()` is called, the attempt to show it would write to freed
+ * memory.  This hook is called when a window is deleted, so that the
+ * deleted window can be removed from menus[].  Removing it from menus[]
+ * prevents `show_menus()` trying to make it visible later.
+ *
+ * It would be cleaner, but more invasive, to restructure the code so
+ * that the menus[] array does not need to exist and window pointers are
+ * not stored outside the control of their owner.
+ */
+void menu_destroy_hook(window *w)
+{
+	const auto &&e = menus.end();
+	const auto &&i = std::find(menus.begin(), e, w);
+	if (i == e)
+		/* Not a hidden menu */
+		return;
+	/* This is not run often enough to merit a clever loop that stops
+	 * when it reaches an unused element.
+	 */
+	std::move(std::next(i), e, i);
+	menus.back() = nullptr;
 }
 
 //pairs of chars describing ranges
 constexpr char playername_allowed_chars[] = "azAZ09__--";
+
+}
 
 static int MakeNewPlayerFile(int allow_abort)
 {

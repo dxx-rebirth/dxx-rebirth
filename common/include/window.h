@@ -171,5 +171,7 @@ static inline window_event_result (WINDOW_SEND_EVENT)(window &w, const d_event &
 	return window_send_event(w, event);
 }
 
+void menu_destroy_hook(window *w);
+
 }
 #endif

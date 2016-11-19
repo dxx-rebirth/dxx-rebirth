@@ -101,6 +101,8 @@ int window_close(window *wind)
 		return 0;
 	}
 
+	menu_destroy_hook(wind);
+
 	if (result != window_event_result::deleted)	// don't attempt to re-delete
 		delete wind;
 
