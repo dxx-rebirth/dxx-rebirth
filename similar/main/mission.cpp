@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "mission.h"
 #include "gameseq.h"
+#include "gamesave.h"
 #include "titles.h"
 #include "piggy.h"
 #include "console.h"
@@ -1087,12 +1088,86 @@ int select_mission(int anarchy_mode, const char *message, window_event_result (*
 }
 
 #if DXX_USE_EDITOR
+static int write_mission(void)
+{
+	auto &msn_extension =
+#if defined(DXX_BUILD_DESCENT_II)
+	(Current_mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
+#endif
+	MISSION_EXTENSION_DESCENT_I;
+	array<char, PATH_MAX> mission_filename;
+	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", Current_mission->path.c_str(), msn_extension);
+	
+	auto &&mfile = PHYSFSX_openWriteBuffered(mission_filename.data());
+	if (!mfile)
+	{
+		PHYSFS_mkdir(MISSION_DIR);	//try making directory - in *write* path
+		mfile = PHYSFSX_openWriteBuffered(mission_filename.data());
+		if (!mfile)
+			return 0;
+	}
+
+	const char *prefix = "";
+#if defined(DXX_BUILD_DESCENT_II)
+	switch (Current_mission->descent_version)
+	{
+		case Mission::descent_version_type::descent2x:
+			prefix = "x";
+			break;
+
+		case Mission::descent_version_type::descent2z:
+			prefix = "z";
+			break;
+			
+		case Mission::descent_version_type::descent2a:
+			prefix = "!";
+			break;
+
+		default:
+			break;
+	}
+#endif
+
+	PHYSFSX_printf(mfile, "%sname = %s\n", prefix, static_cast<const char *>(Current_mission->mission_name));
+
+	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag ? "anarchy" : "normal");
+
+	if (Briefing_text_filename[0])
+		PHYSFSX_printf(mfile, "briefing = %s\n", static_cast<const char *>(Briefing_text_filename));
+
+	if (Ending_text_filename[0])
+		PHYSFSX_printf(mfile, "ending = %s\n", static_cast<const char *>(Ending_text_filename));
+
+	PHYSFSX_printf(mfile, "num_levels = %i\n", Last_level);
+
+	range_for (auto &i, unchecked_partial_range(Level_names.get(), Last_level))
+		PHYSFSX_printf(mfile, "%s\n", static_cast<const char *>(i));
+
+	if (N_secret_levels)
+	{
+		PHYSFSX_printf(mfile, "num_secrets = %i\n", N_secret_levels);
+
+		for (int i = 0; i < N_secret_levels; i++)
+			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(Secret_level_names[i]), Secret_level_table[i]);
+	}
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Current_mission->alternate_ham_file)
+		PHYSFSX_printf(mfile, "ham = %s\n", static_cast<const char *>(*Current_mission->alternate_ham_file.get()));
+#endif
+
+	return 1;
+}
+
 void create_new_mission(void)
 {
 	Current_mission = make_unique<Mission>();
 	*Current_mission = {};
-	Current_mission->path = "new_mission";
-	Current_mission->filename = begin(Current_mission->path);
+	Current_mission->mission_name.copy_if("Untitled");
+	Current_mission->path = MISSION_DIR "new_miss";		// limited to eight characters because of savegame format
+	Current_mission->filename = next(begin(Current_mission->path), sizeof(MISSION_DIR) - 1);
+	Current_mission->builtin_hogsize = 0;
+	Current_mission->anarchy_only_flag = 0;
 	
 	Level_names = make_unique<d_fname[]>(1);
 	if (!Level_names)
@@ -1102,5 +1177,23 @@ void create_new_mission(void)
 	}
 
 	Level_names[0] = "GAMESAVE.LVL";
+	Last_level = 1;
+	N_secret_levels = 0;
+	Last_secret_level = 0;
+	Briefing_text_filename = {};
+	Ending_text_filename = {};
+	Secret_level_table.reset();
+	Secret_level_names.reset();
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Gamesave_current_version > 3)
+		Current_mission->descent_version = Mission::descent_version_type::descent2;	// custom ham not supported in editor (yet)
+	else
+		Current_mission->descent_version = Mission::descent_version_type::descent1;
+
+	Current_mission->alternate_ham_file = nullptr;
+#endif
+
+	write_mission();
 }
 #endif

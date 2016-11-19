@@ -89,40 +89,6 @@ void ui_gadget_add(UI_DIALOG * dlg, short x1, short y1, short x2, short y2, UI_G
 	gadget->hotkey = -1;
 }
 
-void ui_gadget_delete_all( UI_DIALOG * dlg )
-{
-	UI_GADGET * tmp;
-
-	while( dlg->gadget != NULL )
-	{
-		tmp = dlg->gadget;
-		if (tmp->next == tmp )
-		{
-			dlg->gadget = NULL;
-		} else {
-			tmp->next->prev = tmp->prev;
-			tmp->prev->next = tmp->next;
-			dlg->gadget = tmp->next;
-		}
-
-		switch(tmp->kind)
-		{
-			case UI_GADGET_BUTTON::s_kind:
-			case UI_GADGET_LISTBOX::s_kind:
-			case UI_GADGET_SCROLLBAR::s_kind:
-			case UI_GADGET_RADIO::s_kind:
-			case UI_GADGET_CHECKBOX::s_kind:
-			case UI_GADGET_INPUTBOX::s_kind:
-			case UI_GADGET_USERBOX::s_kind:
-			case UI_GADGET_ICON::s_kind:
-				/* Handled by returned unique_ptr */
-				break;
-			default:
-				throw std::runtime_error("unknown gadget kind");
-		}
-	}
-}
-
 
 #if 0
 int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )

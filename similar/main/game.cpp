@@ -1283,6 +1283,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			break;
 
 		case EVENT_WINDOW_CLOSE:
+			Game_wind = nullptr;	// Don't let any of the code below close Game_wind - it's already being done!
 			digi_stop_digi_sounds();
 
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1301,7 +1302,6 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
 #endif
 				show_menus();
-			Game_wind = NULL;
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			return window_event_result::ignored;

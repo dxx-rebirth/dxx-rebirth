@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "ui.h"
 #include "mouse.h"
+#include "dxxerror.h"
 
 namespace dcx {
 
@@ -42,15 +43,18 @@ unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 
 grs_font_ptr ui_small_font;
 
-void ui_init()
+int ui_init()
 {
 
-	if (Initialized) return;
-
-	Initialized = 1;
+	if (Initialized) return 1;
 
 	const grs_font *org_font = grd_curcanv->cv_font;
 	ui_small_font = gr_init_font( "pc6x8.fnt" );
+	if (!ui_small_font)
+	{
+		Warning("Could not find pc6x8.fnt");
+		return 0;
+	}
 	grd_curcanv->cv_font =org_font;
 
 	CBLACK = gr_find_closest_color( 1, 1, 1 );
@@ -67,6 +71,9 @@ void ui_init()
 	
 	atexit(ui_close );
 
+	Initialized = 1;
+
+	return 1;
 }
 
 void ui_close()

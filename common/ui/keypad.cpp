@@ -54,7 +54,7 @@ int ui_pad_get_current()
 void ui_pad_init()
 {
 	KeyPad = {};
-	active_pad = -1;
+	active_pad = 0;
 }
 
 void ui_pad_close()
@@ -250,7 +250,7 @@ void ui_pad_activate(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y)
 	HotKey1[15] = KEY_SHIFTED + KEY_CTRLED + KEY_PAD0;
 	HotKey1[16] = KEY_SHIFTED + KEY_CTRLED + KEY_PADPERIOD;
 
-	active_pad = -1;
+	active_pad = 0;
 
 }
 
@@ -364,15 +364,15 @@ UI_KEYPAD::UI_KEYPAD() :
 		i[0] = 0;
 }
 
-void ui_pad_read( int n, const char * filename )
+int ui_pad_read( int n, const char * filename )
 {
 	int linenumber = 0;
 	int keycode, functionnumber;
 
 	auto infile = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
-		Warning( "Couldn't find %s\n", filename );
-		return;
+		Warning( "Could not find %s\n", filename );
+		return 0;
 	}
 	auto &kpn = *(KeyPad[n] = make_unique<UI_KEYPAD>());
 
@@ -475,6 +475,8 @@ void ui_pad_read( int n, const char * filename )
 			kpn.numkeys++;
 		}
 	}
+
+	return 1;
 }
 
 }

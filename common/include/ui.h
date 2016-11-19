@@ -265,7 +265,7 @@ extern void ui_draw_line_in( short x1, short y1, short x2, short y2 );
 extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
 extern void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 );
 
-void ui_init();
+int ui_init();
 void ui_close();
 
 typedef cstring_tie<10> ui_messagebox_tie;
@@ -307,7 +307,6 @@ static std::unique_ptr<T> ui_gadget_add(UI_DIALOG *dlg, short x1, short y1, shor
 }
 __attribute_warn_unused_result
 std::unique_ptr<UI_GADGET_BUTTON> ui_add_gadget_button(UI_DIALOG * dlg, short x, short y, short w, short h, const char * text, int (*function_to_call)());
-extern void ui_gadget_delete_all( UI_DIALOG * dlg );
 window_event_result ui_gadget_send_event(UI_DIALOG *dlg, enum event_type type, UI_GADGET *gadget);
 extern UI_GADGET *ui_event_get_gadget(const d_event &event);
 window_event_result ui_dialog_do_gadgets( UI_DIALOG * dlg, const d_event &event );
@@ -400,7 +399,7 @@ std::unique_ptr<UI_GADGET_ICON> ui_add_gadget_icon(UI_DIALOG * dlg, const char *
 int DecodeKeyText( const char * text );
 void GetKeyDescription(char (&text)[100], uint_fast32_t keypress);
 
-extern void menubar_init(const char * filename );
+extern int menubar_init(const char * filename );
 extern void menubar_close();
 extern void menubar_hide();
 extern void menubar_show();
@@ -412,7 +411,7 @@ void ui_pad_deactivate();
 void ui_pad_goto(int n);
 void ui_pad_goto_next();
 void ui_pad_goto_prev();
-void ui_pad_read( int n, const char * filename );
+int ui_pad_read( int n, const char * filename );
 int ui_pad_get_current();
 void ui_pad_draw(UI_DIALOG *dlg, int x, int y);
 

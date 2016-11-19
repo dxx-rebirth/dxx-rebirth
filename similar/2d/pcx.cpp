@@ -428,10 +428,10 @@ int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid)
 constexpr char pcx_error_messages[] = {
 	"No error.\0"
 	"Error opening file.\0"
-	"Couldn't read PCX header.\0"
+	"Could not read PCX header.\0"
 	"Unsupported PCX version.\0"
 	"Error reading data.\0"
-	"Couldn't find palette information.\0"
+	"Could not find palette information.\0"
 	"Error writing data.\0"
 };
 

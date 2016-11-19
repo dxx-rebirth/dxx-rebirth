@@ -188,7 +188,6 @@ void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 
 UI_DIALOG::~UI_DIALOG()
 {
-	ui_gadget_delete_all(this);
 	selected_gadget = NULL;
 }
 

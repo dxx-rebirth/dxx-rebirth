@@ -87,6 +87,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fuelcen.h"
 #include "gameseq.h"
+#include "mission.h"
 #include "newmenu.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -257,11 +258,15 @@ int	GotoGameScreen()
 //@@	Player_init.pos = Player->pos;
 //@@	Player_init.orient = Player->orient;
 //@@	Player_init.segnum = Player->segnum;	
-	
+
+	// Always use the simple dummy mission (for now at least)
+	create_new_mission();
+	Current_level_num = 1;
+
 // -- must always save gamesave.sav because the restore-objects code relies on it
 // -- that code could be made smarter and use the original file, if appropriate.
 //	if (mine_changed) 
-	if (gamestate_not_restored == 0) {
+	/*if (gamestate_not_restored == 0)*/ {
 		gamestate_not_restored = 1;
 		save_level("GAMESAVE.LVL");
 		editor_status("Gamestate saved.\n");
@@ -319,10 +324,23 @@ static int padnum=0;
 static void init_editor_screen();
 static void gamestate_restore_check();
 static window_event_result editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
+static void close_editor();
 
 namespace dsx {
 void init_editor()
 {
+	static const char pads[][13] = {
+		"segmove.pad",
+		"segsize.pad",
+		"curve.pad",
+		"texture.pad",
+		"object.pad",
+		"objmov.pad",
+		"group.pad",
+		"lighting.pad",
+		"test.pad"
+					};
+	ModeFlag = Game_wind ? 3 : 2;	// go back to where we were unless we loaded everything properly
 
 	// first, make sure we can find the files we need
 	PHYSFSX_addRelToSearchPath("editor/data", 1);	// look in source directory first (for work in progress)
@@ -330,27 +348,38 @@ void init_editor()
 	PHYSFSX_addRelToSearchPath("editor.zip", 1);	// then in a zip file
 	PHYSFSX_addRelToSearchPath("editor.dxa", 1);	// or addon pack
 
-	ui_init();
+	if (!ui_init())
+	{
+		close_editor();
+		return;
+	}
 
 	init_med_functions();	// Must be called before medlisp_init
 
-	ui_pad_read( 0, "segmove.pad" );
-	ui_pad_read( 1, "segsize.pad" );
-	ui_pad_read( 2, "curve.pad" );
-	ui_pad_read( 3, "texture.pad" );
-	ui_pad_read( 4, "object.pad" );
-	ui_pad_read( 5, "objmov.pad" );
-	ui_pad_read( 6, "group.pad" );
-	ui_pad_read( 7, "lighting.pad" );
-	ui_pad_read( 8, "test.pad" );
+	for (int i = 0; i < 9; i++)
+		if (!ui_pad_read(i, pads[i]))
+		{
+			close_editor();
+			return;
+		}
 
 	medkey_init();
 
 	game_flush_inputs();
 	
 	editor_font = gr_init_font( "pc8x16.fnt" );
+	if (!editor_font)
+	{
+		Warning("Could not find pc8x16.fnt");
+		close_editor();
+		return;
+	}
 	
-	menubar_init( "MED.MNU" );
+	if (!menubar_init( "MED.MNU" ))
+	{
+		close_editor();
+		return;
+	}
 
 	Draw_all_segments = 1;						// Say draw all segments, not just connected ones
 	
@@ -365,9 +394,9 @@ void init_editor()
 	
 	restore_effect_bitmap_icons();
 	
-	if (!set_screen_mode(SCREEN_EDITOR))	{
-		set_screen_mode(SCREEN_MENU);
-		show_menus();			//force back into menu
+	if (!set_screen_mode(SCREEN_EDITOR))
+	{
+		close_editor();
 		return;
 	}
 #if defined(DXX_BUILD_DESCENT_I)
@@ -414,7 +443,7 @@ void init_editor()
 	FNTScaleX = FNTScaleY = 1;		// No font scaling!
 	ui_pad_goto(padnum);
 	
-	ModeFlag = 0;
+	ModeFlag = 0;	// success!
 	
 	gamestate_restore_check();
 }
@@ -878,10 +907,10 @@ static void close_editor()
 			break;
 
 		case 3:
-			set_screen_mode(SCREEN_GAME);		//put up game screen
-			Game_mode = GM_EDITOR;
-			editor_reset_stuff_on_level();
-			N_players = 1;
+			if (!Game_wind)	// if we're already playing a game, don't touch!
+			{
+				StartNewGame(Current_level_num);
+			}
 			break;
 	}
 
@@ -1084,6 +1113,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 	if ((keypress&0xff)==KEY_RSHIFT) keypress=0;
 	if ((keypress&0xff)==KEY_LCTRL) keypress=0;
 	if ((keypress&0xff)==KEY_RCTRL) keypress=0;
+	if ((keypress&0xff)==KEY_LMETA) keypress=0;
+	if ((keypress&0xff)==KEY_RMETA) keypress=0;
 //		if ((keypress&0xff)==KEY_LALT) keypress=0;
 //		if ((keypress&0xff)==KEY_RALT) keypress=0;
 
