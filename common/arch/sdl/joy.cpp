@@ -25,6 +25,8 @@
 #if DXX_MAX_JOYSTICKS
 #include "compiler-integer_sequence.h"
 #include "compiler-type_traits.h"
+#include "d_enumerate.h"
+#include "partial_range.h"
 
 namespace dcx {
 
@@ -307,11 +309,11 @@ void joy_init()
 			const auto n_axes = check_warn_joy_support_limit(SDL_JoystickNumAxes(handle), "axe", DXX_MAX_AXES_PER_JOYSTICK);
 
 			joyaxis_text.resize(joyaxis_text.size() + n_axes);
-			for (int j=0; j < n_axes; j++)
+			range_for (auto &&e, enumerate(partial_range(joystick.axis_map(), n_axes), 1))
 			{
 				auto &text = joyaxis_text[joystick_n_axes];
-				joystick.axis_map()[j] = joystick_n_axes++;
-				snprintf(&text[0], sizeof(text), "J%d A%d", i + 1, j + 1);
+				e.value = joystick_n_axes++;
+				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, e.idx);
 			}
 #endif
 
@@ -321,22 +323,22 @@ void joy_init()
 
 			joybutton_text.resize(joybutton_text.size() + n_buttons + (4 * n_hats));
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-			for (int j=0; j < n_buttons; j++)
+			range_for (auto &&e, enumerate(partial_range(joystick.button_map(), n_buttons), 1))
 			{
 				auto &text = joybutton_text[joystick_n_buttons];
-				joystick.button_map()[j] = joystick_n_buttons++;
-				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, j + 1);
+				e.value = joystick_n_buttons++;
+				snprintf(&text[0], sizeof(text), "J%d B%d", i + 1, e.idx);
 			}
 #endif
 #if DXX_MAX_HATS_PER_JOYSTICK
-			for (int j=0; j < n_hats; j++)
+			range_for (auto &&e, enumerate(partial_range(joystick.hat_map(), n_hats), 1))
 			{
-				joystick.hat_map()[j] = joystick_n_buttons;
+				e.value = joystick_n_buttons;
 				//a hat counts as four buttons
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0202);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0177);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0200);
-				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, j + 1, 0201);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0202);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0177);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0200);
+				snprintf(&joybutton_text[joystick_n_buttons++][0], sizeof(joybutton_text[0]), "J%d H%d%c", i + 1, e.idx, 0201);
 			}
 #endif
 #endif
