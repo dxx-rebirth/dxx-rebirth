@@ -1476,23 +1476,31 @@ int apply_damage_to_robot(const vobjptridx_t robot, fix damage, objnum_t killer_
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
+
+enum class boss_weapon_collision_result : uint8_t
+{
+	normal,
+	invulnerable,
+	reflect,	// implies invulnerable
+};
+
+}
+
 static inline int Boss_invulnerable_dot()
 {
 	return F1_0/4 - i2f(Difficulty_level)/8;
 }
 
-int	Buddy_gave_hint_count = 5;
-fix64	Last_time_buddy_gave_hint = 0;
+static int Buddy_gave_hint_count = 5;
+static fix64 Last_time_buddy_gave_hint;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-static int do_boss_weapon_collision(const vcobjptridx_t robotptridx, const object &weapon, const vms_vector &collision_point)
+static boss_weapon_collision_result do_boss_weapon_collision(const vcobjptridx_t robotptridx, object &weapon, const vms_vector &collision_point)
 {
 	const object_base &robot = robotptridx;
 	int	d2_boss_index;
-	int	damage_flag;
-
-	damage_flag = 1;
 
 	d2_boss_index = Robot_info[get_robot_id(robot)].boss_flag - BOSS_D2;
 
@@ -1527,8 +1535,6 @@ static int do_boss_weapon_collision(const vcobjptridx_t robotptridx, const objec
 		if (dot > Boss_invulnerable_dot()) {
 			if (const auto &&segp = find_point_seg(collision_point, vsegptridx(robot.segnum)))
 				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
-			damage_flag = 0;
-
 			if (Buddy_objnum != object_none)
 			{
 				if (Last_time_buddy_gave_hint == 0)
@@ -1563,42 +1569,27 @@ static int do_boss_weapon_collision(const vcobjptridx_t robotptridx, const objec
 			}
 
 			//	Cause weapon to bounce.
-			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[get_weapon_id(weapon)].matter) {
-				auto new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), vsegptridx(weapon.segnum), weapon.pos,
-					&weapon.orient, weapon.size, weapon.control_type, weapon.movement_type, weapon.render_type);
-
-				if (new_obj != object_none) {
 					fix			speed;
-
-					if (weapon.render_type == RT_POLYOBJ)
-					{
-						new_obj->rtype.pobj_info.model_num = Weapon_info[get_weapon_id(new_obj)].model_num;
-						new_obj->size = fixdiv(Polygon_models[new_obj->rtype.pobj_info.model_num].rad,Weapon_info[get_weapon_id(new_obj)].po_len_to_width_ratio);
-					}
-
-					new_obj->mtype.phys_info.mass = Weapon_info[get_weapon_id(weapon)].mass;
-					new_obj->mtype.phys_info.drag = Weapon_info[get_weapon_id(weapon)].drag;
-					vm_vec_zero(new_obj->mtype.phys_info.thrust);
 
 					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
 					auto weap_vec = weapon.mtype.phys_info.velocity;
 					speed = vm_vec_normalize_quick(weap_vec);
 					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
 					vm_vec_scale(vec_to_point, speed/4);
-					new_obj->mtype.phys_info.velocity = vec_to_point;
-				}
+					weapon.mtype.phys_info.velocity = vec_to_point;
+				return boss_weapon_collision_result::reflect;
 			}
+			return boss_weapon_collision_result::invulnerable;
 		}
 	}
 	else if ((Weapon_info[get_weapon_id(weapon)].matter ? Boss_invulnerable_matter : Boss_invulnerable_energy)[d2_boss_index])
 	{
 		if (const auto &&segp = find_point_seg(collision_point, vsegptridx(robot.segnum)))
 			digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, 0, collision_point, 0, F1_0);
-		damage_flag = 0;
+		return boss_weapon_collision_result::invulnerable;
 	}
-
-	return damage_flag;
+	return boss_weapon_collision_result::normal;
 }
 #endif
 
@@ -1606,27 +1597,25 @@ static int do_boss_weapon_collision(const vcobjptridx_t robotptridx, const objec
 namespace dsx {
 static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx_t  weapon, vms_vector &collision_point)
 {
-	int	damage_flag=1;
 #if defined(DXX_BUILD_DESCENT_II)
-	int	boss_invul_flag=0;
-
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 #endif
 
-	const robot_info *robptr = &Robot_info[get_robot_id(robot)];
+	const robot_info *const robptr = &Robot_info[get_robot_id(robot)];
 	if (robptr->boss_flag)
 	{
 		Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
 		Boss_hit_time = GameTime64;
-		if (robptr->boss_flag >= BOSS_D2) {
-			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);
-			boss_invul_flag = !damage_flag;
-		}
 #endif
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	const boss_weapon_collision_result damage_flag = (robptr->boss_flag >= BOSS_D2)
+		? do_boss_weapon_collision(robot, weapon, collision_point)
+		: boss_weapon_collision_result::normal;
+#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Put in at request of Jasen (and Adam) because the Buddy-Bot gets in their way.
@@ -1691,7 +1680,7 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 #if defined(DXX_BUILD_DESCENT_I)
 		explode_badass_weapon(weapon, weapon->pos);
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (boss_invul_flag) {			//don't make badass sound
+		if (damage_flag != boss_weapon_collision_result::normal) {			//don't make badass sound
 
 			//this code copied from explode_badass_weapon()
 
@@ -1734,16 +1723,17 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 			obj_attach(robot,expl_obj);
 		}
 
-		if ( damage_flag && (robptr->exp1_sound_num > -1 ))
+		if (
+#if defined(DXX_BUILD_DESCENT_II)
+			damage_flag == boss_weapon_collision_result::normal &&
+#endif
+			robptr->exp1_sound_num > -1)
 			digi_link_sound_to_pos(robptr->exp1_sound_num, vcsegptridx(robot->segnum), 0, collision_point, 0, F1_0);
 
 		{
 			fix	damage = weapon->shields;
 
-			if (damage_flag)
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
-			else
-				damage = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Cut Gauss damage on bosses because it just breaks the game.  Bosses are so easy to
@@ -1779,6 +1769,9 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
+	if (damage_flag != boss_weapon_collision_result::reflect)
+#endif
 	maybe_kill_weapon(weapon,robot);
 
 	return;
