@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -579,9 +580,9 @@ namespace dsx {
 //	------------------------------------------------------------------------------------
 static void do_cloak_stuff(void)
 {
-	for (int i = 0; i < N_players; i++)
+	range_for (auto &&e, enumerate(partial_range(Players, N_players)))
 	{
-		const auto &&plobj = vobjptr(Players[i].objnum);
+		const auto &&plobj = vobjptr(e.value.objnum);
 		auto &player_info = plobj->ctype.player_info;
 		auto &pl_flags = player_info.powerup_flags;
 		if (pl_flags & PLAYER_FLAGS_CLOAKED)
@@ -589,6 +590,7 @@ static void do_cloak_stuff(void)
 			if (GameTime64 > player_info.cloak_time+CLOAK_TIME_MAX)
 			{
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
+				auto &i = e.idx;
 				if (i == Player_num) {
 					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK, 1, 0);
