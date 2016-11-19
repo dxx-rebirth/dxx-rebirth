@@ -513,20 +513,44 @@ kmatrix_result multi_endlevel_score()
 		get_local_player().connected = old_connect;
 	}
 
-	if (Game_mode & GM_MULTI_COOP)
-	{
-		range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
-			// Reset keys
-			vobjptr(i.objnum)->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
-	}
-
+	/* Door key flags should only be cleared in cooperative games, not
+	 * in other games.
+	 *
+	 * The capture-the-flag marker can be cleared unconditionally, but
+	 * would never have been set in a cooperative game.
+	 *
+	 * The kill goal count can be cleared unconditionally.
+	 *
+	 * For Descent 1, the only flags to clear are the door key flags.
+	 * Use a no-op mask in non-cooperative games, since there are no
+	 * flags to clear there.
+	 *
+	 * For Descent 2, clear door key flags or the capture-the-flag
+	 * flag, depending on game type.  This version has the advantage of
+	 * making only one pass when in cooperative mode, where the previous
+	 * version would make one pass if in a cooperative game, then make
+	 * an unconditional pass to try to clear PLAYER_FLAGS_FLAG.
+	 */
+	const auto clear_flags = (Game_mode & GM_MULTI_COOP)
+		// Reset keys
+		? ~player_flags(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)
+		:
+#if defined(DXX_BUILD_DESCENT_I)
+		/* Nothing to clear.  Set a mask that has no effect when
+		 * applied, so that the loop does not need to retest the
+		 * conditional on each pass.
+		 */
+		player_flags(~0u)
+#elif defined(DXX_BUILD_DESCENT_II)
+		// Clear capture flag
+		~player_flags(PLAYER_FLAGS_FLAG)
+#endif
+		;
 	range_for (auto &i, partial_const_range(Players, Netgame.max_numplayers))
 	{
 		auto &obj = *vobjptr(i.objnum);
 		auto &player_info = obj.ctype.player_info;
-#if defined(DXX_BUILD_DESCENT_II)
-		player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
-#endif
+		player_info.powerup_flags &= clear_flags;
 		player_info.KillGoalCount = 0;
 	}
 
