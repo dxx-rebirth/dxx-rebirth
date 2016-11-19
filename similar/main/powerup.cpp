@@ -163,11 +163,11 @@ void do_megawow_powerup(int quantity)
 	player_info.vulcan_ammo = VULCAN_AMMO_MAX;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	for (int i=0; i<3; i++)
-		secondary_ammo[i] = quantity;
+	range_for (auto &i, partial_range(secondary_ammo, 3u))
+		i = quantity;
 
-	for (int i=3; i<MAX_SECONDARY_WEAPONS; i++)
-		secondary_ammo[i] = quantity/5;
+	range_for (auto &i, partial_range(secondary_ammo, 3u, secondary_ammo.size()))
+		i = quantity/5;
 
 	player_info.energy = F1_0*200;
 	get_local_plrobj().shields = F1_0*200;
@@ -175,6 +175,7 @@ void do_megawow_powerup(int quantity)
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto laser_level = MAX_LASER_LEVEL;
 #elif defined(DXX_BUILD_DESCENT_II)
+	player_info.Omega_charge = MAX_OMEGA_CHARGE;
 	if (game_mode_hoard())
 		secondary_ammo[PROXIMITY_INDEX] = 12;
 	const auto laser_level = MAX_SUPER_LASER_LEVEL;
