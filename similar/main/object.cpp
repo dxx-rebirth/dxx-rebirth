@@ -924,10 +924,12 @@ object_signature_t obj_get_signature()
 		if (unlikely(lsig == std::numeric_limits<decltype(sig)>::max()))
 			lsig = 0;
 		++ lsig;
-		const auto predicate = [lsig](const vcobjptr_t &o) {
-			return o->type != OBJ_NONE && o->signature.get() == lsig;
+		const auto predicate = [lsig](const object_base &o) {
+			if (o.type == OBJ_NONE)
+				return false;
+			return o.signature.get() == lsig;
 		};
-		if (std::find_if(b, e, predicate) != e)
+		if (std::any_of(b, e, predicate))
 			continue;
 		sig = static_cast<int16_t>(lsig);
 		return object_signature_t{static_cast<uint16_t>(lsig)};
