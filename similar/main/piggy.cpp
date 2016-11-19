@@ -268,7 +268,8 @@ void swap_0_255(grs_bitmap &bmp)
 }
 
 namespace dsx {
-bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file )
+
+bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char *const name, const int in_file)
 {
 	bitmap_index temp;
 	assert(Num_bitmap_files < AllBitmaps.size());
@@ -279,11 +280,11 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
 		if ( GameArg.EdiMacData )
-			swap_0_255(*bmp);
+			swap_0_255(bmp);
 #endif
 #endif
 		if (CGameArg.DbgNoCompressPigBitmap)
-			gr_bitmap_rle_compress(*bmp);
+			gr_bitmap_rle_compress(bmp);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (SoundOffset[Num_sound_files] == 0)
@@ -293,19 +294,16 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_
 	strncpy( AllBitmaps[Num_bitmap_files].name, name, 12 );
 	hashtable_insert( &AllBitmapsNames, AllBitmaps[Num_bitmap_files].name, Num_bitmap_files );
 #if defined(DXX_BUILD_DESCENT_I)
-	GameBitmaps[Num_bitmap_files] = *bmp;
+	GameBitmaps[Num_bitmap_files] = bmp;
 #endif
 	if ( !in_file ) {
 		GameBitmapOffset[Num_bitmap_files] = 0;
-		GameBitmapFlags[Num_bitmap_files] = bmp->bm_flags;
+		GameBitmapFlags[Num_bitmap_files] = bmp.bm_flags;
 	}
 	Num_bitmap_files++;
 
 	return temp;
 }
-}
-
-namespace dsx {
 
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file )
 {
@@ -459,7 +457,7 @@ int properties_init()
 			bogus_data[i*64+(63-i)] = c;
 		}
 		gr_init_bitmap(bogus_bitmap, bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
-		piggy_register_bitmap( &bogus_bitmap, "bogus", 1 );
+		piggy_register_bitmap(bogus_bitmap, "bogus", 1);
 #ifdef ALLEGRO
 		bogus_sound.len = 64*64;
 #else
@@ -574,7 +572,7 @@ int properties_init()
 				temp_bitmap.bm_h = 480;
 		}
 		
-		piggy_register_bitmap( &temp_bitmap, temp_name, 1 );
+		piggy_register_bitmap(temp_bitmap, temp_name, 1);
 	}
 
 	if (!MacPig)
@@ -696,7 +694,7 @@ void piggy_init_pigfile(const char *filename)
 
 		GameBitmapOffset[i+1] = bmh.offset + data_start;
 		Assert( (i+1) == Num_bitmap_files );
-		piggy_register_bitmap(bm, temp_name, 1);
+		piggy_register_bitmap(*bm, temp_name, 1);
 	}
 
 #if DXX_USE_EDITOR
@@ -1134,7 +1132,7 @@ int properties_init(void)
 			bogus_data[i*64+(63-i)] = c;
 		}
 		gr_init_bitmap(GameBitmaps[Num_bitmap_files], bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
-		piggy_register_bitmap(&GameBitmaps[Num_bitmap_files], "bogus", 1);
+		piggy_register_bitmap(GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
 		bogus_sound.data = bogus_data.data();
 		GameBitmapOffset[0] = 0;

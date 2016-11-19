@@ -91,13 +91,9 @@ extern array<uint8_t, 64 * 64> bogus_data;
 
 #ifdef dsx
 int properties_init();
-#ifdef dsx
 namespace dsx {
 void piggy_close();
-bitmap_index piggy_register_bitmap( grs_bitmap * bmp, const char * name, int in_file );
-}
-#endif
-namespace dsx {
+bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char * name, int in_file);
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
 bitmap_index piggy_find_bitmap(const char *name);
 }

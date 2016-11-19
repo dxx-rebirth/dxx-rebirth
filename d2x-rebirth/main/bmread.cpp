@@ -212,7 +212,7 @@ static bitmap_index bm_load_sub(int skip, const char * filename )
 
 	n.avg_color = compute_average_pixel(&n);
 
-	bitmap_num = piggy_register_bitmap( &n, fname, 0 );
+	bitmap_num = piggy_register_bitmap(n, fname, 0);
 	return bitmap_num;
 }
 
@@ -262,7 +262,7 @@ static void ab_load(int skip, const char * filename, array<bitmap_index, MAX_BIT
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
 
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
-		bmp[i] = piggy_register_bitmap( bm[i].get(), tempname, 0 );
+		bmp[i] = piggy_register_bitmap(*bm[i].get(), tempname, 0);
 	}
 }
 
