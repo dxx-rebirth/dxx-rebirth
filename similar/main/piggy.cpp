@@ -554,9 +554,10 @@ int properties_init()
 			strcpy( temp_name, temp_name_read );
 
 		grs_bitmap temp_bitmap{};
+		const auto iwidth = (bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width;
 		gr_init_bitmap(temp_bitmap, bm_mode::linear, 0, 0, 
-			(bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width, bmh.height,
-			(bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width, Piggy_bitmap_cache_data);
+			iwidth, bmh.height,
+			iwidth, Piggy_bitmap_cache_data);
 		temp_bitmap.bm_flags |= BM_FLAG_PAGED_OUT;
 		temp_bitmap.avg_color = bmh.avg_color;
 
