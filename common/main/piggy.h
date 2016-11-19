@@ -124,9 +124,9 @@ constexpr unsigned MAX_BITMAP_FILES = 2620;
 #ifdef dsx
 namespace dsx {
 extern void piggy_bitmap_page_in( bitmap_index bmp );
+void piggy_bitmap_page_out_all();
 }
 #endif
-#define piggy_bitmap_page_out_all()
 
 namespace dsx {
 extern array<digi_sound, MAX_SOUND_FILES> GameSounds;

@@ -1438,15 +1438,12 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 }
 }
 
-#if 0
 namespace dsx {
 void piggy_bitmap_page_out_all()
 {
 	int i;
 	
 	Piggy_bitmap_cache_next = 0;
-
-	piggy_page_flushed++;
 
 	texmerge_flush();
 	rle_cache_flush();
@@ -1464,7 +1461,6 @@ void piggy_bitmap_page_out_all()
 
 }
 }
-#endif
 
 void piggy_load_level_data()
 {
