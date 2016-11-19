@@ -1234,15 +1234,12 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 		if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 		{
 			damage = weapon->shields*2; // to not alter Gameplay too much, multiply damage by 2.
-			auto was_hit = weapon->ctype.laser_info.hitobj_list[controlcen];
-			if (!was_hit)
+			if (auto &&was_hit = weapon->ctype.laser_info.hitobj_list[controlcen])
+				return;
+			else
 			{
 				was_hit = true;
 				weapon->ctype.laser_info.last_hitobj = controlcen;
-			}
-			else
-			{
-				return;
 			}
 		}
 
