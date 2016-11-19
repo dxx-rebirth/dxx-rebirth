@@ -225,7 +225,6 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
-	window *wind;
 
 	if (event.type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -310,7 +309,6 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 	}
 
 	tmp = dlg->gadget;
-	wind = ui_dialog_get_window(dlg);
 	do
 	{
 		// If it is under another dialog, that dialog's handler would have returned 1 for mouse events.
