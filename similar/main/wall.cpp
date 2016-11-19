@@ -81,6 +81,12 @@ struct cwresult
 	}
 };
 
+struct cw_removal_predicate
+{
+	unsigned num_cloaking_walls = 0;
+	bool operator()(cloaking_wall &d);
+};
+
 }
 
 }
@@ -1222,6 +1228,35 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 	}
 	return r;
 }
+
+bool cw_removal_predicate::operator()(cloaking_wall &d)
+{
+	const cwframe front(*vwallptr(d.front_wallnum));
+	const auto &&wpback = wallptr(d.back_wallnum);
+	const cwframe back = (wpback ? cwframe(*wpback) : front);
+	const bool initial = (d.time == 0);
+	d.time += FrameTime;
+
+	cwresult r;
+	if (front.w.state == WALL_DOOR_CLOAKING)
+		r = do_cloaking_wall_frame(initial, d, front, back);
+	else if (front.w.state == WALL_DOOR_DECLOAKING)
+		r = do_decloaking_wall_frame(initial, d, front, back);
+	else
+	{
+		d_debugbreak();	//unexpected wall state
+		return false;
+	}
+	if (r.record)
+	{
+		// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
+		if (Newdemo_state == ND_STATE_RECORDING && r.record)
+			newdemo_record_cloaking_wall(d.front_wallnum, d.back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
+	}
+	if (!r.remove)
+		++ num_cloaking_walls;
+	return r.remove;
+}
 #endif
 
 namespace dsx {
@@ -1271,38 +1306,11 @@ void wall_frame_process()
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-	for (i=0;i<Num_cloaking_walls;i++) {
-		cloaking_wall *d;
-
-		d = &CloakingWalls[i];
-		wall *const w = vwallptr(d->front_wallnum);
-		const auto &&wpback = wallptr(d->back_wallnum);
-		const cwframe front(*w);
-		const cwframe back = (wpback ? cwframe(*wpback) : front);
-		const bool initial = (d->time == 0);
-		d->time += FrameTime;
-
-		cwresult r;
-		if (w->state == WALL_DOOR_CLOAKING)
-			r = do_cloaking_wall_frame(initial, *d, front, back);
-		else if (w->state == WALL_DOOR_DECLOAKING)
-			r = do_decloaking_wall_frame(initial, *d, front, back);
-		else
-		{
-			Int3();	//unexpected wall state
-			continue;
-		}
-		if (r.record)
-		{
-			// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-			if (Newdemo_state == ND_STATE_RECORDING && r.record)
-				newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, front.w.type, front.w.state, front.w.cloak_value, front.uvls[0].l, front.uvls[1].l, front.uvls[2].l, front.uvls[3].l);
-		}
-		if (r.remove)
-		{
-			const auto &&cr = partial_range(CloakingWalls, i, Num_cloaking_walls--);
-			std::move(std::next(cr.begin()), cr.end(), cr.begin());
-		}
+	{
+		const auto &&r = partial_range(CloakingWalls, Num_cloaking_walls);
+		cw_removal_predicate rp;
+		std::remove_if(r.begin(), r.end(), std::ref(rp));
+		Num_cloaking_walls = rp.num_cloaking_walls;
 	}
 #endif
 }
