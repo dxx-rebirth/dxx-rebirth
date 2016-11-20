@@ -293,7 +293,7 @@ namespace dsx {
 static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
-	obj->type          = obj_rw->type;
+	set_object_type(*obj, obj_rw->type);
 	obj->id            = obj_rw->id;
 	obj->next          = obj_rw->next;
 	obj->prev          = obj_rw->prev;

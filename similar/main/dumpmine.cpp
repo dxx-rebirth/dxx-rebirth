@@ -138,8 +138,9 @@ static const char *object_ids(const object_base &objp)
 			return Robot_names[get_robot_id(objp)].data();
 		case OBJ_POWERUP:
 			return Powerup_names[get_powerup_id(objp)].data();
+		default:
+			return nullptr;
 	}
-	return	NULL;
 }
 
 static void err_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();

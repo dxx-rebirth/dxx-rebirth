@@ -106,7 +106,7 @@ constexpr physics_flag_t PF_BOUNCES_TWICE = 0x200;   // This weapon bounces twic
 #endif
 
 namespace dcx {
-enum object_type_t : int;
+enum object_type_t : uint8_t;
 struct object_base;
 
 typedef unsigned powerup_flag_t;

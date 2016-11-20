@@ -737,6 +737,8 @@ static void draw_automap(automap *am)
 				}
 			}
 			break;
+			default:
+				break;
 		}
 	}
 

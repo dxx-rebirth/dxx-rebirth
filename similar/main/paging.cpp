@@ -221,6 +221,8 @@ static void paging_touch_object(const vcobjptr_t obj)
  	}
 
 	switch (obj->type) {	
+		default:
+			break;
 	case OBJ_PLAYER:	
 		v = get_explosion_vclip(obj, explosion_vclip_stage::s0);
 		if ( v > -1 )

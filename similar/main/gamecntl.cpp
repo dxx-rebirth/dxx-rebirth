@@ -1145,6 +1145,8 @@ static void kill_and_so_forth(void)
 			case OBJ_POWERUP:
 				do_powerup(o);
 				break;
+			default:
+				break;
 		}
 	}
 

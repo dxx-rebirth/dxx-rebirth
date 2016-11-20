@@ -55,7 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 // Object types
-enum object_type_t : int
+enum object_type_t : uint8_t
 {
 	OBJ_NONE	= 255, // unused object
 	OBJ_WALL	= 0,   // A wall... not really an object, but used for collisions
@@ -367,7 +367,7 @@ struct polyobj_info_rw
 struct object_base
 {
 	object_signature_t signature;
-	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
+	object_type_t   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	ubyte   control_type;   // how this object is controlled
@@ -491,6 +491,30 @@ struct obj_position
 	vms_matrix  orient;     // orientation of object in world
 	segnum_t       segnum;     // segment number containing object
 };
+
+#define set_object_type(O,T)	\
+	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+		object_base &dxx_object_type_ref = (O);	\
+		const uint8_t &dxx_object_type_value = (T);	\
+		assert(	\
+			dxx_object_type_value == OBJ_NONE ||	\
+			dxx_object_type_value == OBJ_FIREBALL ||	\
+			dxx_object_type_value == OBJ_ROBOT ||	\
+			dxx_object_type_value == OBJ_HOSTAGE ||	\
+			dxx_object_type_value == OBJ_PLAYER ||	\
+			dxx_object_type_value == OBJ_WEAPON ||	\
+			dxx_object_type_value == OBJ_CAMERA ||	\
+			dxx_object_type_value == OBJ_POWERUP ||	\
+			dxx_object_type_value == OBJ_DEBRIS ||	\
+			dxx_object_type_value == OBJ_CNTRLCEN ||	\
+			dxx_object_type_value == OBJ_CLUTTER ||	\
+			dxx_object_type_value == OBJ_GHOST ||	\
+			dxx_object_type_value == OBJ_LIGHT ||	\
+			dxx_object_type_value == OBJ_COOP ||	\
+			dxx_object_type_value == OBJ_MARKER	\
+		);	\
+		dxx_object_type_ref.type = static_cast<object_type_t>(dxx_object_type_value);	\
+	} DXX_END_COMPOUND_STATEMENT )
 
 }
 

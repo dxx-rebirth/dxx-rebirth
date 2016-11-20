@@ -360,6 +360,8 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 
 	switch (obj->type) // find out if given object should cast colored light and compute if so
 	{
+		default:
+			break;
 		case OBJ_FIREBALL:
 		case OBJ_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)

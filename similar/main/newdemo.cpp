@@ -569,7 +569,11 @@ static void nd_read_object(const vobjptridx_t obj)
 	 * blow by all other object information
 	 */
 	nd_read_byte(&obj->render_type);
-	nd_read_byte(&obj->type);
+	{
+		uint8_t object_type;
+		nd_read_byte(&object_type);
+		set_object_type(*obj, object_type);
+	}
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 

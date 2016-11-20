@@ -1036,6 +1036,8 @@ static void free_object_slots(uint_fast32_t num_used)
 				case OBJ_LIGHT:
 				case OBJ_CAMERA:
 				case OBJ_POWERUP:
+				case OBJ_COOP:
+				case OBJ_MARKER:
 					break;
 			}
 

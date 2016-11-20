@@ -355,7 +355,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 	const auto signature = obj_get_signature();
 	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
 	obj->signature = signature;
-	obj->type           = PHYSFSX_readByte(f);
+	set_object_type(*obj, PHYSFSX_readByte(f));
 	obj->id             = PHYSFSX_readByte(f);
 
 #if defined(DXX_BUILD_DESCENT_I)

@@ -5787,7 +5787,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
-	obj->type          = obj_rw->type;
+	set_object_type(*obj, obj_rw->type);
 	obj->id            = obj_rw->id;
 	obj->next          = obj_rw->next;
 	obj->prev          = obj_rw->prev;
