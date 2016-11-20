@@ -298,7 +298,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjp
 	obj->next          = obj_rw->next;
 	obj->prev          = obj_rw->prev;
 	obj->control_type  = obj_rw->control_type;
-	obj->movement_type = obj_rw->movement_type;
+	set_object_movement_type(*obj, obj_rw->movement_type);
 	obj->render_type   = obj_rw->render_type;
 	obj->flags         = obj_rw->flags;
 	obj->segnum        = obj_rw->segnum;
@@ -326,6 +326,8 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjp
 	
 	switch (obj->movement_type)
 	{
+		case MT_NONE:
+			break;
 		case MT_PHYSICS:
 			obj->mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
 			obj->mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
@@ -1027,7 +1029,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			md = find_morph_data(objp);
 			if (md) {					
 				md->obj->control_type = md->morph_save_control_type;
-				md->obj->movement_type = md->morph_save_movement_type;
+				set_object_movement_type(*md->obj, md->morph_save_movement_type);
 				md->obj->render_type = RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
 				md->obj = NULL;

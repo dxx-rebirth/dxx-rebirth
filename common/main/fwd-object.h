@@ -19,6 +19,13 @@
 
 struct bitmap_index;
 
+namespace dcx {
+
+// Movement types
+enum movement_type_t : uint8_t;
+
+}
+
 constexpr std::size_t MAX_OBJECTS = 350;
 #ifdef dsx
 namespace dsx {
@@ -61,12 +68,6 @@ constexpr control_type_t CT_POWERUP = 13;	// animating powerup blob
 constexpr control_type_t CT_LIGHT = 14;		// doesn't actually do anything
 constexpr control_type_t CT_REMOTE = 15;	// controlled by another net player
 constexpr control_type_t CT_CNTRLCEN = 16;	// the control center/main reactor
-
-// Movement types
-typedef unsigned movement_type_t;
-constexpr movement_type_t MT_NONE = 0;   // doesn't move
-constexpr movement_type_t MT_PHYSICS = 1;   // moves by physics
-constexpr movement_type_t MT_SPINNING = 3;   // this object doesn't move, just sits and spins
 
 // Render types
 typedef unsigned render_type_t;

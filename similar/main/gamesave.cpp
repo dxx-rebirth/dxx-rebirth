@@ -364,7 +364,7 @@ static void read_object(const vobjptr_t obj,PHYSFS_File *f,int version)
 	}
 #endif
 	obj->control_type   = PHYSFSX_readByte(f);
-	obj->movement_type  = PHYSFSX_readByte(f);
+	set_object_movement_type(*obj, PHYSFSX_readByte(f));
 	obj->render_type    = PHYSFSX_readByte(f);
 	obj->flags          = PHYSFSX_readByte(f);
 

@@ -75,6 +75,13 @@ enum object_type_t : uint8_t
 	OBJ_MARKER	= 15,  // a map marker
 };
 
+enum movement_type_t : uint8_t
+{
+	MT_NONE = 0,   // doesn't move
+	MT_PHYSICS = 1,   // moves by physics
+	MT_SPINNING = 3,   // this object doesn't move, just sits and spins
+};
+
 }
 
 namespace dsx {
@@ -371,7 +378,7 @@ struct object_base
 	ubyte   id;             // which form of object...which powerup, robot, etc.
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	ubyte   control_type;   // how this object is controlled
-	ubyte   movement_type;  // how this object moves
+	movement_type_t   movement_type;  // how this object moves
 	ubyte   render_type;    // how this object renders
 	ubyte   flags;          // misc flags
 	segnum_t   segnum;         // segment number containing object
@@ -514,6 +521,18 @@ struct obj_position
 			dxx_object_type_value == OBJ_MARKER	\
 		);	\
 		dxx_object_type_ref.type = static_cast<object_type_t>(dxx_object_type_value);	\
+	} DXX_END_COMPOUND_STATEMENT )
+
+#define set_object_movement_type(O,T)	\
+	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+		object_base &dxx_object_movement_type_ref = (O);	\
+		const uint8_t &dxx_object_movement_type_value = (T);	\
+		assert(	\
+			dxx_object_movement_type_value == MT_NONE ||	\
+			dxx_object_movement_type_value == MT_PHYSICS ||	\
+			dxx_object_movement_type_value == MT_SPINNING	\
+		);	\
+		dxx_object_movement_type_ref.movement_type = static_cast<movement_type_t>(dxx_object_movement_type_value);	\
 	} DXX_END_COMPOUND_STATEMENT )
 
 }

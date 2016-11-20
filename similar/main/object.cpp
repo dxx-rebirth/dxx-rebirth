@@ -1132,7 +1132,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 	obj->orient 				= orient?*orient:vmd_identity_matrix;
 
 	obj->control_type 		        = ctype;
-	obj->movement_type 		        = mtype;
+	set_object_movement_type(*obj, mtype);
 	obj->render_type 			= rtype;
 	obj->contains_type                      = -1;
         obj->contains_id                        = -1;

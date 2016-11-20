@@ -254,7 +254,7 @@ void do_morph_frame(const vobjptr_t obj)
 	if (!md->n_submodels_active) {			//done morphing!
 
 		md->obj->control_type = md->morph_save_control_type;
-		md->obj->movement_type = md->morph_save_movement_type;
+		set_object_movement_type(*md->obj, md->morph_save_movement_type);
 
 		md->obj->render_type = RT_POLYOBJ;
 

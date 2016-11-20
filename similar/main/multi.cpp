@@ -5792,7 +5792,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 	obj->next          = obj_rw->next;
 	obj->prev          = obj_rw->prev;
 	obj->control_type  = obj_rw->control_type;
-	obj->movement_type = obj_rw->movement_type;
+	set_object_movement_type(*obj, obj_rw->movement_type);
 	obj->render_type   = obj_rw->render_type;
 	obj->flags         = obj_rw->flags;
 	obj->segnum        = obj_rw->segnum;
@@ -5820,6 +5820,8 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 	
 	switch (obj->movement_type)
 	{
+		case MT_NONE:
+			break;
 		case MT_PHYSICS:
 			obj->mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
 			obj->mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;

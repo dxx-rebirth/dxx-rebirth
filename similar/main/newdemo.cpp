@@ -617,7 +617,11 @@ static void nd_read_object(const vobjptridx_t obj)
 
 	case OBJ_POWERUP:
 		obj->control_type = CT_POWERUP;
-		nd_read_byte(&obj->movement_type);        // might have physics movement
+		{
+			uint8_t movement_type;
+			nd_read_byte(&movement_type);        // might have physics movement
+			set_object_movement_type(*obj, movement_type);
+		}
 		obj->size = Powerup_info[get_powerup_id(obj)].size;
 		break;
 
@@ -639,7 +643,11 @@ static void nd_read_object(const vobjptridx_t obj)
 
 	default:
 		nd_read_byte(&obj->control_type);
-		nd_read_byte(&obj->movement_type);
+		{
+			uint8_t movement_type;
+			nd_read_byte(&movement_type);
+			set_object_movement_type(*obj, movement_type);
+		}
 		nd_read_fix(&(obj->size));
 		break;
 	}
