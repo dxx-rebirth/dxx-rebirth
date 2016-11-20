@@ -3253,11 +3253,12 @@ void update_item_state::process_powerup(const object &o, const powerup_type_t id
 	const auto &seg_verts = segp->verts;
 	for (uint_fast32_t i = count++; i; --i)
 	{
-		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o.size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+		assert(o.movement_type == MT_NONE);
+		assert(o.render_type == RT_POWERUP);
+		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, Vertices[seg_verts[i % seg_verts.size()]]), &vmd_identity_matrix, o.size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
-		no->mtype.phys_info = o.mtype.phys_info;
 		no->rtype.vclip_info = o.rtype.vclip_info;
 		no->rtype.vclip_info.framenum = (o.rtype.vclip_info.framenum + (i * vc_num_frames) / count) % vc_num_frames;
 		no->ctype.powerup_info = o.ctype.powerup_info;
