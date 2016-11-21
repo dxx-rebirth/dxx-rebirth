@@ -841,18 +841,13 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 {
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 		return ESCORT_GOAL_UNSPECIFIED;
-	powerup_type_t keyid;
-	escort_goal_t goal;
-	if (
-		(!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && (keyid = POW_KEY_BLUE, goal = ESCORT_GOAL_BLUE_KEY, true)) ||
-		(!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && (keyid = POW_KEY_GOLD, goal = ESCORT_GOAL_GOLD_KEY, true)) ||
-		(!(pl_flags & PLAYER_FLAGS_RED_KEY) && (keyid = POW_KEY_RED, goal = ESCORT_GOAL_RED_KEY, true))
-	)
-	{
-		if (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, keyid, -1, pl_flags) != object_none)
-			return goal;
-	}
-	if (Control_center_destroyed == 0)
+	if (!(pl_flags & PLAYER_FLAGS_BLUE_KEY) && exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_BLUE, -1, pl_flags) != object_none)
+		return ESCORT_GOAL_BLUE_KEY;
+	else if (!(pl_flags & PLAYER_FLAGS_GOLD_KEY) && exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_GOLD, -1, pl_flags) != object_none)
+		return ESCORT_GOAL_GOLD_KEY;
+	else if (!(pl_flags & PLAYER_FLAGS_RED_KEY) && exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_RED, -1, pl_flags) != object_none)
+		return ESCORT_GOAL_RED_KEY;
+	else if (Control_center_destroyed == 0)
 	{
 		if (Boss_teleport_segs.count())
 			return ESCORT_GOAL_BOSS;
