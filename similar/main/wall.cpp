@@ -876,7 +876,6 @@ void do_door_open(int door_num)
 namespace dsx {
 void do_door_close(int door_num)
 {
-	int p;
 	active_door *d;
 
 	Assert(door_num != -1);		//Trying to do_door_open on illegal door
@@ -897,12 +896,14 @@ void do_door_close(int door_num)
 			return;
 		}
 
-	for (p=0;p<d->n_parts;p++) {
+	bool played_sound = false;
+	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
+	{
 		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
 
-		auto &wp = *vwallptr(d->front_wallnum[p]);
+		auto &wp = *vwallptr(p);
 
 		const auto &seg = wsegp;
 		side = wp.sidenum;
@@ -924,13 +925,19 @@ void do_door_close(int door_num)
 
 
 		if ( Newdemo_state != ND_STATE_PLAYBACK )
+		{
 			// NOTE THE LINK TO ABOVE!!
-			if (p==0)	//only play one sound for linked doors
+			if (!played_sound)	//only play one sound for linked doors
+			{
+				played_sound = true;
 				if ( d->time==0 )	{		//first time
-					const auto cp = compute_center_point_on_side(seg, side );
 					if (WallAnims[wp.clip_num].close_sound > -1 )
-						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, cp, 0, F1_0);
+					{
+						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, compute_center_point_on_side(seg, side), 0, F1_0);
+					}
 				}
+			}
+		}
 
 		d->time += FrameTime;
 
