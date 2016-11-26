@@ -231,8 +231,6 @@ void wall_open_door(vsegptridx_t seg, int side);
 }
 #endif
 #if defined(DXX_BUILD_DESCENT_I)
-// Closes a door (called after given interval)
-void wall_close_door(int wall_num);
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
 void wall_close_door(vsegptridx_t seg, int side);

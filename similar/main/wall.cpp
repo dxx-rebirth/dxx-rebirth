@@ -434,44 +434,6 @@ void wall_open_door(const vsegptridx_t seg, int side)
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-// This function closes the specified door and restores the closed
-//  door texture.  This is called when the animation is done
-void wall_close_door(int door_num)
-{
-	active_door *d;
-	int i;
-
-	d = &ActiveDoors[door_num];
-
-	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
-	{
-		wall *const w = vwallptr(p);
-		int side;
-
-		const auto &&seg = vsegptridx(w->segnum);
-		side = w->sidenum;
-
-		Assert(seg->sides[side].wall_num != wall_none);		//Closing door on illegal wall
-
-		const auto &&csegp = seg.absolute_sibling(seg->children[side]);
-		auto Connectside = find_connect_side(seg, csegp);
-		Assert(Connectside != side_none);
-
-		w->state = WALL_DOOR_CLOSED;
-		vwallptr(csegp->sides[Connectside].wall_num)->state = WALL_DOOR_CLOSED;
-
-		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
-
-	}
-
-	for (i=door_num;i<Num_open_doors;i++)
-		ActiveDoors[i] = ActiveDoors[i+1];
-
-	Num_open_doors--;
-}
-#endif
-
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
