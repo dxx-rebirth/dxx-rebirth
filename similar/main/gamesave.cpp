@@ -1453,7 +1453,7 @@ int create_new_mine(void)
 	
 	init_all_vertices();
 	
-	Current_level_num = 0;		//0 means not a real level
+	Current_level_num = 1;		// make level 1 (for now)
 	Current_level_name.next()[0] = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 	Gamesave_current_version = LEVEL_FILE_VERSION;

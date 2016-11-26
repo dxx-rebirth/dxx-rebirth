@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "inferno.h"
+#include "args.h"
 #include "segment.h"
 #include "gr.h"
 #include "palette.h"
@@ -46,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "editor.h"
 #include "editor/esegment.h"
+#include "state.h"
 #include "gamesave.h"
 #include "gameseg.h"
 #include "key.h"
@@ -63,6 +65,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "menu.h"
 #include "slew.h"
+#include "player.h"
 #include "kdefs.h"
 #include "func.h"
 #include "textures.h"
@@ -122,7 +125,7 @@ grs_font_ptr editor_font;
 //where the editor is looking
 vms_vector Ed_view_target;
 
-int gamestate_not_restored = 0;
+editor_gamestate gamestate = editor_gamestate::none;
 
 UI_DIALOG * EditorWindow = NULL;
 
@@ -225,6 +228,13 @@ static void clear_editor_status(void)
 	}
 }
 
+static inline void editor_slew_init()
+{
+	Viewer = ConsoleObject;
+	slew_init(vobjptr(ConsoleObject));
+	init_player_object();
+}
+
 int DropIntoDebugger()
 {
 	Int3();
@@ -259,20 +269,41 @@ int	GotoGameScreen()
 //@@	Player_init.orient = Player->orient;
 //@@	Player_init.segnum = Player->segnum;	
 
-	// Always use the simple dummy mission (for now at least)
-	create_new_mission();
-	Current_level_num = 1;
 
-// -- must always save gamesave.sav because the restore-objects code relies on it
+// -- must always save gamesave.sge/lvl because the restore-objects code relies on it
 // -- that code could be made smarter and use the original file, if appropriate.
-//	if (mine_changed) 
-	/*if (gamestate_not_restored == 0)*/ {
-		gamestate_not_restored = 1;
-		save_level("GAMESAVE.LVL");
-		editor_status("Gamestate saved.\n");
-	}
+//	if (mine_changed)
+	switch (gamestate)
+	{
+		case editor_gamestate::none:
+			// Always use the simple mission when playing level (for now at least)
+			create_new_mission();
+			Current_level_num = 1;
+			if (save_level("GAMESAVE.LVL"))
+				return 0;
+			editor_status("Level saved.\n");
+			break;
 
-	ai_reset_all_paths();
+		case editor_gamestate::unsaved:
+		case editor_gamestate::saved:
+			if (!SafetyCheck())		// if mine edited but not saved, warn the user!
+				return 0;
+
+			const auto &&console = vobjptr(get_local_player().objnum);
+			ConsoleObject = Viewer = console;
+			set_player_id(console, Player_num);
+			fly_init(*ConsoleObject);
+
+			if (!state_save_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge"), "Editor generated"))
+			{
+				editor_slew_init();
+
+				return 0;
+			}
+			gamestate = editor_gamestate::saved;
+			editor_status("Game saved.\n");
+			break;
+	}
 
 	ModeFlag = 3;
 	return 1;
@@ -425,9 +456,7 @@ void init_editor()
 	//@@	Viewer = &Objects[camera_objnum];
 	//@@	slew_init(Viewer);		//camera is slewing
 	
-	Viewer = ConsoleObject;
-	slew_init(vobjptr(ConsoleObject));
-	init_player_object();
+	editor_slew_init();
 	
 	Update_flags = UF_ALL;
 	
@@ -907,9 +936,26 @@ static void close_editor()
 			break;
 
 		case 3:
-			if (!Game_wind)	// if we're already playing a game, don't touch!
+			if (Game_wind)
+				return;	// if we're already playing a game, don't touch!
+
+			switch (gamestate)
 			{
-				StartNewGame(Current_level_num);
+				case editor_gamestate::none:
+					StartNewGame(Current_level_num);
+					break;
+
+				case editor_gamestate::saved:
+					state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+#if defined(DXX_BUILD_DESCENT_II)
+											   , secret_restore::none
+#endif
+										  );
+					break;
+
+				default:
+					Int3();	// shouldn't happen
+					break;
 			}
 			break;
 	}
@@ -949,7 +995,8 @@ void gamestate_restore_check()
 {
 	obj_position Save_position;
 
-	if (gamestate_not_restored) {
+	if (gamestate == editor_gamestate::saved)
+	{
 		if (ui_messagebox(-2, -2, 2, "Do you wish to restore game state?\n", "Yes", "No") == 1)
 		{
 
@@ -958,7 +1005,15 @@ void gamestate_restore_check()
 			Save_position.orient = ConsoleObject->orient;
 			Save_position.segnum = ConsoleObject->segnum;
 
-			load_level("GAMESAVE.LVL");
+			if (!state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+#if defined(DXX_BUILD_DESCENT_II)
+								  , secret_restore::none
+#endif
+								  ))
+				return;
+
+			// Switch back to slew mode - loading saved game made ConsoleObject flying
+			editor_slew_init();
 
 			// Restore current position
 			if (Save_position.segnum <= Highest_segment_index) {
@@ -967,22 +1022,34 @@ void gamestate_restore_check()
 				obj_relink(vobjptridx(ConsoleObject), vsegptridx(Save_position.segnum));
 			}
 
-			gamestate_not_restored = 0;
 			Update_flags |= UF_WORLD_CHANGED;	
-			}
-		else
-			gamestate_not_restored = 1;
 		}
+		else
+			gamestate = editor_gamestate::none;
+	}
 }
 
-int RestoreGameState() {
-	load_level("GAMESAVE.LVL");
-	gamestate_not_restored = 0;
+int RestoreGameState()
+{
+	if (!SafetyCheck())
+		return 0;
+
+	if (!state_restore_all_sub(PLAYER_DIRECTORY_STRING("gamesave.sge")
+#if defined(DXX_BUILD_DESCENT_II)
+						  , secret_restore::none
+#endif
+						  ))
+		return 0;
+
+	// Switch back to slew mode - loading saved game made ConsoleObject flying
+	editor_slew_init();
+	
+	gamestate = editor_gamestate::saved;
 
 	editor_status("Gamestate restored.\n");
 
 	Update_flags |= UF_WORLD_CHANGED;
-	return 0;
+	return 1;
 }
 
 // Handler for the main editor dialog
@@ -999,8 +1066,8 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 		keypress = event_key_get(event);
 	else if (event.type == EVENT_WINDOW_CLOSE)
 	{
-		close_editor();
 		EditorWindow = NULL;
+		close_editor();
 		return window_event_result::ignored;
 	}
 	

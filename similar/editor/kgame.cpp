@@ -91,12 +91,12 @@ int SetPlayerPosition()
 //	returns 0 if unsuccessful
 int SaveGameData()
 {
-	if (gamestate_not_restored) {
-		if (ui_messagebox(-2, -2, 2, "Game State has not been restored...\nContinue?\n", "NO", "Yes") == 1)
+	if (gamestate == editor_gamestate::unsaved) {
+		if (ui_messagebox(-2, -2, 2, "Game State has not been saved...\nContinue?\n", "NO", "Yes") == 1)
 			return 0;
 		}
 		
-   if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "SAVE GAME" )) {
+   if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "Save Level" )) {
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
@@ -137,6 +137,7 @@ int SaveGameData()
 		if (saved_flag)
 			return 0;
 		mine_changed = 0;
+		gamestate = editor_gamestate::none;
 	}
 	return 1;
 }
@@ -146,13 +147,13 @@ int SaveGameData()
 int LoadGameData()
 {
 if (SafetyCheck())  {
-	if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "LOAD GAME" ))
+	if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "Load Level" ))
 		{
 		checkforgamext(game_filename);
 		if (load_level(game_filename))
 			return 0;
-		Current_level_num = 0;			//not a real level
-		gamestate_not_restored = 0;
+		Current_level_num = 1;			// assume level 1
+		gamestate = editor_gamestate::none;
 		Update_flags = UF_WORLD_CHANGED;
 		Perm_player_position = ConsoleObject->pos;
 		Perm_player_orient = ConsoleObject->orient;

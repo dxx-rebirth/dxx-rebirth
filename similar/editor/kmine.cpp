@@ -123,11 +123,11 @@ int CreateNewMine()
 		Found_segs.clear();
 		Selected_segs.clear();
 		med_compress_mine();
-		gamestate_not_restored = 0;
+		gamestate = editor_gamestate::none;
 		init_info = 1;
 		ResetFilename();
 		Game_mode = GM_UNKNOWN;
-		Current_level_num = 0;		//0 means not a real game
+		Current_level_num = 1;		// make level 1
 	}
 	return 1;
 }

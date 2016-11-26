@@ -173,8 +173,8 @@ static void copy_defaults_to_robot_all(void);
 namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
-//0 means not a real level loaded
-int	Current_level_num=0,Next_level_num;
+//0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
+int	Current_level_num=1,Next_level_num;
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 
 // Global variables describing the player
@@ -764,7 +764,10 @@ void LoadLevel(int level_num,int page_in_textures)
 	load_palette(Current_level_palette,1,1);		//don't change screen
 #endif
 
-	show_boxed_message(TXT_LOADING, 0);
+#if DXX_USE_EDITOR
+	if (!EditorWindow)
+#endif
+		show_boxed_message(TXT_LOADING, 0);
 #ifdef RELEASE
 	timer_delay(F1_0);
 #endif
@@ -792,7 +795,10 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	set_sound_sources();
 
-	songs_play_level_song( Current_level_num, 0 );
+#if DXX_USE_EDITOR
+	if (!EditorWindow)
+#endif
+		songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1388,13 +1394,6 @@ static void AdvanceLevel(int secret_flag)
 	}
 
 	Control_center_destroyed = 0;
-
-#if DXX_USE_EDITOR
-	if (Current_level_num == 0)
-	{
-		window_close(Game_wind);		//not a real level
-	}
-	#endif
 
 	if (Game_mode & GM_MULTI)	{
 		int result;

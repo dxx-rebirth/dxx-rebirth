@@ -155,6 +155,13 @@ struct editor_view
 	fix ev_zoom;				//zoom for this window
 };
 
+enum class editor_gamestate : uint8_t
+{
+	none,		// editing a level, not a gamestate
+	unsaved,	// just pressed delete-e from a game
+	saved		// saved state. Do we want to restore it when launching editor from menu? Ask user.
+};
+
 /*
  * Global variables
  * 
@@ -165,7 +172,7 @@ extern int N_views;
 extern int Large_view_index;
 extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
-extern int gamestate_not_restored;
+extern editor_gamestate gamestate;
 extern grs_font_ptr editor_font;
 
 extern	vms_vector Ed_view_target;		// what editor is looking at

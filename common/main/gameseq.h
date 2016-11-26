@@ -40,7 +40,7 @@ constexpr unsigned LEVEL_NAME_LEN = 36;       //make sure this is multiple of 4!
 
 // Current_level_num starts at 1 for the first level
 // -1,-2,-3 are secret levels
-// 0 means not a real level loaded
+// 0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
 extern int Current_level_num, Next_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 extern array<obj_position, MAX_PLAYERS> Player_init;
