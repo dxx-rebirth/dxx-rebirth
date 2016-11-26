@@ -315,6 +315,17 @@ static void init_ammo_and_energy(object &plrobj)
 	auto &player_info = plrobj.ctype.player_info;
 	{
 		auto &energy = player_info.energy;
+#if defined(DXX_BUILD_DESCENT_II)
+		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(OMEGA_INDEX))
+		{
+			const auto old_omega_charge = player_info.Omega_charge;
+			if (old_omega_charge < MAX_OMEGA_CHARGE)
+			{
+				const auto energy_used = get_omega_energy_consumption((player_info.Omega_charge = MAX_OMEGA_CHARGE) - old_omega_charge);
+				energy -= energy_used;
+			}
+		}
+#endif
 		if (energy < INITIAL_ENERGY)
 			energy = INITIAL_ENERGY;
 	}
@@ -342,8 +353,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #endif
-	// int	i;
-
 	auto &plr = get_local_player();
 
 	plr.level = Current_level_num;
@@ -355,8 +364,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 
 	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
-	player_info.homing_object_dist = -F1_0; // Added by RH
-	player_info.killer_objnum = object_none;
 	player_info.mission.last_score = player_info.mission.score;
 
 	plr.num_kills_level = 0;
@@ -365,7 +372,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 
 	plr.hostages_level = count_number_of_hostages();
 	plr.hostages_total += plr.hostages_level;
-	player_info.mission.hostages_on_board = 0;
 
 	if (secret_flag == secret_restore::none) {
 		init_ammo_and_energy(plrobj);
@@ -389,11 +395,6 @@ void init_player_stats_level(const secret_restore secret_flag)
 	Player_dead_state = player_dead_state::no; // Added by RH
 	Dead_player_camera = NULL;
 
-	// properly init these cursed globals
-	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
-	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
-	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
-	Next_flare_fire_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 #if defined(DXX_BUILD_DESCENT_II)
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
@@ -404,6 +405,7 @@ void init_player_stats_level(const secret_restore secret_flag)
 #if defined(DXX_BUILD_DESCENT_II)
 	Missile_viewer = NULL;
 #endif
+	init_player_stats_ship(plrobj);
 }
 
 // Setup player for a brand-new ship
@@ -414,7 +416,6 @@ void init_player_stats_new_ship(ubyte pnum)
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
-	player_info.killer_objnum = object_none;
 	player_info.secondary_ammo = {{
 		static_cast<uint8_t>(2 + NDL - Difficulty_level)
 	}};
@@ -505,9 +506,20 @@ void init_player_stats_new_ship(ubyte pnum)
 		init_ai_for_ship();
 #endif
 	}
+	digi_kill_sound_linked_to_object(plrobj);
+	init_player_stats_ship(plrobj);
+}
+
+void init_player_stats_ship(object &plrobj)
+{
+	auto &player_info = plrobj.ctype.player_info;
+	player_info.killer_objnum = object_none;
+#if defined(DXX_BUILD_DESCENT_II)
+	player_info.Omega_recharge_delay = 0;
+#endif
 	player_info.mission.hostages_on_board = 0;
 	player_info.homing_object_dist = -F1_0; // Added by RH
-	digi_kill_sound_linked_to_object(plrobj);
+	player_info.Next_flare_fire_time = player_info.Next_laser_fire_time = player_info.Next_missile_fire_time = GameTime64;
 }
 
 }

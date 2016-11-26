@@ -499,16 +499,22 @@ static void create_omega_blobs(const segptridx_t firing_segnum, const vms_vector
 
 #define	OMEGA_CHARGE_SCALE	4
 
+fix get_omega_energy_consumption(const fix delta_charge)
+{
+	const fix energy_used = fixmul(F1_0 * 190 / 17, delta_charge);
+	return Difficulty_level < 2
+		? fixmul(energy_used, i2f(Difficulty_level + 2) / 4)
+		: energy_used;
+}
+
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
 void omega_charge_frame(player_info &player_info)
 {
-	fix	delta_charge, old_omega_charge;
-
 	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)))
 		return;
 	auto &Omega_charge = player_info.Omega_charge;
-	if (Omega_charge == MAX_OMEGA_CHARGE)
+	if (Omega_charge >= MAX_OMEGA_CHARGE)
 		return;
 
 	if (Player_dead_state != player_dead_state::no)
@@ -528,19 +534,12 @@ void omega_charge_frame(player_info &player_info)
 
 	if (auto &energy = player_info.energy)
 	{
-		fix	energy_used;
-
-		old_omega_charge = Omega_charge;
+		const auto old_omega_charge = Omega_charge;
 		Omega_charge += FrameTime/OMEGA_CHARGE_SCALE;
 		if (Omega_charge > MAX_OMEGA_CHARGE)
 			Omega_charge = MAX_OMEGA_CHARGE;
 
-		delta_charge = Omega_charge - old_omega_charge;
-
-		energy_used = fixmul(F1_0*190/17, delta_charge);
-		if (Difficulty_level < 2)
-			energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
-
+		const auto energy_used = get_omega_energy_consumption(Omega_charge - old_omega_charge);
 		energy -= energy_used;
 		if (energy < 0)
 			energy = 0;
