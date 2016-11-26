@@ -781,8 +781,9 @@ void wall_close_door(const vsegptridx_t seg, int side)
 // Animates opening of a door.
 // Called in the game loop.
 namespace dsx {
-static void do_door_open(active_door &d, int door_num)
+static bool do_door_open(active_door &d)
 {
+	bool remove = false;
 	for (unsigned p = 0; p < d.n_parts; ++p)
 	{
 		int side;
@@ -832,9 +833,7 @@ static void do_door_open(active_door &d, int door_num)
 
 			// If our door is not automatic just remove it from the list.
 			if (!(w->flags & WALL_DOOR_AUTO)) {
-				for (i=door_num;i<Num_open_doors;i++)
-					ActiveDoors[i] = ActiveDoors[i+1];
-				Num_open_doors--;
+				remove = true;
 #if defined(DXX_BUILD_DESCENT_II)
 				w->state = WALL_DOOR_OPEN;
 				w1->state = WALL_DOOR_OPEN;
@@ -844,19 +843,18 @@ static void do_door_open(active_door &d, int door_num)
 
 				w->state = WALL_DOOR_WAITING;
 				w1->state = WALL_DOOR_WAITING;
-
-				ActiveDoors[Num_open_doors].time = 0;	//counts up
 			}
 		}
 
 	}
 	flush_fcd_cache();
+	return remove;
 }
 
 //-----------------------------------------------------------------
 // Animates and processes the closing of a door.
 // Called from the game loop.
-static void do_door_close(active_door &d, int door_num)
+static bool do_door_close(active_door &d, int door_num)
 {
 	auto &w0 = *vwallptr(d.front_wallnum[0]);
 	const auto &&wsegp = vsegptridx(w0.segnum);
@@ -868,10 +866,11 @@ static void do_door_close(active_door &d, int door_num)
 			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
 			wall_open_door(wsegp, w0.sidenum);		//re-open door
 #endif
-			return;
+			return false;
 		}
 
 	bool played_sound = false;
+	bool remove = false;
 	range_for (const auto p, partial_const_range(d.front_wallnum, d.n_parts))
 	{
 		int side;
@@ -884,7 +883,7 @@ static void do_door_close(active_door &d, int door_num)
 		side = wp.sidenum;
 
 		if (seg->sides[side].wall_num == wall_none) {
-			return;
+			return false;
 		}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -938,17 +937,13 @@ static void do_door_close(active_door &d, int door_num)
 
 			wp.state = WALL_DOOR_CLOSING;
 			w1.state = WALL_DOOR_CLOSING;
-
-			ActiveDoors[Num_open_doors].time = 0;		//counts up
-
 		} else
 		{
 			wall_close_door_num(door_num);
-			const auto b = ActiveDoors.begin();
-			const auto j = std::next(b, door_num);
-			std::move(std::next(j), std::next(b, Num_open_doors--), j);
+			remove = true;
 		}
 	}
+	return remove;
 }
 }
 
@@ -1261,10 +1256,11 @@ void wall_frame_process()
 		active_door &d = ActiveDoors[i];
 		wall *const w = vwallptr(d.front_wallnum[0]);
 
+		bool remove;
 		if (w->state == WALL_DOOR_OPENING)
-			do_door_open(d, i);
+			remove = do_door_open(d);
 		else if (w->state == WALL_DOOR_CLOSING)
-			do_door_close(d, i);
+			remove = do_door_close(d, i);
 		else if (w->state == WALL_DOOR_WAITING) {
 			d.time += FrameTime;
 
@@ -1281,19 +1277,16 @@ void wall_frame_process()
 					w->state = WALL_DOOR_CLOSING;
 					d.time = 0;
 				}
+			continue;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
-		else if (w->state == WALL_DOOR_CLOSED || w->state == WALL_DOOR_OPEN) {
-			//this shouldn't happen.  if the wall is in one of these states,
-			//there shouldn't be an activedoor entry for it.  So we'll kill
-			//the activedoor entry.  Tres simple.
-			int t;
-			Int3();		//a bad thing has happened, but I'll try to fix it up
-			for (t=i;t<Num_open_doors;t++)
-				ActiveDoors[t] = ActiveDoors[t+1];
-			Num_open_doors--;
+		else
+			continue;
+		if (remove)
+		{
+			const auto b = ActiveDoors.begin();
+			const auto t = std::next(b, i);
+			std::move(std::next(t), std::next(b, Num_open_doors--), t);
 		}
-#endif
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
