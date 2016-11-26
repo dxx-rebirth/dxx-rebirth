@@ -707,6 +707,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		case weapon_id_type::ROBOT_SUPERPROX_ID:
 		case weapon_id_type::EARTHSHAKER_MEGA_ID:
 		case weapon_id_type::ROBOT_EARTHSHAKER_ID:
+		case weapon_id_type::ROBOT_EARTHSHAKER_SUBMUNITION_ID:
 
 		case weapon_id_type::PMINE_ID:
 

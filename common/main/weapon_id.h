@@ -69,6 +69,7 @@ enum weapon_id_type : uint8_t
 	ROBOT_SUPERPROX_ID = 53,
 	EARTHSHAKER_MEGA_ID = 54,
 	ROBOT_EARTHSHAKER_ID = 58,
+	ROBOT_EARTHSHAKER_SUBMUNITION_ID = 59,
 
 	PMINE_ID = 51,  //the mine that the designers can place
 
