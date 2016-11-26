@@ -686,23 +686,14 @@ void wall_close_door(const vsegptridx_t seg, int side)
 		return;
 
 	if (w->state == WALL_DOOR_OPENING) {	//reuse door
-
-		int i;
-
-		d = NULL;
-
-		for (i=0;i<Num_open_doors;i++) {		//find door
-
-			d = &ActiveDoors[i];
-
-			if (d->front_wallnum[0]==wall_num || d->back_wallnum[0]==wall_num ||
-				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
-				break;
+		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
+		if (i == r.end())
+		{
+			d_debugbreak();
+			return;
 		}
-
-		Assert(i<Num_open_doors);				//didn't find door!
-		Assert( d!=NULL ); // Get John!
-
+		d = i;
 		d->time = WallAnims[w->clip_num].play_time - d->time;
 
 		if (d->time < 0)
