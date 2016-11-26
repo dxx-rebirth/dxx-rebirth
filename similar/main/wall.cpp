@@ -43,11 +43,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 unsigned Num_wall_anims;
 unsigned Num_open_doors;						// Number of open doors
+array<active_door, MAX_DOORS> ActiveDoors;
 }
 
 namespace dsx {
 array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
-array<active_door, MAX_DOORS> ActiveDoors;
 
 namespace {
 
