@@ -727,6 +727,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #endif
 			break;
 		default:
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: unexpected weapon id %u fired by parent %hu (type %u) in segment %hu"), weapon_type, parent.get_unchecked_index(), parent->type, segnum.get_unchecked_index());
 #ifdef NDEBUG
 			break;
 #else
