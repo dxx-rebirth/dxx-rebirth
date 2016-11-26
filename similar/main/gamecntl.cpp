@@ -23,8 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-//#define DOOR_DEBUGGING
-
 #include <algorithm>
 #include <stdio.h>
 #include <cstdlib>
@@ -646,84 +644,6 @@ static int select_next_window_function(int w)
 }
 #endif
 
-#ifdef DOOR_DEBUGGING
-dump_door_debugging_info()
-{
-	object *obj;
-	vms_vector new_pos;
-	fvi_query fq;
-	fvi_info hit_info;
-	int fate;
-	PHYSFS_File *dfile;
-	obj = &get_local_plrobj();
-	vm_vec_scale_add(&new_pos,&obj->pos,&obj->orient.fvec,i2f(100));
-
-	fq.p0						= &obj->pos;
-	fq.startseg				= obj->segnum;
-	fq.p1						= &new_pos;
-	fq.rad					= 0;
-	fq.thisobjnum			= get_local_player().objnum;
-	fq.ignore_obj_list	= NULL;
-	fq.flags					= 0;
-
-	fate = find_vector_intersection(fq, hit_info);
-
-	dfile = PHYSFSX_openWriteBuffered("door.out");
-
-	PHYSFSX_printf(dfile,"FVI hit_type = %d\n",fate);
-	PHYSFSX_printf(dfile,"    hit_seg = %d\n",hit_info.hit_seg);
-	PHYSFSX_printf(dfile,"    hit_side = %d\n",hit_info.hit_side);
-	PHYSFSX_printf(dfile,"    hit_side_seg = %d\n",hit_info.hit_side_seg);
-	PHYSFSX_printf(dfile,"\n");
-
-	if (fate == HIT_WALL) {
-
-		auto wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
-		PHYSFSX_printf(dfile,"wall_num = %d\n",wall_num);
-
-		if (wall_num != wall_none) {
-			const auto &&wall = vcwallptr(wall_num);
-			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);
-			PHYSFSX_printf(dfile,"    sidenum = %d\n",wall->sidenum);
-			PHYSFSX_printf(dfile,"    hps = %x\n",wall->hps);
-			PHYSFSX_printf(dfile,"    linked_wall = %d\n",wall->linked_wall);
-			PHYSFSX_printf(dfile,"    type = %d\n",wall->type);
-			PHYSFSX_printf(dfile,"    flags = %x\n",wall->flags);
-			PHYSFSX_printf(dfile,"    state = %d\n",wall->state);
-			PHYSFSX_printf(dfile,"    trigger = %d\n",wall->trigger);
-			PHYSFSX_printf(dfile,"    clip_num = %d\n",wall->clip_num);
-			PHYSFSX_printf(dfile,"    keys = %x\n",wall->keys);
-			PHYSFSX_printf(dfile,"    controlling_trigger = %d\n",wall->controlling_trigger);
-			PHYSFSX_printf(dfile,"    cloak_value = %d\n",wall->cloak_value);
-			PHYSFSX_printf(dfile,"\n");
-
-
-			range_for (auto &i, partial_const_range(ActiveDoors, Num_open_doors)) {		//find door
-				if (i.front_wallnum[0] == wall_num || i.back_wallnum[0] == wall_num || (i.n_parts == 2 && (i.front_wallnum[1] == wall_num || i.back_wallnum[1] == wall_num)))
-					break;
-			}
-
-			if (i>=Num_open_doors)
-				PHYSFSX_printf(dfile,"No active door.\n");
-			else {
-				PHYSFSX_printf(dfile,"Active door %d:\n",i);
-				PHYSFSX_printf(dfile,"    n_parts = %d\n",d->n_parts);
-				PHYSFSX_printf(dfile,"    front_wallnum = %d,%d\n",d->front_wallnum[0],d->front_wallnum[1]);
-				PHYSFSX_printf(dfile,"    back_wallnum = %d,%d\n",d->back_wallnum[0],d->back_wallnum[1]);
-				PHYSFSX_printf(dfile,"    time = %x\n",d->time);
-			}
-
-		}
-	}
-
-	PHYSFSX_printf(dfile,"\n");
-	PHYSFSX_printf(dfile,"\n");
-
-	PHYSFS_close(dfile);
-
-}
-#endif
-
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
 namespace dsx {
@@ -732,13 +652,6 @@ static window_event_result HandleSystemKey(int key)
 	if (Player_dead_state == player_dead_state::no)
 		switch (key)
 		{
-
-			#ifdef DOOR_DEBUGGING
-			case KEY_LAPOSTRO+KEY_SHIFTED:
-				dump_door_debugging_info();
-				return 1;
-			#endif
-
 			case KEY_ESC:
 			{
 				const bool allow_saveload = !(Game_mode & GM_MULTI) || ((Game_mode & GM_MULTI_COOP) && Player_num == 0);
