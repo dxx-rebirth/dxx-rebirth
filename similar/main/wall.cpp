@@ -48,6 +48,16 @@ unsigned Num_open_doors;						// Number of open doors
 namespace dsx {
 array<wclip, MAX_WALL_ANIMS> WallAnims;		// Wall animations
 array<active_door, MAX_DOORS> ActiveDoors;
+
+namespace {
+
+struct ad_removal_predicate
+{
+	bool operator()(active_door &) const;
+};
+
+}
+
 }
 #if defined(DXX_BUILD_DESCENT_II)
 #include "collide.h"
@@ -1096,6 +1106,31 @@ void reset_walls()
 		}
 }
 
+bool ad_removal_predicate::operator()(active_door &d) const
+{
+	wall &w = *vwallptr(d.front_wallnum[0]);
+	if (w.state == WALL_DOOR_OPENING)
+		return do_door_open(d);
+	else if (w.state == WALL_DOOR_CLOSING)
+		return do_door_close(d);
+	else if (w.state == WALL_DOOR_WAITING) {
+		d.time += FrameTime;
+		// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
+		w.flags |= WALL_DOOR_OPENED;
+		if (wall *const w1 = wallptr(d.back_wallnum[0]))
+			w1->flags |= WALL_DOOR_OPENED;
+		if (d.time > DOOR_WAIT_TIME)
+#if defined(DXX_BUILD_DESCENT_II)
+			if (is_door_free(vcsegptridx(w.segnum), w.sidenum))
+#endif
+			{
+				w.state = WALL_DOOR_CLOSING;
+				d.time = 0;
+			}
+	}
+	return false;
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 static void copy_cloaking_wall_light_to_wall(array<uvl, 4> &back_uvls, array<uvl, 4> &front_uvls, const cloaking_wall &d)
 {
@@ -1208,45 +1243,11 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 namespace dsx {
 void wall_frame_process()
 {
-	unsigned i;
-
-	for (i=0;i<Num_open_doors;i++) {
-		active_door &d = ActiveDoors[i];
-		wall *const w = vwallptr(d.front_wallnum[0]);
-
-		bool remove;
-		if (w->state == WALL_DOOR_OPENING)
-			remove = do_door_open(d);
-		else if (w->state == WALL_DOOR_CLOSING)
-			remove = do_door_close(d);
-		else if (w->state == WALL_DOOR_WAITING) {
-			d.time += FrameTime;
-
-			// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
-			w->flags |= WALL_DOOR_OPENED;
-			if (wall *const w1 = wallptr(d.back_wallnum[0]))
-				w1->flags |= WALL_DOOR_OPENED;
-
-			if (d.time > DOOR_WAIT_TIME)
-#if defined(DXX_BUILD_DESCENT_II)
-				if (is_door_free(vcsegptridx(w->segnum), w->sidenum))
-#endif
-				{
-					w->state = WALL_DOOR_CLOSING;
-					d.time = 0;
-				}
-			continue;
-		}
-		else
-			continue;
-		if (remove)
-		{
-			const auto b = ActiveDoors.begin();
-			const auto t = std::next(b, i);
-			std::move(std::next(t), std::next(b, Num_open_doors--), t);
-		}
+	{
+		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
+		Num_open_doors = std::distance(r.begin(), i);
 	}
-
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
