@@ -2716,6 +2716,9 @@ class PCHManager(object):
 // BEGIN PCH GENERATED FILE
 // %r
 // Threshold=%u
+
+// SConf generated header
+#include "dxxsconf.h"
 '''
 		pch_end_banner = ('''
 // END PCH GENERATED FILE
@@ -2739,9 +2742,6 @@ class PCHManager(object):
 					('// System headers' if syspch_lines else '',),
 					syspch_lines,
 					('''
-// SConf generated header
-#include "dxxsconf.h"
-
 // Own headers
 ''',),
 					self.__generated_ownpch_lines,
