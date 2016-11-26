@@ -222,13 +222,8 @@ void wall_destroy(vsegptridx_t seg, int side);
 void wall_illusion_on(vsegptridx_t seg, int side);
 void wall_illusion_off(vsegptridx_t seg, int side);
 
-// Opens a door, including animation and other processing.
 #ifdef dsx
 namespace dsx {
-void do_door_open(int door_num);
-
-// Closes a door, including animation and other processing.
-void do_door_close(int door_num);
 
 // Opens a door
 void wall_open_door(vsegptridx_t seg, int side);

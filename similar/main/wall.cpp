@@ -788,25 +788,17 @@ void wall_close_door(const vsegptridx_t seg, int side)
 // Animates opening of a door.
 // Called in the game loop.
 namespace dsx {
-void do_door_open(int door_num)
+static void do_door_open(active_door &d, int door_num)
 {
-	int p;
-	active_door *d;
-
-// 	Assert(door_num != -1);		//Trying to do_door_open on illegal door
-	if (door_num == -1)
-		return;
-
-	d = &ActiveDoors[door_num];
-
-	for (p=0;p<d->n_parts;p++) {
+	for (unsigned p = 0; p < d.n_parts; ++p)
+	{
 		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i, n;
 
-		wall *const w = vwallptr(d->front_wallnum[p]);
-		kill_stuck_objects(d->front_wallnum[p]);
-		kill_stuck_objects(d->back_wallnum[p]);
+		wall *const w = vwallptr(d.front_wallnum[p]);
+		kill_stuck_objects(d.front_wallnum[p]);
+		kill_stuck_objects(d.back_wallnum[p]);
 
 		const auto &&seg = vsegptridx(w->segnum);
 		side = w->sidenum;
@@ -822,9 +814,9 @@ void do_door_open(int door_num)
 		const auto &&Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != side_none);
 
-		d->time += FrameTime;
+		d.time += FrameTime;
 
-		time_elapsed = d->time;
+		time_elapsed = d.time;
 		n = WallAnims[w->clip_num].num_frames;
 		time_total = WallAnims[w->clip_num].play_time;
 
@@ -866,24 +858,14 @@ void do_door_open(int door_num)
 
 	}
 	flush_fcd_cache();
-
-}
 }
 
 //-----------------------------------------------------------------
 // Animates and processes the closing of a door.
 // Called from the game loop.
-namespace dsx {
-void do_door_close(int door_num)
+static void do_door_close(active_door &d, int door_num)
 {
-	active_door *d;
-
-	Assert(door_num != -1);		//Trying to do_door_open on illegal door
-
-	d = &ActiveDoors[door_num];
-
-	auto &w0 = *vwallptr(d->front_wallnum[0]);
-
+	auto &w0 = *vwallptr(d.front_wallnum[0]);
 	const auto &&wsegp = vsegptridx(w0.segnum);
 
 	//check for objects in doorway before closing
@@ -897,7 +879,7 @@ void do_door_close(int door_num)
 		}
 
 	bool played_sound = false;
-	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
+	range_for (const auto p, partial_const_range(d.front_wallnum, d.n_parts))
 	{
 		int side;
 		fix time_elapsed, time_total, one_frame;
@@ -930,7 +912,8 @@ void do_door_close(int door_num)
 			if (!played_sound)	//only play one sound for linked doors
 			{
 				played_sound = true;
-				if ( d->time==0 )	{		//first time
+				if (d.time == 0)
+				{		//first time
 					if (WallAnims[wp.clip_num].close_sound > -1 )
 					{
 						digi_link_sound_to_pos(WallAnims[wp.clip_num].close_sound, seg, side, compute_center_point_on_side(seg, side), 0, F1_0);
@@ -939,9 +922,9 @@ void do_door_close(int door_num)
 			}
 		}
 
-		d->time += FrameTime;
+		d.time += FrameTime;
 
-		time_elapsed = d->time;
+		time_elapsed = d.time;
 		n = WallAnims[wp.clip_num].num_frames;
 		time_total = WallAnims[wp.clip_num].play_time;
 
@@ -1277,29 +1260,28 @@ void wall_frame_process()
 	unsigned i;
 
 	for (i=0;i<Num_open_doors;i++) {
-		active_door *d;
-		d = &ActiveDoors[i];
-		wall *const w = vwallptr(d->front_wallnum[0]);
+		active_door &d = ActiveDoors[i];
+		wall *const w = vwallptr(d.front_wallnum[0]);
 
 		if (w->state == WALL_DOOR_OPENING)
-			do_door_open(i);
+			do_door_open(d, i);
 		else if (w->state == WALL_DOOR_CLOSING)
-			do_door_close(i);
+			do_door_close(d, i);
 		else if (w->state == WALL_DOOR_WAITING) {
-			d->time += FrameTime;
+			d.time += FrameTime;
 
 			// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
 			w->flags |= WALL_DOOR_OPENED;
-			if (wall *const w1 = wallptr(d->back_wallnum[0]))
+			if (wall *const w1 = wallptr(d.back_wallnum[0]))
 				w1->flags |= WALL_DOOR_OPENED;
 
-			if (d->time > DOOR_WAIT_TIME)
+			if (d.time > DOOR_WAIT_TIME)
 #if defined(DXX_BUILD_DESCENT_II)
 				if (is_door_free(vcsegptridx(w->segnum), w->sidenum))
 #endif
 				{
 					w->state = WALL_DOOR_CLOSING;
-					d->time = 0;
+					d.time = 0;
 				}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
