@@ -1095,9 +1095,11 @@ static window_event_result newmenu_key_command(window *, const d_event &event, n
 				if (citem.type == NM_TYPE_INPUT)
 					changed = 1;
 				rval = window_event_result::handled;
-			} else {
+			}
+			else if (citem.value < citem.input_or_menu()->text_len)
+			{
 				auto ascii = key_ascii();
-				if (ascii < 255 && citem.value < citem.input_or_menu()->text_len)
+				if (ascii < 255)
 				{
 					if (citem.value == -1) {
 						citem.value = 0;
