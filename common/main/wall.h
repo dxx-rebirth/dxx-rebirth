@@ -183,11 +183,6 @@ struct wclip : public prohibit_void_ptr<wclip>
 	array<char, 13> filename;
 };
 
-static inline ssize_t operator-(wall *w, array<wall, MAX_WALLS> &W)
-{
-	return w - static_cast<wall *>(&*W.begin());
-}
-
 static inline WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const vcsegptr_t seg, const uint_fast32_t side)
 {
 	const auto child = seg->children[side];
