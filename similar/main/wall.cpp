@@ -628,7 +628,6 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 void wall_close_door_num(int door_num)
 {
 	active_door *d;
-	int i;
 
 	d = &ActiveDoors[door_num];
 
@@ -653,12 +652,6 @@ void wall_close_door_num(int door_num)
 
 		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
 	}
-	
-	for (i=door_num;i<Num_open_doors;i++)
-		ActiveDoors[i] = ActiveDoors[i+1];
-
-	Num_open_doors--;
-
 }
 
 static uint8_t check_poke(const vcobjptr_t obj, const vcsegptr_t segnum,int side)
@@ -949,7 +942,12 @@ static void do_door_close(active_door &d, int door_num)
 			ActiveDoors[Num_open_doors].time = 0;		//counts up
 
 		} else
+		{
 			wall_close_door_num(door_num);
+			const auto b = ActiveDoors.begin();
+			const auto j = std::next(b, door_num);
+			std::move(std::next(j), std::next(b, Num_open_doors--), j);
+		}
 	}
 }
 }
