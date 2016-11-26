@@ -2220,7 +2220,7 @@ class LazyObjectConstructor(object):
 			# result raises an error.
 			value = tuple([
 				StaticObject(target='%s%s%s' % (builddir, transform_target(self, srcname), OBJSUFFIX), source=srcname,
-					**({} if transform_env is None else transform_env(env))
+					**({} if transform_env is None else transform_env(self, env))
 				)	\
 				for s in source	\
 				# This is a single iteration comprehension to work
@@ -2770,6 +2770,11 @@ class PCHManager(object):
 		env.Command(node, v, self.write_pch_inclusion_file)
 
 class DXXCommon(LazyObjectConstructor):
+	# version number
+	VERSION_MAJOR = 0
+	VERSION_MINOR = 59
+	VERSION_MICRO = 100
+	DXX_VERSION_SEQ = ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)])
 	pch_manager = None
 	@cached_property
 	def program_message_prefix(self):
@@ -3625,8 +3630,9 @@ class DXXArchive(DXXCommon):
 
 	def configure_environment(self):
 		fs = SCons.Node.FS.get_default_fs()
-		builddir = fs.Dir(self.user_settings.builddir or '.')
-		tests = ConfigureTests(self.program_message_prefix, self.user_settings, self.platform_settings)
+		user_settings = self.user_settings
+		builddir = fs.Dir(user_settings.builddir or '.')
+		tests = ConfigureTests(self.program_message_prefix, user_settings, self.platform_settings)
 		log_file=fs.File('sconf.log', builddir)
 		conf = self.env.Configure(custom_tests = {
 				k.name:getattr(tests, k.name) for k in tests.custom_tests
@@ -3648,7 +3654,9 @@ class DXXArchive(DXXCommon):
 		except SCons.Errors.StopError as e:
 			raise SCons.Errors.StopError('{e0}  See {log_file} for details.'.format(e0=e.args[0], log_file=log_file), *e.args[1:])
 		cc_env_strings.restore(conf.env)
-		if self.user_settings.record_sconf_results:
+		if user_settings.pch:
+			conf.Define('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)
+		if user_settings.record_sconf_results:
 			conf.config_h_text += '''
 /*
 %s
@@ -3659,17 +3667,11 @@ class DXXArchive(DXXCommon):
 		self.env.MergeFlags(self.configure_added_environment_flags)
 
 class DXXProgram(DXXCommon):
-	# version number
-	VERSION_MAJOR = 0
-	VERSION_MINOR = 59
-	VERSION_MICRO = 100
 	static_archive_construction = {}
 	def _apply_target_name(self,name):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
-	def _apply_env_version_seq(env,
-		_DXX_VERSION_SEQ=[('DXX_VERSION_SEQ', ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)]))]
-	):
-		return {'CPPDEFINES' : env['CPPDEFINES'] + _DXX_VERSION_SEQ}
+	def _apply_env_version_seq(self,env,_empty={}):
+		return _empty if self.user_settings.pch else {'CPPDEFINES' : env['CPPDEFINES'] + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_getter([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.cpp',
@@ -3772,13 +3774,13 @@ class DXXProgram(DXXCommon):
 		'source': (
 'similar/main/inferno.cpp',
 ),
-		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
+		'transform_env': lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version},
 		'transform_target':_apply_target_name,
 	}, {
 		'source': (
 'similar/misc/physfsx.cpp',
 ),
-		'transform_env': lambda env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
+		'transform_env': lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH},
 		'transform_target':_apply_target_name,
 	}, {
 		'source': (
