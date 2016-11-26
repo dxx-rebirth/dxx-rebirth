@@ -598,8 +598,8 @@ int wall_restore_all()
 		w.flags &= ~(WALL_BLASTED | WALL_DOOR_OPENED | WALL_DOOR_OPENING);
 	}
 
-	for (int i=0;i<Num_open_doors;i++)
-		wall_close_door_num(i);
+	range_for (auto &i, partial_range(ActiveDoors, Num_open_doors))
+		wall_close_door_ref(i);
 
 	range_for (auto &&i, vsegptr)
 		range_for (auto &j, i->sides)

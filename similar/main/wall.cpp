@@ -587,13 +587,9 @@ void start_wall_decloak(const vsegptridx_t seg, int side)
 //-----------------------------------------------------------------
 // This function closes the specified door and restores the closed
 //  door texture.  This is called when the animation is done
-void wall_close_door_num(int door_num)
+void wall_close_door_ref(active_door &d)
 {
-	active_door *d;
-
-	d = &ActiveDoors[door_num];
-
-	range_for (const auto p, partial_const_range(d->front_wallnum, d->n_parts))
+	range_for (const auto p, partial_const_range(d.front_wallnum, d.n_parts))
 	{
 		int side;
 
@@ -816,7 +812,7 @@ static bool do_door_open(active_door &d)
 //-----------------------------------------------------------------
 // Animates and processes the closing of a door.
 // Called from the game loop.
-static bool do_door_close(active_door &d, int door_num)
+static bool do_door_close(active_door &d)
 {
 	auto &w0 = *vwallptr(d.front_wallnum[0]);
 	const auto &&wsegp = vsegptridx(w0.segnum);
@@ -901,7 +897,7 @@ static bool do_door_close(active_door &d, int door_num)
 			w1.state = WALL_DOOR_CLOSING;
 		} else
 		{
-			wall_close_door_num(door_num);
+			wall_close_door_ref(d);
 			remove = true;
 		}
 	}
@@ -1222,7 +1218,7 @@ void wall_frame_process()
 		if (w->state == WALL_DOOR_OPENING)
 			remove = do_door_open(d);
 		else if (w->state == WALL_DOOR_CLOSING)
-			remove = do_door_close(d, i);
+			remove = do_door_close(d);
 		else if (w->state == WALL_DOOR_WAITING) {
 			d.time += FrameTime;
 
