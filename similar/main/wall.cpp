@@ -56,6 +56,28 @@ struct ad_removal_predicate
 	bool operator()(active_door &) const;
 };
 
+struct find_active_door_predicate
+{
+	const wallnum_t wall_num;
+	explicit find_active_door_predicate(const wallnum_t i) :
+		wall_num(i)
+	{
+	}
+	bool operator()(active_door &d) const {
+		if (d.front_wallnum[0] == wall_num)
+			return true;
+		if (d.back_wallnum[0] == wall_num)
+			return true;
+		if (d.n_parts != 2)
+			return false;
+		if (d.front_wallnum[1] == wall_num)
+			return true;
+		if (d.back_wallnum[1] == wall_num)
+			return true;
+		return false;
+	}
+};
+
 }
 
 }
@@ -346,21 +368,9 @@ void wall_open_door(const vsegptridx_t seg, int side)
 #endif
 
 	if (w->state == WALL_DOOR_CLOSING) {		//closing, so reuse door
-
-		int i;
-	
-		d = NULL;
-
-		for (i=0;i<Num_open_doors;i++) {		//find door
-
-			d = &ActiveDoors[i];
-	
-			if (d->front_wallnum[0]==wall_num || d->back_wallnum[0]==wall_num ||
-				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
-				break;
-		}
-
-		if (i>=Num_open_doors) // likely in demo playback or multiplayer
+		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
+		if (i == r.end())	// likely in demo playback or multiplayer
 		{
 			d = &ActiveDoors[Num_open_doors];
 			d->time = 0;
@@ -369,14 +379,11 @@ void wall_open_door(const vsegptridx_t seg, int side)
 		}
 		else
 		{
-			Assert( d!=NULL ); // Get John!
-
+			d = i;
 			d->time = WallAnims[w->clip_num].play_time - d->time;
-
 			if (d->time < 0)
 				d->time = 0;
 		}
-	
 	}
 	else {											//create new door
 		Assert(w->state == WALL_DOOR_CLOSED);
