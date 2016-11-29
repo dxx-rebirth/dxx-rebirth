@@ -293,18 +293,18 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 	if (!Buddy_allowed_to_talk)
 		return;
 
-	//	If goal is to go away, how can it be achieved?
-	if (Escort_special_goal == ESCORT_GOAL_SCRAM)
+	// If goal is not an object (FUELCEN, EXIT, SCRAM), bail. FUELCEN is handled in detect_escort_goal_fuelcen_accomplished(), EXIT and SCRAM are never accomplished.
+	if (Escort_goal_index == object_none)
 		return;
 
-//	See if goal found was a key.  Need to handle default goals differently.
-//	Note, no buddy_met_goal sound when blow up reactor or exit.  Not great, but ok
-//	since for reactor, noisy, for exit, buddy is disappearing.
+	// See if goal found was a key.  Need to handle default goals differently.
+	// Note, no buddy_met_goal sound when blow up reactor or exit.  Not great, but ok
+	// since for reactor, noisy, for exit, buddy is disappearing.
 	if (Escort_special_goal == ESCORT_GOAL_UNSPECIFIED && Escort_goal_index == index)
 	{
-	record_escort_goal_accomplished();
-	return;
-}
+		record_escort_goal_accomplished();
+		return;
+	}
 
 	if (index->type == OBJ_POWERUP)  {
 		const auto index_id = get_powerup_id(index);
@@ -323,16 +323,15 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 	}
 	if (Escort_special_goal != ESCORT_GOAL_UNSPECIFIED)
 	{
-		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
-		} else if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
+		if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
 		else
 		{
 			const auto &&egi_objp = vcobjptr(Escort_goal_index);
 			if (index->type == egi_objp->type && index->id == egi_objp->id)
-			//	Note: This will help a little bit in making the buddy believe a goal is satisfied.  Won't work for a general goal like "find any powerup"
-			// because of the insistence of both type and id matching.
-			record_escort_goal_accomplished();
+				// Note: This will help a little bit in making the buddy believe a goal is satisfied.  Won't work for a general goal like "find any powerup"
+				// because of the insistence of both type and id matching.
+				record_escort_goal_accomplished();
 		}
 	}
 }
@@ -766,13 +765,20 @@ static void escort_create_path_to_goal(const vobjptridx_t objp, const player_inf
 				break;
 			case ESCORT_GOAL_EXIT:
 				goal_seg = find_exit_segment();
-				Escort_goal_index = goal_seg;
-				break;
+				Escort_goal_index = object_none;
+				if (goal_seg == segment_none)
+					escort_goal_does_not_exist(ESCORT_GOAL_EXIT);
+				else if (goal_seg == segment_exit)
+					escort_goal_unreachable(ESCORT_GOAL_EXIT);
+				else
+					escort_go_to_goal(objp, aip, goal_seg);
+				return;
 			case ESCORT_GOAL_ENERGY:
 				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY, powerup_flags);
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				goal_seg = exists_fuelcen_in_mine(objp->segnum, powerup_flags);
+				Escort_goal_index = object_none;
 				if (goal_seg == segment_none)
 					escort_goal_does_not_exist(ESCORT_GOAL_ENERGYCEN);
 				else if (goal_seg == segment_exit)
@@ -797,7 +803,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp, const player_inf
 				if (Escort_goal_index != object_none) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
-				Escort_goal_index = -3;		//	Kinda a hack.
+				Escort_goal_index = object_none;
 				break;
 			case ESCORT_GOAL_BOSS: {
 				int	boss_id;
@@ -810,6 +816,7 @@ static void escort_create_path_to_goal(const vobjptridx_t objp, const player_inf
 			default:
 				Int3();	//	Oops, Illegal value in Escort_goal_object.
 				goal_seg = 0;
+				Escort_goal_index = object_none;
 				break;
 		}
 	}
