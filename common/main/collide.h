@@ -56,7 +56,7 @@ void collide_player_and_materialization_center(vobjptridx_t objp);
 #endif
 void collide_robot_and_materialization_center(vobjptridx_t objp);
 
-void scrape_player_on_wall(vobjptridx_t obj, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
+bool scrape_player_on_wall(vobjptridx_t obj, vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt);
 #ifdef dsx
 namespace dsx {
 int maybe_detonate_weapon(vobjptridx_t obj0p, vobjptr_t obj, const vms_vector &pos);

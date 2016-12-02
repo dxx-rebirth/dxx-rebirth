@@ -422,12 +422,12 @@ static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
+bool scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
 {
 	fix d;
 
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
-		return;
+		return false;
 
 	if ((d=TmapInfo[hitseg->sides[hitside].tmap_num].damage) > 0) {
 		vms_vector	hit_dir;
@@ -450,7 +450,9 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
 		obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
 
+		return true;
 	}
+	return false;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 //see if wall is volatile or water
@@ -491,10 +493,10 @@ volatile_wall_result check_volatile_wall(const vobjptridx_t obj, const vcsegptr_
 }
 
 //this gets called when an object is scraping along the wall
-void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
+bool scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, short hitside, const vms_vector &hitpt)
 {
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
-		return;
+		return false;
 
 	const auto type = check_volatile_wall(obj, hitseg, hitside);
 	if (type != volatile_wall_result::none)
@@ -510,7 +512,10 @@ void scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 		vm_vec_scale_add2(hit_dir, make_random_vector(), F1_0/8);
 		vm_vec_normalize_quick(hit_dir);
 		bump_one_object(obj, hit_dir, F1_0*8);
+
+		return true;
 	}
+	return false;
 }
 
 static int effect_parent_is_guidebot(const laser_parent &laser)

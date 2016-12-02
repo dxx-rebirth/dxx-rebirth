@@ -319,6 +319,7 @@ void do_physics_sim(const vobjptridx_t obj)
 	physics_info *pi;
 	auto orig_segnum = obj->segnum;
 	int bounced=0;
+	bool Player_ScrapeFrame=false;
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
@@ -542,8 +543,14 @@ void do_physics_sim(const vobjptridx_t obj)
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					collide_object_with_wall(obj, hit_speed, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
-				if (obj->type == OBJ_PLAYER)
-					scrape_player_on_wall(obj, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+				/*
+				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
+				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.
+				 * It's possible that other walls later in the loop would still be valid for scraping but due to the generalized outcome, this should be negligible (practical wall sliding is handled below).
+				 * NOTE: Remote players will return false and never receive damage. But since we handle only one object (remote or local) per loop, this is no problem. 
+				 */
+				if (obj->type == OBJ_PLAYER && Player_ScrapeFrame == false)
+					Player_ScrapeFrame = scrape_player_on_wall(obj, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 
 				Assert( WallHitSeg != segment_none );
 				Assert( WallHitSide > -1 );
