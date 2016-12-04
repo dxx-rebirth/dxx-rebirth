@@ -855,6 +855,10 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 					Int3();
 					return object_none;
 				}
+#if defined(DXX_BUILD_DESCENT_II)
+				if (player)
+					obj->flags |= OF_PLAYER_DROPPED;
+#endif
 
 				if (Game_mode & GM_MULTI)
 				{
