@@ -370,11 +370,7 @@ public:
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
 		int i,ntris;
-#if defined(DXX_BUILD_DESCENT_I)
-		const uint8_t color = 55/*w(p+28)*/;
-#elif defined(DXX_BUILD_DESCENT_II)
 		const uint8_t color = w(p+28);
-#endif
 		array<cg3s_point *, 3> point_list;
 		for (i=0;i<2;i++)
 			point_list[i] = &Interp_point_list[wp(p+30)[i]];
