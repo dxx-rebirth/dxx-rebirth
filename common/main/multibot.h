@@ -46,7 +46,7 @@ void multi_send_robot_explode(objptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(int robotcen, objnum_t objnum, int type);
 #ifdef dsx
 namespace dsx {
-void multi_send_boss_teleport(vobjptridx_t bossobjnum, segnum_t where);
+void multi_send_boss_teleport(vobjptridx_t bossobjnum, vcsegidx_t where);
 }
 #endif
 void multi_send_boss_cloak(objnum_t bossobjnum);

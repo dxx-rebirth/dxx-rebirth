@@ -624,7 +624,7 @@ static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 }
 
 namespace dsx {
-void multi_send_boss_teleport(const vobjptridx_t bossobj, segnum_t where)
+void multi_send_boss_teleport(const vobjptridx_t bossobj, const vcsegidx_t where)
 {
 	// Boss is up for grabs after teleporting
 	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
