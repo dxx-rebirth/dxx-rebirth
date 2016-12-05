@@ -1694,6 +1694,8 @@ int net_udp_objnum_is_past(objnum_t objnum)
 		return 0;
 }
 
+namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
 static void net_udp_send_door_updates(void)
 {
@@ -1701,9 +1703,7 @@ static void net_udp_send_door_updates(void)
 	range_for (const auto &&p, vcwallptridx)
 	{
 		auto &w = *p;
-		if (w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING))
-			multi_send_door_open(w.segnum, w.sidenum,0);
-		else if (w.type == WALL_BLASTABLE && (w.flags & WALL_BLASTED))
+		if ((w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING)) || (w.type == WALL_BLASTABLE && (w.flags & WALL_BLASTED)))
 			multi_send_door_open(w.segnum, w.sidenum,0);
 		else if (w.type == WALL_BLASTABLE && w.hps != WALL_HPS)
 			multi_send_hostage_door_status(p);
@@ -1717,9 +1717,7 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 	range_for (const auto &&p, vcwallptridx)
 	{
 		auto &w = *p;
-		if (w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING || w.state == WALL_DOOR_OPEN))
-			multi_send_door_open_specific(pnum,w.segnum, w.sidenum,w.flags);
-		else if (w.type == WALL_BLASTABLE && (w.flags & WALL_BLASTED))
+		if ((w.type == WALL_DOOR && (w.state == WALL_DOOR_OPENING || w.state == WALL_DOOR_WAITING || w.state == WALL_DOOR_OPEN)) || (w.type == WALL_BLASTABLE && (w.flags & WALL_BLASTED)))
 			multi_send_door_open_specific(pnum,w.segnum, w.sidenum,w.flags);
 		else if (w.type == WALL_BLASTABLE && w.hps != WALL_HPS)
 			multi_send_hostage_door_status(p);
@@ -1728,6 +1726,8 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 	}
 }
 #endif
+
+}
 
 static void net_udp_process_monitor_vector(uint32_t vector)
 {
