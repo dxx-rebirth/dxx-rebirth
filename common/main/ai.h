@@ -99,7 +99,7 @@ namespace dsx {
 void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
-void init_ai_object(object &objp, ai_behavior initial_mode, segnum_t hide_segment);
+void init_ai_object(object &objp, ai_behavior initial_mode, segidx_t hide_segment);
 }
 
 namespace dcx {

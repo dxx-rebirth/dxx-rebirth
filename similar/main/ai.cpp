@@ -482,7 +482,7 @@ void ai_init_boss_for_ship(void)
 
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(object &objp, ai_behavior behavior, segnum_t hide_segment)
+void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segment)
 {
 	ai_static	*const aip = &objp.ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
