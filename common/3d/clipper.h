@@ -13,12 +13,14 @@
 #pragma once
 
 #ifdef __cplusplus
+#include "dxxsconf.h"
 #include <cstdint>
 
 struct g3s_codes;
 struct g3s_point;
 
 #if !DXX_USE_OGL
+#include "dsx-ns.h"
 #include "3d.h"
 #include "globvars.h"
 #include "compiler-array.h"

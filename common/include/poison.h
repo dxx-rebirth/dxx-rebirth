@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dxxsconf.h"
+
 #if DXX_HAVE_POISON_VALGRIND
 #include <valgrind/memcheck.h>
 #endif

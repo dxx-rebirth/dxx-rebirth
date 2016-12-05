@@ -27,8 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
+#include "fwd-gr.h"
 
-struct grs_bitmap;
 namespace dcx {
 struct palette_array_t;
 }
