@@ -502,6 +502,7 @@ static int main(int argc, char *argv[])
 	show_titles();
 
 	set_screen_mode(SCREEN_MENU);
+	atexit(newmenu_free_background);	// suppresses 'blocks were left allocated' warning at exit
 
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
