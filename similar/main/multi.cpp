@@ -3050,7 +3050,7 @@ void multi_send_trigger(const int triggernum)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
+void multi_send_effect_blowup(const vcsegidx_t segnum, const unsigned side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.

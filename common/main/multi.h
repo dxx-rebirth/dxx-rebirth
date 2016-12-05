@@ -549,7 +549,7 @@ void multi_send_markers();
 void multi_send_guided_info (vobjptr_t miss,char);
 void multi_send_orb_bonus(playernum_t pnum);
 void multi_send_got_orb(playernum_t pnum);
-void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt);
+void multi_send_effect_blowup(vcsegidx_t segnum, unsigned side, const vms_vector &pnt);
 void multi_send_vulcan_weapon_ammo_adjust(const vobjptridx_t objnum);
 }
 #ifndef RELEASE
