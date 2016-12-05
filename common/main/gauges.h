@@ -49,11 +49,10 @@ extern array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 
 // Flags for gauges/hud stuff
 
-void add_points_to_score(player_info &, int points);
-void add_bonus_points_to_score(player_info &, int points);
-
 #ifdef dsx
 namespace dsx {
+void add_points_to_score(player_info &, int points);
+void add_bonus_points_to_score(player_info &, int points);
 void render_gauges(void);
 void init_gauges(void);
 }

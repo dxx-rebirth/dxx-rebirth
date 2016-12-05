@@ -1677,7 +1677,7 @@ static void show_time()
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
-static void common_add_points_to_score(const int points, player_info &player_info)
+static void common_add_points_to_score(const int points, int &score)
 {
 	if (points == 0 || cheats.enabled)
 		return;
@@ -1685,7 +1685,6 @@ static void common_add_points_to_score(const int points, player_info &player_inf
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
 
-	auto &score = player_info.mission.score;
 	const auto prev_score = score;
 	score += points;
 
@@ -1704,6 +1703,8 @@ static void common_add_points_to_score(const int points, player_info &player_inf
 	}
 }
 
+namespace dsx {
+
 void add_points_to_score(player_info &player_info, int points)
 {
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
@@ -1712,7 +1713,7 @@ void add_points_to_score(player_info &player_info, int points)
 	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
-	common_add_points_to_score(points, player_info);
+	common_add_points_to_score(points, player_info.mission.score);
 	if (Game_mode & GM_MULTI_COOP)
 		multi_send_score();
 }
@@ -1723,7 +1724,9 @@ void add_points_to_score(player_info &player_info, int points)
 void add_bonus_points_to_score(player_info &player_info, int points)
 {
 	assert(!(Game_mode & GM_MULTI));
-	common_add_points_to_score(points, player_info);
+	common_add_points_to_score(points, player_info.mission.score);
+}
+
 }
 
 // Decode cockpit bitmap to deccpt and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
