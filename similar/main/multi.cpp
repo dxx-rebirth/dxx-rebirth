@@ -3043,9 +3043,9 @@ void multi_send_trigger(const int triggernum)
 	multi_send_data<MULTI_TRIGGER>(multibuf, count, 2);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
+#if defined(DXX_BUILD_DESCENT_II)
 void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
@@ -3066,25 +3066,25 @@ void multi_send_effect_blowup(segnum_t segnum, int side, const vms_vector &pnt)
 
 	multi_send_data<MULTI_EFFECT_BLOWUP>(multibuf, count, 0);
 }
-
-}
 #endif
 
-void multi_send_hostage_door_status(uint16_t wallnum)
+void multi_send_hostage_door_status(const vcwallptridx_t w)
 {
 	// Tell the other player what the hit point status of a hostage door
 	// should be
 
 	int count = 0;
 
-	const auto &&w = vwallptr(wallnum);
 	assert(w->type == WALL_BLASTABLE);
 
 	count += 1;
-	PUT_INTEL_SHORT(multibuf+count, wallnum );           count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], static_cast<wallnum_t>(w));
+	count += 2;
 	PUT_INTEL_INT(multibuf+count, w->hps);  count += 4;
 
 	multi_send_data<MULTI_HOSTAGE_DOOR>(multibuf, count, 0);
+}
+
 }
 
 void multi_consistency_error(int reset)

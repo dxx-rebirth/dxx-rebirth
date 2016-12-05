@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "powerup.h"
 #include "fwd-object.h"
+#include "fwd-wall.h"
 #include "window.h"
 #include "game.h"
 
@@ -538,7 +539,6 @@ void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
-void multi_send_hostage_door_status(uint16_t wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern char Multi_is_guided;
@@ -566,6 +566,7 @@ multi_endlevel_poll *get_multi_endlevel_poll2();
 void multi_send_endlevel_packet();
 #ifdef dsx
 namespace dsx {
+void multi_send_hostage_door_status(vcwallptridx_t wallnum);
 void multi_prep_level_objects();
 void multi_prep_level_player();
 void multi_leave_game(void);
