@@ -124,7 +124,7 @@ void ai_follow_path(vobjptridx_t objp, int player_visibility, const vms_vector *
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
 void create_n_segment_path(vobjptridx_t objp, int path_length, segidx_t avoid_seg);
-void create_n_segment_path_to_door(vobjptridx_t objp, int path_length, segnum_t avoid_seg);
+void create_n_segment_path_to_door(vobjptridx_t objp, int path_length);
 }
 #endif
 namespace dcx {

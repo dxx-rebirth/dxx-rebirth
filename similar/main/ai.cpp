@@ -3160,7 +3160,7 @@ _exit_cheat:
 					break;
 #endif
 				case ai_mode::AIM_OPEN_DOOR:
-					create_n_segment_path_to_door(obj, 5, segment_none);
+					create_n_segment_path_to_door(obj, 5);
 					break;
 				case ai_mode::AIM_FOLLOW_PATH_2:
 					Int3(); // Should never happen!
@@ -3371,7 +3371,7 @@ _exit_cheat:
 				} else if (ailp->mode != ai_mode::AIM_FOLLOW_PATH) {
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, 8+Difficulty_level);     // third parameter is avoid_seg, -1 means avoid nothing.
 					ai_multi_send_robot_position(obj, -1);
 				}
 
@@ -3390,7 +3390,7 @@ _exit_cheat:
 				if (player_visibility) {
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level, segment_none);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, 8+Difficulty_level);     // third parameter is avoid_seg, -1 means avoid nothing.
 					ai_multi_send_robot_position(obj, -1);
 				}
 			}

@@ -820,9 +820,9 @@ void create_n_segment_path(const vobjptridx_t objp, int path_length, const segid
 }
 
 //	-------------------------------------------------------------------------------------------------------
-void create_n_segment_path_to_door(const vobjptridx_t objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path_to_door(const vobjptridx_t objp, int path_length)
 {
-	create_n_segment_path(objp, path_length, avoid_seg);
+	create_n_segment_path(objp, path_length, segment_none);
 }
 
 #define Int3_if(cond) if (!cond) Int3();
