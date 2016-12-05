@@ -2860,7 +2860,7 @@ void multi_send_decloak()
 
 namespace dsx {
 
-void multi_send_door_open(segnum_t segnum, int side,ubyte flag)
+void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
 {
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(multibuf+1, segnum );

@@ -463,7 +463,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, int player);
 void multi_send_position(vobjptridx_t objnum);
 void multi_send_kill(vobjptridx_t objnum);
 void multi_send_remobj(vobjptridx_t objnum);
-void multi_send_door_open(segnum_t segnum, int side,ubyte flag);
+void multi_send_door_open(vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_drop_weapon(vobjptridx_t objnum,int seed);
 void multi_reset_player_object(vobjptr_t objp);
 int multi_maybe_disable_friendly_fire(cobjptridx_t killer);
