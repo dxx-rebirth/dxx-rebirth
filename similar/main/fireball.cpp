@@ -640,7 +640,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const auto &&objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, OBJ_POWERUP, powerup_type);
+		const auto &&objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, powerup_type);
 
 		if (objnum == object_none)
 			return;
@@ -1046,10 +1046,10 @@ objptridx_t object_create_robot_egg(const vobjptr_t objp)
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-objptridx_t call_object_create_egg(const object_base &objp, int count, int type, int id)
+objptridx_t call_object_create_egg(const object_base &objp, const unsigned count, const int id)
 {
 	if (count > 0) {
-		return object_create_player_egg(type, id, count, objp.mtype.phys_info.velocity, objp.pos, vsegptridx(objp.segnum));
+		return object_create_player_egg(OBJ_POWERUP, id, count, objp.mtype.phys_info.velocity, objp.pos, vsegptridx(objp.segnum));
 	}
 
 	return object_none;

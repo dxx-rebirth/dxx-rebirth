@@ -280,7 +280,7 @@ objptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector 
 
 // Interface to object_create_egg, puts count objects of type type, id
 // = id in objp and then drops them.
-objptridx_t call_object_create_egg(const object_base &objp, int count, int type, int id);
+objptridx_t call_object_create_egg(const object_base &objp, unsigned count, int id);
 
 void dead_player_end();
 

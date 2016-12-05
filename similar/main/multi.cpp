@@ -2232,7 +2232,7 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 	}
 
 	Net_create_loc = 0;
-	const auto &&my_objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, OBJ_POWERUP, powerup_type);
+	const auto &&my_objnum = call_object_create_egg(vobjptr(Players[pnum].objnum), 1, powerup_type);
 
 	if (my_objnum == object_none) {
 		return;
