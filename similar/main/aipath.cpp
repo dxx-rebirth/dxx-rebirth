@@ -773,7 +773,7 @@ void create_path_to_station(const vobjptridx_t objp, int max_length)
 
 //	-------------------------------------------------------------------------------------------------------
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
-void create_n_segment_path(const vobjptridx_t objp, int path_length, segnum_t avoid_seg)
+void create_n_segment_path(const vobjptridx_t objp, int path_length, const segidx_t avoid_seg)
 {
 	ai_static	*aip=&objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
