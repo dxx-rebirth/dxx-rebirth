@@ -2936,7 +2936,9 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	multi_send_data<MULTI_CONTROLCEN_FIRE>(multibuf, count, 0);
 }
 
-void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos)
+namespace dsx {
+
+void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx_t segnum, const vcobjidx_t objnum, const vms_vector &pos)
 {
 	// Create a powerup on a remote machine, used for remote
 	// placement of used powerups like missiles and cloaking
@@ -2975,6 +2977,8 @@ void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, obj
 	}
 
 	map_objnum_local_to_local(objnum);
+}
+
 }
 
 void multi_digi_play_sample_once(int soundnum, fix max_volume)

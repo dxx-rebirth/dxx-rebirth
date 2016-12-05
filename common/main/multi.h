@@ -524,6 +524,7 @@ static inline void multi_send_endlevel_start(multi_endlevel_type)
 }
 #endif
 void multi_send_player_deres(deres_type_t type);
+void multi_send_create_powerup(powerup_type_t powerup_type, vcsegidx_t segnum, vcobjidx_t objnum, const vms_vector &pos);
 }
 #endif
 void multi_send_reappear();
@@ -533,7 +534,6 @@ namespace dcx {
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 }
-void multi_send_create_powerup(powerup_type_t powerup_type, segnum_t segnum, objnum_t objnum, const vms_vector &pos);
 void multi_send_play_sound(int sound_num, fix volume);
 void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
