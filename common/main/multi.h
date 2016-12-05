@@ -770,7 +770,7 @@ void multi_check_for_killgoal_winner();
 namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum,char trig);
-void multi_send_door_open_specific(playernum_t pnum,segnum_t segnum, int side,ubyte flag);
+void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, uint8_t flag);
 void multi_send_wall_status_specific(playernum_t pnum,uint16_t wallnum,ubyte type,ubyte flags,ubyte state);
 void multi_send_light_specific (playernum_t pnum,segnum_t segnum,ubyte val);
 void multi_send_capture_bonus (playernum_t pnum);

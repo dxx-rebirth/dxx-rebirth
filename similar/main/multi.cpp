@@ -2143,9 +2143,8 @@ namespace dsx {
 
 static void multi_do_door_open(const ubyte *buf)
 {
-	segnum_t segnum;
 	ubyte side;
-	segnum = GET_INTEL_SHORT(buf + 1);
+	const segnum_t segnum = GET_INTEL_SHORT(&buf[1]);
 	side = buf[3];
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte flag= buf[4];
@@ -2874,7 +2873,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const ui
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_door_open_specific(const playernum_t pnum,segnum_t segnum, int side,ubyte flag)
+void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const unsigned side, const uint8_t flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
 
