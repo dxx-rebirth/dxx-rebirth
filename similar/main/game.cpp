@@ -1666,7 +1666,7 @@ static void flicker_lights()
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(segnum_t segnum, int sidenum)
+static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::iterator> find_flicker(const vsegidx_t segnum, const unsigned sidenum)
 {
 	//see if there's already an entry for this seg/side
 	const auto &&pr = partial_range(Flickering_lights, Num_flickering_lights);
@@ -1676,21 +1676,21 @@ static std::pair<Flickering_light_array_t::iterator, Flickering_light_array_t::i
 	return {std::find_if(pr.begin(), pr.end(), predicate), pr.end()};
 }
 
-static void update_flicker(const segnum_t segnum, const unsigned sidenum, const fix timer)
+static void update_flicker(const vsegidx_t segnum, const unsigned sidenum, const fix timer)
 {
-	auto i = find_flicker(segnum, sidenum);
+	const auto &&i = find_flicker(segnum, sidenum);
 	if (i.first != i.second)
 		i.first->timer = timer;
 }
 
 //turn flickering off (because light has been turned off)
-void disable_flicker(segnum_t segnum,int sidenum)
+void disable_flicker(const vsegidx_t segnum, const unsigned sidenum)
 {
 	update_flicker(segnum, sidenum, flicker_timer_disabled);
 }
 
 //turn flickering off (because light has been turned on)
-void enable_flicker(segnum_t segnum,int sidenum)
+void enable_flicker(const vsegidx_t segnum, const unsigned sidenum)
 {
 	update_flicker(segnum, sidenum, 0);
 }
