@@ -1263,7 +1263,7 @@ void update_rendered_data(window_rendered_data &window, const vobjptr_t viewer, 
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, unsigned &first_terminal_seg, segnum_t start_seg_num)
+static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &visited, unsigned &first_terminal_seg, const vcsegidx_t start_seg_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l;
@@ -1431,7 +1431,7 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(segnum_t start_seg_num,fix eye_offset, window_rendered_data &window)
+void render_mine(const vcsegidx_t start_seg_num,fix eye_offset, window_rendered_data &window)
 {
 	using std::advance;
 	render_state_t rstate;
