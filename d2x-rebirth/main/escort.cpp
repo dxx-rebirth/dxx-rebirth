@@ -726,7 +726,7 @@ static void escort_go_to_goal(const vobjptridx_t objp, ai_static *aip, segnum_t 
 }
 
 //	-----------------------------------------------------------------------------
-static segnum_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid, const player_flags powerup_flags)
+static segidx_t escort_get_goal_segment(const vcobjptr_t objp, int objtype, int objid, const player_flags powerup_flags)
 {
 	const auto egi = exists_in_mine(objp->segnum, objtype, objid, -1, powerup_flags);
 	Escort_goal_index = egi;
@@ -1190,7 +1190,7 @@ void do_snipe_frame(const vobjptridx_t objp, fix dist_to_player, int player_visi
 
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to recreate thief in.
-static segnum_t choose_thief_recreation_segment(const vcsegidx_t plrseg)
+static vsegidx_t choose_thief_recreation_segment(const vcsegidx_t plrseg)
 {
 	segnum_t	segnum = segment_none;
 	int	cur_drop_depth;
