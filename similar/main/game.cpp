@@ -1212,6 +1212,8 @@ namespace dsx {
 // Event handler for the game
 window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
 {
+	const bool was_game_wind = Game_wind != nullptr;
+
 	switch (event.type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -1304,8 +1306,8 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			break;
 	}
 	
-	// If we deleted the window, tell the event loop
-	return Game_wind ? window_event_result::ignored : window_event_result::deleted;
+	// If we deleted the window ***in this call of the handler***, tell the event loop
+	return Game_wind || !was_game_wind ? window_event_result::ignored : window_event_result::deleted;
 }
 
 // Initialise game, actually runs in main event loop
