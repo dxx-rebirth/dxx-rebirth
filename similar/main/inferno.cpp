@@ -502,6 +502,26 @@ static int main(int argc, char *argv[])
 	show_titles();
 
 	set_screen_mode(SCREEN_MENU);
+#ifdef DEBUG_MEMORY_ALLOCATIONS
+	/* Memdebug runs before global destructors, so it incorrectly
+	 * reports as leaked any allocations that would be freed by a global
+	 * destructor.  This local will force the newmenu globals to be
+	 * reset before memdebug scans, which prevents memdebug falsely
+	 * reporting them as leaked.
+	 *
+	 * External tools, such as Valgrind, know to run global destructors
+	 * before checking for leaks, so this hack is only necessary when
+	 * memdebug is used.
+	 */
+	struct hack_free_global_backgrounds
+	{
+		~hack_free_global_backgrounds()
+		{
+			newmenu_free_background();
+		}
+	};
+	hack_free_global_backgrounds hack_free_global_background;
+#endif
 
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
