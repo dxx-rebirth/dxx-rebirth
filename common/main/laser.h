@@ -71,7 +71,7 @@ namespace dsx {
 void calc_d_homer_tick();
 #endif
 void Laser_render(const object_base &obj);
-objptridx_t Laser_player_fire(vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, vms_vector shot_orientation);
+objptridx_t Laser_player_fire(vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, const vms_vector &shot_orientation);
 void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(vobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);

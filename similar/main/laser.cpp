@@ -1332,7 +1332,7 @@ static objptridx_t track_track_goal(const objptridx_t track_goal, const vobjptri
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, fix spreadr, fix spreadu, fix delay_time, int make_sound, vms_vector shot_orientation)
+static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation)
 {
 	int			Fate;
 	vms_vector	LaserDir;
@@ -1493,14 +1493,14 @@ static objptridx_t Laser_player_fire_spread_delay(const vobjptridx_t obj, weapon
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static objptridx_t Laser_player_fire_spread(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, vms_vector shot_orientation)
+static objptridx_t Laser_player_fire_spread(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const int make_sound, const vms_vector &shot_orientation)
 {
 	return Laser_player_fire_spread_delay(obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-objptridx_t Laser_player_fire(const vobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, vms_vector shot_orientation)
+objptridx_t Laser_player_fire(const vobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const int make_sound, const vms_vector &shot_orientation)
 {
 	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, shot_orientation);
 }
@@ -1998,14 +1998,15 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			break;
 		}
 		case primary_weapon_index_t::SPREADFIRE_INDEX:
-			if (flags & LASER_SPREADFIRE_TOGGLED) {
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, F1_0/16, 0, 0, shot_orientation);
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, -F1_0/16, 0, 0, shot_orientation);
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
-			} else {
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, F1_0/16, 0, shot_orientation);
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, -F1_0/16, 0, shot_orientation);
-				Laser_player_fire_spread( objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
+			{
+				fix spreadr0, spreadu0, spreadr1, spreadu1;
+				if (flags & LASER_SPREADFIRE_TOGGLED)
+					spreadr0 = F1_0 / 16, spreadr1 = -F1_0 / 16, spreadu0 = spreadu1 = 0;
+				else
+					spreadu0 = F1_0 / 16, spreadu1 = -F1_0 / 16, spreadr0 = spreadr1 = 0;
+				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr0, spreadu0, 0, shot_orientation);
+				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr1, spreadu1, 0, shot_orientation);
+				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation);
 			}
 			break;
 
