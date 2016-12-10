@@ -264,9 +264,6 @@ void scores_maybe_add_player()
 
 	}
 	scores_view(&last_game, position);
-
-	if (Game_wind)
-		window_close(Game_wind);	// prevent the next game from doing funny things
 }
 
 static void scores_rputs(int x, int y, char *buffer) __attribute_nonnull();
