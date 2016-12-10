@@ -1017,12 +1017,13 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(const vobjptridx_t obj, const player_flags powerup_flags, const vms_vector &fire_point, int gun_num
+static void ai_fire_laser_at_player(const vobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const int gun_num
 #if defined(DXX_BUILD_DESCENT_II)
 									, const vms_vector &believed_player_pos
 #endif
 									)
 {
+	const auto powerup_flags = player_info.powerup_flags;
 	ai_local		*ailp = &obj->ctype.ai_info.ail;
 	robot_info	*robptr = &Robot_info[get_robot_id(obj)];
 	vms_vector	fire_vec;
@@ -2561,7 +2562,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
-							ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, 0);
+							ai_fire_laser_at_player(obj, player_info, gun_point, 0);
 						}
 					}
 
@@ -2586,7 +2587,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, 0);
+			ai_fire_laser_at_player(obj, player_info, gun_point, 0);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
@@ -2647,13 +2648,13 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 								return;
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (ready_to_fire_weapon1(ailp, 0)) {
-								ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, fire_pos);
+								ai_fire_laser_at_player(obj, player_info, gun_point, gun_num, fire_pos);
 								Last_fired_upon_player_pos = fire_pos;
 							}
 							if (gun_num != 0) {
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, 0, fire_pos);
+									ai_fire_laser_at_player(obj, player_info, gun_point, 0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 							}
@@ -2691,7 +2692,7 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, Believed_player_pos);
+			ai_fire_laser_at_player(obj, player_info, gun_point, gun_num, Believed_player_pos);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp->goal_state[aip->CURRENT_GUN] = AIS_RECO;
@@ -2733,13 +2734,13 @@ static void ai_do_actual_firing_stuff(const vobjptridx_t obj, ai_static *aip, ai
 							//	New, multi-weapon-type system, 06/05/95 (life is slipping away...)
 							if (ready_to_fire_weapon1(ailp, 0))
 							{
-								ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, gun_num, Last_fired_upon_player_pos);
+								ai_fire_laser_at_player(obj, player_info, gun_point, gun_num, Last_fired_upon_player_pos);
 							}
 							if (gun_num != 0) {
 
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
 									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(obj, player_info.powerup_flags, gun_point, 0, Last_fired_upon_player_pos);
+									ai_fire_laser_at_player(obj, player_info, gun_point, 0, Last_fired_upon_player_pos);
 								}
 							}
 						}
