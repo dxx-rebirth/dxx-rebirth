@@ -118,6 +118,12 @@ class Git(StaticSubprocess):
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
+	# `__pcall_missing_git`, `__pcall_found_git`, and `pcall` must have
+	# compatible signatures.  In any given run, there will be at most
+	# one call to `pcall`, which then patches itself out of the call
+	# chain.  A run will call either __pcall_missing_git or
+	# __pcall_found_git (depending on whether $GIT is blank), but never
+	# both in the same run.
 	@classmethod
 	def __pcall_missing_git(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
 		return _missing_git
@@ -150,7 +156,7 @@ class Git(StaticSubprocess):
 		return c
 	# Run `git describe --tags --abbrev=12`.
 	# On failure, return None.
-	# On success, return a 3-tuple of:
+	# On success, return a string containing:
 	#	first line of output of describe
 	#	'*' if there are unstaged changes else ''
 	#	'+' if there are staged changes else ''
@@ -4112,7 +4118,7 @@ class D2XProgram(DXXProgram):
 		value.extend(__get_dsx_objects_editor(self))
 		return value
 
-def register_program(program,other_program,variables,filtered_help,_itertools_product=itertools.product):
+def register_program(program,other_program,variables,filtered_help,append,_itertools_product=itertools.product):
 	s = program.shortname
 	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [other_program.shortname not in ARGUMENTS]
 	# Legacy case: build one configuration.
@@ -4122,7 +4128,7 @@ def register_program(program,other_program,variables,filtered_help,_itertools_pr
 				# If the user specifies an integer that evaluates to
 				# False, this configuration is disabled.  This allows
 				# the user to build only one game, instead of both.
-				return []
+				return
 			# Coerce to an empty string, then reuse the case for stacked
 			# profiles.  This is slightly less efficient, but reduces
 			# maintenance by not having multiple sites that call
@@ -4131,8 +4137,6 @@ def register_program(program,other_program,variables,filtered_help,_itertools_pr
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
 			pass
-	r = []
-	append = r.append
 	seen = set()
 	add_seen = seen.add
 	for e in l:
@@ -4161,14 +4165,13 @@ def register_program(program,other_program,variables,filtered_help,_itertools_pr
 				continue
 			add_seen(prefix)
 			append(program(tuple(('%s%s%s' % (s, '_' if p else '', p) for p in prefix)) + prefix, variables, filtered_help))
-	return r
 
-def main(register_program):
+def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	variables = Variables([v for k, v in ARGLIST if k == 'site'] or ['site-local.py'], ARGUMENTS)
 	filtered_help = FilterHelpText()
-	dxx =	\
-		register_program(D1XProgram, D2XProgram, variables, filtered_help) +	\
-		register_program(D2XProgram, D1XProgram, variables, filtered_help)
+	dxx = []
+	register_program(_d1xp, _d2xp, variables, filtered_help, dxx.append)
+	register_program(_d2xp, _d1xp, variables, filtered_help, dxx.append)
 	substenv = SCons.Environment.SubstitutionEnvironment()
 	variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 	variables.Update(substenv)
