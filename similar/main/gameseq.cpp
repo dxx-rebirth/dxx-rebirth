@@ -991,7 +991,8 @@ static void StartSecretLevel()
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
-	Fusion_charge = 0;
+	auto &player_info = ConsoleObject->ctype.player_info;
+	player_info.Fusion_charge = 0;
 }
 
 //	Returns true if secret level has been destroyed.
@@ -2002,6 +2003,7 @@ static void StartLevel(int random_flag)
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
-	Fusion_charge = 0;
+	auto &player_info = ConsoleObject->ctype.player_info;
+	player_info.Fusion_charge = 0;
 }
 }

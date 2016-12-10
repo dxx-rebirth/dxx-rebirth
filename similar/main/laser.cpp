@@ -776,6 +776,8 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 #endif
 				fusion_scale = 4;
 
+			auto &player_info = parent->ctype.player_info;
+			const auto Fusion_charge = player_info.Fusion_charge;
 			if (Fusion_charge <= 0)
 				obj->ctype.laser_info.multiplier = F1_0;
 			else if (Fusion_charge <= F1_0*fusion_scale)
@@ -2025,6 +2027,8 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation);
 			Laser_player_fire( objp, weapon_id_type::FUSION_ID, 1, 1, shot_orientation);
 
+			assert(objp->type == OBJ_PLAYER);
+			auto &Fusion_charge = objp->ctype.player_info.Fusion_charge;
 			flags = static_cast<int8_t>(Fusion_charge >> 12);
 
 			Fusion_charge = 0;

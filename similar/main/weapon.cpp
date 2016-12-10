@@ -438,7 +438,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
-                        Fusion_charge=0;
+			player_info.Fusion_charge=0;
 			//end edit - Victor Rachels
 #endif
 			auto &Next_laser_fire_time = player_info.Next_laser_fire_time;

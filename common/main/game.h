@@ -131,7 +131,6 @@ extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, ND
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
 extern fix64 Auto_fire_fusion_cannon_time;
-extern fix Fusion_charge;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 }

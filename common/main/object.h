@@ -101,6 +101,7 @@ struct player_info
 {
 	fix     energy;                 // Amount of energy remaining.
 	fix     homing_object_dist;     // Distance of nearest homing object.
+	fix Fusion_charge;
 #if defined(DXX_BUILD_DESCENT_II)
 	fix Omega_charge;
 	fix Omega_recharge_delay;

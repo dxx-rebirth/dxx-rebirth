@@ -128,7 +128,6 @@ int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix64	Auto_fire_fusion_cannon_time = 0;
-fix	Fusion_charge = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
@@ -1524,7 +1523,7 @@ void GameProcessFrame(void)
 				rotvel.x += rx;
 				rotvel.z += rz;
 
-				const auto bump_amount = Fusion_charge > F1_0*2 ? Fusion_charge*4 : F1_0*4;
+				const auto bump_amount = player_info.Fusion_charge > F1_0*2 ? player_info.Fusion_charge * 4 : F1_0 * 4;
 				bump_one_object(console, make_random_vector(), bump_amount);
 			}
 		}
@@ -1717,10 +1716,10 @@ void FireLaser()
 		} else {
 			static fix64 Fusion_next_sound_time = 0;
 
-			if (Fusion_charge == 0)
+			if (player_info.Fusion_charge == 0)
 				energy -= F1_0*2;
 
-			Fusion_charge += FrameTime;
+			const auto Fusion_charge = (player_info.Fusion_charge += FrameTime);
 			energy -= FrameTime;
 
 			if (energy <= 0)

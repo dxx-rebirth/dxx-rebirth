@@ -1650,7 +1650,7 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 
 	Assert (pnum < N_players);
 
-	const auto obj = vobjptridx(Players[pnum].objnum);
+	const auto &&obj = vobjptridx(Players[pnum].objnum);
 	if (obj->type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 
@@ -1677,9 +1677,8 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		}
 	}
 	else {
-		fix save_charge = Fusion_charge;
 		if (weapon == primary_weapon_index_t::FUSION_INDEX) {
-			Fusion_charge = flags << 12;
+			obj->ctype.player_info.Fusion_charge = flags << 12;
 		}
 		auto &objp = obj;
 		if (weapon == weapon_id_type::LASER_ID) {
@@ -1691,9 +1690,6 @@ static void multi_do_fire(const playernum_t pnum, const ubyte *buf)
 		}
 
 		do_laser_firing(objp, weapon, static_cast<int>(buf[3]), flags, static_cast<int>(buf[5]), shot_orientation);
-
-		if (weapon == primary_weapon_index_t::FUSION_INDEX)
-			Fusion_charge = save_charge;
 	}
 }
 
