@@ -55,6 +55,7 @@ void add_points_to_score(player_info &, int points);
 void add_bonus_points_to_score(player_info &, int points);
 void render_gauges(void);
 void init_gauges(void);
+void draw_hud(const object &);     // draw all the HUD stuff
 }
 #endif
 void close_gauges(void);
@@ -66,12 +67,6 @@ void show_HUD_names();
 #endif
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
 
-#ifdef dsx
-namespace dsx {
-extern void draw_hud();     // draw all the HUD stuff
-
-}
-#endif
 extern void player_dead_message(void);
 //extern void say_afterburner_status(void);
 

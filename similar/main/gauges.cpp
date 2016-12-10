@@ -3219,12 +3219,12 @@ void show_HUD_names()
 
 //draw all the things on the HUD
 namespace dsx {
-void draw_hud()
+void draw_hud(const object &plrobj)
 {
+	auto &player_info = plrobj.ctype.player_info;
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
 		int ammo;
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Primary_weapon = player_info.Primary_weapon;
 		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = player_info.vulcan_ammo, true))
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3289,7 +3289,6 @@ void draw_hud()
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-			auto &player_info = get_local_plrobj().ctype.player_info;
 			hud_show_energy(player_info);
 			hud_show_shield();
 			hud_show_afterburner(player_info);

@@ -380,7 +380,8 @@ static void game_draw_hud_stuff()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 
-	draw_hud();
+	auto &plrobj = get_local_plrobj();
+	draw_hud(plrobj);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
