@@ -988,7 +988,6 @@ void do_automap()
 	automap *am = new automap{};
 	window_create(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, automap_handler, am);
 	am->leave_mode = 0;
-	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
 	am->max_segments_away = 0;
 	am->segment_limit = 1;
 	am->num_edges = 0;
@@ -1002,8 +1001,7 @@ void do_automap()
 	am->viewDist = 0;
 
 	init_automap_colors(am);
-	if ((Game_mode & GM_MULTI) && (!Endlevel_sequence))
-		am->pause_game = 0;
+	am->pause_game = !((Game_mode & GM_MULTI) && (!Endlevel_sequence)); // Set to 1 if everything is paused during automap...No pause during net.
 
 	if (am->pause_game) {
 		window_set_visible(Game_wind, 0);
