@@ -17,11 +17,9 @@
 
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
-	(	\
-		static_cast<void>(DXX_CONSTANT_TRUE(!(SUCCESS_CONDITION)) &&	\
+		static_cast<void>(DXX_CONSTANT_TRUE(!SUCCESS_CONDITION) &&	\
 			(DXX_ALWAYS_ERROR_FUNCTION(FAILURE_FUNCTION, FAILURE_STRING), 0)	\
 		)	\
-	)
 
 #ifdef DXX_HAVE_ATTRIBUTE_WARNING
 /* This causes many warnings because some conversions are not checked for
@@ -36,11 +34,13 @@
 #endif
 
 #define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,EXCEPTION,FAILURE_STRING,...)	\
-	(	\
-		static_cast<void>(DXX_VALPTRIDX_STATIC_CHECK((SUCCESS_CONDITION), dxx_trap_##EXCEPTION, FAILURE_STRING),	\
-			(SUCCESS_CONDITION) || (EXCEPTION::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__)), 0)	\
-		)	\
-	)
+	DXX_BEGIN_COMPOUND_STATEMENT ( {	\
+		const bool dxx_valptridx_check_success_condition = (SUCCESS_CONDITION);	\
+		DXX_VALPTRIDX_STATIC_CHECK(dxx_valptridx_check_success_condition, dxx_trap_##EXCEPTION, FAILURE_STRING);	\
+		static_cast<void>(	\
+			dxx_valptridx_check_success_condition || (EXCEPTION::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__)), 0)	\
+		);	\
+	} ) DXX_END_COMPOUND_STATEMENT
 
 #ifndef DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 #define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
