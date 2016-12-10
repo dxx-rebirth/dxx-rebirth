@@ -2743,9 +2743,9 @@ void show_reticle(int reticle_type, int secondary_display)
 	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
 
 	laser_ready = allowed_to_fire_laser();
-	missile_ready = allowed_to_fire_missile();
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
+	missile_ready = allowed_to_fire_missile(player_info);
 	auto &Primary_weapon = player_info.Primary_weapon;
 	primary_bm_num = (laser_ready && player_has_primary_weapon(player_info, Primary_weapon).has_all());
 	auto &Secondary_weapon = player_info.Secondary_weapon;

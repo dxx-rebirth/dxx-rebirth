@@ -240,7 +240,7 @@ static void do_weapon_n_item_stuff()
 			Flare_create(vobjptridx(ConsoleObject));
 	}
 
-	if (allowed_to_fire_missile() && Controls.state.fire_secondary)
+	if (allowed_to_fire_missile(player_info) && Controls.state.fire_secondary)
 	{
 		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[player_info.Secondary_weapon]].fire_count;
 	}

@@ -875,17 +875,16 @@ int allowed_to_fire_flare(player_info &player_info)
 
 	return 1;
 }
-}
 
-int allowed_to_fire_missile(void)
+int allowed_to_fire_missile(const player_info &player_info)
 {
-	auto &plrobj = get_local_plrobj();
-	auto &Next_missile_fire_time = plrobj.ctype.player_info.Next_missile_fire_time;
+	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	//	Make sure enough time has elapsed to fire missile
 	if (Next_missile_fire_time > GameTime64)
 		return 0;
 
 	return 1;
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
