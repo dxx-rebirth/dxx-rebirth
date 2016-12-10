@@ -127,7 +127,6 @@ int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
-fix64	Auto_fire_fusion_cannon_time = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
@@ -1509,7 +1508,8 @@ void GameProcessFrame(void)
 			FireLaser();				// Fire Laser!
 
 		auto laser_firing_count = Global_laser_firing_count;
-		if (Auto_fire_fusion_cannon_time) {
+		if (auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time)
+		{
 			if (player_info.Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
 			else if ((laser_firing_count = (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time)))
@@ -1710,6 +1710,7 @@ void FireLaser()
 
 	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
 		auto &energy = player_info.energy;
+		auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time;
 		if (energy < F1_0 * 2 && Auto_fire_fusion_cannon_time == 0)
 		{
 			Global_laser_firing_count = 0;

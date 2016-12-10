@@ -1705,10 +1705,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	//	Restore hacked up weapon system stuff.
-	Auto_fire_fusion_cannon_time = 0;
 	auto &player_info = plrobj.ctype.player_info;
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
+	player_info.Auto_fire_fusion_cannon_time = 0;
 	Next_laser_fire_time = GameTime64;
 	Next_missile_fire_time = GameTime64;
 

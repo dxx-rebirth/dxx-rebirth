@@ -130,7 +130,6 @@ extern int Game_suspended;          // if non-zero, nothing moves but player
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
-extern fix64 Auto_fire_fusion_cannon_time;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 }

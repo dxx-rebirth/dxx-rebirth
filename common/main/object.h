@@ -143,6 +143,7 @@ struct player_info
 	fix64 Next_laser_fire_time;
 	fix64 Next_missile_fire_time;
 	fix64 Last_bumped_local_player;
+	fix64 Auto_fire_fusion_cannon_time;
 };
 
 }

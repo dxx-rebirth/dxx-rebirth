@@ -990,8 +990,8 @@ static void StartSecretLevel()
 	// -- NO? -- reset_time();
 
 	reset_rear_view();
-	Auto_fire_fusion_cannon_time = 0;
 	auto &player_info = ConsoleObject->ctype.player_info;
+	player_info.Auto_fire_fusion_cannon_time = 0;
 	player_info.Fusion_charge = 0;
 }
 
@@ -2002,8 +2002,8 @@ static void StartLevel(int random_flag)
 	ai_init_boss_for_ship();
 
 	reset_rear_view();
-	Auto_fire_fusion_cannon_time = 0;
 	auto &player_info = ConsoleObject->ctype.player_info;
+	player_info.Auto_fire_fusion_cannon_time = 0;
 	player_info.Fusion_charge = 0;
 }
 }
