@@ -87,7 +87,7 @@
 	VALUE(MULTI_STOLEN_ITEMS         , 11)	\
 	VALUE(MULTI_WALL_STATUS          , 6)	/* send to new players */	\
 	VALUE(MULTI_SEISMIC              , 5)	\
-	VALUE(MULTI_LIGHT                , 18)	\
+	VALUE(MULTI_LIGHT                , 16)	\
 	VALUE(MULTI_START_TRIGGER        , 2)	\
 	VALUE(MULTI_FLAGS                , 6)	\
 	VALUE(MULTI_DROP_BLOB            , 2)	\

@@ -3917,17 +3917,18 @@ static void multi_do_seismic (const ubyte *buf)
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
-void multi_send_light_specific (const playernum_t pnum,segnum_t segnum,ubyte val)
+void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segnum, const uint8_t val)
 {
 	int count=1;
 
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
 
-	PUT_INTEL_INT(multibuf+count, segnum); count+=(sizeof(int));
+	PUT_INTEL_SHORT(&multibuf[count], segnum);
+	count += sizeof(uint16_t);
 	*reinterpret_cast<char *>(multibuf+count)=val; count++;
 
-	range_for (auto &i, Segments[segnum].sides)
+	range_for (auto &i, segnum->sides)
 	{
 		PUT_INTEL_SHORT(multibuf+count, i.tmap_num2); count+=2;
 	}
@@ -3938,10 +3939,9 @@ void multi_send_light_specific (const playernum_t pnum,segnum_t segnum,ubyte val
 static void multi_do_light (const ubyte *buf)
 {
 	int i;
-	const auto sides = buf[5];
+	const auto sides = buf[3];
 
-	segnum_t seg;
-	seg = GET_INTEL_INT(buf + 1);
+	const segnum_t seg = GET_INTEL_SHORT(&buf[1]);
 	const auto &&segp = vsegptridx(seg);
 	auto &side_array = segp->sides;
 	for (i=0;i<6;i++)
@@ -3949,7 +3949,7 @@ static void multi_do_light (const ubyte *buf)
 		if ((sides & (1<<i)))
 		{
 			subtract_light(segp, i);
-			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[6 + (2 * i)]);
+			side_array[i].tmap_num2 = GET_INTEL_SHORT(&buf[4 + (2 * i)]);
 		}
 	}
 }
