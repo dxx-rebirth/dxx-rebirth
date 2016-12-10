@@ -661,7 +661,7 @@ public:
 
 }
 
-static void hud_show_score()
+static void hud_show_score(const player_info &player_info)
 {
 	char	score_str[20];
 
@@ -672,7 +672,6 @@ static void hud_show_score()
 
 	const char *label;
 	int value;
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
 		label = TXT_KILLS;
 		value = player_info.net_kills_total;
@@ -757,7 +756,7 @@ static void hud_show_score_added()
 	}
 }
 
-static void sb_show_score(const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_show_score(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	char	score_str[20];
 	int x,y;
@@ -768,7 +767,6 @@ static void sb_show_score(const local_multires_gauge_graphic multires_gauge_grap
 	gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
 	gr_set_curfont( GAME_FONT );
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	snprintf(score_str, sizeof(score_str), "%5d",
 			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
 			? player_info.net_kills_total
@@ -867,9 +865,10 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, (get_local_plrobj().ctype.player_info.homing_object_dist >= 0 && (GameTime64 & 0x4000)) ? GAUGE_HOMING_WARNING_ON : GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
 }
 
-static void hud_show_homing_warning(void)
+static void hud_show_homing_warning(const int homing_object_dist)
 {
-	if (get_local_plrobj().ctype.player_info.homing_object_dist >= 0) {
+	if (homing_object_dist >= 0)
+	{
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
@@ -921,7 +920,7 @@ static void hud_show_keys(const player_info &player_info, const local_multires_g
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_orbs(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_hoard()) {
 		const auto &&fspacy1 = FSPACY(1);
@@ -947,14 +946,12 @@ static void hud_show_orbs (const local_multires_gauge_graphic multires_gauge_gra
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		gr_printf(x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
-static void hud_show_flag(const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_flag(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG)) {
 		int x, y = GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + 2, icon;
 		const auto &&fspacy1 = FSPACY(1);
@@ -1049,14 +1046,13 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 }
 
 namespace dsx {
-static void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
+static void show_bomb_count(const player_info &player_info, const int x, const int y, const int bg_color, const int always_show, const int right_align)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!PlayerCfg.BombGauge)
 		return;
 #endif
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto bomb = which_bomb();
 	int count = player_info.secondary_ammo[bomb];
 
@@ -1136,17 +1132,15 @@ static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, co
 	}
 }
 
-static void hud_set_primary_weapon_fontcolor(const int consider_weapon)
+static void hud_set_primary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto rgb = hud_get_primary_weapon_fontcolor(player_info, consider_weapon);
 	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
-static rgb_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
+static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (player_info.Secondary_weapon == consider_weapon)
 		return hud_rgb_red;
 	else{
@@ -1174,16 +1168,16 @@ static rgb_t hud_get_secondary_weapon_fontcolor(const int consider_weapon)
 	}
 }
 
-static void hud_set_secondary_weapon_fontcolor(const int consider_weapon)
+static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
-	auto rgb = hud_get_secondary_weapon_fontcolor(consider_weapon);
+	auto rgb = hud_get_secondary_weapon_fontcolor(player_info, consider_weapon);
 	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
-static rgb_t hud_get_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_ammo)
+static rgb_t hud_get_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo)
 {
-	if (weapon_index_uses_vulcan_ammo(get_local_plrobj().ctype.player_info.Primary_weapon))
+	if (weapon_index_uses_vulcan_ammo(player_info.Primary_weapon))
 		return hud_rgb_red;
 	else if (has_weapon_uses_vulcan_ammo)
 		return hud_rgb_green;
@@ -1191,15 +1185,14 @@ static rgb_t hud_get_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan
 		return hud_rgb_gray;
 }
 
-static void hud_set_vulcan_ammo_fontcolor(const unsigned has_weapon_uses_vulcan_ammo)
+static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo)
 {
-	auto rgb = hud_get_vulcan_ammo_fontcolor(has_weapon_uses_vulcan_ammo);
+	auto rgb = hud_get_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
 	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
-static void hud_printf_vulcan_ammo(const int x, const int y)
+static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, const int y)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
 	const auto vulcan_mask = HAS_VULCAN_FLAG;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1211,7 +1204,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
-	hud_set_vulcan_ammo_fontcolor(has_weapon_uses_vulcan_ammo);
+	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
 		((primary_weapon_flags & gauss_mask) && (get_local_plrobj().ctype.player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
@@ -1225,7 +1218,7 @@ static void hud_printf_vulcan_ammo(const int x, const int y)
 	gr_printf(x, y, "%c:%u", c, fmt_vulcan_ammo);
 }
 
-static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
+static void hud_show_primary_weapons_mode(const player_info &player_info, const int vertical, const int orig_x, const int orig_y)
 {
 	int x=orig_x,y=orig_y;
 
@@ -1243,12 +1236,11 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
-			hud_set_primary_weapon_fontcolor(i);
+			hud_set_primary_weapon_fontcolor(player_info, i);
 			switch(i)
 			{
 				case primary_weapon_index_t::LASER_INDEX:
 					{
-						auto &player_info = get_local_plrobj().ctype.player_info;
 						snprintf(weapon_str, sizeof(weapon_str), "%c%i", (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) ? 'Q' : 'L', player_info.laser_level + 1);
 					txtweapon = weapon_str;
 					}
@@ -1302,7 +1294,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 						vx = x - (w + fspacx3), vy = y - ((h + fspacy2) * 2), true
 					)
 				)
-					hud_printf_vulcan_ammo(vx, vy);
+					hud_printf_vulcan_ammo(player_info, vx, vy);
 			}
 		}
 	}
@@ -1325,7 +1317,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
-			hud_set_primary_weapon_fontcolor(i);
+			hud_set_primary_weapon_fontcolor(player_info, i);
 			switch(i)
 			{
 				case primary_weapon_index_t::SUPER_LASER_INDEX:
@@ -1361,7 +1353,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 			{
 				if (vertical && (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN))
-					hud_printf_vulcan_ammo(x, y);
+					hud_printf_vulcan_ammo(player_info, x, y);
 				continue;
 			}
 			gr_string(x, y, txtweapon, w, h);
@@ -1371,7 +1363,7 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 }
 
-static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
+static void hud_show_secondary_weapons_mode(const player_info &player_info, const int vertical, const int orig_x, const int orig_y)
 {
 	int x=orig_x,y=orig_y;
 
@@ -1383,14 +1375,13 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx3 = fspacx(3);
 	const auto &&fspacy2 = FSPACY(2);
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &secondary_ammo = player_info.secondary_ammo;
 	{
 		for (uint_fast32_t ui = 5; ui --;)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
-			hud_set_secondary_weapon_fontcolor(i);
+			hud_set_secondary_weapon_fontcolor(player_info, i);
 			snprintf(weapon_str, sizeof(weapon_str), "%i", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(weapon_str, &w, &h, nullptr);
@@ -1420,7 +1411,7 @@ static void hud_show_secondary_weapons_mode(int vertical,int orig_x,int orig_y)
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
-			hud_set_secondary_weapon_fontcolor(i);
+			hud_set_secondary_weapon_fontcolor(player_info, i);
 			snprintf(weapon_str, sizeof(weapon_str), "%u", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(weapon_str, &w, &h, nullptr);
@@ -1458,8 +1449,8 @@ static void hud_show_weapons(const player_info &player_info)
 #elif defined(DXX_BUILD_DESCENT_II)
 		unsigned multiplier = 2;
 #endif
-		hud_show_primary_weapons_mode(0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
-		hud_show_secondary_weapons_mode(0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * multiplier));
+		hud_show_primary_weapons_mode(player_info, 0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
+		hud_show_secondary_weapons_mode(player_info, 0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * multiplier));
 		return;
 	}
 	const auto &&fspacx = FSPACX();
@@ -1472,8 +1463,8 @@ static void hud_show_weapons(const player_info &player_info)
 		y=grd_curcanv->cv_bitmap.bm_h/1.75;
 		x1 = grd_curcanv->cv_bitmap.bm_w / 2.1 - (fspacx(40) + w);
 		x2 = grd_curcanv->cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
-		hud_show_primary_weapons_mode(1,x1,y);
-		hud_show_secondary_weapons_mode(1,x2,y);
+		hud_show_primary_weapons_mode(player_info, 1, x1, y);
+		hud_show_secondary_weapons_mode(player_info, 1, x2, y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_plrobj().shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
@@ -1542,7 +1533,7 @@ static void hud_show_weapons(const player_info &player_info)
 		gr_get_string_size(weapon_str, &w, &h, nullptr);
 		gr_string(bmwx - w, y - line_spacing, weapon_str, w, h);
 
-		show_bomb_count(bmwx, y - (line_spacing * 3), -1, 1, 1);
+		show_bomb_count(player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
 }
 }
@@ -1606,7 +1597,7 @@ static void hud_show_shield(void)
 }
 
 //draw the icons for number of lives
-static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_lives(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x;
 
@@ -1621,7 +1612,6 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 	if (Game_mode & GM_MULTI) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		gr_printf(x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
 	else if (get_local_player().lives > 1)  {
@@ -1636,7 +1626,7 @@ static void hud_show_lives(const local_multires_gauge_graphic multires_gauge_gra
 
 }
 
-static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_show_lives(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int y;
 	y = SB_LIVES_Y;
@@ -1651,7 +1641,6 @@ static void sb_show_lives(const local_multires_gauge_graphic multires_gauge_grap
 		char killed_str[20];
 		static array<int, 4> last_x{{SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_L, SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_H}};
 
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
 		gr_get_string_size(killed_str, &w, &h, nullptr);
@@ -2088,12 +2077,11 @@ static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
 
 #define CLOAK_FADE_WAIT_TIME  0x400
 
-static void draw_player_ship(int cloak_state,int x, int y, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_player_ship(const player_info &player_info, const int cloak_state, const int x,  const int y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 
-	const auto &player_info = get_local_plrobj().ctype.player_info;
 	if (cloak_state)
 	{
 		static int step = 0;
@@ -2198,7 +2186,7 @@ void draw_cockpit_keys_state::draw_all_keys(const local_multires_gauge_graphic m
 }
 
 namespace dsx {
-static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x, int pic_y, const char *name, int text_x, int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_info_sub(const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
@@ -2233,17 +2221,14 @@ static void draw_weapon_info_sub(int info_index, const gauge_box *box, int pic_x
 #endif
 		{
 			const auto &&line_spacing = LINE_SPACING;
-			auto &player_info = get_local_plrobj().ctype.player_info;
 			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
 			if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
 }
-}
 
-namespace dsx {
-static void draw_primary_weapon_info(int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_primary_weapon_info(const player_info &player_info, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)laser_level;
@@ -2282,20 +2267,18 @@ static void draw_primary_weapon_info(int weapon_num, int laser_level, const loca
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
+		draw_weapon_info_sub(player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[0] == WBU_WEAPON)
 #endif
-				hud_show_primary_weapons_mode(1,x,y);
+				hud_show_primary_weapons_mode(player_info, 1, x, y);
 		}
 	}
 }
-}
 
-namespace dsx {
-static void draw_secondary_weapon_info(int weapon_num, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_secondary_weapon_info(const player_info &player_info, const int weapon_num, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x,y;
 	int info_index;
@@ -2324,24 +2307,24 @@ static void draw_secondary_weapon_info(int weapon_num, const local_multires_gaug
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(info_index, box, pic_x,pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
+		draw_weapon_info_sub(player_info, info_index, box, pic_x,pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[1] == WBU_WEAPON)
 #endif
-				hud_show_secondary_weapons_mode(1,x,y);
+				hud_show_secondary_weapons_mode(player_info, 1, x, y);
 		}
 	}
 }
 }
 
-static void draw_weapon_info(int weapon_type, int weapon_num, int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_info(const player_info &player_info, const int weapon_type, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (weapon_type == 0)
-		draw_primary_weapon_info(weapon_num, laser_level, multires_gauge_graphic);
+		draw_primary_weapon_info(player_info, weapon_num, laser_level, multires_gauge_graphic);
 	else
-		draw_secondary_weapon_info(weapon_num, multires_gauge_graphic);
+		draw_secondary_weapon_info(player_info, weapon_num, multires_gauge_graphic);
 }
 
 static void draw_ammo_info(int x,int y,int ammo_count)
@@ -2363,7 +2346,7 @@ static void draw_secondary_ammo_info(int ammo_count, const local_multires_gauge_
 	draw_ammo_info(x, y, ammo_count);
 }
 
-static void draw_weapon_box(int weapon_type,int weapon_num)
+static void draw_weapon_box(const player_info &player_info, const int weapon_type, const int weapon_num)
 {
 	int laser_level_changed;
 
@@ -2371,7 +2354,6 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 
 	gr_set_curfont( GAME_FONT );
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	laser_level_changed = (weapon_type == 0 && weapon_num == primary_weapon_index_t::LASER_INDEX && (player_info.laser_level != old_laser_level));
 
 	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && PlayerCfg.HudMode == HudType::Standard)
@@ -2383,13 +2365,13 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+		draw_weapon_info(player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level, multires_gauge_graphic);
+		draw_weapon_info(player_info, weapon_type,old_weapon[weapon_type],old_laser_level, multires_gauge_graphic);
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
@@ -2403,7 +2385,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
-			draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+			draw_weapon_info(player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2412,7 +2394,7 @@ static void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 	} else
 	{
-		draw_weapon_info(weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
+		draw_weapon_info(player_info, weapon_type, weapon_num, player_info.laser_level, multires_gauge_graphic);
 		old_weapon[weapon_type] = weapon_num;
 		old_laser_level = player_info.laser_level;
 	}
@@ -2477,15 +2459,14 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 #endif
 
 namespace dsx {
-static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_box0(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[0] == WBU_WEAPON)
 #endif
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		const auto Primary_weapon = player_info.Primary_weapon;
-		draw_weapon_box(0,Primary_weapon);
+		draw_weapon_box(player_info, 0, Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
 			unsigned nd_ammo;
@@ -2515,18 +2496,15 @@ static void draw_weapon_box0(const local_multires_gauge_graphic multires_gauge_g
 		draw_static(0, multires_gauge_graphic);
 #endif
 }
-}
 
-namespace dsx {
-static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_box1(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	if (weapon_box_user[1] == WBU_WEAPON)
 #endif
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
 		auto &Secondary_weapon = player_info.Secondary_weapon;
-		draw_weapon_box(1,Secondary_weapon);
+		draw_weapon_box(player_info, 1, Secondary_weapon);
 		if (weapon_box_states[1] == WS_SET)
 		{
 			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
@@ -2540,15 +2518,13 @@ static void draw_weapon_box1(const local_multires_gauge_graphic multires_gauge_g
 		draw_static(1, multires_gauge_graphic);
 #endif
 }
-}
 
-static void draw_weapon_boxes(const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_boxes(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	draw_weapon_box0(multires_gauge_graphic);
-	draw_weapon_box1(multires_gauge_graphic);
+	draw_weapon_box0(player_info, multires_gauge_graphic);
+	draw_weapon_box1(player_info, multires_gauge_graphic);
 }
 
-namespace dsx {
 static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int ew;
@@ -2580,7 +2556,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_draw_afterburner(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	auto &ab_str = "AB";
 
@@ -2598,7 +2574,6 @@ static void sb_draw_afterburner(const local_multires_gauge_graphic multires_gaug
 
 	//draw legend
 	unsigned r, g, b;
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
 		r = 90, g = b = 0;
 	else
@@ -2640,12 +2615,11 @@ void draw_statusbar_keys_state::draw_all_keys(const local_multires_gauge_graphic
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
-static void draw_invulnerable_ship(const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_invulnerable_ship(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	gr_set_current_canvas(NULL);
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto t = player_info.invulnerable_time;
 	if (t + INVULNERABLE_TIME_MAX - GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
@@ -3271,7 +3245,7 @@ void draw_hud(const object &plrobj)
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
-		hud_show_score();
+		hud_show_score(player_info);
 		if (score_time)
 			hud_show_score_added();
 	}
@@ -3285,7 +3259,7 @@ void draw_hud(const object &plrobj)
 		show_HUD_names();
 
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-			hud_show_homing_warning();
+			hud_show_homing_warning(player_info.homing_object_dist);
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
@@ -3311,14 +3285,14 @@ void draw_hud(const object &plrobj)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
-			hud_show_flag(multires_gauge_graphic);
-			hud_show_orbs(multires_gauge_graphic);
+			hud_show_flag(player_info, multires_gauge_graphic);
+			hud_show_orbs(player_info, multires_gauge_graphic);
 		}
 #endif
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives(multires_gauge_graphic);
+			hud_show_lives(player_info, multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list();
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
@@ -3361,7 +3335,7 @@ void render_gauges()
 	}
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	draw_weapon_boxes(multires_gauge_graphic);
+	draw_weapon_boxes(player_info, multires_gauge_graphic);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
@@ -3374,11 +3348,11 @@ void render_gauges()
 			newdemo_record_player_afterburner(Afterburner_charge);
 		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
 #endif
-		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
-		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
+		show_bomb_count(player_info, HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+		draw_player_ship(player_info, cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship(multires_gauge_graphic);
+			draw_invulnerable_ship(player_info, multires_gauge_graphic);
 		else
 			draw_shield_bar(shields, multires_gauge_graphic);
 		draw_numerical_display(shields, energy, multires_gauge_graphic);
@@ -3403,15 +3377,15 @@ void render_gauges()
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
-		sb_draw_afterburner(multires_gauge_graphic);
+		sb_draw_afterburner(player_info, multires_gauge_graphic);
 		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
 #endif
-			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+			show_bomb_count(player_info, HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
-		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
+		draw_player_ship(player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship(multires_gauge_graphic);
+			draw_invulnerable_ship(player_info, multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields, multires_gauge_graphic);
 		sb_draw_shield_num(shields, multires_gauge_graphic);
@@ -3423,8 +3397,8 @@ void render_gauges()
 		}
 		draw_statusbar_keys_state(player_info.powerup_flags).draw_all_keys(multires_gauge_graphic);
 
-		sb_show_lives(multires_gauge_graphic);
-		sb_show_score(multires_gauge_graphic);
+		sb_show_lives(player_info, multires_gauge_graphic);
+		sb_show_score(player_info, multires_gauge_graphic);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
@@ -3436,7 +3410,7 @@ void render_gauges()
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	else
-		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
+		draw_player_ship(player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 #endif
 }
 }
