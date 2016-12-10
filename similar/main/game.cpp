@@ -1730,10 +1730,15 @@ void FireLaser()
 			} else
 				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
 
+			{
+				int dg, db;
+				const int dr = Fusion_charge >> 11;
 			if (Fusion_charge < F1_0*2)
-				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
+				dg = 0, db = dr;
 			else
-				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
+				dg = dr, db = 0;
+				PALETTE_FLASH_ADD(dr, dg, db);
+			}
 
 			if (Fusion_next_sound_time > GameTime64 + F1_0/8 + D_RAND_MAX/4) // GameTime64 is smaller than max delay - player in new level?
 				Fusion_next_sound_time = GameTime64 - 1;
