@@ -632,9 +632,37 @@ public:
 
 template <typename managed_type>
 template <typename P>
-class valptridx<managed_type>::basic_vptr_global_factory
+class valptridx<managed_type>::basic_ival_global_factory
 {
 	using containing_type = valptridx<managed_type>;
+public:
+	using result_type = P;
+	basic_ival_global_factory() = default;
+	basic_ival_global_factory(const basic_ival_global_factory &) = delete;
+	basic_ival_global_factory &operator=(const basic_ival_global_factory &) = delete;
+	__attribute_warn_unused_result
+	P operator()(typename P::index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+	{
+		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
+	}
+	template <containing_type::integral_type v>
+		__attribute_warn_unused_result
+		P operator()(const containing_type::magic_constant<v> &m) const
+		{
+			return P(m, get_array());
+		}
+	template <typename T>
+		P operator()(T &&) const = delete;
+	void *operator &() const = delete;
+};
+
+template <typename managed_type>
+template <typename P>
+class valptridx<managed_type>::basic_vval_global_factory :
+	public basic_ival_global_factory<P>
+{
+	using containing_type = valptridx<managed_type>;
+	using base_type = basic_ival_global_factory<P>;
 	struct iterator :
 		std::iterator<std::forward_iterator_tag, P>,
 		P
@@ -651,10 +679,8 @@ class valptridx<managed_type>::basic_vptr_global_factory
 	};
 public:
 	using index_type = typename containing_type::index_type;
-	using result_type = P;
-	basic_vptr_global_factory() = default;
-	basic_vptr_global_factory(const basic_vptr_global_factory &) = delete;
-	basic_vptr_global_factory &operator=(const basic_vptr_global_factory &) = delete;
+	using typename base_type::result_type;
+	using base_type::operator();
 	__attribute_warn_unused_result
 	P operator()(typename P::const_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 	{
@@ -664,11 +690,6 @@ public:
 	P operator()(typename P::mutable_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 	{
 		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, get_array(p));
-	}
-	__attribute_warn_unused_result
-	P operator()(index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
-	{
-		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
 	}
 	__attribute_warn_unused_result
 	typename array_managed_type::size_type count() const
@@ -691,51 +712,16 @@ public:
 		auto &a = get_array();
 		return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, static_cast<const allow_end_construction *>(nullptr));
 	}
-	template <containing_type::integral_type v>
-		__attribute_warn_unused_result
-		P operator()(const containing_type::magic_constant<v> &m) const
-		{
-			return P(m, get_array());
-		}
 	template <typename policy>
 		P operator()(containing_type::basic_idx<policy, 0> i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
 		}
-	template <typename T>
-		P operator()(T &&) const = delete;
-	void *operator &() const = delete;
-};
-
-template <typename managed_type>
-template <typename PI>
-class valptridx<managed_type>::basic_ptridx_global_factory
-{
-	using containing_type = valptridx<managed_type>;
-public:
-	using result_type = PI;
-	basic_ptridx_global_factory() = default;
-	basic_ptridx_global_factory(const basic_ptridx_global_factory &) = delete;
-	basic_ptridx_global_factory &operator=(const basic_ptridx_global_factory &) = delete;
-	__attribute_warn_unused_result
-	PI operator()(typename PI::index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
-	{
-		return PI(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, get_array());
-	}
-	template <containing_type::integral_type v>
-		__attribute_warn_unused_result
-		PI operator()(const containing_type::magic_constant<v> &m) const
-		{
-			return PI(m, get_array());
-		}
-	template <typename T>
-		PI operator()(T &&) const = delete;
-	void *operator &() const = delete;
 };
 
 #define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,FACTORY)	\
-	constexpr valptridx<MANAGED_TYPE>::basic_vptr_global_factory<v##FACTORY##_t> v##FACTORY{};	\
-	constexpr valptridx<MANAGED_TYPE>::basic_ptridx_global_factory<FACTORY##_t> FACTORY{}	\
+	constexpr valptridx<MANAGED_TYPE>::basic_vval_global_factory<v##FACTORY##_t> v##FACTORY{};	\
+	constexpr valptridx<MANAGED_TYPE>::basic_ival_global_factory<FACTORY##_t> FACTORY{}	\
 
 #define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES2(MANAGED_TYPE,PREFIX)	\
 	DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES3(MANAGED_TYPE,PREFIX##ptr);	\

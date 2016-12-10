@@ -131,9 +131,9 @@ public:
 	class null_pointer_exception;
 
 	template <typename vptr>
-		class basic_vptr_global_factory;
+		class basic_vval_global_factory;
 	template <typename ptridx>
-		class basic_ptridx_global_factory;
+		class basic_ival_global_factory;
 	template <integral_type constant>
 		class magic_constant
 		{
