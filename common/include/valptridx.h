@@ -35,12 +35,6 @@
 	((void)0)
 #endif
 
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
-#define DXX_VALPTRIDX_REF_QUALIFIER_LVALUE &
-#else
-#define DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
-#endif
-
 #define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,EXCEPTION,FAILURE_STRING,...)	\
 	(	\
 		static_cast<void>(DXX_VALPTRIDX_STATIC_CHECK((SUCCESS_CONDITION), dxx_trap_##EXCEPTION, FAILURE_STRING),	\
@@ -413,23 +407,22 @@ public:
 
 	operator mutable_pointer_type() const { return m_ptr; }	// implicit pointer conversion deprecated
 	operator const_pointer_type() const { return m_ptr; }	// implicit pointer conversion deprecated
-	pointer_type operator->() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
+	pointer_type operator->() const &
 	{
 		return m_ptr;
 	}
-	operator reference_type() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
+	operator reference_type() const &
 	{
 		return *m_ptr;
 	}
-	reference_type operator*() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
+	reference_type operator*() const &
 	{
 		return *this;
 	}
-	explicit operator bool() const DXX_VALPTRIDX_REF_QUALIFIER_LVALUE
+	explicit operator bool() const &
 	{
 		return !(*this == nullptr);
 	}
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 	pointer_type operator->() const &&
 	{
 		static_assert(!allow_nullptr, "operator-> not allowed with allow_invalid policy");
@@ -446,7 +439,6 @@ public:
 		return *this;
 	}
 	explicit operator bool() const && = delete;
-#endif
 	bool operator==(std::nullptr_t) const
 	{
 		static_assert(allow_nullptr, "nullptr comparison not allowed: value is never null");

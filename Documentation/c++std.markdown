@@ -60,8 +60,6 @@ SConf checks whether the active compiler accepts such expressions and replaces `
 	When the truth argument has internal commas, the entire truth expression must be wrapped in parentheses to protect it from the preprocessor.
 * [Reference-qualified methods][scppr:rvalue method] check that an rvalue which may or may not hold a valid pointer is not used in a context where the caller assumes the rvalue holds a valid pointer.
 When the rvalue may or may not hold a valid pointer, it must be saved to an lvalue, tested for a valid pointer, and used only if a valid pointer is found.
-The preprocessor symbol `DXX_HAVE_CXX11_REF_QUALIFIER` is defined if reference-qualified methods are available.
-Code which defines reference-qualified methods must be guarded with `#ifdef DXX_HAVE_CXX11_REF_QUALIFIER`.
 
 ## Optional C++14 features
 * [`std::exchange`][cppr:cpp/utility/exchange] is a convenience utility function.

@@ -416,13 +416,8 @@ class RAIIPHYSFS_File : public std::unique_ptr<PHYSFS_File, PHYSFS_File_deleter>
 public:
 	DXX_INHERIT_CONSTRUCTORS(RAIIPHYSFS_File, base_t);
 	using base_t::operator bool;
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
 	operator PHYSFS_File *() const && = delete;
-#endif
-	operator PHYSFS_File *() const
-#ifdef DXX_HAVE_CXX11_REF_QUALIFIER
-		&
-#endif
+	operator PHYSFS_File *() const &
 	{
 		return get();
 	}

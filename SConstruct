@@ -432,6 +432,17 @@ struct %(N)s_derived : %(N)s_base {
 	m.emplace(0, 0);
 '''
 ),
+		Cxx11RequiredFeature('reference qualified methods', '''
+struct %(N)s {
+	int a()const &{return 1;}
+	int a()const &&{return 2;}
+};
+''', '''
+	%(N)s a;
+	auto b = a.a() != %(N)s().a();
+	(void)b;
+'''
+),
 ])
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
@@ -1837,20 +1848,6 @@ parenthesize them.
 ''')
 				return
 		raise SCons.Errors.StopError("C++ compiler does not support constructor forwarding.")
-	@_custom_test
-	def check_cxx11_ref_qualifier(self,context):
-		text = '''
-struct A {
-	int a()const &{return 1;}
-	int a()const &&{return 2;}
-};
-'''
-		main = '''
-	A a;
-	return a.a() != A().a();
-'''
-		if self.Compile(context, text=text, main=main, msg='for C++11 reference qualified methods'):
-			context.sconf.Define('DXX_HAVE_CXX11_REF_QUALIFIER')
 	@_custom_test
 	def check_deep_tuple(self,context):
 		text = '''
