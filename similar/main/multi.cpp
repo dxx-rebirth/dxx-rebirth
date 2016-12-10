@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_UDP
 #include "net_udp.h"
 #endif
+#include "d_enumerate.h"
 
 #include "compiler-begin.h"
 #include "compiler-exchange.h"
@@ -689,6 +690,22 @@ void multi_sort_kill_list()
 	std::sort(range.begin(), range.end(), predicate);
 }
 
+static void print_kill_goal_tables()
+{
+	const auto &local_player = get_local_player();
+	const auto pnum = Player_num;
+	con_printf(CON_NORMAL, "Kill goal statistics: player #%u \"%s\"", pnum, static_cast<const char *>(local_player.callsign));
+	range_for (auto &&e, enumerate(Players))
+	{
+		const auto &i = e.value;
+		if (!i.connected)
+			continue;
+		auto &plrobj = *vcobjptr(i.objnum);
+		auto &player_info = plrobj.ctype.player_info;
+		con_printf(CON_NORMAL, "\t#%" PRIuFAST32 " \"%s\"\tdeaths=%i\tkills=%i\tmatrix=%hu/%hu", e.idx, static_cast<const char *>(i.callsign), player_info.net_killed_total, player_info.net_kills_total, kill_matrix[pnum][e.idx], kill_matrix[e.idx][pnum]);
+	}
+}
+
 }
 
 static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
@@ -934,6 +951,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
 			}
 
+			print_kill_goal_tables();
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
@@ -3887,6 +3905,7 @@ void multi_check_for_killgoal_winner ()
 	else
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!", static_cast<const char *>(bestplr->callsign), highest_kill_goal_count);
 
+	print_kill_goal_tables();
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 	net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 }
@@ -4085,6 +4104,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
+			print_kill_goal_tables();
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
@@ -4161,6 +4181,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf)
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(Players[pnum].callsign));
 
+			print_kill_goal_tables();
 			HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
 			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
 		}
