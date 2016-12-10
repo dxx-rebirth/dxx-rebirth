@@ -352,11 +352,6 @@ window_event_result ReadControls(const d_event &event);
 int cheats_enabled();
 void game_disable_cheats();
 int allowed_to_fire_laser(void);
-#ifdef dsx
-namespace dsx {
-int allowed_to_fire_flare(void);
-}
-#endif
 int allowed_to_fire_missile(void);
 void	check_rear_view(void);
 int create_special_path(void);

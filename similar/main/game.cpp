@@ -859,15 +859,14 @@ int allowed_to_fire_laser(void)
 }
 
 namespace dsx {
-int allowed_to_fire_flare(void)
+int allowed_to_fire_flare(player_info &player_info)
 {
-	auto &plrobj = get_local_plrobj();
-	auto &Next_flare_fire_time = plrobj.ctype.player_info.Next_flare_fire_time;
+	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
 	if (Next_flare_fire_time > GameTime64)
 		return 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (plrobj.ctype.player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
+	if (player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
 #define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
 	else

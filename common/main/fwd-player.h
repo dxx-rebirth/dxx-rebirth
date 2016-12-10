@@ -84,6 +84,7 @@ struct player_rw;
 struct player_info;
 extern array<player, MAX_PLAYERS> Players;   // Misc player info
 void player_rw_swap(player_rw *p, int swap);
+int allowed_to_fire_flare(player_info &);
 #if defined(DXX_BUILD_DESCENT_II)
 extern array<object *, MAX_PLAYERS> Guided_missile;
 extern array<object_signature_t, MAX_PLAYERS> Guided_missile_sig;

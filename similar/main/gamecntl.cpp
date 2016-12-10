@@ -236,7 +236,7 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.fire_flare > 0)
 	{
 		Controls.state.fire_flare = 0;
-		if (allowed_to_fire_flare())
+		if (allowed_to_fire_flare(player_info))
 			Flare_create(vobjptridx(ConsoleObject));
 	}
 
