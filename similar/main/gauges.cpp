@@ -1277,17 +1277,32 @@ static void hud_show_primary_weapons_mode(int vertical,int orig_x,int orig_y)
 			gr_string(x, y, txtweapon, w, h);
 			if (i == primary_weapon_index_t::VULCAN_INDEX)
 			{
-                                if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-                                {
-                                        if (!vertical)
-                                                hud_printf_vulcan_ammo(x, y - line_spacing);
+				/*
+				 * In Descent 1, this will always draw the ammo, but the
+				 * position depends on fullscreen and, if in fullscreen,
+				 * whether in vertical mode.
+				 *
+				 * In Descent 2, this will draw in non-fullscreen and in
+				 * fullscreen non-vertical, but not in fullscreen
+				 * vertical.  The fullscreen vertical case is handled
+				 * specially in a large Descent2 block below.
+				 */
+				int vx, vy;
+				if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? (
+						vertical ? (
 #if defined(DXX_BUILD_DESCENT_I)
-                                        else
-                                                hud_printf_vulcan_ammo(x, y);
+							vx = x, vy = y, true
+#else
+							false
 #endif
-                                }
-                                else
-                                        hud_printf_vulcan_ammo(x - (w+fspacx3), y - ((h+fspacy2)*2));
+						) : (
+							vx = x, vy = y - line_spacing, true
+						)
+					) : (
+						vx = x - (w + fspacx3), vy = y - ((h + fspacy2) * 2), true
+					)
+				)
+					hud_printf_vulcan_ammo(vx, vy);
 			}
 		}
 	}
