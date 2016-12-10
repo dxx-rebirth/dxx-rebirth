@@ -1098,10 +1098,11 @@ void multi_leave_game()
 		Net_create_loc = 0;
 		const auto cobjp = vobjptridx(get_local_player().objnum);
 		multi_send_position(cobjp);
-		if (!Player_eggs_dropped)
+		auto &player_info = cobjp->ctype.player_info;
+		if (!player_info.Player_eggs_dropped)
 		{
+			player_info.Player_eggs_dropped = true;
 			drop_player_eggs(cobjp);
-			Player_eggs_dropped = 1;
 		}
 		multi_send_player_deres(deres_drop);
 	}

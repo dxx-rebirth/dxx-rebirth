@@ -493,7 +493,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		select_secondary_weapon(player_info, nullptr, 0, 0);
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
-		Player_eggs_dropped = 0;
+		player_info.Player_eggs_dropped = false;
 		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
 #if defined(DXX_BUILD_DESCENT_II)

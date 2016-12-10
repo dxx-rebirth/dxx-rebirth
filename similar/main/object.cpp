@@ -1260,15 +1260,14 @@ void obj_delete(const vobjptridx_t obj)
 #define	DEATH_SEQUENCE_EXPLODE_TIME	(F1_0*2)
 
 object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
-object	*Viewer_save;
+static object *Viewer_save;
 }
 namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
-int		Player_flags_save;
+static int Player_flags_save;
 int		Death_sequence_aborted=0;
-int		Player_eggs_dropped=0;
-fix		Camera_to_player_dist_goal=F1_0*4;
-ubyte		Control_type_save, Render_type_save;
+static fix Camera_to_player_dist_goal = F1_0*4;
+static uint8_t Control_type_save, Render_type_save;
 }
 
 namespace dsx {
@@ -1295,8 +1294,7 @@ void dead_player_end(void)
 	ConsoleObject->render_type = Render_type_save;
 	auto &player_info = ConsoleObject->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_INVULNERABLE;
-	Player_eggs_dropped = 0;
-
+	player_info.Player_eggs_dropped = false;
 }
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1402,7 +1400,8 @@ void dead_player_frame(void)
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (Player_dead_state != player_dead_state::exploded)
 			{
-				const auto hostages_lost = exchange(get_local_plrobj().ctype.player_info.mission.hostages_on_board, 0);
+				auto &player_info = get_local_plrobj().ctype.player_info;
+				const auto hostages_lost = exchange(player_info.mission.hostages_on_board, 0);
 
 				if (hostages_lost > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages_lost);
@@ -1413,7 +1412,7 @@ void dead_player_frame(void)
 				
 				const auto cobjp = vobjptridx(ConsoleObject);
 				drop_player_eggs(cobjp);
-				Player_eggs_dropped = 1;
+				player_info.Player_eggs_dropped = true;
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_deres(deres_explode);
@@ -1427,7 +1426,6 @@ void dead_player_frame(void)
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
 #if defined(DXX_BUILD_DESCENT_II)
-				auto &player_info = get_local_plrobj().ctype.player_info;
 				player_info.powerup_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 #endif
 			}
@@ -1442,9 +1440,10 @@ void dead_player_frame(void)
 
 		if (Death_sequence_aborted)
 		{
-			if (!Player_eggs_dropped) {
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			if (!player_info.Player_eggs_dropped) {
+				player_info.Player_eggs_dropped = true;
 				drop_player_eggs(vobjptridx(ConsoleObject));
-				Player_eggs_dropped = 1;
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_deres(deres_explode);

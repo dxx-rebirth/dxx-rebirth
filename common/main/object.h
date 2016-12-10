@@ -115,6 +115,7 @@ struct player_info
 	using primary_weapon_flag_type = uint16_t;
 #endif
 	primary_weapon_flag_type primary_weapon_flags;
+	bool Player_eggs_dropped;
 	bool FakingInvul;
 	bool lavafall_hiss_playing;
 	uint8_t missile_gun;
