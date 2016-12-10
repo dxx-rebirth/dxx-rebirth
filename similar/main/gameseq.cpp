@@ -529,7 +529,7 @@ void init_player_stats_ship(object &plrobj)
 static void DoGameOver()
 {
 	if (PLAYING_BUILTIN_MISSION)
-		scores_maybe_add_player(0);
+		scores_maybe_add_player();
 
 	if (Game_wind)
 		window_close(Game_wind);		// Exit out of game loop
@@ -1362,7 +1362,7 @@ static void DoEndGame(void)
 #if defined(DXX_BUILD_DESCENT_II)
 		load_palette(D2_DEFAULT_PALETTE,0,1);
 #endif
-		scores_maybe_add_player(0);
+		scores_maybe_add_player();
 	}
 
 	if (Game_wind)

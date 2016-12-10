@@ -217,7 +217,7 @@ static inline const char *get_placement_slot_string(const unsigned position)
 	}
 }
 
-void scores_maybe_add_player(int abort_flag)
+void scores_maybe_add_player()
 {
 	int position;
 	all_scores scores;
@@ -239,8 +239,6 @@ void scores_maybe_add_player(int abort_flag)
 	}
 	
 	if ( position == MAX_HIGH_SCORES ) {
-		if (abort_flag)
-			return;
 		scores_fill_struct( &last_game );
 	} else {
 		if ( position==0 )	{
