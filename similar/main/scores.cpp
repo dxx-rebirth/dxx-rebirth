@@ -244,15 +244,13 @@ void scores_maybe_add_player(int abort_flag)
 		scores_fill_struct( &last_game );
 	} else {
 		if ( position==0 )	{
-			array<char, COOL_MESSAGE_LEN> text1{};
+			array<char, sizeof(scores.cool_saying)> text1{};
 			array<newmenu_item, 2> m{{
 				nm_item_text(TXT_COOL_SAYING),
 				nm_item_input(text1),
 			}};
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, m, unused_newmenu_subfunction, unused_newmenu_userdata );
-			strncpy( scores.cool_saying, text1.data(), COOL_MESSAGE_LEN );
-			if (!scores.cool_saying[0])
-				strcpy(scores.cool_saying, "No comment");
+			strcpy(scores.cool_saying, text1[0] ? text1.data() : "No comment");
 		} else {
 			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
