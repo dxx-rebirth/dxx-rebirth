@@ -3859,19 +3859,11 @@ void multi_check_for_killgoal_winner ()
 	 *   routine always chooses the lowest index player.  No opportunity
 	 *   is provided for the players to score a tie-breaking kill, nor
 	 *   is any other property (such as remaining shields) considered.
-	 * - This routine has no special handling for the case that all
-	 *   players are tied at zero kills.  It will choose the lowest
-	 *   index player, despite no player having any kills.
-	 * - This routine has no special handling for the case that all
-	 *   players have _negative_ kills, which can happen if players die
-	 *   a penalized death (such as being killed by the reactor) and do
-	 *   not score an equal or greater number of approved kills.  If all
-	 *   players have negative kills, then this routine will choose
-	 *   player 0, rather than the player with the kill count closest to
-	 *   zero.
+	 * Historical versions had additional quirks relating to
+	 * zero/negative kills, but those quirks have been removed.
 	 */
 	const auto &local_player = get_local_player();
-	const player *bestplr = &Players[0];
+	const player *bestplr = nullptr;
 	int highest_kill_goal_count = 0;
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
@@ -3884,6 +3876,9 @@ void multi_check_for_killgoal_winner ()
 			bestplr = &i;
 		}
 	}
+	if (!bestplr)
+		/* No player has at least one kill */
+		return;
 
 	if (bestplr == &local_player)
 	{
