@@ -1088,10 +1088,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //Save door info
 	{
-		const int i = Num_open_doors;
+		const int i = ActiveDoors.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	range_for (auto &ad, partial_const_range(ActiveDoors, Num_open_doors))
+	range_for (auto &&ad, vcactdoorptr)
 		active_door_write(fp, ad);
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1626,8 +1626,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 
 	//Restore door info
-	Num_open_doors = PHYSFSX_readSXE32(fp, swap);
-	range_for (auto &ad, partial_range(ActiveDoors, Num_open_doors))
+	ActiveDoors.set_count(PHYSFSX_readSXE32(fp, swap));
+	range_for (auto &&ad, vactdoorptr)
 		active_door_read(fp, ad);
 
 #if defined(DXX_BUILD_DESCENT_II)

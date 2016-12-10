@@ -42,8 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 unsigned Num_wall_anims;
-unsigned Num_open_doors;						// Number of open doors
-array<active_door, MAX_DOORS> ActiveDoors;
 }
 
 namespace dsx {
@@ -226,7 +224,7 @@ void wall_init()
 		w.clip_num = -1;
 		w.linked_wall = -1;
 	}
-	Num_open_doors = 0;
+	ActiveDoors.set_count(0);
 #if defined(DXX_BUILD_DESCENT_II)
 	CloakingWalls.set_count(0);
 #endif
@@ -368,14 +366,14 @@ void wall_open_door(const vsegptridx_t seg, int side)
 #endif
 
 	if (w->state == WALL_DOOR_CLOSING) {		//closing, so reuse door
-		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		const auto &&r = make_range(vactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
 		if (i == r.end())	// likely in demo playback or multiplayer
 		{
-			d = &ActiveDoors[Num_open_doors];
+			const auto c = ActiveDoors.get_count();
+			ActiveDoors.set_count(c + 1);
+			d = vactdoorptr(static_cast<actdoornum_t>(c));
 			d->time = 0;
-			Num_open_doors++;
-			Assert( Num_open_doors < MAX_DOORS );
 		}
 		else
 		{
@@ -387,10 +385,10 @@ void wall_open_door(const vsegptridx_t seg, int side)
 	}
 	else {											//create new door
 		Assert(w->state == WALL_DOOR_CLOSED);
-		d = &ActiveDoors[Num_open_doors];
+		const auto i = ActiveDoors.get_count();
+		ActiveDoors.set_count(i + 1);
+		d = vactdoorptr(static_cast<actdoornum_t>(i));
 		d->time = 0;
-		Num_open_doors++;
-		Assert( Num_open_doors < MAX_DOORS );
 	}
 
 
@@ -686,7 +684,7 @@ void wall_close_door(const vsegptridx_t seg, int side)
 		return;
 
 	if (w->state == WALL_DOOR_OPENING) {	//reuse door
-		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		const auto &&r = make_range(vactdoorptr);
 		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
 		if (i == r.end())
 		{
@@ -702,10 +700,10 @@ void wall_close_door(const vsegptridx_t seg, int side)
 	}
 	else {											//create new door
 		Assert(w->state == WALL_DOOR_OPEN);
-		d = &ActiveDoors[Num_open_doors];
+		const auto i = ActiveDoors.get_count();
+		ActiveDoors.set_count(i + 1);
+		d = vactdoorptr(static_cast<actdoornum_t>(i));
 		d->time = 0;
-		Num_open_doors++;
-		Assert( Num_open_doors < MAX_DOORS );
 	}
 
 	w->state = WALL_DOOR_CLOSING;
@@ -1242,9 +1240,9 @@ namespace dsx {
 void wall_frame_process()
 {
 	{
-		const auto &&r = partial_range(ActiveDoors, Num_open_doors);
+		const auto &&r = make_range(vactdoorptr);
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
-		Num_open_doors = std::distance(r.begin(), i);
+		ActiveDoors.set_count(std::distance(r.begin(), i));
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)

@@ -151,6 +151,8 @@ struct active_door : public prohibit_void_ptr<active_door>
 	fix     time;               // how long been opening, closing, waiting
 };
 
+DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(active_door, actdoor);
+
 }
 
 #ifdef dsx

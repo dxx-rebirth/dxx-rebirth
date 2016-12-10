@@ -40,6 +40,7 @@ namespace dcx {
 unsigned Num_segments;
 // Global array of vertices, common to one mine.
 array<vertex, MAX_VERTICES> Vertices;
+valptridx<active_door>::array_managed_type ActiveDoors;
 }
 array<g3s_point, MAX_VERTICES> Segment_points;
 
@@ -111,6 +112,7 @@ valptridx<trigger>::array_managed_type Triggers;
 valptridx<wall>::array_managed_type Walls;
 }
 
+template class valptridx<active_door>;
 #if defined(DXX_BUILD_DESCENT_II)
 template class valptridx<cloaking_wall>;
 #endif

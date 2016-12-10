@@ -650,7 +650,7 @@ void write_game_text_file(const char *filename)
 	PHYSFSX_printf(my_file, "\nNumber of segments:   %4i\n", Highest_segment_index+1);
 	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Num_walls);
-	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", Num_open_doors);
+	PHYSFSX_printf(my_file, "Number of open doors: %4i\n", ActiveDoors.get_count());
 	PHYSFSX_printf(my_file, "Number of triggers:   %4i\n", Num_triggers);
 	PHYSFSX_printf(my_file, "Number of matcens:    %4i\n", Num_robot_centers);
 	PHYSFSX_printf(my_file, "\n");

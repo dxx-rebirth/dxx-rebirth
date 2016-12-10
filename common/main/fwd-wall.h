@@ -189,9 +189,9 @@ extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 }
 
 namespace dcx {
-extern array<active_door, MAX_DOORS> ActiveDoors;  //  Master doors array
+using actdoornum_t = uint8_t;
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(active_door, actdoor, ActiveDoors, MAX_DOORS);
 #define Num_walls Walls.get_count()
-extern unsigned Num_open_doors;              // Number of open doors
 extern unsigned Num_wall_anims;
 }
 #endif

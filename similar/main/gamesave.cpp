@@ -1059,7 +1059,7 @@ static int load_game_data(PHYSFS_File *LoadFile)
 
 	reset_walls();
 
-	Num_open_doors = 0;
+	ActiveDoors.set_count(0);
 
 	//go through all walls, killing references to invalid triggers
 	range_for (const auto &&p, vwallptr)
@@ -1485,7 +1485,7 @@ int create_new_mine(void)
 	}
 	
 	Num_robot_centers = 0;
-	Num_open_doors = 0;
+	ActiveDoors.set_count(0);
 	wall_init();
 	trigger_init();
 	
@@ -1551,7 +1551,7 @@ static int save_game_data(PHYSFS_File *SaveFile)
 
 	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
 	WRITE_HEADER_ENTRY(wall, Num_walls);
-	WRITE_HEADER_ENTRY(active_door, Num_open_doors);
+	WRITE_HEADER_ENTRY(active_door, ActiveDoors.get_count());
 	WRITE_HEADER_ENTRY(trigger, Num_triggers);
 	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
 	WRITE_HEADER_ENTRY(control_center_triggers, 1);
