@@ -1240,14 +1240,14 @@ namespace dsx {
 void wall_frame_process()
 {
 	{
-		const auto &&r = make_range(vactdoorptr);
+		const auto &&r = partial_range(ActiveDoors, ActiveDoors.get_count());
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
 		ActiveDoors.set_count(std::distance(r.begin(), i));
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
-		const auto &&r = make_range(vclwallptr);
+		const auto &&r = partial_range(CloakingWalls, CloakingWalls.get_count());
 		cw_removal_predicate rp;
 		std::remove_if(r.begin(), r.end(), std::ref(rp));
 		CloakingWalls.set_count(rp.num_cloaking_walls);
