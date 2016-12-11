@@ -150,7 +150,6 @@ static void verify_textures(void);
 //---------------------------------------------------------------
 int compute_average_pixel(grs_bitmap *n)
 {
-	int	row, column, color;
 	int	total_red, total_green, total_blue;
 
 	auto pptr = n->bm_data;
@@ -159,17 +158,18 @@ int compute_average_pixel(grs_bitmap *n)
 	total_green = 0;
 	total_blue = 0;
 
-	for (row=0; row<n->bm_h; row++)
-		for (column=0; column<n->bm_w; column++) {
-			color = *pptr++;
-			total_red += gr_palette[color].r;
-			total_green += gr_palette[color].g;
-			total_blue += gr_palette[color].b;
+	const auto product = (n->bm_h * n->bm_w);
+	for (auto counter = product; counter--;)
+	{
+		const auto &p = gr_palette[*pptr++];
+		total_red += p.r;
+		total_green += p.g;
+		total_blue += p.b;
 		}
 
-	total_red /= (n->bm_h * n->bm_w);
-	total_green /= (n->bm_h * n->bm_w);
-	total_blue /= (n->bm_h * n->bm_w);
+	total_red /= product;
+	total_green /= product;
+	total_blue /= product;
 
 	return BM_XRGB(total_red/2, total_green/2, total_blue/2);
 }
