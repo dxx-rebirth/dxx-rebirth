@@ -827,8 +827,10 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 	}
 }
 
+namespace dsx {
+
 //	-----------------------------------------------------------------------------
-void play_homing_warning(void)
+void play_homing_warning(const player_info &player_info)
 {
 	fix beep_delay;
 	static fix64 Last_warning_beep_time = 0; // Time we last played homing missile warning beep.
@@ -836,7 +838,7 @@ void play_homing_warning(void)
 	if (Endlevel_sequence || Player_dead_state != player_dead_state::no)
 		return;
 
-	const auto homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+	const auto homing_object_dist = player_info.homing_object_dist;
 	if (homing_object_dist >= 0) {
 		beep_delay = homing_object_dist / 128;
 		if (beep_delay > F1_0)
@@ -851,8 +853,10 @@ void play_homing_warning(void)
 	}
 }
 
+}
+
 //	-----------------------------------------------------------------------------
-static void show_homing_warning(const local_multires_gauge_graphic multires_gauge_graphic)
+static void show_homing_warning(const int homing_object_dist, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	unsigned gauge;
 	if (Endlevel_sequence)
@@ -862,7 +866,7 @@ static void show_homing_warning(const local_multires_gauge_graphic multires_gaug
 	else
 	{
 		gr_set_current_canvas(nullptr);
-		gauge = ((GameTime64 & 0x4000) && get_local_plrobj().ctype.player_info.homing_object_dist >= 0)
+		gauge = ((GameTime64 & 0x4000) && homing_object_dist >= 0)
 			? GAUGE_HOMING_WARNING_ON
 			: GAUGE_HOMING_WARNING_OFF;
 	}
@@ -1211,7 +1215,7 @@ static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, 
 	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
-		((primary_weapon_flags & gauss_mask) && (get_local_plrobj().ctype.player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
+		((primary_weapon_flags & gauss_mask) && (player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
 		? 'G'
 		: 
 #endif
@@ -1339,7 +1343,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 				case primary_weapon_index_t::OMEGA_INDEX:
 					if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 					{
-						snprintf(weapon_str, sizeof(weapon_str), "O%03i", get_local_plrobj().ctype.player_info.Omega_charge * 100/MAX_OMEGA_CHARGE);
+						snprintf(weapon_str, sizeof(weapon_str), "O%03i", player_info.Omega_charge * 100 / MAX_OMEGA_CHARGE);
 						txtweapon = weapon_str;
 					}
 					else
@@ -1431,8 +1435,9 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 }
 
-static void hud_show_weapons(const player_info &player_info)
+static void hud_show_weapons(const object &plrobj)
 {
+	auto &player_info = plrobj.ctype.player_info;
 	int	y;
 	const char	*weapon_name;
 	char	weapon_str[32];
@@ -1470,7 +1475,7 @@ static void hud_show_weapons(const player_info &player_info)
 		hud_show_primary_weapons_mode(player_info, 1, x1, y);
 		hud_show_secondary_weapons_mode(player_info, 1, x2, y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
-		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(get_local_plrobj().shields));
+		gr_printf(x2, y - (line_spacing * 4),"%i", f2ir(plrobj.shields));
 		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
 		gr_printf(x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
 	}
@@ -1511,7 +1516,7 @@ static void hud_show_weapons(const player_info &player_info)
 				break;
 #if defined(DXX_BUILD_DESCENT_II)
 			case primary_weapon_index_t::OMEGA_INDEX:
-				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, get_local_plrobj().ctype.player_info.Omega_charge * 100/MAX_OMEGA_CHARGE);
+				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, player_info.Omega_charge * 100 / MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
 				disp_primary_weapon_name = weapon_str;
 				break;
@@ -1584,7 +1589,7 @@ static void hud_show_cloak_invuln(const player_info &player_info)
 	hud_show_cloak_invuln(player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time);
 }
 
-static void hud_show_shield(void)
+static void hud_show_shield(const object &plrobj)
 {
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
@@ -1592,12 +1597,12 @@ static void hud_show_shield(void)
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
 		const auto &&line_spacing = LINE_SPACING;
-		const auto &shields = get_local_plrobj().shields;
+		const auto shields = plrobj.shields;
 		gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_shields(f2ir(get_local_plrobj().shields));
+		newdemo_record_player_shields(f2ir(plrobj.shields));
 }
 
 //draw the icons for number of lives
@@ -2483,7 +2488,7 @@ static void draw_weapon_box0(const player_info &player_info, const local_multire
 #if defined(DXX_BUILD_DESCENT_II)
 			else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 			{
-				auto &Omega_charge = get_local_plrobj().ctype.player_info.Omega_charge;
+				auto &Omega_charge = player_info.Omega_charge;
 				nd_ammo = Omega_charge;
 				ammo_count = Omega_charge * 100/MAX_OMEGA_CHARGE;
 			}
@@ -2619,8 +2624,9 @@ void draw_statusbar_keys_state::draw_all_keys(const local_multires_gauge_graphic
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
-static void draw_invulnerable_ship(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_invulnerable_ship(const object &plrobj, const local_multires_gauge_graphic multires_gauge_graphic)
 {
+	auto &player_info = plrobj.ctype.player_info;
 	gr_set_current_canvas(NULL);
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
@@ -2659,7 +2665,7 @@ static void draw_invulnerable_ship(const player_info &player_info, const local_m
 	}
 	else
 	{
-		const auto shields_ir = f2ir(get_local_plrobj().shields);
+		const auto shields_ir = f2ir(plrobj.shields);
 		if (cmmode == CM_STATUS_BAR)
 			sb_draw_shield_bar(shields_ir, multires_gauge_graphic);
 		else
@@ -2704,7 +2710,7 @@ const array<xy, 4> cross_offsets{{
 
 //draw the reticle
 namespace dsx {
-void show_reticle(int reticle_type, int secondary_display)
+void show_reticle(const player_info &player_info, int reticle_type, int secondary_display)
 {
 	int x,y,size;
 	int laser_ready,missile_ready;
@@ -2722,7 +2728,6 @@ void show_reticle(int reticle_type, int secondary_display)
 
 	laser_ready = allowed_to_fire_laser();
 
-	auto &player_info = get_local_plrobj().ctype.player_info;
 	missile_ready = allowed_to_fire_missile(player_info);
 	auto &Primary_weapon = player_info.Primary_weapon;
 	primary_bm_num = (laser_ready && player_has_primary_weapon(player_info, Primary_weapon).has_all());
@@ -2734,7 +2739,7 @@ void show_reticle(int reticle_type, int secondary_display)
 
 	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
 		secondary_bm_num += 3;		//now value is 0,1 or 3,4
-	else if (secondary_bm_num && !(get_local_plrobj().ctype.player_info.missile_gun & 1))
+	else if (secondary_bm_num && !(player_info.missile_gun & 1))
 			secondary_bm_num++;
 
 	cross_bm_num = ((primary_bm_num > 0) || (secondary_bm_num > 0));
@@ -3268,9 +3273,9 @@ void draw_hud(const object &plrobj)
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			hud_show_energy(player_info);
-			hud_show_shield();
+			hud_show_shield(plrobj);
 			hud_show_afterburner(player_info);
-			hud_show_weapons(player_info);
+			hud_show_weapons(plrobj);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
@@ -3300,7 +3305,7 @@ void draw_hud(const object &plrobj)
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list();
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle(PlayerCfg.ReticleType, 1);
+			show_reticle(player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
 	}
@@ -3318,14 +3323,15 @@ void draw_hud(const object &plrobj)
 namespace dsx {
 void render_gauges()
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
 	const auto energy = f2ir(player_info.energy);
 	auto &pl_flags = player_info.powerup_flags;
 	const auto cloak = (pl_flags & PLAYER_FLAGS_CLOAKED);
 
 	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 
-	auto shields = f2ir(get_local_plrobj().shields);
+	auto shields = f2ir(plrobj.shields);
 	if (shields < 0 ) shields = 0;
 
 	gr_set_current_canvas(NULL);
@@ -3333,7 +3339,7 @@ void render_gauges()
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 	{
-		const auto homing_object_dist = get_local_plrobj().ctype.player_info.homing_object_dist;
+		const auto homing_object_dist = player_info.homing_object_dist;
 		if (homing_object_dist >= 0)
 			newdemo_record_homing_distance(homing_object_dist);
 	}
@@ -3356,7 +3362,7 @@ void render_gauges()
 		draw_player_ship(player_info, cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship(player_info, multires_gauge_graphic);
+			draw_invulnerable_ship(plrobj, multires_gauge_graphic);
 		else
 			draw_shield_bar(shields, multires_gauge_graphic);
 		draw_numerical_display(shields, energy, multires_gauge_graphic);
@@ -3368,7 +3374,7 @@ void render_gauges()
 		}
 		draw_cockpit_keys_state(player_info.powerup_flags).draw_all_keys(multires_gauge_graphic);
 
-		show_homing_warning(multires_gauge_graphic);
+		show_homing_warning(player_info.homing_object_dist, multires_gauge_graphic);
 		draw_wbu_overlay(multires_gauge_graphic);
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
@@ -3389,7 +3395,7 @@ void render_gauges()
 		draw_player_ship(player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
-			draw_invulnerable_ship(player_info, multires_gauge_graphic);
+			draw_invulnerable_ship(plrobj, multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields, multires_gauge_graphic);
 		sb_draw_shield_num(shields, multires_gauge_graphic);
@@ -3455,7 +3461,7 @@ void do_cockpit_window_view(int win,int user)
 	}
 }
 
-void do_cockpit_window_view(int win,const vobjptr_t viewer,int rear_view_flag,int user,const char *label)
+void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rear_view_flag, const int user, const char *const label)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
@@ -3520,7 +3526,10 @@ void do_cockpit_window_view(int win,const vobjptr_t viewer,int rear_view_flag,in
 	}
 
 	if (user == WBU_GUIDED)
-		show_reticle(RET_TYPE_CROSS_V1, 0);
+	{
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
+	}
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
 		int small_window_bottom,big_window_bottom,extra_part_h;

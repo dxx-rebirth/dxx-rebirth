@@ -61,7 +61,7 @@ void draw_hud(const object &);     // draw all the HUD stuff
 void close_gauges(void);
 #ifdef dsx
 namespace dsx {
-void show_reticle(int reticle_type, int secondary_display);
+void show_reticle(const player_info &, int reticle_type, int secondary_display);
 void show_HUD_names();
 }
 #endif
@@ -75,9 +75,9 @@ extern void player_dead_message(void);
 #ifdef dsx
 namespace dsx {
 extern void update_laser_weapon_info(void);
+void play_homing_warning(const player_info &);
 }
 #endif
-extern void play_homing_warning(void);
 
 struct rgb {
 	ubyte r,g,b;

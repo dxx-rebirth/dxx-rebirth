@@ -732,7 +732,8 @@ void game_render_frame_mono()
 
 		gr_string(0x8000, FSPACY(1), "Guided Missile View");
 
-		show_reticle(RET_TYPE_CROSS_V1, 0);
+		auto &player_info = get_local_plrobj().ctype.player_info;
+		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
 
 		HUD_render_message_frame();
 
@@ -891,7 +892,8 @@ static void update_cockpits()
 void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
-	play_homing_warning();
+	auto &player_info = get_local_plrobj().ctype.player_info;
+	play_homing_warning(player_info);
 	game_render_frame_mono();
 }
 
