@@ -854,15 +854,19 @@ void play_homing_warning(void)
 //	-----------------------------------------------------------------------------
 static void show_homing_warning(const local_multires_gauge_graphic multires_gauge_graphic)
 {
+	unsigned gauge;
 	if (Endlevel_sequence)
 	{
-		hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
-		return;
+		gauge = GAUGE_HOMING_WARNING_OFF;
 	}
-
-	gr_set_current_canvas( NULL );
-
-	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, (get_local_plrobj().ctype.player_info.homing_object_dist >= 0 && (GameTime64 & 0x4000)) ? GAUGE_HOMING_WARNING_ON : GAUGE_HOMING_WARNING_OFF, multires_gauge_graphic);
+	else
+	{
+		gr_set_current_canvas(nullptr);
+		gauge = ((GameTime64 & 0x4000) && get_local_plrobj().ctype.player_info.homing_object_dist >= 0)
+			? GAUGE_HOMING_WARNING_ON
+			: GAUGE_HOMING_WARNING_OFF;
+	}
+	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
 }
 
 static void hud_show_homing_warning(const int homing_object_dist)
