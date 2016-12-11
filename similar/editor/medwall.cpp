@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "kdefs.h"
 #include "u_mem.h"
+#include "d_enumerate.h"
 
 #include "compiler-exchange.h"
 #include "compiler-make_unique.h"
@@ -929,13 +930,16 @@ int check_walls()
 			if (matcen_num > -1)
 					RobotCenters[matcen_num].segnum = segp;
 	
-			for (int side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-				if (segp->sides[side].wall_num != wall_none) {
-					CountedWalls[wall_count].wallnum = segp->sides[side].wall_num;
+			range_for (auto &&e, enumerate(segp->sides))
+			{
+				auto &s = e.value;
+				if (s.wall_num != wall_none) {
+					CountedWalls[wall_count].wallnum = s.wall_num;
 					CountedWalls[wall_count].segnum = segp;
-					CountedWalls[wall_count].sidenum = side;
+					CountedWalls[wall_count].sidenum = e.idx;
 					wall_count++;
 				}
+			}
 		}
 	}
 

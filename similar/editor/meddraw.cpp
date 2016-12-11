@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "fuelcen.h"
 #include "meddraw.h"
+#include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "segiter.h"
 
@@ -234,7 +235,7 @@ static array<seg_edge, MAX_EDGES> edge_list;
 static array<int, MAX_EDGES> used_list;	//which entries in edge_list have been used
 int n_used;
 
-int edge_list_size;		//set each frame
+static unsigned edge_list_size;		//set each frame
 
 #define HASH(a,b)  ((a*5+b) % edge_list_size)
 
@@ -369,17 +370,18 @@ static void add_edges(const vcsegptridx_t seg)
 	auto &svp = seg->verts;
 	if (!rotate_list(svp).uand)
 	{		//all off screen?
-		int	i,sn,fn,vn;
+		int	i,fn,vn;
 		int	flag;
 		ubyte	edge_flags[N_EDGES_PER_SEGMENT];
 
 		for (i=0;i<N_NORMAL_EDGES;i++) edge_flags[i]=ET_NOTUSED;
 		for (;i<N_EDGES_PER_SEGMENT;i++) edge_flags[i]=ET_NOTEXTANT;
 
-		for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-			auto sidep = &seg->sides[sn];
+		range_for (auto &&e, enumerate(seg->sides))
+		{
+			auto sidep = &e.value;
 			int	num_vertices;
-			const auto v = create_all_vertex_lists(seg, sidep, sn);
+			const auto v = create_all_vertex_lists(seg, sidep, e.idx);
 			const auto &num_faces = v.first;
 			const auto &vertex_list = v.second;
 			if (num_faces == 1)
@@ -533,20 +535,25 @@ static void draw_mine_edges(int automap_flag)
 	}
 }
 
+static void clear_edge_list()
+{
+	range_for (auto &i, partial_range(edge_list, edge_list_size))
+	{
+		i.type = ET_EMPTY;
+		i.face_count = 0;
+		i.backface_count = 0;
+	}
+}
+
 //draws an entire mine
 static void draw_mine(const vsegptridx_t mine_ptr,int depth)
 {
-	int	i;
 	visited_segment_bitarray_t visited;
 
 	edge_list_size = min(Num_segments * 12, MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
-	for (i=0; i<edge_list_size; i++) {
-		edge_list[i].type = ET_EMPTY;
-		edge_list[i].face_count = 0;
-		edge_list[i].backface_count = 0;
-	}
+	clear_edge_list();
 
 	n_used = 0;
 
@@ -561,16 +568,10 @@ static void draw_mine(const vsegptridx_t mine_ptr,int depth)
 //	A segment is drawn if its segnum != -1.
 static void draw_mine_all(int automap_flag)
 {
-	int	i;
-
 	edge_list_size = min(Num_segments * 12, MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
-	for (i=0; i<edge_list_size; i++) {
-		edge_list[i].type = ET_EMPTY;
-		edge_list[i].face_count = 0;
-		edge_list[i].backface_count = 0;
-	}
+	clear_edge_list();
 
 	n_used = 0;
 
@@ -578,9 +579,9 @@ static void draw_mine_all(int automap_flag)
 	{
 		if (segp->segnum != segment_none)
 		{
-			for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-				if (segp->sides[i].wall_num != wall_none)
-					draw_special_wall(segp, i);
+			range_for (auto &&e, enumerate(segp->sides))
+				if (e.value.wall_num != wall_none)
+					draw_special_wall(segp, e.idx);
 			if (Search_mode)
 				check_segment(segp);
 			else {
@@ -682,12 +683,11 @@ static void free_vert(int vert_num)
 // -----------------------------------------------------------------------------
 static void draw_coordinate_axes(void)
 {
-	int			i;
 	array<int, 16>			Axes_verts;
 	vms_vector	tvec;
 
-	for (i=0; i<16; i++)
-		Axes_verts[i] = alloc_vert();
+	range_for (auto &i, Axes_verts)
+		i = alloc_vert();
 
 	create_coordinate_axes_from_segment(Cursegp,Axes_verts);
 
@@ -750,8 +750,8 @@ static void draw_coordinate_axes(void)
 	draw_line(Axes_verts[13], Axes_verts[14], color);
 	draw_line(Axes_verts[14], Axes_verts[15], color);
 
-	for (i=0; i<16; i++)
-		free_vert(Axes_verts[i]);
+	range_for (auto &i, Axes_verts)
+		free_vert(i);
 }
 
 void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine_ptr,int depth)

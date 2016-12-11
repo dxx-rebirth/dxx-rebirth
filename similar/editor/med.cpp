@@ -78,6 +78,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "texpage.h"		// Textue selection paging stuff
 #include "objpage.h"		// Object selection paging stuff
+#include "d_enumerate.h"
 
 #include "medmisc.h"
 #include "meddraw.h"
@@ -315,20 +316,16 @@ int GotoMainMenu()
 	return 1;
 }
 
-
-
-static int (*KeyFunction[2048])();
+static array<int (*)(), 2048> KeyFunction;
 
 static void medkey_init()
 {
 	char keypress[100];
 	int key;
-	int i;	//, size;
 	int np;
 	char LispCommand[DIAGNOSTIC_MESSAGE_MAX];
 
-	for (i=0; i<2048; i++ )
-		KeyFunction[i] = NULL;
+	KeyFunction = {};
 
 	if (auto keyfile = PHYSFSX_openReadBuffered("GLOBAL.KEY"))
 	{
@@ -387,8 +384,8 @@ void init_editor()
 
 	init_med_functions();	// Must be called before medlisp_init
 
-	for (int i = 0; i < 9; i++)
-		if (!ui_pad_read(i, pads[i]))
+	range_for (auto &&e, enumerate(pads))
+		if (!ui_pad_read(e.idx, e.value))
 		{
 			close_editor();
 			return;

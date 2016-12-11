@@ -66,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/texpage.h"
 
 #include "compiler-range_for.h"
-#include "partial_range.h"
+#include "d_enumerate.h"
 
 using std::min;
 
@@ -605,13 +605,16 @@ int gamedata_read_tbl(int pc_shareware)
 	verify_textures();
 
 	//check for refereced but unused clip count
-	for (unsigned i = 0; i < MAX_EFFECTS; ++i)
+	range_for (auto &&en, enumerate(Effects))
+	{
+		auto &e = en.value;
 		if (	(
-				  (Effects[i].changing_wall_texture!=-1) ||
-				  (Effects[i].changing_object_texture!=-1)
+				  (e.changing_wall_texture != -1) ||
+				  (e.changing_object_texture != -1)
              )
-			 && (Effects[i].vc.num_frames==-1) )
-			Error("EClip %d referenced (by polygon object?), but not defined",i);
+			 && (e.vc.num_frames == -1) )
+			Error("EClip %" PRIuFAST32 " referenced (by polygon object?), but not defined", en.idx);
+	}
 
 	#ifndef NDEBUG
 	{
@@ -1141,7 +1144,6 @@ void bm_read_robot(int skip)
 	fix			mass = f1_0*4;
 	fix			drag = f1_0/2;
 	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1, weapon_type2 = weapon_id_type::unspecified;
-	int			g,s;
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
 	auto behavior = ai_behavior::AIB_NORMAL;
 	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
@@ -1296,9 +1298,9 @@ void bm_read_robot(int skip)
 	}
 
 	//clear out anim info
-	for (g=0;g<MAX_GUNS+1;g++)
-		for (s=0;s<N_ANIM_STATES;s++)
-			Robot_info[N_robot_types].anim_states[g][s].n_joints = 0;	//inialize to zero
+	range_for (auto &g, Robot_info[N_robot_types].anim_states)
+		range_for (auto &s, g)
+			s.n_joints = 0; //inialize to zero
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 

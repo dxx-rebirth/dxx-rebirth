@@ -78,10 +78,11 @@ void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 
 void copy_diminish_palette(palette_array_t &palette, const ubyte *p)
 {
-	for (unsigned i = 0; i < palette.size(); i++) {
-		palette[i].r = *p++ >> 2;
-		palette[i].g = *p++ >> 2;
-		palette[i].b = *p++ >> 2;
+	range_for (auto &i, palette)
+	{
+		i.r = *p++ >> 2;
+		i.g = *p++ >> 2;
+		i.b = *p++ >> 2;
 	}
 }
 
@@ -209,10 +210,8 @@ static void add_computed_color(int r, int g, int b, color_t color_num)
 
 void init_computed_colors(void)
 {
-	int	i;
-
-	for (i=0; i<MAX_COMPUTED_COLORS; i++)
-		Computed_colors[i].r = 255;		//	Make impossible to match.
+	range_for (auto &i, Computed_colors)
+		i.r = 255;		//	Make impossible to match.
 }
 
 color_t gr_find_closest_color( int r, int g, int b )

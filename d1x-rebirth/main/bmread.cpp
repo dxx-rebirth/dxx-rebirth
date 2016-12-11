@@ -1006,7 +1006,6 @@ static void bm_read_robot(char *&arg, int skip)
 	fix			mass = f1_0*4;
 	fix			drag = f1_0/2;
 	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1;
-	int			g,s;
 	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
 	int			score_value=1000;
 	int			cloak_type=0;		//	Default = this robot does not cloak
@@ -1102,9 +1101,9 @@ static void bm_read_robot(char *&arg, int skip)
 	}
 
 	//clear out anim info
-	for (g=0;g<MAX_GUNS+1;g++)
-		for (s=0;s<N_ANIM_STATES;s++)
-			Robot_info[N_robot_types].anim_states[g][s].n_joints = 0;	//inialize to zero
+	range_for (auto &g, Robot_info[N_robot_types].anim_states)
+		range_for (auto &s, g)
+			s.n_joints = 0;	//inialize to zero
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 

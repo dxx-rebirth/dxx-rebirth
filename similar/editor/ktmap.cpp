@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor.h"
 #include "editor/esegment.h"
 #include "kdefs.h"
+#include "compiler-range_for.h"
 
 //	Assign CurrentTexture to Curside in *Cursegp
 int AssignTexture(void)
@@ -148,8 +149,8 @@ static void pts_aux(const vsegptridx_t sp, visited_segment_bitarray_t &visited)
 {
 	visited[sp] = true;
 
-	for (int side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
-		const auto c = sp->children[side];
+	range_for (const auto c, sp->children)
+	{
 		if (IS_CHILD(c))
 		{
 			const auto &&csegp = sp.absolute_sibling(c);

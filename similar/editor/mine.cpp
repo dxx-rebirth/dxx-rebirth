@@ -526,8 +526,8 @@ static void write_children(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *Sa
 
 static void write_verts(const vcsegptr_t seg, PHYSFS_File *SaveFile)
 {
-	for (int i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
-		PHYSFS_writeSLE16(SaveFile, seg->verts[i]);
+	range_for (auto &i, seg->verts)
+		PHYSFS_writeSLE16(SaveFile, i);
 }
 
 static void write_special(const vcsegptr_t seg, ubyte bit_mask, PHYSFS_File *SaveFile)
@@ -575,8 +575,8 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		PHYSFS_writeSLE32(SaveFile, Num_segments);					// 4 bytes = Num_segments
 	}
 
-	for (short i = 0; i < Num_vertices; i++)
-		PHYSFSX_writeVector(SaveFile, Vertices[i]);
+	range_for (auto &i, partial_const_range(Vertices, Num_vertices))
+		PHYSFSX_writeVector(SaveFile, i);
 	
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
@@ -662,11 +662,11 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				if (tmap_num2 != 0 || !New_file_format_save)
 					PHYSFS_writeSLE16(SaveFile, tmap_num2);
 
-				for (short i = 0; i < 4; i++)
+				range_for (auto &i, seg->sides[sidenum].uvls)
 				{
-					dump_fix_as_short(seg->sides[sidenum].uvls[i].u, 5, SaveFile);
-					dump_fix_as_short(seg->sides[sidenum].uvls[i].v, 5, SaveFile);
-					dump_fix_as_ushort(seg->sides[sidenum].uvls[i].l, 1, SaveFile);
+					dump_fix_as_short(i.u, 5, SaveFile);
+					dump_fix_as_short(i.v, 5, SaveFile);
+					dump_fix_as_ushort(i.l, 1, SaveFile);
 				}	
 			}
 		}
