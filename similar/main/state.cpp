@@ -546,7 +546,9 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl->time_total                = pl_rw->time_total;
 	pl_info.cloak_time                = pl_rw->cloak_time;
 	pl_info.invulnerable_time         = pl_rw->invulnerable_time;
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+	pl_info.KillGoalCount = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 	pl_info.KillGoalCount             = pl_rw->KillGoalCount;
 #endif
 	pl_info.net_killed_total          = pl_rw->net_killed_total;
@@ -1704,11 +1706,20 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	else
 		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
+	/* These values were never saved, so coerce them to a sane default.
+	 */
+	pl_info.Fusion_charge = 0;
+	pl_info.Player_eggs_dropped = false;
+	pl_info.FakingInvul = false;
+	pl_info.lavafall_hiss_playing = false;
+	pl_info.missile_gun = 0;
+	pl_info.Last_bumped_local_player = 0;
 	//	Restore hacked up weapon system stuff.
 	auto &player_info = plrobj.ctype.player_info;
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	player_info.Auto_fire_fusion_cannon_time = 0;
+	player_info.Next_flare_fire_time = GameTime64;
 	Next_laser_fire_time = GameTime64;
 	Next_missile_fire_time = GameTime64;
 
@@ -1825,16 +1836,16 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		First_secret_visit = 0;
 
 	player_info.Omega_charge = 0;
+	/* The savegame does not record this, so pick a value.  Be
+	 * nice to the player: let the cannon recharge immediately.
+	 */
+	player_info.Omega_recharge_delay = 0;
 	if (version >= 22)
 	{
 		auto i = PHYSFSX_readSXE32(fp, swap);
 		if (secret != secret_restore::survived)
 		{
 			player_info.Omega_charge = i;
-			/* The savegame does not record this, so pick a value.  Be
-			 * nice to the player: let the cannon recharge immediately.
-			 */
-			player_info.Omega_recharge_delay = 0;
 		}
 	}
 #endif
