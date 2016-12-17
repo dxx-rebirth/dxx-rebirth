@@ -129,20 +129,27 @@ void con_puts(int priority, const char *buffer, size_t len)
 
 static color_t get_console_color_by_priority(int priority)
 {
+	int r, g, b;
 	switch (priority)
 	{
 		case CON_CRITICAL:
-			return BM_XRGB(28,0,0);
+			r = 28 * 2, g = 0 * 2, b = 0 * 2;
+			break;
 		case CON_URGENT:
-			return BM_XRGB(54,54,0);
+			r = 54 * 2, g = 54 * 2, b = 0 * 2;
+			break;
 		case CON_DEBUG:
 		case CON_VERBOSE:
-			return BM_XRGB(14,14,14);
+			r = 14 * 2, g = 14 * 2, b = 14 * 2;
+			break;
 		case CON_HUD:
-			return BM_XRGB(0,28,0);
+			r = 0 * 2, g = 28 * 2, b = 0 * 2;
+			break;
 		default:
-			return BM_XRGB(255,255,255);
+			r = 255 * 2, g = 255 * 2, b = 255 * 2;
+			break;
 	}
+	return gr_find_closest_color(r, g, b);
 }
 
 static void con_draw(void)
