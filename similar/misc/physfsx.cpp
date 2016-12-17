@@ -271,10 +271,18 @@ int PHYSFSX_addRelToSearchPath(const char *relname, int add_to_end)
 
 	array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
+	{
+		con_printf(CON_DEBUG, "PHYSFS: ignoring map request: no canonical path for relative name \"%s\"", relname2);
 		return 0;
+	}
 
-	con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", add_to_end ? "append" : "set", pathname.data(), relname);
-	return PHYSFS_addToSearchPath(pathname.data(), add_to_end);
+	auto r = PHYSFS_addToSearchPath(pathname.data(), add_to_end);
+	const auto action = add_to_end ? "append" : "insert";
+	if (r)
+		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname);
+	else
+		con_printf(CON_VERBOSE, "PHYSFS: failed to %s canonical directory \"%s\" to search path from relative name \"%s\": \"%s\"", action, pathname.data(), relname, PHYSFS_getLastError());
+	return r;
 }
 
 int PHYSFSX_removeRelFromSearchPath(const char *relname)
@@ -286,9 +294,16 @@ int PHYSFSX_removeRelFromSearchPath(const char *relname)
 
 	array<char, PATH_MAX> pathname;
 	if (!PHYSFSX_getRealPath(relname2, pathname))
+	{
+		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
 		return 0;
-
-	return PHYSFS_removeFromSearchPath(pathname.data());
+	}
+	auto r = PHYSFS_removeFromSearchPath(pathname.data());
+	if (r)
+		con_printf(CON_DEBUG, "PHYSFS: unmap canonical directory \"%s\" (relative name \"%s\")", pathname.data(), relname);
+	else
+		con_printf(CON_VERBOSE, "PHYSFS: failed to unmap canonical directory \"%s\" (relative name \"%s\"): \"%s\"", pathname.data(), relname, PHYSFS_getLastError());
+	return r;
 }
 
 int PHYSFSX_fsize(const char *hogname)

@@ -594,9 +594,8 @@ Mission::~Mission()
 	if (!path.empty() && builtin_hogsize == 0)
 		{
 			char hogpath[PATH_MAX];
-
-			snprintf(hogpath, sizeof(hogpath), MISSION_DIR "%s.hog", path.c_str());
-			PHYSFSX_contfile_close(hogpath);
+			snprintf(hogpath, sizeof(hogpath), "%s.hog", path.c_str());
+			PHYSFSX_removeRelFromSearchPath(hogpath);
 		}
 }
 
