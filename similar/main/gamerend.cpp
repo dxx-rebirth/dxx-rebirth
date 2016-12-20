@@ -397,8 +397,8 @@ namespace dsx {
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
 
-char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
-char DemoRearCheck[]={0,0,0,1,0,0,0};
+constexpr char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
+constexpr char DemoRearCheck[]={0,0,0,1,0,0,0};
 constexpr char DemoExtraMessage[][10] = {
 	"PLAYER",
 	"GUIDED",
