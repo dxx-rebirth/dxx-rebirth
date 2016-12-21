@@ -1376,8 +1376,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	fix tmptime32 = 0;
-	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
-	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
+	array<array<short, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum, TempTmapNum2;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr tt::integral_constant<secret_restore, secret_restore::none> secret{};
@@ -1480,6 +1479,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 //Read player info
 
 	auto &plrobj = get_local_plrobj();
+	{
 	player_info pl_info;
 	fix pl_shields;
 	{
@@ -1594,6 +1594,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	special_reset_objects();
 	plrobj.shields = pl_shields;
 	plrobj.ctype.player_info = pl_info;
+	}
 
 	//	1 = Didn't die on secret level.
 	//	2 = Died on secret level.
@@ -1706,16 +1707,17 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	else
 		PHYSFS_read(fp, &Automap_visited[0], sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
-	/* These values were never saved, so coerce them to a sane default.
-	 */
-	pl_info.Fusion_charge = 0;
-	pl_info.Player_eggs_dropped = false;
-	pl_info.FakingInvul = false;
-	pl_info.lavafall_hiss_playing = false;
-	pl_info.missile_gun = 0;
-	pl_info.Last_bumped_local_player = 0;
+	{
 	//	Restore hacked up weapon system stuff.
 	auto &player_info = plrobj.ctype.player_info;
+	/* These values were never saved, so coerce them to a sane default.
+	 */
+	player_info.Fusion_charge = 0;
+	player_info.Player_eggs_dropped = false;
+	player_info.FakingInvul = false;
+	player_info.lavafall_hiss_playing = false;
+	player_info.missile_gun = 0;
+	player_info.Last_bumped_local_player = 0;
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	player_info.Auto_fire_fusion_cannon_time = 0;
@@ -1849,6 +1851,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 	}
 #endif
+	}
 
 	// static_light should now be computed - now actually set tmap info
 	range_for (const auto &&segp, vsegptridx)
@@ -1873,6 +1876,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 			// read the stored players
 			fix shields;
+			player_info pl_info;
 			state_read_player(fp, restore_players[i], swap, pl_info, shields);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
