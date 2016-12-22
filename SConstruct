@@ -881,7 +881,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
 		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
 			return (1, "Header %s is parseable, but cannot compile the test program." % header)
-		return (2, "Header %s is missing or unusable." % header)
+		successflags.setdefault('CXXFLAGS', []).append('-E')
+		if Compile(context, text=include, main='', msg='for parseable header %s' % header, testflags=successflags):
+			return (2, "Header %s exists, but cannot compile an empty program." % header)
+		return (3, "Header %s is missing or unusable." % header)
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
