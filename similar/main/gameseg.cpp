@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "wall.h"
 #include "fuelcen.h"
-#include "bm.h"
+#include "textures.h"
 #include "fvi.h"
 #include "object.h"
 #include "byteutil.h"
@@ -1230,22 +1230,17 @@ static int check_for_degenerate_segment(const vcsegptr_t sp)
 
 }
 
-static void add_side_as_quad(const vsegptr_t sp, int sidenum, const vms_vector &normal)
+static void add_side_as_quad(side *const sidep, const vms_vector &normal)
 {
-	side	*sidep = &sp->sides[sidenum];
-
 	sidep->set_type(SIDE_IS_QUAD);
-
 	sidep->normals[0] = normal;
 	sidep->normals[1] = normal;
-
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
 	//	so don't generate polys, else they will get rendered.
 //	if (sp->children[sidenum] != -1)
 //		sidep->render_flag = 0;
 //	else
 //		sidep->render_flag = 1;
-
 }
 
 }
@@ -1401,7 +1396,7 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 		vm_vec_negate(vn);
 
 	if (dist_to_plane <= PLANE_DIST_TOLERANCE)
-		add_side_as_quad(sp, sidenum, vn);
+		add_side_as_quad(&sp->sides[sidenum], vn);
 	else {
 		add_side_as_2_triangles(sp, sidenum);
 
@@ -1438,28 +1433,82 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 
 }
 
-
-
-// -------------------------------------------------------------------------------
-static void validate_removable_wall(const vsegptridx_t sp, int sidenum, int tmap_num)
-{
-	create_walls_on_side(sp, sidenum);
-
-	sp->sides[sidenum].tmap_num = tmap_num;
-
-//	assign_default_uvs_to_side(sp, sidenum);
-//	assign_light_to_side(sp, sidenum);
-}
-
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment side valid.
 void validate_segment_side(const vsegptridx_t sp, int sidenum)
 {
-	if (sp->sides[sidenum].wall_num == wall_none)
+	auto &side = sp->sides[sidenum];
+	const auto old_tmap_num = side.tmap_num;
 		create_walls_on_side(sp, sidenum);
-	else
 		// create_removable_wall(sp, sidenum, sp->sides[sidenum].tmap_num);
-		validate_removable_wall(sp, sidenum, sp->sides[sidenum].tmap_num);
+	/* If the texture is correct, put it back.  This is sometimes a
+	 * wasted store, but never harmful.
+	 *
+	 * If the texture was wrong, fix it, and log a diagnostic.  For
+	 * builtin missions, log the diagnostic at level CON_VERBOSE, since
+	 * retail levels trigger this during normal play.  For external
+	 * missions, log the diagnostic at level CON_URGENT.  External
+	 * levels might be fixable by contacting the author, but the retail
+	 * levels can only be fixed by using a Rebirth level patch file (not
+	 * supported yet).  When fixing the texture, change it to 0 for
+	 * walls and 1 for non-walls.  This should make walls transparent
+	 * for their primary texture; transparent non-walls usually generate
+	 * ugly visual artifacts, so choose a non-zero texture for them.
+	 *
+	 * Known affected retail levels (incomplete list):
+
+Descent 2: Counterstrike
+sha256:	f1abf516512739c97b43e2e93611a2398fc9f8bc7a014095ebc2b6b2fd21b703  descent2.hog
+Levels 1-3: clean
+
+Level #4
+segment #170 side #4 has invalid tmap 910 (NumTextures=910)
+segment #171 side #5 has invalid tmap 910 (NumTextures=910)
+segment #184 side #2 has invalid tmap 910 (NumTextures=910)
+segment #188 side #5 has invalid tmap 910 (NumTextures=910)
+
+Level #5
+segment #141 side #4 has invalid tmap 910 (NumTextures=910)
+
+Level #6
+segment #128 side #4 has invalid tmap 910 (NumTextures=910)
+
+Level #7
+segment #26 side #5 has invalid tmap 910 (NumTextures=910)
+segment #28 side #5 has invalid tmap 910 (NumTextures=910)
+segment #60 side #5 has invalid tmap 910 (NumTextures=910)
+segment #63 side #5 has invalid tmap 910 (NumTextures=910)
+segment #161 side #4 has invalid tmap 910 (NumTextures=910)
+segment #305 side #4 has invalid tmap 910 (NumTextures=910)
+segment #427 side #4 has invalid tmap 910 (NumTextures=910)
+segment #533 side #5 has invalid tmap 910 (NumTextures=910)
+segment #536 side #4 has invalid tmap 910 (NumTextures=910)
+segment #647 side #4 has invalid tmap 910 (NumTextures=910)
+segment #648 side #5 has invalid tmap 910 (NumTextures=910)
+
+Level #8
+segment #0 side #4 has invalid tmap 910 (NumTextures=910)
+segment #92 side #0 has invalid tmap 910 (NumTextures=910)
+segment #92 side #5 has invalid tmap 910 (NumTextures=910)
+segment #94 side #1 has invalid tmap 910 (NumTextures=910)
+segment #94 side #2 has invalid tmap 910 (NumTextures=910)
+segment #95 side #0 has invalid tmap 910 (NumTextures=910)
+segment #95 side #1 has invalid tmap 910 (NumTextures=910)
+segment #97 side #5 has invalid tmap 910 (NumTextures=910)
+segment #98 side #3 has invalid tmap 910 (NumTextures=910)
+segment #100 side #1 has invalid tmap 910 (NumTextures=910)
+segment #102 side #1 has invalid tmap 910 (NumTextures=910)
+segment #104 side #3 has invalid tmap 910 (NumTextures=910)
+
+Levels 9-end: unchecked
+
+	 */
+	side.tmap_num = old_tmap_num < NumTextures
+		? old_tmap_num
+		: (
+			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_num, NumTextures),
+			(side.wall_num == wall_none)
+		);
 
 	//	Set render_flag.
 	//	If side doesn't have a child, then render wall.  If it does have a child, but there is a temporary

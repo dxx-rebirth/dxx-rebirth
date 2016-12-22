@@ -220,7 +220,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 namespace dsx {
-static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, array<g3s_uvl, 4> uvl_copy, WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(const segment &segp, const unsigned sidenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 
@@ -241,8 +241,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 #elif defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
-		auto wall_num = segp->sides[sidenum].wall_num;
-		Assert(wall_num != wall_none);
+		const auto wall_num = segp.sides[sidenum].wall_num;
 		gr_settransblend(vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
@@ -256,7 +255,6 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 
 	if (tmap1 >= NumTextures) {
 		Int3();
-		return;
 	}
 
 #if DXX_USE_OGL
@@ -370,7 +368,7 @@ static void render_face(const vcsegptridx_t segp, int sidenum, unsigned nv, cons
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, const array<int, 4> &vp, int tmap1, int tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -435,7 +433,7 @@ static void check_face(segnum_t segnum, int sidenum, int facenum, unsigned nv, c
 }
 
 template <std::size_t... N>
-static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &ovp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &ovp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
 	const array<int, 4> vp{{ovp[N]...}};
 	const array<g3s_uvl, 4> uvl_copy{{
@@ -446,7 +444,7 @@ static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t s
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -455,7 +453,7 @@ static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vc
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, int sidenum, unsigned facenum, const array<int, 4> &vp, int tmap1, int tmap2, const array<uvl, 4> &uvlp, WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }

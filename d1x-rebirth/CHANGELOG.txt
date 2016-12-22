@@ -2182,7 +2182,7 @@ main/songs.c: start at track 1 and continue playing audio CD if it's not the ori
 
 20080615
 --------
-main/gameseq.c, main/mission.c, main/newdemo.c, main/scores.c: Fixed scores write (wasn't PhysFS); Fixed PLAYING_BUILTING_MISSION in D1X; Better call for DoJasonInterpolate in demo code (hopefully)
+main/gameseq.c, main/mission.c, main/newdemo.c, main/scores.c: Fixed scores write (wasn't PhysFS); Fixed PLAYING_BUILTIN_MISSION in D1X; Better call for DoJasonInterpolate in demo code (hopefully)
 arch/sdl/digi_mixer.c, arch/sdl/rbaudio.c, include/inferno.h, include/rbaudio.h, main/game.c, main/songs.c: tidy up music keys, ALT-SHIFT-F9 ejects audio CDs
 
 20080612
