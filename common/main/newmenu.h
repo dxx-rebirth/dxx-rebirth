@@ -314,9 +314,6 @@ extern const char *Newmenu_allowed_chars;
 
 extern const char **listbox_get_items(listbox *lb);
 extern int listbox_get_citem(listbox *lb);
-#ifdef _WIN32
-window *listbox_get_window(listbox *lb);
-#endif
 extern void listbox_delete_item(listbox *lb, int item);
 
 namespace dcx {
