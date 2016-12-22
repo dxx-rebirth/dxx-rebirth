@@ -1214,11 +1214,7 @@ static window_event_result kconfig_handler(window *wind,const d_event &event, kc
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-#if defined(DXX_BUILD_DESCENT_I)
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_DOWN))
-#elif defined(DXX_BUILD_DESCENT_II)
 			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_UP))
-#endif
 			{
 				kc_change_mousebutton(*menu, event, menu->mitems[menu->citem] );
 				menu->mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
