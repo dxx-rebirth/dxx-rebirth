@@ -125,24 +125,36 @@ fix Cruise_speed=0;
 
 #define INFO_Y (188)
 
+namespace dcx {
+
+const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff }};
+
+namespace {
+
+struct kc_mitem {
+	uint8_t value;		// what key,button,etc
+};
+
+}
+
+}
+
+namespace dsx {
+
 namespace {
 
 struct kc_item
 {
 	const short x, y;              // x, y pos of label
 	const short xinput;                // x pos of input field
-	const short w2;                // length of input field
-	const short u,d,l,r;           // neighboring field ids for cursor navigation
-	const ubyte type;
-	const int state_bit;
+	const int8_t w2;                // length of input field
+	const uint8_t u,d,l,r;           // neighboring field ids for cursor navigation
+	const uint8_t type;
+	const uint8_t state_bit;
 	union {
-		ubyte control_info::state_controls_t::*ci_state_ptr;
-		ubyte control_info::state_controls_t::*ci_count_ptr;
+		uint8_t control_info::state_controls_t::*const ci_state_ptr;
+		uint8_t control_info::state_controls_t::*const ci_count_ptr;
 	};
-};
-
-struct kc_mitem {
-	ubyte value;		// what key,button,etc
 };
 
 struct kc_menu : embed_window_pointer_t
@@ -175,7 +187,6 @@ const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings{{
 	{{0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0}},
 #endif
 }};
-const array<ubyte, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth{{ 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff }};
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 constexpr kc_item kc_keyboard[] = {
@@ -637,6 +648,8 @@ constexpr const char *kcl_rebirth =
 	WEAPON_STRING_MEGA	"\0"
 ;
 static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
+
+}
 
 static void kc_drawinput( const kc_item &item, kc_mitem& mitem, int is_current, const char *label );
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -1103,7 +1116,7 @@ static void reset_mitem_values(array<kc_mitem, M> &m, const array<ubyte, C> &c)
 		m[i].value = c[i];
 }
 
-static void step_citem_past_empty_cell(unsigned &citem, const kc_item *items, const short kc_item::*next)
+static void step_citem_past_empty_cell(unsigned &citem, const kc_item *const items, const uint8_t kc_item::*const next)
 {
 	do {
 		citem = items[citem].*next;

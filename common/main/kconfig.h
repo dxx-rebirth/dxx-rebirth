@@ -88,12 +88,19 @@ extern control_info Controls;
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
+#ifdef dsx
+namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_DXX_REBIRTH_CONTROLS    30
-#define MAX_CONTROLS 50
+constexpr unsigned MAX_CONTROLS = 50;
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_DXX_REBIRTH_CONTROLS    30
-#define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
+constexpr unsigned MAX_CONTROLS = 60;		// there are actually 48, so this leaves room for more
+#endif
+extern const array<array<uint8_t, MAX_CONTROLS>, 3> DefaultKeySettings;
+}
+namespace dcx {
+constexpr unsigned MAX_DXX_REBIRTH_CONTROLS = 30;
+extern const array<uint8_t, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
+}
 #endif
 
 extern void kconfig_read_controls(const d_event &event, int automap_flag);
@@ -109,11 +116,6 @@ enum class kconfig_type
 };
 
 void kconfig(kconfig_type n);
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-extern const array<array<ubyte, MAX_CONTROLS>, 3> DefaultKeySettings;
-extern const array<ubyte, MAX_DXX_REBIRTH_CONTROLS> DefaultKeySettingsRebirth;
-#endif
 
 extern void kc_set_controls();
 
