@@ -967,7 +967,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 
 void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 {
-	uint_fast32_t fuelcen_num = buf[2];
+	const uint_fast32_t fuelcen_num = buf[2];
 	int type = buf[5];
 
 	FuelCenter *robotcen;
@@ -1002,7 +1002,7 @@ void multi_do_create_robot(const playernum_t pnum, const ubyte *buf)
 	if (obj == object_none)
 		return; // Cannot create object!
 	
-	obj->matcen_creator = (robotcen-Station) | 0x80;
+	obj->matcen_creator = fuelcen_num | 0x80;
 //	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	const auto direction = vm_vec_sub(ConsoleObject->pos, obj->pos );
 	vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);

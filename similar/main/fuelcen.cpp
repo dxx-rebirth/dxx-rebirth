@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multibot.h"
 #include "escort.h"
 #include "poison.h"
-
+#include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
@@ -349,7 +349,7 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 }
 
 //	----------------------------------------------------------------------------------------------------------
-static void robotmaker_proc( FuelCenter * robotcen )
+static void robotmaker_proc(FuelCenter *const robotcen, const unsigned numrobotcen)
 {
 	int		matcen_num;
 	fix		top_time;
@@ -416,7 +416,7 @@ static void robotmaker_proc( FuelCenter * robotcen )
 
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
-			int	my_station_num = robotcen-Station;
+			int	my_station_num = numrobotcen;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			range_for (const auto &&objp, vcobjptr)
@@ -505,8 +505,8 @@ static void robotmaker_proc( FuelCenter * robotcen )
 				const auto &&obj = create_morph_robot(vsegptridx(robotcen->segnum), cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
-						multi_send_create_robot(robotcen-Station, obj, type);
-					obj->matcen_creator = (robotcen-Station) | 0x80;
+						multi_send_create_robot(numrobotcen, obj, type);
+					obj->matcen_creator = (numrobotcen) | 0x80;
 
 					// Make object faces player...
 					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
@@ -530,12 +530,13 @@ static void robotmaker_proc( FuelCenter * robotcen )
 // Called once per frame, replenishes fuel supply.
 void fuelcen_update_all()
 {
-	range_for (auto &i, partial_range(Station, Num_fuelcenters))
+	range_for (auto &&e, enumerate(partial_range(Station, Num_fuelcenters)))
 	{
+		auto &i = e.value;
 		if (i.Type == SEGMENT_IS_ROBOTMAKER)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc(&i);
+				robotmaker_proc(&i, e.idx);
 		}
 	}
 }
@@ -543,9 +544,10 @@ void fuelcen_update_all()
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define FUELCEN_SOUND_DELAY (F1_0/3)
+constexpr unsigned FUELCEN_SOUND_DELAY = (F1_0 / 3);
 #elif defined(DXX_BUILD_DESCENT_II)
-#define FUELCEN_SOUND_DELAY (f1_0/4)		//play every half second
+//play every half second
+constexpr unsigned FUELCEN_SOUND_DELAY = (F1_0 / 4);
 #endif
 
 //-------------------------------------------------------------

@@ -144,11 +144,6 @@ extern const char Special_names[MAX_CENTER_TYPES][11];
 extern array<matcen_info, MAX_ROBOT_CENTERS> RobotCenters;
 extern array<FuelCenter, MAX_NUM_FUELCENS> Station;
 
-static inline long operator-(FuelCenter *s, array<FuelCenter, MAX_NUM_FUELCENS> &a)
-{
-	return std::distance(a.begin(), s);
-}
-
 // Called when a materialization center gets triggered by the player
 // flying through some trigger!
 void trigger_matcen(vsegptridx_t segnum);
