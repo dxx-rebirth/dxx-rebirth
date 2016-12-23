@@ -92,7 +92,7 @@ Install the listed prerequisites through your system package manager.
  scons
  libsdl1.2-dev
  libsdl-mixer1.2-dev
- physfs-dev**
+ libphysfs-dev**
 
 #### Mac OS X
 Where possible, Mac users should try to obtain a compiled package, rather than locally compiling from source.  To build from source, read on.
