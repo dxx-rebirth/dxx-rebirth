@@ -1690,9 +1690,9 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 	{
 		if (i.segnum == segnum)
 		{
-			if (i.sidenum < sidenum)
-				break;
 			if (i.sidenum > sidenum)
+				break;
+			if (i.sidenum < sidenum)
 				continue;
 			range_for (auto &j, partial_const_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
 			{
@@ -1707,7 +1707,7 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 				}
 			}
 		}
-		else if (i.segnum < segnum)
+		else if (i.segnum > segnum)
 			break;
 	}
 
