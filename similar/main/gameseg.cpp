@@ -1696,10 +1696,10 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 				continue;
 			range_for (auto &j, partial_const_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
 			{
+				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vsegptr(j.segnum);
 				auto &uvls = segp->sides[j.sidenum].uvls;
 				for (int k=0; k<4; k++) {
-					Assert(j.sidenum >= 0 && j.sidenum < MAX_SIDES_PER_SEGMENT);
 					auto &l = uvls[k].l;
 					const fix dl = ds * j.vert_light[k];
 					if ((l += dl) < 0)

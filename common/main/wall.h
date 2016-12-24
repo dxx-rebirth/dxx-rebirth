@@ -122,7 +122,7 @@ namespace dsx {
 struct wall : public prohibit_void_ptr<wall>
 {
 	segnum_t segnum;
-	int8_t  sidenum;     // Seg & side for this wall
+	uint8_t  sidenum;     // Seg & side for this wall
 	uint8_t type;               // What kind of special wall.
 	fix     hps;                // "Hit points" of the wall.
 	wallnum_t linked_wall;        // number of linked wall

@@ -269,14 +269,14 @@ namespace dsx {
 struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
-	sbyte   sidenum;
+	uint8_t   sidenum;
 	array<ubyte, 4>   vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
 struct dl_index {
 	segnum_t   segnum;
-	sbyte   sidenum;
+	uint8_t   sidenum;
 	uint8_t count;
 	uint16_t index;
 };

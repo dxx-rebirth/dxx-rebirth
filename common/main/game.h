@@ -266,7 +266,7 @@ objptridx_t find_escort();
 //Flickering light system
 struct flickering_light {
 	segnum_t segnum;
-	short sidenum;
+	uint8_t sidenum;
 	uint32_t mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes

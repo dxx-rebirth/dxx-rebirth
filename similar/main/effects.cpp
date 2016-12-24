@@ -90,12 +90,13 @@ void do_special_effects()
 			ec.frame_count++;
 			if (ec.frame_count >= ec.vc.num_frames) {
 				if (ec.flags & EF_ONE_SHOT) {
-					Assert(ec.segnum!=segment_none);
-					Assert(ec.sidenum>=0 && ec.sidenum<6);
-					Assert(ec.dest_bm_num!=0 && Segments[ec.segnum].sides[ec.sidenum].tmap_num2!=0);
-					Segments[ec.segnum].sides[ec.sidenum].tmap_num2 = ec.dest_bm_num | (Segments[ec.segnum].sides[ec.sidenum].tmap_num2&0xc000);		//replace with destoyed
 					ec.flags &= ~EF_ONE_SHOT;
+					auto &seg = *vsegptr(ec.segnum);
 					ec.segnum = segment_none;		//done with this
+					assert(ec.sidenum < 6);
+					auto &side = seg.sides[ec.sidenum];
+					assert(ec.dest_bm_num != 0 && side.tmap_num2 != 0);
+					side.tmap_num2 = ec.dest_bm_num | (side.tmap_num2 & 0xc000);		//replace with destoyed
 				}
 
 				ec.frame_count = 0;
@@ -169,7 +170,7 @@ void restart_effect(int effect_num)
 }
 
 DEFINE_VCLIP_SERIAL_UDT();
-DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, serial::pad<2>(), ec.sidenum));
+DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, serial::pad<2>(), ec.sidenum, serial::pad<3>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 130);
 
 /*
