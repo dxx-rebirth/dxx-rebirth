@@ -921,13 +921,9 @@ static void close_editor()
 	switch (ModeFlag)
 	{
 		case 1:
-			if (Game_wind)
-				window_close(Game_wind);
 			break;
 
 		case 2:
-			if (Game_wind)
-				window_close(Game_wind);
 			set_screen_mode(SCREEN_MENU);		//put up menu screen
 			show_menus();
 			break;
