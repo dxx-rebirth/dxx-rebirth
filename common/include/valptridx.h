@@ -65,7 +65,7 @@ public:
 }
 
 template <typename INTEGRAL_TYPE, std::size_t array_size_value>
-constexpr std::size_t valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value>::array_size;
+constexpr std::integral_constant<std::size_t, array_size_value> valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value>::array_size;
 
 template <typename P>
 class valptridx<P>::index_mismatch_exception :

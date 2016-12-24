@@ -8,10 +8,20 @@
 
 #pragma once
 
+#include <type_traits>
 #include <physfs.h>
 #include "maths.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "cpp-valptridx.h"
+
+namespace dcx {
+using actdoornum_t = uint8_t;
+constexpr std::integral_constant<std::size_t, 90> MAX_DOORS{};  // Maximum number of open doors
+struct active_door;
+}
+DXX_VALPTRIDX_DECLARE_SUBTYPE(active_door, actdoornum_t, MAX_DOORS);
+
 #include "fwd-valptridx.h"
 
 #ifdef dsx
@@ -23,7 +33,6 @@ constexpr std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
 constexpr unsigned MAX_WALLS = 254; // Maximum number of walls
 constexpr std::size_t MAX_WALL_ANIMS = 60;  // Maximum different types of doors
 #endif
-constexpr std::size_t MAX_DOORS = 90;  // Maximum number of open doors
 
 enum wall_type_t : uint8_t
 {
@@ -162,7 +171,6 @@ constexpr wall_magic_constant_t<0xffff> wall_none{};
 struct stuckobj;
 struct v16_wall;
 struct v19_wall;
-struct active_door;
 
 typedef unsigned wall_clip_flag_t;
 constexpr wall_clip_flag_t WCF_EXPLODES = 1;       //door explodes when opening
@@ -176,21 +184,28 @@ namespace dsx {
 struct wall;
 struct wclip;
 constexpr std::size_t MAX_CLIP_FRAMES_D1 = 20;
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 struct cloaking_wall;
 constexpr std::size_t MAX_CLOAKING_WALLS = 10;
 using clwallnum_t = uint8_t;
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(cloaking_wall, clwall, CloakingWalls, MAX_CLOAKING_WALLS);
+}
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::cloaking_wall, clwallnum_t, dsx::MAX_CLOAKING_WALLS);
+namespace dsx {
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(cloaking_wall, clwall, CloakingWalls);
+}
 #endif
 
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls, MAX_WALLS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::wall, wallnum_t, dsx::MAX_WALLS);
+namespace dsx {
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls);
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
 }
 
 namespace dcx {
-using actdoornum_t = uint8_t;
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(active_door, actdoor, ActiveDoors, MAX_DOORS);
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(active_door, actdoor, ActiveDoors);
 #define Num_walls Walls.get_count()
 extern unsigned Num_wall_anims;
 }

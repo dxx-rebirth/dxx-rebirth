@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <type_traits>
 #include <physfs.h>
 #include "maths.h"
 
@@ -37,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "dsx-ns.h"
 
-#define MAX_TRIGGERS        100
+constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};
 #define MAX_WALLS_PER_LINK  10
 
 #define TT_OPEN_DOOR        0   // Open a door
@@ -157,7 +158,10 @@ struct trigger : public prohibit_void_ptr<trigger>
 	array<short, MAX_WALLS_PER_LINK>   side;
 };
 
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(trigger, trg, Triggers, MAX_TRIGGERS);
+}
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::trigger, trgnum_t, MAX_TRIGGERS);
+namespace dsx {
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(trigger, trg, Triggers);
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(trigger, trg);
 
 }

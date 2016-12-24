@@ -8,11 +8,12 @@
 
 #pragma once
 
+#include <type_traits>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-array.h"
 #include "objnum.h"
-#include "fwd-valptridx.h"
+#include "cpp-valptridx.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"
 
@@ -22,28 +23,35 @@ namespace dcx {
 
 // Movement types
 enum movement_type_t : uint8_t;
+constexpr std::size_t MAX_OBJECTS = 350;
+constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS{};
 
 }
 
-constexpr std::size_t MAX_OBJECTS = 350;
 #ifdef dsx
 namespace dsx {
-
 struct object;
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects, MAX_OBJECTS);
+}
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::object, objnum_t, MAX_OBJECTS);
+#endif
+
+#include "fwd-valptridx.h"
+
+#ifdef dsx
+namespace dsx {
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(object, obj, Objects);
 
 static constexpr valptridx<object>::magic_constant<0xfffe> object_guidebot_cannot_reach{};
 static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
 static constexpr valptridx<object>::magic_constant<0> object_first{};
-}
-#endif
-
-constexpr unsigned MAX_USED_OBJECTS	= MAX_OBJECTS - 20;
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr unsigned MAX_OBJECT_TYPES = 15;
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr unsigned MAX_OBJECT_TYPES = 16;
+#endif
+
+}
 #endif
 
 // Result types

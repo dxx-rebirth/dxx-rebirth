@@ -1,3 +1,9 @@
+/*
+ * This file is part of the DXX-Rebirth project <http://www.dxx-rebirth.com/>.
+ * It is copyright by its individual contributors, as recorded in the
+ * project's Git history.  See COPYING.txt at the top level for license
+ * terms and a link to the Git history.
+ */
 #pragma once
 
 #include <functional>
@@ -24,18 +30,11 @@
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(...)	__VA_ARGS__
 #endif
 
-/* valptridx_specialized_type is never defined, but is declared to
- * return a type-specific class suitable for use as a base of
- * valptridx<T>.
- */
-template <typename managed_type>
-using valptridx_specialized_types = decltype(valptridx_specialized_type(static_cast<managed_type *>(nullptr)));
-
 template <typename managed_type>
 class valptridx :
-	protected valptridx_specialized_types<managed_type>
+	protected valptridx_specialized_types<managed_type>::type
 {
-	using specialized_types = valptridx_specialized_types<managed_type>;
+	using specialized_types = typename valptridx_specialized_types<managed_type>::type;
 	class partial_policy
 	{
 	public:
@@ -142,18 +141,9 @@ public:
 		};
 };
 
-template <typename INTEGRAL_TYPE, std::size_t array_size_value>
-class valptridx_specialized_type_parameters
-{
-public:
-	using integral_type = INTEGRAL_TYPE;
-	static constexpr std::size_t array_size = array_size_value;
-};
-
 #define DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEF(managed_type,derived_type_prefix,vcprefix,suffix)	\
-	typedef valptridx<managed_type>::vcprefix##suffix vcprefix##derived_type_prefix##suffix##_t
-#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array,array_size_value)	\
-	valptridx_specialized_type_parameters<derived_type_prefix##num_t, array_size_value> valptridx_specialized_type(managed_type *);	\
+	using vcprefix##derived_type_prefix##suffix##_t = valptridx<managed_type>::vcprefix##suffix
+#define DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(managed_type,derived_type_prefix,global_array)	\
 	extern valptridx<managed_type>::array_managed_type global_array;	\
 	static constexpr const valptridx<managed_type>::array_managed_type &get_global_array(const managed_type *) { return global_array; }	\
 	static constexpr valptridx<managed_type>::array_managed_type &get_global_array(managed_type *) { return global_array; }	\

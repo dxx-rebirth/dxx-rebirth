@@ -36,13 +36,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cassert>
 #include <cstdint>
 #include <stdexcept>
+#include "fwd-segment.h"
 #include "countarray.h"
 #include "valptridx.h"
 #include "objnum.h"
 #include "pack.h"
 
 #include "compiler-type_traits.h"
-#include "fwd-segment.h"
 
 #ifdef dsx
 namespace dsx {

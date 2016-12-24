@@ -13,11 +13,18 @@
 #include "maths.h"
 
 #include <cstdint>
+#include "cpp-valptridx.h"
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
 using segnum_t = uint16_t;
 }
+#ifdef dsx
+namespace dsx {
+struct segment;
+}
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::segment, segnum_t, MAX_SEGMENTS);
+#endif
 
 #include "fwd-valptridx.h"
 
@@ -36,8 +43,7 @@ constexpr std::size_t MAX_SEGMENT_VERTICES = 4*MAX_SEGMENTS;
 }
 #ifdef dsx
 namespace dsx {
-struct segment;
-DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments, MAX_SEGMENTS);
+DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
 
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
