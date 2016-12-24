@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat.h"
 #include "fvi.h"
+#include "fwd-window.h"
 
 #ifdef __cplusplus
 
@@ -46,7 +47,7 @@ extern array<segnum_t, MAX_FVI_SEGS> phys_seglist;
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #ifdef dsx
 namespace dsx {
-void do_physics_sim(vobjptridx_t obj);
+window_event_result do_physics_sim(vobjptridx_t obj);
 
 }
 #endif

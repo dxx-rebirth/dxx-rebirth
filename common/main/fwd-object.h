@@ -16,6 +16,7 @@
 #include "cpp-valptridx.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"
+#include "fwd-window.h"
 
 struct bitmap_index;
 
@@ -255,7 +256,7 @@ void render_object(vobjptridx_t obj);
 void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
 
 // move all objects for the current frame
-void object_move_all();     // moves all objects
+window_event_result object_move_all();     // moves all objects
 
 // set viewer object to next object in array
 void object_goto_next_viewer();
@@ -328,7 +329,7 @@ void special_reset_objects();
 void obj_attach(vobjptridx_t parent,vobjptridx_t sub);
 
 void create_small_fireball_on_object(vobjptridx_t objp, fix size_scale, int sound_flag);
-void dead_player_frame();
+window_event_result dead_player_frame();
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern int Drop_afterburner_blob_flag;		//ugly hack

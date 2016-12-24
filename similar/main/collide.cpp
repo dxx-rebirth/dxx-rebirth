@@ -696,18 +696,19 @@ int check_effect_blowup(const vsegptridx_t seg,int side,const vms_vector &pnt, c
 // int Show_seg_and_side = 0;
 
 namespace dsx {
-static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+static window_event_result collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 	int blew_up;
 	int playernum;
+	auto result = window_event_result::handled;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (weapon->mtype.phys_info.flags & PF_BOUNCE)
-		return;
+		return window_event_result::ignored;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
-			return;
+			return window_event_result::ignored;
 
 	//	If this is a guided missile and it strikes fairly directly, clear bounce flag.
 	if (get_weapon_id(weapon) == weapon_id_type::GUIDEDMISS_ID) {
@@ -725,7 +726,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 
 		//make sound
 		multi_digi_link_sound_to_pos(SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, 0, hitpt, 0, f1_0);
-		return;	//bail here. physics code will bounce this object
+		return window_event_result::ignored;	//bail here. physics code will bounce this object
 	}
 
 	#ifndef NDEBUG
@@ -748,7 +749,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 
 	if ((weapon->mtype.phys_info.velocity.x == 0) && (weapon->mtype.phys_info.velocity.y == 0) && (weapon->mtype.phys_info.velocity.z == 0)) {
 		Int3();	//	Contact Matt: This is impossible.  A weapon with 0 velocity hit a wall, which doesn't move.
-		return;
+		return window_event_result::ignored;
 	}
 
 	blew_up = check_effect_blowup(hitseg,hitwall, hitpt, weapon->ctype.laser_info, 0, 0);
@@ -763,7 +764,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		if (Game_mode & GM_MULTI)
 		 {
 			 Int3();  // Get Jason!
-		    return;
+		    return window_event_result::ignored;
 	    }
 
 
@@ -789,7 +790,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 		//because robots can shoot out wall triggers, and so the trigger better
 		//take effect
 		//	NO -- Changed by MK, 10/18/95.  We don't want robots blowing puzzles.  Only player or buddy can open!
-		check_trigger(hitseg, hitwall, plrobj, vcobjptridx(weapon->ctype.laser_info.parent_num), 1);
+		result = check_trigger(hitseg, hitwall, plrobj, vcobjptridx(weapon->ctype.laser_info.parent_num), 1);
 	}
 
 	if (get_weapon_id(weapon) == weapon_id_type::EARTHSHAKER_ID)
@@ -959,7 +960,7 @@ static void collide_weapon_and_wall(const vobjptridx_t weapon, const vsegptridx_
 			weapon->flags |= OF_SHOULD_BE_DEAD;
 	}
 
-	return;
+	return result;
 }
 }
 
@@ -1308,23 +1309,23 @@ int	Final_boss_is_dead = 0;
 fix	Final_boss_countdown_time = 0;
 
 //	------------------------------------------------------------------------------------------------------
-void do_final_boss_frame(void)
+window_event_result do_final_boss_frame(void)
 {
 
 	if (!Final_boss_is_dead)
-		return;
+		return window_event_result::ignored;
 
 	if (!Control_center_destroyed)
-		return;
+		return window_event_result::ignored;
 
 	if (Final_boss_countdown_time == 0)
 		Final_boss_countdown_time = F1_0*2;
 
 	Final_boss_countdown_time -= FrameTime;
 	if (Final_boss_countdown_time > 0)
-		return;
+		return window_event_result::ignored;
 
-	start_endlevel_sequence();		//pretend we hit the exit trigger
+	return start_endlevel_sequence();		//pretend we hit the exit trigger
 
 }
 
@@ -2639,7 +2640,7 @@ constexpr collision_outer_array_t CollisionResult = collide_init(make_tree_index
 	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
 
-void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
+window_event_result collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptridx_t hitseg, short hitwall, const vms_vector &hitpt)
 {
 
 	switch( A->type )	{
@@ -2647,7 +2648,7 @@ void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptri
 		Error( "A object of type NONE hit a wall!\n");
 		break;
 	case OBJ_PLAYER:		collide_player_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
-	case OBJ_WEAPON:		collide_weapon_and_wall(A,hitseg,hitwall,hitpt); break;
+	case OBJ_WEAPON:		return collide_weapon_and_wall(A,hitseg,hitwall,hitpt); break;
 	case OBJ_DEBRIS:		collide_debris_and_wall(A,hitseg,hitwall,hitpt); break;
 
 	case OBJ_FIREBALL:	break;		//collide_fireball_and_wall(A,hitspeed,hitseg,hitwall,hitpt);
@@ -2660,4 +2661,6 @@ void collide_object_with_wall(const vobjptridx_t A, fix hitspeed, const vsegptri
 	default:
 		Error( "Unhandled object type hit wall in collide.c\n" );
 	}
+
+	return window_event_result::handled;	// assume handled
 }

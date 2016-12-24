@@ -277,12 +277,18 @@ static void do_il_off(const trigger &t)
 	trigger_wall_op(t, vsegptridx, op);
 }
 
-int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int shot)
+// Slight variation on window_event_result meaning
+// 'ignored' means we still want check_trigger to call multi_send_trigger
+// 'handled' or 'close' means we don't
+// 'close' will still close the game window
+window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int shot)
 {
+	auto result = window_event_result::ignored;
+
 	if (pnum < 0 || pnum > MAX_PLAYERS)
-		return 1;
+		return window_event_result::handled;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
-		return 1;
+		return window_event_result::handled;
 	auto &trigger = *vtrgptr(trigger_num);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -293,11 +299,16 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 			plrobj.shields -= trigger.value;
 		}
 
-		if (trigger.flags & TRIGGER_EXIT) {
-			start_endlevel_sequence();
+		if (trigger.flags & TRIGGER_EXIT)
+		{
+			result = start_endlevel_sequence();
+			if (result == window_event_result::handled)
+				result = window_event_result::ignored;	// call multi_send_trigger, or end game anyway
 		}
 
 		if (trigger.flags & TRIGGER_SECRET_EXIT) {
+			if (trigger.flags & TRIGGER_EXIT)
+				LevelError("Trigger %u is both a regular and secret exit! Not recommended", trigger_num);
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
@@ -305,9 +316,9 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 				multi_send_endlevel_start(multi_endlevel_type::secret);
 			if (Game_mode & GM_NETWORK)
 				multi_do_protocol_frame(1, 1);
-			PlayerFinishedLevel(1);		//1 means go to secret level
+			result = std::max(PlayerFinishedLevel(1), result);		//1 means go to secret level
 			Control_center_destroyed = 0;
-			return 1;
+			return std::max(result, window_event_result::handled);
 		}
 
 		if (trigger.flags & TRIGGER_ENERGY_DRAIN) {
@@ -333,7 +344,7 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (trigger.flags & TF_DISABLED)
-		return 1;		//1 means don't send trigger hit to other players
+		return window_event_result::handled;		// don't send trigger hit to other players
 
 	if (trigger.flags & TF_ONE_SHOT)		//if this is a one-shot...
 		trigger.flags |= TF_DISABLED;		//..then don't let it happen again
@@ -342,13 +353,13 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 	{
 		case TT_EXIT:
 			if (pnum!=Player_num)
-			  break;
+				break;
 
-                        if (!EMULATING_D1)
-			  digi_stop_digi_sounds();  //Sound shouldn't cut out when exiting a D1 lvl
+			if (!EMULATING_D1)
+				digi_stop_digi_sounds();  //Sound shouldn't cut out when exiting a D1 lvl
 
 			if (Current_level_num > 0) {
-				start_endlevel_sequence();
+				result = start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
 				if (plrobj.shields < 0 ||
 					Player_dead_state != player_dead_state::no)
@@ -357,11 +368,11 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 				//             playing a D1 secret level
 				if (EMULATING_D1)
 				{
-					start_endlevel_sequence();
+					result = start_endlevel_sequence();
 				} else {
-					ExitSecretLevel();
+					result = ExitSecretLevel();
 				}
-				return 1;
+				return std::max(result, window_event_result::handled);
 			} else {
 #if DXX_USE_EDITOR
 					nm_messagebox_str( "Yo!", "You have hit the exit trigger!", "" );
@@ -369,7 +380,7 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 					Int3();		//level num == 0, but no editor!
 				#endif
 			}
-			return 1;
+			return std::max(result, window_event_result::handled);
 			break;
 
 		case TT_SECRET_EXIT: {
@@ -412,7 +423,7 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
-			return 1;
+			return window_event_result::handled;
 			break;
 
 		}
@@ -487,15 +498,15 @@ int check_trigger_sub(object &plrobj, const trgnum_t trigger_num, int pnum,int s
 	}
 #endif
 
-	return 0;
+	return result;
 }
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-void check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vcobjptridx_t objnum, int shot)
+window_event_result check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
-		return;
+		return window_event_result::ignored;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (objnum == &plrobj)
@@ -506,21 +517,24 @@ void check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vc
 
 #if defined(DXX_BUILD_DESCENT_I)
 		if ( Newdemo_state == ND_STATE_PLAYBACK )
-			return;
+			return window_event_result::ignored;
 #elif defined(DXX_BUILD_DESCENT_II)
 		if ( Newdemo_state == ND_STATE_RECORDING )
 			newdemo_record_trigger( seg, side, objnum,shot);
 #endif
 
 		const auto wall_num = seg->sides[side].wall_num;
-		if ( wall_num == wall_none ) return;
+		if ( wall_num == wall_none ) return window_event_result::ignored;
 
 		const auto trigger_num = vwallptr(wall_num)->trigger;
 		if (trigger_num == trigger_none)
-			return;
+			return window_event_result::ignored;
 
-		if (check_trigger_sub(plrobj, trigger_num, Player_num,shot))
-			return;
+		{
+			auto result = check_trigger_sub(plrobj, trigger_num, Player_num,shot);
+			if (result != window_event_result::ignored)
+				return result;
+		}
 
 #if defined(DXX_BUILD_DESCENT_I)
 		auto &t = *vtrgptr(trigger_num);
@@ -534,7 +548,7 @@ void check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vc
 		
 			const auto cwall_num = csegp->sides[cside].wall_num;
 			if (cwall_num == wall_none)
-				return;
+				return window_event_result::ignored;
 			
 			const auto ctrigger_num = vwallptr(cwall_num)->trigger;
 			const auto &&ct = vtrgptr(ctrigger_num);
@@ -544,6 +558,8 @@ void check_trigger(const vcsegptridx_t seg, short side, object &plrobj, const vc
 		if (Game_mode & GM_MULTI)
 			multi_send_trigger(trigger_num);
 	}
+
+	return window_event_result::handled;
 }
 
 /*

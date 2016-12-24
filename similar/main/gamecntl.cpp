@@ -413,22 +413,21 @@ static int do_game_pause()
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
-static int HandleEndlevelKey(int key)
+static window_event_result HandleEndlevelKey(int key)
 {
 	switch (key)
 	{
 		case KEY_COMMAND+KEY_P:
 		case KEY_PAUSE:
 			do_game_pause();
-			return 1;
+			return window_event_result::handled;
 
 		case KEY_ESC:
-			stop_endlevel_sequence();
 			last_drawn_cockpit=-1;
-			return 1;
+			return stop_endlevel_sequence();
 	}
 
-	return 0;
+	return window_event_result::ignored;
 }
 
 static int HandleDeathInput(const d_event &event)
@@ -1888,8 +1887,9 @@ window_event_result ReadControls(const d_event &event)
 
 		if (Endlevel_sequence)
 		{
-			if (HandleEndlevelKey(key))
-				return window_event_result::handled;
+			auto result = HandleEndlevelKey(key);
+			if (result != window_event_result::ignored)
+				return result;
 		}
 		else if (Newdemo_state == ND_STATE_PLAYBACK )
 		{

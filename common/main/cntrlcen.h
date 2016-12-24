@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "pack.h"
 #include "fwd-segment.h"
+#include "fwd-window.h"
 
 #include "fwd-partial_range.h"
 
@@ -120,7 +121,7 @@ void init_controlcen_for_level();
 void calc_controlcen_gun_point(object &obj);
 
 void do_controlcen_destroyed_stuff(objptridx_t objp);
-void do_controlcen_dead_frame();
+window_event_result do_controlcen_dead_frame();
 }
 #endif
 

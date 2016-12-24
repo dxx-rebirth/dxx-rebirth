@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include "fwd-player.h"
 #include "fwd-object.h"
+#include "fwd-window.h"
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 struct player;
@@ -72,13 +73,13 @@ void init_player_stats_game(ubyte pnum);      //clear all stats
 // if secret flag is true, advance to secret level, else next normal level
 #ifdef dsx
 namespace dsx {
-void PlayerFinishedLevel(int secret_flag);
+window_event_result PlayerFinishedLevel(int secret_flag);
 
 }
 #endif
 namespace dsx {
 // called when the player has died
-void DoPlayerDead(void);
+window_event_result DoPlayerDead(void);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -91,7 +92,7 @@ namespace dsx {
 // load just the hxm file
 void load_level_robots(int level_num);
 extern int	First_secret_visit;
-void ExitSecretLevel();
+window_event_result ExitSecretLevel();
 }
 #endif
 

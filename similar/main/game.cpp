@@ -135,7 +135,7 @@ int	Global_missile_firing_count = 0;
 //	Function prototypes for GAME.C exclusively.
 
 namespace dsx {
-static void GameProcessFrame(void);
+static window_event_result GameProcessFrame(void);
 static void FireLaser();
 static void powerup_grab_cheat_all();
 
@@ -1209,6 +1209,7 @@ namespace dsx {
 window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
 {
 	const bool was_game_wind = Game_wind != nullptr;
+	auto result = window_event_result::ignored;
 
 	switch (event.type)
 	{
@@ -1260,7 +1261,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			if (!time_paused)
 			{
 				calc_frame_time();
-				GameProcessFrame();
+				result = GameProcessFrame();
 			}
 
 			if (!Automap_active)		// efficiency hack
@@ -1301,9 +1302,13 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 		default:
 			break;
 	}
-	
+
 	// If we deleted the window ***in this call of the handler***, tell the event loop
-	return Game_wind || !was_game_wind ? window_event_result::ignored : window_event_result::deleted;
+	// Will be removed when no cases of this left
+	if (!Game_wind && was_game_wind)
+		result = window_event_result::deleted;
+
+	return result;
 }
 
 // Initialise game, actually runs in main event loop
@@ -1387,12 +1392,13 @@ void game_leave_menus(void)
 
 namespace dsx {
 
-void GameProcessFrame(void)
+window_event_result GameProcessFrame()
 {
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &local_player_shields_ref = get_local_plrobj().shields;
 	fix player_shields = local_player_shields_ref;
 	const auto player_was_dead = Player_dead_state;
+	auto result = window_event_result::ignored;
 
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
@@ -1402,7 +1408,7 @@ void GameProcessFrame(void)
 	remove_obsolete_stuck_objects();
 #if defined(DXX_BUILD_DESCENT_II)
 	init_ai_frame(player_info.powerup_flags);
-	do_final_boss_frame();
+	result = do_final_boss_frame();
 
 	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_HEADLIGHT_ON)
@@ -1443,9 +1449,9 @@ void GameProcessFrame(void)
 			multi_check_for_killgoal_winner();
 	}
 
-	dead_player_frame();
+	result = std::max(dead_player_frame(), result);
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		do_controlcen_dead_frame();
+		result = std::max(do_controlcen_dead_frame(), result);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	process_super_mines_frame();
@@ -1459,10 +1465,10 @@ void GameProcessFrame(void)
 	digi_sync_sounds();
 
 	if (Endlevel_sequence) {
-		do_endlevel_frame();
+		result = std::max(do_endlevel_frame(), result);
 		powerup_grab_cheat_all();
 		do_special_effects();
-		return;					//skip everything else
+		return result;					//skip everything else
 	}
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
@@ -1482,9 +1488,7 @@ void GameProcessFrame(void)
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
 		newdemo_playback_one_frame();
 		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
-			if (Game_wind)
-				window_close(Game_wind);		// Go back to menu
-			return;
+			return window_event_result::close;	// Go back to menu
 		}
 	}
 	else
@@ -1492,11 +1496,11 @@ void GameProcessFrame(void)
 #ifndef NEWHOMER
 		player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 #endif
-		object_move_all();
+		result = std::max(object_move_all(), result);
 		powerup_grab_cheat_all();
 
 		if (Endlevel_sequence)	//might have been started during move
-			return;
+			return result;
 
 		fuelcen_update_all();
 
@@ -1557,6 +1561,8 @@ void GameProcessFrame(void)
 		if (Endlevel_sequence || (Player_dead_state != player_was_dead) || (local_player_shields_ref < player_shields) || (Control_center_destroyed && Countdown_seconds_left < 10))
                         game_leave_menus();
 	}
+
+	return result;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
