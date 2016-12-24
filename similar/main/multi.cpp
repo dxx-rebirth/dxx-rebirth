@@ -5638,29 +5638,25 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 // turn object to object_rw for sending
 void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 {
+	/* Avoid leaking any uninitialized bytes onto the network.  Some of
+	 * the unions are incompletely initialized for some branches.
+	 *
+	 * For poison enabled builds, poison any uninitialized fields.
+	 * Everything that the peer should read will be initialized by the
+	 * end of this function.
+	 */
+	*obj_rw = {};
+	DXX_POISON_VAR(*obj_rw, 0xfd);
 	obj_rw->signature     = obj->signature.get();
 	obj_rw->type          = obj->type;
 	obj_rw->id            = obj->id;
-	obj_rw->next          = obj->next;
-	obj_rw->prev          = obj->prev;
 	obj_rw->control_type  = obj->control_type;
 	obj_rw->movement_type = obj->movement_type;
 	obj_rw->render_type   = obj->render_type;
 	obj_rw->flags         = obj->flags;
 	obj_rw->segnum        = obj->segnum;
-	obj_rw->attached_obj  = obj->attached_obj;
-	obj_rw->pos.x         = obj->pos.x;
-	obj_rw->pos.y         = obj->pos.y;
-	obj_rw->pos.z         = obj->pos.z;
-	obj_rw->orient.rvec.x = obj->orient.rvec.x;
-	obj_rw->orient.rvec.y = obj->orient.rvec.y;
-	obj_rw->orient.rvec.z = obj->orient.rvec.z;
-	obj_rw->orient.fvec.x = obj->orient.fvec.x;
-	obj_rw->orient.fvec.y = obj->orient.fvec.y;
-	obj_rw->orient.fvec.z = obj->orient.fvec.z;
-	obj_rw->orient.uvec.x = obj->orient.uvec.x;
-	obj_rw->orient.uvec.y = obj->orient.uvec.y;
-	obj_rw->orient.uvec.z = obj->orient.uvec.z;
+	obj_rw->pos         = obj->pos;
+	obj_rw->orient = obj->orient;
 	obj_rw->size          = obj->size;
 	obj_rw->shields       = obj->shields;
 	obj_rw->last_pos    = obj->last_pos;
@@ -5803,29 +5799,20 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 // turn object_rw to object after receiving
 void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
+	*obj = {};
+	DXX_POISON_VAR(*obj, 0xfd);
 	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	set_object_type(*obj, obj_rw->type);
 	obj->id            = obj_rw->id;
-	obj->next          = obj_rw->next;
-	obj->prev          = obj_rw->prev;
+	/* obj->next,obj->prev handled by caller based on segment */
 	obj->control_type  = obj_rw->control_type;
 	set_object_movement_type(*obj, obj_rw->movement_type);
 	obj->render_type   = obj_rw->render_type;
 	obj->flags         = obj_rw->flags;
 	obj->segnum        = obj_rw->segnum;
-	obj->attached_obj  = obj_rw->attached_obj;
-	obj->pos.x         = obj_rw->pos.x;
-	obj->pos.y         = obj_rw->pos.y;
-	obj->pos.z         = obj_rw->pos.z;
-	obj->orient.rvec.x = obj_rw->orient.rvec.x;
-	obj->orient.rvec.y = obj_rw->orient.rvec.y;
-	obj->orient.rvec.z = obj_rw->orient.rvec.z;
-	obj->orient.fvec.x = obj_rw->orient.fvec.x;
-	obj->orient.fvec.y = obj_rw->orient.fvec.y;
-	obj->orient.fvec.z = obj_rw->orient.fvec.z;
-	obj->orient.uvec.x = obj_rw->orient.uvec.x;
-	obj->orient.uvec.y = obj_rw->orient.uvec.y;
-	obj->orient.uvec.z = obj_rw->orient.uvec.z;
+	/* obj->attached_obj cleared by caller */
+	obj->pos         = obj_rw->pos;
+	obj->orient = obj_rw->orient;
 	obj->size          = obj_rw->size;
 	obj->shields       = obj_rw->shields;
 	obj->last_pos    = obj_rw->last_pos;
