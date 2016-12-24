@@ -8,19 +8,24 @@
 
 #pragma once
 
+#include <type_traits>
 #include <physfs.h>
 #include "maths.h"
 
 #include <cstdint>
+
+namespace dcx {
+constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
+using segnum_t = uint16_t;
+}
+
 #include "fwd-valptridx.h"
-#include "segnum.h"
 
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-array.h"
 
 namespace dcx {
-constexpr std::size_t MAX_SEGMENTS = 9000;
 constexpr std::size_t MAX_VERTICES_PER_SEGMENT = 8;
 constexpr std::size_t MAX_SIDES_PER_SEGMENT = 6;
 constexpr std::size_t MAX_VERTICES_PER_POLY = 4;

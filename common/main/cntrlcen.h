@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-object.h"
 #include "pack.h"
-#include "segnum.h"
+#include "fwd-segment.h"
 
 #include "fwd-partial_range.h"
 

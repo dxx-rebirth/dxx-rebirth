@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "countarray.h"
 #include "valptridx.h"
 #include "objnum.h"
-#include "segnum.h"
 #include "pack.h"
 
 #include "compiler-type_traits.h"

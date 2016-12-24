@@ -12,7 +12,6 @@
 #include "dsx-ns.h"
 #include "compiler-array.h"
 #include "objnum.h"
-#include "segnum.h"
 #include "fwd-valptridx.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"

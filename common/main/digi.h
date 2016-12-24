@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "segnum.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "compiler-exchange.h"

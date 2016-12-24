@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-array.h"
 #include "valptridx.h"
 #include "objnum.h"
-#include "segnum.h"
+#include "fwd-segment.h"
 #include <vector>
 #include <stdexcept>
 #include "compiler-type_traits.h"

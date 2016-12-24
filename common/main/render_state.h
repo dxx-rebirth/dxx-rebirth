@@ -5,7 +5,6 @@
 #include "dxxsconf.h"
 #include "fwd-segment.h"
 #include "compiler-array.h"
-#include "segnum.h"
 #include "objnum.h"
 
 constexpr unsigned MAX_RENDER_SEGS = 500;

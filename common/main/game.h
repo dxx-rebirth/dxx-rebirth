@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstdint>
 #include "pack.h"
-#include "segnum.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"

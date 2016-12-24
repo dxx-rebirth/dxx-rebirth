@@ -29,9 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include <vector>
-#include "segnum.h"
 #include "objnum.h"
 #include "fwd-object.h"
+#include "fwd-segment.h"
 
 #ifdef dsx
 namespace dsx {

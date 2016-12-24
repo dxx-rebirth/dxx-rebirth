@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "vecmat.h"
-#include "segnum.h"
+#include "fwd-segment.h"
 #include "gr.h"
 
 extern int Endlevel_sequence;

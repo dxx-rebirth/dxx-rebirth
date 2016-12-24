@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "pack.h"
 #include "objnum.h"
-#include "segnum.h"
+#include "fwd-segment.h"
 
 #define GREEN_GUY   1
 

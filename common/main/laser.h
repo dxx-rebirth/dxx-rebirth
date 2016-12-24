@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 
 #ifdef __cplusplus
-#include "segnum.h"
+#include "fwd-segment.h"
 #include "fwd-object.h"
 #include "weapon_id.h"
 
