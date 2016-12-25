@@ -82,6 +82,36 @@ fix	Flash_effect=0;
 constexpr int	PK1=1, PK2=8;
 #endif
 
+static bool can_collide(const object_base &weapon_object, const object_base &iter_object, const object *const parent_object)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)weapon_object;
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (&weapon_object == &iter_object)
+		return false;
+	if (iter_object.flags & OF_SHOULD_BE_DEAD)
+		return false;
+#endif
+	switch (iter_object.type)
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		case OBJ_WEAPON:
+			return is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(iter_object));
+#endif
+		case OBJ_CNTRLCEN:
+		case OBJ_PLAYER:
+			return true;
+		case OBJ_ROBOT:
+			if (parent_object == nullptr)
+				return false;
+			if (parent_object->type != OBJ_ROBOT)
+				return true;
+			return get_robot_id(*parent_object) != iter_object.id;
+		default:
+			return false;
+	}
+}
+
 static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const cobjptridx_t parent )
 {
 	auto obj = obj_create( OBJ_FIREBALL,vclip_type,segnum,position,&vmd_identity_matrix,size,
@@ -110,29 +140,7 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
-
-#if defined(DXX_BUILD_DESCENT_I)
-			if ( (obj0p->type == OBJ_CNTRLCEN) ||
-				(obj0p->type==OBJ_PLAYER) ||
-				(
-					obj0p->type == OBJ_ROBOT &&
-					parent != object_none &&
-					(parent->type != OBJ_ROBOT || get_robot_id(parent) != obj0p->id)
-				)
-			)
-#elif defined(DXX_BUILD_DESCENT_II)
-			if ( !(obj0p==objp) &&
-				!(obj0p->flags&OF_SHOULD_BE_DEAD) &&
-				((obj0p->type==OBJ_WEAPON && (is_proximity_bomb_or_smart_mine_or_placed_mine(get_weapon_id(obj0p)))) ||
-				 (obj0p->type == OBJ_CNTRLCEN) ||
-				 (obj0p->type==OBJ_PLAYER) ||
-				(
-					obj0p->type == OBJ_ROBOT &&
-					parent != object_none &&
-					(parent->type != OBJ_ROBOT || get_robot_id(parent) != obj0p->id)
-				)
-				 ))
-#endif
+			if (can_collide(objp, obj0p, parent))
 			{
 				const auto dist = vm_vec_dist_quick( obj0p->pos, obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
