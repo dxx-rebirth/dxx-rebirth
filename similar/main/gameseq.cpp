@@ -513,6 +513,8 @@ void init_player_stats_new_ship(ubyte pnum)
 void init_player_stats_ship(object &plrobj)
 {
 	auto &player_info = plrobj.ctype.player_info;
+	player_info.lavafall_hiss_playing = false;
+	player_info.missile_gun = 0;
 	player_info.killer_objnum = object_none;
 #if defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_recharge_delay = 0;
