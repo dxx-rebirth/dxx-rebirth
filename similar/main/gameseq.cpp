@@ -444,7 +444,7 @@ void init_player_stats_new_ship(ubyte pnum)
 			player_info.invulnerable_time = GameTime64 - (i2f(58 - Netgame.InvulAppear) >> 1);
 			player_info.FakingInvul = 1;
 		}
-		select_primary_weapon(player_info, nullptr, [=]{
+		set_primary_weapon(player_info, [=]{
 			range_for (auto i, PlayerCfg.PrimaryOrder)
 			{
 				if (i >= MAX_PRIMARY_WEAPONS)
@@ -467,7 +467,7 @@ void init_player_stats_new_ship(ubyte pnum)
 					return static_cast<primary_weapon_index_t>(i);
 			}
 			return primary_weapon_index_t::LASER_INDEX;
-		}(), 0);
+		}());
 #if defined(DXX_BUILD_DESCENT_II)
 		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		Primary_last_was_super[0] = 0;
@@ -490,7 +490,7 @@ void init_player_stats_new_ship(ubyte pnum)
 		{
 			newdemo_record_laser_level(player_info.laser_level, 0);
 		}
-		select_secondary_weapon(player_info, nullptr, 0, 0);
+		set_secondary_weapon_to_concussion(player_info);
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
 		player_info.Player_eggs_dropped = false;

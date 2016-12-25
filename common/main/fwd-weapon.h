@@ -169,7 +169,9 @@ void do_primary_weapon_select(player_info &, uint_fast32_t weapon_num);
 void do_secondary_weapon_select(player_info &, secondary_weapon_index_t weapon_num);
 void auto_select_primary_weapon(player_info &);
 void auto_select_secondary_weapon(player_info &);
+void set_primary_weapon(player_info &, uint_fast32_t weapon_num);
 void select_primary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
+void set_secondary_weapon_to_concussion(player_info &);
 void select_secondary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
 
 }

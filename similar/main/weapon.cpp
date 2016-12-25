@@ -426,6 +426,21 @@ void CycleSecondary(player_info &player_info)
 	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);
 }
 
+void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num)
+{
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_player_weapon(0, weapon_num);
+	player_info.Fusion_charge=0;
+	player_info.Next_laser_fire_time = 0;
+	Global_laser_firing_count = 0;
+	player_info.Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
+#if defined(DXX_BUILD_DESCENT_II)
+	//save flag for whether was super version
+	auto &Primary_last_was_super = player_info.Primary_last_was_super;
+	Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+#endif
+}
+
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
 void select_primary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
@@ -472,6 +487,22 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 			HUD_init_message(HM_DEFAULT, "%s %s", weapon_name, TXT_SELECTED);
 	}
 
+}
+
+void set_secondary_weapon_to_concussion(player_info &player_info)
+{
+	const uint_fast32_t weapon_num = 0;
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_player_weapon(1, weapon_num);
+
+	player_info.Next_missile_fire_time = 0;
+	Global_missile_firing_count = 0;
+	player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
+#if defined(DXX_BUILD_DESCENT_II)
+	//save flag for whether was super version
+	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
+	Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+#endif
 }
 
 void select_secondary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
