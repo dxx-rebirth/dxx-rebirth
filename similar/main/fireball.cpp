@@ -89,6 +89,8 @@ static bool can_collide(const object_base &weapon_object, const object_base &ite
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (&weapon_object == &iter_object)
 		return false;
+	if (iter_object.type == OBJ_NONE)
+		return false;
 	if (iter_object.flags & OF_SHOULD_BE_DEAD)
 		return false;
 #endif
