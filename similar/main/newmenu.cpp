@@ -697,10 +697,13 @@ static int nm_trigger_radio_button(newmenu &menu, newmenu_item &citem)
 	const auto cg = citem.radio().group;
 	range_for (auto &r, menu.item_range())
 	{
-		if (&r != &citem && r.value && r.type == NM_TYPE_RADIO && r.radio().group == cg)
+		if (&r != &citem && r.type == NM_TYPE_RADIO && r.radio().group == cg)
 		{
-			r.value = 0;
-			return 1;
+			if (r.value)
+			{
+				r.value = 0;
+				return 1;
+			}
 		}
 	}
 	return 0;
