@@ -285,7 +285,8 @@ static void frame_animation_angle(fixang vms_angvec::*const a, const fix frameti
 		delta_to_goal = 65536 + delta_to_goal;
 	if (delta_to_goal)
 	{
-		const fix scaled_delta_angle = fixmul(deltaang.*a, frametime) * DELTA_ANG_SCALE;
+		// Due to deltaang.*a being usually small values and frametime getting smaller with higher FPS, the usual use of fixmul will have scaled_delta_angle result in 0 way too often and long, making the robot animation run circles around itself. So multiply deltaang by DELTA_ANG_SCALE when passed to fixmul.
+		const fix scaled_delta_angle = fixmul(deltaang.*a * DELTA_ANG_SCALE, frametime); // fixmul(deltaang.*a, frametime) * DELTA_ANG_SCALE;
 		auto &ca = curang.*a;
 		if (abs(delta_to_goal) < abs(scaled_delta_angle))
 			ca = goalang.*a;
