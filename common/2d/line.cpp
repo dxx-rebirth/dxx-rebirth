@@ -43,7 +43,7 @@ from "Graphics Gems", Academic Press, 1990
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
 static void plot(grs_canvas &canvas, int x, int y, int flag, const uint8_t color)
-#define plot(x,y,f)	plot(*grd_curcanv,x,y,f,color)
+#define plot(x,y,f)	plot(canvas,x,y,f,color)
 {
 	if (flag)
 		std::swap(x, y);
@@ -67,19 +67,19 @@ static void gr_vline(grs_canvas &canvas, int y1, int y2, const int x, const uint
 		gr_upixel(canvas, x, i, color);
 }
 
-static void gr_universal_uline(int a1, int b1, int a2, int b2, const uint8_t color)
+static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b2, const uint8_t color)
 {
 	int dx, dy, incr1, incr2, D, x, y, xend, c, pixels_left;
 	int x1, y1;
 	int sign_x = 1, sign_y = 1, step, reverse;
 
 	if (a1==a2) {
-		gr_vline(*grd_curcanv, b1, b2, a1, color);
+		gr_vline(canvas, b1, b2, a1, color);
 		return;
 	}
 
 	if (b1==b2) {
-		gr_hline(*grd_curcanv, a1, a2, b1, color);
+		gr_hline(canvas, a1, a2, b1, color);
 		return;
 	}
 
@@ -278,7 +278,7 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
 		return;
 #endif
 	case bm_mode::linear:
-		gr_universal_uline(a1, b1, a2, b2, color);
+		gr_universal_uline(*grd_curcanv, a1, b1, a2, b2, color);
 		return;
 	}
 	return;
