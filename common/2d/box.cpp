@@ -45,25 +45,12 @@ static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const in
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
 
-static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
+static void gr_ubox12(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
 {
-#if 0	// the following shifts the box up 1 unit in OpenGL
-	for (int i=top; i<=bot; i++ )
-	{
-		gr_upixel( left, i );
-		gr_upixel( right, i );
-	}
-
-	for (int i=left; i<=right; i++ )
-	{
-		gr_upixel( i, top );
-		gr_upixel( i, bot );
-	}
-#endif
-	gr_uline(*grd_curcanv, i2f(left), i2f(top), i2f(right), i2f(top), color);
-	gr_uline(*grd_curcanv, i2f(right), i2f(top), i2f(right), i2f(bot), color);
-	gr_uline(*grd_curcanv, i2f(left), i2f(top), i2f(left), i2f(bot), color);
-	gr_uline(*grd_curcanv, i2f(left), i2f(bot), i2f(right), i2f(bot), color);
+	gr_uline(canvas, i2f(left), i2f(top), i2f(right), i2f(top), color);
+	gr_uline(canvas, i2f(right), i2f(top), i2f(right), i2f(bot), color);
+	gr_uline(canvas, i2f(left), i2f(top), i2f(left), i2f(bot), color);
+	gr_uline(canvas, i2f(left), i2f(bot), i2f(right), i2f(bot), color);
 }
 
 #if DXX_USE_EDITOR
@@ -89,7 +76,7 @@ static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,ui
     
     if (bot > MAXY ) bot = MAXY;
     if (right > MAXX ) right = MAXX;
-	gr_ubox12(left, top, right, bot, color);
+	gr_ubox12(*grd_curcanv, left, top, right, bot, color);
 }
 #endif
 
@@ -98,7 +85,7 @@ void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 	if (TYPE==bm_mode::linear)
 		gr_ubox0(*grd_curcanv, left, top, right, bot, color);
     else
-		gr_ubox12(left, top, right, bot, color);
+		gr_ubox12(*grd_curcanv, left, top, right, bot, color);
 }
 
 #if DXX_USE_EDITOR
