@@ -83,9 +83,9 @@ static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y,
 }
 
 #if !DXX_USE_OGL
-static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
+static void gr_ubitmap00m(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
-	gr_for_each_bitmap_line(*grd_curcanv, x, y, bm, gr_linear_rep_movsdm);
+	gr_for_each_bitmap_line(canvas, x, y, bm, gr_linear_rep_movsdm);
 }
 #endif
 
@@ -199,7 +199,7 @@ void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 			if ( bm.bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
-				gr_ubitmap00m(x, y, bm);
+				gr_ubitmap00m(*grd_curcanv, x, y, bm);
 			return;
 #if DXX_USE_OGL
 		case bm_mode::ogl:
