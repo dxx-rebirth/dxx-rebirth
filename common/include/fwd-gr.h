@@ -198,7 +198,7 @@ void gr_pixel(grs_canvas &, unsigned x, unsigned y, uint8_t color);
 void gr_upixel(grs_canvas &, unsigned x, unsigned y, uint8_t color);
 
 // Gets a pixel;
-unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y);
+unsigned char gr_gpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y);
 
 // Draws a line into the current canvas in the current color and drawmode.

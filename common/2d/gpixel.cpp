@@ -41,9 +41,9 @@ unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y)
 	return 0;
 }
 
-unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y)
+unsigned char gr_gpixel(const grs_bitmap &bitmap, const unsigned x, const unsigned y)
 {
-	if (x < 0 || y < 0 || x>=bitmap.bm_w || y>=bitmap.bm_h)
+	if (x >= bitmap.bm_w || y >= bitmap.bm_h)
 		return 0;
 	return gr_ugpixel(bitmap, x, y);
 }
