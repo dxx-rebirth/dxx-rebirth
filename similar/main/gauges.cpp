@@ -2799,7 +2799,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_DOT:
 			{
-				gr_disk(i2f(x), i2f(y), i2f(size/5), color);
+				gr_disk(*grd_curcanv, i2f(x), i2f(y), i2f(size/5), color);
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)-(size/5)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)

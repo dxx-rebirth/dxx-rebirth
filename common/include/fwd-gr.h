@@ -224,7 +224,7 @@ void gr_rect(int left,int top,int right,int bot, uint8_t color);
 void gr_urect(int left,int top,int right,int bot, uint8_t color);
 
 // Draw a filled circle
-int gr_disk(fix x,fix y,fix r, uint8_t color);
+int gr_disk(grs_canvas &, fix x,fix y,fix r, uint8_t color);
 
 // Draw an outline circle
 int gr_ucircle(grs_canvas &, fix x,fix y,fix r, uint8_t color);
