@@ -47,7 +47,7 @@ static void plot(int x,int y,int flag, const uint8_t color)
 {
 	if (flag)
 		std::swap(x, y);
-	gr_upixel(x, y, color);
+	gr_upixel(*grd_curcanv, x, y, color);
 }
 
 static void gr_hline(int x1, int x2, int y, const uint8_t color)
@@ -56,7 +56,7 @@ static void gr_hline(int x1, int x2, int y, const uint8_t color)
 	if (x1 > x2)
 		swap(x1,x2);
 	for (int i=x1; i<=x2; i++ )
-		gr_upixel(i, y, color);
+		gr_upixel(*grd_curcanv, i, y, color);
 }
 
 static void gr_vline(int y1, int y2, int x, const uint8_t color)
@@ -64,7 +64,7 @@ static void gr_vline(int y1, int y2, int x, const uint8_t color)
 	using std::swap;
 	if (y1 > y2) swap(y1,y2);
 	for (int i=y1; i<=y2; i++ )
-		gr_upixel(x, i, color);
+		gr_upixel(*grd_curcanv, x, i, color);
 }
 
 static void gr_universal_uline(int a1, int b1, int a2, int b2, const uint8_t color)

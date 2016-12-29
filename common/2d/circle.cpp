@@ -40,29 +40,29 @@ int gr_ucircle(fix xc1,fix yc1,fix r1, const uint8_t color)
 	while(x<y)
 	{
 		// Draw the first octant
-		gr_upixel(xc-y, yc-x, color);
-		gr_upixel(xc+y, yc-x, color);
-		gr_upixel(xc-y, yc+x, color);
-		gr_upixel(xc+y, yc+x, color);
+		gr_upixel(*grd_curcanv, xc - y, yc - x, color);
+		gr_upixel(*grd_curcanv, xc + y, yc - x, color);
+		gr_upixel(*grd_curcanv, xc - y, yc + x, color);
+		gr_upixel(*grd_curcanv, xc + y, yc + x, color);
 
 		if (p<0)
 			p=p+(x<<2)+6;
 		else {
 			// Draw the second octant
-			gr_upixel(xc-x, yc-y, color);
-			gr_upixel(xc+x, yc-y, color);
-			gr_upixel(xc-x, yc+y, color);
-			gr_upixel(xc+x, yc+y, color);
+			gr_upixel(*grd_curcanv, xc - x, yc - y, color);
+			gr_upixel(*grd_curcanv, xc + x, yc - y, color);
+			gr_upixel(*grd_curcanv, xc - x, yc + y, color);
+			gr_upixel(*grd_curcanv, xc + x, yc + y, color);
 			p=p+((x-y)<<2)+10;
 			y--;
 		}
 		x++;
 	}
 	if(x==y) {
-		gr_upixel(xc-x, yc-y, color);
-		gr_upixel(xc+x, yc-y, color);
-		gr_upixel(xc-x, yc+y, color);
-		gr_upixel(xc+x, yc+y, color);
+		gr_upixel(*grd_curcanv, xc - x, yc - y, color);
+		gr_upixel(*grd_curcanv, xc + x, yc - y, color);
+		gr_upixel(*grd_curcanv, xc - x, yc + y, color);
+		gr_upixel(*grd_curcanv, xc + x, yc + y, color);
 	}
 	return 0;
 }
