@@ -52,7 +52,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
 
 #if !DXX_USE_OGL
-static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, const uint_fast32_t num_pixels)
+static void gr_linear_rep_movsdm(uint8_t *const dest, const uint8_t *const src, const uint_fast32_t num_pixels)
 {
 	auto predicate = [&](uint8_t s, uint8_t d) {
 		return s == 255 ? d : s;
@@ -61,39 +61,31 @@ static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, 
 }
 #endif
 
-static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
+template <typename F>
+static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm, F f)
 {
 	const size_t src_width = bm.bm_w;
 	const uintptr_t src_rowsize = bm.bm_rowsize;
 	const uintptr_t dest_rowsize = canvas.cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
 	auto dest = &(canvas.cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
 	auto src = bm.get_bitmap_data();
-
 	for (uint_fast32_t y1 = bm.bm_h; y1 --;)
 	{
-		gr_linear_movsd(src, dest, src_width);
+		f(dest, src, src_width);
 		src += src_rowsize;
 		dest+= dest_rowsize;
 	}
 }
 
+static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
+{
+	gr_for_each_bitmap_line(canvas, x, y, bm, memcpy);
+}
+
 #if !DXX_USE_OGL
 static void gr_ubitmap00m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	int dest_rowsize;
-	dest_rowsize=grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	auto dest = &(grd_curcanv->cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
-	auto src = bm.get_bitmap_data();
-
-	const uint_fast32_t bm_h = bm.bm_h;
-	{
-		for (uint_fast32_t y1 = bm_h; y1 --;)
-		{
-			gr_linear_rep_movsdm( src, dest, bm.bm_w );
-			src += bm.bm_rowsize;
-			dest+= dest_rowsize;
-		}
-	}
+	gr_for_each_bitmap_line(*grd_curcanv, x, y, bm, gr_linear_rep_movsdm);
 }
 #endif
 
@@ -252,7 +244,7 @@ static void gr_bm_ubitblt00m(const unsigned w, const uint_fast32_t h, unsigned d
 	{
 		for (auto i = h; i; --i)
 		{
-			gr_linear_rep_movsdm( sbits, dbits, w );
+			gr_linear_rep_movsdm(dbits, sbits, w);
 			sbits += src.bm_rowsize;
 			dbits += dest.bm_rowsize;
 		}
