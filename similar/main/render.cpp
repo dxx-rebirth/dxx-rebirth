@@ -395,7 +395,7 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 #endif
 		{
 		uint8_t color = 0;
-		gr_pixel(_search_x,_search_y, color);	//set our search pixel to color zero
+		gr_pixel(*grd_curcanv, _search_x, _search_y, color);	//set our search pixel to color zero
 		}
 #if DXX_USE_OGL
 		ogl_start_frame();
@@ -580,7 +580,7 @@ static void render_object_search(const vobjptridx_t obj)
 
 	ogl_start_frame();
 #else
-	gr_pixel(_search_x,_search_y, color);
+	gr_pixel(*grd_curcanv, _search_x, _search_y, color);
 #endif
 	}
 	render_object(obj);
@@ -594,7 +594,7 @@ static void render_object_search(const vobjptridx_t obj)
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1, color);
 	ogl_start_frame();
 #else
-	gr_pixel(_search_x,_search_y, color);
+	gr_pixel(*grd_curcanv, _search_x, _search_y, color);
 #endif
 	}
 	render_object(obj);

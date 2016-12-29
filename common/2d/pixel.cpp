@@ -47,11 +47,11 @@ void gr_upixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uin
 	}
 }
 
-void gr_pixel(unsigned x, unsigned y, const uint8_t color)
+void gr_pixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uint8_t color)
 {
-	if (unlikely(x >= GWIDTH || y >= GHEIGHT))
+	if (unlikely(x >= canvas.cv_bitmap.bm_w || y >= canvas.cv_bitmap.bm_h))
 		return;
-	gr_upixel(*grd_curcanv, x, y, color);
+	gr_upixel(canvas, x, y, color);
 }
 
 static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )

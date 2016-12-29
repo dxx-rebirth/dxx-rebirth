@@ -1147,7 +1147,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
-						gr_pixel(x++, y, color);
+						gr_pixel(*grd_curcanv, x++, y, color);
 					}
 				} else {
 					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
@@ -1177,7 +1177,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 							if (!bit_enabled)
 								continue;
 						}
-						gr_pixel(x, y, color);
+						gr_pixel(*grd_curcanv, x, y, color);
 					}
 				}
 				}
