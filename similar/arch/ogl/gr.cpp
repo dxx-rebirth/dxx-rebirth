@@ -863,8 +863,6 @@ unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 void ogl_urect(int left,int top,int right,int bot, const int c)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
-	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -885,11 +883,13 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 	else
 		color_a = 1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
+	array<GLfloat, 16> color_array;
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
 	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
 	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
 	color_array[3] = color_array[7] = color_array[11] = color_array[15] = color_a;
 
+	array<GLfloat, 8> vertex_array;
 	vertex_array[0] = xo;
 	vertex_array[1] = yo;
 	vertex_array[2] = xo;
@@ -899,8 +899,8 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 	vertex_array[6] = xf;
 	vertex_array[7] = yo;
 	
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array.data());
+	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
