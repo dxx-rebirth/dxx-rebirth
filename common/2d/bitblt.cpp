@@ -61,12 +61,12 @@ static void gr_linear_rep_movsdm(const uint8_t *const src, uint8_t *const dest, 
 }
 #endif
 
-static void gr_ubitmap00(unsigned x, unsigned y, const grs_bitmap &bm)
+static void gr_ubitmap00(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
 	const size_t src_width = bm.bm_w;
 	const uintptr_t src_rowsize = bm.bm_rowsize;
-	const uintptr_t dest_rowsize = grd_curcanv->cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
-	auto dest = &(grd_curcanv->cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
+	const uintptr_t dest_rowsize = canvas.cv_bitmap.bm_rowsize << gr_bitblt_dest_step_shift;
+	auto dest = &(canvas.cv_bitmap.get_bitmap_data()[ dest_rowsize*y+x ]);
 	auto src = bm.get_bitmap_data();
 
 	for (uint_fast32_t y1 = bm.bm_h; y1 --;)
@@ -179,7 +179,7 @@ void gr_ubitmap(grs_bitmap &bm)
 			if ( bm.bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt00_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
 			else
-				gr_ubitmap00( x, y, bm );
+				gr_ubitmap00(*grd_curcanv, x, y, bm);
 			return;
 #if DXX_USE_OGL
 		case bm_mode::ogl:
