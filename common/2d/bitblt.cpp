@@ -175,7 +175,7 @@ void gr_ubitmap(grs_bitmap &bm)
 			return;
 #if DXX_USE_OGL
 		case bm_mode::ogl:
-			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, x, y, -1, -1, bm, ogl_colors::white, F1_0);
 			return;
 #endif
 		default:
@@ -298,7 +298,7 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(x, y, 0, 0, bm, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(*grd_curcanv, x, y, 0, 0, bm, ogl_colors::white, F1_0);
 #else
 	if ( dx1 < 0 )
 	{
@@ -489,7 +489,7 @@ void show_fullscr(grs_bitmap &bm)
 	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
-		ogl_ubitmapm_cs(0,0,-1,-1,bm, ogl_colors::white,F1_0);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, bm, ogl_colors::white, F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif

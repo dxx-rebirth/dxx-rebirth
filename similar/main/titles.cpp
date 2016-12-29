@@ -1026,7 +1026,7 @@ static void show_animated_bitmap(briefing *br)
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, rescale_x(220), rescale_y(45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255, F1_0);
 #else
 			gr_bitmapm(rescale_x(220), rescale_y(45), *bitmap_ptr);
 #endif
@@ -1094,7 +1094,7 @@ static void show_animated_bitmap(briefing *br)
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
-		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,*bitmap_ptr,255,F1_0);
+		ogl_ubitmapm_cs(*grd_curcanv, 0, 0, bitmap_ptr->bm_w*scale, bitmap_ptr->bm_h*scale, *bitmap_ptr, 255, F1_0);
 #else
 		gr_bitmapm(0, 0, *bitmap_ptr);
 #endif

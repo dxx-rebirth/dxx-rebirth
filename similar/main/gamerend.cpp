@@ -839,7 +839,7 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, *bm, 255, F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, *bm, 255, F1_0);
 #else
 			gr_ubitmapm(0,0, *bm);
 #endif
@@ -849,7 +849,7 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, *bm, 255, F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, *bm, 255, F1_0);
 #else
 			gr_ubitmapm(0,0, *bm);
 #endif
@@ -863,7 +863,7 @@ static void update_cockpits()
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_set_current_canvas(NULL);
 #if DXX_USE_OGL
-			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE?static_cast<double>(SHEIGHT)/480:static_cast<double>(SHEIGHT)/200) + 0.5)), *bm,255, F1_0);
+			ogl_ubitmapm_cs(*grd_curcanv, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), -1, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255, F1_0);
 #else
 			gr_ubitmapm(0,SHEIGHT-bm->bm_h,*bm);
 #endif
