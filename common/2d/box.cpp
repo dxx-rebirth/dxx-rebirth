@@ -26,11 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-static void gr_ubox0(int left,int top,int right,int bot, const uint8_t color)
+static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
 {
 	int d;
 	unsigned char * ptr2;
-	auto ptr1 = &grd_curcanv->cv_bitmap.get_bitmap_data()[ROWSIZE *top+left];
+	const auto rowsize = canvas.cv_bitmap.bm_rowsize;
+	const auto ptr1 = &canvas.cv_bitmap.get_bitmap_data()[rowsize * top + left];
 	ptr2 = ptr1;
 	d = right - left;
 
@@ -39,7 +40,7 @@ static void gr_ubox0(int left,int top,int right,int bot, const uint8_t color)
 	{
 		ptr2[0] = color;
 		ptr2[d] = color;
-		ptr2 += ROWSIZE;
+		ptr2 += rowsize;
 	}
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
@@ -52,7 +53,7 @@ static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uin
     
     if (bot > MAXY ) bot = MAXY;
     if (right > MAXX ) right = MAXX;
-	gr_ubox0(left,top,right,bot, color);
+	gr_ubox0(*grd_curcanv, left,top,right,bot, color);
 }
 #endif
 
@@ -92,7 +93,7 @@ static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,ui
 void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 {
 	if (TYPE==bm_mode::linear)
-		gr_ubox0(left, top, right, bot, color);
+		gr_ubox0(*grd_curcanv, left, top, right, bot, color);
     else
 		gr_ubox12(left, top, right, bot, color);
 }
