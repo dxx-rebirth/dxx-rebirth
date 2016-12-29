@@ -905,10 +905,12 @@ void ogl_urect(grs_canvas &canvas, const int left, const int top, const int righ
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void ogl_ulinec(int left,int top,int right,int bot,int c)
+void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const int c)
 {
 	GLfloat xo,yo,xf,yf;
-	GLfloat fade_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
+	GLfloat fade_alpha = (canvas.cv_fade_level >= GR_FADE_OFF)
+		? 1.0
+		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 	GLfloat color_array[] = {
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
 		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
@@ -920,10 +922,10 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
-	xo = (left + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
-	xf = (right + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
-	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
-	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
+	xo = (left + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
+	xf = (right + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
+	yo = 1.0 - (top + canvas.cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
+	yf = 1.0 - (bot + canvas.cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height);
  
 	OGL_DISABLE(TEXTURE_2D);
 

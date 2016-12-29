@@ -274,7 +274,7 @@ void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_ulinec(a1, b1, a2, b2, color);
+		ogl_ulinec(*grd_curcanv, a1, b1, a2, b2, color);
 		return;
 #endif
 	case bm_mode::linear:

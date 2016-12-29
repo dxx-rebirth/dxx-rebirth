@@ -113,7 +113,7 @@ bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned 
 bool ogl_ubitblt(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
 void ogl_upixelc(const grs_canvas &, unsigned x, unsigned y, unsigned c);
 unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
-void ogl_ulinec(int left, int top, int right, int bot, int c);
+void ogl_ulinec(grs_canvas &, int left, int top, int right, int bot, int c);
 }
 #ifdef dsx
 namespace dsx {
