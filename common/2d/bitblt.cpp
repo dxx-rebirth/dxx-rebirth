@@ -97,14 +97,14 @@ static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fa
 	const auto ex = bx + bm.bm_w;
 	for (auto iy = by; iy != ey; ++iy)
 		for (auto ix = bx; ix != ex; ++ix)
-			f(bm, src++, ix, iy);
+			f(*grd_curcanv, src++, ix, iy);
 }
 
 static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
+	const auto a = [](grs_canvas &cv, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		const auto color = *src;
-		gr_upixel(*grd_curcanv, px, py, color);
+		gr_upixel(cv, px, py, color);
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
 }
@@ -112,11 +112,11 @@ static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 #if !DXX_USE_OGL
 static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 {
-	const auto a = [](const grs_bitmap &, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
+	const auto a = [](grs_canvas &cv, const uint8_t *const src, const uint_fast32_t px, const uint_fast32_t py) {
 		const uint8_t c = *src;
 		if (c != 255)
 		{
-			gr_upixel(*grd_curcanv, px, py, c);
+			gr_upixel(cv, px, py, c);
 		}
 	};
 	gr_for_each_bitmap_byte(x, y, bm, a);
