@@ -123,7 +123,7 @@ static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 }
 #endif
 
-static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
+static void gr_ubitmapGENERIC(grs_canvas &canvas, unsigned x, unsigned y, const grs_bitmap &bm)
 {
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
@@ -132,7 +132,7 @@ static void gr_ubitmapGENERIC(unsigned x, unsigned y, const grs_bitmap &bm)
 		for (uint_fast32_t x1 = 0; x1 != bm_w; ++x1)
 		{
 			const auto color = gr_gpixel(bm, x1, y1);
-			gr_upixel(*grd_curcanv, x + x1, y + y1, color);
+			gr_upixel(canvas, x + x1, y + y1, color);
 		}
 	}
 }
@@ -183,7 +183,7 @@ void gr_ubitmap(grs_bitmap &bm)
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERIC(x, y, bm);
+		gr_ubitmapGENERIC(*grd_curcanv, x, y, bm);
 	}
 }
 
