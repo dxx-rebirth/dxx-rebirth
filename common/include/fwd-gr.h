@@ -237,7 +237,7 @@ void gr_ubox(int left,int top,int right,int bot, uint8_t color);
 
 void gr_scanline(int x1, int x2, unsigned y, uint8_t color);
 #if !DXX_USE_OGL
-void gr_uscanline(unsigned x1, unsigned x2, unsigned y, uint8_t color);
+void gr_uscanline(grs_canvas &canvas, unsigned x1, unsigned x2, unsigned y, uint8_t color);
 #endif
 void gr_close_font(std::unique_ptr<grs_font> font);
 

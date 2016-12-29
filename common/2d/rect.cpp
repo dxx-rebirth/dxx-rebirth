@@ -42,7 +42,7 @@ void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 	}
 #else
 	for ( int i=top; i<=bot; i++ )
-		gr_uscanline(left, right, i, color);
+		gr_uscanline(*grd_curcanv, left, right, i, color);
 #endif
 }
 
