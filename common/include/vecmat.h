@@ -111,14 +111,6 @@ public:
 	{
 		return d;
 	}
-	static constexpr vm_distance maximum_value()
-	{
-		return vm_distance{0x7fffffff};
-	}
-	static constexpr vm_distance minimum_value()
-	{
-		return vm_distance{0};
-	}
 	constexpr vm_distance_squared operator*(const vm_distance &) const;
 };
 

@@ -84,6 +84,9 @@ public:
 	}
 };
 
+constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
+constexpr vm_distance fcd_abort_return_value{-1};
+
 }
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -861,8 +864,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
 							Connected_segment_distance = 1000;
-							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
-							return vm_distance::maximum_value();
+							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+							return fcd_abort_return_value;
 						}
 					} else if (this_seg == seg1) {
 						goto fcd_done1;
@@ -874,8 +877,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 
 		if (qhead >= qtail) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
-			return vm_distance::maximum_value();
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			return fcd_abort_return_value;
 		}
 
 		cur_seg = seg_queue[qhead].end;
@@ -889,8 +892,8 @@ fcd_done1: ;
 	while (seg_queue[--qtail].end != seg1)
 		if (qtail < 0) {
 			Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, vm_distance::maximum_value());
-			return vm_distance::maximum_value();
+			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			return fcd_abort_return_value;
 		}
 
 	while (qtail >= 0) {
