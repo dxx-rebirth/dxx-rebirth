@@ -90,14 +90,14 @@ static void gr_ubitmap00m(grs_canvas &canvas, const unsigned x, const unsigned y
 #endif
 
 template <typename F>
-static inline void gr_for_each_bitmap_byte(const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, F f)
+static inline void gr_for_each_bitmap_byte(grs_canvas &canvas, const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, F f)
 {
 	auto src = bm.bm_data;
 	const auto ey = by + bm.bm_h;
 	const auto ex = bx + bm.bm_w;
 	for (auto iy = by; iy != ey; ++iy)
 		for (auto ix = bx; ix != ex; ++ix)
-			f(*grd_curcanv, src++, ix, iy);
+			f(canvas, src++, ix, iy);
 }
 
 static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
@@ -106,7 +106,7 @@ static void gr_ubitmap012(unsigned x, unsigned y, const grs_bitmap &bm)
 		const auto color = *src;
 		gr_upixel(cv, px, py, color);
 	};
-	gr_for_each_bitmap_byte(x, y, bm, a);
+	gr_for_each_bitmap_byte(*grd_curcanv, x, y, bm, a);
 }
 
 #if !DXX_USE_OGL
@@ -119,7 +119,7 @@ static void gr_ubitmap012m(unsigned x, unsigned y, const grs_bitmap &bm)
 			gr_upixel(cv, px, py, c);
 		}
 	};
-	gr_for_each_bitmap_byte(x, y, bm, a);
+	gr_for_each_bitmap_byte(*grd_curcanv, x, y, bm, a);
 }
 #endif
 
