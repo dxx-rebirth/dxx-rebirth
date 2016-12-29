@@ -138,7 +138,7 @@ static void gr_ubitmapGENERIC(grs_canvas &canvas, unsigned x, unsigned y, const 
 }
 
 #if !DXX_USE_OGL
-static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
+static void gr_ubitmapGENERICm(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm)
 {
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
@@ -148,7 +148,7 @@ static void gr_ubitmapGENERICm(unsigned x, unsigned y, const grs_bitmap &bm)
 		{
 			const auto c = gr_gpixel(bm,x1,y1);
 			if ( c != 255 )	{
-				gr_upixel(*grd_curcanv, x + x1, y + y1, c);
+				gr_upixel(canvas, x + x1, y + y1, c);
 			}
 		}
 	}
@@ -201,17 +201,12 @@ void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
 			else
 				gr_ubitmap00m(*grd_curcanv, x, y, bm);
 			return;
-#if DXX_USE_OGL
-		case bm_mode::ogl:
-			ogl_ubitmapm_cs(x,y,-1,-1,bm, ogl_colors::white,F1_0);
-			return;
-#endif
 		default:
 			gr_ubitmap012m(*grd_curcanv, x, y, bm);
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERICm(x, y, bm);
+		gr_ubitmapGENERICm(*grd_curcanv, x, y, bm);
 	}
 }
 
