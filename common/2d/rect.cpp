@@ -55,7 +55,7 @@ void gr_rect(int left,int top,int right,int bot, const uint8_t color)
 	}
 #endif
 	for ( int i=top; i<=bot; i++ )
-		gr_scanline(left, right, i, color);
+		gr_scanline(*grd_curcanv, left, right, i, color);
 }
 
 }

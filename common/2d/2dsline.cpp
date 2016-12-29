@@ -63,20 +63,22 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 		}
 }
 
-void gr_scanline(int x1, int x2, const unsigned y, const uint8_t color)
+void gr_scanline(grs_canvas &canvas, int x1, int x2, const unsigned y, const uint8_t color)
 {
-	if (y >= MAXY)
+	const auto maxy = (canvas.cv_bitmap.bm_h - 1);
+	if (y >= maxy)
 		return;
 
 	if (x2 < x1)
 		std::swap(x1, x2);
 
-	if (x1 > MAXX) return;
+	const auto maxx = (canvas.cv_bitmap.bm_w - 1);
+	if (x1 > maxx) return;
 	if (x2 < MINX) return;
 
 	if (x1 < MINX) x1 = MINX;
-	if (x2 > MAXX) x2 = MAXX;
-	gr_uscanline(*grd_curcanv, x1, x2, y, color);
+	if (x2 > maxx) x2 = maxx;
+	gr_uscanline(canvas, x1, x2, y, color);
 }
 
 }

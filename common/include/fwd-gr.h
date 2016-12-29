@@ -235,7 +235,7 @@ void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32
 #endif
 void gr_ubox(int left,int top,int right,int bot, uint8_t color);
 
-void gr_scanline(int x1, int x2, unsigned y, uint8_t color);
+void gr_scanline(grs_canvas &canvas, int x1, int x2, unsigned y, uint8_t color);
 #if !DXX_USE_OGL
 void gr_uscanline(grs_canvas &canvas, unsigned x1, unsigned x2, unsigned y, uint8_t color);
 #endif
