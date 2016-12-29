@@ -3183,14 +3183,14 @@ void show_HUD_names()
 							}
 						const uint8_t color = BM_XRGB(c.r, c.g, c.b);
 
-						gr_line(x + dx - w, y - dy, x + dx, y - dy, color);
-						gr_line(x + dx, y - dy, x + dx, y - dy + h, color);
-						gr_line(x - dx, y - dy, x - dx + w, y - dy, color);
-						gr_line(x - dx, y - dy, x - dx, y - dy + h, color);
-						gr_line(x + dx - w, y + dy, x + dx, y + dy, color);
-						gr_line(x + dx, y + dy, x + dx, y + dy - h, color);
-						gr_line(x - dx, y + dy, x - dx + w, y + dy, color);
-						gr_line(x - dx, y + dy, x - dx, y + dy - h, color);
+						gr_line(*grd_curcanv, x + dx - w, y - dy, x + dx, y - dy, color);
+						gr_line(*grd_curcanv, x + dx, y - dy, x + dx, y - dy + h, color);
+						gr_line(*grd_curcanv, x - dx, y - dy, x - dx + w, y - dy, color);
+						gr_line(*grd_curcanv, x - dx, y - dy, x - dx, y - dy + h, color);
+						gr_line(*grd_curcanv, x + dx - w, y + dy, x + dx, y + dy, color);
+						gr_line(*grd_curcanv, x + dx, y + dy, x + dx, y + dy - h, color);
+						gr_line(*grd_curcanv, x - dx, y + dy, x - dx + w, y + dy, color);
+						gr_line(*grd_curcanv, x - dx, y + dy, x - dx, y + dy - h, color);
 					}
 				}
 			}

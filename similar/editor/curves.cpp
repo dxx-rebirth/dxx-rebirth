@@ -121,9 +121,9 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
         coord = evaluate_curve(coeffs, 3, t);
         dcoord = evaluate_curve(coeffs, 3, dt);
 
-		gr_line ( 75*F1_0 + coord.x, 290*F1_0 - coord.z,  75*F1_0 + dcoord.x, 290*F1_0 - dcoord.z, 9);
-		gr_line ( 75*F1_0 + coord.x, 560*F1_0 - coord.y,  75*F1_0 + dcoord.x, 560*F1_0 - dcoord.y, 10);
-		gr_line (475*F1_0 + coord.z, 560*F1_0 - coord.y, 475*F1_0 + dcoord.z, 560*F1_0 - dcoord.y, 12);
+		gr_line (*grd_curcanv,  75*F1_0 + coord.x, 290*F1_0 - coord.z,  75*F1_0 + dcoord.x, 290*F1_0 - dcoord.z, 9);
+		gr_line (*grd_curcanv,  75*F1_0 + coord.x, 560*F1_0 - coord.y,  75*F1_0 + dcoord.x, 560*F1_0 - dcoord.y, 10);
+		gr_line (*grd_curcanv, 475*F1_0 + coord.z, 560*F1_0 - coord.y, 475*F1_0 + dcoord.z, 560*F1_0 - dcoord.y, 12);
     }
 }
 

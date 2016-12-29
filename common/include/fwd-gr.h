@@ -202,7 +202,7 @@ unsigned char gr_gpixel(const grs_bitmap &bitmap, int x, int y);
 unsigned char gr_ugpixel(const grs_bitmap &bitmap, int x, int y);
 
 // Draws a line into the current canvas in the current color and drawmode.
-void gr_line(fix x0,fix y0,fix x1,fix y1, uint8_t color);
+void gr_line(grs_canvas &, fix x0,fix y0,fix x1,fix y1, uint8_t color);
 void gr_uline(grs_canvas &canvas, fix x0,fix y0,fix x1,fix y1, uint8_t color);
 
 // Draw the bitmap into the current canvas at the specified location.
