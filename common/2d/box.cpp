@@ -45,18 +45,6 @@ static void gr_ubox0(grs_canvas &canvas, const int left, const int top, const in
 	std::fill_n(ptr2 + 1, (right - left) - 1, color);
 }
 
-#if DXX_USE_EDITOR
-static void gr_box0(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
-{
-	if (top > MAXY ) return;
-    if (left > MAXX ) return;
-    
-    if (bot > MAXY ) bot = MAXY;
-    if (right > MAXX ) right = MAXX;
-	gr_ubox0(*grd_curcanv, left,top,right,bot, color);
-}
-#endif
-
 static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
 {
 #if 0	// the following shifts the box up 1 unit in OpenGL
@@ -79,6 +67,21 @@ static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
 }
 
 #if DXX_USE_EDITOR
+static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const uint8_t color)
+{
+	const auto maxy = canvas.cv_bitmap.bm_h - 1;
+	if (top > maxy)
+		return;
+	const auto maxx = canvas.cv_bitmap.bm_w - 1;
+	if (left > maxx)
+		return;
+	if (bot > maxy)
+		bot = maxy;
+	if (right > maxx)
+		right = maxx;
+	gr_ubox0(canvas, left, top, right, bot, color);
+}
+
 static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
     if (top > MAXY ) return;
@@ -102,7 +105,7 @@ void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
 void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
 {
 	if (TYPE==bm_mode::linear)
-		gr_box0(left, top, right, bot, color);
+		gr_box0(*grd_curcanv, left, top, right, bot, color);
 	else
 		gr_box12(left, top, right, bot, color);
 }
