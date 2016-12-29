@@ -387,7 +387,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 				break;
 			}
 
-			letter = (unsigned char)*text_ptr - cv_font.ft_minchar;
+			letter = static_cast<uint8_t>(*text_ptr) - cv_font.ft_minchar;
 
 			const auto &result = get_char_width<int>(cv_font, text_ptr[0], text_ptr[1]);
 			const auto &width = result.width;
