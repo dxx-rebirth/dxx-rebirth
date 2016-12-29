@@ -810,15 +810,15 @@ void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t c)
 	glPopMatrix();
 }
 
-int gr_ucircle(fix xc1, fix yc1, fix r1, const uint8_t c)
+int gr_ucircle(grs_canvas &canvas, const fix xc1, const fix yc1, const fix r1, const uint8_t c)
 {
 	int nsides;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+	glColor4f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (canvas.cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / static_cast<float>(last_width),
-	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height),0);
+	             (f2fl(xc1) + canvas.cv_bitmap.bm_x + 0.5) / static_cast<float>(last_width),
+	             1.0 - (f2fl(yc1) + canvas.cv_bitmap.bm_y + 0.5) / static_cast<float>(last_height),0);
 	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
 	nsides = 10 + 2 * static_cast<int>(M_PI * f2fl(r1) / 19);
 	if(!circle_va)
