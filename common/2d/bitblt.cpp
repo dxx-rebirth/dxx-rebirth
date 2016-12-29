@@ -284,20 +284,20 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 #endif
 
 // Clipped bitmap ...
-void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
+void gr_bitmap(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitmap &bm)
 {
 	int dx1=x, dx2=x+bm.bm_w-1;
 	int dy1=y, dy2=y+bm.bm_h-1;
-#if !DXX_USE_OGL
-	int sx=0, sy=0;
-#endif
 
-	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
-	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
+	if (dx1 >= canvas.cv_bitmap.bm_w || dx2 < 0)
+		return;
+	if (dy1 >= canvas.cv_bitmap.bm_h || dy2 < 0)
+		return;
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(*grd_curcanv, x, y, 0, 0, bm, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(canvas, x, y, 0, 0, bm, ogl_colors::white, F1_0);
 #else
+	int sx = 0, sy = 0;
 	if ( dx1 < 0 )
 	{
 		sx = -dx1;
@@ -308,10 +308,12 @@ void gr_bitmap(unsigned x, unsigned y, grs_bitmap &bm)
 		sy = -dy1;
 		dy1 = 0;
 	}
-	if ( dx2 >= grd_curcanv->cv_bitmap.bm_w )	{ dx2 = grd_curcanv->cv_bitmap.bm_w-1; }
-	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h )	{ dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
+	if (dx2 >= canvas.cv_bitmap.bm_w)
+		dx2 = canvas.cv_bitmap.bm_w - 1;
+	if (dy2 >= canvas.cv_bitmap.bm_h)
+		dy2 = canvas.cv_bitmap.bm_h - 1;
 
-	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv->cv_bitmap );
+	gr_bm_ubitblt(dx2 - dx1 + 1,dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, canvas.cv_bitmap);
 #endif
 }
 
@@ -496,7 +498,7 @@ void show_fullscr(grs_bitmap &bm)
 		grs_bitmap_ptr p = gr_create_bitmap(scr.bm_w, scr.bm_h);
 		auto &tmp = *p.get();
 		gr_bitmap_scale_to(bm, tmp);
-		gr_bitmap(0, 0, tmp);
+		gr_bitmap(*grd_curcanv, 0, 0, tmp);
 		return;
 	}
 	gr_bitmap_scale_to(bm, scr);

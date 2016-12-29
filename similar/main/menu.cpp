@@ -2459,7 +2459,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
 			ogl_ubitmapm_cs(*grd_curcanv, (SWIDTH / 2) - (bm->bm_w * scale / 2), (SHEIGHT / 2) - (bm->bm_h * scale / 2), bm->bm_w * scale, bm->bm_h * scale, *bm, ogl_colors::white, F1_0);
 #else
-			gr_bitmap((SWIDTH/2)-(bm->bm_w/2), (SHEIGHT/2)-(bm->bm_h/2), *bm);
+			gr_bitmap(*grd_curcanv, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
 #endif
 			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor(BM_XRGB(255,255,255), -1);

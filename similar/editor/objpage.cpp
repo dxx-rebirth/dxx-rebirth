@@ -84,13 +84,13 @@ void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 
 		case OBJ_HOSTAGE:
 			PIGGY_PAGE_IN(Vclip[Hostage_vclip_num[id]].frames[0]);
-			gr_bitmap(0,0,GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
+			gr_bitmap(*grd_curcanv, 0, 0, GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
 			break;
 
 		case OBJ_POWERUP:
 			if ( Powerup_info[id].vclip_num > -1 )	{
 				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
-				gr_bitmap(0,0,GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
+				gr_bitmap(*grd_curcanv, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
 			}
 			break;
 

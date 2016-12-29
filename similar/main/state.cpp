@@ -620,7 +620,7 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #if !DXX_USE_OGL
-			gr_bitmap((grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);
+			gr_bitmap(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);
 #else
 			ogl_ubitmapm_cs(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - fspacy(3), fspacx(THUMBNAIL_W), fspacy(THUMBNAIL_H), temp_canv->cv_bitmap, ogl_colors::white, F1_0);
 #endif

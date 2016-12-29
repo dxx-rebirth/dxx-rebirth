@@ -2451,7 +2451,7 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 #if !DXX_USE_OGL
 	for (x = box.left; x < box.right; x += bmp.bm_w)
 		for (y = box.top; y < box.bot; y += bmp.bm_h)
-			gr_bitmap(x, y, bmp);
+			gr_bitmap(*grd_curcanv, x, y, bmp);
 #else
 	if (multires_gauge_graphic.is_hires())
 	{
@@ -3548,7 +3548,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 
 			gr_set_current_canvas(NULL);
 
-			gr_bitmap(window_x,window_y,window_canv.cv_bitmap);
+			gr_bitmap(*grd_curcanv, window_x, window_y, window_canv.cv_bitmap);
 
 			overlap_dirty[win] = 1;
 		}
@@ -3561,7 +3561,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 			if (extra_part_h > 0) {
 				gr_init_sub_canvas(overlap_canv, window_canv, 0, window_canv.cv_bitmap.bm_h-extra_part_h, window_canv.cv_bitmap.bm_w, extra_part_h);
 				gr_set_current_canvas(NULL);
-				gr_bitmap(window_x,big_window_bottom+1,overlap_canv.cv_bitmap);
+				gr_bitmap(*grd_curcanv, window_x, big_window_bottom + 1, overlap_canv.cv_bitmap);
 				overlap_dirty[win] = 1;
 			}
 		}
