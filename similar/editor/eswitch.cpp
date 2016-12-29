@@ -448,11 +448,11 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 			gr_clear_canvas( CBLACK );
 		else {
 			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
-				gr_ubitmap(texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
+				gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
 			} else {
 				if (Markedsegp->sides[Markedside].tmap_num > 0)	{
 					PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
-					gr_ubitmap(GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
+					gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
 				} else
 					gr_clear_canvas( CGREY );
 			}

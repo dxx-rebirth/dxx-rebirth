@@ -510,16 +510,16 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 				if (wd->framenum >= WallAnims[w->clip_num].num_frames)
 					wd->framenum=0;
 				PIGGY_PAGE_IN(Textures[WallAnims[w->clip_num].frames[wd->framenum]]);
-				gr_ubitmap(GameBitmaps[Textures[WallAnims[w->clip_num].frames[wd->framenum]].index]);
+				gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[WallAnims[w->clip_num].frames[wd->framenum]].index]);
 			} else {
 				if (type == WALL_OPEN)
 					gr_clear_canvas( CBLACK );
 				else {
 					if (Cursegp->sides[Curside].tmap_num2 > 0)
-						gr_ubitmap(texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
+						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
 					else	{
 						PIGGY_PAGE_IN(Textures[Cursegp->sides[Curside].tmap_num]);
-						gr_ubitmap(GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
+						gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
 					}
 				}
 			}

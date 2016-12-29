@@ -95,7 +95,7 @@ static void texpage_redraw()
 		if (i + TexturePage*TMAPS_PER_PAGE < NumTextures)
 		{
 			PIGGY_PAGE_IN(Textures[i + TexturePage*TMAPS_PER_PAGE]);
-			gr_ubitmap(GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
+			gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
 		} else 
 			gr_clear_canvas( CGREY );
 	}
@@ -107,7 +107,7 @@ static void texpage_show_current()
 {
 	gr_set_current_canvas(TmapCurrent->canvas);
 	PIGGY_PAGE_IN(Textures[CurrentTexture]);
-	gr_ubitmap(GameBitmaps[Textures[CurrentTexture].index]);
+	gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[CurrentTexture].index]);
 	texpage_print_name( TmapInfo[CurrentTexture].filename );
 }
 
