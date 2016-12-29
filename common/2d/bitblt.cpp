@@ -187,25 +187,24 @@ void gr_ubitmap(grs_canvas &canvas, grs_bitmap &bm)
 }
 
 #if !DXX_USE_OGL
-void gr_ubitmapm(unsigned x, unsigned y, grs_bitmap &bm)
+void gr_ubitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitmap &bm)
 {
 	const auto source = bm.get_type();
-	auto dest = TYPE;
 	if (source==bm_mode::linear) {
-		switch( dest )
+		switch(canvas.cv_bitmap.get_type())
 		{
 		case bm_mode::linear:
 			if ( bm.bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, grd_curcanv->cv_bitmap );
+				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, canvas.cv_bitmap);
 			else
-				gr_ubitmap00m(*grd_curcanv, x, y, bm);
+				gr_ubitmap00m(canvas, x, y, bm);
 			return;
 		default:
-			gr_ubitmap012m(*grd_curcanv, x, y, bm);
+			gr_ubitmap012m(canvas, x, y, bm);
 			return;
 		}
 	} else  {
-		gr_ubitmapGENERICm(*grd_curcanv, x, y, bm);
+		gr_ubitmapGENERICm(canvas, x, y, bm);
 	}
 }
 

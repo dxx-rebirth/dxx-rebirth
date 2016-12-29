@@ -614,7 +614,7 @@ static inline void hud_bitblt_free (unsigned x, unsigned y, unsigned w, unsigned
 #if DXX_USE_OGL
 	ogl_ubitmapm_cs(*grd_curcanv, x, y, w, h, bm, ogl_colors::white, F1_0);
 #else
-	gr_ubitmapm(x, y, bm);
+	gr_ubitmapm(*grd_curcanv, x, y, bm);
 #endif
 }
 
