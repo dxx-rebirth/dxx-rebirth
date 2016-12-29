@@ -37,7 +37,7 @@ void gr_urect(int left,int top,int right,int bot, const uint8_t color)
 {
 #if DXX_USE_OGL
 	if (TYPE == bm_mode::ogl) {
-		ogl_urect(left,top,right,bot, color);
+		ogl_urect(*grd_curcanv, left, top, right, bot, color);
 		return;
 	}
 #else
@@ -50,7 +50,7 @@ void gr_rect(int left,int top,int right,int bot, const uint8_t color)
 {
 #if DXX_USE_OGL
 	if (TYPE == bm_mode::ogl) {
-		ogl_urect(left,top,right,bot, color);
+		ogl_urect(*grd_curcanv, left, top, right, bot, color);
 		return;
 	}
 #endif

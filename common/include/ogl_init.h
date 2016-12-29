@@ -106,7 +106,7 @@ private:
 	array_type a;
 };
 
-void ogl_urect(int left, int top, int right, int bot, int color);
+void ogl_urect(grs_canvas &, int left, int top, int right, int bot, int color);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap &bm, const ogl_colors::array_type &c, int scale);
 bool ogl_ubitblt_i(unsigned dw, unsigned dh, unsigned dx, unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, unsigned texfilt);

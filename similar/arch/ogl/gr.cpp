@@ -860,17 +860,17 @@ unsigned char ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y)
 	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
 }
 
-void ogl_urect(int left,int top,int right,int bot, const int c)
+void ogl_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const int c)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	xo=(left+grd_curcanv->cv_bitmap.bm_x)/static_cast<float>(last_width);
-	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / static_cast<float>(last_width);
-	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/static_cast<float>(last_height);
-	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / static_cast<float>(last_height);
+	xo = (left + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
+	xf = (right + 1 + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
+	yo = 1.0 - (top + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height);
+	yf = 1.0 - (bot + 1 + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height);
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -878,10 +878,10 @@ void ogl_urect(int left,int top,int right,int bot, const int c)
 	color_g = CPAL2Tg(c);
 	color_b = CPAL2Tb(c);
 
-	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
+	if (canvas.cv_fade_level >= GR_FADE_OFF)
 		color_a = 1.0;
 	else
-		color_a = 1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
+		color_a = 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
 	array<GLfloat, 16> color_array;
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
