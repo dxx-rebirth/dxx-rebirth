@@ -1902,7 +1902,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 
 			if (x2 > x1)
 			{
-				gr_uline(i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), color);
+				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), color);
 			}
 		}
 
@@ -1921,7 +1921,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 
 			if (x2 > x1)
 			{
-				gr_uline(i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), color);
+				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), color);
 			}
 		}
 
@@ -2547,7 +2547,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	for (int i = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
-		gr_uline(erase_x0, erase_y, erase_x1, erase_y, color);
+		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
 	}
 
 	//draw numbers
@@ -2578,7 +2578,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 	for (int i = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H)); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
-		gr_uline(erase_x0, erase_y, erase_x1, erase_y, color);
+		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
 	}
 
 	//draw legend
@@ -2783,10 +2783,10 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			return;
 		case RET_TYPE_X:
 			{
-			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
-			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
-			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)), color); // bottom-left
-			gr_uline(i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)), color); // bottom-right
+			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
+			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
+			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)), color); // bottom-left
+			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)), color); // bottom-right
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)-(size/5)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2825,8 +2825,8 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_CROSS_V1:
 			{
-			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
-			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
+			gr_uline(*grd_curcanv, i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
+			gr_uline(*grd_curcanv, i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2839,10 +2839,10 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_CROSS_V2:
 			{
-			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
-			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
-			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y), color); // horiz-left
-			gr_uline(i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y), color); // horiz-right
+			gr_uline(*grd_curcanv, i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
+			gr_uline(*grd_curcanv, i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
+			gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y), color); // horiz-left
+			gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y), color); // horiz-right
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2855,8 +2855,8 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			break;
 		case RET_TYPE_ANGLE:
 			{
-			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
-			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
+			gr_uline(*grd_curcanv, i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
+			gr_uline(*grd_curcanv, i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
 			if (secondary_display && secondary_bm_num == 1)
 				x0 = i2f(x-(size/2)), y0 = i2f(y-(size/2)), x1 = i2f(x-(size/5)), y1 = i2f(y-(size/5));
 			else if (secondary_display && secondary_bm_num == 2)
@@ -2871,7 +2871,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 		default:
 			return;
 	}
-	gr_uline(x0, y0, x1, y1, color);
+	gr_uline(*grd_curcanv, x0, y0, x1, y1, color);
 	}();
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
@@ -2884,12 +2884,12 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 	auto &rgba = PlayerCfg.ReticleRGBA;
 	const auto color = BM_XRGB(rgba[0], rgba[1], rgba[2]);
-	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
-	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)), color);
-	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
-	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
+	gr_uline(*grd_curcanv, i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)), color);
+	gr_uline(*grd_curcanv, i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)), color);
+	gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
+	gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	gr_uline(i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos), color);
+	gr_uline(*grd_curcanv, i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos), color);
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 

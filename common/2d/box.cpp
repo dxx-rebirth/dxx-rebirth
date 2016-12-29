@@ -60,10 +60,10 @@ static void gr_ubox12(int left,int top,int right,int bot, const uint8_t color)
 		gr_upixel( i, bot );
 	}
 #endif
-	gr_uline(i2f(left), i2f(top), i2f(right), i2f(top), color);
-	gr_uline(i2f(right), i2f(top), i2f(right), i2f(bot), color);
-	gr_uline(i2f(left), i2f(top), i2f(left), i2f(bot), color);
-	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot), color);
+	gr_uline(*grd_curcanv, i2f(left), i2f(top), i2f(right), i2f(top), color);
+	gr_uline(*grd_curcanv, i2f(right), i2f(top), i2f(right), i2f(bot), color);
+	gr_uline(*grd_curcanv, i2f(left), i2f(top), i2f(left), i2f(bot), color);
+	gr_uline(*grd_curcanv, i2f(left), i2f(bot), i2f(right), i2f(bot), color);
 }
 
 #if DXX_USE_EDITOR

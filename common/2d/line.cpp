@@ -266,19 +266,19 @@ static void gr_universal_uline(grs_canvas &canvas, int a1, int b1, int a2, int b
 
 
 //unclipped version just calls clipping version for now
-void gr_uline(fix _a1, fix _b1, fix _a2, fix _b2, const uint8_t color)
+void gr_uline(grs_canvas &canvas, const fix _a1, const fix _b1, const fix _a2, const fix _b2, const uint8_t color)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
-	switch(TYPE)
+	switch(canvas.cv_bitmap.get_type())
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_ulinec(*grd_curcanv, a1, b1, a2, b2, color);
+		ogl_ulinec(canvas, a1, b1, a2, b2, color);
 		return;
 #endif
 	case bm_mode::linear:
-		gr_universal_uline(*grd_curcanv, a1, b1, a2, b2, color);
+		gr_universal_uline(canvas, a1, b1, a2, b2, color);
 		return;
 	}
 	return;
@@ -296,7 +296,7 @@ void gr_line(fix a1, fix b1, fix a2, fix b2, const uint8_t color)
 	y2 = i2f(MAXY);
 
 	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return,, FIXSCALE );
-	gr_uline(a1, b1, a2, b2, color);
+	gr_uline(*grd_curcanv, a1, b1, a2, b2, color);
 }
 
 }

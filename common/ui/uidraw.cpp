@@ -27,12 +27,12 @@ namespace dcx {
 
 void Hline(short x1, short x2, short y, const uint8_t color)
 {
-	gr_uline(i2f(x1), i2f(y), i2f(x2), i2f(y), color);
+	gr_uline(*grd_curcanv, i2f(x1), i2f(y), i2f(x2), i2f(y), color);
 }
 
 void Vline(short y1, short y2, short x, const uint8_t color)
 {
-	gr_uline(i2f(x), i2f(y1), i2f(x), i2f(y2), color);
+	gr_uline(*grd_curcanv, i2f(x), i2f(y1), i2f(x), i2f(y2), color);
 }
 
 void ui_string_centered( short x, short y, const char * s )
