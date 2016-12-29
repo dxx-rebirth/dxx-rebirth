@@ -69,14 +69,19 @@ static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fas
 	gr_ubox0(canvas, left, top, right, bot, color);
 }
 
-static void gr_box12(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, const uint8_t color)
+static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const uint8_t color)
 {
-    if (top > MAXY ) return;
-    if (left > MAXX ) return;
-    
-    if (bot > MAXY ) bot = MAXY;
-    if (right > MAXX ) right = MAXX;
-	gr_ubox12(*grd_curcanv, left, top, right, bot, color);
+	const auto maxy = canvas.cv_bitmap.bm_h - 1;
+	if (top > maxy)
+		return;
+	const auto maxx = canvas.cv_bitmap.bm_w - 1;
+	if (left > maxx)
+		return;
+	if (bot > maxy)
+		bot = maxy;
+	if (right > maxx)
+		right = maxx;
+	gr_ubox12(canvas, left, top, right, bot, color);
 }
 #endif
 
@@ -94,7 +99,7 @@ void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32
 	if (TYPE==bm_mode::linear)
 		gr_box0(*grd_curcanv, left, top, right, bot, color);
 	else
-		gr_box12(left, top, right, bot, color);
+		gr_box12(*grd_curcanv, left, top, right, bot, color);
 }
 #endif
 
