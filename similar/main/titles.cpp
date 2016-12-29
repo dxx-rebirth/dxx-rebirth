@@ -1121,12 +1121,10 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save;
 
-	float scale = 1.0;
-
-	if ((static_cast<float>SWIDTH/(HIRESMODE ? 640 : 320)) < (static_cast<float>SHEIGHT/(HIRESMODE ? 480 : 200)))
-		scale = (static_cast<float>SWIDTH/(HIRESMODE ? 640 : 320));
-	else
-		scale = (static_cast<float>SHEIGHT/(HIRESMODE ? 480 : 200));
+	const bool hiresmode = HIRESMODE;
+	const auto w = static_cast<float>(SWIDTH) / (hiresmode ? 640 : 320);
+	const auto h = static_cast<float>(SHEIGHT) / (hiresmode ? 480 : 200);
+	const float scale = (w < h) ? w : h;
 
 	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), bmp->bm_w*scale, bmp->bm_h*scale);
 	curcanv_save = grd_curcanv;
