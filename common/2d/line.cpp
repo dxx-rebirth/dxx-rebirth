@@ -42,12 +42,12 @@ from "Graphics Gems", Academic Press, 1990
 */
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
-static void plot(int x,int y,int flag, const uint8_t color)
-#define plot(x,y,f)	plot(x,y,f,color)
+static void plot(grs_canvas &canvas, int x, int y, int flag, const uint8_t color)
+#define plot(x,y,f)	plot(*grd_curcanv,x,y,f,color)
 {
 	if (flag)
 		std::swap(x, y);
-	gr_upixel(*grd_curcanv, x, y, color);
+	gr_upixel(canvas, x, y, color);
 }
 
 static void gr_hline(grs_canvas &canvas, int x1, int x2, const int y, const uint8_t color)
