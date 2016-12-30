@@ -382,6 +382,7 @@ public:
 	}
 	void op_tmappoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
+		/* NOTE: Kept for historical reasons.
 		int ntris;
 		//calculate light from surface normal
 		//now poke light into l values
@@ -402,6 +403,16 @@ public:
 			g3_check_and_draw_tmap(point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 			point_list[1] = point_list[2];
 		}
+		*/
+		array<g3s_uvl, MAX_POINTS_PER_POLY> uvl_list;
+		array<g3s_lrgb, MAX_POINTS_PER_POLY> lrgb_list;
+		lrgb_list.fill(get_noglow_light(p));
+		for (uint_fast32_t i = 0; i != nv; i++)
+			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
+		array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
+		for (uint_fast32_t i = 0; i != nv; i++)
+			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
