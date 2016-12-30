@@ -1183,9 +1183,17 @@ static window_event_result HandleTestKey(int key)
 			else
 				Game_suspended |= SUSP_ROBOTS;		//robots don't move
 			break;
-
-
-
+		case KEY_DEBUGGED+KEY_M:
+		{
+			static int i = 0;
+			const auto &&new_obj = create_morph_robot(vsegptridx(ConsoleObject->segnum), compute_segment_center(vsegptridx(ConsoleObject->segnum)), i);
+			if (new_obj != object_none)
+				morph_start( new_obj );
+			i++;
+			if (i >= N_robot_types)
+				i = 0;
+			break;
+		}
 		case KEY_DEBUGGED+KEY_K:
 			get_local_plrobj().shields = 1;
 			break;							//	a virtual kill
