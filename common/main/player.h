@@ -107,10 +107,7 @@ struct player_rw
 #endif
 	ushort	laser_ammo;
 	ushort  vulcan_ammo;
-	ushort  spreadfire_ammo, plasma_ammo, fusion_ammo;
-#if defined(DXX_BUILD_DESCENT_II)
-	ushort  obsolete_primary_ammo[MAX_PRIMARY_WEAPONS - 5];
-#endif
+	array<uint16_t, MAX_PRIMARY_WEAPONS - 2> obsolete_primary_ammo;
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
 #if defined(DXX_BUILD_DESCENT_II)

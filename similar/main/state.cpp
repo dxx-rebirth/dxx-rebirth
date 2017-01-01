@@ -172,6 +172,7 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 			obj_rw->mtype.phys_info.thrust.z    = obj->mtype.phys_info.thrust.z;
 			obj_rw->mtype.phys_info.mass        = obj->mtype.phys_info.mass;
 			obj_rw->mtype.phys_info.drag        = obj->mtype.phys_info.drag;
+			obj_rw->mtype.phys_info.obsolete_brakes = 0;
 			obj_rw->mtype.phys_info.rotvel.x    = obj->mtype.phys_info.rotvel.x;
 			obj_rw->mtype.phys_info.rotvel.y    = obj->mtype.phys_info.rotvel.y;
 			obj_rw->mtype.phys_info.rotvel.z    = obj->mtype.phys_info.rotvel.z;
@@ -486,9 +487,14 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->killer_objnum             = pl_info.killer_objnum;
 	pl_rw->primary_weapon_flags      = pl_info.primary_weapon_flags;
 	pl_rw->secondary_weapon_flags    = 0;
+	pl_rw->laser_ammo = 0;
 	pl_rw->vulcan_ammo   = pl_info.vulcan_ammo;
+	pl_rw->obsolete_primary_ammo = {};
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		pl_rw->secondary_ammo[i] = pl_info.secondary_ammo[i];
+#if defined(DXX_BUILD_DESCENT_II)
+	pl_rw->pad = 0;
+#endif
 	pl_rw->last_score                = pl_info.mission.last_score;
 	pl_rw->score                     = pl_info.mission.score;
 	pl_rw->time_level                = pl->time_level;
