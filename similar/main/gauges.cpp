@@ -3534,7 +3534,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
 		int small_window_bottom,big_window_bottom,extra_part_h;
 
-		gr_ubox(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, BM_XRGB(0,0,32));
+		gr_ubox(*grd_curcanv, 0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, BM_XRGB(0,0,32));
 
 		//if the window only partially overlaps the big 3d window, copy
 		//the extra part to the visible screen

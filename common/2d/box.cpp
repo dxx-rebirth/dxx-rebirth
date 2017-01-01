@@ -85,12 +85,12 @@ static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fa
 }
 #endif
 
-void gr_ubox(int left,int top,int right,int bot, const uint8_t color)
+void gr_ubox(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const uint8_t color)
 {
-	if (TYPE==bm_mode::linear)
-		gr_ubox0(*grd_curcanv, left, top, right, bot, color);
+	if (canvas.cv_bitmap.get_type() == bm_mode::linear)
+		gr_ubox0(canvas, left, top, right, bot, color);
     else
-		gr_ubox12(*grd_curcanv, left, top, right, bot, color);
+		gr_ubox12(canvas, left, top, right, bot, color);
 }
 
 #if DXX_USE_EDITOR
