@@ -1217,19 +1217,19 @@ int state_save_all_sub(const char *filename, const char *desc)
 	PHYSFS_write(fp, &PaletteRedAdd, sizeof(int), 1);
 	PHYSFS_write(fp, &PaletteGreenAdd, sizeof(int), 1);
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
-	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		range_for (const auto &&segp, vcsegptr)
-		{
-			PHYSFSX_writeU8(fp, segp->light_subtracted);
-		}
-	}
-	else
-	{
-		range_for (auto &s, partial_const_range(Segments, MAX_SEGMENTS_ORIGINAL))
-		{
-			PHYSFSX_writeU8(fp, s.light_subtracted);
-		}
+		union {
+			array<uint8_t, MAX_SEGMENTS> light_subtracted;
+			array<uint8_t, MAX_SEGMENTS_ORIGINAL> light_subtracted_original;
+		};
+		const auto &&r = make_range(vcsegptr);
+		const unsigned count = (Highest_segment_index + 1 > MAX_SEGMENTS_ORIGINAL)
+			? vcsegptr.count()
+			: (light_subtracted_original = {}, MAX_SEGMENTS_ORIGINAL);
+		auto j = light_subtracted.begin();
+		range_for (const auto &&segp, r)
+			*j++ = segp->light_subtracted;
+		PHYSFS_write(fp, light_subtracted.data(), sizeof(uint8_t), count);
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 	auto &Omega_charge = player_info.Omega_charge;
