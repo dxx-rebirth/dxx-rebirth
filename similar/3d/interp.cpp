@@ -206,6 +206,14 @@ private:
 		o.*c = fixmul(color, model_light.*c);
 	}
 protected:
+	template <std::size_t N>
+		array<cg3s_point *, N> prepare_point_list(const uint_fast32_t nv, const uint8_t *const p)
+		{
+			array<cg3s_point *, N> point_list;
+			for (uint_fast32_t i = 0; i < nv; ++i)
+				point_list[i] = &Interp_point_list[wp(p + 30)[i]];
+			return point_list;
+		}
 	g3s_lrgb get_noglow_light(const uint8_t *const p) const
 	{
 		g3s_lrgb light;
@@ -280,9 +288,6 @@ public:
 		Assert( nv < MAX_POINTS_PER_POLY );
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0)
 		{
-			array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
-			for (uint_fast32_t i = 0;i < nv;i++)
-				point_list[i] = &Interp_point_list[wp(p+30)[i]];
 #if defined(DXX_BUILD_DESCENT_II)
 			if (!glow_values || !(glow_num < glow_values->size()) || (*glow_values)[glow_num] != -3)
 #endif
@@ -295,6 +300,7 @@ public:
 					? 255
 					: gr_find_closest_color_15bpp(w(p + 28));
 #endif
+				const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 				g3_draw_poly(nv,point_list, color);
 			}
 		}
@@ -322,9 +328,7 @@ public:
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 			uvl_list[i].l = average_light;
 		}
-		array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
-		for (uint_fast32_t i = 0; i != nv; i++)
-			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
@@ -369,11 +373,10 @@ public:
 	}
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
-		int i,ntris;
+		int ntris;
 		const uint8_t color = w(p+28);
-		array<cg3s_point *, 3> point_list;
-		for (i=0;i<2;i++)
-			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		unsigned i;
+		auto point_list = prepare_point_list<3>(i = 2, p);
 		for (ntris=nv-2;ntris;ntris--) {
 			point_list[2] = &Interp_point_list[wp(p+30)[i++]];
 			g3_check_and_draw_poly(point_list, color);
@@ -409,9 +412,7 @@ public:
 		lrgb_list.fill(get_noglow_light(p));
 		for (uint_fast32_t i = 0; i != nv; i++)
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
-		array<cg3s_point *, MAX_POINTS_PER_POLY> point_list;
-		for (uint_fast32_t i = 0; i != nv; i++)
-			point_list[i] = &Interp_point_list[wp(p+30)[i]];
+		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
