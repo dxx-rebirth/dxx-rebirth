@@ -54,13 +54,16 @@ void gr_pixel(grs_canvas &canvas, const unsigned x, const unsigned y, const uint
 	gr_upixel(canvas, x, y, color);
 }
 
-static inline void gr_bm_upixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
+#if !DXX_USE_OGL
+#define gr_bm_upixel(C,B,X,Y,C2) gr_bm_upixel(B,X,Y,C2)
+#endif
+static inline void gr_bm_upixel(grs_canvas &canvas, grs_bitmap &bm, const uint_fast32_t x, const uint_fast32_t y, const uint8_t color)
 {
 	switch (bm.get_type())
 	{
 #if DXX_USE_OGL
 	case bm_mode::ogl:
-		ogl_upixelc(*grd_curcanv, bm.bm_x+x,bm.bm_y+y,color);
+		ogl_upixelc(canvas, bm.bm_x + x, bm.bm_y + y, color);
 		return;
 #endif
 	case bm_mode::linear:
@@ -73,7 +76,7 @@ void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color
 {
 	if (unlikely(x >= bm.bm_w || y >= bm.bm_h))
 		return;
-	gr_bm_upixel (bm, x, y, color);
+	gr_bm_upixel(*grd_curcanv, bm, x, y, color);
 }
 
 }
