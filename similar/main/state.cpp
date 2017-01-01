@@ -493,11 +493,11 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->score                     = pl_info.mission.score;
 	pl_rw->time_level                = pl->time_level;
 	pl_rw->time_total                = pl->time_total;
-	if (pl_info.cloak_time - GameTime64 < F1_0*(-18000))
+	if (!(pl_info.powerup_flags & PLAYER_FLAGS_CLOAKED) || pl_info.cloak_time - GameTime64 < F1_0*(-18000))
 		pl_rw->cloak_time        = F1_0*(-18000);
 	else
 		pl_rw->cloak_time        = pl_info.cloak_time - GameTime64;
-	if (pl_info.invulnerable_time - GameTime64 < F1_0*(-18000))
+	if (!(pl_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE) || pl_info.invulnerable_time - GameTime64 < F1_0*(-18000))
 		pl_rw->invulnerable_time = F1_0*(-18000);
 	else
 		pl_rw->invulnerable_time = pl_info.invulnerable_time - GameTime64;
