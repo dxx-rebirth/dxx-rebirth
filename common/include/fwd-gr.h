@@ -215,7 +215,7 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 
 // bitmap function with transparency
 #if !DXX_USE_OGL
-void gr_bitmapm(unsigned x, unsigned y, const grs_bitmap &bm);
+void gr_bitmapm(grs_canvas &, unsigned x, unsigned y, const grs_bitmap &bm);
 void gr_ubitmapm(grs_canvas &, unsigned x, unsigned y, grs_bitmap &bm);
 #endif
 
