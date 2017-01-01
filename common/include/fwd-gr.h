@@ -231,7 +231,7 @@ int gr_ucircle(grs_canvas &, fix x,fix y,fix r, uint8_t color);
 
 // Draw an unfilled rectangle into the current canvas
 #if DXX_USE_EDITOR
-void gr_box(uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, uint8_t color);
+void gr_box(grs_canvas &, uint_fast32_t left,uint_fast32_t top,uint_fast32_t right,uint_fast32_t bot, uint8_t color);
 #endif
 void gr_ubox(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
 

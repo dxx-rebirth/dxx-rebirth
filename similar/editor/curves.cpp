@@ -110,9 +110,9 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
     fix t, dt;
 
 	const uint8_t color = 15;
-	gr_box( 75,  40, 325, 290, color);
-	gr_box( 75, 310, 325, 560, color);
-	gr_box(475, 310, 725, 560, color);
+	gr_box(*grd_curcanv, 75,  40, 325, 290, color);
+	gr_box(*grd_curcanv, 75, 310, 325, 560, color);
+	gr_box(*grd_curcanv,475, 310, 725, 560, color);
     //gr_pal_fade_in( grd_curscreen->pal );
 
     for (t=min_t;t<max_t-del_t;t+=del_t) {
