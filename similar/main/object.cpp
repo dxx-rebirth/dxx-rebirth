@@ -313,7 +313,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 				   alt_textures );
 	}
 	else {
-		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
+		gr_settransblend(*grd_curcanv, cloak_value, GR_BLEND_NORMAL);
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
 		draw_polygon_model(obj->pos,
 				   &obj->orient,
@@ -323,7 +323,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 				   &glow,
 				   alt_textures );
 		g3_set_special_render(draw_tmap);
-		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
 
 }
@@ -457,7 +457,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			bool draw_simple_model;
 			if (is_weapon_with_inner_model)
 			{
-				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
 					draw_polygon_model(obj->pos,
@@ -481,7 +481,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 			if (is_weapon_with_inner_model)
 			{
 #if !DXX_USE_OGL // in software rendering must draw inner model last
-				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (draw_simple_model)
 					draw_polygon_model(obj->pos,
 							   &obj->orient,
@@ -492,7 +492,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 							   &engine_glow_value,
 							   alt_textures);
 #endif
-				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 			}
 			return;
 		}
@@ -656,7 +656,7 @@ void render_object(const vobjptridx_t obj)
 			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend( 10, GR_BLEND_ADDITIVE_A );
+				gr_settransblend(*grd_curcanv, 10, GR_BLEND_ADDITIVE_A);
 			}
 #endif
 			draw_polygon_object(obj);
@@ -673,7 +673,7 @@ void render_object(const vobjptridx_t obj)
 			if (PlayerCfg.AlphaBlendFireballs) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
+				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 			}
 
 			draw_fireball(obj);
@@ -683,7 +683,7 @@ void render_object(const vobjptridx_t obj)
 			if (PlayerCfg.AlphaBlendWeapons && !is_proximity_bomb_or_smart_mine(get_weapon_id(obj))) // set nice transparency/blending for certain objects
 			{
 				alpha = true;
-				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+				gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
 			}
 
 			draw_weapon_vclip(obj);
@@ -706,7 +706,7 @@ void render_object(const vobjptridx_t obj)
 					case POW_HOARD_ORB:
 #endif
 						alpha = true;
-						gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+						gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
 						break;
 					case POW_LASER:
 					case POW_KEY_BLUE:
@@ -759,7 +759,7 @@ void render_object(const vobjptridx_t obj)
 			if (PlayerCfg.AlphaBlendLasers) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
-				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+				gr_settransblend(*grd_curcanv, 7, GR_BLEND_ADDITIVE_A);
 			}
 
 			Laser_render(obj);
@@ -770,7 +770,7 @@ void render_object(const vobjptridx_t obj)
 	}
 
 	if (alpha)
-	gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
+		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);

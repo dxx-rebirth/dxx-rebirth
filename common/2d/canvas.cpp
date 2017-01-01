@@ -95,9 +95,9 @@ void gr_clear_canvas(color_t color)
 	gr_rect(0,0,GWIDTH-1,GHEIGHT-1, color);
 }
 
-void gr_settransblend(int fade_level, ubyte blend_func)
+void gr_settransblend(grs_canvas &canvas, const int fade_level, const uint8_t blend_func)
 {
-	grd_curcanv->cv_fade_level=fade_level;
+	canvas.cv_fade_level = fade_level;
 #if DXX_USE_OGL
 	ogl_set_blending(blend_func);
 #endif

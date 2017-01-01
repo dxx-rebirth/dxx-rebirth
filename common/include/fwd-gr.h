@@ -166,7 +166,7 @@ void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color
 #if !DXX_USE_OGL
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
-#define gr_settransblend(A,B)	gr_settransblend(A)
+#define gr_settransblend(A,B,C)	gr_settransblend(A,B)
 #endif
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
 }
@@ -191,7 +191,7 @@ void gr_use_palette_table(const char * filename);
 namespace dcx {
 
 // Sets transparency and blending function
-void gr_settransblend(int fade_level, uint8_t blend_func);
+void gr_settransblend(grs_canvas &, int fade_level, uint8_t blend_func);
 
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(grs_canvas &, unsigned x, unsigned y, uint8_t color);

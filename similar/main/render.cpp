@@ -242,12 +242,12 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
-		gr_settransblend(vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
+		gr_settransblend(*grd_curcanv, vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
 
 		g3_draw_poly(nv, pointlist, color);    // draw as flat poly
-		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
 	}
@@ -340,7 +340,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 	if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[tmap1].eclip_num)) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 	{
 		alpha = true;
-		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 	}
 
 #if DXX_USE_EDITOR
@@ -357,7 +357,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,*bm);
 
 	if (alpha)
-	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 #ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, &pointlist[0]);

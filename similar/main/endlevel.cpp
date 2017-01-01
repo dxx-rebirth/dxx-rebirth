@@ -1013,10 +1013,15 @@ static void render_external_scene(fix eye_offset)
 	{
 		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
 		if (alpha) // set nice transparency/blending for the big explosion
-			gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
+			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 		draw_fireball(vobjptridx(external_explosion));
+#if DXX_USE_OGL
+		/* If !OGL, the third argument is discarded, so this call
+		 * becomes the same as the one above.
+		 */
 		if (alpha)
-		gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
+			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+#endif
 	}
 
 	Lighting_on=0;
