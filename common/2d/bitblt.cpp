@@ -435,7 +435,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{
-		gr_rle_expand_scanline_generic(dest, dx, dy+y1, sbits, sx, sx+w-1);
+		gr_rle_expand_scanline_generic(*grd_curcanv, dest, dx, dy+y1, sbits, sx, sx+w-1);
 		if ( src.bm_flags & BM_FLAG_RLE_BIG )
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((y1 + sy) * data_offset)]);
 		else

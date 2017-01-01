@@ -440,8 +440,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 	return least_recently_used->expanded_bitmap.get();
 }
 
-
-void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 )
+void gr_rle_expand_scanline_generic(grs_canvas &canvas, grs_bitmap &dest, int dx, const int dy, const uint8_t *src, const int x1, const int x2)
 {
 	int i = 0;
 	int count;
@@ -469,12 +468,12 @@ void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyt
 	if ( x1+count > x2 )	{
 		count = x2-x1+1;
 		for ( int j=0; j<count; j++ )
-			gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
+			gr_bm_pixel(canvas, dest, dx++, dy, color);
 		return;
 	}
 
 	for ( int j=0; j<count; j++ )
-		gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
+		gr_bm_pixel(canvas, dest, dx++, dy, color);
 	i += count;
 
 	while( i <= x2 )		{
@@ -490,12 +489,12 @@ void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyt
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
 			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
+				gr_bm_pixel(canvas, dest, dx++, dy, color);
 			i += count;
 		} else {
 			count = x2-i+1;
 			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
+				gr_bm_pixel(canvas, dest, dx++, dy, color);
 			i += count;
 		}
 	}
