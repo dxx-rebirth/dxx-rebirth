@@ -3563,6 +3563,8 @@ class DXXArchive(DXXCommon):
 'misc/hmp.cpp',
 'misc/ignorecase.cpp',
 'misc/strutil.cpp',
+'misc/vgrphys.cpp',
+'misc/vgwphys.cpp',
 'texmap/ntmap.cpp',
 'texmap/scanline.cpp'
 ]
