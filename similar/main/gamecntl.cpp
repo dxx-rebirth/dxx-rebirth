@@ -1186,7 +1186,8 @@ static window_event_result HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_M:
 		{
 			static int i = 0;
-			const auto &&new_obj = create_morph_robot(vsegptridx(ConsoleObject->segnum), compute_segment_center(vsegptridx(ConsoleObject->segnum)), i);
+			const auto &&segp = vsegptridx(ConsoleObject->segnum);
+			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(segp), i);
 			if (new_obj != object_none)
 				morph_start( new_obj );
 			i++;
