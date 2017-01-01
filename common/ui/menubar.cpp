@@ -86,7 +86,7 @@ static void item_show( MENU * menu, int n )
 	if ( item->Text[0] == '-'  )
 	{
 		const uint8_t color = CBLACK;
-		gr_urect( item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
+		gr_urect(*grd_curcanv, item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
 		return;
 	}	
 
@@ -95,14 +95,14 @@ static void item_show( MENU * menu, int n )
 		if ( menu != &Menu[0] )
 		{
 			const uint8_t color = CBLACK;
-			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 	 	gr_set_fontcolor( CWHITE, CBLACK );
 	}else {
 		if ( menu != &Menu[0] )
 		{
 			const uint8_t color = CGREY;
-			gr_urect( item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
 		gr_set_fontcolor( CBLACK, CGREY );
 	}
@@ -128,7 +128,7 @@ static void menu_draw(MENU *menu)
 	gr_set_current_canvas(NULL);
 
 	// Draw the menu background
-	gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
+	gr_urect(*grd_curcanv, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
 	if ( menu != &Menu[0] )
 	{
 		gr_ubox(*grd_curcanv, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CBLACK);

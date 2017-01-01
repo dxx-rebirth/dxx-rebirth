@@ -1381,7 +1381,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		const uint8_t color = gr_find_closest_color(r, g, b);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
-		gr_urect(fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
+		gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
 		
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
@@ -1412,7 +1412,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	const auto &&fspacy = FSPACY();
 	const auto &&fspacx_item_xinput = fspacx(item->xinput);
 	const auto &&fspacy_item_y = fspacy(item->y);
-	gr_urect(fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
+	gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 

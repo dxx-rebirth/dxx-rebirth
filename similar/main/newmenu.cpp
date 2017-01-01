@@ -206,12 +206,12 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	{
 		const uint8_t color = BM_XRGB(1, 1, 1);
 	for (w=5*BGScaleX;w>0;w--)
-		gr_urect( x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX), color);//right edge
+		gr_urect(*grd_curcanv, x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX), color);//right edge
 	}
 	{
 		const uint8_t color = BM_XRGB(0, 0, 0);
 	for (h=5*BGScaleY;h>0;h--)
-		gr_urect( x1+h*(BGScaleX/BGScaleY), y2-h, x2-h*(BGScaleX/BGScaleY), y2-h, color);//bottom edge
+		gr_urect(*grd_curcanv, x1+h*(BGScaleX/BGScaleY), y2-h, x2-h*(BGScaleX/BGScaleY), y2-h, color);//bottom edge
 	}
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
