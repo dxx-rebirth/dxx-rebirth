@@ -97,7 +97,7 @@ static void texpage_redraw()
 			PIGGY_PAGE_IN(Textures[i + TexturePage*TMAPS_PER_PAGE]);
 			gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
 		} else 
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 	}
 }
 

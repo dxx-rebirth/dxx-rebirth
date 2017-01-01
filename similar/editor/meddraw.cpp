@@ -767,7 +767,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 
 	vm_vec_add2(viewer_position,Ed_view_target);
 
-	gr_clear_canvas(0);
+	gr_clear_canvas(*grd_curcanv, 0);
 	g3_start_frame();
 	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 

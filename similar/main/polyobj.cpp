@@ -709,7 +709,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 
 	Assert(mn<N_polygon_models);
 
-	gr_clear_canvas( BM_XRGB(0,0,0) );
+	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 	g3_start_frame();
 	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);

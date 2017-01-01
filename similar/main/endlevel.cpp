@@ -967,7 +967,7 @@ static void render_external_scene(fix eye_offset)
 	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
-	gr_clear_canvas(BM_XRGB(0,0,0));
+	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 
 	g3_start_instance_matrix(vmd_zero_vector,&surface_orient);
 	draw_stars();

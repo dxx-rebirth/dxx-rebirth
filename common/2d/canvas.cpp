@@ -90,9 +90,9 @@ void _gr_set_current_canvas(grs_canvas *canv)
 	_gr_set_current_canvas_inline(canv);
 }
 
-void gr_clear_canvas(color_t color)
+void gr_clear_canvas(grs_canvas &canvas, color_t color)
 {
-	gr_rect(*grd_curcanv, 0, 0, GWIDTH-1, GHEIGHT-1, color);
+	gr_rect(canvas, 0, 0, canvas.cv_bitmap.bm_w - 1, canvas.cv_bitmap.bm_h - 1, color);
 }
 
 void gr_settransblend(grs_canvas &canvas, const int fade_level, const uint8_t blend_func)

@@ -128,8 +128,7 @@ static int redraw_current_object()
 
 static void gr_label_box( int i)
 {
-
-	gr_clear_canvas(BM_XRGB(0,0,0));
+	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 	draw_object_picture(i, &objpage_view_orient, Cur_object_type);
 
 //	char s[20];
@@ -148,7 +147,7 @@ int objpage_goto_first()
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 		} else
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 	}
 
 	return 1;
@@ -165,7 +164,7 @@ static int objpage_goto_last()
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 		} else {
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 		}
 	}
 	return 1;
@@ -183,7 +182,7 @@ static int objpage_goto_prev()
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 			} else {
-				gr_clear_canvas( CGREY );
+				gr_clear_canvas(*grd_curcanv, CGREY);
 			}
 		}
 	}
@@ -202,7 +201,7 @@ static int objpage_goto_next()
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 			} else {
-				gr_clear_canvas( CGREY );
+				gr_clear_canvas(*grd_curcanv, CGREY);
 			}
 		}
 	}
@@ -224,7 +223,7 @@ int objpage_grab_current(int n)
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 			} else {
-				gr_clear_canvas( CGREY );
+				gr_clear_canvas(*grd_curcanv, CGREY);
 			}
 		}
 	}
@@ -374,7 +373,7 @@ int objpage_do(const d_event &event)
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 			} else {
-				gr_clear_canvas( CGREY );
+				gr_clear_canvas(*grd_curcanv, CGREY);
 			}
 		}
 		

@@ -1238,7 +1238,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 	if (Clear_window == 1) {
 		if (Clear_window_color == -1)
 			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
-		gr_clear_canvas(Clear_window_color);
+		gr_clear_canvas(*grd_curcanv, Clear_window_color);
 	}
 
 	render_mine(start_seg_num, eye_offset, window);

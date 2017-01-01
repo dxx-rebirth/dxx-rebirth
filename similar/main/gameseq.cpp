@@ -754,7 +754,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_set_current_canvas(NULL);
-	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
+	gr_clear_canvas(*grd_curcanv, BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
 	int load_ret = load_level(level_name);		//actually load the data from disk!
 
@@ -1361,7 +1361,7 @@ static void DoEndGame(void)
 
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		gr_set_current_canvas( NULL );
-		gr_clear_canvas(BM_XRGB(0,0,0));
+		gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 #if defined(DXX_BUILD_DESCENT_II)
 		load_palette(D2_DEFAULT_PALETTE,0,1);
 #endif

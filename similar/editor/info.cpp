@@ -293,7 +293,7 @@ static void info_display_default(int show_all)
 //	------------------------------------------------------------------------------------
 static void clear_pad_display(void)
 {
-	gr_clear_canvas(CWHITE);
+	gr_clear_canvas(*grd_curcanv, CWHITE);
    gr_set_fontcolor( CBLACK, CWHITE );
 }
 

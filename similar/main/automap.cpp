@@ -675,7 +675,7 @@ static void draw_automap(automap *am)
 
 	gr_set_current_canvas(&am->automap_view);
 
-	gr_clear_canvas(BM_XRGB(0,0,0));
+	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 
 	g3_start_frame();
 	render_start_frame();

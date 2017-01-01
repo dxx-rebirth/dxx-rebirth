@@ -250,7 +250,7 @@ void do_countdown_frame()
 
 		if (PaletteBlueAdd > 64 )	{
 			gr_set_current_canvas( NULL );
-			gr_clear_canvas(BM_XRGB(31,31,31));				//make screen all white to match palette effect
+			gr_clear_canvas(*grd_curcanv, BM_XRGB(31,31,31));				//make screen all white to match palette effect
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;
 			//gauge_message( "Control Center Reset" );

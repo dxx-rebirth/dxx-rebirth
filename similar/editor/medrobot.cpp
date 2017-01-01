@@ -635,7 +635,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		} else {
 			// no object, so just blank out
 			gr_set_current_canvas( r->robotViewBox->canvas );
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 
 	//		LocalObjectSelectNextInMine();
 		}
@@ -648,12 +648,12 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 			if ( Cur_goody_id > -1 )
 				draw_object_picture(Cur_goody_id, &r->goody_angles, Cur_goody_type);
 			else
-				gr_clear_canvas( CGREY );
+				gr_clear_canvas(*grd_curcanv, CGREY);
 			r->goody_angles.h += fixmul(0x1000, DeltaTime );
 		} else {
 			// no object, so just blank out
 			gr_set_current_canvas( r->containsViewBox->canvas );
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 
 	//		LocalObjectSelectNextInMine();
 		}

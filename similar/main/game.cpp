@@ -271,7 +271,7 @@ void reset_cockpit()
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
-	gr_clear_canvas(0);
+	gr_clear_canvas(*grd_curcanv, 0);
 	gr_init_sub_canvas(Screen_3d_window, grd_curscreen->sc_canvas, x, y, w, h);
 }
 

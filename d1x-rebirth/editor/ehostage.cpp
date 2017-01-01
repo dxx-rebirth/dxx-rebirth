@@ -348,11 +348,11 @@ static window_event_result hostage_dialog_handler(UI_DIALOG *dlg,const d_event &
 		if (CurrentHostageIndex > -1 )	{
 			gr_set_current_canvas( h->hostageViewBox->canvas );
 
-				gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 		} else {
 			// no hostage, so just blank out
 			gr_set_current_canvas( h->hostageViewBox->canvas );
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 		}
 	}
 

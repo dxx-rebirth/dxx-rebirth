@@ -445,7 +445,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 		gr_set_current_canvas( t->wallViewBox->canvas );
 
 		if (Markedsegp->sides[Markedside].wall_num == wall_none || vcwallptr(Markedsegp->sides[Markedside].wall_num)->trigger == trigger_none)
-			gr_clear_canvas( CBLACK );
+			gr_clear_canvas(*grd_curcanv, CBLACK);
 		else {
 			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
 				gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
@@ -454,7 +454,7 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 					PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
 					gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
 				} else
-					gr_clear_canvas( CGREY );
+					gr_clear_canvas(*grd_curcanv, CGREY);
 			}
 		}
 	}

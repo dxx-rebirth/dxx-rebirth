@@ -513,7 +513,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 				gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[WallAnims[w->clip_num].frames[wd->framenum]].index]);
 			} else {
 				if (type == WALL_OPEN)
-					gr_clear_canvas( CBLACK );
+					gr_clear_canvas(*grd_curcanv, CBLACK);
 				else {
 					if (Cursegp->sides[Curside].tmap_num2 > 0)
 						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
@@ -524,7 +524,7 @@ window_event_result wall_dialog_handler(UI_DIALOG *dlg,const d_event &event, wal
 				}
 			}
 		} else
-			gr_clear_canvas( CGREY );
+			gr_clear_canvas(*grd_curcanv, CGREY);
 	}
 
 	//------------------------------------------------------------
