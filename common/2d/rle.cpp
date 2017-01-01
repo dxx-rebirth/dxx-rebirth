@@ -469,12 +469,12 @@ void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyt
 	if ( x1+count > x2 )	{
 		count = x2-x1+1;
 		for ( int j=0; j<count; j++ )
-			gr_bm_pixel(dest, dx++, dy, color );
+			gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
 		return;
 	}
 
 	for ( int j=0; j<count; j++ )
-		gr_bm_pixel(dest, dx++, dy, color );
+		gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
 	i += count;
 
 	while( i <= x2 )		{
@@ -490,12 +490,12 @@ void gr_rle_expand_scanline_generic(grs_bitmap &dest, int dx, int dy, const ubyt
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
 			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(dest, dx++, dy, color );
+				gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
 			i += count;
 		} else {
 			count = x2-i+1;
 			for ( int j=0; j<count; j++ )
-				gr_bm_pixel(dest, dx++, dy, color );
+				gr_bm_pixel(*grd_curcanv, dest, dx++, dy, color);
 			i += count;
 		}
 	}

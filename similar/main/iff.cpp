@@ -496,7 +496,7 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 #if defined(DXX_BUILD_DESCENT_I)
 	for (int y=0; y < bm.bm_h; y++) {
 		for (int x=0; x < bmheader.w; x++)
-			gr_bm_pixel(bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));
+			gr_bm_pixel(*grd_curcanv, bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	uint16_t *new_data;

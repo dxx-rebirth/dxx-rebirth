@@ -72,11 +72,11 @@ static inline void gr_bm_upixel(grs_canvas &canvas, grs_bitmap &bm, const uint_f
 	}
 }
 
-void gr_bm_pixel(grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color )
+void gr_bm_pixel(grs_canvas &canvas, grs_bitmap &bm, const uint_fast32_t x, const uint_fast32_t y, const uint8_t color)
 {
 	if (unlikely(x >= bm.bm_w || y >= bm.bm_h))
 		return;
-	gr_bm_upixel(*grd_curcanv, bm, x, y, color);
+	gr_bm_upixel(canvas, bm, x, y, color);
 }
 
 }
