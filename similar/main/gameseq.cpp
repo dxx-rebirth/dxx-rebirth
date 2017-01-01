@@ -1023,7 +1023,7 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 	{
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
-			show_fullscr(*background);
+			show_fullscr(*grd_curcanv, *background);
 			break;
 			
 		default:

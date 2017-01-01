@@ -143,7 +143,7 @@ static window_event_result title_handler(window *, const d_event &event, title_s
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas( NULL );
-			show_fullscr(ts->title_bm);
+			show_fullscr(*grd_curcanv, ts->title_bm);
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -1129,7 +1129,7 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	auto bitmap_canv = gr_create_sub_canvas(*grd_curcanv, rescale_x(220), rescale_y(55), bmp->bm_w*scale, bmp->bm_h*scale);
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
-	show_fullscr(*bmp);
+	show_fullscr(*grd_curcanv, *bmp);
 	gr_set_current_canvas(curcanv_save);
 }
 
@@ -1282,7 +1282,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
 		gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 63;
 	}
-	show_fullscr(br->background);
+	show_fullscr(*grd_curcanv, br->background);
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor(NULL);
@@ -1303,7 +1303,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 
 	if ((pcx_error = pcx_read_bitmap(fname, br->background, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-	show_fullscr(br->background);
+	show_fullscr(*grd_curcanv, br->background);
 	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");
 
@@ -1524,7 +1524,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			check_text_pos(br);
 
 			if (br->background.bm_data)
-				show_fullscr(br->background);
+				show_fullscr(*grd_curcanv, br->background);
 
 			if (br->guy_bitmap_show)
 				show_briefing_bitmap(&br->guy_bitmap);

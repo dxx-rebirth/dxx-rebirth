@@ -142,7 +142,7 @@ static void nm_draw_background1(const char * filename)
 			(void)pcx_error;
 		}
 		gr_palette_load( gr_palette );
-		show_fullscr(nm_background1);
+		show_fullscr(*grd_curcanv, nm_background1);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	strcpy(last_palette_loaded,"");		//force palette load next time
@@ -191,14 +191,14 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_set_current_canvas(tmp);
 	gr_palette_load( gr_palette );
 
-	show_fullscr(nm_background); // show so we load all necessary data for the sub-bitmap
+	show_fullscr(*grd_curcanv, nm_background); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
-	show_fullscr(*nm_background_sub.get());
+	show_fullscr(*grd_curcanv, *nm_background_sub.get());
 
 	gr_set_current_canvas(old);
 

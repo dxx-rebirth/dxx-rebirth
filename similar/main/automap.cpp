@@ -624,7 +624,7 @@ static void draw_automap(automap *am)
 		am->leave_mode = 1;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(am->automap_background);
+	show_fullscr(*grd_curcanv, am->automap_background);
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	{

@@ -183,7 +183,7 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 			}
 			
 			y = cr->first_line_offset - cr->row;
-			show_fullscr(cr->backdrop);
+			show_fullscr(*grd_curcanv, cr->backdrop);
 			for (uint_fast32_t j=0; j != NUM_LINES; ++j, y += ROW_SPACING)
 			{
 				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
@@ -252,7 +252,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(cr->backdrop);
+	show_fullscr(*grd_curcanv, cr->backdrop);
 	gr_palette_load( gr_palette );
 
 	key_flush();
