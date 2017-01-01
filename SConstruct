@@ -3011,6 +3011,12 @@ class DXXCommon(LazyObjectConstructor):
 					('CXXFLAGS', getenv('CXXFLAGS'), 'C++ compiler flags'),
 					('LDFLAGS', getenv('LDFLAGS'), 'Linker flags'),
 					('LIBS', getenv('LIBS'), 'Libraries to link'),
+					# These are intentionally undocumented.  They are
+					# meant for developers who know the implications of
+					# using them.
+					('CPPFLAGS_unchecked', None, None),
+					('CXXFLAGS_unchecked', None, None),
+					('LINKFLAGS_unchecked', None, None),
 				),
 			},
 			{
@@ -3639,7 +3645,8 @@ class DXXArchive(DXXCommon):
 		builddir = fs.Dir(user_settings.builddir or '.')
 		tests = ConfigureTests(self.program_message_prefix, user_settings, self.platform_settings)
 		log_file=fs.File('sconf.log', builddir)
-		conf = self.env.Configure(custom_tests = {
+		env = self.env
+		conf = env.Configure(custom_tests = {
 				k.name:getattr(tests, k.name) for k in tests.custom_tests
 			},
 			conf_dir=fs.Dir('.sconf_temp', builddir),
@@ -3669,7 +3676,13 @@ class DXXArchive(DXXCommon):
 ''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
-		self.env.MergeFlags(self.configure_added_environment_flags)
+		add_flags = self.configure_added_environment_flags
+		CLVar = SCons.Util.CLVar
+		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS'):
+			value = getattr(user_settings, '%s_unchecked' % flags)
+			if value:
+				add_flags[flags] += CLVar(value)
+		env.MergeFlags(self.configure_added_environment_flags)
 
 class DXXProgram(DXXCommon):
 	static_archive_construction = {}
