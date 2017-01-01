@@ -166,7 +166,7 @@ static void con_draw(void)
 	const auto &&fspacy1 = FSPACY(1);
 	const auto &&line_spacing = LINE_SPACING;
 	y = fspacy1 + (line_spacing * con_size);
-	gr_rect(0, 0, SWIDTH, y, color);
+	gr_rect(*grd_curcanv, 0, 0, SWIDTH, y, color);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	i+=con_scroll_offset;
 
@@ -188,7 +188,7 @@ static void con_draw(void)
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
 			break;
 	}
-	gr_rect(0, 0, SWIDTH, line_spacing, color);
+	gr_rect(*grd_curcanv, 0, 0, SWIDTH, line_spacing, color);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 	gr_printf(fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
 	gr_string(SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");

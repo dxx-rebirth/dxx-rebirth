@@ -779,7 +779,7 @@ static void sb_show_score(const player_info &player_info, const local_multires_g
 
 	//erase old score
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_rect(x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING, color);
+	gr_rect(*grd_curcanv, x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING, color);
 
 	gr_string(x, y, score_str, w, h);
 }
@@ -821,7 +821,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 	} else {
 		//erase old score
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_rect(x,HUD_SCALE_Y(SB_SCORE_ADDED_Y),HUD_SCALE_X(SB_SCORE_ADDED_RIGHT),HUD_SCALE_Y(SB_SCORE_ADDED_Y)+LINE_SPACING, color);
+		gr_rect(*grd_curcanv, x,HUD_SCALE_Y(SB_SCORE_ADDED_Y),HUD_SCALE_X(SB_SCORE_ADDED_RIGHT),HUD_SCALE_Y(SB_SCORE_ADDED_Y)+LINE_SPACING, color);
 		score_time = 0;
 		score_display = 0;
 	}
@@ -1654,7 +1654,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 		int w, h;
 		gr_get_string_size(killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
-		gr_rect(exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING, color);
+		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING, color);
 		gr_string(x, HUD_SCALE_Y(y), killed_str, w, h);
 		return;
 	}
@@ -1662,7 +1662,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 	const int x = SB_LIVES_X;
 	//erase old icons
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
-	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h), color);
 
 	if (get_local_player().lives-1 > 0) {
 		gr_set_curfont( GAME_FONT );
@@ -2057,7 +2057,7 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 		const int right = HUD_SCALE_X(afterburner_gauge_x + ab.r + 1);
 		for (int i = HUD_SCALE_Y(y), j = HUD_SCALE_Y(++y); i < j; ++i)
 		{
-			gr_rect (left, base_top + i, right, base_bottom + i, color);
+			gr_rect (*grd_curcanv, left, base_top + i, right, base_bottom + i, color);
 		}
 	}
 	gr_set_current_canvas( NULL );
@@ -2142,7 +2142,7 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
 	gr_settransblend(*grd_curcanv, cloak_fade_value, GR_BLEND_NORMAL);
-	gr_rect(HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), 0);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), 0);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
 
@@ -2200,9 +2200,9 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1), color);
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot), color);
 #endif
 	const auto &picture = 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2414,7 +2414,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(*grd_curcanv, fade_value, GR_BLEND_NORMAL);
-		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot), 0);
+		gr_rect(*grd_curcanv, HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot), 0);
 
 		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	}

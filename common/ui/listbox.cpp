@@ -57,7 +57,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	w = listbox->width;
 	h = listbox->height;
 
-	gr_rect( 0, 0, w-1, h-1, CBLACK);
+	gr_rect(*grd_curcanv, 0, 0, w-1, h-1, CBLACK);
 	
 	gr_draw_sunken_border( -2, -2, w+listbox->scrollbar->width+4, h+1);
 	
@@ -73,7 +73,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 		uint8_t color = (i == listbox->current_item)
 			? CGREY
 			: CBLACK;
-		gr_rect(x, y, listbox->width - 1, y + h - 1, color);
+		gr_rect(*grd_curcanv, x, y, listbox->width - 1, y + h - 1, color);
 
 		if (i !=listbox->current_item)
 		{
@@ -96,7 +96,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 
 	if (stop < listbox->num_items_displayed-1 )
 	{
-		gr_rect( x, y, listbox->width-1, listbox->height-1, CBLACK);
+		gr_rect(*grd_curcanv, x, y, listbox->width-1, listbox->height-1, CBLACK);
 	}
 
 	//gr_ubox( -1, -1, listbox->width, listbox->height);

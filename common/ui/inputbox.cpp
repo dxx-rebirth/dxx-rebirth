@@ -40,7 +40,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	{
 		gr_set_current_canvas( inputbox->canvas );
 
-		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
+		gr_rect(*grd_curcanv, 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
 		
 		int w, h;
 		gr_get_string_size(inputbox->text.get(), &w, &h, nullptr);
@@ -49,7 +49,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 			if (inputbox->first_time)
 			{
 				gr_set_fontcolor( CBLACK, -1 );
-				gr_rect(2, 2, 2 + w, 2 + h, CRED);
+				gr_rect(*grd_curcanv, 2, 2, 2 + w, 2 + h, CRED);
 			}
 			else
 				gr_set_fontcolor( CRED, -1 );

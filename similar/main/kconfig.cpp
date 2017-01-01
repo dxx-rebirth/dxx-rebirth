@@ -904,18 +904,18 @@ static void kconfig_draw(kc_menu *menu)
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
 		const auto &&fspacy42 = fspacy(42);
-		gr_rect(fspacx98, fspacy42, fspacx(106), fspacy42, color); // horiz/left
-		gr_rect(fspacx(120), fspacy42, fspacx128, fspacy42, color); // horiz/right
+		gr_rect(*grd_curcanv, fspacx98, fspacy42, fspacx(106), fspacy42, color); // horiz/left
+		gr_rect(*grd_curcanv, fspacx(120), fspacy42, fspacx128, fspacy42, color); // horiz/right
 		const auto &&fspacy44 = fspacy(44);
-		gr_rect(fspacx98, fspacy42, fspacx98, fspacy44, color); // vert/left
-		gr_rect(fspacx128, fspacy42, fspacx128, fspacy44, color); // vert/right
+		gr_rect(*grd_curcanv, fspacx98, fspacy42, fspacx98, fspacy44, color); // vert/left
+		gr_rect(*grd_curcanv, fspacx128, fspacy42, fspacx128, fspacy44, color); // vert/right
 
 		const auto &&fspacx253 = fspacx(253);
 		const auto &&fspacx283 = fspacx(283);
-		gr_rect(fspacx253, fspacy42, fspacx(261), fspacy42, color); // horiz/left
-		gr_rect(fspacx(275), fspacy42, fspacx283, fspacy42, color); // horiz/right
-		gr_rect(fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
-		gr_rect(fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
+		gr_rect(*grd_curcanv, fspacx253, fspacy42, fspacx(261), fspacy42, color); // horiz/left
+		gr_rect(*grd_curcanv, fspacx(275), fspacy42, fspacx283, fspacy42, color); // horiz/right
+		gr_rect(*grd_curcanv, fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
+		gr_rect(*grd_curcanv, fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
 
 		kc_gr_2y_string("OR", fspacy(40), fspacx(109), fspacx(264));
 	}
@@ -939,19 +939,19 @@ static void kconfig_draw(kc_menu *menu)
 		const uint8_t color = BM_XRGB(31, 27, 6);
 		const auto &&fspacx115 = fspacx(115);
 		const auto &&fspacy40 = fspacy(40);
-		gr_rect(fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
+		gr_rect(*grd_curcanv, fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
 		const auto &&fspacx145 = fspacx(145);
-		gr_rect(fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
+		gr_rect(*grd_curcanv, fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
 		const auto &&fspacx261 = fspacx(261);
-		gr_rect(fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
+		gr_rect(*grd_curcanv, fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
 		const auto &&fspacx291 = fspacx(291);
-		gr_rect(fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
+		gr_rect(*grd_curcanv, fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
 
 		const auto &&fspacy42 = fspacy(42);
-		gr_rect(fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
-		gr_rect(fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
-		gr_rect(fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
-		gr_rect(fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
+		gr_rect(*grd_curcanv, fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
+		gr_rect(*grd_curcanv, fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
+		gr_rect(*grd_curcanv, fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
+		gr_rect(*grd_curcanv, fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
 
 		const auto &&fspacy38 = fspacy(38);
 		kc_gr_2y_string("OR", fspacy38, fspacx(126), fspacx(272));

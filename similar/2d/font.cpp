@@ -663,7 +663,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 				if (underline)
 				{
 					const uint8_t color = grd_curcanv->cv_font_fg_color;
-					gr_rect(xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
+					gr_rect(*grd_curcanv, xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
 				}
 
 				continue;

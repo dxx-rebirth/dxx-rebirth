@@ -92,7 +92,7 @@ void _gr_set_current_canvas(grs_canvas *canv)
 
 void gr_clear_canvas(color_t color)
 {
-	gr_rect(0,0,GWIDTH-1,GHEIGHT-1, color);
+	gr_rect(*grd_curcanv, 0, 0, GWIDTH-1, GHEIGHT-1, color);
 }
 
 void gr_settransblend(grs_canvas &canvas, const int fade_level, const uint8_t blend_func)

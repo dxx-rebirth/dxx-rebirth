@@ -221,7 +221,7 @@ void gr_ubitmapm(grs_canvas &, unsigned x, unsigned y, grs_bitmap &bm);
 #endif
 
 // Draw a rectangle into the current canvas.
-void gr_rect(int left,int top,int right,int bot, uint8_t color);
+void gr_rect(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
 void gr_urect(grs_canvas &, int left,int top,int right,int bot, uint8_t color);
 
 // Draw a filled circle
