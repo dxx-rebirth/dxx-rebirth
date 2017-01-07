@@ -297,8 +297,13 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 namespace dsx {
 static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjptr_t obj)
 {
-	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
+	*obj = {};
+	DXX_POISON_VAR(*obj, 0xfd);
 	set_object_type(*obj, obj_rw->type);
+	if (obj->type == OBJ_NONE)
+		return;
+
+	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj->id            = obj_rw->id;
 	obj->next          = obj_rw->next;
 	obj->prev          = obj_rw->prev;
