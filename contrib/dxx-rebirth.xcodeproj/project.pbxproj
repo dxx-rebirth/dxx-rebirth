@@ -416,7 +416,6 @@
 		14F8A9E61A2D6320003AA93A /* screens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = screens.h; sourceTree = "<group>"; };
 		14F8A9E71A2D6320003AA93A /* segiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segiter.h; sourceTree = "<group>"; };
 		14F8A9E81A2D6320003AA93A /* segment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segment.h; sourceTree = "<group>"; };
-		14F8A9E91A2D6320003AA93A /* segnum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segnum.h; sourceTree = "<group>"; };
 		14F8A9EA1A2D6320003AA93A /* segpoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segpoint.h; sourceTree = "<group>"; };
 		14F8A9EB1A2D6320003AA93A /* slew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slew.h; sourceTree = "<group>"; };
 		14F8A9EC1A2D6320003AA93A /* songs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = songs.h; sourceTree = "<group>"; };
@@ -667,6 +666,11 @@
 		14F8AB1E1A2D6320003AA93A /* weapon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weapon.cpp; sourceTree = "<group>"; };
 		14F8AB221A2D6320003AA93A /* args.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = args.cpp; sourceTree = "<group>"; };
 		14F8AB241A2D6320003AA93A /* physfsx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = physfsx.cpp; sourceTree = "<group>"; usesTabs = 1; };
+		EB0A29001E20CEF700D7680F /* cpp-valptridx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "cpp-valptridx.h"; sourceTree = "<group>"; };
+		EB0A29011E20CEF700D7680F /* dsx-ns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dsx-ns.h"; sourceTree = "<group>"; };
+		EB0A29021E20CF5E00D7680F /* vg-wrap-physfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "vg-wrap-physfs.h"; sourceTree = "<group>"; };
+		EB0A29031E20CF5E00D7680F /* vgrphys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vgrphys.cpp; sourceTree = "<group>"; };
+		EB0A29041E20CF5E00D7680F /* vgwphys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vgwphys.cpp; sourceTree = "<group>"; };
 		EB46A1D81C67537900C2C377 /* ogl_extensions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ogl_extensions.cpp; sourceTree = "<group>"; };
 		EB46A1D91C67537900C2C377 /* ogl_sync.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ogl_sync.cpp; sourceTree = "<group>"; };
 		EB46A1DA1C6753B400C2C377 /* event.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event.cpp; sourceTree = "<group>"; };
@@ -953,9 +957,11 @@
 				14F8A9681A2D6320003AA93A /* compiler-type_traits.h */,
 				14F8A9691A2D6320003AA93A /* console.h */,
 				14F8A96A1A2D6320003AA93A /* countarray.h */,
+				EB0A29001E20CEF700D7680F /* cpp-valptridx.h */,
 				14F8A96B1A2D6320003AA93A /* digi_audio.h */,
 				14F8A96D1A2D6320003AA93A /* digi_mixer_music.h */,
 				14F8A96C1A2D6320003AA93A /* digi_mixer.h */,
+				EB0A29011E20CEF700D7680F /* dsx-ns.h */,
 				14F8A96E1A2D6320003AA93A /* dxxerror.h */,
 				14F8A9821A2D6320003AA93A /* editor */,
 				14F8A9831A2D6320003AA93A /* event.h */,
@@ -1087,7 +1093,6 @@
 				14F8A9E61A2D6320003AA93A /* screens.h */,
 				14F8A9E71A2D6320003AA93A /* segiter.h */,
 				14F8A9E81A2D6320003AA93A /* segment.h */,
-				14F8A9E91A2D6320003AA93A /* segnum.h */,
 				14F8A9EA1A2D6320003AA93A /* segpoint.h */,
 				14F8A9EB1A2D6320003AA93A /* slew.h */,
 				14F8A9EC1A2D6320003AA93A /* songs.h */,
@@ -1127,6 +1132,9 @@
 				14F8AA001A2D6320003AA93A /* hmp.cpp */,
 				14F8AA011A2D6320003AA93A /* ignorecase.cpp */,
 				14F8AA021A2D6320003AA93A /* strutil.cpp */,
+				EB0A29031E20CF5E00D7680F /* vgrphys.cpp */,
+				EB0A29041E20CF5E00D7680F /* vgwphys.cpp */,
+				EB0A29021E20CF5E00D7680F /* vg-wrap-physfs.h */,
 			);
 			path = misc;
 			sourceTree = "<group>";
