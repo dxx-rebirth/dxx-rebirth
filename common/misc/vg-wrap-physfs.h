@@ -1,4 +1,3 @@
-#include <physfs.h>
 #include "dxxsconf.h"
 
 #ifndef DXX_ENABLE_wrap_PHYSFS_write
@@ -6,6 +5,7 @@
 #endif
 
 #if DXX_ENABLE_wrap_PHYSFS_write
+#include <physfs.h>
 extern "C" {
 	DXX_VG_DECLARE_EXTERN_C(PHYSFS_write);
 	DXX_VG_DECLARE_EXTERN_C(PHYSFS_writeSBE16);
@@ -15,6 +15,10 @@ extern "C" {
 	DXX_VG_DECLARE_EXTERN_C(PHYSFS_writeULE16);
 	DXX_VG_DECLARE_EXTERN_C(PHYSFS_writeULE32);
 }
+
+#ifdef DXX_VG_DECLARE_WRITE_HELPER
+DXX_VG_DECLARE_WRITE_HELPER;
+#endif
 
 DXX_VG_DEFINE_WRITE(PHYSFS_writeSBE16, PHYSFS_sint16);
 DXX_VG_DEFINE_WRITE(PHYSFS_writeSBE32, PHYSFS_sint32);

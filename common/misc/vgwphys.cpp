@@ -7,6 +7,7 @@
 		return __real_##F(file, val);	\
 	}
 
+#define DXX_VG_DECLARE_WRITE_HELPER	\
 static void dxx_vg_wrap_check_value(const void *, const void *, unsigned long);
 
 #include "vg-wrap-physfs.h"
@@ -25,6 +26,9 @@ static void dxx_vg_wrap_check_value(const void *const ret, const void *const val
 PHYSFS_sint64 __wrap_PHYSFS_write(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint32 objSize, const PHYSFS_uint32 objCount)
 {
 	const uint8_t *p = reinterpret_cast<const uint8_t *>(buffer);
+	/* Check each object individually so that any diagnosed errors are
+	 * more precise.
+	 */
 	for (PHYSFS_uint32 i = 0; i != objCount; ++i, p += objSize)
 	{
 		if (const auto o = VALGRIND_CHECK_MEM_IS_DEFINED(p, objSize))
