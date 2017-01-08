@@ -79,8 +79,8 @@ static array<grs_font *, MAX_OPEN_FONTS> open_font;
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
-static int gr_internal_string_clipped(int x, int y, const char *s );
-static int gr_internal_string_clipped_m(int x, int y, const char *s );
+static int gr_internal_string_clipped(grs_canvas &, int x, int y, const char *s );
+static int gr_internal_string_clipped_m(grs_canvas &, int x, int y, const char *s );
 
 static const uint8_t *find_kern_entry(const grs_font &font, const uint8_t first, const uint8_t second)
 {
@@ -750,11 +750,11 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 
 	if ( grd_curcanv->cv_font_bg_color == -1)
 	{
-		gr_internal_string_clipped_m( x, y, s );
+		gr_internal_string_clipped_m(*grd_curcanv, x, y, s);
 		return;
 	}
 
-	gr_internal_string_clipped( x, y, s );
+	gr_internal_string_clipped(*grd_curcanv, x, y, s);
 }
 
 void gr_ustring(int x, int y, const char *s )
@@ -1190,14 +1190,14 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, int x, int y,
 	return 0;
 }
 
-static int gr_internal_string_clipped_m(int x, int y, const char *s )
+static int gr_internal_string_clipped_m(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
-	return gr_internal_string_clipped_template<true>(*grd_curcanv, x, y, s);
+	return gr_internal_string_clipped_template<true>(canvas, x, y, s);
 }
 
-static int gr_internal_string_clipped(int x, int y, const char *s )
+static int gr_internal_string_clipped(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
-	return gr_internal_string_clipped_template<false>(*grd_curcanv, x, y, s);
+	return gr_internal_string_clipped_template<false>(canvas, x, y, s);
 }
 
 }
