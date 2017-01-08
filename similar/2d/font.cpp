@@ -605,12 +605,12 @@ static void ogl_init_font(grs_font * font)
 	ogl_loadbmtexture_f(font->ft_parent_bitmap, CGameCfg.TexFilt, 0, 0);
 }
 
-static int ogl_internal_string(int x, int y, const char *s )
+static int ogl_internal_string(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
 	const char * text_ptr, * next_row, * text_ptr1;
 	int letter;
 	int xx,yy;
-	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
+	int orig_color = canvas.cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
 	int underline;
 
 	next_row = s;
@@ -620,7 +620,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 	if (grd_curscreen->sc_canvas.cv_bitmap.get_type() != bm_mode::ogl)
 		Error("carp.\n");
 	const auto &&fspacy1 = FSPACY(1);
-	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &cv_font = *canvas.cv_font;
 	const auto &&INFONT = font_character_extent(cv_font);
 	const auto &&fontscale_x = FONTSCALE_X();
 	const auto &&FONTSCALE_Y_ft_h = FONTSCALE_Y(cv_font.ft_h);
@@ -662,8 +662,8 @@ static int ogl_internal_string(int x, int y, const char *s )
 				
 				if (underline)
 				{
-					const uint8_t color = grd_curcanv->cv_font_fg_color;
-					gr_rect(*grd_curcanv, xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
+					const uint8_t color = canvas.cv_font_fg_color;
+					gr_rect(canvas, xx, yy + cv_font.ft_baseline + 2, xx + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
 				}
 
 				continue;
@@ -673,7 +673,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 				? cv_font.ft_widths[letter]
 				: cv_font.ft_w;
 
-			ogl_ubitmapm_cs(*grd_curcanv, xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (grd_curcanv->cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(grd_curcanv->cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
+			ogl_ubitmapm_cs(canvas, xx, yy, fontscale_x(ft_w), FONTSCALE_Y_ft_h, cv_font.ft_bitmaps[letter], (cv_font.ft_flags & FT_COLOR) ? colors.white : (canvas.cv_bitmap.get_type() == bm_mode::ogl) ? colors.init(canvas.cv_font_fg_color) : throw std::runtime_error("non-color string to non-ogl dest"), F1_0);
 
 			xx += spacing;
 
@@ -684,7 +684,7 @@ static int ogl_internal_string(int x, int y, const char *s )
 }
 
 static int gr_internal_color_string(int x, int y, const char *s ){
-	return ogl_internal_string(x,y,s);
+	return ogl_internal_string(*grd_curcanv, x, y, s);
 }
 #endif //OGL
 
@@ -761,7 +761,7 @@ void gr_ustring(int x, int y, const char *s )
 #if DXX_USE_OGL
 	if (TYPE==bm_mode::ogl)
 	{
-		ogl_internal_string(x,y,s);
+		ogl_internal_string(*grd_curcanv, x, y, s);
 		return;
 	}
 #endif
