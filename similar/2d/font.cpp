@@ -1078,7 +1078,7 @@ void gr_set_fontcolor( int fg_color, int bg_color )
 }
 
 template <bool masked_draws_background>
-static int gr_internal_string_clipped_template(int x, int y, const char *s)
+static int gr_internal_string_clipped_template(grs_canvas &canvas, int x, int y, const char *const s)
 {
 	const char * text_ptr, * next_row, * text_ptr1;
 	int letter;
@@ -1086,11 +1086,11 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 
 	next_row = s;
 
-	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &cv_font = *canvas.cv_font;
 	const auto &&INFONT = font_character_extent(cv_font);
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
-	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
+	const auto cv_font_bg_color = canvas.cv_font_bg_color;
 
 	while (next_row != NULL )
 	{
@@ -1116,7 +1116,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 				}
 				if (c0 == CC_COLOR)
 				{
-					grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
+					canvas.cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
 					continue;
 				}
 
@@ -1141,14 +1141,14 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 					x += spacing;
 					continue;
 				}
-				const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
+				const auto cv_font_fg_color = canvas.cv_font_fg_color;
 				auto color = cv_font_fg_color;
 				if (width)
 				{
 				if (underline)	{
 					for (uint_fast32_t i = width; i--;)
 					{
-						gr_pixel(*grd_curcanv, x++, y, color);
+						gr_pixel(canvas, x++, y, color);
 					}
 				} else {
 					auto fp = proportional ? cv_font.ft_chars[letter] : cv_font.ft_data + letter * BITS_TO_BYTES(width) * cv_font.ft_h;
@@ -1178,7 +1178,7 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 							if (!bit_enabled)
 								continue;
 						}
-						gr_pixel(*grd_curcanv, x, y, color);
+						gr_pixel(canvas, x, y, color);
 					}
 				}
 				}
@@ -1192,12 +1192,12 @@ static int gr_internal_string_clipped_template(int x, int y, const char *s)
 
 static int gr_internal_string_clipped_m(int x, int y, const char *s )
 {
-	return gr_internal_string_clipped_template<true>(x, y, s);
+	return gr_internal_string_clipped_template<true>(*grd_curcanv, x, y, s);
 }
 
 static int gr_internal_string_clipped(int x, int y, const char *s )
 {
-	return gr_internal_string_clipped_template<false>(x, y, s);
+	return gr_internal_string_clipped_template<false>(*grd_curcanv, x, y, s);
 }
 
 }
