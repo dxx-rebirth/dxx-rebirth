@@ -58,7 +58,7 @@ std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, sh
 	auto &up = "\x1e";
 	auto &down = "\x1f";
 
-	gr_get_string_size(up, &tw, nullptr, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, up, &tw, nullptr, nullptr);
 
 	w = tw + 10;
 

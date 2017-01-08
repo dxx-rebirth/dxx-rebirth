@@ -694,7 +694,7 @@ static void put_char_delay(briefing *br, char ch)
 	br->streamcount++;
 
 	br->prev_ch = ch;
-	gr_get_string_size(str, &w, nullptr, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, str, &w, nullptr, nullptr);
 	br->text_x += w;
 
 #if defined(DXX_BUILD_DESCENT_II)

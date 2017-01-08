@@ -276,7 +276,7 @@ static void scores_rputs(int x, int y, char *buffer)
 		if (*p=='1') *p=132;
 
 	int w, h;
-	gr_get_string_size(buffer, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, buffer, &w, &h, nullptr);
 
 	gr_string(*grd_curcanv, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }

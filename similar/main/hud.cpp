@@ -248,7 +248,7 @@ void player_dead_message(void)
 		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h;
 			gr_set_curfont( HUGE_FONT );
-			gr_get_string_size(TXT_GAME_OVER, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, TXT_GAME_OVER, &w, &h, nullptr);
 			const int gw = w;
 			const int gh = h;
 			w += 20;

@@ -252,7 +252,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 			}
 			measure[0]=s2[i];
 			int tx, th;
-			gr_get_string_size(measure, &tx, &th, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, measure, &tx, &th, nullptr);
 			gr_string(*grd_curcanv, x, y, measure, tx, th);
 			x+=tx;
 		}
@@ -262,7 +262,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 
 	if (!tabs_flag && p && (w1>0) ) {
 		int w, h;
-		gr_get_string_size(s1, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, s1, &w, &h, nullptr);
 
 		gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
 
@@ -287,7 +287,7 @@ static void nm_string_slider( int w1,int x, int y, char * s )
 
 	if (p)	{
 		int w, h;
-		gr_get_string_size(s1, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, s1, &w, &h, nullptr);
 		gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
 
 		*p = '\t';
@@ -299,7 +299,7 @@ static void nm_string_slider( int w1,int x, int y, char * s )
 static void nm_string_black( int w1,int x, int y, const char * s )
 {
 	int w,h;
-	gr_get_string_size(s, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 
 	if (w1 == 0) w1 = w;
 
@@ -326,7 +326,7 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 static void nm_rstring( int w1,int x, int y, const char * s )
 {
 	int w, h;
-	gr_get_string_size(s, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 	x -= FSPACX(3);
 
 	if (w1 == 0) w1 = w;
@@ -341,7 +341,7 @@ static void nm_string_inputbox( int w, int x, int y, const char * text, int curr
 	if (strlen(text)>75)
 		text+=strlen(text)-75;
 	while( *text )	{
-		gr_get_string_size(text, &w1, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, text, &w1, nullptr, nullptr);
 		if ( w1 > w-FSPACX(10) )
 			text++;
 		else
@@ -779,7 +779,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 					if (menu->scroll_offset != 0) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*grd_curcanv->cv_font, UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -790,7 +790,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*grd_curcanv->cv_font, DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -827,10 +827,10 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 							}
 							if (p) {
 								int slider_width, sleft_width, sright_width, smiddle_width;
-								gr_get_string_size(s1, &slider_width, nullptr, nullptr);
-								gr_get_string_size(SLIDER_LEFT, &sleft_width, nullptr, nullptr);
-								gr_get_string_size(SLIDER_RIGHT, &sright_width, nullptr, nullptr);
-								gr_get_string_size(SLIDER_MIDDLE, &smiddle_width, nullptr, nullptr);
+								gr_get_string_size(*grd_curcanv->cv_font, s1, &slider_width, nullptr, nullptr);
+								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_LEFT, &sleft_width, nullptr, nullptr);
+								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_RIGHT, &sright_width, nullptr, nullptr);
+								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_MIDDLE, &smiddle_width, nullptr, nullptr);
 
 								x1 = grd_curcanv->cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
@@ -1215,14 +1215,14 @@ static void newmenu_create_structure( newmenu *menu )
 	if ( menu->title )	{
 		gr_set_curfont(HUGE_FONT);
 		int string_width, string_height;
-		gr_get_string_size(menu->title, &string_width, &string_height, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
 		tw = string_width;
 		th = string_height;
 	}
 	if ( menu->subtitle )	{
 		gr_set_curfont(MEDIUM3_FONT);
 		int string_width, string_height;
-		gr_get_string_size(menu->subtitle, &string_width, &string_height, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, menu->subtitle, &string_width, &string_height, nullptr);
 		if (string_width > tw )
 			tw = string_width;
 		th += string_height;
@@ -1243,7 +1243,7 @@ static void newmenu_create_structure( newmenu *menu )
 	{
 		i.y = menu->h;
 		int string_width, string_height, average_width;
-		gr_get_string_size(i.text,&string_width,&string_height,&average_width);
+		gr_get_string_size(*grd_curcanv->cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
 
 		i.saved_text[0] = '\0';
@@ -1259,7 +1259,7 @@ static void newmenu_create_structure( newmenu *menu )
 				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
 			}
 			index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_RIGHT);
-			gr_get_string_size(i.saved_text.data(), &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
 			string_width += w1 + aw;
 		}
 
@@ -1272,9 +1272,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1283,9 +1283,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1297,10 +1297,10 @@ static void newmenu_create_structure( newmenu *menu )
 			nothers++;
 			auto &number = i.number();
 			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
-			gr_get_string_size(test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, test_text, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			snprintf(test_text, sizeof(test_text), "%d", number.min_value);
-			gr_get_string_size(test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, test_text, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1464,7 +1464,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(HUGE_FONT);
 		gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
 		int string_width, string_height;
-		gr_get_string_size(menu->title, &string_width, &string_height, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
 		th = string_height;
 		gr_string(*grd_curcanv, 0x8000, ty, menu->title, string_width, string_height);
 	}
@@ -1751,7 +1751,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 					if (i >= lb->nitems)
 						break;
 					int h;
-					gr_get_string_size(lb->item[i], nullptr, &h, nullptr);
+					gr_get_string_size(*grd_curcanv->cv_font, lb->item[i], nullptr, &h, nullptr);
 					x1 = lb->box_x;
 					x2 = lb->box_x + lb->box_w;
 					y1 = (i - lb->first_item) * line_spacing + lb->box_y;
@@ -1770,7 +1770,7 @@ static window_event_result listbox_mouse(window *, const d_event &event, listbox
 					return window_event_result::ignored;
 
 				mouse_get_pos(&mx, &my, &mz);
-				gr_get_string_size(lb->item[lb->citem], nullptr, &h, nullptr);
+				gr_get_string_size(*grd_curcanv->cv_font, lb->item[lb->citem], nullptr, &h, nullptr);
 				x1 = lb->box_x;
 				x2 = lb->box_x + lb->box_w;
 				y1 = (lb->citem-lb->first_item)*LINE_SPACING+lb->box_y;
@@ -1902,7 +1902,7 @@ static void listbox_create_structure( listbox *lb)
 	range_for (auto &i, unchecked_partial_range(lb->item, lb->nitems))
 	{
 		int w;
-		gr_get_string_size(i, &w, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, i, &w, nullptr, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w + fspacx(10);
 	}
@@ -1910,7 +1910,7 @@ static void listbox_create_structure( listbox *lb)
 
 	{
 		int w, h;
-		gr_get_string_size(lb->title, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, lb->title, &w, &h, nullptr);
 		if ( w > lb->box_w )
 			lb->box_w = w;
 		lb->title_height = h+FSPACY(5);
@@ -1923,7 +1923,7 @@ static void listbox_create_structure( listbox *lb)
 		int w;
 
 		lb->box_w = SWIDTH - (BORDERX*2);
-		gr_get_string_size("O", &w, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, "O", &w, nullptr, nullptr);
 		lb->marquee_maxchars = lb->box_w/w;
 		lb->marquee_lasttime = timer_query();
 	}

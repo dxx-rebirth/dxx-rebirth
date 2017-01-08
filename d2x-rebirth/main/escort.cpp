@@ -1827,7 +1827,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	gr_set_curfont( GAME_FONT );
 
-	gr_get_string_size(msg, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
 
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

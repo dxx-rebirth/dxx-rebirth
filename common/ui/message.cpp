@@ -126,7 +126,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		if ( height > button_height ) button_height = height;
 	}
 
-	gr_get_string_size(text, &text_width, &text_height, &avg );
+	gr_get_string_size(*grd_curcanv->cv_font, text, &text_width, &text_height, &avg);
 
 	width = button_width*Button.count();
 	width += BUTTON_HORZ_SPACING*(Button.count()+1);

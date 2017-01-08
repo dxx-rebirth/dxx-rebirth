@@ -301,7 +301,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			gr_set_current_canvas(NULL);
 			gr_set_curfont( GAME_FONT );
 
-			gr_get_string_size(msg, nullptr, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, msg, nullptr, &h, nullptr);
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 

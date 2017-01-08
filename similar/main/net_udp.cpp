@@ -1143,7 +1143,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				continue;
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
 			int tx;
-			gr_get_string_size (thold, &tx, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
 
 			if ((x += tx) >= fspacx(55))
 			{
@@ -1162,7 +1162,7 @@ static int net_udp_list_join_poll( newmenu *menu,const d_event &event, direct_jo
 				continue;
 			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
 			int tx;
-			gr_get_string_size (thold, &tx, nullptr, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, thold, &tx, nullptr, nullptr);
 
 			if ((x += tx) >= fspacx(55))
 			{

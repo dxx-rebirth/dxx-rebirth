@@ -692,7 +692,7 @@ static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y
 void gr_string(const int x, const int y, const char *const s)
 {
 	int w, h;
-	gr_get_string_size(s, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 	gr_string(*grd_curcanv, x, y, s, w, h);
 }
 
@@ -774,11 +774,10 @@ void gr_ustring(int x, int y, const char *s )
 		gr_ustring_mono(*grd_curcanv, x, y, s);
 }
 
-void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
+void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
 {
 	float longest_width=0.0,string_width_f=0.0;
 	unsigned lines = 0;
-	const auto &cv_font = *grd_curcanv->cv_font;
 	if (average_width)
 		*average_width = cv_font.ft_w;
 	if (!string_width && !string_height)

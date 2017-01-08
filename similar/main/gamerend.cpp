@@ -908,7 +908,7 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
 	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(msg, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;

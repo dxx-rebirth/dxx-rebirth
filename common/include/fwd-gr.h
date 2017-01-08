@@ -282,7 +282,7 @@ void gr_printt(int x, int y, const char *format, ...) __attribute_format_printf(
 #define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2),(F),##__VA_ARGS__)
 #define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
 std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit);
-void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width);
+void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width);
 
 // From scale.c
 void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation);

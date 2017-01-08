@@ -862,14 +862,14 @@ static int get_item_height(const kc_item &item, const kc_mitem &mitem)
 	btext = get_item_text(item, mitem, buf);
 	if (!btext)
 		return 0;
-	gr_get_string_size(btext, nullptr, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, btext, nullptr, &h, nullptr);
 	return h;
 }
 
 static void kc_gr_2y_string(const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
 {
 	int w, h;
-	gr_get_string_size(s, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 	gr_string(*grd_curcanv, x0, y, s, w, h);
 	gr_string(*grd_curcanv, x1, y, s, w, h);
 }
@@ -1377,7 +1377,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			r = 16 * 2, g = 0, b = 19 * 2;
 
 		int x, w, h;
-		gr_get_string_size(btext, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, btext, &w, &h, nullptr);
 		const uint8_t color = gr_find_closest_color(r, g, b);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
@@ -1406,7 +1406,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
 	int w, h;
-	gr_get_string_size("?", &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, "?", &w, &h, nullptr);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();

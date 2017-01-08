@@ -55,7 +55,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		icon->status = 0;
 
 		gr_set_current_canvas( icon->canvas );
-		gr_get_string_size(icon->text.get(), &width, &height, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, icon->text.get(), &width, &height, nullptr);
 	
 		x = ((icon->width-1)/2)-((width-1)/2);
 		y = ((icon->height-1)/2)-((height-1)/2);

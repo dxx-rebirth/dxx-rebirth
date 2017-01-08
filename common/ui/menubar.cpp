@@ -828,7 +828,7 @@ int menubar_init( const char * file )
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size(item.Text.get(), &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, item.Text.get(), &w, &h, nullptr);
 			w += 2;
 			h += 2;
 		}

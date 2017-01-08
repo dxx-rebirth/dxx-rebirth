@@ -686,7 +686,7 @@ static void hud_show_score(const player_info &player_info)
 	gr_set_fontcolor(Color_0_31_0, -1);
 
 	int	w, h;
-	gr_get_string_size(score_str, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 	gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
 }
 
@@ -714,7 +714,7 @@ static void hud_show_timer_count()
 			char score_str[20];
 			snprintf(score_str, sizeof(score_str), "T - %5d", i);
 			int w, h;
-			gr_get_string_size(score_str, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 			gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
 		}
 	}
@@ -748,7 +748,7 @@ static void hud_show_score_added()
 
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
 		int w, h;
-		gr_get_string_size(score_str, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 		gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING + FSPACY(1), score_str, w, h);
 	} else {
 		score_time = 0;
@@ -772,7 +772,7 @@ static void sb_show_score(const player_info &player_info, const local_multires_g
 			? player_info.net_kills_total
 			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player_info.mission.score));
 	int	w, h;
-	gr_get_string_size(score_str, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 
 	x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
 	y = HUD_SCALE_Y(SB_SCORE_Y);
@@ -814,7 +814,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
 		int w, h;
-		gr_get_string_size(score_str, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 		x = HUD_SCALE_X(SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
 		gr_string(*grd_curcanv, x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str, w, h);
@@ -1083,7 +1083,7 @@ static void show_bomb_count(const player_info &player_info, const int x, const i
 	std::replace(&txt[2], &txt[4], '1', '\x84');
 
 	int w, h;
-	gr_get_string_size(txt, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, txt, &w, &h, nullptr);
 	gr_string(*grd_curcanv, right_align ? x - w : x, y, txt, w, h);
 }
 }
@@ -1269,7 +1269,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 					continue;
 			}
 			int w, h;
-			gr_get_string_size(txtweapon, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, txtweapon, &w, &h, nullptr);
 			if (vertical){
 				y -= h + fspacy2;
 			}else
@@ -1353,7 +1353,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 					continue;
 			}
 			int w, h;
-			gr_get_string_size(txtweapon, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, txtweapon, &w, &h, nullptr);
 			if (vertical){
 				y -= h + fspacy2;
 			}else
@@ -1392,7 +1392,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 			hud_set_secondary_weapon_fontcolor(player_info, i);
 			snprintf(weapon_str, sizeof(weapon_str), "%i", secondary_ammo[i]);
 			int w, h;
-			gr_get_string_size(weapon_str, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
 			if (vertical){
 				y -= h + fspacy2;
 			}else
@@ -1422,7 +1422,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 			hud_set_secondary_weapon_fontcolor(player_info, i);
 			snprintf(weapon_str, sizeof(weapon_str), "%u", secondary_ammo[i]);
 			int w, h;
-			gr_get_string_size(weapon_str, &w, &h, nullptr);
+			gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
 			if (vertical){
 				y -= h + fspacy2;
 			}else
@@ -1467,8 +1467,8 @@ static void hud_show_weapons(const object &plrobj)
 	{
 		int x1,x2;
 		int w;
-		gr_get_string_size("V1000", &w, nullptr, nullptr);
-		gr_get_string_size("0 ", &x2, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, "V1000", &w, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, "0 ", &x2, nullptr, nullptr);
 		y=grd_curcanv->cv_bitmap.bm_h/1.75;
 		x1 = grd_curcanv->cv_bitmap.bm_w / 2.1 - (fspacx(40) + w);
 		x2 = grd_curcanv->cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
@@ -1530,7 +1530,7 @@ static void hud_show_weapons(const object &plrobj)
 		}
 
 		int	w, h;
-		gr_get_string_size(disp_primary_weapon_name, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, disp_primary_weapon_name, &w, &h, nullptr);
 		const auto &&bmwx = grd_curcanv->cv_bitmap.bm_w - fspacx(1);
 		gr_string(*grd_curcanv, bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
 		const char *disp_secondary_weapon_name;
@@ -1539,7 +1539,7 @@ static void hud_show_weapons(const object &plrobj)
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		snprintf(weapon_str, sizeof(weapon_str), "%s %u", disp_secondary_weapon_name, player_info.secondary_ammo[Secondary_weapon]);
-		gr_get_string_size(weapon_str, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
 		gr_string(*grd_curcanv, bmwx - w, y - line_spacing, weapon_str, w, h);
 
 		show_bomb_count(player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
@@ -1652,7 +1652,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 
 		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
-		gr_get_string_size(killed_str, &w, &h, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
 		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING, color);
 		gr_string(*grd_curcanv, x, HUD_SCALE_Y(y), killed_str, w, h);
@@ -2076,7 +2076,7 @@ static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
 	int ow, oh;
 	snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
 	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(countdown, &ow, &oh, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, countdown, &ow, &oh, nullptr);
 	const int x = grd_curscreen->get_screen_width() / (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR
 		? 2.266
 		: 1.951
@@ -2173,7 +2173,7 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	const auto a = [](int xb, int v, int y) {
 		int w;
-		gr_get_string_size(get_gauge_width_string(v), &w, nullptr, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(v), &w, nullptr, nullptr);
 		gr_printf(xb - (w / 2), y, "%d", v);
 	};
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
@@ -2552,7 +2552,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 
 	//draw numbers
 	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
-	gr_get_string_size(get_gauge_width_string(energy), &ew, nullptr, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(energy), &ew, nullptr, nullptr);
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned y = SB_ENERGY_NUM_Y;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2590,7 +2590,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 	gr_set_fontcolor(gr_find_closest_color(r,g,b), -1);
 
 	int w, h;
-	gr_get_string_size(ab_str, &w, &h, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, ab_str, &w, &h, nullptr);
 	gr_string(*grd_curcanv, HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
 	gr_set_current_canvas(NULL);
 }
@@ -2604,7 +2604,7 @@ static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic mu
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
 
-	gr_get_string_size(get_gauge_width_string(shield), &sw, nullptr, nullptr);
+	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(shield), &sw, nullptr, nullptr);
 	gr_printf((grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
 }
 
@@ -3001,14 +3001,14 @@ static void hud_show_kill_list()
 		else
 			name = Players[player_num].callsign;	// Note link to above if!!
 		int sw, sh;
-		gr_get_string_size(static_cast<const char *>(name), &sw, &sh, nullptr);
+		gr_get_string_size(*grd_curcanv->cv_font, static_cast<const char *>(name), &sw, &sh, nullptr);
 		{
 			const auto b = x1 - x0 - fspacx2;
 			if (sw > b)
 				for (char *e = &name.buffer()[strlen(name)];;)
 				{
 					 *--e = 0;
-					 gr_get_string_size(name, &sw, nullptr, nullptr);
+					 gr_get_string_size(*grd_curcanv->cv_font, name, &sw, nullptr, nullptr);
 					 if (!(sw > b))
 						 break;
 				}
@@ -3146,7 +3146,7 @@ void show_HUD_names()
 					if (written)
 					{
 						int w, h;
-						gr_get_string_size(s, &w, &h, nullptr);
+						gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 						const auto color = get_player_or_team_color(pnum);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
 						x1 = f2i(x)-w/2;
