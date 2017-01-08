@@ -5646,7 +5646,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 	 * end of this function.
 	 */
 	*obj_rw = {};
-	DXX_POISON_VAR(*obj_rw, 0xfd);
+	DXX_POISON_DEFINED_VAR(*obj_rw, 0xfd);
 	obj_rw->signature     = obj->signature.get();
 	obj_rw->type          = obj->type;
 	obj_rw->id            = obj->id;
