@@ -1298,7 +1298,11 @@ array<expl_wall, MAX_EXPLODING_WALLS> expl_wall_list;
 void init_exploding_walls()
 {
 	range_for (auto &i, expl_wall_list)
+	{
+		expl_wall *const p = &i;
+		DXX_POISON_MEMORY(reinterpret_cast<uint8_t *>(p), sizeof(*p), 0xfd);
 		i.segnum = segment_none;
+	}
 }
 
 }
@@ -1410,7 +1414,11 @@ void do_exploding_wall_frame()
 					);
 			}
 			if (i.time >= EXPL_WALL_TIME)
+			{
+				expl_wall *const p = &i;
+				DXX_POISON_MEMORY(reinterpret_cast<uint8_t *>(p), sizeof(*p), 0xfd);
 				i.segnum = segment_none;	//flag this slot as free
+			}
 		}
 	}
 

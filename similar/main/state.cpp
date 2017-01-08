@@ -1089,13 +1089,23 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int i = expl_wall_list.size();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
+	{
+		const disk_expl_wall None{-1, 0, 0};
 	range_for (auto &e, expl_wall_list)
 	{
 		disk_expl_wall d;
+		const disk_expl_wall *i;
+		if (e.segnum == segment_none)
+			i = &None;
+		else
+		{
+			i = &d;
 		d.segnum = e.segnum;
 		d.sidenum = e.sidenum;
 		d.time = e.time;
-		PHYSFS_write(fp, &d, sizeof(d), 1);
+		}
+		PHYSFS_write(fp, i, sizeof(d), 1);
+	}
 	}
 #endif
 
