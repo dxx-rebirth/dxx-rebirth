@@ -5801,8 +5801,10 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 {
 	*obj = {};
 	DXX_POISON_VAR(*obj, 0xfd);
-	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	set_object_type(*obj, obj_rw->type);
+	if (obj->type == OBJ_NONE)
+		return;
+	obj->signature     = object_signature_t{static_cast<uint16_t>(obj_rw->signature)};
 	obj->id            = obj_rw->id;
 	/* obj->next,obj->prev handled by caller based on segment */
 	obj->control_type  = obj_rw->control_type;
