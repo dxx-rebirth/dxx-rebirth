@@ -1096,8 +1096,11 @@ void newdemo_record_start_demo()
 namespace dsx {
 void newdemo_record_start_frame(fix frame_time )
 {
-	if (nd_record_v_no_space) {
-		newdemo_stop_playback();
+	if (nd_record_v_no_space)
+	{
+		// Shouldn't happen - we should have stopped demo recording,
+		// in which case this function shouldn't have been called in the first place
+		Int3();
 		return;
 	}
 
