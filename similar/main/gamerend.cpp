@@ -122,10 +122,12 @@ static void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
+	const auto &&fspacx2 = FSPACX(2);
+	const auto &&y = LINE_SPACING * 16;
 	if (CGameArg.DbgVerbose)
-                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, (static_cast<float>(1000)/(F1_0/FrameTime)));
+		gr_printf(fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
         else
-                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);
+		gr_printf(fspacx2, y, "%iFPS", fps_rate);
 }
 
 }
