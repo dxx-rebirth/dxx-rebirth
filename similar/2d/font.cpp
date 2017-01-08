@@ -696,15 +696,15 @@ void gr_string(const int x, const int y, const char *const s)
 	gr_string(x, y, s, w, h);
 }
 
-static void gr_ustring_mono(int x, int y, const char *s)
+static void gr_ustring_mono(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
-	switch(TYPE)
+	switch (canvas.cv_bitmap.get_type())
 	{
 		case bm_mode::linear:
-			if (grd_curcanv->cv_font_bg_color == -1)
-				gr_internal_string0m(*grd_curcanv, x, y, s);
+			if (canvas.cv_font_bg_color == -1)
+				gr_internal_string0m(canvas, x, y, s);
 			else
-				gr_internal_string0(*grd_curcanv, x, y, s);
+				gr_internal_string0(canvas, x, y, s);
 	}
 }
 
@@ -744,7 +744,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 		xw > bm_w ||
 		y + h > bm_h))
 	{
-		gr_ustring_mono(x, y, s);
+		gr_ustring_mono(*grd_curcanv, x, y, s);
 		return;
 	}
 
@@ -771,7 +771,7 @@ void gr_ustring(int x, int y, const char *s )
 		gr_internal_color_string(*grd_curcanv, x, y, s);
 	}
 	else
-		gr_ustring_mono(x, y, s);
+		gr_ustring_mono(*grd_curcanv, x, y, s);
 }
 
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
