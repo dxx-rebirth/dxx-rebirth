@@ -347,7 +347,7 @@ static int gr_internal_string0m(int x, int y, const char *s )
 
 #if !DXX_USE_OGL
 
-static int gr_internal_color_string(int x, int y, const char *s )
+static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
 //a bitmap for the character
 	grs_bitmap char_bm = {};
@@ -357,7 +357,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 	int letter;
 	int xx,yy;
 
-	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &cv_font = *canvas.cv_font;
 	const auto &&INFONT = font_character_extent(cv_font);
 	char_bm.bm_h = cv_font.ft_h;		//set height for chars of this font
 
@@ -404,7 +404,7 @@ static int gr_internal_color_string(int x, int y, const char *s )
 				: &cv_font.ft_data[letter * BITS_TO_BYTES(width) * cv_font.ft_h];
 
 			gr_init_bitmap(char_bm, bm_mode::linear, 0, 0, width, cv_font.ft_h, width, fp);
-			gr_bitmapm(*grd_curcanv, xx, yy, char_bm);
+			gr_bitmapm(canvas, xx, yy, char_bm);
 
 			xx += spacing;
 
@@ -683,8 +683,9 @@ static int ogl_internal_string(grs_canvas &canvas, const int x, const int y, con
 	return 0;
 }
 
-static int gr_internal_color_string(int x, int y, const char *s ){
-	return ogl_internal_string(*grd_curcanv, x, y, s);
+static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y, const char *const s)
+{
+	return ogl_internal_string(canvas, x, y, s);
 }
 #endif //OGL
 
@@ -734,7 +735,7 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 #endif
 		grd_curcanv->cv_font->ft_flags & FT_COLOR)
 	{
-		gr_internal_color_string(x, y, s);
+		gr_internal_color_string(*grd_curcanv, x, y, s);
 		return;
 	}
 	// Partially clipped...
@@ -767,7 +768,7 @@ void gr_ustring(int x, int y, const char *s )
 #endif
 	
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) {
-		gr_internal_color_string(x,y,s);
+		gr_internal_color_string(*grd_curcanv, x, y, s);
 	}
 	else
 		gr_ustring_mono(x, y, s);
