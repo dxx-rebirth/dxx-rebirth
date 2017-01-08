@@ -815,20 +815,20 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 		// Label the window
 		gr_set_fontcolor((v==current_view)?CRED:CWHITE, -1 );
 		if ( screen_canvas == LargeViewBox->canvas.get() ) {
-			gr_ustring( 5, 5, "USER VIEW" );
+			gr_ustring(*grd_curcanv, 5, 5, "USER VIEW");
 			switch (Large_view_index) {
-				case 0: gr_ustring( 85, 5, "-- TOP");	break;
-				case 1: gr_ustring( 85, 5, "-- FRONT");	break;
-				case 2: gr_ustring( 85, 5, "-- RIGHT");	break;
+				case 0: gr_ustring(*grd_curcanv, 85, 5, "-- TOP");	break;
+				case 1: gr_ustring(*grd_curcanv, 85, 5, "-- FRONT");	break;
+				case 2: gr_ustring(*grd_curcanv, 85, 5, "-- RIGHT");	break;
 			}			
 		} else
 #if ORTHO_VIEWS
 		 else if ( screen_canvas == TopViewBox->canvas )
-			gr_ustring( 5, 5, "TOP" );
+			gr_ustring(*grd_curcanv, 5, 5, "TOP");
 		else if ( screen_canvas == FrontViewBox->canvas )
-			gr_ustring( 5, 5, "FRONT" );
+			gr_ustring(*grd_curcanv, 5, 5, "FRONT");
 		else if ( screen_canvas == RightViewBox->canvas )
-			gr_ustring( 5, 5, "RIGHT" );
+			gr_ustring(*grd_curcanv, 5, 5, "RIGHT");
 #else
 			Error("Ortho views have been removed, what gives?\n");
 #endif

@@ -1836,7 +1836,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
-	gr_ustring( x, y, msg );
+	gr_ustring(*grd_curcanv, x, y, msg);
 
 	reset_cockpit();
 }

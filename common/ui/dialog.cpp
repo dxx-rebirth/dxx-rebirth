@@ -475,7 +475,7 @@ void (ui_dprintf_at)( UI_DIALOG * dlg, short x, short y, const char * format, ..
 void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * buffer )
 {
 	ui_dialog_set_current_canvas( dlg );
-	gr_string( x, y, buffer );
+	gr_string(*grd_curcanv, x, y, buffer);
 }
 
 }

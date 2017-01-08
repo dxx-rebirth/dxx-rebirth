@@ -64,7 +64,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 				ui_string_centered(  Middle(checkbox->width)+1, Middle(checkbox->height)+1, " " );
 		}
 
-		gr_ustring(checkbox->width+4, 2, checkbox->text.get());
+		gr_ustring(*grd_curcanv, checkbox->width + 4, 2, checkbox->text.get());
 
 	}
 }

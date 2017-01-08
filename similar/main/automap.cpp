@@ -519,7 +519,7 @@ static void name_frame(automap *am)
 	else
 		name_level = Current_level_name;
 
-	gr_string((SWIDTH/64),(SHEIGHT/48),name_level);
+	gr_string(*grd_curcanv, (SWIDTH/64),(SHEIGHT/48),name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
 	if (Current_level_num > 0)
@@ -533,7 +533,7 @@ static void name_frame(automap *am)
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
-	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
+	gr_string(*grd_curcanv, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
 	int wr,h;
 	gr_get_string_size(*grd_curcanv->cv_font, name_level_right, &wr, &h, nullptr);
 	gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right, wr, h);
@@ -635,7 +635,7 @@ static void draw_automap(automap *am)
 	else
 #endif
 			x = SWIDTH / 8, y = SHEIGHT / 16;
-		gr_string(x, y, TXT_AUTOMAP);
+		gr_string(*grd_curcanv, x, y, TXT_AUTOMAP);
 	}
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
@@ -668,9 +668,9 @@ static void draw_automap(automap *am)
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
-		gr_string(x, y0, TXT_TURN_SHIP);
-		gr_string(x, y1, s1);
-		gr_string(x, y2, s2);
+		gr_string(*grd_curcanv, x, y0, TXT_TURN_SHIP);
+		gr_string(*grd_curcanv, x, y1, s1);
+		gr_string(*grd_curcanv, x, y2, s2);
 	}
 
 	gr_set_current_canvas(&am->automap_view);

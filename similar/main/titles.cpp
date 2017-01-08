@@ -987,7 +987,7 @@ static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
 		lastcolor = stream.color;
 		gr_set_fontcolor(stream.color,-1);
 	}
-	gr_string(stream.x+1,stream.y,msgbuf);
+	gr_string(*grd_curcanv, stream.x + 1, stream.y, msgbuf);
 }
 
 static void flash_cursor(briefing *br, int cursor_flag)
@@ -997,7 +997,7 @@ static void flash_cursor(briefing *br, int cursor_flag)
 
 	gr_set_fontcolor((timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
 
-	gr_string(br->text_x, br->text_y, "_" );
+	gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
 }
 
 #define EXIT_DOOR_MAX   14
@@ -1549,7 +1549,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->new_page || br->new_screen)
 				flash_cursor(br, br->flashing_cursor);
 			else if (br->flashing_cursor)
-				gr_string(br->text_x, br->text_y, "_");
+				gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
 			break;
 
 		case EVENT_WINDOW_CLOSE:

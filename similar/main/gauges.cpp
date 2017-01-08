@@ -880,7 +880,7 @@ static void hud_show_homing_warning(const int homing_object_dist)
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-			gr_string(0x8000, grd_curcanv->cv_bitmap.bm_h-LINE_SPACING,TXT_LOCK);
+			gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING,TXT_LOCK);
 		}
 	}
 }
@@ -1562,7 +1562,7 @@ static void hud_show_cloak_invuln(const player_flags player_flags, const fix64 c
 		if (cloak_invul_timer)
 			gr_printf(fspacx1, y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
 		else
-			gr_string(fspacx1, y, txt);
+			gr_string(*grd_curcanv, fspacx1, y, txt);
 	};
 
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
@@ -2220,7 +2220,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	{
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
 
-		gr_string(text_x,text_y,name);
+		gr_string(*grd_curcanv, text_x, text_y, name);
 
 		//	For laser, show level and quadness
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2232,7 +2232,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 			const auto &&line_spacing = LINE_SPACING;
 			gr_printf(text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
 			if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-				gr_string(text_x, text_y + (line_spacing * 2), TXT_QUAD);
+				gr_string(*grd_curcanv, text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
 }
@@ -3314,7 +3314,7 @@ void draw_hud(const object &plrobj)
 		HUD_render_message_frame();
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-		gr_string(0x8000,GHEIGHT-LINE_SPACING,TXT_REAR_VIEW);
+		gr_string(*grd_curcanv, 0x8000, GHEIGHT - LINE_SPACING, TXT_REAR_VIEW);
 	}
 }
 }
@@ -3522,7 +3522,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
 		gr_set_fontcolor(Color_0_31_0, -1);
-		gr_string(0x8000,FSPACY(1),label);
+		gr_string(*grd_curcanv, 0x8000, FSPACY(1), label);
 	}
 
 	if (user == WBU_GUIDED)

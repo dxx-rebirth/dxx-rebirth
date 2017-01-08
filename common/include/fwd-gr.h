@@ -272,15 +272,15 @@ namespace dcx {
 void gr_remap_color_fonts();
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
-void gr_string(int x, int y, const char *s);
 void gr_string(grs_canvas &, int x, int y, const char *s, int w, int h);
-void gr_ustring(int x, int y, const char *s);
-template <void (&)(int, int, const char *)>
-void gr_printt(int x, int y, const char *format, ...) __attribute_format_printf(3, 4);
+void gr_string(grs_canvas &, int x, int y, const char *s);
+void gr_ustring(grs_canvas &, int x, int y, const char *s);
+template <void (&)(grs_canvas &, int, int, const char *)>
+void gr_printt(grs_canvas &, int x, int y, const char *format, ...) __attribute_format_printf(4, 5);
 #define gr_printfs(...)	gr_printt<gr_string>(__VA_ARGS__)
 #define gr_printfus(...)	gr_printt<gr_ustring>(__VA_ARGS__)
-#define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2),(F),##__VA_ARGS__)
-#define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2),(F),##__VA_ARGS__)
+#define gr_printf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(*grd_curcanv,A1,A2),(F),##__VA_ARGS__)
+#define gr_uprintf(A1,A2,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(*grd_curcanv,A1,A2),(F),##__VA_ARGS__)
 std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit);
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width);
 

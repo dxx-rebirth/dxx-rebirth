@@ -191,7 +191,7 @@ static void con_draw(void)
 	gr_rect(*grd_curcanv, 0, 0, SWIDTH, line_spacing, color);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 	gr_printf(fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
-	gr_string(SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
+	gr_string(*grd_curcanv, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }
 
 static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)

@@ -258,7 +258,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 		}
 	}
 	else
-		gr_string(x, y, s2.get());
+		gr_string(*grd_curcanv, x, y, s2.get());
 
 	if (!tabs_flag && p && (w1>0) ) {
 		int w, h;
@@ -283,7 +283,7 @@ static void nm_string_slider( int w1,int x, int y, char * s )
 		s1 = p+1;
 	}
 
-	gr_string( x, y, s );
+	gr_string(*grd_curcanv, x, y, s);
 
 	if (p)	{
 		int w, h;
@@ -353,7 +353,7 @@ static void nm_string_inputbox( int w, int x, int y, const char * text, int curr
 	nm_string_black( w, x, y, text );
 
 	if ( current && timer_query() & 0x8000 )
-		gr_string( x+w1, y, CURSOR_STRING );
+		gr_string(*grd_curcanv, x+w1, y, CURSOR_STRING);
 }
 
 static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_flag, int scroll_offset )
@@ -1472,7 +1472,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	if ( menu->subtitle )	{
 		gr_set_curfont(MEDIUM3_FONT);
 		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
-		gr_string( 0x8000, ty+th, menu->subtitle );
+		gr_string(*grd_curcanv, 0x8000, ty + th, menu->subtitle);
 	}
 
 	gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
@@ -1493,12 +1493,12 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(sx, sy, menu->scroll_offset ? UP_ARROW_MARKER : "  ");
+		gr_string(*grd_curcanv, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER : "  ");
 
 		sy = menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER : "  ");
+		gr_string(*grd_curcanv, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER : "  ");
 	}
 
 	{
@@ -1956,7 +1956,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 	gr_set_current_canvas(NULL);
 	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
 	gr_set_curfont(MEDIUM3_FONT);
-	gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );
+	gr_string(*grd_curcanv, 0x8000, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING;
 	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
@@ -2017,7 +2017,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			{
 				showstr = lb->item[i];
 			}
-			gr_string(lb->box_x + fspacx(5), y, showstr);
+			gr_string(*grd_curcanv, lb->box_x + fspacx(5), y, showstr);
 		}
 	}
 

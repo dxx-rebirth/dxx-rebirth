@@ -689,11 +689,11 @@ static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y
 }
 #endif //OGL
 
-void gr_string(const int x, const int y, const char *const s)
+void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
-	gr_string(*grd_curcanv, x, y, s, w, h);
+	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
+	gr_string(canvas, x, y, s, w, h);
 }
 
 static void gr_ustring_mono(grs_canvas &canvas, const int x, const int y, const char *const s)
@@ -757,21 +757,21 @@ void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s
 	gr_internal_string_clipped(*grd_curcanv, x, y, s);
 }
 
-void gr_ustring(int x, int y, const char *s )
+void gr_ustring(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
 #if DXX_USE_OGL
-	if (TYPE==bm_mode::ogl)
+	if (canvas.cv_bitmap.get_type() == bm_mode::ogl)
 	{
-		ogl_internal_string(*grd_curcanv, x, y, s);
+		ogl_internal_string(canvas, x, y, s);
 		return;
 	}
 #endif
 	
-	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) {
-		gr_internal_color_string(*grd_curcanv, x, y, s);
+	if (canvas.cv_font->ft_flags & FT_COLOR) {
+		gr_internal_color_string(canvas, x, y, s);
 	}
 	else
-		gr_ustring_mono(*grd_curcanv, x, y, s);
+		gr_ustring_mono(canvas, x, y, s);
 }
 
 void gr_get_string_size(const grs_font &cv_font, const char *s, int *const string_width, int *const string_height, int *const average_width)
@@ -832,8 +832,8 @@ std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned lim
 	return {s, static_cast<unsigned>(string_width_f)};
 }
 
-template <void (&F)(int, int, const char *)>
-void (gr_printt)(int x, int y, const char *format, ...)
+template <void (&F)(grs_canvas &, int, int, const char *)>
+void (gr_printt)(grs_canvas &canvas, const int x, const int y, const char *const format, ...)
 {
 	char buffer[1000];
 	va_list args;
@@ -841,11 +841,11 @@ void (gr_printt)(int x, int y, const char *format, ...)
 	va_start(args, format );
 	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
-	F(x, y, buffer);
+	F(canvas, x, y, buffer);
 }
 
-template void gr_printt<gr_string>(int, int, const char *, ...);
-template void gr_printt<gr_ustring>(int, int, const char *, ...);
+template void gr_printt<gr_string>(grs_canvas &, int, int, const char *, ...);
+template void gr_printt<gr_ustring>(grs_canvas &, int, int, const char *, ...);
 
 void gr_close_font(std::unique_ptr<grs_font> font)
 {

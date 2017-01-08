@@ -110,14 +110,14 @@ static void item_show( MENU * menu, int n )
 	if ( menu != &Menu[0] )
 	{
 		if ( menu->Active)
-			gr_ustring(item->x+1, item->y+1, item->Text.get());
+			gr_ustring(*grd_curcanv, item->x + 1, item->y + 1, item->Text.get());
 		else
-			gr_ustring(item->x+1, item->y+1, item->InactiveText.get());
+			gr_ustring(*grd_curcanv, item->x + 1, item->y + 1, item->InactiveText.get());
 	} else {
 		if ( menu->Active)
-			gr_ustring(item->x, item->y, item->Text.get());
+			gr_ustring(*grd_curcanv, item->x, item->y, item->Text.get());
 		else
-			gr_ustring(item->x, item->y, item->InactiveText.get());
+			gr_ustring(*grd_curcanv, item->x, item->y, item->InactiveText.get());
 	}
 }
 

@@ -83,7 +83,7 @@ static void texpage_print_name(d_fname name)
 	name.back() = 0;
 	
     gr_set_current_canvas( TmapnameCanvas );
-    gr_string( 0, 0, name );			  
+    gr_string(*grd_curcanv, 0, 0, name);			  
 }
 
 //Redraw the list of textures, based on TexturePage

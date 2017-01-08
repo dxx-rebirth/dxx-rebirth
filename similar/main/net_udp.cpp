@@ -248,7 +248,7 @@ class basic_show_rule_label
 public:
 	static void show_item(int x1, int y, const char *label, int /* x2 */, const char * /* value */)
 	{
-		gr_string(x1, y, label);
+		gr_string(*grd_curcanv, x1, y, label);
 	}
 };
 
@@ -257,7 +257,7 @@ class basic_show_rule_value
 public:
 	static void show_item(int /* x1 */, int y, const char * /*label */, int x2, const char *value)
 	{
-		gr_string(x2, y, value);
+		gr_string(*grd_curcanv, x2, y, value);
 	}
 };
 

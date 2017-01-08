@@ -43,8 +43,7 @@ void ui_string_centered( short x, short y, const char * s )
 
 	//baseline = height-grd_curcanv->cv_font->ft_baseline;
 
-	gr_ustring(x-((width-1)/2), y-((height-1)/2), s );
-
+	gr_ustring(*grd_curcanv, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
 }
 
 

@@ -156,7 +156,7 @@ static void show_netplayerinfo()
 	// general game information
 	const auto &&line_spacing = LINE_SPACING;
 	y += line_spacing;
-	gr_string(0x8000,y,Netgame.game_name.data());
+	gr_string(*grd_curcanv, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
 	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
@@ -177,13 +177,13 @@ static void show_netplayerinfo()
 
 	// player information (name, kills, ping, game efficiency)
 	y += line_spacing * 2;
-	gr_string(x,y,"player");
-	gr_string(x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
+	gr_string(*grd_curcanv, x, y, "player");
+	gr_string(*grd_curcanv, x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
 		? "score"
-		: (gr_string(x + fspacx8 * 12, y, "deaths"), "kills")
+		: (gr_string(*grd_curcanv, x + fspacx8 * 12, y, "deaths"), "kills")
 	));
-	gr_string(x + fspacx8 * 18, y, "ping");
-	gr_string(x + fspacx8 * 23, y, "efficiency");
+	gr_string(*grd_curcanv, x + fspacx8 * 18, y, "ping");
+	gr_string(*grd_curcanv, x + fspacx8 * 23, y, "efficiency");
 
 	// process players table
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
@@ -218,8 +218,8 @@ static void show_netplayerinfo()
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(255,-1);
-		gr_string(x,y,"team");
-		gr_string(x + fspacx8 * 8, y, "score");
+		gr_string(*grd_curcanv, x, y, "team");
+		gr_string(*grd_curcanv, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
 		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
@@ -241,7 +241,7 @@ static void show_netplayerinfo()
 	if (game_mode_hoard())
 	{
 		if (PhallicMan==-1)
-			gr_string(0x8000,y,"There is no record yet for this level.");
+			gr_string(*grd_curcanv, 0x8000, y, "There is no record yet for this level.");
 		else
 			gr_printf(0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
 	}
@@ -262,7 +262,7 @@ static void show_netplayerinfo()
 		if (eff<60)
 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
-			gr_string(0x8000,y,"is serving you well.");
+			gr_string(*grd_curcanv, 0x8000, y, "is serving you well.");
 		y += line_spacing;
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
@@ -732,7 +732,7 @@ void game_render_frame_mono()
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 
-		gr_string(0x8000, FSPACY(1), "Guided Missile View");
+		gr_string(*grd_curcanv, 0x8000, FSPACY(1), "Guided Missile View");
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
