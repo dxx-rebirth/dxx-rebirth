@@ -335,14 +335,14 @@ static int gr_internal_string0_template(grs_canvas &canvas, const int x, int y, 
 	return 0;
 }
 
-static int gr_internal_string0(int x, int y, const char *s )
+static int gr_internal_string0(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
-	return gr_internal_string0_template<true>(*grd_curcanv, x, y, s);
+	return gr_internal_string0_template<true>(canvas, x, y, s);
 }
 
-static int gr_internal_string0m(int x, int y, const char *s )
+static int gr_internal_string0m(grs_canvas &canvas, const int x, const int y, const char *const s)
 {
-	return gr_internal_string0_template<false>(*grd_curcanv, x, y, s);
+	return gr_internal_string0_template<false>(canvas, x, y, s);
 }
 
 #if !DXX_USE_OGL
@@ -702,9 +702,9 @@ static void gr_ustring_mono(int x, int y, const char *s)
 	{
 		case bm_mode::linear:
 			if (grd_curcanv->cv_font_bg_color == -1)
-				gr_internal_string0m(x, y, s);
+				gr_internal_string0m(*grd_curcanv, x, y, s);
 			else
-				gr_internal_string0(x, y, s);
+				gr_internal_string0(*grd_curcanv, x, y, s);
 	}
 }
 
