@@ -202,20 +202,20 @@ constexpr int gr_message_color_level=1;
 	}
 
 template <bool masked_draws_background>
-static int gr_internal_string0_template(int x, int y, const char *s)
+static int gr_internal_string0_template(grs_canvas &canvas, const int x, int y, const char *const s)
 {
-	const auto &cv_font = *grd_curcanv->cv_font;
+	const auto &cv_font = *canvas.cv_font;
 	const auto &&INFONT = font_character_extent(cv_font);
 	const auto ft_flags = cv_font.ft_flags;
 	const auto proportional = ft_flags & FT_PROPORTIONAL;
-	const auto cv_font_bg_color = grd_curcanv->cv_font_bg_color;
+	const auto cv_font_bg_color = canvas.cv_font_bg_color;
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset1;
 
 	//to allow easy reseting to default string color with colored strings -MPM
-	const auto orig_color = grd_curcanv->cv_font_fg_color;
-	VideoOffset1 = y * ROWSIZE + x;
+	const auto orig_color = canvas.cv_font_fg_color;
+	VideoOffset1 = y * canvas.cv_bitmap.bm_rowsize + x;
 	auto next_row = s;
 	while (next_row != NULL )
 	{
@@ -224,7 +224,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 		if (x==0x8000) {			//centered
 			int xx = get_centered_x(cv_font, text_ptr1);
-			VideoOffset1 = y * ROWSIZE + xx;
+			VideoOffset1 = y * canvas.cv_bitmap.bm_rowsize + xx;
 		}
 
 		for (int r=0; r < cv_font.ft_h; ++r)
@@ -243,7 +243,7 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 				if (c0 == CC_COLOR)
 				{
-					grd_curcanv->cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
+					canvas.cv_font_fg_color = static_cast<uint8_t>(*++text_ptr);
 					continue;
 				}
 
@@ -286,8 +286,8 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 				if (width)
 				{
-					auto data = &DATA[VideoOffset];
-					const auto cv_font_fg_color = grd_curcanv->cv_font_fg_color;
+					auto data = &canvas.cv_bitmap.get_bitmap_data()[VideoOffset];
+					const auto cv_font_fg_color = canvas.cv_font_fg_color;
 				if (underline)
 				{
 					std::fill_n(data, width, cv_font_fg_color);
@@ -325,11 +325,11 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 				}
 				VideoOffset += spacing;
 			}
-			VideoOffset1 += ROWSIZE;
+			VideoOffset1 += canvas.cv_bitmap.bm_rowsize;
 			y++;
 		}
 		y += skip_lines;
-		VideoOffset1 += ROWSIZE * skip_lines;
+		VideoOffset1 += canvas.cv_bitmap.bm_rowsize * skip_lines;
 		skip_lines = 0;
 	}
 	return 0;
@@ -337,12 +337,12 @@ static int gr_internal_string0_template(int x, int y, const char *s)
 
 static int gr_internal_string0(int x, int y, const char *s )
 {
-	return gr_internal_string0_template<true>(x, y, s);
+	return gr_internal_string0_template<true>(*grd_curcanv, x, y, s);
 }
 
 static int gr_internal_string0m(int x, int y, const char *s )
 {
-	return gr_internal_string0_template<false>(x, y, s);
+	return gr_internal_string0_template<false>(*grd_curcanv, x, y, s);
 }
 
 #if !DXX_USE_OGL
