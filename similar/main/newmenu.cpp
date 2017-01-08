@@ -253,7 +253,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 			measure[0]=s2[i];
 			int tx, th;
 			gr_get_string_size(measure, &tx, &th, nullptr);
-			gr_string(x, y, measure, tx, th);
+			gr_string(*grd_curcanv, x, y, measure, tx, th);
 			x+=tx;
 		}
 	}
@@ -264,7 +264,7 @@ static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
 		int w, h;
 		gr_get_string_size(s1, &w, &h, nullptr);
 
-		gr_string(x + w1 - w, y, s1, w, h);
+		gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
 
 		*p = '\t';
 	}
@@ -288,7 +288,7 @@ static void nm_string_slider( int w1,int x, int y, char * s )
 	if (p)	{
 		int w, h;
 		gr_get_string_size(s1, &w, &h, nullptr);
-		gr_string(x + w1 - w, y, s1, w, h);
+		gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
 
 		*p = '\t';
 	}
@@ -318,7 +318,7 @@ static void nm_string_black( int w1,int x, int y, const char * s )
 		gr_rect(*grd_curcanv, x - fspacx(1), y - fspacy(1), x + w1 - fspacx(1), y + h, color);
 	}
 
-	gr_string(x, y, s, w, h);
+	gr_string(*grd_curcanv, x, y, s, w, h);
 }
 
 
@@ -330,7 +330,7 @@ static void nm_rstring( int w1,int x, int y, const char * s )
 	x -= FSPACX(3);
 
 	if (w1 == 0) w1 = w;
-	gr_string(x - w, y, s, w, h);
+	gr_string(*grd_curcanv, x - w, y, s, w, h);
 }
 
 static void nm_string_inputbox( int w, int x, int y, const char * text, int current )
@@ -1466,7 +1466,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		int string_width, string_height;
 		gr_get_string_size(menu->title, &string_width, &string_height, nullptr);
 		th = string_height;
-		gr_string(0x8000, ty, menu->title, string_width, string_height);
+		gr_string(*grd_curcanv, 0x8000, ty, menu->title, string_width, string_height);
 	}
 
 	if ( menu->subtitle )	{

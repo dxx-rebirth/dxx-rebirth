@@ -182,7 +182,7 @@ static void con_draw(void)
 		int w,h;
 		gr_get_string_size(b.line, &w, &h, nullptr);
 		y -= h + fspacy1;
-		gr_string(fspacx1, y, b.line, w, h);
+		gr_string(*grd_curcanv, fspacx1, y, b.line, w, h);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)

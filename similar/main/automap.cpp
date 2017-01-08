@@ -536,7 +536,7 @@ static void name_frame(automap *am)
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
 	int wr,h;
 	gr_get_string_size(name_level_right, &wr, &h, nullptr);
-	gr_string(grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right, wr, h);
+	gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right, wr, h);
 #endif
 }
 

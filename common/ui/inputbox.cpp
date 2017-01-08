@@ -59,7 +59,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 		inputbox->status = 0;
 
-		gr_string(2, 2, inputbox->text.get(), w, h);
+		gr_string(*grd_curcanv, 2, 2, inputbox->text.get(), w, h);
 
 		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
 		{

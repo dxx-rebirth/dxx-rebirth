@@ -870,8 +870,8 @@ static void kc_gr_2y_string(const char *const s, const font_y_scaled_float y, co
 {
 	int w, h;
 	gr_get_string_size(s, &w, &h, nullptr);
-	gr_string(x0, y, s, w, h);
-	gr_string(x1, y, s, w, h);
+	gr_string(*grd_curcanv, x0, y, s, w, h);
+	gr_string(*grd_curcanv, x1, y, s, w, h);
 }
 
 static void kconfig_draw(kc_menu *menu)
@@ -1387,7 +1387,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
-		gr_string(x, fspacy_item_y, btext, w, h);
+		gr_string(*grd_curcanv, x, fspacy_item_y, btext, w, h);
 	}
 }
 
@@ -1418,7 +1418,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 
 	x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 
-	gr_string(x, fspacy_item_y, "?", w, h);
+	gr_string(*grd_curcanv, x, fspacy_item_y, "?", w, h);
 }
 }
 

@@ -278,7 +278,7 @@ static void scores_rputs(int x, int y, char *buffer)
 	int w, h;
 	gr_get_string_size(buffer, &w, &h, nullptr);
 
-	gr_string(FSPACX(x) - w, FSPACY(y), buffer, w, h);
+	gr_string(*grd_curcanv, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
 static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);

@@ -273,7 +273,7 @@ void gr_remap_color_fonts();
 void gr_set_curfont(const grs_font *);
 void gr_set_fontcolor(int fg_color, int bg_color);
 void gr_string(int x, int y, const char *s);
-void gr_string(int x, int y, const char *s, int w, int h);
+void gr_string(grs_canvas &, int x, int y, const char *s, int w, int h);
 void gr_ustring(int x, int y, const char *s);
 template <void (&)(int, int, const char *)>
 void gr_printt(int x, int y, const char *format, ...) __attribute_format_printf(3, 4);

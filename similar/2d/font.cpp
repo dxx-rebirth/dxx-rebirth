@@ -693,7 +693,7 @@ void gr_string(const int x, const int y, const char *const s)
 {
 	int w, h;
 	gr_get_string_size(s, &w, &h, nullptr);
-	gr_string(x, y, s, w, h);
+	gr_string(*grd_curcanv, x, y, s, w, h);
 }
 
 static void gr_ustring_mono(grs_canvas &canvas, const int x, const int y, const char *const s)
@@ -708,16 +708,16 @@ static void gr_ustring_mono(grs_canvas &canvas, const int x, const int y, const 
 	}
 }
 
-void gr_string(const int x, const int y, const char *const s, const int w, const int h)
+void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s, const int w, const int h)
 {
-	Assert(grd_curcanv->cv_font != NULL);
+	assert(canvas.cv_font != NULL);
 
 	if (y + h < 0)
 		return;
-	const auto bm_h = grd_curcanv->cv_bitmap.bm_h;
+	const auto bm_h = canvas.cv_bitmap.bm_h;
 	if (y > bm_h)
 		return;
-	const auto bm_w = grd_curcanv->cv_bitmap.bm_w;
+	const auto bm_w = canvas.cv_bitmap.bm_w;
 	int xw = w;
 	if ( x == 0x8000 )	{
 		// for x, since this will be centered, only look at
@@ -731,11 +731,11 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 	}
 	if (
 #if DXX_USE_OGL
-		TYPE == bm_mode::ogl ||
+		canvas.cv_bitmap.get_type() == bm_mode::ogl ||
 #endif
-		grd_curcanv->cv_font->ft_flags & FT_COLOR)
+		canvas.cv_font->ft_flags & FT_COLOR)
 	{
-		gr_internal_color_string(*grd_curcanv, x, y, s);
+		gr_internal_color_string(canvas, x, y, s);
 		return;
 	}
 	// Partially clipped...
@@ -744,11 +744,11 @@ void gr_string(const int x, const int y, const char *const s, const int w, const
 		xw > bm_w ||
 		y + h > bm_h))
 	{
-		gr_ustring_mono(*grd_curcanv, x, y, s);
+		gr_ustring_mono(canvas, x, y, s);
 		return;
 	}
 
-	if ( grd_curcanv->cv_font_bg_color == -1)
+	if (canvas.cv_font_bg_color == -1)
 	{
 		gr_internal_string_clipped_m(*grd_curcanv, x, y, s);
 		return;

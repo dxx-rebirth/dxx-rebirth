@@ -915,7 +915,7 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 	
-	gr_string(0x8000, y, msg, w, h);
+	gr_string(*grd_curcanv, 0x8000, y, msg, w, h);
 	
 	// If we haven't drawn behind it, need to flip
 	if (!RenderFlag)

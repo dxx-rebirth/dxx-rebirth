@@ -261,7 +261,7 @@ void player_dead_message(void)
 			gr_rect(*grd_curcanv, x, y, x + w, y + h, color);
 			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_string(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);
+			gr_string(*grd_curcanv, 0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);
 		}
 	
 		gr_set_curfont( GAME_FONT );
