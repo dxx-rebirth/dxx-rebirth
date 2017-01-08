@@ -114,6 +114,8 @@ class Git(StaticSubprocess):
 			self.status = status
 			self.diffstat_HEAD = diffstat_HEAD
 			self.revparse_HEAD = revparse_HEAD
+		def __repr__(self):
+			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
 	UnknownExtraVersion = ComputedExtraVersion('', None, None, None)
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
