@@ -281,9 +281,8 @@ vms_matrix surface_orient;
 static int endlevel_data_loaded;
 
 namespace dsx {
-void start_endlevel_sequence()
+window_event_result start_endlevel_sequence()
 {
-
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
@@ -299,12 +298,12 @@ void start_endlevel_sequence()
 		}
 		strcpy(last_palette_loaded,"");		//force palette load next time
 #endif
-		return;
+		return window_event_result::ignored;
 	}
 
 	if (Player_dead_state != player_dead_state::no ||
 		(ConsoleObject->flags & OF_SHOULD_BE_DEAD))
-		return;				//don't start if dead!
+		return window_event_result::ignored;				//don't start if dead!
 	con_printf(CON_NORMAL, "You have escaped the mine!");
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -342,8 +341,7 @@ void start_endlevel_sequence()
 #endif
 	{
 
-		PlayerFinishedLevel(0);		//done with level
-		return;
+		return PlayerFinishedLevel(0);		//done with level
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	int exit_models_loaded = 0;
@@ -355,7 +353,7 @@ void start_endlevel_sequence()
 		exit_models_loaded = load_exit_models();
 
 	if (!exit_models_loaded)
-		return;
+		return window_event_result::ignored;
 #endif
 #ifndef NDEBUG
 	segnum_t last_segnum;
@@ -372,8 +370,7 @@ void start_endlevel_sequence()
 		{
 			if (child == segment_none)
 			{
-				PlayerFinishedLevel(0);		//don't do special sequence
-				return;
+				return PlayerFinishedLevel(0);		//don't do special sequence
 			}
 			tunnel_length++;
 			if (child == segment_exit)
@@ -441,6 +438,7 @@ void start_endlevel_sequence()
 
 	mine_destroyed=0;
 
+	return window_event_result::handled;
 }
 }
 
@@ -516,7 +514,7 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	return mask;
 }
 
-void stop_endlevel_sequence()
+window_event_result stop_endlevel_sequence()
 {
 #if !DXX_USE_OGL
 	Interpolation_method = 0;
@@ -526,7 +524,7 @@ void stop_endlevel_sequence()
 
 	Endlevel_sequence = EL_OFF;
 
-	PlayerFinishedLevel(0);
+	return PlayerFinishedLevel(0);
 }
 
 #define VCLIP_BIG_PLAYER_EXPLOSION	58
@@ -541,7 +539,7 @@ static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const v
 }
 
 namespace dsx {
-void do_endlevel_frame()
+window_event_result do_endlevel_frame()
 {
 	static fix timer;
 	static fix bank_rate;
@@ -551,7 +549,7 @@ void do_endlevel_frame()
 	static fix ext_expl_halflife;
 
 	save_last_pos = ConsoleObject->last_pos;	//don't let move code change this
-	object_move_all();
+	auto result = object_move_all();
 	ConsoleObject->last_pos = save_last_pos;
 
 	if (ext_expl_playing) {
@@ -668,7 +666,7 @@ void do_endlevel_frame()
 
 	switch (Endlevel_sequence) {
 
-		case EL_OFF: return;
+		case EL_OFF: return result;
 
 		case EL_FLYTHROUGH: {
 
@@ -678,7 +676,7 @@ void do_endlevel_frame()
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != MOVIE_NOT_PLAYED)
-					stop_endlevel_sequence();
+					result = std::max(stop_endlevel_sequence(), result);
 				else
 #endif
 				{
@@ -692,8 +690,7 @@ void do_endlevel_frame()
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
-						stop_endlevel_sequence();
-						return;
+						return std::max(stop_endlevel_sequence(), result);
 					}
 
 					Viewer = endlevel_camera = objnum;
@@ -798,7 +795,7 @@ void do_endlevel_frame()
 
 				#ifdef SHORT_SEQUENCE
 
-				stop_endlevel_sequence();
+				result = std::max(stop_endlevel_sequence(), result);
 
 				#else
 				Endlevel_sequence = EL_PANNING;
@@ -809,8 +806,8 @@ void do_endlevel_frame()
 				timer = i2f(3);
 
 				if (Game_mode & GM_MULTI) { // try to skip part of the seq if multiplayer
-					stop_endlevel_sequence();
-					return;
+					result = std::max(stop_endlevel_sequence(), result);
+					return result;
 				}
 
 				#endif		//SHORT_SEQUENCE
@@ -883,7 +880,7 @@ void do_endlevel_frame()
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
 
 			if (vm_vec_dist(ConsoleObject->pos,station_pos) < i2f(10))
-				stop_endlevel_sequence();
+				result = std::max(stop_endlevel_sequence(), result);
 			#endif
 
 			break;
@@ -892,6 +889,8 @@ void do_endlevel_frame()
 		#endif		//ifdef SHORT_SEQUENCE
 
 	}
+
+	return result;
 }
 }
 

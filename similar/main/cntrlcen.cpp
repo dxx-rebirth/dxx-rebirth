@@ -77,7 +77,7 @@ int	Control_center_present;
 
 namespace dsx {
 
-static void do_countdown_frame();
+static window_event_result do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object
@@ -154,10 +154,10 @@ constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
-void do_controlcen_dead_frame()
+window_event_result do_controlcen_dead_frame()
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
-		return;
+		return window_event_result::ignored;
 
 	if ((Dead_controlcen_object_num != object_none) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)
@@ -169,17 +169,19 @@ void do_controlcen_dead_frame()
 			create_small_fireball_on_object(vobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
 
 	if (Control_center_destroyed && !Endlevel_sequence)
-		do_countdown_frame();
+		return do_countdown_frame();
+
+	return window_event_result::ignored;
 }
 
 #define COUNTDOWN_VOICE_TIME fl2f(12.75)
 
-void do_countdown_frame()
+window_event_result do_countdown_frame()
 {
 	fix	old_time;
 	int	fc, div_scale;
 
-	if (!Control_center_destroyed)	return;
+	if (!Control_center_destroyed)	return window_event_result::ignored;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
@@ -188,9 +190,9 @@ void do_countdown_frame()
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 		{
 			if (!(Game_mode & GM_MULTI))
-				return;
+				return window_event_result::ignored;
 			if (Game_mode & GM_MULTI_ROBOTS)
-				return;
+				return window_event_result::ignored;
 		}
 	}
 #endif
@@ -254,9 +256,11 @@ void do_countdown_frame()
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;
 			//gauge_message( "Control Center Reset" );
-			DoPlayerDead();		//kill_player();
+			return DoPlayerDead();		//kill_player();
 		}																				
 	}
+
+	return window_event_result::handled;
 }
 
 //	-----------------------------------------------------------------------------

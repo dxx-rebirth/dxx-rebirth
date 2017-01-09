@@ -127,7 +127,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 static void StartNewLevelSecret(int level_num, int page_in_textures);
 static void InitPlayerPosition(int random_flag);
-static void DoEndGame(void);
+static void DoEndGame();
 static void filter_objects_from_level();
 PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
 int	First_secret_visit = 1;
@@ -164,7 +164,7 @@ public:
 }
 
 namespace dsx {
-static void AdvanceLevel(int secret_flag);
+static window_event_result AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
 array<player, MAX_PLAYERS> Players;   // Misc player info
 }
@@ -532,9 +532,6 @@ static void DoGameOver()
 {
 	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player();
-
-	if (Game_wind)
-		window_close(Game_wind);		// Exit out of game loop
 }
 
 //update various information about the player
@@ -1159,10 +1156,12 @@ static int Entered_from_level;
 
 // ---------------------------------------------------------------------------------------------------------------
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
-void ExitSecretLevel(void)
+window_event_result ExitSecretLevel()
 {
+	auto result = window_event_result::handled;
+
 	if (Newdemo_state == ND_STATE_PLAYBACK)
-		return;
+		return window_event_result::ignored;
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
@@ -1183,7 +1182,10 @@ void ExitSecretLevel(void)
 	} else {
 		// File doesn't exist, so can't return to base level.  Advance to next one.
 		if (Entered_from_level == Last_level)
+		{
 			DoEndGame();
+			result = window_event_result::close;
+		}
 		else {
 			do_screen_message(TXT_SECRET_ADVANCE);
 			StartNewLevel(Entered_from_level+1);
@@ -1193,6 +1195,8 @@ void ExitSecretLevel(void)
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 	reset_time();
+
+	return result;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1278,7 +1282,7 @@ void EnterSecretLevel(void)
 
 //called when the player has finished a level
 namespace dsx {
-void PlayerFinishedLevel(int secret_flag)
+window_event_result PlayerFinishedLevel(int secret_flag)
 {
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
@@ -1301,11 +1305,13 @@ void PlayerFinishedLevel(int secret_flag)
 
 	last_drawn_cockpit = -1;
 
-	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
+	auto result = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 	reset_time();
+
+	return result;
 }
 }
 
@@ -1317,7 +1323,7 @@ void PlayerFinishedLevel(int secret_flag)
 namespace dsx {
 
 //called when the player has finished the last level
-static void DoEndGame(void)
+static void DoEndGame()
 {
 	if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 		newdemo_stop_recording();
@@ -1367,30 +1373,26 @@ static void DoEndGame(void)
 #endif
 		scores_maybe_add_player();
 	}
-
-	if (Game_wind)
-		window_close(Game_wind);		// Exit out of game loop
 }
 
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
-static void AdvanceLevel(int secret_flag)
+static window_event_result AdvanceLevel(int secret_flag)
 {
+	auto rval = window_event_result::handled;
+
 #if defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);
 #endif
-	if (Current_level_num != Last_level) {
+	if (Current_level_num != Last_level)
+	{
 		if (Game_mode & GM_MULTI)
-                {
-					const auto result = multi_endlevel_score();
-					if (result == kmatrix_result::abort)
-                        {
-				if (Game_wind)
-					window_close(Game_wind);		// Exit out of game loop
-                                return;
-                        }
-                }
+		{
+			const auto result = multi_endlevel_score();
+			if (result == kmatrix_result::abort)
+				return window_event_result::close;	// Exit out of game loop
+		}
 		else
 			// NOTE LINK TO ABOVE!!!
 			DoEndLevelScoreGlitz();		//give bonuses
@@ -1398,22 +1400,21 @@ static void AdvanceLevel(int secret_flag)
 
 	Control_center_destroyed = 0;
 
-	if (Game_mode & GM_MULTI)	{
+	if (Game_mode & GM_MULTI)
+	{
 		int result;
 		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
-			if (Current_level_num == Last_level)		//player has finished the game!
-				if (Game_wind)
-					window_close(Game_wind);		// Exit out of game loop
-
-			return;
+			// check if player has finished the game
+			return Current_level_num == Last_level ? window_event_result::close : rval;
 		}
 	}
 
-        if (Current_level_num == Last_level) {		//player has finished the game!
+	if (Current_level_num == Last_level) {		//player has finished the game!
 
 		DoEndGame();
+		rval = window_event_result::close;
 
 	} else {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1451,10 +1452,14 @@ static void AdvanceLevel(int secret_flag)
 #endif
 		StartNewLevel(Next_level_num);
 	}
+
+	return rval;
 }
 
-void DoPlayerDead()
+window_event_result DoPlayerDead()
 {
+	auto result = window_event_result::handled;
+
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
@@ -1474,7 +1479,7 @@ void DoPlayerDead()
 		if (get_local_player().lives == 0)
 		{
 			DoGameOver();
-			return;
+			return window_event_result::close;
 		}
 	}
 
@@ -1498,7 +1503,10 @@ void DoPlayerDead()
 				get_local_player().lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
 			} else {
 				if (Entered_from_level == Last_level)
+				{
 					DoEndGame();
+					result = window_event_result::close;
+				}
 				else {
 					do_screen_message(TXT_SECRET_ADVANCE);
 					StartNewLevel(Entered_from_level+1);
@@ -1509,7 +1517,7 @@ void DoPlayerDead()
 #endif
                 {
 
-			AdvanceLevel(0);			//if finished, go on to next level
+			result = AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
@@ -1527,7 +1535,10 @@ void DoPlayerDead()
 		} else {
 			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 			if (Entered_from_level == Last_level)
+			{
 				DoEndGame();
+				result = window_event_result::close;
+			}
 			else {
 				do_screen_message(TXT_SECRET_ADVANCE);
 				StartNewLevel(Entered_from_level+1);
@@ -1545,6 +1556,8 @@ void DoPlayerDead()
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 	reset_time();
+
+	return result;
 }
 
 //called when the player is starting a new level for normal game mode and restore state

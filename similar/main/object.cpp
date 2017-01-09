@@ -1347,7 +1347,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-void dead_player_frame(void)
+window_event_result dead_player_frame()
 {
 	static fix	time_dead = 0;
 
@@ -1450,11 +1450,13 @@ void dead_player_frame(void)
 				}
 			}
 
-			DoPlayerDead();		//kill_player();
+			return DoPlayerDead();		//kill_player();
 		}
 	}
 	else
 		time_dead = 0;
+
+	return window_event_result::handled;
 }
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1619,9 +1621,10 @@ int Drop_afterburner_blob_flag;		//ugly hack
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-static void object_move_one(const vobjptridx_t obj)
+static window_event_result object_move_one(const vobjptridx_t obj)
 {
 	const auto previous_segment = obj->segnum;
+	auto result = window_event_result::handled;
 
 	obj->last_pos = obj->pos;			// Save the current position
 
@@ -1676,7 +1679,7 @@ static void object_move_one(const vobjptridx_t obj)
 
 		case CT_AI:
 			//NOTE LINK TO CT_MORPH ABOVE!!!
-			if (Game_suspended & SUSP_ROBOTS) return;
+			if (Game_suspended & SUSP_ROBOTS) return window_event_result::ignored;
 			do_ai_frame(obj);
 			break;
 
@@ -1726,13 +1729,13 @@ static void object_move_one(const vobjptridx_t obj)
 	}
 
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
-		return;         // object has been deleted
+		return window_event_result::ignored;         // object has been deleted
 
 	switch (obj->movement_type) {
 
 		case MT_NONE:			break;				//this doesn't move
 
-		case MT_PHYSICS:		do_physics_sim(obj);	break;	//move by physics
+		case MT_PHYSICS:		result = do_physics_sim(obj);	break;	//move by physics
 
 		case MT_SPINNING:		spin_object(obj); break;
 
@@ -1754,11 +1757,11 @@ static void object_move_one(const vobjptridx_t obj)
 				const auto connect_side = find_connect_side(seg1, seg0);
 				if (connect_side != side_none)
 				{
-					check_trigger(seg0, connect_side, get_local_plrobj(), obj, 0);
+					result = check_trigger(seg0, connect_side, get_local_plrobj(), obj, 0);
 #if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
-					return;
+					return window_event_result::ignored;
 #endif
 				}
 				seg0 = seg1;
@@ -1857,13 +1860,17 @@ static void object_move_one(const vobjptridx_t obj)
 			obj->ctype.laser_info.last_afterburner_time = GameTime64;
 		}
 	}
+
+	return result;
 #endif
 }
 
 //--------------------------------------------------------------------
 //move all objects for the current frame
-void object_move_all()
+window_event_result object_move_all()
 {
+	auto result = window_event_result::ignored;
+
 	if (Highest_object_index > MAX_USED_OBJECTS)
 		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
 
@@ -1878,13 +1885,14 @@ void object_move_all()
 	range_for (const auto &&objp, vobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
-			object_move_one( objp );
+			result = std::max(object_move_one( objp ), result);
 		}
 	}
 
 //	check_duplicate_objects();
 //	remove_incorrect_objects();
 
+	return result;
 }
 
 

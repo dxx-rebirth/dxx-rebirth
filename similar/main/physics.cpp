@@ -300,7 +300,7 @@ public:
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 namespace dsx {
-void do_physics_sim(const vobjptridx_t obj)
+window_event_result do_physics_sim(const vobjptridx_t obj)
 {
 	ignore_objects_array_t ignore_obj_list;
 	int try_again;
@@ -320,13 +320,14 @@ void do_physics_sim(const vobjptridx_t obj)
 	auto orig_segnum = obj->segnum;
 	int bounced=0;
 	bool Player_ScrapeFrame=false;
+	auto result = window_event_result::handled;
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
 #ifndef NDEBUG
 	if (Dont_move_ai_objects)
 		if (obj->control_type == CT_AI)
-			return;
+			return window_event_result::ignored;
 #endif
 
 	pi = &obj->mtype.phys_info;
@@ -334,7 +335,7 @@ void do_physics_sim(const vobjptridx_t obj)
 	do_physics_sim_rot(obj);
 
 	if (!(pi->velocity.x || pi->velocity.y || pi->velocity.z || pi->thrust.x || pi->thrust.y || pi->thrust.z))
-		return;
+		return window_event_result::ignored;
 
 	n_phys_segs = 0;
 
@@ -486,7 +487,7 @@ void do_physics_sim(const vobjptridx_t obj)
 				if (obj->type == OBJ_WEAPON)
 					obj->flags |= OF_SHOULD_BE_DEAD;
 			}
-			return;
+			return window_event_result::ignored;
 		}
 
 		//calulate new sim time
@@ -542,7 +543,7 @@ void do_physics_sim(const vobjptridx_t obj)
 				wall_part = vm_vec_dot(moved_v,hit_info.hit_wallnorm);
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
-					collide_object_with_wall(obj, hit_speed, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+					result = collide_object_with_wall(obj, hit_speed, vsegptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				/*
 				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
 				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.
@@ -770,6 +771,8 @@ void do_physics_sim(const vobjptridx_t obj)
 				obj->flags |= OF_SHOULD_BE_DEAD;
 		}
 	}
+
+	return result;
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#endif
 }
 }

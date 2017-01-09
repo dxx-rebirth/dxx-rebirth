@@ -29,17 +29,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "fwd-segment.h"
 #include "gr.h"
+#include "fwd-window.h"
 
 extern int Endlevel_sequence;
 #ifdef dsx
 namespace dsx {
-void do_endlevel_frame();
+window_event_result do_endlevel_frame();
 }
 #endif
-void stop_endlevel_sequence();
+window_event_result stop_endlevel_sequence();
 #ifdef dsx
 namespace dsx {
-void start_endlevel_sequence();
+window_event_result start_endlevel_sequence();
 }
 #endif
 void render_endlevel_frame(fix eye_offset);
