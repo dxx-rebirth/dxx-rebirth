@@ -308,7 +308,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 		if (trigger.flags & TRIGGER_SECRET_EXIT) {
 			if (trigger.flags & TRIGGER_EXIT)
-				LevelError("Trigger %u is both a regular and secret exit! Not recommended", trigger_num);
+				LevelError("Trigger %u is both a regular and secret exit! This is not a recommended combination.", trigger_num);
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
