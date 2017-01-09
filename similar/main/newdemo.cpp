@@ -3269,7 +3269,7 @@ static int newdemo_read_frame_information(int rewrite)
 }
 }
 
-void newdemo_goto_beginning()
+window_event_result newdemo_goto_beginning()
 {
 	//if (nd_playback_v_framecount == 0)
 	//	return;
@@ -3283,10 +3283,13 @@ void newdemo_goto_beginning()
 		newdemo_stop_playback();
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	nd_playback_v_at_eof = 0;
+
+	// check if we stopped playback
+	return Newdemo_state == ND_STATE_NORMAL ? window_event_result::close : window_event_result::handled;
 }
 
 namespace dsx {
-void newdemo_goto_end(int to_rewrite)
+window_event_result newdemo_goto_end(int to_rewrite)
 {
 	short frame_length=0, byte_count=0, bshort=0;
 	sbyte level=0, bbyte=0, c=0, cloaked=0;
@@ -3302,7 +3305,7 @@ void newdemo_goto_end(int to_rewrite)
 			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
 			Current_mission.reset();
 			newdemo_stop_playback();
-			return;
+			return window_event_result::close;
 		}
 		if (level != Current_level_num)
 			LoadLevel(level,1);
@@ -3336,7 +3339,7 @@ void newdemo_goto_end(int to_rewrite)
 		}
 
 		if (to_rewrite)
-			return;
+			return window_event_result::handled;
 
 		PHYSFSX_fseek(infile, -12, SEEK_END);
 		nd_read_short(&frame_length);
@@ -3435,7 +3438,7 @@ void newdemo_goto_end(int to_rewrite)
 	}
 
 	if (to_rewrite)
-		return;
+		return window_event_result::handled;
 
 	PHYSFSX_fseek(infile, loc, SEEK_SET);
 	}
@@ -3446,11 +3449,11 @@ void newdemo_goto_end(int to_rewrite)
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information(0); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
-	return;
+	return window_event_result::handled;
 }
 }
 
-static void newdemo_back_frames(int frames)
+static window_event_result newdemo_back_frames(int frames)
 {
 	short last_frame_length;
 	for (int i = 0; i < frames; i++)
@@ -3461,7 +3464,7 @@ static void newdemo_back_frames(int frames)
 
 		if (!nd_playback_v_at_eof && newdemo_read_frame_information(0) == -1) {
 			newdemo_stop_playback();
-			return;
+			return window_event_result::close;
 		}
 		if (nd_playback_v_at_eof)
 			nd_playback_v_at_eof = 0;
@@ -3471,6 +3474,7 @@ static void newdemo_back_frames(int frames)
 		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 	}
 
+	return window_event_result::handled;
 }
 
 /*
@@ -3483,13 +3487,13 @@ static void newdemo_back_frames(int frames)
  *  at.
 */
 
-static void interpolate_frame(fix d_play, fix d_recorded)
+static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 {
 	fix factor;
 	static fix InterpolStep = fl2f(.01);
 
 	if (nd_playback_v_framecount < 1)
-		return;
+		return window_event_result::ignored;
 
 	factor = fixdiv(d_play, d_recorded);
 	if (factor > F1_0)
@@ -3501,7 +3505,7 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information(0) == -1) {
 		newdemo_stop_playback();
-		return;
+		return window_event_result::close;
 	}
 
 	InterpolStep -= FrameTime;
@@ -3566,21 +3570,27 @@ static void interpolate_frame(fix d_play, fix d_recorded)
 	// with Highest_object_index and the object array (previously rendered
 	// objects, etc....)
 
-	newdemo_back_frames(1);
-	newdemo_back_frames(1);
+	auto result = newdemo_back_frames(1);
+	result = std::max(newdemo_back_frames(1), result);
 	if (newdemo_read_frame_information(0) == -1)
+	{
 		newdemo_stop_playback();
+		result =  window_event_result::close;
+	}
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 
 	std::copy(cur_objs.begin(), cur_objs.begin() + num_cur_objs, Objects.begin());
 	Objects.set_count(num_cur_objs);
+
+	return result;
 }
 
-void newdemo_playback_one_frame()
+window_event_result newdemo_playback_one_frame()
 {
 	int frames_back;
 	static fix base_interpol_time = 0;
 	static fix d_recorded = 0;
+	auto result = window_event_result::handled;
 
 	range_for (auto &i, Players)
 	{
@@ -3593,7 +3603,7 @@ void newdemo_playback_one_frame()
 	}
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
-		return;
+		return window_event_result::ignored;
 
 	Control_center_destroyed = 0;
 	Countdown_seconds_left = -1;
@@ -3603,10 +3613,9 @@ void newdemo_playback_one_frame()
 	{
 		const int level = Current_level_num;
 		if (nd_playback_v_framecount == 0)
-			return;
+			return window_event_result::ignored;
 		else if ((Newdemo_vcr_state == ND_STATE_REWINDING) && (nd_playback_v_framecount < 10)) {
-			newdemo_goto_beginning();
-			return;
+			return newdemo_goto_beginning();
 		}
 		if (Newdemo_vcr_state == ND_STATE_REWINDING)
 			frames_back = 10;
@@ -3615,14 +3624,14 @@ void newdemo_playback_one_frame()
 		if (nd_playback_v_at_eof) {
 			PHYSFS_seek(infile, PHYSFS_tell(infile) + (shareware ? -2 : +11));
 		}
-		newdemo_back_frames(frames_back);
+		result = newdemo_back_frames(frames_back);
 
 		if (level != Current_level_num)
 			newdemo_pop_ctrlcen_triggers();
 
 		if (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD) {
 			if (level != Current_level_num)
-				newdemo_back_frames(1);
+				result = std::max(newdemo_back_frames(1), result);
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 		}
 	}
@@ -3636,7 +3645,10 @@ void newdemo_playback_one_frame()
 					if (nd_playback_v_at_eof)
 						Newdemo_vcr_state = ND_STATE_PAUSED;
 					else
+					{
 						newdemo_stop_playback();
+						result = window_event_result::close;
+					}
 					break;
 				}
 			}
@@ -3649,12 +3661,18 @@ void newdemo_playback_one_frame()
 			const int level = Current_level_num;
 			if (newdemo_read_frame_information(0) == -1) {
 				if (!nd_playback_v_at_eof)
+				{
 					newdemo_stop_playback();
+					result = window_event_result::close;
+				}
 			}
 			if (level != Current_level_num) {
 				if (newdemo_read_frame_information(0) == -1) {
 					if (!nd_playback_v_at_eof)
+					{
 						newdemo_stop_playback();
+						result = window_event_result::close;
+					}
 				}
 			}
 			Newdemo_vcr_state = ND_STATE_PAUSED;
@@ -3703,11 +3721,14 @@ void newdemo_playback_one_frame()
 					const int level = Current_level_num;
 					if (newdemo_read_frame_information(0) == -1) {
 						newdemo_stop_playback();
-						return;
+						return window_event_result::close;
 					}
 					if (level != Current_level_num) {
 						if (newdemo_read_frame_information(0) == -1)
+						{
 							newdemo_stop_playback();
+							result = window_event_result::close;
+						}
 						break;
 					}
 
@@ -3732,24 +3753,25 @@ void newdemo_playback_one_frame()
 			}
 
 			d_play = nd_playback_total - base_interpol_time;
-			interpolate_frame(d_play, d_recorded);
-			return;
+			return std::max(interpolate_frame(d_play, d_recorded), result);
 		}
 		else {
 			if (newdemo_read_frame_information(0) == -1) {
 				newdemo_stop_playback();
-				return;
+				return window_event_result::close;
 			}
 			if (nd_playback_v_style == SKIP_PLAYBACK) {
 				while (nd_playback_total > nd_recorded_total) {
 					if (newdemo_read_frame_information(0) == -1) {
 						newdemo_stop_playback();
-						return;
+						return window_event_result::close;
 					}
 				}
 			}
 		}
 	}
+
+	return result;
 }
 
 void newdemo_start_recording()
@@ -4083,8 +4105,12 @@ void newdemo_start_playback(const char * filename)
 	HUD_clear_messages();
 	if (!Game_wind)
 		hide_menus();
-	newdemo_playback_one_frame();       // this one loads new level
-	newdemo_playback_one_frame();       // get all of the objects to renderb game
+	auto result = newdemo_playback_one_frame();       // this one loads new level
+	result = std::max(newdemo_playback_one_frame(), result);       // get all of the objects to renderb game
+
+	if (result == window_event_result::close)
+		return;	// whoops, there was an error reading the first two frames! Abort!
+
 	if (!Game_wind)
 		Game_wind = game_setup();							// create game environment
 }
@@ -4107,9 +4133,6 @@ void newdemo_stop_playback()
 	
 	// Required for the editor
 	obj_relink_all();
-	
-	if (Game_wind)
-		window_close(Game_wind);               // Exit game loop
 }
 }
 

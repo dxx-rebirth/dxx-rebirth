@@ -1485,9 +1485,12 @@ window_event_result GameProcessFrame()
 
 	flash_frame();
 
-	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		newdemo_playback_one_frame();
-		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
+	if ( Newdemo_state == ND_STATE_PLAYBACK )
+	{
+		result = std::max(newdemo_playback_one_frame(), result);
+		if ( Newdemo_state != ND_STATE_PLAYBACK )
+		{
+			Assert(result == window_event_result::close);
 			return window_event_result::close;	// Go back to menu
 		}
 	}
