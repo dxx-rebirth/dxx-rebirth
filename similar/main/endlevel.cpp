@@ -690,8 +690,7 @@ window_event_result do_endlevel_frame()
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
-						result = std::max(stop_endlevel_sequence(), result);
-						return result;
+						return std::max(stop_endlevel_sequence(), result);
 					}
 
 					Viewer = endlevel_camera = objnum;
