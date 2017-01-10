@@ -3445,7 +3445,7 @@ void multi_prep_level_player(void)
 
 }
 
-int multi_level_sync(void)
+window_event_result multi_level_sync(void)
 {
 	switch (multi_protocol)
 	{
@@ -3458,6 +3458,8 @@ int multi_level_sync(void)
 			Error("Protocol handling missing in multi_level_sync\n");
 			break;
 	}
+
+	return window_event_result::ignored;
 }
 
 namespace dsx {

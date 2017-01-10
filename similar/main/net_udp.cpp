@@ -4330,11 +4330,8 @@ static int net_udp_start_game(void)
 
 	Netgame.protocol.udp.your_index = 0; // I am Host. I need to know that y'know? For syncing later.
 	
-	if(net_udp_select_players())
-	{
-		StartNewLevel(Netgame.levelnum);
-	}
-	else
+	if (!net_udp_select_players()
+		|| StartNewLevel(Netgame.levelnum) == window_event_result::close)
 	{
 		Game_mode = GM_GAME_OVER;
 		return 0;	// see if we want to tweak the game we setup
@@ -4447,7 +4444,7 @@ menu:
 }
 
 /* Do required syncing after each level, before starting new one */
-int net_udp_level_sync()
+window_event_result net_udp_level_sync()
 {
 	int result = 0;
 
@@ -4471,13 +4468,11 @@ int net_udp_level_sync()
 	{
 		get_local_player().connected = CONNECT_DISCONNECTED;
 		net_udp_send_endlevel_packet();
-		if (Game_wind)
-			window_close(Game_wind);
 		show_menus();
 		net_udp_close();
-		return -1;
+		return window_event_result::close;
 	}
-	return(0);
+	return window_event_result::handled;
 }
 
 namespace dsx {
@@ -4537,9 +4532,7 @@ int net_udp_do_join_game()
 
 	net_udp_set_game_mode(Netgame.gamemode);
 
-	StartNewLevel(Netgame.levelnum);
-	
-	return 1;     // look ma, we're in a game!!!
+	return StartNewLevel(Netgame.levelnum) == window_event_result::handled;     // look ma, we're in a game!!! (If level syncing didn't fail -kreatordxx)
 }
 }
 

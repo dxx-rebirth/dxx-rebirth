@@ -559,7 +559,7 @@ void multi_add_lifetime_kills(int count);
 void multi_send_bounty( void );
 
 void multi_consistency_error(int reset);
-int multi_level_sync(void);
+window_event_result multi_level_sync();
 int multi_endlevel(int *secret);
 using multi_endlevel_poll = int(newmenu *menu,const d_event &event, const unused_newmenu_userdata_t *);
 multi_endlevel_poll *get_multi_endlevel_poll2();

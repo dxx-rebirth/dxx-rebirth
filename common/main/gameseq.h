@@ -60,7 +60,7 @@ namespace dsx {
 void StartNewGame(int start_level);
 
 // starts the next level
-void StartNewLevel(int level_num);
+window_event_result StartNewLevel(int level_num);
 
 }
 #endif

@@ -1450,7 +1450,7 @@ static window_event_result AdvanceLevel(int secret_flag)
                 }
 		// END NMN
 #endif
-		StartNewLevel(Next_level_num);
+		rval = std::max(StartNewLevel(Next_level_num), rval);
 	}
 
 	return rval;
@@ -1563,9 +1563,9 @@ window_event_result DoPlayerDead()
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
 #if defined(DXX_BUILD_DESCENT_I)
-void StartNewLevelSub(const int level_num, const int page_in_textures)
+window_event_result StartNewLevelSub(const int level_num, const int page_in_textures)
 #elif defined(DXX_BUILD_DESCENT_II)
-void StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
+window_event_result StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
 	if (!(Game_mode & GM_MULTI)) {
@@ -1597,11 +1597,11 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 	if (Game_mode & GM_NETWORK)
 	{
-                multi_prep_level_objects();
-		if(multi_level_sync()) // After calling this, Player_num is set
+		multi_prep_level_objects();
+		if (multi_level_sync() == window_event_result::close) // After calling this, Player_num is set
 		{
 			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
-			return;
+			return window_event_result::close;
 		}
 	}
 
@@ -1690,6 +1690,8 @@ void StartNewLevelSub(const int level_num, const int page_in_textures, const sec
 
 	if (!Game_wind)
 		game();
+
+	return window_event_result::handled;
 }
 
 }
@@ -1799,7 +1801,7 @@ static void maybe_set_first_secret_visit(int level_num)
 //called when the player is starting a new level for normal game model
 //	secret_flag if came from a secret level
 namespace dsx {
-void StartNewLevel(int level_num)
+window_event_result StartNewLevel(int level_num)
 {
 	hide_menus();
 
@@ -1818,7 +1820,7 @@ void StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	StartNewLevelSub(level_num, 1, secret_restore::none);
+	return StartNewLevelSub(level_num, 1, secret_restore::none);
 
 }
 }
