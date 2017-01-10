@@ -3488,7 +3488,12 @@ class DXXCommon(LazyObjectConstructor):
 		env = self.env
 		user_settings = self.user_settings
 
-		env.Prepend(CXXFLAGS = ['-g', '-O2'])
+		if user_settings.debug:
+			env.Prepend(CXXFLAGS = ['-O0'])
+		else:
+			env.Prepend(CXXFLAGS = ['-O2'])
+
+		env.Prepend(CXXFLAGS = ['-g'])
 		# Raspberry Pi?
 		if user_settings.raspberrypi:
 			rpi_vc_path = user_settings.rpi_vc_path

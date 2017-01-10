@@ -133,12 +133,12 @@ public:
 		return get_union_member(nm_private_slider);
 	}
 	number_slider_common_type *number_or_slider() {
-		return (type == nm_private_number.nm_type || type == nm_private_slider.nm_type)
+		return (type == NM_TYPE_NUMBER || type == NM_TYPE_SLIDER)
 			? &nm_private_number
 			: nullptr;
 	}
 	input_common_type *input_or_menu() {
-		return (type == nm_private_input.nm_type || type == nm_private_imenu.nm_type)
+		return (type == NM_TYPE_INPUT || type == NM_TYPE_INPUT_MENU)
 			? &nm_private_input
 			: nullptr;
 	}
