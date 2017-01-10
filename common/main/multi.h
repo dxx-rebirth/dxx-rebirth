@@ -502,7 +502,7 @@ void multi_do_ping_frame();
 
 void multi_init_objects(void);
 void multi_do_protocol_frame(int force, int listen);
-void multi_do_frame(void);
+window_event_result multi_do_frame();
 
 #ifdef dsx
 namespace dsx {
