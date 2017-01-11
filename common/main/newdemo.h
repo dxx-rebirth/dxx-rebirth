@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "physfsx.h"
 #include "fwd-object.h"
+#include "fwd-window.h"
 
 class object_signature_t;
 
@@ -140,13 +141,13 @@ extern void newdemo_record_secret_exit_blown(int truth);
 
 // Functions called during playback process...
 extern void newdemo_object_move_all();
-extern void newdemo_playback_one_frame();
+extern window_event_result newdemo_playback_one_frame();
 #ifdef dsx
 namespace dsx {
-extern void newdemo_goto_end(int to_rewrite);
+extern window_event_result newdemo_goto_end(int to_rewrite);
 }
 #endif
-extern void newdemo_goto_beginning();
+extern window_event_result newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
 #ifdef dsx

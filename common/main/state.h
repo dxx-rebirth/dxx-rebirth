@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include <cstddef>
 #include "dsx-ns.h"
+#include "fwd-window.h"
 
 extern unsigned state_game_id;
 extern int state_quick_item;
@@ -101,11 +102,11 @@ static inline int state_restore_all(int in_game, secret_restore, std::nullptr_t,
 {
 	return state_restore_all(in_game, nullptr, blind);
 }
-void StartNewLevelSub(int level_num, int page_in_textures);
+window_event_result StartNewLevelSub(int level_num, int page_in_textures);
 // Actually does the work to start new level
-static inline void StartNewLevelSub(int level_num, int page_in_textures, secret_restore)
+static inline window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore)
 {
-	StartNewLevelSub(level_num, page_in_textures);
+	return StartNewLevelSub(level_num, page_in_textures);
 }
 void init_player_stats_level();
 static inline void init_player_stats_level(secret_restore)
@@ -117,7 +118,7 @@ int state_restore_all_sub(const char *filename, secret_restore);
 void set_pos_from_return_segment(void);
 int state_save_all(secret_save, blind_save);
 int state_restore_all(int in_game, secret_restore, const char *filename_override, blind_save);
-void StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
+window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
 void init_player_stats_level(secret_restore);
 #endif
 }

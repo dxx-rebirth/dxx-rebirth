@@ -458,7 +458,7 @@ static int HandleDeathInput(const d_event &event)
 	return 0;
 }
 
-static int HandleDemoKey(int key)
+static window_event_result HandleDemoKey(int key)
 {
 	switch (key) {
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
@@ -487,6 +487,7 @@ static int HandleDemoKey(int key)
 					break;
 			}
 			newdemo_stop_playback();
+			return window_event_result::close;
 			break;
 		case KEY_UP:
 			Newdemo_vcr_state = ND_STATE_PLAYBACK;
@@ -503,10 +504,10 @@ static int HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 			break;
 		case KEY_CTRLED + KEY_RIGHT:
-			newdemo_goto_end(0);
+			return newdemo_goto_end(0);
 			break;
 		case KEY_CTRLED + KEY_LEFT:
-			newdemo_goto_beginning();
+			return newdemo_goto_beginning();
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_P:)
@@ -574,10 +575,10 @@ static int HandleDemoKey(int key)
 #endif
 
 		default:
-			return 0;
+			return window_event_result::ignored;
 	}
 
-	return 1;
+	return window_event_result::handled;
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1893,8 +1894,9 @@ window_event_result ReadControls(const d_event &event)
 		}
 		else if (Newdemo_state == ND_STATE_PLAYBACK )
 		{
-			if (HandleDemoKey(key))
-				return window_event_result::handled;
+			auto r = HandleDemoKey(key);
+			if (r != window_event_result::ignored)
+				return r;
 		}
 		else
 		{

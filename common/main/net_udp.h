@@ -44,7 +44,7 @@ int net_udp_kmatrix_poll2( newmenu *menu,const d_event &event, const unused_newm
 void net_udp_send_endlevel_packet();
 void net_udp_dump_player(const _sockaddr &dump_addr, int why);
 void net_udp_disconnect_player(int playernum);
-int net_udp_level_sync();
+window_event_result net_udp_level_sync();
 void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int priority);
 void net_udp_send_netgame_update();
 

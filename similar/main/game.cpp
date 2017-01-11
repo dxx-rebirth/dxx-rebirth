@@ -1208,7 +1208,6 @@ namespace dsx {
 // Event handler for the game
 window_event_result game_handler(window *,const d_event &event, const unused_window_userdata_t *)
 {
-	const bool was_game_wind = Game_wind != nullptr;
 	auto result = window_event_result::ignored;
 
 	switch (event.type)
@@ -1275,7 +1274,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			Game_wind = nullptr;	// Don't let any of the code below close Game_wind - it's already being done!
+			Game_wind = nullptr;
 			digi_stop_digi_sounds();
 
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1302,11 +1301,6 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 		default:
 			break;
 	}
-
-	// If we deleted the window ***in this call of the handler***, tell the event loop
-	// Will be removed when no cases of this left
-	if (!Game_wind && was_game_wind)
-		result = window_event_result::deleted;
 
 	return result;
 }
@@ -1444,7 +1438,7 @@ window_event_result GameProcessFrame()
 
 	if (Game_mode & GM_MULTI)
 	{
-		multi_do_frame();
+		result = std::max(multi_do_frame(), result);
 		if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
 			multi_check_for_killgoal_winner();
 	}
@@ -1485,9 +1479,12 @@ window_event_result GameProcessFrame()
 
 	flash_frame();
 
-	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		newdemo_playback_one_frame();
-		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
+	if ( Newdemo_state == ND_STATE_PLAYBACK )
+	{
+		result = std::max(newdemo_playback_one_frame(), result);
+		if ( Newdemo_state != ND_STATE_PLAYBACK )
+		{
+			Assert(result == window_event_result::close);
 			return window_event_result::close;	// Go back to menu
 		}
 	}

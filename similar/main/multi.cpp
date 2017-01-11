@@ -983,7 +983,7 @@ void multi_do_protocol_frame(int force, int listen)
 	}
 }
 
-void multi_do_frame(void)
+window_event_result multi_do_frame()
 {
 	static int lasttime=0;
 	static fix64 last_gmode_time = 0, last_inventory_time = 0, last_repo_time = 0;
@@ -992,7 +992,7 @@ void multi_do_frame(void)
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
 	{
 		Int3();
-		return;
+		return window_event_result::ignored;
 	}
 
 	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed && lasttime!=f2i (ThisLevelTime))
@@ -1041,12 +1041,7 @@ void multi_do_frame(void)
 
 	multi_do_protocol_frame(0, 1);
 
-	if (multi_quit_game)
-	{
-		multi_quit_game = 0;
-		if (Game_wind)
-			window_close(Game_wind);
-	}
+	return multi_quit_game ? window_event_result::close : window_event_result::handled;
 }
 
 void _multi_send_data(const ubyte *buf, unsigned len, int priority)
@@ -3445,7 +3440,7 @@ void multi_prep_level_player(void)
 
 }
 
-int multi_level_sync(void)
+window_event_result multi_level_sync(void)
 {
 	switch (multi_protocol)
 	{
@@ -3458,6 +3453,8 @@ int multi_level_sync(void)
 			Error("Protocol handling missing in multi_level_sync\n");
 			break;
 	}
+
+	return window_event_result::ignored;
 }
 
 namespace dsx {
