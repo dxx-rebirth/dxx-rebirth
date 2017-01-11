@@ -3865,6 +3865,9 @@ class DXXProgram(DXXCommon):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			rcbasename = os.path.join(program.srcdir, 'arch/win32/%s' % program.target)
 			self.platform_objects = [(env.RES(target='%s%s%s' % (program.user_settings.builddir, rcbasename, env["OBJSUFFIX"]), source='%s.rc' % rcbasename))]
+			env.Prepend(
+				CXXFLAGS = ['-fno-omit-frame-pointer'],
+			)
 			env.Append(
 				CPPPATH = [os.path.join(program.srcdir, 'arch/win32/include')],
 				LIBS = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL'],
