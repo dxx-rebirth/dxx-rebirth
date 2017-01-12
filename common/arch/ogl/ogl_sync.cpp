@@ -33,9 +33,9 @@ ogl_sync::~ogl_sync()
 		con_printf(CON_URGENT, "fence sync object was never destroyed!");
 }
 
-void ogl_sync::sync_deleter::operator()(GLsync fence) const
+void ogl_sync::sync_deleter::operator()(GLsync fence_func) const
 {
-	glDeleteSyncFunc(fence);
+	glDeleteSyncFunc(fence_func);
 }
 
 void ogl_sync::before_swap()
