@@ -4543,7 +4543,7 @@ void net_udp_leave_game()
 
 	net_udp_do_frame(1, 1);
 
-	if ((multi_i_am_master()))
+	if (multi_i_am_master())
 	{
 		while (Network_sending_extras>1 && Player_joining_extras!=-1)
 		{
