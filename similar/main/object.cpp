@@ -1861,8 +1861,8 @@ static window_event_result object_move_one(const vobjptridx_t obj)
 		}
 	}
 
-	return result;
 #endif
+	return result;
 }
 
 //--------------------------------------------------------------------
