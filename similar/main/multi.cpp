@@ -303,7 +303,7 @@ void powerup_cap_state::cap_secondary_ammo(powerup_type_t type, uint8_t &player_
 		return;
 	const auto capped = static_cast<uint8_t>(current_in_mine < maximum_allowed ? maximum_allowed - current_in_mine : 0);
 	player_ammo = capped;
-	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
+	con_printf(CON_VERBOSE, "Capping secondary %u due to powerup cap: current=%u max=%u was=%u now=%hhu", idx, get_current(idx), get_max(idx), static_cast<unsigned>(current_on_player), capped);
 }
 
 void powerup_cap_state::cap_flag(player_flags &player_flags, const PLAYER_FLAG powerup_flag, const powerup_type_t idx) const
