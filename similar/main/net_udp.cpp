@@ -2790,8 +2790,6 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 	{
 		case DUMP_PKTTIMEOUT:
 		case DUMP_KICKED:
-			if (Network_status==NETSTAT_PLAYING)
-				multi_leave_game();
 			if (Game_wind)
 				window_set_visible(Game_wind, 0);
 			if (data[1] == DUMP_PKTTIMEOUT)
@@ -2802,7 +2800,6 @@ static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
 				window_set_visible(Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
-			multi_reset_stuff();
 			break;
 		default:
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
@@ -4770,8 +4767,6 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 		else // I am just a client. I gotta go.
 		{
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-			if (Network_status==NETSTAT_PLAYING)
-				multi_leave_game();
 			if (Game_wind)
 				window_set_visible(Game_wind, 0);
 			nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
@@ -4779,7 +4774,6 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort d
 				window_set_visible(Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
-			multi_reset_stuff();
 		}
 		Assert(UDP_mdata_queue_highest == (UDP_MDATA_STOR_QUEUE_SIZE - 1));
 	}
@@ -4974,8 +4968,6 @@ void net_udp_noloss_process_queue(fix64 time)
 				else // We are client, so we gotta go.
 				{
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-					if (Network_status==NETSTAT_PLAYING)
-						multi_leave_game();
 					if (Game_wind)
 						window_set_visible(Game_wind, 0);
 					nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
@@ -4983,7 +4975,6 @@ void net_udp_noloss_process_queue(fix64 time)
 						window_set_visible(Game_wind, 1);
 					multi_quit_game = 1;
 					game_leave_menus();
-					multi_reset_stuff();
 				}
 			}
 			con_printf(CON_VERBOSE, "P#%u: Removing stored pkt_num [%i,%i,%i,%i,%i,%i,%i,%i] - missing ACKs: %i",Player_num, UDP_mdata_queue[queuec].pkt_num[0],UDP_mdata_queue[queuec].pkt_num[1],UDP_mdata_queue[queuec].pkt_num[2],UDP_mdata_queue[queuec].pkt_num[3],UDP_mdata_queue[queuec].pkt_num[4],UDP_mdata_queue[queuec].pkt_num[5],UDP_mdata_queue[queuec].pkt_num[6],UDP_mdata_queue[queuec].pkt_num[7], needack); // Just *marked* for removal. The actual process happens further below.
