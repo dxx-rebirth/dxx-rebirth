@@ -2120,11 +2120,44 @@ int do_laser_firing(vobjptridx_t objp, int weapon_num, int level, int flags, int
 
 namespace dcx {
 
-#define	MAX_OBJDISTS			30
+constexpr unsigned MAX_OBJDISTS = 30;
 
 }
 
 namespace dsx {
+
+bool laser_info::test_set_hitobj(const vcobjidx_t o)
+{
+	if (const auto r = test_hitobj(o))
+		return r;
+	const std::size_t values_size = hitobj_values.size();
+	assert(hitobj_count <= values_size);
+	assert(hitobj_pos < values_size);
+	hitobj_values[hitobj_pos++] = o;
+	if (unlikely(hitobj_pos == values_size))
+		hitobj_pos = 0;
+	if (likely(hitobj_count != values_size))
+		++ hitobj_count;
+	return false;
+}
+
+bool laser_info::test_hitobj(const vcobjidx_t o) const
+{
+	/* Search backward so that the highest added element is the first
+	 * one considered.  This preserves most of the benefit of tracking
+	 * the most recent hit separately, without storing it separately or
+	 * requiring expensive shift operations as new elements are added.
+	 *
+	 * This efficiency hack becomes ineffective (but not incorrect) if
+	 * the list wraps.  Wrapping should be very rare, and even a full
+	 * search is relatively cheap, so it is not worth complicating the
+	 * code to ensure that elements are always searched in
+	 * most-recently-added order.
+	 */
+	const auto &&r = partial_range(hitobj_values, hitobj_count).reversed();
+	const auto &&e = r.end();
+	return std::find(r.begin(), e, o) != e;
+}
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector

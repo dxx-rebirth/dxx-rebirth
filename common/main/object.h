@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 
 #ifdef __cplusplus
-#include <bitset>
 #include <cassert>
 #include <cstdint>
 #include "dxxsconf.h"
@@ -215,86 +214,69 @@ namespace dsx {
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
-	struct hitobj_list_t : public prohibit_void_ptr<hitobj_list_t>
-	{
-		typedef std::bitset<MAX_OBJECTS> mask_type;
-		mask_type mask;
-		struct proxy
-		{
-			mask_type &mask;
-			std::size_t i;
-			proxy(mask_type &m, std::size_t s) :
-				mask(m), i(s)
-			{
-			}
-			explicit operator bool() const
-			{
-				return mask.test(i);
-			}
-			proxy &operator=(bool b)
-			{
-				mask.set(i, b);
-				return *this;
-			}
-			template <typename T>
-				void operator=(T) = delete;
-		};
-		proxy operator[](objnum_t i)
-		{
-			return proxy(mask, i);
-		}
-		bool operator[](objnum_t i) const
-		{
-			return mask.test(i);
-		}
-		void clear()
-		{
-			mask.reset();
-		}
-	};
 	fix64   creation_time;      // Absolute time of creation.
-	hitobj_list_t hitobj_list;	// list of all objects persistent weapon has already damaged (useful in case it's in contact with two objects at the same time)
-	objnum_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
+	/* hitobj_pos specifies the next position to which a value should be
+	 * written.  That position may have a defined value if the array has
+	 * wrapped, but should be treated as write-only in the general case.
+	 *
+	 * hitobj_count tells how many elements in hitobj_values[] are
+	 * valid.  Its valid values are [0, hitobj_values.size()].  When
+	 * hitobj_count == hitobj_values.size(), hitobj_pos wraps around and
+	 * begins erasing the oldest elements first.
+	 */
+	uint8_t hitobj_pos, hitobj_count;
+	std::array<objnum_t, 83> hitobj_values;
 	objnum_t   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 #if defined(DXX_BUILD_DESCENT_II)
 	fix64	last_afterburner_time;	//	Time at which this object last created afterburner blobs.
 #endif
 	constexpr laser_info() :
-		creation_time{}, last_hitobj{}, track_goal{}, multiplier{}
+		creation_time{}, hitobj_pos{}, hitobj_count{}, hitobj_values{}, track_goal{}, multiplier{}
 #if defined(DXX_BUILD_DESCENT_II)
 		, last_afterburner_time{}
 #endif
 	{
 	}
-	bool test_set_hitobj(const vcobjidx_t o)
-	{
-		auto &&r = hitobj_list[o];
-		if (r)
-			return true;
-		r = true;
-		last_hitobj = o;
-		return false;
-	}
-	bool test_hitobj(const vcobjidx_t o) const
-	{
-		return hitobj_list[o];
-	}
+	bool test_set_hitobj(const vcobjidx_t o);
+	bool test_hitobj(const vcobjidx_t o) const;
 	cobjidx_t get_last_hitobj() const
 	{
-		return last_hitobj;
+		if (!hitobj_count)
+			/* If no elements, return object_none */
+			return object_none;
+		/* Return the most recently written element.  `hitobj_pos`
+		 * indicates the element to write next, so return
+		 * hitobj_values[hitobj_pos - 1].  When hitobj_pos == 0, the
+		 * most recently written element is at the end of the array, not
+		 * before the beginning of the array.
+		 */
+		if (!hitobj_pos)
+			return hitobj_values.back();
+		return hitobj_values[hitobj_pos - 1];
 	}
 	void clear_hitobj()
 	{
-		last_hitobj = object_none;
-		hitobj_list.clear();
+		hitobj_pos = hitobj_count = 0;
 	}
 	void reset_hitobj(const cobjidx_t o)
 	{
-		last_hitobj = o;
 		if (o == object_none)
+		{
+			/* Adding object_none to the array is harmless, since
+			 * get_last_hitobj can return object_none for empty arrays.
+			 * However, by filtering it here (which is called only when
+			 * loading data into new objects), test_hitobj (which is
+			 * called every time the object strikes a potential target)
+			 * will not need to read a slot that is guaranteed not to
+			 * match.
+			 */
+			clear_hitobj();
 			return;
-		hitobj_list[o] = true;
+		}
+		/* Assume caller already poisoned the unused array elements */
+		hitobj_pos = hitobj_count = 1;
+		hitobj_values[0] = o;
 	}
 };
 
