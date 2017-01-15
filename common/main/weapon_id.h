@@ -10,6 +10,9 @@
 
 #include <cstdint>
 
+#ifdef dsx
+namespace dsx {
+
 enum weapon_id_type : uint8_t
 {
 	LASER_ID_L1,
@@ -100,3 +103,5 @@ enum weapon_id_type : uint8_t
 	unspecified = 0xff,
 };
 
+}
+#endif
