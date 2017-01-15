@@ -130,7 +130,7 @@ struct delta_light;
 struct dl_index;
 
 constexpr std::size_t MAX_DL_INDICES = 500;
-constexpr std::size_t MAX_DELTA_LIGHTS = 10000;
+constexpr std::size_t MAX_DELTA_LIGHTS = 32000; // Original D2: 10000;
 
 constexpr fix DL_SCALE = 2048;    // Divide light to allow 3 bits integer, 5 bits fraction.
 
