@@ -255,22 +255,6 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 		return;
 	}
 
-#if DXX_USE_OGL
-	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
-	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
-		return;
-	}
-	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::linear)
-	{
-		return;
-	}
-	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::ogl)
-	{
-		return;
-	}
-#endif
-
 	if ((src.bm_flags & BM_FLAG_RLE) && src.get_type() == bm_mode::linear)
 	{
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
@@ -352,21 +336,6 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 {
 	ubyte c;
 
-#if DXX_USE_OGL
-	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::ogl)
-	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
-		return;
-	}
-	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::linear)
-	{
-		return;
-	}
-	if (src.get_type() == bm_mode::ogl && dest.get_type() == bm_mode::ogl)
-	{
-		return;
-	}
-#endif
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 		for (uint_fast32_t x1 = 0; x1 != w; ++x1)
 			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
