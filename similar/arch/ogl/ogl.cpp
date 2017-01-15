@@ -133,7 +133,7 @@ static int ogl_texture_list_cur;
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-static int ogl_loadtexture(const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad) __attribute_nonnull();
+static int ogl_loadtexture(const palette_array_t &, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad) __attribute_nonnull();
 static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm, bool edgepad)
@@ -1147,9 +1147,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	
 	OGL_ENABLE(TEXTURE_2D);
 	
-	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.get_flags(), 0, texfilt, 0, 0);
-	ogl_pal=&gr_palette;
+	ogl_loadtexture(gr_current_pal, src.get_bitmap_data(), sx, sy, tex, src.get_flags(), 0, texfilt, 0, 0);
 	OGL_BINDTEXTURE(tex.handle);
 	
 	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
@@ -1301,7 +1299,7 @@ void ogl_close_pixel_buffers(void)
 	texbuf.reset();
 }
 
-static void ogl_filltexbuf(const uint8_t *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
+static void ogl_filltexbuf(const palette_array_t &pal, const uint8_t *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
 	if ((width > max(static_cast<unsigned>(grd_curscreen->get_screen_width()), 1024u)) ||
 		(height > max(static_cast<unsigned>(grd_curscreen->get_screen_height()), 256u)))
@@ -1410,15 +1408,15 @@ static void ogl_filltexbuf(const uint8_t *data, GLubyte *texp, unsigned truewidt
 						(*(texp++))=255;
 						break;
 					case GL_RGB:
-						(*(texp++)) = (*ogl_pal)[c].r * 4;
-						(*(texp++)) = (*ogl_pal)[c].g * 4;
-						(*(texp++)) = (*ogl_pal)[c].b * 4;
+						(*(texp++)) = pal[c].r * 4;
+						(*(texp++)) = pal[c].g * 4;
+						(*(texp++)) = pal[c].b * 4;
 						break;
 					case GL_RGBA:
-						(*(texp++))=(*ogl_pal)[c].r*4;
-						(*(texp++))=(*ogl_pal)[c].g*4;
-						(*(texp++))=(*ogl_pal)[c].b*4;
-						(*(texp++))=255;//not transparent
+						(*(texp++)) = pal[c].r * 4;
+						(*(texp++)) = pal[c].g * 4;
+						(*(texp++)) = pal[c].b * 4;
+						(*(texp++)) = 255;//not transparent
 						break;
 #if !DXX_USE_OGLES
 					case GL_COLOR_INDEX:
@@ -1502,7 +1500,7 @@ static void tex_set_size(ogl_texture &tex)
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad)
+static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, int texfilt, bool texanis, bool edgepad)
 {
 	tex.tw = pow2ize (tex.w);
 	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
@@ -1515,7 +1513,7 @@ static int ogl_loadtexture (const uint8_t *data, int dxo, int dyo, ogl_texture &
 	const uint8_t *outP = texbuf.get();
 	{
 		if (bm_flags >= 0)
-			ogl_filltexbuf (data, texbuf.get(), tex.lw, tex.w, tex.h, dxo, dyo, tex.tw, tex.th, 
+			ogl_filltexbuf (pal, data, texbuf.get(), tex.lw, tex.w, tex.h, dxo, dyo, tex.tw, tex.th,
 								 tex.format, bm_flags, data_format);
 		else {
 			if (!dxo && !dyo && (tex.w == tex.tw) && (tex.h == tex.th))
@@ -1793,7 +1791,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
+	ogl_loadtexture(gr_palette, buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
 }
 
 static void ogl_freetexture(ogl_texture &gltexture)
