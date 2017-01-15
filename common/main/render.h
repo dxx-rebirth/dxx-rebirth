@@ -76,22 +76,16 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 // these functions change different rendering parameters
 // all return the new value of the parameter
 
-// how may levels deep to render
-int inc_render_depth(void);
-int dec_render_depth(void);
-int reset_render_depth(void);
-
-// how many levels deep to render in perspective
-int inc_perspective_depth(void);
-int dec_perspective_depth(void);
-int reset_perspective_depth(void);
-
 // misc toggles
 int toggle_outline_mode(void);
 
 // When any render function needs to know what's looking at it, it
 // should access Render_viewer_object members.
-extern fix Render_zoom;     // the player's zoom factor
+extern
+#if !DXX_USE_EDITOR && defined(RELEASE)
+const
+#endif
+fix Render_zoom;     // the player's zoom factor
 
 #ifdef dsx
 namespace dsx {
@@ -100,7 +94,7 @@ constexpr fix Seismic_tremor_magnitude = 0;
 constexpr uint8_t RenderingType = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern fix Seismic_tremor_magnitude;
-extern ubyte RenderingType;
+extern uint8_t RenderingType;
 #endif
 }
 #endif

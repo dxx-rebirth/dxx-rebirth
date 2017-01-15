@@ -101,6 +101,9 @@ object * Viewer = NULL;
 
 vms_vector Viewer_eye;  //valid during render
 
+#if !DXX_USE_EDITOR && defined(RELEASE)
+constexpr
+#endif
 fix Render_zoom = 0x9000;					//the player's zoom factor
 
 #ifndef NDEBUG
@@ -739,12 +742,13 @@ g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-static void project_list(array<int, 8> &pointnumlist)
+static void project_list(const array<int, 8> &pointnumlist)
 {
 	range_for (const auto pnum, pointnumlist)
 	{
-		if (!(Segment_points[pnum].p3_flags & PF_PROJECTED))
-			g3_project_point(Segment_points[pnum]);
+		auto &p = Segment_points[pnum];
+		if (!(p.p3_flags & PF_PROJECTED))
+			g3_project_point(p);
 	}
 }
 
@@ -812,31 +816,6 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 }
 
 #endif
-#endif
-
-#if 0		//this stuff could probably just be deleted
-
-#define DEFAULT_PERSPECTIVE_DEPTH 6
-
-int Perspective_depth=DEFAULT_PERSPECTIVE_DEPTH;	//how many levels deep to render in perspective
-
-int inc_perspective_depth(void)
-{
-	return ++Perspective_depth;
-
-}
-
-int dec_perspective_depth(void)
-{
-	return Perspective_depth==1?Perspective_depth:--Perspective_depth;
-
-}
-
-int reset_perspective_depth(void)
-{
-	return Perspective_depth = DEFAULT_PERSPECTIVE_DEPTH;
-
-}
 #endif
 
 static ubyte code_window_point(fix x,fix y,const rect &w)
@@ -1308,7 +1287,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 
 			processed = true;
 
-			auto seg = vsegptridx(segnum);
+			const auto &&seg = vcsegptridx(segnum);
 			const auto uor = rotate_list(seg->verts).uor & CC_BEHIND;
 
 			//look at all sides of this segment.
@@ -1339,7 +1318,7 @@ static void build_segment_list(render_state_t &rstate, visited_twobit_array_t &v
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)
 			{
-				auto ch=seg->children[siden];
+				const auto ch = seg->children[siden];
 				{
 					{
 						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
