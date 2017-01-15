@@ -1139,6 +1139,8 @@ void multi_leave_game()
 #if defined(DXX_BUILD_DESCENT_I)
 	plyr_save_stats();
 #endif
+
+	multi_quit_game = 0;	// quit complete
 }
 
 }
@@ -2088,8 +2090,6 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{
-		if (Network_status==NETSTAT_PLAYING)
-			multi_leave_game();
 		if (Game_wind)
 			window_set_visible(Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
@@ -2097,7 +2097,6 @@ void multi_disconnect_player(const playernum_t pnum)
 			window_set_visible(Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
-		multi_reset_stuff();
 		return;
 	}
 

@@ -1274,7 +1274,6 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			Game_wind = nullptr;
 			digi_stop_digi_sounds();
 
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1295,6 +1294,7 @@ window_event_result game_handler(window *,const d_event &event, const unused_win
 				show_menus();
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
+			Game_wind = nullptr;
 			return window_event_result::ignored;
 			break;
 
