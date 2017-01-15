@@ -81,11 +81,9 @@ void fuelcen_update_all();
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
-#define MAX_NUM_FUELCENS	50
-#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_NUM_FUELCENS 128 // Original D1: 50, Original D2: 70
+#if defined(DXX_BUILD_DESCENT_II)
 fix repaircen_give_shields(vcsegptr_t segp, fix MaxAmountCanTake);
-#define MAX_NUM_FUELCENS    70
 #endif
 }
 #endif
@@ -114,7 +112,7 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 };
 
 // The max number of robot centers per mine.
-#define MAX_ROBOT_CENTERS  20
+#define MAX_ROBOT_CENTERS  128 // Original D1/D2: 20
 
 struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
 {
