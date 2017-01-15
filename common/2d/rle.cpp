@@ -337,7 +337,7 @@ int gr_bitmap_rle_compress(grs_bitmap &bmp)
 	}
 	memcpy(bmp.get_bitmap_data(), &doffset, 4);
 	memcpy(&bmp.get_bitmap_data()[4], &rle_data.get()[4], doffset - 4);
-	bmp.bm_flags |= BM_FLAG_RLE | large_rle;
+	bmp.add_flags(BM_FLAG_RLE | large_rle);
 	return 1;
 }
 
@@ -386,7 +386,7 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 	auto sbits = &bmp.get_bitmap_data()[4 + bmp.bm_h];
 	auto dbits = rle_temp_bitmap_1.get_bitmap_data();
 
-	rle_temp_bitmap_1.bm_flags = bmp.bm_flags & (~BM_FLAG_RLE);
+	rle_temp_bitmap_1.set_flags(bmp.get_flags() & (~BM_FLAG_RLE));
 
 	for (int i=0; i < bmp.bm_h; i++ ) {
 		gr_rle_decode({sbits, dbits}, rle_end(bmp, rle_temp_bitmap_1));
@@ -402,7 +402,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 
 	if (!rle_cache_initialized) rle_cache_init();
 
-	Assert( !(bmp.bm_flags & BM_FLAG_PAGED_OUT) );
+	Assert(!(bmp.get_flag_mask(BM_FLAG_PAGED_OUT)));
 
 	lc = rle_counter;
 	rle_counter++;
@@ -509,7 +509,7 @@ void rle_swap_0_255(grs_bitmap &bmp)
 	unsigned char *start;
 	unsigned short line_size;
 
-	rle_big = bmp.bm_flags & BM_FLAG_RLE_BIG;
+	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
 	RAIIdmem<uint8_t[]> temp;
 	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h));
@@ -563,7 +563,7 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 	unsigned char *start;
 	unsigned short line_size;
 
-	rle_big = bmp.bm_flags & BM_FLAG_RLE_BIG;
+	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
 	RAIIdmem<uint8_t[]> temp;
 	MALLOC(temp, uint8_t[], MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000);

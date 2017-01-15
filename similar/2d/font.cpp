@@ -352,7 +352,7 @@ static int gr_internal_color_string(grs_canvas &canvas, const int x, const int y
 //a bitmap for the character
 	grs_bitmap char_bm = {};
 	char_bm.set_type(bm_mode::linear);
-	char_bm.bm_flags = BM_FLAG_TRANSPARENT;
+	char_bm.set_flags(BM_FLAG_TRANSPARENT);
 	const char *text_ptr, *next_row, *text_ptr1;
 	int letter;
 	int xx,yy;

@@ -298,7 +298,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char *const name, cons
 #endif
 	if ( !in_file ) {
 		GameBitmapOffset[Num_bitmap_files] = 0;
-		GameBitmapFlags[Num_bitmap_files] = bmp.bm_flags;
+		GameBitmapFlags[Num_bitmap_files] = bmp.get_flags();
 	}
 	Num_bitmap_files++;
 
@@ -441,7 +441,7 @@ int properties_init()
 	for (unsigned i = 0; i < GameBitmaps.size(); ++i)
 	{
 		GameBitmapXlat[i] = i;
-		GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
+		GameBitmaps[i].set_flags(BM_FLAG_PAGED_OUT);
 	}
 
 	if ( !bogus_bitmap_initialized )	{
@@ -558,7 +558,7 @@ int properties_init()
 		gr_init_bitmap(temp_bitmap, bm_mode::linear, 0, 0, 
 			iwidth, bmh.height,
 			iwidth, Piggy_bitmap_cache_data);
-		temp_bitmap.bm_flags |= BM_FLAG_PAGED_OUT;
+		temp_bitmap.add_flags(BM_FLAG_PAGED_OUT);
 		temp_bitmap.avg_color = bmh.avg_color;
 
 		if (MacPig)
@@ -688,7 +688,7 @@ void piggy_init_pigfile(const char *filename)
 			strcpy( temp_name, temp_name_read );
 		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
-		bm->bm_flags = BM_FLAG_PAGED_OUT;
+		bm->set_flags(BM_FLAG_PAGED_OUT);
 		bm->avg_color = bmh.avg_color;
 
 		GameBitmapFlags[i+1] = bmh.flags & BM_FLAGS_TO_COPY;
@@ -800,7 +800,7 @@ void piggy_new_pigfile(char *pigname)
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
 			gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
-			bm->bm_flags = BM_FLAG_PAGED_OUT;
+			bm->set_flags(BM_FLAG_PAGED_OUT);
 			bm->avg_color = bmh.avg_color;
 
 			GameBitmapFlags[i] = bmh.flags & BM_FLAGS_TO_COPY;
@@ -867,7 +867,7 @@ void piggy_new_pigfile(char *pigname)
 					if (CGameArg.DbgNoCompressPigBitmap)
 						gr_bitmap_rle_compress(*bm[fnum].get());
 
-					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
+					if (bm[fnum]->get_flag_mask(BM_FLAG_RLE))
 						size = *reinterpret_cast<const int *>(bm[fnum]->bm_data);
 					else
 						size = bm[fnum]->bm_w * bm[fnum]->bm_h;
@@ -910,7 +910,7 @@ void piggy_new_pigfile(char *pigname)
 				if (CGameArg.DbgNoCompressPigBitmap)
 					gr_bitmap_rle_compress(n);
 
-				if (n.bm_flags & BM_FLAG_RLE)
+				if (n.get_flag_mask(BM_FLAG_RLE))
 					size = *reinterpret_cast<const int *>(n.bm_data);
 				else
 					size = n.bm_w * n.bm_h;
@@ -1303,7 +1303,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	bmp = &GameBitmaps[i];
 
-	if ( bmp->bm_flags & BM_FLAG_PAGED_OUT ) {
+	if (bmp->get_flag_mask(BM_FLAG_PAGED_OUT))
+	{
 		pause_game_world_time p;
 
 	ReDoIt:
@@ -1314,7 +1315,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		gr_set_bitmap_data (*bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
 #endif
 
-		if ( bmp->bm_flags & BM_FLAG_RLE ) {
+		if (bmp->get_flag_mask(BM_FLAG_RLE))
+		{
 			int zsize = PHYSFSX_readInt(Piggy_fp);
 #if defined(DXX_BUILD_DESCENT_I)
 
@@ -1449,7 +1451,7 @@ void piggy_bitmap_page_out_all()
 
 	for (i=0; i<Num_bitmap_files; i++ ) {
 		if ( GameBitmapOffset[i] > 0 ) {	// Don't page out bitmaps read from disk!!!
-			GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
+			GameBitmaps[i].set_flags(BM_FLAG_PAGED_OUT);
 			gr_set_bitmap_data(GameBitmaps[i], nullptr);
 		}
 	}
@@ -1528,7 +1530,7 @@ static void piggy_write_pigfile(const char *filename)
 		}
 		bmp = &GameBitmaps[i];
 
-		Assert( !(bmp->bm_flags&BM_FLAG_PAGED_OUT) );
+		assert(!bmp->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 		if (fp1)
 			PHYSFSX_printf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
@@ -1536,7 +1538,8 @@ static void piggy_write_pigfile(const char *filename)
 		bmh.offset = data_offset - bitmap_data_start;
 		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
 
-		if ( bmp->bm_flags & BM_FLAG_RLE ) {
+		if (bmp->get_flag_mask(BM_FLAG_RLE))
+		{
 			const auto size = reinterpret_cast<const int *>(bmp->bm_data);
 			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
 			data_offset += *size;
@@ -1555,7 +1558,7 @@ static void piggy_write_pigfile(const char *filename)
 		Assert( GameBitmaps[i].bm_h < 4096 );
 		bmh.height = GameBitmaps[i].bm_h;
 		bmh.wh_extra |= ((GameBitmaps[i].bm_h >> 4) & 0xf0);
-		bmh.flags = GameBitmaps[i].bm_flags;
+		bmh.flags = GameBitmaps[i].get_flags();
 		if (piggy_is_substitutable_bitmap( AllBitmaps[i].name, subst_name )) {
 			bitmap_index other_bitmap;
 			other_bitmap = piggy_find_bitmap( subst_name );

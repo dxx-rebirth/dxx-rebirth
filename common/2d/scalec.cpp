@@ -415,7 +415,8 @@ void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int 
 
 	dtemp = f2i(clipped_u1)-f2i(clipped_u0);
 
-	if ( bp.bm_flags & BM_FLAG_RLE )	{
+	if (bp.get_flag_mask(BM_FLAG_RLE))
+	{
 		if ( (dtemp < (f2i(clipped_x1)-f2i(clipped_x0))) && (dtemp>0) )
 			scale_up_bitmap_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1, orientation  );
 		else

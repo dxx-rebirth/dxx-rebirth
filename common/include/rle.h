@@ -71,7 +71,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp);
 static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp) __attribute_warn_unused_result;
 static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp)
 {
-	if (bmp.bm_flags & BM_FLAG_RLE)
+	if (bmp.get_flag_mask(BM_FLAG_RLE))
 		return _rle_expand_texture(bmp);
 	return &bmp;
 }

@@ -721,12 +721,13 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 		rgb[1] += t_rgb.g;
 		rgb[2] += t_rgb.b;
 	};
-	if (bm->bm_flags & BM_FLAG_RLE){
+	if (bm->get_flag_mask(BM_FLAG_RLE))
+	{
 		auto buf = make_unique<uint8_t[]>(bm_w);
 		int data_offset;
 
 		data_offset = 1;
-		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+		if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
 			data_offset = 2;
 
 		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
@@ -738,7 +739,7 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 #endif
 			auto dbits = buf.get();
 			gr_rle_decode({sbits, dbits}, {end(*bm), dbits + bm_w});
-			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+			if ( bm->get_flag_mask(BM_FLAG_RLE_BIG) )
 				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
 				sbits += static_cast<int>(bm->bm_data[4+i]);

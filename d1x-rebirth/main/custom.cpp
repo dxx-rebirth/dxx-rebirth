@@ -285,16 +285,16 @@ static int load_pigpog(const d_fname &pogname)
 
 			bmp = &GameBitmaps[x];
 
-			if (BitmapOriginal[x].bm_flags & 0x80) // already customized?
+			if (BitmapOriginal[x].get_flag_mask(0x80)) // already customized?
 				gr_free_bitmap_data(*bmp);
 			else
 			{
 				// save original bitmap info
 				BitmapOriginal[x] = *bmp;
-				BitmapOriginal[x].bm_flags |= 0x80;
+				BitmapOriginal[x].add_flags(0x80);
 				if (GameBitmapOffset[x]) // from pig?
 				{
-					BitmapOriginal[x].bm_flags |= BM_FLAG_PAGED_OUT;
+					BitmapOriginal[x].add_flags(BM_FLAG_PAGED_OUT);
 					BitmapOriginal[x].bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[x]));
 				}
 			}
@@ -562,12 +562,12 @@ static void custom_remove()
 	auto bmp = begin(GameBitmaps);
 
 	for (i = 0; i < MAX_BITMAP_FILES; bmo++, bmp++, i++)
-		if (bmo->bm_flags & 0x80)
+		if (bmo->get_flag_mask(0x80))
 		{
 			gr_free_bitmap_data(*bmp);
 			*bmp = *bmo;
 
-			if (bmo->bm_flags & BM_FLAG_PAGED_OUT)
+			if (bmo->get_flag_mask(BM_FLAG_PAGED_OUT))
 			{
 				GameBitmapOffset[i] = static_cast<int>(reinterpret_cast<uintptr_t>(bmo->bm_data));
 				gr_set_bitmap_flags(*bmp, BM_FLAG_PAGED_OUT);
@@ -575,9 +575,9 @@ static void custom_remove()
 			}
 			else
 			{
-				gr_set_bitmap_flags(*bmp, bmo->bm_flags & 0x7f);
+				gr_set_bitmap_flags(*bmp, bmo->get_flag_mask(0x7f));
 			}
-			bmo->bm_flags = 0;
+			bmo->clear_flags();
 		}
 	for (i = 0; i < MAX_SOUND_FILES; i++)
 		if (SoundOriginal[i].length & 0x80000000)

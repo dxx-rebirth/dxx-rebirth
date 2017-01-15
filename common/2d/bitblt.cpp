@@ -167,7 +167,7 @@ void gr_ubitmap(grs_canvas &canvas, grs_bitmap &bm)
 		switch( dest )
 		{
 		case bm_mode::linear:
-			if ( bm.bm_flags & BM_FLAG_RLE )
+			if (bm.get_flag_mask(BM_FLAG_RLE))
 				gr_bm_ubitblt00_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, canvas.cv_bitmap);
 			else
 				gr_ubitmap00(canvas, x, y, bm);
@@ -194,7 +194,7 @@ void gr_ubitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bit
 		switch(canvas.cv_bitmap.get_type())
 		{
 		case bm_mode::linear:
-			if ( bm.bm_flags & BM_FLAG_RLE )
+			if (bm.get_flag_mask(BM_FLAG_RLE))
 				gr_bm_ubitblt00m_rle(bm.bm_w, bm.bm_h, x, y, 0, 0, bm, canvas.cv_bitmap);
 			else
 				gr_ubitmap00m(canvas, x, y, bm);
@@ -248,14 +248,14 @@ void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const
 {
 	if (src.get_type() == bm_mode::linear && dest.get_type() == bm_mode::linear)
 	{
-		if ( src.bm_flags & BM_FLAG_RLE )
+		if (src.get_flag_mask(BM_FLAG_RLE))
 			gr_bm_ubitblt00_rle( w, h, dx, dy, sx, sy, src, dest );
 		else
 			gr_bm_ubitblt00( w, h, dx, dy, sx, sy, src, dest );
 		return;
 	}
 
-	if ((src.bm_flags & BM_FLAG_RLE) && src.get_type() == bm_mode::linear)
+	if (src.get_flag_mask(BM_FLAG_RLE) && src.get_type() == bm_mode::linear)
 	{
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
@@ -323,7 +323,7 @@ void gr_bitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, const gr
 
 	if (bm.get_type() == bm_mode::linear && canvas.cv_bitmap.get_type() == bm_mode::linear)
 	{
-		if ( bm.bm_flags & BM_FLAG_RLE )
+		if (bm.get_flag_mask(BM_FLAG_RLE))
 			gr_bm_ubitblt00m_rle(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, canvas.cv_bitmap );
 		else
 			gr_bm_ubitblt00m(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, canvas.cv_bitmap );
@@ -348,7 +348,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	int data_offset;
 
 	data_offset = 1;
-	if (src.bm_flags & BM_FLAG_RLE_BIG)
+	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
@@ -358,7 +358,7 @@ static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	for (uint_fast32_t i = 0; i != h; ++i)
 	{
 		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
-		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
 			sbits += static_cast<int>(src.bm_data[4+i+sy]);
@@ -372,7 +372,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 	int data_offset;
 
 	data_offset = 1;
-	if (src.bm_flags & BM_FLAG_RLE_BIG)
+	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 		data_offset = 2;
 	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
@@ -382,7 +382,7 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 	for (uint_fast32_t i = 0; i != h; ++i)
 	{
 		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
-		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
 		else
 			sbits += static_cast<int>(src.bm_data[4+i+sy]);
@@ -396,7 +396,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 {
 	int data_offset;
 	data_offset = 1;
-	if (src.bm_flags & BM_FLAG_RLE_BIG)
+	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 		data_offset = 2;
 	auto sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
 	for (uint_fast32_t i = 0; i != sy; ++i)
@@ -405,7 +405,7 @@ static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, 
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{
 		gr_rle_expand_scanline_generic(*grd_curcanv, dest, dx, dy+y1, sbits, sx, sx+w-1);
-		if ( src.bm_flags & BM_FLAG_RLE_BIG )
+		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
 			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((y1 + sy) * data_offset)]);
 		else
 			sbits += static_cast<int>(src.bm_data[4+y1+sy]);
@@ -484,7 +484,7 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 	using std::min;
 	using std::max;
 
-	if (!(bm.bm_flags&BM_FLAG_TRANSPARENT))
+	if (!bm.get_flag_mask(BM_FLAG_TRANSPARENT))
 		return;
 
 	minx = bm.bm_w - 1;
@@ -505,11 +505,12 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 	// decode the bitmap
 	const uint_fast32_t bm_h = bm.bm_h;
 	const uint_fast32_t bm_w = bm.bm_w;
-	if (bm.bm_flags & BM_FLAG_RLE){
+	if (bm.get_flag_mask(BM_FLAG_RLE))
+	{
 		unsigned data_offset;
 
 		data_offset = 1;
-		if (bm.bm_flags & BM_FLAG_RLE_BIG)
+		if (bm.get_flag_mask(BM_FLAG_RLE_BIG))
 			data_offset = 2;
 		auto sbits = &bm.get_bitmap_data()[4 + (bm.bm_h * data_offset)];
 		for (uint_fast32_t y = 0; y != bm_h; ++y)

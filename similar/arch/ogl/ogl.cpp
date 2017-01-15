@@ -448,7 +448,7 @@ void ogl_cache_level_textures(void)
 				if (tmap2 != 0){
 					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 					auto &bm2 = GameBitmaps[Textures[tmap2&0x3FFF].index];
-					if (CGameArg.DbgUseOldTextureMerge || (bm2.bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+					if (CGameArg.DbgUseOldTextureMerge || bm2.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 						bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
 						ogl_loadbmtexture(bm2, 1);
@@ -941,9 +941,9 @@ void _g3_draw_tmap(unsigned nv, cg3s_point *const *const pointlist, const g3s_uv
 			color_array[index4+3]    = color_alpha;
 			
 		} else { 
-			color_array[index4]      = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
-			color_array[index4+1]    = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
-			color_array[index4+2]    = bm.bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
+			color_array[index4]      = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].r);
+			color_array[index4+1]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].g);
+			color_array[index4+2]    = bm.get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].b);
 			color_array[index4+3]    = color_alpha;
 		}
 		texcoord_array[index2]   = f2glf(uvl_list[c].u);
@@ -1011,9 +1011,9 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 				break;
 		}
 		
-		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
-		color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
-		color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
+		color_array[index4]      = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].r);
+		color_array[index4+1]    = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].g);
+		color_array[index4+2]    = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].b);
 		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 		
 		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
@@ -1148,7 +1148,7 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=&gr_current_pal;
-	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.bm_flags, 0, texfilt, 0, 0);
+	ogl_loadtexture(src.get_bitmap_data(), sx, sy, tex, src.get_flags(), 0, texfilt, 0, 0);
 	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1750,7 +1750,7 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepad)
 {
-	assert(!(rbm.bm_flags & BM_FLAG_PAGED_OUT));
+	assert(!rbm.get_flag_mask(BM_FLAG_PAGED_OUT));
 	assert(rbm.bm_data);
 	grs_bitmap *bm = &rbm;
 	while (bm->bm_parent)
@@ -1759,7 +1759,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		return;
 	auto buf=bm->get_bitmap_data();
 	if (bm->gltexture == NULL){
- 		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
+		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->get_flag_mask(BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT)) ? OGL_FLAG_ALPHA : 0));
 	}
 	else {
 		if (bm->gltexture->handle>0)
@@ -1771,12 +1771,13 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		}
 	}
 
-	if (bm->bm_flags & BM_FLAG_RLE){
+	if (bm->get_flag_mask(BM_FLAG_RLE))
+	{
 		unsigned char * dbits;
 		int i, data_offset;
 
 		data_offset = 1;
-		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+		if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
 			data_offset = 2;
 
 		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
@@ -1784,7 +1785,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode({sbits, dbits}, rle_end(*bm, decodebuf));
-			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+			if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
 				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
 			else
 				sbits += static_cast<int>(bm->bm_data[4+i]);
@@ -1792,7 +1793,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->bm_flags, 0, texfilt, texanis, edgepad);
+	ogl_loadtexture(buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
 }
 
 static void ogl_freetexture(ogl_texture &gltexture)

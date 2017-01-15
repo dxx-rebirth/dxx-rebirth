@@ -206,7 +206,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
 	source_bm.bm_h = bufh;
 	source_bm.set_type(bm_mode::linear);
-	source_bm.bm_flags = 0;
+	source_bm.clear_flags();
 	source_bm.bm_data = buf;
 
 	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size

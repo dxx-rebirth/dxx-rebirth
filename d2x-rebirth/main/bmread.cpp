@@ -669,10 +669,7 @@ void bm_read_alias()
 
 static void set_lighting_flag(grs_bitmap &bmp)
 {
-	if (vlighting < 0)
-		bmp.bm_flags |= BM_FLAG_NO_LIGHTING;
-	else
-		bmp.bm_flags &= ~BM_FLAG_NO_LIGHTING;
+	bmp.set_flag_mask(vlighting < 0, BM_FLAG_NO_LIGHTING);
 }
 
 static void set_texture_name(char *name)
@@ -1953,7 +1950,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 			bm = load_polymodel_bitmap(skip, arg);
 			if (! lighted)
-				bm->bm_flags |= BM_FLAG_NO_LIGHTING;
+				bm->add_flags(BM_FLAG_NO_LIGHTING);
 
 			lighted = 1;			//default for next bitmap is lighted
 		}

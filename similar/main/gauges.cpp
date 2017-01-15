@@ -1769,8 +1769,9 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	cockpitbuf = {};
 
 	// decode the bitmap
-	if (bm->bm_flags & BM_FLAG_RLE){
-		const std::pair<uintptr_t, uintptr_t> src_bit_length = (bm->bm_flags & BM_FLAG_RLE_BIG)
+	if (bm->get_flag_mask(BM_FLAG_RLE))
+	{
+		const std::pair<uintptr_t, uintptr_t> src_bit_length = bm->get_flag_mask(BM_FLAG_RLE_BIG)
 			? std::pair<uintptr_t, uintptr_t>(2, 0xffff)
 			: std::pair<uintptr_t, uintptr_t>(1, 0xff);
 

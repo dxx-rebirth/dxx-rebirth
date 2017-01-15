@@ -806,15 +806,15 @@ void draw_tmap(const grs_bitmap &rbp,uint_fast32_t nverts,const g3s_point *const
 
 	const grs_bitmap *bp = &rbp;
 	//	If no transparency and seg depth is large, render as flat shaded.
-	if ((Current_seg_depth > Max_linear_depth) && ((bp->bm_flags & 3) == 0)) {
+	if ((Current_seg_depth > Max_linear_depth) && ((bp->get_flag_mask(3)) == 0)) {
 		draw_tmap_flat(rbp, nverts, vertbuf);
 		return;
 	}
 
 	bp = rle_expand_texture(*bp);		// Expand if rle'd
 
-	Transparency_on = bp->bm_flags & BM_FLAG_TRANSPARENT;
-	if (bp->bm_flags & BM_FLAG_NO_LIGHTING)
+	Transparency_on = bp->get_flag_mask(BM_FLAG_TRANSPARENT);
+	if (bp->get_flag_mask(BM_FLAG_NO_LIGHTING))
 		Lighting_on = 0;
 
 

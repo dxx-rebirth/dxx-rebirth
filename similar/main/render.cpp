@@ -269,7 +269,8 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 		if (tmap2){
 			PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 			bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-			if (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT) {
+			if (bm2->get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
+			{
 				bm2 = nullptr;
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 			}
@@ -285,7 +286,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 			PIGGY_PAGE_IN(Textures[tmap1]);
 		}
 
-	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
+	assert(!bm->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 	array<g3s_lrgb, 4>		dyn_light;
 	const auto seismic_tremor_magnitude = Seismic_tremor_magnitude;

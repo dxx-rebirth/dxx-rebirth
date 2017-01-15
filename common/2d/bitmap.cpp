@@ -71,7 +71,7 @@ void gr_init_bitmap(grs_bitmap &bm, const bm_mode mode, const uint16_t x, const 
 	bm.bm_y = y;
 	bm.bm_w = w;
 	bm.bm_h = h;
-	bm.bm_flags = 0;
+	bm.set_flags(0);
 	bm.set_type(mode);
 	bm.bm_rowsize = bytesperline;
 
@@ -124,7 +124,7 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 		throw std::overflow_error("offset overflow");
 	bm.bm_w = w;
 	bm.bm_h = h;
-	bm.bm_flags = bmParent.bm_flags;
+	bm.set_flags(bmParent.get_flags());
 	bm.set_type(bmParent.get_type());
 	bm.bm_rowsize = bmParent.bm_rowsize;
 
@@ -145,8 +145,7 @@ void decode_data(ubyte *data, uint_fast32_t num_pixels, array<color_t, 256> &col
 
 static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 {
-	auto bm_flags = bm.bm_flags;
-	gr_set_bitmap_flags(bm, bOpaque ? bm_flags & ~BM_FLAG_SUPER_TRANSPARENT : bm_flags | BM_FLAG_SUPER_TRANSPARENT);
+	bm.set_flag_mask(!bOpaque, BM_FLAG_SUPER_TRANSPARENT);
 }
 
 void build_colormap_good(const palette_array_t &palette, array<color_t, 256> &colormap, array<unsigned, 256> &freq)

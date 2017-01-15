@@ -47,6 +47,7 @@ struct grs_bitmap : prohibit_void_ptr<grs_bitmap>
 	uint16_t bm_w,bm_h; // width,height
 private:
 	uint8_t bm_type;
+	uint8_t bm_flags;
 public:
 	uint8_t get_type() const
 	{
@@ -56,7 +57,31 @@ public:
 	{
 		bm_type = t;
 	}
-	sbyte   bm_flags;   // bit 0 on means it has transparency.
+	uint8_t get_flags() const
+	{
+		return bm_flags;
+	}
+	uint8_t get_flag_mask(const uint8_t mask) const
+	{
+		return get_flags() & mask;
+	}
+	void set_flags(const uint8_t f)
+	{
+		bm_flags = f;
+	}
+	void clear_flags()
+	{
+		set_flags(0);
+	}
+	void set_flag_mask(const bool set, const uint8_t mask)
+	{
+		const auto f = get_flags();
+		set_flags(set ? f | mask : f & ~mask);
+	}
+	void add_flags(const uint8_t f)
+	{
+		bm_flags |= f;
+	}
 	                    // bit 1 on means it has supertransparency
 	                    // bit 2 on means it doesn't get passed through lighting.
 	short   bm_rowsize; // unsigned char offset to next row
@@ -230,13 +255,12 @@ class grs_subbitmap : public grs_bitmap
 
 static inline void gr_set_bitmap_flags(grs_bitmap &bm, uint8_t flags)
 {
-	bm.bm_flags = flags;
+	bm.set_flags(flags);
 }
 
 static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 {
-	auto bm_flags = bm.bm_flags;
-	gr_set_bitmap_flags(bm, bTransparent ? bm_flags | BM_FLAG_TRANSPARENT : bm_flags & ~BM_FLAG_TRANSPARENT);
+	bm.set_flag_mask(bTransparent, BM_FLAG_TRANSPARENT);
 }
 
 namespace dcx {

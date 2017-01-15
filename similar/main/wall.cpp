@@ -145,7 +145,7 @@ static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(con
 static uint_fast32_t check_transparency(const side &side)
 {
 	auto v = get_transparency_check_values(side);
-	return GameBitmaps[Textures[v.first].index].bm_flags & v.second;
+	return GameBitmaps[Textures[v.first].index].get_flag_mask(v.second);
 }
 
 //-----------------------------------------------------------------
