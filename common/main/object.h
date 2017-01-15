@@ -267,6 +267,35 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 #endif
 	{
 	}
+	bool test_set_hitobj(const vcobjidx_t o)
+	{
+		auto &&r = hitobj_list[o];
+		if (r)
+			return true;
+		r = true;
+		last_hitobj = o;
+		return false;
+	}
+	bool test_hitobj(const vcobjidx_t o) const
+	{
+		return hitobj_list[o];
+	}
+	cobjidx_t get_last_hitobj() const
+	{
+		return last_hitobj;
+	}
+	void clear_hitobj()
+	{
+		last_hitobj = object_none;
+		hitobj_list.clear();
+	}
+	void reset_hitobj(const cobjidx_t o)
+	{
+		last_hitobj = o;
+		if (o == object_none)
+			return;
+		hitobj_list[o] = true;
+	}
 };
 
 }

@@ -1240,13 +1240,8 @@ static void collide_weapon_and_controlcen(const vobjptridx_t weapon, const vobjp
 		if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 		{
 			damage = weapon->shields*2; // to not alter Gameplay too much, multiply damage by 2.
-			if (auto &&was_hit = weapon->ctype.laser_info.hitobj_list[controlcen])
+			if (weapon->ctype.laser_info.test_set_hitobj(controlcen))
 				return;
-			else
-			{
-				was_hit = true;
-				weapon->ctype.laser_info.last_hitobj = controlcen;
-			}
 		}
 
 		if (get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)) == Player_num)
@@ -1636,13 +1631,8 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (auto &&was_hit = weapon->ctype.laser_info.hitobj_list[robot])
+		if (weapon->ctype.laser_info.test_set_hitobj(robot))
 			return;
-		else
-		{
-			was_hit = true;
-			weapon->ctype.laser_info.last_hitobj = robot;
-		}
 	}
 
 	if (weapon->ctype.laser_info.parent_signature == robot->signature)
@@ -2148,15 +2138,8 @@ static void collide_player_and_weapon(const vobjptridx_t playerobj, const vobjpt
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (!weapon->ctype.laser_info.hitobj_list[playerobj])
-		{
-			weapon->ctype.laser_info.hitobj_list[playerobj] = true;
-			weapon->ctype.laser_info.last_hitobj = playerobj;
-		}
-		else
-		{
+		if (weapon->ctype.laser_info.test_set_hitobj(playerobj))
 			return;
-		}
 	}
 #endif
 

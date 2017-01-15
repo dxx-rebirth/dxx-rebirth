@@ -1176,8 +1176,7 @@ objptridx_t obj_create(object_type_t type, ubyte id,vsegptridx_t segnum,const vm
 		Assert(obj->control_type == CT_WEAPON);
 		obj->mtype.phys_info.flags |= (Weapon_info[get_weapon_id(obj)].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
-		obj->ctype.laser_info.last_hitobj = object_none;
-		obj->ctype.laser_info.hitobj_list.clear();
+		obj->ctype.laser_info.clear_hitobj();
 		obj->ctype.laser_info.multiplier = F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
 		obj->ctype.laser_info.last_afterburner_time = 0;

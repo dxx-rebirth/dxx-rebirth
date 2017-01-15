@@ -5701,7 +5701,7 @@ void multi_object_to_object_rw(const vobjptr_t obj, object_rw *obj_rw)
 				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
 			else
 				obj_rw->ctype.laser_info.creation_time = obj->ctype.laser_info.creation_time - GameTime64;
-			obj_rw->ctype.laser_info.last_hitobj      = obj->ctype.laser_info.last_hitobj;
+			obj_rw->ctype.laser_info.last_hitobj      = obj->ctype.laser_info.get_last_hitobj();
 			obj_rw->ctype.laser_info.track_goal       = obj->ctype.laser_info.track_goal;
 			obj_rw->ctype.laser_info.multiplier       = obj->ctype.laser_info.multiplier;
 			break;
@@ -5858,10 +5858,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, const vobjptr_t obj)
 			obj->ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
 			obj->ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
 			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
-			obj->ctype.laser_info.last_hitobj      = obj_rw->ctype.laser_info.last_hitobj;
-			obj->ctype.laser_info.hitobj_list.clear();
-			if (obj->ctype.laser_info.last_hitobj != object_none)
-				obj->ctype.laser_info.hitobj_list[obj->ctype.laser_info.last_hitobj] = true;
+			obj->ctype.laser_info.reset_hitobj(obj_rw->ctype.laser_info.last_hitobj);
 			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
 			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 #if defined(DXX_BUILD_DESCENT_II)
