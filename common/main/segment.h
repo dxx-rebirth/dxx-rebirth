@@ -279,6 +279,14 @@ struct dl_index {
 	uint8_t   sidenum;
 	uint8_t count;
 	uint16_t index;
+	bool operator<(const dl_index &rhs) const
+	{
+		if (segnum < rhs.segnum)
+			return true;
+		if (segnum > rhs.segnum)
+			return false;
+		return sidenum < rhs.sidenum;
+	}
 };
 #endif
 

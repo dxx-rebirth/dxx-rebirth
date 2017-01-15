@@ -1686,18 +1686,15 @@ static void change_segment_light(const vsegptridx_t segp,int sidenum,int dir)
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
+static void change_light(const vsegptridx_t segnum, const uint8_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
-	range_for (auto &i, partial_const_range(Dl_indices, Num_static_lights))
+	const auto &&pr = partial_const_range(Dl_indices, Num_static_lights);
+	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, 0});
+	range_for (auto &i, partial_range_t<const dl_index *>(er.first, er.second))
 	{
-		if (i.segnum == segnum)
-		{
-			if (i.sidenum > sidenum)
-				break;
-			if (i.sidenum < sidenum)
-				continue;
-			range_for (auto &j, partial_const_range(Delta_lights, static_cast<uint_fast32_t>(i.index), static_cast<uint_fast32_t>(i.count)))
+		const uint_fast32_t idx = i.index;
+			range_for (auto &j, partial_const_range(Delta_lights, idx, idx + i.count))
 			{
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vsegptr(j.segnum);
@@ -1709,9 +1706,6 @@ static void change_light(const vsegptridx_t segnum, int sidenum, int dir)
 						l = 0;
 				}
 			}
-		}
-		else if (i.segnum > segnum)
-			break;
 	}
 
 	//recompute static light for segment
