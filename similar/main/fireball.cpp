@@ -948,6 +948,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
+				init_ai_object(obj, ai_behavior::AIB_NORMAL, segment_none);
 				//Set polygon-object-specific data
 
 				obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
@@ -964,7 +965,6 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 
 				obj->shields = Robot_info[get_robot_id(obj)].strength;
 
-				obj->ctype.ai_info.behavior = ai_behavior::AIB_NORMAL;
 				ai_local		*ailp = &obj->ctype.ai_info.ail;
 				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 				ailp->player_awareness_time = F1_0*3;
