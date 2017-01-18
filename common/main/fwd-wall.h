@@ -17,6 +17,7 @@
 
 namespace dcx {
 using actdoornum_t = uint8_t;
+constexpr unsigned MAX_WALLS = 255; // Maximum number of walls
 constexpr std::integral_constant<std::size_t, 90> MAX_DOORS{};  // Maximum number of open doors
 struct active_door;
 }
@@ -27,10 +28,8 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(active_door, actdoornum_t, MAX_DOORS);
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr unsigned MAX_WALLS = 175;	// Maximum number of walls
 constexpr std::size_t MAX_WALL_ANIMS = 30;		// Maximum different types of doors
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr unsigned MAX_WALLS = 254; // Maximum number of walls
 constexpr std::size_t MAX_WALL_ANIMS = 60;  // Maximum different types of doors
 #endif
 
@@ -198,7 +197,7 @@ DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(cloaking_wall, clwall, CloakingWalls);
 }
 #endif
 
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::wall, wallnum_t, dsx::MAX_WALLS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls);
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
