@@ -431,11 +431,10 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 {
 	int	v,new_vertex_id,sidenum;
 	group::segment_array_type_t new_segments;
-	int	new_vertex_ids[MAX_VERTICES];		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
+	array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
 	//	duplicate vertices
-	for (v=0; v<sizeof(new_vertex_ids)/sizeof(new_vertex_ids[0]); v++)
-		new_vertex_ids[v] = -1;
+	new_vertex_ids.fill(-1);
 
 	//	duplicate vertices
 	for (v=0; v<=Highest_vertex_index; v++) {
@@ -518,7 +517,6 @@ static int in_group(segnum_t segnum, int group_num)
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_side, vcsegptr_t group_seg, int group_side, const vms_matrix &orient_matrix)
 {
-	int			v;
 	int 			x;
 	int			new_current_group;
 	int 			c;
@@ -554,15 +552,15 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Make a list of all vertices in group.
 	if (group_seg == &New_segment)
-		for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-			in_vertex_list[group_seg->verts[v]] = 1;
+		range_for (auto &v, group_seg->verts)
+			in_vertex_list[v] = 1;
 	else {
-		for (v=0; v<=Highest_vertex_index; v++)
-			in_vertex_list[v] = 0;
+		range_for (auto &v, partial_range(in_vertex_list, Highest_vertex_index + 1))
+			v = 0;
 
 		range_for(const auto &gs, GroupList[new_current_group].segments)
-			for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
-				in_vertex_list[Segments[gs].verts[v]] = 1;
+			range_for (auto &v, Segments[gs].verts)
+				in_vertex_list[v] = 1;
 	}
 
 	// Given a list of vertex indices (indicated by !0 in in_vertex_list) and segment indices (in list GroupList[current_group].segments, there
@@ -604,7 +602,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now do the copy
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
 	const auto srcv = compute_center_point_on_side(group_seg,group_side);
-	for (v=0; v<=Highest_vertex_index; v++)
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
 
@@ -621,7 +619,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	const auto destv = compute_center_point_on_side(base_seg,base_side);
-	for (v=0; v<=Highest_vertex_index; v++)
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);
 
@@ -655,9 +653,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
-	int			v,vv,c,d;
-	array<uint8_t, MAX_VERTICES> in_vertex_list;
-	sbyte			out_vertex_list[MAX_VERTICES];
+	int			vv,c,d;
 	int			local_hvi;
 
 	if (IS_CHILD(base_seg->children[base_side]))
@@ -675,23 +671,21 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //					return 1;
 //				}
 
-	for (v=0; v<=Highest_vertex_index; v++) {
-		in_vertex_list[v] = 0;
-		out_vertex_list[v] = 0;
-	}
+	array<uint8_t, MAX_VERTICES> in_vertex_list{};
+	array<int8_t, MAX_VERTICES> out_vertex_list{};
 
 	//	Make a list of all vertices in group.
 	range_for(const auto &gs, GroupList[current_group].segments)
-		for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
-			in_vertex_list[Segments[gs].verts[v]] = 1;
+		range_for (auto &v, Segments[gs].verts)
+			in_vertex_list[v] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
 	range_for (const auto &&segp, vsegptridx)
 	{
 		if (!GroupList[current_group].segments.contains(segp))
 			{
-				for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++)
-					out_vertex_list[segp->verts[v]] = 1;
+				range_for (auto &v, segp->verts)
+					out_vertex_list[v] = 1;
 			}
 	}
 
@@ -699,7 +693,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	// create an extra copy of the vertex so we can just move the ones in the in list.
 	local_hvi = Highest_vertex_index;		//	Can't use Highest_vertex_index as loop termination because it gets increased by med_create_duplicate_vertex.
 
-	for (v=0; v<=local_hvi; v++)
+	for (unsigned v = 0; v <= local_hvi; ++v)
 		if (in_vertex_list[v])
 			if (out_vertex_list[v]) {
 				int new_vertex_id;
@@ -752,7 +746,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 	//	Now do the move
 	//	First, xlate all vertices so center of group_seg:group_side is at origin
 	const auto srcv = compute_center_point_on_side(group_seg,group_side);
-	for (v=0; v<=Highest_vertex_index; v++)
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
 		if (in_vertex_list[v])
 			vm_vec_sub2(Vertices[v],srcv);
 
@@ -769,7 +763,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Now xlate all vertices so group_seg:group_side shares center point with base_seg:base_side
 	const auto destv = compute_center_point_on_side(base_seg,base_side);
-	for (v=0; v<=Highest_vertex_index; v++)
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
 		if (in_vertex_list[v])
 			vm_vec_add2(Vertices[v],destv);
 
@@ -1107,7 +1101,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	short tmap_xlate;
         int     translate=0;
 	char 	*temptr;
-	int j; 
 	segment tseg;
 	auto LoadFile = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
@@ -1244,13 +1237,15 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		range_for (const auto &gs, segment_ids)
 		{
 			// Fix vertices
-			for (j=0;j<MAX_VERTICES_PER_SEGMENT;j++) {
-				vertnum = vertex_ids[Segments[gs].verts[j]];
-				Segments[gs].verts[j] = vertnum;
+			range_for (auto &j, Segments[gs].verts)
+			{
+				vertnum = vertex_ids[j];
+				j = vertnum;
 				}
 
 			// Fix children and walls.
-			for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
+			for (unsigned j = 0; j < MAX_SIDES_PER_SEGMENT; ++j)
+			{
 				Segments[gs].sides[j].wall_num = wall_none;
 				if (IS_CHILD(Segments[gs].children[j])) {
 					segnum_t segnum;
@@ -1305,7 +1300,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	// For every texture, search through the texture list
 	// to find a matching name.
-	for (j=0;j<group_fileinfo.texture_howmany;j++) 	{
+	for (unsigned j = 0; j < group_fileinfo.texture_howmany; ++j)
+	{
 		// Remove this texture name's extension
 		temptr = strchr(&old_tmap_list[j][0u], '.');
 		if (temptr) *temptr = '\0';
@@ -1373,8 +1369,7 @@ static void checkforgrpext( char * f )
 int SaveGroup()
 {
 	// Save group
-	int i, v;
-	sbyte	vertex_list[MAX_VERTICES];
+	int i;
 
 	if (current_group == -1)
 		{
@@ -1382,14 +1377,13 @@ int SaveGroup()
  		return 0;
 		}
 
-	for (v=0; v<=Highest_vertex_index; v++) {
-		vertex_list[v] = 0;
-	}
+	array<int8_t, MAX_VERTICES> vertex_list{};
 
 	//	Make a list of all vertices in group.
 	range_for (const auto &gs, GroupList[current_group].segments)
-		for (v=0; v < MAX_VERTICES_PER_SEGMENT; v++) {
-			vertex_list[Segments[gs].verts[v]] = 1;
+		range_for (auto &v, Segments[gs].verts)
+		{
+			vertex_list[v] = 1;
 		}	
 
 	GroupList[current_group].vertices.clear();
