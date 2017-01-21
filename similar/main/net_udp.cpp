@@ -194,14 +194,24 @@ public:
 	}
 	RAIIsocket(const RAIIsocket &) = delete;
 	RAIIsocket &operator=(const RAIIsocket &) = delete;
+	RAIIsocket &operator=(RAIIsocket &&) = delete;
 	~RAIIsocket()
 	{
 		reset();
 	}
-	RAIIsocket &operator=(RAIIsocket &&r)
+	/* This should be a move-assignment operator=, but early versions of
+	 * gcc-4.9 mishandle synthesizing array<T, N>::operator=(array &&)
+	 * when the contained type is movable but not copyable.  Debian
+	 * Jessie's newest gcc is still affected (18 months after the fix
+	 * was published upstream), so use awkward syntax here to avoid the
+	 * problem.
+	 *
+	 * https://github.com/dxx-rebirth/dxx-rebirth/issues/289
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66501
+	 */
+	void move(RAIIsocket &&r)
 	{
 		std::swap(s, r.s);
-		return *this;
 	}
 	void reset()
 	{
@@ -305,6 +315,16 @@ public:
 }
 
 static array<RAIIsocket, 2> UDP_Socket;
+
+static void clear_UDP_Socket()
+{
+	/* This would be simply `UDP_Socket = {}`, but the contained type
+	 * has a deleted move-assignment operator= to compensate for a
+	 * gcc-4.9 bug.  See the comment in RAIIsocket for details.
+	 */
+	range_for (auto &i, UDP_Socket)
+		i.reset();
+}
 
 static bool operator==(const _sockaddr &l, const _sockaddr &r)
 {
@@ -677,7 +697,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	// close stale socket
 	struct _sockaddr sAddr;   // my address information
 
-	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
+	sock.move(RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0));
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
@@ -1309,7 +1329,7 @@ void net_udp_init()
 }
 #endif
 
-	UDP_Socket = {};
+	clear_UDP_Socket();
 
 	Netgame = {};
 	UDP_Seq = {};
@@ -1331,7 +1351,7 @@ void net_udp_init()
 
 void net_udp_close()
 {
-	UDP_Socket = {};
+	clear_UDP_Socket();
 #ifdef _WIN32
 	WSACleanup();
 #endif
