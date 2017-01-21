@@ -534,17 +534,10 @@ void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segm
 	ailp->next_misc_sound_time = GameTime64;
 	ailp->time_player_sound_attacked = GameTime64;
 
-#if defined(DXX_BUILD_DESCENT_I)
-	if ((behavior == ai_behavior::AIB_HIDE) || (behavior == ai_behavior::AIB_FOLLOW_PATH) || (behavior == ai_behavior::AIB_STATION) || (behavior == ai_behavior::AIB_RUN_FROM))
-#elif defined(DXX_BUILD_DESCENT_II)
-	if ((behavior == ai_behavior::AIB_SNIPE) || (behavior == ai_behavior::AIB_STATION) || (behavior == ai_behavior::AIB_RUN_FROM) || (behavior == ai_behavior::AIB_FOLLOW))
-#endif
-	{
-		aip->hide_segment = hide_segment;
-		ailp->goal_segment = hide_segment;
-		aip->hide_index = -1;			// This means the path has not yet been created.
-		aip->cur_path_index = 0;
-	}
+	aip->hide_segment = hide_segment;
+	ailp->goal_segment = hide_segment;
+	aip->hide_index = -1;			// This means the path has not yet been created.
+	aip->cur_path_index = 0;
 
 	aip->SKIP_AI_COUNT = 0;
 
