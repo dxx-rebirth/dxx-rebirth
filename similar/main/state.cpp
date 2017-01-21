@@ -225,7 +225,10 @@ static void state_object_to_object_rw(const vcobjptr_t obj, object_rw *const obj
 			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
 			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
-			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature.get();
+			if (obj->ctype.ai_info.danger_laser_num != object_none)
+				obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature.get();
+			else
+				obj_rw->ctype.ai_info.danger_laser_signature = 0;
 #if defined(DXX_BUILD_DESCENT_I)
 			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
@@ -399,7 +402,8 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjp
 			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
 			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
-			obj->ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
+			if (obj->ctype.ai_info.danger_laser_num != object_none)
+				obj->ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
