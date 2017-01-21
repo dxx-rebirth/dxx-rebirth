@@ -174,6 +174,20 @@ static inline typename tt::enable_if<!tt::is_empty<Trr>::value && tt::is_rvalue_
 	return std::tuple<Trr>{std::forward<T>(t)};
 }
 
+template <typename extended_signed_type, typename wrapped_type>
+class sign_extend_type : std::reference_wrapper<wrapped_type>
+{
+	static_assert(sizeof(extended_signed_type) > sizeof(wrapped_type), "cannot sign-extend into a type of equal or smaller size");
+	static_assert(std::is_signed<extended_signed_type>::value, "cannot sign-extend into an unsigned type");
+	using base_type = std::reference_wrapper<wrapped_type>;
+public:
+	using base_type::base_type;
+	using base_type::get;
+};
+
+template <typename extended_signed_type, typename wrapped_type>
+message<array<uint8_t, sizeof(extended_signed_type)>> udt_to_message(const sign_extend_type<extended_signed_type, wrapped_type> &);
+
 template <std::size_t amount, uint8_t value>
 class pad_type
 {
@@ -318,6 +332,12 @@ typename T::maximum_size_type get_minimum_size(...);
 
 template <std::size_t amount, uint8_t value = 0xcc>
 using pad = detail::pad_type<amount, value>;
+
+template <typename extended_signed_type, typename wrapped_type>
+static inline detail::sign_extend_type<extended_signed_type, wrapped_type> sign_extend(wrapped_type &t)
+{
+	return {t};
+}
 
 #define DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
 	DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
@@ -639,6 +659,14 @@ static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value
 	advance(accessor, a.size());
 }
 
+template <typename Accessor, typename extended_signed_type, typename wrapped_type>
+static inline void process_udt(Accessor &&accessor, const detail::sign_extend_type<extended_signed_type, wrapped_type> &v)
+{
+	extended_signed_type est;
+	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), est);
+	v.get() = static_cast<wrapped_type>(est);
+}
+
 }
 
 namespace writer {
@@ -682,6 +710,14 @@ static inline typename tt::enable_if<sizeof(T) == 1 && tt::is_integral<T>::value
 {
 	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
 	advance(accessor, a.size());
+}
+
+template <typename Accessor, typename extended_signed_type, typename wrapped_type>
+static inline void process_udt(Accessor &&accessor, const detail::sign_extend_type<extended_signed_type, const wrapped_type> &v)
+{
+	const typename std::make_signed<wrapped_type>::type swt = v.get();
+	const extended_signed_type est = swt;
+	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), est);
 }
 
 }
