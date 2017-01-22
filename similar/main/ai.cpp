@@ -1895,7 +1895,14 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 		return object_none;
 	}
 
-	auto objp = obj_create(OBJ_ROBOT, object_id, segp, object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+#if defined(DXX_BUILD_DESCENT_I)
+	const ai_behavior default_behavior = (object_id == 10) //	This is a toaster guy!
+	? ai_behavior::AIB_RUN_FROM
+	: ai_behavior::AIB_NORMAL;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const ai_behavior default_behavior = robptr->behavior;
+#endif
+	auto objp = robot_create(object_id, segp, object_pos, &vmd_identity_matrix, objsize, default_behavior);
 
 	if ( objp == object_none ) {
 		Last_gate_time = GameTime64 - 3*Gate_interval/4;
@@ -1917,15 +1924,9 @@ static objptridx_t create_gated_robot(const vsegptridx_t segp, int object_id, co
 	objp->shields = robptr->strength;
 	objp->matcen_creator = BOSS_GATE_MATCEN_NUM;	//	flag this robot as having been created by the boss.
 
-#if defined(DXX_BUILD_DESCENT_I)
-	const ai_behavior default_behavior = (object_id == 10) //	This is a toaster guy!
-		? ai_behavior::AIB_RUN_FROM
-		: ai_behavior::AIB_NORMAL;
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
-	const ai_behavior default_behavior = robptr->behavior;
 #endif
-	init_ai_object(objp, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	object_create_explosion(segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, 0, object_pos, 0 , F1_0);

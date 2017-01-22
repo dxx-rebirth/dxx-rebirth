@@ -146,9 +146,19 @@ int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short ob
 		}
 		case OBJ_ROBOT:
 		{
-			objnum = obj_create(OBJ_ROBOT, object_id, segp, object_pos,
-				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
-				CT_AI, MT_PHYSICS, RT_POLYOBJ);
+			segnum_t hide_segment;
+			if (Markedsegp)
+				hide_segment = Markedsegp;
+			else
+				hide_segment = segment_none;
+
+			objnum = robot_create(object_id, segp, object_pos,
+								&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
+								Robot_info[object_id].attack_type ?
+								//	robots which lunge forward to attack cannot have behavior type still.
+								ai_behavior::AIB_NORMAL :
+								ai_behavior::AIB_STILL,
+								hide_segment);
 
 			if ( objnum == object_none)
 				return 0;
@@ -168,16 +178,6 @@ int place_object(const vsegptridx_t segp, const vms_vector &object_pos, short ob
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
-
-			{
-				segnum_t hide_segment;
-			if (Markedsegp)
-				hide_segment = Markedsegp;
-			else
-				hide_segment = segment_none;
-			//	robots which lunge forward to attack cannot have behavior type still.
-				init_ai_object(obj, Robot_info[get_robot_id(obj)].attack_type ? ai_behavior::AIB_NORMAL : ai_behavior::AIB_STILL, hide_segment);
-			}
 			break;
 		}
 		case OBJ_POWERUP:

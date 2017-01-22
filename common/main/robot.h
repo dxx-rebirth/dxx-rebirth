@@ -30,9 +30,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 #include "pack.h"
+#include "ai.h"
 #include "aistruct.h"
 #include "polyobj.h"
 #include "weapon_id.h"
+#include "object.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -154,6 +156,14 @@ struct robot_info : prohibit_void_ptr<robot_info>
 constexpr auto weapon_none = weapon_id_type::unspecified;
 
 namespace dsx {
+static inline objptridx_t robot_create(ubyte id, vsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const segidx_t hide_segment = segment_none)
+{
+	auto objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+	if (objp)
+		init_ai_object(objp, behavior, hide_segment);
+	return objp;
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 // maximum number of robot types
 constexpr unsigned MAX_ROBOT_TYPES = 30;
