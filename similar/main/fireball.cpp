@@ -931,7 +931,7 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 #elif defined(DXX_BUILD_DESCENT_II)
 				const auto robot_id = id;
 #endif
-				const auto &&obj = obj_create(OBJ_ROBOT, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				const auto &&obj = robot_create(id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, ai_behavior::AIB_NORMAL);
 
 				objnum = obj;
 				if (objnum == object_none)
@@ -948,7 +948,6 @@ objptridx_t drop_powerup(int type, int id, int num, const vms_vector &init_vel, 
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-				init_ai_object(obj, ai_behavior::AIB_NORMAL, segment_none);
 				//Set polygon-object-specific data
 
 				obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;

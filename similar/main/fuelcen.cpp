@@ -300,9 +300,18 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	get_local_player().num_robots_level++;
 	get_local_player().num_robots_total++;
 
-	auto obj = obj_create(OBJ_ROBOT, object_id, segp, object_pos,
+	ai_behavior default_behavior;
+#if defined(DXX_BUILD_DESCENT_I)
+	default_behavior = ai_behavior::AIB_NORMAL;
+	if (object_id == 10)						//	This is a toaster guy!
+		default_behavior = ai_behavior::AIB_RUN_FROM;
+#elif defined(DXX_BUILD_DESCENT_II)
+	default_behavior = Robot_info[object_id].behavior;
+#endif
+
+	auto obj = robot_create(object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
-				CT_AI, MT_PHYSICS, RT_POLYOBJ);
+				default_behavior);
 
 	if (obj == object_none)
 	{
@@ -323,16 +332,6 @@ objptridx_t  create_morph_robot( const vsegptridx_t segp, const vms_vector &obje
 	obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
 	obj->shields = Robot_info[get_robot_id(obj)].strength;
-	ai_behavior default_behavior;
-#if defined(DXX_BUILD_DESCENT_I)
-	default_behavior = ai_behavior::AIB_NORMAL;
-	if (object_id == 10)						//	This is a toaster guy!
-		default_behavior = ai_behavior::AIB_RUN_FROM;
-#elif defined(DXX_BUILD_DESCENT_II)
-	default_behavior = Robot_info[get_robot_id(obj)].behavior;
-#endif
-
-	init_ai_object(obj, default_behavior, segment_none );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	create_n_segment_path(obj, 6, segment_none);		//	Create a 6 segment path from creation point.
 
