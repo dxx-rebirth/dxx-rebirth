@@ -1536,6 +1536,12 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				do_cloak_invul_secret_stuff(old_gametime, ret_pl_info);
 			} else {
 				get_local_player() = dummy_player;
+				// Keep keys even if they died on secret level (otherwise game becomes impossible)
+				// Example: Cameron 'Stryker' Fultz's Area 51
+				pl_info.powerup_flags |= (plrobj.ctype.player_info.powerup_flags &
+										  (PLAYER_FLAGS_BLUE_KEY |
+										   PLAYER_FLAGS_RED_KEY |
+										   PLAYER_FLAGS_GOLD_KEY));
 			}
 		} else
 #endif

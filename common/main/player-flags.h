@@ -87,6 +87,11 @@ public:
 		flags |= rhs.flags;
 		return *this;
 	}
+	player_flags &operator|=(const uint32_t &rhs)
+	{
+		flags |= rhs;
+		return *this;
+	}
 	player_flags operator|(const player_flags &rhs) const
 	{
 		return player_flags(flags | rhs.flags);
