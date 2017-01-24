@@ -1504,6 +1504,9 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	{
 	player_info pl_info;
 	fix pl_shields;
+#if defined(DXX_BUILD_DESCENT_II)
+	player_info ret_pl_info;
+#endif
 	{
 #if DXX_USE_EDITOR
 		// Don't bother with the other game sequence stuff if loading saved game in editor
@@ -1518,6 +1521,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			player	dummy_player;
 			state_read_player(fp, dummy_player, swap, pl_info, pl_shields);
 			if (secret == secret_restore::survived) {		//	This means he didn't die, so he keeps what he got in the secret level.
+				ret_pl_info = plrobj.ctype.player_info;
+				pl_shields = plrobj.shields;
 				get_local_player().level = dummy_player.level;
 				get_local_player().time_level = dummy_player.time_level;
 
@@ -1525,10 +1530,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 				get_local_player().num_robots_total = dummy_player.num_robots_total;
 				get_local_player().hostages_total = dummy_player.hostages_total;
 				get_local_player().hostages_level = dummy_player.hostages_level;
-				pl_info.homing_object_dist = -1;
+				ret_pl_info.homing_object_dist = -1;
 				get_local_player().hours_level = dummy_player.hours_level;
 				get_local_player().hours_total = dummy_player.hours_total;
-				do_cloak_invul_secret_stuff(old_gametime, pl_info);
+				do_cloak_invul_secret_stuff(old_gametime, ret_pl_info);
 			} else {
 				get_local_player() = dummy_player;
 			}
@@ -1615,7 +1620,15 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	}
 	special_reset_objects();
 	plrobj.shields = pl_shields;
-	plrobj.ctype.player_info = pl_info;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (secret == secret_restore::survived)
+	{		//	This means he didn't die, so he keeps what he got in the secret level.
+		ret_pl_info.mission.last_score = pl_info.mission.last_score;
+		plrobj.ctype.player_info = ret_pl_info;
+	}
+	else
+#endif
+		plrobj.ctype.player_info = pl_info;
 	}
 
 	//	1 = Didn't die on secret level.
