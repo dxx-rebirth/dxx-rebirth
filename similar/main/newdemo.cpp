@@ -3051,7 +3051,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 #if defined(DXX_BUILD_DESCENT_II)
 		case ND_EVENT_CLOAKING_WALL: {
-			sbyte type,state,cloak_value;
+			uint8_t type, state, cloak_value;
 			wallnum_t back_wall_num, front_wall_num;
 			short l0,l1,l2,l3;
 
