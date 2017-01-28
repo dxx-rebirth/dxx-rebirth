@@ -1033,11 +1033,10 @@ static int draw_endlevel_background(newmenu *,const d_event &event, grs_bitmap *
 static void do_screen_message(const char *msg) __attribute_nonnull();
 static void do_screen_message(const char *msg)
 {
-	grs_main_bitmap background;
 	
 	if (Game_mode & GM_MULTI)
 		return;
-	gr_init_bitmap_data(background);
+	grs_main_bitmap background;
 	if (pcx_read_bitmap(GLITZ_BACKGROUND, background, gr_palette) != PCX_ERROR_NONE)
 		return;
 

@@ -172,7 +172,6 @@ static void show_title_screen(const char * filename, int allow_keys, int from_ho
 
 	strcat(new_filename,filename);
 	filename = new_filename;
-	gr_init_bitmap_data(ts->title_bm);
 	if ((pcx_error=pcx_read_bitmap( filename, ts->title_bm, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
@@ -511,7 +510,6 @@ static void briefing_init(briefing *br, short level_num)
 		br->level_num = 0;	// for start of game stuff
 
 	br->cur_screen = 0;
-	gr_init_bitmap_data(br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 #if defined(DXX_BUILD_DESCENT_II)
 	br->robot_playing = 0;

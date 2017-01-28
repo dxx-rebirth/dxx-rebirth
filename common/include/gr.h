@@ -222,7 +222,10 @@ struct grs_subcanvas : grs_canvas {};
 class grs_main_bitmap : public grs_bitmap
 {
 public:
-	grs_main_bitmap() = default;
+	grs_main_bitmap()
+	{
+		gr_init_bitmap_data(*this);
+	}
 	grs_main_bitmap(const grs_main_bitmap &) = delete;
 	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
 	grs_main_bitmap(grs_main_bitmap &&r) :

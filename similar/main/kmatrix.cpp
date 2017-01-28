@@ -385,7 +385,6 @@ static window_event_result kmatrix_handler(window *, const d_event &event, kmatr
 kmatrix_result kmatrix_view(int network)
 {
 	kmatrix_screen km;
-	gr_init_bitmap_data(km.background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, km.background, gr_palette) != PCX_ERROR_NONE)
 	{
 		return kmatrix_result::abort;
