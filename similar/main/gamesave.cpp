@@ -1107,10 +1107,10 @@ static int load_game_data(PHYSFS_File *LoadFile)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
 					auto wall_num = vsegptr(seg_num)->sides[side_num].wall_num;
-					try {
-						vwallptr(wall_num)->controlling_trigger = t;
-					} catch (const valptridx<wall>::index_range_exception &e) {
-						con_puts(CON_URGENT, e.what());
+					if (const auto &&uwall = vwallptr.check_untrusted(wall_num))
+						(*uwall)->controlling_trigger = t;
+					else
+					{
 						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", static_cast<trgnum_t>(t), l, tr.type, seg_num, side_num);
 					}
 				}

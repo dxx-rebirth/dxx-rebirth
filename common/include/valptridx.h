@@ -154,6 +154,10 @@ class valptridx<managed_type>::partial_policy::require_valid
 public:
 	static constexpr tt::false_type allow_nullptr{};
 	static constexpr tt::false_type check_allowed_invalid_index(index_type) { return {}; }
+	static constexpr bool check_nothrow_index(index_type i)
+	{
+		return std::less<std::size_t>()(i, array_size);
+	}
 };
 
 template <typename managed_type>
@@ -164,6 +168,10 @@ public:
 	static constexpr bool check_allowed_invalid_index(index_type i)
 	{
 		return i == static_cast<index_type>(~0);
+	}
+	static constexpr bool check_nothrow_index(index_type i)
+	{
+		return check_allowed_invalid_index(i) || require_valid::check_nothrow_index(i);
 	}
 };
 
@@ -275,6 +283,10 @@ protected:
 		m_idx(check_index_range<std::less_equal>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a))
 	{
 	}
+	basic_idx(index_type i, array_managed_type &, const assume_nothrow_index *) :
+		m_idx(i)
+	{
+	}
 public:
 	template <integral_type v>
 		basic_idx(const magic_constant<v> &) :
@@ -383,6 +395,10 @@ public:
 	}
 	basic_ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type i, array_managed_type &a, const allow_end_construction *) :
 		m_ptr(&a[check_index_range<std::less_equal>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a)])
+	{
+	}
+	basic_ptr(index_type i, array_managed_type &a, const assume_nothrow_index *) :
+		m_ptr(&a[i])
 	{
 	}
 	basic_ptr(pointer_type p) = delete;
@@ -551,6 +567,11 @@ public:
 		vidx_type(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a, e)
 	{
 	}
+	basic_ptridx(index_type i, array_managed_type &a, const assume_nothrow_index *e) :
+		vptr_type(i, a, e),
+		vidx_type(i, a, e)
+	{
+	}
 	basic_ptridx(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS pointer_type p, array_managed_type &a) :
 		/* Null pointer is never allowed when an index must be computed.
 		 * Check for null, then use the reference constructor for
@@ -593,6 +614,107 @@ protected:
 };
 
 template <typename managed_type>
+template <typename guarded_type>
+class valptridx<managed_type>::guarded
+{
+	static_assert(std::is_trivially_destructible<guarded_type>::value, "non-trivial destructor found for guarded_type");
+	enum state : uint8_t
+	{
+		/* empty - the untrusted input was invalid, so no guarded_type
+		 * exists
+		 */
+		empty,
+		/* initialized - the untrusted input was valid, so a
+		 * guarded_type type exists, but the calling code has not yet
+		 * tested the state of this guarded<P>
+		 */
+		initialized,
+		/* checked - the untrusted input was valid, and the calling code
+		 * has called operator bool()
+		 */
+		checked,
+	};
+	union {
+		state m_dummy;
+		guarded_type m_value;
+	};
+	mutable state m_state;
+public:
+	guarded(std::nullptr_t) :
+		m_dummy(), m_state(empty)
+	{
+	}
+	guarded(guarded_type &&v) :
+		m_value(std::move(v)), m_state(initialized)
+	{
+	}
+	__attribute_warn_unused_result
+	explicit operator bool() const
+	{
+		/*
+		 * If no contained guarded_type exists, return false.
+		 * Otherwise, record that the result has been tested and then
+		 * return true.  operator*() uses m_state to enforce that the
+		 * result is tested.
+		 */
+		if (m_state == empty)
+			return false;
+		m_state = checked;
+		return true;
+	}
+	__attribute_warn_unused_result
+	guarded_type operator*() const &
+	{
+		/*
+		 * Correct code will always execute as if this method was just
+		 * the return statement, with none of the sanity checks.  The
+		 * checks are present to catch misuse of this type, preferably
+		 * at compile-time, but at least at runtime.
+		 */
+#define DXX_VALPTRIDX_GUARDED_OBJECT_NO	"access to guarded object that does not exist"
+#define DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE	"access to guarded object that may not exist"
+#ifdef DXX_CONSTANT_TRUE
+		/* If the contained object might not exist: */
+		if (!DXX_CONSTANT_TRUE(m_state == checked))
+		{
+			/*
+			 * Always fail.  Choose an error message and function name
+			 * based on whether the contained type provably does not
+			 * exist.  It provably does not exist if this call is on a
+			 * path where operator bool() returned false.  It
+			 * conditionally might not exist if this call is on a path
+			 * where operator bool() has not been called.
+			 */
+			if (DXX_CONSTANT_TRUE(m_state == empty))
+				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_empty, DXX_VALPTRIDX_GUARDED_OBJECT_NO);
+			else
+				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_unchecked, DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
+		}
+#else
+		/*
+		 * If the compiler does not offer constant truth analysis
+		 * (perhaps because of insufficient optimization), then emit a
+		 * runtime check for whether the guarded_type exists.
+		 *
+		 * This test can throw even if the contained object is valid, if
+		 * the caller did not first validate that the contained object
+		 * is valid.  This restriction is necessary since inputs are
+		 * usually valid even when untested, so throwing only on state
+		 * `empty` would allow incorrect usage to persist in the code
+		 * until someone happened to receive an invalid input from an
+		 * untrusted source.
+		 */
+		if (m_state != checked)
+			throw std::logic_error(m_state == empty ? DXX_VALPTRIDX_GUARDED_OBJECT_NO : DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
+#endif
+#undef DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE
+#undef DXX_VALPTRIDX_GUARDED_OBJECT_NO
+		return m_value;
+	}
+	guarded_type operator*() const && = delete;
+};
+
+template <typename managed_type>
 class valptridx<managed_type>::array_managed_type :
 	public detail::valptridx_array_type_count,
 	public array<managed_type, array_size>
@@ -632,6 +754,16 @@ public:
 	basic_ival_global_factory() = default;
 	basic_ival_global_factory(const basic_ival_global_factory &) = delete;
 	basic_ival_global_factory &operator=(const basic_ival_global_factory &) = delete;
+	__attribute_warn_unused_result
+	guarded<P> check_untrusted(index_type i) const
+	{
+		if (P::check_nothrow_index(i))
+			return P(i, get_array(), static_cast<const assume_nothrow_index *>(nullptr));
+		else
+			return nullptr;
+	}
+	template <typename T>
+		guarded<P> check_untrusted(T &&) const = delete;
 	__attribute_warn_unused_result
 	P operator()(typename P::index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 	{

@@ -1769,9 +1769,12 @@ static void multi_do_position(const playernum_t pnum, const ubyte *buf)
 
 static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 {
-	const objnum_t objnum = GET_INTEL_SHORT(buf + 2);
+	const objnum_t objnum = GET_INTEL_SHORT(&buf[2]);
 
-	auto &obj = *vcobjptr(objnum);
+	const auto &&uobj = vcobjptr.check_untrusted(objnum);
+	if (!uobj)
+		return;
+	auto &obj = **uobj;
 	if (obj.type != OBJ_PLAYER && obj.type != OBJ_GHOST)
 	{
 		con_printf(CON_URGENT, "%s:%u: BUG: object %hu has type %u, expected %u or %u", __FILE__, __LINE__, objnum, obj.type, OBJ_PLAYER, OBJ_GHOST);
@@ -2165,7 +2168,10 @@ static void multi_do_door_open(const ubyte *buf)
 		return;
 	}
 
-	const auto &&seg = vsegptridx(segnum);
+	const auto &&useg = vsegptridx.check_untrusted(segnum);
+	if (!useg)
+		return;
+	const auto &&seg = *useg;
 
 	if (seg->sides[side].wall_num == wall_none) {  //Opening door on illegal wall
 		Int3();
@@ -2214,7 +2220,10 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
-	auto objp = vobjptridx(objnum);
+	const auto &&uobj = vobjptridx.check_untrusted(objnum);
+	if (!uobj)
+		return;
+	const auto &&objp = *uobj;
 	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, 1);
 }
 
@@ -2229,7 +2238,10 @@ static void multi_do_create_powerup(const playernum_t pnum, const ubyte *buf)
 
 	count++;
 	powerup_type = buf[count++];
-	const auto &&segnum = vsegptridx(GET_INTEL_SHORT(&buf[count]));
+	const auto &&useg = vsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[count]));
+	if (!useg)
+		return;
+	const auto &&segnum = *useg;
 	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
 	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
@@ -2324,7 +2336,9 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 
 	multi_do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 
-	segnum_t segnum = GET_INTEL_SHORT(buf + 2); 
+	const auto &&useg = vsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[2]));
+	if (!useg)
+		return;
 	side = buf[4];
 	hitpnt.x = GET_INTEL_INT(buf + 5);
 	hitpnt.y = GET_INTEL_INT(buf + 9);
@@ -2337,7 +2351,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	laser.parent_type = OBJ_PLAYER;
 	laser.parent_num = pnum;
 
-	check_effect_blowup(vsegptridx(segnum), side, hitpnt, laser, 0, 1);
+	check_effect_blowup(*useg, side, hitpnt, laser, 0, 1);
 }
 
 static void multi_do_drop_marker (const playernum_t pnum, const ubyte *buf)
@@ -3949,7 +3963,10 @@ static void multi_do_light (const ubyte *buf)
 	const auto sides = buf[3];
 
 	const segnum_t seg = GET_INTEL_SHORT(&buf[1]);
-	const auto &&segp = vsegptridx(seg);
+	const auto &&usegp = vsegptridx.check_untrusted(seg);
+	if (!usegp)
+		return;
+	const auto &&segp = *usegp;
 	auto &side_array = segp->sides;
 	for (i=0;i<6;i++)
 	{

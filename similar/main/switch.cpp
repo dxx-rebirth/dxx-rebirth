@@ -174,11 +174,11 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 			}
 
 			wall *w0p;
-			try {
 				const auto w0num = segp->sides[side].wall_num;
-				w0p = vwallptr(w0num);
-			} catch (const valptridx<wall>::index_range_exception &e) {
-				con_puts(CON_URGENT, e.what());
+			if (const auto &&uw0p = vwallptr.check_untrusted(w0num))
+				w0p = *uw0p;
+			else
+			{
 				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", addressof(t), i, static_cast<segnum_t>(segp), side);
 				continue;
 			}

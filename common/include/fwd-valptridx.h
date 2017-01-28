@@ -47,6 +47,8 @@ class valptridx :
 	class ic;	/* allow_invalid + const_policy */
 	class vm;	/* require_valid + mutable_policy */
 	class im;	/* allow_invalid + mutable_policy */
+	template <typename>
+		class guarded;
 public:
 	class array_managed_type;
 
@@ -75,6 +77,7 @@ protected:
 	template <typename policy>
 		class basic_ptridx;
 	class allow_end_construction;
+	class assume_nothrow_index;
 
 	static constexpr const array_managed_type &get_array(const_pointer_type p)
 	{
