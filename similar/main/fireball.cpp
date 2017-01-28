@@ -178,7 +178,8 @@ static objptridx_t object_create_explosion_sub(const objptridx_t objp, const vse
 								phys_apply_force(obj0p,vforce);
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
-								if ((objp != object_none) && (!Robot_info[get_robot_id(obj0p)].boss_flag) && (Weapon_info[get_weapon_id(objp)].flash)) {
+								if (objp != object_none && objp->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj0p)].boss_flag && Weapon_info[get_weapon_id(objp)].flash)
+								{
 									ai_static	*aip = &obj0p->ctype.ai_info;
 									int			force_val = f2i(fixdiv(vm_vec_mag_quick(vforce) * Weapon_info[get_weapon_id(objp)].flash, FrameTime)/128) + 2;
 
