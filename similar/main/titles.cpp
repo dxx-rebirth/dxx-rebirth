@@ -1259,13 +1259,11 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	if (d_stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
-	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
-		if (bald_guy_load("btexture.xxx", &br->background, gr_palette) == 0)
-		{
-			return 0;
-		}
-
-	if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette))!=PCX_ERROR_NONE)
+	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy &&
+		(bald_guy_load("btexture.xxx", &br->background, gr_palette) == PCX_ERROR_NONE))
+	{
+	}
+	else if ((pcx_error = pcx_read_bitmap(fname2, br->background, gr_palette))!=PCX_ERROR_NONE)
 	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
 	}
