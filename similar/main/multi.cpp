@@ -104,7 +104,7 @@ static std::size_t find_goal_texture(ubyte t);
 static tmap_info &find_required_goal_texture(ubyte t);
 static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
-static void multi_send_drop_flag(objnum_t objnum,int seed);
+static void multi_send_drop_flag(vobjptridx_t objnum,int seed);
 }
 #endif
 static void multi_send_ranking(uint8_t);
@@ -4306,17 +4306,17 @@ void DropFlag ()
 }
 
 
-void multi_send_drop_flag(objnum_t objnum,int seed)
+void multi_send_drop_flag(const vobjptridx_t objp, int seed)
 {
 	int count=0;
-	const auto &&objp = vobjptr(objnum);
 	count++;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
 
-	PUT_INTEL_SHORT(multibuf+count, objnum); count += 2;
+	PUT_INTEL_SHORT(&multibuf[count], objp.get_unchecked_index());
+	count += 2;
 	PUT_INTEL_INT(multibuf+count, seed);
 
-	map_objnum_local_to_local(objnum);
+	map_objnum_local_to_local(objp);
 
 	multi_send_data<MULTI_DROP_FLAG>(multibuf, 8, 2);
 }
