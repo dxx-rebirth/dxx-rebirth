@@ -11,6 +11,7 @@
 #include "valptridx.h"
 #include "compiler-addressof.h"
 
+#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
 namespace untyped_index_mismatch_exception
 {
 #ifdef DXX_VALPTRIDX_ENABLE_REPORT_FILENAME
@@ -112,3 +113,4 @@ void valptridx<managed_type>::null_pointer_exception::report(DXX_VALPTRIDX_REPOR
 	prepare_report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS addressof(array), buf, array.size());
 	throw null_pointer_exception(buf);
 }
+#endif

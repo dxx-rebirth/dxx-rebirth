@@ -10,11 +10,60 @@
 #include <cstddef>
 #include "dxxsconf.h"
 
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+/* Unexpected invalid data can be handled in one of three ways.
+ *
+ * DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_UB: if invalid input is found, ignore
+ * it and continue on; the program will have Undefined Behavior if an
+ * invalid input ever occurs.
+ *
+ * DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_TRAP: if invalid input is found,
+ * execute __builtin_trap(); a compiler-implementation dependent fatal
+ * exit occurs.
+ *
+ * DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION: if invalid input is found,
+ * throw an exception.
+ *
+ * UB produces the smallest program, but has Undefined Behavior in
+ * the case of errors.  The program may crash immediately, crash at a
+ * later stage when some other function becomes confused by the invalid
+ * data propagated by the undefined behavior, continue to run but behave
+ * incorrectly, or seem to work normally.
+ *
+ * TRAP produces the next smallest program.  The program will crash on
+ * fatal errors, but error reporting is minimal.  Inspection of the core
+ * file will be required to identify the cause of the crash, and may be
+ * difficult, depending on how the optimizer laid out the program.
+ *
+ * EXCEPTION produces the largest program, but provides the best error
+ * reporting.
+ *
+ * Choose UB to profile for how much space is consumed by the validation
+ * and reporting code.
+ * Choose TRAP to profile for how much space is consumed by the
+ * reporting code or to reduce size when debugging is not a concern.
+ * Otherwise, choose EXCEPTION.
+ *
+ * This choice intentionally lacks a named configure knob.
+ */
+#define DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_UB	0
+#define DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_TRAP	1
+#define DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION	2
+
+#ifndef DXX_VALPTRIDX_REPORT_ERROR_STYLE
+//#define DXX_VALPTRIDX_REPORT_ERROR_STYLE	DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_UB
+//#define DXX_VALPTRIDX_REPORT_ERROR_STYLE	DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_TRAP
+#define DXX_VALPTRIDX_REPORT_ERROR_STYLE	DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
+#endif
+
+/* Only EXCEPTION uses the filename/lineno information.  Omit it from
+ * other configurations, even when the compiler supports
+ * __builtin_FILE().
+ */
+#if defined(DXX_HAVE_CXX_BUILTIN_FILE_LINE) && DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
 #define DXX_VALPTRIDX_ENABLE_REPORT_FILENAME
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS	const char *filename = __builtin_FILE(), const unsigned lineno = __builtin_LINE()
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS	, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS
-#define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS	const char *filename, const unsigned lineno
+#define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS	const char *const filename, const unsigned lineno
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS	DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS,
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_	filename, lineno
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS	, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_PASS_VARS_
@@ -128,9 +177,16 @@ public:
 	typedef basic_ptr<ic, 0>	cptr;
 	typedef basic_ptr<vm, 0>	vptr;
 	typedef basic_ptr<im, 0>	ptr;
+#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
+	/* These exceptions can only be thrown when style is EXCEPTION.
+	 * Other reporting styles never generate them, so they are left
+	 * undeclared to trap any code which attempts to catch an exception
+	 * that is never thrown.
+	 */
 	class index_mismatch_exception;
 	class index_range_exception;
 	class null_pointer_exception;
+#endif
 
 	template <typename vptr>
 		class basic_vval_global_factory;

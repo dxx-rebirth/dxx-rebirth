@@ -29,8 +29,15 @@
 //#define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT __attribute__((__warning__("call not eliminated")))
 #endif
 #else
-#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)	\
-	((void)0)
+#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)
+#endif
+
+#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_UB
+#define DXX_VALPTRIDX_REPORT_ERROR_(EXCEPTION,...)	static_cast<void>(0)
+#elif DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_TRAP
+#define DXX_VALPTRIDX_REPORT_ERROR_(EXCEPTION,...)	__builtin_trap()
+#elif DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
+#define DXX_VALPTRIDX_REPORT_ERROR_(EXCEPTION,...)	EXCEPTION::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__))
 #endif
 
 #define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,EXCEPTION,FAILURE_STRING,...)	\
@@ -38,7 +45,7 @@
 		const bool dxx_valptridx_check_success_condition = (SUCCESS_CONDITION);	\
 		DXX_VALPTRIDX_STATIC_CHECK(dxx_valptridx_check_success_condition, dxx_trap_##EXCEPTION, FAILURE_STRING);	\
 		static_cast<void>(	\
-			dxx_valptridx_check_success_condition || (EXCEPTION::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__)), 0)	\
+			dxx_valptridx_check_success_condition || (DXX_VALPTRIDX_REPORT_ERROR_(EXCEPTION,__VA_ARGS__), 0)	\
 		);	\
 	} ) DXX_END_COMPOUND_STATEMENT
 
@@ -67,6 +74,7 @@ public:
 template <typename INTEGRAL_TYPE, std::size_t array_size_value>
 constexpr std::integral_constant<std::size_t, array_size_value> valptridx_specialized_type_parameters<INTEGRAL_TYPE, array_size_value>::array_size;
 
+#if DXX_VALPTRIDX_REPORT_ERROR_STYLE == DXX_VALPTRIDX_ERROR_STYLE_TREAT_AS_EXCEPTION
 template <typename P>
 class valptridx<P>::index_mismatch_exception :
 	public std::logic_error
@@ -106,9 +114,10 @@ public:
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type &);
 };
+#endif
 
 template <typename managed_type>
-void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const managed_type &r, index_type i, const array_managed_type &a)
+void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const managed_type &r, index_type i, const array_managed_type &a __attribute_unused)
 {
 	const auto pi = &a[i];
 	DXX_VALPTRIDX_CHECK(pi == &r, index_mismatch_exception, "pointer/index mismatch", a, i, pi, &r);
@@ -116,7 +125,7 @@ void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LE
 
 template <typename managed_type>
 template <template <typename> class Compare>
-typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const index_type i, const array_managed_type *a)
+typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const index_type i, const array_managed_type *const a __attribute_unused)
 {
 	const std::size_t ss = i;
 	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(ss, array_size), index_range_exception, "invalid index used in array subscript", a, ss);
@@ -130,7 +139,7 @@ void valptridx<managed_type>::check_null_pointer_conversion(DXX_VALPTRIDX_REPORT
 }
 
 template <typename managed_type>
-void valptridx<managed_type>::check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p, const array_managed_type &a)
+void valptridx<managed_type>::check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p, const array_managed_type &a __attribute_unused)
 {
 	DXX_VALPTRIDX_CHECK(p, null_pointer_exception, "NULL pointer used", a);
 }
