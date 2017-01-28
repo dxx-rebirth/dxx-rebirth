@@ -781,8 +781,7 @@ static void multi_compute_kill(const objptridx_t killer, const vobjptridx_t kill
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		const auto killer_id = get_weapon_id(killer);
-		if (killer_id == weapon_id_type::PMINE_ID && killer_type != OBJ_ROBOT)
+		if (killer_type != OBJ_ROBOT && get_weapon_id(killer) == weapon_id_type::PMINE_ID)
 		{
 			if (killed_pnum == Player_num)
 				HUD_init_message_literal(HM_MULTI, "You were killed by a mine!");
