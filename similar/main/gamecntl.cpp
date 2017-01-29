@@ -1396,7 +1396,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "joshuaakira", &game_cheats::lamer },
 	{ "whammazoom", &game_cheats::lamer },
 	{ "honestbob", &game_cheats::wowie },
-	{ "algroove", &game_cheats::allkeys },
+	{ "oralgroove", &game_cheats::allkeys },
 	{ "alifalafel", &game_cheats::accessory },
 	{ "almighty", &game_cheats::invul },
 	{ "blueorb", &game_cheats::shields },
