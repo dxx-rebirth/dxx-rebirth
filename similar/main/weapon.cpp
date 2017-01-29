@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
+#include "bm.h"
 #include "hudmsg.h"
 #include "game.h"
 #include "laser.h"
@@ -1013,6 +1014,28 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+// Homing weapons cheat
+array<uint8_t, N_D2_WEAPON_TYPES> OldHomingState;
+
+void weapons_homing_all()
+{
+	int i;
+
+	for (i = 0; i < N_D2_WEAPON_TYPES; i++)
+	{
+		OldHomingState[i] = Weapon_info[i].homing_flag;
+		Weapon_info[i].homing_flag = 1;
+	}
+}
+
+void weapons_homing_all_reset()
+{
+	int i;
+	
+	for (i = 0; i < N_D2_WEAPON_TYPES; i++)
+		Weapon_info[i].homing_flag = OldHomingState[i];
+}
+
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4
 static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;

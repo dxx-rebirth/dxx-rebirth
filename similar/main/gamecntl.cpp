@@ -1405,6 +1405,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "rockrgrl", &game_cheats::fullautomap },
 	{ "wildfire", &game_cheats::rapidfire },
 	{ "duddaboo", &game_cheats::bouncyfire },
+	{ "lpnlizard", &game_cheats::homingfire },
 	{ "imagespace", &game_cheats::robotfiringsuspended },
 	{ "spaniard", &game_cheats::killallrobots },
 	{ "silkwing", &game_cheats::robotskillrobots },
@@ -1638,6 +1639,21 @@ static window_event_result FinalCheats()
 	{
 		
 		HUD_init_message(HM_DEFAULT, "Bouncing weapons %s!", cheats.bouncyfire?TXT_ON:TXT_OFF);
+	}
+
+	if (gotcha == &game_cheats::homingfire)
+	{
+		HUD_init_message(HM_DEFAULT, "Homing weapons %s!", cheats.homingfire?TXT_ON:TXT_OFF);
+
+		if (cheats.homingfire)
+			weapons_homing_all();
+		else
+			weapons_homing_all_reset();
+
+		if (cheats.homingfire)
+			range_for(auto &&objp, vobjptr)
+				if (objp->type == OBJ_WEAPON)
+					objp->ctype.laser_info.track_goal = object_none;
 	}
 #endif
 

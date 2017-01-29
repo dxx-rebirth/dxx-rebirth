@@ -333,6 +333,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int lamer;
 	int accessory;
 	int bouncyfire;
+	int homingfire;
 	int killallrobots;
 	int robotskillrobots;
 	int monsterdamage;
