@@ -325,7 +325,7 @@ void detect_escort_goal_accomplished(const vobjptridx_t index)
 	{
 		if ((index->type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
-		else
+		else if (Escort_goal_index != object_guidebot_cannot_reach)
 		{
 			const auto &&egi_objp = vcobjptr(Escort_goal_index);
 			if (index->type == egi_objp->type && index->id == egi_objp->id)
