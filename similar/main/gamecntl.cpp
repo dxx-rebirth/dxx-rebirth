@@ -1386,6 +1386,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "bruin", &game_cheats::extralife },
 	{ "porgys", &game_cheats::rapidfire },
 	{ "ahimsa", &game_cheats::robotfiringsuspended },
+	{ "baldguy", &game_cheats::baldguy },
 #elif defined(DXX_BUILD_DESCENT_II)
 	{ "gabbagabbahey", &game_cheats::lamer },
 	{ "motherlode", &game_cheats::lamer },
