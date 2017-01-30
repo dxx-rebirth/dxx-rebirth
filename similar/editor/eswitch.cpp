@@ -245,7 +245,7 @@ int remove_trigger_num(int trigger_num)
 			auto &trigger = w->trigger;
 			if (trigger == trigger_num)
 				trigger = trigger_none;	// a trigger can be shared by multiple walls
-			else if (trigger > trigger_num) 
+			else if (trigger > trigger_num && trigger != trigger_none)
 				--trigger;
 		}
 
