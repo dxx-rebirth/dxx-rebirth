@@ -1013,6 +1013,23 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+// Homing weapons cheat
+
+void weapons_homing_all()
+{
+	range_for(auto &&objp, vobjptr)
+		if (objp->type == OBJ_WEAPON)
+			objp->ctype.laser_info.track_goal = object_none;
+	range_for (auto &w, Weapon_info)
+		w.homing_flag |= 2;
+}
+
+void weapons_homing_all_reset()
+{
+	range_for (auto &w, Weapon_info)
+		w.homing_flag &= ~2;
+}
+
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4
 static array<fix64, MAX_SMEGA_DETONATES> Smega_detonate_times;

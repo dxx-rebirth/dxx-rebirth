@@ -1383,6 +1383,14 @@ static window_event_result AdvanceLevel(int secret_flag)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	Assert(!secret_flag);
+
+	// Loading a level can write over homing_flag.
+	// So for simplicity, reset the homing weapon cheat here.
+	if (cheats.homingfire)
+	{
+		cheats.homingfire = 0;
+		weapons_homing_all_reset();
+	}
 #endif
 	if (Current_level_num != Last_level)
 	{

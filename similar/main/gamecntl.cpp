@@ -1397,7 +1397,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "joshuaakira", &game_cheats::lamer },
 	{ "whammazoom", &game_cheats::lamer },
 	{ "honestbob", &game_cheats::wowie },
-	{ "algroove", &game_cheats::allkeys },
+	{ "oralgroove", &game_cheats::allkeys },
 	{ "alifalafel", &game_cheats::accessory },
 	{ "almighty", &game_cheats::invul },
 	{ "blueorb", &game_cheats::shields },
@@ -1406,6 +1406,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "rockrgrl", &game_cheats::fullautomap },
 	{ "wildfire", &game_cheats::rapidfire },
 	{ "duddaboo", &game_cheats::bouncyfire },
+	{ "lpnlizard", &game_cheats::homingfire },
 	{ "imagespace", &game_cheats::robotfiringsuspended },
 	{ "spaniard", &game_cheats::killallrobots },
 	{ "silkwing", &game_cheats::robotskillrobots },
@@ -1639,6 +1640,11 @@ static window_event_result FinalCheats()
 	{
 		
 		HUD_init_message(HM_DEFAULT, "Bouncing weapons %s!", cheats.bouncyfire?TXT_ON:TXT_OFF);
+	}
+
+	if (gotcha == &game_cheats::homingfire)
+	{
+		HUD_init_message(HM_DEFAULT, "Homing weapons %s!", cheats.homingfire ? (weapons_homing_all(), TXT_ON) : (weapons_homing_all_reset(), TXT_OFF));
 	}
 #endif
 
