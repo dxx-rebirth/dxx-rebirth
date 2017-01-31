@@ -88,15 +88,14 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
-static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, objnum_t objnum)
+static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const cobjptridx_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
 		sbyte is_marker = 0;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (objnum != object_none)
-			if (Objects[objnum].type == OBJ_MARKER)
+		if (objnum && objnum->type == OBJ_MARKER)
 				is_marker = 1;
 #endif
 
@@ -123,22 +122,22 @@ static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg
 			fix	max_headlight_dist = F1_0*200;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			if (objnum != object_none)
+			if (objnum)
 			{
-				const auto &&objp = vcobjptr(objnum);
-				if (objp->type == OBJ_PLAYER)
-					if (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
+				const object &obj = *objnum;
+				if (obj.type == OBJ_PLAYER)
+					if (obj.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON) {
 						headlight_shift = 3;
-						if (get_player_id(objp) != Player_num)
+						if (get_player_id(obj) != Player_num)
 						{
 							fvi_query	fq;
 							fvi_info		hit_data;
 							int			fate;
 
-							const auto tvec = vm_vec_scale_add(objp->pos, objp->orient.fvec, F1_0*200);
+							const auto tvec = vm_vec_scale_add(obj.pos, obj.orient.fvec, F1_0*200);
 
-							fq.startseg				= objp->segnum;
-							fq.p0						= &objp->pos;
+							fq.startseg				= obj_seg;
+							fq.p0						= &obj.pos;
 							fq.p1						= &tvec;
 							fq.rad					= 0;
 							fq.thisobjnum			= objnum;
@@ -147,7 +146,7 @@ static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg
 
 							fate = find_vector_intersection(fq, hit_data);
 							if (fate != HIT_NONE)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, objp->pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, obj.pos)) + F1_0*4;
 						}
 					}
 			}
@@ -178,12 +177,12 @@ static void apply_light(g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg
 					if (dist < MIN_LIGHT_DIST)
 						dist = MIN_LIGHT_DIST;
 
-					if (headlight_shift && objnum != object_none)
+					if (headlight_shift && objnum)
 					{
 						fix dot;
 						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
 						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(vertpos, obj_pos));
-						dot = vm_vec_dot(vec_to_point, vcobjptr(objnum)->orient.fvec);
+						dot = vm_vec_dot(vec_to_point, objnum->orient.fvec);
 						if (dot < F1_0/2)
 						{
 							// Do the normal thing, but darken around headlight.
