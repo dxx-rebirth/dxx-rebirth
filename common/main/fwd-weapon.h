@@ -211,6 +211,9 @@ int attempt_to_steal_item(vobjptridx_t objp, vobjptr_t playerobjp);
 
 #define SMEGA_ID    40
 
+extern void weapons_homing_all();
+extern void weapons_homing_all_reset();
+
 extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);

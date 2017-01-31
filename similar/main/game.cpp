@@ -1149,6 +1149,11 @@ int cheats_enabled()
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	if (cheats.homingfire)
+		weapons_homing_all_reset();
+#endif
+
 	cheats = {};
 }
 
