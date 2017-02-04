@@ -428,6 +428,24 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, const vobjp
 			break;
 		case CT_CNTRLCEN:
 		{
+			if (obj->type == OBJ_GHOST)
+			{
+				/* Boss missions convert the reactor into OBJ_GHOST
+				 * instead of freeing it.  Old releases (before
+				 * ed46a05296f9d480f934d8c951c4755ebac1d5e7 ("Update
+				 * control_type when ghosting reactor")) did not update
+				 * `control_type`, so games saved by those releases have an
+				 * object with obj->type == OBJ_GHOST and obj->control_type ==
+				 * CT_CNTRLCEN.  That inconsistency triggers an assertion down
+				 * in `calc_controlcen_gun_point` because obj->type !=
+				 * OBJ_CNTRLCEN.
+				 *
+				 * Add a special case here to correct this
+				 * inconsistency.
+				 */
+				obj->control_type = CT_NONE;
+				break;
+			}
 			// gun points of reactor now part of the object but of course not saved in object_rw and overwritten due to reset_objects(). Let's just recompute them.
 			calc_controlcen_gun_point(obj);
 			break;
