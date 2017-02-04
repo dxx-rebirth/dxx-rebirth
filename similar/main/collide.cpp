@@ -2257,22 +2257,25 @@ void collide_robot_and_materialization_center(const vobjptridx_t objp)
 	apply_damage_to_robot( objp, F1_0, object_none);
 
 	return;
-
 }
 
-void collide_player_and_powerup(object &playerobj, const vobjptridx_t powerup, const vms_vector &)
+void collide_live_local_player_and_powerup(const vobjptridx_t powerup)
+{
+	if (do_powerup(powerup))
+	{
+		powerup->flags |= OF_SHOULD_BE_DEAD;
+		if (Game_mode & GM_MULTI)
+			multi_send_remobj(powerup);
+	}
+}
+
+static void collide_player_and_powerup(object &playerobj, const vobjptridx_t powerup, const vms_vector &)
 {
 	if (!Endlevel_sequence &&
 		Player_dead_state == player_dead_state::no &&
 		get_player_id(playerobj) == Player_num)
 	{
-		const auto powerup_used = do_powerup(powerup);
-		if (powerup_used)
-		{
-			powerup->flags |= OF_SHOULD_BE_DEAD;
-			if (Game_mode & GM_MULTI)
-				multi_send_remobj(powerup);
-		}
+		collide_live_local_player_and_powerup(powerup);
 	}
 	else if ((Game_mode & GM_MULTI_COOP) && (get_player_id(playerobj) != Player_num))
 	{

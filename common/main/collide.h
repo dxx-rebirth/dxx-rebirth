@@ -67,7 +67,7 @@ int maybe_detonate_weapon(vobjptridx_t obj0p, vobjptr_t obj, const vms_vector &p
 void collide_player_and_nasty_robot(vobjptridx_t player, vobjptridx_t robot, const vms_vector &collision_point);
 
 void net_destroy_controlcen(objptridx_t controlcen);
-void collide_player_and_powerup(object &player, vobjptridx_t powerup, const vms_vector &collision_point);
+void collide_live_local_player_and_powerup(const vobjptridx_t powerup);
 #if defined(DXX_BUILD_DESCENT_I)
 #define check_effect_blowup(seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(seg,side,pnt)
 #endif

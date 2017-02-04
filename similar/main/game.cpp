@@ -1785,8 +1785,7 @@ static void powerup_grab_cheat(object &player, const vobjptridx_t powerup)
 	const auto dist = vm_vec_dist_quick(powerup->pos, player.pos);
 
 	if ((dist < 2*(powerup_size + player_size)) && !(powerup->flags & OF_SHOULD_BE_DEAD)) {
-		const auto collision_point = vm_vec_avg(powerup->pos, player.pos);
-		collide_player_and_powerup(player, powerup, collision_point);
+		collide_live_local_player_and_powerup(powerup);
 	}
 }
 
@@ -1798,6 +1797,10 @@ static void powerup_grab_cheat(object &player, const vobjptridx_t powerup)
 //	way before the player gets there.
 void powerup_grab_cheat_all(void)
 {
+	if (Endlevel_sequence)
+		return;
+	if (Player_dead_state != player_dead_state::no)
+		return;
 	const auto &&console = vobjptr(ConsoleObject);
 	range_for (const auto objnum, objects_in(vsegptr(console->segnum)))
 		if (objnum->type == OBJ_POWERUP)
