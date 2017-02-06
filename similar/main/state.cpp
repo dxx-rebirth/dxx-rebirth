@@ -1518,7 +1518,6 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 
 //Read player info
 
-	auto &plrobj = get_local_plrobj();
 	{
 	player_info pl_info;
 	fix pl_shields;
@@ -1535,6 +1534,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 			StartNewLevelSub(current_level, 1, secret);
 
 #if defined(DXX_BUILD_DESCENT_II)
+		auto &plrobj = get_local_plrobj();
 		if (secret != secret_restore::none) {
 			player	dummy_player;
 			state_read_player(fp, dummy_player, swap, pl_info, pl_shields);
@@ -1643,6 +1643,10 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 	}
 	special_reset_objects();
+	/* Reload plrobj reference.  The player's object number may have
+	 * been changed by the state_object_rw_to_object call.
+	 */
+	auto &plrobj = get_local_plrobj();
 	plrobj.shields = pl_shields;
 #if defined(DXX_BUILD_DESCENT_II)
 	if (secret == secret_restore::survived)
@@ -1654,6 +1658,13 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 		plrobj.ctype.player_info = pl_info;
 	}
+	/* Reload plrobj reference.  This is unnecessary for correctness,
+	 * but is required by scoping rules, since the previous correct copy
+	 * goes out of scope when pl_info goes out of scope, and that needs
+	 * to be removed from scope to avoid a shadow warning when
+	 * cooperative players are loaded below.
+	 */
+	auto &plrobj = get_local_plrobj();
 
 	//	1 = Didn't die on secret level.
 	//	2 = Died on secret level.
