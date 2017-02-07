@@ -1467,8 +1467,8 @@ window_event_result DoPlayerDead()
 {
 	auto result = window_event_result::handled;
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
+	if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)))
+		stop_time();
 
 	reset_palette_add();
 
@@ -1560,8 +1560,8 @@ window_event_result DoPlayerDead()
 
 	digi_sync_sounds();
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
+	if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)))
+		start_time();
 	reset_time();
 
 	return result;
