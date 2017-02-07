@@ -1866,8 +1866,7 @@ window_event_result ReadControls(const d_event &event)
 			(multi_sending_message[Player_num] || multi_defining_message)
 		)
 	)
-		if (HandleDeathInput(event))
-			return window_event_result::handled;
+	HandleDeathInput(event);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
