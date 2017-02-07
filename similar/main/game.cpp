@@ -435,7 +435,6 @@ namespace dcx {
 void game_flush_respawn_inputs()
 {
 	static_cast<control_info::fire_controls_t &>(Controls.state) = {};
-	game_flush_common_inputs();
 }
 
 /*
