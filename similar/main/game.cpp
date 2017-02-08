@@ -837,10 +837,9 @@ void palette_restore(void)
 	Time_flash_last_played = 0;
 #endif
 }
-}
 
 //	--------------------------------------------------------------------------------------------------
-int allowed_to_fire_laser(void)
+bool allowed_to_fire_laser(const player_info &player_info)
 {
 	if (Player_dead_state != player_dead_state::no)
 	{
@@ -848,8 +847,7 @@ int allowed_to_fire_laser(void)
 		return 0;
 	}
 
-	auto &plrobj = get_local_plrobj();
-	auto &Next_laser_fire_time = plrobj.ctype.player_info.Next_laser_fire_time;
+	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	//	Make sure enough time has elapsed to fire laser
 	if (Next_laser_fire_time > GameTime64)
 		return 0;
@@ -857,7 +855,6 @@ int allowed_to_fire_laser(void)
 	return 1;
 }
 
-namespace dsx {
 int allowed_to_fire_flare(player_info &player_info)
 {
 	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
@@ -1392,8 +1389,9 @@ namespace dsx {
 
 window_event_result GameProcessFrame()
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
-	auto &local_player_shields_ref = get_local_plrobj().shields;
+	auto &plrobj = get_local_plrobj();
+	auto &player_info = plrobj.ctype.player_info;
+	auto &local_player_shields_ref = plrobj.shields;
 	fix player_shields = local_player_shields_ref;
 	const auto player_was_dead = Player_dead_state;
 	auto result = window_event_result::ignored;
@@ -1507,7 +1505,7 @@ window_event_result GameProcessFrame()
 
 		do_ai_frame_all();
 
-		if (allowed_to_fire_laser())
+		if (allowed_to_fire_laser(player_info))
 			FireLaser();				// Fire Laser!
 
 		auto laser_firing_count = Global_laser_firing_count;

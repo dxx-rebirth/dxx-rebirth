@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include "pack.h"
 #include "fwd-object.h"
+#include "fwd-player.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
 
@@ -347,11 +348,11 @@ void move_player_2_segment(vsegptridx_t seg, int side);
 window *game_setup();
 window_event_result game_handler(window *wind,const d_event &event, const unused_window_userdata_t *);
 window_event_result ReadControls(const d_event &event);
+bool allowed_to_fire_laser(const player_info &);
 }
 #endif
 int cheats_enabled();
 void game_disable_cheats();
-int allowed_to_fire_laser(void);
 void	check_rear_view(void);
 int create_special_path(void);
 window_event_result ReadControls(const d_event &event);

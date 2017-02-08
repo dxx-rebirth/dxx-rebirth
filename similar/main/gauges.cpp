@@ -2727,7 +2727,7 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 	y = grd_curcanv->cv_bitmap.bm_h/2;
 	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
 
-	laser_ready = allowed_to_fire_laser();
+	laser_ready = allowed_to_fire_laser(player_info);
 
 	missile_ready = allowed_to_fire_missile(player_info);
 	auto &Primary_weapon = player_info.Primary_weapon;
