@@ -88,19 +88,4 @@ void ui_draw_box_in( short x1, short y1, short x2, short y2 )
 	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CGREY, CBRIGHT );
 }
 
-void ui_draw_line_in( short x1, short y1, short x2, short y2 )
-{
-	const uint8_t cgrey = CGREY;
-	const uint8_t cbright = CBRIGHT;
-	Hline(x1, x2, y1, cgrey);
-	Hline(x1, x2-1, y2-1, cgrey);
-	Vline(y1+1, y2-2, x1, cgrey);
-	Vline(y1+1, y2-2, x2-1, cgrey);
-
-	Hline(x1+1, x2-1, y1+1, cbright);
-	Hline(x1, x2, y2, cbright);
-	Vline(y1+2, y2-2, x1+1, cbright);
-	Vline(y1+1, y2-1, x2, cbright);
-}
-
 }

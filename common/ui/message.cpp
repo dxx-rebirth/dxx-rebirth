@@ -182,8 +182,6 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	dlg = ui_create_dialog(x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), messagebox_handler, m.get());
 
-	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
-
 	y = TEXT_EXTRA_HEIGHT + text_height/2 - 1;
 
 	m->width = width;

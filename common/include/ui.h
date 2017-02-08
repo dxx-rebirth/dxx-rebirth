@@ -261,7 +261,6 @@ void Vline(short y1, short y2, short x, uint8_t color);
 extern void ui_string_centered( short x, short y, const char * s );
 extern void ui_draw_box_out( short x1, short y1, short x2, short y2 );
 extern void ui_draw_box_in( short x1, short y1, short x2, short y2 );
-extern void ui_draw_line_in( short x1, short y1, short x2, short y2 );
 extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
 extern void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 );
 
