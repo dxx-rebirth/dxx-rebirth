@@ -2017,22 +2017,54 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 				context.sconf.Define('DXX_PRI_size_type', f)
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
+	implicit_tests.append(_implicit_test.RecordedTest('check_compiler_accepts_useless_cast', "assume compiler accepts -Wuseless-cast"))
 	@_custom_test
 	def check_compiler_useless_cast(self,context):
 		Compile = self.Compile
 		flags = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'useless-cast']}
 		if Compile(context, text='''
+/*
+ * SDL on Raspbian provokes a warning from -Wuseless-cast
+ *
+ * Reported-by: derhass <https://github.com/dxx-rebirth/dxx-rebirth/issues/257>
+ */
 #include <SDL_endian.h>
+
+/*
+ * gcc-6.x (all currently released versions) create a useless cast when
+ * synthesizing constructor inheritance, then warn the user about the
+ * compiler-generated cast.  Since the user did not write the cast in
+ * the source, the user cannot remove the cast to eliminate the warning.
+ *
+ * The only way to avoid the problem is to avoid using constructor
+ * inheritance in cases where the compiler would synthesize a useless
+ * cast.
+ *
+ * Reported-by: zicodxx <https://github.com/dxx-rebirth/dxx-rebirth/issues/316>
+ */
+class base
+{
+public:
+	base(int &) {}
+};
+
+class derived : public base
+{
+public:
+	using base::base;
+};
+
 ''', main='''
+	derived d(argc);
 	return SDL_Swap32(argc);
-''', msg='whether compiler argument -Wuseless-cast works with SDL', successflags=flags):
+''', msg='whether compiler argument -Wuseless-cast works with SDL and with constructor inheritance', successflags=flags):
 			return
 		# <=clang-3.7 does not understand -Wuseless-cast
 		# This test does not influence the compile environment, but is
 		# run to distinguish in the output whether the failure is
 		# because the compiler does not accept -Wuseless-cast or because
 		# SDL's headers provoke a warning from -Wuseless-cast.
-		Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', testflags=flags)
+		Compile(context, text='', main='', msg='whether compiler accepts -Wuseless-cast', testflags=flags, calling_function='compiler_accepts_useless_cast')
 	@_custom_test
 	def check_compiler_ptrdiff_cast_int(self,context):
 		context.sconf.Define('DXX_ptrdiff_cast_int', 'static_cast<int>'
