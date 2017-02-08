@@ -128,7 +128,6 @@ int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
 int	Game_mode = GM_GAME_OVER;
-int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
 }
 
@@ -136,7 +135,7 @@ int	Global_missile_firing_count = 0;
 
 namespace dsx {
 static window_event_result GameProcessFrame(void);
-static void FireLaser();
+static bool FireLaser(player_info &);
 static void powerup_grab_cheat_all();
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1505,10 +1504,7 @@ window_event_result GameProcessFrame()
 
 		do_ai_frame_all();
 
-		if (allowed_to_fire_laser(player_info))
-			FireLaser();				// Fire Laser!
-
-		auto laser_firing_count = Global_laser_firing_count;
+		auto laser_firing_count = FireLaser(player_info);
 		if (auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time)
 		{
 			if (player_info.Primary_weapon != primary_weapon_index_t::FUSION_INDEX)
@@ -1530,12 +1526,7 @@ window_event_result GameProcessFrame()
 		}
 
 		if (laser_firing_count)
-		{
-			laser_firing_count -= do_laser_firing_player();
-			if (laser_firing_count < 0)
-				laser_firing_count = 0;
-		}
-		Global_laser_firing_count = laser_firing_count;
+			do_laser_firing_player(plrobj);
 		delayed_autoselect(player_info);
 	}
 
@@ -1703,20 +1694,24 @@ void enable_flicker(const vsegidx_t segnum, const unsigned sidenum)
 //	-----------------------------------------------------------------------------
 //	Fire Laser:  Registers a laser fire, and performs special stuff for the fusion
 //				    cannon.
-void FireLaser()
+bool FireLaser(player_info &player_info)
 {
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	if (!Controls.state.fire_primary)
+		return false;
+	if (!allowed_to_fire_laser(player_info))
+		return false;
 	auto &Primary_weapon = player_info.Primary_weapon;
-	Global_laser_firing_count = Controls.state.fire_primary
-		? Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count
-		: 0;
+	if (!Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count)
+		/* Retail data sets fire_count=1 for all primary weapons */
+		return false;
 
-	if ((Primary_weapon == primary_weapon_index_t::FUSION_INDEX) && (Global_laser_firing_count)) {
+	if (Primary_weapon == primary_weapon_index_t::FUSION_INDEX)
+	{
 		auto &energy = player_info.energy;
 		auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time;
 		if (energy < F1_0 * 2 && Auto_fire_fusion_cannon_time == 0)
 		{
-			Global_laser_firing_count = 0;
+			return false;
 		} else {
 			static fix64 Fusion_next_sound_time = 0;
 
@@ -1763,6 +1758,7 @@ void FireLaser()
 			}
 		}
 	}
+	return true;
 }
 
 

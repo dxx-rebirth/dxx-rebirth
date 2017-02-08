@@ -495,7 +495,6 @@ void init_player_stats_new_ship(ubyte pnum)
 		Player_dead_state = player_dead_state::no;
 		player_info.Player_eggs_dropped = false;
 		Dead_player_camera = 0;
-		Global_laser_firing_count=0;
 #if defined(DXX_BUILD_DESCENT_II)
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		Secondary_last_was_super = {};

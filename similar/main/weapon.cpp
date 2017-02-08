@@ -432,7 +432,6 @@ void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num
 		newdemo_record_player_weapon(0, weapon_num);
 	player_info.Fusion_charge=0;
 	player_info.Next_laser_fire_time = 0;
-	Global_laser_firing_count = 0;
 	player_info.Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 	//save flag for whether was super version
@@ -464,7 +463,6 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 			}
 			else
 				Next_laser_fire_time = 0;
-			Global_laser_firing_count = 0;
 		} else 	{
 #if defined(DXX_BUILD_DESCENT_I)
 			if (wait_for_rearm) digi_play_sample( SOUND_ALREADY_SELECTED, F1_0 );

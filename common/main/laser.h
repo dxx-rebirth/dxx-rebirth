@@ -76,7 +76,7 @@ void Laser_do_weapon_sequence(vobjptridx_t obj);
 void Flare_create(vobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
-extern int do_laser_firing_player(void);
+void do_laser_firing_player(object &);
 extern void do_missile_firing(int drop_bomb);
 }
 extern objnum_t Network_laser_track;

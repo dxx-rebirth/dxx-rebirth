@@ -1815,7 +1815,7 @@ namespace dsx {
 //	--------------------------------------------------------------------------------------------------
 // Assumption: This is only called by the actual console player, not for network players
 
-int do_laser_firing_player(void)
+void do_laser_firing_player(object &plrobj)
 {
 	fix		energy_used;
 	int		ammo_used;
@@ -1827,9 +1827,8 @@ int do_laser_firing_player(void)
 #endif
 
 	if (Player_dead_state != player_dead_state::no)
-		return 0;
+		return;
 
-	auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	const auto Primary_weapon = player_info.Primary_weapon;
 	const auto weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
@@ -1930,10 +1929,6 @@ int do_laser_firing_player(void)
 			break;	//	Couldn't fire weapon, so abort.
 		}
 	}
-
-	Global_laser_firing_count = 0;
-
-	return rval;
 }
 
 //	--------------------------------------------------------------------------------------------------
