@@ -1450,6 +1450,8 @@ window_event_result GameProcessFrame()
 	result = std::max(dead_player_frame(), result);
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		result = std::max(do_controlcen_dead_frame(), result);
+	if (result == window_event_result::close)
+		return result;	// skip everything else - don't set Player_dead_state again
 
 #if defined(DXX_BUILD_DESCENT_II)
 	process_super_mines_frame();
