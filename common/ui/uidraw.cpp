@@ -25,9 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void Hline(short x1, short x2, short y, const uint8_t color)
+void Hline(grs_canvas &canvas, const fix x1, const fix x2, const fix y, const uint8_t color)
 {
-	gr_uline(*grd_curcanv, i2f(x1), i2f(y), i2f(x2), i2f(y), color);
+	gr_uline(canvas, i2f(x1), i2f(y), i2f(x2), i2f(y), color);
 }
 
 void Vline(short y1, short y2, short x, const uint8_t color)
@@ -49,10 +49,10 @@ void ui_string_centered( short x, short y, const char * s )
 
 void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 )
 {
-	Hline(x1+0, x2-1, y1+0, c1);
+	Hline(*grd_curcanv, x1 + 0, x2 - 1, y1 + 0, c1);
 	Vline(y1+1, y2+0, x1+0, c1);
 
-	Hline(x1+1, x2, y2-0, c2);
+	Hline(*grd_curcanv, x1 + 1, x2, y2 - 0, c2);
 	Vline(y1+0, y2-1, x2-0, c2);
 }
 
