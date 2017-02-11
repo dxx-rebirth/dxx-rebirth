@@ -144,15 +144,18 @@ int toggle_outline_mode(void)
 #endif
 
 #ifndef NDEBUG
-static void draw_outline(int nverts,cg3s_point *const *const pointlist)
+#if DXX_USE_OGL
+#define draw_outline(C,a,b)	draw_outline(a,b)
+#endif
+static void draw_outline(grs_canvas &canvas, const int nverts, cg3s_point *const *const pointlist)
 {
 	int i;
 
 	const uint8_t color = BM_XRGB(63, 63, 63);
 
 	for (i=0;i<nverts-1;i++)
-		g3_draw_line(*grd_curcanv, *pointlist[i], *pointlist[i + 1], color);
-	g3_draw_line(*grd_curcanv, *pointlist[i],*pointlist[0], color);
+		g3_draw_line(canvas, *pointlist[i], *pointlist[i + 1], color);
+	g3_draw_line(canvas, *pointlist[i], *pointlist[0], color);
 }
 #endif
 
@@ -364,7 +367,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 #ifndef NDEBUG
-	if (Outline_mode) draw_outline(nv, &pointlist[0]);
+	if (Outline_mode) draw_outline(*grd_curcanv, nv, &pointlist[0]);
 #endif
 }
 }
