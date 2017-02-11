@@ -358,7 +358,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 
 #if DXX_USE_OGL
 		if (bm2){
-			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
+			g3_draw_tmap_2(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm, *bm2, ((tmap2 & 0xC000) >> 14) & 3);
 		}else
 #endif
 			g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);
