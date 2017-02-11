@@ -389,7 +389,7 @@ static void game_draw_hud_stuff()
 		Game_mode = GM_NORMAL;
 
 	if (Player_dead_state != player_dead_state::no)
-		player_dead_message();
+		player_dead_message(*grd_curcanv);
 }
 
 namespace dsx {

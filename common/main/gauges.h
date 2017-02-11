@@ -67,7 +67,7 @@ void show_HUD_names();
 #endif
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
 
-extern void player_dead_message(void);
+void player_dead_message(grs_canvas &);
 //extern void say_afterburner_status(void);
 
 // from testgaug.c

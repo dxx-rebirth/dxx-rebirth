@@ -241,33 +241,33 @@ int HUD_init_message_literal(int class_flag, const char *str)
 	return r;
 }
 
-void player_dead_message(void)
+void player_dead_message(grs_canvas &canvas)
 {
 	if (Player_dead_state == player_dead_state::exploded)
 	{
 		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h;
-			gr_set_curfont(*grd_curcanv, HUGE_FONT);
-			gr_get_string_size(*grd_curcanv->cv_font, TXT_GAME_OVER, &w, &h, nullptr);
+			gr_set_curfont(canvas, HUGE_FONT);
+			gr_get_string_size(*canvas.cv_font, TXT_GAME_OVER, &w, &h, nullptr);
 			const int gw = w;
 			const int gh = h;
 			w += 20;
 			h += 8;
-			x = (grd_curcanv->cv_bitmap.bm_w - w ) / 2;
-			y = (grd_curcanv->cv_bitmap.bm_h - h ) / 2;
+			x = (canvas.cv_bitmap.bm_w - w ) / 2;
+			y = (canvas.cv_bitmap.bm_h - h ) / 2;
 		
-			gr_settransblend(*grd_curcanv, 14, GR_BLEND_NORMAL);
+			gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
 			const uint8_t color = BM_XRGB(0, 0, 0);
-			gr_rect(*grd_curcanv, x, y, x + w, y + h, color);
-			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+			gr_rect(canvas, x, y, x + w, y + h, color);
+			gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_string(*grd_curcanv, 0x8000, (grd_curcanv->cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
+			gr_string(canvas, 0x8000, (canvas.cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
 		}
 	
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		gr_set_curfont(canvas, GAME_FONT);
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
-		gr_set_fontcolor(*grd_curcanv, HUD_color, -1);
-		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
+		gr_set_fontcolor(canvas, HUD_color, -1);
+		gr_string(canvas, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(canvas), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}
 }
