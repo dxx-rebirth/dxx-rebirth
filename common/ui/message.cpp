@@ -101,7 +101,7 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_tie &Button )
 {
 	UI_DIALOG * dlg;
-	int width, height, avg, x, y;
+	int avg, x, y;
 	int button_width, button_height, text_height, text_width;
 	int w, h;
 
@@ -120,7 +120,8 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{
-		ui_get_button_size( Button.string(i), &width, &height );
+		int width, height;
+		ui_get_button_size(*grd_curcanv->cv_font, Button.string(i), width, height);
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
@@ -128,6 +129,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 
 	gr_get_string_size(*grd_curcanv->cv_font, text, &text_width, &text_height, &avg);
 
+	unsigned width, height;
 	width = button_width*Button.count();
 	width += BUTTON_HORZ_SPACING*(Button.count()+1);
 	width ++;

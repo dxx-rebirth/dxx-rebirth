@@ -72,7 +72,7 @@ static window_event_result menu_handler(UI_DIALOG *,const d_event &event, menu *
 int MenuX( int x, int y, int NumButtons, const char *const text[] )
 {
 	UI_DIALOG * dlg;
-	int button_width, button_height, width, height;
+	int button_width, button_height;
 	int w, h;
 	int choice;
 
@@ -88,12 +88,14 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	{
 		m->button[i] = text[i];
 
-		ui_get_button_size( m->button[i], &width, &height );
+		int width, height;
+		ui_get_button_size(*grd_curcanv->cv_font, m->button[i], width, height);
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
 	}
 
+	unsigned width, height;
 	width = button_width + 2*(MENU_BORDER+3);
 
 	height = (button_height*NumButtons) + (MENU_VERT_SPACING*(NumButtons-1)) ;
