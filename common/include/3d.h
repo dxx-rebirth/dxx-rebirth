@@ -206,20 +206,20 @@ constexpr std::size_t MAX_POINTS_PER_POLY = 25;
 void _g3_draw_tmap(grs_canvas &canvas, unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE
 	if (DXX_CONSTANT_TRUE(nv > N))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
-	_g3_draw_tmap(*grd_curcanv, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>
-static inline void g3_draw_tmap(const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_draw_tmap(grs_canvas &canvas, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
-	g3_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
+	g3_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
@@ -253,7 +253,7 @@ template <std::size_t N>
 static inline void g3_check_and_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
+		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_list, light_rgb, bm);
 }
 
 template <std::size_t N>

@@ -349,7 +349,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 
 #if DXX_USE_EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
-		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
 #endif
 
@@ -358,7 +358,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}else
 #endif
-			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,*bm);
+			g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);
 
 	if (alpha)
 		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
@@ -412,7 +412,7 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 		g3_draw_poly(nv,pointlist, color);
 #else
 		(void)color;
-		g3_draw_tmap(nv,pointlist, uvl_copy, dyn_light, *bm);
+		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);
 #endif
 		}
 		Lighting_on = save_lighting;

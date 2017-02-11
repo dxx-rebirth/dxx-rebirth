@@ -124,7 +124,7 @@ void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_widt
 		light,
 	}};
 
-	g3_draw_tmap(rod.point_list,uvl_list,lrgb_list,bitmap);
+	g3_draw_tmap(*grd_curcanv, rod.point_list, uvl_list, lrgb_list, bitmap);
 }
 
 #if !DXX_USE_OGL

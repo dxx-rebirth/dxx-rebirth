@@ -329,7 +329,7 @@ public:
 			uvl_list[i].l = average_light;
 		}
 		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
+		g3_draw_tmap(*grd_curcanv, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
@@ -413,7 +413,7 @@ public:
 		for (uint_fast32_t i = 0; i != nv; i++)
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,*model_bitmaps[w(p+28)]);
+		g3_draw_tmap(*grd_curcanv, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
