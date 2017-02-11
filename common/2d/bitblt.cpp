@@ -343,72 +343,74 @@ void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned s
 }
 #endif
 
+namespace {
+
+class bm_rle_window : bm_rle_src_stride
+{
+public:
+	bm_rle_window(const grs_bitmap &src) :
+		bm_rle_src_stride(src, src.get_flag_mask(BM_FLAG_RLE_BIG))
+	{
+	}
+	void skip_upper_rows(uint_fast32_t);
+	uint8_t *init(uint_fast32_t dx, uint_fast32_t dy, uint_fast32_t sy, grs_bitmap &dest);
+	template <typename F>
+		void apply(uint_fast32_t w, uint_fast32_t h, uint_fast32_t sx, uint8_t *dbits, uint_fast32_t bm_rowsize, F &&f);
+#if !DXX_USE_OGL
+	using bm_rle_src_stride::src_bits;
+	using bm_rle_src_stride::advance_src_bits;
+#endif
+};
+
+void bm_rle_window::skip_upper_rows(const uint_fast32_t sy)
+{
+	for (uint_fast32_t i = sy; i; --i)
+		advance_src_bits();
+}
+
+uint8_t *bm_rle_window::init(const uint_fast32_t dx, const uint_fast32_t dy, const uint_fast32_t sy, grs_bitmap &dest)
+{
+	skip_upper_rows(sy);
+	return &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
+}
+
+template <typename F>
+void bm_rle_window::apply(const uint_fast32_t w, const uint_fast32_t h, const uint_fast32_t sx, uint8_t *dbits, const uint_fast32_t bm_rowsize, F &&f)
+{
+	// No interlacing, copy the whole buffer.
+	for (uint_fast32_t i = h; i; --i)
+	{
+		f(exchange(dbits, dbits + bm_rowsize), src_bits, sx, w);
+		advance_src_bits();
+	}
+}
+
+}
+
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	int data_offset;
-
-	data_offset = 1;
-	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-		data_offset = 2;
-	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
-	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += src.bm_data[4+(i*data_offset)];
-	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
-	// No interlacing, copy the whole buffer.
-	for (uint_fast32_t i = 0; i != h; ++i)
-	{
-		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
-		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
-		else
-			sbits += static_cast<int>(src.bm_data[4+i+sy]);
-		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
-	}
+	bm_rle_window bw(src);
+	bw.apply(sx + w - 1, h, sx, bw.init(dx, dy, sy, dest), dest.bm_rowsize, gr_rle_expand_scanline);
 }
 
 #if !DXX_USE_OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	int data_offset;
-
-	data_offset = 1;
-	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-		data_offset = 2;
-	auto sbits = &src.get_bitmap_data()[4 + (src.bm_h*data_offset)];
-	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += src.bm_data[4+(i*data_offset)];
-	auto dbits = &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
-	// No interlacing, copy the whole buffer.
-	for (uint_fast32_t i = 0; i != h; ++i)
-	{
-		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
-		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((i + sy) * data_offset)]);
-		else
-			sbits += static_cast<int>(src.bm_data[4+i+sy]);
-		dbits += dest.bm_rowsize << gr_bitblt_dest_step_shift;
-	}
+	bm_rle_window bw(src);
+	bw.apply(sx + w - 1, h, sx, bw.init(dx, dy, sy, dest), dest.bm_rowsize, gr_rle_expand_scanline_masked);
 }
 
 // in rle.c
 
 static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
 {
-	int data_offset;
-	data_offset = 1;
-	if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-		data_offset = 2;
-	auto sbits = &src.bm_data[4 + (src.bm_h*data_offset)];
-	for (uint_fast32_t i = 0; i != sy; ++i)
-		sbits += src.bm_data[4 + (i * data_offset)];
-
+	bm_rle_window bw(src);
+	bw.skip_upper_rows(sy);
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{
+		const auto sbits = bw.src_bits;
 		gr_rle_expand_scanline_generic(*grd_curcanv, dest, dx, dy+y1, sbits, sx, sx+w-1);
-		if (src.get_flag_mask(BM_FLAG_RLE_BIG))
-			sbits += GET_INTEL_SHORT(&src.bm_data[4 + ((y1 + sy) * data_offset)]);
-		else
-			sbits += static_cast<int>(src.bm_data[4+y1+sy]);
+		bw.advance_src_bits();
 	}
 }
 #endif
