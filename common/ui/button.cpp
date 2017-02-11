@@ -73,27 +73,34 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 		button->status = 0;
 		if (!button->text.empty())
 		{
+			unsigned offset;
 			if (button->position == 0)
 			{
 				ui_draw_box_out( 0, 0, button->width-1, button->height-1 );
-				ui_string_centered(Middle(button->width), Middle(button->height), button->text.c_str());
+				offset = 0;
 			}
 			else
 			{
 				ui_draw_box_in( 0, 0, button->width-1, button->height-1 );
-				ui_string_centered(Middle(button->width)+1, Middle(button->height)+1, button->text.c_str());
+				offset = 1;
 			}
+			ui_string_centered(Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
 		} else {
+			unsigned left, top, right, bottom;
 			if (button->position == 0)
 			{
-				gr_rect(*grd_curcanv, 0, 0, button->width, button->height, CBLACK);
-				gr_rect(*grd_curcanv, 1, 1, button->width-1, button->height-1, color);
+				left = top = 1;
+				right = button->width - 1;
+				bottom = button->height - 1;
 			}
 			else
 			{
-				gr_rect(*grd_curcanv, 0, 0, button->width, button->height, CBLACK);
-				gr_rect(*grd_curcanv, 2, 2, button->width, button->height, color);
+				left = top = 2;
+				right = button->width;
+				bottom = button->height;
 			}
+			gr_rect(*grd_curcanv, 0, 0, button->width, button->height, CBLACK);
+			gr_rect(*grd_curcanv, left, top, right, bottom, color);
 		}
 	}
 }
