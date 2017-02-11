@@ -218,7 +218,7 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 		}
 	}
 
-	(*tmap_drawer_ptr)(bm,nv,bufptr);
+	(*tmap_drawer_ptr)(*grd_curcanv, bm, nv, bufptr);
 }
 
 static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
@@ -239,7 +239,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_
 			}
 		}
 
-		(*tmap_drawer_ptr)(*bm,nv,&bufptr[0]);
+		(*tmap_drawer_ptr)(*grd_curcanv, *bm, nv, &bufptr[0]);
 	}
 
 free_points:

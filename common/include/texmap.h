@@ -50,11 +50,11 @@ constexpr unsigned MAX_TMAP_VERTS = 25;
 //	tmap_num references a texture map defined in Texmap_ptrs.
 //	nverts = number of vertices
 //	vertbuf is a pointer to an array of vertex pointers
-void draw_tmap(const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf);
+void draw_tmap(grs_canvas &, const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf);
 
 //function that takes the same parms as draw_tmap, but renders as flat poly
 //we need this to do the cloaked effect
-void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf);
+void draw_tmap_flat(grs_canvas &, const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf);
 #endif
 
 // -------------------------------------------------------------------------------------------------------

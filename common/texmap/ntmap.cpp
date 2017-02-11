@@ -796,7 +796,7 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, const g3ds_tmap 
 // -------------------------------------------------------------------------------------
 // Interface from Matt's data structures to Mike's texture mapper.
 // -------------------------------------------------------------------------------------
-void draw_tmap(const grs_bitmap &rbp,uint_fast32_t nverts,const g3s_point *const *vertbuf)
+void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, const g3s_point *const *vertbuf)
 {
 	//	These variables are used in system which renders texture maps which lie on one scanline as a line.
 	// fix	div_numerator;
@@ -807,7 +807,7 @@ void draw_tmap(const grs_bitmap &rbp,uint_fast32_t nverts,const g3s_point *const
 	const grs_bitmap *bp = &rbp;
 	//	If no transparency and seg depth is large, render as flat shaded.
 	if ((Current_seg_depth > Max_linear_depth) && ((bp->get_flag_mask(3)) == 0)) {
-		draw_tmap_flat(rbp, nverts, vertbuf);
+		draw_tmap_flat(canvas, rbp, nverts, vertbuf);
 		return;
 	}
 

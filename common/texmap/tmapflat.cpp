@@ -186,7 +186,7 @@ struct pnt2d {
 };
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *const *vertbuf)
+void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf)
 {
 	union {
 		array<pnt2d, MAX_TMAP_VERTS> points;
@@ -215,7 +215,7 @@ void draw_tmap_flat(const grs_bitmap &bp,uint_fast32_t nverts,const g3s_point *c
 		points[i].x = vertbuf[i]->p3_sx;
 		points[i].y = vertbuf[i]->p3_sy;
 	}
-	gr_upoly_tmap_ylr(*grd_curcanv, nverts, ipoints.data(), color);
+	gr_upoly_tmap_ylr(canvas, nverts, ipoints.data(), color);
 }
 
 //	-----------------------------------------------------------------------------------------

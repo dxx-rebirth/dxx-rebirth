@@ -306,7 +306,7 @@ public:
 void g3_draw_line(grs_canvas &, cg3s_point &p0, cg3s_point &p1, uint8_t color, temporary_points_t &);
 constexpr std::size_t MAX_POINTS_IN_POLY = 100;
 
-typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
+using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast32_t nv, const g3s_point *const *vertlist);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
