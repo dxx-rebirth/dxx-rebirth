@@ -1824,9 +1824,8 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	gr_set_current_canvas(NULL);
 
-	gr_set_curfont( GAME_FONT );
-
 	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, GAME_FONT);
 	gr_get_string_size(*canvas.cv_font, msg, &w, &h, nullptr);
 
 	x = (SWIDTH-w)/2;

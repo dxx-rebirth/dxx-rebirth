@@ -194,13 +194,13 @@ static window_event_result credits_handler(window *, const d_event &event, credi
 				if ( s[0] == '!' ) {
 					s++;
 				} else if ( s[0] == '$' )	{
-					gr_set_curfont( HUGE_FONT );
+					gr_set_curfont(*grd_curcanv, HUGE_FONT);
 					s++;
 				} else if ( s[0] == '*' )	{
-					gr_set_curfont( MEDIUM3_FONT );
+					gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 					s++;
 				} else
-					gr_set_curfont( MEDIUM2_FONT );
+					gr_set_curfont(*grd_curcanv, MEDIUM2_FONT);
 				
 				const auto tempp = strchr( s, '\t' );
 				if ( !tempp )	{

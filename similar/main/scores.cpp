@@ -407,9 +407,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			{
 			gr_set_current_canvas(window_get_canvas(*wind));
 			auto &canvas = *grd_curcanv;
-			gr_set_curfont(MEDIUM3_FONT);
+			gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 			gr_string(canvas, 0x8000, fspacy(15), TXT_HIGH_SCORES);
-			gr_set_curfont(GAME_FONT);
+			gr_set_curfont(*grd_curcanv, GAME_FONT);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
 			gr_string(canvas, fspacx( 71), fspacy(50), TXT_NAME);
 			gr_string(canvas, fspacx(122), fspacy(50), TXT_SCORE);

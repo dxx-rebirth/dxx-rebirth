@@ -716,7 +716,7 @@ static int load_briefing_screen(briefing *br, const char *fname);
 namespace dsx {
 static int briefing_process_char(briefing *br)
 {
-	gr_set_curfont( GAME_FONT );
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
@@ -1525,7 +1525,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);
 
-			gr_set_curfont( GAME_FONT );
+			gr_set_curfont(*grd_curcanv, GAME_FONT);
 
 			gr_set_fontcolor(*grd_curcanv, Briefing_text_colors[Current_color], -1);
 			{

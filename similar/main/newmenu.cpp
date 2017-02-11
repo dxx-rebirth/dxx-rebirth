@@ -364,7 +364,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 	}
 	else
 	{
-		gr_set_curfont(is_current?MEDIUM2_FONT:MEDIUM1_FONT);
+		gr_set_curfont(*grd_curcanv, is_current?MEDIUM2_FONT:MEDIUM1_FONT);
         }
 
 	const int line_spacing = static_cast<int>(LINE_SPACING);
@@ -1207,14 +1207,14 @@ static void newmenu_create_structure( newmenu *menu )
 	tw = th = 0;
 
 	if ( menu->title )	{
-		gr_set_curfont(HUGE_FONT);
+		gr_set_curfont(*grd_curcanv, HUGE_FONT);
 		int string_width, string_height;
 		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
 		tw = string_width;
 		th = string_height;
 	}
 	if ( menu->subtitle )	{
-		gr_set_curfont(MEDIUM3_FONT);
+		gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 		int string_width, string_height;
 		gr_get_string_size(*grd_curcanv->cv_font, menu->subtitle, &string_width, &string_height, nullptr);
 		if (string_width > tw )
@@ -1224,7 +1224,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	th += FSPACY(5);		//put some space between titles & body
 
-	gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
+	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
 
 	menu->w = aw = 0;
 	menu->h = th;
@@ -1426,7 +1426,7 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->sheight = SHEIGHT;
 	menu->fntscalex = FNTScaleX;
 	menu->fntscaley = FNTScaleY;
-	gr_set_curfont(save_font);
+	gr_set_curfont(*grd_curcanv, save_font);
 	gr_set_current_canvas(save_canvas);
 }
 
@@ -1455,7 +1455,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	ty = BORDERY;
 
 	if ( menu->title )	{
-		gr_set_curfont(HUGE_FONT);
+		gr_set_curfont(*grd_curcanv, HUGE_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 		int string_width, string_height;
 		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
@@ -1464,12 +1464,12 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 	}
 
 	if ( menu->subtitle )	{
-		gr_set_curfont(MEDIUM3_FONT);
+		gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(21, 21, 21), -1);
 		gr_string(*grd_curcanv, 0x8000, ty + th, menu->subtitle);
 	}
 
-	gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
+	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
 
 	// Redraw everything...
 	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
@@ -1480,7 +1480,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if (menu->is_scroll_box)
 	{
-		gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
+		gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM2_FONT);
 
 		const int line_spacing = static_cast<int>(LINE_SPACING);
 		sy = menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
@@ -1889,7 +1889,7 @@ static void listbox_create_structure( listbox *lb)
 {
 	gr_set_current_canvas(NULL);
 
-	gr_set_curfont(MEDIUM3_FONT);
+	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 
 	lb->box_w = 0;
 	const auto &&fspacx = FSPACX();
@@ -1949,7 +1949,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 
 	gr_set_current_canvas(NULL);
 	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
-	gr_set_curfont(MEDIUM3_FONT);
+	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 	gr_string(*grd_curcanv, 0x8000, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING;
@@ -1965,7 +1965,7 @@ static window_event_result listbox_draw(window *, listbox *lb)
 			gr_rect(*grd_curcanv, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
 			gr_rect(*grd_curcanv, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);
 		} else {
-			gr_set_curfont(( i == lb->citem )?MEDIUM2_FONT:MEDIUM1_FONT);
+			gr_set_curfont(*grd_curcanv, ( i == lb->citem)?MEDIUM2_FONT:MEDIUM1_FONT);
 			gr_rect(*grd_curcanv, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
 			gr_rect(*grd_curcanv, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
 			gr_rect(*grd_curcanv, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);

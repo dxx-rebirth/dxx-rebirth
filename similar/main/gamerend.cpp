@@ -80,7 +80,7 @@ static void game_draw_marker_message()
 {
 	if ( DefiningMarkerMessage)
 	{
-		gr_set_curfont(GAME_FONT);
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
@@ -98,7 +98,7 @@ static void game_draw_multi_message()
 	int defining;
 	if (!sending && !(defining = multi_defining_message))
 		return;
-	gr_set_curfont(GAME_FONT);
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 	const auto &&y = (LINE_SPACING * 5) + FSPACY(1);
 	if (sending)
@@ -112,7 +112,7 @@ static void show_framerate()
 	static int fps_count = 0, fps_rate = 0;
 	static fix64 fps_time = 0;
 
-	gr_set_curfont(GAME_FONT);
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0),-1);
 
 	fps_count++;
@@ -139,7 +139,7 @@ static void show_netplayerinfo()
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(GAME_FONT);
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, 255, -1);
 
 	const auto &&fspacx = FSPACX();
@@ -313,7 +313,7 @@ static void draw_window_label()
 			default:					control_name = "Unknown"; break;
 		}
 
-		gr_set_curfont(GAME_FONT);
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 0, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
@@ -338,7 +338,7 @@ static void render_countdown_gauge()
 			}
 		}
 #endif
-		gr_set_curfont(GAME_FONT);
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
 	}
@@ -358,7 +358,7 @@ static void game_draw_hud_stuff()
 	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
 		int y;
 
-		gr_set_curfont( GAME_FONT );
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
 		y = GHEIGHT-(LINE_SPACING*2);
@@ -730,7 +730,7 @@ void game_render_frame_mono()
 
 		Viewer = viewer_save;
 
-		gr_set_curfont( GAME_FONT );
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
 		gr_string(*grd_curcanv, 0x8000, FSPACY(1), "Guided Missile View");
@@ -907,7 +907,7 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	int x,y;
 	
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( MEDIUM1_FONT );
+	gr_set_curfont(*grd_curcanv, MEDIUM1_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
 	

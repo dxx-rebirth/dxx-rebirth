@@ -96,7 +96,7 @@ void HUD_render_message_frame()
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
-		gr_set_curfont( GAME_FONT );
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		y = FSPACY(1);
 
 		const auto &&line_spacing = LINE_SPACING;
@@ -124,7 +124,7 @@ void HUD_render_message_frame()
 		}
 	}
 
-	gr_set_curfont( GAME_FONT );
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 }
 }
 
@@ -247,7 +247,7 @@ void player_dead_message(void)
 	{
 		if ( get_local_player().lives < 2 )    {
 			int x, y, w, h;
-			gr_set_curfont( HUGE_FONT );
+			gr_set_curfont(*grd_curcanv, HUGE_FONT);
 			gr_get_string_size(*grd_curcanv->cv_font, TXT_GAME_OVER, &w, &h, nullptr);
 			const int gw = w;
 			const int gh = h;
@@ -264,7 +264,7 @@ void player_dead_message(void)
 			gr_string(*grd_curcanv, 0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);
 		}
 	
-		gr_set_curfont( GAME_FONT );
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor(*grd_curcanv, HUD_color, -1);

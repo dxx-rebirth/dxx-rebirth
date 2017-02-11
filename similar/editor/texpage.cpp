@@ -225,12 +225,12 @@ int texpage_do(const d_event &event)
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
-		gr_set_curfont( ui_small_font.get() ); 
+		gr_set_curfont(*grd_curcanv, ui_small_font.get());
 		gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 		
 		texpage_redraw();
 		
-		gr_set_curfont(editor_font);
+		gr_set_curfont(*grd_curcanv, editor_font);
 		
 		// Don't reset the current tmap every time we go back to the editor.
 		//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;

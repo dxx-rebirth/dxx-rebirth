@@ -299,7 +299,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			int y;
 
 			gr_set_current_canvas(NULL);
-			gr_set_curfont( GAME_FONT );
+			gr_set_curfont(*grd_curcanv, GAME_FONT);
 
 			gr_get_string_size(*grd_curcanv->cv_font, msg, nullptr, &h, nullptr);
 
@@ -632,7 +632,7 @@ static void draw_subtitles(int frame_num)
 	if (frame_num == 0) {
 		num_active_subtitles = 0;
 		next_subtitle = 0;
-		gr_set_curfont( GAME_FONT );
+		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, 255, -1);
 	}
 

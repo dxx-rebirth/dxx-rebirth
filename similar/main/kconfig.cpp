@@ -887,12 +887,12 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_current_canvas(window_get_canvas(*menu->wind));
 
 	const grs_font *save_font = grd_curcanv->cv_font;
-	gr_set_curfont(MEDIUM3_FONT);
+	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
 
 	Assert(!strchr( menu->title, '\n' ));
 	gr_string(*grd_curcanv, 0x8000, fspacy(8), menu->title);
 
-	gr_set_curfont(GAME_FONT);
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 	gr_string(*grd_curcanv, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);

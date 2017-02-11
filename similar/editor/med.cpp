@@ -173,7 +173,7 @@ static editor_dialog editor_window;
 static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 
 	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
 	int w,h;
 	gr_get_string_size(*grd_curcanv->cv_font, message, &w, &h, nullptr);
@@ -442,7 +442,7 @@ void init_editor()
 	gr_set_current_canvas( Canv_editor );
 	init_editor_screen(); // load the main editor dialog
 	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	
 	set_warn_func(med_show_warning);
 	
@@ -461,11 +461,11 @@ void init_editor()
 	current_view = &LargeView;
 	
 	gr_set_current_canvas( GameViewBox->canvas );
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	//gr_deaccent_canvas();
 	//gr_grey_canvas();
 	
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	FNTScaleX = FNTScaleY = 1;		// No font scaling!
 	ui_pad_goto(padnum);
 	
@@ -761,7 +761,7 @@ void init_editor_screen()
 	CBRIGHT = gr_find_closest_color( 60, 60, 60 );
 	CRED = gr_find_closest_color( 63, 0, 0 );
 
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 
 	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
@@ -819,7 +819,7 @@ void init_editor_screen()
 		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT",  med_keypad_goto_8 );
 	}
 
-	gr_set_curfont(editor_font);
+	gr_set_curfont(*grd_curcanv, editor_font);
 	menubar_show();
 
 	// INIT TEXTURE STUFF
@@ -1068,7 +1068,7 @@ window_event_result editor_handler(UI_DIALOG *, const d_event &event, unused_ui_
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		gr_set_curfont(editor_font);
+		gr_set_curfont(*grd_curcanv, editor_font);
 
 		// Draw status box
 		gr_set_current_canvas( NULL );

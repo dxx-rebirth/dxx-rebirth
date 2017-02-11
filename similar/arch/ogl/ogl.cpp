@@ -322,7 +322,7 @@ static void ogl_texture_stats(void)
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( GAME_FONT );
+	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
 	colorsize = (idx * res * dbl) / 8;
 	depthsize = res * depth / 8;
