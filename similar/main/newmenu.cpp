@@ -581,10 +581,6 @@ void newmenu_doreorder( const char * title, const char * subtitle, uint_fast32_t
 	newmenu_do2(title, subtitle, nitems, item, newmenu_save_selection_handler, unused_newmenu_userdata, 0, nullptr);
 }
 
-#ifdef NEWMENU_MOUSE
-constexpr uint8_t Hack_DblClick_MenuMode=0;
-#endif
-
 newmenu_item *newmenu_get_items(newmenu *menu)
 {
 	return menu->items;
@@ -751,9 +747,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-						if (i != menu->citem) {
-							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
-						}
 						menu->citem = i;
 						auto &citem = menu->items[menu->citem];
 						switch (citem.type)
@@ -827,9 +820,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					y2 = y1 + menu->items[i].h;
 
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
-						if (i != menu->citem) {
-							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
-						}
 						menu->citem = i;
 						auto &citem = menu->items[menu->citem];
 						if (citem.type == NM_TYPE_SLIDER)
@@ -891,23 +881,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-						if (Hack_DblClick_MenuMode) {
-							if (menu->dblclick_flag)
-							{
-								// Tell callback, allow staying in menu
-								const d_select_event selected{menu->citem};
-								if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
-									return window_event_result::handled;
-
-								if (menu->rval)
-									*menu->rval = menu->citem;
-								gr_set_current_canvas(save_canvas);
-								return window_event_result::close;
-							}
-							else menu->dblclick_flag = 1;
-						}
-						else
-						{
 							// Tell callback, allow staying in menu
 							const d_select_event selected{menu->citem};
 							if (menu->subfunction && (*menu->subfunction)(menu, selected, menu->userdata))
@@ -917,7 +890,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 								*menu->rval = menu->citem;
 							gr_set_current_canvas(save_canvas);
 							return window_event_result::close;
-						}
 					}
 				}
 			}
@@ -1426,9 +1398,7 @@ static void newmenu_create_structure( newmenu *menu )
 		if (menu->citem < 0 ) menu->citem = 0;
 		if (menu->citem > menu->nitems-1 ) menu->citem = menu->nitems-1;
 
-#ifdef NEWMENU_MOUSE
 		menu->dblclick_flag = 1;
-#endif
 		uint_fast32_t i = 0;
 		while ( menu->items[menu->citem].type==NM_TYPE_TEXT )	{
 			menu->citem++;

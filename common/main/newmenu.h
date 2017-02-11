@@ -447,8 +447,6 @@ static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsign
 	slider.max_value = high;
 }
 
-#define NEWMENU_MOUSE
-
 #define NORMAL_CHECK_BOX    "\201"
 #define CHECKED_CHECK_BOX   "\202"
 
