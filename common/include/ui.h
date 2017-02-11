@@ -261,7 +261,7 @@ void Vline(grs_canvas &, fix y1, fix y2, fix x, uint8_t color);
 extern void ui_string_centered( short x, short y, const char * s );
 extern void ui_draw_box_out( short x1, short y1, short x2, short y2 );
 extern void ui_draw_box_in( short x1, short y1, short x2, short y2 );
-extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
+void ui_draw_frame(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void ui_draw_shad(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2, unsigned c1, unsigned c2);
 
 int ui_init();

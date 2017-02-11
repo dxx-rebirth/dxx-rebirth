@@ -76,7 +76,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 		req_h -= 2*BORDER_WIDTH;
 		
 		gr_set_current_canvas( NULL );
-		ui_draw_frame( x, y, x+w-1, y+h-1 );
+		ui_draw_frame(*grd_curcanv, x, y, x + w - 1, y + h - 1);
 	}
 	
 	ui_dialog_set_current_canvas(dlg);
