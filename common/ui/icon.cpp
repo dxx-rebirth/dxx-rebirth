@@ -34,11 +34,11 @@ namespace dcx {
 
 #define Middle(x) ((2*(x)+1)/4)
 
-static void ui_draw_box_in1( short x1, short y1, short x2, short y2 )
+static void ui_draw_box_in1(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
 	const uint8_t color = CWHITE;
-	gr_urect(*grd_curcanv, x1+1, y1+1, x2-1, y2-1, color);
-	ui_draw_shad(*grd_curcanv, x1, y1, x2, y2, CGREY, CBRIGHT);
+	gr_urect(canvas, x1 + 1, y1 + 1, x2 - 1, y2 - 1, color);
+	ui_draw_shad(canvas, x1, y1, x2, y2, CGREY, CBRIGHT);
 }
 
 
@@ -68,7 +68,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		else if (icon->flag)
 		{
 			// Draw part out
-			ui_draw_box_in1( 0, 0, icon->width, icon->height );
+			ui_draw_box_in1(*grd_curcanv, 0, 0, icon->width, icon->height);
 			x += 1; y += 1;	
 		}
 		else
