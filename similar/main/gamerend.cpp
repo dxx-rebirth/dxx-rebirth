@@ -139,8 +139,9 @@ static void show_netplayerinfo()
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, 255, -1);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, 255, -1);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx120 = fspacx(120);
@@ -148,42 +149,42 @@ static void show_netplayerinfo()
 	x = (SWIDTH / 2) - fspacx120;
 	y = (SHEIGHT / 2) - fspacy84;
 
-	gr_settransblend(*grd_curcanv, 14, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 14, GR_BLEND_NORMAL);
 	const uint8_t color000 = BM_XRGB(0, 0, 0);
-	gr_rect(*grd_curcanv, (SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color000);
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_rect(canvas, (SWIDTH / 2) - fspacx120, (SHEIGHT / 2) - fspacy84, (SWIDTH / 2) + fspacx120, (SHEIGHT / 2) + fspacy84, color000);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	y += line_spacing;
-	gr_string(*grd_curcanv, 0x8000, y, Netgame.game_name.data());
+	gr_string(canvas, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
-	gr_printf(*grd_curcanv, 0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
+	gr_printf(canvas, 0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	const auto &&fspacx8 = fspacx(8);
 	x += fspacx8;
 	y += line_spacing * 2;
 	unsigned gamemode = Netgame.gamemode;
-	gr_printf(*grd_curcanv, x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
+	gr_printf(canvas, x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
 	y += line_spacing;
-	gr_printf(*grd_curcanv, x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
+	gr_printf(canvas, x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y += line_spacing;
-	gr_printf(*grd_curcanv, x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
+	gr_printf(canvas, x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
 	y += line_spacing;
-	gr_printf(*grd_curcanv, x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
+	gr_printf(canvas, x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
 	y += line_spacing;
 	if (Netgame.KillGoal)
-		gr_printf(*grd_curcanv, x,y,"Kill goal: %d",Netgame.KillGoal*5);
+		gr_printf(canvas, x,y,"Kill goal: %d",Netgame.KillGoal*5);
 
 	// player information (name, kills, ping, game efficiency)
 	y += line_spacing * 2;
-	gr_string(*grd_curcanv, x, y, "player");
-	gr_string(*grd_curcanv, x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
+	gr_string(canvas, x, y, "player");
+	gr_string(canvas, x + fspacx8 * 7, y, ((Game_mode & GM_MULTI_COOP)
 		? "score"
-		: (gr_string(*grd_curcanv, x + fspacx8 * 12, y, "deaths"), "kills")
+		: (gr_string(canvas, x + fspacx8 * 12, y, "deaths"), "kills")
 	));
-	gr_string(*grd_curcanv, x + fspacx8 * 18, y, "ping");
-	gr_string(*grd_curcanv, x + fspacx8 * 23, y, "efficiency");
+	gr_string(canvas, x + fspacx8 * 18, y, "ping");
+	gr_string(canvas, x + fspacx8 * 23, y, "efficiency");
 
 	// process players table
 	for (uint_fast32_t i = 0; i < MAX_PLAYERS; i++)
@@ -195,21 +196,21 @@ static void show_netplayerinfo()
 
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
-		gr_printf(*grd_curcanv, x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
+		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
+		gr_printf(canvas, x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		{
 			auto &plrobj = *vcobjptr(Players[i].objnum);
 			auto &player_info = plrobj.ctype.player_info;
 			auto v = ((Game_mode & GM_MULTI_COOP)
 				? player_info.mission.score
-				: (gr_printf(*grd_curcanv, x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
+				: (gr_printf(canvas, x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
 			);
-			gr_printf(*grd_curcanv, x + fspacx8 * 7, y, "%-6d", v);
+			gr_printf(canvas, x + fspacx8 * 7, y, "%-6d", v);
 		}
 
-		gr_printf(*grd_curcanv, x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
+		gr_printf(canvas, x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(*grd_curcanv, x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
+			gr_printf(canvas, x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y += (line_spacing * 2) + (line_spacing * (MAX_PLAYERS - N_players));
@@ -217,23 +218,23 @@ static void show_netplayerinfo()
 	// printf team scores
 	if (Game_mode & GM_TEAM)
 	{
-		gr_set_fontcolor(*grd_curcanv, 255, -1);
-		gr_string(*grd_curcanv, x, y, "team");
-		gr_string(*grd_curcanv, x + fspacx8 * 8, y, "score");
+		gr_set_fontcolor(canvas, 255, -1);
+		gr_string(canvas, x, y, "team");
+		gr_string(canvas, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b),-1);
-		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
-		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[0]);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b),-1);
+		gr_printf(canvas, x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
+		gr_printf(canvas, x + fspacx8 * 8, y, "%i", team_kills[0]);
 		y += line_spacing;
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b),-1);
-		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
-		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[1]);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b),-1);
+		gr_printf(canvas, x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
+		gr_printf(canvas, x + fspacx8 * 8, y, "%i", team_kills[1]);
 		y += line_spacing * 2;
 	}
 	else
 		y += line_spacing * 4;
 
-	gr_set_fontcolor(*grd_curcanv, 255, -1);
+	gr_set_fontcolor(canvas, 255, -1);
 
 	// additional information about game - hoard, ranking
 
@@ -241,9 +242,9 @@ static void show_netplayerinfo()
 	if (game_mode_hoard())
 	{
 		if (PhallicMan==-1)
-			gr_string(*grd_curcanv, 0x8000, y, "There is no record yet for this level.");
+			gr_string(canvas, 0x8000, y, "There is no record yet for this level.");
 		else
-			gr_printf(*grd_curcanv, 0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
+			gr_printf(canvas, 0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
 	}
 	else
 #endif
@@ -257,14 +258,14 @@ static void show_netplayerinfo()
 				) * 100.0
 			);
 		const unsigned eff = ieff < 0 ? 0 : static_cast<unsigned>(ieff);
-		gr_printf(*grd_curcanv, 0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
+		gr_printf(canvas, 0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y += line_spacing;
 		if (eff<60)
-			gr_printf(*grd_curcanv, 0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
+			gr_printf(canvas, 0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
-			gr_string(*grd_curcanv, 0x8000, y, "is serving you well.");
+			gr_string(canvas, 0x8000, y, "is serving you well.");
 		y += line_spacing;
-		gr_printf(*grd_curcanv, 0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
+		gr_printf(canvas, 0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
 }
