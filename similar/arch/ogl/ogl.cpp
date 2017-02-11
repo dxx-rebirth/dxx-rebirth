@@ -107,7 +107,6 @@ using ogl_client_states = std::tuple<T, enable_ogl_client_state<Gs>...>;
 namespace dcx {
 
 static std::unique_ptr<GLubyte[]> texbuf;
-static palette_array_t *ogl_pal = &gr_palette;
 
 unsigned last_width=~0u,last_height=~0u;
 int GL_TEXTURE_2D_enabled=-1;
