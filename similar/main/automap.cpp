@@ -351,7 +351,7 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 		g3_code_point(ToPoint);
 		g3_project_point(FromPoint);
 		g3_project_point(ToPoint);
-		automap_draw_line(FromPoint, ToPoint, color);
+		automap_draw_line(*grd_curcanv, FromPoint, ToPoint, color);
 	}
 }
 
@@ -467,20 +467,20 @@ static void draw_player(const object_base &obj, const uint8_t color)
 	const auto &&head_pos = vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2);
 	{
 	auto &&arrow_point = g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3));
-	automap_draw_line(sphere_point, arrow_point, color);
+	automap_draw_line(*grd_curcanv, sphere_point, arrow_point, color);
 
 	// Draw right head of arrow
 	{
 		const auto &&rhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size);
 		auto head_point = g3_rotate_point(rhead_pos);
-		automap_draw_line(arrow_point, head_point, color);
+		automap_draw_line(*grd_curcanv, arrow_point, head_point, color);
 	}
 
 	// Draw left head of arrow
 	{
 		const auto &&lhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size);
 		auto head_point = g3_rotate_point(lhead_pos);
-		automap_draw_line(arrow_point, head_point, color);
+		automap_draw_line(*grd_curcanv, arrow_point, head_point, color);
 	}
 	}
 
@@ -488,7 +488,7 @@ static void draw_player(const object_base &obj, const uint8_t color)
 	{
 		const auto &&arrow_pos = vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2);
 	auto arrow_point = g3_rotate_point(arrow_pos);
-		automap_draw_line(sphere_point, arrow_point, color);
+		automap_draw_line(*grd_curcanv, sphere_point, arrow_point, color);
 	}
 }
 
@@ -1118,7 +1118,7 @@ void draw_all_edges(automap *am)
 					const uint8_t color = (e->flags & EF_NO_FADE)
 						? e->color
 						: gr_fade_table[8][e->color];
-					g3_draw_line(Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
+					g3_draw_line(*grd_curcanv, Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
 				} 	else {
 					am->drawingListBright[nbright++] = e;
 				}
@@ -1149,7 +1149,7 @@ void draw_all_edges(automap *am)
 		const auto color = (e->flags & EF_NO_FADE)
 			? e->color
 			: gr_fade_table[f2i((F1_0 - fixdiv(dist, am->farthest_dist)) * 31)][e->color];	
-		g3_draw_line(*p1, *p2, color);
+		g3_draw_line(*grd_curcanv, *p1, *p2, color);
 	}
 }
 

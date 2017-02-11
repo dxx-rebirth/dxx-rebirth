@@ -151,8 +151,8 @@ static void draw_outline(int nverts,cg3s_point *const *const pointlist)
 	const uint8_t color = BM_XRGB(63, 63, 63);
 
 	for (i=0;i<nverts-1;i++)
-		g3_draw_line(*pointlist[i], *pointlist[i+1], color);
-	g3_draw_line(*pointlist[i],*pointlist[0], color);
+		g3_draw_line(*grd_curcanv, *pointlist[i], *pointlist[i + 1], color);
+	g3_draw_line(*grd_curcanv, *pointlist[i],*pointlist[0], color);
 }
 #endif
 
@@ -798,7 +798,7 @@ static void outline_seg_side(const vcsegptr_t seg,int _side,int edge,int vert)
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
 		auto &sv = Side_to_verts[_side];
-		g3_draw_line(Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge+1)%4]]], color);
+		g3_draw_line(*grd_curcanv, Segment_points[seg->verts[sv[edge]]], Segment_points[seg->verts[sv[(edge + 1)%4]]], color);
 
 		//draw a little cross at the current vert
 

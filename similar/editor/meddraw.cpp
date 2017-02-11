@@ -103,7 +103,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 
 static void draw_line(unsigned pnum0, unsigned pnum1, const uint8_t color)
 {
-	g3_draw_line(Segment_points[pnum0], Segment_points[pnum1], color);
+	g3_draw_line(*grd_curcanv, Segment_points[pnum0], Segment_points[pnum1], color);
 }
 
 // ----------------------------------------------------------------------------

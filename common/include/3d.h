@@ -263,7 +263,6 @@ static inline void g3_check_and_draw_tmap(const array<cg3s_point *, N> &pointlis
 
 //draws a line. takes two points.
 struct temporary_points_t;
-void g3_draw_line(cg3s_point &p0,cg3s_point &p1, uint8_t color);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
@@ -301,6 +300,7 @@ public:
 			return type != t;
 		}
 };
+#define g3_draw_line(C,P0,P1,c)	g3_draw_line(P0,P1,c)
 #else
 void g3_draw_line(grs_canvas &, cg3s_point &p0, cg3s_point &p1, uint8_t color, temporary_points_t &);
 constexpr std::size_t MAX_POINTS_IN_POLY = 100;
@@ -311,6 +311,7 @@ typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert, uint8_t color);
 #endif
+void g3_draw_line(grs_canvas &canvas, cg3s_point &p0, cg3s_point &p1, uint8_t color);
 
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 

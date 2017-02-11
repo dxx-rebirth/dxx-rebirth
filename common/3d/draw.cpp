@@ -52,10 +52,10 @@ static void must_clip_line(grs_canvas &canvas, g3s_point *p0, g3s_point *p1, con
 }
 
 //draws a line. takes two points.  returns true if drew
-void g3_draw_line(g3s_point &p0, g3s_point &p1, const uint8_t color)
+void g3_draw_line(grs_canvas &canvas, g3s_point &p0, g3s_point &p1, const uint8_t color)
 {
 	temporary_points_t tp;
-	g3_draw_line(*grd_curcanv, p0, p1, color, tp);
+	g3_draw_line(canvas, p0, p1, color, tp);
 }
 
 void g3_draw_line(grs_canvas &canvas, g3s_point &p0, g3s_point &p1, const uint8_t color, temporary_points_t &tp)

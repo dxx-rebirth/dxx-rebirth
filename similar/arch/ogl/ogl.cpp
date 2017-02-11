@@ -529,7 +529,7 @@ void ogl_cache_level_textures(void)
 
 namespace dcx {
 
-void g3_draw_line(const g3s_point &p0,const g3s_point &p1, const uint8_t c)
+void g3_draw_line(grs_canvas &canvas, const g3s_point &p0, const g3s_point &p1, const uint8_t c)
 {
 	GLfloat color_r, color_g, color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
