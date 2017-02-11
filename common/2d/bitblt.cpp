@@ -330,17 +330,18 @@ void gr_bitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, const gr
 			gr_bm_ubitblt00m(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, canvas.cv_bitmap );
 		return;
 	}
-	gr_bm_ubitbltm(dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm, canvas.cv_bitmap);
+	gr_bm_ubitbltm(canvas, dx2 - dx1 + 1, dy2 - dy1 + 1, dx1, dy1, sx, sy, bm);
 }
 
-void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest)
+void gr_bm_ubitbltm(grs_canvas &canvas, const unsigned w, const unsigned h, const unsigned dx, const unsigned dy, const unsigned sx, const unsigned sy, const grs_bitmap &src)
 {
 	ubyte c;
 
+	auto &dest = canvas.cv_bitmap;
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 		for (uint_fast32_t x1 = 0; x1 != w; ++x1)
 			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
-				gr_bm_pixel(*grd_curcanv, dest, dx + x1, dy + y1, c);
+				gr_bm_pixel(canvas, dest, dx + x1, dy + y1, c);
 }
 #endif
 

@@ -163,7 +163,7 @@ grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, u
 
 #if !DXX_USE_OGL
 void gr_bm_ubitblt(grs_canvas &dest, unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src);
-void gr_bm_ubitbltm(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest);
+void gr_bm_ubitbltm(grs_canvas &dest, unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, unsigned sy, const grs_bitmap &src);
 #define gr_bm_pixel(C,B,X,Y,C2) gr_bm_pixel(B,X,Y,C2)
 #define gr_settransblend(A,B,C)	gr_settransblend(A,B)
 #endif

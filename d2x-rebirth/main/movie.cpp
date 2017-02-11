@@ -239,7 +239,7 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 
 	glEnable (GL_BLEND);
 #else
-	gr_bm_ubitbltm(bufw,bufh,dstx,dsty,0,0,source_bm,grd_curcanv->cv_bitmap);
+	gr_bm_ubitbltm(*grd_curcanv, bufw, bufh, dstx, dsty, 0, 0, source_bm);
 #endif
 }
 
