@@ -46,7 +46,7 @@ static int gr_bitblt_dest_step_shift = 0;
 static void gr_bm_ubitblt00_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
 #if !DXX_USE_OGL
 static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
-static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);
+static void gr_bm_ubitblt0x_rle(grs_canvas &dest, unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src);
 #endif
 
 #define gr_linear_movsd(S,D,L)	memcpy(D,S,L)
@@ -258,7 +258,7 @@ void gr_bm_ubitblt(grs_canvas &canvas, const unsigned w, const unsigned h, const
 
 	if (src.get_flag_mask(BM_FLAG_RLE) && src.get_type() == bm_mode::linear)
 	{
-		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
+		gr_bm_ubitblt0x_rle(canvas, w, h, dx, dy, sx, sy, src);
 	 	return;
 	}
 
@@ -404,14 +404,14 @@ static void gr_bm_ubitblt00m_rle(unsigned w, unsigned h, int dx, int dy, int sx,
 
 // in rle.c
 
-static void gr_bm_ubitblt0x_rle(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest)
+static void gr_bm_ubitblt0x_rle(grs_canvas &canvas, unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src)
 {
 	bm_rle_window bw(src);
 	bw.skip_upper_rows(sy);
 	for (uint_fast32_t y1 = 0; y1 != h; ++y1)
 	{
 		const auto sbits = bw.src_bits;
-		gr_rle_expand_scanline_generic(*grd_curcanv, dest, dx, dy+y1, sbits, sx, sx+w-1);
+		gr_rle_expand_scanline_generic(canvas, canvas.cv_bitmap, dx, dy + y1, sbits, sx, sx + w-1);
 		bw.advance_src_bits();
 	}
 }
