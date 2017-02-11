@@ -90,12 +90,12 @@ void gr_init_bitmap_alloc(grs_main_bitmap &bm, const bm_mode mode, const uint16_
 	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, d);
 }
 
-void gr_init_bitmap_data (grs_bitmap &bm) // TODO: virtulize
+grs_main_bitmap::grs_main_bitmap()
 {
-	bm.bm_data = nullptr;
-	bm.bm_parent = nullptr;
+	bm_data = nullptr;
+	bm_parent = nullptr;
 #if DXX_USE_OGL
-	bm.gltexture = nullptr;
+	gltexture = nullptr;
 #endif
 }
 

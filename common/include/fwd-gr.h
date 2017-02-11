@@ -160,7 +160,6 @@ typedef std::unique_ptr<grs_subbitmap> grs_subbitmap_ptr;
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 // Free the bitmap's data
-void gr_init_bitmap_data (grs_bitmap &bm);
 
 #if !DXX_USE_OGL
 void gr_bm_ubitblt(unsigned w, unsigned h, int dx, int dy, int sx, int sy, const grs_bitmap &src, grs_bitmap &dest);

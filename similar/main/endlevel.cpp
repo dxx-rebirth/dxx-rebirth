@@ -267,8 +267,6 @@ void init_endlevel()
 //!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
 
 	generate_starfield();
-	gr_init_bitmap_data(terrain_bm_instance);
-	gr_init_bitmap_data(satellite_bm_instance);
 }
 
 static object *external_explosion;
@@ -1452,7 +1450,7 @@ try_again:
 			case 0: {						//ground terrain
 				int iff_error;
 				palette_array_t pal;
-				gr_free_bitmap_data(terrain_bm_instance);
+				terrain_bm_instance.reset();
 				iff_error = iff_read_bitmap(p, terrain_bm_instance, &pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
@@ -1484,7 +1482,7 @@ try_again:
 			case 4: {						//planet bitmap
 				int iff_error;
 				palette_array_t pal;
-				gr_free_bitmap_data(satellite_bm_instance);
+				satellite_bm_instance.reset();
 				iff_error = iff_read_bitmap(p, satellite_bm_instance, &pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",

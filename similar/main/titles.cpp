@@ -844,7 +844,7 @@ static int briefing_process_char(briefing *br)
 			br->robot_canv.reset();
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
-			gr_init_bitmap_data(br->guy_bitmap);
+			br->guy_bitmap.reset();
 			iff_error = iff_read_bitmap(bitmap_name, br->guy_bitmap, &temp_palette);
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
@@ -1250,7 +1250,6 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
-	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
@@ -1288,7 +1287,6 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	int pcx_error;
 
 	free_briefing_screen(br);
-	gr_init_bitmap_data(br->background);
 	if (d_stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
@@ -1321,6 +1319,7 @@ static int load_briefing_screen(briefing *br, const char *fname)
 namespace dsx {
 static void free_briefing_screen(briefing *br)
 {
+	br->background.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
