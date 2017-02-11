@@ -249,7 +249,7 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
 
-		g3_draw_poly(nv, pointlist, color);    // draw as flat poly
+		g3_draw_poly(*grd_curcanv, nv, pointlist, color);    // draw as flat poly
 		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
@@ -409,7 +409,7 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 #if DXX_USE_OGL
-		g3_draw_poly(nv,pointlist, color);
+		g3_draw_poly(*grd_curcanv, nv, pointlist, color);
 #else
 		(void)color;
 		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);

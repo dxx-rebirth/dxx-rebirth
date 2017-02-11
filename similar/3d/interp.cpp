@@ -303,7 +303,7 @@ public:
 					: gr_find_closest_color_15bpp(w(p + 28));
 #endif
 				const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-				g3_draw_poly(nv,point_list, color);
+				g3_draw_poly(*grd_curcanv, nv, point_list, color);
 			}
 		}
 	}

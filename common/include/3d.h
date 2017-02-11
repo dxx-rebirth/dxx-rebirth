@@ -194,9 +194,9 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 //returns 1 if off screen, 0 if drew
 void _g3_draw_poly(grs_canvas &, uint_fast32_t nv, cg3s_point *const *pointlist, uint8_t color);
 template <std::size_t N>
-static inline void g3_draw_poly(uint_fast32_t nv, const array<cg3s_point *, N> &pointlist, const uint8_t color)
+static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
-	_g3_draw_poly(*grd_curcanv, nv, &pointlist[0], color);
+	_g3_draw_poly(canvas, nv, &pointlist[0], color);
 }
 
 constexpr std::size_t MAX_POINTS_PER_POLY = 25;
@@ -246,7 +246,7 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
 static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlist, const uint8_t color)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_poly(pointlist.size(), pointlist, color);
+		g3_draw_poly(*grd_curcanv, pointlist.size(), pointlist, color);
 }
 
 template <std::size_t N>
