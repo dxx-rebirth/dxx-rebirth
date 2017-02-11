@@ -256,15 +256,15 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 # define automap_draw_line g3_draw_line
 #if DXX_USE_OGL
 #define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
+#define DrawMarkers(C,a)	DrawMarkers(a)
 #endif
 
 // -------------------------------------------------------------
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void DrawMarkers (automap *am)
+static inline void DrawMarkers(grs_canvas &, automap *)
 {
-	(void)am;
 }
 
 static inline void ClearMarkers()
@@ -391,8 +391,8 @@ void DropBuddyMarker(const vobjptr_t objp)
 
 #define MARKER_SPHERE_SIZE 0x58000
 
-static void DrawMarkers (automap *am)
- {
+static void DrawMarkers(grs_canvas &canvas, automap *const am)
+{
 	static int cyc=10,cycdir=1;
 
 	const auto mb = &MarkerObject[(Player_num * 2)];
@@ -415,10 +415,10 @@ static void DrawMarkers (automap *am)
 		if (*iter != object_none)
 		{
 			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
-			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
-			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
-			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
-			DrawMarkerNumber(*grd_curcanv, am, i, sphere_point);
+			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
+			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
+			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
+			DrawMarkerNumber(canvas, am, i, sphere_point);
 		}
 
 	if (cycdir)
@@ -695,7 +695,7 @@ static void draw_automap(automap *am)
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
 	draw_player(vcobjptr(get_local_player().objnum), closest_color);
 
-	DrawMarkers(am);
+	DrawMarkers(*grd_curcanv, am);
 	
 	// Draw player(s)...
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
