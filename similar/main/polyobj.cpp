@@ -553,7 +553,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(po->model_data.get(),&texture_list[0],anim_angles,light,glow_values, robot_points);
+		g3_draw_polygon_model(&texture_list[0], robot_points, *grd_curcanv, anim_angles, light, glow_values, po->model_data.get());
 
 	else {
 		for (int i=0;flags;flags>>=1,i++)
@@ -565,7 +565,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 				const auto ofs = vm_vec_negated(vm_vec_avg(po->submodel_mins[i],po->submodel_maxs[i]));
 				g3_start_instance_matrix(ofs,NULL);
 	
-				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],&texture_list[0],anim_angles,light,glow_values, robot_points);
+				g3_draw_polygon_model(&texture_list[0], robot_points, *grd_curcanv, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
 	
 				g3_done_instance();
 			}	

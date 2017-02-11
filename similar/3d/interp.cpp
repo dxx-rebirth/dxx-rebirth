@@ -259,7 +259,7 @@ protected:
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{
 		g3_start_instance_angles(*vp(p+4), anim_angles ? &anim_angles[w(p+2)] : &zero_angles);
-		g3_draw_polygon_model(p+w(p+16), model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
+		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, glow_values, p + w(p + 16));
 		g3_done_instance();
 	}
 };
@@ -336,10 +336,10 @@ public:
 	void op_sortnorm(const uint8_t *const p)
 	{
 		const auto &&offsets = get_sortnorm_offsets(p);
-		auto &a = offsets.first;
-		auto &b = offsets.second;
-		g3_draw_polygon_model(p + a,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
-		g3_draw_polygon_model(p + b,model_bitmaps,anim_angles,model_light,glow_values, Interp_point_list);
+		const auto a = offsets.first;
+		const auto b = offsets.second;
+		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, glow_values, p + a);
+		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, glow_values, p + b);
 	}
 	using g3_interpreter_draw_base::op_rodbm;
 	void op_subcall(const uint8_t *const p)
@@ -748,9 +748,9 @@ int g3_poly_get_color(const uint8_t *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(const uint8_t *p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
+void g3_draw_polygon_model(grs_bitmap *const *const model_bitmaps, polygon_model_points &Interp_point_list, grs_canvas &canvas, const submodel_angles anim_angles, const g3s_lrgb model_light, const glow_values_t *const glow_values, const uint8_t *const p)
 {
-	g3_draw_polygon_model_state state(model_bitmaps, Interp_point_list, *grd_curcanv, anim_angles, model_light, glow_values);
+	g3_draw_polygon_model_state state(model_bitmaps, Interp_point_list, canvas, anim_angles, model_light, glow_values);
 	iterate_polymodel(p, state);
 }
 
