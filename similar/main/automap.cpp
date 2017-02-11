@@ -754,7 +754,11 @@ static void draw_automap(automap *am)
 #endif
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
-		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
+	{
+		const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
+		auto &raw_mouse_axis = am->controls.raw_mouse_axis;
+		show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth - (GHEIGHT / 8), GHEIGHT - (GHEIGHT / 8), GHEIGHT / 5);
+	}
 
 	am->t2 = timer_query();
 	const auto vsync = CGameCfg.VSync;

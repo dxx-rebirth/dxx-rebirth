@@ -188,7 +188,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	int prompt_width, h;
 	gr_get_string_size(*grd_curcanv->cv_font, prompt_string, &prompt_width, &h, nullptr);
 	y -= line_spacing;
-	const auto canvas_width = GWIDTH;
+	const auto canvas_width = grd_curcanv->cv_bitmap.bm_w;
 	const unsigned max_pixels_per_line = canvas_width - (margin_width * 2) - prompt_width;
 	const unsigned unknown_cursor_line = ~0u;
 	const auto line_position = m_line_position;

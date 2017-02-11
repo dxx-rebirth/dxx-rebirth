@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MINX    0
 #define MINY    0
-#define MAXX    (GWIDTH-1)
 #define MAXY    (GHEIGHT-1)
 #define TYPE    grd_curcanv->cv_bitmap.get_type()
 #define DATA    grd_curcanv->cv_bitmap.get_bitmap_data()

@@ -90,7 +90,7 @@ static color_t Erase_color;
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
 {
-	return x * GWIDTH / 320;
+	return x * grd_curcanv->cv_bitmap.bm_w / 320;
 }
 
 static int rescale_y(int y)

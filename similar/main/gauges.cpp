@@ -3285,7 +3285,11 @@ void draw_hud(const object &plrobj)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(player_info, PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
-			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
+		{
+			const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
+			auto &raw_mouse_axis = Controls.raw_mouse_axis;
+			show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, GHEIGHT / 2, GHEIGHT / 4);
+		}
 	}
 
 	if (Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {
