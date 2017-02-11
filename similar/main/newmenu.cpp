@@ -215,7 +215,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 }
 
 // Draw a left justfied string
-static void nm_string(const int w1, int x, const int y, const char *const s, const int tabs_flag)
+static void nm_string(grs_canvas &canvas, const int w1, int x, const int y, const char *const s, const int tabs_flag)
 {
 	if (!tabs_flag)
 	{
@@ -228,13 +228,13 @@ static void nm_string(const int w1, int x, const int y, const char *const s, con
 			s1 = s2.get();
 			*std::next(s2.get(), std::distance(s, p)) = '\0';
 		}
-		gr_string(*grd_curcanv, x, y, s1);
+		gr_string(canvas, x, y, s1);
 		if (p)
 		{
 			int w, h;
 			++ p;
-			gr_get_string_size(*grd_curcanv->cv_font, p, &w, &h, nullptr);
-			gr_string(*grd_curcanv, x + w1 - w, y, p, w, h);
+			gr_get_string_size(*canvas.cv_font, p, &w, &h, nullptr);
+			gr_string(canvas, x + w1 - w, y, p, w, h);
 		}
 		return;
 	}
@@ -257,8 +257,8 @@ static void nm_string(const int w1, int x, const int y, const char *const s, con
 		}
 		measure[0] = c;
 		int tx, th;
-		gr_get_string_size(*grd_curcanv->cv_font, measure, &tx, &th, nullptr);
-		gr_string(*grd_curcanv, x, y, measure, tx, th);
+		gr_get_string_size(*canvas.cv_font, measure, &tx, &th, nullptr);
+		gr_string(canvas, x, y, measure, tx, th);
 		x+=tx;
 	}
 }
@@ -371,7 +371,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 	switch( item->type )	{
 		case NM_TYPE_TEXT:
 		case NM_TYPE_MENU:
-			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			break;
 		case NM_TYPE_SLIDER:
 		{
@@ -394,7 +394,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 		case NM_TYPE_INPUT_MENU:
 			if (item->imenu().group == 0)
 			{
-				nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+				nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			} else {
 				nm_string_inputbox(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			}
@@ -403,11 +403,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			nm_string_inputbox(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			break;
 		case NM_TYPE_CHECK:
-			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_CHECK_BOX : NORMAL_CHECK_BOX);
 			break;
 		case NM_TYPE_RADIO:
-			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			nm_rstring(item->right_offset, item->x, item->y - (line_spacing * scroll_offset), item->value ? CHECKED_RADIO_BOX : NORMAL_RADIO_BOX);
 			break;
 		case NM_TYPE_NUMBER:
@@ -418,7 +418,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 				item->value = number.min_value;
 			if (item->value > number.max_value)
 				item->value = number.max_value;
-			nm_string(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
+			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			snprintf(text, sizeof(text), "%d", item->value );
 			nm_rstring(item->right_offset,item->x, item->y - (line_spacing * scroll_offset), text);
 		}
