@@ -194,6 +194,7 @@ class g3_interpreter_draw_base
 protected:
 	grs_bitmap *const *const model_bitmaps;
 	polygon_model_points &Interp_point_list;
+	grs_canvas &canvas;
 	const submodel_angles anim_angles;
 	const g3s_lrgb model_light;
 private:
@@ -224,8 +225,9 @@ protected:
 		set_color_by_model_light(&g3s_lrgb::b, light, color);
 		return light;
 	}
-	g3_interpreter_draw_base(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, polygon_model_points &plist, const g3s_lrgb &mlight) :
+	g3_interpreter_draw_base(grs_bitmap *const *const mbitmaps, polygon_model_points &plist, grs_canvas &ccanvas, const submodel_angles aangles, const g3s_lrgb &mlight) :
 		model_bitmaps(mbitmaps), Interp_point_list(plist),
+		canvas(ccanvas),
 		anim_angles(aangles), model_light(mlight)
 	{
 	}
@@ -252,7 +254,7 @@ protected:
 		const g3s_lrgb rodbm_light{
 			f1_0, f1_0, f1_0
 		};
-		g3_draw_rod_tmap(*grd_curcanv, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light);
+		g3_draw_rod_tmap(canvas, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light);
 	}
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{
@@ -269,8 +271,8 @@ class g3_draw_polygon_model_state :
 	const glow_values_t *const glow_values;
 	unsigned glow_num;
 public:
-	g3_draw_polygon_model_state(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *const glvalues, polygon_model_points &plist) :
-		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
+	g3_draw_polygon_model_state(grs_bitmap *const *const mbitmaps, polygon_model_points &plist, grs_canvas &ccanvas, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *const glvalues) :
+		g3_interpreter_draw_base(mbitmaps, plist, ccanvas, aangles, mlight),
 		glow_values(glvalues),
 		glow_num(~0u)		//glow off by default
 	{
@@ -329,7 +331,7 @@ public:
 			uvl_list[i].l = average_light;
 		}
 		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(*grd_curcanv, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
+		g3_draw_tmap(canvas, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
@@ -358,8 +360,8 @@ class g3_draw_morphing_model_state :
 	const vms_vector *const new_points;
 	static constexpr const glow_values_t *glow_values = nullptr;
 public:
-	g3_draw_morphing_model_state(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, const g3s_lrgb mlight, const vms_vector *const npoints, polygon_model_points &plist) :
-		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
+	g3_draw_morphing_model_state(grs_bitmap *const *const mbitmaps, polygon_model_points &plist, grs_canvas &ccanvas, const submodel_angles aangles, const g3s_lrgb &mlight, const vms_vector *const npoints) :
+		g3_interpreter_draw_base(mbitmaps, plist, ccanvas, aangles, mlight),
 		new_points(npoints)
 	{
 	}
@@ -413,7 +415,7 @@ public:
 		for (uint_fast32_t i = 0; i != nv; i++)
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(*grd_curcanv, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
+		g3_draw_tmap(canvas, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)]);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
@@ -748,7 +750,7 @@ int g3_poly_get_color(const uint8_t *p)
 //is really a seperate pipeline. returns true if drew
 void g3_draw_polygon_model(const uint8_t *p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
-	g3_draw_polygon_model_state state(model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
+	g3_draw_polygon_model_state state(model_bitmaps, Interp_point_list, *grd_curcanv, anim_angles, model_light, glow_values);
 	iterate_polymodel(p, state);
 }
 
@@ -759,7 +761,7 @@ static int nest_count;
 //alternate interpreter for morphing object
 void g3_draw_morphing_model(const uint8_t *const p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
-	g3_draw_morphing_model_state state(model_bitmaps, anim_angles, model_light, new_points, Interp_point_list);
+	g3_draw_morphing_model_state state(model_bitmaps, Interp_point_list, *grd_curcanv, anim_angles, model_light, new_points);
 	iterate_polymodel(p, state);
 }
 
