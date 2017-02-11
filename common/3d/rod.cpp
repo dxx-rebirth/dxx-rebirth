@@ -130,7 +130,7 @@ void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &b
 #if !DXX_USE_OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
-void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
+void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix height, grs_bitmap &bm)
 {
 	g3s_point pnt;
 	fix w,h;
@@ -163,7 +163,7 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 		{blob1x, blob0y},
 		{blob1x, pnt.p3_sy + h},
 	}};
-	scale_bitmap(bm, blob_vertices, 0, grd_curcanv->cv_bitmap);
+	scale_bitmap(bm, blob_vertices, 0, canvas.cv_bitmap);
 }
 #endif
 

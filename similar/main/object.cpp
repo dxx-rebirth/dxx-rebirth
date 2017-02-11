@@ -172,7 +172,7 @@ void draw_object_blob(const object_base &obj, bitmap_index bmi)
 	const auto p = (bm_w > bm_h)
 		? wh(osize, fixmuldiv(osize, bm_h, bm_w))
 		: wh(fixmuldiv(osize, bm_w, bm_h), osize);
-	g3_draw_bitmap(pos, p.first, p.second, bm);
+	g3_draw_bitmap(*grd_curcanv, pos, p.first, p.second, bm);
 }
 
 }

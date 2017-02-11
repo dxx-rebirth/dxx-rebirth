@@ -1058,7 +1058,7 @@ namespace dcx {
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, grs_bitmap &bm)
+void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth, const fix iheight, grs_bitmap &bm)
 {
 	r_bitmapc++;
 	
@@ -1091,7 +1091,7 @@ void g3_draw_bitmap(const vms_vector &pos, const fix iwidth, const fix iheight, 
 	const auto &rpv = vm_vec_rotate(v1,View_matrix);
 	const auto bmglu = bm.gltexture->u;
 	const auto bmglv = bm.gltexture->v;
-	const auto alpha = grd_curcanv->cv_fade_level >= GR_FADE_OFF ? 1.0 : (1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+	const auto alpha = canvas.cv_fade_level >= GR_FADE_OFF ? 1.0 : (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	const auto vert_z = -f2glf(rpv.z);
 	for (i=0;i<4;i++){
 		auto pv = rpv;
