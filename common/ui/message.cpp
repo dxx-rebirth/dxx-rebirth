@@ -75,7 +75,7 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 		}
 		
 		ui_dialog_set_current_canvas(dlg);
-		ui_string_centered( m->width/2, m->text_y, m->text );
+		ui_string_centered(*grd_curcanv, m->width / 2, m->text_y, m->text);
 		
 		Hline(*grd_curcanv, 1, m->width - 2, m->line_y + 1, CGREY);
 		Hline(*grd_curcanv, 2, m->width - 2, m->line_y + 2, CBRIGHT);

@@ -58,15 +58,15 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 		{
 			ui_draw_box_out(*grd_curcanv, 0, 0, radio->width-1, radio->height-1);
 			if (radio->flag)
-				ui_string_centered(Middle(radio->width), Middle(radio->height), "O");
+				ui_string_centered(*grd_curcanv, Middle(radio->width), Middle(radio->height), "O");
 			else
-				ui_string_centered(Middle(radio->width), Middle(radio->height), " ");
+				ui_string_centered(*grd_curcanv, Middle(radio->width), Middle(radio->height), " ");
 		} else {
 			ui_draw_box_in(*grd_curcanv, 0, 0, radio->width-1, radio->height-1);
 			if (radio->flag)
-				ui_string_centered(Middle(radio->width) + 1, Middle(radio->height) + 1, "O");
+				ui_string_centered(*grd_curcanv, Middle(radio->width) + 1, Middle(radio->height) + 1, "O");
 			else
-				ui_string_centered(Middle(radio->width) + 1, Middle(radio->height) + 1, " ");
+				ui_string_centered(*grd_curcanv, Middle(radio->width) + 1, Middle(radio->height) + 1, " ");
 		}
 		gr_ustring(*grd_curcanv, radio->width + 4, 2, radio->text.get());
 	}

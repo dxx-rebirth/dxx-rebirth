@@ -258,7 +258,7 @@ extern UI_GADGET * selected_gadget;
 #define Vline(C,y1,y2,x,c)	Vline(C,x,y1,y2,c)
 void Hline(grs_canvas &, fix x1, fix x2, fix y, uint8_t color);
 void Vline(grs_canvas &, fix y1, fix y2, fix x, uint8_t color);
-extern void ui_string_centered( short x, short y, const char * s );
+void ui_string_centered(grs_canvas &, unsigned x, unsigned y, const char *s);
 void ui_draw_box_out(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void ui_draw_box_in(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void ui_draw_frame(grs_canvas &, unsigned x1, unsigned y1, unsigned x2, unsigned y2);

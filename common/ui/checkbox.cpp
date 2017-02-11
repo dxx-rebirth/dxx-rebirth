@@ -53,15 +53,15 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 		{
 			ui_draw_box_out(*grd_curcanv, 0, 0, checkbox->width-1, checkbox->height-1);
 			if (checkbox->flag)
-				ui_string_centered(  Middle(checkbox->width), Middle(checkbox->height), "X" );
+				ui_string_centered(*grd_curcanv, Middle(checkbox->width), Middle(checkbox->height), "X");
 			else
-				ui_string_centered(  Middle(checkbox->width), Middle(checkbox->height), " " );
+				ui_string_centered(*grd_curcanv, Middle(checkbox->width), Middle(checkbox->height), " ");
 		} else {
 			ui_draw_box_in(*grd_curcanv, 0, 0, checkbox->width-1, checkbox->height-1);
 			if (checkbox->flag)
-				ui_string_centered(  Middle(checkbox->width)+1, Middle(checkbox->height)+1, "X" );
+				ui_string_centered(*grd_curcanv, Middle(checkbox->width)+1, Middle(checkbox->height)+1, "X");
 			else
-				ui_string_centered(  Middle(checkbox->width)+1, Middle(checkbox->height)+1, " " );
+				ui_string_centered(*grd_curcanv, Middle(checkbox->width)+1, Middle(checkbox->height)+1, " ");
 		}
 
 		gr_ustring(*grd_curcanv, checkbox->width + 4, 2, checkbox->text.get());

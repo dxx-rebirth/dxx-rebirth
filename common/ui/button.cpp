@@ -84,7 +84,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				ui_draw_box_in(*grd_curcanv, 0, 0, button->width-1, button->height-1);
 				offset = 1;
 			}
-			ui_string_centered(Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
+			ui_string_centered(*grd_curcanv, Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
 		} else {
 			unsigned left, top, right, bottom;
 			if (button->position == 0)

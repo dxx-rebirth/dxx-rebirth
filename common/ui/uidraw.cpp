@@ -35,15 +35,15 @@ void Vline(grs_canvas &canvas, const fix y1, const fix y2, const fix x, const ui
 	gr_uline(canvas, i2f(x), i2f(y1), i2f(x), i2f(y2), color);
 }
 
-void ui_string_centered( short x, short y, const char * s )
+void ui_string_centered(grs_canvas &canvas, const unsigned x, const unsigned y, const char *const s)
 {
 	int height, width;
 
-	gr_get_string_size(*grd_curcanv->cv_font, s, &width, &height, nullptr);
+	gr_get_string_size(*canvas.cv_font, s, &width, &height, nullptr);
 
 	//baseline = height-grd_curcanv->cv_font->ft_baseline;
 
-	gr_ustring(*grd_curcanv, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
+	gr_ustring(canvas, x - ((width - 1) / 2), y - ((height - 1) / 2), s);
 }
 
 
