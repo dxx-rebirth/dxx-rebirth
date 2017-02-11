@@ -1050,7 +1050,7 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 	 * First check without squaring.  If true, the square can be
 	 * skipped.
 	 */
-	if (abs_delta_dist_squared < combined_size || abs_delta_dist_squared < (combined_size * combined_size))
+	if (abs_delta_dist_squared < combined_size || abs_delta_dist_squared < (static_cast<fix64>(combined_size) * combined_size))
 	{		//same position
 
 		//these two objects are in the same position.  see if one is a fireball

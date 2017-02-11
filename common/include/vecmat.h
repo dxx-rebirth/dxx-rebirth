@@ -127,6 +127,7 @@ class vm_distance_squared
 {
 public:
 	fix64 d2;
+	vm_distance_squared(const fix &) = delete;
 	constexpr explicit vm_distance_squared(const fix64 &f2) :
 		d2(f2)
 	{
@@ -166,7 +167,7 @@ public:
 	}
 	static constexpr vm_distance_squared minimum_value()
 	{
-		return vm_distance_squared{0};
+		return vm_distance_squared{static_cast<fix64>(0)};
 	}
 };
 
@@ -174,7 +175,7 @@ class vm_magnitude_squared : public vm_distance_squared
 {
 public:
 	constexpr explicit vm_magnitude_squared(const uint64_t &f2) :
-		vm_distance_squared(f2)
+		vm_distance_squared(static_cast<fix64>(f2))
 	{
 	}
 };

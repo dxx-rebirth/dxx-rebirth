@@ -453,14 +453,14 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 			if (vm_vec_dist2(p0, sphere_pos) < sphere_rad_squared)
 			{
 				intp = p0; //don't move at all
-				return vm_distance_squared{1}; // note that we do not calculate a valid collision point. This is up to collision handling.
+				return vm_distance_squared{static_cast<fix64>(1)}; // note that we do not calculate a valid collision point. This is up to collision handling.
 			} else {
 				return vm_distance_squared::minimum_value();
 			}
 		}
 
 		vm_vec_scale_add(intp,p0,dn,int_dist);         //calc intersection point
-		return vm_distance_squared{int_dist * int_dist};
+		return vm_distance_squared{static_cast<fix64>(int_dist) * int_dist};
 	}
 	else
 		return vm_distance_squared::minimum_value();
