@@ -82,12 +82,12 @@ fix	Flash_effect=0;
 constexpr int	PK1=1, PK2=8;
 #endif
 
-static bool can_collide(const object_base &weapon_object, const object_base &iter_object, const object *const parent_object)
+static bool can_collide(const object *const weapon_object, const object_base &iter_object, const object *const parent_object)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)weapon_object;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (&weapon_object == &iter_object)
+	if (weapon_object == &iter_object)
 		return false;
 	if (iter_object.type == OBJ_NONE)
 		return false;
