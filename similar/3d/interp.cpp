@@ -252,7 +252,7 @@ protected:
 		const g3s_lrgb rodbm_light{
 			f1_0, f1_0, f1_0
 		};
-		g3_draw_rod_tmap(*model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light);
+		g3_draw_rod_tmap(*grd_curcanv, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light);
 	}
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{

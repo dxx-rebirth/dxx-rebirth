@@ -104,7 +104,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width,g3s_lrgb light)
+void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light)
 {
 	rod_4point rod;
 	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
@@ -124,7 +124,7 @@ void g3_draw_rod_tmap(grs_bitmap &bitmap,const g3s_point &bot_point,fix bot_widt
 		light,
 	}};
 
-	g3_draw_tmap(*grd_curcanv, rod.point_list, uvl_list, lrgb_list, bitmap);
+	g3_draw_tmap(canvas, rod.point_list, uvl_list, lrgb_list, bitmap);
 }
 
 #if !DXX_USE_OGL

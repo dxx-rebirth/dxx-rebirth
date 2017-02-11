@@ -204,7 +204,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 		light.r = light.g = light.b = f1_0;
 	}
 
-	g3_draw_rod_tmap(bitmap,bot_p,obj->size,top_p,obj->size,light);
+	g3_draw_rod_tmap(*grd_curcanv, bitmap, bot_p, obj->size, top_p, obj->size, light);
 }
 
 //used for robot engine glow
