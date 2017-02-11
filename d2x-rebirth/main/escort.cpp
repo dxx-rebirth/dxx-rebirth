@@ -1826,16 +1826,17 @@ void show_escort_menu(const array<char, 300> &amsg)
 
 	gr_set_curfont( GAME_FONT );
 
-	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
+	auto &canvas = *grd_curcanv;
+	gr_get_string_size(*canvas.cv_font, msg, &w, &h, nullptr);
 
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 28, 0), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 28, 0), -1);
 
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
-	gr_ustring(*grd_curcanv, x, y, msg);
+	gr_ustring(canvas, x, y, msg);
 
 	reset_cockpit();
 }
