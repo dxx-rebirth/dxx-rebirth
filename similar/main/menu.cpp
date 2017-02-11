@@ -455,12 +455,13 @@ int RegisterPlayer()
 static void draw_copyright()
 {
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(6, 6, 6),-1);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6),-1);
 	const auto &&line_spacing = LINE_SPACING;
-	gr_string(*grd_curcanv, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 0, 0), -1);
-	gr_string(*grd_curcanv, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
+	gr_string(canvas, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
+	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
+	gr_string(canvas, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
 namespace dsx {
