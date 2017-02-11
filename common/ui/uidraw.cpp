@@ -47,45 +47,49 @@ void ui_string_centered( short x, short y, const char * s )
 }
 
 
-void ui_draw_shad( short x1, short y1, short x2, short y2, short c1, short c2 )
+void ui_draw_shad(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2, const unsigned c1, const unsigned c2)
 {
-	Hline(*grd_curcanv, x1 + 0, x2 - 1, y1 + 0, c1);
-	Vline(*grd_curcanv, y1 + 1, y2 + 0, x1 + 0, c1);
+	Hline(canvas, x1, x2 - 1, y1, c1);
+	Vline(canvas, y1 + 1, y2, x1, c1);
 
-	Hline(*grd_curcanv, x1 + 1, x2, y2 - 0, c2);
-	Vline(*grd_curcanv, y1 + 0, y2 - 1, x2 - 0, c2);
+	Hline(canvas, x1 + 1, x2, y2, c2);
+	Vline(canvas, y1, y2 - 1, x2, c2);
 }
 
 void ui_draw_frame( short x1, short y1, short x2, short y2 )
 {
+	const auto cbright = CBRIGHT;
+	const auto cgrey = CGREY;
+	const auto cwhite = CWHITE;
+	ui_draw_shad(*grd_curcanv, x1 + 0, y1 + 0, x2 - 0, y2 - 0, cbright, cgrey);
+	ui_draw_shad(*grd_curcanv, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cbright, cgrey);
 
-	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CBRIGHT, CGREY );
-	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CBRIGHT, CGREY );
+	ui_draw_shad(*grd_curcanv, x1 + 2, y1 + 2, x2 - 2, y2 - 2, cwhite, cwhite);
+	ui_draw_shad(*grd_curcanv, x1 + 3, y1 + 3, x2 - 3, y2 - 3, cwhite, cwhite);
+	ui_draw_shad(*grd_curcanv, x1 + 4, y1 + 4, x2 - 4, y2 - 4, cwhite, cwhite);
+	ui_draw_shad(*grd_curcanv, x1 + 5, y1 + 5, x2 - 5, y2 - 5, cwhite, cwhite);
 
-	ui_draw_shad( x1+2, y1+2, x2-2, y2-2, CWHITE, CWHITE );
-	ui_draw_shad( x1+3, y1+3, x2-3, y2-3, CWHITE, CWHITE );
-	ui_draw_shad( x1+4, y1+4, x2-4, y2-4, CWHITE, CWHITE );
-	ui_draw_shad( x1+5, y1+5, x2-5, y2-5, CWHITE, CWHITE );
-
-	ui_draw_shad( x1+6, y1+6, x2-6, y2-6, CGREY, CBRIGHT );
-	ui_draw_shad( x1+7, y1+7, x2-7, y2-7, CGREY, CBRIGHT );
-
+	ui_draw_shad(*grd_curcanv, x1 + 6, y1 + 6, x2 - 6, y2 - 6, cgrey, cbright);
+	ui_draw_shad(*grd_curcanv, x1 + 7, y1 + 7, x2 - 7, y2 - 7, cgrey, cbright);
 }
 
 void ui_draw_box_out( short x1, short y1, short x2, short y2 )
 {
 	const uint8_t color = CWHITE;
+	const auto cbright = CBRIGHT;
+	const auto cgrey = CGREY;
 	gr_urect(*grd_curcanv, x1+2, y1+2, x2-2, y2-2, color);
 
-	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CBRIGHT, CGREY );
-	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CBRIGHT, CGREY );
-
+	ui_draw_shad(*grd_curcanv, x1 + 0, y1 + 0, x2 - 0, y2 - 0, cbright, cgrey);
+	ui_draw_shad(*grd_curcanv, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cbright, cgrey);
 }
 
 void ui_draw_box_in( short x1, short y1, short x2, short y2 )
 {
-	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CGREY, CBRIGHT );
-	ui_draw_shad( x1+1, y1+1, x2-1, y2-1, CGREY, CBRIGHT );
+	const auto cbright = CBRIGHT;
+	const auto cgrey = CGREY;
+	ui_draw_shad(*grd_curcanv, x1 + 0, y1 + 0, x2 - 0, y2 - 0, cgrey, cbright);
+	ui_draw_shad(*grd_curcanv, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cgrey, cbright);
 }
 
 }

@@ -38,8 +38,7 @@ static void ui_draw_box_in1( short x1, short y1, short x2, short y2 )
 {
 	const uint8_t color = CWHITE;
 	gr_urect(*grd_curcanv, x1+1, y1+1, x2-1, y2-1, color);
-
-	ui_draw_shad( x1+0, y1+0, x2-0, y2-0, CGREY, CBRIGHT );
+	ui_draw_shad(*grd_curcanv, x1, y1, x2, y2, CGREY, CBRIGHT);
 }
 
 
