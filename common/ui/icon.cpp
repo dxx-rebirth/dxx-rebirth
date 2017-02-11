@@ -62,7 +62,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		if (icon->position==1 )
 		{
 			// Draw pressed
-			ui_draw_box_in( 0, 0, icon->width, icon->height );
+			ui_draw_box_in(*grd_curcanv, 0, 0, icon->width, icon->height);
 			x += 2; y += 2;
 		}
 		else if (icon->flag)

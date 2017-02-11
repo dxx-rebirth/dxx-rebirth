@@ -84,12 +84,12 @@ void ui_draw_box_out(grs_canvas &canvas, const unsigned x1, const unsigned y1, c
 	ui_draw_shad(canvas, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cbright, cgrey);
 }
 
-void ui_draw_box_in( short x1, short y1, short x2, short y2 )
+void ui_draw_box_in(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
 	const auto cbright = CBRIGHT;
 	const auto cgrey = CGREY;
-	ui_draw_shad(*grd_curcanv, x1 + 0, y1 + 0, x2 - 0, y2 - 0, cgrey, cbright);
-	ui_draw_shad(*grd_curcanv, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cgrey, cbright);
+	ui_draw_shad(canvas, x1, y1, x2, y2, cgrey, cbright);
+	ui_draw_shad(canvas, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cgrey, cbright);
 }
 
 }

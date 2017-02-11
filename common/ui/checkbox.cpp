@@ -57,7 +57,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 			else
 				ui_string_centered(  Middle(checkbox->width), Middle(checkbox->height), " " );
 		} else {
-			ui_draw_box_in( 0, 0, checkbox->width-1, checkbox->height-1 );
+			ui_draw_box_in(*grd_curcanv, 0, 0, checkbox->width-1, checkbox->height-1);
 			if (checkbox->flag)
 				ui_string_centered(  Middle(checkbox->width)+1, Middle(checkbox->height)+1, "X" );
 			else
