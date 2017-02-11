@@ -437,10 +437,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 					if (menu->looper>63) menu->looper=0;
 				}
 
-				if ( menu->citem ==  MAX_HIGH_SCORES )
-					scores_draw_item(*grd_curcanv, MAX_HIGH_SCORES, &menu->last_game);
-				else
-					scores_draw_item(*grd_curcanv, menu->citem, &menu->scores.stats[menu->citem]);
+				scores_draw_item(*grd_curcanv, menu->citem, menu->citem == MAX_HIGH_SCORES
+					? &menu->last_game
+					: &menu->scores.stats[menu->citem]);
 			}
 			gr_set_current_canvas(NULL);
 			break;
