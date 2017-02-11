@@ -848,7 +848,7 @@ int gr_disk(grs_canvas &canvas, const fix x, const fix y, const fix r, const uin
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist, const uint8_t palette_color_index)
+void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const g3s_point *const *const pointlist, const uint8_t palette_color_index)
 {
 	struct vfloat
 	{
@@ -870,9 +870,9 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist, con
 	OGL_DISABLE(TEXTURE_2D);
 	const float color_r = PAL2Tr(palette_color_index), color_g = PAL2Tg(palette_color_index), color_b = PAL2Tb(palette_color_index);
 
-	const float color_a = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
+	const float color_a = (canvas.cv_fade_level >= GR_FADE_OFF)
 		? 1.0
-		: 1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
+		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
 	vfloat *const varray = reinterpret_cast<vfloat *>(vertex_array.get());
 	cfloat *const carray = reinterpret_cast<cfloat *>(color_array.get());

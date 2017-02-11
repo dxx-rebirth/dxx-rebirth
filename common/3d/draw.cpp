@@ -123,7 +123,7 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const uint8_t color)
+void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const *const pointlist, const uint8_t color)
 {
 	g3s_codes cc;
 
@@ -143,7 +143,7 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const ui
 
 	if (cc.uor)
 	{
-		must_clip_flat_face(*grd_curcanv, nv, cc, Vbuf0, Vbuf1, color);
+		must_clip_flat_face(canvas, nv, cc, Vbuf0, Vbuf1, color);
 		return;
 	}
 
@@ -157,14 +157,14 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const ui
 
 		if (p->p3_flags&PF_OVERFLOW)
 		{
-			must_clip_flat_face(*grd_curcanv, nv, cc, Vbuf0, Vbuf1, color);
+			must_clip_flat_face(canvas, nv, cc, Vbuf0, Vbuf1, color);
 			return;
 		}
 
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-	gr_upoly_tmap(*grd_curcanv, nv, Vertex_list, color);
+	gr_upoly_tmap(canvas, nv, Vertex_list, color);
 	//say it drew
 }
 
