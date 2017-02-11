@@ -975,15 +975,15 @@ static void set_briefing_fontcolor (briefing *br)
 }
 }
 
-static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
+static void redraw_messagestream(grs_canvas &canvas, const msgstream &stream, unsigned &lastcolor)
 {
 	char msgbuf[2] = {stream.ch, 0};
 	if (lastcolor != stream.color)
 	{
 		lastcolor = stream.color;
-		gr_set_fontcolor(*grd_curcanv, stream.color, -1);
+		gr_set_fontcolor(canvas, stream.color, -1);
 	}
-	gr_string(*grd_curcanv, stream.x + 1, stream.y, msgbuf);
+	gr_string(canvas, stream.x + 1, stream.y, msgbuf);
 }
 
 static void flash_cursor(grs_canvas &canvas, briefing *const br, const int cursor_flag)
@@ -1531,7 +1531,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			{
 				unsigned lastcolor = ~0u;
 				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))
-					redraw_messagestream(b, lastcolor);
+					redraw_messagestream(*grd_curcanv, b, lastcolor);
 			}
 
 			if (br->new_page || br->new_screen)
