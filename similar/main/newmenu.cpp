@@ -215,56 +215,50 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 }
 
 // Draw a left justfied string
-static void nm_string( int w1,int x, int y, const char * s, int tabs_flag)
+static void nm_string(const int w1, int x, const int y, const char *const s, const int tabs_flag)
 {
-	int t = 0;
-	char *p,*s1,measure[2];
-	int XTabs[]={18,90,127,165,231,256};
-
-	p=s1=NULL;
-	RAIIdmem<char[]> s2(d_strdup(s));
-
+	if (!tabs_flag)
+	{
+		RAIIdmem<char[]> s2(d_strdup(s));
+		const auto p = strchr(s2.get(), '\t');
+		const char *s1 = nullptr;
+		if (p && w1 > 0)
+		{
+			*p = '\0';
+			s1 = p+1;
+		}
+		gr_string(*grd_curcanv, x, y, s2.get());
+		if (s1)
+		{
+			int w, h;
+			gr_get_string_size(*grd_curcanv->cv_font, s1, &w, &h, nullptr);
+			gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
+			*p = '\t';
+		}
+		return;
+	}
+	array<int, 6> XTabs = {{18, 90, 127, 165, 231, 256}};
 	const auto &&fspacx = FSPACX();
 	range_for (auto &i, XTabs)
 	{
 		i = fspacx(i) + x;
 	}
-
-	measure[1]=0;
-
-	if (!tabs_flag) {
-		p = strchr(s2.get(), '\t');
-		if (p && (w1>0) ) {
-			*p = '\0';
-			s1 = p+1;
-		}
-	}
-
-	if (tabs_flag) {
-		for (unsigned i = 0; s2[i]; ++i)
+	unsigned t = 0;
+	char measure[2];
+	measure[1] = 0;
+	for (unsigned i = 0; const char c = s[i]; ++i)
+	{
+		if (c == '\t')
 		{
-			if (s2[i]=='\t' && tabs_flag) {
-				x=XTabs[t];
-				t++;
-				continue;
-			}
-			measure[0]=s2[i];
-			int tx, th;
-			gr_get_string_size(*grd_curcanv->cv_font, measure, &tx, &th, nullptr);
-			gr_string(*grd_curcanv, x, y, measure, tx, th);
-			x+=tx;
+			x=XTabs[t];
+			t++;
+			continue;
 		}
-	}
-	else
-		gr_string(*grd_curcanv, x, y, s2.get());
-
-	if (!tabs_flag && p && (w1>0) ) {
-		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, s1, &w, &h, nullptr);
-
-		gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
-
-		*p = '\t';
+		measure[0] = c;
+		int tx, th;
+		gr_get_string_size(*grd_curcanv->cv_font, measure, &tx, &th, nullptr);
+		gr_string(*grd_curcanv, x, y, measure, tx, th);
+		x+=tx;
 	}
 }
 
