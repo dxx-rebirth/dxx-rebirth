@@ -115,15 +115,16 @@ static void print_clock()
 {
 	int w, h;
 	gr_set_current_canvas( NULL );
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
+	auto &canvas = *grd_curcanv;
+	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
-	gr_get_string_size(*grd_curcanv->cv_font, message.data(), &w, &h, nullptr);
+	gr_get_string_size(*canvas.cv_font, message.data(), &w, &h, nullptr);
 	const uint8_t color = CGREY;
-	gr_rect(*grd_curcanv, 700, 0, 799, h + 1, color);
-	gr_string(*grd_curcanv, 700, 0, message.data());
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
+	gr_rect(canvas, 700, 0, 799, h + 1, color);
+	gr_string(canvas, 700, 0, message.data());
+	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 }
 
 void set_editor_time_of_day()
