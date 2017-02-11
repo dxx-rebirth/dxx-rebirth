@@ -168,7 +168,7 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const ui
 	//say it drew
 }
 
-static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
+static void must_clip_tmap_face(grs_canvas &, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
@@ -200,7 +200,7 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 
 	if (cc.uor)
 	{
-		must_clip_tmap_face(nv,cc,&bm,Vbuf0,Vbuf1);
+		must_clip_tmap_face(*grd_curcanv, nv, cc, bm, Vbuf0, Vbuf1);
 		return;
 	}
 
@@ -221,7 +221,7 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 	(*tmap_drawer_ptr)(*grd_curcanv, bm, nv, bufptr);
 }
 
-static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
+static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
@@ -239,7 +239,7 @@ static void must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm,polygon_clip_
 			}
 		}
 
-		(*tmap_drawer_ptr)(*grd_curcanv, *bm, nv, &bufptr[0]);
+		(*tmap_drawer_ptr)(canvas, bm, nv, &bufptr[0]);
 	}
 
 free_points:
