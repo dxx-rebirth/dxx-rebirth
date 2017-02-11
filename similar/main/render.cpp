@@ -226,7 +226,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 namespace dsx {
-static void render_face(const segment &segp, const unsigned sidenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const segment &segp, const unsigned sidenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 
@@ -248,12 +248,12 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
-		gr_settransblend(*grd_curcanv, vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
+		gr_settransblend(canvas, vcwallptr(wall_num)->cloak_value, GR_BLEND_NORMAL);
 		const uint8_t color = BM_XRGB(0, 0, 0);
 		// set to black (matters for s3)
 
-		g3_draw_poly(*grd_curcanv, nv, pointlist, color);    // draw as flat poly
-		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+		g3_draw_poly(canvas, nv, pointlist, color);    // draw as flat poly
+		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
 	}
@@ -347,27 +347,27 @@ static void render_face(const segment &segp, const unsigned sidenum, const unsig
 	if (PlayerCfg.AlphaBlendEClips && is_alphablend_eclip(TmapInfo[tmap1].eclip_num)) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 	{
 		alpha = true;
-		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 	}
 
 #if DXX_USE_EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
-		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
 #endif
 
 #if DXX_USE_OGL
 		if (bm2){
-			g3_draw_tmap_2(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm, *bm2, ((tmap2 & 0xC000) >> 14) & 3);
+			g3_draw_tmap_2(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, *bm2, ((tmap2 & 0xC000) >> 14) & 3);
 		}else
 #endif
-			g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_copy, dyn_light, *bm);
+			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm);
 
 	if (alpha)
-		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+		gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency / blending setting back to normal
 
 #ifndef NDEBUG
-	if (Outline_mode) draw_outline(*grd_curcanv, nv, &pointlist[0]);
+	if (Outline_mode) draw_outline(canvas, nv, &pointlist[0]);
 #endif
 }
 }
@@ -446,7 +446,7 @@ static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t s
 	const array<g3s_uvl, 4> uvl_copy{{
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
-	render_face(segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
+	render_face(*grd_curcanv, segnum, sidenum, nv, vp, tmap1, tmap2, uvl_copy, wid_flags);
 	check_face(segnum, sidenum, facenum, nv, vp, tmap1, tmap2, uvl_copy);
 }
 
