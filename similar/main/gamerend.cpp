@@ -90,7 +90,7 @@ static void game_draw_marker_message()
 
 namespace dcx {
 
-static void game_draw_multi_message()
+static void game_draw_multi_message(grs_canvas &canvas)
 {
 	if (!(Game_mode&GM_MULTI))
 		return;
@@ -98,13 +98,13 @@ static void game_draw_multi_message()
 	int defining;
 	if (!sending && !(defining = multi_defining_message))
 		return;
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-	const auto &&y = (LINE_SPACING(*grd_curcanv) * 5) + FSPACY(1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+	const auto &&y = (LINE_SPACING(canvas) * 5) + FSPACY(1);
 	if (sending)
-		gr_printf(*grd_curcanv, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
+		gr_printf(canvas, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
-		gr_printf(*grd_curcanv, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
+		gr_printf(canvas, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
 }
 
 static void show_framerate()
@@ -351,7 +351,7 @@ static void game_draw_hud_stuff()
 	draw_window_label();
 #endif
 
-	game_draw_multi_message();
+	game_draw_multi_message(*grd_curcanv);
 
 	game_draw_marker_message();
 
