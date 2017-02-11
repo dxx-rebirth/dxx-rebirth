@@ -254,6 +254,9 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 #endif
 
 # define automap_draw_line g3_draw_line
+#if DXX_USE_OGL
+#define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
+#endif
 
 // -------------------------------------------------------------
 
@@ -268,7 +271,7 @@ static inline void ClearMarkers()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &BasePoint)
+static void DrawMarkerNumber(grs_canvas &canvas, const automap *am, unsigned num, const g3s_point &BasePoint)
 {
 	struct xy
 	{
@@ -351,7 +354,7 @@ static void DrawMarkerNumber(const automap *am, unsigned num, const g3s_point &B
 		g3_code_point(ToPoint);
 		g3_project_point(FromPoint);
 		g3_project_point(ToPoint);
-		automap_draw_line(*grd_curcanv, FromPoint, ToPoint, color);
+		automap_draw_line(canvas, FromPoint, ToPoint, color);
 	}
 }
 
@@ -415,7 +418,7 @@ static void DrawMarkers (automap *am)
 			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
-			DrawMarkerNumber(am, i, sphere_point);
+			DrawMarkerNumber(*grd_curcanv, am, i, sphere_point);
 		}
 
 	if (cycdir)
