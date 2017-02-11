@@ -44,28 +44,22 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 
 		gr_set_current_canvas( checkbox->canvas );
 
-		if (dlg->keyboard_focus_gadget == checkbox)
-			gr_set_fontcolor(*grd_curcanv, CRED, -1);
-		else
-			gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
+		gr_set_fontcolor(*grd_curcanv, dlg->keyboard_focus_gadget == checkbox
+			? CRED
+			: CBLACK, -1);
 
+		unsigned offset;
 		if (checkbox->position == 0 )
 		{
 			ui_draw_box_out(*grd_curcanv, 0, 0, checkbox->width-1, checkbox->height-1);
-			if (checkbox->flag)
-				ui_string_centered(*grd_curcanv, Middle(checkbox->width), Middle(checkbox->height), "X");
-			else
-				ui_string_centered(*grd_curcanv, Middle(checkbox->width), Middle(checkbox->height), " ");
+			offset = 0;
 		} else {
 			ui_draw_box_in(*grd_curcanv, 0, 0, checkbox->width-1, checkbox->height-1);
-			if (checkbox->flag)
-				ui_string_centered(*grd_curcanv, Middle(checkbox->width)+1, Middle(checkbox->height)+1, "X");
-			else
-				ui_string_centered(*grd_curcanv, Middle(checkbox->width)+1, Middle(checkbox->height)+1, " ");
+			offset = 1;
 		}
+		ui_string_centered(*grd_curcanv, Middle(checkbox->width) + offset, Middle(checkbox->height) + offset, checkbox->flag ? "X" : " ");
 
 		gr_ustring(*grd_curcanv, checkbox->width + 4, 2, checkbox->text.get());
-
 	}
 }
 
