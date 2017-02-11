@@ -127,6 +127,29 @@ void newmenu_free_background()	{
 }
 
 namespace dsx {
+
+#if defined(DXX_BUILD_DESCENT_I)
+static const char *UP_ARROW_MARKER(grs_canvas &)
+{
+	return "+";  // 135
+}
+
+static const char *DOWN_ARROW_MARKER(grs_canvas &)
+{
+	return "+";  // 136
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+static const char *UP_ARROW_MARKER(grs_canvas &canvas)
+{
+	return canvas.cv_font == GAME_FONT.get() ? "\202" : "\207";  // 135
+}
+
+static const char *DOWN_ARROW_MARKER(grs_canvas &canvas)
+{
+	return canvas.cv_font == GAME_FONT.get() ? "\200" : "\210";  // 136
+}
+#endif
+
 // Draws the custom menu background pcx, if available
 static void nm_draw_background1(const char * filename)
 {
@@ -774,7 +797,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 					if (menu->scroll_offset != 0) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER(canvas), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -785,7 +808,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER(canvas), &arrow_width, &arrow_height, nullptr);
 						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
 						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
@@ -1487,12 +1510,12 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 		const auto &&fspacx = FSPACX();
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER : "  ");
+		gr_string(*grd_curcanv, sx, sy, menu->scroll_offset ? UP_ARROW_MARKER(*grd_curcanv) : "  ");
 
 		sy = menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(*grd_curcanv, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER : "  ");
+		gr_string(*grd_curcanv, sx, sy, (menu->scroll_offset + menu->max_displayable < menu->nitems) ? DOWN_ARROW_MARKER(*grd_curcanv) : "  ");
 	}
 
 	{
