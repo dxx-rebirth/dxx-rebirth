@@ -64,8 +64,8 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
 		{
 			const uint8_t cred = CRED;
-			Vline(2,inputbox->height-3, 2+w+1, cred);
-			Vline(2,inputbox->height-3, 2+w+2, cred);
+			Vline(*grd_curcanv, 2, inputbox->height - 3, 3 + w, cred);
+			Vline(*grd_curcanv, 2, inputbox->height - 3, 4 + w, cred);
 		}
 	}
 }
