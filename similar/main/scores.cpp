@@ -292,7 +292,7 @@ static void scores_rprintf(grs_canvas &canvas, const int x, const int y, const c
 	scores_rputs(canvas, x, y, buffer);
 }
 
-static void scores_draw_item( int i, stats_info * stats )
+static void scores_draw_item(grs_canvas &canvas, const unsigned i, stats_info *const stats)
 {
 	char buffer[20];
 
@@ -306,7 +306,7 @@ static void scores_draw_item( int i, stats_info * stats )
 	if ( i==MAX_HIGH_SCORES )
 		y += 8;
 	else
-		scores_rprintf(*grd_curcanv, 57, y-3, "%d.", i + 1);
+		scores_rprintf(canvas, 57, y - 3, "%d.", i + 1);
 
 	y -= 3;
 
@@ -314,23 +314,23 @@ static void scores_draw_item( int i, stats_info * stats )
 	const auto &&fspacx66 = fspacx(66);
 	const auto &&fspacy_y = FSPACY(y);
 	if (strlen(stats->name)==0) {
-		gr_string(*grd_curcanv, fspacx66, fspacy_y, TXT_EMPTY);
+		gr_string(canvas, fspacx66, fspacy_y, TXT_EMPTY);
 		return;
 	}
-	gr_string(*grd_curcanv, fspacx66, fspacy_y, stats->name);
+	gr_string(canvas, fspacx66, fspacy_y, stats->name);
 	int_to_string(stats->score, buffer);
-	scores_rputs(*grd_curcanv, 149, y, buffer);
+	scores_rputs(canvas, 149, y, buffer);
 
-	gr_string(*grd_curcanv, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
+	gr_string(canvas, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf(*grd_curcanv, 232, y, "%d-%d", stats->starting_level, stats->ending_level);
+		scores_rprintf(canvas, 232, y, "%d-%d", stats->starting_level, stats->ending_level);
 	else if ( (stats->starting_level < 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf(*grd_curcanv, 232, y, "S%d-%d", -stats->starting_level, stats->ending_level);
+		scores_rprintf(canvas, 232, y, "S%d-%d", -stats->starting_level, stats->ending_level);
 	else if ( (stats->starting_level < 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf(*grd_curcanv, 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level);
+		scores_rprintf(canvas, 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level);
 	else if ( (stats->starting_level > 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf(*grd_curcanv, 232, y, "%d-S%d", stats->starting_level, -stats->ending_level);
+		scores_rprintf(canvas, 232, y, "%d-S%d", stats->starting_level, -stats->ending_level);
 
 	{
 		int h, m, s;
@@ -338,7 +338,7 @@ static void scores_draw_item( int i, stats_info * stats )
 		s = stats->seconds%3600;
 		m = s / 60;
 		s = s % 60;
-		scores_rprintf(*grd_curcanv, 276, y, "%d:%02d:%02d", h, m, s);
+		scores_rprintf(canvas, 276, y, "%d:%02d:%02d", h, m, s);
 	}
 }
 
@@ -424,7 +424,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor(*grd_curcanv, BM_XRGB(28-i * 2, 28-i * 2, 28-i * 2), -1);
-				scores_draw_item( i, &menu->scores.stats[i] );
+				scores_draw_item(*grd_curcanv, i, &menu->scores.stats[i]);
 			}
 			
 			if ( menu->citem > -1 )	{
@@ -438,9 +438,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 				}
 
 				if ( menu->citem ==  MAX_HIGH_SCORES )
-					scores_draw_item( MAX_HIGH_SCORES, &menu->last_game );
+					scores_draw_item(*grd_curcanv, MAX_HIGH_SCORES, &menu->last_game);
 				else
-					scores_draw_item( menu->citem, &menu->scores.stats[menu->citem] );
+					scores_draw_item(*grd_curcanv, menu->citem, &menu->scores.stats[menu->citem]);
 			}
 			gr_set_current_canvas(NULL);
 			break;
