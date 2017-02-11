@@ -91,7 +91,7 @@ static void tmap_scanline_flat(grs_canvas &canvas, int y, fix xleft, fix xright)
 //	Render a texture map.
 // Linear in outer loop, linear in inner loop.
 // -------------------------------------------------------------------------------------
-static void texture_map_flat(const g3ds_tmap &t, int color)
+static void texture_map_flat(grs_canvas &canvas, const g3ds_tmap &t, int color)
 {
 	int	vlt,vrt,vlb,vrb;	// vertex left top, vertex right top, vertex left bottom, vertex right bottom
 	int	topy,boty,dy;
@@ -164,13 +164,13 @@ static void texture_map_flat(const g3ds_tmap &t, int color)
 			xright = v3d[vrt].x2d;
 
 		}
-		tmap_scanline_flat(*grd_curcanv, y, xleft, xright);
+		tmap_scanline_flat(canvas, y, xleft, xright);
 
 		xleft += dx_dy_left;
 		xright += dx_dy_right;
 
 	}
-	tmap_scanline_flat(*grd_curcanv, boty, xleft, xright);
+	tmap_scanline_flat(canvas, boty, xleft, xright);
 }
 
 //	-----------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert, const uint8
 		i.x2d = *vert++;
 		i.y2d = *vert++;
 	}
-	texture_map_flat(my_tmap, color);
+	texture_map_flat(*grd_curcanv, my_tmap, color);
 }
 
 }
