@@ -468,13 +468,15 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 		range_for (auto &seg, sp.children)
 		{
 			if (IS_CHILD(seg)) {
-				group::segment_array_type_t::iterator iold = segments.begin();
 				group::segment_array_type_t::iterator inew = new_segments.begin();
-				group::segment_array_type_t::iterator eold = segments.end();
-				for (; iold != eold; ++iold, ++inew)
+				range_for (const auto i, segments)
 				{
-					if (seg == *iold)
+					if (seg == i)
+					{
 						seg = *inew;
+						break;
+					}
+					++inew;
 				}
 			}
 		}	// end for (sidenum=0...
