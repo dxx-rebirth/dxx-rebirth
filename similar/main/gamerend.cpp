@@ -273,7 +273,7 @@ static void show_netplayerinfo()
 
 fix Show_view_text_timer = -1;
 
-static void draw_window_label()
+static void draw_window_label(grs_canvas &canvas)
 {
 	if ( Show_view_text_timer > 0 )
 	{
@@ -313,9 +313,9 @@ static void draw_window_label()
 			default:					control_name = "Unknown"; break;
 		}
 
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 0, 0),-1);
-		gr_printf(*grd_curcanv, 0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 0, 0),-1);
+		gr_printf(canvas, 0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
 	}
 }
@@ -348,7 +348,7 @@ static void render_countdown_gauge()
 static void game_draw_hud_stuff()
 {
 #ifndef NDEBUG
-	draw_window_label();
+	draw_window_label(*grd_curcanv);
 #endif
 
 	game_draw_multi_message(*grd_curcanv);
