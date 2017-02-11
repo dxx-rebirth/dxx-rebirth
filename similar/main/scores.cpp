@@ -280,8 +280,8 @@ static void scores_rputs(grs_canvas &canvas, const int x, const int y, char *con
 	gr_string(canvas, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
-static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
-static void scores_rprintf(int x, int y, const char * format, ... )
+static void scores_rprintf(grs_canvas &canvas, int x, int y, const char * format, ...) __attribute_format_printf(4, 5);
+static void scores_rprintf(grs_canvas &canvas, const int x, const int y, const char *const  format, ...)
 {
 	va_list args;
 	char buffer[128];
@@ -289,7 +289,7 @@ static void scores_rprintf(int x, int y, const char * format, ... )
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
 	va_end(args);
-	scores_rputs(*grd_curcanv, x, y, buffer);
+	scores_rputs(canvas, x, y, buffer);
 }
 
 static void scores_draw_item( int i, stats_info * stats )
@@ -306,7 +306,7 @@ static void scores_draw_item( int i, stats_info * stats )
 	if ( i==MAX_HIGH_SCORES )
 		y += 8;
 	else
-		scores_rprintf( 57, y-3, "%d.", i+1 );
+		scores_rprintf(*grd_curcanv, 57, y-3, "%d.", i + 1);
 
 	y -= 3;
 
@@ -324,13 +324,13 @@ static void scores_draw_item( int i, stats_info * stats )
 	gr_string(*grd_curcanv, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf( 232, y, "%d-%d", stats->starting_level, stats->ending_level );
+		scores_rprintf(*grd_curcanv, 232, y, "%d-%d", stats->starting_level, stats->ending_level);
 	else if ( (stats->starting_level < 0 ) && (stats->ending_level > 0 ))
-		scores_rprintf( 232, y, "S%d-%d", -stats->starting_level, stats->ending_level );
+		scores_rprintf(*grd_curcanv, 232, y, "S%d-%d", -stats->starting_level, stats->ending_level);
 	else if ( (stats->starting_level < 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf( 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level );
+		scores_rprintf(*grd_curcanv, 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level);
 	else if ( (stats->starting_level > 0 ) && (stats->ending_level < 0 ))
-		scores_rprintf( 232, y, "%d-S%d", stats->starting_level, -stats->ending_level );
+		scores_rprintf(*grd_curcanv, 232, y, "%d-S%d", stats->starting_level, -stats->ending_level);
 
 	{
 		int h, m, s;
@@ -338,7 +338,7 @@ static void scores_draw_item( int i, stats_info * stats )
 		s = stats->seconds%3600;
 		m = s / 60;
 		s = s % 60;
-		scores_rprintf( 276, y, "%d:%02d:%02d", h, m, s );
+		scores_rprintf(*grd_curcanv, 276, y, "%d:%02d:%02d", h, m, s);
 	}
 }
 
