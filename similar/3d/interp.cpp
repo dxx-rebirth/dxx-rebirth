@@ -192,7 +192,7 @@ public:
 class g3_interpreter_draw_base
 {
 protected:
-	grs_bitmap **const model_bitmaps;
+	grs_bitmap *const *const model_bitmaps;
 	polygon_model_points &Interp_point_list;
 	const submodel_angles anim_angles;
 	const g3s_lrgb model_light;
@@ -224,7 +224,7 @@ protected:
 		set_color_by_model_light(&g3s_lrgb::b, light, color);
 		return light;
 	}
-	g3_interpreter_draw_base(grs_bitmap **mbitmaps, const submodel_angles aangles, polygon_model_points &plist, const g3s_lrgb &mlight) :
+	g3_interpreter_draw_base(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, polygon_model_points &plist, const g3s_lrgb &mlight) :
 		model_bitmaps(mbitmaps), Interp_point_list(plist),
 		anim_angles(aangles), model_light(mlight)
 	{
@@ -269,7 +269,7 @@ class g3_draw_polygon_model_state :
 	const glow_values_t *const glow_values;
 	unsigned glow_num;
 public:
-	g3_draw_polygon_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *glvalues, polygon_model_points &plist) :
+	g3_draw_polygon_model_state(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, const g3s_lrgb &mlight, const glow_values_t *const glvalues, polygon_model_points &plist) :
 		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
 		glow_values(glvalues),
 		glow_num(~0u)		//glow off by default
@@ -358,7 +358,7 @@ class g3_draw_morphing_model_state :
 	const vms_vector *const new_points;
 	static constexpr const glow_values_t *glow_values = nullptr;
 public:
-	g3_draw_morphing_model_state(grs_bitmap **mbitmaps, const submodel_angles aangles, g3s_lrgb mlight, const vms_vector *npoints, polygon_model_points &plist) :
+	g3_draw_morphing_model_state(grs_bitmap *const *const mbitmaps, const submodel_angles aangles, const g3s_lrgb mlight, const vms_vector *const npoints, polygon_model_points &plist) :
 		g3_interpreter_draw_base(mbitmaps, aangles, plist, mlight),
 		new_points(npoints)
 	{
@@ -746,7 +746,7 @@ int g3_poly_get_color(const uint8_t *p)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(const uint8_t *p, grs_bitmap **model_bitmaps, const submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
+void g3_draw_polygon_model(const uint8_t *p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const glow_values_t *glow_values, polygon_model_points &Interp_point_list)
 {
 	g3_draw_polygon_model_state state(model_bitmaps, anim_angles, model_light, glow_values, Interp_point_list);
 	iterate_polymodel(p, state);
@@ -757,7 +757,7 @@ static int nest_count;
 #endif
 
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(const uint8_t *p,grs_bitmap **model_bitmaps,const submodel_angles anim_angles,g3s_lrgb model_light,const vms_vector *new_points, polygon_model_points &Interp_point_list)
+void g3_draw_morphing_model(const uint8_t *const p, grs_bitmap *const *const model_bitmaps, const submodel_angles anim_angles, const g3s_lrgb model_light, const vms_vector *new_points, polygon_model_points &Interp_point_list)
 {
 	g3_draw_morphing_model_state state(model_bitmaps, anim_angles, model_light, new_points, Interp_point_list);
 	iterate_polymodel(p, state);
