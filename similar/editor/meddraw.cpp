@@ -155,11 +155,11 @@ static void check_segment(const vsegptridx_t seg)
 			vert_list[0] = &Segment_points[seg->verts[fn[0]]];
 			vert_list[1] = &Segment_points[seg->verts[fn[1]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[2]]];
-			g3_check_and_draw_poly(vert_list, color);
+			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 
 			vert_list[1] = &Segment_points[seg->verts[fn[2]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[3]]];
-			g3_check_and_draw_poly(vert_list, color);
+			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 		}
 		}
 

@@ -381,7 +381,7 @@ public:
 		auto point_list = prepare_point_list<3>(i = 2, p);
 		for (ntris=nv-2;ntris;ntris--) {
 			point_list[2] = &Interp_point_list[wp(p+30)[i++]];
-			g3_check_and_draw_poly(point_list, color);
+			g3_check_and_draw_poly(canvas, point_list, color);
 			point_list[1] = point_list[2];
 		}
 	}

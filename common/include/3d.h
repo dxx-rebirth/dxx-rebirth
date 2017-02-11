@@ -243,10 +243,10 @@ bool do_facing_check(const array<cg3s_point *, 3> &vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlist, const uint8_t color)
+static inline void g3_check_and_draw_poly(grs_canvas &canvas, const array<cg3s_point *, 3> &pointlist, const uint8_t color)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_poly(*grd_curcanv, pointlist.size(), pointlist, color);
+		g3_draw_poly(canvas, pointlist.size(), pointlist, color);
 }
 
 template <std::size_t N>
