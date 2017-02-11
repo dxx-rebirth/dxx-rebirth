@@ -507,10 +507,10 @@ constexpr char system_name[][17] = {
 			"Omega System"};
 #endif
 
-static void name_frame(automap *am)
+static void name_frame(grs_canvas &canvas, automap *const am)
 {
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, am->green_31, -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, am->green_31, -1);
 	char		name_level_left[128];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -523,7 +523,7 @@ static void name_frame(automap *am)
 	else
 		name_level = Current_level_name;
 
-	gr_string(*grd_curcanv, (SWIDTH/64),(SHEIGHT/48),name_level);
+	gr_string(canvas, (SWIDTH/64),(SHEIGHT/48),name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
 	if (Current_level_num > 0)
@@ -537,10 +537,10 @@ static void name_frame(automap *am)
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
-	gr_string(*grd_curcanv, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
+	gr_string(canvas, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
 	int wr,h;
-	gr_get_string_size(*grd_curcanv->cv_font, name_level_right, &wr, &h, nullptr);
-	gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right, wr, h);
+	gr_get_string_size(*canvas.cv_font, name_level_right, &wr, &h, nullptr);
+	gr_string(canvas, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }
 
@@ -748,7 +748,7 @@ static void draw_automap(automap *am)
 
 	g3_end_frame();
 
-	name_frame(am);
+	name_frame(*grd_curcanv, am);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
