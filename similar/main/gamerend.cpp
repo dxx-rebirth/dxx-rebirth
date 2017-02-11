@@ -72,17 +72,17 @@ int netplayerinfo_on;
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void game_draw_marker_message()
+static inline void game_draw_marker_message(grs_canvas &)
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static void game_draw_marker_message()
+static void game_draw_marker_message(grs_canvas &canvas)
 {
 	if ( DefiningMarkerMessage)
 	{
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING(*grd_curcanv) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+		gr_printf(canvas, 0x8000, (LINE_SPACING(canvas) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif
@@ -353,7 +353,7 @@ static void game_draw_hud_stuff()
 
 	game_draw_multi_message(*grd_curcanv);
 
-	game_draw_marker_message();
+	game_draw_marker_message(*grd_curcanv);
 
 	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
 		int y;
