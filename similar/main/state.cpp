@@ -648,7 +648,7 @@ static int state_callback(newmenu *menu,const d_event &event, state_userdata *co
 				{0,0},
 				{i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)}
 			}};
-			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0);
+			scale_bitmap(*sc_bmp[citem-1].get(), vertbuf, 0, grd_curcanv->cv_bitmap);
 			gr_set_current_canvas( save_canv );
 #if !DXX_USE_OGL
 			gr_bitmap(*grd_curcanv, (grd_curcanv->cv_bitmap.bm_w / 2) - fspacx(THUMBNAIL_W / 2), items[0].y - 3, temp_canv->cv_bitmap);

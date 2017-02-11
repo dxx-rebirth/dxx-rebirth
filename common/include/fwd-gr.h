@@ -284,7 +284,7 @@ std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned lim
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width);
 
 // From scale.c
-void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation);
+void scale_bitmap(const grs_bitmap &bp, const array<grs_point, 3> &vertbuf, int orientation, grs_bitmap &);
 
 //===========================================================================
 // Global variables

@@ -163,7 +163,7 @@ void g3_draw_bitmap(const vms_vector &pos,fix width,fix height,grs_bitmap &bm)
 		{blob1x, blob0y},
 		{blob1x, pnt.p3_sy + h},
 	}};
-	scale_bitmap(bm, blob_vertices, 0);
+	scale_bitmap(bm, blob_vertices, 0, grd_curcanv->cv_bitmap);
 }
 #endif
 
