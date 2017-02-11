@@ -57,7 +57,7 @@ void g3_start_frame(void)
 	Window_scale.z = f1_0;		//always 1
 
 #if DXX_USE_OGL
-	ogl_start_frame();
+	ogl_start_frame(*grd_curcanv);
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif

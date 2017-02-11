@@ -1216,10 +1216,11 @@ void ogl_set_blending(uint8_t cv_blend_func)
 	glBlendFunc(s, d);
 }
 
-void ogl_start_frame(void){
+void ogl_start_frame(grs_canvas &canvas)
+{
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;
 
-	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
+	OGL_VIEWPORT(canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, Canvas_width, Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);

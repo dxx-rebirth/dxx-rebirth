@@ -80,7 +80,7 @@ namespace dcx {
 void ogl_loadbmtexture_f(grs_bitmap &bm, int texfilt, bool texanis, bool edgepad);
 void ogl_freebmtexture(grs_bitmap &bm);
 
-void ogl_start_frame(void);
+void ogl_start_frame(grs_canvas &);
 void ogl_end_frame(void);
 void ogl_set_screen_mode(void);
 
