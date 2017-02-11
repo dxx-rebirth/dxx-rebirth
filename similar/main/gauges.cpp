@@ -715,7 +715,7 @@ static void hud_show_timer_count()
 			snprintf(score_str, sizeof(score_str), "T - %5d", i);
 			int w, h;
 			gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-			gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str, w, h);
+			gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(12), LINE_SPACING(*grd_curcanv) + FSPACY(1), score_str, w, h);
 		}
 	}
 }
@@ -749,7 +749,7 @@ static void hud_show_score_added()
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-		gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING + FSPACY(1), score_str, w, h);
+		gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING(*grd_curcanv) + FSPACY(1), score_str, w, h);
 	} else {
 		score_time = 0;
 		score_display = 0;
@@ -779,7 +779,7 @@ static void sb_show_score(const player_info &player_info, const local_multires_g
 
 	//erase old score
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_rect(*grd_curcanv, x,y,HUD_SCALE_X(SB_SCORE_RIGHT),y+LINE_SPACING, color);
+	gr_rect(*grd_curcanv, x, y, HUD_SCALE_X(SB_SCORE_RIGHT), y + LINE_SPACING(*grd_curcanv), color);
 
 	gr_string(*grd_curcanv, x, y, score_str, w, h);
 }
@@ -821,7 +821,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 	} else {
 		//erase old score
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_rect(*grd_curcanv, x,HUD_SCALE_Y(SB_SCORE_ADDED_Y),HUD_SCALE_X(SB_SCORE_ADDED_RIGHT),HUD_SCALE_Y(SB_SCORE_ADDED_Y)+LINE_SPACING, color);
+		gr_rect(*grd_curcanv, x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), HUD_SCALE_X(SB_SCORE_ADDED_RIGHT), HUD_SCALE_Y(SB_SCORE_ADDED_Y) + LINE_SPACING(*grd_curcanv), color);
 		score_time = 0;
 		score_display = 0;
 	}
@@ -880,7 +880,7 @@ static void hud_show_homing_warning(const int homing_object_dist)
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont(*grd_curcanv, GAME_FONT);
 			gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-			gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING,TXT_LOCK);
+			gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_LOCK);
 		}
 	}
 }
@@ -932,7 +932,7 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 {
 	if (game_mode_hoard()) {
 		const auto &&fspacy1 = FSPACY(1);
-		int x, y = LINE_SPACING + fspacy1;
+		int x, y = LINE_SPACING(*grd_curcanv) + fspacy1;
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -996,7 +996,7 @@ static void hud_show_energy(const player_info &player_info)
 	{
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		const auto &&line_spacing = LINE_SPACING;
+		const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 		gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
 	}
 
@@ -1019,7 +1019,7 @@ static void hud_show_afterburner(const player_info &player_info)
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	y = (Game_mode & GM_MULTI) ? (-7 * line_spacing) : (-3 * line_spacing);
 
 	gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
@@ -1230,7 +1230,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 {
 	int x=orig_x,y=orig_y;
 
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	if (vertical){
 		y += line_spacing * 4;
 	}
@@ -1375,7 +1375,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 {
 	int x=orig_x,y=orig_y;
 
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	if (vertical){
 		y += line_spacing * 4;
 	}
@@ -1447,7 +1447,7 @@ static void hud_show_weapons(const object &plrobj)
 
 	y = grd_curcanv->cv_bitmap.bm_h;
 
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	if (Game_mode & GM_MULTI)
 		y -= line_spacing * 4;
 
@@ -1552,7 +1552,7 @@ static void hud_show_cloak_invuln(const player_flags player_flags, const fix64 c
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	const auto base_y = grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
@@ -1596,7 +1596,7 @@ static void hud_show_shield(const object &plrobj)
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 
-		const auto &&line_spacing = LINE_SPACING;
+		const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 		const auto shields = plrobj.shields;
 		gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
@@ -1654,7 +1654,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, killed_str, &w, &h, nullptr);
 		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
-		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING, color);
+		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING(*grd_curcanv), color);
 		gr_string(*grd_curcanv, x, HUD_SCALE_Y(y), killed_str, w, h);
 		return;
 	}
@@ -1684,7 +1684,7 @@ static void show_time()
 		Color_0_31_0 = BM_XRGB(0,31,0);
 	gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
 
-	gr_printf(*grd_curcanv, FSPACX(2),(LINE_SPACING*15),"%d:%02d", mins, secs);
+	gr_printf(*grd_curcanv, FSPACX(2), (LINE_SPACING(*grd_curcanv) * 15), "%d:%02d", mins, secs);
 }
 #endif
 
@@ -2207,7 +2207,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
 #endif
 		{
-			const auto &&line_spacing = LINE_SPACING;
+			const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 			gr_printf(*grd_curcanv, text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
 			if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
 				gr_string(*grd_curcanv, text_x, text_y + (line_spacing * 2), TXT_QUAD);
@@ -2904,7 +2904,7 @@ static void hud_show_kill_list()
 	if (Game_mode & GM_MULTI_COOP)
 		x1 = fspacx(31);
 
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	save_y = y = grd_curcanv->cv_bitmap.bm_h - n_left * line_spacing;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
@@ -3208,7 +3208,7 @@ void draw_hud(const object &plrobj)
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		if (Cruise_speed > 0) {
-			const auto &&line_spacing = LINE_SPACING;
+			const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
 					y -= line_spacing * 10;
@@ -3297,7 +3297,7 @@ void draw_hud(const object &plrobj)
 		HUD_render_message_frame();
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING, TXT_REAR_VIEW);
+		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_REAR_VIEW);
 	}
 }
 }

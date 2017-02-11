@@ -82,7 +82,7 @@ static void game_draw_marker_message()
 	{
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING(*grd_curcanv) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif
@@ -100,7 +100,7 @@ static void game_draw_multi_message()
 		return;
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-	const auto &&y = (LINE_SPACING * 5) + FSPACY(1);
+	const auto &&y = (LINE_SPACING(*grd_curcanv) * 5) + FSPACY(1);
 	if (sending)
 		gr_printf(*grd_curcanv, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
@@ -123,7 +123,7 @@ static void show_framerate()
 		fps_time = timer_query();
 	}
 	const auto &&fspacx2 = FSPACX(2);
-	const auto &&y = LINE_SPACING * 16;
+	const auto &&y = LINE_SPACING(*grd_curcanv) * 16;
 	if (CGameArg.DbgVerbose)
 		gr_printf(*grd_curcanv, fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
         else
@@ -154,7 +154,7 @@ static void show_netplayerinfo()
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 
 	// general game information
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	y += line_spacing;
 	gr_string(*grd_curcanv, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
@@ -340,7 +340,7 @@ static void render_countdown_gauge()
 #endif
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
+		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING(*grd_curcanv) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
 }
 }
@@ -361,7 +361,7 @@ static void game_draw_hud_stuff()
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
-		y = grd_curcanv->cv_bitmap.bm_h - (LINE_SPACING * 2);
+		y = grd_curcanv->cv_bitmap.bm_h - (LINE_SPACING(*grd_curcanv) * 2);
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;

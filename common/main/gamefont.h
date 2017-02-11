@@ -55,7 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern float FNTScaleX, FNTScaleY;
 
 // add (scaled) spacing to given font coordinate
-#define LINE_SPACING    (FNTScaleY * (grd_curcanv->cv_font->ft_h + (GAME_FONT->ft_h / 5)))
+#define LINE_SPACING(CANVAS)    (FNTScaleY * ((CANVAS).cv_font->ft_h + (GAME_FONT->ft_h / 5)))
 
 extern array<grs_font_ptr, MAX_FONTS> Gamefonts;
 

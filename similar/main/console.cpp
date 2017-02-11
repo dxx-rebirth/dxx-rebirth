@@ -164,7 +164,7 @@ static void con_draw(void)
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	gr_settransblend(*grd_curcanv, 7, GR_BLEND_NORMAL);
 	const auto &&fspacy1 = FSPACY(1);
-	const auto &&line_spacing = LINE_SPACING;
+	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
 	y = fspacy1 + (line_spacing * con_size);
 	gr_rect(*grd_curcanv, 0, 0, SWIDTH, y, color);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
