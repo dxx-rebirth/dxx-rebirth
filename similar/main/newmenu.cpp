@@ -766,6 +766,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				mouse_get_pos(&mx, &my, &mz);
 
 				// check possible scrollbar stuff first
+				const int line_spacing = static_cast<int>(LINE_SPACING);
 				if (menu->is_scroll_box) {
 					int ScrollAllow=0;
 					static fix64 ScrollTime=0;
@@ -779,7 +780,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						int arrow_width, arrow_height;
 						gr_get_string_size(*grd_curcanv->cv_font, UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
+						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -790,7 +791,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 						int arrow_width, arrow_height;
 						gr_get_string_size(*grd_curcanv->cv_font, DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
 						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-((static_cast<int>(LINE_SPACING))*menu->scroll_offset);
+						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -799,7 +800,6 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 				}
 
-				const int line_spacing = static_cast<int>(LINE_SPACING);
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
 					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
