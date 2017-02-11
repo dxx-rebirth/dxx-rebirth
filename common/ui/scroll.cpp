@@ -40,15 +40,15 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 
 	scrollbar->status = 0;
 	gr_set_current_canvas( scrollbar->canvas );
+	auto &canvas = *grd_curcanv;
 
 	uint8_t color = (dlg->keyboard_focus_gadget == scrollbar)
 		? CRED
 		: CGREY;
 
-	gr_rect(*grd_curcanv, 0, 0, scrollbar->width-1, scrollbar->fake_position-1, color);
-	gr_rect(*grd_curcanv, 0, scrollbar->fake_position+scrollbar->fake_size, scrollbar->width-1, scrollbar->height-1, color);
-
-	ui_draw_box_out(*grd_curcanv, 0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position + scrollbar->fake_size-1);
+	gr_rect(canvas, 0, 0, scrollbar->width - 1, scrollbar->fake_position - 1, color);
+	gr_rect(canvas, 0, scrollbar->fake_position + scrollbar->fake_size, scrollbar->width - 1, scrollbar->height - 1, color);
+	ui_draw_box_out(canvas, 0, scrollbar->fake_position, scrollbar->width - 1, scrollbar->fake_position + scrollbar->fake_size - 1);
 }
 
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size)
