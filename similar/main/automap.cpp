@@ -257,6 +257,7 @@ array<objnum_t, NUM_MARKERS> MarkerObject = init_MarkerObject(make_tree_index_se
 #if DXX_USE_OGL
 #define DrawMarkerNumber(C,a,b,c)	DrawMarkerNumber(a,b,c)
 #define DrawMarkers(C,a)	DrawMarkers(a)
+#define draw_player(C,a,b)	draw_player(a,b)
 #endif
 
 // -------------------------------------------------------------
@@ -459,31 +460,31 @@ void automap_clear_visited()
 		ClearMarkers();
 }
 
-static void draw_player(const object_base &obj, const uint8_t color)
+static void draw_player(grs_canvas &canvas, const object_base &obj, const uint8_t color)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj.pos);
 	const auto obj_size = obj.size;
-	g3_draw_sphere(*grd_curcanv, sphere_point, obj_size, color);
+	g3_draw_sphere(canvas, sphere_point, obj_size, color);
 
 	// Draw shaft of arrow
 	const auto &&head_pos = vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2);
 	{
 	auto &&arrow_point = g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3));
-	automap_draw_line(*grd_curcanv, sphere_point, arrow_point, color);
+	automap_draw_line(canvas, sphere_point, arrow_point, color);
 
 	// Draw right head of arrow
 	{
 		const auto &&rhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size);
 		auto head_point = g3_rotate_point(rhead_pos);
-		automap_draw_line(*grd_curcanv, arrow_point, head_point, color);
+		automap_draw_line(canvas, arrow_point, head_point, color);
 	}
 
 	// Draw left head of arrow
 	{
 		const auto &&lhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size);
 		auto head_point = g3_rotate_point(lhead_pos);
-		automap_draw_line(*grd_curcanv, arrow_point, head_point, color);
+		automap_draw_line(canvas, arrow_point, head_point, color);
 	}
 	}
 
@@ -491,7 +492,7 @@ static void draw_player(const object_base &obj, const uint8_t color)
 	{
 		const auto &&arrow_pos = vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2);
 	auto arrow_point = g3_rotate_point(arrow_pos);
-		automap_draw_line(*grd_curcanv, sphere_point, arrow_point, color);
+		automap_draw_line(canvas, sphere_point, arrow_point, color);
 	}
 }
 
@@ -693,7 +694,7 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
-	draw_player(vcobjptr(get_local_player().objnum), closest_color);
+	draw_player(*grd_curcanv, vcobjptr(get_local_player().objnum), closest_color);
 
 	DrawMarkers(*grd_curcanv, am);
 	
@@ -705,7 +706,7 @@ static void draw_automap(automap *am)
 				if (objp->type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
-					draw_player(objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
+					draw_player(*grd_curcanv, objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
 				}
 			}
 		}
