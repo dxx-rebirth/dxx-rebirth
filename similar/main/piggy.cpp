@@ -1346,7 +1346,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
-			*(reinterpret_cast<int *>(Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
+			PUT_INTEL_INT(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], zsize);
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
 #ifndef MACDATA
