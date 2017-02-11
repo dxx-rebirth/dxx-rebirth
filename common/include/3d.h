@@ -250,16 +250,16 @@ static inline void g3_check_and_draw_poly(const array<cg3s_point *, 3> &pointlis
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
 	if (do_facing_check(pointlist))
-		g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_list, light_rgb, bm);
+		g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bm);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
-	g3_check_and_draw_tmap(N, pointlist, uvl_list, light_rgb, bm);
+	g3_check_and_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
 }
 
 //draws a line. takes two points.

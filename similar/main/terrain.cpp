@@ -86,7 +86,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list1[1].u = (i)*f1_0/4; uvl_list1[1].v = (j+1)*f1_0/4;
 	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(pointlist,uvl_list1,lrgb_list1,*terrain_bm);
+	g3_check_and_draw_tmap(*grd_curcanv, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
@@ -108,7 +108,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 	uvl_list2[1].u = (i+1)*f1_0/4;   uvl_list2[1].v = (j+1)*f1_0/4;
 	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
 
-	g3_check_and_draw_tmap(pointlist,uvl_list2,lrgb_list2,*terrain_bm);
+	g3_check_and_draw_tmap(*grd_curcanv, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
 	if (terrain_outline) {
 		int lsave=Lighting_on;
 		Lighting_on=0;
