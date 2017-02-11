@@ -176,9 +176,9 @@ static void texture_map_flat(grs_canvas &canvas, const g3ds_tmap &t, int color)
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert, const uint8_t color)
+void gr_upoly_tmap(grs_canvas &canvas, uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY * 2> &vert, const uint8_t color)
 {
-	gr_upoly_tmap_ylr(*grd_curcanv, nverts, vert.data(), color);
+	gr_upoly_tmap_ylr(canvas, nverts, vert.data(), color);
 }
 
 struct pnt2d {

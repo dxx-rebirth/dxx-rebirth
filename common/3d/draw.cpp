@@ -114,7 +114,7 @@ static void must_clip_flat_face(int nv,g3s_codes cc, polygon_clip_points &Vbuf0,
 			Vertex_list[i*2]   = p->p3_sx;
 			Vertex_list[i*2+1] = p->p3_sy;
 		}
-		gr_upoly_tmap(nv, Vertex_list, color);
+		gr_upoly_tmap(*grd_curcanv, nv, Vertex_list, color);
 	}
 	//free temp points
 free_points:
@@ -164,7 +164,7 @@ void _g3_draw_poly(uint_fast32_t nv,cg3s_point *const *const pointlist, const ui
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-	gr_upoly_tmap(nv, Vertex_list, color);
+	gr_upoly_tmap(*grd_curcanv, nv, Vertex_list, color);
 	//say it drew
 }
 

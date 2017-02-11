@@ -310,7 +310,7 @@ using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast3
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
-void gr_upoly_tmap(uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY*2> &vert, uint8_t color);
+void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const array<fix, MAX_POINTS_IN_POLY * 2> &vert, uint8_t color);
 #endif
 void g3_draw_line(grs_canvas &canvas, cg3s_point &p0, cg3s_point &p1, uint8_t color);
 
