@@ -683,11 +683,10 @@ public:
 #define DXX_VALPTRIDX_GUARDED_OBJECT_NO	"access to guarded object that does not exist"
 #define DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE	"access to guarded object that may not exist"
 #ifdef DXX_CONSTANT_TRUE
-		/* If the contained object might not exist: */
-		if (!DXX_CONSTANT_TRUE(m_state == checked))
 		{
 			/*
-			 * Always fail.  Choose an error message and function name
+			 * If the validity has not been verified by the caller, then
+			 * fail.  Choose an error message and function name
 			 * based on whether the contained type provably does not
 			 * exist.  It provably does not exist if this call is on a
 			 * path where operator bool() returned false.  It
@@ -696,10 +695,11 @@ public:
 			 */
 			if (DXX_CONSTANT_TRUE(m_state == empty))
 				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_empty, DXX_VALPTRIDX_GUARDED_OBJECT_NO);
-			else
+			/* If the contained object might not exist: */
+			if (DXX_CONSTANT_TRUE(m_state == initialized))
 				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_unchecked, DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
 		}
-#else
+#endif
 		/*
 		 * If the compiler does not offer constant truth analysis
 		 * (perhaps because of insufficient optimization), then emit a
@@ -715,7 +715,6 @@ public:
 		 */
 		if (m_state != checked)
 			throw std::logic_error(m_state == empty ? DXX_VALPTRIDX_GUARDED_OBJECT_NO : DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
-#endif
 #undef DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE
 #undef DXX_VALPTRIDX_GUARDED_OBJECT_NO
 		return m_value;
