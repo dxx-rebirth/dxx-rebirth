@@ -750,11 +750,10 @@ void gr_string(grs_canvas &canvas, const int x, const int y, const char *const s
 
 	if (canvas.cv_font_bg_color == -1)
 	{
-		gr_internal_string_clipped_m(*grd_curcanv, x, y, s);
+		gr_internal_string_clipped_m(canvas, x, y, s);
 		return;
 	}
-
-	gr_internal_string_clipped(*grd_curcanv, x, y, s);
+	gr_internal_string_clipped(canvas, x, y, s);
 }
 
 void gr_ustring(grs_canvas &canvas, const int x, const int y, const char *const s)
