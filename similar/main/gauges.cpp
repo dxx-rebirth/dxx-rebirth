@@ -3439,7 +3439,7 @@ void do_cockpit_window_view(int win,int user)
 	}
 }
 
-void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rear_view_flag, const int user, const char *const label)
+void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rear_view_flag, const int user, const char *const label, const player_info *const player_info)
 {
 	grs_canvas window_canv;
 	static grs_canvas overlap_canv;
@@ -3503,10 +3503,9 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 		gr_string(*grd_curcanv, 0x8000, FSPACY(1), label);
 	}
 
-	if (user == WBU_GUIDED)
+	if (player_info)	// only non-nullptr for WBU_GUIDED
 	{
-		auto &player_info = get_local_plrobj().ctype.player_info;
-		show_reticle(player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(*player_info, RET_TYPE_CROSS_V1, 0);
 	}
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {

@@ -549,7 +549,7 @@ static void show_extra_views()
 			if (DemoDoLeft==3)
 				do_cockpit_window_view(0, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
 			else
-				do_cockpit_window_view(0, vobjptr(&DemoLeftExtra), DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft]);
+				do_cockpit_window_view(0, vobjptr(&DemoLeftExtra), DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 		}
 		else
 			do_cockpit_window_view(0,WBU_WEAPON);
@@ -562,7 +562,7 @@ static void show_extra_views()
 				do_cockpit_window_view(1, vobjptr(ConsoleObject), 1, WBU_REAR, "REAR");
 			else
 			{
-				do_cockpit_window_view(1, vobjptr(&DemoRightExtra), DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight]);
+				do_cockpit_window_view(1, vobjptr(&DemoRightExtra), DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 			}
 		}
 		else
@@ -586,7 +586,8 @@ static void show_extra_views()
 		else
 		{
 			RenderingType=1+(1<<4);
-			do_cockpit_window_view(1, vobjptr(Guided_missile[Player_num]), 0, WBU_GUIDED, "GUIDED");
+			auto &player_info = get_local_plrobj().ctype.player_info;
+			do_cockpit_window_view(1, vobjptr(Guided_missile[Player_num]), 0, WBU_GUIDED, "GUIDED", &player_info);
 		}
 			
 		did_missile_view=1;
