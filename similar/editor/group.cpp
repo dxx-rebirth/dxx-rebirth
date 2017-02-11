@@ -373,13 +373,13 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 
 	range_for (const auto &gs, group_seglist)
 	{
-		segment *sp = &Segments[gs];
+		auto &sp = *vsegptr(gs);
 
-		range_for (const auto v, sp->verts)
+		range_for (const auto v, sp.verts)
 			vertex_list[v] = 1;
 
 		//	Rotate center of all objects in group.
-		range_for (const auto objp, objects_in(*sp))
+		range_for (const auto objp, objects_in(sp))
 		{
 			const auto tv1 = vm_vec_sub(objp->pos,rotate_center);
 			const auto tv = vm_vec_rotate(tv1,rotmat);
@@ -429,7 +429,7 @@ static void create_group_list(const vsegptridx_t segp, group::segment_array_type
 // ------------------------------------------------------------------------------------------------
 static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::segment_array_type_t &segments)
 {
-	int	v,new_vertex_id,sidenum;
+	int	new_vertex_id;
 	group::segment_array_type_t new_segments;
 	array<int, MAX_VERTICES> new_vertex_ids;		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
@@ -437,7 +437,8 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	new_vertex_ids.fill(-1);
 
 	//	duplicate vertices
-	for (v=0; v<=Highest_vertex_index; v++) {
+	for (unsigned v = 0; v <= Highest_vertex_index; ++v)
+	{
 		if (vertex_ids[v]) {
 			new_vertex_id = med_create_duplicate_vertex(Vertices[v]);
 			new_vertex_ids[v] = new_vertex_id;
@@ -463,9 +464,9 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	//	and correct its vertex numbers by translating through new_vertex_ids
 	range_for(const auto &gs, new_segments)
 	{
-		segment *sp = &Segments[gs];
-		for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
-			int seg = sp->children[sidenum];
+		auto &sp = *vsegptr(gs);
+		range_for (auto &seg, sp.children)
+		{
 			if (IS_CHILD(seg)) {
 				group::segment_array_type_t::iterator iold = segments.begin();
 				group::segment_array_type_t::iterator inew = new_segments.begin();
@@ -473,15 +474,16 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 				for (; iold != eold; ++iold, ++inew)
 				{
 					if (seg == *iold)
-						sp->children[sidenum] = *inew;
+						seg = *inew;
 				}
 			}
 		}	// end for (sidenum=0...
 
 		//	Now fixup vertex ids
-		for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
-			if (vertex_ids[sp->verts[v]]) {
-				sp->verts[v] = new_vertex_ids[sp->verts[v]];
+		range_for (auto &v, sp.verts)
+		{
+			if (vertex_ids[v]) {
+				v = new_vertex_ids[v];
 			}
 		}
 	}	// end for (s=0...
@@ -490,12 +492,11 @@ static void duplicate_group(array<uint8_t, MAX_VERTICES> &vertex_ids, group::seg
 	segments = new_segments;
 
 	//	Now, copy new_vertex_ids into vertex_ids
-	for (v=0; v<sizeof(vertex_ids)/sizeof(vertex_ids[0]); v++)
-		vertex_ids[v] = 0;
+	vertex_ids = {};
 
-	for (v=0; v<sizeof(new_vertex_ids)/sizeof(new_vertex_ids[0]); v++)
-		if (new_vertex_ids[v] != -1)
-			vertex_ids[new_vertex_ids[v]] = 1;
+	range_for (auto &v, new_vertex_ids)
+		if (v != -1)
+			vertex_ids[v] = 1;
 }
 
 
@@ -559,7 +560,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 			v = 0;
 
 		range_for(const auto &gs, GroupList[new_current_group].segments)
-			range_for (auto &v, Segments[gs].verts)
+			range_for (auto &v, vsegptr(gs)->verts)
 				in_vertex_list[v] = 1;
 	}
 
@@ -579,9 +580,10 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	range_for(const auto &gs, GroupList[new_current_group].segments)
 	{
-		Segments[gs].group = new_current_group;
-		Segments[gs].special = SEGMENT_IS_NOTHING;
-		Segments[gs].matcen_num = -1;
+		auto &s = *vsegptr(gs);
+		s.group = new_current_group;
+		s.special = SEGMENT_IS_NOTHING;
+		s.matcen_num = -1;
 	}
 
 	// Breaking connections between segments in the current group and segments not in the group.
@@ -653,7 +655,7 @@ static int med_copy_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
 static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_side, const vsegptridx_t group_seg, int group_side, const vms_matrix &orient_matrix, int orientation)
 {
-	int			vv,c,d;
+	int			c, d;
 	int			local_hvi;
 
 	if (IS_CHILD(base_seg->children[base_side]))
@@ -676,7 +678,7 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 
 	//	Make a list of all vertices in group.
 	range_for(const auto &gs, GroupList[current_group].segments)
-		range_for (auto &v, Segments[gs].verts)
+		range_for (auto &v, vsegptr(gs)->verts)
 			in_vertex_list[v] = 1;
 
 	//	For all segments which are not in GroupList[current_group].segments, mark all their vertices in the out list.
@@ -705,15 +707,15 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 				// Create a new vertex and assign all occurrences of vertex v in IN list to new vertex number.
 				range_for(const auto &gs, GroupList[current_group].segments)
 				{
-					segment *sp = &Segments[gs];
-					for (vv=0; vv < MAX_VERTICES_PER_SEGMENT; vv++)
-						if (sp->verts[vv] == v)
-							sp->verts[vv] = new_vertex_id;
+					auto &sp = *vsegptr(gs);
+					range_for (auto &vv, sp.verts)
+						if (vv == v)
+							vv = new_vertex_id;
 				}
 			}
 
 	range_for(const auto &gs, GroupList[current_group].segments)
-		Segments[gs].group = current_group;
+		vsegptr(gs)->group = current_group;
 
 	// Breaking connections between segments in the group and segments not in the group.
 	range_for(const auto &gs, GroupList[current_group].segments)
@@ -788,14 +790,12 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 static segnum_t place_new_segment_in_world(void)
 {
 	int	v;
-	segnum_t segnum;
-
-	segnum = get_free_segment_number();
-
-	Segments[segnum] = New_segment;
+	const auto &&segnum = vsegptridx(get_free_segment_number());
+	auto &seg = *segnum;
+	seg = New_segment;
 
 	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
-		Segments[segnum].verts[v] = med_create_duplicate_vertex(Vertices[New_segment.verts[v]]);
+		seg.verts[v] = med_create_duplicate_vertex(Vertices[New_segment.verts[v]]);
 
 	return segnum;
 
@@ -857,10 +857,12 @@ void validate_selected_segments(void)
 
 
 //	-----------------------------------------------------------------------------
-void delete_segment_from_group(segnum_t segment_num, int group_num)
+namespace dsx {
+void delete_segment_from_group(const vsegptridx_t segment_num, unsigned group_num)
 {
+	segment_num->group = -1;
 	GroupList[group_num].segments.erase(segment_num);
-	Segments[segment_num].group = -1;
+}
 }
 // =====================================================================================
 
@@ -972,7 +974,6 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int j;
-	segment tseg;
    vms_vector tvert;
 
 	auto SaveFile = PHYSFSX_openWriteBuffered(filename);
@@ -1044,7 +1045,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	segment_offset = PHYSFS_tell(SaveFile);
 	range_for (const auto &gs, segment_ids)
 	{
-		tseg = Segments[gs];
+		auto &&tseg = *vsegptr(gs);
 		
 		for (j=0;j<6;j++)	{
 			group::segment_array_type_t::const_iterator i = segment_ids.find(tseg.children[j]);
@@ -1236,8 +1237,9 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 		range_for (const auto &gs, segment_ids)
 		{
+			auto &segp = *vsegptr(gs);
 			// Fix vertices
-			range_for (auto &j, Segments[gs].verts)
+			range_for (auto &j, segp.verts)
 			{
 				vertnum = vertex_ids[j];
 				j = vertnum;
@@ -1484,7 +1486,7 @@ int Degroup( void )
 	if (num_groups==0) return 0;
 
 	range_for (const auto &gs, GroupList[current_group].segments)
-		delete_segment_from_group( gs, current_group );
+		delete_segment_from_group(vsegptridx(gs), current_group);
 
 	  //	delete_segment_from_group( &Segments[GroupList[current_group].segments[i]]-Segments, current_group );
 

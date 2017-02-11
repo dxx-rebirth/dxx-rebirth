@@ -48,6 +48,7 @@ DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(segment, seg, Segments);
 static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
 static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
 static constexpr valptridx<segment>::magic_constant<0> segment_first{};
+void delete_segment_from_group(vsegptridx_t segment_num, unsigned group_num);
 }
 #endif
 
@@ -121,7 +122,6 @@ extern const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite;               
 
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const side &side);
 }
-void delete_segment_from_group(segnum_t segment_num, int group_num);
 void add_segment_to_group(segnum_t segment_num, int group_num);
 
 #if defined(DXX_BUILD_DESCENT_II)
