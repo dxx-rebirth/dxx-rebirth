@@ -61,9 +61,10 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 	{
 		ui_button_any_drawn = 1;
 		gr_set_current_canvas( button->canvas );
+		auto &canvas = *grd_curcanv;
 		color_t color = 0;
 
-		gr_set_fontcolor(*grd_curcanv, dlg->keyboard_focus_gadget == button
+		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == button
 			? CRED
 			: (!button->user_function && button->dim_if_no_function
 				? CGREY
@@ -76,15 +77,15 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 			unsigned offset;
 			if (button->position == 0)
 			{
-				ui_draw_box_out(*grd_curcanv, 0, 0, button->width-1, button->height-1);
+				ui_draw_box_out(canvas, 0, 0, button->width-1, button->height-1);
 				offset = 0;
 			}
 			else
 			{
-				ui_draw_box_in(*grd_curcanv, 0, 0, button->width-1, button->height-1);
+				ui_draw_box_in(canvas, 0, 0, button->width-1, button->height-1);
 				offset = 1;
 			}
-			ui_string_centered(*grd_curcanv, Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
+			ui_string_centered(canvas, Middle(button->width) + offset, Middle(button->height) + offset, button->text.c_str());
 		} else {
 			unsigned left, top, right, bottom;
 			if (button->position == 0)
@@ -99,8 +100,8 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 				right = button->width;
 				bottom = button->height;
 			}
-			gr_rect(*grd_curcanv, 0, 0, button->width, button->height, CBLACK);
-			gr_rect(*grd_curcanv, left, top, right, bottom, color);
+			gr_rect(canvas, 0, 0, button->width, button->height, CBLACK);
+			gr_rect(canvas, left, top, right, bottom, color);
 		}
 	}
 }
