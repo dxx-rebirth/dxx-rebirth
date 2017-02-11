@@ -967,7 +967,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+void _g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const unsigned orient)
 {
 	int index2, index3;
 
@@ -976,15 +976,15 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	MALLOC(color_array, GLfloat[], nv*4);
 	MALLOC(texcoord_array, GLfloat[], nv*2);
 
-	_g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_list, light_rgb, *bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
+	_g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &c = std::get<0>(cs);
 	
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(*bm, 1);
-	ogl_texwrap(bm->gltexture,GL_REPEAT);
+	ogl_bindbmtex(bm, 1);
+	ogl_texwrap(bm.gltexture, GL_REPEAT);
 
 	{
 		struct rgba
@@ -993,10 +993,10 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 		};
 		static_assert(sizeof(rgba) == sizeof(GLfloat) * 4, "padding error");
 		rgba *const ca = reinterpret_cast<rgba *>(color_array.get());
-		const GLfloat alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
+		const GLfloat alpha = (canvas.cv_fade_level >= GR_FADE_OFF)
 			? 1.0
-			: (1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
-		if (bm->get_flag_mask(BM_FLAG_NO_LIGHTING))
+			: (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+		if (bm.get_flag_mask(BM_FLAG_NO_LIGHTING))
 		{
 			range_for (auto &e, unchecked_partial_range(ca, nv))
 			{
