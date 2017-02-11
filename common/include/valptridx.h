@@ -361,6 +361,17 @@ public:
 	basic_ptr &operator=(basic_ptr &&) = default;
 
 	pointer_type get_unchecked_pointer() const { return m_ptr; }
+	pointer_type get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
+	{
+		/* If !allow_nullptr, assume nullptr was caught at construction.  */
+		if (allow_nullptr)
+			check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
+		return m_ptr;
+	}
+	reference_type get_checked_reference(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
+	{
+		return *get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA());
+	}
 
 	basic_ptr(std::nullptr_t) :
 		m_ptr(nullptr)
@@ -434,15 +445,15 @@ public:
 	operator const_pointer_type() const { return m_ptr; }	// implicit pointer conversion deprecated
 	pointer_type operator->() const &
 	{
-		return m_ptr;
+		return get_nonnull_pointer();
 	}
 	operator reference_type() const &
 	{
-		return *m_ptr;
+		return get_checked_reference();
 	}
 	reference_type operator*() const &
 	{
-		return *this;
+		return get_checked_reference();
 	}
 	explicit operator bool() const &
 	{
