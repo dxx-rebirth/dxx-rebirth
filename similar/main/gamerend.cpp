@@ -322,7 +322,7 @@ static void draw_window_label(grs_canvas &canvas)
 #endif
 
 namespace dsx {
-static void render_countdown_gauge()
+static void render_countdown_gauge(grs_canvas &canvas)
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))
 #if defined(DXX_BUILD_DESCENT_II)
@@ -338,9 +338,9 @@ static void render_countdown_gauge()
 			}
 		}
 #endif
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
-		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING(*grd_curcanv) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+		gr_printf(canvas, 0x8000, (LINE_SPACING(canvas) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
 }
 }
@@ -374,7 +374,7 @@ static void game_draw_hud_stuff()
 		}
 	}
 
-	render_countdown_gauge();
+	render_countdown_gauge(*grd_curcanv);
 
 	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate(*grd_curcanv);
