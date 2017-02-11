@@ -162,10 +162,10 @@ static void kmatrix_status_msg (fix time, int reactor)
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(255, 255, 255),-1);
 
-	if (reactor)
-		gr_printf(*grd_curcanv, 0x8000, SHEIGHT-LINE_SPACING, "Waiting for players to finish level. Reactor time: T-%d", time);
-	else
-		gr_printf(*grd_curcanv, 0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
+	gr_printf(*grd_curcanv, 0x8000, SHEIGHT - LINE_SPACING, reactor
+		? "Waiting for players to finish level. Reactor time: T-%d"
+		: "Level finished. Wait (%d) to proceed or ESC to Quit."
+	, time);
 }
 
 namespace {
