@@ -51,7 +51,7 @@ namespace dsx {
 //-------------- Renders a hostage --------------------------------------------
 void draw_hostage(const vobjptridx_t obj)
 {
-	draw_object_tmap_rod(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
+	draw_object_tmap_rod(*grd_curcanv, obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
 }
 
 

@@ -253,7 +253,7 @@ void compress_objects();
 void render_object(vobjptridx_t obj);
 
 // draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(vobjptridx_t obj, bitmap_index bitmap, int lighted);
+void draw_object_tmap_rod(grs_canvas &, vobjptridx_t obj, bitmap_index bitmap, int lighted);
 
 // move all objects for the current frame
 window_event_result object_move_all();     // moves all objects

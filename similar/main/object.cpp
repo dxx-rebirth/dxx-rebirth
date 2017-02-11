@@ -180,7 +180,7 @@ void draw_object_blob(const object_base &obj, bitmap_index bmi)
 namespace dsx {
 
 //draw an object that is a texture-mapped rod
-void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int lighted)
+void draw_object_tmap_rod(grs_canvas &canvas, const vobjptridx_t obj, const bitmap_index bitmapi, int lighted)
 {
 	g3s_lrgb light;
 	PIGGY_PAGE_IN(bitmapi);
@@ -203,8 +203,7 @@ void draw_object_tmap_rod(const vobjptridx_t obj,const bitmap_index bitmapi,int 
 	{
 		light.r = light.g = light.b = f1_0;
 	}
-
-	g3_draw_rod_tmap(*grd_curcanv, bitmap, bot_p, obj->size, top_p, obj->size, light);
+	g3_draw_rod_tmap(canvas, bitmap, bot_p, obj->size, top_p, obj->size, light);
 }
 
 //used for robot engine glow

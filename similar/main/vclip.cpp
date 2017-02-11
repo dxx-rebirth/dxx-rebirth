@@ -60,7 +60,7 @@ void draw_vclip_object(const vobjptridx_t obj,fix timeleft,int lighted, int vcli
 	if (bitmapnum >= 0 )	{
 
 		if (Vclip[vclip_num].flags & VF_ROD)
-			draw_object_tmap_rod(obj, Vclip[vclip_num].frames[bitmapnum],lighted);
+			draw_object_tmap_rod(*grd_curcanv, obj, Vclip[vclip_num].frames[bitmapnum],lighted);
 		else {
 			Assert(lighted==0);		//blob cannot now be lighted
 
