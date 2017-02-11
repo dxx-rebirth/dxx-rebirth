@@ -723,27 +723,14 @@ void compute_average_rgb(grs_bitmap *bm, array<fix, 3> &rgb)
 	};
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
-		auto buf = make_unique<uint8_t[]>(bm_w);
-		int data_offset;
-
-		data_offset = 1;
-		if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
-			data_offset = 2;
-
-		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
+		bm_rle_expand expander(*bm);
+		const auto &&buf = make_unique<uint8_t[]>(bm_w);
 		for (uint_fast32_t i = 0; i != bm_h; ++i)
 		{
-#if DXX_HAVE_POISON
-			/* Reallocate to undefine buffer */
-			buf = make_unique<uint8_t[]>(bm_w);
-#endif
-			auto dbits = buf.get();
-			gr_rle_decode({sbits, dbits}, {end(*bm), dbits + bm_w});
-			if ( bm->get_flag_mask(BM_FLAG_RLE_BIG) )
-				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
-			else
-				sbits += static_cast<int>(bm->bm_data[4+i]);
-			range_for (const auto color, unchecked_partial_range(dbits, bm_w))
+			const auto &&range = unchecked_partial_range(buf.get(), bm_w);
+			if (expander.step(bm_rle_expand_range(range.begin(), range.end())) != bm_rle_expand::again)
+				break;
+			range_for (const auto color, range)
 				process_one(color);
 		}
 	}

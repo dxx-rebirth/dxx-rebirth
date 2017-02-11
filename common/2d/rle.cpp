@@ -601,4 +601,30 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap)
 	memcpy(&bmp.get_bitmap_data()[4], &temp.get()[4], len - 4);
 }
 
+void bm_rle_src_stride::advance_src_bits()
+{
+	/* Both bytes are always legal to read since the bitmap data
+	 * is placed after the length table.  Reading both, then
+	 * conditionally masking out the high bits (dependent on
+	 * BM_FLAG_RLE_BIG) encourages the compiler to implement
+	 * this line without using branches.
+	 */
+	const uintptr_t u = (ptr_src_bit_lengths[0] | (static_cast<uintptr_t>(ptr_src_bit_lengths[1]) << 8)) & src_bit_load_mask;
+	ptr_src_bit_lengths += src_bit_stride_size;
+	src_bits += u;
+}
+
+bm_rle_expand::step_result bm_rle_expand::step_internal(uint8_t *const begin_dbits, uint8_t *const end_dbits)
+{
+	auto &&r = gr_rle_decode({src_bits, begin_dbits}, rle_position_t{end_src_bm, end_dbits});
+	/* If the destination buffer is exhausted, return without
+	 * modifying the source state.  This lets the caller retry
+	 * with a larger buffer, if desired.
+	 */
+	if (unlikely(begin_dbits == r.dst))
+		return dst_exhausted;
+	advance_src_bits();
+	return again;
+}
+
 }

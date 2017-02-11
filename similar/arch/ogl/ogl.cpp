@@ -1756,39 +1756,40 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, int texfilt, bool texanis, bool edgepa
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
 	auto buf=bm->get_bitmap_data();
+	const unsigned bm_w = bm->bm_w;
 	if (bm->gltexture == NULL){
-		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm->bm_w, bm->bm_h, ((bm->get_flag_mask(BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT)) ? OGL_FLAG_ALPHA : 0));
+		ogl_init_texture(*(bm->gltexture = ogl_get_free_texture()), bm_w, bm->bm_h, ((bm->get_flag_mask(BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT)) ? OGL_FLAG_ALPHA : 0));
 	}
 	else {
 		if (bm->gltexture->handle>0)
 			return;
 		if (bm->gltexture->w==0){
-			bm->gltexture->lw=bm->bm_w;
-			bm->gltexture->w=bm->bm_w;
+			bm->gltexture->lw = bm_w;
+			bm->gltexture->w = bm_w;
 			bm->gltexture->h=bm->bm_h;
 		}
 	}
 
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
-		unsigned char * dbits;
-		int i, data_offset;
-
-		data_offset = 1;
-		if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
-			data_offset = 2;
-
-		auto sbits = &bm->get_bitmap_data()[4 + (bm->bm_h * data_offset)];
-		dbits = decodebuf;
-
-		for (i=0; i < bm->bm_h; i++ )    {
-			gr_rle_decode({sbits, dbits}, rle_end(*bm, decodebuf));
-			if (bm->get_flag_mask(BM_FLAG_RLE_BIG))
-				sbits += GET_INTEL_SHORT(&bm->bm_data[4 + (i * data_offset)]);
-			else
-				sbits += static_cast<int>(bm->bm_data[4+i]);
-			dbits += bm->bm_w;
-		}
+		class bm_rle_expand_state
+		{
+			uint8_t *dbits = decodebuf;
+		public:
+			uint8_t *get_begin_dbits() const
+			{
+				return dbits;
+			}
+			static uint8_t *get_end_dbits()
+			{
+				return end(decodebuf);
+			}
+			void consume_dbits(const unsigned w)
+			{
+				dbits += w;
+			}
+		};
+		bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_state());
 		buf=decodebuf;
 	}
 	ogl_loadtexture(gr_palette, buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);

@@ -507,18 +507,12 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 	const uint_fast32_t bm_w = bm.bm_w;
 	if (bm.get_flag_mask(BM_FLAG_RLE))
 	{
-		unsigned data_offset;
-
-		data_offset = 1;
-		if (bm.get_flag_mask(BM_FLAG_RLE_BIG))
-			data_offset = 2;
-		auto sbits = &bm.get_bitmap_data()[4 + (bm.bm_h * data_offset)];
-		for (uint_fast32_t y = 0; y != bm_h; ++y)
+		bm_rle_expand expander(bm);
+		for (uint_fast32_t y = 0;; ++y)
 		{
-			array<ubyte, 4096> buf;
-			gr_rle_decode({sbits, begin(buf)}, rle_end(bm, buf));
-			advance(sbits, bm.bm_data[4+i] | (data_offset == 2 ? static_cast<unsigned>(bm.bm_data[5+i]) << 8 : 0));
-			i += data_offset;
+			array<uint8_t, 4096> buf;
+			if (expander.step(bm_rle_expand_range(buf)) != bm_rle_expand::again)
+				break;
 			for (uint_fast32_t x = 0; x != bm_w; ++x)
 				check(x, y, buf[x]);
 		}

@@ -22,17 +22,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifndef _RLE_H
-#define _RLE_H
+#pragma once
 
 #include "pstypes.h"
 #include "gr.h"
 
-#ifdef __cplusplus
 #include <cstdint>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-begin.h"
+#include "poison.h"
 
 struct rle_position_t
 {
@@ -83,8 +82,182 @@ void rle_remap(grs_bitmap &bmp, array<color_t, 256> &colormap);
 #define gr_rle_expand_scanline_generic(C,D,DX,DY,S,X1,X2) gr_rle_expand_scanline_generic(D,DX,DY,S,X1,X2)
 #endif
 void gr_rle_expand_scanline_generic(grs_canvas &, grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
+
+class bm_rle_expand_range
+{
+	uint8_t *iter_dbits;
+	uint8_t *const end_dbits;
+public:
+	bm_rle_expand_range(uint8_t *const i, uint8_t *const e) :
+		iter_dbits(i), end_dbits(e)
+	{
+	}
+	template <std::size_t N>
+		bm_rle_expand_range(array<uint8_t, N> &a) :
+			iter_dbits(begin(a)), end_dbits(end(a))
+	{
+	}
+	uint8_t *get_begin_dbits() const
+	{
+		return iter_dbits;
+	}
+	uint8_t *get_end_dbits() const
+	{
+		return end_dbits;
+	}
+	void consume_dbits(const unsigned w)
+	{
+		iter_dbits += w;
+	}
+};
+
+class bm_rle_src_stride
+{
+	/* Width of an individual element of the table of row lengths.  This
+	 * is sizeof(uint8_t) if the bitmap is not RLE_BIG, or is
+	 * sizeof(uint16_t) otherwise.
+	 */
+	const unsigned src_bit_stride_size;
+	/* Bitmask used for filtering the table load.  To minimize
+	 * branching, the code always loads two bytes from the table of row
+	 * lengths.  If the bitmap is not RLE_BIG, then `src_bit_load_mask`
+	 * will be 0xff and will be used to mask out the high byte from the
+	 * load.  Otherwise, `src_bit_load_mask` will be 0xffff and the mask
+	 * operation will leave the loaded value unchanged.
+	 */
+	const unsigned src_bit_load_mask;
+protected:
+	/* Pointer to the table of row lengths.  The table is uint8_t[] if
+	 * the bitmap is not RLE_BIG, or is uint16_t[] otherwise.  The table
+	 * is not required to be aligned.
+	 */
+	const uint8_t *ptr_src_bit_lengths;
+	/* Pointer to the table of RLE-encoded bitmap elements.
+	 */
+	const uint8_t *src_bits;
+public:
+	bm_rle_src_stride(const grs_bitmap &src, const unsigned rle_big) :
+		/* Jump threading should collapse the separate ?: uses */
+		src_bit_stride_size(rle_big ? sizeof(uint16_t) : sizeof(uint8_t)),
+		src_bit_load_mask(rle_big ? 0xffff : 0xff),
+		ptr_src_bit_lengths(&src.bm_data[4]),
+		src_bits(&ptr_src_bit_lengths[rle_big ? src.bm_h * 2 : src.bm_h])
+	{
+	}
+	void advance_src_bits();
+};
+
+class bm_rle_expand : bm_rle_src_stride
+{
+	/* Pointer to the first byte that is not part of the table of row
+	 * lengths.  When `ptr_src_bit_lengths` == `end_src_bit_lengths`, no
+	 * further rows are available.
+	 */
+	const uint8_t *const end_src_bit_lengths;
+	/* Pointer to the first byte that is not part of the bitmap data.
+	 * When `end_src_bm` == `src_bits`, no further bitmap elements are
+	 * available.
+	 */
+	const uint8_t *const end_src_bm;
+public:
+	enum step_result
+	{
+		/* A row decoded successfully.  Act on the decoded buffer as
+		 * necessary, then call this class again.
+		 *
+		 * This result is returned even if the returned row is the last
+		 * row.  The first call after the last row will return
+		 * src_exhausted, which is the trigger to stop calling the
+		 * class.
+		 */
+		again,
+		/* The source was exhausted before any work was done.  No data
+		 * is available.  No further calls should be made with this
+		 * source.
+		 */
+		src_exhausted,
+		/* The destination was exhausted before decoding completed.  The
+		 * source is left at the beginning of the row which failed to
+		 * decode.  The caller may try again with a larger destination
+		 * buffer or may abandon the attempt.  Further calls with the
+		 * same source and destination will continue to return
+		 * `dst_exhausted`.
+		 */
+		dst_exhausted,
+	};
+	bm_rle_expand(const grs_bitmap &src) :
+		bm_rle_src_stride(src, src.get_flag_mask(BM_FLAG_RLE_BIG)),
+		end_src_bit_lengths(src_bits),
+		end_src_bm(end(src))
+	{
+	}
+	template <typename T>
+		/* Decode one row of the bitmap, then return control to the
+		 * caller.  If the return value is `again`, then the caller
+		 * should perform any per-row processing, then call step()
+		 * again.  If the return value is not `again`, then the
+		 * destination buffer is undefined and the caller should not
+		 * access it or call step().
+		 *
+		 * `const T &` to ensure that t is only modified by the caller
+		 * and that the caller does not accidentally provide an
+		 * implementation of `get_begin_dbits` that moves the
+		 * destination pointer.
+		 */
+		step_result step(const T &t)
+		{
+			/* Poison the memory first, so that it is undefined even if
+			 * the source is exhausted.
+			 */
+			const auto b = t.get_begin_dbits();
+			const auto e = t.get_end_dbits();
+			DXX_MAKE_MEM_UNDEFINED(b, e);
+			/* Check for source exhaustion, so that empty bitmaps are
+			 * not read at all.  This allows callers to treat
+			 * src_exhausted as a definitive end-of-record with no data
+			 * available.
+			 */
+			if (ptr_src_bit_lengths == end_src_bit_lengths)
+				return src_exhausted;
+			return step_internal(b, e);
+		}
+	template <typename T>
+		/* Decode until source or destination is exhausted.  The
+		 * destination position is updated automatically as each row is
+		 * decoded.  There is no opportunity for callers to perform
+		 * per-row processing.  Callers should call step() directly if
+		 * per-row processing is required.
+		 *
+		 * `T &&` since some callers may not care about the state of `t`
+		 * afterward; `T &&` lets them pass an anonymous temporary.
+		 */
+		bool loop(const unsigned bm_w, T &&t)
+		{
+			for (;;)
+			{
+				switch (step(t))
+				{
+					case again:
+						/* Step succeeded.  Notify `t` to update its
+						 * dbits position, then loop around.
+						 */
+						t.consume_dbits(bm_w);
+						break;
+					case src_exhausted:
+						/* Success: source buffer exhausted and no error
+						 * conditions detected.
+						 */
+						return true;
+					case dst_exhausted:
+						/* Failure: destination buffer too small to hold
+						 * expanded source.
+						 */
+						return false;
+				}
+			}
+		}
+private:
+	step_result step_internal(uint8_t *begin_dbits, uint8_t *end_dbits);
+};
+
 }
-
-#endif
-
-#endif

@@ -1771,36 +1771,13 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 	// decode the bitmap
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
-		const std::pair<uintptr_t, uintptr_t> src_bit_length = bm->get_flag_mask(BM_FLAG_RLE_BIG)
-			? std::pair<uintptr_t, uintptr_t>(2, 0xffff)
-			: std::pair<uintptr_t, uintptr_t>(1, 0xff);
-
-		auto ptr_src_bit_lengths = &bm->bm_data[4];
-		auto src_bits = &ptr_src_bit_lengths[(bm_h * src_bit_length.first)];
-		auto dbits = cockpitbuf.data();
-		for (const auto end_src_bit_lengths = src_bits;;)
+		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_range(cockpitbuf)))
 		{
-			auto &&r = gr_rle_decode({src_bits, dbits}, rle_end(*bm, cockpitbuf));
-			/* Both bytes are always legal to read since the bitmap data
-			 * is placed after the length table.  Reading both, then
-			 * conditionally masking out the high bits (dependent on
-			 * BM_FLAG_RLE_BIG) encourages the compiler to implement
-			 * this line without using branches.
-			 */
-			const uintptr_t advance_src_bits = (ptr_src_bit_lengths[0] | (static_cast<uintptr_t>(ptr_src_bit_lengths[1]) << 8)) & src_bit_length.second;
-			ptr_src_bit_lengths += src_bit_length.first;
-			if (ptr_src_bit_lengths == end_src_bit_lengths)
-				break;
-			if (unlikely(dbits == r.dst))
-			{
 				/* Out of space.  Return without adjusting the bitmap.
 				 * The result will look ugly, but run correctly.
 				 */
 				con_printf(CON_URGENT, __FILE__ ":%u: BUG: RLE-encoded bitmap with size %hux%hu exceeds decode buffer size %" DXX_PRI_size_type, __LINE__, static_cast<uint16_t>(bm_w), static_cast<uint16_t>(bm_h), cockpitbuf.size());
 				return;
-			}
-			src_bits += advance_src_bits;
-			dbits += bm_w;
 		}
 	}
 	else
