@@ -404,32 +404,34 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
+			{
 			gr_set_current_canvas(window_get_canvas(*wind));
+			auto &canvas = *grd_curcanv;
 			gr_set_curfont(MEDIUM3_FONT);
-			gr_string(*grd_curcanv, 0x8000, fspacy(15), TXT_HIGH_SCORES);
+			gr_string(canvas, 0x8000, fspacy(15), TXT_HIGH_SCORES);
 			gr_set_curfont(GAME_FONT);
-			gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 26, 5), -1);
-			gr_string(*grd_curcanv, fspacx( 71), fspacy(50), TXT_NAME);
-			gr_string(*grd_curcanv, fspacx(122), fspacy(50), TXT_SCORE);
-			gr_string(*grd_curcanv, fspacx(167), fspacy(50), TXT_SKILL);
-			gr_string(*grd_curcanv, fspacx(210), fspacy(50), TXT_LEVELS);
-			gr_string(*grd_curcanv, fspacx(253), fspacy(50), TXT_TIME);
+			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
+			gr_string(canvas, fspacx( 71), fspacy(50), TXT_NAME);
+			gr_string(canvas, fspacx(122), fspacy(50), TXT_SCORE);
+			gr_string(canvas, fspacx(167), fspacy(50), TXT_SKILL);
+			gr_string(canvas, fspacx(210), fspacy(50), TXT_LEVELS);
+			gr_string(canvas, fspacx(253), fspacy(50), TXT_TIME);
 			
 			if ( menu->citem < 0 )	
-				gr_string(*grd_curcanv, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
+				gr_string(canvas, 0x8000, fspacy(175), TXT_PRESS_CTRL_R);
 			
-			gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
+			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			
 			gr_printf(*grd_curcanv, 0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
-				gr_set_fontcolor(*grd_curcanv, BM_XRGB(28-i * 2, 28-i * 2, 28-i * 2), -1);
-				scores_draw_item(*grd_curcanv, i, &menu->scores.stats[i]);
+				gr_set_fontcolor(canvas, BM_XRGB(28 - i * 2, 28 - i * 2, 28 - i * 2), -1);
+				scores_draw_item(canvas, i, &menu->scores.stats[i]);
 			}
 			
 			if ( menu->citem > -1 )	{
 				
-				gr_set_fontcolor(*grd_curcanv, BM_XRGB(7 + fades[menu->looper],7 + fades[menu->looper],7 + fades[menu->looper]), -1);
+				gr_set_fontcolor(canvas, BM_XRGB(7 + fades[menu->looper], 7 + fades[menu->looper], 7 + fades[menu->looper]), -1);
 				if (timer_query() >= menu->t1+F1_0/128)
 				{
 					menu->t1 = timer_query();
@@ -441,9 +443,9 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 					? &menu->last_game
 					: &menu->scores.stats[menu->citem]);
 			}
+			}
 			gr_set_current_canvas(NULL);
 			break;
-			
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu);
 			break;
