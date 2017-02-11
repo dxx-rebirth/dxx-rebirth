@@ -2385,7 +2385,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			draw_model_picture(view_idx, &ang);
 			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
-			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
+			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
@@ -2463,7 +2463,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 #endif
 			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
-			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
+			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);

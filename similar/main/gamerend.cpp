@@ -82,7 +82,7 @@ static void game_draw_marker_message()
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif
@@ -102,9 +102,9 @@ static void game_draw_multi_message()
 	gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 	const auto &&y = (LINE_SPACING * 5) + FSPACY(1);
 	if (sending)
-		gr_printf(0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
+		gr_printf(*grd_curcanv, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
-		gr_printf(0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
+		gr_printf(*grd_curcanv, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
 }
 
 static void show_framerate()
@@ -125,9 +125,9 @@ static void show_framerate()
 	const auto &&fspacx2 = FSPACX(2);
 	const auto &&y = LINE_SPACING * 16;
 	if (CGameArg.DbgVerbose)
-		gr_printf(fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
+		gr_printf(*grd_curcanv, fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
         else
-		gr_printf(fspacx2, y, "%iFPS", fps_rate);
+		gr_printf(*grd_curcanv, fspacx2, y, "%iFPS", fps_rate);
 }
 
 }
@@ -158,22 +158,22 @@ static void show_netplayerinfo()
 	y += line_spacing;
 	gr_string(*grd_curcanv, 0x8000, y, Netgame.game_name.data());
 	y += line_spacing;
-	gr_printf(0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
+	gr_printf(*grd_curcanv, 0x8000, y, "%s - lvl: %i", Netgame.mission_title.data(), Netgame.levelnum);
 
 	const auto &&fspacx8 = fspacx(8);
 	x += fspacx8;
 	y += line_spacing * 2;
 	unsigned gamemode = Netgame.gamemode;
-	gr_printf(x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
+	gr_printf(*grd_curcanv, x, y, "game mode: %s", gamemode < GMNames.size() ? GMNames[gamemode] : "INVALID");
 	y += line_spacing;
-	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
+	gr_printf(*grd_curcanv, x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y += line_spacing;
-	gr_printf(x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
+	gr_printf(*grd_curcanv, x,y,"level time: %i:%02i:%02i", get_local_player().hours_level, f2i(get_local_player().time_level) / 60 % 60, f2i(get_local_player().time_level) % 60);
 	y += line_spacing;
-	gr_printf(x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
+	gr_printf(*grd_curcanv, x,y,"total time: %i:%02i:%02i", get_local_player().hours_total, f2i(get_local_player().time_total) / 60 % 60, f2i(get_local_player().time_total) % 60);
 	y += line_spacing;
 	if (Netgame.KillGoal)
-		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
+		gr_printf(*grd_curcanv, x,y,"Kill goal: %d",Netgame.KillGoal*5);
 
 	// player information (name, kills, ping, game efficiency)
 	y += line_spacing * 2;
@@ -196,20 +196,20 @@ static void show_netplayerinfo()
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
-		gr_printf(x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
+		gr_printf(*grd_curcanv, x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		{
 			auto &plrobj = *vcobjptr(Players[i].objnum);
 			auto &player_info = plrobj.ctype.player_info;
 			auto v = ((Game_mode & GM_MULTI_COOP)
 				? player_info.mission.score
-				: (gr_printf(x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
+				: (gr_printf(*grd_curcanv, x + fspacx8 * 12, y,"%-6d", player_info.net_killed_total), player_info.net_kills_total)
 			);
-			gr_printf(x + fspacx8 * 7, y, "%-6d", v);
+			gr_printf(*grd_curcanv, x + fspacx8 * 7, y, "%-6d", v);
 		}
 
-		gr_printf(x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
+		gr_printf(*grd_curcanv, x + fspacx8 * 18, y,"%-6d", Netgame.players[i].ping);
 		if (i != Player_num)
-			gr_printf(x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
+			gr_printf(*grd_curcanv, x + fspacx8 * 23, y, "%hu/%hu", kill_matrix[Player_num][i], kill_matrix[i][Player_num]);
 	}
 
 	y += (line_spacing * 2) + (line_spacing * (MAX_PLAYERS - N_players));
@@ -222,12 +222,12 @@ static void show_netplayerinfo()
 		gr_string(*grd_curcanv, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
-		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
-		gr_printf(x + fspacx8 * 8, y, "%i", team_kills[0]);
+		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
+		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[0]);
 		y += line_spacing;
 		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
-		gr_printf(x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
-		gr_printf(x + fspacx8 * 8, y, "%i", team_kills[1]);
+		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
+		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[1]);
 		y += line_spacing * 2;
 	}
 	else
@@ -243,7 +243,7 @@ static void show_netplayerinfo()
 		if (PhallicMan==-1)
 			gr_string(*grd_curcanv, 0x8000, y, "There is no record yet for this level.");
 		else
-			gr_printf(0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
+			gr_printf(*grd_curcanv, 0x8000,y,"%s has the record at %d points.", static_cast<const char *>(Players[PhallicMan].callsign), PhallicLimit);
 	}
 	else
 #endif
@@ -257,14 +257,14 @@ static void show_netplayerinfo()
 				) * 100.0
 			);
 		const unsigned eff = ieff < 0 ? 0 : static_cast<unsigned>(ieff);
-		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
+		gr_printf(*grd_curcanv, 0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y += line_spacing;
 		if (eff<60)
-			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
+			gr_printf(*grd_curcanv, 0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
 			gr_string(*grd_curcanv, 0x8000, y, "is serving you well.");
 		y += line_spacing;
-		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
+		gr_printf(*grd_curcanv, 0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
 }
@@ -315,7 +315,7 @@ static void draw_window_label()
 
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(31,0,0),-1);
-		gr_printf(0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
+		gr_printf(*grd_curcanv, 0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
 	}
 }
@@ -340,7 +340,7 @@ static void render_countdown_gauge()
 #endif
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
+		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
 	}
 }
 }
@@ -367,10 +367,10 @@ static void game_draw_hud_stuff()
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_show_percentage) {
-				gr_printf(0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
+				gr_printf(*grd_curcanv, 0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			}
 		} else {
-			gr_printf(0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+			gr_printf(*grd_curcanv, 0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 	}
 

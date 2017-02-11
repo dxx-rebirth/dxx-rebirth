@@ -421,7 +421,7 @@ static window_event_result scores_handler(window *wind,const d_event &event, sco
 			
 			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 			
-			gr_printf(0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
+			gr_printf(*grd_curcanv, 0x8000, fspacy(31), "%c%s%c  - %s", 34, menu->scores.cool_saying, 34, static_cast<const char *>(menu->scores.stats[0].name));
 			
 			for (int i=0; i<MAX_HIGH_SCORES; i++ ) {
 				gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );

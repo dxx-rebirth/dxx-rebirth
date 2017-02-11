@@ -190,7 +190,7 @@ static void con_draw(void)
 	}
 	gr_rect(*grd_curcanv, 0, 0, SWIDTH, line_spacing, color);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-	gr_printf(fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
+	gr_printf(*grd_curcanv, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
 	gr_string(*grd_curcanv, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }
 
