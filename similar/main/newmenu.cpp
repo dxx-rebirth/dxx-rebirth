@@ -219,21 +219,22 @@ static void nm_string(const int w1, int x, const int y, const char *const s, con
 {
 	if (!tabs_flag)
 	{
-		RAIIdmem<char[]> s2(d_strdup(s));
-		const auto p = strchr(s2.get(), '\t');
-		const char *s1 = nullptr;
-		if (p && w1 > 0)
+		const char *s1 = s;
+		const char *p = nullptr;
+		RAIIdmem<char[]> s2;
+		if (w1 > 0 && (p = strchr(s, '\t')))
 		{
-			*p = '\0';
-			s1 = p+1;
+			s2.reset(d_strdup(s));
+			s1 = s2.get();
+			*std::next(s2.get(), std::distance(s, p)) = '\0';
 		}
-		gr_string(*grd_curcanv, x, y, s2.get());
-		if (s1)
+		gr_string(*grd_curcanv, x, y, s1);
+		if (p)
 		{
 			int w, h;
-			gr_get_string_size(*grd_curcanv->cv_font, s1, &w, &h, nullptr);
-			gr_string(*grd_curcanv, x + w1 - w, y, s1, w, h);
-			*p = '\t';
+			++ p;
+			gr_get_string_size(*grd_curcanv->cv_font, p, &w, &h, nullptr);
+			gr_string(*grd_curcanv, x + w1 - w, y, p, w, h);
 		}
 		return;
 	}
