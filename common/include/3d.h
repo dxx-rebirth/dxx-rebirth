@@ -126,6 +126,7 @@ void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix
 //end the frame
 #if DXX_USE_OGL
 #define g3_end_frame() ogl_end_frame()
+#define g3_draw_sphere(C,P,R,c)	g3_draw_sphere(P,R,c)
 #else
 #define g3_end_frame()
 #endif
@@ -223,7 +224,7 @@ static inline void g3_draw_tmap(const array<cg3s_point *, N> &pointlist, const a
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-void g3_draw_sphere(g3s_point &pnt,fix rad, uint8_t color);
+void g3_draw_sphere(grs_canvas &, g3s_point &pnt, fix rad, uint8_t color);
 
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);

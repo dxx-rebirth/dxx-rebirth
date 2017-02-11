@@ -1066,7 +1066,7 @@ void draw_stars()
 #if !DXX_USE_OGL
 			gr_pixel(*grd_curcanv, f2i(p.p3_sx), f2i(p.p3_sy), color);
 #else
-			g3_draw_sphere(p,F1_0*3, color);
+			g3_draw_sphere(*grd_curcanv, p, F1_0 * 3, color);
 #endif
 		}
 	}

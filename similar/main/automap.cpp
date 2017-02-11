@@ -412,9 +412,9 @@ static void DrawMarkers (automap *am)
 		if (*iter != object_none)
 		{
 			auto sphere_point = g3_rotate_point(vcobjptr(*iter)->pos);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE, colors[0]);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/2, colors[1]);
-			g3_draw_sphere(sphere_point,MARKER_SPHERE_SIZE/4, colors[2]);
+			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
+			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
+			g3_draw_sphere(*grd_curcanv, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
 			DrawMarkerNumber(am, i, sphere_point);
 		}
 
@@ -461,7 +461,7 @@ static void draw_player(const object_base &obj, const uint8_t color)
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj.pos);
 	const auto obj_size = obj.size;
-	g3_draw_sphere(sphere_point, obj_size, color);
+	g3_draw_sphere(*grd_curcanv, sphere_point, obj_size, color);
 
 	// Draw shaft of arrow
 	const auto &&head_pos = vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2);
@@ -714,7 +714,7 @@ static void draw_automap(automap *am)
 		case OBJ_HOSTAGE:
 			{
 			auto sphere_point = g3_rotate_point(objp->pos);
-			g3_draw_sphere(sphere_point,objp->size, am->hostage_color);
+			g3_draw_sphere(*grd_curcanv, sphere_point, objp->size, am->hostage_color);
 			}
 			break;
 		case OBJ_POWERUP:
@@ -733,7 +733,7 @@ static void draw_automap(automap *am)
 				{
 					const auto color = gr_find_closest_color(r, g, b);
 				auto sphere_point = g3_rotate_point(objp->pos);
-				g3_draw_sphere(sphere_point,objp->size*4, color);
+				g3_draw_sphere(*grd_curcanv, sphere_point, objp->size * 4, color);
 				}
 			}
 			break;

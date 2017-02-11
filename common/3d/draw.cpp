@@ -250,7 +250,7 @@ free_points:
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t color)
+void g3_draw_sphere(grs_canvas &canvas, g3s_point &pnt, const fix rad, const uint8_t color)
 {
 	if (! (pnt.p3_codes & CC_BEHIND)) {
 
@@ -268,7 +268,7 @@ void g3_draw_sphere(g3s_point &pnt,fix rad, const uint8_t color)
 				return;
 			const fix t = fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_z)));
 #endif
-			gr_disk(*grd_curcanv, pnt.p3_sx, pnt.p3_sy, t, color);
+			gr_disk(canvas, pnt.p3_sx, pnt.p3_sy, t, color);
 		}
 	}
 }

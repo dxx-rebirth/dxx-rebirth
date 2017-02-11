@@ -97,7 +97,7 @@ static void draw_seg_objects(const vcsegptr_t seg)
 				? PLAYER_COLOR
 				: ROBOT_COLOR
 			);
-		g3_draw_sphere(sphere_point,obj->size, color);
+		g3_draw_sphere(*grd_curcanv, sphere_point, obj->size, color);
 	}
 }
 
