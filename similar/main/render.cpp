@@ -1189,7 +1189,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 
 	start_lighting_frame(vobjptr(Viewer));		//this is for ugly light-smoothing hack
   
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 
 	Viewer_eye = Viewer->pos;
 

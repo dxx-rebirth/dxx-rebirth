@@ -603,7 +603,7 @@ int SetPlayerFromCursegMinusOne()
 	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);
 
 	gr_set_current_canvas(Canv_editor_game);
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(ConsoleObject->pos,ConsoleObject->orient,Render_zoom);
 
 	for (i=max=0;i<4;i++) {

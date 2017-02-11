@@ -1132,7 +1132,7 @@ static void endlevel_render_mine(fix eye_offset)
 void render_endlevel_frame(fix eye_offset)
 {
 
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
 		endlevel_render_mine(eye_offset);

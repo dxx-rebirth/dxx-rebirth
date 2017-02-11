@@ -677,7 +677,7 @@ static void draw_automap(automap *am)
 
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 	render_start_frame();
 
 	if (!PlayerCfg.AutomapFreeFlight)

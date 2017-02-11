@@ -118,7 +118,7 @@ typedef g3s_point cg3s_point;
 #endif
 
 //start the frame
-void g3_start_frame(void);
+void g3_start_frame(grs_canvas &);
 
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
 void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom);

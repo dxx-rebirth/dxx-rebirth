@@ -29,16 +29,16 @@
 namespace dcx {
 
 //start the frame
-void g3_start_frame(void)
+void g3_start_frame(grs_canvas &canvas)
 {
 	fix s;
 
 	//set int w,h & fixed-point w,h/2
-	Canv_w2 = (Canvas_width  = grd_curcanv->cv_bitmap.bm_w)<<15;
-	Canv_h2 = (Canvas_height = grd_curcanv->cv_bitmap.bm_h)<<15;
+	Canv_w2 = (Canvas_width  = canvas.cv_bitmap.bm_w)<<15;
+	Canv_h2 = (Canvas_height = canvas.cv_bitmap.bm_h)<<15;
 #ifdef __powerc
-	fCanv_w2 = f2fl((Canvas_width  = grd_curcanv->cv_bitmap.bm_w)<<15);
-	fCanv_h2 = f2fl((Canvas_height = grd_curcanv->cv_bitmap.bm_h)<<15);
+	fCanv_w2 = f2fl((Canvas_width  = canvas.cv_bitmap.bm_w)<<15);
+	fCanv_h2 = f2fl((Canvas_height = canvas.cv_bitmap.bm_h)<<15);
 #endif
 
 	//compute aspect ratio for this canvas
@@ -57,7 +57,7 @@ void g3_start_frame(void)
 	Window_scale.z = f1_0;		//always 1
 
 #if DXX_USE_OGL
-	ogl_start_frame(*grd_curcanv);
+	ogl_start_frame(canvas);
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif

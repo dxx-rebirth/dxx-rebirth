@@ -320,7 +320,7 @@ void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy)
 {
 	gr_set_current_canvas(canv);
 
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
 	g3_point_2_vec(v,sx,sy);
 	g3_end_frame();

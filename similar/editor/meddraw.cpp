@@ -143,7 +143,7 @@ static void check_segment(const vsegptridx_t seg)
 		gr_pixel(*grd_curcanv, Search_x, Search_y, color);	//set our search pixel to color zero
 		}
 #if DXX_USE_OGL
-		g3_start_frame();
+		g3_start_frame(*grd_curcanv);
 #endif
 		{
 		const uint8_t color = 1;
@@ -768,7 +768,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 	vm_vec_add2(viewer_position,Ed_view_target);
 
 	gr_clear_canvas(*grd_curcanv, 0);
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 
 	render_start_frame();
@@ -855,7 +855,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 
 	vm_vec_add2(viewer_position,Ed_view_target);
 
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(viewer_position,v->ev_matrix,v->ev_zoom);
 
 	render_start_frame();
@@ -866,7 +866,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 	uint8_t color = 0;
 	gr_pixel(*grd_curcanv, x, y, color);	//set our search pixel to color zero
 #if DXX_USE_OGL
-	g3_start_frame();
+	g3_start_frame(*grd_curcanv);
 #endif
 
 	Search_mode = -1;
