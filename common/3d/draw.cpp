@@ -39,7 +39,7 @@ static void must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,const uint
 		;		//line has already been clipped, so give up
 	else {
 		clip_line(p0,p1,codes_or,tp);
-		g3_draw_line(*p0, *p1, color, tp);
+		g3_draw_line(*grd_curcanv, *p0, *p1, color, tp);
 	}
 
 	//free temp points
@@ -55,10 +55,10 @@ static void must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or,const uint
 void g3_draw_line(g3s_point &p0, g3s_point &p1, const uint8_t color)
 {
 	temporary_points_t tp;
-	g3_draw_line(p0, p1, color, tp);
+	g3_draw_line(*grd_curcanv, p0, p1, color, tp);
 }
 
-void g3_draw_line(g3s_point &p0,g3s_point &p1, const uint8_t color,temporary_points_t &tp)
+void g3_draw_line(grs_canvas &canvas, g3s_point &p0, g3s_point &p1, const uint8_t color, temporary_points_t &tp)
 {
 	ubyte codes_or;
 
@@ -73,7 +73,7 @@ void g3_draw_line(g3s_point &p0,g3s_point &p1, const uint8_t color,temporary_poi
 		(static_cast<void>((p1.p3_flags & PF_PROJECTED) || (g3_project_point(p1), 0)), p1.p3_flags & PF_OVERFLOW)
 	)
 		return must_clip_line(&p0,&p1,codes_or,color,tp);
-	gr_line(*grd_curcanv, p0.p3_sx, p0.p3_sy, p1.p3_sx, p1.p3_sy, color);
+	gr_line(canvas, p0.p3_sx, p0.p3_sy, p1.p3_sx, p1.p3_sy, color);
 }
 #endif
 

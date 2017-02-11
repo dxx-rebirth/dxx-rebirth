@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "maths.h"
 #include "vecmat.h" //the vector/matrix library
+#include "fwd-gr.h"
 
 #include "compiler-array.h"
 
@@ -263,7 +264,6 @@ static inline void g3_check_and_draw_tmap(const array<cg3s_point *, N> &pointlis
 //draws a line. takes two points.
 struct temporary_points_t;
 void g3_draw_line(cg3s_point &p0,cg3s_point &p1, uint8_t color);
-void g3_draw_line(cg3s_point &p0,cg3s_point &p1, uint8_t color,temporary_points_t &);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
@@ -302,6 +302,7 @@ public:
 		}
 };
 #else
+void g3_draw_line(grs_canvas &, cg3s_point &p0, cg3s_point &p1, uint8_t color, temporary_points_t &);
 constexpr std::size_t MAX_POINTS_IN_POLY = 100;
 
 typedef void (*tmap_drawer_type)(const grs_bitmap &bm,uint_fast32_t nv,const g3s_point *const *vertlist);
