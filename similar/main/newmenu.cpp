@@ -712,6 +712,7 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 		case MBTN_LEFT:
 		{
 			gr_set_current_canvas(menu_canvas);
+			auto &canvas = *grd_curcanv;
 
 			old_choice = menu->citem;
 
@@ -722,9 +723,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				const int line_spacing = static_cast<int>(LINE_SPACING);
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
+					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13) /*- menu->items[i].right_offset - 6*/;
 					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
+					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 						if (i != menu->citem) {
@@ -773,9 +774,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 					if (menu->scroll_offset != 0) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*grd_curcanv->cv_font, UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
-						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
+						gr_get_string_size(*canvas.cv_font, UP_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
+						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -784,9 +785,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						int arrow_width, arrow_height;
-						gr_get_string_size(*grd_curcanv->cv_font, DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
-						x1 = grd_curcanv->cv_bitmap.bm_x + BORDERX - fspacx(12);
-						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
+						gr_get_string_size(*canvas.cv_font, DOWN_ARROW_MARKER, &arrow_width, &arrow_height, nullptr);
+						x1 = canvas.cv_bitmap.bm_x + BORDERX - fspacx(12);
+						y1 = canvas.cv_bitmap.bm_y + menu->items[menu->scroll_offset + menu->max_displayable - 1].y - (line_spacing * menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
 						if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
@@ -797,9 +798,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
+					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
 					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
+					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
@@ -820,12 +821,12 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 							}
 							if (p) {
 								int slider_width, sleft_width, sright_width, smiddle_width;
-								gr_get_string_size(*grd_curcanv->cv_font, s1, &slider_width, nullptr, nullptr);
-								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_LEFT, &sleft_width, nullptr, nullptr);
-								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_RIGHT, &sright_width, nullptr, nullptr);
-								gr_get_string_size(*grd_curcanv->cv_font, SLIDER_MIDDLE, &smiddle_width, nullptr, nullptr);
+								gr_get_string_size(*canvas.cv_font, s1, &slider_width, nullptr, nullptr);
+								gr_get_string_size(*canvas.cv_font, SLIDER_LEFT, &sleft_width, nullptr, nullptr);
+								gr_get_string_size(*canvas.cv_font, SLIDER_RIGHT, &sright_width, nullptr, nullptr);
+								gr_get_string_size(*canvas.cv_font, SLIDER_MIDDLE, &smiddle_width, nullptr, nullptr);
 
-								x1 = grd_curcanv->cv_bitmap.bm_x + citem.x + citem.w - slider_width;
+								x1 = canvas.cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
 								int new_value;
 								auto &slider = citem.slider();
@@ -862,9 +863,9 @@ static window_event_result newmenu_mouse(window *wind,const d_event &event, newm
 				const int line_spacing = static_cast<int>(LINE_SPACING);
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
-					x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
+					x1 = canvas.cv_bitmap.bm_x + menu->items[i].x - fspacx(13);
 					x2 = x1 + menu->items[i].w + fspacx(13);
-					y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
+					y1 = canvas.cv_bitmap.bm_y + menu->items[i].y - (line_spacing * menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 						if (Hack_DblClick_MenuMode) {
