@@ -74,7 +74,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		else
 		{
 			// Draw released!
-			ui_draw_box_out( 0, 0, icon->width, icon->height );
+			ui_draw_box_out(*grd_curcanv, 0, 0, icon->width, icon->height);
 		}
 	
 		gr_set_fontcolor(*grd_curcanv, CBLACK, -1);

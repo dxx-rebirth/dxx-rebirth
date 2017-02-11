@@ -82,7 +82,7 @@ static void ui_dialog_draw(UI_DIALOG *dlg)
 	ui_dialog_set_current_canvas(dlg);
 	
 	if (dlg->d_flags & DF_FILLED)
-		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );
+		ui_draw_box_out(*grd_curcanv, 0, 0, req_w-1, req_h-1);
 	
 	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 }

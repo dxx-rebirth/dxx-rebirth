@@ -76,7 +76,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 			unsigned offset;
 			if (button->position == 0)
 			{
-				ui_draw_box_out( 0, 0, button->width-1, button->height-1 );
+				ui_draw_box_out(*grd_curcanv, 0, 0, button->width-1, button->height-1);
 				offset = 0;
 			}
 			else

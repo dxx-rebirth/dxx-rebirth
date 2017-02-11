@@ -56,7 +56,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 
 		if (radio->position == 0 )
 		{
-			ui_draw_box_out( 0, 0, radio->width-1, radio->height-1 );
+			ui_draw_box_out(*grd_curcanv, 0, 0, radio->width-1, radio->height-1);
 			if (radio->flag)
 				ui_string_centered(Middle(radio->width), Middle(radio->height), "O");
 			else
