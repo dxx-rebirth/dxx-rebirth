@@ -174,11 +174,11 @@ static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 
 	gr_set_current_canvas( NULL );
 	gr_set_curfont(editor_font);
-	gr_set_fontcolor( CBLACK, CGREY );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
 	int w,h;
 	gr_get_string_size(*grd_curcanv->cv_font, message, &w, &h, nullptr);
 	gr_string(*grd_curcanv, 4, 583, message, w, h);
-	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 	gr_rect(*grd_curcanv, 4+w, 583, 799, 599, CGREY);
 }
 
@@ -762,7 +762,7 @@ void init_editor_screen()
 	CRED = gr_find_closest_color( 63, 0, 0 );
 
 	gr_set_curfont(editor_font);
-	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 
 	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
 

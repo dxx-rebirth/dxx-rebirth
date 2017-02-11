@@ -1269,7 +1269,7 @@ void net_udp_list_join_game()
 
 	Active_udp_games = {};
 
-	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(15, 15, 23),-1);
 
 #if DXX_USE_TRACKER
 	nm_set_item_text(m[0], "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );

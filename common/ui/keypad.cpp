@@ -275,7 +275,7 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 	gr_set_current_canvas( NULL );
 	const uint8_t color = CWHITE;
 	gr_urect(*grd_curcanv, desc_x, desc_y, desc_x+ 56*4-1, desc_y+15, color);
-	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 	gr_ustring(*grd_curcanv, desc_x, desc_y, KeyPad[active_pad]->description.data());
 }
 

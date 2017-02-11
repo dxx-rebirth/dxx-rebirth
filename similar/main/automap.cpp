@@ -506,7 +506,7 @@ constexpr char system_name[][17] = {
 static void name_frame(automap *am)
 {
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(am->green_31,-1);
+	gr_set_fontcolor(*grd_curcanv, am->green_31, -1);
 	char		name_level_left[128];
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -626,7 +626,7 @@ static void draw_automap(automap *am)
 	gr_set_current_canvas(NULL);
 	show_fullscr(*grd_curcanv, am->automap_background);
 	gr_set_curfont(HUGE_FONT);
-	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -638,7 +638,7 @@ static void draw_automap(automap *am)
 		gr_string(*grd_curcanv, x, y, TXT_AUTOMAP);
 	}
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 20, 20), -1);
 	{
 		int x;
 		int y0, y1, y2;

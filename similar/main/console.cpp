@@ -170,7 +170,7 @@ static void con_draw(void)
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	i+=con_scroll_offset;
 
-	gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
 	y = cli_draw(y, line_spacing);
 
 	const auto &&fspacx = FSPACX();
@@ -178,7 +178,7 @@ static void con_draw(void)
 	for (;;)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
-		gr_set_fontcolor(get_console_color_by_priority(b.priority), -1);
+		gr_set_fontcolor(*grd_curcanv, get_console_color_by_priority(b.priority), -1);
 		int w,h;
 		gr_get_string_size(*grd_curcanv->cv_font, b.line, &w, &h, nullptr);
 		y -= h + fspacy1;
@@ -189,7 +189,7 @@ static void con_draw(void)
 			break;
 	}
 	gr_rect(*grd_curcanv, 0, 0, SWIDTH, line_spacing, color);
-	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255),-1);
 	gr_printf(*grd_curcanv, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
 	gr_string(*grd_curcanv, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }

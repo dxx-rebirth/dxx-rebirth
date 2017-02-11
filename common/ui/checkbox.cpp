@@ -45,9 +45,9 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 		gr_set_current_canvas( checkbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == checkbox)
-			gr_set_fontcolor( CRED, -1 );
+			gr_set_fontcolor(*grd_curcanv, CRED, -1);
 		else
-			gr_set_fontcolor( CBLACK, -1 );
+			gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
 
 		if (checkbox->position == 0 )
 		{

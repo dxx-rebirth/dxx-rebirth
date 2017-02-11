@@ -66,13 +66,13 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 		color_t color = 0;
 
 		if (dlg->keyboard_focus_gadget == button)
-			gr_set_fontcolor( CRED, -1 );
+			gr_set_fontcolor(*grd_curcanv, CRED, -1);
 		else
 		{
 			if ((button->user_function==NULL) && button->dim_if_no_function )
-				gr_set_fontcolor( CGREY, -1 );
+				gr_set_fontcolor(*grd_curcanv, CGREY, -1);
 			else 
-				gr_set_fontcolor( CBLACK, -1 );
+				gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
 		}
 
 		button->status = 0;

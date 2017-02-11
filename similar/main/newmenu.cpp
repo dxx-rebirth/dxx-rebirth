@@ -365,7 +365,7 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			r = 57, g = 49, b = 20;
 		else
 			r = g = 29, b = 47;
-		gr_set_fontcolor(gr_find_closest_color_current(r, g, b), -1);
+		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color_current(r, g, b), -1);
 	}
 	else
 	{
@@ -1460,7 +1460,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if ( menu->title )	{
 		gr_set_curfont(HUGE_FONT);
-		gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 		int string_width, string_height;
 		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
 		th = string_height;
@@ -1469,7 +1469,7 @@ static window_event_result newmenu_draw(window *wind, newmenu *menu)
 
 	if ( menu->subtitle )	{
 		gr_set_curfont(MEDIUM3_FONT);
-		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(21, 21, 21), -1);
 		gr_string(*grd_curcanv, 0x8000, ty + th, menu->subtitle);
 	}
 

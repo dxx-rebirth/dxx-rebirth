@@ -97,14 +97,14 @@ static void item_show( MENU * menu, int n )
 			const uint8_t color = CBLACK;
 			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
-	 	gr_set_fontcolor( CWHITE, CBLACK );
+	 	gr_set_fontcolor(*grd_curcanv, CWHITE, CBLACK);
 	}else {
 		if ( menu != &Menu[0] )
 		{
 			const uint8_t color = CGREY;
 			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
-		gr_set_fontcolor( CBLACK, CGREY );
+		gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
 	}
 
 	if ( menu != &Menu[0] )

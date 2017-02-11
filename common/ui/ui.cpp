@@ -65,7 +65,7 @@ int ui_init()
 	
 	//key_init();
 
-	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 
 	ui_pad_init();
 	

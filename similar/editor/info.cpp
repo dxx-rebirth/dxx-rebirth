@@ -221,7 +221,7 @@ static void info_display_default(int show_all)
 		old_Num_triggers = -1;
 	}
 
-	gr_set_fontcolor(CBLACK,CWHITE);
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 
 	//--------------- Number of segments ----------------
 
@@ -294,7 +294,7 @@ static void info_display_default(int show_all)
 static void clear_pad_display(void)
 {
 	gr_clear_canvas(*grd_curcanv, CWHITE);
-   gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 }
 
 //	------------------------------------------------------------------------------------

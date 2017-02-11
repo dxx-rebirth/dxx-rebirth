@@ -1070,10 +1070,10 @@ void gr_set_curfont(const grs_font *n)
 	grd_curcanv->cv_font = n;
 }
 
-void gr_set_fontcolor( int fg_color, int bg_color )
+void gr_set_fontcolor(grs_canvas &canvas, const int fg_color, const int bg_color)
 {
-	grd_curcanv->cv_font_fg_color    = fg_color;
-	grd_curcanv->cv_font_bg_color    = bg_color;
+	canvas.cv_font_fg_color = fg_color;
+	canvas.cv_font_bg_color = bg_color;
 }
 
 template <bool masked_draws_background>

@@ -456,10 +456,10 @@ static void draw_copyright()
 {
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(6, 6, 6),-1);
 	const auto &&line_spacing = LINE_SPACING;
 	gr_string(*grd_curcanv, 0x8000, SHEIGHT - line_spacing, TXT_COPYRIGHT);
-	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 0, 0), -1);
 	gr_string(*grd_curcanv, 0x8000, SHEIGHT - (line_spacing * 2), DESCENT_VERSION);
 }
 
@@ -2384,7 +2384,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			timer_delay(F1_0/60);
 			draw_model_picture(view_idx, &ang);
 			gr_set_curfont(GAME_FONT);
-			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+			gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
 			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
 			break;
 		case EVENT_WINDOW_CLOSE:
@@ -2462,7 +2462,7 @@ static window_event_result gamebitmaps_viewer_handler(window *, const d_event &e
 			gr_bitmap(*grd_curcanv, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
 #endif
 			gr_set_curfont(GAME_FONT);
-			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+			gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
 			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
 			break;
 		case EVENT_WINDOW_CLOSE:

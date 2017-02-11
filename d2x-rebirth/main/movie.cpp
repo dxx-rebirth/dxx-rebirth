@@ -305,7 +305,7 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 
-			gr_set_fontcolor( 255, -1 );
+			gr_set_fontcolor(*grd_curcanv, 255, -1);
 
 			gr_ustring(*grd_curcanv, 0x8000, y, msg);
 			break;
@@ -633,7 +633,7 @@ static void draw_subtitles(int frame_num)
 		num_active_subtitles = 0;
 		next_subtitle = 0;
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(255,-1);
+		gr_set_fontcolor(*grd_curcanv, 255, -1);
 	}
 
 	//get rid of any subtitles that have expired

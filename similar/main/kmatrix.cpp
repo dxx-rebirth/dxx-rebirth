@@ -88,18 +88,18 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 		{
 			if (kmij == 0)
 			{
-				gr_set_fontcolor(rgb10, -1);
+				gr_set_fontcolor(*grd_curcanv, rgb10, -1);
 				gr_string(*grd_curcanv, x, y, "0");
 			}
 			else
 			{
-				gr_set_fontcolor(rgb25, -1);
+				gr_set_fontcolor(*grd_curcanv, rgb25, -1);
 				gr_printf(*grd_curcanv, x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			gr_set_fontcolor(kmij <= 0 ? rgb10 : rgb25, -1);
+			gr_set_fontcolor(*grd_curcanv, kmij <= 0 ? rgb10 : rgb25, -1);
 			gr_printf(*grd_curcanv, x, y, "%hu", kmij);
 		}
 	}
@@ -115,7 +115,7 @@ static void kmatrix_draw_item(int  i, playernum_array_t &sorted)
 			);
 
 	x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(rgb25, -1);
+	gr_set_fontcolor(*grd_curcanv, rgb25, -1);
 	gr_printf(*grd_curcanv, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
@@ -139,18 +139,18 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 			const auto &rgb = player_rgb[color];
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
-		gr_set_fontcolor(c, -1);
+		gr_set_fontcolor(*grd_curcanv, c, -1);
 		gr_printf(*grd_curcanv, x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
 	}
 
 	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(rgb31, -1);
+	gr_set_fontcolor(*grd_curcanv, rgb31, -1);
 	gr_string(*grd_curcanv, x, fspacy(40), "K/E");
 }
 
 static void kmatrix_draw_coop_names(playernum_array_t &)
 {
-	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(63, 31, 31),-1);
 	const auto &&fspacy40 = FSPACY(40);
 	const auto centerscreen = CENTERSCREEN;
 	gr_string(*grd_curcanv, centerscreen, fspacy40, "SCORE");
@@ -160,7 +160,7 @@ static void kmatrix_draw_coop_names(playernum_array_t &)
 static void kmatrix_status_msg (fix time, int reactor)
 {
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(gr_find_closest_color(255,255,255),-1);
+	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(255, 255, 255),-1);
 
 	if (reactor)
 		gr_printf(*grd_curcanv, 0x8000, SHEIGHT-LINE_SPACING, "Waiting for players to finish level. Reactor time: T-%d", time);
@@ -216,11 +216,11 @@ static void kmatrix_redraw(kmatrix_screen *km)
 		for (int i=0; i<N_players; i++ )
 		{
 			if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
-				gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+				gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(31, 31, 31),-1);
 			else
 			{
 				const auto color = get_player_or_team_color(sorted[i]);
-				gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+				gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
 
 			kmatrix_draw_item( i, sorted );
@@ -261,11 +261,11 @@ static void kmatrix_redraw_coop()
 			g = color.g * 2;
 			b = color.b * 2;
 		}
-		gr_set_fontcolor(gr_find_closest_color(r, g, b), -1);
+		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
 
 		const auto &&y = fspacy(50 + i * 9);
 		gr_string(*grd_curcanv, x_callsign, y, static_cast<const char *>(plr.callsign));
-		gr_set_fontcolor(rgb60_40_10, -1);
+		gr_set_fontcolor(*grd_curcanv, rgb60_40_10, -1);
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 		gr_printf(*grd_curcanv, x_centerscreen, y, "%d", player_info.mission.score);
 		gr_printf(*grd_curcanv, x_centerscreen + fspacx50, y, "%d", player_info.net_killed_total);

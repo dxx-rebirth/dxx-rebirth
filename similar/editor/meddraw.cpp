@@ -813,7 +813,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 				draw_coordinate_axes();
 
 		// Label the window
-		gr_set_fontcolor((v==current_view)?CRED:CWHITE, -1 );
+		gr_set_fontcolor(*grd_curcanv, (v==current_view)?CRED:CWHITE, -1);
 		if ( screen_canvas == LargeViewBox->canvas.get() ) {
 			gr_ustring(*grd_curcanv, 5, 5, "USER VIEW");
 			switch (Large_view_index) {

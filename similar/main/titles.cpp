@@ -981,7 +981,7 @@ static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
 	if (lastcolor != stream.color)
 	{
 		lastcolor = stream.color;
-		gr_set_fontcolor(stream.color,-1);
+		gr_set_fontcolor(*grd_curcanv, stream.color, -1);
 	}
 	gr_string(*grd_curcanv, stream.x + 1, stream.y, msgbuf);
 }
@@ -991,7 +991,7 @@ static void flash_cursor(briefing *br, int cursor_flag)
 	if (cursor_flag == 0)
 		return;
 
-	gr_set_fontcolor((timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
+	gr_set_fontcolor(*grd_curcanv, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
 
 	gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
 }
@@ -1529,7 +1529,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 
 			gr_set_curfont( GAME_FONT );
 
-			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
+			gr_set_fontcolor(*grd_curcanv, Briefing_text_colors[Current_color], -1);
 			{
 				unsigned lastcolor = ~0u;
 				range_for (const auto b, partial_const_range(br->messagestream, br->streamcount))

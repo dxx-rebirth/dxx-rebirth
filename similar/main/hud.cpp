@@ -117,7 +117,7 @@ void HUD_render_message_frame()
 		if (strlen(i->message) > 38)
 			HUD_toolong = 1;
 		for (; i != e; ++i )	{
-			gr_set_fontcolor( HUD_color, -1);
+			gr_set_fontcolor(*grd_curcanv, HUD_color, -1);
 
 			gr_string(*grd_curcanv, 0x8000, y, &i->message[0]);
 			y += line_spacing;
@@ -267,7 +267,7 @@ void player_dead_message(void)
 		gr_set_curfont( GAME_FONT );
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
-		gr_set_fontcolor( HUD_color, -1);
+		gr_set_fontcolor(*grd_curcanv, HUD_color, -1);
 		gr_string(*grd_curcanv, 0x8000, GHEIGHT - LINE_SPACING, PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}
 }

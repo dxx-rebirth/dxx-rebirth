@@ -50,9 +50,9 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 		gr_set_current_canvas( radio->canvas );
 
 		if (dlg->keyboard_focus_gadget ==  radio)
-			gr_set_fontcolor(CRED, -1);
+			gr_set_fontcolor(*grd_curcanv, CRED, -1);
 		else
-			gr_set_fontcolor(CBLACK, -1);
+			gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
 
 		if (radio->position == 0 )
 		{

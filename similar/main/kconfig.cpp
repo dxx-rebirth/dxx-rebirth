@@ -893,13 +893,13 @@ static void kconfig_draw(kc_menu *menu)
 	gr_string(*grd_curcanv, 0x8000, fspacy(8), menu->title);
 
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 	gr_string(*grd_curcanv, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 
 	if ( menu->items == kc_keyboard )
 	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 		const uint8_t color = BM_XRGB(31,27,6);
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
@@ -922,18 +922,18 @@ static void kconfig_draw(kc_menu *menu)
 #if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
 	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		gr_string(*grd_curcanv, 0x8000, fspacy(30), TXT_BUTTONS);
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
 		const auto &&fspacy145 = fspacy(145);
 		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 		kc_gr_2y_string(TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
 		kc_gr_2y_string(TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
 #endif
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
@@ -960,17 +960,17 @@ static void kconfig_draw(kc_menu *menu)
 #endif
 	else if ( menu->items == kc_mouse )
 	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 		gr_string(*grd_curcanv, 0x8000, fspacy(35), TXT_BUTTONS);
 		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 		const auto &&fspacy145 = fspacy(145);
 		kc_gr_2y_string(TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
 		kc_gr_2y_string(TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
 	else if ( menu->items == kc_rebirth )
 	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 
 		const auto &&fspacy60 = fspacy(60);
 		gr_string(*grd_curcanv, fspacx(152), fspacy60, "KEYBOARD");
@@ -1027,7 +1027,7 @@ static void kconfig_draw(kc_menu *menu)
 		kc_drawquestion( menu, &menu->items[menu->citem] );
 	}
 	
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 	grd_curcanv->cv_font	= save_font;
 	gr_set_current_canvas( save_canvas );
 }
@@ -1363,7 +1363,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			r = 20 * 2, g = 20 * 2, b = 29 * 2;
 		else
 			r = 15 * 2, g = 15 * 2, b = 24 * 2;
-		gr_set_fontcolor(gr_find_closest_color(r, g, b), -1);
+		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
 		gr_string(*grd_curcanv, fspacx(item.x), fspacy(item.y), label);
 	}
 
@@ -1383,7 +1383,7 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 		const auto &&fspacy_item_y = fspacy(item.y);
 		gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
 		
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
@@ -1414,7 +1414,7 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	const auto &&fspacy_item_y = fspacy(item->y);
 	gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
 	
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 
 	x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 

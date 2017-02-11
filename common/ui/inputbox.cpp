@@ -48,14 +48,14 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 		{
 			if (inputbox->first_time)
 			{
-				gr_set_fontcolor( CBLACK, -1 );
+				gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
 				gr_rect(*grd_curcanv, 2, 2, 2 + w, 2 + h, CRED);
 			}
 			else
-				gr_set_fontcolor( CRED, -1 );
+				gr_set_fontcolor(*grd_curcanv, CRED, -1);
 		}
 		else
-			gr_set_fontcolor( CWHITE, -1 );
+			gr_set_fontcolor(*grd_curcanv, CWHITE, -1);
 
 		inputbox->status = 0;
 

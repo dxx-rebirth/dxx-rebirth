@@ -81,7 +81,7 @@ static void game_draw_marker_message()
 	if ( DefiningMarkerMessage)
 	{
 		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
@@ -99,7 +99,7 @@ static void game_draw_multi_message()
 	if (!sending && !(defining = multi_defining_message))
 		return;
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 	const auto &&y = (LINE_SPACING * 5) + FSPACY(1);
 	if (sending)
 		gr_printf(*grd_curcanv, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
@@ -113,7 +113,7 @@ static void show_framerate()
 	static fix64 fps_time = 0;
 
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0),-1);
 
 	fps_count++;
 	if (timer_query() >= fps_time + F1_0)
@@ -140,7 +140,7 @@ static void show_netplayerinfo()
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(255,-1);
+	gr_set_fontcolor(*grd_curcanv, 255, -1);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx120 = fspacx(120);
@@ -195,7 +195,7 @@ static void show_netplayerinfo()
 
 		const auto color = get_player_or_team_color(i);
 		auto &prgb = player_rgb[color];
-		gr_set_fontcolor(BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
 		gr_printf(*grd_curcanv, x,y,"%s\n",static_cast<const char *>(Players[i].callsign));
 		{
 			auto &plrobj = *vcobjptr(Players[i].objnum);
@@ -217,15 +217,15 @@ static void show_netplayerinfo()
 	// printf team scores
 	if (Game_mode & GM_TEAM)
 	{
-		gr_set_fontcolor(255,-1);
+		gr_set_fontcolor(*grd_curcanv, 255, -1);
 		gr_string(*grd_curcanv, x, y, "team");
 		gr_string(*grd_curcanv, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
-		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b),-1);
 		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[0]));
 		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[0]);
 		y += line_spacing;
-		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b),-1);
 		gr_printf(*grd_curcanv, x,y,"%s:",static_cast<const char *>(Netgame.team_name[1]));
 		gr_printf(*grd_curcanv, x + fspacx8 * 8, y, "%i", team_kills[1]);
 		y += line_spacing * 2;
@@ -233,7 +233,7 @@ static void show_netplayerinfo()
 	else
 		y += line_spacing * 4;
 
-	gr_set_fontcolor(255,-1);
+	gr_set_fontcolor(*grd_curcanv, 255, -1);
 
 	// additional information about game - hoard, ranking
 
@@ -314,7 +314,7 @@ static void draw_window_label()
 		}
 
 		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(31,0,0),-1);
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 0, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (SHEIGHT/10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
 
 	}
@@ -339,7 +339,7 @@ static void render_countdown_gauge()
 		}
 #endif
 		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 63, 0),-1);
 		gr_printf(*grd_curcanv, 0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
 	}
 }
@@ -359,7 +359,7 @@ static void game_draw_hud_stuff()
 		int y;
 
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
 		y = GHEIGHT-(LINE_SPACING*2);
 
@@ -731,7 +731,7 @@ void game_render_frame_mono()
 		Viewer = viewer_save;
 
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
 		gr_string(*grd_curcanv, 0x8000, FSPACY(1), "Guided Missile View");
 
@@ -908,7 +908,7 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
-	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
 	
 	x = (SWIDTH-w)/2;

@@ -683,7 +683,7 @@ static void hud_show_score(const player_info &player_info)
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0,31,0);
-	gr_set_fontcolor(Color_0_31_0, -1);
+	gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
 
 	int	w, h;
 	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
@@ -709,7 +709,7 @@ static void hud_show_timer_count()
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
 
-		gr_set_fontcolor(Color_0_31_0, -1);
+		gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
 
 			char score_str[20];
 			snprintf(score_str, sizeof(score_str), "T - %5d", i);
@@ -746,7 +746,7 @@ static void hud_show_score_added()
 			? TXT_CHEATER
 			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
-		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 		gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING + FSPACY(1), score_str, w, h);
@@ -762,7 +762,7 @@ static void sb_show_score(const player_info &player_info, const local_multires_g
 	int x,y;
 
 	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
 
 	gr_printf(*grd_curcanv, HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
@@ -770,7 +770,7 @@ static void sb_show_score(const player_info &player_info, const local_multires_g
 	snprintf(score_str, sizeof(score_str), "%5d",
 			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
 			? player_info.net_kills_total
-			: (gr_set_fontcolor(BM_XRGB(0,31,0), -1), player_info.mission.score));
+			: (gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1), player_info.mission.score));
 	int	w, h;
 	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 
@@ -816,7 +816,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
 		x = HUD_SCALE_X(SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
-		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
 		gr_string(*grd_curcanv, x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str, w, h);
 	} else {
 		//erase old score
@@ -879,7 +879,7 @@ static void hud_show_homing_warning(const int homing_object_dist)
 	{
 		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
-			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+			gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 			gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING,TXT_LOCK);
 		}
 	}
@@ -951,7 +951,7 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 		}
 		}
 
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
 		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(*grd_curcanv, x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
@@ -995,7 +995,7 @@ static void hud_show_energy(const player_info &player_info)
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		const auto &&line_spacing = LINE_SPACING;
 		gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
 	}
@@ -1017,7 +1017,7 @@ static void hud_show_afterburner(const player_info &player_info)
 		return;		//don't draw if don't have
 
 	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 
 	const auto &&line_spacing = LINE_SPACING;
 	y = (Game_mode & GM_MULTI) ? (-7 * line_spacing) : (-3 * line_spacing);
@@ -1069,7 +1069,7 @@ static void show_bomb_count(const player_info &player_info, const int x, const i
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
 
-	gr_set_fontcolor(count
+	gr_set_fontcolor(*grd_curcanv, count
 		? (bomb == PROXIMITY_INDEX
 			? gr_find_closest_color(55, 0, 0)
 			: BM_XRGB(59, 50, 21)
@@ -1143,7 +1143,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, co
 static void hud_set_primary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
 	auto rgb = hud_get_primary_weapon_fontcolor(player_info, consider_weapon);
-	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
@@ -1179,7 +1179,7 @@ static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, 
 static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
 {
 	auto rgb = hud_get_secondary_weapon_fontcolor(player_info, consider_weapon);
-	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
@@ -1196,7 +1196,7 @@ static rgb_t hud_get_vulcan_ammo_fontcolor(const player_info &player_info, const
 static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo)
 {
 	auto rgb = hud_get_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
-	gr_set_fontcolor(gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, const int y)
@@ -1368,7 +1368,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 		}
 	}
 #endif
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 }
 
 static void hud_show_secondary_weapons_mode(const player_info &player_info, const int vertical, const int orig_x, const int orig_y)
@@ -1432,7 +1432,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 	}
 #endif
 
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 }
 
 static void hud_show_weapons(const object &plrobj)
@@ -1443,7 +1443,7 @@ static void hud_show_weapons(const object &plrobj)
 	char	weapon_str[32];
 
 	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 
 	y = grd_curcanv->cv_bitmap.bm_h;
 
@@ -1474,9 +1474,9 @@ static void hud_show_weapons(const object &plrobj)
 		x2 = grd_curcanv->cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
 		hud_show_primary_weapons_mode(player_info, 1, x1, y);
 		hud_show_secondary_weapons_mode(player_info, 1, x2, y);
-		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
 		gr_printf(*grd_curcanv, x2, y - (line_spacing * 4),"%i", f2ir(plrobj.shields));
-		gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
 		gr_printf(*grd_curcanv, x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
 	}
 	else
@@ -1551,7 +1551,7 @@ static void hud_show_cloak_invuln(const player_flags player_flags, const fix64 c
 {
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 	const auto &&line_spacing = LINE_SPACING;
 	const auto base_y = grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
 	const auto gametime64 = GameTime64;
@@ -1594,7 +1594,7 @@ static void hud_show_shield(const object &plrobj)
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 
 		const auto &&line_spacing = LINE_SPACING;
 		const auto shields = plrobj.shields;
@@ -1620,12 +1620,12 @@ static void hud_show_lives(const player_info &player_info, const local_multires_
 
 	if (Game_mode & GM_MULTI) {
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		gr_printf(*grd_curcanv, x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
 	else if (get_local_player().lives > 1)  {
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		const auto &&fspacy1 = FSPACY(1);
@@ -1641,7 +1641,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 	y = SB_LIVES_Y;
 
 	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
 	gr_printf(*grd_curcanv, HUD_SCALE_X(SB_LIVES_LABEL_X), HUD_SCALE_Y(y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
@@ -1682,7 +1682,7 @@ static void show_time()
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0,31,0);
-	gr_set_fontcolor(Color_0_31_0, -1 );
+	gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
 
 	gr_printf(*grd_curcanv, FSPACX(2),(LINE_SPACING*15),"%d:%02d", mins, secs);
 }
@@ -2053,7 +2053,7 @@ static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
 	char countdown[8];
 	int ow, oh;
 	snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
-	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
 	gr_get_string_size(*grd_curcanv->cv_font, countdown, &ow, &oh, nullptr);
 	const int x = grd_curscreen->get_screen_width() / (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR
 		? 2.266
@@ -2154,12 +2154,12 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 		gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(v), &w, nullptr, nullptr);
 		gr_printf(*grd_curcanv, xb - (w / 2), y, "%d", v);
 	};
-	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
 	const auto xb = grd_curscreen->get_screen_width() / 1.951;
 	const auto screen_height = grd_curscreen->get_screen_height();
 	a(xb, shield, screen_height / 1.365);
 
-	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
 	a(xb, energy, screen_height / 1.5);
 
 	gr_set_current_canvas( NULL );
@@ -2196,7 +2196,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
-		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
 
 		gr_string(*grd_curcanv, text_x, text_y, name);
 
@@ -2318,7 +2318,7 @@ static void draw_ammo_info(int x,int y,int ammo_count)
 {
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
-		gr_set_fontcolor(BM_XRGB(20,0,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 0, 0), -1);
 		gr_printf(*grd_curcanv, x,y,"%03d",ammo_count);
 	}
 }
@@ -2529,7 +2529,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	}
 
 	//draw numbers
-	gr_set_fontcolor(BM_XRGB(25,18,6),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
 	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(energy), &ew, nullptr, nullptr);
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned y = SB_ENERGY_NUM_Y;
@@ -2565,7 +2565,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 		r = 90, g = b = 0;
 	else
 		r = g = b = 24;
-	gr_set_fontcolor(gr_find_closest_color(r,g,b), -1);
+	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
 
 	int w, h;
 	gr_get_string_size(*grd_curcanv->cv_font, ab_str, &w, &h, nullptr);
@@ -2580,7 +2580,7 @@ static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic mu
 	int sw;
 
 	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
 
 	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(shield), &sw, nullptr, nullptr);
 	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
@@ -2968,7 +2968,7 @@ static void hud_show_kill_list()
 			color = player_rgb_normal[player_num];
 		}
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
-		gr_set_fontcolor(fontcolor, -1);
+		gr_set_fontcolor(*grd_curcanv, fontcolor, -1);
 
 		if (Show_kill_list == 3)
 			name = Netgame.team_name[i];
@@ -3126,7 +3126,7 @@ void show_HUD_names()
 						int w, h;
 						gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
 						const auto color = get_player_or_team_color(pnum);
-						gr_set_fontcolor(BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
+						gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
 						x1 = f2i(x)-w/2;
 						y1 = f2i(y-dy)+FSPACY(1);
 						gr_string (*grd_curcanv, x1, y1, s, w, h);
@@ -3206,7 +3206,7 @@ void draw_hud(const object &plrobj)
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		if (Cruise_speed > 0) {
 			const auto &&line_spacing = LINE_SPACING;
 			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
@@ -3291,7 +3291,7 @@ void draw_hud(const object &plrobj)
 	if (Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {
 		HUD_render_message_frame();
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
+		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		gr_string(*grd_curcanv, 0x8000, GHEIGHT - LINE_SPACING, TXT_REAR_VIEW);
 	}
 }
@@ -3499,7 +3499,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 		gr_set_curfont( GAME_FONT );
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
-		gr_set_fontcolor(Color_0_31_0, -1);
+		gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
 		gr_string(*grd_curcanv, 0x8000, FSPACY(1), label);
 	}
 

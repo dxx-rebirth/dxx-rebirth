@@ -226,7 +226,7 @@ int texpage_do(const d_event &event)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
 		gr_set_curfont( ui_small_font.get() ); 
-		gr_set_fontcolor( CBLACK, CWHITE );
+		gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 		
 		texpage_redraw();
 		

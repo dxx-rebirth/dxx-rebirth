@@ -115,7 +115,7 @@ static void print_clock()
 {
 	int w, h;
 	gr_set_current_canvas( NULL );
-	gr_set_fontcolor( CBLACK, CGREY );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
 	array<char, 20> message;
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
@@ -123,7 +123,7 @@ static void print_clock()
 	const uint8_t color = CGREY;
 	gr_rect(*grd_curcanv, 700, 0, 799, h + 1, color);
 	gr_string(*grd_curcanv, 700, 0, message.data());
-	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
 }
 
 void set_editor_time_of_day()

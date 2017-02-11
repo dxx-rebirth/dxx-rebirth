@@ -78,7 +78,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 			ui_draw_box_out( 0, 0, icon->width, icon->height );
 		}
 	
-		gr_set_fontcolor( CBLACK, -1 );		
+		gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
 		gr_ustring(*grd_curcanv, x, y, icon->text.get());
 	}
 }

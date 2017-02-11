@@ -1831,7 +1831,7 @@ void show_escort_menu(const array<char, 300> &amsg)
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 
-	gr_set_fontcolor( BM_XRGB(0, 28, 0), -1 );
+	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 28, 0), -1);
 
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
