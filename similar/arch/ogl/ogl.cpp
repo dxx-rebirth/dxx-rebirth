@@ -969,7 +969,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
  */
 void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-	int index2, index3, index4;
+	int index2, index3;
 
 	RAIIdmem<GLfloat[]> vertex_array, color_array, texcoord_array;
 	MALLOC(vertex_array, GLfloat[], nv*3);
@@ -985,35 +985,62 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(*bm, 1);
 	ogl_texwrap(bm->gltexture,GL_REPEAT);
-	
+
+	{
+		struct rgba
+		{
+			GLfloat r, g, b, a;
+		};
+		static_assert(sizeof(rgba) == sizeof(GLfloat) * 4, "padding error");
+		rgba *const ca = reinterpret_cast<rgba *>(color_array.get());
+		const GLfloat alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
+			? 1.0
+			: (1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+		if (bm->get_flag_mask(BM_FLAG_NO_LIGHTING))
+		{
+			range_for (auto &e, unchecked_partial_range(ca, nv))
+			{
+				e.r = e.g = e.b = 1.0;
+				e.a = alpha;
+			}
+		}
+		else
+		{
+			for (unsigned i = 0; i != nv; ++i)
+			{
+				auto &e = ca[i];
+				auto &l = light_rgb[i];
+				e.r = f2glf(l.r);
+				e.g = f2glf(l.g);
+				e.b = f2glf(l.b);
+				e.a = alpha;
+			}
+		}
+	}
+
 	for (c=0; c<nv; c++) {
 		index2 = c * 2;
 		index3 = c * 3;
-		index4 = c * 4;
-		
+
+		const GLfloat uf = f2glf(uvl_list[c].u), vf = f2glf(uvl_list[c].v);
 		switch(orient){
 			case 1:
-				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].v);
-				texcoord_array[index2+1] = f2glf(uvl_list[c].u);
+				texcoord_array[index2]   = 1.0 - vf;
+				texcoord_array[index2 + 1] = uf;
 				break;
 			case 2:
-				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].u);
-				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].v);
+				texcoord_array[index2]   = 1.0 - uf;
+				texcoord_array[index2 + 1] = 1.0 - vf;
 				break;
 			case 3:
-				texcoord_array[index2]   = f2glf(uvl_list[c].v);
-				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].u);
+				texcoord_array[index2]   = vf;
+				texcoord_array[index2 + 1] = 1.0 - uf;
 				break;
 			default:
-				texcoord_array[index2]   = f2glf(uvl_list[c].u);
-				texcoord_array[index2+1] = f2glf(uvl_list[c].v);
+				texcoord_array[index2]   = uf;
+				texcoord_array[index2 + 1] = vf;
 				break;
 		}
-		
-		color_array[index4]      = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].r);
-		color_array[index4+1]    = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].g);
-		color_array[index4+2]    = bm->get_flag_mask(BM_FLAG_NO_LIGHTING) ? 1.0 : f2glf(light_rgb[c].b);
-		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 		
 		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
 		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
