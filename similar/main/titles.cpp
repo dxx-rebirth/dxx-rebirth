@@ -986,14 +986,12 @@ static void redraw_messagestream(const msgstream &stream, unsigned &lastcolor)
 	gr_string(*grd_curcanv, stream.x + 1, stream.y, msgbuf);
 }
 
-static void flash_cursor(briefing *br, int cursor_flag)
+static void flash_cursor(grs_canvas &canvas, briefing *const br, const int cursor_flag)
 {
 	if (cursor_flag == 0)
 		return;
-
-	gr_set_fontcolor(*grd_curcanv, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
-
-	gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
+	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? Briefing_text_colors[Current_color] : Erase_color, -1);
+	gr_string(canvas, br->text_x, br->text_y, "_");
 }
 
 #define EXIT_DOOR_MAX   14
@@ -1537,7 +1535,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			}
 
 			if (br->new_page || br->new_screen)
-				flash_cursor(br, br->flashing_cursor);
+				flash_cursor(*grd_curcanv, br, br->flashing_cursor);
 			else if (br->flashing_cursor)
 				gr_string(*grd_curcanv, br->text_x, br->text_y, "_");
 			break;
