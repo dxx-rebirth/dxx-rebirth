@@ -107,13 +107,13 @@ static void game_draw_multi_message(grs_canvas &canvas)
 		gr_printf(canvas, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
 }
 
-static void show_framerate()
+static void show_framerate(grs_canvas &canvas)
 {
 	static int fps_count = 0, fps_rate = 0;
 	static fix64 fps_time = 0;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0),-1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0),-1);
 
 	fps_count++;
 	if (timer_query() >= fps_time + F1_0)
@@ -123,11 +123,11 @@ static void show_framerate()
 		fps_time = timer_query();
 	}
 	const auto &&fspacx2 = FSPACX(2);
-	const auto &&y = LINE_SPACING(*grd_curcanv) * 16;
+	const auto &&y = LINE_SPACING(canvas) * 16;
 	if (CGameArg.DbgVerbose)
-		gr_printf(*grd_curcanv, fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
+		gr_printf(canvas, fspacx2, y, "%iFPS (%.2fms)", fps_rate, (static_cast<float>(1000) / (F1_0 / FrameTime)));
         else
-		gr_printf(*grd_curcanv, fspacx2, y, "%iFPS", fps_rate);
+		gr_printf(canvas, fspacx2, y, "%iFPS", fps_rate);
 }
 
 }
@@ -377,7 +377,7 @@ static void game_draw_hud_stuff()
 	render_countdown_gauge();
 
 	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
-		show_framerate();
+		show_framerate(*grd_curcanv);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
