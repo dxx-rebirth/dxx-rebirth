@@ -958,6 +958,8 @@ static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum
 {
 	Assert(s0 != side_none && s1 != side_none);
 
+	if (s0 == s1)
+		return false;
 	if (Side_opposite[s0] == s1)
 		return false;
 	//find normals of adjoining sides
