@@ -203,7 +203,7 @@ constexpr std::size_t MAX_POINTS_PER_POLY = 25;
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
+void _g3_draw_tmap(grs_canvas &canvas, unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
 static inline void g3_draw_tmap(unsigned nv, const array<cg3s_point *, N> &pointlist, const array<g3s_uvl, N> &uvl_list, const array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
@@ -213,7 +213,7 @@ static inline void g3_draw_tmap(unsigned nv, const array<cg3s_point *, N> &point
 	if (DXX_CONSTANT_TRUE(nv > N))
 		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
 #endif
-	_g3_draw_tmap(nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(*grd_curcanv, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>

@@ -172,7 +172,7 @@ static void must_clip_tmap_face(grs_canvas &, int nv, g3s_codes cc, grs_bitmap &
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl *uvl_list,const g3s_lrgb *light_rgb,grs_bitmap &bm)
+void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
 {
 	g3s_codes cc;
 
@@ -200,7 +200,7 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 
 	if (cc.uor)
 	{
-		must_clip_tmap_face(*grd_curcanv, nv, cc, bm, Vbuf0, Vbuf1);
+		must_clip_tmap_face(canvas, nv, cc, bm, Vbuf0, Vbuf1);
 		return;
 	}
 
@@ -218,7 +218,7 @@ void _g3_draw_tmap(unsigned nv,cg3s_point *const *const pointlist,const g3s_uvl 
 		}
 	}
 
-	(*tmap_drawer_ptr)(*grd_curcanv, bm, nv, bufptr);
+	(*tmap_drawer_ptr)(canvas, bm, nv, bufptr);
 }
 
 static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)

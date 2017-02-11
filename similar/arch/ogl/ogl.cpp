@@ -896,7 +896,7 @@ void _g3_draw_poly(uint_fast32_t nv,const g3s_point *const *const pointlist, con
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-void _g3_draw_tmap(unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
 {
 	int index2, index3, index4;
 	GLfloat color_alpha = 1.0;
@@ -910,11 +910,11 @@ void _g3_draw_tmap(unsigned nv, cg3s_point *const *const pointlist, const g3s_uv
 		ogl_bindbmtex(bm, 0);
 		ogl_texwrap(bm.gltexture, GL_REPEAT);
 		r_tpolyc++;
-		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - static_cast<float>(grd_curcanv->cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
+		color_alpha = (canvas.cv_fade_level >= GR_FADE_OFF) ? 1.0 : (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));
 	} else if (tmap_drawer_ptr == draw_tmap_flat) {
 		OGL_DISABLE(TEXTURE_2D);
 		/* for cloaked state faces */
-		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/ static_cast<GLfloat>(NUM_LIGHTING_LEVELS));
+		color_alpha = 1.0 - (canvas.cv_fade_level / static_cast<GLfloat>(NUM_LIGHTING_LEVELS));
 	} else {
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 		return;
@@ -976,7 +976,7 @@ void _g3_draw_tmap_2(unsigned nv, const g3s_point *const *const pointlist, const
 	MALLOC(color_array, GLfloat[], nv*4);
 	MALLOC(texcoord_array, GLfloat[], nv*2);
 
-	_g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,*bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
+	_g3_draw_tmap(*grd_curcanv, nv, pointlist, uvl_list, light_rgb, *bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	auto &c = std::get<0>(cs);
