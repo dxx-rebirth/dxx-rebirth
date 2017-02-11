@@ -266,8 +266,8 @@ void scores_maybe_add_player()
 	scores_view(&last_game, position);
 }
 
-static void scores_rputs(int x, int y, char *buffer) __attribute_nonnull();
-static void scores_rputs(int x, int y, char *buffer)
+static void scores_rputs(grs_canvas &canvas, int x, int y, char *buffer) __attribute_nonnull();
+static void scores_rputs(grs_canvas &canvas, const int x, const int y, char *const buffer)
 {
 	char *p;
 
@@ -276,9 +276,8 @@ static void scores_rputs(int x, int y, char *buffer)
 		if (*p=='1') *p=132;
 
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, buffer, &w, &h, nullptr);
-
-	gr_string(*grd_curcanv, FSPACX(x) - w, FSPACY(y), buffer, w, h);
+	gr_get_string_size(*canvas.cv_font, buffer, &w, &h, nullptr);
+	gr_string(canvas, FSPACX(x) - w, FSPACY(y), buffer, w, h);
 }
 
 static void scores_rprintf(int x, int y, const char * format, ... ) __attribute_format_printf(3, 4);
@@ -290,7 +289,7 @@ static void scores_rprintf(int x, int y, const char * format, ... )
 	va_start(args, format );
 	vsnprintf(buffer,sizeof(buffer),format,args);
 	va_end(args);
-	scores_rputs(x, y, buffer);
+	scores_rputs(*grd_curcanv, x, y, buffer);
 }
 
 static void scores_draw_item( int i, stats_info * stats )
@@ -320,7 +319,7 @@ static void scores_draw_item( int i, stats_info * stats )
 	}
 	gr_string(*grd_curcanv, fspacx66, fspacy_y, stats->name);
 	int_to_string(stats->score, buffer);
-	scores_rputs( 149, y, buffer );
+	scores_rputs(*grd_curcanv, 149, y, buffer);
 
 	gr_string(*grd_curcanv, fspacx(166), fspacy_y, MENU_DIFFICULTY_TEXT(stats->diff_level));
 
