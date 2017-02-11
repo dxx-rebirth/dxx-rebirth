@@ -203,7 +203,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	for (const char *p = line_begin;; ++last_wrap_line)
 	{
 		auto &w = wraps[last_wrap_line % wraps.size()];
-		w = gr_get_string_wrap(p, max_pixels_per_line);
+		w = gr_get_string_wrap(*grd_curcanv->cv_font, p, max_pixels_per_line);
 		/* Record the vertical line on which the cursor will appear as
 		 * `cursor_line`.
 		 */

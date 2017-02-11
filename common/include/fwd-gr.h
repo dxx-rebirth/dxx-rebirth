@@ -278,7 +278,7 @@ void gr_printt(grs_canvas &, int x, int y, const char *format, ...) __attribute_
 #define gr_printfus(...)	gr_printt<gr_ustring>(__VA_ARGS__)
 #define gr_printf(A1,A2,A3,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2,A3),(F),##__VA_ARGS__)
 #define gr_uprintf(A1,A2,A3,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2,A3),(F),##__VA_ARGS__)
-std::pair<const char *, unsigned> gr_get_string_wrap(const char *s, unsigned limit);
+std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &, const char *s, unsigned limit);
 void gr_get_string_size(const grs_font &, const char *s, int *string_width, int *string_height, int *average_width);
 
 // From scale.c
