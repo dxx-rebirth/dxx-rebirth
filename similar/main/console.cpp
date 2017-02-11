@@ -160,17 +160,18 @@ static void con_draw(void)
 		return;
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, GAME_FONT);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_settransblend(*grd_curcanv, 7, GR_BLEND_NORMAL);
+	gr_settransblend(canvas, 7, GR_BLEND_NORMAL);
 	const auto &&fspacy1 = FSPACY(1);
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	y = fspacy1 + (line_spacing * con_size);
-	gr_rect(*grd_curcanv, 0, 0, SWIDTH, y, color);
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
+	gr_rect(canvas, 0, 0, SWIDTH, y, color);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
 	i+=con_scroll_offset;
 
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 	y = cli_draw(y, line_spacing);
 
 	const auto &&fspacx = FSPACX();
@@ -178,20 +179,20 @@ static void con_draw(void)
 	for (;;)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
-		gr_set_fontcolor(*grd_curcanv, get_console_color_by_priority(b.priority), -1);
+		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), -1);
 		int w,h;
-		gr_get_string_size(*grd_curcanv->cv_font, b.line, &w, &h, nullptr);
+		gr_get_string_size(*canvas.cv_font, b.line, &w, &h, nullptr);
 		y -= h + fspacy1;
-		gr_string(*grd_curcanv, fspacx1, y, b.line, w, h);
+		gr_string(canvas, fspacx1, y, b.line, w, h);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
 			break;
 	}
-	gr_rect(*grd_curcanv, 0, 0, SWIDTH, line_spacing, color);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255),-1);
-	gr_printf(*grd_curcanv, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
-	gr_string(*grd_curcanv, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
+	gr_rect(canvas, 0, 0, SWIDTH, line_spacing, color);
+	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255),-1);
+	gr_printf(canvas, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
+	gr_string(canvas, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }
 
 static window_event_result con_handler(window *wind,const d_event &event, const unused_window_userdata_t *)
