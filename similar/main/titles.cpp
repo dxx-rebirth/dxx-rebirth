@@ -95,7 +95,7 @@ static int rescale_x(int x)
 
 static int rescale_y(int y)
 {
-	return y * GHEIGHT / 200;
+	return y * grd_curcanv->cv_bitmap.bm_h / 200;
 }
 
 namespace {

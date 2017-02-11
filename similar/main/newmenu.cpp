@@ -1371,7 +1371,7 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->h += BORDERY*2;
 
 	menu->x = (grd_curcanv->cv_bitmap.bm_w - menu->w) / 2;
-	menu->y = (GHEIGHT-menu->h)/2;
+	menu->y = (grd_curcanv->cv_bitmap.bm_h - menu->h) / 2;
 
 	if ( menu->x < 0 ) menu->x = 0;
 	if ( menu->y < 0 ) menu->y = 0;

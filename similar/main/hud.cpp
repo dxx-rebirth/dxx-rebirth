@@ -261,13 +261,13 @@ void player_dead_message(void)
 			gr_rect(*grd_curcanv, x, y, x + w, y + h, color);
 			gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_string(*grd_curcanv, 0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER, gw, gh);
+			gr_string(*grd_curcanv, 0x8000, (grd_curcanv->cv_bitmap.bm_h - h) / 2 + h / 8, TXT_GAME_OVER, gw, gh);
 		}
 	
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor(*grd_curcanv, HUD_color, -1);
-		gr_string(*grd_curcanv, 0x8000, GHEIGHT - LINE_SPACING, PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
+		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING, PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}
 }

@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GR_BLEND_ADDITIVE_A  1              // additive alpha blending
 #define GR_BLEND_ADDITIVE_C  2              // additive color blending
 
-#define GHEIGHT grd_curcanv->cv_bitmap.bm_h
 #define SWIDTH  (grd_curscreen->get_screen_width())
 #define SHEIGHT (grd_curscreen->get_screen_height())
 

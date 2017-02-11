@@ -3287,8 +3287,9 @@ void draw_hud(const object &plrobj)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		{
 			const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
+			const auto gheight = grd_curcanv->cv_bitmap.bm_h;
 			auto &raw_mouse_axis = Controls.raw_mouse_axis;
-			show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, GHEIGHT / 2, GHEIGHT / 4);
+			show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth / 2, gheight / 2, gheight / 4);
 		}
 	}
 
@@ -3296,7 +3297,7 @@ void draw_hud(const object &plrobj)
 		HUD_render_message_frame();
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		gr_string(*grd_curcanv, 0x8000, GHEIGHT - LINE_SPACING, TXT_REAR_VIEW);
+		gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING, TXT_REAR_VIEW);
 	}
 }
 }

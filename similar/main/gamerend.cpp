@@ -361,7 +361,7 @@ static void game_draw_hud_stuff()
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(27, 0, 0), -1);
 
-		y = GHEIGHT-(LINE_SPACING*2);
+		y = grd_curcanv->cv_bitmap.bm_h - (LINE_SPACING * 2);
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
