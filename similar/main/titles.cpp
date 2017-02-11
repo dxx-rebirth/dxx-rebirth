@@ -494,8 +494,7 @@ struct briefing : ignore_window_pointer_t
 	grs_subcanvas_ptr	robot_canv;
 	vms_angvec	robot_angles;
 	char    bitmap_name[32];
-	grs_bitmap  guy_bitmap;
-	sbyte	guy_bitmap_show;
+	grs_main_bitmap  guy_bitmap;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 	sbyte	prev_ch;
 };
@@ -853,7 +852,6 @@ static int briefing_process_char(briefing *br)
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
 
-			br->guy_bitmap_show=1;
 			br->prev_ch = 10;
 		} else if (ch == 'S') {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1173,10 +1171,7 @@ static void init_new_page(briefing *br)
 	br->text_y = br->screen->text_uly;
 
 	br->streamcount=0;
-	if (br->guy_bitmap_show) {
-		gr_free_bitmap_data(br->guy_bitmap);
-		br->guy_bitmap_show=0;
-	}
+	br->guy_bitmap.reset();
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
@@ -1426,7 +1421,7 @@ static int new_briefing_screen(briefing *br, int first)
 	br->delay_count = KEY_DELAY_DEFAULT;
 	br->robot_num = -1;
 	br->bitmap_name[0] = 0;
-	br->guy_bitmap_show = 0;
+	br->guy_bitmap.reset();
 	br->prev_ch = -1;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1522,7 +1517,7 @@ static window_event_result briefing_handler(window *, const d_event &event, brie
 			if (br->background.bm_data)
 				show_fullscr(*grd_curcanv, br->background);
 
-			if (br->guy_bitmap_show)
+			if (br->guy_bitmap.bm_data)
 				show_briefing_bitmap(&br->guy_bitmap);
 			if (br->bitmap_name[0] != 0)
 				show_animated_bitmap(br);
