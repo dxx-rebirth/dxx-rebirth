@@ -51,7 +51,7 @@ static void gr_upoly_tmap_ylr(uint_fast32_t nverts, const int *vert, uint8_t col
 //	Texture map current scanline.
 //	Uses globals Du_dx and Dv_dx to incrementally compute u,v coordinates
 // -------------------------------------------------------------------------------------
-static void tmap_scanline_flat(int y, fix xleft, fix xright)
+static void tmap_scanline_flat(grs_canvas &canvas, int y, fix xleft, fix xright)
 {
 	if (xright < xleft)
 		return;
@@ -62,10 +62,10 @@ static void tmap_scanline_flat(int y, fix xleft, fix xright)
 	fx_xleft = xleft/F1_0;		// (xleft >> 16) != xleft/F1_0 for negative numbers, f2i caused random crashes
 	fx_xright = xright/F1_0;
 
-	if ( grd_curcanv->cv_fade_level >= GR_FADE_OFF )
+	if (canvas.cv_fade_level >= GR_FADE_OFF)
 		cur_tmap_scanline_flat();
 	else	{
-		tmap_flat_shade_value = grd_curcanv->cv_fade_level;
+		tmap_flat_shade_value = canvas.cv_fade_level;
 		cur_tmap_scanline_shaded();
 	}	
 }
@@ -164,13 +164,13 @@ static void texture_map_flat(const g3ds_tmap &t, int color)
 			xright = v3d[vrt].x2d;
 
 		}
-		tmap_scanline_flat(y, xleft, xright);
+		tmap_scanline_flat(*grd_curcanv, y, xleft, xright);
 
 		xleft += dx_dy_left;
 		xright += dx_dy_right;
 
 	}
-	tmap_scanline_flat(boty, xleft, xright);
+	tmap_scanline_flat(*grd_curcanv, boty, xleft, xright);
 }
 
 //	-----------------------------------------------------------------------------------------
