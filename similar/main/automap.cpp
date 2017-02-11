@@ -628,9 +628,11 @@ static void draw_automap(automap *am)
 		am->leave_mode = 1;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(*grd_curcanv, am->automap_background);
-	gr_set_curfont(*grd_curcanv, HUGE_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 20, 20), -1);
+	{
+		auto &canvas = *grd_curcanv;
+		show_fullscr(canvas, am->automap_background);
+		gr_set_curfont(canvas, HUGE_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -639,10 +641,10 @@ static void draw_automap(automap *am)
 	else
 #endif
 			x = SWIDTH / 8, y = SHEIGHT / 16;
-		gr_string(*grd_curcanv, x, y, TXT_AUTOMAP);
+		gr_string(canvas, x, y, TXT_AUTOMAP);
 	}
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 20, 20), -1);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x;
 		int y0, y1, y2;
@@ -672,16 +674,18 @@ static void draw_automap(automap *am)
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
-		gr_string(*grd_curcanv, x, y0, TXT_TURN_SHIP);
-		gr_string(*grd_curcanv, x, y1, s1);
-		gr_string(*grd_curcanv, x, y2, s2);
+		gr_string(canvas, x, y0, TXT_TURN_SHIP);
+		gr_string(canvas, x, y1, s1);
+		gr_string(canvas, x, y2, s2);
 	}
 
+	}
 	gr_set_current_canvas(&am->automap_view);
+	auto &canvas = *grd_curcanv;
 
-	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
+	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
-	g3_start_frame(*grd_curcanv);
+	g3_start_frame(canvas);
 	render_start_frame();
 
 	if (!PlayerCfg.AutomapFreeFlight)
@@ -694,9 +698,9 @@ static void draw_automap(automap *am)
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
-	draw_player(*grd_curcanv, vcobjptr(get_local_player().objnum), closest_color);
+	draw_player(canvas, vcobjptr(get_local_player().objnum), closest_color);
 
-	DrawMarkers(*grd_curcanv, am);
+	DrawMarkers(canvas, am);
 	
 	// Draw player(s)...
 	if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flag.show_on_map) )	{
@@ -706,7 +710,7 @@ static void draw_automap(automap *am)
 				if (objp->type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
-					draw_player(*grd_curcanv, objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
+					draw_player(canvas, objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
 				}
 			}
 		}
@@ -718,7 +722,7 @@ static void draw_automap(automap *am)
 		case OBJ_HOSTAGE:
 			{
 			auto sphere_point = g3_rotate_point(objp->pos);
-			g3_draw_sphere(*grd_curcanv, sphere_point, objp->size, am->hostage_color);
+			g3_draw_sphere(canvas, sphere_point, objp->size, am->hostage_color);
 			}
 			break;
 		case OBJ_POWERUP:
@@ -737,7 +741,7 @@ static void draw_automap(automap *am)
 				{
 					const auto color = gr_find_closest_color(r, g, b);
 				auto sphere_point = g3_rotate_point(objp->pos);
-				g3_draw_sphere(*grd_curcanv, sphere_point, objp->size * 4, color);
+				g3_draw_sphere(canvas, sphere_point, objp->size * 4, color);
 				}
 			}
 			break;
@@ -748,7 +752,7 @@ static void draw_automap(automap *am)
 
 	g3_end_frame();
 
-	name_frame(*grd_curcanv, am);
+	name_frame(canvas, am);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
@@ -759,8 +763,8 @@ static void draw_automap(automap *am)
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 	{
-		const auto gwidth = grd_curcanv->cv_bitmap.bm_w;
-		const auto gheight = grd_curcanv->cv_bitmap.bm_h;
+		const auto gwidth = canvas.cv_bitmap.bm_w;
+		const auto gheight = canvas.cv_bitmap.bm_h;
 		auto &raw_mouse_axis = am->controls.raw_mouse_axis;
 		show_mousefs_indicator(raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth - (gheight / 8), gheight - (gheight / 8), gheight / 5);
 	}
