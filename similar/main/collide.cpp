@@ -418,6 +418,7 @@ static void collide_player_and_wall(const vobjptridx_t playerobj, fix hitspeed, 
 }
 }
 
+static fix64	Last_volatile_scrape_time = 0;
 static fix64	Last_volatile_scrape_sound_time = 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -429,9 +430,13 @@ bool scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return false;
 
+	if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
+		return false;
+	Last_volatile_scrape_time = GameTime64;
+
 	if ((d=TmapInfo[hitseg->sides[hitside].tmap_num].damage) > 0) {
 		vms_vector	hit_dir;
-		fix damage = fixmul(d,FrameTime);
+		fix damage = fixmul(d,(FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME);
 
 		auto &player_info = obj->ctype.player_info;
 		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
@@ -469,7 +474,7 @@ volatile_wall_result check_volatile_wall(const vobjptridx_t obj, const vcsegptr_
 		if (get_player_id(obj) == Player_num) {
 
 			if (d > 0) {
-				fix damage = fixmul(d,FrameTime);
+				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
 
 				if (Difficulty_level == 0)
 					damage /= 2;
@@ -497,6 +502,10 @@ bool scrape_player_on_wall(const vobjptridx_t obj, const vsegptridx_t hitseg, sh
 {
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return false;
+
+	if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
+		return false;
+	Last_volatile_scrape_time = GameTime64;
 
 	const auto type = check_volatile_wall(obj, hitseg, hitside);
 	if (type != volatile_wall_result::none)
