@@ -138,7 +138,7 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(vcsegptr_t segn
 
 namespace dcx {
 //      Given a side, return the number of faces
-int get_num_faces(const side *sidep);
+bool get_side_is_quad(const side &sidep);
 struct WALL_IS_DOORWAY_mask_t;
 }
 

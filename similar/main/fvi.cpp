@@ -772,11 +772,6 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 }
 
-//--unused-- fix check_dist(vms_vector *v0,vms_vector *v1)
-//--unused-- {
-//--unused-- 	return vm_vec_dist(v0,v1);
-//--unused-- }
-
 __attribute_warn_unused_result
 static bool obj_in_list(objnum_t objnum,const std::pair<const objnum_t *, const objnum_t *> obj_list)
 {
@@ -904,12 +899,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 		//for each face we are on the back of, check if intersected
 
 		for (side=0,bit=1;side<6 && endmask>=bit;side++) {
-			int num_faces;
-			num_faces = get_num_faces(&seg->sides[side]);
-
-			if (num_faces == 0)
-				num_faces = 1;
-
+			const unsigned nv = get_side_is_quad(seg->sides[side]) ? 4 : 3;
 			// commented out by mk on 02/13/94:: if ((num_faces=seg->sides[side].num_faces)==0) num_faces=1;
 
 			for (face=0;face<2;face++,bit<<=1) {
@@ -928,13 +918,13 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 						face_hit_type = special_check_line_to_face(hit_point,
 										p0,p1,seg,side,
 										face,
-										((num_faces==1)?4:3),rad);
+										nv,rad);
 					else
 						//NOTE LINK TO ABOVE!!
 						face_hit_type = check_line_to_face(hit_point,
 										p0,p1,seg,side,
 										face,
-										((num_faces==1)?4:3),rad);
+										nv,rad);
 
 	
 					if (face_hit_type) {            //through this wall/door

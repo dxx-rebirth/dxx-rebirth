@@ -93,7 +93,7 @@ static void do_physics_align_object(object_base &obj)
 	}
 
 	// new player leveling code: use normal of side closest to our up vec
-	if (get_num_faces(best_side) == 2)
+	if (!get_side_is_quad(*best_side))
 	{
 		desired_upvec = vm_vec_avg(best_side->normals[0], best_side->normals[1]);
 				vm_vec_normalize(desired_upvec);

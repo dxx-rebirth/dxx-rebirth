@@ -146,16 +146,17 @@ namespace dcx {
 
 // -----------------------------------------------------------------------------------
 //	Given a side, return the number of faces
-int get_num_faces(const side *sidep)
+bool get_side_is_quad(const side &sidep)
 {
-	switch (sidep->get_type()) {
+	switch (sidep.get_type())
+	{
 		case SIDE_IS_QUAD:	
-			return 1;	
+			return true;
 		case SIDE_IS_TRI_02:
 		case SIDE_IS_TRI_13:	
-			return 2;	
+			return false;
 		default:
-			throw side::illegal_type(sidep);
+			throw side::illegal_type(&sidep);
 	}
 }
 
