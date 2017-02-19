@@ -84,6 +84,12 @@ public:
 	}
 };
 
+struct verts_for_normal
+{
+	array<unsigned, 4> vsorted;
+	bool negate_flag;
+};
+
 constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
 constexpr vm_distance fcd_abort_return_value{-1};
 
@@ -1254,12 +1260,13 @@ namespace dcx {
 //	Return v0, v1, v2 = 3 vertices with smallest numbers.  If *negate_flag set, then negate normal after computation.
 //	Note, you cannot just compute the normal by treating the points in the opposite direction as this introduces
 //	small differences between normals which should merely be opposites of each other.
-static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int *v2, int *v3, int *negate_flag)
+static void get_verts_for_normal(verts_for_normal &r, const unsigned va, const unsigned vb, const unsigned vc, const unsigned vd)
 {
-	array<int, 4> v, w;
+	auto &v = r.vsorted;
+	array<unsigned, 4> w;
 
 	//	w is a list that shows how things got scrambled so we know if our normal is pointing backwards
-	for (int i=0; i<4; i++)
+	for (unsigned i = 0; i < 4; ++i)
 		w[i] = i;
 
 	v[0] = va;
@@ -1267,8 +1274,8 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 	v[2] = vc;
 	v[3] = vd;
 
-	for (int i=1; i<4; i++)
-		for (int j=0; j<i; j++)
+	for (unsigned i = 1; i != 4; ++i)
+		for (unsigned j = 0; j != i; ++j)
 			if (v[j] > v[i]) {
 				using std::swap;
 				swap(v[j], v[i]);
@@ -1279,22 +1286,15 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 		LevelError("Level contains malformed geometry.");
 
 	//	Now, if for any w[i] & w[i+1]: w[i+1] = (w[i]+3)%4, then must swap
-	*v0 = v[0];
-	*v1 = v[1];
-	*v2 = v[2];
-	*v3 = v[3];
-
-	if ( (((w[0]+3) % 4) == w[1]) || (((w[1]+3) % 4) == w[2]))
-		*negate_flag = 1;
-	else
-		*negate_flag = 0;
+	r.negate_flag = ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
 static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned v1, const unsigned v2)
 {
-	array<int, 4> vsorted;
-	int	negate_flag;
-	get_verts_for_normal(v0, v1, v2, INT16_MAX, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
+	verts_for_normal vfn;
+	get_verts_for_normal(vfn, v0, v1, v2, UINT32_MAX);
+	const auto &vsorted = vfn.vsorted;
+	const auto &negate_flag = vfn.negate_flag;
 	vm_vec_normal(n, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
 	if (negate_flag)
 		vm_vec_negate(n);
@@ -1335,13 +1335,14 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
 		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
 	} else {
-		int	i,v[4], vsorted[4];
-		int	negate_flag;
+		array<unsigned, 4> v;
 
-		for (i=0; i<4; i++)
+		for (unsigned i = 0; i < 4; ++i)
 			v[i] = sp->verts[vs[i]];
 
-		get_verts_for_normal(v[0], v[1], v[2], v[3], &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
+		verts_for_normal vfn;
+		get_verts_for_normal(vfn, v[0], v[1], v[2], v[3]);
+		auto &vsorted = vfn.vsorted;
 
 		unsigned s0v2, s1v0;
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
@@ -1382,7 +1383,6 @@ namespace dsx {
 // -------------------------------------------------------------------------------
 void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 {
-	int	vm0, vm1, vm2, vm3, negate_flag;
 	fix	dist_to_plane;
 
 	auto &vs = Side_to_verts[sidenum];
@@ -1391,7 +1391,13 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 	const auto v2 = sp->verts[vs[2]];
 	const auto v3 = sp->verts[vs[3]];
 
-	get_verts_for_normal(v0, v1, v2, v3, &vm0, &vm1, &vm2, &vm3, &negate_flag);
+	verts_for_normal vfn;
+	get_verts_for_normal(vfn, v0, v1, v2, v3);
+	auto &vm0 = vfn.vsorted[0];
+	auto &vm1 = vfn.vsorted[1];
+	auto &vm2 = vfn.vsorted[2];
+	auto &vm3 = vfn.vsorted[3];
+	auto &negate_flag = vfn.negate_flag;
 
 	auto vn = vm_vec_normal(Vertices[vm0], Vertices[vm1], Vertices[vm2]);
 	dist_to_plane = abs(vm_dist_to_plane(Vertices[vm3], vn, Vertices[vm0]));
