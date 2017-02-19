@@ -662,9 +662,7 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		case weapon_id_type::FLARE_ID:
 		case weapon_id_type::CLS2_DRONE_LASER:
 		case weapon_id_type::VULCAN_ID:
-#if defined(DXX_BUILD_DESCENT_II)
 		case weapon_id_type::SPREADFIRE_ID:
-#endif
 		case weapon_id_type::PLASMA_ID:
 		case weapon_id_type::FUSION_ID:
 		case weapon_id_type::HOMING_ID:
@@ -673,9 +671,6 @@ objptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &posi
 		case weapon_id_type::MEGA_ID:
 
 		case weapon_id_type::PLAYER_SMART_HOMING_ID:
-#if defined(DXX_BUILD_DESCENT_I)
-		case weapon_id_type::SPREADFIRE_ID:
-#endif
 		case weapon_id_type::SUPER_MECH_MISS:
 		case weapon_id_type::REGULAR_MECH_MISS:
 		case weapon_id_type::SILENT_SPREADFIRE_ID:

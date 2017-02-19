@@ -26,7 +26,18 @@ enum weapon_id_type : uint8_t
 	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 	CLS2_DRONE_LASER = 10,
 	VULCAN_ID = 11,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_I)
+	/* Descent shipped with two spreadfire weapons.  One cost 0.5 energy
+	 * to fire; the other cost 1.0 energy to fire.  The two have
+	 * differing flight speeds.  For reasons unknown, the original code
+	 * used the cost of one spreadfire weapon, but used the other weapon
+	 * for all other purposes.  CHEAP_SPREADFIRE_ID represents the lower
+	 * cost weapon, so that it can be named in
+	 * Primary_weapon_to_weapon_info.  SPREADFIRE_ID represents the
+	 * weapon used for all other purposes.
+	 */
+	CHEAP_SPREADFIRE_ID,
+#elif defined(DXX_BUILD_DESCENT_II)
 	SPREADFIRE_ID = 12,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 #endif
 	PLASMA_ID = 13,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
