@@ -1183,10 +1183,10 @@ static rgb_t hud_get_vulcan_ammo_fontcolor(const player_info &player_info, const
 		return hud_rgb_gray;
 }
 
-static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo)
+static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const unsigned has_weapon_uses_vulcan_ammo, grs_canvas &canvas)
 {
 	auto rgb = hud_get_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
-	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, const int y)
@@ -1202,7 +1202,7 @@ static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, 
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
-	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo);
+	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo, *grd_curcanv);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
 		((primary_weapon_flags & gauss_mask) && (player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
