@@ -60,6 +60,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
+#define HUD_SCALE_X(G,x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(G)) + 0.5)
+#define HUD_SCALE_Y(G,y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(G)) + 0.5)
+#else
+#define HUD_SCALE_X(G,x)		(static_cast<void>(G), x)
+#define HUD_SCALE_Y(G,y)		(static_cast<void>(G), y)
 #endif
 #include "args.h"
 
@@ -208,10 +213,10 @@ static bool show_cloak_invul_timer()
 #define PRIMARY_W_PIC_X			((multires_gauge_graphic.get(135, 64)))
 #define SECONDARY_W_PIC_X		((multires_gauge_graphic.get(405, 234)))
 #define SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(370, 154)))
-#define SECONDARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(462, 207)))
-#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(400, 157)))
-#define SECONDARY_AMMO_X		HUD_SCALE_X((multires_gauge_graphic.get(475, 213)))
-#define SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(425, 171)))
+#define SECONDARY_W_TEXT_X		HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(462, 207)))
+#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(400, 157)))
+#define SECONDARY_AMMO_X		HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(475, 213)))
+#define SECONDARY_AMMO_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(425, 171)))
 #define SB_LIVES_X			((multires_gauge_graphic.get(550, 266)))
 #define SB_LIVES_Y			((multires_gauge_graphic.get(450, 185)))
 #define SB_SCORE_RIGHT_H		605
@@ -226,7 +231,7 @@ static bool show_cloak_invul_timer()
 #define SB_SECONDARY_W_BOX_TOP_L	154
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54)
 #define SB_SECONDARY_W_BOX_BOT_L	(153+42)
-#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14,11))))	//(212+9)
+#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(multires_gauge_graphic, SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14,11))))	//(212+9)
 #define GET_GAUGE_INDEX(x)		(Gauges[x].index)
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -252,10 +257,10 @@ static bool show_cloak_invul_timer()
 #define PRIMARY_W_PIC_X			((multires_gauge_graphic.get(135-10, 64)))
 #define SECONDARY_W_PIC_X		((multires_gauge_graphic.get(466, 234)))
 #define SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(374, 154)))
-#define SECONDARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(413, 207)))
-#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(378, 157)))
-#define SECONDARY_AMMO_X		HUD_SCALE_X((multires_gauge_graphic.get(428, 213)))
-#define SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(407, 171)))
+#define SECONDARY_W_TEXT_X		HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(413, 207)))
+#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(378, 157)))
+#define SECONDARY_AMMO_X		HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(428, 213)))
+#define SECONDARY_AMMO_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(407, 171)))
 #define SB_LIVES_X			((multires_gauge_graphic.get(550-10-3, 266)))
 #define SB_LIVES_Y			((multires_gauge_graphic.get(450-3, 185)))
 #define SB_SCORE_RIGHT_H		(605+8)
@@ -270,7 +275,7 @@ static bool show_cloak_invul_timer()
 #define SB_SECONDARY_W_BOX_TOP_L	153
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54+1)
 #define SB_SECONDARY_W_BOX_BOT_L	(SB_SECONDARY_W_BOX_TOP_L+43)
-#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14-4, 11))))	//(212+9)
+#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(multires_gauge_graphic, SB_SECONDARY_W_BOX_LEFT+((multires_gauge_graphic.get(14-4, 11))))	//(212+9)
 #define GET_GAUGE_INDEX(x)		((multires_gauge_graphic.rget(Gauges_hires, Gauges)[x].index))
 
 #endif
@@ -291,10 +296,10 @@ static bool show_cloak_invul_timer()
 #define SB_SHIELD_NUM_X 		(SB_SHIELD_GAUGE_X+((multires_gauge_graphic.get(21, 12))))	//151
 #define NUMERICAL_GAUGE_X		((multires_gauge_graphic.get(308, 154)))
 #define PRIMARY_W_PIC_Y			((multires_gauge_graphic.get(370, 154)))
-#define PRIMARY_W_TEXT_X		HUD_SCALE_X((multires_gauge_graphic.get(182, 87)))
-#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(378, 157)))
-#define PRIMARY_AMMO_X			HUD_SCALE_X((multires_gauge_graphic.get(186, 93)))
-#define PRIMARY_AMMO_Y			HUD_SCALE_Y((multires_gauge_graphic.get(407, 171)))
+#define PRIMARY_W_TEXT_X		HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(182, 87)))
+#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(378, 157)))
+#define PRIMARY_AMMO_X			HUD_SCALE_X(multires_gauge_graphic, (multires_gauge_graphic.get(186, 93)))
+#define PRIMARY_AMMO_Y			HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(407, 171)))
 #define SB_LIVES_LABEL_X		((multires_gauge_graphic.get(475, 237)))
 #define SB_SCORE_RIGHT_L		301
 #define SB_SCORE_RIGHT			((multires_gauge_graphic.get(SB_SCORE_RIGHT_H, SB_SCORE_RIGHT_L)))
@@ -341,15 +346,15 @@ static bool show_cloak_invul_timer()
 #define SB_SECONDARY_W_BOX_LEFT		((multires_gauge_graphic.get(SB_SECONDARY_W_BOX_LEFT_H, SB_SECONDARY_W_BOX_LEFT_L)))	//210
 #define SB_PRIMARY_W_PIC_X		(SB_PRIMARY_W_BOX_LEFT+1)	//51
 #define SB_PRIMARY_W_PIC_Y		((multires_gauge_graphic.get(382, 154)))
-#define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(50, 24))))	//(51+23)
-#define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(390, 157)))
-#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(58, 30))))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
-#define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(410, 171)))
+#define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(multires_gauge_graphic, SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(50, 24))))	//(51+23)
+#define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(390, 157)))
+#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(multires_gauge_graphic, SB_PRIMARY_W_BOX_LEFT+((multires_gauge_graphic.get(58, 30))))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
+#define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(410, 171)))
 #define SB_SECONDARY_W_PIC_X		((multires_gauge_graphic.get(385, (SB_SECONDARY_W_BOX_LEFT+27))))	//(212+27)
 #define SB_SECONDARY_W_PIC_Y		((multires_gauge_graphic.get(382, 154)))
-#define SB_SECONDARY_W_TEXT_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+2)	//212
-#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y((multires_gauge_graphic.get(390, 157)))
-#define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y((multires_gauge_graphic.get(414, 171)))
+#define SB_SECONDARY_W_TEXT_X		HUD_SCALE_X(multires_gauge_graphic, SB_SECONDARY_W_BOX_LEFT+2)	//212
+#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(390, 157)))
+#define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y(multires_gauge_graphic, (multires_gauge_graphic.get(414, 171)))
 
 #define WS_SET				0		//in correct state
 #define WS_FADING_OUT			1
@@ -365,16 +370,12 @@ static bool show_cloak_invul_timer()
 #define BASE_WIDTH(G) ((G).get(640, 320))
 #define BASE_HEIGHT(G)	((G).get(480, 200))
 #if DXX_USE_OGL
-#define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(multires_gauge_graphic)) + 0.5)
-#define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(multires_gauge_graphic)) + 0.5)
-#define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
-#define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(100) > HUD_SCALE_X(100) ? HUD_SCALE_X(y) : HUD_SCALE_Y(y))
+#define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(multires_gauge_graphic, 100) > HUD_SCALE_Y(multires_gauge_graphic, 100) ? HUD_SCALE_Y(multires_gauge_graphic, x) : HUD_SCALE_X(multires_gauge_graphic, x))
+#define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(multires_gauge_graphic, 100) > HUD_SCALE_X(multires_gauge_graphic, 100) ? HUD_SCALE_X(multires_gauge_graphic, y) : HUD_SCALE_Y(multires_gauge_graphic, y))
 #define draw_numerical_display(S,E,G)	draw_numerical_display(S,E)
 #else
-#define HUD_SCALE_X(x)		(static_cast<void>(multires_gauge_graphic), x)
-#define HUD_SCALE_Y(y)		(static_cast<void>(multires_gauge_graphic), y)
-#define HUD_SCALE_X_AR(x)	HUD_SCALE_X(x)
-#define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(y)
+#define HUD_SCALE_X_AR(x)	HUD_SCALE_X(multires_gauge_graphic, x)
+#define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(multires_gauge_graphic, y)
 #define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
 #define hud_bitblt(C,X,Y,B,G)	hud_bitblt(C,X,Y,B)
 #endif
@@ -620,13 +621,13 @@ static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const u
 
 static inline void hud_bitblt(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitmap &bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	hud_bitblt_free(canvas, x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
+	hud_bitblt_free(canvas, x, y, HUD_SCALE_X(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, bm.bm_h), bm);
 }
 
 static void hud_gauge_bitblt(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
-	hud_bitblt(canvas, HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
+	hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
 }
 
 class draw_keys_state
@@ -764,7 +765,7 @@ static void sb_show_score(grs_canvas &canvas, const player_info &player_info, co
 	gr_set_curfont(canvas, GAME_FONT);
 	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 
-	gr_printf(canvas, HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
+	gr_printf(canvas, HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_LABEL_X), HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
 	gr_set_curfont(canvas, GAME_FONT);
 	snprintf(score_str, sizeof(score_str), "%5d",
@@ -774,12 +775,12 @@ static void sb_show_score(grs_canvas &canvas, const player_info &player_info, co
 	int	w, h;
 	gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
 
-	x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
-	y = HUD_SCALE_Y(SB_SCORE_Y);
+	x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT)-w-FSPACX(1);
+	y = HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_Y);
 
 	//erase old score
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_rect(canvas, x, y, HUD_SCALE_X(SB_SCORE_RIGHT), y + LINE_SPACING(canvas), color);
+	gr_rect(canvas, x, y, HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), y + LINE_SPACING(canvas), color);
 
 	gr_string(canvas, x, y, score_str, w, h);
 }
@@ -815,13 +816,13 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-		x = HUD_SCALE_X(SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
+		x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
-		gr_string(*grd_curcanv, x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str, w, h);
+		gr_string(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), score_str, w, h);
 	} else {
 		//erase old score
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_rect(*grd_curcanv, x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), HUD_SCALE_X(SB_SCORE_ADDED_RIGHT), HUD_SCALE_Y(SB_SCORE_ADDED_Y) + LINE_SPACING(*grd_curcanv), color);
+		gr_rect(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_ADDED_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y) + LINE_SPACING(*grd_curcanv), color);
 		score_time = 0;
 		score_display = 0;
 	}
@@ -1614,7 +1615,7 @@ static void hud_show_lives(const player_info &player_info, const local_multires_
 		return;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-		x = HUD_SCALE_X(7);
+		x = HUD_SCALE_X(multires_gauge_graphic, 7);
 	else
 		x = FSPACX(2);
 
@@ -1642,7 +1643,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
-	gr_printf(*grd_curcanv, HUD_SCALE_X(SB_LIVES_LABEL_X), HUD_SCALE_Y(y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
+	gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SB_LIVES_LABEL_X), HUD_SCALE_Y(multires_gauge_graphic, y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
 	if (Game_mode & GM_MULTI)
@@ -1653,22 +1654,22 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
 		gr_get_string_size(*grd_curcanv->cv_font, killed_str, &w, &h, nullptr);
-		const auto x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
-		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y)+LINE_SPACING(*grd_curcanv), color);
-		gr_string(*grd_curcanv, x, HUD_SCALE_Y(y), killed_str, w, h);
+		const auto x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT)-w-FSPACX(1);
+		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y)+LINE_SPACING(*grd_curcanv), color);
+		gr_string(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, y), killed_str, w, h);
 		return;
 	}
 
 	const int x = SB_LIVES_X;
 	//erase old icons
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
-	gr_rect(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y + bm.bm_h), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h), color);
 
 	if (get_local_player().lives-1 > 0) {
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(*grd_curcanv, HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", get_local_player().lives - 1);
+		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
 	}
 }
 
@@ -1837,9 +1838,9 @@ static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_g
 	cockpit_decode_alpha(bm, multires_gauge_graphic);
 
 	if (WinBoxOverlay[0])
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(PRIMARY_W_BOX_LEFT - 2), HUD_SCALE_Y(PRIMARY_W_BOX_TOP - 2), *WinBoxOverlay[0].get(), multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, PRIMARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, PRIMARY_W_BOX_TOP - 2), *WinBoxOverlay[0].get(), multires_gauge_graphic);
 	if (WinBoxOverlay[1])
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(SECONDARY_W_BOX_LEFT - 2), HUD_SCALE_Y(SECONDARY_W_BOX_TOP - 2), *WinBoxOverlay[1].get(), multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SECONDARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, SECONDARY_W_BOX_TOP - 2), *WinBoxOverlay[1].get(), multires_gauge_graphic);
 }
 }
 
@@ -1862,8 +1863,8 @@ void init_gauges()
 static void draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x1, x2, y;
-	int not_energy = HUD_SCALE_X(multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
-	double aplitscale=(static_cast<double>(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
+	int not_energy = HUD_SCALE_X(multires_gauge_graphic, multires_gauge_graphic.is_hires() ? (125 - (energy*125)/100) : (63 - (energy*63)/100));
+	double aplitscale=(static_cast<double>(HUD_SCALE_X(multires_gauge_graphic, 65)/HUD_SCALE_Y(multires_gauge_graphic, 8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
 	hud_gauge_bitblt(*grd_curcanv, LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT, multires_gauge_graphic);
@@ -1871,16 +1872,16 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 	const auto color = BM_XRGB(0, 0, 0);
 
 	if (energy < 100)
-		for (y=0; y < HUD_SCALE_Y(LEFT_ENERGY_GAUGE_H); y++) {
-			x1 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale);
-			x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale) + not_energy;
+		for (y=0; y < HUD_SCALE_Y(multires_gauge_graphic, LEFT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale);
+			x2 = HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale) + not_energy;
 
-			if (x2 > HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3)
-				x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3;
+			if (x2 > HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3)
+				x2 = HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3;
 
 			if (x2 > x1)
 			{
-				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), color);
+				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(multires_gauge_graphic, LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(multires_gauge_graphic, LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(multires_gauge_graphic, LEFT_ENERGY_GAUGE_Y)), color);
 			}
 		}
 
@@ -1890,16 +1891,16 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 	hud_gauge_bitblt(*grd_curcanv, RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, GAUGE_ENERGY_RIGHT, multires_gauge_graphic);
 
 	if (energy < 100)
-		for (y=0; y < HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_H); y++) {
-			x1 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale) - not_energy;
-			x2 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale);
+		for (y=0; y < HUD_SCALE_Y(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale) - not_energy;
+			x2 = HUD_SCALE_X(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale);
 
 			if (x1 < (y*aplitscale)/3)
 				x1 = (y*aplitscale)/3;
 
 			if (x2 > x1)
 			{
-				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), color);
+				gr_uline(*grd_curcanv, i2f(x1+HUD_SCALE_X(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(multires_gauge_graphic, RIGHT_ENERGY_GAUGE_Y)), color);
 			}
 		}
 
@@ -2026,14 +2027,14 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 	if (not_afterburner > table.second)
 		return;
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	const int base_top = HUD_SCALE_Y(afterburner_gauge_y - 1);
-	const int base_bottom = HUD_SCALE_Y(afterburner_gauge_y);
+	const int base_top = HUD_SCALE_Y(multires_gauge_graphic, afterburner_gauge_y - 1);
+	const int base_bottom = HUD_SCALE_Y(multires_gauge_graphic, afterburner_gauge_y);
 	int y = 0;
 	range_for (auto &ab, unchecked_partial_range(table.first, not_afterburner))
 	{
-		const int left = HUD_SCALE_X(afterburner_gauge_x + ab.l);
-		const int right = HUD_SCALE_X(afterburner_gauge_x + ab.r + 1);
-		for (int i = HUD_SCALE_Y(y), j = HUD_SCALE_Y(++y); i < j; ++i)
+		const int left = HUD_SCALE_X(multires_gauge_graphic, afterburner_gauge_x + ab.l);
+		const int right = HUD_SCALE_X(multires_gauge_graphic, afterburner_gauge_x + ab.r + 1);
+		for (int i = HUD_SCALE_Y(multires_gauge_graphic, y), j = HUD_SCALE_Y(multires_gauge_graphic, ++y); i < j; ++i)
 		{
 			gr_rect (*grd_curcanv, left, base_top + i, right, base_bottom + i, color);
 		}
@@ -2118,15 +2119,15 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
-	hud_bitblt(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
+	hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), bm, multires_gauge_graphic);
 	gr_settransblend(*grd_curcanv, cloak_fade_value, GR_BLEND_NORMAL);
-	gr_rect(*grd_curcanv, HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), 0);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x - 3), HUD_SCALE_Y(multires_gauge_graphic, y - 3), HUD_SCALE_X(multires_gauge_graphic, x + bm.bm_w + 3), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h + 3), 0);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
 
         // Show Cloak Timer if enabled
 	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
-		show_cockpit_cloak_invul_timer(player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(y + (bm.bm_h / 2)));
+		show_cockpit_cloak_invul_timer(player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y + (bm.bm_h / 2)));
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -2178,9 +2179,9 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_rect(*grd_curcanv, HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot+1), color);
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_rect(*grd_curcanv, HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot), color);
+	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot), color);
 #endif
 	const auto &picture = 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2192,7 +2193,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	PIGGY_PAGE_IN(picture);
 	auto &bm = GameBitmaps[picture.index];
 
-	hud_bitblt(*grd_curcanv, HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
+	hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, pic_x), HUD_SCALE_Y(multires_gauge_graphic, pic_y), bm, multires_gauge_graphic);
 
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
@@ -2392,7 +2393,7 @@ static void draw_weapon_box(const player_info &player_info, const int weapon_typ
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
 		gr_settransblend(*grd_curcanv, fade_value, GR_BLEND_NORMAL);
-		gr_rect(*grd_curcanv, HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot), 0);
+		gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(multires_gauge_graphic, gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(multires_gauge_graphic, gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(multires_gauge_graphic, gauge_boxes[boxofs+weapon_type].bot), 0);
 
 		gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
@@ -2433,10 +2434,10 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 #else
 	if (multires_gauge_graphic.is_hires())
 	{
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.left), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.left), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
 	}
 
 #endif
@@ -2519,10 +2520,10 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	hud_gauge_bitblt(*grd_curcanv, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
 
 	const auto color = 0;
-	const int erase_x0 = i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X));
-	const int erase_x1 = i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X + (SB_ENERGY_GAUGE_W)));
-	const int erase_y_base = HUD_SCALE_Y(SB_ENERGY_GAUGE_Y);
-	for (int i = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100); i-- > 0;)
+	const int erase_x0 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_ENERGY_GAUGE_X));
+	const int erase_x1 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_ENERGY_GAUGE_X + (SB_ENERGY_GAUGE_W)));
+	const int erase_y_base = HUD_SCALE_Y(multires_gauge_graphic, SB_ENERGY_GAUGE_Y);
+	for (int i = HUD_SCALE_Y(multires_gauge_graphic, (100 - energy) * SB_ENERGY_GAUGE_H / 100); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
 		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
@@ -2536,7 +2537,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
 #endif
-	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(y), "%d", energy);
+	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(multires_gauge_graphic, y), "%d", energy);
 
 	gr_set_current_canvas(NULL);
 }
@@ -2550,10 +2551,10 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 	hud_gauge_bitblt(*grd_curcanv, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
 
 	const auto color = 0;
-	const int erase_x0 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X));
-	const int erase_x1 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W)));
-	const int erase_y_base = HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y);
-	for (int i = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H)); i-- > 0;)
+	const int erase_x0 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X));
+	const int erase_x1 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W)));
+	const int erase_y_base = HUD_SCALE_Y(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_Y);
+	for (int i = HUD_SCALE_Y(multires_gauge_graphic, fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H)); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
 		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
@@ -2569,7 +2570,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 
 	int w, h;
 	gr_get_string_size(*grd_curcanv->cv_font, ab_str, &w, &h, nullptr);
-	gr_string(*grd_curcanv, HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
+	gr_string(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
 	gr_set_current_canvas(NULL);
 }
 #endif
@@ -2583,7 +2584,7 @@ static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic mu
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
 
 	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(shield), &sw, nullptr, nullptr);
-	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(SB_SHIELD_NUM_Y), "%d", shield);
+	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_SHIELD_NUM_Y), "%d", shield);
 }
 
 static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2637,7 +2638,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
                 // Show Invulnerability Timer if enabled
 		if (show_cloak_invul_timer())
                 {
-			show_cockpit_cloak_invul_timer(t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(y));
+			show_cockpit_cloak_invul_timer(t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y));
                 }
 
 	}
@@ -3341,7 +3342,7 @@ void render_gauges()
 			newdemo_record_player_afterburner(Afterburner_charge);
 		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
 #endif
-		show_bomb_count(player_info, HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+		show_bomb_count(player_info, HUD_SCALE_X(multires_gauge_graphic, BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(player_info, cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
@@ -3373,7 +3374,7 @@ void render_gauges()
 		sb_draw_afterburner(player_info, multires_gauge_graphic);
 		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
 #endif
-			show_bomb_count(player_info, HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+			show_bomb_count(player_info, HUD_SCALE_X(multires_gauge_graphic, SB_BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
 		draw_player_ship(player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
@@ -3487,7 +3488,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 			goto abort;
 
 		box = &gauge_boxes[boxnum];
-		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, HUD_SCALE_X(box->left), HUD_SCALE_Y(box->top), HUD_SCALE_X(box->right-box->left+1), HUD_SCALE_Y(box->bot-box->top+1));
+		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, HUD_SCALE_X(multires_gauge_graphic, box->left), HUD_SCALE_Y(multires_gauge_graphic, box->top), HUD_SCALE_X(multires_gauge_graphic, box->right-box->left+1), HUD_SCALE_Y(multires_gauge_graphic, box->bot-box->top+1));
 	}
 
 	gr_set_current_canvas(&window_canv);
