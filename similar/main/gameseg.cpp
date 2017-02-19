@@ -1290,6 +1290,16 @@ static void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v
 		*negate_flag = 0;
 }
 
+static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned v1, const unsigned v2)
+{
+	array<int, 4> vsorted;
+	int	negate_flag;
+	get_verts_for_normal(v0, v1, v2, INT16_MAX, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
+	vm_vec_normal(n, Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
+	if (negate_flag)
+		vm_vec_negate(n);
+}
+
 }
 
 namespace dsx {
@@ -1333,27 +1343,20 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 
 		get_verts_for_normal(v[0], v[1], v[2], v[3], &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
 
+		unsigned s0v2, s1v0;
 		if ((vsorted[0] == v[0]) || (vsorted[0] == v[2])) {
 			sidep->set_type(SIDE_IS_TRI_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
-			get_verts_for_normal(v[0], v[1], v[2], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			const auto n0 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			sidep->normals[0] = negate_flag ? vm_vec_negated(n0) : n0;
-
-			get_verts_for_normal(v[0], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			const auto n1 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			sidep->normals[1] = negate_flag ? vm_vec_negated(n1) : n1;
+			s0v2 = v[2];
+			s1v0 = v[0];
 		} else {
 			sidep->set_type(SIDE_IS_TRI_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
-			get_verts_for_normal(v[0], v[1], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			const auto n0 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			sidep->normals[0] = negate_flag ? vm_vec_negated(n0) : n0;
-
-			get_verts_for_normal(v[1], v[2], v[3], 32767, &vsorted[0], &vsorted[1], &vsorted[2], &vsorted[3], &negate_flag);
-			const auto n1 = vm_vec_normal(Vertices[vsorted[0]], Vertices[vsorted[1]], Vertices[vsorted[2]]);
-			sidep->normals[1] = negate_flag ? vm_vec_negated(n1) : n1;
+			s0v2 = v[3];
+			s1v0 = v[1];
 		}
+		assign_side_normal(sidep->normals[0], v[0], v[1], s0v2);
+		assign_side_normal(sidep->normals[1], s1v0, v[2], v[3]);
 	}
 }
 
