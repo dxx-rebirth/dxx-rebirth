@@ -1344,7 +1344,7 @@ void do_exploding_wall_frame()
 		auto segnum = i.segnum;
 
 		if (segnum != segment_none) {
-			int sidenum = i.sidenum;
+			unsigned sidenum = i.sidenum;
 			fix oldfrac,newfrac;
 			int old_count,new_count,e;		//n,
 

@@ -321,7 +321,8 @@ fix	Stretch_scale_y = F1_0;
 //	Side_to_verts[side] to get the segment relative index.
 static void assign_uvs_to_side(const vsegptridx_t segp, int sidenum, uvl *uva, uvl *uvb, int va, int vb)
 {
-	int			vlo,vhi,v0,v1,v2,v3;
+	int			vlo,vhi;
+	unsigned v0, v1, v2, v3;
 	array<uvl, 4> uvls;
 	uvl ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
@@ -432,7 +433,7 @@ namespace dsx {
 //		v0 = 0,0
 //		v1 = k,0 where k is 3d size dependent
 //	v2, v3 assigned by assign_uvs_to_side
-void assign_default_uvs_to_side(const vsegptridx_t segp,int side)
+void assign_default_uvs_to_side(const vsegptridx_t segp, const unsigned side)
 {
 	uvl			uv0,uv1;
 	uv0.u = 0;
@@ -917,13 +918,10 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{
-		int			light_vertex_num, i;
-		vms_vector	light_location;
 		// fix			inverse_segment_magnitude;
 
-		light_vertex_num = segp->verts[lightnum];
-		light_location = Vertices[light_vertex_num];
-
+		const auto light_vertex_num = segp->verts[lightnum];
+		auto light_location = Vertices[light_vertex_num];
 
 	//	New way, 5/8/95: Move towards center irrespective of size of segment.
 		const auto vector_to_center = vm_vec_normalized_quick(vm_vec_sub(segment_center, light_location));
@@ -939,8 +937,8 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 		{
 			fix			dist_to_rseg;
 
-			for (i=0; i<FVI_HASH_SIZE; i++)
-				fvi_cache[i].flag = 0;
+			range_for (auto &i, fvi_cache)
+				i.flag = 0;
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
 			const auto r_segment_center = compute_segment_center(rsegp);
@@ -955,9 +953,8 @@ static void cast_light_from_side(const vsegptridx_t segp, int light_side, fix li
 						for (vertnum=0; vertnum<4; vertnum++) {
 							fix			distance_to_point, light_at_point, light_dot;
 							vms_vector	vert_location;
-							int			abs_vertnum;
 
-							abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
+							const auto abs_vertnum = rsegp->verts[Side_to_verts[sidenum][vertnum]];
 							vert_location = Vertices[abs_vertnum];
 							distance_to_point = vm_vec_dist_quick(vert_location, light_location);
 							const auto vector_to_light = vm_vec_normalized(vm_vec_sub(light_location, vert_location));

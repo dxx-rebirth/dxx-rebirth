@@ -732,14 +732,14 @@ window_event_result do_physics_sim(const vobjptridx_t obj)
 
 				//bump object back
 
-				auto s = &orig_segp->sides[sidenum];
+				const auto s = &orig_segp->sides[sidenum];
 
 				const auto v = create_abs_vertex_lists(orig_segp, s, sidenum);
 				const auto &vertex_list = v.second;
 
 				//let's pretend this wall is not triangulated
-				auto b = begin(vertex_list);
-				auto vertnum = *std::min_element(b, std::next(b, 4));
+				const auto b = begin(vertex_list);
+				const auto vertnum = *std::min_element(b, std::next(b, 4));
 
 					dist = vm_dist_to_plane(start_pos, s->normals[0], Vertices[vertnum]);
 					vm_vec_scale_add(obj->pos,start_pos,s->normals[0],obj->size-dist);

@@ -1276,10 +1276,10 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 {
 	int 	is_grate;
 	ubyte	color;
-	int	sn;
 	const auto &segnum = seg;
 	
-	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
+	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
+	{
 		uint8_t hidden_flag = 0;
 
 		is_grate = 0;
@@ -1409,9 +1409,9 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 
 static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
 {
-	int sn;
 	const auto &segnum = seg;
-	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
+	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
+	{
 		// Only add edges that have no children
 		if (seg->children[sn] == segment_none) {
 			const auto vertex_list = get_side_verts(segnum,sn);

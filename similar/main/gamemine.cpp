@@ -589,14 +589,14 @@ int load_mine_data(PHYSFS_File *LoadFile)
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
 			Error( "Error seeking to vertex_offset in gamemine.c" );
 
-		for (int i=0; i< mine_fileinfo.vertex_howmany; i++ )
+		range_for (auto &i, partial_range(Vertices, mine_fileinfo.vertex_howmany))
 		{
 			// Set the default values for this vertex
-			Vertices[i].x = 1;
-			Vertices[i].y = 1;
-			Vertices[i].z = 1;
+			i.x = 1;
+			i.y = 1;
+			i.z = 1;
 
-			if (PHYSFS_read( LoadFile, &Vertices[i], mine_fileinfo.vertex_sizeof, 1 )!=1)
+			if (PHYSFS_read(LoadFile, &i, mine_fileinfo.vertex_sizeof, 1) != 1)
 				Error( "Error reading Vertices[i] in gamemine.c" );
 		}
 	}
@@ -735,7 +735,7 @@ int load_mine_data(PHYSFS_File *LoadFile)
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
 			Error( "Error seeking to newseg_verts_offset in gamemine.c" );
-		for (int i=0; i< mine_fileinfo.newseg_verts_howmany; i++ )
+		for (unsigned i = 0; i < mine_fileinfo.newseg_verts_howmany; ++i)
 		{
 			// Set the default values for this vertex
 			Vertices[NEW_SEGMENT_VERTICES+i].x = 1;

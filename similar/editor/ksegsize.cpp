@@ -75,7 +75,7 @@ static void validate_modified_segments(void)
 
 // ------------------------------------------------------------------------------------------
 //	Scale vertex *vertp by vector *vp, scaled by scale factor scale_factor
-static void scale_vert_aux(int vertex_ind, const vms_vector &vp, fix scale_factor)
+static void scale_vert_aux(const unsigned vertex_ind, const vms_vector &vp, const fix scale_factor)
 {
 	auto &vertp = Vertices[vertex_ind];
 
@@ -165,10 +165,11 @@ static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(const vsegptr_t sp, int side, vms_vector &vp, int vla, int vlb, int vra, int vrb)
+static void extract_vector_from_segment_side(const vsegptr_t sp, const unsigned side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
 {
-	const auto v1 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vra]]],Vertices[sp->verts[Side_to_verts[side][vla]]]);
-	const auto v2 = vm_vec_sub(Vertices[sp->verts[Side_to_verts[side][vrb]]],Vertices[sp->verts[Side_to_verts[side][vlb]]]);
+	auto &sv = Side_to_verts[side];
+	const auto v1 = vm_vec_sub(Vertices[sp->verts[sv[vra]]], Vertices[sp->verts[sv[vla]]]);
+	const auto v2 = vm_vec_sub(Vertices[sp->verts[sv[vrb]]], Vertices[sp->verts[sv[vlb]]]);
 	vm_vec_add(vp, v1, v2);
 	vm_vec_scale(vp, F1_0/2);
 }

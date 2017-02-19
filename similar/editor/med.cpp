@@ -557,7 +557,7 @@ int fuelcen_delete_from_curseg() {
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
 
-static void move_player_2_segment_and_rotate(const vsegptridx_t seg,int side)
+static void move_player_2_segment_and_rotate(const vsegptridx_t seg, const unsigned side)
 {
         static int edgenum=0;
 
@@ -588,7 +588,6 @@ int SetPlayerFromCursegMinusOne()
 {
 	array<vms_vector, 4> corner_v;
 	array<g3s_point, 4> corner_p;
-	int i;
 	fix max,view_dist=f1_0*10;
         static int edgenum=0;
 	const auto view_vec = vm_vec_negated(Cursegp->sides[Curside].normals[0]);
@@ -606,7 +605,8 @@ int SetPlayerFromCursegMinusOne()
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(ConsoleObject->pos,ConsoleObject->orient,Render_zoom);
 
-	for (i=max=0;i<4;i++) {
+	for (unsigned i = max = 0; i < 4; ++i)
+	{
 		corner_v[i] = Vertices[Cursegp->verts[Side_to_verts[Curside][i]]];
 		g3_rotate_point(corner_p[i],corner_v[i]);
 		if (labs(corner_p[i].p3_x) > max) max = labs(corner_p[i].p3_x);

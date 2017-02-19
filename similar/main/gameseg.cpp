@@ -74,10 +74,7 @@ public:
 class all_vertnum_lists_predicate : public abs_vertex_lists_predicate
 {
 public:
-	all_vertnum_lists_predicate(const vcsegptr_t segp, uint_fast32_t sidenum) :
-		abs_vertex_lists_predicate(segp, sidenum)
-	{
-	}
+	using abs_vertex_lists_predicate::abs_vertex_lists_predicate;
 	vertex_vertnum_pair operator()(const uint_fast32_t vv) const
 	{
 		return {this->abs_vertex_lists_predicate::operator()(vv), static_cast<unsigned>(vv)};
@@ -167,7 +164,7 @@ int get_num_faces(const side *sidep)
 namespace dsx {
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist,const vcsegptr_t segp,int sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist, const vcsegptr_t segp, const unsigned sidenum)
 {
 	auto &sv = Side_to_verts[sidenum];
 	auto &vp = segp->verts;
@@ -1177,8 +1174,10 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(vec1, Vertices[sp->verts[static_cast<int>(vp[1])]], Vertices[sp->verts[static_cast<int>(vp[0])]]);
-        vm_vec_normalized_dir(vec2, Vertices[sp->verts[static_cast<int>(vp[2])]], Vertices[sp->verts[static_cast<int>(vp[1])]]);
+	const auto vp1 = vp[1];
+	const auto vp2 = vp[2];
+	vm_vec_normalized_dir(vec1, Vertices[sp->verts[vp1]], Vertices[sp->verts[vp[0]]]);
+	vm_vec_normalized_dir(vec2, Vertices[sp->verts[vp2]], Vertices[sp->verts[vp1]]);
 	const auto cross0 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross0);
@@ -1189,8 +1188,8 @@ static int check_for_degenerate_side(const vcsegptr_t sp, int sidenum)
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(vec1, Vertices[sp->verts[static_cast<int>(vp[2])]], Vertices[sp->verts[static_cast<int>(vp[1])]]);
-        vm_vec_normalized_dir(vec2, Vertices[sp->verts[static_cast<int>(vp[3])]], Vertices[sp->verts[static_cast<int>(vp[2])]]);
+	vm_vec_normalized_dir(vec1, Vertices[sp->verts[vp2]], Vertices[sp->verts[vp1]]);
+	vm_vec_normalized_dir(vec2, Vertices[sp->verts[vp[3]]], Vertices[sp->verts[vp2]]);
 	const auto cross1 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross1);
@@ -1305,12 +1304,12 @@ static void assign_side_normal(vms_vector &n, const unsigned v0, const unsigned 
 namespace dsx {
 
 // -------------------------------------------------------------------------------
-static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
+static void add_side_as_2_triangles(const vsegptr_t sp, const unsigned sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
 	fix			dot;
 
-	side	*sidep = &sp->sides[sidenum];
+	const auto sidep = &sp->sides[sidenum];
 
 	//	Choose how to triangulate.
 	//	If a wall, then
@@ -1415,14 +1414,13 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 
 			fix			dist0,dist1;
 			int			s0,s1;
-			int			vertnum;
 
 			const auto v = create_abs_vertex_lists(sp, s, sidenum);
 			const auto &vertex_list = v.second;
 
 			Assert(v.first == 2);
 
-			vertnum = min(vertex_list[0],vertex_list[2]);
+			const auto vertnum = min(vertex_list[0],vertex_list[2]);
 
 			dist0 = vm_dist_to_plane(Vertices[vertex_list[1]],s->normals[1],Vertices[vertnum]);
 			dist1 = vm_dist_to_plane(Vertices[vertex_list[4]],s->normals[0],Vertices[vertnum]);
@@ -1565,9 +1563,8 @@ void validate_segment_all(void)
 //		From center, go up to 50% of way towards any of the 8 vertices.
 void pick_random_point_in_seg(vms_vector &new_pos, const vcsegptr_t sp)
 {
-	int			vnum;
 	compute_segment_center(new_pos, sp);
-	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
+	const unsigned vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	auto vec2 = vm_vec_sub(Vertices[sp->verts[vnum]], new_pos);
 	vm_vec_scale(vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, vec2);

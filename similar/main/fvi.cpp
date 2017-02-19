@@ -241,7 +241,6 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 {
 	int pli;
 	const struct side *s=&seg->sides[side];
-	int vertnum;
 	vms_vector norm;
 
 		norm = seg->sides[side].normals[facenum];
@@ -251,6 +250,7 @@ static int check_line_to_face(vms_vector &newp,const vms_vector &p0,const vms_ve
 	const auto &vertex_list = v.second;
 
 	//use lowest point number
+	unsigned vertnum;
 	if (num_faces==2) {
 		vertnum = min(vertex_list[0],vertex_list[2]);
 	}

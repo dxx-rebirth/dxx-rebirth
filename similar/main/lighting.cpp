@@ -88,7 +88,7 @@ static void add_light_dot_square(g3s_lrgb &d, const g3s_lrgb &light, const fix &
 
 // ----------------------------------------------------------------------------------------------
 namespace dsx {
-static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const cobjptridx_t objnum)
+static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t obj_seg, const vms_vector &obj_pos, const unsigned n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list, const cobjptridx_t objnum)
 {
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
@@ -152,11 +152,10 @@ static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t o
 			}
 #endif
 			for (int vv=0; vv<n_render_vertices; vv++) {
-				int			vertnum;
 				fix			dist;
 				int			apply_light = 0;
 
-				vertnum = render_vertices[vv];
+				const auto vertnum = render_vertices[vv];
 				auto vsegnum = vert_segnum_list[vv];
 				const auto &vertpos = Vertices[vertnum];
 
@@ -218,7 +217,7 @@ static void apply_light(const g3s_lrgb obj_light_emission, const vcsegptridx_t o
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-static void cast_muzzle_flash_light(int n_render_vertices, array<int, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
+static void cast_muzzle_flash_light(int n_render_vertices, array<unsigned, MAX_VERTICES> &render_vertices, const array<segnum_t, MAX_VERTICES> &vert_segnum_list)
 {
 	fix64 current_time;
 	short time_since_flash;
@@ -484,7 +483,7 @@ static g3s_lrgb compute_light_emission(const vobjptridx_t obj)
 // ----------------------------------------------------------------------------------------------
 void set_dynamic_light(render_state_t &rstate)
 {
-	array<int, MAX_VERTICES> render_vertices;
+	array<unsigned, MAX_VERTICES> render_vertices;
 	array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
 

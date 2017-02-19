@@ -791,12 +791,11 @@ static int med_move_group(int delta_flag, const vsegptridx_t base_seg, int base_
 //	-----------------------------------------------------------------------------
 static segnum_t place_new_segment_in_world(void)
 {
-	int	v;
 	const auto &&segnum = vsegptridx(get_free_segment_number());
 	auto &seg = *segnum;
 	seg = New_segment;
 
-	for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++)
+	for (unsigned v = 0; v != MAX_VERTICES_PER_SEGMENT; ++v)
 		seg.verts[v] = med_create_duplicate_vertex(Vertices[New_segment.verts[v]]);
 
 	return segnum;

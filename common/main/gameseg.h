@@ -47,9 +47,9 @@ struct segmasks
 struct segment_depth_array_t : public array<ubyte, MAX_SEGMENTS> {};
 
 extern unsigned Highest_vertex_index;                   // Highest index in Vertices and Vertex_active, an efficiency hack
-struct side_vertnum_list_t : array<int, 4> {};
+struct side_vertnum_list_t : array<unsigned, 4> {};
 
-struct vertex_array_list_t : array<int, 6> {};
+struct vertex_array_list_t : array<unsigned, 6> {};
 struct vertex_vertnum_pair
 {
 	unsigned vertex, vertnum;
@@ -76,8 +76,8 @@ static inline vms_vector compute_segment_center(vcsegptr_t sp)
 int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum,int sidenum);
-static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum,int sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist,vcsegptr_t segnum, unsigned sidenum);
+static inline side_vertnum_list_t get_side_verts(vcsegptr_t segnum, const unsigned sidenum)
 {
 	side_vertnum_list_t r;
 	return get_side_verts(r, segnum, sidenum), r;

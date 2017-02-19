@@ -208,7 +208,7 @@ extern void init_all_vertices(void);
 extern int is_free_vertex(int vi);
 
 //	Set existing vertex vnum to value *vp.
-int med_set_vertex(int vnum,const vertex &vp);
+int med_set_vertex(unsigned vnum, const vertex &vp);
 
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &);
 
@@ -346,7 +346,7 @@ void med_extract_matrix_from_segment(vcsegptr_t sp,vms_matrix *rotmat);
 //	This routine should only be used for segments which are not connected to anything else,
 //	ie the segment created at mine creation.
 void assign_default_uvs_to_segment(vsegptridx_t segp);
-void assign_default_uvs_to_side(vsegptridx_t segp, int side);
+void assign_default_uvs_to_side(vsegptridx_t segp, unsigned side);
 
 //	Assign u,v coordinates to con_seg, con_common_side from base_seg, base_common_side
 //	They are connected at the edge defined by the vertices abs_id1, abs_id2.

@@ -272,7 +272,7 @@ static int vnear(const vms_vector &vp1, const vms_vector &vp2)
 // vertices have been looked at without a match.  If no match, add a new vertex.
 int med_add_vertex(const vertex &vp)
 {
-	int	v,free_index;
+	int	free_index;
 	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
 
 //	set_vertex_counts();
@@ -281,7 +281,7 @@ int med_add_vertex(const vertex &vp)
 
 	count = 0;
 	free_index = -1;
-	for (v=0; (v < MAX_SEGMENT_VERTICES) && (count < Num_vertices); v++)
+	for (unsigned v = 0; v < MAX_SEGMENT_VERTICES && count < Num_vertices; ++v)
 		if (Vertex_active[v]) {
 			count++;
 			if (vnear(vp, Vertices[v])) {
@@ -378,7 +378,7 @@ int med_create_duplicate_vertex(const vertex &vp)
 
 // -------------------------------------------------------------------------------
 //	Set the vertex *vp at index vnum in the global list of vertices, return its index (just for compatibility).
-int med_set_vertex(int vnum,const vertex &vp)
+int med_set_vertex(const unsigned vnum, const vertex &vp)
 {
 	Assert(vnum < MAX_VERTICES);
 
@@ -582,14 +582,13 @@ static void change_vertex_occurrences(int dest, int src)
 // --------------------------------------------------------------------------------------------------
 static void compress_vertices(void)
 {
-	int		hole,vert;
-
 	if (Highest_vertex_index == Num_vertices - 1)
 		return;
 
+	unsigned vert;
 	vert = Highest_vertex_index;	//MAX_SEGMENT_VERTICES-1;
 
-	for (hole=0; hole < vert; hole++)
+	for (unsigned hole = 0; hole < vert; ++hole)
 		if (!Vertex_active[hole]) {
 			// found an unused vertex which is a hole if a used vertex follows (not necessarily immediately) it.
 			for ( ; (vert>hole) && (!Vertex_active[vert]); vert--)
@@ -701,19 +700,16 @@ static void compress_segments(void)
 //	the same vertex number to the two vertices, freeing up one of the vertices.
 void med_combine_duplicate_vertices(array<uint8_t, MAX_VERTICES> &vlp)
 {
-	int	v,w;
-
-	for (v=0; v<Highest_vertex_index; v++)		// Note: ok to do to <, rather than <= because w for loop starts at v+1
+	for (unsigned v = 0; v < Highest_vertex_index; ++v)		// Note: ok to do to <, rather than <= because w for loop starts at v+1
 		if (vlp[v]) {
 			const auto &vvp = Vertices[v];
-			for (w=v+1; w<=Highest_vertex_index; w++)
+			for (unsigned w = v + 1; w <= Highest_vertex_index; ++w)
 				if (vlp[w]) {	//	used to be Vertex_active[w]
 					if (vnear(vvp, Vertices[w])) {
 						change_vertex_occurrences(v, w);
 					}
 				}
 		}
-
 }
 
 // ------------------------------------------------------------------------------
@@ -763,7 +759,6 @@ static void copy_tmap_ids(const vsegptr_t dseg, const vsegptr_t sseg)
 //	 4 = already a face attached on destseg:destside
 static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_t newseg, int destside, int newside,const vms_matrix &attmat)
 {
-	int			side,v;
 	vms_matrix	rotmat,rotmat2,rotmat3;
 	segnum_t			segnum;
 	vms_vector	forvec,upvec;
@@ -795,7 +790,8 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	copy_tmap_ids(nsp,newseg);
 
 	// clear all connections
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++) {
+	for (unsigned side = 0; side < MAX_SIDES_PER_SEGMENT; ++side)
+	{
 		nsp->children[side] = segment_none;
 		nsp->sides[side].wall_num = wall_none;	
 	}
@@ -809,7 +805,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	auto &dvp = Side_to_verts[destside];
 
 	// Set the vertex indices for the four vertices forming the front of the new side
-	for (v=0; v<4; v++)
+	for (unsigned v = 0; v < 4; ++v)
                 nsp->verts[v] = destseg->verts[static_cast<int>(dvp[v])];
 
 	// The other 4 vertices must be created.
@@ -834,7 +830,7 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 
 	// Now rotate the free vertices in the segment
 	array<vertex, 4> tvs;
-	for (v=0; v<4; v++)
+	for (unsigned v = 0; v < 4; ++v)
 		vm_vec_rotate(tvs[v],Vertices[newseg->verts[v+4]],rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
@@ -842,7 +838,8 @@ static int med_attach_segment_rotated(const vsegptridx_t destseg, const vsegptr_
 	const auto xlate_vec = vm_vec_sub(vc1,vr);
 
 	// Create and add the 4 new vertices.
-	for (v=0; v<4; v++) {
+	for (unsigned v = 0; v < 4; ++v)
+	{
 		vm_vec_add2(tvs[v],xlate_vec);
 		nsp->verts[v+4] = med_add_vertex(tvs[v]);
 	}
@@ -894,7 +891,7 @@ int med_attach_segment(const vsegptridx_t destseg, const vsegptr_t newseg, int d
 // -------------------------------------------------------------------------------
 //	Delete a vertex, sort of.
 //	Decrement the vertex count.  If the count goes to 0, then the vertex is free (has been deleted).
-static void delete_vertex(int v)
+static void delete_vertex(const unsigned v)
 {
 	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
 	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
@@ -1126,16 +1123,14 @@ int med_rotate_segment(const vsegptridx_t seg, const vms_matrix &rotmat)
 //	Compute the sum of the distances between the four pairs of points.
 //	The connections are:
 //		firstv1 : 0		(firstv1+1)%4 : 1		(firstv1+2)%4 : 2		(firstv1+3)%4 : 3
-static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, int side1, const vcsegptr_t seg2, int side2, int firstv1)
+static fix seg_seg_vertex_distsum(const vcsegptr_t seg1, const unsigned side1, const vcsegptr_t seg2, const unsigned side2, const unsigned firstv1)
 {
 	fix	distsum;
-	int	secondv;
 
 	distsum = 0;
-	for (secondv=0; secondv<4; secondv++) {
-		int			firstv;
-
-		firstv = (4-secondv + (3 - firstv1)) % 4;
+	for (unsigned secondv = 0; secondv < 4; ++secondv)
+	{
+		const unsigned firstv = (4 - secondv + (3 - firstv1)) % 4;
 		distsum += vm_vec_dist(Vertices[seg1->verts[Side_to_verts[side1][firstv]]],Vertices[seg2->verts[Side_to_verts[side2][secondv]]]);
 	}
 
@@ -1518,12 +1513,10 @@ void create_coordinate_axes_from_segment(const vsegptr_t sp, array<unsigned, 16>
 //	Determine if a segment is concave. Returns true if concave
 static int check_seg_concavity(const vcsegptr_t s)
 {
-	int vn;
 	vms_vector n0;
-
 	range_for (auto &sn, Side_to_verts)
-		for (vn=0;vn<=4;vn++) {
-
+		for (unsigned vn = 0; vn <= 4; ++vn)
+		{
 			const auto n1 = vm_vec_normal(
 				Vertices[s->verts[sn[vn%4]]],
 				Vertices[s->verts[sn[(vn+1)%4]]],

@@ -760,8 +760,6 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vsegptridx_t mine
 
 	gr_set_current_canvas(screen_canvas);
 
-	//g3_set_points(Segment_points,Vertices);
-
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(viewer_position,-v->ev_dist);
 
@@ -847,8 +845,6 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 	vms_vector viewer_position;
 
 	gr_set_current_canvas(screen_canvas);
-
-	//g3_set_points(Segment_points,Vertices);
 
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(viewer_position,-v->ev_dist);

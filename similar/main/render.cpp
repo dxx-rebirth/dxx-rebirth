@@ -226,7 +226,7 @@ static inline int is_alphablend_eclip(int eclip_num)
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 namespace dsx {
-static void render_face(grs_canvas &canvas, const segment &segp, const unsigned sidenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
+static void render_face(grs_canvas &canvas, const segment &segp, const unsigned sidenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, array<g3s_uvl, 4> uvl_copy, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	grs_bitmap  *bm;
 
@@ -375,7 +375,7 @@ static void render_face(grs_canvas &canvas, const segment &segp, const unsigned 
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-static void check_face(const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<g3s_uvl, 4> &uvl_copy)
+static void check_face(const vsegidx_t segnum, const unsigned sidenum, const unsigned facenum, const unsigned nv, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<g3s_uvl, 4> &uvl_copy)
 {
 #if DXX_USE_EDITOR
 	if (_search_mode) {
@@ -440,9 +440,9 @@ static void check_face(const vsegidx_t segnum, const unsigned sidenum, const uns
 }
 
 template <std::size_t... N>
-static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &ovp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
+static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &ovp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags, const std::size_t nv)
 {
-	const array<int, 4> vp{{ovp[N]...}};
+	const array<unsigned, 4> vp{{ovp[N]...}};
 	const array<g3s_uvl, 4> uvl_copy{{
 		{uvlp[N].u, uvlp[N].v, uvlp[N].l}...
 	}};
@@ -451,7 +451,7 @@ static inline void check_render_face(index_sequence<N...>, const vcsegptridx_t s
 }
 
 template <std::size_t N0, std::size_t N1, std::size_t N2, std::size_t N3>
-static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(is, segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 4);
 }
@@ -460,7 +460,7 @@ static inline void check_render_face(index_sequence<N0, N1, N2, N3> is, const vc
  * are default constructed, gcc zero initializes all members.
  */
 template <std::size_t N0, std::size_t N1, std::size_t N2>
-static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<int, 4> &vp, const int tmap1, const int tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
+static inline void check_render_face(index_sequence<N0, N1, N2>, const vcsegptridx_t segnum, const unsigned sidenum, const unsigned facenum, const array<unsigned, 4> &vp, const unsigned tmap1, const unsigned tmap2, const array<uvl, 4> &uvlp, const WALL_IS_DOORWAY_result_t wid_flags)
 {
 	check_render_face(index_sequence<N0, N1, N2, 3>(), segnum, sidenum, facenum, vp, tmap1, tmap2, uvlp, wid_flags, 3);
 }
@@ -473,7 +473,7 @@ constexpr fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
-static void render_side(const vcsegptridx_t segp, int sidenum)
+static void render_side(const vcsegptridx_t segp, const unsigned sidenum)
 {
 	fix		min_dot, max_dot;
 	auto wid_flags = WALL_IS_DOORWAY(segp,sidenum);
