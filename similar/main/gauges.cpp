@@ -1578,16 +1578,16 @@ static void hud_show_cloak_invuln(grs_canvas &canvas, const player_info &player_
 	hud_show_cloak_invuln(canvas, player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time);
 }
 
-static void hud_show_shield(const object &plrobj)
+static void hud_show_shield(grs_canvas &canvas, const object &plrobj)
 {
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
-		const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+		const auto &&line_spacing = LINE_SPACING(canvas);
 		const auto shields = plrobj.shields;
-		gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
+		gr_printf(canvas, FSPACX(1), canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * (6 + (N_players > 3)) : line_spacing * 2), "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING )
@@ -3240,7 +3240,7 @@ void draw_hud(const object &plrobj)
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			hud_show_energy(*grd_curcanv, player_info);
-			hud_show_shield(plrobj);
+			hud_show_shield(*grd_curcanv, plrobj);
 			hud_show_afterburner(*grd_curcanv, player_info);
 			hud_show_weapons(*grd_curcanv, plrobj);
 #if defined(DXX_BUILD_DESCENT_I)
