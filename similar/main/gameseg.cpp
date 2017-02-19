@@ -1308,24 +1308,22 @@ static void add_side_as_2_triangles(const vsegptr_t sp, int sidenum)
 	//		Use Matt's formula: Na . AD > 0, where ABCD are vertices on side, a is face formed by A,B,C, Na is normal from face a.
 	//	If not a wall, then triangulate so whatever is on the other side is triangulated the same (ie, between the same absoluate vertices)
 	if (!IS_CHILD(sp->children[sidenum])) {
-		const auto norm = vm_vec_normal(Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
-		const auto vec_13 =	vm_vec_sub(Vertices[sp->verts[vs[3]]], Vertices[sp->verts[vs[1]]]);	//	vector from vertex 1 to vertex 3
+		auto &verts = sp->verts;
+		const auto &vvs0 = Vertices[verts[vs[0]]];
+		const auto &vvs1 = Vertices[verts[vs[1]]];
+		const auto &vvs2 = Vertices[verts[vs[2]]];
+		const auto &vvs3 = Vertices[verts[vs[3]]];
+		const auto &&norm = vm_vec_normal(vvs0, vvs1, vvs2);
+		const auto &&vec_13 =	vm_vec_sub(vvs3, vvs1);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
 
+		const vertex *n0v3, *n1v1;
 		//	Now, signifiy whether to triangulate from 0:2 or 1:3
-		if (dot >= 0)
-			sidep->set_type(SIDE_IS_TRI_02);
-		else
-			sidep->set_type(SIDE_IS_TRI_13);
+		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, SIDE_IS_TRI_02) : (n0v3 = &vvs3, n1v1 = &vvs1, SIDE_IS_TRI_13));
 
 		//	Now, based on triangulation type, set the normals.
-		if (sidep->get_type() == SIDE_IS_TRI_02) {
-			vm_vec_normal(sidep->normals[0], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]]);
-			vm_vec_normal(sidep->normals[1], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
-		} else {
-			vm_vec_normal(sidep->normals[0], Vertices[sp->verts[vs[0]]], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[3]]]);
-			vm_vec_normal(sidep->normals[1], Vertices[sp->verts[vs[1]]], Vertices[sp->verts[vs[2]]], Vertices[sp->verts[vs[3]]]);
-		}
+		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
+		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
 	} else {
 		int	i,v[4], vsorted[4];
 		int	negate_flag;
