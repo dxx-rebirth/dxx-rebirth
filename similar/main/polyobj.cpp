@@ -502,12 +502,9 @@ array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
 
 namespace dsx {
 
-void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const submodel_angles anim_angles,int model_num,int flags,g3s_lrgb light,glow_values_t *glow_values, alternate_textures alt_textures)
+void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos,const vms_matrix *const orient,const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
 {
 	polymodel *po;
-	if (model_num < 0)
-		return;
-
 	Assert(model_num < N_polygon_models);
 
 	po=&Polygon_models[model_num];
@@ -553,7 +550,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(&texture_list[0], robot_points, *grd_curcanv, anim_angles, light, glow_values, po->model_data.get());
+		g3_draw_polygon_model(&texture_list[0], robot_points, canvas, anim_angles, light, glow_values, po->model_data.get());
 
 	else {
 		for (int i=0;flags;flags>>=1,i++)
@@ -565,7 +562,7 @@ void draw_polygon_model(const vms_vector &pos,const vms_matrix *orient,const sub
 				const auto ofs = vm_vec_negated(vm_vec_avg(po->submodel_mins[i],po->submodel_maxs[i]));
 				g3_start_instance_matrix(ofs,NULL);
 	
-				g3_draw_polygon_model(&texture_list[0], robot_points, *grd_curcanv, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
+				g3_draw_polygon_model(&texture_list[0], robot_points, canvas, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
 	
 				g3_done_instance();
 			}	
@@ -720,7 +717,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	const auto &&temp_orient = vm_angles_2_matrix(*orient_angles);
-	draw_polygon_model(temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(*grd_curcanv, temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }
 

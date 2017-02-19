@@ -303,7 +303,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 		new_light.g = fixmul(light.g,light_scale);
 		new_light.b = fixmul(light.b,light_scale);
 		glow[0] = fixmul(glow[0],light_scale);
-		draw_polygon_model(obj->pos,
+		draw_polygon_model(*grd_curcanv, obj->pos,
 				   &obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
@@ -314,7 +314,7 @@ static void draw_cloaked_object(const vcobjptr_t obj, const g3s_lrgb light, glow
 	else {
 		gr_settransblend(*grd_curcanv, cloak_value, GR_BLEND_NORMAL);
 		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
-		draw_polygon_model(obj->pos,
+		draw_polygon_model(*grd_curcanv, obj->pos,
 				   &obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
@@ -406,7 +406,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
-		draw_polygon_model(obj->pos,
+		draw_polygon_model(*grd_curcanv, obj->pos,
 				   &obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
@@ -459,7 +459,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
-					draw_polygon_model(obj->pos,
+					draw_polygon_model(*grd_curcanv, obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[get_weapon_id(obj)].model_num_inner,
@@ -469,7 +469,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 							   alt_textures);
 			}
 			
-			draw_polygon_model(obj->pos,
+			draw_polygon_model(*grd_curcanv, obj->pos,
 					   &obj->orient,
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
@@ -482,7 +482,7 @@ static void draw_polygon_object(const vobjptridx_t obj)
 #if !DXX_USE_OGL // in software rendering must draw inner model last
 				gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (draw_simple_model)
-					draw_polygon_model(obj->pos,
+					draw_polygon_model(*grd_curcanv, obj->pos,
 							   &obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
