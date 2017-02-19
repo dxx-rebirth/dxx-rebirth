@@ -720,7 +720,7 @@ static void hud_show_timer_count(grs_canvas &canvas)
 	}
 }
 
-static void hud_show_score_added()
+static void hud_show_score_added(grs_canvas &canvas)
 {
 	int	color;
 
@@ -730,7 +730,7 @@ static void hud_show_score_added()
 	if (score_display == 0)
 		return;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 
 	score_time -= FrameTime;
 	if (score_time > 0) {
@@ -746,10 +746,10 @@ static void hud_show_score_added()
 			? TXT_CHEATER
 			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(0, color, 0), -1);
 		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-		gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING(*grd_curcanv) + FSPACY(1), score_str, w, h);
+		gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
+		gr_string(canvas, canvas.cv_bitmap.bm_w - w - FSPACX(PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN ? 1 : 12), LINE_SPACING(canvas) + FSPACY(1), score_str, w, h);
 	} else {
 		score_time = 0;
 		score_display = 0;
@@ -3234,7 +3234,7 @@ void draw_hud(const object &plrobj)
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
 		hud_show_score(*grd_curcanv, player_info);
 		if (score_time)
-			hud_show_score_added();
+			hud_show_score_added(*grd_curcanv);
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
