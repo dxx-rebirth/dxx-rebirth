@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
+#include "fwd-segment.h"
 #include "maths.h"
 
 #define TMAP_NUM_MASK 0x3FFF
