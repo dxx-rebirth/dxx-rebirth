@@ -160,18 +160,21 @@ bool get_side_is_quad(const side &sidep)
 	}
 }
 
+// Fill in array with four absolute point numbers for a given side
+static void get_side_verts(side_vertnum_list_t &vertlist, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &vp, const unsigned sidenum)
+{
+	auto &sv = Side_to_verts[sidenum];
+	for (unsigned i = 4; i--;)
+		vertlist[i] = vp[sv[i]];
+}
+
 }
 
 namespace dsx {
 
-// Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist, const vcsegptr_t segp, const unsigned sidenum)
+void get_side_verts(side_vertnum_list_t &vertlist, const segment &segp, const unsigned sidenum)
 {
-	auto &sv = Side_to_verts[sidenum];
-	auto &vp = segp->verts;
-
-	for (int i=4; i--;)
-		vertlist[i] = vp[sv[i]];
+	get_side_verts(vertlist, segp.verts, sidenum);
 }
 
 __attribute_cold
