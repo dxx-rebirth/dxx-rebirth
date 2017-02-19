@@ -1536,22 +1536,22 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj)
 }
 }
 
-static void hud_show_cloak_invuln(const player_flags player_flags, const fix64 cloak_time, const fix64 invulnerable_time)
+static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_flags, const fix64 cloak_time, const fix64 invulnerable_time)
 {
 	if (!(player_flags & (PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE)))
 		return;
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
-	const auto base_y = grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
+	const auto &&line_spacing = LINE_SPACING(canvas);
+	const auto base_y = canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? line_spacing * 8 : line_spacing * 4);
 	const auto gametime64 = GameTime64;
 	const auto &&fspacx1 = FSPACX(1);
 
 	const auto cloak_invul_timer = show_cloak_invul_timer();
 	const auto a = [&](const fix64 effect_end, int y, const char *txt) {
 		if (cloak_invul_timer)
-			gr_printf(*grd_curcanv, fspacx1, y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
+			gr_printf(canvas, fspacx1, y, "%s: %lu", txt, static_cast<unsigned long>(effect_end / F1_0));
 		else
-			gr_string(*grd_curcanv, fspacx1, y, txt);
+			gr_string(canvas, fspacx1, y, txt);
 	};
 
 	if (player_flags & PLAYER_FLAGS_CLOAKED)
@@ -1573,9 +1573,9 @@ static void hud_show_cloak_invuln(const player_flags player_flags, const fix64 c
 	}
 }
 
-static void hud_show_cloak_invuln(const player_info &player_info)
+static void hud_show_cloak_invuln(grs_canvas &canvas, const player_info &player_info)
 {
-	hud_show_cloak_invuln(player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time);
+	hud_show_cloak_invuln(canvas, player_info.powerup_flags, player_info.cloak_time, player_info.invulnerable_time);
 }
 
 static void hud_show_shield(const object &plrobj)
@@ -3247,7 +3247,7 @@ void draw_hud(const object &plrobj)
 			if (!PCSharePig)
 #endif
 			hud_show_keys(player_info, multires_gauge_graphic);
-			hud_show_cloak_invuln(player_info);
+			hud_show_cloak_invuln(*grd_curcanv, player_info);
 
 			if (Newdemo_state==ND_STATE_RECORDING)
 				newdemo_record_player_flags(player_info.powerup_flags.get_player_flags());
