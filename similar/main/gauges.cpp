@@ -362,11 +362,11 @@ static bool show_cloak_invul_timer()
 #define SB_SECONDARY_BOX		((multires_gauge_graphic.get(7, 3)))
 
 // scaling gauges
-#define BASE_WIDTH ((multires_gauge_graphic.get(640, 320)))
-#define BASE_HEIGHT	((multires_gauge_graphic.get(480, 200)))
+#define BASE_WIDTH(G) ((G).get(640, 320))
+#define BASE_HEIGHT(G)	((G).get(480, 200))
 #if DXX_USE_OGL
-#define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH) + 0.5)
-#define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT) + 0.5)
+#define HUD_SCALE_X(x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(multires_gauge_graphic)) + 0.5)
+#define HUD_SCALE_Y(y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(multires_gauge_graphic)) + 0.5)
 #define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
 #define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(100) > HUD_SCALE_X(100) ? HUD_SCALE_X(y) : HUD_SCALE_Y(y))
 #define draw_numerical_display(S,E,G)	draw_numerical_display(S,E)
