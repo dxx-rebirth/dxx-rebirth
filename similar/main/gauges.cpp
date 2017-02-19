@@ -1621,17 +1621,16 @@ static void hud_show_lives(grs_canvas &canvas, const player_info &player_info, c
 		hud_bitblt_free(canvas, x, fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
 		gr_printf(canvas, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
 	}
-
 }
 
-static void sb_show_lives(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_show_lives(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int y;
 	y = SB_LIVES_Y;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
-	gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SB_LIVES_LABEL_X), HUD_SCALE_Y(multires_gauge_graphic, y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
+	gr_printf(canvas, HUD_SCALE_X(multires_gauge_graphic, SB_LIVES_LABEL_X), HUD_SCALE_Y(multires_gauge_graphic, y), "%s:", (Game_mode & GM_MULTI) ? TXT_DEATHS : TXT_LIVES);
 
 	const uint8_t color = BM_XRGB(0,0,0);
 	if (Game_mode & GM_MULTI)
@@ -1641,23 +1640,23 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 
 		snprintf(killed_str, sizeof(killed_str), "%5d", player_info.net_killed_total);
 		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, killed_str, &w, &h, nullptr);
-		const auto x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT)-w-FSPACX(1);
-		gr_rect(*grd_curcanv, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y)+LINE_SPACING(*grd_curcanv), color);
-		gr_string(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, y), killed_str, w, h);
+		gr_get_string_size(*canvas.cv_font, killed_str, &w, &h, nullptr);
+		const auto x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT) - w - FSPACX(1);
+		gr_rect(canvas, exchange(last_x[multires_gauge_graphic.is_hires()], x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y) + LINE_SPACING(canvas), color);
+		gr_string(canvas, x, HUD_SCALE_Y(multires_gauge_graphic, y), killed_str, w, h);
 		return;
 	}
 
 	const int x = SB_LIVES_X;
 	//erase old icons
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
-	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h), color);
+	gr_rect(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h), color);
 
 	if (get_local_player().lives-1 > 0) {
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		gr_set_curfont(canvas, GAME_FONT);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
-		gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
+		hud_bitblt_free(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(canvas, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
 	}
 }
 
@@ -3379,7 +3378,7 @@ void render_gauges()
 		}
 		draw_keys_state(player_info.powerup_flags, multires_gauge_graphic).draw_all_statusbar_keys();
 
-		sb_show_lives(player_info, multires_gauge_graphic);
+		sb_show_lives(*grd_curcanv, player_info, multires_gauge_graphic);
 		sb_show_score(*grd_curcanv, player_info, multires_gauge_graphic);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
