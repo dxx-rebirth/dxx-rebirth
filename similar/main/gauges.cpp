@@ -756,32 +756,32 @@ static void hud_show_score_added(grs_canvas &canvas)
 	}
 }
 
-static void sb_show_score(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_show_score(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	char	score_str[20];
 	int x,y;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 
-	gr_printf(*grd_curcanv, HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
+	gr_printf(canvas, HUD_SCALE_X(SB_SCORE_LABEL_X), HUD_SCALE_Y(SB_SCORE_Y), "%s:", (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ? TXT_KILLS : TXT_SCORE);
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 	snprintf(score_str, sizeof(score_str), "%5d",
 			(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
 			? player_info.net_kills_total
-			: (gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1), player_info.mission.score));
+			: (gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1), player_info.mission.score));
 	int	w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
+	gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
 
 	x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-FSPACX(1);
 	y = HUD_SCALE_Y(SB_SCORE_Y);
 
 	//erase old score
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	gr_rect(*grd_curcanv, x, y, HUD_SCALE_X(SB_SCORE_RIGHT), y + LINE_SPACING(*grd_curcanv), color);
+	gr_rect(canvas, x, y, HUD_SCALE_X(SB_SCORE_RIGHT), y + LINE_SPACING(canvas), color);
 
-	gr_string(*grd_curcanv, x, y, score_str, w, h);
+	gr_string(canvas, x, y, score_str, w, h);
 }
 
 static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
@@ -3391,7 +3391,7 @@ void render_gauges()
 		draw_statusbar_keys_state(player_info.powerup_flags).draw_all_keys(multires_gauge_graphic);
 
 		sb_show_lives(player_info, multires_gauge_graphic);
-		sb_show_score(player_info, multires_gauge_graphic);
+		sb_show_score(*grd_curcanv, player_info, multires_gauge_graphic);
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
