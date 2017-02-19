@@ -201,8 +201,6 @@ namespace dsx {
 //returns which bomb will be dropped next time the bomb key is pressed
 int which_bomb()
 {
-	int bomb;
-
 	//use the last one selected, unless there aren't any, in which case use
 	//the other if there are any
 
@@ -213,18 +211,15 @@ int which_bomb()
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
+	const auto mask = 1 << PROXIMITY_INDEX;
+	const auto bomb = (Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[bomb] == 0 &&
 		secondary_ammo[SMART_MINE_INDEX + PROXIMITY_INDEX - bomb] != 0)
 	{
-		bomb = SMART_MINE_INDEX+PROXIMITY_INDEX-bomb;
-		Secondary_last_was_super[bomb%SUPER_WEAPON] = (bomb == SMART_MINE_INDEX);
+		Secondary_last_was_super ^= mask;
 	}
-
-
-
 	return bomb;
 }
 #endif
@@ -290,8 +285,6 @@ static void do_weapon_n_item_stuff()
 	if (Controls.state.toggle_bomb > 0)
 	{
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
-	
 		auto &secondary_ammo = player_info.secondary_ammo;
 		int sound;
 		if (!secondary_ammo[PROXIMITY_INDEX] && !secondary_ammo[SMART_MINE_INDEX])
@@ -301,14 +294,17 @@ static void do_weapon_n_item_stuff()
 		}
 		else
 		{	
+			const auto mask = (1 << PROXIMITY_INDEX);
+			const char *desc;
+			const auto bomb = (Secondary_last_was_super & mask) ? (desc = "Proximity bombs", PROXIMITY_INDEX) : (desc = "Smart mines", SMART_MINE_INDEX);
 			if (secondary_ammo[bomb] == 0)
 			{
-				HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
+				HUD_init_message(HM_DEFAULT, "No %s available!", desc);
 				sound = SOUND_BAD_SELECTION;
 			}
 			else
 			{
-				Secondary_last_was_super[PROXIMITY_INDEX]=!Secondary_last_was_super[PROXIMITY_INDEX];
+				Secondary_last_was_super ^= mask;
 				sound = SOUND_GOOD_SELECTION_SECONDARY;
 			}
 		}

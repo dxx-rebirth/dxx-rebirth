@@ -513,8 +513,7 @@ void set_secondary_weapon_to_concussion(player_info &player_info)
 	player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 	//save flag for whether was super version
-	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-	Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+	set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
 #endif
 }
 
@@ -545,8 +544,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 		Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
-		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		Secondary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+		set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
 #endif
 	}
 	if (weapon_name)
@@ -674,8 +672,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 	has_weapon_result weapon_status;
 
 	const auto current = player_info.Secondary_weapon.get_active();
-	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-	const auto last_was_super = Secondary_last_was_super[weapon_num];
+	const auto last_was_super = player_info.Secondary_last_was_super & (1 << weapon_num);
 	const auto has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
@@ -852,9 +849,9 @@ int pick_up_secondary(player_info &player_info, int weapon_index,int count)
 			if (weapon_index_is_player_bomb(weapon_index) &&
 				!weapon_index_is_player_bomb(player_info.Secondary_weapon))
 			{
-				auto &last = player_info.Secondary_last_was_super[PROXIMITY_INDEX];
-				if (weapon_order < SOrderList(last ? SMART_MINE_INDEX : PROXIMITY_INDEX))
-					last = (weapon_index == SMART_MINE_INDEX);
+				const auto mask = 1 << PROXIMITY_INDEX;
+				if (weapon_order < SOrderList((player_info.Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX))
+					set_weapon_last_was_super(player_info.Secondary_last_was_super, mask, weapon_index == SMART_MINE_INDEX);
 			}
 #endif
 	}

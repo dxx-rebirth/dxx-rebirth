@@ -1247,7 +1247,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 		}
 		PHYSFS_write(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		std::copy(Secondary_last_was_super.begin(), Secondary_last_was_super.end(), last_was_super.begin());
+		for (uint_fast32_t j = secondary_weapon_index_t::CONCUSSION_INDEX; j != secondary_weapon_index_t::SMISSILE1_INDEX; ++j)
+		{
+			if (Secondary_last_was_super & (1 << j))
+				last_was_super[j] = 1;
+		}
 		PHYSFS_write(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
 	}
 
@@ -1866,7 +1870,12 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 		PHYSFS_read(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Secondary_last_was_super.size()), Secondary_last_was_super.begin());
+		Secondary_last_was_super = 0;
+		for (uint_fast32_t j = secondary_weapon_index_t::CONCUSSION_INDEX; j != secondary_weapon_index_t::SMISSILE1_INDEX; ++j)
+		{
+			if (last_was_super[j])
+				Secondary_last_was_super |= 1 << j;
+		}
 	}
 
 	if (version >= 12) {
