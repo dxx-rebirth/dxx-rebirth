@@ -403,7 +403,7 @@ static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multi
 }
 }
 
-static void draw_ammo_info(int x,int y,int ammo_count);
+static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_count);
 
 static int score_display;
 static fix score_time;
@@ -1085,7 +1085,7 @@ static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_gr
 		x = SB_PRIMARY_AMMO_X, y = SB_PRIMARY_AMMO_Y;
 	else
 		x = PRIMARY_AMMO_X, y = PRIMARY_AMMO_Y;
-	draw_ammo_info(x, y, ammo_count);
+	draw_ammo_info(*grd_curcanv, x, y, ammo_count);
 }
 
 namespace dcx {
@@ -2304,12 +2304,12 @@ static void draw_weapon_info(const player_info &player_info, const int weapon_ty
 		draw_secondary_weapon_info(player_info, weapon_num, multires_gauge_graphic);
 }
 
-static void draw_ammo_info(int x,int y,int ammo_count)
+static void draw_ammo_info(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned ammo_count)
 {
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(20, 0, 0), -1);
-		gr_printf(*grd_curcanv, x,y,"%03d",ammo_count);
+		gr_set_fontcolor(canvas, BM_XRGB(20, 0, 0), -1);
+		gr_printf(canvas, x,y,"%03u",ammo_count);
 	}
 }
 
@@ -2320,7 +2320,7 @@ static void draw_secondary_ammo_info(int ammo_count, const local_multires_gauge_
 		x = SB_SECONDARY_AMMO_X, y = SB_SECONDARY_AMMO_Y;
 	else
 		x = SECONDARY_AMMO_X, y = SECONDARY_AMMO_Y;
-	draw_ammo_info(x, y, ammo_count);
+	draw_ammo_info(*grd_curcanv, x, y, ammo_count);
 }
 
 static void draw_weapon_box(const player_info &player_info, const int weapon_type, const int weapon_num)
