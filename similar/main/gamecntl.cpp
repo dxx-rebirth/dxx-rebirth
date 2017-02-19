@@ -293,24 +293,26 @@ static void do_weapon_n_item_stuff()
 		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
 	
 		auto &secondary_ammo = player_info.secondary_ammo;
+		int sound;
 		if (!secondary_ammo[PROXIMITY_INDEX] && !secondary_ammo[SMART_MINE_INDEX])
 		{
-			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
+			sound = SOUND_BAD_SELECTION;
 		}
 		else
 		{	
 			if (secondary_ammo[bomb] == 0)
 			{
-				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 				HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
+				sound = SOUND_BAD_SELECTION;
 			}
 			else
 			{
 				Secondary_last_was_super[PROXIMITY_INDEX]=!Secondary_last_was_super[PROXIMITY_INDEX];
-				digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
+				sound = SOUND_GOOD_SELECTION_SECONDARY;
 			}
 		}
+		digi_play_sample_once(sound, F1_0);
 		Controls.state.toggle_bomb = 0;
 	}
 
