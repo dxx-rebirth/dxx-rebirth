@@ -774,7 +774,7 @@ static void sb_show_score(grs_canvas &canvas, const player_info &player_info, co
 	gr_string(canvas, x, y, score_str, w, h);
 }
 
-static void sb_show_score_added(const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_show_score_added(grs_canvas &canvas, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	static int x;
 	static	int last_score_display = -1;
@@ -785,7 +785,7 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 	if (score_display == 0)
 		return;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 
 	score_time -= FrameTime;
 	if (score_time > 0) {
@@ -804,14 +804,14 @@ static void sb_show_score_added(const local_multires_gauge_graphic multires_gaug
 			: (snprintf(score_buf, sizeof(score_buf), "%5d", score_display), score_buf);
 
 		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
+		gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
 		x = HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_ADDED_RIGHT)-w-FSPACX(1);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, color, 0), -1);
-		gr_string(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), score_str, w, h);
+		gr_set_fontcolor(canvas, BM_XRGB(0, color, 0), -1);
+		gr_string(canvas, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), score_str, w, h);
 	} else {
 		//erase old score
 		const uint8_t color = BM_XRGB(0, 0, 0);
-		gr_rect(*grd_curcanv, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_ADDED_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y) + LINE_SPACING(*grd_curcanv), color);
+		gr_rect(canvas, x, HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y), HUD_SCALE_X(multires_gauge_graphic, SB_SCORE_ADDED_RIGHT), HUD_SCALE_Y(multires_gauge_graphic, SB_SCORE_ADDED_Y) + LINE_SPACING(canvas), color);
 		score_time = 0;
 		score_display = 0;
 	}
@@ -3388,7 +3388,7 @@ void render_gauges()
 		}
 		else
 		{
-			sb_show_score_added(multires_gauge_graphic);
+			sb_show_score_added(*grd_curcanv, multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_I)
