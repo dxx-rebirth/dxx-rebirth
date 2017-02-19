@@ -1409,7 +1409,7 @@ int state_restore_all_sub(const char *filename)
 int state_restore_all_sub(const char *filename, const secret_restore secret)
 #endif
 {
-	int version, j, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
+	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char mission[16];
@@ -1720,7 +1720,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 	range_for (const auto &&segp, vsegptridx)
 	{
-		for (j=0; j<6; j++ )	{
+		for (unsigned j = 0; j < 6; ++j)
+		{
 			segp->sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum[segp][j] = PHYSFSX_readSXE16(fp, swap);
 			TempTmapNum2[segp][j] = PHYSFSX_readSXE16(fp, swap);
@@ -1929,7 +1930,8 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 	// static_light should now be computed - now actually set tmap info
 	range_for (const auto &&segp, vsegptridx)
 	{
-		for (j=0; j<6; j++ )	{
+		for (unsigned j = 0; j < 6; ++j)
+		{
 			segp->sides[j].tmap_num = TempTmapNum[segp][j];
 			segp->sides[j].tmap_num2 = TempTmapNum2[segp][j];
 		}
@@ -1965,7 +1967,7 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // copy restored players to the current slots
 		{
-			for (j = 0; j < MAX_PLAYERS; j++)
+			for (unsigned j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
 				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && Players[i].callsign == restore_players[j].callsign)
