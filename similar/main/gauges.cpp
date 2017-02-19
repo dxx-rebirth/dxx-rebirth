@@ -1424,19 +1424,19 @@ static void hud_show_secondary_weapons_mode(grs_canvas &canvas, const player_inf
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 }
 
-static void hud_show_weapons(const object &plrobj)
+static void hud_show_weapons(grs_canvas &canvas, const object &plrobj)
 {
 	auto &player_info = plrobj.ctype.player_info;
 	int	y;
 	const char	*weapon_name;
 	char	weapon_str[32];
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
-	y = grd_curcanv->cv_bitmap.bm_h;
+	y = canvas.cv_bitmap.bm_h;
 
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	if (Game_mode & GM_MULTI)
 		y -= line_spacing * 4;
 
@@ -1447,8 +1447,8 @@ static void hud_show_weapons(const object &plrobj)
 #elif defined(DXX_BUILD_DESCENT_II)
 		unsigned multiplier = 2;
 #endif
-		hud_show_primary_weapons_mode(*grd_curcanv, player_info, 0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
-		hud_show_secondary_weapons_mode(*grd_curcanv, player_info, 0, grd_curcanv->cv_bitmap.bm_w, y - (line_spacing * multiplier));
+		hud_show_primary_weapons_mode(canvas, player_info, 0, canvas.cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
+		hud_show_secondary_weapons_mode(canvas, player_info, 0, canvas.cv_bitmap.bm_w, y - (line_spacing * multiplier));
 		return;
 	}
 	const auto &&fspacx = FSPACX();
@@ -1456,17 +1456,17 @@ static void hud_show_weapons(const object &plrobj)
 	{
 		int x1,x2;
 		int w;
-		gr_get_string_size(*grd_curcanv->cv_font, "V1000", &w, nullptr, nullptr);
-		gr_get_string_size(*grd_curcanv->cv_font, "0 ", &x2, nullptr, nullptr);
-		y=grd_curcanv->cv_bitmap.bm_h/1.75;
-		x1 = grd_curcanv->cv_bitmap.bm_w / 2.1 - (fspacx(40) + w);
-		x2 = grd_curcanv->cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
-		hud_show_primary_weapons_mode(*grd_curcanv, player_info, 1, x1, y);
-		hud_show_secondary_weapons_mode(*grd_curcanv, player_info, 1, x2, y);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
-		gr_printf(*grd_curcanv, x2, y - (line_spacing * 4),"%i", f2ir(plrobj.shields));
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
-		gr_printf(*grd_curcanv, x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
+		gr_get_string_size(*canvas.cv_font, "V1000", &w, nullptr, nullptr);
+		gr_get_string_size(*canvas.cv_font, "0 ", &x2, nullptr, nullptr);
+		y = canvas.cv_bitmap.bm_h / 1.75;
+		x1 = canvas.cv_bitmap.bm_w / 2.1 - (fspacx(40) + w);
+		x2 = canvas.cv_bitmap.bm_w / 1.9 + (fspacx(42) + x2);
+		hud_show_primary_weapons_mode(canvas, player_info, 1, x1, y);
+		hud_show_secondary_weapons_mode(canvas, player_info, 1, x2, y);
+		gr_set_fontcolor(canvas, BM_XRGB(14, 14, 23), -1);
+		gr_printf(canvas, x2, y - (line_spacing * 4),"%i", f2ir(plrobj.shields));
+		gr_set_fontcolor(canvas, BM_XRGB(25, 18, 6), -1);
+		gr_printf(canvas, x1, y - (line_spacing * 4),"%i", f2ir(player_info.energy));
 	}
 	else
 	{
@@ -1519,19 +1519,19 @@ static void hud_show_weapons(const object &plrobj)
 		}
 
 		int	w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, disp_primary_weapon_name, &w, &h, nullptr);
-		const auto &&bmwx = grd_curcanv->cv_bitmap.bm_w - fspacx(1);
-		gr_string(*grd_curcanv, bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
+		gr_get_string_size(*canvas.cv_font, disp_primary_weapon_name, &w, &h, nullptr);
+		const auto &&bmwx = canvas.cv_bitmap.bm_w - fspacx(1);
+		gr_string(canvas, bmwx - w, y - (line_spacing * 2), disp_primary_weapon_name, w, h);
 		const char *disp_secondary_weapon_name;
 
 		auto &Secondary_weapon = player_info.Secondary_weapon;
 		disp_secondary_weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
 		snprintf(weapon_str, sizeof(weapon_str), "%s %u", disp_secondary_weapon_name, player_info.secondary_ammo[Secondary_weapon]);
-		gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
-		gr_string(*grd_curcanv, bmwx - w, y - line_spacing, weapon_str, w, h);
+		gr_get_string_size(*canvas.cv_font, weapon_str, &w, &h, nullptr);
+		gr_string(canvas, bmwx - w, y - line_spacing, weapon_str, w, h);
 
-		show_bomb_count(*grd_curcanv, player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
+		show_bomb_count(canvas, player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
 }
 }
@@ -3242,7 +3242,7 @@ void draw_hud(const object &plrobj)
 			hud_show_energy(*grd_curcanv, player_info);
 			hud_show_shield(plrobj);
 			hud_show_afterburner(*grd_curcanv, player_info);
-			hud_show_weapons(plrobj);
+			hud_show_weapons(*grd_curcanv, plrobj);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
