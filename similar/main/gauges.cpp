@@ -661,14 +661,14 @@ public:
 
 }
 
-static void hud_show_score(const player_info &player_info)
+static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 {
 	char	score_str[20];
 
 	if (HUD_toolong)
 		return;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 
 	const char *label;
 	int value;
@@ -683,11 +683,11 @@ static void hud_show_score(const player_info &player_info)
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0,31,0);
-	gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
+	gr_set_fontcolor(canvas, Color_0_31_0, -1);
 
 	int	w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-	gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
+	gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
+	gr_string(canvas, canvas.cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
 }
 
 static void hud_show_timer_count()
@@ -3232,7 +3232,7 @@ void draw_hud(const object &plrobj)
 
 	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
-		hud_show_score(player_info);
+		hud_show_score(*grd_curcanv, player_info);
 		if (score_time)
 			hud_show_score_added();
 	}
