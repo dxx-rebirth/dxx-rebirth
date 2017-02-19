@@ -2313,14 +2313,14 @@ static void draw_ammo_info(grs_canvas &canvas, const unsigned x, const unsigned 
 	}
 }
 
-static void draw_secondary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_secondary_ammo_info(grs_canvas &canvas, const unsigned ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x, y;
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		x = SB_SECONDARY_AMMO_X, y = SB_SECONDARY_AMMO_Y;
 	else
 		x = SECONDARY_AMMO_X, y = SECONDARY_AMMO_Y;
-	draw_ammo_info(*grd_curcanv, x, y, ammo_count);
+	draw_ammo_info(canvas, x, y, ammo_count);
 }
 
 static void draw_weapon_box(const player_info &player_info, const int weapon_type, const int weapon_num)
@@ -2487,7 +2487,7 @@ static void draw_weapon_box1(const player_info &player_info, const local_multire
 			const auto ammo = player_info.secondary_ammo[Secondary_weapon];
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_secondary_ammo(ammo);
-			draw_secondary_ammo_info(ammo, multires_gauge_graphic);
+			draw_secondary_ammo_info(*grd_curcanv, ammo, multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
