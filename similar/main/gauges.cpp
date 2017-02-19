@@ -1078,14 +1078,14 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 }
 }
 
-static void draw_primary_ammo_info(int ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_primary_ammo_info(grs_canvas &canvas, const unsigned ammo_count, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x, y;
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		x = SB_PRIMARY_AMMO_X, y = SB_PRIMARY_AMMO_Y;
 	else
 		x = PRIMARY_AMMO_X, y = PRIMARY_AMMO_Y;
-	draw_ammo_info(*grd_curcanv, x, y, ammo_count);
+	draw_ammo_info(canvas, x, y, ammo_count);
 }
 
 namespace dcx {
@@ -2465,7 +2465,7 @@ static void draw_weapon_box0(const player_info &player_info, const local_multire
 				return;
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_primary_ammo(nd_ammo);
-			draw_primary_ammo_info(ammo_count, multires_gauge_graphic);
+			draw_primary_ammo_info(*grd_curcanv, ammo_count, multires_gauge_graphic);
 		}
 	}
 #if defined(DXX_BUILD_DESCENT_II)
