@@ -145,7 +145,7 @@ void draw_model_picture(grs_canvas &, uint_fast32_t mn, const vms_angvec *orient
 #define MAX_POLYOBJ_TEXTURES 50
 #elif defined(DXX_BUILD_DESCENT_II)
 // free up a model, getting rid of all its memory
-void free_model(polymodel *po);
+void free_model(polymodel &po);
 
 #define MAX_POLYOBJ_TEXTURES 100
 constexpr unsigned N_D2_POLYGON_MODELS = 166;

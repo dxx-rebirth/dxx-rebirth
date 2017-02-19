@@ -491,9 +491,9 @@ void read_model_guns(const char *filename, reactor &r)
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-void free_model(polymodel *po)
+void free_model(polymodel &po)
 {
-	po->model_data.reset();
+	po.model_data.reset();
 }
 
 array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
@@ -574,7 +574,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos,const vms_matr
 void free_polygon_models()
 {
 	range_for (auto &i, partial_range(Polygon_models, N_polygon_models))
-		free_model(&i);
+		free_model(i);
 }
 
 }

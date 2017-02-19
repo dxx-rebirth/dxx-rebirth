@@ -400,9 +400,8 @@ static void bm_free_extra_objbitmaps()
 static void bm_free_extra_models()
 {
 	auto base = std::min(N_D2_POLYGON_MODELS, exit_modelnum);
-	range_for (auto &p, partial_range(Polygon_models, base, N_polygon_models))
-		free_model(&p);
-	N_polygon_models = base;
+	range_for (auto &p, partial_range(Polygon_models, base, exchange(N_polygon_models, base)))
+		free_model(p);
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
@@ -529,7 +528,7 @@ void load_robot_replacements(const d_fname &level_name)
 		if (i<0 || i>=N_polygon_models)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,static_cast<const char *>(level_name),N_polygon_models-1);
 
-		free_model(&Polygon_models[i]);
+		free_model(Polygon_models[i]);
 		polymodel_read(&Polygon_models[i], fp);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
