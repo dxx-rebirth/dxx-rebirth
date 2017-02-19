@@ -700,14 +700,14 @@ void init_polygon_models()
 //more-or-less fill the canvas.  Note that this routine actually renders
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
-void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
+void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_angvec *const orient_angles)
 {
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
 	Assert(mn<N_polygon_models);
 
-	gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
-	g3_start_frame(*grd_curcanv);
+	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
+	g3_start_frame(canvas);
 	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
@@ -717,7 +717,7 @@ void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	const auto &&temp_orient = vm_angles_2_matrix(*orient_angles);
-	draw_polygon_model(*grd_curcanv, temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(canvas, temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }
 

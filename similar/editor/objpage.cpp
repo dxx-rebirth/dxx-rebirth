@@ -95,18 +95,18 @@ void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 			break;
 
 		case OBJ_PLAYER:
-			draw_model_picture(Player_ship->model_num,orient_angles);		// Draw a poly model below
+			draw_model_picture(*grd_curcanv, Player_ship->model_num, orient_angles);		// Draw a poly model below
 			break;
 
 		case OBJ_ROBOT:
-			draw_model_picture(Robot_info[id].model_num,orient_angles);	// Draw a poly model below
+			draw_model_picture(*grd_curcanv, Robot_info[id].model_num, orient_angles);	// Draw a poly model below
 			break;
 
 		case OBJ_CNTRLCEN:
-			draw_model_picture(get_reactor_model_number(id), orient_angles);
+			draw_model_picture(*grd_curcanv, get_reactor_model_number(id), orient_angles);
 			break;
 		case OBJ_CLUTTER:
-			draw_model_picture(id, orient_angles);
+			draw_model_picture(*grd_curcanv, id, orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!

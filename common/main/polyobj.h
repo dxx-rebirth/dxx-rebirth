@@ -138,7 +138,7 @@ void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix *o
 // more-or-less fill the canvas.  Note that this routine actually renders
 // into an off-screen canvas that it creates, then copies to the current
 // canvas.
-void draw_model_picture(uint_fast32_t mn,vms_angvec *orient_angles);
+void draw_model_picture(grs_canvas &, uint_fast32_t mn, const vms_angvec *orient_angles);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)

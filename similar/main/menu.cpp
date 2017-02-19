@@ -2383,7 +2383,7 @@ static window_event_result polygon_models_viewer_handler(window *, const d_event
 			return window_event_result::handled;
 		case EVENT_WINDOW_DRAW:
 			timer_delay(F1_0/60);
-			draw_model_picture(view_idx, &ang);
+			draw_model_picture(*grd_curcanv, view_idx, &ang);
 			gr_set_curfont(*grd_curcanv, GAME_FONT);
 			gr_set_fontcolor(*grd_curcanv, BM_XRGB(255, 255, 255), -1);
 			gr_printf(*grd_curcanv, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
