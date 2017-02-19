@@ -190,13 +190,9 @@ static void create_vertex_list_from_invalid_side(const vcsegptr_t segp, const si
 	throw side::illegal_type(segp, sidep);
 }
 
-template <typename T, typename F>
-static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegptr_t segp, const side *const sidep, const F &f)
+template <typename T, typename V>
+static uint_fast32_t create_vertex_lists_from_values(T &va, const vcsegptr_t segp, const side *const sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
-	const auto f0 = f(0);
-	const auto f1 = f(1);
-	const auto f2 = f(2);
-	const auto f3 = f(3);
 	const auto type = sidep->get_type();
 	if (type == SIDE_IS_TRI_13)
 	{
@@ -232,6 +228,12 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegp
 	}
 }
 
+template <typename T, typename F>
+static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const vcsegptr_t segp, const side *const sidep, const F &&f)
+{
+	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
+}
+
 #if DXX_USE_EDITOR
 // -----------------------------------------------------------------------------------
 //	Create all vertex lists (1 or 2) for faces on a side.
@@ -248,10 +250,9 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const vcseg
 {
 	assert(sidenum < Side_to_verts_int.size());
 	auto &sv = Side_to_verts_int[sidenum];
-	const auto a = [&sv](const uint_fast32_t vv) {
+	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const uint_fast32_t vv) {
 		return sv[vv];
-	};
-	return create_vertex_lists_by_predicate(vertices, segp, sidep, a);
+	});
 }
 #endif
 
