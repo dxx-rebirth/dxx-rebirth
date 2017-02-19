@@ -375,7 +375,7 @@ static bool show_cloak_invul_timer()
 #define HUD_SCALE_Y(y)		(static_cast<void>(multires_gauge_graphic), y)
 #define HUD_SCALE_X_AR(x)	HUD_SCALE_X(x)
 #define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(y)
-#define hud_bitblt_free(X,Y,W,H,B)	hud_bitblt_free(X,Y,B)
+#define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
 #define hud_bitblt(X,Y,B,G)	hud_bitblt(X,Y,B)
 #endif
 
@@ -609,18 +609,18 @@ const array<dspan, 107> weapon_windows_hires = {{
 	{{133,223},		{424,518}},
 }};
 
-static inline void hud_bitblt_free (unsigned x, unsigned y, unsigned w, unsigned h, grs_bitmap &bm)
+static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned w, const unsigned h, grs_bitmap &bm)
 {
 #if DXX_USE_OGL
-	ogl_ubitmapm_cs(*grd_curcanv, x, y, w, h, bm, ogl_colors::white, F1_0);
+	ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white, F1_0);
 #else
-	gr_ubitmapm(*grd_curcanv, x, y, bm);
+	gr_ubitmapm(canvas, x, y, bm);
 #endif
 }
 
 static inline void hud_bitblt (unsigned x, unsigned y, grs_bitmap &bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	hud_bitblt_free(x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
+	hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
 }
 
 static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -912,18 +912,18 @@ static void hud_show_keys(const player_info &player_info, const local_multires_g
 
 	const auto &&fspacx2 = FSPACX(2);
 	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
-		hud_bitblt_free(fspacx2, y, HUD_SCALE_X_AR(blue->bm_w), HUD_SCALE_Y_AR(blue->bm_h), blue);
+		hud_bitblt_free(*grd_curcanv, fspacx2, y, HUD_SCALE_X_AR(blue->bm_w), HUD_SCALE_Y_AR(blue->bm_h), blue);
 
 	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	const gauge_key yellow(KEY_ICON_YELLOW, multires_gauge_graphic);
 	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
-		hud_bitblt_free(fspacx2 + HUD_SCALE_X_AR(blue->bm_w + 3), y, HUD_SCALE_X_AR(yellow->bm_w), HUD_SCALE_Y_AR(yellow->bm_h), yellow);
+		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(blue->bm_w + 3), y, HUD_SCALE_X_AR(yellow->bm_w), HUD_SCALE_Y_AR(yellow->bm_h), yellow);
 
 	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
 	{
 		const gauge_key red(KEY_ICON_RED, multires_gauge_graphic);
-		hud_bitblt_free(fspacx2 + HUD_SCALE_X_AR(blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(red->bm_w), HUD_SCALE_Y_AR(red->bm_h), red);
+		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(red->bm_w), HUD_SCALE_Y_AR(red->bm_h), red);
 	}
 }
 
@@ -953,7 +953,7 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
-		hud_bitblt_free(x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(*grd_curcanv, x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
@@ -984,7 +984,7 @@ static void hud_show_flag(const player_info &player_info, const local_multires_g
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
-		hud_bitblt_free(x, HUD_SCALE_Y_AR(y) + fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		hud_bitblt_free(*grd_curcanv, x, HUD_SCALE_Y_AR(y) + fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 	}
 }
 #endif
@@ -1629,7 +1629,7 @@ static void hud_show_lives(const player_info &player_info, const local_multires_
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		const auto &&fspacy1 = FSPACY(1);
-		hud_bitblt_free(x, fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		hud_bitblt_free(*grd_curcanv, x, fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(*grd_curcanv, HUD_SCALE_X_AR(bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
 	}
 
@@ -1667,7 +1667,7 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 	if (get_local_player().lives-1 > 0) {
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
-		hud_bitblt_free(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
 		gr_printf(*grd_curcanv, HUD_SCALE_X(x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(y), " x %d", get_local_player().lives - 1);
 	}
 }
@@ -2741,17 +2741,17 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x + HUD_SCALE_X_AR(cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross.bm_w), HUD_SCALE_Y_AR(cross.bm_h), cross);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross.bm_w), HUD_SCALE_Y_AR(cross.bm_h), cross);
 
 			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &primary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x + HUD_SCALE_X_AR(primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary.bm_w), HUD_SCALE_Y_AR(primary.bm_h), primary);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary.bm_w), HUD_SCALE_Y_AR(primary.bm_h), primary);
 
 			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &secondary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(x + HUD_SCALE_X_AR(secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary.bm_w), HUD_SCALE_Y_AR(secondary.bm_h), secondary);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary.bm_w), HUD_SCALE_Y_AR(secondary.bm_h), secondary);
 			return;
 		}
 		case RET_TYPE_CLASSIC_REBOOT:
