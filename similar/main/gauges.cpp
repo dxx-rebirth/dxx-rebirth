@@ -376,7 +376,7 @@ static bool show_cloak_invul_timer()
 #define HUD_SCALE_X_AR(x)	HUD_SCALE_X(x)
 #define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(y)
 #define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
-#define hud_bitblt(X,Y,B,G)	hud_bitblt(X,Y,B)
+#define hud_bitblt(C,X,Y,B,G)	hud_bitblt(C,X,Y,B)
 #endif
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -618,15 +618,15 @@ static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const u
 #endif
 }
 
-static inline void hud_bitblt (unsigned x, unsigned y, grs_bitmap &bm, const local_multires_gauge_graphic multires_gauge_graphic)
+static inline void hud_bitblt(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitmap &bm, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
+	hud_bitblt_free(canvas, x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
 }
 
 static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
-	hud_bitblt(HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
+	hud_bitblt(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
 }
 
 class draw_keys_state
@@ -1837,9 +1837,9 @@ static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_g
 	cockpit_decode_alpha(bm, multires_gauge_graphic);
 
 	if (WinBoxOverlay[0])
-		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),*WinBoxOverlay[0].get(), multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(PRIMARY_W_BOX_LEFT - 2), HUD_SCALE_Y(PRIMARY_W_BOX_TOP - 2), *WinBoxOverlay[0].get(), multires_gauge_graphic);
 	if (WinBoxOverlay[1])
-		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),*WinBoxOverlay[1].get(), multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(SECONDARY_W_BOX_LEFT - 2), HUD_SCALE_Y(SECONDARY_W_BOX_TOP - 2), *WinBoxOverlay[1].get(), multires_gauge_graphic);
 }
 }
 
@@ -2118,7 +2118,7 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
-	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
+	hud_bitblt(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), bm, multires_gauge_graphic);
 	gr_settransblend(*grd_curcanv, cloak_fade_value, GR_BLEND_NORMAL);
 	gr_rect(*grd_curcanv, HUD_SCALE_X(x - 3), HUD_SCALE_Y(y - 3), HUD_SCALE_X(x + bm.bm_w + 3), HUD_SCALE_Y(y + bm.bm_h + 3), 0);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -2192,7 +2192,7 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	PIGGY_PAGE_IN(picture);
 	auto &bm = GameBitmaps[picture.index];
 
-	hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
+	hud_bitblt(*grd_curcanv, HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm, multires_gauge_graphic);
 
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
@@ -2433,10 +2433,10 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 #else
 	if (multires_gauge_graphic.is_hires())
 	{
-		hud_bitblt(HUD_SCALE_X(box.left), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(box.left), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.left), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.left), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(*grd_curcanv, HUD_SCALE_X(box.right - bmp.bm_w), HUD_SCALE_Y(box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
 	}
 
 #endif
