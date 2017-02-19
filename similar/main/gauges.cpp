@@ -1189,7 +1189,7 @@ static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const 
 	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
-static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, const int y)
+static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player_info, const int x, const int y)
 {
 	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
 	const auto vulcan_mask = HAS_VULCAN_FLAG;
@@ -1202,7 +1202,7 @@ static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, 
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
 	if (!has_weapon_uses_vulcan_ammo && !fmt_vulcan_ammo)
 		return;
-	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo, *grd_curcanv);
+	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo, canvas);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
 		((primary_weapon_flags & gauss_mask) && (player_info.Primary_last_was_super[primary_weapon_index_t::VULCAN_INDEX] || !(primary_weapon_flags & vulcan_mask)))
@@ -1213,7 +1213,7 @@ static void hud_printf_vulcan_ammo(const player_info &player_info, const int x, 
 			? 'V'
 			: 'A'
 	;
-	gr_printf(*grd_curcanv, x, y, "%c:%u", c, fmt_vulcan_ammo);
+	gr_printf(canvas, x, y, "%c:%u", c, fmt_vulcan_ammo);
 }
 
 static void hud_show_primary_weapons_mode(const player_info &player_info, const int vertical, const int orig_x, const int orig_y)
@@ -1292,7 +1292,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 						vx = x - (w + fspacx3), vy = y - ((h + fspacy2) * 2), true
 					)
 				)
-					hud_printf_vulcan_ammo(player_info, vx, vy);
+					hud_printf_vulcan_ammo(*grd_curcanv, player_info, vx, vy);
 			}
 		}
 	}
@@ -1351,7 +1351,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 			if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 			{
 				if (vertical && (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN))
-					hud_printf_vulcan_ammo(player_info, x, y);
+					hud_printf_vulcan_ammo(*grd_curcanv, player_info, x, y);
 				continue;
 			}
 			gr_string(*grd_curcanv, x, y, txtweapon, w, h);
