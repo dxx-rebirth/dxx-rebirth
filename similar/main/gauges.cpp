@@ -623,10 +623,10 @@ static inline void hud_bitblt(grs_canvas &canvas, const unsigned x, const unsign
 	hud_bitblt_free(canvas, x, y, HUD_SCALE_X (bm.bm_w), HUD_SCALE_Y (bm.bm_h), bm);
 }
 
-static void hud_gauge_bitblt(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_gauge_bitblt(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
-	hud_bitblt(*grd_curcanv, HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
+	hud_bitblt(canvas, HUD_SCALE_X(x), HUD_SCALE_Y(y), GameBitmaps[GET_GAUGE_INDEX(gauge)], multires_gauge_graphic);
 }
 
 class draw_keys_state
@@ -641,7 +641,7 @@ public:
 protected:
 	void draw_one_key(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic, const PLAYER_FLAG flag) const
 	{
-		hud_gauge_bitblt(x, y, (player_key_flags & flag) ? gauge : (gauge + 3), multires_gauge_graphic);
+		hud_gauge_bitblt(*grd_curcanv, x, y, (player_key_flags & flag) ? gauge : (gauge + 3), multires_gauge_graphic);
 	}
 };
 
@@ -870,7 +870,7 @@ static void show_homing_warning(const int homing_object_dist, const local_multir
 			? GAUGE_HOMING_WARNING_ON
 			: GAUGE_HOMING_WARNING_OFF;
 	}
-	hud_gauge_bitblt(HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
 }
 
 static void hud_show_homing_warning(const int homing_object_dist)
@@ -1866,7 +1866,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 	double aplitscale=(static_cast<double>(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
-	hud_gauge_bitblt(LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, GAUGE_ENERGY_LEFT, multires_gauge_graphic);
 
 	const auto color = BM_XRGB(0, 0, 0);
 
@@ -1887,7 +1887,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 	gr_set_current_canvas( NULL );
 
 	// Draw right energy bar
-	hud_gauge_bitblt(RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, GAUGE_ENERGY_RIGHT, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, GAUGE_ENERGY_RIGHT, multires_gauge_graphic);
 
 	if (energy < 100)
 		for (y=0; y < HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_H); y++) {
@@ -2021,7 +2021,7 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 	const auto &&table = multires_gauge_graphic.is_hires()
 		? std::make_pair(afterburner_bar_table_hires.data(), afterburner_bar_table_hires.size())
 		: std::make_pair(afterburner_bar_table.data(), afterburner_bar_table.size());
-	hud_gauge_bitblt(afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER, multires_gauge_graphic);
 	const unsigned not_afterburner = fixmul(f1_0 - afterburner, table.second);
 	if (not_afterburner > table.second)
 		return;
@@ -2045,7 +2045,7 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 static void draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int bm_num = shield>=100?9:(shield / 10);
-	hud_gauge_bitblt(SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
 static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
@@ -2145,7 +2145,7 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 {
 	gr_set_curfont(*grd_curcanv, GAME_FONT);
 #if !DXX_USE_OGL
-	hud_gauge_bitblt(NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
 #endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
@@ -2516,7 +2516,7 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 {
 	int ew;
 
-	hud_gauge_bitblt(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
 
 	const auto color = 0;
 	const int erase_x0 = i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X));
@@ -2547,7 +2547,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 {
 	auto &ab_str = "AB";
 
-	hud_gauge_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
 
 	const auto color = 0;
 	const int erase_x0 = i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X));
@@ -2591,7 +2591,7 @@ static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic mu
 	int bm_num = shield>=100?9:(shield / 10);
 
 	gr_set_current_canvas(NULL);
-	hud_gauge_bitblt(SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
+	hud_gauge_bitblt(*grd_curcanv, SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
 void draw_statusbar_keys_state::draw_all_keys(const local_multires_gauge_graphic multires_gauge_graphic)
@@ -2632,7 +2632,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 			x = SHIELD_GAUGE_X;
 			y = SHIELD_GAUGE_Y;
 		}
-		hud_gauge_bitblt(x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
+		hud_gauge_bitblt(*grd_curcanv, x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
 
                 // Show Invulnerability Timer if enabled
 		if (show_cloak_invul_timer())
