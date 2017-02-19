@@ -52,7 +52,7 @@ struct side_vertnum_list_t : array<int, 4> {};
 struct vertex_array_list_t : array<int, 6> {};
 struct vertex_vertnum_pair
 {
-	int vertex, vertnum;
+	unsigned vertex, vertnum;
 };
 using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 }

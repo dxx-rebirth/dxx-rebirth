@@ -58,14 +58,14 @@ namespace {
 
 class abs_vertex_lists_predicate
 {
-	const array<int, MAX_VERTICES_PER_SEGMENT> &m_vp;
+	const array<unsigned, MAX_VERTICES_PER_SEGMENT> &m_vp;
 	const array<unsigned, 4> &m_sv;
 public:
 	abs_vertex_lists_predicate(const vcsegptr_t segp, uint_fast32_t sidenum) :
 		m_vp(segp->verts), m_sv(Side_to_verts_int[sidenum])
 	{
 	}
-	int operator()(const uint_fast32_t vv) const
+	unsigned operator()(const uint_fast32_t vv) const
 	{
 		return m_vp[m_sv[vv]];
 	}
@@ -80,7 +80,7 @@ public:
 	}
 	vertex_vertnum_pair operator()(const uint_fast32_t vv) const
 	{
-		return {this->abs_vertex_lists_predicate::operator()(vv), static_cast<int>(vv)};
+		return {this->abs_vertex_lists_predicate::operator()(vv), static_cast<unsigned>(vv)};
 	}
 };
 

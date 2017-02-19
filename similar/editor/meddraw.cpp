@@ -683,7 +683,7 @@ static void free_vert(int vert_num)
 // -----------------------------------------------------------------------------
 static void draw_coordinate_axes(void)
 {
-	array<int, 16>			Axes_verts;
+	array<unsigned, 16> Axes_verts;
 	vms_vector	tvec;
 
 	range_for (auto &i, Axes_verts)

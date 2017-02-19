@@ -353,7 +353,7 @@ void assign_default_uvs_to_side(vsegptridx_t segp, int side);
 void med_assign_uvs_to_side(vsegptridx_t con_seg, int con_common_side, vsegptr_t base_seg, int base_common_side, int abs_id1, int abs_id2);
 
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(vsegptr_t sp,array<int, 16> &vertnums);
+void create_coordinate_axes_from_segment(vsegptr_t sp, array<unsigned, 16> &vertnums);
 
 //	Set Vertex_active to number of occurrences of each vertex.
 //	Set Num_vertices.

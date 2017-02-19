@@ -712,7 +712,7 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
+g3s_codes rotate_list(const std::size_t nv, const unsigned *const pointnumlist)
 {
 	g3s_codes cc;
 	const auto current_generation = s_current_generation;
@@ -746,7 +746,7 @@ g3s_codes rotate_list(std::size_t nv,const int *pointnumlist)
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-static void project_list(const array<int, 8> &pointnumlist)
+static void project_list(const array<unsigned, 8> &pointnumlist)
 {
 	range_for (const auto pnum, pointnumlist)
 	{
@@ -893,7 +893,7 @@ constexpr array<
 
 //given an edge, tell what side is on that edge
 __attribute_warn_unused_result
-static int find_seg_side(const vcsegptr_t seg,const array<int, 2> &verts,unsigned notside)
+static int find_seg_side(const vcsegptr_t seg, const array<unsigned, 2> &verts, const unsigned notside)
 {
 	if (notside >= MAX_SIDES_PER_SEGMENT)
 		throw std::logic_error("invalid notside");
@@ -963,7 +963,7 @@ static bool compare_children(const vcsegptridx_t seg, sidenum_fast_t s0, sidenum
 	if (Side_opposite[s0] == s1)
 		return false;
 	//find normals of adjoining sides
-	const array<int, 2> edge_verts = {
+	const array<unsigned, 2> edge_verts = {
 		{seg->verts[Two_sides_to_edge[s0][s1][0]], seg->verts[Two_sides_to_edge[s0][s1][1]]}
 	};
 	if (edge_verts[0] == -1 || edge_verts[1] == -1)

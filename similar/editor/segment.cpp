@@ -1492,7 +1492,7 @@ void init_all_vertices(void)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(const vsegptr_t sp,array<int, 16> &vertnums)
+void create_coordinate_axes_from_segment(const vsegptr_t sp, array<unsigned, 16> &vertnums)
 {
 	vms_matrix	rotmat;
 	vms_vector t;
