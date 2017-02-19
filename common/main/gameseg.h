@@ -73,7 +73,8 @@ static inline vms_vector compute_segment_center(vcsegptr_t sp)
 	compute_segment_center(v, sp);
 	return v;
 }
-int_fast32_t find_connect_side(vcsegptridx_t base_seg, vcsegptr_t con_seg) __attribute_warn_unused_result;
+__attribute_warn_unused_result
+uint_fast32_t find_connect_side(vcsegidx_t base_seg, const segment &con_seg);
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist, const segment &seg, unsigned sidenum);

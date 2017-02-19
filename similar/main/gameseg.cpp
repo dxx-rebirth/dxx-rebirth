@@ -92,8 +92,18 @@ constexpr vm_distance fcd_abort_return_value{-1};
 
 }
 
+namespace dcx {
+
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
+
+static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const array<segnum_t, MAX_SIDES_PER_SEGMENT> &children)
+{
+	const auto &&b = begin(children);
+	return std::distance(b, std::find(b, end(children), base_seg));
+}
+
+}
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -131,13 +141,9 @@ void compute_segment_center(vms_vector &vp,const vcsegptr_t sp)
 // -----------------------------------------------------------------------------
 //	Given two segments, return the side index in the connecting segment which connects to the base segment
 //	Optimized by MK on 4/21/94 because it is a 2% load.
-int_fast32_t find_connect_side(const vcsegptridx_t base_seg, const vcsegptr_t con_seg)
+uint_fast32_t find_connect_side(const vcsegidx_t base_seg, const segment &con_seg)
 {
-	auto &children = con_seg->children;
-	auto b = begin(children);
-	auto i = std::find(b, end(children), base_seg);
-	// legal to return -1, used in object_move_one(), mk, 06/08/94: Assert(0);		// Illegal -- there is no connecting side between these two segments
-	return std::distance(b, i);
+	return find_connect_child(base_seg, con_seg.children);
 }
 
 }
