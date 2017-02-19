@@ -1696,10 +1696,9 @@ void move_towards_segment_center(const vobjptr_t objp)
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
-#if defined(DXX_BUILD_DESCENT_I)
 	const vobjptr_t objp,
-#elif defined(DXX_BUILD_DESCENT_II)
-	const objptr_t objp, const player_flags powerup_flags,
+#if defined(DXX_BUILD_DESCENT_II)
+	const player_flags powerup_flags,
 #endif
 	const vcsegptr_t segp, const int sidenum)
 {
@@ -1728,9 +1727,8 @@ int ai_door_is_openable(
 				return 1;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (objp == nullptr || Robot_info[get_robot_id(objp)].companion == 1)
+	if (Robot_info[get_robot_id(objp)].companion == 1)
 	{
-
 		if (wallp->flags & WALL_BUDDY_PROOF) {
 			if ((wallp->type == WALL_DOOR) && (wallp->state == WALL_DOOR_CLOSED))
 				return 0;
@@ -1757,9 +1755,7 @@ int ai_door_is_openable(
 		//	If Buddy is returning to player, don't let him think he can get through triggered doors.
 		//	It's only valid to think that if the player is going to get him through.  But if he's
 		//	going to the player, the player is probably on the opposite side.
-		const ai_mode ailp_mode = ((objp == nullptr)
-			? static_cast<const object *>(vcobjptr(Buddy_objnum))
-			: static_cast<const object *>(objp))->ctype.ai_info.ail.mode;
+		const ai_mode ailp_mode = objp->ctype.ai_info.ail.mode;
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
@@ -2790,7 +2786,7 @@ void init_ai_frame(const player_flags powerup_flags)
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-static void make_nearby_robot_snipe(const player_flags powerup_flags)
+static void make_nearby_robot_snipe(const vobjptr_t robot, const player_flags powerup_flags)
 {
 	array<segnum_t, MNRS_SEG_MAX> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
@@ -2798,7 +2794,7 @@ static void make_nearby_robot_snipe(const player_flags powerup_flags)
 	 * open.  However, passing powerup_flags here maintains the
 	 * semantics that past versions used.
 	 */
-	const auto bfs_length = create_bfs_list(ConsoleObject->segnum, powerup_flags, bfs_list);
+	const auto bfs_length = create_bfs_list(robot, ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
 		range_for (const auto objp, objects_in(vsegptr(i)))
@@ -3379,7 +3375,7 @@ _exit_cheat:
 					compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 					if (player_visibility) {
 						const auto powerup_flags = player_info.powerup_flags;
-						make_nearby_robot_snipe(powerup_flags);
+						make_nearby_robot_snipe(obj, powerup_flags);
 						ailp->next_action_time = (NDL - Difficulty_level) * 2*F1_0;
 					}
 				}

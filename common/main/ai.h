@@ -153,10 +153,9 @@ void attempt_to_resume_path(vobjptridx_t objp);
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vobjptridx_t robot, vobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
-#if defined(DXX_BUILD_DESCENT_I)
 	vobjptr_t,
-#elif defined(DXX_BUILD_DESCENT_II)
-	objptr_t, player_flags,
+#if defined(DXX_BUILD_DESCENT_II)
+	player_flags,
 #endif
 	vcsegptr_t segp, int sidenum);
 int player_is_visible_from_object(vobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
@@ -256,13 +255,13 @@ extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief fl
 void init_ai_frame(player_flags);
 
 __attribute_warn_unused_result
-std::size_t create_bfs_list(vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
+std::size_t create_bfs_list(vobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
 __attribute_warn_unused_result
-std::size_t create_bfs_list(const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const vobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, array<segnum_t, N> &bfs_list)
 {
-	return create_bfs_list(start_seg, powerup_flags, bfs_list.data(), N);
+	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);
 }
 extern void init_thief_for_level();
 

@@ -142,7 +142,7 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player_flags powerup_flags)
+static int segment_is_reachable(const vobjptr_t robot, const vcsegptr_t segp, int sidenum, const player_flags powerup_flags)
 {
 	int		rval;
 
@@ -152,7 +152,7 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player
 	if (wall_num == wall_none)
 		return 1;
 
-	rval = ai_door_is_openable(nullptr, powerup_flags, segp, sidenum);
+	rval = ai_door_is_openable(robot, powerup_flags, segp, sidenum);
 
 	return rval;
 
@@ -194,7 +194,7 @@ static int segment_is_reachable(const vcsegptr_t segp, int sidenum, const player
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const vobjptr_t robot, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
@@ -208,7 +208,7 @@ std::size_t create_bfs_list(const vcsegidx_t start_seg, const player_flags power
 			auto connected_seg = cursegp->children[i];
 
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
-				if (segment_is_reachable(cursegp, i, powerup_flags)) {
+				if (segment_is_reachable(robot, cursegp, i, powerup_flags)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;
@@ -552,7 +552,7 @@ static objnum_t exists_in_mine_2(const vcsegptr_t segp, const int objtype, const
 static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_flags powerup_flags)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
+	const auto length = create_bfs_list(vobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 	auto predicate = [](const segnum_t &s) { return vcsegptr(s)->special == SEGMENT_IS_FUELCEN; };
 	{
 		const auto &&rb = partial_const_range(bfs_list, length);
@@ -578,7 +578,7 @@ static segnum_t exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_
 static objnum_t exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
 {
 	array<segnum_t, MAX_SEGMENTS> bfs_list;
-	const auto length = create_bfs_list(start_seg, powerup_flags, bfs_list);
+	const auto length = create_bfs_list(vobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
 	{
