@@ -1044,7 +1044,7 @@ static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
 }
 
 namespace dsx {
-static void show_bomb_count(const player_info &player_info, const int x, const int y, const int bg_color, const int always_show, const int right_align)
+static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, const int x, const int y, const int bg_color, const int always_show, const int right_align)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!PlayerCfg.BombGauge)
@@ -1059,7 +1059,7 @@ static void show_bomb_count(const player_info &player_info, const int x, const i
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
 
-	gr_set_fontcolor(*grd_curcanv, count
+	gr_set_fontcolor(canvas, count
 		? (bomb == PROXIMITY_INDEX
 			? gr_find_closest_color(55, 0, 0)
 			: BM_XRGB(59, 50, 21)
@@ -1073,8 +1073,8 @@ static void show_bomb_count(const player_info &player_info, const int x, const i
 	std::replace(&txt[2], &txt[4], '1', '\x84');
 
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, txt, &w, &h, nullptr);
-	gr_string(*grd_curcanv, right_align ? x - w : x, y, txt, w, h);
+	gr_get_string_size(*canvas.cv_font, txt, &w, &h, nullptr);
+	gr_string(canvas, right_align ? x - w : x, y, txt, w, h);
 }
 }
 
@@ -1532,7 +1532,7 @@ static void hud_show_weapons(const object &plrobj)
 		gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
 		gr_string(*grd_curcanv, bmwx - w, y - line_spacing, weapon_str, w, h);
 
-		show_bomb_count(player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
+		show_bomb_count(*grd_curcanv, player_info, bmwx, y - (line_spacing * 3), -1, 1, 1);
 	}
 }
 }
@@ -3331,7 +3331,7 @@ void render_gauges()
 			newdemo_record_player_afterburner(Afterburner_charge);
 		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
 #endif
-		show_bomb_count(player_info, HUD_SCALE_X(multires_gauge_graphic, BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+		show_bomb_count(*grd_curcanv, player_info, HUD_SCALE_X(multires_gauge_graphic, BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(player_info, cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
@@ -3363,7 +3363,7 @@ void render_gauges()
 		sb_draw_afterburner(player_info, multires_gauge_graphic);
 		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
 #endif
-			show_bomb_count(player_info, HUD_SCALE_X(multires_gauge_graphic, SB_BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+			show_bomb_count(*grd_curcanv, player_info, HUD_SCALE_X(multires_gauge_graphic, SB_BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
 		draw_player_ship(player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y, multires_gauge_graphic);
 
