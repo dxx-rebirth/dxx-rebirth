@@ -1005,24 +1005,24 @@ static void hud_show_energy(grs_canvas &canvas, const player_info &player_info)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void hud_show_afterburner(const player_info &)
+static inline void hud_show_afterburner(grs_canvas &, const player_info &)
 {
 }
 #define convert_1s(s)
 #elif defined(DXX_BUILD_DESCENT_II)
-static void hud_show_afterburner(const player_info &player_info)
+static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_info)
 {
 	int y;
 	if (! (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER))
 		return;		//don't draw if don't have
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
+	const auto &&line_spacing = LINE_SPACING(canvas);
 	y = (Game_mode & GM_MULTI) ? (-7 * line_spacing) : (-3 * line_spacing);
 
-	gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
+	gr_printf(canvas, FSPACX(1), canvas.cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
 
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_afterburner(Afterburner_charge);
@@ -3252,7 +3252,7 @@ void draw_hud(const object &plrobj)
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			hud_show_energy(*grd_curcanv, player_info);
 			hud_show_shield(plrobj);
-			hud_show_afterburner(player_info);
+			hud_show_afterburner(*grd_curcanv, player_info);
 			hud_show_weapons(plrobj);
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
