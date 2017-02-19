@@ -1595,7 +1595,7 @@ static void hud_show_shield(grs_canvas &canvas, const object &plrobj)
 }
 
 //draw the icons for number of lives
-static void hud_show_lives(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_lives(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int x;
 
@@ -1608,18 +1608,18 @@ static void hud_show_lives(const player_info &player_info, const local_multires_
 		x = FSPACX(2);
 
 	if (Game_mode & GM_MULTI) {
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		gr_printf(*grd_curcanv, x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
+		gr_printf(canvas, x, FSPACY(1), "%s: %d", TXT_DEATHS, player_info.net_killed_total);
 	}
 	else if (get_local_player().lives > 1)  {
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		const auto &&fspacy1 = FSPACY(1);
-		hud_bitblt_free(*grd_curcanv, x, fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
-		gr_printf(*grd_curcanv, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
+		hud_bitblt_free(canvas, x, fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(canvas, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
 	}
 
 }
@@ -3268,7 +3268,7 @@ void draw_hud(const object &plrobj)
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
-			hud_show_lives(player_info, multires_gauge_graphic);
+			hud_show_lives(*grd_curcanv, player_info, multires_gauge_graphic);
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list();
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
