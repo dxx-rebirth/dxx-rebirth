@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "weapon.h"
 #include "powerup.h"
-#include "poison.h"
+#include "compiler-poison.h"
 #include "player-flags.h"
 
 namespace dcx {

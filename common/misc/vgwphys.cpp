@@ -15,7 +15,7 @@ static void dxx_vg_wrap_check_value(const void *, const void *, unsigned long);
 #if DXX_ENABLE_wrap_PHYSFS_write
 #include "console.h"
 #include "dxxerror.h"
-#include "poison.h"
+#include "compiler-poison.h"
 
 static void dxx_vg_wrap_check_value(const void *const ret, const void *const val, const unsigned long vlen)
 {

@@ -13,7 +13,7 @@
 #include "compiler-static_assert.h"
 #include "compiler-type_traits.h"
 #include "pack.h"
-#include "poison.h"
+#include "compiler-poison.h"
 
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\

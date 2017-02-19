@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-begin.h"
-#include "poison.h"
+#include "compiler-poison.h"
 
 struct rle_position_t
 {

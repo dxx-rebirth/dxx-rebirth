@@ -1888,7 +1888,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 			return
 		text = '''
 #define DXX_HAVE_POISON	1
-#include "poison.h"
+#include "compiler-poison.h"
 '''
 		main = '''
 	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));

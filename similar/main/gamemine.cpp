@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "piggy.h"
 #include "gamesave.h"
-#include "poison.h"
+#include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 

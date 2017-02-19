@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "multibot.h"
 #include "escort.h"
-#include "poison.h"
+#include "compiler-poison.h"
 #include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
