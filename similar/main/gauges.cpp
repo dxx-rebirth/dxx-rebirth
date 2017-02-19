@@ -633,31 +633,20 @@ static void hud_gauge_bitblt(grs_canvas &canvas, const unsigned x, const unsigne
 class draw_keys_state
 {
 	const player_flags player_key_flags;
+	const local_multires_gauge_graphic multires_gauge_graphic;
 public:
-	draw_keys_state(const player_flags f) :
-		player_key_flags(f)
+	draw_keys_state(const player_flags f, const local_multires_gauge_graphic g) :
+		player_key_flags(f), multires_gauge_graphic(g)
 	{
 		gr_set_current_canvas(nullptr);
 	}
+	void draw_all_cockpit_keys();
+	void draw_all_statusbar_keys();
 protected:
-	void draw_one_key(unsigned x, unsigned y, unsigned gauge, const local_multires_gauge_graphic multires_gauge_graphic, const PLAYER_FLAG flag) const
+	void draw_one_key(const unsigned x, const unsigned y, const unsigned gauge, const PLAYER_FLAG flag) const
 	{
 		hud_gauge_bitblt(*grd_curcanv, x, y, (player_key_flags & flag) ? gauge : (gauge + 3), multires_gauge_graphic);
 	}
-};
-
-class draw_cockpit_keys_state : public draw_keys_state
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(draw_cockpit_keys_state, draw_keys_state);
-	void draw_all_keys(local_multires_gauge_graphic multires_gauge_graphic);
-};
-
-class draw_statusbar_keys_state : public draw_keys_state
-{
-public:
-	DXX_INHERIT_CONSTRUCTORS(draw_statusbar_keys_state, draw_keys_state);
-	void draw_all_keys(local_multires_gauge_graphic multires_gauge_graphic);
 };
 
 }
@@ -2166,11 +2155,11 @@ static void draw_numerical_display(int shield, int energy, const local_multires_
 	gr_set_current_canvas( NULL );
 }
 
-void draw_cockpit_keys_state::draw_all_keys(const local_multires_gauge_graphic multires_gauge_graphic)
+void draw_keys_state::draw_all_cockpit_keys()
 {
-	draw_one_key(GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, GAUGE_BLUE_KEY, multires_gauge_graphic, PLAYER_FLAGS_BLUE_KEY);
-	draw_one_key(GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, GAUGE_GOLD_KEY, multires_gauge_graphic, PLAYER_FLAGS_GOLD_KEY);
-	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, multires_gauge_graphic, PLAYER_FLAGS_RED_KEY);
+	draw_one_key(GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, GAUGE_BLUE_KEY, PLAYER_FLAGS_BLUE_KEY);
+	draw_one_key(GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, GAUGE_GOLD_KEY, PLAYER_FLAGS_GOLD_KEY);
+	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, PLAYER_FLAGS_RED_KEY);
 }
 
 namespace dsx {
@@ -2595,11 +2584,11 @@ static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic mu
 	hud_gauge_bitblt(*grd_curcanv, SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
 }
 
-void draw_statusbar_keys_state::draw_all_keys(const local_multires_gauge_graphic multires_gauge_graphic)
+void draw_keys_state::draw_all_statusbar_keys()
 {
-	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, SB_GAUGE_BLUE_KEY, multires_gauge_graphic, PLAYER_FLAGS_BLUE_KEY);
-	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, SB_GAUGE_GOLD_KEY, multires_gauge_graphic, PLAYER_FLAGS_GOLD_KEY);
-	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, SB_GAUGE_RED_KEY, multires_gauge_graphic, PLAYER_FLAGS_RED_KEY);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, SB_GAUGE_BLUE_KEY, PLAYER_FLAGS_BLUE_KEY);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, SB_GAUGE_GOLD_KEY, PLAYER_FLAGS_GOLD_KEY);
+	draw_one_key(SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, SB_GAUGE_RED_KEY, PLAYER_FLAGS_RED_KEY);
 }
 
 //	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
@@ -3356,7 +3345,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(player_info.powerup_flags.get_player_flags());
 		}
-		draw_cockpit_keys_state(player_info.powerup_flags).draw_all_keys(multires_gauge_graphic);
+		draw_keys_state(player_info.powerup_flags, multires_gauge_graphic).draw_all_cockpit_keys();
 
 		show_homing_warning(player_info.homing_object_dist, multires_gauge_graphic);
 		draw_wbu_overlay(multires_gauge_graphic);
@@ -3389,7 +3378,7 @@ void render_gauges()
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(player_info.powerup_flags.get_player_flags());
 		}
-		draw_statusbar_keys_state(player_info.powerup_flags).draw_all_keys(multires_gauge_graphic);
+		draw_keys_state(player_info.powerup_flags, multires_gauge_graphic).draw_all_statusbar_keys();
 
 		sb_show_lives(player_info, multires_gauge_graphic);
 		sb_show_score(*grd_curcanv, player_info, multires_gauge_graphic);
