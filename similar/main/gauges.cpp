@@ -863,14 +863,14 @@ static void show_homing_warning(const int homing_object_dist, const local_multir
 	hud_gauge_bitblt(*grd_curcanv, HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
 }
 
-static void hud_show_homing_warning(const int homing_object_dist)
+static void hud_show_homing_warning(grs_canvas &canvas, const int homing_object_dist)
 {
 	if (homing_object_dist >= 0)
 	{
 		if (GameTime64 & 0x4000) {
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
-			gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-			gr_string(*grd_curcanv, 0x8000, grd_curcanv->cv_bitmap.bm_h - LINE_SPACING(*grd_curcanv), TXT_LOCK);
+			gr_set_curfont(canvas, GAME_FONT);
+			gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
+			gr_string(canvas, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(canvas), TXT_LOCK);
 		}
 	}
 }
@@ -3236,7 +3236,7 @@ void draw_hud(const object &plrobj)
 		show_HUD_names();
 
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-			hud_show_homing_warning(player_info.homing_object_dist);
+			hud_show_homing_warning(*grd_curcanv, player_info.homing_object_dist);
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
