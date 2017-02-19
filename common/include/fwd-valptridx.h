@@ -9,6 +9,7 @@
 #include <functional>
 #include <cstddef>
 #include "dxxsconf.h"
+#include "cpp-valptridx.h"
 
 /* Unexpected invalid data can be handled in one of three ways.
  *
