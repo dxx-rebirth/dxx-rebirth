@@ -1166,10 +1166,10 @@ static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, 
 	}
 }
 
-static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
+static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const unsigned consider_weapon, grs_canvas &canvas)
 {
 	auto rgb = hud_get_secondary_weapon_fontcolor(player_info, consider_weapon);
-	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
@@ -1379,7 +1379,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
-			hud_set_secondary_weapon_fontcolor(player_info, i);
+			hud_set_secondary_weapon_fontcolor(player_info, i, *grd_curcanv);
 			snprintf(weapon_str, sizeof(weapon_str), "%i", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
@@ -1409,7 +1409,7 @@ static void hud_show_secondary_weapons_mode(const player_info &player_info, cons
 		{
 			const auto i = static_cast<secondary_weapon_index_t>(ui);
 			char weapon_str[10];
-			hud_set_secondary_weapon_fontcolor(player_info, i);
+			hud_set_secondary_weapon_fontcolor(player_info, i, *grd_curcanv);
 			snprintf(weapon_str, sizeof(weapon_str), "%u", secondary_ammo[i]);
 			int w, h;
 			gr_get_string_size(*grd_curcanv->cv_font, weapon_str, &w, &h, nullptr);
