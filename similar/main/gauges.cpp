@@ -1661,18 +1661,17 @@ static void sb_show_lives(grs_canvas &canvas, const player_info &player_info, co
 }
 
 #ifndef RELEASE
-static void show_time()
+static void show_time(grs_canvas &canvas)
 {
 	int secs = f2i(get_local_player().time_level) % 60;
 	int mins = f2i(get_local_player().time_level) / 60;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = BM_XRGB(0,31,0);
-	gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
-
-	gr_printf(*grd_curcanv, FSPACX(2), (LINE_SPACING(*grd_curcanv) * 15), "%d:%02d", mins, secs);
+	gr_set_fontcolor(canvas, Color_0_31_0, -1);
+	gr_printf(canvas, FSPACX(2), (LINE_SPACING(canvas) * 15), "%d:%02d", mins, secs);
 }
 #endif
 
@@ -3254,7 +3253,7 @@ void draw_hud(const object &plrobj)
 
 #ifndef RELEASE
 		if (!(Game_mode&GM_MULTI && Show_kill_list))
-			show_time();
+			show_time(*grd_curcanv);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
