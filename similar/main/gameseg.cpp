@@ -1399,20 +1399,18 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 	if (negate_flag)
 		vm_vec_negate(vn);
 
-	if (dist_to_plane <= PLANE_DIST_TOLERANCE)
-		add_side_as_quad(&sp->sides[sidenum], vn);
-	else {
+	const auto s = &sp->sides[sidenum];
+	if (dist_to_plane > PLANE_DIST_TOLERANCE)
+	{
 		add_side_as_2_triangles(sp, sidenum);
 
 		//this code checks to see if we really should be triangulated, and
 		//de-triangulates if we shouldn't be.
 
-		{
 			fix			dist0,dist1;
 			int			s0,s1;
 			int			vertnum;
 
-			const auto s = &sp->sides[sidenum];
 			const auto v = create_abs_vertex_lists(sp, s, sidenum);
 			const auto &vertex_list = v.second;
 
@@ -1426,15 +1424,11 @@ void create_walls_on_side(const vsegptridx_t sp, int sidenum)
 			s0 = sign(dist0);
 			s1 = sign(dist1);
 
-			if (s0==0 || s1==0 || s0!=s1) {
-				sp->sides[sidenum].set_type(SIDE_IS_QUAD); 	//detriangulate!
-				sp->sides[sidenum].normals[0] = vn;
-				sp->sides[sidenum].normals[1] = vn;
-			}
-
-		}
+		if (!(s0 == 0 || s1 == 0 || s0 != s1))
+			return;
+		//detriangulate!
 	}
-
+	add_side_as_quad(s, vn);
 }
 
 // -------------------------------------------------------------------------------
