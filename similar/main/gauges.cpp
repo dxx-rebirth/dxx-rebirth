@@ -62,9 +62,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #define HUD_SCALE_X(G,x)		static_cast<int>(static_cast<double>(x) * (static_cast<double>(grd_curscreen->get_screen_width()) / BASE_WIDTH(G)) + 0.5)
 #define HUD_SCALE_Y(G,y)		static_cast<int>(static_cast<double>(y) * (static_cast<double>(grd_curscreen->get_screen_height()) / BASE_HEIGHT(G)) + 0.5)
+#define HUD_SCALE_X_AR(G,x)	(HUD_SCALE_X(G, 100) > HUD_SCALE_Y(G, 100) ? HUD_SCALE_Y(G, x) : HUD_SCALE_X(G, x))
+#define HUD_SCALE_Y_AR(G,y)	(HUD_SCALE_Y(G, 100) > HUD_SCALE_X(G, 100) ? HUD_SCALE_X(G, y) : HUD_SCALE_Y(G, y))
 #else
 #define HUD_SCALE_X(G,x)		(static_cast<void>(G), x)
 #define HUD_SCALE_Y(G,y)		(static_cast<void>(G), y)
+#define HUD_SCALE_X_AR(G,x)	HUD_SCALE_X(G, x)
+#define HUD_SCALE_Y_AR(G,y)	HUD_SCALE_Y(G, y)
 #endif
 #include "args.h"
 
@@ -370,12 +374,8 @@ static bool show_cloak_invul_timer()
 #define BASE_WIDTH(G) ((G).get(640, 320))
 #define BASE_HEIGHT(G)	((G).get(480, 200))
 #if DXX_USE_OGL
-#define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(multires_gauge_graphic, 100) > HUD_SCALE_Y(multires_gauge_graphic, 100) ? HUD_SCALE_Y(multires_gauge_graphic, x) : HUD_SCALE_X(multires_gauge_graphic, x))
-#define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(multires_gauge_graphic, 100) > HUD_SCALE_X(multires_gauge_graphic, 100) ? HUD_SCALE_X(multires_gauge_graphic, y) : HUD_SCALE_Y(multires_gauge_graphic, y))
 #define draw_numerical_display(S,E,G)	draw_numerical_display(S,E)
 #else
-#define HUD_SCALE_X_AR(x)	HUD_SCALE_X(multires_gauge_graphic, x)
-#define HUD_SCALE_Y_AR(y)	HUD_SCALE_Y(multires_gauge_graphic, y)
 #define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
 #define hud_bitblt(C,X,Y,B,G)	hud_bitblt(C,X,Y,B)
 #endif
@@ -909,22 +909,22 @@ static void hud_show_keys(const player_info &player_info, const local_multires_g
 		}
 	};
 	const gauge_key blue(KEY_ICON_BLUE, multires_gauge_graphic);
-	int y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
+	int y=HUD_SCALE_Y_AR(multires_gauge_graphic, GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 
 	const auto &&fspacx2 = FSPACX(2);
 	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
-		hud_bitblt_free(*grd_curcanv, fspacx2, y, HUD_SCALE_X_AR(blue->bm_w), HUD_SCALE_Y_AR(blue->bm_h), blue);
+		hud_bitblt_free(*grd_curcanv, fspacx2, y, HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, blue->bm_h), blue);
 
 	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	const gauge_key yellow(KEY_ICON_YELLOW, multires_gauge_graphic);
 	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
-		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(blue->bm_w + 3), y, HUD_SCALE_X_AR(yellow->bm_w), HUD_SCALE_Y_AR(yellow->bm_h), yellow);
+		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + 3), y, HUD_SCALE_X_AR(multires_gauge_graphic, yellow->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, yellow->bm_h), yellow);
 
 	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
 	{
 		const gauge_key red(KEY_ICON_RED, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(red->bm_w), HUD_SCALE_Y_AR(red->bm_h), red);
+		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(multires_gauge_graphic, red->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, red->bm_h), red);
 	}
 }
 
@@ -943,7 +943,7 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
-			y = HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h + 4) + fspacy1;
+			y = HUD_SCALE_Y_AR(multires_gauge_graphic, GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + GameBitmaps[ GET_GAUGE_INDEX(KEY_ICON_RED) ].bm_h + 4) + fspacy1;
 		}
 		else
 		{
@@ -954,8 +954,8 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
-		hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_Y_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(*grd_curcanv, x + HUD_SCALE_X_AR(bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
+		hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
@@ -985,7 +985,7 @@ static void hud_show_flag(const player_info &player_info, const local_multires_g
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, x, HUD_SCALE_Y_AR(y) + fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
+		hud_bitblt_free(*grd_curcanv, x, HUD_SCALE_Y_AR(multires_gauge_graphic, y) + fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
 	}
 }
 #endif
@@ -1630,8 +1630,8 @@ static void hud_show_lives(const player_info &player_info, const local_multires_
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_LIVES)];
 		const auto &&fspacy1 = FSPACY(1);
-		hud_bitblt_free(*grd_curcanv, x, fspacy1, HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(*grd_curcanv, HUD_SCALE_X_AR(bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
+		hud_bitblt_free(*grd_curcanv, x, fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(*grd_curcanv, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w) + x, fspacy1, " x %d", get_local_player().lives - 1);
 	}
 
 }
@@ -1668,8 +1668,8 @@ static void sb_show_lives(const player_info &player_info, const local_multires_g
 	if (get_local_player().lives-1 > 0) {
 		gr_set_curfont(*grd_curcanv, GAME_FONT);
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y_AR(bm.bm_h), bm);
-		gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
+		hud_bitblt_free(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x) + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y(multires_gauge_graphic, y), " x %d", get_local_player().lives - 1);
 	}
 }
 
@@ -2742,17 +2742,17 @@ void show_reticle(const player_info &player_info, int reticle_type, int secondar
 			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &cross = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross.bm_w), HUD_SCALE_Y_AR(cross.bm_h), cross);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, cross_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, cross_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, cross.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, cross.bm_h), cross);
 
 			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &primary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary.bm_w), HUD_SCALE_Y_AR(primary.bm_h), primary);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, primary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, primary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, primary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, primary.bm_h), primary);
 
 			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
 			auto &secondary = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary.bm_w), HUD_SCALE_Y_AR(secondary.bm_h), secondary);
+			hud_bitblt_free(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, secondary_offsets[ofs].x),y + HUD_SCALE_Y_AR(multires_gauge_graphic, secondary_offsets[ofs].y), HUD_SCALE_X_AR(multires_gauge_graphic, secondary.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, secondary.bm_h), secondary);
 			return;
 		}
 		case RET_TYPE_CLASSIC_REBOOT:
@@ -2868,7 +2868,7 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	gr_uline(*grd_curcanv, i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos), color);
 	gr_uline(*grd_curcanv, i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos), color);
 	const local_multires_gauge_graphic multires_gauge_graphic{};
-	gr_uline(*grd_curcanv, i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos), color);
+	gr_uline(*grd_curcanv, i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(multires_gauge_graphic, 2)), i2f(zaxpos), color);
 	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
@@ -3469,8 +3469,8 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 	const local_multires_gauge_graphic multires_gauge_graphic{};
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
-		w = HUD_SCALE_X_AR((multires_gauge_graphic.get(106, 44)));
-		h = HUD_SCALE_Y_AR((multires_gauge_graphic.get(106, 44)));
+		w = HUD_SCALE_X_AR(multires_gauge_graphic, (multires_gauge_graphic.get(106, 44)));
+		h = HUD_SCALE_Y_AR(multires_gauge_graphic, (multires_gauge_graphic.get(106, 44)));
 
 		dx = (win==0)?-(w+(w/10)):(w/10);
 
