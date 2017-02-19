@@ -538,8 +538,8 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos,const vms_matr
    }
 
 	// Make sure the textures for this object are paged in...
-	for (int i=0;i<po->n_textures;i++) 
-		PIGGY_PAGE_IN( texture_list_index[i] );
+	range_for (auto &i, partial_range(texture_list_index, po->n_textures))
+		PIGGY_PAGE_IN(i);
 	// Hmmm... cache got flushed in the middle of paging all these in,
 	// so we need to reread them all in.
 	// Make sure that they can all fit in memory.
