@@ -139,7 +139,6 @@ struct wall : public prohibit_void_ptr<wall>
 };
 
 }
-#endif
 
 namespace dcx {
 
@@ -155,7 +154,6 @@ DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(active_door, actdoor);
 
 }
 
-#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
