@@ -690,7 +690,7 @@ static void hud_show_score(grs_canvas &canvas, const player_info &player_info)
 	gr_string(canvas, canvas.cv_bitmap.bm_w - w - FSPACX(1), FSPACY(1), score_str, w, h);
 }
 
-static void hud_show_timer_count()
+static void hud_show_timer_count(grs_canvas &canvas)
 {
 	int	i;
 	fix timevar=0;
@@ -709,13 +709,13 @@ static void hud_show_timer_count()
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = BM_XRGB(0,31,0);
 
-		gr_set_fontcolor(*grd_curcanv, Color_0_31_0, -1);
+		gr_set_fontcolor(canvas, Color_0_31_0, -1);
 
 			char score_str[20];
 			snprintf(score_str, sizeof(score_str), "T - %5d", i);
 			int w, h;
-			gr_get_string_size(*grd_curcanv->cv_font, score_str, &w, &h, nullptr);
-			gr_string(*grd_curcanv, grd_curcanv->cv_bitmap.bm_w - w - FSPACX(12), LINE_SPACING(*grd_curcanv) + FSPACY(1), score_str, w, h);
+			gr_get_string_size(*canvas.cv_font, score_str, &w, &h, nullptr);
+			gr_string(canvas, canvas.cv_bitmap.bm_w - w - FSPACX(12), LINE_SPACING(canvas) + FSPACY(1), score_str, w, h);
 		}
 	}
 }
@@ -3238,7 +3238,7 @@ void draw_hud(const object &plrobj)
 	}
 
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
-		hud_show_timer_count();
+		hud_show_timer_count(*grd_curcanv);
 
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
