@@ -426,6 +426,22 @@ void CycleSecondary(player_info &player_info)
 	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+static inline void set_weapon_last_was_super(uint8_t &last, const uint8_t mask, const bool is_super)
+{
+	if (is_super)
+		last |= mask;
+	else
+		last &= ~mask;
+}
+
+static inline void set_weapon_last_was_super(uint8_t &last, const uint_fast32_t weapon_num)
+{
+	const bool is_super = weapon_num >= SUPER_WEAPON;
+	set_weapon_last_was_super(last, 1 << (is_super ? weapon_num - SUPER_WEAPON : weapon_num), is_super);
+}
+#endif
+
 void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num)
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -436,7 +452,7 @@ void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num
 #if defined(DXX_BUILD_DESCENT_II)
 	//save flag for whether was super version
 	auto &Primary_last_was_super = player_info.Primary_last_was_super;
-	Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+	set_weapon_last_was_super(Primary_last_was_super, weapon_num);
 #endif
 }
 
@@ -471,8 +487,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 		Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
-		auto &Primary_last_was_super = player_info.Primary_last_was_super;
-		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
+		set_weapon_last_was_super(player_info.Primary_last_was_super, weapon_num);
 #endif
 	}
 	if (weapon_name)
@@ -594,10 +609,9 @@ void do_primary_weapon_select(player_info &player_info, uint_fast32_t weapon_num
 #elif defined(DXX_BUILD_DESCENT_II)
 	has_weapon_result weapon_status;
 
-	auto &Primary_last_was_super = player_info.Primary_last_was_super;
 	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
-	const auto last_was_super = Primary_last_was_super[weapon_num];
+	const auto last_was_super = player_info.Primary_last_was_super & (1 << weapon_num);
 	const auto has_flag = weapon_status.has_weapon_flag;
 
 	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {

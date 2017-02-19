@@ -469,22 +469,20 @@ void init_player_stats_new_ship(ubyte pnum)
 			return primary_weapon_index_t::LASER_INDEX;
 		}());
 #if defined(DXX_BUILD_DESCENT_II)
-		auto &Primary_last_was_super = player_info.Primary_last_was_super;
-		Primary_last_was_super[0] = 0;
-		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i)
+		auto primary_last_was_super = player_info.Primary_last_was_super;
+		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX, mask = 1 << i; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i, mask <<= 1)
 		{
-			uint8_t last;
 			/* If no super granted, force to non-super. */
 			if (!(HAS_PRIMARY_FLAG(i + 5) & granted_primary_weapon_flags))
-				last = 0;
+				primary_last_was_super &= ~mask;
 			/* If only super granted, force to super. */
 			else if (!(HAS_PRIMARY_FLAG(i) & granted_primary_weapon_flags))
-				last = 1;
+				primary_last_was_super |= mask;
 			/* else both granted, so leave as-is. */
 			else
 				continue;
-			Primary_last_was_super[i] = last;
 		}
+		player_info.Primary_last_was_super = primary_last_was_super;
 #endif
 		if (Newdemo_state == ND_STATE_RECORDING)
 		{

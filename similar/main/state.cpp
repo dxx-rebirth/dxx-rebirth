@@ -1240,7 +1240,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * MAX_*_WEAPONS for each.  Copy into a temporary, then write
 		 * the temporary to the file.
 		 */
-		std::copy(Primary_last_was_super.begin(), Primary_last_was_super.end(), last_was_super.begin());
+		for (uint_fast32_t j = primary_weapon_index_t::VULCAN_INDEX; j != primary_weapon_index_t::SUPER_LASER_INDEX; ++j)
+		{
+			if (Primary_last_was_super & (1 << j))
+				last_was_super[j] = 1;
+		}
 		PHYSFS_write(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		std::copy(Secondary_last_was_super.begin(), Secondary_last_was_super.end(), last_was_super.begin());
@@ -1854,7 +1858,12 @@ int state_restore_all_sub(const char *filename, const secret_restore secret)
 		 * meaningful elements to the live data.
 		 */
 		PHYSFS_read(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
-		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Primary_last_was_super.size()), Primary_last_was_super.begin());
+		Primary_last_was_super = 0;
+		for (uint_fast32_t j = primary_weapon_index_t::VULCAN_INDEX; j != primary_weapon_index_t::SUPER_LASER_INDEX; ++j)
+		{
+			if (last_was_super[j])
+				Primary_last_was_super |= 1 << j;
+		}
 		PHYSFS_read(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		std::copy(last_was_super.begin(), std::next(last_was_super.begin(), Secondary_last_was_super.size()), Secondary_last_was_super.begin());

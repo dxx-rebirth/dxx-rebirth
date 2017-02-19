@@ -123,7 +123,7 @@ struct player_info
 	stored_laser_level laser_level;
 	array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
 #if defined(DXX_BUILD_DESCENT_II)
-	array<uint8_t, SUPER_WEAPON> Primary_last_was_super;
+	uint8_t Primary_last_was_super;
 	array<uint8_t, SUPER_WEAPON> Secondary_last_was_super;
 #endif
 	int16_t net_killed_total;		// Number of times killed total
