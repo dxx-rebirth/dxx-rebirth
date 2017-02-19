@@ -989,15 +989,15 @@ static void hud_show_flag(const player_info &player_info, const local_multires_g
 }
 #endif
 
-static void hud_show_energy(const player_info &player_info)
+static void hud_show_energy(grs_canvas &canvas, const player_info &player_info)
 {
 	auto &energy = player_info.energy;
 	if (PlayerCfg.HudMode == HudType::Standard || PlayerCfg.HudMode == HudType::Alternate1)
 	{
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
-		const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
-		gr_printf(*grd_curcanv, FSPACX(1), grd_curcanv->cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
+		gr_set_curfont(canvas, GAME_FONT);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
+		const auto &&line_spacing = LINE_SPACING(canvas);
+		gr_printf(canvas, FSPACX(1), canvas.cv_bitmap.bm_h - ((Game_mode & GM_MULTI) ? (line_spacing * (5 + (N_players > 3))) : line_spacing),"%s: %i", TXT_ENERGY, f2ir(energy));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3250,7 +3250,7 @@ void draw_hud(const object &plrobj)
 
 		const local_multires_gauge_graphic multires_gauge_graphic = {};
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-			hud_show_energy(player_info);
+			hud_show_energy(*grd_curcanv, player_info);
 			hud_show_shield(plrobj);
 			hud_show_afterburner(player_info);
 			hud_show_weapons(plrobj);
