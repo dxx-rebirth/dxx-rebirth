@@ -1130,10 +1130,10 @@ static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, co
 	}
 }
 
-static void hud_set_primary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
+static void hud_set_primary_weapon_fontcolor(const player_info &player_info, const unsigned consider_weapon, grs_canvas &canvas)
 {
 	auto rgb = hud_get_primary_weapon_fontcolor(player_info, consider_weapon);
-	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
+	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);
 }
 
 __attribute_warn_unused_result
@@ -1234,7 +1234,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
-			hud_set_primary_weapon_fontcolor(player_info, i);
+			hud_set_primary_weapon_fontcolor(player_info, i, *grd_curcanv);
 			switch(i)
 			{
 				case primary_weapon_index_t::LASER_INDEX:
@@ -1315,7 +1315,7 @@ static void hud_show_primary_weapons_mode(const player_info &player_info, const 
 			const auto i = static_cast<primary_weapon_index_t>(ui);
 			const char *txtweapon;
 			char weapon_str[10];
-			hud_set_primary_weapon_fontcolor(player_info, i);
+			hud_set_primary_weapon_fontcolor(player_info, i, *grd_curcanv);
 			switch(i)
 			{
 				case primary_weapon_index_t::SUPER_LASER_INDEX:
