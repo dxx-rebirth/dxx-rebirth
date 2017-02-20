@@ -163,7 +163,7 @@ public:
 	}
 	static constexpr vm_distance_squared maximum_value()
 	{
-		return vm_distance_squared{0x7fffffffffffffff};
+		return vm_distance_squared{static_cast<fix64>(0x7fffffffffffffff)};
 	}
 	static constexpr vm_distance_squared minimum_value()
 	{
