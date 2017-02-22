@@ -60,8 +60,8 @@ using vertex_vertnum_array_list = array<vertex_vertnum_pair, 6>;
 #ifdef dsx
 namespace dsx {
 extern int	Doing_lighting_hack_flag;
-void compute_center_point_on_side(vms_vector &vp,vcsegptr_t sp,int side);
-static inline vms_vector compute_center_point_on_side(const vcsegptr_t sp,int side)
+void compute_center_point_on_side(vms_vector &vp, const segment &sp, unsigned side);
+static inline vms_vector compute_center_point_on_side(const segment &sp, const unsigned side)
 {
 	vms_vector v;
 	return compute_center_point_on_side(v, sp, side), v;

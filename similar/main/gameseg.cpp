@@ -103,6 +103,15 @@ static uint_fast32_t find_connect_child(const vcsegidx_t base_seg, const array<s
 	return std::distance(b, std::find(b, end(children), base_seg));
 }
 
+static void compute_center_point_on_side(vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts, const unsigned side)
+{
+	vms_vector vp;
+	vm_vec_zero(vp);
+	range_for (auto &v, Side_to_verts[side])
+		vm_vec_add2(vp, Vertices[verts[v]]);
+	vm_vec_copy_scale(r, vp, F1_0 / 4);
+}
+
 }
 
 namespace dsx {
@@ -115,14 +124,9 @@ unsigned Num_static_lights;
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(vms_vector &vp,const vcsegptr_t sp,int side)
+void compute_center_point_on_side(vms_vector &vp, const segment &sp, const unsigned side)
 {
-	vm_vec_zero(vp);
-
-	range_for (auto &v, Side_to_verts[side])
-		vm_vec_add2(vp,Vertices[sp->verts[v]]);
-
-	vm_vec_scale(vp,F1_0/4);
+	compute_center_point_on_side(vp, sp.verts, side);
 }
 
 // ------------------------------------------------------------------------------------------
