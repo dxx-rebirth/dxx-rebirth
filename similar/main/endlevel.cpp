@@ -1122,7 +1122,7 @@ static void endlevel_render_mine(fix eye_offset)
 	}
 
 	g3_set_view_matrix(Viewer_eye, Endlevel_sequence == EL_LOOKBACK
-		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, 0x7fff}))
+		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
 		: Viewer->orient, Render_zoom);
 
 	window_rendered_data window;

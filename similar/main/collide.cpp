@@ -204,7 +204,7 @@ static void apply_force_damage(const vobjptridx_t obj,fix force,const vobjptridx
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if ((other_obj->type == OBJ_PLAYER) && cheats.monsterdamage)
-		damage = 0x7fffffff;
+		damage = INT32_MAX;
 #endif
 
 	if (damage < FORCE_DAMAGE_THRESHOLD)

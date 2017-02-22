@@ -1092,7 +1092,7 @@ void draw_all_edges(automap *am)
 	unsigned nbright = 0;
 	ubyte nfacing,nnfacing;
 	fix distance;
-	fix min_distance = 0x7fffffff;
+	fix min_distance = INT32_MAX;
 
 	for (i=0; i<=am->highest_edge_index; i++ )	{
 		//e = &am->edges[Edge_used_list[i]];

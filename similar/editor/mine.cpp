@@ -481,8 +481,9 @@ static void dump_fix_as_short( fix value, int nbits, PHYSFS_File *SaveFile )
 	short short_value;
 
 	auto int_value = value >> nbits;
-	if( int_value > 0x7fff ) {
-		short_value = 0x7fff;
+	if (int_value > INT16_MAX)
+	{
+		short_value = INT16_MAX;
 	}
 	else if( int_value < -0x7fff ) {
 		short_value = -0x7fff;

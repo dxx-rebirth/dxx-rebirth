@@ -247,7 +247,7 @@ namespace dsx {
 int multi_add_controlled_robot(const vobjptridx_t objnum, int agitation)
 {
 	int i;
-	int lowest_agitation = 0x7fffffff; // MAX POSITIVE INT
+	int lowest_agitation = INT32_MAX; // MAX POSITIVE INT
 	int lowest_agitated_bot = -1;
 	int first_free_robot = -1;
 

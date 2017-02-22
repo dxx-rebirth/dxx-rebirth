@@ -431,7 +431,7 @@ static void build_light_table()
 	light_array = make_unique<uint8_t[]>(alloc);
 	memset(light_array.get(), 0, alloc);
 	int i,j;
-	fix l,l2,min_l=0x7fffffff,max_l=0;
+	fix l, l2, min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
 			l = get_avg_light(i,j);

@@ -1217,7 +1217,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 
 	g3_set_view_matrix(Viewer_eye,
 		(Rear_view && Viewer == ConsoleObject)
-		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, 0x7fff}))
+		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
 		: Viewer->orient, Render_zoom);
 
 	if (Clear_window == 1) {

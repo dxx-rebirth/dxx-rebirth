@@ -151,13 +151,14 @@ static void init_points(polymodel *pm,const vms_vector *box_size,int submodel_nu
 		if (box_size) {
 			fix t;
 
-			k = 0x7fffffff;
+			k = INT32_MAX;
 
 			if (vp->x && f2i(box_size->x)<abs(vp->x)/2 && (t = fixdiv(box_size->x,abs(vp->x))) < k) k=t;
 			if (vp->y && f2i(box_size->y)<abs(vp->y)/2 && (t = fixdiv(box_size->y,abs(vp->y))) < k) k=t;
 			if (vp->z && f2i(box_size->z)<abs(vp->z)/2 && (t = fixdiv(box_size->z,abs(vp->z))) < k) k=t;
 
-			if (k==0x7fffffff) k=0;
+			if (k == INT32_MAX)
+				k = 0;
 
 		}
 		else

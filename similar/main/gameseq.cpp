@@ -1845,7 +1845,7 @@ public:
 	{
 		const auto player_num = Player_num;
 		const auto find_closest_player = [player_num](const obj_position &candidate) {
-			fix closest_dist = 0x7fffffff;
+			fix closest_dist = INT32_MAX;
 			const auto &&candidate_segp = vcsegptridx(candidate.segnum);
 			for (uint_fast32_t i = N_players; i--;)
 			{
