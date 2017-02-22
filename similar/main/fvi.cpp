@@ -603,10 +603,7 @@ namespace {
 #define MAX_SEGS_VISITED 100
 struct fvi_segment_visit_count_t
 {
-	unsigned count;
-	fvi_segment_visit_count_t() : count(0)
-	{
-	}
+	unsigned count = 0;
 };
 
 struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited_segment_bitarray_t
@@ -617,9 +614,8 @@ int fvi_nest_count;
 
 //these vars are used to pass vars from fvi_sub() to find_vector_intersection()
 objnum_t fvi_hit_object;	// object number of object hit in last find_vector_intersection call.
-segnum_t fvi_hit_seg;		// what segment the hit point is in
 int fvi_hit_side;		// what side was hit
-int fvi_hit_side_seg;// what seg the hitside is in
+segnum_t fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 segnum_t fvi_hit_seg2;		// what segment the hit point is in
 
@@ -646,7 +642,6 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	int hit_type;
 	segnum_t hit_seg2;
 	vms_vector hit_pnt;
-	fvi_hit_seg = segment_none;
 	fvi_hit_side = -1;
 
 	fvi_hit_object = object_none;
@@ -1018,7 +1013,6 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 									else
 										fvi_hit_seg2 = startseg;
 
-									fvi_hit_seg = hit_seg;
 									fvi_hit_side =  side;
 									fvi_hit_side_seg = startseg;
 
