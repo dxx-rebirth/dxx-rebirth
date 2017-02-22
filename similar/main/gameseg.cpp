@@ -112,6 +112,15 @@ static void compute_center_point_on_side(vms_vector &r, const array<unsigned, MA
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
+static void compute_segment_center(vms_vector &r, const array<unsigned, MAX_VERTICES_PER_SEGMENT> &verts)
+{
+	vms_vector vp;
+	vm_vec_zero(vp);
+	range_for (auto &v, verts)
+		vm_vec_add2(vp, Vertices[v]);
+	vm_vec_copy_scale(r, vp, F1_0 / 8);
+}
+
 }
 
 namespace dsx {
@@ -132,14 +141,9 @@ void compute_center_point_on_side(vms_vector &vp, const segment &sp, const unsig
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(vms_vector &vp,const vcsegptr_t sp)
+void compute_segment_center(vms_vector &vp, const segment &sp)
 {
-	vm_vec_zero(vp);
-
-	range_for (auto &v, sp->verts)
-		vm_vec_add2(vp,Vertices[v]);
-
-	vm_vec_scale(vp,F1_0/8);
+	compute_segment_center(vp, sp.verts);
 }
 
 // -----------------------------------------------------------------------------
