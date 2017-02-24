@@ -257,6 +257,15 @@ namespace dsx {
 void robot_set_angles(robot_info *r,polymodel *pm, array<array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 }
+
+static inline void boss_link_see_sound(const vcobjptridx_t objp)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+#elif defined(DXX_BUILD_DESCENT_II)
+	digi_link_sound_to_object2(Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+#endif
+}
 #endif
 
 #endif
