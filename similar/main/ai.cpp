@@ -2137,12 +2137,10 @@ static void teleport_boss(const vobjptridx_t objp)
 	//	After a teleport, boss can fire right away.
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_fire = 0;
-#if defined(DXX_BUILD_DESCENT_I)
-	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 	ailp->next_fire2 = 0;
-	digi_link_sound_to_object2(Robot_info[get_robot_id(objp)].see_sound, objp, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 #endif
+	boss_link_see_sound(objp);
 
 }
 
@@ -4636,6 +4634,27 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
 	Last_teleport_time = static_cast<fix64>(tmptime32);
+
+	// If boss teleported, set the looping 'see' sound -kreatordxx
+	if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time
+#if DXX_USE_EDITOR
+		&& EditorWindow == nullptr
+#endif
+		)
+		range_for (const auto &&o, vcobjptridx)
+		{
+			if (o->type == OBJ_ROBOT)
+			{
+				auto boss_id = Robot_info[get_robot_id(o)].boss_flag;
+				if (boss_id
+#if defined(DXX_BUILD_DESCENT_II)
+				&& boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]
+#endif
+				)
+					boss_link_see_sound(o);
+			}
+		}
+	
 #if defined(DXX_BUILD_DESCENT_II)
 	Boss_teleport_interval =
 #endif

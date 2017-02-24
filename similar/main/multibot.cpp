@@ -1033,7 +1033,7 @@ void multi_do_boss_teleport(const playernum_t pnum, const ubyte *buf)
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, boss_obj->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);
-	digi_link_sound_to_object2(SOUND_BOSS_SHARE_SEE, boss_obj, 1, F1_0, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
+	boss_link_see_sound(boss_obj);
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 
