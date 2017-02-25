@@ -87,7 +87,7 @@ namespace dsx {
 static window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, robot_dialog *r);
 
 }
-static void call_init_ai_object(object &objp, ai_behavior behavior)
+static void call_init_ai_object(vobjptridx_t objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
 
@@ -110,7 +110,7 @@ static void call_init_ai_object(object &objp, ai_behavior behavior)
 static int RobotNextType()
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vobjptr(Cur_object_index);
+		const auto &&obj = vobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
 		{
 			obj->id++;
@@ -139,7 +139,7 @@ static int RobotNextType()
 static int RobotPrevType()
 {
 	if (Cur_object_index != object_none )	{
-		const auto &&obj = vobjptr(Cur_object_index);
+		const auto &&obj = vobjptridx(Cur_object_index);
 		if (obj->type == OBJ_ROBOT)
 		{
 			if (obj->id == 0 ) 
@@ -606,7 +606,7 @@ window_event_result robot_dialog_handler(UI_DIALOG *dlg,const d_event &event, ro
 		if (GADGET_PRESSED(r->initialMode[i].get()))
 		{
 			const auto b = static_cast<ai_behavior>(MIN_BEHAVIOR + i);
-			const auto &&objp = vobjptr(Cur_object_index);
+			const auto &&objp = vobjptridx(Cur_object_index);
 			auto &behavior = objp->ctype.ai_info.behavior;
 			if (behavior != b) {
 				behavior = b;		// Set the ai_state to the cooresponding radio button
