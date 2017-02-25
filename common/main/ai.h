@@ -99,7 +99,7 @@ namespace dsx {
 void create_awareness_event(vobjptr_t objp, player_awareness_type_t type);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
 void do_ai_robot_hit(vobjptridx_t robot, player_awareness_type_t type);
-void init_ai_object(object &objp, ai_behavior initial_mode, segidx_t hide_segment);
+void init_ai_object(vobjptridx_t objp, ai_behavior initial_mode, segidx_t hide_segment);
 }
 
 namespace dcx {
@@ -182,6 +182,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 namespace dsx {
 void start_boss_death_sequence(vobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
+extern void boss_init_all_segments(const vobjptridx_t boss_objnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern vms_vector Last_fired_upon_player_pos;

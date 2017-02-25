@@ -89,7 +89,7 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
-static void init_boss_segments(boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
+static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -481,11 +481,25 @@ void ai_init_boss_for_ship(void)
 #endif
 }
 
+void boss_init_all_segments(const vobjptridx_t boss_objnum)
+{
+	if (Boss_teleport_segs.count())
+		return;	// already have boss segs
+
+	init_boss_segments(boss_objnum, Boss_gate_segs, 0, 0);
+	
+	init_boss_segments(boss_objnum, Boss_teleport_segs, 1, 0);
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Boss_teleport_segs.count() < 2)
+		init_boss_segments(boss_objnum, Boss_teleport_segs, 1, 1);
+#endif
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
-void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segment)
+void init_ai_object(vobjptridx_t objp, ai_behavior behavior, const segidx_t hide_segment)
 {
-	ai_static	*const aip = &objp.ctype.ai_info;
+	ai_static	*const aip = &objp->ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
 
 	*ailp = {};
@@ -525,7 +539,7 @@ void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segm
 
 	// This is astonishingly stupid!  This routine gets called by matcens! KILL KILL KILL!!! Point_segs_free_ptr = Point_segs;
 
-	objp.mtype.phys_info.velocity = {};
+	objp->mtype.phys_info.velocity = {};
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 	aip->GOAL_STATE = AIS_SRCH;
@@ -546,7 +560,7 @@ void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segm
 	else
 		aip->CLOAKED = 0;
 
-	objp.mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
+	objp->mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
 	
 	aip->REMOTE_OWNER = -1;
 
@@ -555,14 +569,23 @@ void init_ai_object(object &objp, ai_behavior behavior, const segidx_t hide_segm
 	aip->dying_start_time = 0;
 #endif
 	aip->danger_laser_num = object_none;
+
+	if (robptr->boss_flag
+#if DXX_USE_EDITOR
+		&& !EditorWindow
+#endif
+		)
+		boss_init_all_segments(objp);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
 	Point_segs_free_ptr = Point_segs.begin();
+	Boss_gate_segs.clear();
+	Boss_teleport_segs.clear();
 
-	range_for (const auto &&o, vobjptr)
+	range_for (const auto &&o, vobjptridx)
 	{
 		if (o->type == OBJ_ROBOT && o->control_type == CT_AI)
 			init_ai_object(o, o->ctype.ai_info.behavior, o->ctype.ai_info.hide_segment);
@@ -571,15 +594,10 @@ void init_ai_objects(void)
 	Boss_dying_sound_playing = 0;
 	Boss_dying = 0;
 
-	init_boss_segments(Boss_gate_segs, 0, 0);
-
-	init_boss_segments(Boss_teleport_segs, 1, 0);
 #if defined(DXX_BUILD_DESCENT_I)
 	Gate_interval = F1_0*5 - Difficulty_level*F1_0/2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
-	if (Boss_teleport_segs.count() == 1)
-		init_boss_segments(Boss_teleport_segs, 1, 1);
 
 	ai_do_cloak_stuff();
 
@@ -2001,29 +2019,19 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(boss_special_segment_array_t &a, int size_check, int one_wall_hack)
+static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_array_t &a, int size_check, int one_wall_hack)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
 #endif
-	objptridx_t boss_objnum = object_none;
 
 	a.clear();
 #if DXX_USE_EDITOR
 	Selected_segs.clear();
 #endif
 
-	//	See if there is a boss.  If not, quick out.
-	range_for (const auto &&objp, vobjptridx)
-	{
-		if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag)
-		{
-			boss_objnum = objp; // if != 1 then there is more than one boss here.
-			break;
-		}
-	}
+	Assert(boss_objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(boss_objnum)].boss_flag);
 
-	if (boss_objnum != object_none)
 	{
 		vms_vector	original_boss_pos;
 		const vobjptridx_t boss_objp = boss_objnum;
@@ -3065,6 +3073,65 @@ _exit_cheat:
 		vm_vec_zero(gun_point);
 	}
 
+	switch (robptr->boss_flag) {
+		case 0:
+			break;
+			
+		case BOSS_D1:
+			if (aip->GOAL_STATE == AIS_FLIN)
+				aip->GOAL_STATE = AIS_FIRE;
+			if (aip->CURRENT_STATE == AIS_FLIN)
+				aip->CURRENT_STATE = AIS_FIRE;
+			
+			do_boss_stuff(obj);
+			break;
+		case BOSS_SUPER:
+			if (aip->GOAL_STATE == AIS_FLIN)
+				aip->GOAL_STATE = AIS_FIRE;
+			if (aip->CURRENT_STATE == AIS_FLIN)
+				aip->CURRENT_STATE = AIS_FIRE;
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
+			
+		{	int pv = player_visibility;
+			auto dtp = dist_to_player/4;
+			
+			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
+			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
+				pv = 0;
+				dtp = vm_vec_dist_quick(ConsoleObject->pos, obj->pos)/4;
+			}
+			
+			do_super_boss_stuff(obj, dtp, pv);
+		}
+			break;
+			
+		default:
+#if defined(DXX_BUILD_DESCENT_I)
+			Int3();	//	Bogus boss flag value.
+#elif defined(DXX_BUILD_DESCENT_II)
+		{
+			int	pv;
+			
+			if (aip->GOAL_STATE == AIS_FLIN)
+				aip->GOAL_STATE = AIS_FIRE;
+			if (aip->CURRENT_STATE == AIS_FLIN)
+				aip->CURRENT_STATE = AIS_FIRE;
+			
+			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
+			
+			pv = player_visibility;
+			
+			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
+			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
+				pv = 0;
+			}
+			
+			do_boss_stuff(obj, pv);
+		}
+			break;
+#endif
+	}
+	
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3265,67 +3332,6 @@ _exit_cheat:
 		// we must change its state, else it will never update.
 		aip->CURRENT_STATE = aip->GOAL_STATE;
 		object_animates = 0;        // If we're not doing the animation, then should pretend it doesn't animate.
-	}
-
-	switch (robptr->boss_flag) {
-	case 0:
-		break;
-
-	case BOSS_D1:
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
-			dist_to_player /= 4;
-
-			do_boss_stuff(obj);
-			dist_to_player *= 4;
-			break;
-	case BOSS_SUPER:
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
-			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-
-			{	int pv = player_visibility;
-				auto dtp = dist_to_player/4;
-
-			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
-			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
-				pv = 0;
-				dtp = vm_vec_dist_quick(ConsoleObject->pos, obj->pos)/4;
-			}
-
-			do_super_boss_stuff(obj, dtp, pv);
-			}
-		break;
-
-	default:
-#if defined(DXX_BUILD_DESCENT_I)
-			Int3();	//	Bogus boss flag value.
-#elif defined(DXX_BUILD_DESCENT_II)
-		{
-			int	pv;
-
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
-
-			compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-
-			pv = player_visibility;
-
-			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
-			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
-				pv = 0;
-			}
-
-			do_boss_stuff(obj, pv);
-		}
-		break;
-#endif
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
@@ -4635,12 +4641,11 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 	Last_teleport_time = static_cast<fix64>(tmptime32);
 
 	// If boss teleported, set the looping 'see' sound -kreatordxx
-	if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time
+	// Also make sure any bosses that were generated/released during the game have teleport segs
 #if DXX_USE_EDITOR
-		&& EditorWindow == nullptr
+	if (!EditorWindow)
 #endif
-		)
-		range_for (const auto &&o, vcobjptridx)
+		range_for (const auto &&o, vobjptridx)
 		{
 			if (o->type == OBJ_ROBOT)
 			{
@@ -4650,7 +4655,11 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 				&& boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]
 #endif
 				)
-					boss_link_see_sound(o);
+				{
+					if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time)
+						boss_link_see_sound(o);
+					boss_init_all_segments(o);
+				}
 			}
 		}
 	
