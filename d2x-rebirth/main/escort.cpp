@@ -1496,14 +1496,14 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 
 	//	First, try to steal equipped items.
 
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_INVULNERABLE))
-		return 1;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_INVULNERABLE))
+		return r;
 
 	//	If primary weapon = laser, first try to rip away those nasty quad lasers!
 	const auto Primary_weapon = player_num->ctype.player_info.Primary_weapon;
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
-		if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
-			return 1;
+		if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
+			return r;
 
 	//	Makes it more likely to steal primary than secondary.
 	for (int i=0; i<2; i++)
@@ -1515,22 +1515,22 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 
 	//	See what the player has and try to snag something.
 	//	Try best things first.
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_INVULNERABLE))
-		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_CLOAKED))
-		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
-		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_AFTERBURNER))
-		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_CONVERTER))
-		return 1;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_INVULNERABLE))
+		return r;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_CLOAKED))
+		return r;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
+		return r;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_AFTERBURNER))
+		return r;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_CONVERTER))
+		return r;
 // --	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_AMMO_RACK))	//	Can't steal because what if have too many items, say 15 homing missiles?
 // --		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON))
-		return 1;
-	if (maybe_steal_flag_item(player_num, PLAYER_FLAGS_MAP_ALL))
-		return 1;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON))
+		return r;
+	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_MAP_ALL))
+		return r;
 
 	for (int i=MAX_SECONDARY_WEAPONS-1; i>=0; i--) {
 		if (maybe_steal_primary_weapon(player_num, i))
