@@ -1507,8 +1507,8 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 
 	//	Makes it more likely to steal primary than secondary.
 	for (int i=0; i<2; i++)
-		if (maybe_steal_primary_weapon(player_num, Primary_weapon))
-			return 1;
+		if (auto r = maybe_steal_primary_weapon(player_num, Primary_weapon))
+			return r;
 
 	if (auto r = maybe_steal_secondary_weapon(player_num, player_num->ctype.player_info.Secondary_weapon))
 		return r;
@@ -1533,8 +1533,8 @@ static int attempt_to_steal_item_3(const vobjptr_t objp, const vobjptr_t player_
 		return r;
 
 	for (int i=MAX_SECONDARY_WEAPONS-1; i>=0; i--) {
-		if (maybe_steal_primary_weapon(player_num, i))
-			return 1;
+		if (auto r = maybe_steal_primary_weapon(player_num, i))
+			return r;
 		if (auto r = maybe_steal_secondary_weapon(player_num, i))
 			return r;
 	}
