@@ -647,8 +647,8 @@ int do_powerup(const vobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 					}
-					player_info.FakingInvul = 0;
 			}
+				player_info.FakingInvul = 0;
 				pl_flags |= PLAYER_FLAGS_INVULNERABLE;
 				player_info.invulnerable_time = GameTime64;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);

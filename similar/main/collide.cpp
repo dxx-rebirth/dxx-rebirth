@@ -1356,6 +1356,7 @@ void do_final_boss_hacks(void)
 	auto &pl_flags = player_info.powerup_flags;
 	if (!(pl_flags & PLAYER_FLAGS_INVULNERABLE)) {
 		pl_flags |= PLAYER_FLAGS_INVULNERABLE;
+		player_info.FakingInvul = 0;
 		player_info.invulnerable_time = GameTime64;
 	}
 	if (!(Game_mode & GM_MULTI))

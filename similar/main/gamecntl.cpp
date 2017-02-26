@@ -1551,7 +1551,7 @@ static window_event_result FinalCheats()
 		player_info.invulnerable_time = GameTime64+i2f(1000);
 		auto &pl_flags = player_info.powerup_flags;
 		pl_flags ^= PLAYER_FLAGS_INVULNERABLE;
-		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (pl_flags & PLAYER_FLAGS_INVULNERABLE) ? TXT_ON : TXT_OFF);
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (pl_flags & PLAYER_FLAGS_INVULNERABLE) ? (player_info.FakingInvul = 0, TXT_ON) : TXT_OFF);
 	}
 
 	if (gotcha == &game_cheats::shields)
@@ -1742,7 +1742,9 @@ public:
 		this->menu_bit_wrapper_t::operator=(n);
 		if (n)
 		{
-			get().invulnerable_time = GameTime64+i2f(1000);
+			auto &player_info = get();
+			player_info.FakingInvul = 0;
+			player_info.invulnerable_time = GameTime64+i2f(1000);
 		}
 		return *this;
 	}
