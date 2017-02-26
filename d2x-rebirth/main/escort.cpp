@@ -361,8 +361,8 @@ static int show_buddy_message()
 		return 0;
 
 	if (Last_buddy_message_time + F1_0 < GameTime64) {
-		if (ok_for_buddy_to_talk())
-			return 1;
+		if (auto r = ok_for_buddy_to_talk())
+			return r;
 	}
 	return 0;
 }
