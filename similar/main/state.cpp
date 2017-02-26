@@ -511,7 +511,15 @@ static void state_player_to_player_rw(const fix pl_shields, const player *pl, pl
 	pl_rw->starting_level            = pl->starting_level;
 	pl_rw->killer_objnum             = pl_info.killer_objnum;
 	pl_rw->primary_weapon_flags      = pl_info.primary_weapon_flags;
-	pl_rw->secondary_weapon_flags    = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+	// make sure no side effects for Mac demo
+	pl_rw->secondary_weapon_flags    = 0x0f | (pl_info.secondary_ammo[MEGA_INDEX] > 0) << MEGA_INDEX;
+#elif defined(DXX_BUILD_DESCENT_II)
+	// make sure no side effects for PC demo
+	pl_rw->secondary_weapon_flags    = 0xef | (pl_info.secondary_ammo[MEGA_INDEX] > 0) << MEGA_INDEX
+											| (pl_info.secondary_ammo[SMISSILE4_INDEX] > 0) << SMISSILE4_INDEX	// mercury missile
+											| (pl_info.secondary_ammo[SMISSILE5_INDEX] > 0) << SMISSILE5_INDEX;	// earthshaker missile
+#endif
 	pl_rw->laser_ammo = 0;
 	pl_rw->vulcan_ammo   = pl_info.vulcan_ammo;
 	pl_rw->obsolete_primary_ammo = {};
