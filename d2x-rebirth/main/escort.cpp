@@ -237,7 +237,7 @@ static int ok_for_buddy_to_talk(void)
 	}
 
 	if (Buddy_allowed_to_talk)
-		return 1;
+		return Buddy_allowed_to_talk;
 
 	const segment *const segp = vcsegptr(buddy->segnum);
 

@@ -1808,8 +1808,7 @@ int ai_door_is_openable(
 			if ((wallp->type == WALL_DOOR) && (wallp->keys == KEY_NONE) && !(wallp->flags & WALL_DOOR_LOCKED))
 				return 1;
 			else if (wallp->keys != KEY_NONE) {	//	Allow bots to open doors to which player has keys.
-				if (powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys))
-					return 1;
+				return powerup_flags & static_cast<PLAYER_FLAG>(wallp->keys);
 			}
 		}
 	}

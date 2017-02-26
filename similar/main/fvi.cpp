@@ -1249,15 +1249,14 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 							return 1;
 						}
 						else if (!visited[child]) {                //haven't visited here yet
-							if (sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, hresult, visited))
-								return 1;
+							if (auto r = sphere_intersects_wall(pnt, seg.absolute_sibling(child), rad, hresult, visited))
+								return r;
 						}
 					}
 				}
 			}
 		}
 	}
-
 	return 0;
 }
 

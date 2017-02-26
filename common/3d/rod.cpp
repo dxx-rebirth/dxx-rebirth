@@ -92,7 +92,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 		codes_and &= g3_code_point(i);
 
 	if (codes_and)
-		return 1;		//1 means off screen
+		return codes_and;		//1 means off screen
 
 	//clear flags for new points (not projected)
 
