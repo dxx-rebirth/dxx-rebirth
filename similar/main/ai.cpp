@@ -2050,10 +2050,13 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		a.emplace_back(original_boss_seg);
+		if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(original_boss_seg)))
+		{
+			a.emplace_back(original_boss_seg);
 #if DXX_USE_EDITOR
-		Selected_segs.emplace_back(original_boss_seg);
-		#endif
+			Selected_segs.emplace_back(original_boss_seg);
+#endif
+		}
 
 		visited_segment_bitarray_t visited;
 
@@ -2109,8 +2112,10 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 		boss_objp->pos = original_boss_pos;
 		obj_relink(boss_objp, vsegptridx(original_boss_seg));
 
+		// Last resort - add original seg even if boss doesn't fit in it
+		if (a.empty())
+			a.emplace_back(original_boss_seg);
 	}
-
 }
 
 // --------------------------------------------------------------------------------------------------------------------
