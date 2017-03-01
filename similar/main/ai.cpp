@@ -89,7 +89,7 @@ using std::min;
 #define	BABY_SPIDER_ID	14
 
 namespace dsx {
-static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
+static void init_boss_segments(const object &boss_objnum, boss_special_segment_array_t &segptr, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2019,7 +2019,7 @@ void create_buddy_bot(void)
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
 //	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
-static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_array_t &a, int size_check, int one_wall_hack)
+static void init_boss_segments(const object &boss_objp, boss_special_segment_array_t &a, const int size_check, int one_wall_hack)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	one_wall_hack = 0;
@@ -2030,22 +2030,12 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 	Selected_segs.clear();
 #endif
 
-	Assert(boss_objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(boss_objnum)].boss_flag);
-
+	assert(boss_objp.type == OBJ_ROBOT && Robot_info[get_robot_id(boss_objp)].boss_flag);
 	{
-		vms_vector	original_boss_pos;
-		const vobjptridx_t boss_objp = boss_objnum;
 		int			head, tail;
 		array<segnum_t, QUEUE_SIZE> seg_queue;
-		fix			boss_size_save;
 
-		boss_size_save = boss_objp->size;
-#if defined(DXX_BUILD_DESCENT_I)
-		boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
-#endif
-		// -- Causes problems!!	-- boss_objp->size = fixmul((F1_0/4)*3, boss_objp->size);
-		auto original_boss_seg = boss_objp->segnum;
-		original_boss_pos = boss_objp->pos;
+		const auto original_boss_seg = boss_objp.segnum;
 		head = 0;
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
@@ -2070,18 +2060,23 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 				auto w = WALL_IS_DOORWAY(segp, sidenum);
 				if ((w & WID_FLY_FLAG) || one_wall_hack)
 				{
+					const auto csegnum = segp->children[sidenum];
 #if defined(DXX_BUILD_DESCENT_II)
 					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.
-					if (IS_CHILD(segp->children[sidenum])) {
+					if (IS_CHILD(csegnum)) {
 						if (one_wall_hack)
 							one_wall_hack--;
 					} else
 						continue;
 #endif
 
-					if (!visited[segp->children[sidenum]]) {
-						seg_queue[head++] = segp->children[sidenum];
-						visited[segp->children[sidenum]] = true;
+					if (auto &&v = visited[csegnum])
+					{
+					}
+					else
+					{
+						v = true;
+						seg_queue[head++] = csegnum;
 						head &= QUEUE_SIZE-1;
 						if (head > tail) {
 							if (head == tail + QUEUE_SIZE-1)
@@ -2090,10 +2085,10 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
 								Int3();	//	queue overflow.  Make it bigger!
 	
-						if ((!size_check) || boss_fits_in_seg(boss_objp, vsegptridx(segp->children[sidenum]))) {
-							a.emplace_back(segp->children[sidenum]);
+						if (!size_check || boss_fits_in_seg(boss_objp, vsegptridx(csegnum))) {
+							a.emplace_back(csegnum);
 #if DXX_USE_EDITOR
-							Selected_segs.emplace_back(segp->children[sidenum]);
+							Selected_segs.emplace_back(csegnum);
 							#endif
 							if (a.count() >= a.size())
 							{
@@ -2105,13 +2100,7 @@ static void init_boss_segments(vobjptridx_t boss_objnum, boss_special_segment_ar
 					}
 				}
 			}
-
 		}
-
-		boss_objp->size = boss_size_save;
-		boss_objp->pos = original_boss_pos;
-		obj_relink(boss_objp, vsegptridx(original_boss_seg));
-
 		// Last resort - add original seg even if boss doesn't fit in it
 		if (a.empty())
 			a.emplace_back(original_boss_seg);
