@@ -1971,19 +1971,19 @@ static objptridx_t gate_in_robot(int type)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-static int boss_fits_in_seg(const vobjptridx_t boss_objp, const vsegptridx_t segp)
+static int boss_fits_in_seg(const object &boss_objp, const vcsegptridx_t segp)
 {
-	const auto segcenter = compute_segment_center(segp);
-	boss_objp->pos = segcenter;
+	const auto size = boss_objp.size;
+	const auto &&segcenter = compute_segment_center(segp);
+	auto pos = segcenter;
 	for (uint_fast32_t posnum = 0;;)
 	{
-		obj_relink(boss_objp, segp);
-		if (!object_intersects_wall(boss_objp))
+		if (!sphere_intersects_wall(pos, segp, size, nullptr))
 			return 1;
 		if (posnum == segp->verts.size())
 			break;
 		const auto &vertex_pos = Vertices[segp->verts[posnum ++]];
-		vm_vec_avg(boss_objp->pos, vertex_pos, segcenter);
+		vm_vec_avg(pos, vertex_pos, segcenter);
 	}
 	return 0;
 }

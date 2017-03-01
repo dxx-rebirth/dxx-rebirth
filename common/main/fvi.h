@@ -105,6 +105,7 @@ struct object_intersects_wall_result_t
 };
 
 //Returns true if the object is through any walls
+int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, object_intersects_wall_result_t *const hresult);
 int object_intersects_wall(vcobjptr_t objp);
 int object_intersects_wall_d(vcobjptr_t objp, object_intersects_wall_result_t &); // same as above but more detailed
 #endif

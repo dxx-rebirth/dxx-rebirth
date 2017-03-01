@@ -1202,7 +1202,7 @@ int check_trans_wall(const vms_vector &pnt,const vcsegptridx_t seg,int sidenum,i
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t segnum, fix rad, object_intersects_wall_result_t *hresult, fvi_segments_visited_t &visited)
+static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t segnum, const fix rad, object_intersects_wall_result_t *const hresult, fvi_segments_visited_t &visited)
 {
 	int facemask;
 	visited[segnum] = true;
@@ -1260,15 +1260,19 @@ static int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg
 	return 0;
 }
 
+int sphere_intersects_wall(const vms_vector &pnt, const vcsegptridx_t seg, const fix rad, object_intersects_wall_result_t *const hresult)
+{
+	fvi_segments_visited_t visited;
+	return sphere_intersects_wall(pnt, seg, rad, hresult, visited);
+}
+
 //Returns true if the object is through any walls
 int object_intersects_wall(const vcobjptr_t objp)
 {
-	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, nullptr, visited);
+	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, nullptr);
 }
 
 int object_intersects_wall_d(const vcobjptr_t objp, object_intersects_wall_result_t &result)
 {
-	fvi_segments_visited_t visited;
-	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, &result, visited);
+	return sphere_intersects_wall(objp->pos, vcsegptridx(objp->segnum), objp->size, &result);
 }
