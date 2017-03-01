@@ -481,7 +481,7 @@ void ai_init_boss_for_ship(void)
 #endif
 }
 
-void boss_init_all_segments(const vobjptridx_t boss_objnum)
+void boss_init_all_segments(const object &boss_objnum)
 {
 	if (Boss_teleport_segs.count())
 		return;	// already have boss segs

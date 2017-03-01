@@ -182,7 +182,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 namespace dsx {
 void start_boss_death_sequence(vobjptr_t objp);
 extern void ai_init_boss_for_ship(void);
-extern void boss_init_all_segments(const vobjptridx_t boss_objnum);
+void boss_init_all_segments(const object &boss_objnum);
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern vms_vector Last_fired_upon_player_pos;
