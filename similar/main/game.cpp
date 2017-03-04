@@ -1733,10 +1733,10 @@ bool FireLaser(player_info &player_info)
 			{
 				int dg, db;
 				const int dr = Fusion_charge >> 11;
-			if (Fusion_charge < F1_0*2)
-				dg = 0, db = dr;
-			else
-				dg = dr, db = 0;
+				if (Fusion_charge < F1_0*2)
+					dg = 0, db = dr;
+				else
+					dg = dr, db = 0;
 				PALETTE_FLASH_ADD(dr, dg, db);
 			}
 
