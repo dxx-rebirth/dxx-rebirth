@@ -159,14 +159,6 @@ constexpr auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WID_RENDER_FLAG
 
 namespace dcx {
 
-template <wallnum_t I>
-struct wall_magic_constant_t
-{
-	constexpr operator wallnum_t() const { return I; }
-};
-
-constexpr wall_magic_constant_t<0xffff> wall_none{};
-
 struct stuckobj;
 struct v16_wall;
 struct v19_wall;
@@ -201,6 +193,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DECLARE_GLOBAL_SUBTYPE(wall, wall, Walls);
 extern array<wclip, MAX_WALL_ANIMS> WallAnims;
+constexpr valptridx<wall>::magic_constant<0xffff> wall_none{};
 }
 
 namespace dcx {

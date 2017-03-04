@@ -82,9 +82,6 @@ struct uvl;
 enum side_type : uint8_t;
 
 using wallnum_t = uint16_t;
-template <wallnum_t I>
-struct wall_magic_constant_t;
-
 struct side;
 
 }
