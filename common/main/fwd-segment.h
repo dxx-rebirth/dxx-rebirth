@@ -116,7 +116,7 @@ extern unsigned Num_segments;
 extern unsigned Num_vertices;
 
 
-extern const array<array<uint8_t, 4>, MAX_SIDES_PER_SEGMENT> Side_to_verts;       // Side_to_verts[my_side] is list of vertices forming side my_side.
+#define Side_to_verts Side_to_verts_int
 extern const array<array<unsigned, 4>, MAX_SIDES_PER_SEGMENT>  Side_to_verts_int;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const array<uint8_t, MAX_SIDES_PER_SEGMENT> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
