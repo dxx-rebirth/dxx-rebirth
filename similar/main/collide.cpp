@@ -1726,14 +1726,12 @@ static void collide_robot_and_weapon(const vobjptridx_t  robot, const vobjptridx
 			obj_attach(robot,expl_obj);
 		}
 
-		if (
 #if defined(DXX_BUILD_DESCENT_II)
-			damage_flag == boss_weapon_collision_result::normal &&
+		if (damage_flag == boss_weapon_collision_result::normal)
 #endif
-			robptr->exp1_sound_num > -1)
-			digi_link_sound_to_pos(robptr->exp1_sound_num, vcsegptridx(robot->segnum), 0, collision_point, 0, F1_0);
-
 		{
+			if (robptr->exp1_sound_num > -1)
+				digi_link_sound_to_pos(robptr->exp1_sound_num, vcsegptridx(robot->segnum), 0, collision_point, 0, F1_0);
 			fix	damage = weapon->shields;
 
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
