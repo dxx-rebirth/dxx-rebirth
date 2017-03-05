@@ -4646,7 +4646,7 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 				auto boss_id = Robot_info[get_robot_id(o)].boss_flag;
 				if (boss_id
 #if defined(DXX_BUILD_DESCENT_II)
-				&& boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]
+				&& (boss_id == BOSS_D1 || boss_id == BOSS_D2 || (boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]))
 #endif
 				)
 				{
