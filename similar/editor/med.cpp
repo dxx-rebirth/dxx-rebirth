@@ -170,16 +170,17 @@ public:
 static editor_dialog editor_window;
 
 
-static void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
-
+static void print_status_bar(char (&message)[DIAGNOSTIC_MESSAGE_MAX])
+{
 	gr_set_current_canvas( NULL );
-	gr_set_curfont(*grd_curcanv, editor_font);
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, editor_font);
+	gr_set_fontcolor(canvas, CBLACK, CGREY);
 	int w,h;
-	gr_get_string_size(*grd_curcanv->cv_font, message, &w, &h, nullptr);
-	gr_string(*grd_curcanv, 4, 583, message, w, h);
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
-	gr_rect(*grd_curcanv, 4+w, 583, 799, 599, CGREY);
+	gr_get_string_size(*canvas.cv_font, message, &w, &h, nullptr);
+	gr_string(canvas, 4, 583, message, w, h);
+	gr_set_fontcolor(canvas, CBLACK, CWHITE);
+	gr_rect(canvas, 4+w, 583, 799, 599, CGREY);
 }
 
 static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
