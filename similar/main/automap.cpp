@@ -1412,8 +1412,6 @@ static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
 
 void automap_build_edge_list(automap *am, int add_all_edges)
 {	
-	int	e1,e2;
-
 	// clear edge list
 	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->max_edges))
 	{
@@ -1462,13 +1460,24 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 		const auto e = &i;
 		if (!(e->flags&EF_USED)) continue;
 
-		for (e1=0; e1<e->num_faces; e1++ )	{
-			for (e2=1; e2<e->num_faces; e2++ )	{
-				if ( (e1 != e2) && (e->segnum[e1] != e->segnum[e2]) )	{
-					if ( vm_vec_dot( Segments[e->segnum[e1]].sides[e->sides[e1]].normals[0], Segments[e->segnum[e2]].sides[e->sides[e2]].normals[0] ) > (F1_0-(F1_0/10))  )	{
-						e->flags &= (~EF_DEFINING);
-						break;
-					}
+		const auto num_faces = e->num_faces;
+		if (num_faces < 2)
+			continue;
+		for (unsigned e1 = 0; e1 < num_faces; ++e1)
+		{
+			const auto e1segnum = e->segnum[e1];
+			const auto &e1siden0 = vcsegptr(e1segnum)->sides[e->sides[e1]].normals[0];
+			for (unsigned e2 = 1; e2 < num_faces; ++e2)
+			{
+				if (e1 == e2)
+					continue;
+				const auto e2segnum = e->segnum[e2];
+				if (e1segnum == e2segnum)
+					continue;
+				if (vm_vec_dot(e1siden0, vcsegptr(e2segnum)->sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
+				{
+					e->flags &= (~EF_DEFINING);
+					break;
 				}
 			}
 			if (!(e->flags & EF_DEFINING))
