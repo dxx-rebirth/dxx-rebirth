@@ -2100,18 +2100,17 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 	}
 
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 	const auto color = get_player_or_team_color(Player_num);
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
 	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
-	hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), bm, multires_gauge_graphic);
-	gr_settransblend(*grd_curcanv, cloak_fade_value, GR_BLEND_NORMAL);
-	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, x - 3), HUD_SCALE_Y(multires_gauge_graphic, y - 3), HUD_SCALE_X(multires_gauge_graphic, x + bm.bm_w + 3), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h + 3), 0);
-	gr_settransblend(*grd_curcanv, GR_FADE_OFF, GR_BLEND_NORMAL);
-	gr_set_current_canvas( NULL );
-
+	hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, x), HUD_SCALE_Y(multires_gauge_graphic, y), bm, multires_gauge_graphic);
+	gr_settransblend(canvas, cloak_fade_value, GR_BLEND_NORMAL);
+	gr_rect(canvas, HUD_SCALE_X(multires_gauge_graphic, x - 3), HUD_SCALE_Y(multires_gauge_graphic, y - 3), HUD_SCALE_X(multires_gauge_graphic, x + bm.bm_w + 3), HUD_SCALE_Y(multires_gauge_graphic, y + bm.bm_h + 3), 0);
+	gr_settransblend(canvas, GR_FADE_OFF, GR_BLEND_NORMAL);
         // Show Cloak Timer if enabled
 	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
-		show_cockpit_cloak_invul_timer(*grd_curcanv, player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y + (bm.bm_h / 2)));
+		show_cockpit_cloak_invul_timer(canvas, player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y + (bm.bm_h / 2)));
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
