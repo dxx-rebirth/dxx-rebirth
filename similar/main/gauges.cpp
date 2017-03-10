@@ -2158,14 +2158,14 @@ void draw_keys_state::draw_all_cockpit_keys()
 }
 
 namespace dsx {
-static void draw_weapon_info_sub(const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_weapon_info_sub(grs_canvas &canvas, const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot+1), color);
+	gr_rect(canvas, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot+1), color);
 #elif defined(DXX_BUILD_DESCENT_II)
-	gr_rect(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot), color);
+	gr_rect(canvas, HUD_SCALE_X(multires_gauge_graphic, box->left),HUD_SCALE_Y(multires_gauge_graphic, box->top),HUD_SCALE_X(multires_gauge_graphic, box->right),HUD_SCALE_Y(multires_gauge_graphic, box->bot), color);
 #endif
 	const auto &picture = 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2177,13 +2177,13 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 	PIGGY_PAGE_IN(picture);
 	auto &bm = GameBitmaps[picture.index];
 
-	hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, pic_x), HUD_SCALE_Y(multires_gauge_graphic, pic_y), bm, multires_gauge_graphic);
+	hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, pic_x), HUD_SCALE_Y(multires_gauge_graphic, pic_y), bm, multires_gauge_graphic);
 
 	if (PlayerCfg.HudMode == HudType::Standard)
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 20, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
 
-		gr_string(*grd_curcanv, text_x, text_y, name);
+		gr_string(canvas, text_x, text_y, name);
 
 		//	For laser, show level and quadness
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2192,10 +2192,10 @@ static void draw_weapon_info_sub(const player_info &player_info, const int info_
 		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
 #endif
 		{
-			const auto &&line_spacing = LINE_SPACING(*grd_curcanv);
-			gr_printf(*grd_curcanv, text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
+			const auto &&line_spacing = LINE_SPACING(canvas);
+			gr_printf(canvas, text_x, text_y + line_spacing, "%s: %i", TXT_LVL, player_info.laser_level + 1);
 			if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-				gr_string(*grd_curcanv, text_x, text_y + (line_spacing * 2), TXT_QUAD);
+				gr_string(canvas, text_x, text_y + (line_spacing * 2), TXT_QUAD);
 		}
 	}
 }
@@ -2239,7 +2239,7 @@ static void draw_primary_weapon_info(const player_info &player_info, const int w
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
+		draw_weapon_info_sub(*grd_curcanv, player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2279,7 +2279,7 @@ static void draw_secondary_weapon_info(const player_info &player_info, const int
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(player_info, info_index, box, pic_x,pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
+		draw_weapon_info_sub(*grd_curcanv, player_info, info_index, box, pic_x,pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
