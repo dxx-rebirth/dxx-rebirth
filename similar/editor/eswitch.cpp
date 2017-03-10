@@ -443,18 +443,19 @@ window_event_result trigger_dialog_handler(UI_DIALOG *dlg,const d_event &event, 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
 		gr_set_current_canvas( t->wallViewBox->canvas );
+		auto &canvas = *grd_curcanv;
 
 		if (Markedsegp->sides[Markedside].wall_num == wall_none || vcwallptr(Markedsegp->sides[Markedside].wall_num)->trigger == trigger_none)
-			gr_clear_canvas(*grd_curcanv, CBLACK);
+			gr_clear_canvas(canvas, CBLACK);
 		else {
 			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
-				gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
+				gr_ubitmap(canvas, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
 			} else {
 				if (Markedsegp->sides[Markedside].tmap_num > 0)	{
 					PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
-					gr_ubitmap(*grd_curcanv, GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
+					gr_ubitmap(canvas, GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
 				} else
-					gr_clear_canvas(*grd_curcanv, CGREY);
+					gr_clear_canvas(canvas, CGREY);
 			}
 		}
 	}
