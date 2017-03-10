@@ -463,10 +463,6 @@ void init_editor()
 	
 	gr_set_current_canvas( GameViewBox->canvas );
 	gr_set_curfont(*grd_curcanv, editor_font);
-	//gr_deaccent_canvas();
-	//gr_grey_canvas();
-	
-	gr_set_curfont(*grd_curcanv, editor_font);
 	FNTScaleX = FNTScaleY = 1;		// No font scaling!
 	ui_pad_goto(padnum);
 	
