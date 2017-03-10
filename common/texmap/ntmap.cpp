@@ -847,47 +847,19 @@ void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, 
 	Lighting_enabled = Lighting_on;
 
 	// Now, call my texture mapper.
-	if (Lighting_on) {
 		switch (Interpolation_method) {	// 0 = choose, 1 = linear, 2 = /8 perspective, 3 = full perspective
 			case 0:								// choose best interpolation
 				if (Current_seg_depth > Max_perspective_depth)
+				case 1:								// linear interpolation
 					ntexture_map_lighted_linear(*bp, Tmap1);
 				else
+				case 2:								// perspective every 8th pixel interpolation
+				case 3:								// perspective every pixel interpolation
 					ntexture_map_lighted(*bp, Tmap1);
-				break;
-			case 1:								// linear interpolation
-				ntexture_map_lighted_linear(*bp, Tmap1);
-				break;
-			case 2:								// perspective every 8th pixel interpolation
-				ntexture_map_lighted(*bp, Tmap1);
-				break;
-			case 3:								// perspective every pixel interpolation
-				ntexture_map_lighted(*bp, Tmap1);
 				break;
 			default:
 				Assert(0);				// Illegal value for Interpolation_method, must be 0,1,2,3
 		}
-	} else {
-		switch (Interpolation_method) {	// 0 = choose, 1 = linear, 2 = /8 perspective, 3 = full perspective
-			case 0:								// choose best interpolation
-				if (Current_seg_depth > Max_perspective_depth)
-					ntexture_map_lighted_linear(*bp, Tmap1);
-				else
-					ntexture_map_lighted(*bp, Tmap1);
-				break;
-			case 1:								// linear interpolation
-				ntexture_map_lighted_linear(*bp, Tmap1);
-				break;
-			case 2:								// perspective every 8th pixel interpolation
-				ntexture_map_lighted(*bp, Tmap1);
-				break;
-			case 3:								// perspective every pixel interpolation
-				ntexture_map_lighted(*bp, Tmap1);
-				break;
-			default:
-				Assert(0);				// Illegal value for Interpolation_method, must be 0,1,2,3
-		}
-	}
 
 	Lighting_on = lighting_on_save;
 
