@@ -141,7 +141,7 @@ static ai_type_name &get_ai_behavior(ai_behavior num)
 }
 
 //	---------------------------------------------------------------------------------------------------
-static void info_display_object_placement(int show_all)
+static void info_display_object_placement(grs_canvas &canvas, int show_all)
 {
 	static	int	old_Cur_object_index;
 	static	int	old_type;
@@ -155,11 +155,11 @@ static void info_display_object_placement(int show_all)
 			( Objects[Cur_object_index].control_type != old_control_type) || 
 			( Objects[Cur_object_index].ctype.ai_info.behavior != old_mode) ) {
 
-		gr_uprintf(*grd_curcanv, 0, 0, "Object id: %4d\n", Cur_object_index);
-		gr_uprintf(*grd_curcanv, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
-		gr_uprintf(*grd_curcanv, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
-		gr_uprintf(*grd_curcanv, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
-		gr_uprintf(*grd_curcanv, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
+		gr_uprintf(canvas, 0, 0, "Object id: %4d\n", Cur_object_index);
+		gr_uprintf(canvas, 0, 16, "Type: %s\n", get_object_type(Objects[Cur_object_index].type));
+		gr_uprintf(canvas, 0, 32, "Movmnt: %s\n", get_movement_type(Objects[Cur_object_index].movement_type));
+		gr_uprintf(canvas, 0, 48, "Cntrl: %s\n", get_control_type(Objects[Cur_object_index].control_type));
+		gr_uprintf(canvas, 0, 64, "Mode: %s\n", get_ai_behavior(Objects[Cur_object_index].ctype.ai_info.behavior));
 
 		old_Cur_object_index = Cur_object_index;
 		old_type = Objects[Cur_object_index].type;
@@ -321,7 +321,7 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 
 			switch (padnum) {
 				case OBJECT_PAD_ID:			// Object placement
-					info_display_object_placement(show_all);
+					info_display_object_placement(*grd_curcanv, show_all);
 					break;
 				case SEGSIZE_PAD_ID:			// Segment sizing
 					info_display_segsize(show_all);
