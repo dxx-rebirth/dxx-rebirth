@@ -291,10 +291,10 @@ static void info_display_default(int show_all)
 }
 
 //	------------------------------------------------------------------------------------
-static void clear_pad_display(void)
+static void clear_pad_display(grs_canvas &canvas)
 {
-	gr_clear_canvas(*grd_curcanv, CWHITE);
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
+	gr_clear_canvas(canvas, CWHITE);
+	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 }
 
 //	------------------------------------------------------------------------------------
@@ -314,8 +314,8 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 			Assert(padnum <= MAX_PAD_ID);
 
 			if (padnum != old_padnum) {
-				clear_pad_display();
 				old_padnum = padnum;
+				clear_pad_display(*grd_curcanv);
 				//show_all = 1;
 			}
 
