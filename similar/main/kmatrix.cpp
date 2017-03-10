@@ -237,9 +237,10 @@ static void kmatrix_redraw_coop()
 	playernum_array_t sorted;
 
 	multi_sort_kill_list();
-	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
-	gr_string(*grd_curcanv,  0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, MEDIUM3_FONT);
+	gr_string(canvas,  0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
+	gr_set_curfont(canvas, GAME_FONT);
 	multi_get_kill_list(sorted);
 	kmatrix_draw_coop_names(sorted);
 	const auto &&fspacx = FSPACX();
@@ -262,14 +263,14 @@ static void kmatrix_redraw_coop()
 			g = color.g * 2;
 			b = color.b * 2;
 		}
-		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
 
 		const auto &&y = fspacy(50 + i * 9);
-		gr_string(*grd_curcanv, x_callsign, y, static_cast<const char *>(plr.callsign));
-		gr_set_fontcolor(*grd_curcanv, rgb60_40_10, -1);
+		gr_string(canvas, x_callsign, y, static_cast<const char *>(plr.callsign));
+		gr_set_fontcolor(canvas, rgb60_40_10, -1);
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
-		gr_printf(*grd_curcanv, x_centerscreen, y, "%d", player_info.mission.score);
-		gr_printf(*grd_curcanv, x_centerscreen + fspacx50, y, "%d", player_info.net_killed_total);
+		gr_printf(canvas, x_centerscreen, y, "%d", player_info.mission.score);
+		gr_printf(canvas, x_centerscreen + fspacx50, y, "%d", player_info.net_killed_total);
 	}
 
 	gr_palette_load(gr_palette);
