@@ -918,11 +918,11 @@ static void hud_show_keys(grs_canvas &canvas, const player_info &player_info, co
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void hud_show_orbs(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_hoard()) {
 		const auto &&fspacy1 = FSPACY(1);
-		int x, y = LINE_SPACING(*grd_curcanv) + fspacy1;
+		int x, y = LINE_SPACING(canvas) + fspacy1;
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 			x = (SWIDTH/18);
 		}
@@ -941,10 +941,10 @@ static void hud_show_orbs(const player_info &player_info, const local_multires_g
 		}
 		}
 
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(0, 31, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 		auto &bm = Orb_icons[multires_gauge_graphic.is_hires()];
-		hud_bitblt_free(*grd_curcanv, x, y, HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
-		gr_printf(*grd_curcanv, x + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
+		hud_bitblt_free(canvas, x, y, HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		gr_printf(canvas, x + HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), y, " x %d", player_info.secondary_ammo[PROXIMITY_INDEX]);
 	}
 }
 
@@ -3258,7 +3258,7 @@ void draw_hud(const object &plrobj)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
 			hud_show_flag(player_info, multires_gauge_graphic);
-			hud_show_orbs(player_info, multires_gauge_graphic);
+			hud_show_orbs(*grd_curcanv, player_info, multires_gauge_graphic);
 		}
 #endif
 		HUD_render_message_frame();
