@@ -2556,16 +2556,16 @@ static void sb_draw_afterburner(grs_canvas &canvas, const player_info &player_in
 }
 #endif
 
-static void sb_draw_shield_num(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_draw_shield_num(grs_canvas &canvas, const int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	//draw numbers
 	int sw;
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(14, 14, 23), -1);
 
-	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(shield), &sw, nullptr, nullptr);
-	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_SHIELD_NUM_Y), "%d", shield);
+	gr_get_string_size(*canvas.cv_font, get_gauge_width_string(shield), &sw, nullptr, nullptr);
+	gr_printf(canvas, (grd_curscreen->get_screen_width() / 2.266) - (sw / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_SHIELD_NUM_Y), "%d", shield);
 }
 
 static void sb_draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
@@ -3363,7 +3363,7 @@ void render_gauges()
 			draw_invulnerable_ship(plrobj, multires_gauge_graphic);
 		else
 			sb_draw_shield_bar(shields, multires_gauge_graphic);
-		sb_draw_shield_num(shields, multires_gauge_graphic);
+		sb_draw_shield_num(*grd_curcanv, shields, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
