@@ -144,20 +144,29 @@ static void med_scale_segment_new(const vsegptr_t sp, int dimension, fix amount)
 
 	med_extract_matrix_from_segment(sp, &mat);
 
+	const vms_vector *vec;
+	unsigned side0, side1;
 	switch (dimension) {
 		case XDIM:
-			scale_free_verts(sp, mat.rvec, WLEFT,   -amount);
-			scale_free_verts(sp, mat.rvec, WRIGHT,  +amount);
+			side0 = WLEFT;
+			side1 = WRIGHT;
+			vec = &mat.rvec;
 			break;
 		case YDIM:
-			scale_free_verts(sp, mat.uvec, WBOTTOM, -amount);
-			scale_free_verts(sp, mat.uvec, WTOP,    +amount);
+			side0 = WBOTTOM;
+			side1 = WTOP;
+			vec = &mat.uvec;
 			break;
 		case ZDIM:
-			scale_free_verts(sp, mat.fvec, WFRONT,  -amount);
-			scale_free_verts(sp, mat.fvec, WBACK,   +amount);
+			side0 = WFRONT;
+			side1 = WBACK;
+			vec = &mat.fvec;
 			break;
+		default:
+			return;
 	}
+	scale_free_verts(sp, *vec, side0, -amount);
+	scale_free_verts(sp, *vec, side1, +amount);
 
 	validate_modified_segments();
 }
