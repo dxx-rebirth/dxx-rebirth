@@ -2200,7 +2200,7 @@ static void draw_weapon_info_sub(grs_canvas &canvas, const player_info &player_i
 	}
 }
 
-static void draw_primary_weapon_info(const player_info &player_info, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_primary_weapon_info(grs_canvas &canvas, const player_info &player_info, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)laser_level;
@@ -2239,13 +2239,13 @@ static void draw_primary_weapon_info(const player_info &player_info, const int w
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(*grd_curcanv, player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
+		draw_weapon_info_sub(canvas, player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), text_x, text_y, multires_gauge_graphic);
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)
 			if (weapon_box_user[0] == WBU_WEAPON)
 #endif
-				hud_show_primary_weapons_mode(*grd_curcanv, player_info, 1, x, y);
+				hud_show_primary_weapons_mode(canvas, player_info, 1, x, y);
 		}
 	}
 }
@@ -2294,7 +2294,7 @@ static void draw_secondary_weapon_info(const player_info &player_info, const int
 static void draw_weapon_info(const player_info &player_info, const int weapon_type, const int weapon_num, const int laser_level, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (weapon_type == 0)
-		draw_primary_weapon_info(player_info, weapon_num, laser_level, multires_gauge_graphic);
+		draw_primary_weapon_info(*grd_curcanv, player_info, weapon_num, laser_level, multires_gauge_graphic);
 	else
 		draw_secondary_weapon_info(player_info, weapon_num, multires_gauge_graphic);
 }
