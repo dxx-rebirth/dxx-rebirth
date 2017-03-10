@@ -846,7 +846,7 @@ void play_homing_warning(const player_info &player_info)
 }
 
 //	-----------------------------------------------------------------------------
-static void show_homing_warning(const int homing_object_dist, const local_multires_gauge_graphic multires_gauge_graphic)
+static void show_homing_warning(grs_canvas &canvas, const int homing_object_dist, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	unsigned gauge;
 	if (Endlevel_sequence)
@@ -860,7 +860,7 @@ static void show_homing_warning(const int homing_object_dist, const local_multir
 			? GAUGE_HOMING_WARNING_ON
 			: GAUGE_HOMING_WARNING_OFF;
 	}
-	hud_gauge_bitblt(*grd_curcanv, HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, HOMING_WARNING_X, HOMING_WARNING_Y, gauge, multires_gauge_graphic);
 }
 
 static void hud_show_homing_warning(grs_canvas &canvas, const int homing_object_dist)
@@ -3342,7 +3342,7 @@ void render_gauges()
 		}
 		draw_keys_state(player_info.powerup_flags, multires_gauge_graphic).draw_all_cockpit_keys();
 
-		show_homing_warning(player_info.homing_object_dist, multires_gauge_graphic);
+		show_homing_warning(*grd_curcanv, player_info.homing_object_dist, multires_gauge_graphic);
 		draw_wbu_overlay(multires_gauge_graphic);
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
