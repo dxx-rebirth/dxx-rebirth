@@ -866,12 +866,12 @@ static int get_item_height(const kc_item &item, const kc_mitem &mitem)
 	return h;
 }
 
-static void kc_gr_2y_string(const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
+static void kc_gr_2y_string(grs_canvas &canvas, const char *const s, const font_y_scaled_float y, const font_x_scaled_float x0, const font_x_scaled_float x1)
 {
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
-	gr_string(*grd_curcanv, x0, y, s, w, h);
-	gr_string(*grd_curcanv, x1, y, s, w, h);
+	gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
+	gr_string(canvas, x0, y, s, w, h);
+	gr_string(canvas, x1, y, s, w, h);
 }
 
 static void kconfig_draw(kc_menu *menu)
@@ -917,7 +917,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_rect(*grd_curcanv, fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
 		gr_rect(*grd_curcanv, fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
 
-		kc_gr_2y_string("OR", fspacy(40), fspacx(109), fspacx(264));
+		kc_gr_2y_string(*grd_curcanv, "OR", fspacy(40), fspacx(109), fspacx(264));
 	}
 #if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
@@ -930,8 +930,8 @@ static void kconfig_draw(kc_menu *menu)
 		const auto &&fspacy145 = fspacy(145);
 		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
-		kc_gr_2y_string(TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
-		kc_gr_2y_string(TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
+		kc_gr_2y_string(*grd_curcanv, TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
+		kc_gr_2y_string(*grd_curcanv, TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
 #endif
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
 
@@ -954,7 +954,7 @@ static void kconfig_draw(kc_menu *menu)
 		gr_rect(*grd_curcanv, fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
 
 		const auto &&fspacy38 = fspacy(38);
-		kc_gr_2y_string("OR", fspacy38, fspacx(126), fspacx(272));
+		kc_gr_2y_string(*grd_curcanv, "OR", fspacy38, fspacx(126), fspacx(272));
 #endif
 	}
 #endif
@@ -965,8 +965,8 @@ static void kconfig_draw(kc_menu *menu)
 		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
 		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
 		const auto &&fspacy145 = fspacy(145);
-		kc_gr_2y_string(TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
-		kc_gr_2y_string(TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
+		kc_gr_2y_string(*grd_curcanv, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
+		kc_gr_2y_string(*grd_curcanv, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
 	else if ( menu->items == kc_rebirth )
 	{
