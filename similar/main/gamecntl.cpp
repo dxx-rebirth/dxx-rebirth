@@ -456,6 +456,23 @@ static int HandleDeathInput(const d_event &event)
 	return 0;
 }
 
+static void save_pr_screenshot()
+{
+	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
+	render_frame(canvas, 0);
+	gr_set_curfont(canvas, MEDIUM2_FONT);
+	gr_string(canvas, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(canvas), "DXX-Rebirth\n");
+	gr_flip();
+	save_screen_shot(0);
+}
+
+static void save_clean_screenshot()
+{
+	game_render_frame_mono(CGameArg.DbgNoDoubleBuffer);
+	save_screen_shot(0);
+}
+
 static window_event_result HandleDemoKey(int key)
 {
 	switch (key) {
@@ -520,21 +537,14 @@ static window_event_result HandleDemoKey(int key)
 		{
 			if (PlayerCfg.PRShot)
 			{
-				gr_set_current_canvas(NULL);
-				auto &canvas = *grd_curcanv;
-				render_frame(canvas, 0);
-				gr_set_curfont(canvas, MEDIUM2_FONT);
-				gr_string(canvas, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(canvas), "DXX-Rebirth\n");
-				gr_flip();
-				save_screen_shot(0);
+				save_pr_screenshot();
 			}
 			else
 			{
 				int old_state;
 				old_state = Newdemo_show_percentage;
 				Newdemo_show_percentage = 0;
-				game_render_frame_mono(CGameArg.DbgNoDoubleBuffer);
-				save_screen_shot(0);
+				save_clean_screenshot();
 				Newdemo_show_percentage = old_state;
 			}
 			break;
@@ -701,17 +711,11 @@ static window_event_result HandleSystemKey(int key)
 		{
 			if (PlayerCfg.PRShot)
 			{
-				gr_set_current_canvas(NULL);
-				render_frame(*grd_curcanv, 0);
-				gr_set_curfont(*grd_curcanv, MEDIUM2_FONT);
-				gr_string(*grd_curcanv, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(*grd_curcanv), "DXX-Rebirth\n");
-				gr_flip();
-				save_screen_shot(0);
+				save_pr_screenshot();
 			}
 			else
 			{
-				game_render_frame_mono(CGameArg.DbgNoDoubleBuffer);
-				save_screen_shot(0);
+				save_clean_screenshot();
 			}
 			break;
 		}
