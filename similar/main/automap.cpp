@@ -1260,15 +1260,13 @@ static void add_one_unknown_edge( automap *am, int va, int vb )
 
 static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 {
-	int 	is_grate;
 	ubyte	color;
 	const auto &segnum = seg;
 	
 	for (unsigned sn = 0; sn < MAX_SIDES_PER_SEGMENT; ++sn)
 	{
 		uint8_t hidden_flag = 0;
-
-		is_grate = 0;
+		uint8_t is_grate = 0;
 		uint8_t no_fade = 0;
 
 		color = 255;
@@ -1305,15 +1303,11 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			switch(w.type)
 			{
 			case WALL_DOOR:
-				if (w.keys == KEY_BLUE) {
+				if ((w.keys == KEY_BLUE && (color = am->wall_door_blue, true)) ||
+					(w.keys == KEY_GOLD && (color = am->wall_door_gold, true)) ||
+					(w.keys == KEY_RED && (color = am->wall_door_red, true)))
+				{
 					no_fade = EF_NO_FADE;
-					color = am->wall_door_blue;
-				} else if (w.keys == KEY_GOLD) {
-					no_fade = EF_NO_FADE;
-					color = am->wall_door_gold;
-				} else if (w.keys == KEY_RED) {
-					no_fade = EF_NO_FADE;
-					color = am->wall_door_red;
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
 					auto connected_seg = seg->children[sn];
 					if (connected_seg != segment_none) {
@@ -1346,9 +1340,7 @@ static void add_segment_edges(automap *am, const vcsegptridx_t seg)
 			case WALL_CLOSED:
 				// Make grates draw properly
 				// NOTE: In original D1, is_grate is 1, hidden_flag not used so grates never fade. I (zico) like this so I leave this alone for now. 
-				if (WALL_IS_DOORWAY(seg,sn) & WID_RENDPAST_FLAG)
-					is_grate = 1;
-				else
+				if (!(is_grate = WALL_IS_DOORWAY(seg, sn) & WID_RENDPAST_FLAG))
 					hidden_flag = EF_SECRET;
 				color = am->wall_normal_color;
 				break;
