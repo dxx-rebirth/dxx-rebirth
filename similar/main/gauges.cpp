@@ -374,7 +374,7 @@ static bool show_cloak_invul_timer()
 #define BASE_WIDTH(G) ((G).get(640, 320))
 #define BASE_HEIGHT(G)	((G).get(480, 200))
 #if DXX_USE_OGL
-#define draw_numerical_display(S,E,G)	draw_numerical_display(S,E)
+#define draw_numerical_display(C,S,E,G)	draw_numerical_display(C,S,E)
 #else
 #define hud_bitblt_free(C,X,Y,W,H,B)	hud_bitblt_free(C,X,Y,B)
 #define hud_bitblt(C,X,Y,B,G)	hud_bitblt(C,X,Y,B)
@@ -2126,26 +2126,26 @@ static const char *get_gauge_width_string(unsigned v)
 	];
 }
 
-static void draw_numerical_display(int shield, int energy, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_numerical_display(grs_canvas &canvas, const int shield, const int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
+	gr_set_curfont(canvas, GAME_FONT);
 #if !DXX_USE_OGL
-	hud_gauge_bitblt(*grd_curcanv, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, GAUGE_NUMERICAL, multires_gauge_graphic);
 #endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
-	const auto a = [](int xb, int v, int y) {
+	const int xb = grd_curscreen->get_screen_width() / 1.951;
+	const auto a = [&canvas, xb](int v, int y) {
 		int w;
-		gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(v), &w, nullptr, nullptr);
-		gr_printf(*grd_curcanv, xb - (w / 2), y, "%d", v);
+		gr_get_string_size(*canvas.cv_font, get_gauge_width_string(v), &w, nullptr, nullptr);
+		gr_printf(canvas, xb - (w / 2), y, "%d", v);
 	};
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(14, 14, 23), -1);
-	const auto xb = grd_curscreen->get_screen_width() / 1.951;
+	gr_set_fontcolor(canvas, BM_XRGB(14, 14, 23), -1);
 	const auto screen_height = grd_curscreen->get_screen_height();
-	a(xb, shield, screen_height / 1.365);
+	a(shield, screen_height / 1.365);
 
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
-	a(xb, energy, screen_height / 1.5);
+	gr_set_fontcolor(canvas, BM_XRGB(25, 18, 6), -1);
+	a(energy, screen_height / 1.5);
 
 	gr_set_current_canvas( NULL );
 }
@@ -3312,7 +3312,6 @@ void render_gauges()
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
 		draw_energy_bar(energy, multires_gauge_graphic);
-		draw_numerical_display(shields, energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
 		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3327,7 +3326,7 @@ void render_gauges()
 			draw_invulnerable_ship(plrobj, multires_gauge_graphic);
 		else
 			draw_shield_bar(*grd_curcanv, shields, multires_gauge_graphic);
-		draw_numerical_display(shields, energy, multires_gauge_graphic);
+		draw_numerical_display(*grd_curcanv, shields, energy, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
 		{
