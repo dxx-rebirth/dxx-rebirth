@@ -2588,6 +2588,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 {
 	auto &player_info = plrobj.ctype.player_info;
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 
 	const auto cmmode = PlayerCfg.CockpitMode[1];
 	const auto t = player_info.invulnerable_time;
@@ -2614,11 +2615,11 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 			x = SHIELD_GAUGE_X;
 			y = SHIELD_GAUGE_Y;
 		}
-		hud_gauge_bitblt(*grd_curcanv, x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
+		hud_gauge_bitblt(canvas, x, y, GAUGE_INVULNERABLE + old_invulnerable_frame, multires_gauge_graphic);
 
                 // Show Invulnerability Timer if enabled
 		if (show_cloak_invul_timer())
-			show_cockpit_cloak_invul_timer(*grd_curcanv, t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y));
+			show_cockpit_cloak_invul_timer(canvas, t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y));
 	}
 	else
 	{
@@ -2626,7 +2627,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 		if (cmmode == CM_STATUS_BAR)
 			sb_draw_shield_bar(shields_ir, multires_gauge_graphic);
 		else
-			draw_shield_bar(*grd_curcanv, shields_ir, multires_gauge_graphic);
+			draw_shield_bar(canvas, shields_ir, multires_gauge_graphic);
 	}
 }
 
