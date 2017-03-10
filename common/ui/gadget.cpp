@@ -232,33 +232,34 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG * dlg,const d_event &event)
 
 	if (dlg->keyboard_focus_gadget != NULL)
 	{
+		[=]{
+		UI_GADGET *UI_GADGET::*when;
 		switch (keypress )
 		{
 			case (KEY_TAB):
-				if ( dlg->keyboard_focus_gadget->when_tab != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_tab;
+				when = &UI_GADGET::when_tab;
 				break;
 			case (KEY_TAB+KEY_SHIFTED):
-				if ( dlg->keyboard_focus_gadget->when_btab != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_btab;
+				when = &UI_GADGET::when_btab;
 				break;
 			case (KEY_UP):
-				if ( dlg->keyboard_focus_gadget->when_up != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_up;
+				when = &UI_GADGET::when_up;
 	  			break;
 			case (KEY_DOWN):
-				if ( dlg->keyboard_focus_gadget->when_down != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_down;
+				when = &UI_GADGET::when_down;
 				break;
 			case (KEY_LEFT):
-				if ( dlg->keyboard_focus_gadget->when_left != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_left;
+				when = &UI_GADGET::when_left;
 				break;
 			case (KEY_RIGHT):
-				if ( dlg->keyboard_focus_gadget->when_right != NULL )
-					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_right;
+				when = &UI_GADGET::when_right;
 				break;
+			default:
+				return;
 		}
+		if (const auto p = dlg->keyboard_focus_gadget->*when)
+			dlg->keyboard_focus_gadget = p;
+		}();
 	}
 
 	window_event_result rval = window_event_result::ignored;
