@@ -885,99 +885,100 @@ static void kconfig_draw(kc_menu *menu)
 	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 	gr_set_current_canvas(window_get_canvas(*menu->wind));
+	auto &canvas = *grd_curcanv;
 
-	const grs_font *save_font = grd_curcanv->cv_font;
-	gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
+	const grs_font *save_font = canvas.cv_font;
+	gr_set_curfont(canvas, MEDIUM3_FONT);
 
 	Assert(!strchr( menu->title, '\n' ));
-	gr_string(*grd_curcanv, 0x8000, fspacy(8), menu->title);
+	gr_string(canvas, 0x8000, fspacy(8), menu->title);
 
-	gr_set_curfont(*grd_curcanv, GAME_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
-	gr_string(*grd_curcanv, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
+	gr_set_curfont(canvas, GAME_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	gr_string(canvas, 0x8000, fspacy(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 
 	if ( menu->items == kc_keyboard )
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 		const uint8_t color = BM_XRGB(31,27,6);
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
 		const auto &&fspacy42 = fspacy(42);
-		gr_rect(*grd_curcanv, fspacx98, fspacy42, fspacx(106), fspacy42, color); // horiz/left
-		gr_rect(*grd_curcanv, fspacx(120), fspacy42, fspacx128, fspacy42, color); // horiz/right
+		gr_rect(canvas, fspacx98, fspacy42, fspacx(106), fspacy42, color); // horiz/left
+		gr_rect(canvas, fspacx(120), fspacy42, fspacx128, fspacy42, color); // horiz/right
 		const auto &&fspacy44 = fspacy(44);
-		gr_rect(*grd_curcanv, fspacx98, fspacy42, fspacx98, fspacy44, color); // vert/left
-		gr_rect(*grd_curcanv, fspacx128, fspacy42, fspacx128, fspacy44, color); // vert/right
+		gr_rect(canvas, fspacx98, fspacy42, fspacx98, fspacy44, color); // vert/left
+		gr_rect(canvas, fspacx128, fspacy42, fspacx128, fspacy44, color); // vert/right
 
 		const auto &&fspacx253 = fspacx(253);
 		const auto &&fspacx283 = fspacx(283);
-		gr_rect(*grd_curcanv, fspacx253, fspacy42, fspacx(261), fspacy42, color); // horiz/left
-		gr_rect(*grd_curcanv, fspacx(275), fspacy42, fspacx283, fspacy42, color); // horiz/right
-		gr_rect(*grd_curcanv, fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
-		gr_rect(*grd_curcanv, fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
+		gr_rect(canvas, fspacx253, fspacy42, fspacx(261), fspacy42, color); // horiz/left
+		gr_rect(canvas, fspacx(275), fspacy42, fspacx283, fspacy42, color); // horiz/right
+		gr_rect(canvas, fspacx253, fspacy42, fspacx253, fspacy44, color); // vert/left
+		gr_rect(canvas, fspacx283, fspacy42, fspacx283, fspacy44, color); // vert/right
 
-		kc_gr_2y_string(*grd_curcanv, "OR", fspacy(40), fspacx(109), fspacx(264));
+		kc_gr_2y_string(canvas, "OR", fspacy(40), fspacx(109), fspacx(264));
 	}
 #if DXX_MAX_JOYSTICKS
 	else if ( menu->items == kc_joystick )
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-		gr_string(*grd_curcanv, 0x8000, fspacy(30), TXT_BUTTONS);
+		gr_string(canvas, 0x8000, fspacy(30), TXT_BUTTONS);
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
 		const auto &&fspacy145 = fspacy(145);
-		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
-		kc_gr_2y_string(*grd_curcanv, TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
-		kc_gr_2y_string(*grd_curcanv, TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
+		gr_string(canvas, 0x8000, fspacy(137), TXT_AXES);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+		kc_gr_2y_string(canvas, TXT_AXIS, fspacy145, fspacx(81), fspacx(230));
+		kc_gr_2y_string(canvas, TXT_INVERT, fspacy145, fspacx(111), fspacx(260));
 #endif
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		const uint8_t color = BM_XRGB(31, 27, 6);
 		const auto &&fspacx115 = fspacx(115);
 		const auto &&fspacy40 = fspacy(40);
-		gr_rect(*grd_curcanv, fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
+		gr_rect(canvas, fspacx115, fspacy40, fspacx(123), fspacy40, color); // horiz/left
 		const auto &&fspacx145 = fspacx(145);
-		gr_rect(*grd_curcanv, fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
+		gr_rect(canvas, fspacx(137), fspacy40, fspacx145, fspacy40, color); // horiz/right
 		const auto &&fspacx261 = fspacx(261);
-		gr_rect(*grd_curcanv, fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
+		gr_rect(canvas, fspacx261, fspacy40, fspacx(269), fspacy40, color); // horiz/left
 		const auto &&fspacx291 = fspacx(291);
-		gr_rect(*grd_curcanv, fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
+		gr_rect(canvas, fspacx(283), fspacy40, fspacx291, fspacy40, color); // horiz/right
 
 		const auto &&fspacy42 = fspacy(42);
-		gr_rect(*grd_curcanv, fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
-		gr_rect(*grd_curcanv, fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
-		gr_rect(*grd_curcanv, fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
-		gr_rect(*grd_curcanv, fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
+		gr_rect(canvas, fspacx115, fspacy40, fspacx115, fspacy42, color); // vert/left
+		gr_rect(canvas, fspacx145, fspacy40, fspacx145, fspacy42, color); // vert/right
+		gr_rect(canvas, fspacx261, fspacy40, fspacx261, fspacy42, color); // vert/left
+		gr_rect(canvas, fspacx291, fspacy40, fspacx291, fspacy42, color); // vert/right
 
 		const auto &&fspacy38 = fspacy(38);
-		kc_gr_2y_string(*grd_curcanv, "OR", fspacy38, fspacx(126), fspacx(272));
+		kc_gr_2y_string(canvas, "OR", fspacy38, fspacx(126), fspacx(272));
 #endif
 	}
 #endif
 	else if ( menu->items == kc_mouse )
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
-		gr_string(*grd_curcanv, 0x8000, fspacy(35), TXT_BUTTONS);
-		gr_string(*grd_curcanv, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
+		gr_string(canvas, 0x8000, fspacy(35), TXT_BUTTONS);
+		gr_string(canvas, 0x8000, fspacy(137), TXT_AXES);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 		const auto &&fspacy145 = fspacy(145);
-		kc_gr_2y_string(*grd_curcanv, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
-		kc_gr_2y_string(*grd_curcanv, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
+		kc_gr_2y_string(canvas, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
+		kc_gr_2y_string(canvas, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
 	else if ( menu->items == kc_rebirth )
 	{
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
 
 		const auto &&fspacy60 = fspacy(60);
-		gr_string(*grd_curcanv, fspacx(152), fspacy60, "KEYBOARD");
+		gr_string(canvas, fspacx(152), fspacy60, "KEYBOARD");
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-		gr_string(*grd_curcanv, fspacx(210), fspacy60, "JOYSTICK");
+		gr_string(canvas, fspacx(210), fspacy60, "JOYSTICK");
 #endif
-		gr_string(*grd_curcanv, fspacx(273), fspacy60, "MOUSE");
+		gr_string(canvas, fspacx(273), fspacy60, "MOUSE");
 	}
 	
 	unsigned citem = menu->citem;
@@ -988,11 +989,11 @@ static void kconfig_draw(kc_menu *menu)
 		if (i == citem)
 			current_label = litem;
 		else if (menu->items[i].w2)
-			kc_drawinput(*grd_curcanv, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
+			kc_drawinput(canvas, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
 		if (next_label)
 			litem += strlen(litem) + 1;
 	}
-	kc_drawinput(*grd_curcanv, menu->items[citem], menu->mitems[citem], 1, current_label);
+	kc_drawinput(canvas, menu->items[citem], menu->mitems[citem], 1, current_label);
 	
 	if (menu->changing)
 	{
@@ -1023,12 +1024,12 @@ static void kconfig_draw(kc_menu *menu)
 				break;
 		}
 		if (s)
-			gr_string(*grd_curcanv, 0x8000, fspacy(INFO_Y), s);
-		kc_drawquestion(*grd_curcanv, menu, &menu->items[menu->citem]);
+			gr_string(canvas, 0x8000, fspacy(INFO_Y), s);
+		kc_drawquestion(canvas, menu, &menu->items[menu->citem]);
 	}
 	
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
-	grd_curcanv->cv_font	= save_font;
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	canvas.cv_font = save_font;
 	gr_set_current_canvas( save_canvas );
 }
 
