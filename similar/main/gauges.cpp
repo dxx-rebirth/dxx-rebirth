@@ -948,7 +948,7 @@ static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, co
 	}
 }
 
-static void hud_show_flag(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG)) {
 		int x, y = GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + 2, icon;
@@ -974,7 +974,7 @@ static void hud_show_flag(const player_info &player_info, const local_multires_g
 		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, x, HUD_SCALE_Y_AR(multires_gauge_graphic, y) + fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
+		hud_bitblt_free(canvas, x, HUD_SCALE_Y_AR(multires_gauge_graphic, y) + fspacy1, HUD_SCALE_X_AR(multires_gauge_graphic, bm.bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, bm.bm_h), bm);
 	}
 }
 #endif
@@ -3257,7 +3257,7 @@ void draw_hud(const object &plrobj)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{
-			hud_show_flag(player_info, multires_gauge_graphic);
+			hud_show_flag(*grd_curcanv, player_info, multires_gauge_graphic);
 			hud_show_orbs(*grd_curcanv, player_info, multires_gauge_graphic);
 		}
 #endif
