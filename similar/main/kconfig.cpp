@@ -663,7 +663,7 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem& mit
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 namespace dsx {
-static void kc_drawquestion( kc_menu *menu, const kc_item *item );
+static void kc_drawquestion(grs_canvas &, kc_menu *menu, const kc_item *item);
 
 }
 #ifdef TABLE_CREATION
@@ -1024,7 +1024,7 @@ static void kconfig_draw(kc_menu *menu)
 		}
 		if (s)
 			gr_string(*grd_curcanv, 0x8000, fspacy(INFO_Y), s);
-		kc_drawquestion( menu, &menu->items[menu->citem] );
+		kc_drawquestion(*grd_curcanv, menu, &menu->items[menu->citem]);
 	}
 	
 	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
@@ -1393,10 +1393,8 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 
 
 namespace dsx {
-static void kc_drawquestion( kc_menu *menu, const kc_item *item )
+static void kc_drawquestion(grs_canvas &canvas, kc_menu *const menu, const kc_item *const item)
 {
-	int x;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	const uint8_t color = gr_fade_table[fades[menu->q_fade_i]][BM_XRGB(21,0,24)];
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1406,19 +1404,19 @@ static void kc_drawquestion( kc_menu *menu, const kc_item *item )
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, "?", &w, &h, nullptr);
+	gr_get_string_size(*canvas.cv_font, "?", &w, &h, nullptr);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
 	const auto &&fspacx_item_xinput = fspacx(item->xinput);
 	const auto &&fspacy_item_y = fspacy(item->y);
-	gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
+	gr_urect(canvas, fspacx_item_xinput, fspacy(item->y - 1), fspacx(item->xinput + item->w2), fspacy_item_y + h, color);
 	
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 
-	x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
+	const auto x = fspacx_item_xinput + ((fspacx(item->w2) - w) / 2);
 
-	gr_string(*grd_curcanv, x, fspacy_item_y, "?", w, h);
+	gr_string(canvas, x, fspacy_item_y, "?", w, h);
 }
 }
 
