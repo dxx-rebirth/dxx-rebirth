@@ -651,7 +651,7 @@ static array<kc_mitem, lengthof(kc_rebirth)> kcm_rebirth;
 
 }
 
-static void kc_drawinput( const kc_item &item, kc_mitem& mitem, int is_current, const char *label );
+static void kc_drawinput(grs_canvas &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem& mitem );
@@ -988,11 +988,11 @@ static void kconfig_draw(kc_menu *menu)
 		if (i == citem)
 			current_label = litem;
 		else if (menu->items[i].w2)
-			kc_drawinput( menu->items[i], menu->mitems[i], 0, next_label ? litem : NULL );
+			kc_drawinput(*grd_curcanv, menu->items[i], menu->mitems[i], 0, next_label ? litem : nullptr);
 		if (next_label)
 			litem += strlen(litem) + 1;
 	}
-	kc_drawinput( menu->items[citem], menu->mitems[citem], 1, current_label );
+	kc_drawinput(*grd_curcanv, menu->items[citem], menu->mitems[citem], 1, current_label);
 	
 	if (menu->changing)
 	{
@@ -1350,7 +1350,7 @@ static void kconfig_sub(const char *litems, const kc_item (&items)[N], array<kc_
 	kconfig_sub(litems, items, mitems.data(), N, title);
 }
 
-static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, const char *label )
+static void kc_drawinput(grs_canvas &canvas, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
 {
 	char buf[10];
 	const char *btext;
@@ -1363,8 +1363,8 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			r = 20 * 2, g = 20 * 2, b = 29 * 2;
 		else
 			r = 15 * 2, g = 15 * 2, b = 24 * 2;
-		gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
-		gr_string(*grd_curcanv, fspacx(item.x), fspacy(item.y), label);
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
+		gr_string(canvas, fspacx(item.x), fspacy(item.y), label);
 	}
 
 	btext = get_item_text(item, mitem, buf);
@@ -1377,17 +1377,17 @@ static void kc_drawinput(const kc_item &item, kc_mitem& mitem, int is_current, c
 			r = 16 * 2, g = 0, b = 19 * 2;
 
 		int x, w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, btext, &w, &h, nullptr);
 		const uint8_t color = gr_find_closest_color(r, g, b);
+		gr_get_string_size(*canvas.cv_font, btext, &w, &h, nullptr);
 		const auto &&fspacx_item_xinput = fspacx(item.xinput);
 		const auto &&fspacy_item_y = fspacy(item.y);
-		gr_urect(*grd_curcanv, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
+		gr_urect(canvas, fspacx_item_xinput, fspacy(item.y - 1), fspacx(item.xinput + item.w2), fspacy_item_y + h, color);
 		
-		gr_set_fontcolor(*grd_curcanv, BM_XRGB(28, 28, 28), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	
-		gr_string(*grd_curcanv, x, fspacy_item_y, btext, w, h);
+		gr_string(canvas, x, fspacy_item_y, btext, w, h);
 	}
 }
 
