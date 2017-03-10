@@ -306,31 +306,33 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 	switch (event.type)
 	{
 		case EVENT_WINDOW_DRAW:
-
+		{
 			gr_set_current_canvas(window_get_canvas(*wind));
+			auto &canvas = *grd_curcanv;
 
 			padnum = ui_pad_get_current();
 			Assert(padnum <= MAX_PAD_ID);
 
 			if (padnum != old_padnum) {
 				old_padnum = padnum;
-				clear_pad_display(*grd_curcanv);
+				clear_pad_display(canvas);
 				//show_all = 1;
 			}
 
 			switch (padnum) {
 				case OBJECT_PAD_ID:			// Object placement
-					info_display_object_placement(*grd_curcanv, show_all);
+					info_display_object_placement(canvas, show_all);
 					break;
 				case SEGSIZE_PAD_ID:			// Segment sizing
-					info_display_segsize(*grd_curcanv, show_all);
+					info_display_segsize(canvas, show_all);
 					break;
 				default:
-					info_display_default(*grd_curcanv, show_all);
+					info_display_default(canvas, show_all);
 					break;
 			}
 			grd_curcanv = save_canvas;
 			return window_event_result::handled;
+		}
 		case EVENT_WINDOW_CLOSE:
 			Pad_info = NULL;
 			break;
