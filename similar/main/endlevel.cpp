@@ -1126,12 +1126,11 @@ static void endlevel_render_mine(fix eye_offset)
 		: Viewer->orient, Render_zoom);
 
 	window_rendered_data window;
-	render_mine(start_seg_num, eye_offset, window);
+	render_mine(*grd_curcanv, start_seg_num, eye_offset, window);
 }
 
 void render_endlevel_frame(fix eye_offset)
 {
-
 	g3_start_frame(*grd_curcanv);
 
 	if (Endlevel_sequence < EL_OUTSIDE)
@@ -1140,9 +1139,7 @@ void render_endlevel_frame(fix eye_offset)
 		render_external_scene(eye_offset);
 
 	g3_end_frame();
-
 }
-
 
 ///////////////////////// copy of flythrough code for endlevel
 

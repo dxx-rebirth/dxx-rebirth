@@ -132,7 +132,7 @@ static void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		window_rendered_data window;
-		render_mine(exit_segnum, 0, window);
+		render_mine(*grd_curcanv, exit_segnum, 0, window);
 		//if (ext_expl_playing)
 		//	draw_fireball(&external_explosion);
 	}

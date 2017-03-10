@@ -1226,7 +1226,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		gr_clear_canvas(canvas, Clear_window_color);
 	}
 
-	render_mine(start_seg_num, eye_offset, window);
+	render_mine(canvas, start_seg_num, eye_offset, window);
 
 	g3_end_frame();
 
@@ -1414,7 +1414,7 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(const vcsegidx_t start_seg_num,fix eye_offset, window_rendered_data &window)
+void render_mine(grs_canvas &canvas, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
 	using std::advance;
 	render_state_t rstate;
@@ -1495,7 +1495,7 @@ void render_mine(const vcsegidx_t start_seg_num,fix eye_offset, window_rendered_
 					else
 					#endif
 						//NOTE LINK TO ABOVE!
-						gr_rect(*grd_curcanv, rw.left, rw.top, rw.right, rw.bot, color);
+						gr_rect(canvas, rw.left, rw.top, rw.right, rw.bot, color);
 				}
 			}
 		}
@@ -1526,8 +1526,8 @@ void render_mine(const vcsegidx_t start_seg_num,fix eye_offset, window_rendered_
 
 			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
-				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+				Window_clip_right = canvas.cv_bitmap.bm_w-1;
+				Window_clip_bot   = canvas.cv_bitmap.bm_h-1;
 			}
 
 			{
@@ -1645,8 +1645,8 @@ void render_mine(const vcsegidx_t start_seg_num,fix eye_offset, window_rendered_
 				continue;
 			{		//reset for objects
 				Window_clip_left  = Window_clip_top = 0;
-				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+				Window_clip_right = canvas.cv_bitmap.bm_w-1;
+				Window_clip_bot   = canvas.cv_bitmap.bm_h-1;
 			}
 
 			{
