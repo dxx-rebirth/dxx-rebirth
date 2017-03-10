@@ -103,15 +103,13 @@ static window_event_result ui_dialog_handler(window *wind,const d_event &event, 
 
 	switch (event.type)
 	{
+		case EVENT_IDLE:
+			timer_delay2(50);
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:
-			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			return ui_dialog_do_gadgets(dlg, event);
-		case EVENT_IDLE:
-			timer_delay2(50);
 			return ui_dialog_do_gadgets(dlg, event);
 		case EVENT_WINDOW_DRAW:
 		{
