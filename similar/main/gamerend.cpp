@@ -839,15 +839,6 @@ static void update_cockpits()
 
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
-			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
-			bm=&GameBitmaps[cockpit_bitmap[mode].index];
-			gr_set_current_canvas(NULL);
-#if DXX_USE_OGL
-			ogl_ubitmapm_cs(*grd_curcanv, 0, 0, -1, -1, *bm, 255, F1_0);
-#else
-			gr_ubitmapm(*grd_curcanv, 0, 0, *bm);
-#endif
-			break;
 		case CM_REAR_VIEW:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
@@ -874,11 +865,8 @@ static void update_cockpits()
 			break;
 	
 		case CM_LETTERBOX:
-			gr_set_current_canvas(NULL);
 			break;
-
 	}
-
 	gr_set_current_canvas(NULL);
 
 	if (PlayerCfg.CockpitMode[1] != last_drawn_cockpit)
