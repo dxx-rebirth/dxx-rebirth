@@ -68,6 +68,7 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 		const grs_font * temp_font;
 
 		gr_set_current_canvas( &grd_curscreen->sc_canvas );
+		auto &canvas = *grd_curcanv;
 		temp_font = grd_curscreen->sc_canvas.cv_font;
 		
 		if (grd_curscreen->get_screen_width() < 640) {
@@ -75,10 +76,10 @@ static window_event_result messagebox_handler(UI_DIALOG *dlg,const d_event &even
 		}
 		
 		ui_dialog_set_current_canvas(dlg);
-		ui_string_centered(*grd_curcanv, m->width / 2, m->text_y, m->text);
+		ui_string_centered(canvas, m->width / 2, m->text_y, m->text);
 		
-		Hline(*grd_curcanv, 1, m->width - 2, m->line_y + 1, CGREY);
-		Hline(*grd_curcanv, 2, m->width - 2, m->line_y + 2, CBRIGHT);
+		Hline(canvas, 1, m->width - 2, m->line_y + 1, CGREY);
+		Hline(canvas, 2, m->width - 2, m->line_y + 2, CBRIGHT);
 
 		grd_curscreen->sc_canvas.cv_font = temp_font;
 		
@@ -114,19 +115,21 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	button_width = button_height = 0;
 
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
+	auto &canvas = *grd_curcanv;
+	auto &cv_font = *canvas.cv_font;
 	w = grd_curscreen->get_screen_width();
 	h = grd_curscreen->get_screen_height();
 
 	for (uint_fast32_t i=0; i < Button.count(); i++ )
 	{
 		int width, height;
-		ui_get_button_size(*grd_curcanv->cv_font, Button.string(i), width, height);
+		ui_get_button_size(cv_font, Button.string(i), width, height);
 
 		if ( width > button_width ) button_width = width;
 		if ( height > button_height ) button_height = height;
 	}
 
-	gr_get_string_size(*grd_curcanv->cv_font, text, &text_width, &text_height, &avg);
+	gr_get_string_size(cv_font, text, &text_width, &text_height, &avg);
 
 	unsigned width, height;
 	width = button_width*Button.count();
