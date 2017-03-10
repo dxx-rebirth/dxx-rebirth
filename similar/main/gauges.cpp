@@ -2409,24 +2409,22 @@ static void draw_static(int win, const local_multires_gauge_graphic multires_gau
 
 
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 	auto &bmp = GameBitmaps[vc->frames[framenum].index];
 	auto &box = gauge_boxes[boxofs+win];
 #if !DXX_USE_OGL
 	for (x = box.left; x < box.right; x += bmp.bm_w)
 		for (y = box.top; y < box.bot; y += bmp.bm_h)
-			gr_bitmap(*grd_curcanv, x, y, bmp);
+			gr_bitmap(canvas, x, y, bmp);
 #else
 	if (multires_gauge_graphic.is_hires())
 	{
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, box.left), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.top), bmp, multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, box.right - bmp.bm_w), HUD_SCALE_Y(multires_gauge_graphic, box.bot - bmp.bm_h), bmp, multires_gauge_graphic);
 	}
-
 #endif
-
-	gr_set_current_canvas(NULL);
 }
 #endif
 
