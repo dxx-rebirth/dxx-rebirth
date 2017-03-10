@@ -896,16 +896,17 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	int x,y;
 	
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(*grd_curcanv, MEDIUM1_FONT);
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(*grd_curcanv->cv_font, msg, &w, &h, nullptr);
+	auto &canvas = *grd_curcanv;
+	gr_set_curfont(canvas, MEDIUM1_FONT);
+	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
+	gr_get_string_size(*canvas.cv_font, msg, &w, &h, nullptr);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 	
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 	
-	gr_string(*grd_curcanv, 0x8000, y, msg, w, h);
+	gr_string(canvas, 0x8000, y, msg, w, h);
 	
 	// If we haven't drawn behind it, need to flip
 	if (!RenderFlag)
