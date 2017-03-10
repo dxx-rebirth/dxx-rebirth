@@ -53,11 +53,12 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 #endif
 
 	gr_set_current_canvas( listbox->canvas );
+	auto &canvas = *grd_curcanv;
 	
 	w = listbox->width;
 	h = listbox->height;
 
-	gr_rect(*grd_curcanv, 0, 0, w-1, h-1, CBLACK);
+	gr_rect(canvas, 0, 0, w-1, h-1, CBLACK);
 	
 	gr_draw_sunken_border( -2, -2, w+listbox->scrollbar->width+4, h+1);
 	
@@ -73,30 +74,30 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 		uint8_t color = (i == listbox->current_item)
 			? CGREY
 			: CBLACK;
-		gr_rect(*grd_curcanv, x, y, listbox->width - 1, y + h - 1, color);
+		gr_rect(canvas, x, y, listbox->width - 1, y + h - 1, color);
 
 		if (i !=listbox->current_item)
 		{
 			if ((listbox->current_item == -1) && (dlg->keyboard_focus_gadget == listbox) && (i == listbox->first_item)  )
-				gr_set_fontcolor(*grd_curcanv, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, -1);
 			else
-				gr_set_fontcolor(*grd_curcanv, CWHITE, -1);
+				gr_set_fontcolor(canvas, CWHITE, -1);
 		}
 		else
 		{
 			if (dlg->keyboard_focus_gadget == listbox)
-				gr_set_fontcolor(*grd_curcanv, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, -1);
 			else
-				gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
+				gr_set_fontcolor(canvas, CBLACK, -1);
 		}
-		gr_get_string_size(*grd_curcanv->cv_font, listbox->list[i], &w, &h, nullptr);
-		gr_string(*grd_curcanv, x + 2, y, listbox->list[i], w, h);
+		gr_get_string_size(*canvas.cv_font, listbox->list[i], &w, &h, nullptr);
+		gr_string(canvas, x + 2, y, listbox->list[i], w, h);
 		y += h;
 	}
 
 	if (stop < listbox->num_items_displayed-1 )
 	{
-		gr_rect(*grd_curcanv, x, y, listbox->width-1, listbox->height-1, CBLACK);
+		gr_rect(canvas, x, y, listbox->width-1, listbox->height-1, CBLACK);
 	}
 
 	//gr_ubox( -1, -1, listbox->width, listbox->height);
