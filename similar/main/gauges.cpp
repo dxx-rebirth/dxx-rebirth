@@ -2033,18 +2033,18 @@ static void draw_shield_bar(grs_canvas &canvas, const int shield, const local_mu
 	hud_gauge_bitblt(canvas, SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS + 9 - bm_num, multires_gauge_graphic);
 }
 
-static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
+static void show_cockpit_cloak_invul_timer(grs_canvas &canvas, const fix64 effect_end, const int y)
 {
 	char countdown[8];
 	int ow, oh;
 	snprintf(countdown, sizeof(countdown), "%lu", static_cast<unsigned long>(effect_end / F1_0));
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(31, 31, 31), -1);
-	gr_get_string_size(*grd_curcanv->cv_font, countdown, &ow, &oh, nullptr);
+	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
+	gr_get_string_size(*canvas.cv_font, countdown, &ow, &oh, nullptr);
 	const int x = grd_curscreen->get_screen_width() / (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR
 		? 2.266
 		: 1.951
 	);
-	gr_string(*grd_curcanv, x - (ow / 2), y, countdown, ow, oh);
+	gr_string(canvas, x - (ow / 2), y, countdown, ow, oh);
 }
 
 #define CLOAK_FADE_WAIT_TIME  0x400
@@ -2111,7 +2111,7 @@ static void draw_player_ship(const player_info &player_info, const int cloak_sta
 
         // Show Cloak Timer if enabled
 	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
-		show_cockpit_cloak_invul_timer(player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y + (bm.bm_h / 2)));
+		show_cockpit_cloak_invul_timer(*grd_curcanv, player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y + (bm.bm_h / 2)));
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -2618,10 +2618,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 
                 // Show Invulnerability Timer if enabled
 		if (show_cloak_invul_timer())
-                {
-			show_cockpit_cloak_invul_timer(t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y));
-                }
-
+			show_cockpit_cloak_invul_timer(*grd_curcanv, t + INVULNERABLE_TIME_MAX - GameTime64, HUD_SCALE_Y(multires_gauge_graphic, y));
 	}
 	else
 	{
