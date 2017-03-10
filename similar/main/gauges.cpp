@@ -1809,7 +1809,7 @@ static void cockpit_decode_alpha(grs_bitmap *const bm, const local_multires_gaug
 }
 
 namespace dsx {
-static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_wbu_overlay(grs_canvas &canvas, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned cockpit_idx = PlayerCfg.CockpitMode[1];
@@ -1822,9 +1822,9 @@ static void draw_wbu_overlay(const local_multires_gauge_graphic multires_gauge_g
 	cockpit_decode_alpha(bm, multires_gauge_graphic);
 
 	if (WinBoxOverlay[0])
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, PRIMARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, PRIMARY_W_BOX_TOP - 2), *WinBoxOverlay[0].get(), multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, PRIMARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, PRIMARY_W_BOX_TOP - 2), *WinBoxOverlay[0].get(), multires_gauge_graphic);
 	if (WinBoxOverlay[1])
-		hud_bitblt(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SECONDARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, SECONDARY_W_BOX_TOP - 2), *WinBoxOverlay[1].get(), multires_gauge_graphic);
+		hud_bitblt(canvas, HUD_SCALE_X(multires_gauge_graphic, SECONDARY_W_BOX_LEFT - 2), HUD_SCALE_Y(multires_gauge_graphic, SECONDARY_W_BOX_TOP - 2), *WinBoxOverlay[1].get(), multires_gauge_graphic);
 }
 }
 
@@ -3343,7 +3343,7 @@ void render_gauges()
 		draw_keys_state(player_info.powerup_flags, multires_gauge_graphic).draw_all_cockpit_keys();
 
 		show_homing_warning(*grd_curcanv, player_info.homing_object_dist, multires_gauge_graphic);
-		draw_wbu_overlay(multires_gauge_graphic);
+		draw_wbu_overlay(*grd_curcanv, multires_gauge_graphic);
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 
@@ -3542,7 +3542,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 	old_weapon[win] = -1;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-		draw_wbu_overlay(multires_gauge_graphic);
+		draw_wbu_overlay(*grd_curcanv, multires_gauge_graphic);
 
 abort:;
 
