@@ -1175,44 +1175,33 @@ void draw_all_edges(automap *am)
 
 
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
-static int automap_find_edge(automap *am, int v0,int v1,Edge_info *&edge_ptr)
+static std::pair<Edge_info &, unsigned> automap_find_edge(automap *const am, const unsigned v0, const unsigned v1)
 {
 	long vv, evv;
 	int hash, oldhash;
-	int ret, ev0, ev1;
 
 	vv = (v1<<16) + v0;
 
 	oldhash = hash = ((v0*5+v1) % am->max_edges);
-
-	ret = -1;
-
-	while (ret==-1) {
-		ev0 = am->edges[hash].verts[0];
-		ev1 = am->edges[hash].verts[1];
+	for (;;)
+	{
+		auto &e = am->edges[hash];
+		const auto ev0 = e.verts[0];
+		const auto ev1 = e.verts[1];
 		evv = (ev1<<16)+ev0;
-		if (am->edges[hash].num_faces == 0 ) ret=0;
-		else if (evv == vv) ret=1;
+		if (e.num_faces == 0)
+			return {e, hash};
+		else if (evv == vv)
+			return {e, UINT32_MAX};
 		else {
 			if (++hash==am->max_edges) hash=0;
 			if (hash==oldhash) Error("Edge list full!");
 		}
 	}
-
-	edge_ptr = &am->edges[hash];
-
-	if (ret == 0)
-		return -1;
-	else
-		return hash;
-
 }
 
 static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint8_t color, const unsigned side, const segnum_t segnum, const uint8_t flags)
 {
-	int found;
-	Edge_info *e;
-
 	if ( am->num_edges >= am->max_edges)	{
 		// GET JOHN! (And tell him that his
 		// MAX_EDGES_FROM_VERTS formula is hosed.)
@@ -1227,9 +1216,11 @@ static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint
 	if ( va > vb )	{
 		std::swap(va, vb);
 	}
-	found = automap_find_edge(am,va,vb,e);
+	const auto &&ef = automap_find_edge(am, va, vb);
+	const auto e = &ef.first;
 		
-	if (found == -1) {
+	if (ef.second != UINT32_MAX)
+	{
 		e->verts[0] = va;
 		e->verts[1] = vb;
 		e->color = color;
@@ -1238,8 +1229,8 @@ static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint
 		e->sides[0] = side;
 		e->segnum[0] = segnum;
 		//Edge_used_list[am->num_edges] = e-am->edges;
-		if ( (e-am->edges.get()) > am->highest_edge_index )
-			am->highest_edge_index = e - am->edges.get();
+		if (am->highest_edge_index < ef.second)
+			am->highest_edge_index = ef.second;
 		am->num_edges++;
 	} else {
 		if ( color != am->wall_normal_color )
@@ -1260,16 +1251,13 @@ static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint
 
 static void add_one_unknown_edge( automap *am, int va, int vb )
 {
-	int found;
-	Edge_info *e;
-
 	if ( va > vb )	{
 		std::swap(va, vb);
 	}
 
-	found = automap_find_edge(am,va,vb,e);
-	if (found != -1) 	
-		e->flags|=EF_FRONTIER;		// Mark as a border edge
+	const auto &&ef = automap_find_edge(am, va, vb);
+	if (ef.second == UINT32_MAX)
+		ef.first.flags |= EF_FRONTIER;		// Mark as a border edge
 }
 
 static void add_segment_edges(automap *am, const vcsegptridx_t seg)
