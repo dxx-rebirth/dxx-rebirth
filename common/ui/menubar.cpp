@@ -82,11 +82,12 @@ static void item_show( MENU * menu, int n )
 	ITEM * item = &menu->Item[n];
 	
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 	// If this is a seperator, then draw it.
 	if ( item->Text[0] == '-'  )
 	{
 		const uint8_t color = CBLACK;
-		gr_urect(*grd_curcanv, item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
+		gr_urect(canvas, item->x, item->y+item->h/2, item->x+item->w-1, item->y+item->h/2, color);
 		return;
 	}	
 
@@ -95,29 +96,29 @@ static void item_show( MENU * menu, int n )
 		if ( menu != &Menu[0] )
 		{
 			const uint8_t color = CBLACK;
-			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
-	 	gr_set_fontcolor(*grd_curcanv, CWHITE, CBLACK);
+		gr_set_fontcolor(canvas, CWHITE, CBLACK);
 	}else {
 		if ( menu != &Menu[0] )
 		{
 			const uint8_t color = CGREY;
-			gr_urect(*grd_curcanv, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
+			gr_urect(canvas, item->x+1, item->y+1, item->x+menu->w-2, item->y+item->h-2, color);
 		}
-		gr_set_fontcolor(*grd_curcanv, CBLACK, CGREY);
+		gr_set_fontcolor(canvas, CBLACK, CGREY);
 	}
 
 	if ( menu != &Menu[0] )
 	{
 		if ( menu->Active)
-			gr_ustring(*grd_curcanv, item->x + 1, item->y + 1, item->Text.get());
+			gr_ustring(canvas, item->x + 1, item->y + 1, item->Text.get());
 		else
-			gr_ustring(*grd_curcanv, item->x + 1, item->y + 1, item->InactiveText.get());
+			gr_ustring(canvas, item->x + 1, item->y + 1, item->InactiveText.get());
 	} else {
 		if ( menu->Active)
-			gr_ustring(*grd_curcanv, item->x, item->y, item->Text.get());
+			gr_ustring(canvas, item->x, item->y, item->Text.get());
 		else
-			gr_ustring(*grd_curcanv, item->x, item->y, item->InactiveText.get());
+			gr_ustring(canvas, item->x, item->y, item->InactiveText.get());
 	}
 }
 
@@ -126,12 +127,13 @@ static void menu_draw(MENU *menu)
 	int i;
 	
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 
 	// Draw the menu background
-	gr_urect(*grd_curcanv, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
+	gr_urect(canvas, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CGREY);
 	if ( menu != &Menu[0] )
 	{
-		gr_ubox(*grd_curcanv, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CBLACK);
+		gr_ubox(canvas, menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1, CBLACK);
 	}
 	
 	// Draw the items
@@ -756,7 +758,8 @@ int menubar_init( const char * file )
 		Warning("Could not find %s\n", file);
 		return 0;
 	}
-	
+
+	auto &canvas = *grd_curcanv;
 	PHYSFSX_gets_line_t<200> buffer;
 	while ( PHYSFSX_fgets( buffer, infile) != NULL )
 	{
@@ -828,7 +831,7 @@ int menubar_init( const char * file )
 		{
 			w = 1; h = 3;
 		} else {
-			gr_get_string_size(*grd_curcanv->cv_font, item.Text.get(), &w, &h, nullptr);
+			gr_get_string_size(*canvas.cv_font, item.Text.get(), &w, &h, nullptr);
 			w += 2;
 			h += 2;
 		}
