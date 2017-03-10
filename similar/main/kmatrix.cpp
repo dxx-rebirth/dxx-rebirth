@@ -187,7 +187,8 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	playernum_array_t sorted;
 
 	gr_set_current_canvas(NULL);
-	show_fullscr(*grd_curcanv, km->background);
+	auto &canvas = *grd_curcanv;
+	show_fullscr(canvas, km->background);
 	
 	if (Game_mode & GM_MULTI_COOP)
 	{
@@ -196,7 +197,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 	else
 	{
 		multi_sort_kill_list();
-		gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
+		gr_set_curfont(canvas, MEDIUM3_FONT);
 
 		const auto title =
 #if defined(DXX_BUILD_DESCENT_II)
@@ -207,20 +208,20 @@ static void kmatrix_redraw(kmatrix_screen *km)
 				:
 #endif
 				TXT_KILL_MATRIX_TITLE;
-		gr_string(*grd_curcanv, 0x8000, FSPACY(10), title);
+		gr_string(canvas, 0x8000, FSPACY(10), title);
 
-		gr_set_curfont(*grd_curcanv, GAME_FONT);
+		gr_set_curfont(canvas, GAME_FONT);
 		multi_get_kill_list(sorted);
 		kmatrix_draw_names(sorted);
 
 		for (int i=0; i<N_players; i++ )
 		{
 			if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
-				gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(31, 31, 31),-1);
+				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);
 			else
 			{
 				const auto color = get_player_or_team_color(sorted[i]);
-				gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
+				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
 
 			kmatrix_draw_item( i, sorted );
