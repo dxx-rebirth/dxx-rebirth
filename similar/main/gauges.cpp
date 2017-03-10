@@ -1892,7 +1892,7 @@ static void draw_energy_bar(int energy, const local_multires_gauge_graphic multi
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void draw_afterburner_bar(int afterburner, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_afterburner_bar(grs_canvas &canvas, const int afterburner, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	struct lr
 	{
@@ -2006,7 +2006,7 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 	const auto &&table = multires_gauge_graphic.is_hires()
 		? std::make_pair(afterburner_bar_table_hires.data(), afterburner_bar_table_hires.size())
 		: std::make_pair(afterburner_bar_table.data(), afterburner_bar_table.size());
-	hud_gauge_bitblt(*grd_curcanv, afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER, multires_gauge_graphic);
 	const unsigned not_afterburner = fixmul(f1_0 - afterburner, table.second);
 	if (not_afterburner > table.second)
 		return;
@@ -2020,7 +2020,7 @@ static void draw_afterburner_bar(int afterburner, const local_multires_gauge_gra
 		const int right = HUD_SCALE_X(multires_gauge_graphic, afterburner_gauge_x + ab.r + 1);
 		for (int i = HUD_SCALE_Y(multires_gauge_graphic, y), j = HUD_SCALE_Y(multires_gauge_graphic, ++y); i < j; ++i)
 		{
-			gr_rect (*grd_curcanv, left, base_top + i, right, base_bottom + i, color);
+			gr_rect (canvas, left, base_top + i, right, base_bottom + i, color);
 		}
 	}
 	gr_set_current_canvas( NULL );
@@ -3321,7 +3321,7 @@ void render_gauges()
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
-		draw_afterburner_bar(Afterburner_charge, multires_gauge_graphic);
+		draw_afterburner_bar(*grd_curcanv, Afterburner_charge, multires_gauge_graphic);
 #endif
 		show_bomb_count(*grd_curcanv, player_info, HUD_SCALE_X(multires_gauge_graphic, BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(player_info, cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y, multires_gauge_graphic);
