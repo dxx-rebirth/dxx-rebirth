@@ -237,8 +237,9 @@ void init_cockpit()
 			const unsigned y = (gsm_height - h) / 2;
 
 			const uint8_t color = 0;
-			gr_rect(*grd_curcanv, x, 0, w, gsm_height - h, color);
-			gr_rect(*grd_curcanv, x, gsm_height - h, w, gsm_height, color);
+			auto &canvas = *grd_curcanv;
+			gr_rect(canvas, x, 0, w, gsm_height - h, color);
+			gr_rect(canvas, x, gsm_height - h, w, gsm_height, color);
 
 			game_init_render_sub_buffers( x, y, w, h );
 			break;
