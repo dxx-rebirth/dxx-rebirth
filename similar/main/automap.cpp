@@ -133,8 +133,8 @@ struct automap : ignore_window_pointer_t
 	
 	// Edge list variables
 	int			num_edges;
-	int			max_edges; //set each frame
-	int			highest_edge_index;
+	unsigned max_edges; //set each frame
+	unsigned end_valid_edges;
 	std::unique_ptr<Edge_info[]>		edges;
 	std::unique_ptr<Edge_info *[]>			drawingListBright;
 	
@@ -1004,7 +1004,7 @@ void do_automap()
 	am->max_segments_away = 0;
 	am->segment_limit = 1;
 	am->num_edges = 0;
-	am->highest_edge_index = -1;
+	am->end_valid_edges = 0;
 	const auto max_edges = Num_segments * 12;
 	am->max_edges = max_edges;
 	am->edges = make_unique<Edge_info[]>(max_edges);
@@ -1068,15 +1068,13 @@ void do_automap()
 
 void adjust_segment_limit(automap *am, int SegmentLimit)
 {
-	int i;
-	Edge_info * e;
-
 	const auto &depth_array = am->depth_array;
 	const auto predicate = [&depth_array, SegmentLimit](const segnum_t &e1) {
 		return depth_array[e1] <= SegmentLimit;
 	};
-	for (i=0; i<=am->highest_edge_index; i++ )	{
-		e = &am->edges[i];
+	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->end_valid_edges))
+	{
+		const auto e = &i;
 		// Unchecked for speed
 		const auto &&range = unchecked_partial_range(e->segnum.begin(), e->num_faces);
 		if (std::any_of(range.begin(), range.end(), predicate))
@@ -1088,15 +1086,15 @@ void adjust_segment_limit(automap *am, int SegmentLimit)
 
 void draw_all_edges(automap *am)	
 {
-	int i,j;
+	int j;
 	unsigned nbright = 0;
 	ubyte nfacing,nnfacing;
 	fix distance;
 	fix min_distance = INT32_MAX;
 
-	for (i=0; i<=am->highest_edge_index; i++ )	{
-		//e = &am->edges[Edge_used_list[i]];
-		const auto e = &am->edges[i];
+	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->end_valid_edges))
+	{
+		const auto e = &i;
 		if (!(e->flags & EF_USED)) continue;
 
 		if ( e->flags & EF_TOO_FAR) continue;
@@ -1228,10 +1226,10 @@ static void add_one_edge(automap *const am, unsigned va, unsigned vb, const uint
 		e->flags = EF_USED | EF_DEFINING;			// Assume a normal line
 		e->sides[0] = side;
 		e->segnum[0] = segnum;
-		//Edge_used_list[am->num_edges] = e-am->edges;
-		if (am->highest_edge_index < ef.second)
-			am->highest_edge_index = ef.second;
 		am->num_edges++;
+		const auto i = ef.second + 1;
+		if (am->end_valid_edges < i)
+			am->end_valid_edges = i;
 	} else {
 		if ( color != am->wall_normal_color )
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1414,16 +1412,16 @@ static void add_unknown_segment_edges(automap *am, const vcsegptridx_t seg)
 
 void automap_build_edge_list(automap *am, int add_all_edges)
 {	
-	int	i,e1,e2;
-	Edge_info * e;
+	int	e1,e2;
 
 	// clear edge list
-	for (i=0; i<am->max_edges; i++) {
-		am->edges[i].num_faces = 0;
-		am->edges[i].flags = 0;
+	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->max_edges))
+	{
+		i.num_faces = 0;
+		i.flags = 0;
 	}
 	am->num_edges = 0;
-	am->highest_edge_index = -1;
+	am->end_valid_edges = 0;
 
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
@@ -1459,8 +1457,9 @@ void automap_build_edge_list(automap *am, int add_all_edges)
 	}
 
 	// Find unnecessary lines (These are lines that don't have to be drawn because they have small curvature)
-	for (i=0; i<=am->highest_edge_index; i++ )	{
-		e = &am->edges[i];
+	range_for (auto &i, unchecked_partial_range(am->edges.get(), am->end_valid_edges))
+	{
+		const auto e = &i;
 		if (!(e->flags&EF_USED)) continue;
 
 		for (e1=0; e1<e->num_faces; e1++ )	{
