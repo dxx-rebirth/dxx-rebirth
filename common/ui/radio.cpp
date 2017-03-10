@@ -48,19 +48,20 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 		radio->status = 0;
 
 		gr_set_current_canvas( radio->canvas );
-		gr_set_fontcolor(*grd_curcanv, dlg->keyboard_focus_gadget == radio ? CRED : CBLACK, -1);
+		auto &canvas = *grd_curcanv;
+		gr_set_fontcolor(canvas, dlg->keyboard_focus_gadget == radio ? CRED : CBLACK, -1);
 
 		unsigned bias;
 		if (radio->position == 0 )
 		{
-			ui_draw_box_out(*grd_curcanv, 0, 0, radio->width-1, radio->height-1);
+			ui_draw_box_out(canvas, 0, 0, radio->width-1, radio->height-1);
 			bias = 0;
 		} else {
-			ui_draw_box_in(*grd_curcanv, 0, 0, radio->width-1, radio->height-1);
+			ui_draw_box_in(canvas, 0, 0, radio->width-1, radio->height-1);
 			bias = 1;
 		}
-		ui_string_centered(*grd_curcanv, Middle(radio->width) + bias, Middle(radio->height) + bias, radio->flag ? "O" : " ");
-		gr_ustring(*grd_curcanv, radio->width + 4, 2, radio->text.get());
+		ui_string_centered(canvas, Middle(radio->width) + bias, Middle(radio->height) + bias, radio->flag ? "O" : " ");
+		gr_ustring(canvas, radio->width + 4, 2, radio->text.get());
 	}
 }
 
