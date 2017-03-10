@@ -39,33 +39,34 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 #endif
 	{
 		gr_set_current_canvas( inputbox->canvas );
+		auto &canvas = *grd_curcanv;
 
-		gr_rect(*grd_curcanv, 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
+		gr_rect(canvas, 0, 0, inputbox->width-1, inputbox->height-1, CBLACK);
 		
 		int w, h;
-		gr_get_string_size(*grd_curcanv->cv_font, inputbox->text.get(), &w, &h, nullptr);
+		gr_get_string_size(*canvas.cv_font, inputbox->text.get(), &w, &h, nullptr);
 		if (dlg->keyboard_focus_gadget == inputbox)
 		{
 			if (inputbox->first_time)
 			{
-				gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
-				gr_rect(*grd_curcanv, 2, 2, 2 + w, 2 + h, CRED);
+				gr_set_fontcolor(canvas, CBLACK, -1);
+				gr_rect(canvas, 2, 2, 2 + w, 2 + h, CRED);
 			}
 			else
-				gr_set_fontcolor(*grd_curcanv, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, -1);
 		}
 		else
-			gr_set_fontcolor(*grd_curcanv, CWHITE, -1);
+			gr_set_fontcolor(canvas, CWHITE, -1);
 
 		inputbox->status = 0;
 
-		gr_string(*grd_curcanv, 2, 2, inputbox->text.get(), w, h);
+		gr_string(canvas, 2, 2, inputbox->text.get(), w, h);
 
 		if (dlg->keyboard_focus_gadget == inputbox  && !inputbox->first_time )
 		{
 			const uint8_t cred = CRED;
-			Vline(*grd_curcanv, 2, inputbox->height - 3, 3 + w, cred);
-			Vline(*grd_curcanv, 2, inputbox->height - 3, 4 + w, cred);
+			Vline(canvas, 2, inputbox->height - 3, 3 + w, cred);
+			Vline(canvas, 2, inputbox->height - 3, 4 + w, cred);
 		}
 	}
 }
