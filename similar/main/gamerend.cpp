@@ -724,7 +724,7 @@ void game_render_frame_mono()
 
 		window_rendered_data window;
 		update_rendered_data(window, vobjptr(Viewer), 0);
-		render_frame(0, window);
+		render_frame(*grd_curcanv, 0, window);
 
 		wake_up_rendered_objects(vobjptr(Viewer), window);
 		show_HUD_names();
@@ -759,7 +759,7 @@ void game_render_frame_mono()
 #if defined(DXX_BUILD_DESCENT_II)
 		update_rendered_data(window, vobjptr(Viewer), Rear_view);
 #endif
-		render_frame(0, window);
+		render_frame(*grd_curcanv, 0, window);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)

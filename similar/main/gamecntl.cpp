@@ -521,7 +521,7 @@ static window_event_result HandleDemoKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0);
+				render_frame(*grd_curcanv, 0);
 				gr_set_curfont(*grd_curcanv, MEDIUM2_FONT);
 				gr_string(*grd_curcanv, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(*grd_curcanv), "DXX-Rebirth\n");
 				gr_flip();
@@ -701,7 +701,7 @@ static window_event_result HandleSystemKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0);
+				render_frame(*grd_curcanv, 0);
 				gr_set_curfont(*grd_curcanv, MEDIUM2_FONT);
 				gr_string(*grd_curcanv, SWIDTH - FSPACX(92), SHEIGHT - LINE_SPACING(*grd_curcanv), "DXX-Rebirth\n");
 				gr_flip();

@@ -125,7 +125,7 @@ static inline g3s_codes rotate_list(const array<unsigned, N> &a)
 
 #ifdef dsx
 namespace dsx {
-void render_frame(fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
+void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 
 void render_mine(vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 
@@ -133,10 +133,10 @@ void render_mine(vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data 
 void update_rendered_data(window_rendered_data &window, vobjptr_t viewer, int rear_view_flag);
 #endif
 
-static inline void render_frame(fix eye_offset)
+static inline void render_frame(grs_canvas &canvas, fix eye_offset)
 {
 	window_rendered_data window;
-	render_frame(eye_offset, window);
+	render_frame(canvas, eye_offset, window);
 }
 }
 #endif

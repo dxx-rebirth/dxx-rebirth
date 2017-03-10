@@ -987,7 +987,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0);
+		render_frame(*grd_curcanv, 0);
 
 		{
 #if DXX_USE_OGL

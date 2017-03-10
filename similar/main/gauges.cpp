@@ -3477,7 +3477,7 @@ void do_cockpit_window_view(const int win, const vobjptr_t viewer, const int rea
 
 	gr_set_current_canvas(&window_canv);
 
-	render_frame(0, window);
+	render_frame(*grd_curcanv, 0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer->type == OBJ_WEAPON) {

@@ -1175,7 +1175,7 @@ int Rear_view=0;
 
 namespace dsx {
 //renders onto current canvas
-void render_frame(fix eye_offset, window_rendered_data &window)
+void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &window)
 {
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
@@ -1194,7 +1194,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 
 	start_lighting_frame(vobjptr(Viewer));		//this is for ugly light-smoothing hack
   
-	g3_start_frame(*grd_curcanv);
+	g3_start_frame(canvas);
 
 	Viewer_eye = Viewer->pos;
 
@@ -1223,7 +1223,7 @@ void render_frame(fix eye_offset, window_rendered_data &window)
 	if (Clear_window == 1) {
 		if (Clear_window_color == -1)
 			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
-		gr_clear_canvas(*grd_curcanv, Clear_window_color);
+		gr_clear_canvas(canvas, Clear_window_color);
 	}
 
 	render_mine(start_seg_num, eye_offset, window);
@@ -1689,7 +1689,7 @@ int find_seg_side_face(short x,short y,segnum_t &seg,objnum_t &obj,int &side,int
 	else {
 		gr_set_current_canvas(Canv_editor_game);
 	}
-	render_frame(0);
+	render_frame(*grd_curcanv, 0);
 
 	_search_mode = 0;
 
