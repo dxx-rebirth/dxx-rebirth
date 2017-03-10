@@ -54,7 +54,8 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		icon->status = 0;
 
 		gr_set_current_canvas( icon->canvas );
-		gr_get_string_size(*grd_curcanv->cv_font, icon->text.get(), &width, &height, nullptr);
+		auto &canvas = *grd_curcanv;
+		gr_get_string_size(*canvas.cv_font, icon->text.get(), &width, &height, nullptr);
 	
 		x = ((icon->width-1)/2)-((width-1)/2);
 		y = ((icon->height-1)/2)-((height-1)/2);
@@ -62,23 +63,23 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		if (icon->position==1 )
 		{
 			// Draw pressed
-			ui_draw_box_in(*grd_curcanv, 0, 0, icon->width, icon->height);
+			ui_draw_box_in(canvas, 0, 0, icon->width, icon->height);
 			x += 2; y += 2;
 		}
 		else if (icon->flag)
 		{
 			// Draw part out
-			ui_draw_box_in1(*grd_curcanv, 0, 0, icon->width, icon->height);
+			ui_draw_box_in1(canvas, 0, 0, icon->width, icon->height);
 			x += 1; y += 1;	
 		}
 		else
 		{
 			// Draw released!
-			ui_draw_box_out(*grd_curcanv, 0, 0, icon->width, icon->height);
+			ui_draw_box_out(canvas, 0, 0, icon->width, icon->height);
 		}
 	
-		gr_set_fontcolor(*grd_curcanv, CBLACK, -1);
-		gr_ustring(*grd_curcanv, x, y, icon->text.get());
+		gr_set_fontcolor(canvas, CBLACK, -1);
+		gr_ustring(canvas, x, y, icon->text.get());
 	}
 }
 
