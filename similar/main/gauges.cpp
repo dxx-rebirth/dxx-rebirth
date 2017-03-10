@@ -875,7 +875,7 @@ static void hud_show_homing_warning(grs_canvas &canvas, const int homing_object_
 	}
 }
 
-static void hud_show_keys(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void hud_show_keys(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto player_key_flags = player_info.powerup_flags;
 	if (!(player_key_flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
@@ -902,18 +902,18 @@ static void hud_show_keys(const player_info &player_info, const local_multires_g
 
 	const auto &&fspacx2 = FSPACX(2);
 	if (player_key_flags & PLAYER_FLAGS_BLUE_KEY)
-		hud_bitblt_free(*grd_curcanv, fspacx2, y, HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, blue->bm_h), blue);
+		hud_bitblt_free(canvas, fspacx2, y, HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, blue->bm_h), blue);
 
 	if (!(player_key_flags & (PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)))
 		return;
 	const gauge_key yellow(KEY_ICON_YELLOW, multires_gauge_graphic);
 	if (player_key_flags & PLAYER_FLAGS_GOLD_KEY)
-		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + 3), y, HUD_SCALE_X_AR(multires_gauge_graphic, yellow->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, yellow->bm_h), yellow);
+		hud_bitblt_free(canvas, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + 3), y, HUD_SCALE_X_AR(multires_gauge_graphic, yellow->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, yellow->bm_h), yellow);
 
 	if (player_key_flags & PLAYER_FLAGS_RED_KEY)
 	{
 		const gauge_key red(KEY_ICON_RED, multires_gauge_graphic);
-		hud_bitblt_free(*grd_curcanv, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(multires_gauge_graphic, red->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, red->bm_h), red);
+		hud_bitblt_free(canvas, fspacx2 + HUD_SCALE_X_AR(multires_gauge_graphic, blue->bm_w + yellow->bm_w + 6), y, HUD_SCALE_X_AR(multires_gauge_graphic, red->bm_w), HUD_SCALE_Y_AR(multires_gauge_graphic, red->bm_h), red);
 	}
 }
 
@@ -3242,7 +3242,7 @@ void draw_hud(const object &plrobj)
 #if defined(DXX_BUILD_DESCENT_I)
 			if (!PCSharePig)
 #endif
-			hud_show_keys(player_info, multires_gauge_graphic);
+			hud_show_keys(*grd_curcanv, player_info, multires_gauge_graphic);
 			hud_show_cloak_invuln(*grd_curcanv, player_info);
 
 			if (Newdemo_state==ND_STATE_RECORDING)
