@@ -853,7 +853,7 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 	}
 }
 
-static int get_item_height(const kc_item &item, const kc_mitem &mitem)
+static int get_item_height(const grs_font &cv_font, const kc_item &item, const kc_mitem &mitem)
 {
 	int h;
 	char buf[10];
@@ -862,7 +862,7 @@ static int get_item_height(const kc_item &item, const kc_mitem &mitem)
 	btext = get_item_text(item, mitem, buf);
 	if (!btext)
 		return 0;
-	gr_get_string_size(*grd_curcanv->cv_font, btext, nullptr, &h, nullptr);
+	gr_get_string_size(cv_font, btext, nullptr, &h, nullptr);
 	return h;
 }
 
@@ -1073,7 +1073,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
 		for (unsigned i=0; i<menu->nitems; i++ )	{
-			item_height = get_item_height( menu->items[i], menu->mitems[i] );
+			item_height = get_item_height(*grd_curcanv->cv_font, menu->items[i], menu->mitems[i]);
 			x1 = grd_curcanv->cv_bitmap.bm_x + fspacx(menu->items[i].xinput);
 			y1 = grd_curcanv->cv_bitmap.bm_y + fspacy(menu->items[i].y);
 			if (in_bounds(mx, my, x1, fspacx(menu->items[i].w2), y1, item_height)) {
@@ -1088,7 +1088,7 @@ static window_event_result kconfig_mouse(window *wind,const d_event &event, kc_m
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
-		item_height = get_item_height( menu->items[menu->citem], menu->mitems[menu->citem] );
+		item_height = get_item_height(*grd_curcanv->cv_font, menu->items[menu->citem], menu->mitems[menu->citem]);
 		const auto &&fspacx = FSPACX();
 		x1 = grd_curcanv->cv_bitmap.bm_x + fspacx(menu->items[menu->citem].xinput);
 		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
