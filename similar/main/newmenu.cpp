@@ -1196,22 +1196,23 @@ static void newmenu_create_structure( newmenu *menu )
 	save_canvas = grd_curcanv;
 
 	gr_set_current_canvas(NULL);
+	auto &canvas = *grd_curcanv;
 
-	const grs_font *save_font = grd_curcanv->cv_font;
+	const grs_font *save_font = canvas.cv_font;
 
 	tw = th = 0;
 
 	if ( menu->title )	{
-		gr_set_curfont(*grd_curcanv, HUGE_FONT);
+		gr_set_curfont(canvas, HUGE_FONT);
 		int string_width, string_height;
-		gr_get_string_size(*grd_curcanv->cv_font, menu->title, &string_width, &string_height, nullptr);
+		gr_get_string_size(*canvas.cv_font, menu->title, &string_width, &string_height, nullptr);
 		tw = string_width;
 		th = string_height;
 	}
 	if ( menu->subtitle )	{
-		gr_set_curfont(*grd_curcanv, MEDIUM3_FONT);
+		gr_set_curfont(canvas, MEDIUM3_FONT);
 		int string_width, string_height;
-		gr_get_string_size(*grd_curcanv->cv_font, menu->subtitle, &string_width, &string_height, nullptr);
+		gr_get_string_size(*canvas.cv_font, menu->subtitle, &string_width, &string_height, nullptr);
 		if (string_width > tw )
 			tw = string_width;
 		th += string_height;
@@ -1219,7 +1220,7 @@ static void newmenu_create_structure( newmenu *menu )
 
 	th += FSPACY(5);		//put some space between titles & body
 
-	gr_set_curfont(*grd_curcanv, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
+	gr_set_curfont(canvas, menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);
 
 	menu->w = aw = 0;
 	menu->h = th;
@@ -1232,7 +1233,7 @@ static void newmenu_create_structure( newmenu *menu )
 	{
 		i.y = menu->h;
 		int string_width, string_height, average_width;
-		gr_get_string_size(*grd_curcanv->cv_font, i.text, &string_width, &string_height, &average_width);
+		gr_get_string_size(*canvas.cv_font, i.text, &string_width, &string_height, &average_width);
 		i.right_offset = 0;
 
 		i.saved_text[0] = '\0';
@@ -1248,7 +1249,7 @@ static void newmenu_create_structure( newmenu *menu )
 				index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_MIDDLE);
 			}
 			index += snprintf(i.saved_text.data() + index, i.saved_text.size() - index, "%s", SLIDER_RIGHT);
-			gr_get_string_size(*grd_curcanv->cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, i.saved_text.data(), &w1, nullptr, nullptr);
 			string_width += w1 + aw;
 		}
 
@@ -1261,9 +1262,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(*grd_curcanv->cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, NORMAL_CHECK_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(*grd_curcanv->cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, CHECKED_CHECK_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1272,9 +1273,9 @@ static void newmenu_create_structure( newmenu *menu )
 		{
 			int w1;
 			nothers++;
-			gr_get_string_size(*grd_curcanv->cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, NORMAL_RADIO_BOX, &w1, nullptr, nullptr);
 			i.right_offset = w1;
-			gr_get_string_size(*grd_curcanv->cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, CHECKED_RADIO_BOX, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1286,10 +1287,10 @@ static void newmenu_create_structure( newmenu *menu )
 			nothers++;
 			auto &number = i.number();
 			snprintf(test_text, sizeof(test_text), "%d", number.max_value);
-			gr_get_string_size(*grd_curcanv->cv_font, test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, test_text, &w1, nullptr, nullptr);
 			i.right_offset = w1;
 			snprintf(test_text, sizeof(test_text), "%d", number.min_value);
-			gr_get_string_size(*grd_curcanv->cv_font, test_text, &w1, nullptr, nullptr);
+			gr_get_string_size(*canvas.cv_font, test_text, &w1, nullptr, nullptr);
 			if (w1 > i.right_offset)
 				i.right_offset = w1;
 		}
@@ -1327,7 +1328,7 @@ static void newmenu_create_structure( newmenu *menu )
 	if (menu->nitems > menu->max_on_menu)
 	{
 		menu->is_scroll_box=1;
-		menu->h = th + (LINE_SPACING(*grd_curcanv) * menu->max_on_menu);
+		menu->h = th + (LINE_SPACING(canvas) * menu->max_on_menu);
 		menu->max_displayable=menu->max_on_menu;
 
 		// if our last citem was > menu->max_on_menu, make sure we re-scroll when we call this menu again
@@ -1419,7 +1420,7 @@ static void newmenu_create_structure( newmenu *menu )
 	menu->sheight = SHEIGHT;
 	menu->fntscalex = FNTScaleX;
 	menu->fntscaley = FNTScaleY;
-	gr_set_curfont(*grd_curcanv, save_font);
+	gr_set_curfont(canvas, save_font);
 	gr_set_current_canvas(save_canvas);
 }
 
