@@ -171,7 +171,7 @@ static void info_display_object_placement(grs_canvas &canvas, int show_all)
 }
 
 //	---------------------------------------------------------------------------------------------------
-static void info_display_segsize(int show_all)
+static void info_display_segsize(grs_canvas &canvas, int show_all)
 {
 	static	int	old_SegSizeMode;
 	if (init_info | show_all) {
@@ -189,8 +189,8 @@ static void info_display_segsize(int show_all)
 			default:
 				Error("Illegal value for SegSizeMode in info.c/info_display_segsize\n");
 		}
-		gr_uprintf(*grd_curcanv, 0, 0, "Mode: %s\n", name);
 		old_SegSizeMode = SegSizeMode;
+		gr_uprintf(canvas, 0, 0, "Mode: %s\n", name);
 	}
 
 }
@@ -324,7 +324,7 @@ static window_event_result info_display_all(window *wind,const d_event &event, c
 					info_display_object_placement(*grd_curcanv, show_all);
 					break;
 				case SEGSIZE_PAD_ID:			// Segment sizing
-					info_display_segsize(show_all);
+					info_display_segsize(*grd_curcanv, show_all);
 					break;
 				default:
 					info_display_default(show_all);
