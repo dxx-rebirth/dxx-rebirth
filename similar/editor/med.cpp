@@ -350,7 +350,7 @@ static void medkey_init()
 static int padnum=0;
 //@@short camera_objnum;			//a camera for viewing. Who knows, might become handy
 
-static void init_editor_screen();
+static void init_editor_screen(grs_canvas &canvas);
 static void gamestate_restore_check();
 static window_event_result editor_handler(UI_DIALOG *dlg,const d_event &event, unused_ui_userdata_t *data);
 static void close_editor();
@@ -441,7 +441,7 @@ void init_editor()
 	gr_init_sub_canvas(_canv_editor, grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	Canv_editor = &_canv_editor;
 	gr_set_current_canvas( Canv_editor );
-	init_editor_screen(); // load the main editor dialog
+	init_editor_screen(*grd_curcanv); // load the main editor dialog
 	gr_set_current_canvas( NULL );
 	gr_set_curfont(*grd_curcanv, editor_font);
 	
@@ -735,7 +735,7 @@ static int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 int editor_screen_open = 0;
 
 //setup the editors windows, canvases, gadgets, etc.
-void init_editor_screen()
+static void init_editor_screen(grs_canvas &canvas)
 {	
 //	grs_bitmap * bmp;
 
@@ -762,8 +762,8 @@ void init_editor_screen()
 	CBRIGHT = gr_find_closest_color( 60, 60, 60 );
 	CRED = gr_find_closest_color( 63, 0, 0 );
 
-	gr_set_curfont(*grd_curcanv, editor_font);
-	gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
+	gr_set_curfont(canvas, editor_font);
+	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
 	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, unused_ui_userdata );
 
@@ -820,7 +820,7 @@ void init_editor_screen()
 		i++;		e.pad_goto[i] = ui_add_gadget_button( EditorWindow, PAD_X+16+(i+2)*PAD_WIDTH1, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "TT",  med_keypad_goto_8 );
 	}
 
-	gr_set_curfont(*grd_curcanv, editor_font);
+	gr_set_curfont(canvas, editor_font);
 	menubar_show();
 
 	// INIT TEXTURE STUFF
