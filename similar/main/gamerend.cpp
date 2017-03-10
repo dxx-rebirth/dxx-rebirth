@@ -727,7 +727,7 @@ void game_render_frame_mono()
 		render_frame(*grd_curcanv, 0, window);
 
 		wake_up_rendered_objects(vobjptr(Viewer), window);
-		show_HUD_names();
+		show_HUD_names(*grd_curcanv);
 
 		Viewer = viewer_save;
 

@@ -62,7 +62,7 @@ void close_gauges(void);
 #ifdef dsx
 namespace dsx {
 void show_reticle(const player_info &, int reticle_type, int secondary_display);
-void show_HUD_names();
+void show_HUD_names(grs_canvas &);
 }
 #endif
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);

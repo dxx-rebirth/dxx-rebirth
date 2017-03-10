@@ -3036,7 +3036,7 @@ static int see_object(const vcobjptridx_t objnum)
 
 //show names of teammates & players carrying flags
 namespace dsx {
-void show_HUD_names()
+void show_HUD_names(grs_canvas &canvas)
 {
 	for (playernum_t pnum=0;pnum<N_players;pnum++)
 	{
@@ -3089,7 +3089,7 @@ void show_HUD_names()
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
-					dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(grd_curcanv->cv_bitmap.bm_h) / 2, player_point.p3_z);
+					dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					/* Set the text to show */
 					const char *name = NULL;
@@ -3109,12 +3109,12 @@ void show_HUD_names()
 					if (written)
 					{
 						int w, h;
-						gr_get_string_size(*grd_curcanv->cv_font, s, &w, &h, nullptr);
+						gr_get_string_size(*canvas.cv_font, s, &w, &h, nullptr);
 						const auto color = get_player_or_team_color(pnum);
-						gr_set_fontcolor(*grd_curcanv, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
+						gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
 						x1 = f2i(x)-w/2;
 						y1 = f2i(y-dy)+FSPACY(1);
-						gr_string (*grd_curcanv, x1, y1, s, w, h);
+						gr_string(canvas, x1, y1, s, w, h);
 					}
 
 					/* Draw box on HUD */
@@ -3146,14 +3146,14 @@ void show_HUD_names()
 							}
 						const uint8_t color = BM_XRGB(c.r, c.g, c.b);
 
-						gr_line(*grd_curcanv, x + dx - w, y - dy, x + dx, y - dy, color);
-						gr_line(*grd_curcanv, x + dx, y - dy, x + dx, y - dy + h, color);
-						gr_line(*grd_curcanv, x - dx, y - dy, x - dx + w, y - dy, color);
-						gr_line(*grd_curcanv, x - dx, y - dy, x - dx, y - dy + h, color);
-						gr_line(*grd_curcanv, x + dx - w, y + dy, x + dx, y + dy, color);
-						gr_line(*grd_curcanv, x + dx, y + dy, x + dx, y + dy - h, color);
-						gr_line(*grd_curcanv, x - dx, y + dy, x - dx + w, y + dy, color);
-						gr_line(*grd_curcanv, x - dx, y + dy, x - dx, y + dy - h, color);
+						gr_line(canvas, x + dx - w, y - dy, x + dx, y - dy, color);
+						gr_line(canvas, x + dx, y - dy, x + dx, y - dy + h, color);
+						gr_line(canvas, x - dx, y - dy, x - dx + w, y - dy, color);
+						gr_line(canvas, x - dx, y - dy, x - dx, y - dy + h, color);
+						gr_line(canvas, x + dx - w, y + dy, x + dx, y + dy, color);
+						gr_line(canvas, x + dx, y + dy, x + dx, y + dy - h, color);
+						gr_line(canvas, x - dx, y + dy, x - dx + w, y + dy, color);
+						gr_line(canvas, x - dx, y + dy, x - dx, y + dy - h, color);
 					}
 				}
 			}
@@ -3228,7 +3228,7 @@ void draw_hud(const object &plrobj)
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 	{
-		show_HUD_names();
+		show_HUD_names(*grd_curcanv);
 
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 			hud_show_homing_warning(*grd_curcanv, player_info.homing_object_dist);
