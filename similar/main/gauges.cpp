@@ -2027,10 +2027,10 @@ static void draw_afterburner_bar(grs_canvas &canvas, const int afterburner, cons
 }
 #endif
 
-static void draw_shield_bar(int shield, const local_multires_gauge_graphic multires_gauge_graphic)
+static void draw_shield_bar(grs_canvas &canvas, const int shield, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int bm_num = shield>=100?9:(shield / 10);
-	hud_gauge_bitblt(*grd_curcanv, SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS+9-bm_num, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, SHIELD_GAUGE_X, SHIELD_GAUGE_Y, GAUGE_SHIELDS + 9 - bm_num, multires_gauge_graphic);
 }
 
 static void show_cockpit_cloak_invul_timer(const fix64 effect_end, int y)
@@ -2629,7 +2629,7 @@ static void draw_invulnerable_ship(const object &plrobj, const local_multires_ga
 		if (cmmode == CM_STATUS_BAR)
 			sb_draw_shield_bar(shields_ir, multires_gauge_graphic);
 		else
-			draw_shield_bar(shields_ir, multires_gauge_graphic);
+			draw_shield_bar(*grd_curcanv, shields_ir, multires_gauge_graphic);
 	}
 }
 
@@ -3329,7 +3329,7 @@ void render_gauges()
 		if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship(plrobj, multires_gauge_graphic);
 		else
-			draw_shield_bar(shields, multires_gauge_graphic);
+			draw_shield_bar(*grd_curcanv, shields, multires_gauge_graphic);
 		draw_numerical_display(shields, energy, multires_gauge_graphic);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
