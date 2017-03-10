@@ -299,15 +299,15 @@ static window_event_result show_pause_message(window *, const d_event &event, co
 			int y;
 
 			gr_set_current_canvas(NULL);
-			gr_set_curfont(*grd_curcanv, GAME_FONT);
-
-			gr_get_string_size(*grd_curcanv->cv_font, msg, nullptr, &h, nullptr);
+			auto &canvas = *grd_curcanv;
+			gr_set_curfont(canvas, GAME_FONT);
+			gr_get_string_size(*canvas.cv_font, msg, nullptr, &h, nullptr);
 
 			y = (grd_curscreen->get_screen_height() - h) / 2;
 
-			gr_set_fontcolor(*grd_curcanv, 255, -1);
+			gr_set_fontcolor(canvas, 255, -1);
 
-			gr_ustring(*grd_curcanv, 0x8000, y, msg);
+			gr_ustring(canvas, 0x8000, y, msg);
 			break;
 		}
 
