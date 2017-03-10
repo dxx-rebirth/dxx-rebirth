@@ -2525,11 +2525,11 @@ static void sb_draw_energy_bar(grs_canvas &canvas, const int energy, const local
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static void sb_draw_afterburner(const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_draw_afterburner(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	auto &ab_str = "AB";
 
-	hud_gauge_bitblt(*grd_curcanv, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER, multires_gauge_graphic);
 
 	const auto color = 0;
 	const int erase_x0 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X));
@@ -2538,7 +2538,7 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 	for (int i = HUD_SCALE_Y(multires_gauge_graphic, fixmul((f1_0 - Afterburner_charge), SB_AFTERBURNER_GAUGE_H)); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
-		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
+		gr_uline(canvas, erase_x0, erase_y, erase_x1, erase_y, color);
 	}
 
 	//draw legend
@@ -2547,11 +2547,11 @@ static void sb_draw_afterburner(const player_info &player_info, const local_mult
 		r = 90, g = b = 0;
 	else
 		r = g = b = 24;
-	gr_set_fontcolor(*grd_curcanv, gr_find_closest_color(r, g, b), -1);
+	gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
 
 	int w, h;
-	gr_get_string_size(*grd_curcanv->cv_font, ab_str, &w, &h, nullptr);
-	gr_string(*grd_curcanv, HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
+	gr_get_string_size(*canvas.cv_font, ab_str, &w, &h, nullptr);
+	gr_string(canvas, HUD_SCALE_X(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W + 1) / 2) - (w / 2), HUD_SCALE_Y(multires_gauge_graphic, SB_AFTERBURNER_GAUGE_Y + (SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB", w, h);
 	gr_set_current_canvas(NULL);
 }
 #endif
@@ -3352,7 +3352,7 @@ void render_gauges()
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
-		sb_draw_afterburner(player_info, multires_gauge_graphic);
+		sb_draw_afterburner(*grd_curcanv, player_info, multires_gauge_graphic);
 		if (PlayerCfg.HudMode == HudType::Standard && weapon_box_user[1] == WBU_WEAPON)
 #endif
 			show_bomb_count(*grd_curcanv, player_info, HUD_SCALE_X(multires_gauge_graphic, SB_BOMB_COUNT_X), HUD_SCALE_Y(multires_gauge_graphic, SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
