@@ -2495,11 +2495,11 @@ static void draw_weapon_boxes(const player_info &player_info, const local_multir
 	draw_weapon_box1(player_info, multires_gauge_graphic);
 }
 
-static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic multires_gauge_graphic)
+static void sb_draw_energy_bar(grs_canvas &canvas, const int energy, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	int ew;
 
-	hud_gauge_bitblt(*grd_curcanv, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
+	hud_gauge_bitblt(canvas, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_GAUGE_ENERGY, multires_gauge_graphic);
 
 	const auto color = 0;
 	const int erase_x0 = i2f(HUD_SCALE_X(multires_gauge_graphic, SB_ENERGY_GAUGE_X));
@@ -2508,19 +2508,18 @@ static void sb_draw_energy_bar(int energy, const local_multires_gauge_graphic mu
 	for (int i = HUD_SCALE_Y(multires_gauge_graphic, (100 - energy) * SB_ENERGY_GAUGE_H / 100); i-- > 0;)
 	{
 		const int erase_y = i2f(erase_y_base + i);
-		gr_uline(*grd_curcanv, erase_x0, erase_y, erase_x1, erase_y, color);
+		gr_uline(canvas, erase_x0, erase_y, erase_x1, erase_y, color);
 	}
 
 	//draw numbers
-	gr_set_fontcolor(*grd_curcanv, BM_XRGB(25, 18, 6), -1);
-	gr_get_string_size(*grd_curcanv->cv_font, get_gauge_width_string(energy), &ew, nullptr, nullptr);
+	gr_set_fontcolor(canvas, BM_XRGB(25, 18, 6), -1);
+	gr_get_string_size(*canvas.cv_font, get_gauge_width_string(energy), &ew, nullptr, nullptr);
 #if defined(DXX_BUILD_DESCENT_I)
 	unsigned y = SB_ENERGY_NUM_Y;
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
 #endif
-	gr_printf(*grd_curcanv, (grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(multires_gauge_graphic, y), "%d", energy);
-
+	gr_printf(canvas, (grd_curscreen->get_screen_width() / 3) - (ew / 2), HUD_SCALE_Y(multires_gauge_graphic, y), "%d", energy);
 	gr_set_current_canvas(NULL);
 }
 }
@@ -3347,7 +3346,7 @@ void render_gauges()
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
-		sb_draw_energy_bar(energy, multires_gauge_graphic);
+		sb_draw_energy_bar(*grd_curcanv, energy, multires_gauge_graphic);
 #if defined(DXX_BUILD_DESCENT_I)
 		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
