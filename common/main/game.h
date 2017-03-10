@@ -168,6 +168,7 @@ void reset_time();       // called when starting level
 namespace dcx {
 
 // If automap_flag == 1, then call automap routine to write message.
+void write_bmp(const char *savename, unsigned w, unsigned h);
 extern void save_screen_shot(int automap_flag);
 
 }

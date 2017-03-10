@@ -512,50 +512,60 @@ void move_player_2_segment(const vsegptridx_t seg,int side)
 
 }
 
-#if !DXX_USE_OGL
 namespace dcx {
 void save_screen_shot(int automap_flag)
 {
-	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
-	static int savenum=0;
-	grs_canvas *save_canv;
-        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
-	palette_array_t pal;
-
-	pause_game_world_time p;
+	static unsigned savenum;
+	char savename[FILENAME_LEN + sizeof(SCRNS_DIR)];
+#if DXX_USE_OGL
+	if (!CGameArg.DbgGlReadPixelsOk)
+	{
+		if (!automap_flag)
+			HUD_init_message_literal(HM_DEFAULT, "glReadPixels not supported on your configuration");
+		return;
+	}
+#define DXX_SCREENSHOT_FILE_EXTENSION	"tga"
+#else
+#define DXX_SCREENSHOT_FILE_EXTENSION	"pcx"
+#endif
 
 	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
+
+	pause_game_world_time p;
+	do
+	{
+		snprintf(savename, sizeof(savename), "%sscrn%04u." DXX_SCREENSHOT_FILE_EXTENSION, SCRNS_DIR, savenum++);
+#undef DXX_SCREENSHOT_FILE_EXTENSION
+		if (savenum > 9999)
+			break; // that's enough I think.
+	} while (PHYSFSX_exists(savename,0));
+	if (!automap_flag)
+		HUD_init_message(HM_DEFAULT, "%s '%s'", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
+#if DXX_USE_OGL
+#if !DXX_USE_OGLES
+	glReadBuffer(GL_FRONT);
+#endif
+
+	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
+#else
+	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
+	grs_canvas *save_canv;
+	palette_array_t pal;
 
 	save_canv = grd_curcanv;
 	auto temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
 	gr_ubitmap(*grd_curcanv, screen_canv->cv_bitmap);
-
-	gr_set_current_canvas(save_canv);
-
-	do
-	{
-		snprintf(savename, sizeof(savename), "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
-                if (savenum >= 9999) break; // that's enough I think.
-	} while (PHYSFSX_exists(savename,0));
-
 	gr_set_current_canvas(NULL);
-
-	if (!automap_flag)
-		HUD_init_message(HM_DEFAULT, "%s '%s", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
 	gr_set_current_canvas(screen_canv);
 	gr_ubitmap(*grd_curcanv, temp_canv->cv_bitmap);
 	gr_set_current_canvas(save_canv);
-}
-
-}
 #endif
-
-namespace dcx {
+}
 
 //initialize flying
 void fly_init(object_base &obj)

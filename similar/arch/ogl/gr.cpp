@@ -1016,7 +1016,7 @@ struct TGA_header
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-static void write_bmp(char *savename,unsigned w,unsigned h)
+void write_bmp(const char *const savename, const unsigned w, const unsigned h)
 {
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
@@ -1065,39 +1065,6 @@ static void write_bmp(char *savename,unsigned w,unsigned h)
 	TGA.header[5] = 0;
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf, buffer_size_TGA * sizeof(unsigned char),1);
-}
-
-void save_screen_shot(int automap_flag)
-{
-	static int savenum=0;
-	char savename[13+sizeof(SCRNS_DIR)];
-
-	if (!CGameArg.DbgGlReadPixelsOk)
-	{
-		if (!automap_flag)
-			HUD_init_message_literal(HM_DEFAULT, "glReadPixels not supported on your configuration");
-		return;
-	}
-
-	pause_game_world_time p;
-
-	if (!PHYSFSX_exists(SCRNS_DIR,0))
-		PHYSFS_mkdir(SCRNS_DIR); //try making directory
-
-	do
-	{
-		snprintf(savename, sizeof(savename), "%sscrn%04d.tga", SCRNS_DIR, savenum++);
-                if (savenum >= 9999) break; // that's enough I think.
-	} while (PHYSFSX_exists(savename,0));
-
-	if (!automap_flag)
-		HUD_init_message(HM_DEFAULT, "%s '%s'", TXT_DUMPING_SCREEN, &savename[sizeof(SCRNS_DIR) - 1]);
-
-#if !DXX_USE_OGLES
-	glReadBuffer(GL_FRONT);
-#endif
-
-	write_bmp(savename, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 }
 
 }
