@@ -348,7 +348,7 @@ static void nm_rstring(grs_canvas &canvas, int w1, int x, const int y, const cha
 	gr_string(canvas, x - w, y, s, w, h);
 }
 
-static void nm_string_inputbox( int w, int x, int y, const char * text, int current )
+static void nm_string_inputbox(grs_canvas &canvas, const int w, const int x, const int y, const char *text, const int current)
 {
 	int w1;
 
@@ -356,7 +356,7 @@ static void nm_string_inputbox( int w, int x, int y, const char * text, int curr
 	if (strlen(text)>75)
 		text+=strlen(text)-75;
 	while( *text )	{
-		gr_get_string_size(*grd_curcanv->cv_font, text, &w1, nullptr, nullptr);
+		gr_get_string_size(*canvas.cv_font, text, &w1, nullptr, nullptr);
 		if ( w1 > w-FSPACX(10) )
 			text++;
 		else
@@ -365,10 +365,10 @@ static void nm_string_inputbox( int w, int x, int y, const char * text, int curr
 	if ( *text == 0 )
 		w1 = 0;
 
-	nm_string_black(*grd_curcanv, w, x, y, text);
+	nm_string_black(canvas, w, x, y, text);
 
 	if ( current && timer_query() & 0x8000 )
-		gr_string(*grd_curcanv, x+w1, y, CURSOR_STRING);
+		gr_string(canvas, x + w1, y, CURSOR_STRING);
 }
 
 static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_flag, int scroll_offset )
@@ -418,11 +418,11 @@ static void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_fl
 			{
 				nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
 			} else {
-				nm_string_inputbox(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
+				nm_string_inputbox(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			}
 			break;
 		case NM_TYPE_INPUT:
-			nm_string_inputbox(item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
+			nm_string_inputbox(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, is_current);
 			break;
 		case NM_TYPE_CHECK:
 			nm_string(*grd_curcanv, item->w, item->x, item->y - (line_spacing * scroll_offset), item->text, tabs_flag);
