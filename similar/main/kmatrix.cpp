@@ -119,7 +119,7 @@ static void kmatrix_draw_item(grs_canvas &canvas, const int i, const playernum_a
 	gr_printf(canvas, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
-static void kmatrix_draw_names(playernum_array_t &sorted)
+static void kmatrix_draw_names(grs_canvas &canvas, const playernum_array_t &sorted)
 {
 	int x;
 
@@ -139,13 +139,13 @@ static void kmatrix_draw_names(playernum_array_t &sorted)
 			const auto &rgb = player_rgb[color];
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
-		gr_set_fontcolor(*grd_curcanv, c, -1);
-		gr_printf(*grd_curcanv, x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
+		gr_set_fontcolor(canvas, c, -1);
+		gr_printf(canvas, x, fspacy(40), "%c", Players[sorted[j]].callsign[0u]);
 	}
 
 	x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(*grd_curcanv, rgb31, -1);
-	gr_string(*grd_curcanv, x, fspacy(40), "K/E");
+	gr_set_fontcolor(canvas, rgb31, -1);
+	gr_string(canvas, x, fspacy(40), "K/E");
 }
 
 static void kmatrix_draw_coop_names(playernum_array_t &)
@@ -212,7 +212,7 @@ static void kmatrix_redraw(kmatrix_screen *km)
 
 		gr_set_curfont(canvas, GAME_FONT);
 		multi_get_kill_list(sorted);
-		kmatrix_draw_names(sorted);
+		kmatrix_draw_names(canvas, sorted);
 
 		for (int i=0; i<N_players; i++ )
 		{
